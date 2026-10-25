@@ -1,0 +1,391 @@
+# Adverse event slice
+
+## Basis and evidence boundary
+
+This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`. The revision applies the PM review of 21ad15d2 and merges main cdc677b0bc2c1abff17d04e3138d8bd5e9dcc4b4. The legacy inventory reads `repos/biomcp` revision `4050fdc7dbdf4d713d94cf02a39a147b863665be`; it does not execute that binary. This proposal follows steps 1–4 of [slices](../slices.md). It changes no product code. The PM reviews this branch before filing implementation tickets.
+
+Shared types cannot be accepted before exact-request native captures. The following recipe documents the completed separate-delegate capture; it authorizes no repeat. The investigation author made no provider API requests, product executions, cold/warm timings, output token measurements or legacy comparison runs. A separate delegate ran the bounded native recipe; its verified receipts and findings are recorded below. Documentation fields are questions for capture, never proof that all public records carry them.
+
+## Executed bounded native capture recipe
+
+Run through `pm job` from an exact pushed revision. Retain recipe, exact URL or POST body, start/end times, status, headers, unchanged bytes, SHA-256, byte size and classification for every attempted request. Store raw evidence on Yellow outside Git. Send each listed request once, sequentially, with zero retries, redirects, fallback spellings, extra pages, refreshes or health probes. A failed row stays failed; a 429 stops that source's remaining rows. Never provoke a provider failure. Local synthetic controls are separate evidence. Use HTTPS verification, 30-second request deadlines, 8 MiB openFDA/body cap and 2 MiB WONDER/body cap. These are capture limits, not measured costs.
+
+Maximum provider budget: **34 requests**: 21 FAERS base rows, four device rows, three conditional exact report/identity rows, two CDC files, three WONDER rows, and one reserved exact FAERS aggregation query defined below. No request replaces a skipped row. No account creation, keys borrowed from another user, production data or licensed curator answers. openFDA runs keyless under its documented public quota. WONDER is keyless, includes `accept_datause_restrictions=true`, observes its [data use restrictions](https://wonder.cdc.gov/datause.html) and keeps the existing legacy gap of at least 16 seconds between requests. No re-identification or suppressed-cell reconstruction.
+
+F01–F20 and F23 use `GET https://api.fda.gov/drug/event.json`, `limit=5`, `skip=0`, `sort=receivedate:desc`, except where stated. Encode the exact decoded expressions below. `N(x)` means `(patient.drug.openfda.generic_name:"x" OR patient.drug.openfda.brand_name:"x" OR patient.drug.medicinalproduct:"x")`. Expand it literally in the recipe and retain the final expression. These are explicit text searches, never identity joins.
+
+| Row | Exact search or operation | Native question |
+|---|---|---|
+| F01 | `N(pembrolizumab)` | Complete drug/reaction arrays, report IDs/versions and optional harmonized identities. |
+| F02 | `N(pembrolizumab) AND patient.reaction.reactionmeddrapt:"MYOCARDITIS"` | Co-reporting, never causation. |
+| F03 | `N(pembrolizumab) AND patient.reaction.reactionmeddrapt:"PNEUMONITIS"` | Distinct source reaction term. |
+| F04 | `N(trastuzumab) AND patient.reaction.reactionmeddrapt:"CARDIOMYOPATHY"` | Distinct products, including conjugates, must remain distinct. |
+| F05 | `N(fam-trastuzumab deruxtecan-nxki) AND patient.reaction.reactionmeddrapt:"INTERSTITIAL LUNG DISEASE"` | No Enhertu spelling fallback if empty. |
+| F06 | `N(axicabtagene ciloleucel) AND patient.reaction.reactionmeddrapt:"CYTOKINE RELEASE SYNDROME"` | CAR-T report scope. |
+| F07 | `N(axicabtagene ciloleucel) AND patient.reaction.reactionmeddrapt:"NEUROTOXICITY"` | Distinct neurologic report scope. |
+| F08 | `N(tamoxifen) AND patient.reaction.reactionmeddrapt:"PULMONARY EMBOLISM"` | Native reaction, indication and drug roles. |
+| F09 | `N(venetoclax) AND patient.reaction.reactionmeddrapt:"TUMOUR LYSIS SYNDROME"` | Exact term; no spelling retry. |
+| F10 | `N(bevacizumab) AND patient.reaction.reactionmeddrapt:"GASTROINTESTINAL PERFORATION"` | Native reporting term. |
+| F11 | `N(ibrutinib) AND patient.reaction.reactionmeddrapt:"HAEMORRHAGE"` | Native reporting term. |
+| F12 | `N(osimertinib) AND patient.reaction.reactionmeddrapt:"ELECTROCARDIOGRAM QT PROLONGED"` | Report versus label warning. |
+| F13 | `N(pembrolizumab) AND seriousnessdeath:1` | Report-level death flag. |
+| F14 | `N(pembrolizumab) AND seriousnesshospitalization:1` | Hospitalization is not a reaction-outcome code. |
+| F15 | `N(pembrolizumab) AND receivedate:[20240101 TO 20241231]` | Receipt interval is not event onset or exposure interval. |
+| F16 | `N(pembrolizumab) AND patient.drug.drugcharacterization:1` | Check roles inside each drug object; cross-object conjunction cannot establish that this drug was suspect. |
+| F17 | `N(pembrolizumab) AND patient.patientsex:2 AND patient.patientonsetage:[65 TO 120] AND patient.patientonsetageunit:801 AND primarysource.qualification:1` | Explicit recorded female sex, years and physician; no age-unit assumption. |
+| F18 | `safetyreportid:"BIOMCP-NO-SUCH-REPORT-0152"` | Exact-ID negative control; no-match versus transport failure. |
+| F19 | F01 expression with `count=patient.reaction.reactionmeddrapt.exact`, `limit=5`, no sort/skip | Buckets and native count unit; no sum-of-buckets report denominator. |
+| F20 | F01 expression, `limit=5`, `skip=5`, same sort | Actual next page. |
+| F23 | `N(osimertinib) AND patient.reaction.reactionmeddrapt:"PNEUMONITIS"` | Separate ILD/pneumonitis question. |
+
+D01–D04 use `GET https://api.fda.gov/device/event.json`, `limit=5`, `skip=0`, `sort=date_received:desc`.
+
+| Row | Exact decoded search | Native question |
+|---|---|---|
+| D01 | `device.generic_name:"BREAST IMPLANT"` | Complete device list and report identity; implant presence does not establish cancer or reconstruction. |
+| D02 | `device.generic_name:"BREAST IMPLANT" AND event_type:"Death"` | Device event types are separate from drug seriousness. |
+| D03 | `mdr_text.text:"SQUAMOUS CELL CARCINOMA" AND device.generic_name:"BREAST IMPLANT"` | Literal capsule-SCC discovery query; no automatic narrative classification or BIA-ALCL equivalence. |
+| D04 | `device.generic_name:"BREAST IMPLANT" AND date_received:[20240101 TO 20241231]` | Received period and optional narrative; no inference of event onset. |
+
+F21 conditionally gets the first actual F01 report in native order with `safetyreportid:"<exact native ID>" AND safetyreportversion:"<exact native version>"`, limit 1. If version is absent, query exact ID alone and preserve every returned version. D05 gets the first actual D01 `mdr_report_key` by that exact field, limit 1. I01 selects the first F01 drug object carrying `openfda.unii` and queries `patient.drug.openfda.unii:"<first exact native UNII>"`, limit 5. All native UNIIs remain visible; this one selected query proves no universal product join. Missing prerequisite IDs skip the conditional row. F22 repeats F01 with `count=seriousnessdeath`, limit 5, no sort/skip, to inspect the aggregate unit without calculating a risk.
+
+C01 downloads `https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/cvx.txt` once. C02 downloads `https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/TRADENAME.txt` once. Record whole-file receipts, delimiters, optional columns and notices. Inspect exact CVX 165, 62, 118 and trade rows whose CVX column equals those values. No MVX file or CPT crosswalk is needed. Never infer a CVX-to-WONDER mapping from text or numerals.
+
+V01–V03 POST to `https://wonder.cdc.gov/controller/datarequest/D8` as `request_xml=<XML>&accept_datause_restrictions=true`. Start with the exact committed legacy `spec/fixtures/vaers/reactions-request.xml` at the cited revision. Change only `F_D8.V14` from `MMR` to `HPV9`; change `B_1` respectively to `D8.V13-level2`, `D8.V10`, `D8.V1`. Preserve every other parameter including declared vintage. Archive final XML before sending. Record actual returned dataset/date/version, notices, suppression, row labels/codes, totals and counted unit. This is a caller-selected native code, not an inferred CVX165 join. Rejected HPV9 ends that row; no HPV4 or alternate-code fallback.
+
+Each harvested question will map to these rows or a specific out-of-scope reason. Cancer drug questions do not call VAERS/CVX; vaccine questions do not call FAERS automatically; devices do not call drug endpoints. An API error is never negative clinical evidence.
+
+## Documentation findings and source proposal
+
+| Candidate | Proposed use and official reference | Use and terms | Native questions |
+|---|---|---|---|
+| openFDA FAERS | Keep explicit report search and exact report get; captured aggregation stays investigation-only. Independent drug and reaction arrays. [Overview](https://open.fda.gov/apis/drug/event/), [fields](https://open.fda.gov/apis/drug/event/searchable-fields/). | `open`, [openFDA terms](https://open.fda.gov/terms/), CC0 default with stated third-party exceptions; attribution visible. | Versions, optional UNII/RxCUI/NDC/SPL identities, dates, roles, multiplicity. |
+| openFDA MAUDE | Separate device report family with native key/event type. [Overview](https://open.fda.gov/apis/device/event/), [endpoint](https://open.fda.gov/apis/device/event/how-to-use-the-endpoint/). | `open`, same FDA terms and exceptions. | Full device list, product code/UDI availability, report multiplicity, narrative size. |
+| CDC WONDER VAERS | Dropped: three denied replies prove no aggregate fields. Previously considered HPV9 aggregates. [API](https://wonder.cdc.gov/wonder/help/wonder-api.html), [help](https://wonder.cdc.gov/wonder/help/vaers.html). | Historical research terms: purpose-restricted statistical use under [data use](https://wonder.cdc.gov/datause.html); no runtime registry/category addition. | Actual fields, totals/counting unit; no promised individual report get. |
+| CDC CVX/trade names | Dropped: no proved WONDER mapping. Previously considered vaccine identities. [Code sets](https://www.cdc.gov/iis/code-sets/index.html). No token-based name bridge or automatic search-time bundle sync. | Historical research terms: government tables with native notices retained; no runtime registry addition. CPT/AMA tables excluded. | Status/dates, native product-to-CVX/MVX relations, no proved WONDER join. |
+| ClinicalTrials.gov results | Drop automatic fallback after FAERS empty. Trial-owned explicit evidence remains separate. | Existing trial source terms. | No capture requested; trial denominators cannot replace spontaneous report counts. |
+| FDA recalls | Drop the legacy recall route from this entity; regulatory notices need separate question-driven ownership. | Existing FDA terms. | No capture requested; no claim of recall parity. |
+
+[Authentication](https://open.fda.gov/apis/authentication/) lists public keyless limits and [the event guide](https://open.fda.gov/apis/drug/event/how-to-use-the-endpoint/) permits keyless use. Optional higher quotas do not change source rights. The registry will own use categories, terms and disable policy once; response types will reference that source truth.
+
+## Native capture finding
+
+A separate build delegate ran `j12641` from landed `d18bfbba511e3852c99228f1a5166a14633e5cee` with the exact proposed 34-row ledger. It made 34 physical provider requests: FAERS 23 HTTP200 plus the intentional exact-ID HTTP404; devices four HTTP200 plus the literal SCC query HTTP404; both CDC files HTTP200; WONDER three HTTP403 HTML denials. There were no retries, redirects, refreshes or fallbacks. This is source evidence, not product acceptance or legacy execution.
+
+The unchanged evidence is on Yellow at `data/biomcp-redux/0152-adverse-event-native-proof/j12641-native-capture.tar.gz`, SHA-256 `b96dcbbfb7349f79596eaea262674a9711f9968c605572241a2c191caabf101a`, 1,198,872 bytes. The delegate independently verified all 225 manifest files. Archive root `2293-adverse-event-native-capture` contains unchanged bodies, request/receipt/headers, both job logs, exact original/final XML, `ledger.json`, `summary.json`, `native-field-inventory.json` and explicitly non-product `offline-investigation.json`. The independent verification JSON sits beside the archive. Original source dates remain separate from local investigation dates.
+
+F01 returned native total 105020 and report 26940567 version 1 first. F21 exact get returned that native report. Historical or multi-version retrieval is unproved; no --version option is approved. F20 returned native skip 5 and total 105020. The five F01 report objects contained respectively 2/9/6/5/2 drug rows and 1/3/4/1/2 reaction rows. The default page must not select one drug as the report's sole drug. I01 selected the first actual drug object's UNII DLE8519RWM from PADCEV, not the later KEYTRUDA object's UNII, and returned total 7224. This proves one exact native-ID query and no pembrolizumab identity join. F19 string reaction terms and F22 numeric terms are separate native bucket shapes, not a common clinical count vocabulary or denominator.
+
+The first device key 50952244 returned unchanged through exact D05 get. Device event, received and reporting dates are distinct. Optional source strings can be present and empty; empty must not silently become absent without an explicit reviewed rule. C01 carried 290 seven-column pipe-delimited rows. C02 carried 225 nine-column rows, including its trailing empty column. Exact CVX 118/62/165 and their trade rows were selected by the native CVX column while preserving original whitespace. These native code relations do not prove a WONDER relation.
+
+All three WONDER XML requests returned 403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. PM drops VAERS/CVX from this slice. Losing legacy vaccine search awaits Ian through the PM; this design does not claim he accepted the loss. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's 404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
+
+### Measured native request table
+
+Each row used one physical request. Retrieval ran October 25, 2026, from 05:50:13 through 05:51:19 UTC. Successful FAERS JSON carried publisher `last_updated` July 30, 2026; device JSON carried October 13, 2026. Those dates are distinct from retrieval. Duration is one HTTP capture rounded to milliseconds, not cold/warm CLI/MCP time. Bytes are unchanged source bodies, not product output. A dash means the provider supplied no report total or this response is not a report page. C01/C02 file row counts are recorded above. Native aggregation totals remain absent.
+
+| Row | HTTP | Returned rows | Native report total | Source bytes | HTTP seconds |
+|---|---|---|---|---|---|
+| F01 | 200 | 5 | 105020 | 220,919 | 0.737 |
+| F02 | 200 | 5 | 2147 | 57,911 | 0.607 |
+| F03 | 200 | 5 | 2608 | 95,557 | 0.521 |
+| F04 | 200 | 5 | 727 | 107,070 | 0.564 |
+| F05 | 200 | 5 | 1020 | 22,325 | 0.690 |
+| F06 | 200 | 5 | 4503 | 24,410 | 0.522 |
+| F07 | 200 | 5 | 3355 | 50,902 | 0.510 |
+| F08 | 200 | 5 | 343 | 498,926 | 0.709 |
+| F09 | 200 | 5 | 1147 | 122,064 | 0.608 |
+| F10 | 200 | 5 | 1131 | 80,611 | 0.572 |
+| F11 | 200 | 5 | 6160 | 25,409 | 0.448 |
+| F12 | 200 | 5 | 53 | 189,906 | 0.576 |
+| F13 | 200 | 5 | 18819 | 334,430 | 0.659 |
+| F14 | 200 | 5 | 44253 | 234,202 | 0.630 |
+| F15 | 200 | 5 | 16093 | 92,376 | 0.493 |
+| F16 | 200 | 5 | 104869 | 220,919 | 0.636 |
+| F17 | 200 | 5 | 8060 | 97,917 | 0.703 |
+| F18 | 404 | 0 | — | 80 | 0.354 |
+| F19 | 200 | 5 | — | 769 | 0.437 |
+| F20 | 200 | 5 | 105020 | 60,551 | 0.506 |
+| F23 | 200 | 5 | 134 | 54,278 | 0.485 |
+| D01 | 200 | 5 | 23863 | 30,568 | 1.262 |
+| D02 | 200 | 5 | 17 | 30,951 | 0.453 |
+| D03 | 404 | 0 | — | 80 | 0.365 |
+| D04 | 200 | 5 | 2046 | 36,916 | 0.516 |
+| F21 | 200 | 1 | 1 | 6,681 | 0.372 |
+| D05 | 200 | 1 | 1 | 5,931 | 0.364 |
+| I01 | 200 | 5 | 7224 | 416,953 | 0.662 |
+| F22 | 200 | 2 | — | 551 | 0.406 |
+| C01 | 200 | — | — | 55,005 | 0.257 |
+| C02 | 200 | — | — | 28,227 | 0.187 |
+| V01 | 403 | — | — | 401 | 0.363 |
+| V02 | 403 | — | — | 401 | 0.307 |
+| V03 | 403 | — | — | 401 | 0.302 |
+
+### Observed native fields and disclosure consequences
+
+The JSON field inventory contains strings, integer metadata/counts, objects and arrays. No null-valued field was observed in this sample; this does not establish a universal no-null schema. Age/outcome/role/date values are source strings, not inferred JSON integers. Report drug arrays reached 19 rows and reaction arrays 22. Harmonized `package_ndc` arrays reached 2,087 entries and `spl_set_id` arrays 841. Those many identifiers do not establish which marketed product was administered. Device arrays happened to contain one row per captured report; narrative arrays ranged from empty to five. A single captured device never justifies a scalar schema.
+
+Drug rows carry medicinal text, role, indication and identity collection counts. Full arrays use closed named sections unii/rxcui/product-ndc/package-ndc/spl-id/spl-set-id/application-number with --drug-index and section paging. The native absolute index belongs to the checked retained report snapshot. No arbitrary --field selector is proposed. Other harmonization collections need an explicit bounded component schema before advertisement.
+
+The largest native five-report response in this bounded sample was F08 at 498,926 bytes. It motivates bounded layers but supplies no measured envelope size or approved allocation. Identity-list options need native long-list/full-walk cases with exact report snapshot binding and no duplicate/gap assertions. Paging a checked retained response makes no new provider request. Type review must account explicitly for administrative/address fields no harvested case needs; this proposal does not label a legacy struct complete.
+
+F19 native reaction buckets were malignant neoplasm progression 12016, death 5857, diarrhoea 5740, fatigue 5131 and off-label use 4758. F22 numeric term 2 had 59345 and term 1 had 18819. A numeric term is not a Boolean without its field codebook; their sum is not the F01 total. No risk or denominator is inferred. The JSON negative controls F18/D03 carried native `NOT_FOUND` and `No matches found!`; the denied HTML WONDER replies are different failures.
+
+## Clinical rulings and harvested questions
+
+A fresh clinical reviewer read the existing drug/disease rulings and official sources on October 25, 2026. These are faithful reformulations of published safety concerns, not invented verbatim clinician quotations or licensed curator answers. Each accepted answer below is an evidence boundary. A label can establish its own warning; a report query cannot reproduce a trial incidence or establish causality.
+
+The reviewer confirmed with high confidence: FAERS, MAUDE and VAERS counts describe reports, not exposed populations or causal events; report drug/reaction arrays supply no pairwise causal attribution; source suspect/concomitant roles remain unvalidated reporter classifications; seriousness is separate from reaction outcome and CTCAE grade; empty and unavailable sources provide no clinical reassurance. Harm from violating these boundaries is high. The contrary reading, that more reports prove a more dangerous product, lacks an exposure denominator and ignores reporting bias/duplicates. A separately attributed suitable clinical study could support a risk estimate; a larger report count would not change this ruling.
+
+HPV vaccine questions belong here only as cancer prevention. The reviewer confirmed that boundary from CDC guidance with high confidence. General vaccine research stays outside scope. Implant presence alone establishes neither breast cancer nor reconstruction. Capsule SCC, BIA-ALCL and breast carcinoma remain distinct source claims. A report narrative is not a source-coded diagnosis established by our software.
+
+| Case | Question and published concern | Accepted answer and direct-source coverage |
+|---|---|---|
+| A01 | What reports mention pembrolizumab and myocarditis? L1/P1. | Preserve matching reports, terms and drug roles; label myocarditis warning is independent. F01/F02. |
+| A02 | What reports mention pembrolizumab and pneumonitis? L1. | Preserve pneumonitis without merging pneumonia; no trial/report denominator mixture. F03. |
+| A03 | What cardiomyopathy reports mention trastuzumab? L2. | Keep product identities distinct, including antibody conjugates. F04. |
+| A04 | What fatal ILD/pneumonitis reports mention trastuzumab deruxtecan? L3. | Preserve reaction and death flags independently; do not substitute trastuzumab. Unanswered as asked: F05 has 1020 matches but no fatal filter, so the fatal subset is unproved. |
+| A05 | What serious CRS reports mention axicabtagene ciloleucel? L4. | Keep named product and native seriousness; label warning does not establish reporting incidence. F06. |
+| A06 | What neurologic toxicity reports mention axicabtagene ciloleucel? L4. | Preserve native terms; do not require simultaneous CRS. F07. |
+| A07 | What pulmonary embolism reports mention tamoxifen in breast cancer care or risk reduction? L5. | Preserve stated indication; missing indication prevents assigning a population. F08. |
+| A08 | What TLS reports mention venetoclax, including fatal outcomes? L6. | Preserve TLS/outcomes; do not infer dialysis, phase or malignancy. F09. |
+| A09 | What gastrointestinal perforation reports mention bevacizumab? L7. | Return reported terms/outcomes without causal attribution. F10. |
+| A10 | What hemorrhage reports mention ibrutinib, including reports marked as deaths? L8. | Preserve other drugs and roles; co-listing does not prove an interaction. F11. |
+| A11 | What QT-prolongation reports mention osimertinib? L9. | Do not translate QT prolongation into torsades, arrhythmia or death. F12. |
+| A12 | What ILD/pneumonitis reports mention osimertinib? L9. | Preserve chemotherapy/radiation context when stated; no pooling label populations. F23. |
+| A13 | Which pembrolizumab–myocarditis reports are serious? F3/F4/L1. | Preserve native overlapping flags; no CTCAE grade assignment. Inspect F02, compare F13 only as a broader report query. |
+| A14 | Which venetoclax–TLS reports record hospitalization, death or both? F3/F4/L6. | Preserve independent flags; no forced mutually exclusive outcome. Inspect F09; F13/F14 prove field forms on a different named query. |
+| A15 | Which pembrolizumab–pneumonitis reports were first received during 2024? F3. | First FDA receipt is `receivedate`, not event onset or `receiptdate`. Unanswered as asked: F15 proves only the broader drug/date range, not the combined reaction/date query. |
+| A16 | Which ibrutinib–hemorrhage reports identify ibrutinib as suspect? F3/F4. | Role must belong to that drug object; source conjunction across arrays is insufficient. Inspect F11; F16 tests broader query mechanics only. |
+| A17 | What matching trastuzumab/cardiomyopathy count and denominator support a percentage? F1–F3/L2. | Query/snapshot/unit required; no patient-risk percentage. F04 has a report total; F19/F22 measure aggregation on pembrolizumab, not this exact pair. |
+| A18 | What breast-implant lymphoma reports record death in reconstruction? M1/M2. | Keep event type and stated indication; generic implant query does not establish lymphoma or reconstruction. D01/D02 supply candidates, not a complete answer. |
+| A19 | What reports describe SCC in the capsule around breast implants? M3. | Preserve narrative text as such, distinct from BIA-ALCL and breast carcinoma. D03 is explicit text discovery; no locally inferred diagnosis. |
+| A20 | Does a breast-implant report total represent unique patients/events? M1/M2. | State native report counting unit and duplicates; FDA curated BIA-ALCL cases differ from broad text matches. D01/D05. |
+| A21 | What syncope reports follow HPV vaccination in cancer prevention? V1/V2. | Preserve native vaccine code/reaction rows; no causal claim or incidence. Unanswered: V01 is 403; code tables do not answer this. Vaccine search is dropped pending Ian through PM. |
+| A22 | What serious allergic-reaction reports follow Gardasil 9? V1/V2. | Do not diagnose anaphylaxis from nonspecific symptoms or combine vaccines. Unanswered: V01/V02 are 403; neither marginals nor a joint answer were obtained. |
+| A23 | What can an empty exact cancer-drug/reaction/date query establish? F1/V1. | Only no matching records under those selectors/snapshot. D03 is the real empty SCC query 404; F18 is a synthetic nonexistent-ID control, not this clinical query. |
+| A24 | Synthetic engineering control motivated by source limits: can timeout/refusal/unreadable data display zero reports? F1/M1/V1. | No; unavailable/incomplete is separate from a verified empty. Local controlled failures can prove product handling later; no provider failure is manufactured. |
+
+### Clinical source catalog
+
+Pinned label versions establish the cited warning. They are not claims that each linked label is the newest approved revision. Undated documentation was accessed October 25, 2026. The reviewer reread the cited passages and rejected causal or incidence interpretations.
+
+| Key | Source, date/version and passage relied upon |
+|---|---|
+| F1 | [FDA FAERS dashboard presentation](https://www.fda.gov/files/drugs/published/%22The-FAERS-Public-Dashboard-and-its-Value-to-the-Pharmaceutical-Industry-%22-July-10--2018-Issue-PDF.pdf), July 10, 2018, p2: FAERS cannot calculate incidence. |
+| F2 | [FDA postmarket surveillance explanation](https://www.fda.gov/drugs/cder-conversations/understanding-cders-postmarket-safety-surveillance-programs-and-public-data), undated: reports do not establish drug causation. |
+| F3 | [openFDA field reference](https://open.fda.gov/fields/drugevent_reference.pdf), undated; [official field definitions](https://raw.githubusercontent.com/FDA/open.fda.gov/master/static/fields/drugevent.yaml): latest report version, unvalidated roles, distinct receipt dates and reaction outcome codes. |
+| F4 | [FDA drug dashboard FAQ](https://fis.fda.gov/extensions/fpdwidgets/2e01da82-13fe-40e0-8c38-4da505737e36.html), undated: quarterly extract concomitant drugs differ from dashboard suspect-only view. |
+| L1 | [KEYTRUDA label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/125514s173lbl.pdf), June 2025, §§5.1/6.1: immune-mediated pneumonitis and fatal myocarditis. |
+| L2 | [HERCEPTIN label](https://www.gene.com/download/pdf/herceptin_prescribing.pdf), May 2026, boxed warning: clinical/subclinical cardiac failure. |
+| L3 | [ENHERTU label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/761139s038s042lbl.pdf), December 2025, boxed warning: ILD/pneumonitis including fatal cases. |
+| L4 | [YESCARTA label](https://www.fda.gov/media/193167/download), June 2026, boxed warning: fatal/life-threatening CRS and neurologic toxicity with or after CRS. |
+| L5 | [Tamoxifen DailyMed label](https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=509f8ba3-214d-aec8-e063-6294a90af498&version=2), version 2, April 30, 2026, boxed warning: fatal pulmonary emboli in the stated risk-reduction/DCIS context. |
+| L6 | [VENCLEXTA label](https://www.rxabbvie.com/pdf/venclexta.pdf), May 2026, §5.1: TLS including fatal events and dialysis. |
+| L7 | [AVASTIN label](https://www.gene.com/download/pdf/avastin_prescribing.pdf), September 2022, §5.1: serious/fatal gastrointestinal perforation. |
+| L8 | [IMBRUVICA label](https://www.rxabbvie.com/pdf/imbruvica_pi.pdf), October 2025, §5.1: fatal bleeding. |
+| L9 | [TAGRISSO label](https://www.dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?audience=professional&setid=5e81b4a7-b971-45e1-9c31-29cea8c87ce7), September 14, 2026, §§5.1–5.2: severe/fatal ILD/pneumonitis and QTc prolongation. |
+| M1 | [FDA About MAUDE](https://www.fda.gov/medical-devices/mandatory-reporting-requirements-manufacturers-importers-and-device-user-facilities/about-manufacturer-and-user-facility-device-experience-maude-database), undated: MDR data cannot evaluate adverse-event rates. |
+| M2 | [FDA BIA-ALCL reports](https://www.fda.gov/medical-devices/breast-implants/medical-device-reports-breast-implant-associated-anaplastic-large-cell-lymphoma), tables through June 30, 2024: incomplete information can prevent duplicate removal. |
+| M3 | [FDA implant risks](https://www.fda.gov/medical-devices/breast-implants/risks-and-complications-breast-implants), December 14, 2023: literature and MDR reports describe capsule SCC. |
+| V1 | [VAERS interpretation guide](https://vaers.hhs.gov/data/dataguide.html), May 8, 2025 public-data expansion: added secondary reports concern already reported events; reporting does not document vaccine causation. Current data/guide pages differ on exact secondary-file inclusion. Native tier/version must settle the applicable count unit. |
+| V2 | [CDC HPV safety/effectiveness](https://www.cdc.gov/hpv/hcp/vaccination-considerations/safety-and-effectiveness-data.html), July 9, 2024: vaccination prevents cancer-causing infections and cervical precancers. |
+| P1 | [Salem et al.](https://escholarship.org/content/qt66j3w519/qt66j3w519.pdf), Lancet Oncology 19(12), December 2018, author manuscript p9: VigiBase cannot establish cardiovascular immune-event incidence. Disproportionate reporting and fatality among reported cases are not exposed-patient risk. |
+
+## Identity and native semantics
+
+Keep FAERS `safetyreportid` as an opaque string and its source `safetyreportversion` separately. Do not parse a checksum or fabricate a case-family ID from inconsistent overview prose. Exact get verifies the returned ID and, when requested, version before cache admission. MAUDE uses its own opaque `mdr_report_key`, with `report_number` retained separately. Numeric report IDs never trigger cross-source probing. Get defaults to FAERS; MAUDE requires `--source maude`. There is no source probing or speculative FAERS-then-MAUDE resolver.
+
+Each FAERS drug object retains the original `medicinalproduct`, role code, indication, administration fields and optional harmonized identity arrays. Distinct objects do not merge by name. An exact source-provided UNII, RxCUI, NDC or SPL cross-reference may offer the corresponding existing drug command only after that command's accepted namespace and granularity are checked. An ingredient UNII does not identify a marketed product, application or package. Missing/multiple mappings remain missing/candidates. Literal name search returns reports/candidates, never a chosen drug identity. The source report title must not choose the first suspect or first listed drug as the whole report's drug.
+
+FAERS reactions remain an independent ordered array. A role filter must validate the selected matching drug object rather than assuming an indexed conjunction binds nested objects. Captures must settle whether an exact identity query supports that check. Name-only queries cannot acquire a trustworthy suspect-only promise from a report-level search expression.
+
+Official reaction outcomes at last observation are `1 recovered/resolved`, `2 recovering/resolving`, `3 not recovered/not resolved`, `4 recovered/resolved with sequelae`, `5 fatal`, `6 unknown`. Unknown/missing are distinct. Report seriousness flags can overlap. The legacy mapping of hospitalization to reactionoutcome1 and disability to3 is wrong. Use report seriousness hospitalization/disabling instead. Neither field is a CTCAE grade. `receivedate` is first FDA receipt; `receiptdate` is receipt of the most recent information; neither is onset. Preserve dates with their field roles and native formatting evidence.
+
+A count row is a native aggregation bucket, not a distinct person. Never sum reaction buckets into a report denominator or add seriousness marginals into a total. WONDER reaction/seriousness/age tables stay independent; never use the maximum total from separate queries as a fabricated common denominator. Preserve each native table's own total, vintage and caveats. A CVX code is a vaccine administration code, not proof of a WONDER family mapping. Native exact mappings need explicit provenance. No regexes, token extraction, synonym rewriting, inferred ontology categories or hidden label lookup occurs.
+
+## Reviewed command tree
+
+Search and get are the only commands. FAERS is the default source. Input is positional and literal; there is no --query or raw query language. The default page proposal is five rows, matching the retained native requests; acceptance requires adapter-owned wire measurements. No automatic fan-out, name expansion, trial fallback or source probing occurs.
+
+| Command/options | Header and body | Native proof |
+|---|---|---|
+| `search adverse-event TEXT [--source faers] [--reaction TERM] [--serious death\|hospitalization] [--received-from YYYY-MM-DD] [--received-to YYYY-MM-DD] [--limit N] [--offset N]` | Native report headers, total/unit, source date and exact built query echo. Four typed filter names only. | F01–F15/F20/F23. Combined selectors absent from captures remain unproved. |
+| `search adverse-event TEXT --source maude [--limit N] [--offset N]` | Device generic-name report candidates, exact keys, native event type/date and total. | D01; FAERS filters reject before I/O. |
+| `get adverse-event ID [--source faers]` | Exact native ID/version, fixed dates/seriousness/patient/reporter fields, collection counts, links and sections. | F21 exact 26940567/version 1. No --version; historical/multi-version get unproved. |
+| `get adverse-event ID drugs\|reactions [--source faers] [--section-limit N] [--section-offset N]` | Independent ordered drug or reaction rows. Identity arrays stay behind named pages. | Native arrays up to 19 drug and 22 reaction rows. |
+| `get adverse-event ID unii\|rxcui\|product-ndc\|package-ndc\|spl-id\|spl-set-id\|application-number --drug-index N [--source faers] [--section-limit N] [--section-offset N]` | One named original identifier array from one absolute native drug row. | F01/F08/I01 long collections; no inferred administered product or name join. |
+| `get adverse-event ID --source maude` | Exact key/report number, native event type/date roles, source counts, links and sections. | D05 exact 50952244 and D01/D02/D04 variants. |
+| `get adverse-event ID devices\|narrative --source maude [--section-limit N] [--section-offset N]` | Native device/narrative rows; no clinical extraction from prose or silent text loss. | Device arrays 1 per captured report; narrative 0–5 rows. |
+
+FAERS uses the exact expanded N(TEXT) expression from the ledger. `--reaction TERM` appends `AND patient.reaction.reactionmeddrapt:"TERM"`, escaped only as a literal. openFDA treats this analyzed field as a phrase match, not exact preferred-term equality; help and the query echo identify phrase-match semantics. No local synonyms or normalization. `--serious death` appends `AND seriousnessdeath:1`; hospitalization uses `seriousnesshospitalization:1`. Receipt bounds append `AND receivedate:[YYYYMMDD TO YYYYMMDD]`; a missing bound is `*`. Both 2024 bounds reproduce F15. Neither one-sided request was separately captured, so its builder case is synthetic, not a native positive. MAUDE uses `device.generic_name:"TEXT"`, a phrase match on the analyzed generic-name field, as in D01's BREAST IMPLANT query. Help and the query echo identify this phrase match. Neither selector claims exact equality; a `.exact` selector requires its own captured positive first. Date meaning is first FDA receipt. Invalid/reversed dates, unknown values and unsupported source/filter/section combinations fail before I/O. Actual query output expands N fully; no shorthand is sent or echoed.
+
+Cards hold `source_url` and `report_url`. Source URL is the provider overview; report URL is the exact successful report request from its receipt. No public browser URL is guessed. Links are data, not next steps. Architecture 6.10 governs one pure entity next function: selectable report headers get one disambiguate get each, then page, then at most three extras; ordinary cards/sections have at most five actions. Verified association links get one distinct pivot each in source order, then page, then at most three extras. Section/page actions retain source, exact ID, selectors and snapshot. An expired snapshot restarts explicitly. No unproved external identity pivot or report-version action is emitted.
+
+## Types, field lists and JSON shapes
+
+These are schematic design JSON, not executions, clinical zero counts or budget measurements. Angle-bracket strings mean exact native values. Numeric 0 illustrates an integer type only. Missing optional facts are omitted, not defaulted to zero/false. The existing envelope owns status/query/terms/source outcomes/Problems. Section pages share exact report identity/source/version/snapshot, native offset/total, capped records and typed next. Empty lists follow the existing omission rule; explicitly present empty source strings remain distinguishable from absent fields.
+
+`ReportHeader`: published ID string, source, optional version, optional native serious code, optional MAUDE event type, optional first FDA receipt or device receipt date. There are no flattened drug/reaction lists or a selected causal-drug title. IDs 26940567/50952244 remain those strings with separate source; no FAERS: or MAUDE: wrapper.
+
+```json
+{"items":[{"id":"<native ID>","source":"faers","version":"<native version>","first_received":"<receivedate>","serious":"<native code>"}],"total":0,"unit":"reports"}
+```
+
+`FaersCard`: header; optional latest_received/transmitted plus source format; optional independent overlapping seriousness flags; optional fixed patient age/age_unit/sex/weight strings; optional reporter qualification/country; actual drug/reaction array counts; links; available_sections and next. Reporter is a card subobject, not a section. F01 inventory proves qualification and reportercountry strings in all five primarysource objects; I01 includes a missing qualification, which stays optional.
+
+```json
+{"header":{"id":"26940567","source":"faers","version":"1"},"latest_received":"<receiptdate>","seriousness":{"death":"<native flag>","hospitalization":"<native flag>"},"patient":{"age":"<native age>","age_unit":"<native unit>"},"reporter":{"qualification":"<native code>","country":"<native country>"},"drug_count":2,"reaction_count":1,"source_url":"https://open.fda.gov/apis/drug/event/","report_url":"<exact F21 request URL>","available_sections":["drugs","reactions"]}
+```
+
+`MaudeCard`: header; optional report_number/event_date/received/report_date/date_report_to_fda; source number_devices_in_event/number_patients_in_event strings; actual array counts; links/sections/next. Native report and device/patient counts are different units.
+
+```json
+{"header":{"id":"50952244","source":"maude","event_type":"<native type>"},"report_number":"<native number>","event_date":"<date_of_event>","received":"<date_received>","device_count":1,"narrative_count":0,"source_url":"https://open.fda.gov/apis/device/event/","report_url":"<exact D05 request URL>","available_sections":["devices","narrative"]}
+```
+
+Each section's record fields are fixed by its own schema. Optional fields below are included only when supplied. Drug rows also preserve native optional administration start/end/dose/route fields and identity collection counts from the field inventory. Absolute row indexes are source-array positions, not identity guesses.
+
+```json
+{"drugs":{"records":[{"index":0,"medicinalproduct":"<native text>","role":"<drugcharacterization>","indication":"<drugindication>","identity_counts":{"unii":0,"package_ndc":0}}],"offset":0,"total":0}}
+```
+
+```json
+{"reactions":{"records":[{"index":0,"term":{"label":"<reactionmeddrapt>"},"vocabulary_version":"<reactionmeddraversionpt>","outcome":"<reactionoutcome>"}],"offset":0,"total":0}}
+```
+
+```json
+{"package_ndc":{"drug_index":0,"records":["<original identifier>"],"offset":0,"total":0}}
+```
+
+The other six identifier sections use the identical string-record shape under their closed section name. UNII, RxCUI, NDC, SPL UUIDs and application numbers keep published forms; no numeric cast, normalized NDC or invented CURIE. Other harmonization arrays require their own reviewed bounded component page before advertisement.
+
+```json
+{"devices":{"records":[{"index":0,"sequence":"<device_sequence_number>","brand_name":"<native text>","generic_name":"<native text>","manufacturer":"<manufacturer_d_name>","product_code":"<device_report_product_code>","model":"<model_number>","catalog":"<catalog_number>","udi_di":"<native value>","udi_public":"<native value>"}],"offset":0,"total":0}}
+```
+
+```json
+{"narrative":{"records":[{"index":0,"type":"<text_type_code>","text":"<unchanged source text>"}],"offset":0,"total":0}}
+```
+
+Device rows retain optional native lot/operator/implant/removal facts kept by field review. Administrative addresses without a harvested need are excluded explicitly from the consumer projection; unchanged raw evidence remains external. An oversized individual narrative cannot be silently cut: return a truthful too-large Problem or obtain review for a bounded text-part schema before acceptance.
+
+Biodata owns neutral complete no-I/O source records, IDs and Concept. Consumer types own query selectors, response header/card/page schemas, closed sections and next. Reactions use `Concept {label}` without a CURIE because the native term carries no ontology ID; its MedDRA version stays separate. Schemas derive from types with the existing schema feature and compatibility check.
+
+Report counts do not reuse `CohortObservation`: [its shared contract](../biodata-variants-and-annotations.md) requires `subject: VariantRef` and units samples/patients/tumors. These totals count reports with no variant subject. Casting them would invent identity and units. Keep the existing page total with explicit reports unit; no patient/sample denominator is present. F19/F22 remain investigation evidence only; there is no new runtime count schema or change to the shared type.
+
+## Source and component terms
+
+FAERS/MAUDE records remain `open` under [openFDA terms](https://open.fda.gov/terms/) and [licensing](https://open.fda.gov/license/), with CC0 limited by publisher exceptions. MedDRA is third-party terminology, not our ontology. Keep source-reported reaction labels/version under a separate `restricted` MedDRA component and [data-sharing terms](https://admin.meddra.org/sites/default/files/page/documents/000198_statement_on_meddra_data_sharing_1_1.pdf). No MedDRA dictionary is downloaded or separately licensed. This grants no dictionary/commercial rights.
+
+openFDA's license explicitly marks GMDN term codes/names/definitions as licensed third-party content and requires a suitable license for listed commercial categorization/mapping/AI-training uses. Label proven GMDN content `restricted` with that publisher link. The `gmdn` component owns the exact source path `device.generic_name`. The registry ticket must name every additional covered device field by its exact source path; no broad device-name heuristic determines component membership. This conservative field assignment does not assert that every captured string is a proved GMDN term; preserve its native field provenance. No GMDN codes or inferred mappings are added. Source IDs/report counts/outcomes keep independent terms.
+
+Registry-owned component names meddra/gmdn and the restricted group suppress applicable fields before cache/replay reads; source-wide disable suppresses the whole source. Every component stays on by default under the standing rule. No user key is required for the kept keyless public tier. Dropped VAERS/CVX have no runtime registry addition or budget.
+
+## Delight questions
+
+1. The first question names a drug and reaction phrase; default FAERS search answers it through a typed filter and exact query echo.
+2. Headers expose source/identity/date/seriousness. Cards expose fixed native facts and links; growable lists sit behind sections.
+3. Next follows architecture 6.10, with report choices, section/page actions and only proved pivots.
+4. Native report and drug/device IDs retain published forms; missing/multiple mappings remain unresolved.
+5. Label warnings, reported roles and report counts keep separate attribution and meanings.
+6. Empty, disabled, malformed, stale and unavailable stay distinct; failures never become zero or another source's answer.
+7. The table measures source HTTP only. Adapter tickets own cold/warm product latency and wire budgets.
+8. Wrong outcome aliases, name bridges and trial fallback are dropped. Vaccine loss awaits Ian through PM.
+9. An agent can stop at a source reporting answer; it cannot infer safety, causation or incidence.
+10. Trust needs query/date/version/source links and explicit unanswered questions.
+
+## Command and option cases
+
+All native facts below were captured October 25, 2026 in j12641. Publisher dates remain distinct. New request combinations and malformed replies are synthetic recorded controls, never native clinical positives.
+
+| Command/option | Native case/facts | Synthetic or unproved boundary |
+|---|---|---|
+| Default positional FAERS; explicit source | F01 five rows,total 105020; F20 skip 5 same total. | Literal escaping/empty input; default/explicit equality. |
+| --reaction | F02 myocarditis 2147; F03 pneumonitis 2608. | No synonym rewrite; unsupported syntax. |
+| --serious death/hospitalization | F13 total 18819; F14 total 44253. | Bare/unknown values reject; native flags can overlap. |
+| --received-from/--received-to | F15 both bounds,total 16093. | Each one-sided builder, invalid/reversed dates and combination with reaction; those requests were not natively captured. A15 remains unanswered. |
+| --limit/--offset | F01 five rows/F20 skip 5. | Bounds, result window, snapshot expiry and exact selector preservation. |
+| MAUDE positional/source | D01 total 23863 and D05 exact key. | Four FAERS filters reject before I/O; no wildcard expansion. |
+| Real empty | D03 exact historical SCC expression 404 NOT_FOUND. | Current simple CLI cannot express that two-field query; it is an adapter no-match fixture, not an invented CLI positive. F18 is a synthetic ID control. |
+| FAERS get | F21 exact 26940567/version 1. | Wrong returned ID/version before cache; historical/multi-version get unproved and --version rejected. |
+| drugs/reactions and section paging | F01 arrays 2/9/6/5/2 and 1/3/4/1/2; maxima 19/22. | Independent arrays/role on another drug; missing versus empty and snapshot full walk. |
+| Seven identity sections and --drug-index | Native long F08/I01 collections; I01 is PADCEV UNII. | Each closed selector/bad index/multiple mappings; no name joins, no omitted rows or duplicated page. |
+| MAUDE get/devices/narrative | D05 exact key and empty narrative; D01/D02/D04 arrays 0–5. | Multiple devices is a labeled synthetic case, not native proof; long narrative refusal. |
+| Global format/disable/fresh/replay | Existing shared contract plus retained native source bodies. | CLI/MCP parity; no disabled cache leak; accepted stale data plus rejected refresh. |
+| Source failure/A24 | V01–V03 real 403 HTML explain source loss. | FAERS/MAUDE 429/500/timeout/broken200 controls are synthetic. No live outage was captured. |
+| Retirement routes | Complete source inventory below. | Every retired spelling returns named replacement or explicit loss with zero I/O. |
+
+A04's fatal subset, A15's exact combined reaction/date question, A18's lymphoma/reconstruction restriction and A21–A22 vaccine questions remain unanswered. F13/F14 are broader than A13/A14; do not advertise combined-query parity from their totals.
+
+## Measurement ownership
+
+Every kept layer is unmeasured as product output. The PM-filed adapter/command ticket owns measurement and the case ceiling at measured compact full-envelope size plus the PM-approved margin. Report terms-only deductions separately and validate exact metadata first. Estimated token counts name their estimator and never pretend to be actual tokenization. Native raw bytes and durations cannot substitute for these measurements.
+
+| Budget row | Measurement owner and acceptance case |
+|---|---|
+| Default/filtered FAERS search | FAERS adapter ticket: F01/F02/F03/F13/F14/F15/F20 five-row/default and explicit page; wire ceiling measured+margin. |
+| FAERS card | FAERS adapter ticket: F21 plus largest native fixed shape; measured+margin. |
+| Drug/reaction sections | FAERS adapter ticket: ordinary default plus 19/22-row complete walks; each measured+margin. |
+| Each of seven identity pages | FAERS adapter ticket: named collection default and long-list continuation; each measured+margin. |
+| Default MAUDE search/card | MAUDE adapter ticket: D01/D05; each measured+margin. |
+| Devices/narrative sections | MAUDE adapter ticket: D01/D02/D04, empty and largest native row; each measured+margin. |
+| Entity help/MCP listing/schema | Command owner: generated final typed tree; existing bound or explicit PM change. |
+| VAERS/CVX/count | Dropped; no implementation owner, wire budget or schema. |
+| Legacy 0.9 comparison | Adapter acceptance record: unmeasured unless containment equivalent to 0136 is verified; preserve reason otherwise. |
+
+Legacy execution may retry, rename, auto-download bundles or fall back to trials. No verified containment exists for this assignment, so it has not run. Old fixtures are not new measurements. No product clinical-parity or timing claim is made.
+
+## Complete legacy command and option accounting
+
+This is source inspection at the pinned legacy revision. Dispositions apply the PM review; they are not completed ports. Both search and `drug adverse-events` repeat many filters; the shared rows account for each explicitly. A dropped option returns an actionable usage error in future retirement cases and makes no source request.
+
+| Legacy surface | Proposal and reason | Cases/limits |
+|---|---|---|
+| `search adverse-event` | Keep bounded one-source report search. | A01–A24; sources never auto-merge. |
+| Positional `QUERY`, `-d/--drug` | Keep positional literal text; drop -d/--drug duplicate aliases. | F01 and retirement controls. |
+| `--reaction` in search/helper | Keep typed reaction phrase filter on the analyzed MedDRA-term field, no exact-equality claim or rewriting. | F02/F03 known positive. |
+| `--outcome death/fatal` in search/helper | Drop outcome aliases; --serious death means report seriousness, while native reaction outcome stays on each reaction. | F13 versus reactionoutcome5; no causal claim. |
+| `--outcome hospitalization/hospitalisation/disability` in search/helper | Drop incorrect mappings. Legacy maps these to reactionoutcome1/3, which mean recovered/resolved and not recovered/not resolved. | A14; native report hospitalization/disabling fields only. |
+| `--serious [any]` in search/helper | Drop bare/any form; require death or hospitalization. | F13/F14; retired values fail before I/O. |
+| Seriousness death, hospitalization/hospitalisation, lifethreatening/life-threatening, disability/disabling, congenital/congenital_anomaly, other | Keep only canonical death/hospitalization; drop all other values and aliases. | F13/F14; others are retirement controls. |
+| `--date-from`, alias `--since`, in search/helper | Rename to --received-from; strict full date, first FDA receipt. | F15 both-bound positive; one-sided builder synthetic. |
+| `--date-to`, alias `--until`, in search/helper | Rename to --received-to; strict full date; reject reversed bounds. | F15 both-bound positive; one-sided builder synthetic. |
+| `--suspect-only` in search/helper | Drop unsafe cross-object promise; retain each drug's own role. | A16/F16; exact identity and nested scope need proof. |
+| `--sex m/male/f/female` in search/helper | Drop demographic search filter; preserve native record fields. | F17 mechanics do not justify a harvested clinical feature. |
+| `--age-min`, `--age-max` in search/helper | Drop unitless age filters; retain source age and unit on card. | F17 plus retirement controls. |
+| `--reporter` physician/doctor/pharmacist/other_health_professional/health-professional/lawyer/consumer/patient | Drop filter; retain optional native qualification/country on card; no reporter section. | F01/I01 inventory proof. |
+| `--count reaction/reactionmeddrapt/patient.reaction.reactionmeddrapt[.exact]` in search/helper | Drop all count options and bucket fields; the harvest has no distinct most-reported-reactions question. Seriousness count duplicates F13 total. | F19/F22 stay investigation evidence only; retired options zero I/O. |
+| Count medicinalproduct[.exact], openfda.generic_name[.exact], openfda.brand_name[.exact] | Drop all count options and bucket fields; the harvest has no distinct most-reported-reactions question. Seriousness count duplicates F13 total. | F19/F22 stay investigation evidence only; retired options zero I/O. |
+| Count patientsex, patientonsetage, serious, seriousnessdeath/hospitalization/lifethreatening/disabling/congenitalanomali/other, reactionoutcome, primarysource.qualification | Drop all count options and bucket fields; the harvest has no distinct most-reported-reactions question. Seriousness count duplicates F13 total. | F19/F22 stay investigation evidence only; retired options zero I/O. |
+| Fake count total/meta.total/results.total/meta.results.total | Preserve explicit refusal. Native `meta.results.total` is metadata, not an aggregation field. | Retirement usage case, zero I/O. |
+| `--type faers` | Rename to explicit `--source faers`. | A01–A17. |
+| `--type device/devices/maude` | Rename to explicit `--source maude`. | A18–A20. |
+| `--type recall/recalls/enforcement`, `--classification` | Drop from adverse-event entity; recall ownership needs separate PM decision. | No recall capture or parity claim. |
+| `--source faers/vaers/all`, default all | FAERS default, MAUDE explicit; drop vaers/all and automatic vaccine detection. | Vaccine-search loss awaits Ian through PM. |
+| `--device` | Replace with positional literal MAUDE generic-name search; wildcard expansion is dropped. | D01–D04. |
+| `--manufacturer`, `--product-code` | Drop both filters; no raw query replacement or unproved identity filter. | Retirement controls; native fields remain in rows. |
+| Device serious any/death/injury | Drop device seriousness filter; keep native event_type on card/header. | D02 is evidence only; no unsupported CLI promise. |
+| `-l/--limit`, `--offset` in search/helper | Keep long --limit/--offset for report pages; drop -l. Sections use section-limit/section-offset. | F01/F20 and synthetic bounds/window controls. |
+| `get adverse-event REPORT_ID` | Keep native ID with default FAERS or explicit MAUDE; no --version or speculative source probing. | F21/D05; multi-version get unproved. |
+| Get `reactions` | Keep independent reaction page including native outcome. | A01–A17. |
+| Get `outcomes` | Rename to card seriousness plus each reaction's own outcome; do not mislabel flags as reaction outcomes. | A14. |
+| Get `concomitant` | Rename to complete drugs page preserving every role; no name selection. | A10/A16. |
+| Get `guidance` | Drop generated text-derived drug/indication guidance. Existing drug actions need exact source IDs. | No diagnostic/treatment inference. |
+| Get `all` | Drop unbounded all-sections output. | Named pages retain complete collections. |
+| `drug adverse-events NAME` | Drop duplicate helper and its FAERS404→ClinicalTrials.gov fallback. Typed exact drug-ID pivot may be added only after native identity join proof. | Existing drug ledger already marks adverse-event ownership; no duplicate leaf. |
+| Drug card `top_adverse_events` and `faers_query` enrichment | Drop hidden name-based aggregate calls from a default drug card; explicit source-ID pivot requires proved mapping. | Existing drug ledger owns the card; A17 does not justify unconditional enrichment. |
+| Helper `--type`, `--count`, all filter/page flags above | Same explicit dispositions as their search counterparts, including unused/misleading type routes. | No orphan option retained because helper existed. |
+| `cvx sync` | Drop complete sync route from this slice; no read-triggered downloads or MVX fetch. | Retirement says vaccine identity sync is unavailable; loss awaits Ian. |
+| VAERS summary total/seriousness/age/top reactions and source outcomes | Drop all tables, source outcomes and name bridge runtime; no native aggregate schema was proved. | V01–V03 actual 403; vaccine search loss awaits Ian. |
+| Global `--json/-j`, Markdown sections and section-parser acceptance of trailing json flags | Use existing `--format json\|md`; schema/CLI/MCP share typed tree. No section parser accepts format flags as clinical sections. | Existing shared formatting contract plus generated help cases. |
+
+## Retirement messages and unanswered scope
+
+Retired --drug/-d says use positional TEXT. Retired outcome aliases say use --serious death or hospitalization for report flags and reactions for native outcomes. Date aliases name --received-from/--received-to. Unsupported demographic/suspect/reporter/count/raw-query flags say this filter is not supported and make no request. Retired all/guidance says choose a named section. Retired helper says use search adverse-event TEXT. VAERS source selection says “Vaccine adverse-event search is unavailable in this slice; the captured CDC endpoint denied access.” CVX routes say “Vaccine identity lookup and sync are unavailable in this slice.” Neither message claims vaccines are safe or redirects silently to FAERS. All retirement spellings get recorded zero-I/O cases.
+
+A24, F18 and malformed/timeout/wrong-identity controls are explicitly synthetic. D03 is the real empty provider reply. A04/A15/A21/A22 and the combined/joint questions named above remain unanswered. No new provider call, alternate code, user-agent workaround or capture retry is authorized by this revision.
+
+## Ian's questions
+
+The PM must ask Ian whether to accept losing 0.9 vaccine search. This is a product capability choice, not a clinical/configuration question. The working design drops VAERS/CVX because all three aggregate requests were denied and the code tables prove no native mapping. The alternative preserves the requirement as blocked and authorizes a separate bounded source-access investigation; its cost is another owned capture recipe and review, with no paid service assumed. This branch does not treat silence as acceptance or claim equivalent vaccine coverage. No other material commitment or Ian decision is needed for the reviewed FAERS/MAUDE search/get surface.
