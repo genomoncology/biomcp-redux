@@ -1,6 +1,6 @@
 use biodata::{PartialDate, ReportId};
 use biomcp_fetch::{BadReply, Reply};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub(super) enum Response {
@@ -68,7 +68,7 @@ impl Reply for Response {
         }
     }
 }
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// Kept native wire fields without administrative metadata.
 pub struct Device {
     /// Native device_sequence_number without inferred interpretation.
@@ -120,7 +120,7 @@ pub struct Device {
     /// Native serviced_by_3rd_party_flag without inferred interpretation.
     pub serviced_by_3rd_party_flag: Option<Box<str>>,
 }
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// Kept native wire fields without administrative metadata.
 pub struct Narrative {
     /// Native mdr_text_key without inferred interpretation.
@@ -132,7 +132,7 @@ pub struct Narrative {
     /// Native text without inferred interpretation.
     pub text: Option<Box<str>>,
 }
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// Kept native wire fields without administrative metadata.
 pub struct Report {
     /// Native mdr_report_key without inferred interpretation.

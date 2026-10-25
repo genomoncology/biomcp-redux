@@ -6,11 +6,11 @@ use biomcp_types::{
 const NARRATIVE_PAGE_BYTES: usize = 32 * 1024;
 pub(super) fn project(
     query: &AdverseEventGet,
-    report: maude::Report,
+    report: maude::NativeReport,
+    snapshot: Text,
 ) -> Result<(QueryBody, u64, u32), ()> {
-    let header = maude::header(&report.record);
-    let snapshot = snapshot(report.metadata)?;
-    let row = report.record;
+    let header = maude::header(&report);
+    let row = report;
     let offset = query.section_offset() as usize;
     let limit = query.section_limit() as usize;
     let result = match query.section() {
@@ -110,20 +110,6 @@ fn card(
         components: Box::default(),
     };
     Ok(card)
-}
-
-fn snapshot(metadata: biomcp_fetch::ReplyMetadata) -> Result<Text, ()> {
-    let snapshot = text(&format!(
-        "maude-{}-{}",
-        metadata
-            .identity
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect::<String>(),
-        metadata.fetched
-    ))?;
-
-    Ok(snapshot)
 }
 
 fn narrative_page(

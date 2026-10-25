@@ -55,6 +55,12 @@ V01–V03 POST to `https://wonder.cdc.gov/controller/datarequest/D8` as `request
 
 Each harvested question will map to these rows or a specific out-of-scope reason. Cancer drug questions do not call VAERS/CVX; vaccine questions do not call FAERS automatically; devices do not call drug endpoints. An API error is never negative clinical evidence.
 
+## MAUDE exact report capture
+
+The separate MAUDE capture `j12974` ran at `82bac28e85fb1b30b6abc41761903cbc86d7c73d` with four fixed keyless requests and no retries, redirects, fallbacks or refreshes. The archive is `data/biomcp-redux/0160-maude-native-capture/j12974-native-capture.tar.gz` on Yellow, SHA-256 `233ed6086a44cf443bd3adb3410de610ab703fe70200df04a77ee7f89cf01b10`, 92,360 bytes, with all 36 files independently verified. Capture times span 2026-10-25T08:29:56.452326Z to 2026-10-25T08:30:00.864363Z. Publisher `meta.last_updated` is 2026-10-13, separate from retrieval.
+
+D01 retained total 23,863 and ordered native keys 50952244, 50884084, 50884224, 50866859 and 50866966. Exact D05 key 50952244 carries one device and an empty narrative array. The selected first D02 key 2993151 carries one device and one narrative. The selected third D04 key 20988896 carries one device and five narratives. Every captured native device and patient count is a present empty string. Every captured `date_report` is present and `report_date` is absent. D02 keeps event date 20120301 and report/received date 20130305; D04 keeps event date 20241217, report date 20241219 and received date 20241220. These source strings remain independent. Full native nested inventories and unchanged bodies remain outside Git. This capture is source evidence and does not claim CLI or MCP acceptance.
+
 ## Documentation findings and source proposal
 
 | Candidate | Proposed use and official reference | Use and terms | Native questions |
