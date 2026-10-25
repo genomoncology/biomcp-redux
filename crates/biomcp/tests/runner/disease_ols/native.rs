@@ -99,7 +99,6 @@ fn prove_row(
         .is_some_and(|s| s.contains("DOID%3A3910"))
     {
         section_outputs(env, &directory, output)?;
-        paged_measurements(env,&directory)?;
     }
     fs::write(
         output.join(format!("output-{index}.json")),
@@ -167,14 +166,10 @@ fn section_outputs(
         .map_err(|e| e.to_string())?;
         replay(
             directory,
-            json!([{"run":words,"mcp":words,"expect":{"/page/offset":0}}]),
+            json!([{"run":words,"mcp":words,"expect":{"/page/offset":0},"max_bytes":if section=="synonyms" {1000}else{1950}}]),
         )?;
     }
     Ok(())
-}
-
-fn paged_measurements(env:&super::Environment,directory:&Path)->Result<(),String> {
-    for section in ["synonyms","xrefs"] {for offset in ["0","2"] {let q=super::args(&["get","disease","DOID:3910",section,"--source","ols","--ontology","doid","--section-limit","2","--section-offset",offset]);super::measure(env,&q,directory)?;}}Ok(())
 }
 
 fn section_steps(row: &Value, steps: &mut Vec<Value>) {
@@ -201,7 +196,7 @@ fn section_steps(row: &Value, steps: &mut Vec<Value>) {
                     offset.to_string(),
                 ];
                 steps.push(
-                    json!({"run":q,"mcp":q,"expect":{"/page/offset":offset},"max_bytes":6000}),
+                    json!({"run":q,"mcp":q,"expect":{"/page/offset":offset},"max_bytes":match (section,offset) {("synonyms",0)=>1014,("synonyms",_)=>673,(_,0)=>1194,_=>1200}}),
                 );
             }
         }

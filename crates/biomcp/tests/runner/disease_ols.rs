@@ -189,7 +189,7 @@ fn exact() -> Result<(), String> {
         ],
     )?;
     let mut steps = vec![
-        json!({"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result/replaced_by":null,"/result/consider":["MONDO:0800444","MONDO:0800445"],"/result/obsolete":true,"/result/sections":["synonyms","xrefs"]}}),
+        json!({"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result/replaced_by":null,"/result/consider":["MONDO:0800444","MONDO:0800445"],"/result/obsolete":true,"/result/sections":["synonyms","xrefs"]},"max_bytes":1086}),
     ];
     for section in ["synonyms", "xrefs"] {
         let command = [
@@ -202,7 +202,6 @@ fn exact() -> Result<(), String> {
             "--section-limit",
             "1",
         ];
-        measure(&env,&args(&command),&directory)?;
         let mut expect = json!({"/page/total":2,"/page/returned":1,"/next/0/kind":"page"});
         let fields = expect.as_object_mut().ok_or("missing expectations")?;
         if section == "synonyms" {
@@ -220,7 +219,7 @@ fn exact() -> Result<(), String> {
                 json!("native text without inferred equivalence"),
             );
         }
-        steps.push(json!({"run":command,"mcp":command,"expect":expect,"max_bytes":5000}));
+        steps.push(json!({"run":command,"mcp":command,"expect":expect,"max_bytes":if section=="synonyms" {862}else{1002}}));
         let mut command = args(&command);
         command.extend(["--section-offset".into(), "1".into()]);
         steps
@@ -362,9 +361,3 @@ fn maximum() -> Result<(), String> {
     Ok(())
 }
 
-fn measure(env:&Environment,words:&[String],directory:&Path)->Result<(),String> {
-    let mut q=words.to_vec();q.extend(["--replay".into(),directory.to_string_lossy().into()]);
-    let result=invoke(env,&q,0)?;
-    writeln!(std::io::stderr(),"section measurement {:?}: full={}, comparable={}",words,serde_json::to_vec(&result).map_err(|e|e.to_string())?.len(),super::source_terms::size(&result,"")?).map_err(|e|e.to_string())?;
-    Ok(())
-}
