@@ -42,6 +42,8 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("diagnostic/gtr.yaml", 4),
     ("diagnostic/gtr.yaml", 5),
     ("diagnostic/gtr.yaml", 6),
+    ("adverse-event/examples.yaml", 0),
+    ("adverse-event/examples.yaml", 1),
     ("article/pdf/synthetic.yaml", 1),
     ("article/pdf/synthetic.yaml", 2),
     ("drug/ema.yaml", 1),

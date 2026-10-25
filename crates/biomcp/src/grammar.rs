@@ -1,7 +1,11 @@
 //! Schema-fed command parsing shared by CLI and MCP.
+mod entity;
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::Request;
+use biomcp_types::{
+    ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
+    VariantAssertionsGet, VariantPopulationQuery, VariantRecurrenceQuery,
+};
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};
@@ -36,6 +40,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::SearchDiagnostic(_) => "biomcp.diagnostic-search/1",
         Request::GetDiagnostic(_) => "biomcp.diagnostic-get/1",
+        Request::SearchAdverseEvent(_) => "biomcp.adverse-event-search/1",
+        Request::GetAdverseEvent(_) => "biomcp.adverse-event-get/1",
         Request::SearchDisease(_) => "biomcp.disease-search/1",
         Request::GetDisease(_) => "biomcp.disease-get/2",
         Request::SearchDrug(_) => "biomcp.drug-search/2",
@@ -64,6 +70,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "diagnostic", "biomcp.diagnostic-search/1"),
     ("get", "diagnostic", "biomcp.diagnostic-get/1"),
+    ("search", "adverse-event", "biomcp.adverse-event-search/1"),
+    ("get", "adverse-event", "biomcp.adverse-event-get/1"),
     ("search", "disease", "biomcp.disease-search/1"),
     ("get", "disease", "biomcp.disease-get/2"),
     ("search", "drug", "biomcp.drug-search/2"),
@@ -177,11 +185,10 @@ fn help_command() -> Command {
             ),
         );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for &(verb, entity, _) in QUERIES.iter().chain(&[
-        ("sync", "ema", ""),
-        ("sync", "ddinter", ""),
-        ("sync", "gtr", ""),
-    ]) {
+    for &(verb, entity, _) in QUERIES
+        .iter()
+        .chain(&[("sync", "ema", ""), ("sync", "ddinter", ""), ("sync", "gtr", "")])
+    {
         let command = verbs
             .remove(verb)
             .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
@@ -483,31 +490,75 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search", "diagnostic") => checked(value, Request::SearchDiagnostic),
-        ("get", "diagnostic") => checked(value, Request::GetDiagnostic),
-        ("search", "disease") => checked(value, Request::SearchDisease),
-        ("get", "disease") => checked(value, Request::GetDisease),
-        ("variant", "assertions") => checked(value, Request::VariantAssertions),
-        ("variant", "population") => checked(value, Request::VariantPopulation),
-        ("variant", "normalize") => checked(value, Request::VariantNormalize),
-        ("search", "variant") => checked(value, Request::SearchVariant),
-        ("variant", "recurrence") => checked(value, Request::VariantRecurrence),
-        ("get", "variant") => checked(value, Request::GetVariant),
-        ("get", "trial") => checked(value, Request::GetTrial),
-        ("search", "trial") => checked(value, Request::SearchTrial),
-        ("trial", "document") => checked(value, Request::TrialDocument),
-        ("article", "pdf") => checked(value, Request::ArticlePdf),
-        ("article", "citation-evidence") => checked(value, Request::ArticleEvidence),
-        ("article", "recommendations") => checked(value, Request::ArticleRecommend),
-        ("article", "supplement") => checked(value, Request::ArticleSupplement),
-        ("article", "text") => checked(value, Request::ArticleText),
-        ("article", "citations") => checked(value, Request::ArticleCitations),
-        ("article", "references") => checked(value, Request::ArticleReferences),
-        ("get", "article") => checked(value, Request::GetArticle),
-        ("search", "article") => checked(value, Request::SearchArticle),
-        ("search" | "get", "drug") => drug_request(verb, value),
-        ("get", "gene") => checked(value, Request::GetGene),
-        ("search", "gene") => checked(value, Request::SearchGene),
+        ("search" | "get", "adverse-event" | "disease" | "drug" | "diagnostic") => {
+            entity::request(verb, entity, value)
+        }
+        ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
+            .map(Request::VariantAssertions)
+            .map_err(|_| ()),
+        ("variant", "population") => serde_json::from_value::<VariantPopulationQuery>(value)
+            .map(Request::VariantPopulation)
+            .map_err(|_| ()),
+        ("variant", "normalize") => serde_json::from_value::<biomcp_types::VariantNormalize>(value)
+            .map(Request::VariantNormalize)
+            .map_err(|_| ()),
+        ("search", "variant") => serde_json::from_value::<biomcp_types::VariantSearch>(value)
+            .map(Request::SearchVariant)
+            .map_err(|_| ()),
+        ("variant", "recurrence") => serde_json::from_value::<VariantRecurrenceQuery>(value)
+            .map(Request::VariantRecurrence)
+            .map_err(|_| ()),
+        ("get", "variant") => serde_json::from_value::<biomcp_types::VariantGet>(value)
+            .map(Request::GetVariant)
+            .map_err(|_| ()),
+        ("get", "trial") => serde_json::from_value::<biomcp_types::TrialGet>(value)
+            .map(Request::GetTrial)
+            .map_err(|_| ()),
+        ("search", "trial") => serde_json::from_value::<biomcp_types::TrialSearch>(value)
+            .map(Request::SearchTrial)
+            .map_err(|_| ()),
+        ("trial", "document") => serde_json::from_value::<biomcp_types::TrialDocumentGet>(value)
+            .map(Request::TrialDocument)
+            .map_err(|_| ()),
+        ("article", "pdf") => serde_json::from_value::<biomcp_types::ArticlePdf>(value)
+            .map(Request::ArticlePdf)
+            .map_err(|_| ()),
+        ("article", "citation-evidence") => {
+            serde_json::from_value::<biomcp_types::ArticleEvidence>(value)
+                .map(Request::ArticleEvidence)
+                .map_err(|_| ())
+        }
+        ("article", "recommendations") => {
+            serde_json::from_value::<biomcp_types::ArticleRecommend>(value)
+                .map(Request::ArticleRecommend)
+                .map_err(|_| ())
+        }
+        ("article", "supplement") => {
+            serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
+                .map(Request::ArticleSupplement)
+                .map_err(|_| ())
+        }
+        ("article", "text") => serde_json::from_value::<ArticleText>(value)
+            .map(Request::ArticleText)
+            .map_err(|_| ()),
+        ("article", "citations") => serde_json::from_value::<ArticleEdges>(value)
+            .map(Request::ArticleCitations)
+            .map_err(|_| ()),
+        ("article", "references") => serde_json::from_value::<ArticleEdges>(value)
+            .map(Request::ArticleReferences)
+            .map_err(|_| ()),
+        ("get", "article") => serde_json::from_value::<ArticleGet>(value)
+            .map(Request::GetArticle)
+            .map_err(|_| ()),
+        ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
+            .map(Request::SearchArticle)
+            .map_err(|_| ()),
+        ("get", "gene") => serde_json::from_value::<GeneGet>(value)
+            .map(Request::GetGene)
+            .map_err(|_| ()),
+        ("search", "gene") => serde_json::from_value::<GeneSearch>(value)
+            .map(Request::SearchGene)
+            .map_err(|_| ()),
         _ => Err(()),
     }
 }
@@ -536,19 +587,4 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
-}
-
-fn drug_request(verb: &str, value: Value) -> Result<Request, ()> {
-    if verb == "search" {
-        checked(value, Request::SearchDrug)
-    } else {
-        checked(value, Request::GetDrug)
-    }
-}
-
-fn checked<T: serde::de::DeserializeOwned>(
-    value: Value,
-    request: fn(T) -> Request,
-) -> Result<Request, ()> {
-    serde_json::from_value(value).map(request).map_err(|_| ())
 }

@@ -64,6 +64,8 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
         Request::SearchDiagnostic(q) => serde_json::to_value(q),
         Request::GetDiagnostic(q) => serde_json::to_value(q),
+        Request::SearchAdverseEvent(query) => serde_json::to_value(query),
+        Request::GetAdverseEvent(query) => serde_json::to_value(query),
         Request::SearchDisease(query) => serde_json::to_value(query),
         Request::GetDisease(query) => serde_json::to_value(query),
         Request::SearchDrug(q) => serde_json::to_value(q),
@@ -127,6 +129,7 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::ArticleCitations(_)
             | Request::ArticleReferences(_) => "article",
             Request::GetDiagnostic(_)
+            | Request::GetAdverseEvent(_)
             | Request::GetDisease(_)
             | Request::GetDrug(_)
             | Request::GetVariant(_)
@@ -134,6 +137,7 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::GetGene(_)
             | Request::GetArticle(_) => "get",
             Request::SearchDiagnostic(_)
+            | Request::SearchAdverseEvent(_)
             | Request::SearchDisease(_)
             | Request::SearchDrug(_)
             | Request::SearchVariant(_)
@@ -142,11 +146,13 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(
-            request,
-            Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)
-        ) {
+        if matches!(request, Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)) {
             "diagnostic"
+        } else if matches!(
+            request,
+            Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_)
+        ) {
+            "adverse-event"
         } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
             "disease"
         } else if matches!(request, Request::SearchDrug(_) | Request::GetDrug(_)) {

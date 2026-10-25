@@ -781,6 +781,8 @@
         "who-ivd",
         "fda-cdx",
         "fda-pma",
+        "cpic",
+        "clinpgx",
         "cbioportal"
       ],
       "type": "string",
@@ -843,6 +845,8 @@
         " WHO prequalified in vitro diagnostics.",
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
+        " Clinical Pharmacogenetics Implementation Consortium.",
+        " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms."
       ]
     },

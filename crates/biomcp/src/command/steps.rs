@@ -17,6 +17,7 @@ pub(super) fn next(
         &result.body,
         biomcp_types::QueryBody::DiagnosticPage(_)
             | biomcp_types::QueryBody::DiagnosticGenes(_)
+            | biomcp_types::QueryBody::AdverseEventPage(_)
             | biomcp_types::QueryBody::DrugPage(_)
             | biomcp_types::QueryBody::DrugFdaPage(_)
             | biomcp_types::QueryBody::DrugCivic(_)

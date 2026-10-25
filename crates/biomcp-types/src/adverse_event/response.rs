@@ -31,11 +31,29 @@ pub struct AdverseEventHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first_received: Option<Box<str>>,
 }
+biodata::wire_enum! {
+/// Source reaction selector matching semantics.
+AdverseEventReactionMatch {
+    /// Analyzed-field phrase match, without exact-term equality.
+    PhraseMatch => "phrase_match",
+}
+}
 /// Ordered report headers; totals count reports with no population denominator.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventPage {
+    /// Explicit analyzed reaction selector semantics when a reaction was supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reaction_match: Option<AdverseEventReactionMatch>,
+    /// Exact literal provider expression; reaction selectors use phrase match.
+    pub source_query: Box<str>,
+    /// The publisher last_updated date, separate from retrieval.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_updated: Option<biodata::PartialDate>,
+    /// Original retrieval date belonging to this reply, absent for undated legacy recordings.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<biodata::PartialDate>,
     /// Native ordered report candidates.
     pub items: Box<[AdverseEventHeader]>,
     /// Explicit reports unit for envelope page totals.
@@ -44,7 +62,7 @@ pub struct AdverseEventPage {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventPage {
-    const SCHEMA: &'static str = "biomcp.adverse_event_page/1";
+    const SCHEMA: &'static str = "biomcp.adverse_event_page/2";
     type Query = AdverseEventSearch;
 }
 /// FAERS card with native report-level facts and independent collection lengths.

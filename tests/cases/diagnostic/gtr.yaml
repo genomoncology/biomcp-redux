@@ -12,8 +12,8 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 198,
+      "max_tokens": 50,
       "expect": {
         "/schema": "biomcp.sync/3",
         "/result/rows": 19,
@@ -37,8 +37,8 @@
         "--gene",
         "BRCA1"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 4080,
+      "max_tokens": 1020,
       "expect": {
         "/schema": "biomcp.diagnostic_page/2",
         "/page/total": 8,
@@ -70,8 +70,8 @@
         "--offset",
         "5"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 1518,
+      "max_tokens": 380,
       "expect": {
         "/page/total": 8,
         "/result/items/1/identity_status": "conflict",
@@ -99,8 +99,8 @@
         "--type",
         "Research"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 1034,
+      "max_tokens": 259,
       "expect": {
         "/page/total": 1,
         "/result/items/0/header/id": "GTR000000005.1"
@@ -123,8 +123,8 @@
         "--condition-id",
         "MedGen:C2676676"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 1014,
+      "max_tokens": 254,
       "expect": {
         "/page/total": 1,
         "/result/items/0/matched/kind": "condition"
@@ -145,8 +145,8 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 1543,
+      "max_tokens": 386,
       "expect": {
         "/result/kind": "gtr_test",
         "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
@@ -170,8 +170,8 @@
         "gtr",
         "genes"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 888,
+      "max_tokens": 222,
       "expect": {
         "/page/total": 2,
         "/result/items/1/gene/ncbi_gene_id": "7157",
@@ -196,8 +196,8 @@
         "gtr",
         "conditions"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 547,
+      "max_tokens": 137,
       "expect": {
         "/page/total": 1,
         "/result/items/0/snomed_ct_id": "",
@@ -226,8 +226,8 @@
         "--section-limit",
         "2"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 825,
+      "max_tokens": 207,
       "expect": {
         "/page/total": 4,
         "/result/items/0/list": "method_categories",
@@ -252,8 +252,8 @@
         "--gene",
         "NOTLISTED"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 299,
+      "max_tokens": 75,
       "expect": {
         "/status": "complete",
         "/page/total": 0,
@@ -271,8 +271,8 @@
         "gtr",
         "--fresh"
       ],
-      "max_bytes": 14000,
-      "max_tokens": 3500,
+      "max_bytes": 198,
+      "max_tokens": 50,
       "expect": {
         "/schema": "biomcp.sync/3",
         "/result/rows": 19,

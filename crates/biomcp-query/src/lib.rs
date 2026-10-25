@@ -22,3 +22,5 @@ pub mod drug;
 
 /// Source-owned diagnostic laboratory tests and relations.
 pub mod diagnostic;
+/// Source-owned adverse event search.
+pub mod adverse_event;

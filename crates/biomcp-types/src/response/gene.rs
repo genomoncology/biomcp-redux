@@ -75,6 +75,10 @@ pub enum QueryBody {
     DiagnosticConditions(crate::DiagnosticConditions),
     /// Independent native method entries.
     DiagnosticMethods(crate::DiagnosticMethods),
+    /// Report get belongs to its next runtime slice.
+    UnsupportedAdverseEvent,
+    /// Source-native adverse event report page.
+    AdverseEventPage(crate::AdverseEventPage),
     /// Native disease candidate page.
     DiseasePage(crate::DiseasePage),
     /// Exact source concept when present.

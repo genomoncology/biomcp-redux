@@ -1,6 +1,7 @@
 # 0158 — Search FAERS reports with positional text and four typed filters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 26ad5bf763ab32cce56b05c74d9ded591e517d73
 
 Milestone: 3
 

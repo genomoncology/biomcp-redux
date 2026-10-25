@@ -70,6 +70,7 @@ fn main() -> ExitCode {
 fn native_proof() -> Option<ExitCode> {
     let mode = env::args().nth(1)?;
     let run = match mode.as_str() {
+        "--faers-search-synthetic-examples" => runner::faers_search_examples,
         "--seer-native-proof" => runner::seer_native,
         "--trial-condition-native-proof" => runner::trial_condition_native,
         "--monarch-native-proof" => runner::monarch_native,

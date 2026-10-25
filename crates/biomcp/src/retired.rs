@@ -96,6 +96,9 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 }
 
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+    if retired_source(args) {
+        return Some(ErrorMessage::Pharmgkb);
+    }
     if let Some(message) = disease::message(args) {
         return Some(message);
     }
@@ -316,4 +319,30 @@ fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
                         })
                 })
         })
+}
+
+fn retired_source(args: &[OsString]) -> bool {
+    let mut positional = Vec::new();
+    let mut args = args.iter();
+    while let Some(word) = args.next().and_then(|word| word.to_str()) {
+        if word == "--" {
+            break;
+        }
+        if !word.starts_with('-') {
+            positional.push(word);
+            continue;
+        }
+        let (flag, value) = word
+            .split_once('=')
+            .map_or((word, None), |(flag, value)| (flag, Some(value)));
+        if matches!(flag, "--source" | "--disable-sources") {
+            let value = value.or_else(|| args.next().and_then(|word| word.to_str()));
+            if value.is_some_and(|value| value.split(',').any(|part| part == "pharmgkb")) {
+                return true;
+            }
+        } else if value.is_none() && takes_value(flag, &positional).unwrap_or(false) {
+            args.next();
+        }
+    }
+    false
 }
