@@ -45,7 +45,7 @@ impl ContentRange {
                         .ok_or(BadReply)?,
                 ))
         };
-        if !coherent || n > u64::from(limit) || !matches!(status, 200 | 206) {
+        if !coherent || n > u64::from(limit) || status != if n == self.total { 200 } else { 206 } {
             return Err(BadReply);
         }
         Ok(())

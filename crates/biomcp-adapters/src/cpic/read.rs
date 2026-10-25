@@ -5,6 +5,7 @@ use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{PgxGet, PgxSearch};
 use serde::Deserialize;
 /// One native array and its exact collection size.
+#[derive(Debug)]
 pub struct Page<T> {
     /// Complete rows in native order.
     pub items: Vec<T>,

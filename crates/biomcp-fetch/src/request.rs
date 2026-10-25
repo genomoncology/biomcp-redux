@@ -239,6 +239,13 @@ impl Leg<'_> {
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         prepared.identity_encoding = ep.identity_encoding;
         prepared.exact_count = ep.exact_count;
+        if ep.exact_count {
+            use sha2::Digest;
+            let mut hash = sha2::Sha256::new();
+            hash.update(b"Prefer:count=exact\0");
+            hash.update(prepared.identity);
+            prepared.identity = hash.finalize().into();
+        }
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";

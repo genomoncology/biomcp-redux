@@ -228,6 +228,10 @@ impl Body {
 impl Exchange {
     fn valid(&self) -> bool {
         (100..=599).contains(&self.status)
+            && self.content_range.as_ref().is_none_or(|v| {
+                v.len() <= MAX_METADATA_BYTES
+                    && v.bytes().all(|b| b.is_ascii() && !b.is_ascii_control())
+            })
             && self.content_type.len() <= MAX_METADATA_BYTES
             && self
                 .content_type
