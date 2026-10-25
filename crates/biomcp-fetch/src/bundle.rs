@@ -11,6 +11,10 @@ use std::marker::PhantomData;
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 /// A decoded bundle row supplies its own search keys.
 pub trait Row: serde::de::DeserializeOwned {
+    /// Decode a complete source document before any row is published.
+    fn decode_document(_body: &[u8]) -> Result<Vec<String>, crate::BadReply> {
+        Err(crate::BadReply)
+    }
     /// Return the row’s exact and word search keys.
     fn keys(&self) -> Keys;
     /// Validate this row against its declared member of a complete source set.
@@ -41,6 +45,8 @@ pub struct Bundle<R: Row + 'static> {
 /// Supported published row encoding.
 #[derive(Clone, Copy, Debug)]
 pub enum RowFormat {
+    /// Source-owned whole-document decoding, validated before publication.
+    Document,
     /// Tab-separated cells with a named header.
     Tsv,
     /// Strict quoted TSV preserving all cells, optionally gzip-encoded.
@@ -71,6 +77,7 @@ pub enum RowFormat {
 impl RowFormat {
     fn media(self) -> &'static str {
         match self {
+            Self::Document => "text/html",
             Self::Json { .. } => "application/json",
             Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",
@@ -258,4 +265,9 @@ impl Leg<'_> {
             .as_deref()
             .ok_or(crate::CacheError::Database.into())
     }
+}
+
+/// Serialize a typed source document row for the shared checked bundle store.
+pub fn encode_bundle_row<T: serde::Serialize>(row: &T) -> Result<String, crate::BadReply> {
+    serde_json::to_string(row).map_err(|_| crate::BadReply)
 }

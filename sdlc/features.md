@@ -99,6 +99,7 @@ cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guide
 maude-reports: Search explicit device report phrases and read exact native cards, device rows and complete narratives with source terms and independent count units. Cases: `crates/biomcp/tests/runner/maude.rs`.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference. Cases: `crates/biomcp/tests/runner/faers_get.rs`, `tests/cases/adverse-event/get-examples.yaml`.
 
+diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whole physical association rows using their own checked identifiers. Cases: `crates/biomcp/tests/runner/diagnostic_cdx.rs`, `tests/cases/diagnostic/fda-cdx.yaml`.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests. Cases: `crates/biomcp/tests/runner/adverse_event_retirements.rs`.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports. Cases: `crates/biomcp/tests/runner/adverse_event_failures.rs`.
 diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without implicit synchronization or inferred authorization. Cases: `crates/biomcp/tests/runner/diagnostic_who.rs`, `crates/biomcp/tests/runner/diagnostic_who/mechanics.rs`, `tests/cases/diagnostic/who.yaml`, `tests/cases/diagnostic/who-help.yaml`.

@@ -1,4 +1,5 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
+mod companion;
 mod get;
 mod next;
 mod who;
@@ -55,14 +56,14 @@ fn finish_bundle(
 }
 /// Search only stored source-native GTR relations and retain matched selectors.
 pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
+    if q.source() == DiagnosticSearchSource::FdaCdx {
+        return companion::search(cx, q);
+    }
     let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
         items: Box::default(),
         count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),
         distinct_id_total: None,
     }));
-    if q.source() != DiagnosticSearchSource::Gtr {
-        return unsupported(Source::FdaCdx, out);
-    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gtr::SPEC, deadline);

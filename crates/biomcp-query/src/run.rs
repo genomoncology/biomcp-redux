@@ -7,6 +7,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 pub enum Bundle {
     /// Complete WHO prequalified diagnostics export.
     WhoIvd,
+    /// Complete FDA companion diagnostic page.
+    FdaCdx,
     /// Complete GTR version and relation pair.
     Gtr,
     /// The complete eight-file DDInter interaction set.

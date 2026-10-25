@@ -407,6 +407,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let source = match bundle {
+        Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
         Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
         Bundle::Ema => biomcp_types::Source::Ema,
@@ -415,6 +416,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
     };
     let result = match bundle {
+        Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
         Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
         Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
         Bundle::Ddinter => {

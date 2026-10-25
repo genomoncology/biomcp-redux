@@ -201,7 +201,8 @@ impl crate::Leg<'_> {
             return;
         }
         let banner = match format {
-            crate::RowFormat::Tsv
+            crate::RowFormat::Document
+            | crate::RowFormat::Tsv
             | crate::RowFormat::NativeTsv { .. }
             | crate::RowFormat::Json { .. }
             | crate::RowFormat::NativeCsv { .. } => 0,
@@ -212,6 +213,7 @@ impl crate::Leg<'_> {
             header = header.splitn(2, |b| *b == b'\n').nth(1).unwrap_or(&[]);
         }
         let media = match format {
+            crate::RowFormat::Document => "text/html",
             crate::RowFormat::Json { .. } => "application/json",
             crate::RowFormat::Tsv | crate::RowFormat::NativeTsv { .. } => {
                 "text/tab-separated-values"

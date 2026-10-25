@@ -1,6 +1,8 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
 
+pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "gtr", "who-ivd", "fda-cdx"];
+
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
     ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
@@ -163,9 +165,9 @@ fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root.subcommand(Command::new("sync").arg(
-        Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter", "gtr", "who-ivd"]),
-    ));
+    root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
+        "hgnc", "clingen", "ema", "ddinter", "gtr", "who-ivd", "fda-cdx",
+    ])));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(help_command());
@@ -188,12 +190,11 @@ fn help_command() -> Command {
             ),
         );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for &(verb, entity, _) in QUERIES.iter().chain(&[
-        ("sync", "ema", ""),
-        ("sync", "ddinter", ""),
-        ("sync", "gtr", ""),
-        ("sync", "who-ivd", ""),
-    ]) {
+    for (verb, entity, _) in QUERIES
+        .iter()
+        .copied()
+        .chain(BUNDLE_HELP.iter().map(|&bundle| ("sync", bundle, "")))
+    {
         let command = verbs
             .remove(verb)
             .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
@@ -275,6 +276,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("fda-cdx") => Bundle::FdaCdx,
                 Some("gtr") => Bundle::Gtr,
                 Some("who-ivd") => Bundle::WhoIvd,
                 Some("ema") => Bundle::Ema,
