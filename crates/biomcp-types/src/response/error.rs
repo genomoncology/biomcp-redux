@@ -41,7 +41,7 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+    pub ErrorMessage { SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
         NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
         VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E for gene/protein shorthand",
         VariantBuild => "renamed; use: --build",
@@ -89,40 +89,6 @@ singleton! {
     }
 }
 
-// Both typed branches serialize as scalar strings. Schema derives their flat union.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-enum FilterOption {
-    Article(crate::ArticleFilter),
-    Trial(crate::TrialFilter),
-}
-
-#[cfg(feature = "schema")]
-impl schemars::JsonSchema for FilterOption {
-    fn schema_name() -> std::borrow::Cow<'static, str> {
-        "FilterOption".into()
-    }
-    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        let mut values = Vec::new();
-        for schema in [
-            <crate::ArticleFilter as schemars::JsonSchema>::json_schema(generator),
-            <crate::TrialFilter as schemars::JsonSchema>::json_schema(generator),
-        ] {
-            for value in schema
-                .get("enum")
-                .and_then(|v| v.as_array())
-                .into_iter()
-                .flatten()
-            {
-                if !values.contains(value) {
-                    values.push(value.clone());
-                }
-            }
-        }
-        schemars::json_schema!({"type":"string","enum":values})
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -132,7 +98,9 @@ struct ErrorDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     source: Option<crate::Source>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    option: Option<FilterOption>,
+    option: Option<Box<str>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    valid_values: Option<Box<[crate::Text]>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     count: Option<u64>,
     code: ErrorCode,
@@ -175,6 +143,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                valid_values: None,
                 count: None,
                 code: ErrorCode::SchemaUsage,
                 message: ErrorMessage::SchemaUsage,
@@ -194,6 +163,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                valid_values: None,
                 count: None,
                 code: ErrorCode::Retired,
                 message,
@@ -210,6 +180,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                valid_values: None,
                 count: None,
                 code: ErrorCode::Arguments,
                 message: ErrorMessage::Arguments,
@@ -238,6 +209,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                valid_values: None,
                 count: None,
                 code: ErrorCode::Local,
                 message: ErrorMessage::Local,
@@ -260,6 +232,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                valid_values: None,
                 count: None,
                 code: if mismatch {
                     ErrorCode::PoolMismatch
@@ -287,6 +260,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                valid_values: None,
                 count: Some(count),
                 code: ErrorCode::TooManyPmids,
                 message: ErrorMessage::TooManyPmids,
@@ -301,7 +275,7 @@ impl ErrorEnvelope {
     pub fn unsupported_trial_filter(source: crate::Source, option: crate::TrialFilter) -> Self {
         let mut out = Self::arguments();
         out.error.source = Some(source);
-        out.error.option = Some(FilterOption::Trial(option));
+        out.error.option = Some(option.to_string().into());
         out.error.code = ErrorCode::UnsupportedFilter;
         out.error.message = ErrorMessage::UnsupportedFilter;
         out
@@ -310,7 +284,7 @@ impl ErrorEnvelope {
     pub fn unsupported_filter(source: crate::Source, option: crate::ArticleFilter) -> Self {
         let mut out = Self::arguments();
         out.error.source = Some(source);
-        out.error.option = Some(FilterOption::Article(option));
+        out.error.option = Some(option.to_string().into());
         out.error.code = ErrorCode::UnsupportedFilter;
         out.error.message = ErrorMessage::UnsupportedFilter;
         out
@@ -322,6 +296,22 @@ impl ErrorEnvelope {
     pub fn save_refused(url: crate::Text) -> Self {
         let mut out = Self::arguments();
         out.error.url = Some(url);
+        out
+    }
+}
+
+impl ErrorEnvelope {
+    /// Refuse an absent or unknown native selector without echoing caller input.
+    pub fn source_selector(
+        source: crate::Source,
+        option: Box<str>,
+        valid_values: Box<[crate::Text]>,
+    ) -> Self {
+        let mut out = Self::arguments();
+        out.error.source = Some(source);
+        out.error.option = Some(option);
+        out.error.valid_values = Some(valid_values);
+        out.error.message = ErrorMessage::SourceSelector;
         out
     }
 }

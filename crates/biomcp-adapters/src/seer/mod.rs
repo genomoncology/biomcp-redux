@@ -9,6 +9,26 @@ use biodata::{DiseaseStatistic, Text};
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 use biomcp_types::DiseaseSite;
 pub use selectors::{Selector, SelectorError};
+/// Resolve source selectors once before any network access.
+pub fn selection(query: &biomcp_types::DiseaseGet) -> Result<Selection, SelectorError> {
+    let statistic = if query.section() == Some(biomcp_types::DiseaseSection::Survival) {
+        Statistic::Survival {
+            interval: Selector::Interval.resolve(query.interval())?,
+        }
+    } else {
+        Statistic::Incidence {
+            period: Selector::Period.resolve(query.period())?,
+        }
+    };
+    Ok(Selection {
+        site: query.id().clone(),
+        sex: Selector::Sex.resolve(query.sex())?,
+        race: Selector::Race.resolve(query.race())?,
+        age_range: Selector::AgeRange.resolve(query.age_range())?,
+        dataset: Selector::Dataset.resolve(query.dataset())?,
+        statistic,
+    })
+}
 /// A selected native statistic, with its own applicable selector.
 #[derive(Debug)]
 pub enum Statistic {
