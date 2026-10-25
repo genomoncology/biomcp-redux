@@ -13,6 +13,25 @@ fn fetch() -> Fetch {
     })
     .unwrap()
 }
+fn replay_and_offline() -> (Fetch, Fetch) {
+    let cache = biomcp_fetch::ReplayCache::temporary().unwrap();
+    let replay = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../../tests/replies/disease/seer-synthetic"),
+        },
+        replay_cache: Some(cache.clone()),
+        ..Default::default()
+    })
+    .unwrap();
+    let offline = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        replay_cache: Some(cache),
+        ..Default::default()
+    })
+    .unwrap();
+    (replay, offline)
+}
 
 fn changed(change: impl FnOnce(&mut serde_json::Value)) -> (Fetch, tempfile::TempDir) {
     let directory = tempfile::tempdir().unwrap();
@@ -49,13 +68,14 @@ fn selected(statistic: Statistic) -> Selection {
 
 #[test]
 fn catalog_pages_preserve_native_order_labels_and_active_state() {
-    let fetch = fetch();
+    let (fetch, offline) = replay_and_offline();
     let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
     let first = seer::catalog(&leg, 1, 0).unwrap();
     assert_eq!(first.total, 2);
     assert_eq!(first.rows[0].code.as_str(), "55");
     assert_eq!(first.rows[0].label.as_str(), "Example site");
-    let next = seer::catalog(&leg, 1, 1).unwrap();
+    let offline_leg = offline.leg(&seer::SPEC, offline.deadline(Duration::from_secs(20)));
+    let next = seer::catalog(&offline_leg, 1, 1).unwrap();
     assert_eq!(next.rows[0].code.as_str(), "47");
     assert!(!next.rows[0].active);
 }
@@ -163,7 +183,7 @@ fn contradictory_returned_period_is_retained_as_a_problem() {
 
 #[test]
 fn incidence_preserves_stage_order_and_native_counts_without_aggregating() {
-    let fetch = fetch();
+    let (fetch, offline) = replay_and_offline();
     let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
     let query = Selection {
         site: "47".parse().unwrap(),
@@ -190,7 +210,8 @@ fn incidence_preserves_stage_order_and_native_counts_without_aggregating() {
             .as_str(),
         "104"
     );
-    let terminal = seer::statistics(&leg, &query, 1, 2).unwrap();
+    let offline_leg = offline.leg(&seer::SPEC, offline.deadline(Duration::from_secs(20)));
+    let terminal = seer::statistics(&offline_leg, &query, 1, 2).unwrap();
     assert_eq!(terminal.total, 2);
     assert!(terminal.rows.is_empty());
 }
