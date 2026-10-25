@@ -95,12 +95,12 @@ const CASES: &[(&str, &str)] = &[
         "name one diagnostic section per request",
     ),
     (
-        "search diagnostic --source who-ivd --marker HPV",
-        "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
+        "search diagnostic --source who-ivd --disease HIV",
+        "use: search diagnostic --source who-ivd --marker TEXT",
     ),
     (
         "get diagnostic GTR000006692.3",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
     ),
     (
         "--json get diagnostic GTR000006692.3 --source gtr",
@@ -112,11 +112,11 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --gene BRCA1",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
     ),
     (
         "get diagnostic X --source all",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 -g BRCA1",
@@ -132,11 +132,11 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 -d cancer",
-        "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
+        "use: --condition-id MedGen:CUI with --source gtr; use --marker with --source who-ivd",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 --disease cancer",
-        "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
+        "use: --condition-id MedGen:CUI with --source gtr; use --marker with --source who-ivd",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 --manufacturer lab",
@@ -172,7 +172,7 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --source who-ivd --type text",
-        "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
+        "WHO type search is deferred; use: search diagnostic --source who-ivd --marker TEXT",
     ),
     (
         "search diagnostic --source fda-pma --query text",

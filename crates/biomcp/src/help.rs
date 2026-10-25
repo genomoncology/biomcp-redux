@@ -270,6 +270,8 @@ fn diagnostic_selectors(command: &HelpCommand, line: &mut String) {
                     | "--device-id"
                     | "--drug-application"
                     | "--biomarker"
+                    | "--marker"
+                    | "--manufacturer"
                     | "--supplement"
             )
         }) {

@@ -46,6 +46,17 @@ pub struct GtrHeader {
 )]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCandidate {
+    /// One matched WHO product with cells from its first matching native row.
+    WhoIvd {
+        /// Exact source product identifier.
+        id: biodata::WhoProductId,
+        /// Unmodified product name cell.
+        product_name: Box<str>,
+        /// Unmodified manufacturer cell.
+        manufacturer: Box<str>,
+        /// Unmodified marker cell.
+        marker: Box<str>,
+    },
     /// One resolved native identity.
     Resolved {
         /// Compact source header.
@@ -166,6 +177,8 @@ biodata::wire_enum! {
 biodata::wire_enum! {
     /// Meaning of the envelope's total for a source-owned diagnostic page.
     DiagnosticCountUnit {
+        /// Distinct WHO Product IDs, grouping repeated code rows.
+        ProductIdentities => "product_identities",
         /// Distinct exact GTR accession and version identities.
         TestIdentities => "test_identities",
         /// Native relation rows, including repeated IDs and label-only rows.

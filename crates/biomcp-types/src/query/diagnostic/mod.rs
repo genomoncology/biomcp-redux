@@ -6,7 +6,7 @@ pub use get::DiagnosticGet;
 
 biodata::wire_enum! {
     /// One explicit diagnostic discovery source.
-    DiagnosticSearchSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native FdaCdx spelling."] FdaCdx => "fda-cdx" }
+    DiagnosticSearchSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native FdaCdx spelling."] FdaCdx => "fda-cdx", #[doc = "Stored WHO product headers."] WhoIvd => "who-ivd" }
 }
 biodata::wire_enum! {
     /// One explicit exact diagnostic record source.
@@ -60,6 +60,12 @@ struct SearchFields {
     /// Exact table-0 biomarker cell; unsupported in the group table.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     biomarker: Option<Text>,
+    /// Literal whole words in WHO's Pathogen/Disease/Marker cell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    marker: Option<Text>,
+    /// Literal whole words in WHO's Manufacturer name cell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    manufacturer: Option<Text>,
     /// Five rows by default; at most fifty whole native rows.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -79,6 +85,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.condition_id.is_some()
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
+        let who = v.marker.is_some() || v.manufacturer.is_some();
         if !(1..=50).contains(&v.limit)
             || [
                 v.gene.is_some(),
@@ -89,8 +96,13 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             .filter(|v| *v)
             .count()
                 > 1
-            || (v.source == DiagnosticSearchSource::Gtr && cdx)
-            || (v.source == DiagnosticSearchSource::FdaCdx && gtr)
+            || (v.source == DiagnosticSearchSource::Gtr && (cdx || who))
+            || (v.source == DiagnosticSearchSource::FdaCdx && (gtr || who))
+            || (v.source == DiagnosticSearchSource::WhoIvd && (gtr || cdx))
+            || [v.marker.as_ref(), v.manufacturer.as_ref()]
+                .into_iter()
+                .flatten()
+                .any(|v| !v.as_str().chars().any(char::is_alphanumeric))
             || v.device_id
                 .as_ref()
                 .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
@@ -137,6 +149,14 @@ impl DiagnosticSearch {
     /// Whole exact biomarker cell.
     pub fn biomarker(&self) -> Option<&Text> {
         self.0.biomarker.as_ref()
+    }
+    /// Literal WHO marker words.
+    pub fn marker(&self) -> Option<&Text> {
+        self.0.marker.as_ref()
+    }
+    /// Literal WHO manufacturer words.
+    pub fn manufacturer(&self) -> Option<&Text> {
+        self.0.manufacturer.as_ref()
     }
     /// Native rows per page.
     pub fn limit(&self) -> u32 {
