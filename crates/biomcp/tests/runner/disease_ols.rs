@@ -398,7 +398,7 @@ fn literal_zero() -> Result<(), String> {
     let requests = stub.finish()?;
     if requests.len() != 2
         || !requests[0].1.contains("/search?")
-        || !requests[1].1.contains("/terms/")
+        || !requests[1].1.contains("/terms?obo_id=")
     {
         return Err(format!(
             "zero result triggered repair or hidden lookup: {requests:?}"
