@@ -1,3 +1,4 @@
+mod adverse_event_registry;
 mod article_save;
 mod assertions;
 mod clinvar_key;
@@ -8,7 +9,6 @@ mod disease_monarch;
 mod disease_mydisease;
 mod disease_ols;
 mod disease_registry;
-mod adverse_event_registry;
 mod disease_seer;
 mod drug_civic;
 mod drug_civic_fixtures;
