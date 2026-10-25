@@ -64,12 +64,12 @@ fn seed_native(replay: &std::path::Path) -> Result<(), String> {
     Ok(())
 }
 fn check_pages(env: &Environment, replay: &std::path::Path) -> Result<(), String> {
-    for (id, native) in [
-        ("GTR000192572.11", "-1"),
-        ("GTR000192578.9", "-1"),
-        ("GTR000567741.1", "-1"),
-        ("GTR000900001.1", "0"),
-        ("GTR000900002.1", " opaque "),
+    for (id, native, cap) in [
+        ("GTR000192572.11", "-1", 763),
+        ("GTR000192578.9", "-1", 761),
+        ("GTR000567741.1", "-1", 761),
+        ("GTR000900001.1", "0", 769),
+        ("GTR000900002.1", " opaque ", 777),
     ] {
         let page = call(
             env,
@@ -86,7 +86,7 @@ fn check_pages(env: &Environment, replay: &std::path::Path) -> Result<(), String
         {
             return Err(format!("native value became a gene pivot: {page}"));
         }
-        budget(&page, 4096)?;
+        budget(&page, cap)?;
     }
     check_known(env, replay)
 }
@@ -112,7 +112,7 @@ fn check_known(env: &Environment, replay: &std::path::Path) -> Result<(), String
     {
         return Err(format!("positive native gene lost its pivot: {positive}"));
     }
-    budget(&positive, 4096)?;
+    budget(&positive, 826)?;
     let empty = call(
         env,
         replay,
@@ -133,11 +133,10 @@ fn check_known(env: &Environment, replay: &std::path::Path) -> Result<(), String
     {
         return Err(format!("empty native value invented an identity: {empty}"));
     }
-    budget(&empty, 4096)
+    budget(&empty, 998)
 }
 fn budget(value: &Value, cap: usize) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
-    println!("native value page {} bytes", bytes);
     if bytes > cap {
         return Err(format!("native value page {bytes} exceeds {cap}"));
     }

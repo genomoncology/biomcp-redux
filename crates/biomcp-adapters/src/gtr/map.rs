@@ -69,19 +69,19 @@ pub(super) fn relation(r: &Relation) -> Result<GtrTestRelation, RequestError> {
     let medgen = format!("MedGen:{}", r.medgen).parse().map_err(|_| bad())?;
     let text = Text::new(&r.object_name).map_err(|_| bad())?;
     Ok(if r.object == Object::Gene {
+        let gene_id = r.object_id.parse::<biodata::NcbiGeneId>().ok();
         GtrTestRelation::Gene(GtrGeneRelation {
             test_id: r.id.clone(),
             test_type: r.test_type,
             gene: GeneRef::new(
                 Text::new(&r.gene_symbol).map_err(|_| bad())?,
                 None,
-                r.object_id.parse().ok(),
+                gene_id,
                 None,
             )
             .map_err(|_| bad())?,
-            native_gene_or_snomed_ct_id: (!r.object_id.is_empty()
-                && r.object_id.parse::<biodata::NcbiGeneId>().is_err())
-            .then(|| r.object_id.clone()),
+            native_gene_or_snomed_ct_id: (!r.object_id.is_empty() && gene_id.is_none())
+                .then(|| r.object_id.clone()),
             native_medgen: medgen,
             mim_number: r.mim.clone(),
             object_name: r.object_name.clone(),
