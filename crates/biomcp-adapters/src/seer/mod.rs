@@ -2,6 +2,53 @@
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
+mod map;
+mod raw;
+use biodata::{DiseaseStatistic, Text};
+use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
+use biomcp_types::DiseaseSite;
+/// A selected native statistic, with its own applicable selector.
+#[derive(Debug)]
+pub enum Statistic {
+    /// Recent stage-stratified incidence.
+    Incidence {
+        /// Native year-range code.
+        period: Text,
+    },
+    /// Annual relative survival; the source's annual period is fixed separately.
+    Survival {
+        /// Native relative-survival interval.
+        interval: Text,
+    },
+}
+/// Explicit source selectors. None establishes returned dataset membership.
+#[derive(Debug)]
+pub struct Selection {
+    /// Caller-selected catalog code.
+    pub site: Text,
+    /// Native sex selector.
+    pub sex: Text,
+    /// Native race selector.
+    pub race: Text,
+    /// Native age selector.
+    pub age_range: Text,
+    /// Requested data-model selector.
+    pub dataset: Text,
+    /// Independent statistic-specific selector.
+    pub statistic: Statistic,
+}
+/// A locally paged checked source response.
+#[derive(Debug)]
+pub struct Page<T> {
+    /// Rows in native order.
+    pub rows: Vec<T>,
+    /// Total native rows before local paging.
+    pub total: u64,
+    /// Original response metadata, never the page-read time.
+    pub metadata: ReplyMetadata,
+    /// Source fields that remain unverified or contradict a request.
+    pub problems: Vec<biomcp_types::Problem>,
+}
 /// Publisher policy shared by health, admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Seer,
@@ -15,3 +62,99 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+const CATALOG: Endpoint = SPEC.get("/get_var_formats.php").fresh(Freshness::Days(1));
+const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(1));
+/// Read the native catalog without selecting an ontology mapping.
+pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSite>, RequestError> {
+    let (raw, metadata) = leg.json_received::<raw::Catalog>(&CATALOG, &[])?;
+    let total = raw.sites.len() as u64;
+    let labels = raw.formats.get("site");
+    let rows = raw
+        .sites
+        .into_iter()
+        .skip(offset as usize)
+        .take(limit as usize)
+        .filter_map(|site| {
+            let code = site.value.to_string().parse().ok()?;
+            Some(DiseaseSite {
+                label: labels?.get(&site.value.to_string())?.clone(),
+                code,
+                active: site.active,
+            })
+        })
+        .collect();
+    Ok(Page {
+        rows,
+        total,
+        metadata,
+        problems: vec![
+            map::problem("catalog.publisher_date"),
+            map::problem("catalog.publisher_version"),
+        ],
+    })
+}
+impl Selection {
+    fn params(&self) -> Vec<(&'static str, Arg<'_>)> {
+        let survival = matches!(self.statistic, Statistic::Survival { .. });
+        let mut params = vec![
+            ("site", Arg::Text(self.site.as_str())),
+            ("data_type", Arg::Num(if survival { 4 } else { 1 })),
+            ("graph_type", Arg::Num(if survival { 1 } else { 10 })),
+            ("compareBy", Arg::Text("sex")),
+            ("sex", Arg::Text(self.sex.as_str())),
+            ("race", Arg::Text(self.race.as_str())),
+            ("age_range", Arg::Text(self.age_range.as_str())),
+        ];
+        match &self.statistic {
+            Statistic::Incidence { period } => {
+                params.push(("year_range", Arg::Text(period.as_str())))
+            }
+            Statistic::Survival { interval } => {
+                params.push(("relative_survival_interval", Arg::Text(interval.as_str())));
+                params.push(("year_range", Arg::Num(31)));
+            }
+        }
+        params.push(("data_model", Arg::Text(self.dataset.as_str())));
+        params
+    }
+}
+/// Read one native response and page it locally without another provider request.
+pub fn statistics(
+    leg: &Leg<'_>,
+    query: &Selection,
+    limit: u32,
+    offset: u32,
+) -> Result<Page<DiseaseStatistic>, RequestError> {
+    let (raw, metadata) =
+        leg.json_string_received_checked::<raw::Document>(&SERIES, &query.params(), |r| {
+            let expected = if matches!(query.statistic, Statistic::Survival { .. }) {
+                "rel_rate"
+            } else {
+                "rate"
+            };
+            if r.info.measure == expected {
+                Ok(())
+            } else {
+                Err(biomcp_fetch::BadReply)
+            }
+        })?;
+    let (rows, problems) = map::rows(raw, query).map_err(|_| {
+        RequestError::Source(biomcp_fetch::SourceError {
+            source: Source::Seer,
+            reason: biomcp_types::Reason::BadReply,
+            status: Some(200),
+            retry_after: None,
+        })
+    })?;
+    let total = rows.len() as u64;
+    Ok(Page {
+        rows: rows
+            .into_iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .collect(),
+        total,
+        metadata,
+        problems,
+    })
+}
