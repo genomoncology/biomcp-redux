@@ -26,4 +26,10 @@ Milestone: 4
   7. Companion and GTR relations are not Statements; reuse `Concept`, `Curie`, `GeneRef` and `NcbiGeneId`; keep all WHO rows unfiltered.
   8. Propose default page sizes and provisional ceilings from measured source projections, with product and 0.9 figures marked unmeasured and the contained-run ticket named.
   9. Align source names with the registry. "Ian's questions" says None.
+- PM recheck 2026-10-25 of 2601694b: accepted with these amendments, applied on the branch before it lands:
+  1. Replace `get diagnostic P150013 --source fda-cdx [--supplement S020]` with `search diagnostic --source fda-cdx --device-id P150013[/S020]`, which returns an association page, because get returns one card.
+  2. `--drug-application` selects rows whose own drug cell link carries that exact application; rows without an owned typed ID are reached by device search. `--drug-cell` is dropped because no question needs it. `--biomarker` asserts the captured P110027/S012 table-0 cell, or it is deferred.
+  3. The next-step table says sync and fresh, not help.
+  4. The accounting adds `fda-cdx` and `fda-pma` as approved.
+  5. With no WHO search, Q23 is answered only for a known WHO product ID; the design says so.
 - Defers: tickets, which the PM files from the reviewed design.
