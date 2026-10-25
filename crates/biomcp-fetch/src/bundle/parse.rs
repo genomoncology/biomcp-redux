@@ -177,7 +177,10 @@ fn json<R: Row>(body: &[u8], field: &str, metadata: &str) -> Result<Vec<Parsed>,
                     return Err(BadReply);
                 }
             }
-            Ok(Parsed { row: value.to_string(), keys })
+            Ok(Parsed {
+                row: value.to_string(),
+                keys,
+            })
         })
         .collect()
 }

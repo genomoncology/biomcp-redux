@@ -66,7 +66,9 @@ pub(super) fn date(text: &str) -> Result<biodata::PartialDate, BadReply> {
 }
 impl Row for Medicine {
     fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
-        if self.meta.total_records != rows { return Err(BadReply); }
+        if self.meta.total_records != rows {
+            return Err(BadReply);
+        }
         Ok(())
     }
     fn keys(&self) -> Keys {
