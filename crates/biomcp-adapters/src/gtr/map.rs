@@ -12,6 +12,16 @@ fn optional(value: &str) -> Option<Text> {
     Text::new(value).ok()
 }
 pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
+    // The publisher's web route uses the numeric test base; the typed ID keeps
+    // the complete accession/version independently of this current listing link.
+    let base = v
+        .test_accession_ver
+        .as_str()
+        .strip_prefix("GTR")
+        .and_then(|id| id.split_once('.'))
+        .ok_or_else(bad)?
+        .0;
+    let base: u32 = base.parse().map_err(|_| bad())?;
     Ok(GtrHeader {
         id: v.test_accession_ver.clone(),
         name: optional(&v.lab_test_name),
@@ -21,11 +31,8 @@ pub(super) fn header(v: &GtrTestVersion) -> Result<GtrHeader, RequestError> {
             institution: optional(&v.name_of_institution),
             country: optional(&v.facility_country),
         },
-        url: Text::new(&format!(
-            "https://www.ncbi.nlm.nih.gov/gtr/tests/{}/",
-            v.test_accession_ver
-        ))
-        .map_err(|_| bad())?,
+        url: Text::new(&format!("https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"))
+            .map_err(|_| bad())?,
     })
 }
 pub(super) fn card(v: &GtrTestVersion) -> Result<GtrCard, RequestError> {
