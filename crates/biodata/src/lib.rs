@@ -84,6 +84,12 @@ pub use variant::PredictorScore;
 mod license;
 pub use license::License;
 
+mod disease;
+pub use disease::{
+    DiseaseAssociation, DiseaseRelation, DiseaseStatistic, DiseaseSynonym, StatisticEstimate,
+    StatisticSelector,
+};
+
 mod drug;
 pub use drug::{
     AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel,

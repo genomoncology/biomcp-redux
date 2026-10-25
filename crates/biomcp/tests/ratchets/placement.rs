@@ -12,6 +12,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/disease_contracts.rs",
+        "Exercise neutral disease records and standalone consumer contracts through the public library API before adapters exist.",
+    ),
+    (
         "crates/biomcp-types/tests/drug_contracts.rs",
         "Exercise published drug identifier, neutral record and consumer schema contracts through the public library API before adapters exist.",
     ),
@@ -38,6 +42,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-types/tests/schemas.rs",
         "Exercise checked values and schema contracts through the public library API.",
+    ),
+    (
+        "crates/biomcp-types/tests/schemas/disease.rs",
+        "Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration.",
     ),
     (
         "crates/biomcp-types/tests/schemas/compatibility_cases.rs",
