@@ -21,7 +21,7 @@ pub(crate) fn cache(
         localappdata.map(|root| {
             root.join(format!(
                 "biomcp/cache-{}-{}.sqlite",
-                biomcp_fetch::VERSION,
+                biomcp_fetch::CACHE_NAMESPACE_VERSION,
                 biomcp_query::store::VERSION
             ))
         })
@@ -30,7 +30,7 @@ pub(crate) fn cache(
             .map(|root| {
                 root.join(format!(
                     "biomcp/cache-{}-{}.sqlite",
-                    biomcp_fetch::VERSION,
+                    biomcp_fetch::CACHE_NAMESPACE_VERSION,
                     biomcp_query::store::VERSION
                 ))
             })

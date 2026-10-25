@@ -105,6 +105,19 @@ fn default_cache_migration() -> Check {
             "upgrade lost the ordinary offline gene bundle: {value}"
         ));
     }
+    let article = invoke(
+        &env,
+        vec![
+            "search".into(),
+            "article".into(),
+            "synthetic".into(),
+            "--offline".into(),
+        ],
+        4,
+    )?;
+    if article.get("status") != Some(&json!("failed")) {
+        return Err("query owner could not open the migrated default cache".into());
+    }
     if stub.finish()?.len() != 2 {
         return Err("offline migration opened HTTP".into());
     }
@@ -359,7 +372,7 @@ fn article_owners() -> Check {
         fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
         let file = parent.join(format!(
             "cache-{}-{}.sqlite",
-            biomcp_fetch::VERSION,
+            biomcp_fetch::CACHE_NAMESPACE_VERSION,
             biomcp_query::store::VERSION
         ));
         let case = env.root().join("case");
@@ -458,7 +471,7 @@ pub(super) fn article_processes() -> Check {
     fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
     let file = parent.join(format!(
         "cache-{}-{}.sqlite",
-        biomcp_fetch::VERSION,
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
         biomcp_query::store::VERSION
     ));
     // Replay and ordinary caches have the same owned schema. Copy only after

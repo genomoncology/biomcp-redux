@@ -11,9 +11,10 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+/// Transport SQLite schema version checked by other owners of the shared database.
+pub const VERSION: u32 = 2;
 /// Compatible cache namespace used by callers when naming shared cache files.
-pub const VERSION: u32 = 1;
-const SCHEMA_VERSION: u32 = 2;
+pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
 const OPEN_WAIT: Duration = Duration::from_secs(5);
 
@@ -143,7 +144,7 @@ impl Cache {
         } else {
             None
         };
-        if version.is_some_and(|version| version != 1 && version != SCHEMA_VERSION) {
+        if version.is_some_and(|version| version != 1 && version != VERSION) {
             return Err(CacheError::Version);
         }
         if version.is_none() {
@@ -171,7 +172,7 @@ impl Cache {
         crate::bundle::store::initialize(&tx)?;
         tx.execute(
             "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
-            (OWNER, SCHEMA_VERSION),
+            (OWNER, VERSION),
         )
         .map_err(db_error)?;
         tx.commit().map_err(db_error)
