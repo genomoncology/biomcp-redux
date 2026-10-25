@@ -363,7 +363,7 @@ pub(super) fn stale_rejection() -> Result<(), String> {
             "stale checked rows lost the rejected-reply problem: {stale}"
         ));
     }
-    if crate::runner::source_terms::size(&stale, "")? > 2784 {
+    if crate::runner::source_terms::size(&stale, "")? > 2780 {
         return Err("stale response exceeds bounded output".into());
     }
     if stub.finish()?.len() != 2 {
