@@ -43,7 +43,10 @@
         "/result/commands/0/arguments/6/choices": [
           "faers",
           "maude"
-        ]
+        ],
+        "/result/commands/0/description": "Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.",
+        "/result/commands/0/arguments/5/description": "FAERS report flag: death or hospitalization; never a reaction outcome.",
+        "/result/commands/0/arguments/7/description": "Literal drug text or MAUDE device generic-name phrase."
       },
       "max_bytes": 1914,
       "max_tokens": 479
@@ -89,7 +92,12 @@
         },
         "": {
           "max_bytes": 2579
-        }
+        },
+        "/result/commands/0/arguments/6/choices": [
+          "faers",
+          "maude"
+        ],
+        "/result/commands/0/section_rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only."
       },
       "max_bytes": 2580
     }
