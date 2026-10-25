@@ -56,7 +56,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ols::SPEC, deadline).fresh(cx.fresh);
     let reply = ols::get(&leg, query);
-    let error = reply.as_ref().err().copied();
+    let error = reply.as_ref().err().map(|e|e.error);
     let mut out = empty(QueryBody::DiseaseCard(None));
     out.sources
         .push(status::source(Source::Ols, leg.finish(), error));
@@ -64,15 +64,8 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     match reply {
         Ok(Some(record)) => apply(&mut out, query, record),
         Ok(None) => out.status = Status::Absent,
-        Err(biomcp_fetch::RequestError::Source(e))
-            if e.reason == biomcp_types::Reason::BadReply =>
-        {
-            out.problems.push(biomcp_types::Problem {
-                source: Source::Ols,
-                record: Some(query.id().clone()),
-                field: "returned_id".into(),
-                code: biomcp_types::ProblemCode::ValueUnknown,
-            })
+        Err(e) if e.field.is_some() => {
+            out.problems.push(biomcp_types::Problem {source:Source::Ols,record:Some(query.id().clone()),field:e.field.unwrap_or("identity").into(),code:biomcp_types::ProblemCode::ValueUnknown});
         }
         _ => (),
     }
