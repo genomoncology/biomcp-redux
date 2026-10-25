@@ -293,15 +293,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
-    trials.extend(trial_tables::trials());
-    trials.extend(trial_wider::trials());
-    trials.extend(trial_get::trials());
-    trials.extend(nci::trials());
+    trials.extend(trial_trials());
     trials.extend(clinvar_key::trials());
-    trials.extend(nci_walk::trials());
-    trials.extend(trial_condition::trials());
-    trials.extend(trial_documents::trials());
-    trials.extend(trial_sites::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
@@ -511,4 +504,17 @@ pub(super) fn seer_native(path: &Path) -> Result<(), String> {
 
 pub(super) fn trial_condition_native(path: &Path) -> Result<(), String> {
     trial_condition::native(path)
+}
+
+fn trial_trials() -> Vec<Trial> {
+    [
+        trial_tables::trials(),
+        trial_wider::trials(),
+        trial_get::trials(),
+        nci::trials(),
+        nci_walk::trials(),
+        trial_condition::trials(),
+        trial_documents::trials(),
+        trial_sites::trials(),
+    ].into_iter().flatten().collect()
 }

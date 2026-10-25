@@ -74,8 +74,8 @@ pub use variant_normalize::{
 };
 mod trial;
 mod trial_condition;
-pub use trial_condition::TrialConditionResolution;
 pub use trial::{TrialPage, TrialParameter};
+pub use trial_condition::TrialConditionResolution;
 
 mod trial_get;
 pub use trial_get::{
