@@ -30,7 +30,7 @@ pub use bundle::{
     Bundle, BundleInfo, BundlePart, BundleSet, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
     RowFormat, SetRow,
 };
-pub use cache::{SchemaOwner, VERSION, check_owners};
+pub use cache::{CACHE_NAMESPACE_VERSION, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, PathSegment, SecretName, SourceSpec,
@@ -377,4 +377,11 @@ pub struct ReplyMetadata {
     pub identity: [u8; 32],
     /// Original fetch time in Unix seconds; zero for legacy recordings without a timestamp.
     pub fetched: i64,
+    /// Native exact count and selected bounds, when supplied by the provider.
+    pub content_range: Option<ContentRange>,
 }
+
+mod counted;
+pub use counted::ContentRange;
+
+mod request_body;

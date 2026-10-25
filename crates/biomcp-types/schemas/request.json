@@ -379,6 +379,52 @@
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
+    "PgxAnnotationKind": {
+      "description": "Independent ClinPGx collection kinds, never merged.",
+      "enum": [
+        "clinical",
+        "guideline",
+        "label"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Clinical annotation min tier.",
+        " Guideline references.",
+        " Label references."
+      ]
+    },
+    "PgxDiplotypeExpression": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "PgxSection": {
+      "description": "One independent named section.",
+      "enum": [
+        "recommendations",
+        "guidelines",
+        "diplotype",
+        "annotations"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Complete native recommendation contexts.",
+        " Native guideline references.",
+        " Declared source diplotype lookup.",
+        " One ClinPGx annotation kind."
+      ]
+    },
+    "PgxSource": {
+      "description": "Explicit independent source.",
+      "enum": [
+        "cpic",
+        "clinpgx"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CPIC source-native records.",
+        " ClinPGx annotation records."
+      ]
+    },
     "PhaseFilter": {
       "description": "Explicit source phase selection, including the registry's combined phases.",
       "enum": [
@@ -578,6 +624,140 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Discover source-native CPIC gene pairs.",
+      "properties": {
+        "command": {
+          "const": "search_pgx",
+          "type": "string"
+        },
+        "cpic_level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal native level, including compound levels such as B/C."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Explicit source gene symbol."
+        },
+        "limit": {
+          "default": 5,
+          "description": "Rows per native page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native source offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/PgxSource",
+          "description": "Required CPIC source."
+        }
+      },
+      "required": [
+        "command",
+        "gene",
+        "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read an explicit CPIC gene card or source section.",
+      "properties": {
+        "command": {
+          "const": "get_pgx",
+          "type": "string"
+        },
+        "diplotype": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxDiplotypeExpression"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unchanged declared expression required for the diplotype section only."
+        },
+        "drug_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact published CPIC drug key; recommendations only."
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Explicit source gene symbol."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxAnnotationKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One ClinPGx collection; clinical is the default only on annotations."
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One named section; omitted means the CPIC gene card.",
+          "x-positional": 0
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Complete source rows per independent section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Offset within the selected section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/PgxSource",
+          "description": "Required source, checked against the section."
+        }
+      },
+      "required": [
+        "command",
+        "gene",
+        "source"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Discover native diagnostic laboratory tests.",

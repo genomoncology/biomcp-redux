@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "PgxSource": {
+      "description": "Explicit independent source.",
+      "enum": [
+        "cpic",
+        "clinpgx"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CPIC source-native records.",
+        " ClinPGx annotation records."
+      ]
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.pgx-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Checked gene-keyed CPIC pair search; no positional or drug text input.",
+  "properties": {
+    "cpic_level": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Literal native level, including compound levels such as B/C."
+    },
+    "gene": {
+      "$ref": "#/$defs/GeneSymbol",
+      "description": "Explicit source gene symbol."
+    },
+    "limit": {
+      "default": 5,
+      "description": "Rows per native page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native source offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source": {
+      "$ref": "#/$defs/PgxSource",
+      "description": "Required CPIC source."
+    }
+  },
+  "required": [
+    "gene",
+    "source"
+  ],
+  "title": "PgxSearch",
+  "type": "object"
+}

@@ -65,6 +65,16 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Source-native CPIC pair page.
+    PgxPage(crate::PgxPage),
+    /// Exact source gene identity, absent after failure or source-local zero.
+    PgxCard(Option<crate::PgxCard>),
+    /// Independent native recommendation page.
+    PgxRecommendations(crate::PgxRecommendations),
+    /// Native guideline references.
+    PgxGuidelines(crate::PgxGuidelines),
+    /// Complete source diplotype lookup.
+    PgxDiplotype(crate::PgxDiplotype),
     /// Source-ordered diagnostic candidates.
     DiagnosticPage(crate::DiagnosticPage),
     /// Exact selected diagnostic card.

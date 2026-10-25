@@ -8,7 +8,7 @@ use biomcp_types::Reason;
 
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
-    Positive(T, bool, i64),
+    Positive(T, bool, i64, Option<crate::ContentRange>),
     Absent,
 }
 
@@ -47,8 +47,8 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
-        live: impl FnOnce() -> Result<(T, u16, Vec<u8>, i64), RequestError>,
-    ) -> Result<(T, i64), RequestError> {
+        live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
+    ) -> Result<(T, i64, Option<crate::ContentRange>), RequestError> {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
@@ -57,13 +57,23 @@ impl Leg<'_> {
             return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _, fetched)| (reply, fetched));
+            return live().map(|(reply, _, _, fetched, range)| {
+                (
+                    reply,
+                    fetched,
+                    range.as_deref().and_then(crate::ContentRange::parse),
+                )
+            });
         };
         let mut stale = None;
         if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
             match self.checked_cached(cache, prepared, codec)? {
-                Some(Checked::Positive(reply, true, fetched)) => return Ok((reply, fetched)),
-                Some(Checked::Positive(reply, false, fetched)) => stale = Some((reply, fetched)),
+                Some(Checked::Positive(reply, true, fetched, range)) => {
+                    return Ok((reply, fetched, range));
+                }
+                Some(Checked::Positive(reply, false, fetched, range)) => {
+                    stale = Some((reply, fetched, range))
+                }
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
@@ -71,15 +81,23 @@ impl Leg<'_> {
             }
         }
         match live() {
-            Ok((reply, status, body, fetched)) => {
+            Ok((reply, status, body, fetched, range)) => {
                 let mut entry = Entry::new(status, body, seconds, codec.name());
                 entry.fetched_at = fetched;
+                entry.content_range = range;
                 if (200..300).contains(&status) && codec.cacheable(&reply) {
                     cache.write(key, self.spec.source, url, &entry, self.budget())?;
                 } else if codec.json_absence && status == 404 {
                     cache.remove(key, self.budget())?;
                 }
-                Ok((reply, fetched))
+                Ok((
+                    reply,
+                    fetched,
+                    entry
+                        .content_range
+                        .as_deref()
+                        .and_then(crate::ContentRange::parse),
+                ))
             }
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
@@ -118,7 +136,7 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
-    ) -> Result<(T, i64), RequestError> {
+    ) -> Result<(T, i64, Option<crate::ContentRange>), RequestError> {
         if let Some(cache) = self
             .fetch
             .cache
@@ -126,14 +144,14 @@ impl Leg<'_> {
             .filter(|_| endpoint.fresh.seconds().is_some())
         {
             match self.checked_cached(cache, prepared, codec)? {
-                Some(Checked::Positive(reply, fresh, fetched)) => {
+                Some(Checked::Positive(reply, fresh, fetched, range)) => {
                     if !fresh {
                         self.report
                             .lock()
                             .unwrap_or_else(std::sync::PoisonError::into_inner)
                             .stale = true;
                     }
-                    return Ok((reply, fetched));
+                    return Ok((reply, fetched, range));
                 }
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
@@ -181,7 +199,7 @@ impl Leg<'_> {
         }
         let reply = (entry.content_type.as_deref() == Some(codec.name())
             && codec.validate(&entry.body).is_ok())
-        .then(|| codec.decode(&entry.body))
+        .then(|| codec.decode_response(&entry.body, entry.content_range.as_deref(), entry.status))
         .flatten()
         .filter(|reply| codec.cacheable(reply));
         let Some(reply) = reply else {
@@ -207,6 +225,14 @@ impl Leg<'_> {
                 (std::any::type_name::<T>(), true),
             );
         }
-        Ok(Some(Checked::Positive(reply, fresh, entry.fetched_at)))
+        Ok(Some(Checked::Positive(
+            reply,
+            fresh,
+            entry.fetched_at,
+            entry
+                .content_range
+                .as_deref()
+                .and_then(crate::ContentRange::parse),
+        )))
     }
 }

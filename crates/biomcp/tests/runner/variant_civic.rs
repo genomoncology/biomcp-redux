@@ -342,7 +342,7 @@ fn poisoned() -> Result<(), String> {
     run(&environment, &["get", "variant", "CA123643", "civic"])?;
     let path = environment.root().join(format!(
         "cache/biomcp/cache-{}-{}.sqlite",
-        biomcp_fetch::VERSION,
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
         biomcp_query::store::VERSION
     ));
     let database = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;

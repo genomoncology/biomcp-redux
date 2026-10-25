@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/diplotype?select=%2A&genesymbol=eq.DPYD&diplotype=eq.%2A1%2F%2A2A&limit=5&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1792918640,
+      "status": 200,
+      "content_type": "application/json",
+      "content_range": "0-0/1",
+      "delay_ms": 9,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"activityvalue1":"n/a","activityvalue2":"n/a","consultationtext":"Synthetic source consultation","description":"Synthetic unresolved mapping","diplotype":"*1/*2A","diplotypekey":{"DPYD":{"*1":1,"*2A":1}},"ehrpriority":"Synthetic priority","function1":"Synthetic uncertainty","function2":"n/a","generesult":"Synthetic result","genesymbol":"DPYD","lookupkey":{"DPYD":"n/a"},"totalactivityscore":"n/a"}]
+      }
+    }
+  ]
+}

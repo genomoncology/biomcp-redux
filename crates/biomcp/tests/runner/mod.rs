@@ -6,6 +6,7 @@ mod assertions;
 mod clinvar_key;
 mod configuration;
 mod corporate;
+mod cpic;
 mod credential_containment;
 mod diagnostic_gtr;
 mod diagnostic_registry;
@@ -542,6 +543,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(diagnostic_registry::trials());
     trials.extend(diagnostic_gtr::trials());
     trials.extend(pgx_registry::trials());
+    trials.extend(cpic::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(adverse_event_retirements::trials());
     trials.extend(drug_civic::trials());

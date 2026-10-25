@@ -75,7 +75,10 @@ pub(super) fn network_steps(
     sources: &[biomcp_types::SourceOutcome],
     candidate_page: Option<bool>,
 ) {
-    if candidate_page.is_none() {
+    let association = steps
+        .iter()
+        .any(|step| step.kind == biomcp_types::StepKind::Pivot);
+    if candidate_page.is_none() && !association {
         append_network_steps(steps, sources);
         steps.truncate(5);
         return;
@@ -83,8 +86,9 @@ pub(super) fn network_steps(
     // Some disambiguate actions are searches or relations, not candidate gets.
     let (mut candidates, mut extras): (Vec<_>, Vec<_>) =
         std::mem::take(steps).into_iter().partition(|step| {
-            step.kind == biomcp_types::StepKind::Disambiguate
-                && step.args.first().is_some_and(|arg| arg.as_ref() == "get")
+            step.kind == biomcp_types::StepKind::Pivot
+                || step.kind == biomcp_types::StepKind::Disambiguate
+                    && step.args.first().is_some_and(|arg| arg.as_ref() == "get")
         });
     if candidates.is_empty() {
         append_network_steps(&mut extras, sources);
@@ -93,7 +97,7 @@ pub(super) fn network_steps(
         return;
     }
     // A section may itself have page actions. Only the response page is protected.
-    if candidate_page == Some(true)
+    if (candidate_page == Some(true) || association)
         && let Some(index) = extras
             .iter()
             .position(|step| step.kind == biomcp_types::StepKind::Page)

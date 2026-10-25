@@ -38,6 +38,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchPgx(_) => "biomcp.pgx-search/1",
+        Request::GetPgx(_) => "biomcp.pgx-get/1",
         Request::SearchDiagnostic(_) => "biomcp.diagnostic-search/1",
         Request::GetDiagnostic(_) => "biomcp.diagnostic-get/1",
         Request::SearchAdverseEvent(_) => "biomcp.adverse-event-search/1",
@@ -68,6 +70,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "pgx", "biomcp.pgx-search/1"),
+    ("get", "pgx", "biomcp.pgx-get/1"),
     ("search", "diagnostic", "biomcp.diagnostic-search/1"),
     ("get", "diagnostic", "biomcp.diagnostic-get/1"),
     ("search", "adverse-event", "biomcp.adverse-event-search/1"),
@@ -491,7 +495,7 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search" | "get", "adverse-event" | "disease" | "drug" | "diagnostic") => {
+        ("search" | "get", "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic") => {
             entity::request(verb, entity, value)
         }
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)

@@ -36,6 +36,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("pgx/examples.yaml", 0),
+    ("pgx/examples.yaml", 1),
+    ("pgx/examples.yaml", 2),
+    ("pgx/examples.yaml", 3),
     ("diagnostic/gtr.yaml", 0),
     ("diagnostic/gtr.yaml", 10),
     ("diagnostic/gtr.yaml", 1),

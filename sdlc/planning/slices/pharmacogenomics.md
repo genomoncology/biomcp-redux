@@ -452,3 +452,42 @@ The remaining source gap is current policy text; W01 retains the PM ruling witho
 ## Ian's questions
 
 None.
+
+### Implemented CPIC output measurements
+
+The separate product delegate replayed all 22 fixed 0166 captures through the actual CLI and MCP at `84526cee854c255eb5c7aa6b511c5821ab5808d6` in `j13010`. Native bodies remained outside Git. A local TLS fixture delivered unchanged captured bodies and native Content-Range values through the actual recorder. These local deliveries do not replace the original publisher capture dates. Every complete native row and explicit query selector survived CLI/MCP equality checks. The comparison removes only the exact checked `terms` and `terms_url` values; it retains noncommercial use and all clinical context. Compact UTF-8 bytes, approximate tokens `ceil(bytes/4)` and ceilings at `ceil(bytes*1.15)` follow. Cold local replay and warm cache timings describe local execution on the same machine, not provider latency.
+
+| Case | Full bytes | Comparable bytes | Approximate full tokens | Full ceiling | Comparable ceiling | Cold local replay ms | Warm cache CLI ms | Warm cache MCP ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| P01 | 1656 | 1495 | 414 | 1905 | 1720 | 26.048 | 15.228 | 15.081 |
+| P02 | 1434 | 1273 | 359 | 1650 | 1464 | 18.443 | 16.379 | 16.14 |
+| P03 | 964 | 803 | 241 | 1109 | 924 | 17.287 | 17.123 | 16.975 |
+| P04 | 1348 | 1187 | 337 | 1551 | 1366 | 19.448 | 20.779 | 16.869 |
+| P05 | 2099 | 1938 | 525 | 2414 | 2229 | 21.073 | 16.997 | 16.959 |
+| P06 | 640 | 479 | 160 | 736 | 551 | 18.586 | 16.575 | 15.987 |
+| G01 | 757 | 596 | 190 | 871 | 686 | 18.504 | 16.733 | 15.776 |
+| G02 | 751 | 590 | 188 | 864 | 679 | 18.401 | 16.458 | 16.423 |
+| R01 | 4964 | 4803 | 1241 | 5709 | 5524 | 19.598 | 18.418 | 16.974 |
+| R02 | 4843 | 4682 | 1211 | 5570 | 5385 | 20.527 | 17.842 | 16.777 |
+| R03 | 7131 | 6970 | 1783 | 8201 | 8016 | 19.835 | 19.158 | 17.964 |
+| R04 | 7137 | 6976 | 1785 | 8208 | 8023 | 18.989 | 18.624 | 17.114 |
+| R05 | 7931 | 7770 | 1983 | 9121 | 8936 | 20.398 | 17.766 | 19.492 |
+| R06 | 3611 | 3450 | 903 | 4153 | 3968 | 19.397 | 17.966 | 16.616 |
+| L01 | 738 | 577 | 185 | 849 | 664 | 19.409 | 17.72 | 16.537 |
+| L02 | 866 | 705 | 217 | 996 | 811 | 21.114 | 20.952 | 17.21 |
+| L03 | 2492 | 2331 | 623 | 2866 | 2681 | 21.521 | 18.61 | 19.477 |
+| D01 | 570 | 409 | 143 | 656 | 471 | 18.498 | 16.836 | 16.514 |
+| D02 | 1760 | 1599 | 440 | 2024 | 1839 | 19.219 | 18.963 | 16.558 |
+| D03 | 1686 | 1525 | 422 | 1939 | 1754 | 19.879 | 18.968 | 17.559 |
+| D04 | 1725 | 1564 | 432 | 1984 | 1799 | 19.508 | 17.289 | 16.539 |
+| D05 | 1702 | 1541 | 426 | 1958 | 1773 | 18.863 | 18.482 | 15.446 |
+
+`help search pgx` measured 897 bytes with a 1032-byte ceiling. `help get pgx` measured 1763 bytes with a 2028-byte ceiling. The counts describe the implemented source contracts. They do not establish current clinical guidance beyond the captured tables or a CPIC dataset release. The exact native drug filter uses the recommendation table; its rows never acquire view-only names or guideline URLs.
+
+The durable native product proof is `data/biomcp-redux/0166-cpic-product-proof/j13010-product-proof.tar.gz` on Yellow, SHA-256 `a1a1e3e89b53cd526702b2cd999a961a7bd15967cc86df744e374dacab8d5966`. The separate source capture is `data/biomcp-redux/0166-cpic-native-capture/j12978-native-capture.tar.gz`, SHA-256 `13feccbd90e4365fa6d6f45780cc9408411267a640da665f0fb4f9d9c784106a`. Synthetic executable examples use entirely authored rows and actual local-recorder identities.
+
+The 22 executable native cases and real-recorder fixtures remain outside Git at `data/biomcp-redux/0166-cpic-capped-cases/j13036-capped-cases.tar.gz` on Yellow, SHA-256 `3fd1267e69d02dcdae541cd604feef6e6e8beb9db026095f49176796106717e0`. All 47 manifest entries were independently verified. The included shell recipe uses the existing external case interface and fixture-root setting. Its case ceilings follow the existing runner convention, which validates and removes `use`, `terms` and `terms_url` before measuring comparable bytes and tokens. The product comparison table above retains `use`. One G01 case passed as a loader and cap smoke check in `j13036`; this step did not repeat the 22-case native product proof.
+
+After embedding two executable examples for each PGx command, `j13052` measured search help at 1,033 compact bytes and get help at 1,893. Their executable case ceilings are 1,188 and 2,177 bytes, respectively, before the CLI newline. A synthetic truncated-diplotype response failed on the old adapter in `j13048` and passes as an explicit `bad_reply` failure after the correction. The adapter rejects a Content-Range total larger than its complete declared-diplotype array before cache admission. It emits no diplotype continuation action.
+
+Guideline references expose every distinct supported linked gene as a `pivot` in native order, then the native page action, then bounded extra actions. The shared step contract includes this additive kind. Replaying the three retained guideline cases in `j13081` preserved every result row and passed their existing CLI/MCP output ceilings. L01 remains 738 compact bytes. L02 changes its NUDT15 action from `section` to `pivot` and falls from 866 to 864 bytes. L03 changes its five existing gene actions to `pivot`, restores the sixth linked gene CYP2C19 and the page action, and grows from 2,492 to 2,640 bytes. These measurements supersede only those action sizes above; they do not remeasure local timings or contact the provider. A gene card also requires the native count to describe its complete zero-or-one identity before selecting a row.
