@@ -183,8 +183,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines =
-        vec!["BioMCP. help COMMAND: options and examples.".into()];
+    let mut lines = vec!["BioMCP. help COMMAND: options and examples.".into()];
     for command in commands {
         if command.command.first().is_some_and(|word| word == "help")
             && command.command.get(1).is_some_and(|word| word == "key")

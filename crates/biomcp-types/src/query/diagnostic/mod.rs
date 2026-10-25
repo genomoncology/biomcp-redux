@@ -13,8 +13,15 @@ biodata::wire_enum! {
     DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma", #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
 }
 biodata::wire_enum! {
+    described
     /// Source-supported diagnostic sections; no all section.
-    DiagnosticSection { #[doc = "Native Genes spelling."] Genes => "genes", #[doc = "Native Conditions spelling."] Conditions => "conditions", #[doc = "Native Methods spelling."] Methods => "methods", #[doc = "Native Regulatory spelling."] Regulatory => "regulatory", #[doc = "Native Supplements spelling."] Supplements => "supplements" }
+    DiagnosticSection {
+        #[doc = "GTR native gene rows; five per page."] Genes => "genes",
+        #[doc = "GTR native condition rows; five per page."] Conditions => "conditions",
+        #[doc = "GTR native method entries; five per page."] Methods => "methods",
+        #[doc = "Selected PMA submission statement; one fragment per page."] Regulatory => "regulatory",
+        #[doc = "PMA base application supplement headers; five per page."] Supplements => "supplements"
+    }
 }
 fn limit() -> u32 {
     5
