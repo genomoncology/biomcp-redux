@@ -3,10 +3,14 @@ use super::{configuration::invoke, launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "adverse-event-retirements/fixed-guidance-before-io",
-        || check().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("adverse-event-retirements/fixed-guidance-before-io", || {
+            check().map_err(Into::into)
+        }),
+        Trial::test("adverse-event-retirements/option-and-literal-boundaries", || {
+            boundaries().map_err(Into::into)
+        }),
+    ]
 }
 fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -469,3 +473,53 @@ const CASES: &[(&str, &str)] = &[
         "use the card seriousness flags and the reactions section",
     ),
 ];
+
+// Tokens owned by other options or literal input must never become retirements.
+fn boundaries() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let globals = env.globals(None, true);
+    for words in [
+        "search adverse-event text --limit=--count",
+        "search adverse-event text --offset --outcome",
+        "get adverse-event 100 --snapshot --json",
+        "search adverse-event text --type=unsupported",
+        "search adverse-event text --type",
+        "search adverse-event text --source=vaers",
+        "search adverse-event text --type=vaers",
+        "search adverse-event text --source=cvx",
+        "search adverse-event text --counted",
+    ] {
+        let mut args = globals.clone();
+        args.extend(words.split_whitespace().map(str::to_owned));
+        let value = invoke(&env, args.clone(), 2)?;
+        if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
+            return Err(format!("{words}: literal or unsupported selector retired: {value}"));
+        }
+        if mcp::call_with_globals(&env, &args, true, &[])? != value {
+            return Err(format!("{words}: CLI/MCP boundary differs"));
+        }
+    }
+    for (suffix, text, reaction) in [
+        (vec!["--", "--count"], "--count", None),
+        (vec!["--", "--outcome"], "--outcome", None),
+        (vec!["--", "--json"], "--json", None),
+        (vec!["--", "drug adverse-events"], "drug adverse-events", None),
+        (vec!["--reaction=--count", "literal"], "literal", Some("--count")),
+        (vec!["--reaction", "outcomes", "literal"], "literal", Some("outcomes")),
+    ] {
+        let mut args = globals.clone();
+        args.extend(["search", "adverse-event"].map(str::to_owned));
+        args.extend(suffix.into_iter().map(str::to_owned));
+        let value = invoke(&env, args.clone(), 4)?;
+        if value.pointer("/query/text") != Some(&json!(text))
+            || value.pointer("/query/reaction") != reaction.map(|r| json!(r)).as_ref()
+            || value.pointer("/sources/0/reason") != Some(&json!("offline"))
+        {
+            return Err(format!("literal input changed: {value}"));
+        }
+        if mcp::call_with_globals(&env, &args, true, &[])? != value {
+            return Err("literal query differs through MCP".into());
+        }
+    }
+    Ok(())
+}
