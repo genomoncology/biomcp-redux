@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     },
     quota: &crate::quotas::WHO,
     key: KeyUse::None,
+    user_agent: None,
     deadline: Duration::from_secs(15),
 };
 const SET: BundleSet<raw::Native> = BundleSet {
