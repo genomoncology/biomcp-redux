@@ -2,7 +2,7 @@ use crate::{ComponentLabel, Source};
 use biodata::{Attribution, Concept, Curie, DiseaseRelation};
 use serde::{Deserialize, Serialize};
 /// Exact condition identity used for one trial request, without eligibility inference.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialConditionResolution {

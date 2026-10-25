@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// Registry page preserving source order and exact request parameters.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialPage {

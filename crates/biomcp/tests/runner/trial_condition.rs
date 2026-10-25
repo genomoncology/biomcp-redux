@@ -7,10 +7,14 @@ mod native;
 pub(super) use native::run as native;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("trial-search/condition-id-source-policy", || policy().map_err(Into::into)), Trial::test(
-        "trial-search/condition-id-failures-before-trial",
-        || failures().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("trial-search/condition-id-source-policy", || {
+            policy().map_err(Into::into)
+        }),
+        Trial::test("trial-search/condition-id-failures-before-trial", || {
+            failures().map_err(Into::into)
+        }),
+    ]
 }
 fn annotation(id: &str, codes: &[&str]) -> Value {
     json!({"_id":id,"mondo":{"mondo":id,"label":"Synthetic failure concept","xrefs":{"ncit":codes}}})
@@ -75,7 +79,11 @@ fn failures() -> Result<(), String> {
             super::source_terms::size(&value, "")?
         )
         .map_err(|e| e.to_string())?;
-        let ceiling = match case { "ambiguous" => 1592, "missing" => 983, _ => 496 };
+        let ceiling = match case {
+            "ambiguous" => 1592,
+            "missing" => 983,
+            _ => 496,
+        };
         let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
         fs::write(file.path(), serde_json::to_vec(&json!({"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,"config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,"expect":{"/status":"failed","/result/request":[]},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
         super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
@@ -143,18 +151,40 @@ fn check_failure(case: &str, expected: Option<&str>, value: &Value) -> Result<()
 }
 
 fn policy() -> Result<(), String> {
-    let stub = Stub::for_source("mydisease.info", "application/json", |_| Err("disabled command reached a provider".into()))?;
+    let stub = Stub::for_source("mydisease.info", "application/json", |_| {
+        Err("disabled command reached a provider".into())
+    })?;
     let env = setup(&stub)?;
     for (source, disabled, expected) in [
-        ("nci", "nci", "nci"), ("ctgov", "ctgov", "ctgov"),
-        ("nci", "mydisease", "mydisease"), ("ctgov", "mondo,doid", "mydisease"),
+        ("nci", "nci", "nci"),
+        ("ctgov", "ctgov", "ctgov"),
+        ("nci", "mydisease", "mydisease"),
+        ("ctgov", "mondo,doid", "mydisease"),
     ] {
-        let args: Vec<String> = ["search", "trial", "--source", source, "--condition-id", "MONDO:0005105", "--disable-sources", disabled].iter().map(|v| (*v).into()).collect();
+        let args: Vec<String> = [
+            "search",
+            "trial",
+            "--source",
+            source,
+            "--condition-id",
+            "MONDO:0005105",
+            "--disable-sources",
+            disabled,
+        ]
+        .iter()
+        .map(|v| (*v).into())
+        .collect();
         let value = invoke(&env, &args, 4)?;
-        if value.pointer("/sources/0/source") != Some(&json!(expected)) || value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
-            return Err(format!("source policy did not stop before resolution/trial I/O: {value}"));
+        if value.pointer("/sources/0/source") != Some(&json!(expected))
+            || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        {
+            return Err(format!(
+                "source policy did not stop before resolution/trial I/O: {value}"
+            ));
         }
     }
-    if !stub.finish()?.is_empty() { return Err("disabled condition source reached the wire".into()); }
+    if !stub.finish()?.is_empty() {
+        return Err("disabled condition source reached the wire".into());
+    }
     Ok(())
 }

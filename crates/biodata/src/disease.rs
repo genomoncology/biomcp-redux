@@ -43,7 +43,7 @@ pub struct DiseaseAssociation {
     pub object_closure: Box<[Curie]>,
 }
 /// A publisher relation with distinct endpoints and predicate.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseRelation {
