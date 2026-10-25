@@ -1,0 +1,45 @@
+{
+  "feature": "adverse-event-get",
+  "story": "A caller executes exact report card and reaction examples from generated help.",
+  "live_check": "Invented local report rows prove mechanics only. No clinical positive or provider call.",
+  "replay": "adverse-event/faers-synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "100"
+      ],
+      "mcp": [
+        "get",
+        "adverse-event",
+        "100"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": "100"
+      },
+      "max_bytes": 2000
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "100",
+        "reactions"
+      ],
+      "mcp": [
+        "get",
+        "adverse-event",
+        "100",
+        "reactions"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": "100",
+        "/result/items/0/term/label": "Synthetic term"
+      },
+      "max_bytes": 2000
+    }
+  ]
+}
