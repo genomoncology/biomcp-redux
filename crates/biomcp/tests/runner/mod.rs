@@ -47,6 +47,7 @@ mod markdown_variant_sources;
 mod markdown_variant_trial;
 mod maude;
 mod maude_policy;
+mod maude_snapshot;
 mod mcp;
 mod named_search;
 mod nci;

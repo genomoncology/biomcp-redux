@@ -5,6 +5,9 @@ use serde_json::{Value, json};
 pub(super) type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("maude-reports/synthetic-snapshot-survives-refresh", || {
+            super::maude_snapshot::run().map_err(Into::into)
+        }),
         Trial::test(
             "maude-reports/component-admission-before-cache-replay-http",
             || super::maude_policy::run().map_err(Into::into),
