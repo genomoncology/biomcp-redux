@@ -35,7 +35,7 @@ pub struct PgxSearch(SearchFields);
 struct SearchFields {
     /// Explicit source gene symbol.
     gene: GeneSymbol,
-    /// Required CPIC source.
+    /// Required CPIC source; ClinPGx is not supported for search.
     source: PgxSource,
     /// Literal native level, including compound levels such as B/C.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -85,7 +85,7 @@ impl PgxSearch {
         q
     }
 }
-/// Checked source gene card, section or exact ClinPGx annotation accession. No phenotype, phase or dose is calculated.
+/// PGx card or section. No phenotype, phase or dose is calculated.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

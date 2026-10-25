@@ -59,7 +59,7 @@
     },
     "source": {
       "$ref": "#/$defs/PgxSource",
-      "description": "Required CPIC source."
+      "description": "Required CPIC source; ClinPGx is not supported for search."
     }
   },
   "required": [

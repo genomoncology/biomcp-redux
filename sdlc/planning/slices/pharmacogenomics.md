@@ -377,6 +377,31 @@ Exact pair card, `--population`, `--lookup-key` and `--pgx-testing` remain unpro
 | Source retirement | `pharmgkb` spelling returns `clinpgx` replacement with zero provider requests. |
 | Failures, empty, shared options | Q33: source-local zero versus unavailable, 429/500/timeout/broken JSON/HTTP-200 error/identity mismatch, required key, disabled source and warm-cache exclusion. Synthetic failure controls remain explicitly authored. CLI/MCP equality and byte ceilings are implementation proof. |
 
+### Executable case and source-ID inventory
+
+The native capture IDs below identify source observations, not a claim that each observation is a new standalone product case. The 33 Q rows retain their capture-backed statuses above. Literature answers, sampled pages, source inventories and executable product checks remain separate.
+
+| Design IDs or boundary | Existing executable owner or explicit limitation |
+| --- | --- |
+| C01 gene identities; C02 gene symbols | CPIC `card` scenario and external G01/G02 exercise the checked identity. The original six-row C01 and eight-row C02 captures remain source inventories; no six-card product measurement is claimed. |
+| C03–C08 pairs; C27 zero; C28 native level | `runner/cpic.rs` pairs/empty; external CPIC P01–P06. Native source counts and exact native level filtering remain separate from clinical guideline presence. |
+| C09–C15 recommendations | `runner/cpic.rs` view/table/missing-second-gene and page walk; external R01–R06. C10–C14 sampled pages do not answer the unsampled drug questions. |
+| C16–C20 and C25 declared diplotypes | `runner/cpic.rs` diplotype/empty/truncated-diplotype; external D01–D05. Literal zeros remain zeros; no phase conversion. |
+| C21–C23 guidelines | `runner/cpic.rs` guidelines/guidelines-many; external L01–L03. Every source-linked gene and page survives. |
+| C24 frequency aggregate | Retained source inventory only. Frequency page is deferred, with fixed guidance in `runner/pgx_retirements.rs`. |
+| C26 allele source inventory | Retained source observation only; no allele lookup command is implemented or implied. |
+| P01–P06 clinical min; P09 TP53 | `runner/clinpgx.rs` clinical/default/wide and retained external DPYD walks at limits 5/3/1 plus TP53. Other gene captures remain source inventories, not unexecuted product proof. |
+| P07 guideline and P08 label min | `runner/clinpgx.rs` guideline/label; retained external DPYD guideline and UGT1A1 label walks. The original P08 irinotecan-name capture is not the later UGT1A1 gene-selector proof. |
+| P10 base collection; W07 exact accession | `runner/clinpgx.rs` annotation and wrong-accession; external exact PA166134421 get. Original P10's 83 base rows are not 83 executed exact-accession gets. |
+| W01 policy; W02/W03 pair order; W04/W05 view order; W06 filtered table | W01 retains the PM terms ruling but does not prove current policy text. CPIC pairs/view/table and external ordered commands execute the witnessed selectors. No extra provider request was made for these docs. |
+| Q16, Q31, Q32, Q33 authored controls | `runner/cpic.rs` missing-second-gene/empty; `runner/clinpgx.rs` empty; `runner/pgx_retirements.rs` phase refusals and fixed migration. These controls do not promote any unanswered native Q row. |
+| Transport, identity and cache rejection | `runner/cpic.rs`, `runner/clinpgx/failures.rs`; disabled cache/replay paths and snapshot binding live in their owning runner cases. Each source retains terms and local failure state. |
+| Help, executable examples and discovery | `tests/cases/pgx/help.yaml`, `examples.yaml`, `policy.yaml`; `runner/help_examples.rs` executes the four embedded examples; `runner/protocol.rs` bounds MCP discovery. |
+| Public data and checked request schemas | `crates/biomcp-types/tests/pgx_contracts.rs` (including biodata contracts) and the existing schema registry. These are public library contracts, not substitutes for command cases. |
+| Source registry and policy | `runner/pgx_registry.rs` and `runner/pgx_registry/admission.rs` test source declarations and admission before cached reads. |
+
+The native CPIC cases remain in the verified `j13036` archive named below. ClinPGx native commands, raw CLI/MCP outputs and complete local walks remain in `j13182`; the separate `j13195-focused-schema-and-help.tar.gz` archive validates 155 retained CLI envelopes against final embedded schemas without replay. Its Yellow location is `data/biomcp-redux/0167-clinpgx-product-proof/`, SHA-256 `0f19e83de7e061d08dcf02f5c7b18d6a6ee2ea0f42638beda40810e6e9dbf5be`. All 11 content hashes and the archive hash were independently checked before unique scratch cleanup. Its help sizes precede the final shortening and are not current help measurements.
+
 ### Disclosure and offline byte projections
 
 The default pair search and gene card answer identity/guideline-presence questions. Recommendation prose belongs behind its named section. Min annotation pages expose choices; source base detail stays behind exact selection. Start with three clinical annotation rows and five rows for the other page kinds. Smaller pages never delete a returned row's clinical context.
