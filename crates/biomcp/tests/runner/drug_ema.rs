@@ -14,8 +14,7 @@ fn malformed() -> Result<(), String> {
         "../../../../tests/replies/drug/ema-synthetic/ema/1854254ba57f4597bd03970bf3664f62fac42eda059bf0022aaf32367297a317.json"
     )).map_err(|e| e.to_string())?;
     let body: Value = serde_json::from_str(
-        capture["exchanges"][0]["body"]["value"]
-            .as_str()
+        capture.pointer("/exchanges/0/body/value").and_then(Value::as_str)
             .ok_or("missing body")?,
     )
     .map_err(|e| e.to_string())?;
@@ -36,16 +35,15 @@ fn malformed() -> Result<(), String> {
         let get = ["get", "drug", "EMEA/H/C/004124", "--source", "ema"];
         let before = call(&get, 0)?;
         let mut bad = body.clone();
-        match fault {
-            "total" => bad["meta"]["total_records"] = 5.into(),
-            "duplicate" => {
-                bad["data"][1]["ema_product_number"] = bad["data"][0]["ema_product_number"].clone()
-            }
-            "date" => bad["data"][1]["marketing_authorisation_date"] = "31/02/2016".into(),
-            _ => bad["meta"]["timestamp"] = "".into(),
-        }
+        let (pointer, value) = match fault {
+            "total" => ("/meta/total_records", 5.into()),
+            "duplicate" => ("/data/1/ema_product_number", bad.pointer("/data/0/ema_product_number").ok_or("missing first identity")?.clone()),
+            "date" => ("/data/1/marketing_authorisation_date", "31/02/2016".into()),
+            _ => ("/meta/timestamp", "".into()),
+        };
+        replace(&mut bad, pointer, value)?;
         let mut changed = capture.clone();
-        changed["exchanges"][0]["body"]["value"] = bad.to_string().into();
+        replace(&mut changed, "/exchanges/0/body/value", bad.to_string().into())?;
         std::fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = call(&["sync", "ema"], 4)?;
         if failed.pointer("/sources/0/reason").and_then(Value::as_str) != Some("bad_reply") {
@@ -55,5 +53,10 @@ fn malformed() -> Result<(), String> {
             return Err(format!("{fault}: invalid sync changed the usable card"));
         }
     }
+    Ok(())
+}
+
+fn replace(value: &mut Value, pointer: &str, replacement: Value) -> Result<(), String> {
+    *value.pointer_mut(pointer).ok_or_else(|| format!("missing fixture field {pointer}"))? = replacement;
     Ok(())
 }
