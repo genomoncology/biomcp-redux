@@ -26,7 +26,7 @@ mod secret;
 pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
-pub use bundle::{
+pub use bundle::{encode_bundle_row,
     Bundle, BundleInfo, BundlePart, BundleSet, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
     RowFormat, SetRow,
 };
