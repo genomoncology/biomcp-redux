@@ -1,5 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod disease;
+mod drug;
 mod steps;
 mod variant;
 
@@ -209,15 +210,10 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
     if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
         return disease::encode(meta, request, body);
     }
+    if matches!(&request, Request::SearchDrug(_) | Request::GetDrug(_)) {
+        return drug::encode(meta, request, body);
+    }
     match (request, body) {
-        (Request::SearchDrug(query), QueryBody::DrugPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
-            meta.encode(query, body)
-        }
-        (Request::GetDrug(query), QueryBody::DrugCard(body)) => meta.encode(query, body),
-        (Request::GetDrug(query), QueryBody::DrugRegulatory(body)) => meta.encode(query, body),
-        (Request::GetDrug(query), QueryBody::DrugXrefs(body)) => meta.encode(query, body),
-        (Request::GetDrug(query), QueryBody::DrugCivic(body)) => meta.encode(query, body),
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
         }
