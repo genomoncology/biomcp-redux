@@ -82,6 +82,7 @@ fn arguments(mode: &str) -> Vec<String> {
             "variant",
             "rs113488022",
             "oncokb",
+            "hotspots",
             "--tumor-type",
             "Synthetic tumor",
             "--build",
