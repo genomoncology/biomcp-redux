@@ -1,5 +1,5 @@
 use super::{DrugGet, DrugSearch, DrugSection, DrugSource};
-use crate::{CivicProfile, ResponseBody, Section, Step};
+use crate::{ResponseBody, Section, Step};
 use biodata::{
     AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim,
     DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text,
@@ -154,7 +154,7 @@ pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub civic: Section<DrugRecords<CivicProfile<DrugGet>>>,
+    pub civic: Section<super::DrugCivicStreams>,
 }
 /// Explicit native application/product history without a global approval flag.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -191,34 +191,34 @@ impl ResponseBody for DrugPage {
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {
-    const SCHEMA: &'static str = "biomcp.drug_card/1";
+    const SCHEMA: &'static str = "biomcp.drug_card/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug_label/1";
+    const SCHEMA: &'static str = "biomcp.drug_label/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug_targets/1";
+    const SCHEMA: &'static str = "biomcp.drug_targets/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug_indications/1";
+    const SCHEMA: &'static str = "biomcp.drug_indications/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug_civic/1";
+    const SCHEMA: &'static str = "biomcp.drug_civic/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug_approvals/1";
+    const SCHEMA: &'static str = "biomcp.drug_approvals/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug_regulatory/1";
+    const SCHEMA: &'static str = "biomcp.drug_regulatory/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug_interactions/1";
+    const SCHEMA: &'static str = "biomcp.drug_interactions/2";
     type Query = DrugGet;
 }
