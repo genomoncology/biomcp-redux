@@ -8,6 +8,9 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("disease-ols/retired-spellings-never-open-source", || {
+            retired_requests().map_err(Into::into)
+        }),
         Trial::test(
             "disease-ols/literal-zero-never-repairs-to-exact-get",
             || literal_zero().map_err(Into::into),
@@ -56,7 +59,16 @@ fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String
             String::from_utf8_lossy(&output.stdout)
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stderr(),
+        "OLS {:?}: full={} comparable={}",
+        args,
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len(),
+        super::source_terms::size(&value, "")?
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(value)
 }
 fn args(words: &[&str]) -> Vec<String> {
     words.iter().map(|s| (*s).into()).collect()
@@ -401,6 +413,44 @@ fn literal_zero() -> Result<(), String> {
         return Err(format!(
             "zero result triggered repair or hidden lookup: {requests:?}"
         ));
+    }
+    Ok(())
+}
+
+fn retired_requests() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &[
+            "www.ebi.ac.uk",
+            "mydisease.info",
+            "api-v3.monarchinitiative.org",
+            "seer.cancer.gov",
+        ],
+        |_| "application/json",
+        |_| Err("retired input opened a source".into()),
+    )?;
+    let env = setup(&stub)?;
+    let path = super::launch::fixtures().join("cases/disease/retired.yaml");
+    let case: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    for step in case
+        .get("steps")
+        .and_then(Value::as_array)
+        .ok_or("missing cases")?
+    {
+        let words = step
+            .get("run")
+            .and_then(Value::as_array)
+            .ok_or("missing command")?
+            .iter()
+            .map(|w| w.as_str().map(String::from).ok_or("invalid word"))
+            .collect::<Result<Vec<_>, _>>()?;
+        let output = invoke(&env, &words, 2)?;
+        if output.get("sources").is_some() {
+            return Err("retired input reached source outcomes".into());
+        }
+    }
+    if !stub.finish()?.is_empty() {
+        return Err("retired input made a request".into());
     }
     Ok(())
 }
