@@ -115,6 +115,9 @@ fn native(root: &Path, n: usize) -> Check {
         peak = walk(&env, replay, value, &original)?;
         peak = (peak.0.max(selected.0), peak.1.max(selected.1));
     }
+    report(n, peak, &entry)
+}
+fn report(n: usize, peak: (usize, usize), entry: &Value) -> Check {
     let measured = [
         (2443, 2332),
         (2595, 2484),
@@ -141,7 +144,7 @@ fn native(root: &Path, n: usize) -> Check {
         peak.1
     )
     .map_err(|e| e.to_string())?;
-    writeln!(std::io::stdout(),"FDA original_url={url} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",field(&entry,"retrieved_at")?,field(&entry,"sha256")?).map_err(|e|e.to_string())
+    writeln!(std::io::stdout(),"FDA original_url={} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",field(entry,"url")?,field(entry,"retrieved_at")?,field(entry,"sha256")?).map_err(|e|e.to_string())
 }
 fn delivery(
     raw: String,
