@@ -80,6 +80,14 @@
       ],
       "type": "object"
     },
+    "CivicClaimKind": {
+      "description": "CIViC native claim collection.",
+      "enum": [
+        "evidence",
+        "assertions"
+      ],
+      "type": "string"
+    },
     "DrugCard": {
       "additionalProperties": false,
       "description": "Exact source identity and explicit native links; deeper facts require named sections.",
@@ -180,6 +188,38 @@
       "additionalProperties": false,
       "description": "Exact native ID retrieval with an explicitly selected source.",
       "properties": {
+        "civic_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native continuation cursor for that exact drug, profile and claim collection."
+        },
+        "civic_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicClaimKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent native evidence or assertion collection within the selected profile."
+        },
+        "civic_profile": {
+          "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+          "format": "uint64",
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "input": {
           "$ref": "#/$defs/DrugId",
           "description": "Published source-native identifier, never SOURCE:ID or a selected name.",

@@ -111,18 +111,6 @@
       ],
       "type": "object"
     },
-    "Build": {
-      "description": "The assembly stated by the source; no default is inferred.",
-      "enum": [
-        "GRCh37",
-        "GRCh38"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Genome Reference Consortium human build 37.",
-        " Genome Reference Consortium human build 38."
-      ]
-    },
     "CivicClaimKind": {
       "description": "CIViC native claim collection.",
       "enum": [
@@ -138,7 +126,7 @@
         "next": {
           "anyOf": [
             {
-              "$ref": "#/$defs/VariantGet"
+              "$ref": "#/$defs/DrugGet"
             },
             {
               "type": "null"
@@ -665,6 +653,38 @@
       "additionalProperties": false,
       "description": "Exact native ID retrieval with an explicitly selected source.",
       "properties": {
+        "civic_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native continuation cursor for that exact drug, profile and claim collection."
+        },
+        "civic_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicClaimKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent native evidence or assertion collection within the selected profile."
+        },
+        "civic_profile": {
+          "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+          "format": "uint64",
+          "maximum": 2147483647,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "input": {
           "$ref": "#/$defs/DrugId",
           "description": "Published source-native identifier, never SOURCE:ID or a selected name.",
@@ -1844,124 +1864,8 @@
       ],
       "type": "string"
     },
-    "VariantGet": {
-      "additionalProperties": false,
-      "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.",
-      "properties": {
-        "build": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Build"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Required for chromosome notation; no assembly is guessed."
-        },
-        "civic_cursor": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native CIViC cursor, retained unchanged."
-        },
-        "civic_kind": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/CivicClaimKind"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native CIViC claim collection within the selected profile."
-        },
-        "civic_profile": {
-          "description": "Selected CIViC molecular profile for native claim paging.",
-          "format": "uint64",
-          "maximum": 2147483647,
-          "minimum": 1,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "input": {
-          "$ref": "#/$defs/VariantInput",
-          "description": "Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.",
-          "x-positional": 0
-        },
-        "limit": {
-          "default": 10,
-          "description": "Candidate rows per page; more remain reachable through typed next commands.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Candidate rows to skip in source order.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "resolver": {
-          "$ref": "#/$defs/VariantResolver",
-          "default": "car",
-          "description": "Resolver for reference-qualified notation; never repairs the input locally."
-        },
-        "section": {
-          "description": "Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
-          "items": {
-            "$ref": "#/$defs/VariantSection"
-          },
-          "type": "array",
-          "x-positional": 1
-        },
-        "section_limit": {
-          "default": 3,
-          "description": "Rows per named source section page.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "section_offset": {
-          "default": 0,
-          "description": "Source rows to skip independently of identity candidate paging.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "tumor_type": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Explicit tumor context for keyed OncoKB annotation."
-        }
-      },
-      "required": [
-        "input"
-      ],
-      "type": "object"
-    },
     "VariantId": {
       "pattern": "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
-      "type": "string"
-    },
-    "VariantInput": {
-      "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
     },
     "VariantRef": {
@@ -2075,45 +1979,6 @@
           ],
           "type": "object"
         }
-      ]
-    },
-    "VariantResolver": {
-      "description": "Explicit source service for reference-qualified notation.",
-      "enum": [
-        "car",
-        "mutalyzer",
-        "variantvalidator"
-      ],
-      "type": "string"
-    },
-    "VariantSection": {
-      "description": "Named variant source sections, without automatic expansion of identity cards.",
-      "enum": [
-        "clinvar",
-        "erepo",
-        "population",
-        "gwas",
-        "civic",
-        "oncokb",
-        "hotspots",
-        "predict",
-        "conservation",
-        "cosmic",
-        "all"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " ClinVar native assertions.",
-        " ClinGen native assertions.",
-        " gnomAD population observations.",
-        " GWAS Catalog associations.",
-        " CIViC molecular-profile evidence.",
-        " Keyed OncoKB annotation with explicit tumor context and build.",
-        " Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.",
-        " MyVariant source predictor scores.",
-        " MyVariant conservation scores.",
-        " Historical COSMIC fragments carried by MyVariant; parent-to-fragment allele identity remains unverified.",
-        " Every implemented variant section."
       ]
     }
   },
