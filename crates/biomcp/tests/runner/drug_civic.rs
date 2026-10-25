@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
-const CASES: [&str; 14] = [
+const CASES: [&str; 15] = [
     "imatinib-search",
     "trastuzumab-search",
     "ivosidenib-search",
@@ -20,6 +20,7 @@ const CASES: [&str; 14] = [
     "profile-assertion-terminal",
     "profile-evidence-offset",
     "profile-assertion-offset",
+    "synthetic-distinct-therapy-candidates",
 ];
 pub(super) fn trials() -> Vec<Trial> {
     CASES
@@ -33,7 +34,17 @@ pub(super) fn trials() -> Vec<Trial> {
         .collect()
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
-    let mut args = if n < 5 {
+    let mut args = if n == 14 {
+        vec![
+            "search",
+            "drug",
+            "synthetic distinct therapy identities",
+            "--source",
+            "civic",
+            "--limit",
+            "2",
+        ]
+    } else if n < 5 {
         let q = [
             "imatinib",
             "trastuzumab",
@@ -56,7 +67,7 @@ fn arguments(n: usize) -> Result<Vec<String>, String> {
     if n == 4 {
         args.extend(["--offset", "1"]);
     }
-    if n >= 8 {
+    if (8..=13).contains(&n) {
         let (profile, kind) = if matches!(n, 10 | 11 | 13) {
             ("65", "assertions")
         } else {
@@ -74,7 +85,7 @@ fn arguments(n: usize) -> Result<Vec<String>, String> {
             args.extend(["--civic-cursor", "MQ"]);
         }
     }
-    if n >= 12 {
+    if matches!(n, 12 | 13) {
         args.extend(["--section-offset", "1"]);
     }
     Ok(args.into_iter().map(String::from).collect())
@@ -99,6 +110,7 @@ fn check(n: usize) -> Result<(), String> {
     let value = invoke(&env, record_args, exit)?;
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
     verify(n, &value)?;
+    let proxy_address = stub.address.to_string();
     let requests = stub.finish()?;
     let expected = if matches!(n, 4 | 12) { 2 } else { 1 };
     if requests.len() != expected {
@@ -119,6 +131,9 @@ fn check(n: usize) -> Result<(), String> {
         recorded.display().to_string(),
         "--fresh".into(),
     ];
+    if n == 5 {
+        disabled(&env, &proxy_address, &ca, &replay_args)?;
+    }
     let mcp = super::mcp::call_with_globals(&env, &args, false, &globals)?;
     for key in ["result", "status", "query"] {
         if replay.get(key) != mcp.get(key) || replay.get(key) != value.get(key) {
@@ -127,12 +142,19 @@ fn check(n: usize) -> Result<(), String> {
     }
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
-    eprintln!(
+    use std::io::Write;
+    writeln!(std::io::stdout(),
         "CIVIC_SIZE case={n} full_bytes={full} full_tokens={} comparable_bytes={comparable} comparable_tokens={}",
         full.div_ceil(4),
         comparable.div_ceil(4)
-    );
-    if comparable > 6144 {
+    ).map_err(|e| e.to_string())?;
+    let bound = [
+        701, 726, 704, 304, 739, 3621, 3637, 4002, 2088, 2113, 2176, 577, 6144, 6144, 6144,
+    ]
+    .get(n)
+    .copied()
+    .ok_or("budget index")?;
+    if comparable > bound {
         return Err(format!(
             "case {n} exceeds CIViC section ceiling: {comparable}"
         ));
@@ -141,7 +163,7 @@ fn check(n: usize) -> Result<(), String> {
 }
 fn verify(n: usize, value: &Value) -> Result<(), String> {
     let expected = match n {
-        0..=4 => search_expected(n)?,
+        0..=4 | 14 => search_expected(n)?,
         5..=7 => drug_expected(n)?,
         _ => stream_expected(n)?,
     };
@@ -169,6 +191,11 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
 
 fn search_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
     Ok(match n {
+        14 => vec![
+            ("/result/total", json!(2)),
+            ("/result/items/0/id", json!("84")),
+            ("/result/items/1/id", json!("4287")),
+        ],
         0 => vec![
             ("/result/total", json!(11)),
             ("/result/items/0/id", json!("27062")),
@@ -262,4 +289,27 @@ fn stream_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
         ],
         _ => return Err("unknown verification".into()),
     })
+}
+
+fn disabled(
+    env: &Environment,
+    proxy: &str,
+    ca: &std::path::Path,
+    args: &[String],
+) -> Result<(), String> {
+    env.config(
+        &json!({"ca_bundle":ca,"proxy":format!("http://{proxy}"),"disable_sources":["civic"]}),
+    )
+    .map_err(|e| e.to_string())?;
+    let blocked = invoke(env, args.to_vec(), 4)?;
+    if blocked.pointer("/sources/0/state") != Some(&json!("skipped"))
+        || blocked.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        || blocked.get("result").is_some_and(|v| !v.is_null())
+    {
+        return Err(format!(
+            "disabled CIViC leaked cached or replayed content: {blocked}"
+        ));
+    }
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{proxy}")}))
+        .map_err(|e| e.to_string())
 }

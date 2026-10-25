@@ -22,6 +22,15 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
     let body: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
     let q = at(&body, "/query").as_str().ok_or("missing GraphQL")?;
     let v = at(&body, "/variables");
+    // Synthetic connection tests candidate separation using identities observed in the source proof.
+    if at(v, "/q").as_str() == Some("synthetic distinct therapy identities") {
+        return serde_json::to_string(&serde_json::json!({"data":{"therapies":{
+        "totalCount":2,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[
+            {"id":84,"name":"Trastuzumab","link":"/therapies/84"},
+            {"id":4287,"name":"Trastuzumab Deruxtecan","link":"/therapies/4287"}
+        ]}}}))
+        .map_err(|e| e.to_string());
+    }
     let index = if let Some(text) = at(v, "/q").as_str() {
         match (text, at(v, "/after").as_str()) {
             ("imatinib", None) => 24,
