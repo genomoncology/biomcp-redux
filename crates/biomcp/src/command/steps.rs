@@ -49,7 +49,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
                 Navigation::Bounded
             }
         }
-        Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => Navigation::Pma,
+        Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
+            Navigation::Pma
+        }
         Body::DiagnosticCompanion(_)
         | Body::DiagnosticPage(_)
         | Body::DiagnosticGenes(_)
@@ -65,7 +67,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
         Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
         Body::PgxDiplotype(_) => Navigation::Bounded,
-        Body::PgxAnnotations(PgxAnnotations::Guideline { .. } | PgxAnnotations::Label { .. }) => Navigation::Bounded,
+        Body::PgxAnnotations(PgxAnnotations::Guideline { .. } | PgxAnnotations::Label { .. }) => {
+            Navigation::Bounded
+        }
         Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
         Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
         Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
