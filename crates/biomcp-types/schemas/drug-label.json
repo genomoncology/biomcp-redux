@@ -414,6 +414,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "retrieved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original source reply retrieval date; absent for legacy captures without a timestamp."
+        },
         "text": {
           "description": "Original text slice, preserving whitespace and wording.",
           "type": "string"
@@ -1107,7 +1118,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_label/2",
+  "$id": "biomcp.drug_label/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1153,7 +1164,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_label/2",
+      "const": "biomcp.drug_label/3",
       "type": "string"
     },
     "sources": {

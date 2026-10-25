@@ -4,6 +4,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
+mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for n in 0..3 {
@@ -22,6 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(Trial::test("drug-label/five-native-headings", || {
         headings().map_err(Into::into)
     }));
+    trials.extend(walk::trials());
     trials
 }
 fn identity(n: usize) -> Result<Value, String> {

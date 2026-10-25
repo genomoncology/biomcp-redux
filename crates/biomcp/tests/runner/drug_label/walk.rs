@@ -1,0 +1,134 @@
+use super::super::configuration::invoke;
+use super::{Check, both, get_args, get_setup, identity, record};
+use libtest_mimic::Trial;
+use serde_json::{Value, json};
+pub(super) fn trials() -> Vec<Trial> {
+    let mut trials = Vec::new();
+    for (n, limit) in [(4, 1), (5, 3), (2, 50)] {
+        trials.push(Trial::test(
+            format!("drug-label/complete-walk-{n}-{limit}"),
+            move || walk(n, limit).map_err(Into::into),
+        ));
+    }
+    trials.push(Trial::test(
+        "drug-label/missing-field-is-unavailable",
+        || missing().map_err(Into::into),
+    ));
+    trials
+}
+fn walk(n: usize, limit: u32) -> Check {
+    let id = identity(n)?;
+    let originals = vec![String::new(); 49]
+        .into_iter()
+        .chain([
+            " α😀\\\"\n\t\u{1f} ".repeat(2000),
+            String::new(),
+            " final β\n ".to_owned(),
+            String::new(),
+        ])
+        .collect::<Vec<_>>();
+    let mut record = record(&id);
+    record["dosage_and_administration"] = json!(originals);
+    let (env, stub) = get_setup(&id, record)?;
+    let mut args = get_args(&id)?;
+    args.extend([
+        "label".into(),
+        "--label-section".into(),
+        "dosage_and_administration".into(),
+        "--section-limit".into(),
+        limit.to_string(),
+    ]);
+    let mut rebuilt = vec![String::new(); originals.len()];
+    let mut seen = vec![false; originals.len()];
+    let mut offset = 0;
+    let mut pages = 0;
+    loop {
+        let value = if pages == 0 {
+            both(&env, args.clone(), 0)?
+        } else {
+            invoke(&env, args.clone(), 0)?
+        };
+        super::measure(&value)?;
+        super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
+        let data = &value["result"]["label"]["data"];
+        if data["offset"] != offset {
+            return Err("fragment offset changed unit".into());
+        }
+        let fragments = data["fragments"].as_array().ok_or("fragments")?;
+        if fragments.is_empty() || fragments.len() > limit as usize {
+            return Err("fragment maximum changed".into());
+        }
+        let text = data["text"].as_str().ok_or("text")?;
+        let mut chars = text.chars();
+        for fragment in fragments {
+            let source_part = fragment["source_part"].as_u64().ok_or("source part")? as usize;
+            let rebuilt = rebuilt.get_mut(source_part).ok_or("array boundary")?;
+            seen[source_part] = true;
+            if fragment["source_offset"] != rebuilt.chars().count() {
+                return Err("native scalar offset changed".into());
+            }
+            rebuilt.extend(
+                chars
+                    .by_ref()
+                    .take(fragment["characters"].as_u64().ok_or("characters")? as usize),
+            );
+        }
+        if chars.next().is_some() {
+            return Err("unpartitioned text".into());
+        }
+        offset += fragments.len();
+        pages += 1;
+        let Some(next) = value
+            .get("next")
+            .and_then(Value::as_array)
+            .and_then(|steps| steps.iter().find(|s| s["kind"] == "page"))
+        else {
+            if data["total"] != offset {
+                return Err("walk ended before final source fragment".into());
+            }
+            break;
+        };
+        args = next["args"]
+            .as_array()
+            .ok_or("next args")?
+            .iter()
+            .map(|v| v.as_str().map(str::to_owned).ok_or("arg".to_owned()))
+            .collect::<Result<_, _>>()?;
+        if pages > 100 {
+            return Err("nonadvancing label walk".into());
+        }
+    }
+    if rebuilt != originals || seen.iter().any(|seen| !*seen) {
+        return Err("label array reconstruction changed source text or an empty boundary".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("label continuation fetched the cached source again".into());
+    }
+    Ok(())
+}
+fn missing() -> Check {
+    let id = identity(0)?;
+    let mut record = record(&id);
+    record
+        .as_object_mut()
+        .ok_or("record")?
+        .remove("boxed_warning");
+    let (env, stub) = get_setup(&id, record)?;
+    let mut args = get_args(&id)?;
+    args.extend([
+        "label".into(),
+        "--label-section".into(),
+        "boxed_warning".into(),
+    ]);
+    let value = both(&env, args, 0)?;
+    if value["status"] != "partial"
+        || value.pointer("/result/label/state") != Some(&json!("unavailable"))
+        || value.pointer("/result/label/reason") != Some(&json!("not_found"))
+    {
+        return Err("missing source field became an empty clinical answer".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("warm unavailable section fetched again".into());
+    }
+    Ok(())
+}
