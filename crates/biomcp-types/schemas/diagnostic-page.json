@@ -211,7 +211,7 @@
     },
     "DiagnosticSearch": {
       "additionalProperties": false,
-      "description": "Checked selected-source diagnostic discovery; no identity resolution or I/O.",
+      "description": "Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.",
       "properties": {
         "biomarker": {
           "anyOf": [
@@ -292,7 +292,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Maximum native rows on this page.",
+          "description": "Five rows by default; at most fifty whole native rows.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -307,7 +307,7 @@
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "Required explicit GTR or FDA companion-table source."
+          "description": "gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment."
         },
         "type": {
           "anyOf": [

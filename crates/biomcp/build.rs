@@ -40,6 +40,8 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("pgx/examples.yaml", 1),
     ("pgx/examples.yaml", 2),
     ("pgx/examples.yaml", 3),
+    ("diagnostic/fda-cdx.yaml", 0),
+    ("diagnostic/fda-cdx.yaml", 11),
     ("diagnostic/who.yaml", 0),
     ("diagnostic/who.yaml", 4),
     ("diagnostic/who.yaml", 1),

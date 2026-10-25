@@ -156,6 +156,10 @@ pub(super) fn markdown() -> Check {
     if !output.status.success() || !output.stderr.is_empty() {
         return Err("diagnostic Markdown command failed".into());
     }
+    // Full synthetic Markdown stdout measured by j13400, plus fifteen percent.
+    if output.stdout.len() > 1761 {
+        return Err("diagnostic Markdown exceeds its measured ceiling".into());
+    }
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
     for expected in [
         "GTR000006692.3",

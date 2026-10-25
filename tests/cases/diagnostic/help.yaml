@@ -1,0 +1,146 @@
+{
+  "feature": "diagnostic-cdx",
+  "story": "Diagnostic help describes source-owned commands and safety boundaries with two executable examples per command.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "diagnostic"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "diagnostic"
+      ],
+      "expect": {
+        "/result/commands/0/description": "Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--source",
+            "--bundle-revision",
+            "--gene",
+            "--gene-id",
+            "--condition-id",
+            "--type",
+            "--device-id",
+            "--drug-application",
+            "--biomarker",
+            "--limit",
+            "--offset"
+          ]
+        },
+        "/result/commands/0/arguments/9/choices": [
+          "gtr",
+          "fda-cdx"
+        ]
+      },
+      "max_bytes": 2200,
+      "max_tokens": 550
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "diagnostic"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "diagnostic"
+      ],
+      "expect": {
+        "/result/commands/0/description": "Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--source",
+            "--bundle-revision",
+            "id",
+            "section",
+            "--supplement",
+            "--section-limit",
+            "--section-offset"
+          ]
+        },
+        "/result/commands/0/arguments/5/choices": [
+          "gtr",
+          "who-ivd",
+          "fda-pma",
+          "fda-510k"
+        ],
+        "/result/commands/0/sections/*/word": [
+          "genes",
+          "conditions",
+          "methods",
+          "regulatory",
+          "supplements"
+        ]
+      },
+      "max_bytes": 2558,
+      "max_tokens": 640
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gtr"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "gtr"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 429,
+      "max_tokens": 108
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "who-ivd"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "who-ivd"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 448,
+      "max_tokens": 112
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "fda-cdx"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "fda-cdx"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 448,
+      "max_tokens": 112
+    }
+  ]
+}

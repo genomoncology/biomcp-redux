@@ -24,6 +24,11 @@ The generated table below lists decided leaf commands and their dropped options 
 | `article recommendations` | Ported or renamed | — | [Section 5 preserves native positive and negative seed recommendations.](slices/article.md) |
 | `variant articles` | Ported or renamed | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | [The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice.](slices/article.md) |
 | `disease articles` | Ported or renamed | — | [Section 1 moves the capability to search article --disease.](slices/article.md) |
+| `search diagnostic` | Ported or renamed | `--disease`, `--full` | [Choose gtr or fda-cdx explicitly. GTR uses exact native fields; condition-id replaces phrase expansion. WHO discovery and laboratory/manufacturer selectors remain deferred.](slices/diagnostic.md) |
+| `get diagnostic` | Ported or renamed | — | [Choose gtr, who-ivd, fda-pma or fda-510k explicitly and an exact native identity. Named sections remain source-scoped; all and the name-derived regulatory overlay retire.](slices/diagnostic.md) |
+| `gtr sync` | Ported or renamed | — | [Use sync gtr; validate and atomically replace the complete two-file bundle.](slices/diagnostic.md) |
+| `who-ivd sync` | Ported or renamed | — | [Use sync who-ivd; replace the full unfiltered export.](slices/diagnostic.md) |
+| `list diagnostic` | Ported or renamed | — | [Use generated help diagnostic; examples come from executable cases.](slices/diagnostic.md) |
 | `search disease` | Ported or renamed | `--query`, `--inheritance`, `--phenotype`, `--onset`, `--no-fallback` | [Literal OLS text and explicit ontology selection replace rewritten MyDisease discovery; unsupported clinical filters and fallback remain retired.](slices/disease.md) |
 | `get disease` | Ported or renamed | `--name` | [Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts.](slices/disease.md) |
 | `disease drugs` | Dropped by ruling | `--limit`, `--offset` | [Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated.](slices/disease.md) |

@@ -91,6 +91,10 @@ pub(super) fn markdown() -> Check {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
+    // Full synthetic Markdown stdout measured by j13400, plus fifteen percent.
+    if output.stdout.len() > 1972 {
+        return Err("diagnostic Markdown exceeds its measured ceiling".into());
+    }
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
     if !output.status.success() || !output.stderr.is_empty() {
         return Err("WHO Markdown failed".into());

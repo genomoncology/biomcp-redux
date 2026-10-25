@@ -44,8 +44,8 @@
         "get",
         "diagnostic"
       ],
-      "max_bytes": 1694,
-      "max_tokens": 424,
+      "max_bytes": 2558,
+      "max_tokens": 640,
       "expect": {
         "/result/commands/0/examples": {
           "includes": [
