@@ -4,6 +4,34 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn selectors() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    invalid_forms(&env)?;
+    for (selector, extras, valid) in [
+        ("--dataset", vec!["--period", "5"], json!(["3", "1", "4"])),
+        (
+            "--period",
+            vec!["--dataset", "4"],
+            json!([
+                "31", "21", "1", "23", "13", "3", "33", "14", "15", "35", "36", "16", "4", "9",
+                "5", "25", "8", "28", "12"
+            ]),
+        ),
+        (
+            "--sex",
+            vec!["--dataset", "4", "--period", "5", "--sex", "99"],
+            json!(["1", "3", "2"]),
+        ),
+    ] {
+        let mut words = vec!["get", "disease", "47", "incidence", "--source", "seer"];
+        words.extend(extras);
+        replay(
+            env.root(),
+            json!([{"run":words,"mcp":words,"exit":2,"is_error":true,
+            "expect":{"/status":"usage","/error/option":selector,"/error/valid_values":valid,"/error/source":"seer","/next/0/args":["search","disease","--source","seer"]},"max_bytes":if selector=="--period" {406} else if selector=="--dataset" {319} else {314}}]),
+        )?;
+    }
+    Ok(())
+}
+fn invalid_forms(env: &Environment) -> Result<(), String> {
     for words in [
         vec![
             "get",
@@ -63,30 +91,6 @@ pub(super) fn selectors() -> Result<(), String> {
             return Err("usage opened a source leg".into());
         }
     }
-    for (selector, extras, valid) in [
-        ("--dataset", vec!["--period", "5"], json!(["3", "1", "4"])),
-        (
-            "--period",
-            vec!["--dataset", "4"],
-            json!([
-                "31", "21", "1", "23", "13", "3", "33", "14", "15", "35", "36", "16", "4", "9",
-                "5", "25", "8", "28", "12"
-            ]),
-        ),
-        (
-            "--sex",
-            vec!["--dataset", "4", "--period", "5", "--sex", "99"],
-            json!(["1", "3", "2"]),
-        ),
-    ] {
-        let mut words = vec!["get", "disease", "47", "incidence", "--source", "seer"];
-        words.extend(extras);
-        replay(
-            env.root(),
-            json!([{"run":words,"mcp":words,"exit":2,"is_error":true,
-            "expect":{"/status":"usage","/error/option":selector,"/error/valid_values":valid,"/error/source":"seer","/next/0/args":["search","disease","--source","seer"]},"max_bytes":20000}]),
-        )?;
-    }
     Ok(())
 }
 pub(super) fn run() -> Result<(), String> {
@@ -108,7 +112,7 @@ pub(super) fn run() -> Result<(), String> {
         stub.finish()?;
         replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"seer","/sources/0/state":"failed","/sources/0/reason":reason,"/sources/0/terms":"SEER/NCI Using This Website"},"max_bytes":20000}]),
+            json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"seer","/sources/0/state":"failed","/sources/0/reason":reason,"/sources/0/terms":"SEER/NCI Using This Website"},"max_bytes":match status {429=>197,500=>196,_=>194}}]),
         )?;
     }
     timeout()?;
@@ -158,7 +162,7 @@ fn malformed_statistics() -> Result<(), String> {
         };
         replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":20000}]),
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {327}}]),
         )?;
         if stub.finish()?.len() != 1 {
             return Err("malformed source retried".into());
@@ -189,7 +193,7 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded","/sources/0/source":"seer"},"max_bytes":20000}]),
+        json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded","/sources/0/source":"seer"},"max_bytes":203}]),
     )?;
     Ok(())
 }
@@ -202,8 +206,8 @@ pub(super) fn disabled() -> Result<(), String> {
     let result = replay(
         &directory,
         json!([
-            {"run":words,"expect":{"/page/total":2}},
-            {"run":["search","disease","--source","seer","--disable-sources","seer"],"mcp":["search","disease","--source","seer","--disable-sources","seer"],"offline":true,"exit":4,"is_error":true,"expect":{"/sources/0/state":"skipped","/sources/0/reason":"disabled"},"max_bytes":20000}
+            {"run":words,"expect":{"/page/total":2},"max_bytes":590},
+            {"run":["search","disease","--source","seer","--disable-sources","seer"],"mcp":["search","disease","--source","seer","--disable-sources","seer"],"offline":true,"exit":4,"is_error":true,"expect":{"/sources/0/state":"skipped","/sources/0/reason":"disabled"},"max_bytes":194}
         ]),
     )?;
     if result.get("result").is_some() {

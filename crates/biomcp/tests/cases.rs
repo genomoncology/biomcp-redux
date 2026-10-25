@@ -9,35 +9,8 @@ use libtest_mimic::{Arguments, Trial};
 use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
-    if env::args().nth(1).as_deref() == Some("--seer-native-proof") {
-        return match env::args()
-            .nth(2)
-            .map(PathBuf::from)
-            .ok_or("missing evidence directory".to_owned())
-            .and_then(|p| runner::seer_native(&p))
-        {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "{error}");
-                ExitCode::FAILURE
-            }
-        };
-    }
-    if env::args().nth(1).as_deref() == Some("--disease-native-proof") {
-        return match env::args()
-            .nth(2)
-            .map(PathBuf::from)
-            .ok_or("missing evidence directory".to_owned())
-            .and_then(|p| runner::disease_native(&p))
-        {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "{error}");
-                ExitCode::FAILURE
-            }
-        };
+    if let Some(result) = native_proof() {
+        return result;
     }
     if env::args().nth(1).as_deref() == Some("--installed-http-proof") {
         if env::args().len() != 2 {
@@ -92,6 +65,30 @@ fn main() -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+fn native_proof() -> Option<ExitCode> {
+    let mode = env::args().nth(1)?;
+    let run = match mode.as_str() {
+        "--seer-native-proof" => runner::seer_native,
+        "--disease-native-proof" => runner::disease_native,
+        _ => return None,
+    };
+    Some(
+        match env::args()
+            .nth(2)
+            .map(PathBuf::from)
+            .ok_or("missing evidence directory".to_owned())
+            .and_then(|p| run(&p))
+        {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                use std::io::Write;
+                let _ = writeln!(std::io::stderr(), "{error}");
+                ExitCode::FAILURE
+            }
+        },
+    )
 }
 
 fn trials() -> Result<(Arguments, Vec<Trial>), String> {
