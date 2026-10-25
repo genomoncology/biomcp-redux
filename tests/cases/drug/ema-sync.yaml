@@ -1,14 +1,47 @@
-feature: drug-ema
-story: Explicit EMA synchronization imports one complete synthetic medicines file and preserves its byte count
-replay: drug/ema-synthetic
-steps:
-  - run: [sync, ema]
-    mcp: [sync, ema]
-    max_bytes: 170
-    max_tokens: 43
-    expect:
-      /schema: biomcp.sync/2
-      /status: complete
-      /query/source: ema
-      /result/rows: 6
-      /result/bytes: 1776
+{
+  "feature": "drug-ema",
+  "story": "Explicit EMA synchronization imports a complete synthetic file and can explicitly refresh it.",
+  "replay": "drug/ema-synthetic",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "ema"
+      ],
+      "mcp": [
+        "sync",
+        "ema"
+      ],
+      "max_bytes": 170,
+      "max_tokens": 43,
+      "expect": {
+        "/schema": "biomcp.sync/2",
+        "/status": "complete",
+        "/query/source": "ema",
+        "/result/rows": 6,
+        "/result/bytes": 1776
+      }
+    },
+    {
+      "run": [
+        "sync",
+        "ema",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "ema",
+        "--fresh"
+      ],
+      "max_bytes": 170,
+      "max_tokens": 43,
+      "expect": {
+        "/schema": "biomcp.sync/2",
+        "/status": "complete",
+        "/query/source": "ema",
+        "/result/rows": 6,
+        "/result/bytes": 1776
+      }
+    }
+  ]
+}

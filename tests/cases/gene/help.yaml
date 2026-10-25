@@ -246,5 +246,5 @@
       }
     }
   ],
-  "verified": "Whole help includes trial and article verbs and variant identity. The combined landing preflight measures root help and sets max_bytes to ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
+  "verified": "The combined generated disease and drug help is checked against the retained accepted whole-tree ceiling. The independent source measurements preceded their merge; this case verifies the combined output without silently raising that ceiling. No comparable 0.9 generated-help JSON baseline exists. Existing entity-specific bounds remain unchanged."
 }

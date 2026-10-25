@@ -49,7 +49,7 @@ The historical inventory in the architecture investigation, section 6.1, counts 
 | `get gene` | Ported or renamed | — | — | — | Section 1 preserves the gene card; section values do not count as option slots. |
 | `gene definition` | Ported or renamed | — | — | — | Section 1 replaces this leaf and its get alias with get gene. |
 | `gene trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page. |
-| `gene drugs` | Not yet decided | — | — | `--limit`, `--offset` | Section 1 moves the capability and its options to the drug slice. |
+| `gene drugs` | Not yet decided | — | — | `--limit`, `--offset` | The drug slice owns this capability and its paging options. Reverse target search remains unproved and absent; fixed guidance requests a selected drug identity and explicit source sections. |
 | `gene articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 maps this capability to search article --gene; article search preserves paging. |
 | `gene pathways` | Ported or renamed | — | — | `--limit`, `--offset` | Section 1 maps the command to the pathways section and moves old paging to the pathway slice. |
 | `gene cell-lines` | Not yet decided | — | — | `--group`, `--limit`, `--offset` | Section 1 moves the capability and its options to the cell line slice. |

@@ -104,7 +104,9 @@ fn check(n: usize) -> Check {
         bytes.div_ceil(4),
         comparable.div_ceil(4)
     ).map_err(|e|e.to_string())?;
-    if bound != 0 && comparable > bound {
+    let measured_full: [usize; 9] = [3822, 3251, 2250, 2443, 1848, 1767, 2398, 1795, 1199];
+    let full_bound = (*measured_full.get(n).ok_or("full budget index")? * 115).div_ceil(100);
+    if comparable > bound || bytes > full_bound {
         return Err(format!(
             "case {n} exceeds measured comparable output budget: {comparable}/{bound}"
         ));
@@ -445,9 +447,16 @@ fn measure_links(page: usize, value: &Value) -> Check {
     .ok_or("xref page budget")?;
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    if comparable > max_bytes {
+    let measured_full = [
+        4422, 4375, 4432, 4493, 4982, 4945, 4936, 4989, 4953, 4932, 4986, 4949, 4914, 3281,
+    ]
+    .get(page)
+    .copied()
+    .ok_or("xref full page budget")?;
+    let max_full = (measured_full * 115_usize).div_ceil(100);
+    if comparable > max_bytes || full > max_full {
         return Err(format!(
-            "xref page {page} exceeds its measured output budget: {comparable}/{max_bytes}"
+            "xref page {page} exceeds measured output budget: full {full}/{max_full}, comparable {comparable}/{max_bytes}"
         ));
     }
     use std::io::Write;

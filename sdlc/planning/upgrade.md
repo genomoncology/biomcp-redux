@@ -25,6 +25,14 @@ The generated table below lists decided leaf commands and their dropped options 
 | `get disease` | Ported or renamed | `--name` | [Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts.](slices/disease.md) |
 | `disease drugs` | Dropped by ruling | `--limit`, `--offset` | [Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated.](slices/disease.md) |
 | `search phenotype` | Dropped by ruling | `--limit`, `--offset` | [Drop symptom-to-disease ranking; selected disease phenotype facts remain explicit Monarch sections.](slices/disease.md) |
+| `search drug` | Ported or renamed | `--mechanism`, `--interactions`, `--product-type` | [Use literal TEXT and explicit --source with bounded native pages. Semantic mechanism expansion, partner search and WHO product types retire. Reverse filters need native known-positive selector cases before enabling.](slices/drug.md) |
+| `get drug` | Ported or renamed | — | [Select a native identity through search, then get ID --source SOURCE. Native label headings and continuation replace raw rendering; source selection replaces implicit regional fan-out.](slices/drug.md) |
+| `drug interactions` | Ported or renamed | — | [Use get drug ID interactions --source ddinter with --section-limit and --section-offset. Stored pairs retain source level and provenance without a safety conclusion.](slices/drug.md) |
+| `drug cell-lines` | Dropped by ruling | `--cell-line`, `--dataset`, `--limit`, `--offset` | [Cell-line screening is outside the cancer-care drug slice; no replacement call runs.](slices/drug.md) |
+| `ema sync` | Ported or renamed | — | [Use sync ema for one complete validated medicines replacement; reads use stored rows only.](slices/drug.md) |
+| `who sync` | Dropped by ruling | — | [WHO prequalification answers no unique question in this bank; no WHO runtime source or download is offered.](slices/drug.md) |
+| `ddinter sync` | Ported or renamed | — | [Use sync ddinter for one atomic eight-file replacement, preserving the last usable set on failure.](slices/drug.md) |
+| `cvx sync` | Dropped by ruling | — | [This cancer-care drug slice has no vaccine alias bridge; no CVX download runs.](slices/drug.md) |
 | `search gene` | Ported or renamed | `--query`, `--region`, `--pathway`, `--go` | [Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters.](slices/gene.md) |
 | `get gene` | Ported or renamed | — | [Section 1 preserves the gene card; section values do not count as option slots.](slices/gene.md) |
 | `gene definition` | Ported or renamed | — | [Section 1 replaces this leaf and its get alias with get gene.](slices/gene.md) |

@@ -49,17 +49,17 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
                 .unwrap_or_default(),
         });
     }
-    extra_commands(&mut commands);
+    extra_commands(&mut commands, &examples);
     Ok(commands)
 }
-fn extra_commands(commands: &mut Vec<HelpCommand>) {
+fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for (command, description) in [
         (
             vec!["health"],
             "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
         ),
         (
-            vec!["sync", "[hgnc|clingen|ema]"],
+            vec!["sync", "[hgnc|clingen]"],
             "Synchronize a local source bundle.",
         ),
         (
@@ -96,6 +96,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>) {
             examples: Vec::new(),
         });
     }
+    bundle_commands(commands, examples);
     commands.extend(
         biomcp_fetch::SecretName::ALL
             .iter()
@@ -108,6 +109,18 @@ fn extra_commands(commands: &mut Vec<HelpCommand>) {
                 examples: Vec::new(),
             }),
     );
+}
+fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
+    for bundle in ["ema", "ddinter"] {
+        commands.push(HelpCommand {
+            command: vec!["sync".into(), bundle.into()],
+            description: "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.".into(),
+            arguments: Vec::new(),
+            sections: Vec::new(),
+            section_rule: None,
+            examples: examples.get(&format!("sync {bundle}")).cloned().unwrap_or_default(),
+        });
+    }
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
     if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
