@@ -5,6 +5,7 @@ use serde_json::Value;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("disease-registry/component-health", || health::run().map_err(Into::into)),
         Trial::test("disease-registry/publisher-declarations", || {
             declarations().map_err(Into::into)
         }),
@@ -22,6 +23,8 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
+#[path = "disease_registry/health.rs"]
+mod health;
 fn declarations() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let health = invoke(&env, vec!["health".into(), "--offline".into()], 0)?;
