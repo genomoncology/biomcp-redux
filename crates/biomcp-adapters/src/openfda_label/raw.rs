@@ -22,12 +22,9 @@ pub struct Record {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Names {
-    #[serde(default)]
-    pub brand_name: Vec<Text>,
-    #[serde(default)]
-    pub generic_name: Vec<Text>,
-    #[serde(default)]
-    pub spl_set_id: Vec<DrugId>,
+    pub brand_name: Option<Vec<Text>>,
+    pub generic_name: Option<Vec<Text>>,
+    pub spl_set_id: Option<Vec<DrugId>>,
 }
 impl Record {
     /// Only native fields the consumer explicitly supports; absent remains absent.
@@ -47,8 +44,14 @@ impl Record {
         use biomcp_types::DrugSource;
         if !DrugSource::OpenfdaLabel.accepts(&self.id)
             || !DrugSource::OpenfdaLabel.accepts(&self.set_id)
-            || self.openfda.spl_set_id.iter().any(|id| id != &self.set_id)
-            || self.openfda.brand_name.is_empty() && self.openfda.generic_name.is_empty()
+            || self
+                .openfda
+                .spl_set_id
+                .iter()
+                .flatten()
+                .any(|id| id != &self.set_id)
+            || self.openfda.brand_name.as_ref().is_none_or(Vec::is_empty)
+                && self.openfda.generic_name.as_ref().is_none_or(Vec::is_empty)
             || self.revised().is_err()
         {
             return Err(BadReply);

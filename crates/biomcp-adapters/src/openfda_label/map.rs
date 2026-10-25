@@ -31,12 +31,18 @@ impl Record {
                 self.openfda
                     .brand_name
                     .first()
-                    .or_else(|| self.openfda.generic_name.first())
+                    .or_else(|| {
+                        self.openfda
+                            .generic_name
+                            .as_deref()
+                            .unwrap_or_default()
+                            .first()
+                    })
                     .cloned()
                     .ok_or_else(bad)?,
             ),
             identity_level: DrugIdentityLevel::SplSet,
-            r#type: Some("SPL set".parse().map_err(|_| bad())?),
+            r#type: None,
             url: Some(self.url()?),
         })
     }
@@ -66,7 +72,8 @@ impl Record {
             .openfda
             .brand_name
             .iter()
-            .chain(self.openfda.generic_name.iter())
+            .flatten()
+            .chain(self.openfda.generic_name.iter().flatten())
             .cloned()
             .collect();
         Ok(DrugCard {
