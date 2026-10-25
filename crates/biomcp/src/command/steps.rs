@@ -9,9 +9,10 @@ pub(super) fn next(
         .iter()
         .map(|(kind, action)| crate::spell::step(*kind, action))
         .collect::<Result<Vec<_>, _>>()?;
-    let has_more = result.page.as_ref().is_some_and(|page| {
-        u64::from(page.offset) + u64::from(page.returned) < page.total
-    });
+    let has_more = result
+        .page
+        .as_ref()
+        .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
     network_steps(&mut steps, &result.sources, has_more);
     Ok(source_steps(fetch, steps))
 }
@@ -58,9 +59,8 @@ pub(super) fn network_steps(
     has_more: bool,
 ) {
     // Some disambiguate actions are searches or relations, not candidate gets.
-    let (mut candidates, mut extras): (Vec<_>, Vec<_>) = std::mem::take(steps)
-        .into_iter()
-        .partition(|step| {
+    let (mut candidates, mut extras): (Vec<_>, Vec<_>) =
+        std::mem::take(steps).into_iter().partition(|step| {
             step.kind == biomcp_types::StepKind::Disambiguate
                 && step.args.first().is_some_and(|arg| arg.as_ref() == "get")
         });
@@ -72,7 +72,9 @@ pub(super) fn network_steps(
     }
     // A section may itself have page actions. Only the response page is protected.
     if has_more
-        && let Some(index) = extras.iter().position(|step| step.kind == biomcp_types::StepKind::Page)
+        && let Some(index) = extras
+            .iter()
+            .position(|step| step.kind == biomcp_types::StepKind::Page)
     {
         candidates.push(extras.remove(index));
     }

@@ -8,9 +8,10 @@ pub(super) fn trials() -> Vec<Trial> {
         .into_iter()
         .flat_map(|mode| {
             [false, true].into_iter().map(move |terminal| {
-                Trial::test(format!("navigation/{mode}/terminal-{terminal}"), move || {
-                    check(mode, terminal).map_err(Into::into)
-                })
+                Trial::test(
+                    format!("navigation/{mode}/terminal-{terminal}"),
+                    move || check(mode, terminal).map_err(Into::into),
+                )
             })
         })
         .collect()
@@ -30,7 +31,11 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
         .collect();
     let body = json!({"total":total,"hits":rows}).to_string();
     let stub = Stub::for_source_status(
-        if drug { "mychem.info" } else { "myvariant.info" },
+        if drug {
+            "mychem.info"
+        } else {
+            "myvariant.info"
+        },
         "application/json",
         move |_| Ok(body.clone()),
         |_| 200,
@@ -46,8 +51,11 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
     use std::io::Write;
-    writeln!(std::io::stdout(), "navigation {mode} terminal={terminal}: full={full}, comparable={comparable}")
-        .map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "navigation {mode} terminal={terminal}: full={full}, comparable={comparable}"
+    )
+    .map_err(|e| e.to_string())?;
     if stub.finish()?.len() != 1 {
         return Err("navigation or warm MCP unexpectedly requested another source".into());
     }
@@ -56,21 +64,62 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
 
 fn arguments(mode: &str) -> Vec<String> {
     match mode {
-        "drug-search" => vec!["search", "drug", "synthetic", "--source", "mychem", "--limit", "5"],
-        "variant-search" => vec!["search", "variant", "--query", "rs113488022", "--source", "myvariant", "--build", "GRCh37", "--limit", "5"],
-        _ => vec!["get", "variant", "rs113488022", "--build", "GRCh37", "--limit", "5"],
-    }.into_iter().map(str::to_owned).collect()
+        "drug-search" => vec![
+            "search",
+            "drug",
+            "synthetic",
+            "--source",
+            "mychem",
+            "--limit",
+            "5",
+        ],
+        "variant-search" => vec![
+            "search",
+            "variant",
+            "--query",
+            "rs113488022",
+            "--source",
+            "myvariant",
+            "--build",
+            "GRCh37",
+            "--limit",
+            "5",
+        ],
+        _ => vec![
+            "get",
+            "variant",
+            "rs113488022",
+            "--build",
+            "GRCh37",
+            "--limit",
+            "5",
+        ],
+    }
+    .into_iter()
+    .map(str::to_owned)
+    .collect()
 }
 
 fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
-    let next = value.get("next").and_then(Value::as_array).ok_or("next missing")?;
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("next missing")?;
     for n in 1..=5 {
         let row = next.get(n - 1).ok_or("candidate action missing")?;
-        let id = if mode == "drug-search" { format!("CHEMBL{n}") } else { format!("chr7:g.14045313{n}A>G") };
-        let args = row.get("args").and_then(Value::as_array).ok_or("candidate args")?;
+        let id = if mode == "drug-search" {
+            format!("CHEMBL{n}")
+        } else {
+            format!("chr7:g.14045313{n}A>G")
+        };
+        let args = row
+            .get("args")
+            .and_then(Value::as_array)
+            .ok_or("candidate args")?;
         if row.get("kind") != Some(&json!("disambiguate"))
             || args.get(0) != Some(&json!("get"))
-            || args.get(2) != Some(&json!(id)) {
+            || args.get(2) != Some(&json!(id))
+        {
             return Err(format!("candidate {n} get lost or reordered: {next:?}"));
         }
     }
@@ -79,16 +128,26 @@ fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
             return Err("terminal page advertises more candidates".into());
         }
     } else {
-        let page = next.get(5).ok_or("page step dropped after five candidate gets")?;
-        if page.get("kind") != Some(&json!("page")) { return Err("page must follow candidates".into()); }
-        let args: Vec<String> = serde_json::from_value(page.get("args").cloned().ok_or("page args")?).map_err(|e| e.to_string())?;
+        let page = next
+            .get(5)
+            .ok_or("page step dropped after five candidate gets")?;
+        if page.get("kind") != Some(&json!("page")) {
+            return Err("page must follow candidates".into());
+        }
+        let args: Vec<String> =
+            serde_json::from_value(page.get("args").cloned().ok_or("page args")?)
+                .map_err(|e| e.to_string())?;
         let mut expected = arguments(mode);
         expected.extend(["--offset".into(), "5".into()]);
         // Spelling may order flags differently; every supplied selector must survive.
         for pair in expected.windows(2).filter(|w| w[0].starts_with("--")) {
-            if !args.windows(2).any(|w| w == pair) { return Err(format!("lost page selector {pair:?}: {args:?}")); }
+            if !args.windows(2).any(|w| w == pair) {
+                return Err(format!("lost page selector {pair:?}: {args:?}"));
+            }
         }
     }
-    if next.len() > 5 + usize::from(!terminal) + 3 { return Err("more than three extra actions".into()); }
+    if next.len() > 5 + usize::from(!terminal) + 3 {
+        return Err("more than three extra actions".into());
+    }
     Ok(())
 }
