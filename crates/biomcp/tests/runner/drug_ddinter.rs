@@ -12,6 +12,9 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("drug-ddinter/default-five-and-explicit-ten", || {
+            default_pages().map_err(Into::into)
+        }),
         Trial::test(
             "drug-ddinter/failed-parts-preserve-stored-set-and-policy",
             || check().map_err(Into::into),
@@ -152,6 +155,73 @@ fn corrupted(
                 "malformed partition changed the complete set: {failed}"
             ));
         }
+    }
+    Ok(())
+}
+
+fn seed_many(env: &Environment) -> Result<PathBuf, String> {
+    let replay = seed(env)?;
+    for entry in fs::read_dir(replay.join("ddinter")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let mut capture: Value = serde_json::from_slice(
+            &fs::read(&path).map_err(|e| e.to_string())?,
+        ).map_err(|e| e.to_string())?;
+        if capture["url"].as_str().is_some_and(|url| url.ends_with("code_A.csv")) {
+            let body = capture.pointer_mut("/exchanges/0/body/value").ok_or("body")?;
+            let mut text = body.as_str().ok_or("text body")?.to_owned();
+            for partner in 100..108 {
+                text.push_str(&format!("DDInter1,Synthetic Anchor One,DDInter{partner},Synthetic Partner {partner},Major\r\n"));
+            }
+            *body = text.into();
+            fs::write(path, capture.to_string()).map_err(|e| e.to_string())?;
+        }
+    }
+    call(env, &replay, &["sync", "ddinter"], 0)?;
+    Ok(replay)
+}
+fn interaction_page(env: &Environment, replay: &Path, args: &[String]) -> Result<Value, String> {
+    let globals = env.globals(Some(replay), false);
+    let mut cli = globals.clone();
+    cli.extend_from_slice(args);
+    let value = invoke(env, cli, 0)?;
+    if super::mcp::call_with_globals(env, args, false, &globals)? != value {
+        return Err("DDInter default page differs over MCP".into());
+    }
+    super::schema::Registry::embedded()?.validate(&value, args, true)?;
+    Ok(value)
+}
+fn default_pages() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed_many(&env)?;
+    let base: Vec<String> = ["get", "drug", "DDInter1", "interactions", "--source", "ddinter"]
+        .map(str::to_owned).into();
+    let mut args = base.clone();
+    let mut records = Vec::new();
+    for (offset, count) in [(0, 5), (5, 5), (10, 1)] {
+        let value = interaction_page(&env, &replay, &args)?;
+        if value["page"] != json!({"offset":offset,"returned":count,"total":11}) {
+            return Err(format!("DDInter omitted limit lost its five-row page: {value}"));
+        }
+        records.extend(value.pointer("/result/interactions/data/records")
+            .and_then(Value::as_array).ok_or("records")?.iter().cloned());
+        let next = value.get("next").and_then(Value::as_array).into_iter().flatten()
+            .find(|next| next["kind"] == "page");
+        if offset == 10 {
+            if next.is_some() { return Err("DDInter walk continued past total".into()); }
+        } else {
+            args = serde_json::from_value(next.ok_or("missing next page")?["args"].clone())
+                .map_err(|e| e.to_string())?;
+            if args.iter().any(|arg| arg == "--section-limit") {
+                return Err("DDInter omitted limit became an explicit override".into());
+            }
+        }
+    }
+    let mut explicit = base;
+    explicit.extend(["--section-limit".into(), "10".into()]);
+    let page = interaction_page(&env, &replay, &explicit)?;
+    if page["page"] != json!({"offset":0,"returned":10,"total":11})
+        || page.pointer("/result/interactions/data/records") != Some(&json!(records[..10])) {
+        return Err("DDInter explicit ten changed rows or order".into());
     }
     Ok(())
 }
