@@ -1,4 +1,5 @@
 //! Source-owned disease facts without identity choice or cross-provider fallback.
+/// OLS source-owned identity and discovery outcomes.
 pub mod ols;
 use crate::{Ctx, Outcome};
 use biomcp_types::{DiseaseGet, DiseaseSearch};
