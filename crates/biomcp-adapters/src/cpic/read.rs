@@ -14,7 +14,11 @@ pub struct Page<T> {
 #[derive(Deserialize)]
 #[serde(transparent)]
 struct Rows<T>(Vec<T>);
-impl<T: serde::de::DeserializeOwned> Reply for Rows<T> {}
+impl<T: serde::de::DeserializeOwned> Reply for Rows<T> {
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
+}
 fn read<T: serde::de::DeserializeOwned>(
     leg: &Leg<'_>,
     path: &'static str,
@@ -157,7 +161,12 @@ pub fn guidelines(
     leg: &Leg<'_>,
     query: &PgxGet,
 ) -> Result<Page<PgxGuidelineReference>, RequestError> {
-    let genes = format!("cs.{}", serde_json::json!([{"symbol":query.gene()}]));
+    let symbol = query
+        .gene()
+        .to_string()
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"");
+    let genes = format!("cs.[{{\"symbol\":\"{symbol}\"}}]");
     read(
         leg,
         "/guideline_summary_view",
