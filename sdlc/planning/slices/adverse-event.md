@@ -324,11 +324,11 @@ A04's fatal subset, A15's exact combined reaction/date question, A18's lymphoma/
 
 ## Measurement ownership
 
-Every kept layer is unmeasured as product output. The PM-filed adapter/command ticket owns measurement and the case ceiling at measured compact full-envelope size plus the PM-approved margin. Report terms-only deductions separately and validate exact metadata first. Estimated token counts name their estimator and never pretend to be actual tokenization. Native raw bytes and durations cannot substitute for these measurements.
+The FAERS search measurements below cover native report pages. The other kept layers remain unmeasured as product output. The PM-filed adapter/command ticket owns measurement and the case ceiling at measured compact full-envelope size plus the PM-approved margin. Report terms-only deductions separately and validate exact metadata first. Estimated token counts name their estimator and never pretend to be actual tokenization. Native raw bytes and durations cannot substitute for these measurements.
 
 | Budget row | Measurement owner and acceptance case |
 |---|---|
-| Default/filtered FAERS search | FAERS adapter ticket: F01/F02/F03/F13/F14/F15/F20 five-row/default and explicit page; wire ceiling measured+margin. |
+| Default/filtered FAERS search | F01/F20/F02/F03/F23/F13/F14/F15 native replay measurements and +15% ceilings appear below. |
 | FAERS card | FAERS adapter ticket: F21 plus largest native fixed shape; measured+margin. |
 | Drug/reaction sections | FAERS adapter ticket: ordinary default plus 19/22-row complete walks; each measured+margin. |
 | Each of seven identity pages | FAERS adapter ticket: named collection default and long-list continuation; each measured+margin. |
@@ -337,6 +337,25 @@ Every kept layer is unmeasured as product output. The PM-filed adapter/command t
 | Entity help/MCP listing/schema | Command owner: generated final typed tree; existing bound or explicit PM change. |
 | VAERS/CVX/count | Dropped; no implementation owner, wire budget or schema. |
 | Legacy 0.9 comparison | Adapter acceptance record: unmeasured unless containment equivalent to 0136 is verified; preserve reason otherwise. |
+
+`j12931` measured the actual CLI and MCP on `0c1707e9870a85e28e889793ea5633a912f2cf21`. All eight native five-report pages agreed across CLI and MCP. Default FAERS and explicit `--source faers` agreed. Native report IDs, versions, first-receipt strings, order, totals, offsets, publisher date and exact expressions were compared with the fresh pre-adapter captures from `j12888`. The publisher date was 2026-07-30; the source retrieval occurred on 2026-10-25. These pages establish the individual captured queries, not uncaptured filter combinations or clinical causation.
+
+| Native search page | Full compact bytes | Comparable bytes | Full ceiling | Comparable ceiling | Comparable estimated tokens |
+|---|---:|---:|---:|---:|---:|
+| F01 default pembrolizumab | 1495 | 1380 | 1720 | 1587 | 345 |
+| F20 native offset 5 | 1496 | 1381 | 1721 | 1589 | 346 |
+| F02 myocarditis phrase | 1867 | 1752 | 2148 | 2015 | 438 |
+| F03 pneumonitis phrase | 1867 | 1752 | 2148 | 2015 | 438 |
+| F23 osimertinib/pneumonitis phrase | 1856 | 1741 | 2135 | 2003 | 436 |
+| F13 report death flag | 1555 | 1440 | 1789 | 1656 | 360 |
+| F14 report hospitalization flag | 1585 | 1470 | 1823 | 1691 | 368 |
+| F15 first receipt during 2024 | 1649 | 1534 | 1897 | 1765 | 384 |
+
+Full bytes contain the entire envelope. Comparable bytes remove only the validated FAERS `use`, `terms` and `terms_url` fields, exactly 115 bytes. Component terms remain counted. Each ceiling is the corresponding observed compact size plus 15 percent, rounded up. Estimated tokens are comparable UTF-8 bytes divided by four, rounded up. They are not actual tokenization. The generated search help measured 1637 compact bytes, with ceiling 1883. The two synthetic executable examples measured full/comparable 1441/1326 and 1596/1481 bytes, with ceilings 1658/1525 and 1836/1704. Synthetic examples prove command mechanics and no native positive.
+
+The product proof retained real recorder files, raw CLI stdout/stderr, raw MCP JSON-RPC, exact arguments, source inputs, recipes and both attempt logs outside Git. Its first recipe attempt required redundant explicit default selectors in next commands and stopped after one local delivery. The corrected attempt used eight local deliveries; both attempts together made nine local deliveries and zero provider requests. Default-valued source and limit arguments are intentionally omitted by the shared checked speller. Gets select native reports without search filters; page actions preserve every search filter. The subsequent `Reply::check_status` correction rejects success-status error bodies and does not change these successful outputs.
+
+The independently verified Yellow archive is `data/biomcp-redux/0158-faers-search-product-proof/j12931-product-proof.tar.gz`, SHA-256 `05b3e8b712f8c44d797b7b87c12a9760ed9c07b6e5a7e3b54264bb47c9a6b9fa`, with 392 manifest files. It includes the original fresh-capture archive, whose SHA-256 is `1c32e5327782e02585eab936163b1db4d01d40552651a20c0062393f29e97443`. Raw replies that carry terminology stay outside Git.
 
 Legacy execution may retry, rename, auto-download bundles or fall back to trials. No verified containment exists for this assignment, so it has not run. Old fixtures are not new measurements. No product clinical-parity or timing claim is made.
 
