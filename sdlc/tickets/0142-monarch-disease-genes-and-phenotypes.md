@@ -1,0 +1,16 @@
+# 0142 — Add the Monarch disease genes and phenotypes sections
+
+Status: OPEN.
+
+Milestone: 3
+
+Depends on: 0141
+
+## Outcome
+
+`get disease CURIE genes --source monarch` and `get disease CURIE phenotypes --source monarch` return native Monarch association pages with `--section-limit` and `--section-offset`. Each row puts the requested ID beside the returned subject and object IDs, with the predicate, original IDs, primary and aggregator knowledge sources, evidence, negation and native qualifiers, and its component terms. The page total counts association rows. A gene row with a checked gene identity names the existing `get gene` command as its next action.
+
+- Why: the harvested syndrome questions D12 to D18 need attributed gene and phenotype associations, and the design keeps Monarch for both with no direct HPO call.
+- Starts from: disease.md's Monarch rows, the gene and phenotype rows of the case map, the D13, D14 and D18 association findings and the component disable paragraph; the existing gene command and its ID rules; 0138's association record, 0139's registry and 0141's card.
+- Rules: an association is a record, never a `Statement`, and gets no blended score or causal label. D18's request for MONDO:0019003 keeps its returned MEN2A object and native closure beside the requested ID, without an `expanded_scope` field. D13's CHEK2 row is never upgraded to TP53 causation. D14's five rows are rows, not five genes. A null qualifier stays absent. Disabling `monarch`, `hpo` or `orphanet` skips the section before any request, cache read or replay, since no verified Monarch filter narrows by component. Disabling `restricted` alone leaves both sections available. A gene next action exists only where the row carries a checked gene identity.
+- Proof: outside-in cases first, watched to fail. Before adapter code, one bounded keyless pm job captures known-positive gene and phenotype pages for MONDO:0018875, D14's VHL concept and MONDO:0019003, each with a second page. Cases D12-source-context, D13-associated-CHEK2, D14-row-count-not-genes, D18-parent-request-child-object, D13-evidence, D14-phenotypes, D15-syndrome and D18-negation/frequency replay the recorded replies, and component disable cases assert zero requests against the real adapter. Recorded 429, 500, timeout and broken-body cases assert a failed outcome with source and terms. Each case has a size ceiling from its measured output, starting from the design's allocations of 5,300 bytes for genes and 5,900 for phenotypes. No licensed content enters the repo, and replies whose terms bar storage replay from outside the repo. Then make landing-gate runs through pm job.
