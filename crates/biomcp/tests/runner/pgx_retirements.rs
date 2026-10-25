@@ -57,6 +57,18 @@ fn check(words: &str, message: &str) -> Result<(), String> {
 }
 const CASES: &[(&str, &str)] = &[
     (
+        "get pgx --gene DPYD recommendations --source cpic --limit 1",
+        "use: --section-limit",
+    ),
+    (
+        "get pgx DPYD recommendations json --source cpic",
+        "use: --format json",
+    ),
+    (
+        "get pgx --gene DPYD recommendations json --source cpic",
+        "use: --format json",
+    ),
+    (
         "get pgx DPYD interactions --source cpic",
         "use: search pgx --gene <SYMBOL> --source cpic; get pgx --gene <SYMBOL> --source cpic",
     ),
