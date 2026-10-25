@@ -291,21 +291,39 @@ fn declared_expressions_and_source_map_keys_keep_their_exact_spelling()
 }
 
 #[test]
-fn card_section_actions_recheck_source_context_and_keep_the_declared_gene() -> Result<(),Box<dyn std::error::Error>> {
+fn card_section_actions_recheck_source_context_and_keep_the_declared_gene()
+-> Result<(), Box<dyn std::error::Error>> {
     use biomcp_types::*;
-    let q:PgxSearch=serde_json::from_value(json!({"gene":"DPYD","source":"cpic","limit":2,"offset":3}))?;
-    assert_eq!(q.source(),PgxSource::Cpic);assert_eq!((q.limit(),q.offset()),(2,3));
-    let card:PgxGet=serde_json::from_value(json!({"gene":"DPYD","source":"cpic"}))?;
-    let annotations=card.with_section(PgxSection::Annotations,PgxSource::Clinpgx)?;
-    assert_eq!(annotations.gene(),card.gene());
-    assert_eq!(annotations.section(),Some(PgxSection::Annotations));
-    assert_eq!(annotations.kind(),Some(PgxAnnotationKind::Clinical));
-    assert!(card.with_section(PgxSection::Annotations,PgxSource::Cpic).is_err());
-    assert!(card.with_section(PgxSection::Diplotype,PgxSource::Cpic).is_err());
+    let q: PgxSearch =
+        serde_json::from_value(json!({"gene":"DPYD","source":"cpic","limit":2,"offset":3}))?;
+    assert_eq!(q.source(), PgxSource::Cpic);
+    assert_eq!((q.limit(), q.offset()), (2, 3));
+    let card: PgxGet = serde_json::from_value(json!({"gene":"DPYD","source":"cpic"}))?;
+    let annotations = card.with_section(PgxSection::Annotations, PgxSource::Clinpgx)?;
+    assert_eq!(annotations.gene(), card.gene());
+    assert_eq!(annotations.section(), Some(PgxSection::Annotations));
+    assert_eq!(annotations.kind(), Some(PgxAnnotationKind::Clinical));
+    assert!(
+        card.with_section(PgxSection::Annotations, PgxSource::Cpic)
+            .is_err()
+    );
+    assert!(
+        card.with_section(PgxSection::Diplotype, PgxSource::Cpic)
+            .is_err()
+    );
     assert!(card.at_section_offset(1).is_err());
-    for v in [json!({"gene":"DPYD","source":"cpic","limit":51}),json!({"gene":"DPYD","source":"cpic","limit":null}),json!({"gene":"DPYD","source":"cpic","offset":-1})] {
+    for v in [
+        json!({"gene":"DPYD","source":"cpic","limit":51}),
+        json!({"gene":"DPYD","source":"cpic","limit":null}),
+        json!({"gene":"DPYD","source":"cpic","offset":-1}),
+    ] {
         assert!(serde_json::from_value::<PgxSearch>(v).is_err());
     }
-    assert!(serde_json::from_value::<PgxGet>(json!({"gene":"DPYD","source":"cpic","section":"recommendations","drug_id":"tamoxifen"})).is_err());
+    assert!(
+        serde_json::from_value::<PgxGet>(
+            json!({"gene":"DPYD","source":"cpic","section":"recommendations","drug_id":"tamoxifen"})
+        )
+        .is_err()
+    );
     Ok(())
 }
