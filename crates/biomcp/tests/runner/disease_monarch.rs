@@ -205,7 +205,7 @@ fn phenotype() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/evidence/0/label":"Synthetic evidence","/result/items/0/association/publications/0":{"id":"PMID:1","label":"Synthetic publication"},"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]),
+        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/evidence/0/label":"Synthetic evidence","/result/items/0/association/publications/0":{"equals":{"id":"PMID:1","label":"Synthetic publication"}},"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]),
     )?;
     if stub.finish()?.len() != 1 {
         return Err("unexpected phenotype fanout".into());
