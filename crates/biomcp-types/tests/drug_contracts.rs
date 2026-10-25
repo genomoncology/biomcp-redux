@@ -232,53 +232,28 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
 }
 
 #[test]
-fn civic_claim_streams_continue_the_selected_drug_without_a_variant_query() {
-    use biomcp_types::{CivicClaimKind, CivicProfile, DrugCivic};
-    let selected = json!({"source":"civic", "input":"5", "section":["civic"], "section_offset":7, "section_limit":2});
-    let selected: DrugGet = serde_json::from_value(selected).expect("selected drug");
-    let evidence = selected
-        .with_civic_page(
-            12,
-            CivicClaimKind::Evidence,
-            Some("native-evidence-cursor".parse().expect("cursor")),
-        )
-        .expect("evidence continuation");
-    let assertions = selected
-        .with_civic_page(
-            12,
-            CivicClaimKind::Assertions,
-            Some("native-assertion-cursor".parse().expect("cursor")),
-        )
-        .expect("assertion continuation");
-    let profile = json!({"record":{"id":"12"}, "label":"synthetic source profile", "compound":false, "membership":"candidate", "members":[], "evidence_count":3, "assertion_count":1, "statements":[], "evidence_page":{"returned":2,"total":3,"next":evidence}, "assertion_page":{"returned":0,"total":1,"next":assertions}});
-    let decoded: CivicProfile<DrugGet> =
-        serde_json::from_value(profile.clone()).expect("drug profile");
+fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
+    use biomcp_types::DrugCivic;
+    let next = json!({"source":"civic","input":"5","section":["civic"],"section_limit":1,"civic_kind":"evidence","civic_cursor":"MQ"});
+    let selected: DrugGet = serde_json::from_value(next.clone()).expect("therapy-wide cursor");
+    assert_eq!(selected.civic_profile(), None);
     assert_eq!(
-        serde_json::to_value(&decoded).expect("profile JSON"),
-        profile
+        selected.civic_kind(),
+        Some(biomcp_types::CivicClaimKind::Evidence)
     );
-    for (next, kind, cursor) in [
-        (
-            decoded.evidence_page.next.expect("evidence next"),
-            CivicClaimKind::Evidence,
-            "native-evidence-cursor",
-        ),
-        (
-            decoded.assertion_page.next.expect("assertion next"),
-            CivicClaimKind::Assertions,
-            "native-assertion-cursor",
-        ),
-    ] {
-        assert_eq!(next.input().to_string(), "5");
-        assert_eq!(next.source().to_string(), "civic");
-        assert_eq!(next.civic_profile(), Some(12));
-        assert_eq!(next.civic_kind(), Some(kind));
-        assert_eq!(next.civic_cursor().expect("native cursor").as_str(), cursor);
-        assert_eq!(next.section_offset(), Some(7));
-        assert_eq!(next.section_limit(), Some(2));
-    }
-    let response = json!({"identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"}, "civic":{"state":"data","source":"civic","data":{"records":[profile], "offset":0}}});
-    let decoded: DrugCivic = serde_json::from_value(response.clone()).expect("drug CIViC response");
+    assert_eq!(serde_json::to_value(selected).expect("query JSON"), next);
+    let response = json!({
+        "identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"},
+        "civic":{"state":"data","source":"civic","data":{
+            "evidence":{"records":[{
+                "profile":{"record":{"id":"1"},"label":"synthetic profile","compound":false,"members":[]},
+                "claim":{"record":{"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},
+                "therapies":[{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"}]
+            }],"page":{"returned":1,"total":169,"next":next}},
+            "assertions":{"records":[],"page":{"returned":0,"total":1}}
+        }}
+    });
+    let decoded: DrugCivic = serde_json::from_value(response.clone()).expect("independent streams");
     assert_eq!(
         serde_json::to_value(decoded).expect("response JSON"),
         response
@@ -289,13 +264,12 @@ fn civic_claim_streams_continue_the_selected_drug_without_a_variant_query() {
 fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
     for selectors in [
         json!({"civic_profile":12}),
-        json!({"civic_kind":"evidence"}),
         json!({"civic_cursor":"native cursor"}),
         json!({"civic_profile":0,"civic_kind":"evidence"}),
         json!({"civic_profile":2147483648_u64,"civic_kind":"evidence"}),
         json!({"civic_profile":12,"civic_kind":"unknown"}),
-        json!({"source":"chembl","input":"CHEMBL941","civic_profile":12,"civic_kind":"evidence"}),
-        json!({"section":[],"civic_profile":12,"civic_kind":"evidence"}),
+        json!({"source":"chembl","input":"CHEMBL941","civic_kind":"evidence"}),
+        json!({"section":[],"civic_kind":"evidence"}),
     ] {
         let mut query = json!({"source":"civic","input":"5","section":["civic"]});
         query
@@ -304,4 +278,6 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
             .extend(selectors.as_object().expect("selectors").clone());
         assert!(serde_json::from_value::<DrugGet>(query).is_err());
     }
+    let query: DrugGet = serde_json::from_value(json!({"source":"civic","input":"5","section":["civic"],"civic_profile":1,"civic_kind":"evidence"})).expect("selected profile");
+    assert_eq!(query.civic_profile(), Some(1));
 }
