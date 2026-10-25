@@ -279,6 +279,7 @@
     },
     "DrugSource": {
       "enum": [
+        "who-pq",
         "mychem",
         "chembl",
         "opentargets",
@@ -1469,6 +1470,31 @@
         "source": {
           "$ref": "#/$defs/DrugSource",
           "description": "Required source; there is no default exact-ID resolver."
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read native WHO prequalification rows by exact reference.",
+      "properties": {
+        "command": {
+          "const": "get_who_medicine",
+          "type": "string"
+        },
+        "input": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact WHO reference number, including native spaces; no name or alias resolution.",
+          "x-positional": 0
+        },
+        "source": {
+          "$ref": "#/$defs/DrugSource",
+          "description": "Explicit source who-pq; prequalification is source-scoped."
         }
       },
       "required": [

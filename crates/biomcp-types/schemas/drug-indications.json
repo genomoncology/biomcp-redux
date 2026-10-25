@@ -577,6 +577,7 @@
     },
     "DrugSource": {
       "enum": [
+        "who-pq",
         "mychem",
         "chembl",
         "opentargets",
@@ -944,6 +945,7 @@
         "openfda-label",
         "drugsfda",
         "ema",
+        "who-pq",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -1009,6 +1011,7 @@
         " openFDA SPL labels.",
         " Drugs@FDA application records.",
         " European Medicines Agency.",
+        " WHO finished pharmaceutical products.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
