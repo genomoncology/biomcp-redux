@@ -67,19 +67,14 @@ fn check(env: &Environment, stream: &str, root: &Path) -> Result<(), String> {
     ]
     .map(str::to_owned);
     let recording = root.join(format!("recorded-{stream}"));
-    let mut record = vec![
-        "--record".into(),
-        recording.display().to_string(),
-        "--fresh".into(),
-    ];
+    let mut record = vec!["--record".into(), recording.display().to_string()];
     record.extend_from_slice(&args);
+    record.push("--fresh".into());
     let result = proof::retained_cli(env, &record, 0, &root.join(format!("record-cli-{stream}")))?;
-    let mut replay_args = vec![
-        "--replay".into(),
-        recording.display().to_string(),
-        "--fresh".into(),
-    ];
+    let mut replay_args = vec!["--replay".into(), recording.display().to_string()];
     replay_args.extend_from_slice(&args);
+    // Freshness belongs to each request, including the MCP tool invocation.
+    replay_args.push("--fresh".into());
     let replay =
         proof::retained_both(env, &replay_args, 0, &root.join(format!("replay-{stream}")))?;
     for key in ["result", "next", "query", "status"] {
