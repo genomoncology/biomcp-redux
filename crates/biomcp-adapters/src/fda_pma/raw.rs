@@ -78,7 +78,7 @@ pub(super) struct Record {
     pub expedited_review_flag: Option<Box<str>>,
 }
 impl Record {
-    pub fn mapped(self) -> DeviceSubmission {
+    pub(super) fn mapped(self) -> DeviceSubmission {
         DeviceSubmission {
             pma_number: self.pma_number,
             supplement_number: self.supplement_number,

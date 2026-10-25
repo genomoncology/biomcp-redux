@@ -23,6 +23,7 @@ use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::DiagnosticGet;
 pub use map::{fragments, header, regulatory};
 /// Complete source application members or one exact selected supplement.
+#[derive(Debug)]
 pub struct Records {
     /// Native records in original order, without harmonized values.
     pub rows: Vec<DeviceSubmission>,
@@ -40,8 +41,7 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         .fresh(Freshness::Days(1))
         .bytes(10 * 1024 * 1024)
         .json_absence();
-    let incomplete = std::cell::Cell::new(false);
-    let reply = leg.json_received_checked::<raw::Response>(
+    let reply = leg.json_checked_admission::<raw::Response>(
         &endpoint,
         &[
             ("search", Arg::Text(&selector)),
@@ -50,10 +50,6 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         ],
         |reply| {
             if let raw::Response::Page { meta, results } = reply {
-                if meta.results.total > 100 {
-                    incomplete.set(true);
-                    return Err(BadReply);
-                }
                 if meta.results.skip != 0
                     || meta.results.limit != 100
                     || results.iter().any(|row| {
@@ -77,14 +73,8 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
             }
             Ok(())
         },
-    );
-    if incomplete.get() {
-        return Ok(Records {
-            rows: vec![],
-            incomplete: true,
-        });
-    }
-    let (reply, _) = reply?;
+        |reply| !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100),
+    )?;
     Ok(match reply {
         raw::Response::Page { meta, results } => Records {
             rows: results.into_iter().map(raw::Record::mapped).collect(),

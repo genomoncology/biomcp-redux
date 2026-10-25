@@ -36,6 +36,11 @@ fn native(mode: &str) -> Result<Value, String> {
             .ok_or("missing row")?
             .remove("supplement_number");
     }
+    if mode == "incomplete" {
+        for n in 1..100 {
+            rows.push(json!({"pma_number":"P150013","supplement_number":format!("S{n:03}"),"ao_statement":"Synthetic"}));
+        }
+    }
     let total = if mode == "incomplete" {
         101
     } else {
@@ -82,7 +87,7 @@ fn boundary(mode: &'static str) -> Check {
         .map(String::from)
         .collect();
     for _ in 0..2 {
-        let value = invoke(&env, args.clone(), 4)?;
+        let value = invoke(&env, args.clone(), if mode == "incomplete" { 0 } else { 4 })?;
         if value.get("result").is_some()
             || value.pointer("/sources/0/source") != Some(&json!("fda-pma"))
             || value.pointer("/sources/0/use") != Some(&json!("open"))
