@@ -75,6 +75,15 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
         }
         _ => {}
     }
+    if out.status == Status::Partial {
+        next.push((
+            StepKind::Fresh,
+            Action::Run {
+                request: request.clone(),
+                fresh: true,
+            },
+        ));
+    }
     next.truncate(5);
     next
 }

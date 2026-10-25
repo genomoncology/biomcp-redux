@@ -74,9 +74,25 @@ fn scenario(name: &'static str) -> Check {
     let stub = Stub::counted(
         move |request| {
             check_request(name, request)?;
+            let mut body = body.clone();
+            if request.contains("offset=1 ") {
+                if name == "pairs" {
+                    body[0]["pairid"] = json!(2);
+                } else if name == "view" {
+                    body[0]["recommendationid"] = json!(2);
+                } else if name == "table" {
+                    body[0]["id"] = json!(2);
+                }
+            }
             Ok(body.to_string())
         },
-        move |_| format!("Content-Range: {range}\r\n"),
+        move |request| {
+            if request.contains("offset=1 ") {
+                "Content-Range: 1-1/2\r\n".into()
+            } else {
+                format!("Content-Range: {range}\r\n")
+            }
+        },
         move |_| if total > returned { 206 } else { 200 },
     )?;
     let env = environment(&stub)?;
@@ -109,7 +125,8 @@ fn scenario(name: &'static str) -> Check {
             return Err("disabled source restored replay".into());
         }
     }
-    if stub.finish()?.len() != 1 {
+    let expected = follow_page(&env, &cold, total)?;
+    if stub.finish()?.len() != expected {
         return Err("warm cache or disabled call opened HTTP".into());
     }
     Ok(())
@@ -268,4 +285,38 @@ fn markdown(env: &Environment, args: &[String]) -> Check {
         return Err("Markdown omitted source or follow-up commands".into());
     }
     Ok(())
+}
+
+fn follow_page(env: &Environment, value: &Value, total: usize) -> Result<usize, String> {
+    if total != 2 {
+        return Ok(1);
+    }
+    let args = value
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|v| v.iter().find(|s| s.get("kind") == Some(&json!("page"))))
+        .and_then(|s| s.get("args"))
+        .and_then(Value::as_array)
+        .ok_or("missing next page")?
+        .iter()
+        .map(|s| {
+            s.as_str()
+                .map(str::to_owned)
+                .ok_or("non-string next".to_owned())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let page = both(env, args, 0)?;
+    if page.pointer("/result/page/offset") != Some(&json!(1))
+        || page.pointer("/result/page/returned") != Some(&json!(1))
+        || page.pointer("/result/page/total") != Some(&json!(2))
+    {
+        return Err("next page lost its native count/offset".into());
+    }
+    for field in ["gene", "source", "drug_id", "cpic_level"] {
+        let p = format!("/query/{field}");
+        if page.pointer(&p) != value.pointer(&p) {
+            return Err(format!("page lost {field}"));
+        }
+    }
+    Ok(2)
 }

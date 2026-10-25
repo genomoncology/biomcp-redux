@@ -12,6 +12,16 @@ pub(super) fn scenario(name: &str) -> (Vec<String>, Value) {
     .into_iter()
     .map(str::to_owned)
     .collect::<Vec<_>>();
+    if name == "pairs" {
+        args.extend([
+            "--limit".into(),
+            "1".into(),
+            "--cpic-level".into(),
+            "B/C".into(),
+        ]);
+    } else if matches!(name, "view" | "table" | "guidelines") {
+        args.extend(["--section-limit".into(), "1".into()]);
+    }
     let body = match name {
         "pairs" => {
             json!([{"pairid":1,"drugid":"RxNorm:10324","drugname":"Synthetic drug","genesymbol":"DPYD","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"Synthetic level","pgxtesting":null,"pmids":["12345678"],"usedforrecommendation":"No","provisional":false}])
