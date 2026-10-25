@@ -34,7 +34,7 @@
   "$id": "biomcp.diagnostic-get/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Checked exact diagnostic selection with source-owned section pagination.",
+  "description": "Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.",
   "properties": {
     "bundle_revision": {
       "anyOf": [
@@ -61,7 +61,7 @@
           "type": "null"
         }
       ],
-      "description": "One source-supported named page, absent for the card.",
+      "description": "gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.",
       "x-positional": 1
     },
     "section_limit": {
@@ -80,7 +80,7 @@
     },
     "source": {
       "$ref": "#/$defs/DiagnosticGetSource",
-      "description": "Required explicit source; no all or automatic lookup."
+      "description": "Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number."
     },
     "supplement": {
       "anyOf": [
