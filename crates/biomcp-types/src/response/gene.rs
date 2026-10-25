@@ -69,6 +69,8 @@ pub enum QueryBody {
     DrugPage(crate::DrugPage),
     /// Exact source identity, absent on failed retrieval.
     DrugCard(Option<crate::DrugCard>),
+    /// Original native label text with mechanical fragment continuation.
+    DrugLabel(Option<crate::DrugLabel>),
     /// An exact selected document's bounded native link page.
     DrugXrefs(Option<crate::DrugXrefs>),
     /// Source-native variant assertions.

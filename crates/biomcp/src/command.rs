@@ -208,6 +208,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, body)
         }
         (Request::GetDrug(query), QueryBody::DrugCard(body)) => meta.encode(query, body),
+        (Request::GetDrug(query), QueryBody::DrugLabel(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugXrefs(body)) => meta.encode(query, body),
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
