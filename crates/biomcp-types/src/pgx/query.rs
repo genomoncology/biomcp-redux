@@ -217,6 +217,9 @@ impl PgxGet {
     ) -> Result<Self, QueryInvalid> {
         let mut q = self.0.clone();
         q.section = Some(section);
+        if q.source != source {
+            q.section_limit = None;
+        }
         q.source = source;
         q.section_offset = 0;
         Self::try_from(q)

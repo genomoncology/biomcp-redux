@@ -128,8 +128,7 @@
           "x-positional": 0
         },
         "section_limit": {
-          "default": 5,
-          "description": "Complete source rows per independent section page.",
+          "description": "Complete source rows per page; clinical defaults to three, other sections to five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
