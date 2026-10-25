@@ -150,8 +150,9 @@ fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root
-        .subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen"])));
+    root = root.subcommand(
+        Command::new("sync").arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema"])),
+    );
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(help_command());
@@ -255,13 +256,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         Action::KeyHelp(source)
     } else if verb == "sync" {
         Action::Sync {
-            bundle: if matches
-                .get_one::<String>("bundle")
-                .is_some_and(|v| v == "clingen")
-            {
-                Bundle::ClinGen
-            } else {
-                Bundle::Hgnc
+            bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("ema") => Bundle::Ema,
+                Some("clingen") => Bundle::ClinGen,
+                _ => Bundle::Hgnc,
             },
         }
     } else {

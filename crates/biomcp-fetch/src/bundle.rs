@@ -10,6 +10,10 @@ pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 pub trait Row: serde::de::DeserializeOwned {
     /// Return the row’s exact and word search keys.
     fn keys(&self) -> Keys;
+    /// Validate typed shared metadata against the complete decoded JSON row count.
+    fn check_bundle(&self, _rows: usize) -> Result<(), crate::BadReply> {
+        Ok(())
+    }
 }
 /// A declared local data source.
 #[derive(Debug)]
@@ -32,6 +36,13 @@ pub struct Bundle<R: Row + 'static> {
 pub enum RowFormat {
     /// Tab-separated cells with a named header.
     Tsv,
+    /// JSON object with a declared row array and shared metadata object.
+    Json {
+        /// Object field holding the complete row array.
+        rows: &'static str,
+        /// Object field copied into each stored row as `_bundle_meta`.
+        metadata: &'static str,
+    },
     /// Generated comma-separated records after physical banner lines.
     Csv {
         /// Number of physical lines preceding the header.
@@ -41,6 +52,7 @@ pub enum RowFormat {
 impl RowFormat {
     fn media(self) -> &'static str {
         match self {
+            Self::Json { .. } => "application/json",
             Self::Tsv => "text/tab-separated-values",
             Self::Csv { .. } => "text/csv",
         }
@@ -178,6 +190,30 @@ impl Leg<'_> {
             .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
             .collect::<Result<_, RequestError>>()?;
         Ok(rows)
+    }
+    /// Read only the last validated local bundle, even when fresh or replay is selected.
+    /// Missing data reports `Syncing`; the caller must explicitly synchronize it.
+    pub fn stored_rows<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+        find: Find<'_>,
+    ) -> Result<(Vec<R>, BundleInfo), RequestError> {
+        self.bundle_source(bundle)?;
+        let cache = self.bundle_cache()?;
+        let (meta, rows) = cache
+            .stored_bundle(bundle.name, find, self.budget())?
+            .ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
+        let rows = rows
+            .into_iter()
+            .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
+            .collect::<Result<_, RequestError>>()?;
+        if meta.fresh_until <= crate::cache::now() {
+            self.report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .stale = true;
+        }
+        Ok((rows, store::info(bundle, &meta)))
     }
     fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
         self.check_source()?;

@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// EMA medicines, synchronized only by an explicit command.
+    Ema,
     /// The HGNC identity source, including approved and withdrawn records.
     Hgnc,
     /// ClinGen validity and dosage files.

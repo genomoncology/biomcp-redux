@@ -91,6 +91,8 @@ pub enum QueryBody {
     DrugCard(Option<crate::DrugCard>),
     /// Original native label text with mechanical fragment continuation.
     DrugLabel(Option<crate::DrugLabel>),
+    /// Exact EMA record and native regulator fields from one local snapshot.
+    DrugRegulatory(Option<crate::DrugRegulatory>),
     /// An exact selected document's bounded native link page.
     DrugXrefs(Option<crate::DrugXrefs>),
     /// Source-native drug target and mechanism page.

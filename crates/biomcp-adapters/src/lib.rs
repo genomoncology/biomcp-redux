@@ -68,7 +68,8 @@ pub mod drug_sources;
 pub mod chembl;
 mod ddinter;
 mod drugsfda;
-mod ema;
+/// EMA medicines bundle with explicit synchronization.
+pub mod ema;
 /// MyChem literal native candidate and document identity adapter.
 pub mod mychem;
 pub mod openfda_label;
