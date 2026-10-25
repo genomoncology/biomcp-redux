@@ -1,4 +1,5 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
+mod condition;
 pub mod document;
 pub(crate) mod get;
 mod nci;
@@ -26,13 +27,20 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut outcome = empty();
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
+    let Some(condition) = condition::resolve(cx, query, &mut outcome, &mut deadline) else {
+        command.finish(deadline.remaining());
+        return outcome;
+    };
     let Some(gene) = gene(cx, query, &mut outcome, &mut deadline) else {
         command.finish(deadline.remaining());
         return outcome;
     };
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
-    let params = ctgov::parameters(query, gene.as_deref());
+    let mut params = ctgov::parameters(query, gene.as_deref());
+    if let Some(condition) = condition {
+        params.insert("query.cond".into(), condition.to_string());
+    }
     let result = ctgov::search(&leg, &params);
     let rejected = matches!(
         &result,
@@ -156,6 +164,7 @@ fn empty() -> Outcome {
             attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
                 .into(),
             gene_resolution: None,
+            condition_resolution: None,
         }),
         page: None,
         sources: Vec::new(),

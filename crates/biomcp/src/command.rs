@@ -232,7 +232,8 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             meta.encode(query, Some(body))
         }
         (Request::SearchTrial(query), QueryBody::NciTrialPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = (meta.status != Status::Failed || body.condition_resolution.is_some())
+                .then_some(body);
             meta.encode(query, body)
         }
 
@@ -241,7 +242,8 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         }
         (Request::GetTrial(query), QueryBody::TrialCards(body)) => meta.encode(query, Some(body)),
         (Request::SearchTrial(query), QueryBody::TrialPage(body)) => {
-            let body = (meta.status != Status::Failed).then_some(body);
+            let body = (meta.status != Status::Failed || body.condition_resolution.is_some())
+                .then_some(body);
             meta.encode(query, body)
         }
         (_, QueryBody::ArticleSaveRefused(url)) => usage_envelope(ErrorEnvelope::save_refused(url)),

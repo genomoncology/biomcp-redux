@@ -17,11 +17,14 @@ pub struct TrialPage {
     /// Unresolved gene identity, without a registry request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gene_resolution: Option<crate::GeneResolution>,
+    /// Exact condition identity and source-provided mapping, absent for literal text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub condition_resolution: Option<crate::TrialConditionResolution>,
     /// Publisher attribution.
     pub attribution: String,
 }
 impl super::ResponseBody for TrialPage {
-    const SCHEMA: &'static str = "biomcp.trial_page/4";
+    const SCHEMA: &'static str = "biomcp.trial_page/5";
     type Query = crate::TrialSearch;
 }
 

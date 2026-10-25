@@ -53,7 +53,7 @@ impl Stub {
     pub(super) fn for_sources(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
-        reply: fn(&str) -> Result<String, String>,
+        reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
     ) -> Result<Self, String> {
         Self::with_hosts(hosts, content_type, reply, |_, bytes| bytes, |_| 200)
     }

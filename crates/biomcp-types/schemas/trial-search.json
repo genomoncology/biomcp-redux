@@ -1,5 +1,9 @@
 {
   "$defs": {
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
     "GeneInput": {
       "pattern": "\\S",
       "type": "string"
@@ -87,7 +91,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.trial-search/1",
+  "$id": "biodata.trial-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
@@ -101,6 +105,10 @@
     "condition": {
       "$ref": "#/$defs/Text",
       "description": "Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text."
+    },
+    "condition_id": {
+      "$ref": "#/$defs/Curie",
+      "description": "Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
     },
     "count_only": {
       "default": false,

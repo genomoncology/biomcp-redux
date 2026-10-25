@@ -328,4 +328,19 @@ Raw responses, exact request manifests, released-product outputs, official speci
 
 The clinical review covered all 24 questions and the bounded age-metadata clarification. It confirmed publication facts and the no-limit convention, kept recruitment and count claims tied to captured registry data, and rejected clinical eligibility conclusions from text search or a structured age match. The investigator read both results before using them.
 
-The investigation did not compile product code, build release artifacts, change production or schedule source refreshes. The implementation proof above covers the accepted trial capabilities. A same-site facility-plus-radius filter remains unsupported by ruling. Automatic MyDisease.info resolution and interpretation of NCI biomarker fields remain outside these shipped capabilities.
+The investigation did not compile product code, build release artifacts, change production or schedule source refreshes. The implementation proof above covers the accepted trial capabilities. A same-site facility-plus-radius filter remains unsupported by ruling. Implicit disease-name resolution and interpretation of NCI biomarker fields remain outside these shipped capabilities. Explicit `--condition-id MONDO:…|DOID:…` uses exact MyDisease annotation and sends its primary label unchanged to ClinicalTrials.gov. NCI accepts `--condition-id NCIT:C…` directly or one unique source-provided NCIt mapping. The response retains the input, resolver, returned concept, mapping choices and actual source request. Missing mappings, ambiguous mappings and resolver failures stop before trial I/O. Missing NCI credentials skip before the resolver. Literal `--condition` is unchanged; it cannot combine with `--condition-id`, and NCI keyword selection also conflicts. This new option adds no historical 0.9 option slot.
+
+### Exact condition identity output measurements
+
+The retained-body command proof reuses the original MyDisease projection and published trial recordings without a provider call. Local record/replay sends the returned MONDO:0005105 primary label `melanoma` unchanged to ClinicalTrials.gov and the unique native NCIt C3224 mapping to NCI. Duplicate C3224 rows retain their separate MONDO and Disease Ontology provenance. DOID:3910 resolves to MONDO:0005061, but its NCIt targets C27745 and C3512 remain ambiguous and stop before NCI. MONDO:0800444 has no native NCIt mapping and also stops. Explicit `NCIT:C3224` bypasses MyDisease. These are discovery filters and establish no eligibility claim.
+
+| Exact command shape | Full bytes | Comparable bytes | Estimated tokens | Comparable byte ceiling |
+| --- | ---: | ---: | ---: | ---: |
+| MONDO:0005105 to ClinicalTrials.gov | 6,194 | 5,893 | 1,474 | 6,777 |
+| MONDO:0005105 to NCI | 2,910 | 2,632 | 658 | 3,027 |
+| DOID:3910 ambiguous NCIt mappings | 2,143 | 2,015 | 504 | 2,318 |
+| MONDO:0800444 missing NCIt mapping | 994 | 866 | 217 | 996 |
+| Explicit NCIT:C3224 to NCI | 1,727 | 1,577 | 395 | 1,814 |
+| Explicit NCIT:C3224 with rejected NCI reply | 926 | 776 | 194 | 893 |
+
+Comparable bytes subtract only the validated source outcome terms fields under the shared rule. Component terms and mapping provenance remain included. Token figures use `ceil(bytes/4)`, not a tokenizer. New case ceilings use each measured comparable output plus 15 percent. The older literal `--condition melanoma` case and its cap stay unchanged. No equivalent 0.9 explicit identifier-resolution command measurement exists, so no same-command reduction is claimed. Original capture metadata stays separate from each local delivery recording outside Git.

@@ -34,7 +34,6 @@ pub use query::{TrialFilter, TrialSearch, TrialSource};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use response::ComponentHealth;
-pub use response::TrialPage;
 pub use response::TrialParameter;
 pub use response::VariantPage;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
@@ -95,6 +94,7 @@ pub use response::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
     TrialRecords, TrialSections,
 };
+pub use response::{TrialConditionResolution, TrialPage};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use response::{VariantCard, VariantHeader, VariantResolution};
 pub use source::{Reason, Source, Use};

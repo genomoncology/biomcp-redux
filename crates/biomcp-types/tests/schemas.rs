@@ -211,10 +211,11 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci_trial_cards/2"),
-        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci_trial_page/2"),
+        Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci_trial_page/3"),
         Envelope<TrialCards> => ("trial-cards", "biomcp.trial_cards/2"),
-        TrialSearch => ("trial-search", "biodata.trial-search/1"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/4"),
+        TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial_condition_resolution/1"),
+        TrialSearch => ("trial-search", "biodata.trial-search/2"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial_page/5"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }

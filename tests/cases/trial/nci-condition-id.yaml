@@ -1,0 +1,47 @@
+{
+  "feature": "trial-nci",
+  "live_check": "keyed source capture replay; no provider call",
+  "story": "An explicit NCIt CURIE bypasses the disease resolver and uses the unchanged captured NCI request.",
+  "replay": "trial/nci/search",
+  "config": {
+    "keys": {
+      "nci_api_key": "synthetic-nci-replay"
+    }
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition-id",
+        "NCIT:C3224",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition-id",
+        "NCIT:C3224",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/*/source": [
+          "nci"
+        ],
+        "/page/total": 1203,
+        "/result/condition_resolution/input": "NCIT:C3224",
+        "/result/condition_resolution/selected_ncit": "NCIT:C3224",
+        "/result/items/0/nct_id": "NCT05136196"
+      },
+      "max_bytes": 1814,
+      "max_tokens": 454
+    }
+  ]
+}
