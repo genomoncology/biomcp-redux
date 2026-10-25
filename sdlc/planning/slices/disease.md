@@ -99,7 +99,7 @@ The repair serialized full illustrative consumer envelopes over retained source 
 
 | Surface and actual illustrative sample | Measured bytes | `ceil(bytes/4)` proxy | Proposed whole-envelope byte ceiling | Matched 0.9.3 measurement and reason |
 |---|---:|---:|---:|---|
-| OLS search, five headers, D01–D24 | 1,008–2,082 | 252–521 | 2,400 | Same literal searches:176–1,731 bytes in the table below. Larger proposed replies preserve actual source candidates, counts, exact IDs, terms and typed actions. No claim that old empty replies are clinically sufficient.  **UNMEASURED:** MONDO-only default request and actual generated-schema CLI/MCP output. |
+| OLS search, five headers, D01–D24 | 1,008–2,082 | 252–521 | 2,400 | Contained D01–D21 searches measure 176–1,731 bytes in the table below. These are old MyDisease request identities, not the proposed OLS selectors. Larger proposed replies preserve candidates, source counts, exact IDs, terms and typed actions. Old empty replies do not establish a complete clinical answer.  **UNMEASURED:** MONDO-only default request and actual generated-schema CLI/MCP output. |
 | Default card, D08 exact melanoma | 1,601 | 401 | 1,850 | **UNMEASURED:** same-case D08 0.9 get, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). The actual D02 breast default get was 8,462 bytes, but that is a different identity and includes hidden MyChem/trial enrichment; no same-case ratio is claimed.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
 | Other exact cards, including the D15 JSON illustration | **UNMEASURED** | **UNMEASURED** | No measured ceiling beyond D08 | No same-case serialization measurement. The 0.9 comparison is **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md). Final CLI/MCP output is **UNMEASURED**. |
 | Synonyms, D08 four native rows | 802 | 201 | 950 | 0.9 section **UNMEASURED**, deferred to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md); no invented comparison.  **UNMEASURED:** actual generated-schema CLI/MCP output. |
@@ -273,7 +273,7 @@ MyDisease, OLS, Open Targets and CIViC received every literal D01–D24 query. T
 
 Terms remain source and component facts. [MONDO's publisher](https://mondo.monarchinitiative.org/pages/download/) names CC BY 4.0; [OLS's host terms](https://www.ebi.ac.uk/about/terms-of-use/) do not replace ontology-specific rights. [Open Targets](https://platform-docs.opentargets.org/licence) marks its platform data CC0 and documents its integrated source arrangements. [CIViC](https://civicdb.org/releases/licensing) dedicates its data under CC0. [Reactome](https://reactome.org/license) distinguishes data from illustrations and other materials. [MedlinePlus](https://medlineplus.gov/about/using/usingcontent/) distinguishes public-domain summaries from separately licensed material. [Monarch's current licensing guidance](https://monarch-app.monarchinitiative.org/Licensing/) recommends licenses and explicitly leaves repository-specific terms authoritative; it is not a blanket relicensing of every upstream association. The [HPO repository](https://github.com/obophenotype/human-phenotype-ontology) directs readers to its [publisher license page](https://hpo.jax.org/app/license). The current publisher license source and rendered page were captured successfully in the final bounded pass below; those actual terms determine the HPO component label. Open Targets' integration does not override them. Raw unknown-rights replies stay outside Git. The existing registry must carry each finally reviewed source/component use label, terms name and publisher page; no open endpoint grants additional rights.
 
-The following table records native source totals and the same-question released baseline's time and stdout bytes. The baseline command is `search disease --query TERM --limit 5 --no-fallback --json`, using an isolated home/config/cache with keys absent. All 24 searches exited zero. Times describe this loaded M5 run, not an isolated speed benchmark. Direct HTTP timings above and end-to-end product timings below measure different work.
+The following historical table records native source totals and an earlier released baseline's time and stdout bytes. That run had unknown HTTP request counts; it does not supply the contained comparison below. The baseline command is `search disease --query TERM --limit 5 --no-fallback --json`, using an isolated home/config/cache with keys absent. All 24 searches exited zero. Times describe this loaded M5 run, not an isolated speed benchmark. Direct HTTP timings above and end-to-end product timings below measure different work.
 
 | Case | MyDisease hits | OLS hits | Open Targets hits | CIViC evidence items | 0.9.3 ms | 0.9.3 bytes |
 |---|---:|---:|---:|---:|---:|---:|
@@ -308,6 +308,44 @@ The repair budget table above replaces the initial MyDisease-only illustrative s
 Repeated D01/D08/D21 baseline searches used the same isolated cache and returned identical stdout hashes in 19/9/7 ms, versus 459/275/281 ms on their first invocations. No HTTP trace was collected, so their actual HTTP request counts remain unknown; a fast repeated call alone does not prove zero requests. The one default exact breast get took 2,202 ms and 8,462 bytes. It returned identity/definition/parents/synonyms/xrefs, Open Targets gene scores, a treatment landscape and recruiting-trial count. Its native outcomes show MyChem and ClinicalTrials.gov data despite no explicit section. This is the concrete reason to keep the new default identity card free of hidden enrichment.
 
 The baseline completed 28 product invocations plus version/help checks before the coordinator imposed an offline-only rule for further comparisons. Four planned get/genes/phenotypes commands did not execute. No further live baseline call was made. The PM subsequently required a separate ticket and verified network containment for any future 0.9 execution. The stop was an experiment classifier error: a raw-byte `429` search matched digits inside a decimal gene score. Inspection of structured source outcomes found no 429 or provider failure. The executed script was overwritten before preservation; the evidence store labels its reconstructed original separately from the amended, unexecuted proposal. A retained-body comparison must match actual request identity through the existing TLS recipe. The new direct literal requests and old rewritten requests are different identities; this design does not relabel one as proof of the other. No matched offline section comparison or full per-section token measurement is claimed.
+
+## Contained 0.9.3 search measurements
+
+The separate contained pass `j11622` used the verified official 0.9.3 executable and published main `d45ef78f6e1bd9e99215810079061150a74e575d`. The OS allowed the old process only its local recorder port. Every forwarded request reserved its source and total allowance before network access. Disease requests made exactly 28 new MyDisease calls, bringing this investigation's known direct-source total from 152 to 180. No other disease source received a new request. The source kept no ontology release in these request identities; its release remains unknown.
+
+Fresh clinical review in `j11646` and `j11647` accepts these as bounded historical output measurements and candidate-fidelity witnesses. It does not accept them as complete clinical answers. Commands used `search disease --query TERM --limit 5 --no-fallback --json`. The old resolver sometimes also sent a rewritten cancer-to-carcinoma query; both actual identities are recorded. The table gives whole stdout bytes and an explicit `ceil(bytes/4)` estimate, not tokenizer counts. Each first invocation's local HTTP count equals its new provider count.
+
+| Case | Whole stdout bytes | `ceil(bytes/4)` proxy | Recorded HTTP / new provider requests | Accepted scope |
+| --- | ---: | ---: | ---: | --- |
+| D01 | 1,356 | 339 | 2 / 2 | Candidate output only. Total 49 is a local union over delivered pages with native totals 36 and 41, not a complete publisher total. |
+| D02 | 678 | 170 | 1 / 1 | Identity candidates only; no selected identity or complete clinical answer. |
+| D03 | 723 | 181 | 2 / 2 | Candidate output only; no subtype or treatment conclusion. |
+| D04 | 176 | 44 | 2 / 2 | Source-local empty result; no disease absence claim. |
+| D05 | 1,418 | 355 | 1 / 1 | Candidate output only. D25 reuses this output but its dataset-field conflict remains unresolved. |
+| D06 | 934 | 234 | 1 / 1 | Candidate output only; preserve source label conflicts without resolving them. |
+| D07 | 1,173 | 294 | 1 / 1 | Candidate output only; no hierarchy or clinical conclusion. |
+| D08 | 1,322 | 331 | 1 / 1 | Five displayed candidates from 25 delivered native hits and native total 90. Rank does not select an identity. |
+| D09 | 176 | 44 | 1 / 1 | Source-local empty for this term. It does not negate cutaneous melanoma; D08's retained body includes MONDO:0005012. |
+| D10 | 1,241 | 311 | 1 / 1 | Candidate output only; no hierarchy or clinical conclusion. |
+| D11 | 1,731 | 433 | 2 / 2 | Candidate output only. Total seven combines native totals six and one; it is not one publisher's complete total. |
+| D12 | 957 | 240 | 1 / 1 | Candidate output only; no genes or syndrome conclusion. |
+| D13 | 816 | 204 | 1 / 1 | Preserve MONDO:0018875 and DOID:0111504 as returned candidates without asserting equivalence. |
+| D14 | 853 | 214 | 1 / 1 | Candidate output only; no gene association answer. |
+| D15 | 176 | 44 | 1 / 1 | Source-local empty; no disease absence or replacement conclusion. |
+| D16 | 176 | 44 | 2 / 2 | Source-local empty; no disease absence or gene association conclusion. |
+| D17 | 1,105 | 277 | 1 / 1 | Candidate output only; no gene association answer. |
+| D18 | 176 | 44 | 1 / 1 | Source-local empty; no answer about MEN subtypes. |
+| D19 | 176 | 44 | 2 / 2 | Ontology-search empty; no incidence measurement. |
+| D20 | 1,463 | 366 | 2 / 2 | Identity candidates only; no survival measurement. |
+| D21 | 888 | 222 | 1 / 1 | Two MF candidates demonstrate nonexhaustive ambiguity; no selected expansion. |
+
+Capture 0052 preserves a source conflict for MONDO:0056806: the Disease Ontology name says lung nonsquamous non-small-cell lung carcinoma, while the MONDO label says squamous. Neither the output nor a local mapping may resolve that disagreement. Positive identity searches do not answer the bank's gene, phenotype, hierarchy, incidence or survival questions. An empty source result never proves clinical absence.
+
+Warm commands 061–063 repeated D01, D08 and D21 with stdout hashes identical to 037, 044 and 057. They made two, one and one local HTTP deliveries respectively, all from unchanged bodies already captured in this pass, and zero new provider calls. Their local replay speed is neither fresh provider latency nor independent clinical confirmation.
+
+D22–D24 searches and every exact get, gene or phenotype command in this pass remain unmeasured because the source allowance was exhausted before their requests could be forwarded. D25 adds no request and does not resolve the dataset's conflicting clinical fields. Across both slices, 27 output files passed mechanical checks and fresh review only for their stated bounded scope; the other 41 outputs remain excluded. No complete token-budget or same-question 1.0 parity claim follows.
+
+Evidence is on Yellow under `data/biomcp-redux/0136-contained-baseline/`. Archive `stage2.tar.gz` SHA-256 is `9878d81ff99e4cdc940e034c683a0eb7658ee6b50e4b42bf104e214d6d3da578`; extracted `stage2/stage2-manifest.json` SHA-256 is `18b342c3e46ac750ea3bd2dd7ab8c7a424eaf51487d5d5a9c8bfaef04ca385f0`. All 455 files were checked on Yellow. `stage2/stage2/qualified-output-index.json` links each output to exact provider captures and original retrieval dates. Original disease captures and the earlier baseline remain immutable. Actual tokenizer counts, complete section comparisons and final 1.0 CLI/MCP output remain unmeasured.
 
 ## Structured SEER repair and fresh clinical ruling
 
