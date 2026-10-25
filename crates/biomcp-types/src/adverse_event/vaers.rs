@@ -17,13 +17,22 @@ biodata::wire_enum! { described
 impl VaersSection {
     /// Native grouping code.
     pub fn code(self) -> &'static str {
-        match self { Self::Symptoms => "D8.V13-level2", Self::Seriousness => "D8.V10", Self::Age => "D8.V1" }
+        match self {
+            Self::Symptoms => "D8.V13-level2",
+            Self::Seriousness => "D8.V10",
+            Self::Age => "D8.V1",
+        }
     }
 }
 pub(super) fn vaccine(text: &str) -> Option<&'static str> {
-    if text.eq_ignore_ascii_case("MMR") { Some("MMR") }
-    else if text.eq_ignore_ascii_case("COVID19") || text.eq_ignore_ascii_case("COVID-19 vaccine") { Some("COVID19") }
-    else { None }
+    if text.eq_ignore_ascii_case("MMR") {
+        Some("MMR")
+    } else if text.eq_ignore_ascii_case("COVID19") || text.eq_ignore_ascii_case("COVID-19 vaccine")
+    {
+        Some("COVID19")
+    } else {
+        None
+    }
 }
 /// Original native XML attributes, including label, value, displayed footer and suppression.
 pub type VaersCell = BTreeMap<Box<str>, Box<str>>;

@@ -16,12 +16,14 @@
       "description": "An explicit source; never probe the other family.",
       "enum": [
         "faers",
-        "maude"
+        "maude",
+        "vaers"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Drug event reports.",
-        " Device event reports."
+        " Device event reports.",
+        " Explicit CDC WONDER vaccine aggregate tables."
       ]
     },
     "PartialDate": {
@@ -32,12 +34,26 @@
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
       "type": "string"
+    },
+    "VaersSection": {
+      "description": "One independent CDC WONDER grouping.",
+      "enum": [
+        "symptoms",
+        "seriousness",
+        "age"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native reported symptom rows.",
+        " Reports classified by native seriousness.",
+        " Native age groups."
+      ]
     }
   },
   "$id": "biomcp.adverse-event-search/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.",
+  "description": "Search five report headers by default. VAERS accepts only MMR, COVID19 or the exact display name COVID-19 vaccine, matched without case. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
   "properties": {
     "limit": {
       "default": 5,
@@ -87,6 +103,18 @@
       ],
       "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
     },
+    "section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VaersSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Independent VAERS table; omitted means reported symptoms.",
+      "x-positional": 1
+    },
     "serious": {
       "anyOf": [
         {
@@ -98,10 +126,21 @@
       ],
       "description": "FAERS report flag: death or hospitalization; never a reaction outcome."
     },
+    "snapshot": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Retained VAERS table for provider-free continuation."
+    },
     "source": {
       "$ref": "#/$defs/AdverseEventSource",
       "default": "faers",
-      "description": "FAERS by default; no source fallback."
+      "description": "FAERS by default; VAERS accepts only exact supported vaccine names."
     },
     "text": {
       "$ref": "#/$defs/Text",

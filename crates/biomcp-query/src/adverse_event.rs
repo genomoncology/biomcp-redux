@@ -12,7 +12,11 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     if query.source() == biomcp_types::AdverseEventSource::Vaers {
         return vaers::search(cx, query);
     }
-    let source = if query.source() == biomcp_types::AdverseEventSource::Faers { Source::Faers } else { Source::Maude };
+    let source = if query.source() == biomcp_types::AdverseEventSource::Faers {
+        Source::Faers
+    } else {
+        Source::Maude
+    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let spec = if source == Source::Faers {

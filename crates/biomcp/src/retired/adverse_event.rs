@@ -52,7 +52,14 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             positional.as_slice(),
             ["search" | "get", "adverse-event", ..]
         );
-        if adverse && matches!(flag, "--reaction" | "--serious" | "--received-from" | "--received-to") { faers_filter = true; }
+        if adverse
+            && matches!(
+                flag,
+                "--reaction" | "--serious" | "--received-from" | "--received-to"
+            )
+        {
+            faers_filter = true;
+        }
         if adverse && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
         }
@@ -78,7 +85,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             }
         }
     }
-    if source == Some("vaers") && faers_filter { return Some(ErrorMessage::VaersFilter); }
+    if source == Some("vaers") && faers_filter {
+        return Some(ErrorMessage::VaersFilter);
+    }
     guidance(&positional, source, serious, section, shared, literal)
 }
 fn guidance(
@@ -93,13 +102,25 @@ fn guidance(
         ["drug", "adverse-events", ..] => Some(ErrorMessage::AdverseText),
         ["search" | "get", "adverse-event", rest @ ..] => {
             if source == Some("vaers") {
-                if positional.first() == Some(&"get") { return Some(ErrorMessage::VaersGet); }
+                if positional.first() == Some(&"get") {
+                    return Some(ErrorMessage::VaersGet);
+                }
                 let text = rest.first().copied().unwrap_or("");
-                if text.eq_ignore_ascii_case("FLU") || text.eq_ignore_ascii_case("influenza") || text.eq_ignore_ascii_case("Influenza vaccine") {
+                if text.eq_ignore_ascii_case("FLU")
+                    || text.eq_ignore_ascii_case("influenza")
+                    || text.eq_ignore_ascii_case("Influenza vaccine")
+                {
                     return Some(ErrorMessage::VaersInfluenza);
                 }
-                if !["MMR", "COVID19", "COVID-19 vaccine"].iter().any(|v| text.eq_ignore_ascii_case(v)) { return Some(ErrorMessage::VaersVaccine); }
-                if serious.is_some() { return Some(ErrorMessage::VaersFilter); }
+                if !["MMR", "COVID19", "COVID-19 vaccine"]
+                    .iter()
+                    .any(|v| text.eq_ignore_ascii_case(v))
+                {
+                    return Some(ErrorMessage::VaersVaccine);
+                }
+                if serious.is_some() {
+                    return Some(ErrorMessage::VaersFilter);
+                }
             }
             if shared.is_some() {
                 return shared;

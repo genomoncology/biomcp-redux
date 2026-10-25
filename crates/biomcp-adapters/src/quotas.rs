@@ -183,4 +183,9 @@ pub(crate) static CLINPGX: Quota =
     Quota::new(SourceKey::declare("clinpgx"), Rate::per_second(1), None, 1);
 
 /// CDC WONDER shared minimum spacing.
-pub static WONDER: Quota = Quota::new(SourceKey::declare("wonder"), Rate::every_seconds(16), None, 1);
+pub(crate) static WONDER: Quota = Quota::new(
+    SourceKey::declare("wonder"),
+    Rate::every_seconds(16),
+    None,
+    1,
+);

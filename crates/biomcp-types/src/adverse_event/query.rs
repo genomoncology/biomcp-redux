@@ -63,8 +63,10 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
             || v.received_from
                 .zip(v.received_to)
                 .is_some_and(|(a, b)| a.to_string() > b.to_string())
-            || (v.source != AdverseEventSource::Vaers && (v.section.is_some() || v.snapshot.is_some()))
-            || (v.source == AdverseEventSource::Vaers && super::vaers::vaccine(v.text.as_str()).is_none())
+            || (v.source != AdverseEventSource::Vaers
+                && (v.section.is_some() || v.snapshot.is_some()))
+            || (v.source == AdverseEventSource::Vaers
+                && super::vaers::vaccine(v.text.as_str()).is_none())
             || (v.source != AdverseEventSource::Faers
                 && (v.reaction.is_some()
                     || v.serious.is_some()
@@ -82,21 +84,34 @@ impl AdverseEventSearch {
         self.0.section.unwrap_or(super::VaersSection::Symptoms)
     }
     /// Checked retained table identity.
-    pub fn snapshot(&self) -> Option<&Text> { self.0.snapshot.as_ref() }
+    pub fn snapshot(&self) -> Option<&Text> {
+        self.0.snapshot.as_ref()
+    }
     /// Bind navigation to one native table.
     pub fn with_snapshot(&self, snapshot: Text) -> Self {
-        let mut q = self.clone(); q.0.snapshot = Some(snapshot); q
+        let mut q = self.clone();
+        q.0.snapshot = Some(snapshot);
+        q
     }
     /// Begin a separate grouping without borrowing its sibling denominator.
     pub fn with_vaers_section(&self, section: super::VaersSection) -> Self {
-        let mut q = self.clone(); q.0.section = Some(section); q.0.snapshot = None; q.0.offset = 0; q
+        let mut q = self.clone();
+        q.0.section = Some(section);
+        q.0.snapshot = None;
+        q.0.offset = 0;
+        q
     }
     /// Restart without an expired retained table.
     pub fn restart(&self) -> Self {
-        let mut q = self.clone(); q.0.snapshot = None; q.0.offset = 0; q
+        let mut q = self.clone();
+        q.0.snapshot = None;
+        q.0.offset = 0;
+        q
     }
     /// Exact supported vaccine code, never an inferred code bridge.
-    pub fn vaccine(&self) -> Option<&'static str> { super::vaers::vaccine(self.0.text.as_str()) }
+    pub fn vaccine(&self) -> Option<&'static str> {
+        super::vaers::vaccine(self.0.text.as_str())
+    }
     /// Literal source text.
     pub fn text(&self) -> &Text {
         &self.0.text
@@ -151,6 +166,7 @@ struct GetFields {
     id: ReportId,
     /// FAERS by default; MAUDE is explicit.
     #[serde(default = "default_source")]
+    #[cfg_attr(feature = "schema", schemars(with="str", extend("enum"=["faers", "maude"])))]
     source: AdverseEventSource,
     /// FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -175,7 +191,7 @@ impl TryFrom<GetFields> for AdverseEventGet {
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
         if v.source == AdverseEventSource::Vaers
             || (v.source == AdverseEventSource::Maude
-            && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
+                && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
             || !(1..=50).contains(&v.section_limit)
             || v.section.is_some_and(|s| s.source() != v.source)
             || v.drug_index.is_some() != v.section.is_some_and(AdverseEventSection::is_identifier)

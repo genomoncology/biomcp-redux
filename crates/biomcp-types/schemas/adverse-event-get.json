@@ -34,12 +34,14 @@
       "description": "An explicit source; never probe the other family.",
       "enum": [
         "faers",
-        "maude"
+        "maude",
+        "vaers"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Drug event reports.",
-        " Device event reports."
+        " Device event reports.",
+        " Explicit CDC WONDER vaccine aggregate tables."
       ]
     },
     "ReportId": {

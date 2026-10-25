@@ -1,7 +1,6 @@
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
-mod vaers;
 mod article_save;
 mod assertions;
 mod clinpgx;
@@ -97,6 +96,7 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod trial_wider;
+mod vaers;
 mod variant;
 mod variant_civic;
 mod variant_filters;
