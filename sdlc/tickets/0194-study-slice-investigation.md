@@ -16,3 +16,4 @@ Milestone: 4
 - 0.9: measure 0.9's commands only behind verified network containment, otherwise mark them unmeasured; account for every command, option and section, and every closed 0.9 public issue touching this entity.
 - Design: the delight questions, types and schema, command tree with headers, drill-downs and next steps under architecture 6.10, disclosure layers and measured token budget, sources and bundles kept and dropped, a case list per command and option, and an "Ian's questions" section.
 - Proof: the PM reviews the design on its branch. Live captures run through pm job with raw evidence on the evidence store. No licensed content enters the repo.
+- Entity boundary ruling 2026-10-25: get each study and the counts cBioPortal reports; 0.9's local study calculations (top-mutated, filter, query, co-occurrence, cohort, survival, compare) are dropped and need retirement messages only.

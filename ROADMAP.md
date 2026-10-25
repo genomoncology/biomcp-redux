@@ -16,7 +16,7 @@ Each key is read from the config file's `keys` or its environment variable, sent
 - [x] NCI Clinical Trials Search key (keyed)
 - [ ] openFDA key (optional)
 - [ ] UMLS key (keyed, investigate)
-- [ ] AlphaGenome key (keyed, investigate)
+- [ ] AlphaGenome key (keyed)
 - [ ] ORCID credentials (optional)
 
 ## Parity with 0.9
@@ -171,7 +171,8 @@ Sources:
 - [x] GWAS Catalog
 - [x] ClinGen evidence repository
 - [x] Mutalyzer and VariantValidator (named normalization services)
-- Deferred: variant-specific UniProt and InterPro, and AlphaGenome (keyed)
+- Deferred: variant-specific UniProt and InterPro
+- [ ] AlphaGenome (keyed): numeric predictions section, no plots
 - Dropped: a direct dbSNP adapter, because rsIDs come through MyVariant and the ClinGen Allele Registry
 
 The OncoKB variant source proof uses an approved demo capture. The product requires the caller's configured key.
@@ -258,8 +259,7 @@ Each entity below carries the same ten-step checklist when its slice starts.
 - [ ] Slice complete
 - [ ] Reactome
 - [ ] WikiPathways
-- [ ] g:Profiler (investigate)
-- Dropped: KEGG
+- Dropped: KEGG, and g:Profiler gene-set enrichment (entity boundary ruling)
 
 ### Pharmacogenomics
 
