@@ -86,3 +86,5 @@ drug-failures: Every kept drug source reports synthetic transport and broken-bod
 drug-identity: Drug sources reject mismatched, conflicting and absent identity joins before cache admission or product selection. Cases: `crates/biomcp/tests/runner/drug_identity.rs`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/drug_native_identity.rs`, `crates/biomcp/tests/runner/drug_fda/errors.rs`, `crates/biomcp/tests/runner/drug_label.rs`.
 
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples. Cases: `tests/cases/drug/help.yaml`.
+
+diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).
