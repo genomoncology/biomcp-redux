@@ -14,7 +14,10 @@ fn discovery_defaults_to_one_mondo_ontology_and_refuses_unknown_choices() {
     assert_eq!(value["ontology"], "mondo");
     assert_eq!(value["source"], "ols");
     for ontology in ["mondo", "doid", "ncit"] {
-        assert_eq!(roundtrip::<DiseaseOntology>(json!(ontology)).unwrap(), ontology);
+        assert_eq!(
+            roundtrip::<DiseaseOntology>(json!(ontology)).unwrap(),
+            ontology
+        );
     }
     for ontology in ["mondo,doid", "mesh", "MONDO", ""] {
         assert!(serde_json::from_value::<DiseaseOntology>(json!(ontology)).is_err());
@@ -95,7 +98,10 @@ fn every_source_and_named_section_roundtrips_with_closed_spellings() {
     for spelling in ["ols", "mydisease", "monarch", "seer"] {
         let source: DiseaseSource = serde_json::from_value(json!(spelling)).unwrap();
         assert_eq!(source.as_str(), spelling);
-        assert_eq!(roundtrip::<DiseaseSource>(json!(spelling)).unwrap(), spelling);
+        assert_eq!(
+            roundtrip::<DiseaseSource>(json!(spelling)).unwrap(),
+            spelling
+        );
     }
     for spelling in [
         "synonyms",
@@ -108,7 +114,10 @@ fn every_source_and_named_section_roundtrips_with_closed_spellings() {
     ] {
         let section: DiseaseSection = serde_json::from_value(json!(spelling)).unwrap();
         assert_eq!(section.as_str(), spelling);
-        assert_eq!(roundtrip::<DiseaseSection>(json!(spelling)).unwrap(), spelling);
+        assert_eq!(
+            roundtrip::<DiseaseSection>(json!(spelling)).unwrap(),
+            spelling
+        );
     }
     for spelling in ["all", "clinical_features", "pathways", "civic", "shortages"] {
         assert!(serde_json::from_value::<DiseaseSection>(json!(spelling)).is_err());

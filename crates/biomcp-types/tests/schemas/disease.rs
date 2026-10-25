@@ -41,7 +41,10 @@ fn request_metadata_keeps_positional_text_single_ontology_and_section_paging() {
     assert_eq!(fields["id"]["x-positional"], 0);
 }
 
-fn envelope<T>(query: serde_json::Value, body: serde_json::Value) -> Result<(), Box<dyn std::error::Error>>
+fn envelope<T>(
+    query: serde_json::Value,
+    body: serde_json::Value,
+) -> Result<(), Box<dyn std::error::Error>>
 where
     T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
     T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
@@ -49,7 +52,10 @@ where
     let body: T = serde_json::from_value(body)?;
     let query = serde_json::from_value(query)?;
     let value = serde_json::to_value(Envelope::new(Status::Complete, query, Some(body)))?;
-    assert_eq!(value.get("schema").and_then(serde_json::Value::as_str), Some(T::SCHEMA));
+    assert_eq!(
+        value.get("schema").and_then(serde_json::Value::as_str),
+        Some(T::SCHEMA)
+    );
     let validator = jsonschema::draft202012::new(&generate::<Envelope<T>>())?;
     assert!(validator.is_valid(&value), "{value}");
     Ok(())
@@ -78,13 +84,16 @@ fn all_ten_synthetic_response_envelopes_follow_their_generated_schema() {
     envelope::<DiseaseSites>(
         json!({"source":"seer"}),
         json!({"items":[{"code":"47","label":"Synthetic site","active":true}],"components":[]}),
-    ).unwrap();
+    )
+    .unwrap();
     envelope::<DiseaseIncidence>(
         json!({"id":"47","source":"seer","section":"incidence","period":"5"}),
         empty.clone(),
-    ).unwrap();
+    )
+    .unwrap();
     envelope::<DiseaseSurvival>(
         json!({"id":"55","source":"seer","section":"survival","interval":"5"}),
         empty,
-    ).unwrap();
+    )
+    .unwrap();
 }
