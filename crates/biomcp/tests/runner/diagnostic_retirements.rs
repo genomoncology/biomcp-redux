@@ -71,6 +71,11 @@ fn boundaries() -> Result<(), String> {
     }
     for words in [
         "search diagnostic --source gtr --device-id K173492",
+        "search diagnostic --source gtr --marker HIV",
+        "search diagnostic --source who-ivd --gene BRCA1",
+        "search diagnostic --source who-ivd --biomarker HIV",
+        "search diagnostic --source who-ivd --marker ...",
+        "search diagnostic --source who-ivd --manufacturer ...",
         "search diagnostic --source fda-cdx --gene BRCA1",
         "get diagnostic P150013 --source gtr",
         "get diagnostic K173492 --source fda-pma",
@@ -95,12 +100,12 @@ const CASES: &[(&str, &str)] = &[
         "name one diagnostic section per request",
     ),
     (
-        "search diagnostic --source who-ivd --marker HPV",
-        "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
+        "search diagnostic --source who-ivd --disease HIV",
+        "use: search diagnostic --source who-ivd --marker TEXT",
     ),
     (
         "get diagnostic GTR000006692.3",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
     ),
     (
         "--json get diagnostic GTR000006692.3 --source gtr",
@@ -112,11 +117,11 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --gene BRCA1",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
     ),
     (
         "get diagnostic X --source all",
-        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+        "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 -g BRCA1",
@@ -172,7 +177,7 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --source who-ivd --type text",
-        "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
+        "WHO type search is deferred; use: search diagnostic --source who-ivd --marker TEXT",
     ),
     (
         "search diagnostic --source fda-pma --query text",
@@ -205,6 +210,12 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         .ok_or("missing status")?;
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
+        // New WHO search view, full compact maximum measured by j13465.
+        ("biomcp.diagnostic_page/2", "", _)
+            if value.pointer("/query/source") == Some(&json!("who-ivd")) =>
+        {
+            2249
+        }
         ("biomcp.diagnostic_card/1", "", "absent") => 281,
         ("biomcp.diagnostic_card/1", "", "failed") => 436,
         ("biomcp.diagnostic_card/1", "", "partial") => 393,

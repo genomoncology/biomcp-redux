@@ -34,6 +34,40 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "description": "One matched WHO product with cells from its first matching native row.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WhoProductId",
+              "description": "Exact source product identifier."
+            },
+            "identity_status": {
+              "const": "who_ivd",
+              "type": "string"
+            },
+            "manufacturer": {
+              "description": "Unmodified manufacturer cell.",
+              "type": "string"
+            },
+            "marker": {
+              "description": "Unmodified marker cell.",
+              "type": "string"
+            },
+            "product_name": {
+              "description": "Unmodified product name cell.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "identity_status",
+            "id",
+            "product_name",
+            "manufacturer",
+            "marker"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "One resolved native identity.",
           "properties": {
             "header": {
@@ -115,6 +149,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "product_identities",
         "test_identities",
         "native_relation_rows",
         "native_method_entries"
@@ -174,7 +209,7 @@
     },
     "DiagnosticPage": {
       "additionalProperties": false,
-      "description": "Source-ordered GTR candidates with explicit conflicts.",
+      "description": "Source-ordered GTR test candidates or WHO product headers.",
       "properties": {
         "count_unit": {
           "anyOf": [
@@ -292,22 +327,44 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default; at most fifty whole native rows.",
+          "description": "Five results by default; at most fifty source rows or product headers.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
           "type": "integer"
         },
+        "manufacturer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal whole-word phrase in WHO's Manufacturer name cell."
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell."
+        },
         "offset": {
           "default": 0,
-          "description": "Zero-based native row offset.",
+          "description": "Zero-based source result offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment."
+          "description": "Explicit native GTR, WHO IVD or FDA companion discovery."
         },
         "type": {
           "anyOf": [
@@ -330,7 +387,8 @@
       "description": "One explicit diagnostic discovery source.",
       "enum": [
         "gtr",
-        "fda-cdx"
+        "fda-cdx",
+        "who-ivd"
       ],
       "type": "string"
     },
@@ -1133,6 +1191,10 @@
         "noncommercial",
         "restricted"
       ],
+      "type": "string"
+    },
+    "WhoProductId": {
+      "pattern": "^[0-9]{4,5}-([0-9]{3}|[0-9]{5})-[0-9]{2}$",
       "type": "string"
     }
   },

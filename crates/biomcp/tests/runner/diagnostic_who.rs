@@ -1,5 +1,6 @@
 //! Feature diagnostic-who: exact cards consume a complete explicit stored export.
 mod mechanics;
+mod search;
 use super::{
     configuration::invoke,
     launch::{Environment, fixtures},
@@ -13,6 +14,17 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("diagnostic-who-search/overlapping-phrases", || {
+            search::overlapping().map_err(Into::into)
+        }),
+        Trial::test(
+            "diagnostic-who-search/full-walk-keeps-candidates-and-revision",
+            || search::walk().map_err(Into::into),
+        ),
+        Trial::test(
+            "diagnostic-who-search/replacement-and-policy-admission",
+            || search::admission().map_err(Into::into),
+        ),
         Trial::test("diagnostic-who/missing-and-unsupported-never-fetch", || {
             missing().map_err(Into::into)
         }),

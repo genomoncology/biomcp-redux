@@ -183,7 +183,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["Use help COMMAND or schema ID.".into()];
+    let mut lines = vec!["help COMMAND;schema ID".into()];
     for command in commands {
         if command.command.first().is_none_or(|verb| {
             !matches!(
@@ -248,10 +248,7 @@ pub(crate) fn tree() -> String {
         }
         lines.push(line);
     }
-    lines.push(format!(
-        "schema discovery: {} artifacts",
-        crate::schema::names().count()
-    ));
+    lines.push(format!("schema {}", crate::schema::names().count()));
     lines.join("\n")
 }
 
@@ -270,6 +267,8 @@ fn diagnostic_selectors(command: &HelpCommand, line: &mut String) {
                     | "--device-id"
                     | "--drug-application"
                     | "--biomarker"
+                    | "--marker"
+                    | "--manufacturer"
                     | "--supplement"
             )
         }) {

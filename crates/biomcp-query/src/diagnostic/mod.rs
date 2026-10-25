@@ -61,27 +61,32 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if q.source() == DiagnosticSearchSource::FdaCdx {
         return companion::search(cx, q);
     }
+    let (spec, source, bundle, count) = search_source(q.source());
+    let who = q.source() == DiagnosticSearchSource::WhoIvd;
     let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
         items: Box::default(),
-        count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),
+        count_unit: Some(count),
         distinct_id_total: None,
     }));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&gtr::SPEC, deadline);
-    let result = gtr::search(&leg, q);
+    let leg = cx.fetch.leg(spec, deadline);
+    let result = if who {
+        biomcp_adapters::who_ivd::search(&leg, q).map(|p| (p.items, p.total, p.info))
+    } else {
+        gtr::search(&leg, q).map(|p| (p.items, p.total, p.info))
+    };
     let error = result.as_ref().err().copied();
-    if let Ok(page) = result {
+    if let Ok((items, total, info)) = result {
         out.status = Status::Complete;
-        let q = page
-            .info
+        let q = info
             .content_revision
             .as_deref()
             .and_then(|v| v.parse().ok())
             .map_or_else(|| q.clone(), |v| q.with_bundle_revision(v));
-        next::candidates(&mut out, &q, &page.items, cx.fresh);
-        let returned = page.items.len() as u32;
-        if u64::from(q.offset()) + u64::from(returned) < page.total {
+        next::candidates(&mut out, &q, &items, cx.fresh);
+        let returned = items.len() as u32;
+        if u64::from(q.offset()) + u64::from(returned) < total {
             next::push(
                 &mut out,
                 StepKind::Page,
@@ -92,19 +97,43 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         out.page = Some(PageInfo {
             offset: q.offset(),
             returned,
-            total: page.total,
+            total,
             pool: None,
             truncated: None,
         });
         out.body = QueryBody::DiagnosticPage(DiagnosticPage {
-            items: page.items,
-            count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),
+            items,
+            count_unit: Some(count),
             distinct_id_total: None,
         });
     }
-    finish(&mut out, leg, error);
+    finish_bundle(&mut out, leg, error, source, bundle);
     command.finish(deadline.remaining());
     out
+}
+fn search_source(
+    source: DiagnosticSearchSource,
+) -> (
+    &'static biomcp_fetch::SourceSpec,
+    Source,
+    Bundle,
+    biomcp_types::DiagnosticCountUnit,
+) {
+    if source == DiagnosticSearchSource::WhoIvd {
+        (
+            &biomcp_adapters::who_ivd::SPEC,
+            Source::WhoIvd,
+            Bundle::WhoIvd,
+            biomcp_types::DiagnosticCountUnit::ProductIdentities,
+        )
+    } else {
+        (
+            &gtr::SPEC,
+            Source::Gtr,
+            Bundle::Gtr,
+            biomcp_types::DiagnosticCountUnit::TestIdentities,
+        )
+    }
 }
 fn unsupported(source: Source, mut out: Outcome) -> Outcome {
     out.sources.push(biomcp_adapters::registry::outcome(

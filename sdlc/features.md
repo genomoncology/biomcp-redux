@@ -114,3 +114,4 @@ diagnostic-510k: Retrieve one exact native FDA clearance with source-owned ident
 diagnostic-retirements: Retired diagnostic spellings return fixed supported routes before any source request. Cases: `crates/biomcp/tests/runner/diagnostic_retirements.rs`, `crates/biomcp/tests/runner/diagnostic_bundles.rs`.
 
 vaers-summary: Read explicit supported vaccine aggregate tables without inferring individual risks or silently changing sources. Cases: `crates/biomcp/tests/runner/vaers.rs`.
+diagnostic-who-search: Search stored WHO product headers by literal marker and manufacturer words. Cases: `tests/cases/diagnostic/who-search.yaml`, `crates/biomcp/tests/runner/diagnostic_who/search.rs`.
