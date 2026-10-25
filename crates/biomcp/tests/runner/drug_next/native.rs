@@ -67,7 +67,11 @@ fn check(env: &Environment, stream: &str, root: &Path) -> Result<(), String> {
     ]
     .map(str::to_owned);
     let recording = root.join(format!("recorded-{stream}"));
-    let mut record = vec!["--record".into(), recording.display().to_string()];
+    let mut record = vec![
+        "--record".into(),
+        recording.display().to_string(),
+        "--fresh".into(),
+    ];
     record.extend_from_slice(&args);
     let result = proof::retained_cli(env, &record, 0, &root.join(format!("record-cli-{stream}")))?;
     let mut replay_args = vec![
