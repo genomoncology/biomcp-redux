@@ -152,7 +152,9 @@ fn exercise(fetch: &Fetch) -> Result<(), Error> {
         assert_eq!(record.requested_id, id);
         assert_eq!(
             record.returned_id.to_string(),
-            source["returned_id"].as_str().unwrap()
+            source["returned_id"]
+                .as_str()
+                .ok_or("missing returned ID")?
         );
         let mondo = record
             .components
@@ -183,7 +185,7 @@ fn exercise(fetch: &Fetch) -> Result<(), Error> {
                     .components
                     .iter()
                     .find(|c| c.name == "doid")
-                    .unwrap()
+                    .ok_or("missing DOID component")?
                     .parents
                     .len(),
                 2
@@ -192,7 +194,10 @@ fn exercise(fetch: &Fetch) -> Result<(), Error> {
         if id.to_string() == "MONDO:0007607" {
             assert_eq!(mondo.obsolete, Some(true));
             assert!(mondo.parents.is_empty());
-            assert_eq!(mondo.consider.as_ref().unwrap().len(), 2);
+            assert_eq!(
+                mondo.consider.as_ref().ok_or("missing alternatives")?.len(),
+                2
+            );
         }
     }
     Ok(())
