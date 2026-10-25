@@ -95,7 +95,8 @@ fn search_reply(request: &str) -> Result<String, String> {
         "mondo"
     };
     let prefix = ontology.to_uppercase();
-    let rows=(offset..(offset+5).min(11)).map(|i| json!({"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,"iri":format!("http://example.org/{i}"),"is_obsolete":i==3})).collect::<Vec<_>>();
+    let (limit,total)=if request.contains("rows=50") {(50,51)} else {(5,11)};
+    let rows=(offset..(offset+limit).min(total)).map(|i| json!({"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,"iri":format!("http://example.org/{i}"),"is_obsolete":i==3})).collect::<Vec<_>>();
     Ok(json!({"response":{"numFound":total,"start":offset,"docs":rows}}).to_string())
 }
 fn search() -> Result<(), String> {
