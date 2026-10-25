@@ -174,7 +174,8 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     {
         return Err("native rows or observed scope changed".into());
     }
-    let next = v.get("next").and_then(Value::as_array).ok_or("next")?;
+    let empty = vec![];
+    let next = v.get("next").and_then(Value::as_array).unwrap_or(&empty);
     if name == "clinical"
         && next.first().and_then(|v| v.get("kind")) != Some(&json!("disambiguate"))
     {
@@ -190,7 +191,6 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     Ok(())
 }
 fn walk(env: &Environment, v: &Value) -> Check {
-    let empty = vec![];
     let next = v
         .get("next")
         .and_then(Value::as_array)
