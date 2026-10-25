@@ -185,8 +185,13 @@ pub struct DrugCivic {
 pub struct DrugApprovals {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
+    /// Native products, filtered only by an explicit product number; independent of submissions.
+    pub products: Box<[super::DrugFdaProduct]>,
+    /// Native FDA dataset last_updated date, independent of submission dates and retrieval.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_updated: Option<PartialDate>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub approvals: Section<DrugRecords<AuthorizationEvent>>,
+    pub approvals: Section<DrugRecords<super::DrugFdaSubmission>>,
 }
 /// Source-scoped regulator events preserving date roles and original status.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -233,7 +238,7 @@ impl ResponseBody for DrugCivic {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug_approvals/2";
+    const SCHEMA: &'static str = "biomcp.drug_approvals/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {

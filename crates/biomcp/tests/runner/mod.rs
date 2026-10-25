@@ -11,6 +11,7 @@ mod disease_seer;
 mod drug_civic;
 mod drug_civic_fixtures;
 mod drug_ema;
+mod drug_fda;
 mod drug_label;
 mod drug_mychem;
 mod drug_native;
@@ -320,6 +321,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(drug_native::trials());
     trials.extend(drug_native_identity::trials());
     trials.extend(drug_label::trials());
+    trials.extend(drug_fda::trials());
     trials.extend(disease_registry::trials());
     trials.extend(disease_ols::trials());
     trials.extend(disease_mydisease::trials());
@@ -329,13 +331,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
-    trials.extend(
-        variant_assertion_wire::trials()
-            .into_iter()
-            .chain(variant_assertions::trials())
-            .chain(variant_condition_relationship::trials())
-            .collect::<Vec<_>>(),
-    );
+    trials.extend(variant_assertion_wire::trials());
+    trials.extend(variant_assertions::trials());
+    trials.extend(variant_condition_relationship::trials());
     trials.extend(variant_population::trials());
     trials.extend(variant_population_release::trials());
     trials.extend(oncokb::trials());

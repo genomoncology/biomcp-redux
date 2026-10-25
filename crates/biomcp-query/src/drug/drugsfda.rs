@@ -1,0 +1,141 @@
+//! Native FDA application discovery; product and submission scope remain separate.
+use super::{empty, searched, unsupported};
+use crate::{Action, Ctx, Outcome, status};
+use biomcp_adapters::{drugsfda as source, received_date};
+use biomcp_types::{
+    DrugCard, DrugFdaCandidate, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection,
+    DrugSource, QueryBody, Request, Source, SourceState, Status, StepKind,
+};
+mod approvals;
+pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    let mut out = empty(QueryBody::DrugFdaPage(DrugFdaPage {
+        items: Box::default(),
+        total: 0,
+        source_updated: None,
+    }));
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
+    let result = source::search(&leg, query.query(), query.limit(), query.offset());
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::Drugsfda, leg.finish(), error));
+    if let Ok(page) = result {
+        searched(
+            query,
+            cx.fresh,
+            DrugPage {
+                items: page.records.iter().map(|r| r.header()).collect(),
+                total: Some(page.total),
+            },
+            &mut out,
+        );
+        out.body = QueryBody::DrugFdaPage(DrugFdaPage {
+            items: page
+                .records
+                .iter()
+                .map(|row| DrugFdaCandidate {
+                    identity: row.header(),
+                    products: row.products.iter().map(|p| p.mapped()).collect(),
+                })
+                .collect(),
+            total: page.total,
+            source_updated: page.updated,
+        });
+    }
+    command.finish(deadline.remaining());
+    out
+}
+pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let is_approvals = query.sections() == [DrugSection::Approvals];
+    let mut out = empty(if is_approvals {
+        QueryBody::DrugApprovals(None)
+    } else {
+        QueryBody::DrugCard(None)
+    });
+    if !matches!(query.sections(), [] | [DrugSection::Approvals]) {
+        return unsupported(query.source(), out);
+    }
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
+    let result = source::get(&leg, query.input());
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::Drugsfda, leg.finish(), error));
+    if let Ok(page) = result {
+        if let Some(source) = out.sources.first_mut() {
+            source.count = Some(page.total);
+            source.fetched = Some(page.records.len() as u32);
+        }
+        out.status = if page.records.is_empty() {
+            Status::Absent
+        } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+            Status::Partial
+        } else {
+            Status::Complete
+        };
+        if let Some(row) = page.records.first() {
+            label_steps(cx, row, &mut out);
+            if is_approvals {
+                if let Err(error) = approvals::select(
+                    cx,
+                    query,
+                    row,
+                    page.metadata.fetched,
+                    page.updated,
+                    &mut out,
+                ) {
+                    out.status = Status::Failed;
+                    out.local = status::local(error);
+                }
+            } else {
+                if let Ok(request) = query.for_section(DrugSection::Approvals) {
+                    out.next.push((
+                        StepKind::Section,
+                        Action::Run {
+                            request: Request::GetDrug(request),
+                            fresh: cx.fresh,
+                        },
+                    ));
+                }
+                out.body = QueryBody::DrugCard(Some(DrugCard {
+                    header: row.header(),
+                    alternate_names: Box::default(),
+                    cross_references: Box::default(),
+                    parents: Box::default(),
+                    products: Box::default(),
+                    formulations: Box::default(),
+                    version: None,
+                    updated: None,
+                    retrieved: received_date(page.metadata.fetched),
+                    available_sections: vec![DrugSection::Approvals].into(),
+                    next: Box::default(),
+                }));
+            }
+        }
+    }
+    command.finish(deadline.remaining());
+    out
+}
+fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
+    for id in row
+        .openfda
+        .as_ref()
+        .and_then(|o| o.spl_set_id.as_ref())
+        .into_iter()
+        .flatten()
+    {
+        if let Ok(request) = DrugGet::new(id.clone(), DrugSource::OpenfdaLabel) {
+            out.next.push((
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::GetDrug(request),
+                    fresh: cx.fresh,
+                },
+            ));
+        }
+    }
+}

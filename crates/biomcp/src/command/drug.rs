@@ -5,6 +5,10 @@ use std::io;
 
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
+        (Request::SearchDrug(query), QueryBody::DrugFdaPage(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
         (Request::SearchDrug(query), QueryBody::DrugPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(query, body)
@@ -16,6 +20,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::GetDrug(query), QueryBody::DrugLabel(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugCivic(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugRegulatory(body)) => meta.encode(query, body),
+        (Request::GetDrug(query), QueryBody::DrugApprovals(body)) => meta.encode(query, body),
         _ => Err(io::Error::other("drug response mismatch")),
     }
 }

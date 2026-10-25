@@ -1,6 +1,11 @@
 //! Source-selected drug contracts; adapters and command dispatch live elsewhere.
 mod civic;
+mod fda;
 pub use civic::{DrugCivicClaim, DrugCivicPage, DrugCivicProfile, DrugCivicStreams};
+pub use fda::{
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct,
+    DrugFdaProperty, DrugFdaSubmission,
+};
 mod query;
 mod response;
 mod source;

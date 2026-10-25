@@ -199,11 +199,238 @@
         "identity": {
           "$ref": "#/$defs/DrugHeader",
           "description": "Selected native identity, checked independently of section facts."
+        },
+        "products": {
+          "description": "Native products, filtered only by an explicit product number; independent of submissions.",
+          "items": {
+            "$ref": "#/$defs/DrugFdaProduct"
+          },
+          "type": "array"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA dataset last_updated date, independent of submission dates and retrieval."
         }
       },
       "required": [
         "identity",
+        "products",
         "approvals"
+      ],
+      "type": "object"
+    },
+    "DrugFdaDocument": {
+      "additionalProperties": false,
+      "description": "A native application document link; the command does not download it.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Native document date, independent of event dates."
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Source document identifier."
+        },
+        "type": {
+          "$ref": "#/$defs/Text",
+          "description": "Original document type."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Original source URL."
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "date",
+        "type"
+      ],
+      "type": "object"
+    },
+    "DrugFdaIngredient": {
+      "additionalProperties": false,
+      "description": "An unchanged native ingredient and strength, without local normalization.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Native ingredient name."
+        },
+        "strength": {
+          "$ref": "#/$defs/Text",
+          "description": "Full source strength wording."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "DrugFdaProduct": {
+      "additionalProperties": false,
+      "description": "One explicit native product within the selected FDA application.",
+      "properties": {
+        "active_ingredients": {
+          "description": "Complete source-listed ingredient and strength pairs.",
+          "items": {
+            "$ref": "#/$defs/DrugFdaIngredient"
+          },
+          "type": "array"
+        },
+        "brand_name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source brand wording, without inferred ingredient equivalence."
+        },
+        "dosage_form": {
+          "$ref": "#/$defs/Text",
+          "description": "Native dosage form."
+        },
+        "marketing_status": {
+          "$ref": "#/$defs/Text",
+          "description": "Product marketing status, independent of submission history."
+        },
+        "product_number": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source product number, scoped by the response application."
+        },
+        "reference_drug": {
+          "$ref": "#/$defs/Text",
+          "description": "Original source reference-drug designation."
+        },
+        "reference_standard": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original source reference-standard designation when supplied."
+        },
+        "route": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native route; absent and null remain unavailable."
+        },
+        "te_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native therapeutic-equivalence code when supplied."
+        }
+      },
+      "required": [
+        "product_number",
+        "brand_name",
+        "active_ingredients",
+        "dosage_form",
+        "marketing_status",
+        "reference_drug"
+      ],
+      "type": "object"
+    },
+    "DrugFdaProperty": {
+      "additionalProperties": false,
+      "description": "A source-stated submission property, without interpretation.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/Text",
+          "description": "Original property code."
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    },
+    "DrugFdaSubmission": {
+      "additionalProperties": false,
+      "description": "One application-owned submission with common event facts and native FDA context.",
+      "properties": {
+        "application_docs": {
+          "description": "Native documents; document dates remain separate from the submission status date.",
+          "items": {
+            "$ref": "#/$defs/DrugFdaDocument"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "event": {
+          "$ref": "#/$defs/AuthorizationEvent",
+          "description": "Historical native status, type and status date; no product applicability is implied."
+        },
+        "review_priority": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original review priority."
+        },
+        "submission_class_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native submission class code."
+        },
+        "submission_class_code_description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native submission class description."
+        },
+        "submission_number": {
+          "$ref": "#/$defs/Text",
+          "description": "Original submission number, scoped by application and event kind."
+        },
+        "submission_property_type": {
+          "description": "Native property collection; missing stays missing and an empty list stays empty.",
+          "items": {
+            "$ref": "#/$defs/DrugFdaProperty"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "event",
+        "submission_number"
       ],
       "type": "object"
     },
@@ -420,7 +647,7 @@
         "records": {
           "description": "Native source rows in order.",
           "items": {
-            "$ref": "#/$defs/AuthorizationEvent"
+            "$ref": "#/$defs/DrugFdaSubmission"
           },
           "type": "array"
         },
@@ -1138,7 +1365,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_approvals/2",
+  "$id": "biomcp.drug_approvals/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1184,7 +1411,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_approvals/2",
+      "const": "biomcp.drug_approvals/3",
       "type": "string"
     },
     "sources": {
