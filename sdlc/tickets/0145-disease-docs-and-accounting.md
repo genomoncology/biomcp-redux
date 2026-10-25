@@ -1,6 +1,7 @@
 # 0145 — Document the disease commands and close the disease accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b559c4ccf75bbe04c02509943654950ef513b6f6
 
 Milestone: 3
 
