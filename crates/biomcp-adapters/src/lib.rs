@@ -65,10 +65,10 @@ pub mod gwas;
 /// Drug publisher declarations and independently labeled aggregator fields.
 pub mod drug_sources;
 
-mod chembl;
+pub mod chembl;
 mod ddinter;
 mod drugsfda;
 mod ema;
 mod mychem;
 mod openfda_label;
-mod opentargets;
+pub mod opentargets;
