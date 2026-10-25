@@ -322,10 +322,15 @@ fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
 }
 
 fn retired_source(args: &[OsString]) -> bool {
+    let mut positional = Vec::new();
     let mut args = args.iter();
     while let Some(word) = args.next().and_then(|word| word.to_str()) {
         if word == "--" {
             break;
+        }
+        if !word.starts_with('-') {
+            positional.push(word);
+            continue;
         }
         let (flag, value) = word
             .split_once('=')
@@ -335,6 +340,8 @@ fn retired_source(args: &[OsString]) -> bool {
             if value.is_some_and(|value| value.split(',').any(|part| part == "pharmgkb")) {
                 return true;
             }
+        } else if value.is_none() && takes_value(flag, &positional).unwrap_or(false) {
+            args.next();
         }
     }
     false

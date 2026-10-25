@@ -95,7 +95,12 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
     Ok(())
 }
 fn switches() -> Check {
-    for (configured, command) in [("cpic", "cpic"), ("clinpgx", "clinpgx"), ("noncommercial", "noncommercial"), ("clinpgx", "cpic")] {
+    for (configured, command) in [
+        ("cpic", "cpic"),
+        ("clinpgx", "clinpgx"),
+        ("noncommercial", "noncommercial"),
+        ("clinpgx", "cpic"),
+    ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&json!({"disable_sources":[configured]}))
             .map_err(|e| e.to_string())?;
@@ -137,8 +142,10 @@ fn retired() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
     listener.set_nonblocking(true).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)}))
-        .map_err(|e| e.to_string())?;
+    env.config(
+        &json!({"proxy":format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)}),
+    )
+    .map_err(|e| e.to_string())?;
     for args in [
         vec!["search", "pgx", "DPYD", "--source", "pharmgkb"],
         vec!["health", "--disable-sources", "cpic,pharmgkb"],
