@@ -59,10 +59,16 @@ fn words(cell: &str, selector: Option<&biodata::Text>) -> bool {
     selector.is_none_or(|value| {
         let cell = cell.to_lowercase();
         let needle = value.as_str().to_lowercase();
-        cell.match_indices(&needle).any(|(position, matched)| {
+        cell.char_indices().any(|(position, _)| {
+            if !cell
+                .get(position..)
+                .is_some_and(|tail| tail.starts_with(&needle))
+            {
+                return false;
+            }
             let before = cell.get(..position).and_then(|v| v.chars().next_back());
             let after = cell
-                .get(position + matched.len()..)
+                .get(position + needle.len()..)
                 .and_then(|v| v.chars().next());
             before.is_none_or(|c| !c.is_alphanumeric())
                 && after.is_none_or(|c| !c.is_alphanumeric())
