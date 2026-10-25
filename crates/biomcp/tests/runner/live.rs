@@ -203,7 +203,14 @@ fn check(
             }
             captures.push(json!({"ordinal": ordinal}));
             let capture = captures.last_mut().ok_or("missing command capture")?;
-            let (expected, before) = witness::invoke(&baseline, &args.0, Some(&replay), ordinal, capture, "baseline")?;
+            let (expected, before) = witness::invoke(
+                &baseline,
+                &args.0,
+                Some(&replay),
+                ordinal,
+                capture,
+                "baseline",
+            )?;
             if ordinal == 1 && before.is_empty() {
                 return Err("recorded command has no provider observations".into());
             }
@@ -306,12 +313,16 @@ fn invoke(
 }
 
 fn observations(environment: &Environment, ordinal: usize) -> Result<Vec<Observation>, String> {
-    let path = environment.root().join(format!("observations-{ordinal}.jsonl"));
+    let path = environment
+        .root()
+        .join(format!("observations-{ordinal}.jsonl"));
     let text = fs::read_to_string(path).map_err(|e| e.to_string())?;
     if text.len() > 8 * 1024 * 1024 {
         return Err("observation file exceeds bound".into());
     }
-    text.lines().map(|line| serde_json::from_str(line).map_err(|e| e.to_string())).collect()
+    text.lines()
+        .map(|line| serde_json::from_str(line).map_err(|e| e.to_string()))
+        .collect()
 }
 
 pub(super) fn command_report(

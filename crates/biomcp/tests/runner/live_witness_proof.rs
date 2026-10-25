@@ -4,36 +4,72 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs};
 
 pub(super) fn retained() -> Result<(), String> {
-    let sample = |name: &str, changed: bool, body: Value| json!({
-        "case": name, "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
-        "witness": body
-    });
-    let report = live::summary(vec![
-        sample("clean", false, json!({"output":"must disappear"})),
-        sample("drift", true, json!({"before":{"id":"old"},"after":{"id":"new"}})),
-        sample("large", true, json!({"output":"x".repeat(2 * 1024 * 1024)})),
-        json!({"case":"failed","error":"missing continuation","witness":{"baseline":{"id":"old"},"live":{"error":"not JSON"}}}),
-    ], BTreeMap::new(), 0, true);
-    let rows = report.get("case_sample").and_then(Value::as_array).ok_or("no rows")?;
-    let row = |name| rows.iter().find(|row| row.get("case").and_then(Value::as_str) == Some(name)).ok_or("missing row");
+    let sample = |name: &str, changed: bool, body: Value| {
+        json!({
+            "case": name, "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
+            "witness": body
+        })
+    };
+    let report = live::summary(
+        vec![
+            sample("clean", false, json!({"output":"must disappear"})),
+            sample(
+                "drift",
+                true,
+                json!({"before":{"id":"old"},"after":{"id":"new"}}),
+            ),
+            sample("large", true, json!({"output":"x".repeat(2 * 1024 * 1024)})),
+            json!({"case":"failed","error":"missing continuation","witness":{"baseline":{"id":"old"},"live":{"error":"not JSON"}}}),
+        ],
+        BTreeMap::new(),
+        0,
+        true,
+    );
+    let rows = report
+        .get("case_sample")
+        .and_then(Value::as_array)
+        .ok_or("no rows")?;
+    let row = |name| {
+        rows.iter()
+            .find(|row| row.get("case").and_then(Value::as_str) == Some(name))
+            .ok_or("missing row")
+    };
     if row("clean")?.get("witness").is_some()
         || row("drift")?.pointer("/witness/after/id") != Some(&json!("new"))
         || row("failed")?.pointer("/witness/baseline/id") != Some(&json!("old"))
-        || row("large")?.pointer("/witness/cut") != Some(&json!(true)) {
+        || row("large")?.pointer("/witness/cut") != Some(&json!(true))
+    {
         return Err("drift witnesses were discarded, retained for clean cases or unbounded".into());
     }
-    let env = Environment::new().map_err(|e|e.to_string())?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::super::launch::fixtures().join("replies/gene/main");
     let mut captured = json!({});
-    live::witness::invoke(&env, &["get".into(),"gene".into(),"KRAS".into()], Some(&replay), 1, &mut captured, "baseline")?;
+    live::witness::invoke(
+        &env,
+        &["get".into(), "gene".into(), "KRAS".into()],
+        Some(&replay),
+        1,
+        &mut captured,
+        "baseline",
+    )?;
     let baseline = captured.get("baseline").ok_or("missing baseline")?;
-    if baseline.get("result_ids").and_then(Value::as_array).is_none_or(Vec::is_empty)
-        || baseline.pointer("/requests/0/url").and_then(Value::as_str).is_none_or(str::is_empty)
+    if baseline
+        .get("result_ids")
+        .and_then(Value::as_array)
+        .is_none_or(Vec::is_empty)
+        || baseline
+            .pointer("/requests/0/url")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
         || baseline.pointer("/requests/0/shape").is_none()
-        || baseline.pointer("/output/omitted").is_none() {
-        return Err("actual replay lost identities, safe URLs, shape or mixed-terms suppression".into());
+        || baseline.pointer("/output/omitted").is_none()
+    {
+        return Err(
+            "actual replay lost identities, safe URLs, shape or mixed-terms suppression".into(),
+        );
     }
-    let output = json!({"id":"native-positive","sources":[{"use":"open"}],"result":{"value":"permitted"}});
+    let output =
+        json!({"id":"native-positive","sources":[{"use":"open"}],"result":{"value":"permitted"}});
     let allowed = live::witness::context(&output, &[]);
     if allowed.get("output") != Some(&output) {
         return Err("permitted product output lost".into());
@@ -44,32 +80,72 @@ pub(super) fn retained() -> Result<(), String> {
 pub(super) fn credentials() -> Result<(), String> {
     const KEY: &str = "synthetic-nightly-witness-key";
     for query_key in [true, false] {
-        let env = Environment::new().map_err(|e|e.to_string())?;
-        let host = if query_key {"eutils.ncbi.nlm.nih.gov"} else {"clinicaltrialsapi.cancer.gov"};
-        let stub = Stub::for_sources(&[host], |_| "application/json", move |request| {
-            if query_key && !request.contains("api_key=synthetic-nightly-witness-key")
-                || !query_key && !request.to_ascii_lowercase().contains("x-api-key: synthetic-nightly-witness-key") {
-                return Err("synthetic credential was not actually sent".into());
-            }
-            Ok(if query_key {json!({"esearchresult":{"count":"0","idlist":[]}})} else {json!({"total":0,"data":[]})}.to_string())
-        })?;
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let host = if query_key {
+            "eutils.ncbi.nlm.nih.gov"
+        } else {
+            "clinicaltrialsapi.cancer.gov"
+        };
+        let stub = Stub::for_sources(
+            &[host],
+            |_| "application/json",
+            move |request| {
+                if query_key && !request.contains("api_key=synthetic-nightly-witness-key")
+                    || !query_key
+                        && !request
+                            .to_ascii_lowercase()
+                            .contains("x-api-key: synthetic-nightly-witness-key")
+                {
+                    return Err("synthetic credential was not actually sent".into());
+                }
+                Ok(if query_key {
+                    json!({"esearchresult":{"count":"0","idlist":[]}})
+                } else {
+                    json!({"total":0,"data":[]})
+                }
+                .to_string())
+            },
+        )?;
         let ca = env.root().join("ca.pem");
-        fs::write(&ca, &stub.certificate).map_err(|e|e.to_string())?;
+        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"ncbi_api_key":KEY,"nci_api_key":KEY}})).map_err(|e|e.to_string())?;
         let observation = env.root().join("observed.jsonl");
-        let mut args = if query_key {vec!["search","article","cancer","--source","pubmed"]} else {vec!["search","trial","--source","nci","--keyword","cancer"]}.into_iter().map(String::from).collect::<Vec<_>>();
-        args.extend(["--observe".into(),observation.display().to_string()]);
-        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e|e.to_string())?;
-        let bytes = fs::read(&observation).map_err(|e|e.to_string())?;
-        if !output.status.success() || bytes.is_empty() || [bytes.as_slice(), &output.stdout, &output.stderr].iter().any(|bytes|bytes.windows(KEY.len()).any(|part|part==KEY.as_bytes())) {
+        let mut args = if query_key {
+            vec!["search", "article", "cancer", "--source", "pubmed"]
+        } else {
+            vec!["search", "trial", "--source", "nci", "--keyword", "cancer"]
+        }
+        .into_iter()
+        .map(String::from)
+        .collect::<Vec<_>>();
+        args.extend(["--observe".into(), observation.display().to_string()]);
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let bytes = fs::read(&observation).map_err(|e| e.to_string())?;
+        if !output.status.success()
+            || bytes.is_empty()
+            || [bytes.as_slice(), &output.stdout, &output.stderr]
+                .iter()
+                .any(|bytes| bytes.windows(KEY.len()).any(|part| part == KEY.as_bytes()))
+        {
             return Err("credential reached diagnostic evidence or local command failed".into());
         }
-        let records = String::from_utf8(bytes).map_err(|e|e.to_string())?;
+        let records = String::from_utf8(bytes).map_err(|e| e.to_string())?;
         for line in records.lines() {
-            let record: Value = serde_json::from_str(line).map_err(|e|e.to_string())?;
-            let url = record.get("url").and_then(Value::as_str).ok_or("no sanitized URL")?;
-            if url.contains("api_key") || record.get("headers").is_some() || record.get("status") != Some(&json!(200)) {
-                return Err("request witness lost status or retained credential-bearing fields".into());
+            let record: Value = serde_json::from_str(line).map_err(|e| e.to_string())?;
+            let url = record
+                .get("url")
+                .and_then(Value::as_str)
+                .ok_or("no sanitized URL")?;
+            if url.contains("api_key")
+                || record.get("headers").is_some()
+                || record.get("status") != Some(&json!(200))
+            {
+                return Err(
+                    "request witness lost status or retained credential-bearing fields".into(),
+                );
             }
         }
     }

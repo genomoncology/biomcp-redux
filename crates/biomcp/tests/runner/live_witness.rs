@@ -1,6 +1,6 @@
 //! Keep bounded diagnostic context only when a case drifts or fails.
-use super::live;
 use super::launch::Environment;
+use super::live;
 use biomcp_fetch::{Observation, Shape};
 use biomcp_types::Use;
 use serde_json::{Value, json};
@@ -10,14 +10,21 @@ use std::path::Path;
 const MAX_WITNESS_BYTES: usize = 1024 * 1024;
 
 pub(super) fn retain(results: &mut [Value]) {
-    let cut = json!({"cut":true,"reason":"report witness byte limit", "limit_bytes":MAX_WITNESS_BYTES});
+    let cut =
+        json!({"cut":true,"reason":"report witness byte limit", "limit_bytes":MAX_WITNESS_BYTES});
     let overhead = serde_json::to_vec(&cut).map_or(MAX_WITNESS_BYTES, |bytes| bytes.len());
     let mut remaining = MAX_WITNESS_BYTES.saturating_sub(results.len().saturating_mul(overhead));
     for result in results {
         let wanted = live::has_drift(result) || result.get("error").is_some();
-        let Some(map) = result.as_object_mut() else { continue };
-        let Some(witness) = map.remove("witness") else { continue };
-        if !wanted { continue; }
+        let Some(map) = result.as_object_mut() else {
+            continue;
+        };
+        let Some(witness) = map.remove("witness") else {
+            continue;
+        };
+        if !wanted {
+            continue;
+        }
         let size = serde_json::to_vec(&witness).map_or(usize::MAX, |bytes| bytes.len());
         if size <= remaining {
             remaining -= size;
@@ -56,9 +63,14 @@ pub(super) fn context(output: &Value, observations: &[Observation]) -> Value {
     let permitted = observations.iter().all(|observation| {
         biomcp_adapters::registry::terms(observation.source)
             .is_some_and(|terms| terms.usage == Use::Open)
-    }) && output.get("sources").and_then(Value::as_array).is_none_or(|sources| {
-        sources.iter().all(|source| source.get("use").and_then(Value::as_str) == Some("open"))
-    });
+    }) && output
+        .get("sources")
+        .and_then(Value::as_array)
+        .is_none_or(|sources| {
+            sources
+                .iter()
+                .all(|source| source.get("use").and_then(Value::as_str) == Some("open"))
+        });
     let mut ids = Vec::new();
     identities(output, &mut ids, 0);
     json!({"requests":observations,"result_ids":ids,
@@ -67,17 +79,27 @@ pub(super) fn context(output: &Value, observations: &[Observation]) -> Value {
 }
 
 fn identities(value: &Value, ids: &mut Vec<Value>, depth: usize) {
-    if depth > 12 || ids.len() >= 64 { return; }
+    if depth > 12 || ids.len() >= 64 {
+        return;
+    }
     match value {
-        Value::Object(map) => for (key, item) in map {
-            if (key == "id" || key.ends_with("_id") || key == "accession")
-                && (item.is_string() || item.is_number()) && item.to_string().len() <= 256
-                && ids.len() < 64 {
-                ids.push(json!({"field":key,"value":item}));
+        Value::Object(map) => {
+            for (key, item) in map {
+                if (key == "id" || key.ends_with("_id") || key == "accession")
+                    && (item.is_string() || item.is_number())
+                    && item.to_string().len() <= 256
+                    && ids.len() < 64
+                {
+                    ids.push(json!({"field":key,"value":item}));
+                }
+                identities(item, ids, depth + 1);
             }
-            identities(item, ids, depth + 1);
-        },
-        Value::Array(items) => for item in items.iter().take(64) { identities(item, ids, depth + 1); },
-        _ => {},
+        }
+        Value::Array(items) => {
+            for item in items.iter().take(64) {
+                identities(item, ids, depth + 1);
+            }
+        }
+        _ => {}
     }
 }
