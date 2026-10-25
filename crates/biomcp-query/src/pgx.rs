@@ -134,8 +134,8 @@ fn finish(
         status: state,
         body: reply.unwrap_or(empty),
         page: None,
+        problems: record_problem(&source).into_iter().collect(),
         sources: vec![source],
-        problems: vec![],
         next: vec![],
         local: error.and_then(status::local),
     }
@@ -153,4 +153,13 @@ fn page_info(offset: u32, returned: usize, total: u64) -> PgxPageInfo {
         total,
         total_kind: PgxTotalKind::Source,
     }
+}
+
+fn record_problem(source: &SourceOutcome) -> Option<Problem> {
+    (source.reason == Some(Reason::BadReply)).then(|| Problem {
+        source: source.source,
+        record: None,
+        field: "record".into(),
+        code: ProblemCode::ValueUnknown,
+    })
 }

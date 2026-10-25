@@ -69,6 +69,7 @@ mod oncokb;
 mod oncokb_context;
 mod pdf;
 mod pgx_registry;
+mod pgx_retirements;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -550,6 +551,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(diagnostic_pma::trials());
     trials.extend(diagnostic_cdx::trials());
     trials.extend(pgx_registry::trials());
+    trials.extend(pgx_retirements::trials());
     trials.extend(cpic::trials());
     trials.extend(clinpgx::trials());
     trials.extend(drug_retirements::trials());

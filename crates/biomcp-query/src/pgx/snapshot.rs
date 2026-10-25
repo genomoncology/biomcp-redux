@@ -64,6 +64,8 @@ pub(super) fn load(
         let error = reply.as_ref().err().copied();
         out.sources
             .push(status::source(Source::ClinPgx, leg.finish(), error));
+        out.problems
+            .extend(out.sources.iter().filter_map(super::record_problem));
         let saved = (reply?, out.sources.clone());
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
