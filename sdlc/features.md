@@ -101,3 +101,5 @@ adverse-event-get: Read one exact FAERS report and independently page retained d
 
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests. Cases: `crates/biomcp/tests/runner/adverse_event_retirements.rs`.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports. Cases: `crates/biomcp/tests/runner/adverse_event_failures.rs`.
+
+clinpgx-annotations: Read independent bounded ClinPGx annotation collections and exact base records without clinical inference. Cases: `crates/biomcp/tests/runner/clinpgx.rs`.
