@@ -135,6 +135,10 @@ pub enum QueryBody {
     DiseaseSurvival(crate::DiseaseSurvival),
     /// Native candidate page.
     DrugPage(crate::DrugPage),
+    /// WHO prequalification rows, independent of authorization facts.
+    DrugWhoPage(crate::DrugWhoPage),
+    /// One exact WHO reference and its unchanged native rows.
+    DrugWhoCard(Option<crate::DrugWhoCard>),
     /// Exact source identity, absent on failed retrieval.
     DrugCard(Option<crate::DrugCard>),
     /// Original native label text with mechanical fragment continuation.

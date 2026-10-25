@@ -58,7 +58,7 @@ const CASES: &[(&str, &str)] = &[
     ("ddinter sync", "renamed; use: biomcp sync ddinter"),
     (
         "who sync",
-        "renamed; use: biomcp sync who",
+        "renamed; use: biomcp sync who-pq",
     ),
     (
         "search drug --query imatinib",

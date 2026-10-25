@@ -7,15 +7,15 @@
         "search",
         "drug",
         "trastuzumab",
-        "--region",
-        "who"
+        "--source",
+        "who-pq"
       ],
       "mcp": [
         "search",
         "drug",
         "trastuzumab",
-        "--region",
-        "who"
+        "--source",
+        "who-pq"
       ],
       "exit": 4,
       "is_error": true,
@@ -24,7 +24,7 @@
         "/sources/0/reason": "syncing",
         "/next/0/args": [
           "sync",
-          "who"
+          "who-pq"
         ]
       },
       "max_bytes": 1000,

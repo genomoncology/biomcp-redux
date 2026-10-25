@@ -135,7 +135,7 @@ pub use drug::{
     DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
     DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText,
     DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
-    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugXrefs, DrugRegion, DrugRegionalGet,
+    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugXrefs, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
 };
 
 pub use query::QueryInvalid;
@@ -168,3 +168,6 @@ pub use response::{
 
 /// Source-specific diagnostic page counting vocabulary.
 pub use response::DiagnosticCountUnit;
+
+#[cfg(feature = "schema")]
+pub use drug::DrugGetCommand;
