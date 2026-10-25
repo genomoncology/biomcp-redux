@@ -22,6 +22,7 @@ fn native_id_grammars_refuse_wrappers_and_incomplete_identities() {
         "GTR6692.3",
         "GTR000006692.0",
         "GTR000006692.03",
+        "GTR000006692.+3",
     ] {
         assert!(serde_json::from_value::<GtrTestId>(json!(value)).is_err());
     }
@@ -29,6 +30,9 @@ fn native_id_grammars_refuse_wrappers_and_incomplete_identities() {
         roundtrip::<WhoProductId>(json!("0466-046-00")),
         "0466-046-00"
     );
+    for id in ["13641-013-00", "10304-118-00"] {
+        assert_eq!(roundtrip::<WhoProductId>(json!(id)), id);
+    }
     assert_eq!(roundtrip::<PmaNumber>(json!("P150013")), "P150013");
     assert_eq!(roundtrip::<PmaSupplement>(json!("S020")), "S020");
     assert_eq!(
