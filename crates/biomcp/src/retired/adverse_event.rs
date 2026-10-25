@@ -1,0 +1,120 @@
+//! Fixed adverse-event migration guidance before command parsing and I/O.
+use biomcp_types::ErrorMessage;
+use std::ffi::OsString;
+const FLAGS: &[(&str, ErrorMessage)] = &[
+    ("-d", ErrorMessage::AdverseText),
+    ("--drug", ErrorMessage::AdverseText),
+    ("--device", ErrorMessage::AdverseMaude),
+    ("--outcome", ErrorMessage::AdverseOutcome),
+    ("--date-from", ErrorMessage::AdverseFrom),
+    ("--since", ErrorMessage::AdverseFrom),
+    ("--date-to", ErrorMessage::AdverseTo),
+    ("--until", ErrorMessage::AdverseTo),
+    ("--suspect-only", ErrorMessage::AdverseFilter),
+    ("--sex", ErrorMessage::AdverseFilter),
+    ("--age-min", ErrorMessage::AdverseFilter),
+    ("--age-max", ErrorMessage::AdverseFilter),
+    ("--reporter", ErrorMessage::AdverseFilter),
+    ("--manufacturer", ErrorMessage::AdverseFilter),
+    ("--product-code", ErrorMessage::AdverseFilter),
+    ("--count", ErrorMessage::AdverseFilter),
+    ("--classification", ErrorMessage::AdverseRecalls),
+    ("-l", ErrorMessage::DiseaseLimit),
+    ("-j", ErrorMessage::DiseaseJson),
+    ("--json", ErrorMessage::DiseaseJson),
+];
+pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+    let mut positional = Vec::new();
+    let mut source = None;
+    let mut serious = None;
+    let mut section = None;
+    let mut shared = None;
+    let mut literal = false;
+    let mut args = args.iter();
+    while let Some(word) = args.next() {
+        let word = word.to_str()?;
+        if literal || !word.starts_with('-') {
+            positional.push(word);
+            continue;
+        }
+        if word == "--" {
+            literal = true;
+            continue;
+        }
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word, None), |(a, b)| (a, Some(b)));
+        if matches!(flag, "-j" | "--json") {
+            shared = Some(ErrorMessage::DiseaseJson);
+        }
+        let adverse = matches!(
+            positional.as_slice(),
+            ["search" | "get", "adverse-event", ..]
+        );
+        if adverse && let Some(found) = super::find(FLAGS, flag) {
+            return Some(found);
+        }
+        if adverse && flag == "--version" && positional.first() == Some(&"get") {
+            return Some(ErrorMessage::AdverseVersion);
+        }
+        if adverse && flag == "--type" {
+            return match inline.or_else(|| args.next().and_then(|v| v.to_str())) {
+                Some("faers") => Some(ErrorMessage::AdverseFaers),
+                Some("device" | "devices" | "maude") => Some(ErrorMessage::AdverseMaude),
+                Some("recall" | "recalls" | "enforcement") => Some(ErrorMessage::AdverseRecalls),
+                _ => None,
+            };
+        }
+        if adverse && flag == "--serious" {
+            serious = Some(inline.or_else(|| args.next().and_then(|v| v.to_str())));
+        } else if flag == "--section" || super::takes_value(flag, &positional).unwrap_or(false) {
+            let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
+            match flag {
+                "--source" => source = value,
+                "--section" => section = value,
+                _ => (),
+            }
+        }
+    }
+    guidance(&positional, source, serious, section, shared, literal)
+}
+fn guidance(
+    positional: &[&str],
+    source: Option<&str>,
+    serious: Option<Option<&str>>,
+    section: Option<&str>,
+    shared: Option<ErrorMessage>,
+    literal: bool,
+) -> Option<ErrorMessage> {
+    match positional {
+        ["drug", "adverse-events", ..] => Some(ErrorMessage::AdverseText),
+        ["search" | "get", "adverse-event", rest @ ..] => {
+            if shared.is_some() {
+                return shared;
+            }
+            if source == Some("all") {
+                return Some(ErrorMessage::AdverseSource);
+            }
+            if let Some(value) = serious {
+                if source == Some("maude") {
+                    return Some(ErrorMessage::AdverseFilter);
+                }
+                if !matches!(value, Some("death" | "hospitalization")) {
+                    return Some(ErrorMessage::AdverseSerious);
+                }
+            }
+            if positional.first() == Some(&"get") {
+                let selected =
+                    section.or_else(|| if literal { None } else { rest.get(1).copied() });
+                return match selected {
+                    Some("outcomes") => Some(ErrorMessage::AdverseOutcomes),
+                    Some("concomitant") => Some(ErrorMessage::AdverseConcomitant),
+                    Some("guidance" | "all") => Some(ErrorMessage::AdverseSection),
+                    _ => None,
+                };
+            }
+            None
+        }
+        _ => None,
+    }
+}

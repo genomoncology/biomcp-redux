@@ -19,6 +19,7 @@ pub(crate) struct Prepared {
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
     pub(crate) publisher: bool,
+    pub(crate) exact_count: bool,
 }
 impl Prepared {
     pub(crate) fn new(url: String, body: Vec<u8>, method: Method, idempotent: bool) -> Self {
@@ -60,6 +61,7 @@ impl Prepared {
             idempotent,
             identity_encoding: false,
             publisher: false,
+            exact_count: false,
         }
     }
 }

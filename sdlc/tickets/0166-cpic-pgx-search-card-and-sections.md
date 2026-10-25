@@ -1,6 +1,7 @@
 # 0166 — Search CPIC pairs by gene and get the CPIC card, recommendations, guidelines and diplotype
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 896a857cf277efb3c71e1aaf17e1a3544cf3f399
 
 Milestone: 4
 

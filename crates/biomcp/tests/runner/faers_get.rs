@@ -234,6 +234,14 @@ fn identity(mode: &str) -> Check {
     {
         return Err(format!("identity admitted: {value}"));
     }
+    if matches!(mode, "wrong-id" | "two-versions")
+        && value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_none_or(Vec::is_empty)
+    {
+        return Err("rejected identity lost its problem".into());
+    }
     let expected = if matches!(mode, "bad-drug-index" | "empty-collections") {
         1
     } else {

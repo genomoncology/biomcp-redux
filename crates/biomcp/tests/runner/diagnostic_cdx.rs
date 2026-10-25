@@ -259,20 +259,31 @@ fn concurrent() -> Check {
     let replacement = spawn(&sync)?;
     let readers = [spawn(&args)?, spawn(&args)?];
     let output = replacement.wait_with_output().map_err(|e| e.to_string())?;
+    let reader_outputs = readers
+        .into_iter()
+        .map(|reader| reader.wait_with_output().map_err(|e| e.to_string()))
+        .collect::<Result<Vec<_>, _>>()?;
     if !output.status.success() {
         return Err(format!(
-            "replacement failed: {}",
-            String::from_utf8_lossy(&output.stderr)
+            "replacement failed {:?}: stdout={} stderr={}; readers={:?}",
+            output.status.code(),
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr),
+            reader_outputs
         ));
     }
     let after = call(&env, &replay, &search, 0)?;
     if before.get("result") == after.get("result") {
         return Err("replacement did not change snapshot".into());
     }
-    for reader in readers {
-        let output = reader.wait_with_output().map_err(|e| e.to_string())?;
+    for output in reader_outputs {
         if !output.status.success() {
-            return Err("concurrent reader failed".into());
+            return Err(format!(
+                "concurrent reader failed {:?}: stdout={} stderr={}",
+                output.status.code(),
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            ));
         }
         let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
         if value.get("result") != before.get("result") && value.get("result") != after.get("result")

@@ -1,5 +1,6 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
+mod adverse_event;
 mod drug;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
@@ -98,6 +99,9 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     if retired_source(args) {
         return Some(ErrorMessage::Pharmgkb);
+    }
+    if let Some(message) = adverse_event::message(args) {
+        return Some(message);
     }
     if let Some(message) = disease::message(args) {
         return Some(message);

@@ -172,6 +172,8 @@ pub(crate) struct Exchange {
     pub(crate) fetched: i64,
     pub(crate) status: u16,
     pub(crate) content_type: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) content_range: Option<String>,
     pub(crate) delay_ms: u64,
     pub(crate) retry_after_ms: Option<u64>,
     pub(crate) body: Body,
@@ -226,6 +228,10 @@ impl Body {
 impl Exchange {
     fn valid(&self) -> bool {
         (100..=599).contains(&self.status)
+            && self.content_range.as_ref().is_none_or(|v| {
+                v.len() <= MAX_METADATA_BYTES
+                    && v.bytes().all(|b| b.is_ascii() && !b.is_ascii_control())
+            })
             && self.content_type.len() <= MAX_METADATA_BYTES
             && self
                 .content_type

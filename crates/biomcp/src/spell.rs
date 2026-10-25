@@ -63,6 +63,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchPgx(query) => serde_json::to_value(query),
+        Request::GetPgx(query) => serde_json::to_value(query),
         Request::SearchDiagnostic(q) => serde_json::to_value(q),
         Request::GetDiagnostic(q) => serde_json::to_value(q),
         Request::SearchAdverseEvent(query) => serde_json::to_value(query),
@@ -131,7 +133,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetDiagnostic(_)
+        Request::GetPgx(_)
+        | Request::GetDiagnostic(_)
         | Request::GetAdverseEvent(_)
         | Request::GetDisease(_)
         | Request::GetDrug(_)
@@ -139,7 +142,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchDiagnostic(_)
+        Request::SearchPgx(_)
+        | Request::SearchDiagnostic(_)
         | Request::SearchAdverseEvent(_)
         | Request::SearchDisease(_)
         | Request::SearchDrug(_)
@@ -150,7 +154,9 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 fn command_entity(request: &Request) -> &'static str {
-    if matches!(
+    if matches!(request, Request::SearchPgx(_) | Request::GetPgx(_)) {
+        "pgx"
+    } else if matches!(
         request,
         Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)
     ) {

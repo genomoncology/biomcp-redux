@@ -1,6 +1,7 @@
 # 0161 — Retire old adverse event options and prove adverse event failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fe65d282eab5a97168f4bd4fd89e4b82fe36bf38
 
 Milestone: 3
 

@@ -72,7 +72,8 @@ fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, Strin
                         serde_json::json!("adverse-event"),
                     ]
                     || words.iter().any(|v| {
-                        v == "article"
+                        v == "pgx"
+                            || v == "article"
                             || v == "gene"
                             || v == "trial"
                             || v == "variant"

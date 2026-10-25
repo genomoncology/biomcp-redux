@@ -432,7 +432,8 @@
               "type": "null"
             }
           ],
-          "description": "One named section; omitted means the CPIC gene card."
+          "description": "One named section; omitted means the CPIC gene card.",
+          "x-positional": 0
         },
         "section_limit": {
           "default": 5,

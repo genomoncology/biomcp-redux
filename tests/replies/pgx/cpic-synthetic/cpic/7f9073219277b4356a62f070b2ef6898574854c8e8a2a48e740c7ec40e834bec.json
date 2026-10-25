@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/gene?select=symbol%2Chgncid%2Cncbiid%2Censemblid%2Cclinpgxid%2Clookupmethod%2Cversion&symbol=eq.DPYD&limit=5&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1792918330,
+      "status": 200,
+      "content_type": "application/json",
+      "content_range": "0-0/1",
+      "delay_ms": 8,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"clinpgxid":"PA145","ensemblid":"ENSG00000188641","hgncid":"HGNC:2865","lookupmethod":"SYNTHETIC","ncbiid":"1806","symbol":"DPYD","version":7}]
+      }
+    }
+  ]
+}

@@ -95,7 +95,10 @@ diagnostic-types: A public API caller validates source-owned diagnostic identiti
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference. Cases: `crates/biomcp/tests/runner/diagnostic_gtr.rs`, `crates/biomcp/tests/runner/diagnostic_gtr/mechanics.rs`, `tests/cases/diagnostic/gtr.yaml`.
 adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/*.yaml`, `crates/biomcp/tests/runner/faers_search.rs`.
 
+cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference. Cases: `tests/cases/pgx/*.yaml`, `crates/biomcp/tests/runner/cpic.rs`.
 maude-reports: Search explicit device report phrases and read exact native cards, device rows and complete narratives with source terms and independent count units. Cases: `crates/biomcp/tests/runner/maude.rs`.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference. Cases: `crates/biomcp/tests/runner/faers_get.rs`.
 
 diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whole physical association rows using their own checked identifiers. Cases: `crates/biomcp/tests/runner/diagnostic_cdx.rs`, `tests/cases/diagnostic/fda-cdx.yaml`.
+adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests. Cases: `crates/biomcp/tests/runner/adverse_event_retirements.rs`.
+adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports. Cases: `crates/biomcp/tests/runner/adverse_event_failures.rs`.

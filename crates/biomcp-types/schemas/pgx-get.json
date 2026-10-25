@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "PgxAnnotationKind": {
+      "description": "Independent ClinPGx collection kinds, never merged.",
+      "enum": [
+        "clinical",
+        "guideline",
+        "label"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Clinical annotation min tier.",
+        " Guideline references.",
+        " Label references."
+      ]
+    },
+    "PgxDiplotypeExpression": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "PgxSection": {
+      "description": "One independent named section.",
+      "enum": [
+        "recommendations",
+        "guidelines",
+        "diplotype",
+        "annotations"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Complete native recommendation contexts.",
+        " Native guideline references.",
+        " Declared source diplotype lookup.",
+        " One ClinPGx annotation kind."
+      ]
+    },
+    "PgxSource": {
+      "description": "Explicit independent source.",
+      "enum": [
+        "cpic",
+        "clinpgx"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CPIC source-native records.",
+        " ClinPGx annotation records."
+      ]
+    }
+  },
+  "$id": "biomcp.pgx-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Checked exact gene card or one independently paged section.",
+  "properties": {
+    "diplotype": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PgxDiplotypeExpression"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Unchanged declared expression required for the diplotype section only."
+    },
+    "drug_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Curie"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Exact published CPIC drug key; recommendations only."
+    },
+    "gene": {
+      "$ref": "#/$defs/GeneSymbol",
+      "description": "Explicit source gene symbol."
+    },
+    "kind": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PgxAnnotationKind"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "One ClinPGx collection; clinical is the default only on annotations."
+    },
+    "section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PgxSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "One named section; omitted means the CPIC gene card.",
+      "x-positional": 0
+    },
+    "section_limit": {
+      "default": 5,
+      "description": "Complete source rows per independent section page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Offset within the selected section.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source": {
+      "$ref": "#/$defs/PgxSource",
+      "description": "Required source, checked against the section."
+    }
+  },
+  "required": [
+    "gene",
+    "source"
+  ],
+  "title": "PgxGet",
+  "type": "object"
+}

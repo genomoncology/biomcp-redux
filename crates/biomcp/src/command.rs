@@ -4,6 +4,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
+mod pgx;
 mod steps;
 mod variant;
 
@@ -108,6 +109,10 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if matches!(action,Action::Run{request:Request::GetPgx(q),..} if q.source()!=biomcp_types::PgxSource::Cpic)
+    {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
@@ -217,6 +222,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchPgx(_) | Request::GetPgx(_) => pgx::encode(meta, request, body),
         Request::SearchDiagnostic(_) | Request::GetDiagnostic(_) => {
             diagnostic::encode(meta, request, body)
         }
