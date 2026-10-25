@@ -98,17 +98,17 @@ fn check(n: usize) -> Check {
         .get(n)
         .copied()
         .ok_or("budget index")?;
-    if bound != 0 && comparable > bound {
-        return Err(format!(
-            "case {n} exceeds measured comparable output budget: {comparable}/{bound}"
-        ));
-    }
     use std::io::Write;
     writeln!(std::io::stdout(),
         "drug native case {n}: full {bytes} bytes/{} tokens; comparable {comparable} bytes/{} tokens",
         bytes.div_ceil(4),
         comparable.div_ceil(4)
     ).map_err(|e|e.to_string())?;
+    if bound != 0 && comparable > bound {
+        return Err(format!(
+            "case {n} exceeds measured comparable output budget: {comparable}/{bound}"
+        ));
+    }
     Ok(())
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
