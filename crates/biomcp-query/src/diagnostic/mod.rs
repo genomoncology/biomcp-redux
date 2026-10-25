@@ -20,7 +20,7 @@ fn empty(body: QueryBody) -> Outcome {
         local: None,
     }
 }
-fn finish(out: &mut Outcome, leg: &Leg<'_>, error: Option<RequestError>) {
+fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Gtr, leg.finish(), error));
@@ -83,9 +83,13 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = QueryBody::DiagnosticPage(DiagnosticPage { items: page.items, count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities), distinct_id_total: None });
+        out.body = QueryBody::DiagnosticPage(DiagnosticPage {
+            items: page.items,
+            count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),
+            distinct_id_total: None,
+        });
     }
-    finish(&mut out, &leg, error);
+    finish(&mut out, leg, error);
     command.finish(deadline.remaining());
     out
 }

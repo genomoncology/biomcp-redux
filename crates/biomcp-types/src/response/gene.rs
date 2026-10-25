@@ -212,7 +212,7 @@ pub struct SyncQuery {
 pub struct SyncResult {
     /// Imported rows.
     pub rows: u64,
-    /// Unencoded source bytes.
+    /// Imported source-file bytes before native file decoding.
     pub bytes: u64,
     /// Distinct repeated identities across the whole source version report.
     #[serde(default, skip_serializing_if = "Option::is_none")]

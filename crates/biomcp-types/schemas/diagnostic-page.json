@@ -112,6 +112,15 @@
         }
       ]
     },
+    "DiagnosticCountUnit": {
+      "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
+      "enum": [
+        "test_identities",
+        "native_relation_rows",
+        "native_method_entries"
+      ],
+      "type": "string"
+    },
     "DiagnosticDeviceId": {
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
@@ -167,6 +176,26 @@
       "additionalProperties": false,
       "description": "Source-ordered GTR candidates with explicit conflicts.",
       "properties": {
+        "count_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticCountUnit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact meaning of the envelope total; supplied by the owning source command."
+        },
+        "distinct_id_total": {
+          "description": "Distinct complete native IDs across the selected relation collection.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {

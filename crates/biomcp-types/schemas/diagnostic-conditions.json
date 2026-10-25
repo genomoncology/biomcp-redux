@@ -33,6 +33,26 @@
       "additionalProperties": false,
       "description": "Native GTR condition rows without ontology or clinical conversion.",
       "properties": {
+        "count_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticCountUnit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact meaning of the envelope total; supplied by the owning source command."
+        },
+        "distinct_id_total": {
+          "description": "Distinct complete native IDs across the selected relation collection.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {
@@ -45,6 +65,15 @@
         "items"
       ],
       "type": "object"
+    },
+    "DiagnosticCountUnit": {
+      "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
+      "enum": [
+        "test_identities",
+        "native_relation_rows",
+        "native_method_entries"
+      ],
+      "type": "string"
     },
     "DiagnosticGet": {
       "additionalProperties": false,
