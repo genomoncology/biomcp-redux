@@ -16,6 +16,7 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
 }
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
+    let association = matches!(&out.body, QueryBody::PgxGuidelines(_));
     if out.status == Status::Failed {
         if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
             next.push((
@@ -61,7 +62,7 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
                     continue;
                 }
                 if let Ok(query) = serde_json::from_value(json!({"input":[gene.symbol]})) {
-                    next.push((StepKind::Section, run(Request::GetGene(query))));
+                    next.push((StepKind::Pivot, run(Request::GetGene(query))));
                 }
             }
             page_step(q, &body.page, &mut next);
@@ -84,7 +85,9 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
             },
         ));
     }
-    next.truncate(5);
+    if !association {
+        next.truncate(5);
+    }
     next
 }
 fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>) {
