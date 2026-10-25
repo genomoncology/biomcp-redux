@@ -20,6 +20,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("drug-approvals/application-card-has-no-events", || {
             card().map_err(Into::into)
         }),
+        Trial::test("drug-approvals/all-candidate-gets-and-page-survive", || {
+            navigation().map_err(Into::into)
+        }),
     ];
     trials.extend(errors::trials());
     trials.extend(capture::trials());
@@ -41,12 +44,16 @@ fn setup_status(body: String, selector: &str, status: u16) -> Result<(Environmen
         },
         move |_| status,
     )?;
+    let env = environment(&stub)?;
+    Ok((env, stub))
+}
+fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
-    Ok((env, stub))
+    Ok(env)
 }
 fn application() -> Value {
     json!({"application_number":"NDA021335","sponsor_name":"Synthetic sponsor",
@@ -171,8 +178,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     if value != super::mcp::call_with_globals(env, command, exit >= 2, globals)? {
         return Err("FDA CLI and MCP differ".into());
     }
-    let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    let comparable = super::source_terms::size(&value, "")?;
+    let (full, comparable) = measure(&value)?;
     use std::io::Write;
     writeln!(
         std::io::stdout(),
@@ -181,6 +187,11 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     )
     .map_err(|e| e.to_string())?;
     Ok(value)
+}
+fn measure(value: &Value) -> Result<(usize, usize), String> {
+    let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(value, "")?;
+    Ok((full, comparable))
 }
 fn exact_setup() -> Result<(Environment, Stub), String> {
     setup(
@@ -236,6 +247,80 @@ fn card() -> Check {
     }
     if stub.finish()?.len() != 1 {
         return Err("warm application card fetched again".into());
+    }
+    Ok(())
+}
+fn navigation() -> Check {
+    let rows = (0..7)
+        .map(|n| {
+            let mut row = application();
+            *row.get_mut("application_number")
+                .ok_or("application number")? = json!(format!("NDA{:06}", 21330 + n));
+            Ok(row)
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let body = json!({"meta":{"results":{"skip":0,"limit":7,"total":9}},"results":rows});
+    let stub = Stub::for_source_status(
+        "api.fda.gov",
+        "application/json",
+        move |request| {
+            if request.lines().next()
+                != Some(
+                    "GET /drug/drugsfda.json?search=products.active_ingredients.name%3A%22Synthetic%22&limit=7 HTTP/1.1",
+                )
+            {
+                return Err("candidate request changed".into());
+            }
+            Ok(body.to_string())
+        },
+        |_| 200,
+    )?;
+    let env = environment(&stub)?;
+    let value = both(
+        &env,
+        [
+            "search",
+            "drug",
+            "Synthetic",
+            "--source",
+            "drugsfda",
+            "--limit",
+            "7",
+        ]
+        .map(str::to_owned)
+        .to_vec(),
+        0,
+    )?;
+    let (full, comparable) = measure(&value)?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "FDA seven-candidate navigation full={full} comparable={comparable}"
+    )
+    .map_err(|e| e.to_string())?;
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("candidate actions")?;
+    if next.len() != 8 {
+        return Err(format!("candidate gets were truncated: {next:?}"));
+    }
+    for (n, action) in next.iter().take(7).enumerate() {
+        if action
+            != &json!({"kind":"disambiguate","args":["get","drug",format!("NDA{:06}",21330+n),"--source","drugsfda"]})
+        {
+            return Err("candidate get changed identity".into());
+        }
+    }
+    if next.last()
+        != Some(
+            &json!({"kind":"page","args":["search","drug","Synthetic","--limit","7","--offset","7","--source","drugsfda"]}),
+        )
+    {
+        return Err("native page action lost source or offset".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("warm candidates fetched again".into());
     }
     Ok(())
 }

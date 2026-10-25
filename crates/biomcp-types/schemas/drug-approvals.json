@@ -206,6 +206,17 @@
             "$ref": "#/$defs/DrugFdaProduct"
           },
           "type": "array"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA dataset last_updated date, independent of submission dates and retrieval."
         }
       },
       "required": [
@@ -258,8 +269,7 @@
         }
       },
       "required": [
-        "name",
-        "strength"
+        "name"
       ],
       "type": "object"
     },

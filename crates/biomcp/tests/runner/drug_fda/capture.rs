@@ -109,10 +109,19 @@ fn native(root: &Path, n: usize) -> Check {
     let value = both(&env, replay.clone(), exit)?;
     let original: Value = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
     verify(&original, &value, key)?;
+    let mut peak = super::measure(&value)?;
     if key == "application_number" {
-        walk(&env, replay, value, &original)?;
+        selected_product(&env, &replay, &original)?;
+        peak = walk(&env, replay, value, &original)?;
     }
     use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "FDA native case {n}: peak_full={} peak_comparable={}",
+        peak.0,
+        peak.1
+    )
+    .map_err(|e| e.to_string())?;
     writeln!(std::io::stdout(),"FDA original_url={url} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",field(&entry,"retrieved_at")?,field(&entry,"sha256")?).map_err(|e|e.to_string())
 }
 fn delivery(
@@ -136,11 +145,7 @@ fn delivery(
         },
         move |_| status,
     )?;
-    let env = super::Environment::new().map_err(|e| e.to_string())?;
-    let cert = env.root().join("ca.pem");
-    std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
-        .map_err(|e| e.to_string())?;
+    let env = super::environment(&stub)?;
     Ok((env, stub))
 }
 fn verify(raw: &Value, value: &Value, key: &str) -> Check {
@@ -157,6 +162,21 @@ fn verify(raw: &Value, value: &Value, key: &str) -> Check {
         {
             return Err(format!("native application products changed: {value}"));
         }
+        if let Some(ids) = raw
+            .pointer("/results/0/openfda/spl_set_id")
+            .and_then(Value::as_array)
+        {
+            for id in ids {
+                let action = json!({"kind":"disambiguate","args":["get","drug",id,"--source","openfda-label"]});
+                if !value
+                    .get("next")
+                    .and_then(Value::as_array)
+                    .is_some_and(|next| next.contains(&action))
+                {
+                    return Err("native SPL set lost its exact identity-card next action".into());
+                }
+            }
+        }
     } else {
         let ids = rows
             .iter()
@@ -172,15 +192,39 @@ fn verify(raw: &Value, value: &Value, key: &str) -> Check {
         if actual != ids || value.pointer("/result/total") != raw.pointer("/meta/results/total") {
             return Err("native candidate order or total changed".into());
         }
+        for (native, actual) in rows.iter().zip(
+            value
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .ok_or("items")?,
+        ) {
+            let mut products = native.get("products").cloned().ok_or("native products")?;
+            for product in products.as_array_mut().ok_or("products")? {
+                for key in ["route", "reference_standard", "te_code"] {
+                    if product.get(key) == Some(&Value::Null) {
+                        product.as_object_mut().ok_or("product")?.remove(key);
+                    }
+                }
+            }
+            if actual.get("products") != Some(&products) {
+                return Err("native candidate product details changed".into());
+            }
+        }
     }
     Ok(())
 }
-fn walk(env: &super::Environment, base: Vec<String>, mut page: Value, raw: &Value) -> Check {
+fn walk(
+    env: &super::Environment,
+    base: Vec<String>,
+    mut page: Value,
+    raw: &Value,
+) -> Result<(usize, usize), String> {
     let expected = raw
         .pointer("/results/0/submissions")
         .and_then(Value::as_array)
         .ok_or("submissions")?;
     let mut seen = Vec::new();
+    let mut peak = super::measure(&page)?;
     loop {
         let records = page
             .pointer("/result/approvals/data/records")
@@ -190,6 +234,7 @@ fn walk(env: &super::Environment, base: Vec<String>, mut page: Value, raw: &Valu
             if row.pointer("/event/product_number").is_some() {
                 return Err("submission acquired product applicability".into());
             }
+            submission(expected.get(seen.len()).ok_or("extra history row")?, row)?;
             seen.push((
                 row.pointer("/event/kind").cloned(),
                 row.get("submission_number").cloned(),
@@ -211,6 +256,8 @@ fn walk(env: &super::Environment, base: Vec<String>, mut page: Value, raw: &Valu
                 .collect::<Result<Vec<_>, _>>()?,
         );
         page = both(env, next, 0)?;
+        let measured = super::measure(&page)?;
+        peak = (peak.0.max(measured.0), peak.1.max(measured.1));
         if seen.len() > expected.len() {
             return Err("history continuation looped".into());
         }
@@ -226,6 +273,74 @@ fn walk(env: &super::Environment, base: Vec<String>, mut page: Value, raw: &Valu
         .collect::<Vec<_>>();
     if seen != expected {
         return Err("native history walk lost or reordered submissions".into());
+    }
+    Ok(peak)
+}
+fn selected_product(env: &super::Environment, base: &[String], raw: &Value) -> Check {
+    let mut args = base.to_vec();
+    args.extend(["--product-number".into(), "001".into()]);
+    let value = both(env, args, 0)?;
+    let products = value
+        .pointer("/result/products")
+        .and_then(Value::as_array)
+        .ok_or("selected products")?;
+    if products.len() != 1
+        || products.first().and_then(|p| p.get("product_number")) != Some(&json!("001"))
+        || value
+            .pointer("/result/approvals/data/total")
+            .and_then(Value::as_u64)
+            != raw
+                .pointer("/results/0/submissions")
+                .and_then(Value::as_array)
+                .map(|r| r.len() as u64)
+    {
+        return Err(
+            "explicit native product changed submission ownership or selected the first product"
+                .into(),
+        );
+    }
+    Ok(())
+}
+fn submission(native: &Value, row: &Value) -> Check {
+    for key in [
+        "submission_number",
+        "review_priority",
+        "submission_class_code",
+        "submission_class_code_description",
+        "submission_property_type",
+    ] {
+        if native.get(key) != row.get(key) {
+            return Err(format!("native submission field changed: {key}"));
+        }
+    }
+    if native.get("submission_status") != row.pointer("/event/status")
+        || row.pointer("/event/dates/0/role") != Some(&json!("submission_status_date"))
+        || field(native, "submission_status_date")?
+            != row
+                .pointer("/event/dates/0/date")
+                .and_then(Value::as_str)
+                .ok_or("status date")?
+                .replace('-', "")
+    {
+        return Err("native submission status or date role changed".into());
+    }
+    match (native.get("application_docs"), row.get("application_docs")) {
+        (None, None) => {}
+        (Some(Value::Array(native)), Some(Value::Array(actual)))
+            if native.len() == actual.len() =>
+        {
+            for (native, actual) in native.iter().zip(actual) {
+                for key in ["id", "url", "type"] {
+                    if native.get(key) != actual.get(key) {
+                        return Err("native document identity changed".into());
+                    }
+                }
+                if field(native, "date")? != field(actual, "date")?.replace('-', "") {
+                    return Err("document date became event date".into());
+                }
+            }
+        }
+        _ => return Err("native documents lost absence or multiplicity".into()),
     }
     Ok(())
 }

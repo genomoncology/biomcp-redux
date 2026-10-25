@@ -1,4 +1,4 @@
-use super::super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use super::super::{configuration::invoke, network_stub::Stub};
 use super::{Check, application, both, exact_setup, setup_status};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -115,11 +115,7 @@ fn wrong() -> Check {
         },
         |_| 200,
     )?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let cert = env.root().join("ca.pem");
-    std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
-        .map_err(|e| e.to_string())?;
+    let env = super::environment(&stub)?;
     rejected(&invoke(&env, args(), 4)?)?;
     let value = both(&env, args(), 0)?;
     if value.pointer("/result/identity/id") != Some(&json!("NDA021335"))
