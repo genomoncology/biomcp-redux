@@ -134,15 +134,25 @@ page!(
     DiseaseGenes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease_genes/2",
-    "Native association rows, not a unique-gene count."
+    "biomcp.disease_genes/3",
+    "Native association rows, not a unique-gene count.",
+    [
+        /// Original response retrieval Unix seconds, independent of local delivery.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub fetched: Option<u64>,
+    ]
 );
 page!(
     DiseasePhenotypes,
     DiseaseAssociationItem,
     DiseaseGet,
-    "biomcp.disease_phenotypes/2",
-    "Native phenotype association rows without diagnostic inference."
+    "biomcp.disease_phenotypes/3",
+    "Native phenotype association rows without diagnostic inference.",
+    [
+        /// Original response retrieval Unix seconds, independent of local delivery.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub fetched: Option<u64>,
+    ]
 );
 page!(
     DiseaseSites,
