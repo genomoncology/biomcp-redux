@@ -157,7 +157,7 @@ fn timeout() -> Check {
     {
         return Err("timeout became negative fact".into());
     }
-    super::super::pgx_retirements::bounded(&format!("ClinPGx timeout"), &v, 0)?;
+    super::super::pgx_retirements::bounded("ClinPGx timeout", &v, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached provider".into());
     }

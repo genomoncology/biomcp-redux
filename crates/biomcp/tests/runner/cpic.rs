@@ -408,7 +408,7 @@ fn timeout() -> Check {
     {
         return Err(format!("timeout became success: {value}"));
     }
-    super::pgx_retirements::bounded(&format!("CPIC timeout"), &value, 0)?;
+    super::pgx_retirements::bounded("CPIC timeout", &value, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached HTTP".into());
     }
