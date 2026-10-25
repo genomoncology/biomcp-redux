@@ -16,6 +16,7 @@ pub(super) fn next(
     let candidates = matches!(
         &result.body,
         biomcp_types::QueryBody::DrugPage(_)
+            | biomcp_types::QueryBody::DrugFdaPage(_)
             | biomcp_types::QueryBody::DiseasePage(_)
             | biomcp_types::QueryBody::VariantPage(_)
     ) || matches!(

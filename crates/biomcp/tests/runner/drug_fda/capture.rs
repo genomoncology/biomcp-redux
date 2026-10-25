@@ -167,7 +167,7 @@ fn verify(raw: &Value, value: &Value, key: &str) -> Check {
             .and_then(Value::as_array)
             .ok_or("candidates")?
             .iter()
-            .map(|r| r.get("id").cloned().ok_or("id"))
+            .map(|r| r.pointer("/identity/id").cloned().ok_or("id"))
             .collect::<Result<Vec<_>, _>>()?;
         if actual != ids || value.pointer("/result/total") != raw.pointer("/meta/results/total") {
             return Err("native candidate order or total changed".into());

@@ -75,8 +75,10 @@ fn search() -> Check {
     .map(str::to_owned)
     .to_vec();
     let value = both(&env, args, 0)?;
-    if value.pointer("/result/items/0/id") != Some(&json!("NDA021335"))
-        || value.pointer("/result/items/0/identity_level") != Some(&json!("fda_application"))
+    if value.pointer("/result/items/0/identity/id") != Some(&json!("NDA021335"))
+        || value.pointer("/result/items/0/identity/identity_level")
+            != Some(&json!("fda_application"))
+        || value.pointer("/result/items/0/products/0/brand_name") != Some(&json!("Synthetic brand"))
         || value.pointer("/result/total") != Some(&json!(2))
     {
         return Err(format!("native application candidates changed: {value}"));

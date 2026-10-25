@@ -3,14 +3,15 @@ use super::{empty, searched, unsupported};
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::{
-    DrugCard, DrugGet, DrugPage, DrugSearch, DrugSection, QueryBody, Request, Source, SourceState,
-    Status, StepKind,
+    DrugCard, DrugFdaCandidate, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection,
+    DrugSource, QueryBody, Request, Source, SourceState, Status, StepKind,
 };
 mod approvals;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugPage(DrugPage {
+    let mut out = empty(QueryBody::DrugFdaPage(DrugFdaPage {
         items: Box::default(),
-        total: None,
+        total: 0,
+        source_updated: None,
     }));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -30,6 +31,18 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             },
             &mut out,
         );
+        out.body = QueryBody::DrugFdaPage(DrugFdaPage {
+            items: page
+                .records
+                .iter()
+                .map(|row| DrugFdaCandidate {
+                    identity: row.header(),
+                    products: row.products.iter().map(|p| p.mapped()).collect(),
+                })
+                .collect(),
+            total: page.total,
+            source_updated: page.updated,
+        });
     }
     command.finish(deadline.remaining());
     out
@@ -53,6 +66,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
+        if let Some(source) = out.sources.first_mut() {
+            source.count = Some(page.total);
+            source.fetched = Some(page.records.len() as u32);
+        }
         out.status = if page.records.is_empty() {
             Status::Absent
         } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
@@ -61,6 +78,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             Status::Complete
         };
         if let Some(row) = page.records.first() {
+            label_steps(cx, row, &mut out);
             if is_approvals {
                 if let Err(error) = approvals::select(
                     cx,
@@ -101,4 +119,23 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
+    for id in row
+        .openfda
+        .as_ref()
+        .and_then(|o| o.spl_set_id.as_ref())
+        .into_iter()
+        .flatten()
+    {
+        if let Ok(request) = DrugGet::new(id.clone(), DrugSource::OpenfdaLabel) {
+            out.next.push((
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::GetDrug(request),
+                    fresh: cx.fresh,
+                },
+            ));
+        }
+    }
 }

@@ -37,6 +37,7 @@ pub struct DrugFdaIngredient {
     pub name: Text,
     /// Full source strength wording.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub strength: Option<Text>,
 }
 /// One application-owned submission with common event facts and native FDA context.
@@ -85,4 +86,31 @@ pub struct DrugFdaDocument {
     pub date: PartialDate,
     /// Original document type.
     pub r#type: Text,
+}
+/// One candidate application and its independent source-listed products.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugFdaCandidate {
+    /// Exact native application identity; no product has been selected.
+    pub identity: super::DrugHeader,
+    /// Complete native product candidates within this application.
+    pub products: Box<[DrugFdaProduct]>,
+}
+/// A source-owned application page preserving complete product context and source order.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugFdaPage {
+    /// Native applications and products; a phrase match never establishes equivalence.
+    pub items: Box<[DrugFdaCandidate]>,
+    /// Native application total, independent of product count.
+    pub total: u64,
+    /// Native dataset last_updated date, independent of event dates and retrieval.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_updated: Option<PartialDate>,
+}
+impl crate::ResponseBody for DrugFdaPage {
+    const SCHEMA: &'static str = "biomcp.drug_fda_page/1";
+    type Query = super::DrugSearch;
 }

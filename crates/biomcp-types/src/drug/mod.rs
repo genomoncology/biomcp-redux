@@ -3,7 +3,8 @@ mod civic;
 mod fda;
 pub use civic::{DrugCivicClaim, DrugCivicPage, DrugCivicProfile, DrugCivicStreams};
 pub use fda::{
-    DrugFdaDocument, DrugFdaIngredient, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission,
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct,
+    DrugFdaProperty, DrugFdaSubmission,
 };
 mod query;
 mod response;
