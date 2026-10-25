@@ -23,7 +23,7 @@ struct Reply {
     request: String,
     json: Option<Value>,
 }
-fn fixture_root() -> PathBuf {
+pub(super) fn fixture_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/drug/native")
 }
 fn plan() -> Result<Vec<Case>, String> {

@@ -7,6 +7,7 @@ mod credential_containment;
 mod disease_registry;
 mod drug_mychem;
 mod drug_native;
+mod drug_native_identity;
 mod drug_registry;
 mod evidence;
 mod gene_tables;
@@ -307,6 +308,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(drug_registry::trials());
     trials.extend(drug_mychem::trials());
     trials.extend(drug_native::trials());
+    trials.extend(drug_native_identity::trials());
     trials.extend(disease_registry::trials());
     trials.extend(source_terms::trials());
 
