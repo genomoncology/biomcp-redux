@@ -72,6 +72,8 @@ fn common_registry() -> Vec<Contract> {
 
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
+        ResearchSearch<ResearchEnvelope> => ("research-search", "biomcp.research-search/1"),
+        ResearchFetch<ResearchEnvelope> => ("research-fetch", "biomcp.research-fetch/1"),
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/2"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),

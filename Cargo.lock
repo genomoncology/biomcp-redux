@@ -165,6 +165,7 @@ dependencies = [
  "serde-saphyr",
  "serde_json",
  "sha2",
+ "shlex",
  "tempfile",
  "time",
  "toml",

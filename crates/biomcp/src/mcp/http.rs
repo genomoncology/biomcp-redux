@@ -169,14 +169,14 @@ impl Service {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
-                let Some(args) = super::protocol::args(&params) else {
+                let Some(call) = super::research::parse(&params) else {
                     return (
                         200,
                         Some(super::protocol::error(id, -32602, "Invalid params")),
                         Some(revision),
                     );
                 };
-                match crate::command::tool_http(&args, &self.globals, &self.fetch) {
+                match super::research::execute(&call, &self.globals, &self.fetch, true) {
                     Ok(outcome) => {
                         super::protocol::result(id, super::protocol::outcome(&outcome), modern)
                     }

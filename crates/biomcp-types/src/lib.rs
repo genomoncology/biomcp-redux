@@ -3,6 +3,8 @@
 #![recursion_limit = "256"]
 use biodata::*;
 
+mod research;
+pub use research::{ResearchHit, ResearchEnvelope, ResearchSearchMetadata, ResearchSearch, ResearchFetch};
 mod predictor;
 mod query;
 mod response;
