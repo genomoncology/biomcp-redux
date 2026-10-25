@@ -62,12 +62,12 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.sources
         .push(status::source(Source::Ols, leg.finish(), error));
     out.local = error.and_then(status::local);
-    super::page::record_problem(&mut out, query, Source::Ols, error);
     match reply {
         Ok(Some(record)) => apply(&mut out, query, record),
         Ok(None) => out.status = Status::Absent,
         _ => (),
     }
+    super::page::record_problem(&mut out, query, Source::Ols);
     command.finish(deadline.remaining());
     out
 }

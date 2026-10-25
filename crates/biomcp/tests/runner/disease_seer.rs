@@ -8,9 +8,10 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("disease-seer/stale-valid-rows-retain-rejected-reply-problem", || {
-            failures::stale_rejection().map_err(Into::into)
-        }),
+        Trial::test(
+            "disease-seer/stale-valid-rows-retain-rejected-reply-problem",
+            || failures::stale_rejection().map_err(Into::into),
+        ),
         Trial::test(
             "disease-seer/wrong-site-drops-before-cache-and-corrected-reply-recovers",
             || failures::wrong_site().map_err(Into::into),

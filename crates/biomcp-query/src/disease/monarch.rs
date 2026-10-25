@@ -16,7 +16,6 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.sources
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);
-    super::page::record_problem(&mut out, query, Source::Monarch, error);
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         out.page = Some(page_info(query.section_offset(), returned, page.total));
@@ -40,6 +39,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         );
         out.status = overall(&out, page.total == 0);
     }
+    super::page::record_problem(&mut out, query, Source::Monarch);
     command.finish(deadline.remaining());
     out
 }

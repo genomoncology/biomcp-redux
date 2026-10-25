@@ -52,14 +52,10 @@ pub(super) fn overall(out: &Outcome, absent: bool) -> Status {
 }
 
 /// Every rejected disease get keeps its source reason and records the rejected identity.
-pub(super) fn record_problem(
-    out: &mut Outcome,
-    query: &DiseaseGet,
-    source: biomcp_types::Source,
-    error: Option<biomcp_fetch::RequestError>,
-) {
-    if matches!(error, Some(biomcp_fetch::RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
-    {
+pub(super) fn record_problem(out: &mut Outcome, query: &DiseaseGet, source: biomcp_types::Source) {
+    if out.sources.iter().any(|outcome| {
+        outcome.source == source && outcome.reason == Some(biomcp_types::Reason::BadReply)
+    }) {
         out.problems.push(biomcp_types::Problem {
             source,
             record: Some(query.id().clone()),

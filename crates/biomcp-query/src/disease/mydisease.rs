@@ -22,11 +22,11 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     out.sources
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
-    super::page::record_problem(&mut out, query, Source::MyDisease, error);
     if let Ok(mapped) = reply {
         out.problems = mapped.problems;
         apply(&mut out, query, mapped.value);
     }
+    super::page::record_problem(&mut out, query, Source::MyDisease);
     command.finish(deadline.remaining());
     out
 }
