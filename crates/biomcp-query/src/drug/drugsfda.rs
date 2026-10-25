@@ -62,9 +62,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         };
         if let Some(row) = page.records.first() {
             if is_approvals {
-                if let Err(error) =
-                    approvals::select(cx, query, row, page.metadata.fetched, &mut out)
-                {
+                if let Err(error) = approvals::select(
+                    cx,
+                    query,
+                    row,
+                    page.metadata.fetched,
+                    page.updated,
+                    &mut out,
+                ) {
                     out.status = Status::Failed;
                     out.local = status::local(error);
                 }

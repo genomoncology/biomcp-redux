@@ -121,6 +121,9 @@ fn delivery(
     status: u16,
 ) -> Result<(super::Environment, super::Stub), String> {
     let selector = url.split_once("?search=").ok_or("URL")?.1;
+    // Legacy capture URLs encode spaces as +; the shared GET encoder uses %20.
+    // Preserve the original URL in provenance and identify this as a local delivery.
+    let selector = selector.replace('+', "%20");
     let expected = format!("GET /drug/drugsfda.json?search={selector} HTTP/1.1");
     let stub = super::Stub::for_source_status(
         "api.fda.gov",

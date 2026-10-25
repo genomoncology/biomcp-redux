@@ -31,6 +31,8 @@ pub struct Page {
     pub total: u64,
     /// Actual transport retrieval metadata.
     pub metadata: ReplyMetadata,
+    /// Native dataset last_updated date; distinct from record events and retrieval.
+    pub updated: Option<biodata::PartialDate>,
 }
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
@@ -92,14 +94,17 @@ fn page(
             }
             _ => Ok(()),
         })?;
-    let (records, total) = match response {
-        raw::Response::Success { meta, results } => (results, meta.results.total),
-        raw::Response::Absent { .. } => (Vec::new(), 0),
+    let (records, total, updated) = match response {
+        raw::Response::Success { meta, results } => {
+            (results, meta.results.total, meta.last_updated)
+        }
+        raw::Response::Absent { .. } => (Vec::new(), 0, None),
     };
     Ok(Page {
         records,
         total,
         metadata,
+        updated,
     })
 }
 impl Application {

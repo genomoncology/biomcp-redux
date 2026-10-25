@@ -187,6 +187,9 @@ pub struct DrugApprovals {
     pub identity: DrugHeader,
     /// Native products, filtered only by an explicit product number; independent of submissions.
     pub products: Box<[super::DrugFdaProduct]>,
+    /// Native FDA dataset last_updated date, independent of submission dates and retrieval.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_updated: Option<PartialDate>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub approvals: Section<DrugRecords<super::DrugFdaSubmission>>,
 }

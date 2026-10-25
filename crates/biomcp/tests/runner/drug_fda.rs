@@ -161,7 +161,12 @@ fn approvals() -> Check {
 fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let value = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-    if value != super::mcp::call_with_globals(env, &args, exit >= 2, &[])? {
+    let start = args
+        .iter()
+        .position(|s| matches!(s.as_str(), "get" | "search"))
+        .unwrap_or(0);
+    let (globals, command) = args.split_at(start);
+    if value != super::mcp::call_with_globals(env, command, exit >= 2, globals)? {
         return Err("FDA CLI and MCP differ".into());
     }
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();

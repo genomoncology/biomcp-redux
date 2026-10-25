@@ -10,6 +10,7 @@ pub(super) fn select(
     query: &DrugGet,
     row: &source::Application,
     fetched: i64,
+    updated: Option<biodata::PartialDate>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let products: Box<[_]> = row
@@ -71,6 +72,7 @@ pub(super) fn select(
     out.body = QueryBody::DrugApprovals(Some(DrugApprovals {
         identity: row.header(),
         products,
+        source_updated: updated,
         approvals,
     }));
     Ok(())

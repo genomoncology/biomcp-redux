@@ -50,7 +50,7 @@ pub struct Ingredient {
     /// Native ingredient name, without normalization.
     pub name: Text,
     /// Full native strength wording.
-    pub strength: Text,
+    pub strength: Option<Text>,
 }
 /// An application submission; the publisher supplies no product applicability.
 #[derive(Debug, Deserialize)]
@@ -106,6 +106,7 @@ pub(super) enum Response {
 #[derive(Debug, Deserialize)]
 pub(super) struct Meta {
     pub results: Counts,
+    pub last_updated: Option<PartialDate>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Counts {
