@@ -9,16 +9,7 @@ pub(super) fn project(
     report: maude::Report,
 ) -> Result<(QueryBody, u64, u32), ()> {
     let header = maude::header(&report.record);
-    let snapshot = text(&format!(
-        "maude-{}-{}",
-        report
-            .metadata
-            .identity
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect::<String>(),
-        report.metadata.fetched
-    ))?;
+    let snapshot = snapshot(report.metadata)?;
     let row = report.record;
     let offset = query.section_offset() as usize;
     let limit = query.section_limit() as usize;
@@ -84,34 +75,56 @@ pub(super) fn project(
                 returned,
             )
         }
-        _ => {
-            let card = AdverseEventMaudeCard {
-                header,
-                snapshot,
-                report_number: row.report_number,
-                event_date: row.date_of_event,
-                received: row.date_received,
-                report_date: row.report_date,
-                date_report: row.date_report,
-                date_report_to_fda: row.date_report_to_fda,
-                number_devices_in_event: row.number_devices_in_event,
-                number_patients_in_event: row.number_patients_in_event,
-                device_count: row.devices.len() as u32,
-                narrative_count: row.narrative.len() as u32,
-                source_url: text("https://open.fda.gov/apis/device/event/")?,
-                report_url: text(&format!(
-                    "https://api.fda.gov/device/event.json?search=mdr_report_key%3A%22{}%22&limit=1",
-                    query.id().as_str()
-                ))?,
-                available_sections: vec![
-                    AdverseEventSection::Devices,
-                    AdverseEventSection::Narrative,
-                ]
-                .into(),
-                components: Box::default(),
-            };
-            (QueryBody::AdverseEventMaudeCard(Some(card)), 0, 0)
-        }
+        _ => (
+            QueryBody::AdverseEventMaudeCard(Some(card(query, row, header, snapshot)?)),
+            0,
+            0,
+        ),
     };
     Ok(result)
+}
+
+fn card(
+    query: &AdverseEventGet,
+    row: maude::NativeReport,
+    header: biomcp_types::AdverseEventHeader,
+    snapshot: Text,
+) -> Result<AdverseEventMaudeCard, ()> {
+    let card = AdverseEventMaudeCard {
+        header,
+        snapshot,
+        report_number: row.report_number,
+        event_date: row.date_of_event,
+        received: row.date_received,
+        report_date: row.report_date,
+        date_report: row.date_report,
+        date_report_to_fda: row.date_report_to_fda,
+        number_devices_in_event: row.number_devices_in_event,
+        number_patients_in_event: row.number_patients_in_event,
+        device_count: row.devices.len() as u32,
+        narrative_count: row.narrative.len() as u32,
+        source_url: text("https://open.fda.gov/apis/device/event/")?,
+        report_url: text(&format!(
+            "https://api.fda.gov/device/event.json?search=mdr_report_key%3A%22{}%22&limit=1",
+            query.id().as_str()
+        ))?,
+        available_sections: vec![AdverseEventSection::Devices, AdverseEventSection::Narrative]
+            .into(),
+        components: Box::default(),
+    };
+    Ok(card)
+}
+
+fn snapshot(metadata: biomcp_fetch::ReplyMetadata) -> Result<Text, ()> {
+    let snapshot = text(&format!(
+        "maude-{}-{}",
+        metadata
+            .identity
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>(),
+        metadata.fetched
+    ))?;
+
+    Ok(snapshot)
 }

@@ -51,29 +51,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     };
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
-        for row in &page.items {
-            if let Ok(get) =
-                serde_json::from_value(serde_json::json!({"id":row.id,"source":query.source()}))
-            {
-                out.next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetAdverseEvent(get),
-                        fresh: false,
-                    },
-                ));
-            }
-        }
-        let offset = query.offset().saturating_add(returned);
-        if returned > 0 && u64::from(offset) < page.total {
-            out.next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::SearchAdverseEvent(query.at_offset(offset)),
-                    fresh: false,
-                },
-            ));
-        }
+        navigation(query, &page, &mut out);
         out.page = Some(PageInfo {
             offset: query.offset(),
             returned,
@@ -113,5 +91,32 @@ pub fn unsupported() -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
+    }
+}
+
+fn navigation(query: &AdverseEventSearch, page: &faers::Page, out: &mut Outcome) {
+    let returned = page.items.len() as u32;
+    for row in &page.items {
+        if let Ok(get) =
+            serde_json::from_value(serde_json::json!({"id":row.id,"source":query.source()}))
+        {
+            out.next.push((
+                StepKind::Disambiguate,
+                Action::Run {
+                    request: Request::GetAdverseEvent(get),
+                    fresh: false,
+                },
+            ));
+        }
+    }
+    let offset = query.offset().saturating_add(returned);
+    if returned > 0 && u64::from(offset) < page.total {
+        out.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::SearchAdverseEvent(query.at_offset(offset)),
+                fresh: false,
+            },
+        ));
     }
 }
