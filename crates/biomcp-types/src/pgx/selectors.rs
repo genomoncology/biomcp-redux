@@ -40,8 +40,3 @@ biodata::wire_enum! { described
         Observed => "observed",
     }
 }
-impl Default for PgxAnnotationKind {
-    fn default() -> Self {
-        Self::Clinical
-    }
-}

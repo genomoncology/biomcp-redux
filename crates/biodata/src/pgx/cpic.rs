@@ -52,6 +52,9 @@ pub struct PgxPair {
     pub provisional: bool,
 }
 /// Source-native PgxRecommendation fields; no clinical interpretation.
+/// ```compile_fail
+/// fn interpret(value: biodata::PgxRecommendation) -> biodata::Statement { value }
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -144,6 +147,9 @@ pub struct PgxGuidelineReference {
     pub genes: Box<[PgxGuidelineGene]>,
 }
 /// Source-native PgxDiplotypeResult fields; no clinical interpretation.
+/// ```compile_fail
+/// fn interpret(value: biodata::PgxDiplotypeResult) -> biodata::Statement { value }
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

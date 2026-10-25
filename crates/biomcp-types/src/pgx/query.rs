@@ -1,6 +1,6 @@
 use super::{PgxAnnotationKind, PgxSection, PgxSource};
 use crate::QueryInvalid;
-use biodata::{ClinPgxAccession, GeneSymbol, Text, Curie};
+use biodata::{ClinPgxAccession, GeneSymbol, Text, Curie, PgxDiplotypeExpression};
 use serde::{Deserialize, Serialize};
 fn default_limit() -> u32 {
     5
@@ -86,7 +86,7 @@ struct GetFields {
     section: Option<PgxSection>,
     /// Unchanged declared expression required for the diplotype section only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    diplotype: Option<Text>,
+    diplotype: Option<PgxDiplotypeExpression>,
     /// Exact published CPIC drug key; recommendations only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     drug_id: Option<Curie>,
@@ -134,7 +134,7 @@ impl PgxGet {
         self.0.section
     }
     /// Checked diplotype selector.
-    pub fn diplotype(&self) -> Option<&Text> {
+    pub fn diplotype(&self) -> Option<&PgxDiplotypeExpression> {
         self.0.diplotype.as_ref()
     }
     /// Checked drug_id selector.

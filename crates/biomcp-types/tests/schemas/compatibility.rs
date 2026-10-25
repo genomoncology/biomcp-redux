@@ -145,6 +145,16 @@ fn visit(
         }
     }
     collect(node, path, shapes)?;
+    visit_children(root, node, path, shapes, refs)
+}
+
+fn visit_children(
+    root: &Value,
+    node: &Value,
+    path: &str,
+    shapes: &mut BTreeMap<String, Shape>,
+    refs: &mut BTreeSet<String>,
+) -> Check<()> {
     if let Some(patterns) = node.get("patternProperties") {
         for (pattern, child) in patterns.as_object().ok_or("invalid patternProperties")? {
             let key = pattern.replace('~', "~0").replace('/', "~1");

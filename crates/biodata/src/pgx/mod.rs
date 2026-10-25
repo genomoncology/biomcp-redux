@@ -3,7 +3,7 @@ mod accession;
 mod annotation;
 mod cpic;
 mod detail;
-pub use accession::{ClinPgxAccession, PgxGeneKey};
+pub use accession::{ClinPgxAccession, PgxGeneKey, PgxDiplotypeExpression};
 pub use annotation::*;
 pub use cpic::*;
 pub use detail::*;

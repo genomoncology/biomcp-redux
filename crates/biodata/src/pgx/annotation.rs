@@ -59,7 +59,7 @@ pub struct PgxLocation {
     #[serde(rename = "copyNumber")]
     pub copy_number: Box<str>,
     /// Native `diplotypes`; literal source value.
-    pub diplotypes: Box<[PgxObjectReference]>,
+    pub diplotypes: Box<[PgxUnobserved]>,
     /// Native `displayName`; literal source value.
     #[serde(rename = "displayName")]
     pub display_name: Box<str>,

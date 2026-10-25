@@ -177,7 +177,7 @@ fn native_selectors_and_closed_sets_roundtrip_and_pages_keep_all_context()
     let q: PgxGet = serde_json::from_value(
         json!({"gene":"TPMT","source":"cpic","section":"diplotype","diplotype":"*3A/*1"}),
     )?;
-    assert_eq!(q.diplotype().map(biodata::Text::as_str), Some("*3A/*1"));
+    assert_eq!(q.diplotype().map(biodata::PgxDiplotypeExpression::as_str), Some("*3A/*1"));
     let a: PgxAnnotationGet = serde_json::from_value(json!({"id":"PA1234","source":"clinpgx"}))?;
     assert_eq!(a.id().as_str(), "PA1234");
     assert_eq!(a.source(), PgxSource::Clinpgx);
@@ -260,5 +260,22 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
             json!({"annotationkind":kind,"header":{"gene":"TPMT","source":"clinpgx"},"items":items,"page":{"offset":0,"returned":1,"total":1,"total_kind":"observed"}}),
         )?;
     }
+    Ok(())
+}
+
+#[test]
+fn declared_expressions_and_source_map_keys_keep_their_exact_spelling() -> Result<(),Box<dyn std::error::Error>> {
+    use biodata::{PgxDiplotypeExpression, PgxGeneKey};
+    for spelling in ["*3A/*1"," *2x2/*4 ","*1/*3+*6"] {
+        let v:PgxDiplotypeExpression=spelling.parse()?;
+        assert_eq!(v.as_str(),spelling);
+        assert_eq!(v.to_string(),spelling);
+        assert_eq!(roundtrip::<PgxDiplotypeExpression>(json!(spelling))?,spelling);
+    }
+    assert!(" ".parse::<PgxDiplotypeExpression>().is_err());
+    let upper:PgxGeneKey="TPMT".parse()?;let lower:PgxGeneKey="tpmt".parse()?;
+    assert_ne!(upper,lower);assert_eq!(upper.as_str(),"TPMT");assert_eq!(lower.to_string(),"tpmt");
+    assert!("not a gene key".parse::<PgxGeneKey>().is_err());
+    assert_eq!(roundtrip::<PgxGeneKey>(json!("TPMT"))?,"TPMT");
     Ok(())
 }

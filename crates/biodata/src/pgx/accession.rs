@@ -61,3 +61,22 @@ crate::text_value!(
     "PgxGeneKey",
     r"^[A-Za-z][A-Za-z0-9._/@-]{0,254}$"
 );
+
+/// Unchanged declared source diplotype expression; no allele sorting, phase or score calculation.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PgxDiplotypeExpression(Box<str>);
+impl FromStr for PgxDiplotypeExpression {
+    type Err = crate::Error;
+    fn from_str(value: &str) -> Result<Self,Self::Err> {
+        if value.trim().is_empty() { return Err(crate::Error::TextEmpty); }
+        Ok(Self(value.into()))
+    }
+}
+impl PgxDiplotypeExpression {
+    /// Exact original expression, including surrounding spaces and copy notation.
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+impl fmt::Display for PgxDiplotypeExpression {
+    fn fmt(&self, f:&mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) }
+}
+crate::text_value!(PgxDiplotypeExpression,"PgxDiplotypeExpression",r"\S");
