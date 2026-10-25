@@ -141,7 +141,7 @@ pub(super) fn markdown() -> Check {
     for expected in [
         "GTR000006692.3",
         "Synthetic test",
-        "Synthetic \"quoted\" laboratory",
+        r#"Synthetic "quoted" laboratory"#,
         "2026-10-22",
         "get diagnostic GTR000006692.3 genes",
         "NCBI usage policies",
