@@ -542,13 +542,16 @@ fn boundaries() -> Result<(), String> {
 }
 
 fn boundary_size(value: &serde_json::Value) -> Result<(), String> {
-    use std::io::Write;
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    writeln!(
-        std::io::stdout(),
-        "ADVERSE_BOUNDARY_BYTES={full}/{comparable}"
-    )
-    .map_err(|e| e.to_string())?;
+    // j13144: argument errors 143/143; offline literal queries at most 327/212.
+    let (full_limit, comparable_limit) = if value.get("error").is_some() {
+        (165, 165)
+    } else {
+        (377, 244)
+    };
+    if full > full_limit || comparable > comparable_limit {
+        return Err(format!("literal boundary exceeded measured ceiling: {full}/{comparable}"));
+    }
     Ok(())
 }
