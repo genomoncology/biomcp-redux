@@ -34,7 +34,7 @@ pub use query::{TrialFilter, TrialSearch, TrialSource};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use response::ComponentHealth;
-pub use response::TrialPage;
+pub use response::{TrialPage, TrialConditionResolution};
 pub use response::TrialParameter;
 pub use response::VariantPage;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};

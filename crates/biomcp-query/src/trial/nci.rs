@@ -14,6 +14,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
     let mut out = empty(QueryBody::NciTrialPage(NciTrialPage {
         items: Box::default(),
         request: Box::default(),
+        condition_resolution: None,
         attribution: ATTRIBUTION.into(),
     }));
     if q.nci_disease_invalid() {
@@ -35,9 +36,16 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
         return out;
     }
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
+    let Some(condition) = super::condition::resolve(cx, q, &mut out, &mut deadline) else {
+        command.finish(deadline.remaining());
+        return out;
+    };
     let leg = cx.fetch.leg(&nci::SPEC, deadline).fresh(cx.fresh);
-    let params = nci::parameters(q);
+    let mut params = nci::parameters(q);
+    if let Some(condition) = condition {
+        params.insert(2, ("diseases.nci_thesaurus_concept_id".into(), condition.to_string()));
+    }
     let result = nci::search(&leg, &params);
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Nci, leg.finish(), error);
@@ -83,7 +91,8 @@ fn apply(
 ) {
     source.count = Some(page.total);
     source.fetched = Some(page.data.len() as u32);
-    out.status = if source.state == biomcp_types::SourceState::Stale {
+    out.status = if source.state == biomcp_types::SourceState::Stale
+        || out.sources.iter().any(|s| s.state != biomcp_types::SourceState::Ok) {
         Status::Partial
     } else {
         Status::Complete

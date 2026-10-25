@@ -54,11 +54,14 @@ pub struct NciTrialPage {
     pub items: Box<[NciTrial]>,
     /// Exact source parameters, excluding credentials.
     pub request: Box<[crate::TrialParameter]>,
+    /// Exact condition identity and source-provided mapping, absent for literal text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub condition_resolution: Option<crate::TrialConditionResolution>,
     /// Publisher attribution.
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for NciTrialPage {
-    const SCHEMA: &'static str = "biomcp.nci_trial_page/2";
+    const SCHEMA: &'static str = "biomcp.nci_trial_page/3";
     type Query = TrialSearch;
 }
 /// Independent exact NCI answers in caller order.

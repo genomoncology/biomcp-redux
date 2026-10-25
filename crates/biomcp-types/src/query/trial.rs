@@ -51,6 +51,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     condition: Option<Text>,
+    /// Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
+    #[serde(default, deserialize_with = "super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "biodata::Curie"))]
+    condition_id: Option<biodata::Curie>,
     /// Literal source intervention text.
     #[serde(
         default,
@@ -231,6 +235,11 @@ impl TryFrom<Fields> for TrialSearch {
             f.id = Some(id);
             f.query = None;
         }
+        if f.condition_id.as_ref().is_some_and(|id| {
+            f.condition.is_some() || f.keyword.is_some() || !valid_condition_id(id, f.source)
+        }) {
+            return Err(QueryInvalid);
+        }
         if !(1..=100).contains(&f.limit)
             || f.age.is_some_and(|v| v > 150)
             || f.updated_since
@@ -285,6 +294,10 @@ impl TrialSearch {
     /// Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
     pub fn condition(&self) -> Option<&Text> {
         self.0.condition.as_ref()
+    }
+    /// Exact caller-selected concept, without a source-name search.
+    pub fn condition_id(&self) -> Option<&biodata::Curie> {
+        self.0.condition_id.as_ref()
     }
     /// Literal source intervention text.
     pub fn intervention(&self) -> Option<&Text> {
@@ -543,5 +556,15 @@ impl TrialSearch {
         ]
         .into_iter()
         .find_map(|(present, option)| present.then_some(option))
+    }
+}
+
+fn valid_condition_id(id: &biodata::Curie, source: TrialSource) -> bool {
+    let value = id.to_string();
+    let Some((namespace, local)) = value.split_once(':') else { return false; };
+    match namespace {
+        "MONDO" | "DOID" => !local.is_empty() && local.bytes().all(|v| v.is_ascii_digit()),
+        "NCIT" => source == TrialSource::Nci && local.strip_prefix('C').is_some_and(|v| !v.is_empty() && v.bytes().all(|v| v.is_ascii_digit())),
+        _ => false,
     }
 }

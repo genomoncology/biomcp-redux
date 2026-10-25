@@ -73,6 +73,8 @@ pub use variant_normalize::{
     NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
 };
 mod trial;
+mod trial_condition;
+pub use trial_condition::TrialConditionResolution;
 pub use trial::{TrialPage, TrialParameter};
 
 mod trial_get;

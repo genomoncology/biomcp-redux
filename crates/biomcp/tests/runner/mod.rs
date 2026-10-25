@@ -62,6 +62,7 @@ mod semantic_tables;
 mod source_controls;
 mod source_terms;
 mod supplement_tables;
+mod trial_condition;
 mod trial_documents;
 mod trial_get;
 mod trial_sites;
@@ -298,6 +299,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(nci::trials());
     trials.extend(clinvar_key::trials());
     trials.extend(nci_walk::trials());
+    trials.extend(trial_condition::trials());
     trials.extend(trial_documents::trials());
     trials.extend(trial_sites::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {

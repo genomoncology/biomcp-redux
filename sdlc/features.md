@@ -40,7 +40,7 @@ article-pdf: Inspect publisher PDF links and download only to an explicit destin
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
 
 variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair. Cases: `tests/cases/variant/*.yaml`, `crates/biomcp/tests/runner/variant.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
-trial-search: Search the registry with explicit native filters, exact totals, opaque pages and caller-controlled wider alternatives for short searches. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`, `crates/biomcp/tests/runner/trial_wider.rs`.
+trial-search: Search the registry with explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages and caller-controlled wider alternatives for short searches. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`, `crates/biomcp/tests/runner/trial_wider.rs`, `crates/biomcp/tests/runner/trial_condition.rs`.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations. Cases: `tests/cases/trial/get/*.yaml`, `crates/biomcp/tests/runner/trial_get.rs`.
 
 trial-nci: Explicit NCI trial search and exact retrieval require the user key and preserve native fields without registry fallback. Cases: `tests/cases/trial/nci-*.yaml`, `crates/biomcp/tests/runner/nci.rs`, `crates/biomcp/tests/runner/nci_walk.rs`.
