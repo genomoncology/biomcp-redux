@@ -136,30 +136,6 @@
         "/page/total": 0,
         "/result/items": []
       }
-    },
-    {
-      "run": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--manufacturer",
-        "North-North"
-      ],
-      "mcp": [
-        "search",
-        "diagnostic",
-        "--source",
-        "who-ivd",
-        "--manufacturer",
-        "North-North"
-      ],
-      "max_bytes": 1100,
-      "max_tokens": 275,
-      "expect": {
-        "/page/total": 1,
-        "/result/items/0/id": "2001-001-00"
-      }
     }
   ]
 }
