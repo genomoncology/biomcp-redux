@@ -23,12 +23,9 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
     super::page::record_problem(&mut out, query, Source::MyDisease, error);
-    match reply {
-        Ok(mapped) => {
-            out.problems = mapped.problems;
-            apply(&mut out, query, mapped.value);
-        }
-        _ => (),
+    if let Ok(mapped) = reply {
+        out.problems = mapped.problems;
+        apply(&mut out, query, mapped.value);
     }
     command.finish(deadline.remaining());
     out
