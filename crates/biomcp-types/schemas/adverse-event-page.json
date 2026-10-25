@@ -58,6 +58,17 @@
           },
           "type": "array"
         },
+        "fetched": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original retrieval date belonging to this reply, absent for undated legacy recordings."
+        },
         "items": {
           "description": "Native ordered report candidates.",
           "items": {
@@ -65,12 +76,28 @@
           },
           "type": "array"
         },
+        "source_query": {
+          "description": "Exact literal provider expression; reaction selectors use phrase match.",
+          "type": "string"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The publisher last_updated date, separate from retrieval."
+        },
         "unit": {
           "$ref": "#/$defs/ReportUnit",
           "description": "Explicit reports unit for envelope page totals."
         }
       },
       "required": [
+        "source_query",
         "items",
         "unit",
         "components"
@@ -732,7 +759,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.adverse_event_page/1",
+  "$id": "biomcp.adverse_event_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -778,7 +805,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.adverse_event_page/1",
+      "const": "biomcp.adverse_event_page/2",
       "type": "string"
     },
     "sources": {

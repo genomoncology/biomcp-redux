@@ -1,5 +1,4 @@
 mod adverse_event_registry;
-mod faers_search;
 mod article_save;
 mod assertions;
 mod clinvar_key;
@@ -26,6 +25,7 @@ mod drug_next;
 mod drug_registry;
 mod drug_retirements;
 mod evidence;
+mod faers_search;
 mod gene_tables;
 mod held_proxy;
 mod help_examples;

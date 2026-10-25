@@ -1,5 +1,59 @@
 {
   "$defs": {
+    "AdverseEventSection": {
+      "description": "One source-owned section; no all or reporter section.",
+      "enum": [
+        "drugs",
+        "reactions",
+        "unii",
+        "rxcui",
+        "product-ndc",
+        "package-ndc",
+        "spl-id",
+        "spl-set-id",
+        "application-number",
+        "devices",
+        "narrative"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Independent native drug rows.",
+        " Independent native reaction rows.",
+        " Native UNII strings.",
+        " Native RxCUI strings.",
+        " Native product NDC strings.",
+        " Native package NDC strings.",
+        " Native SPL IDs.",
+        " Native SPL set IDs.",
+        " Native application numbers.",
+        " Native device rows.",
+        " Complete native narrative rows."
+      ]
+    },
+    "AdverseEventSerious": {
+      "description": "Report-level seriousness filter, independent of reaction outcome.",
+      "enum": [
+        "death",
+        "hospitalization"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native report death flag.",
+        " Native report hospitalization flag."
+      ]
+    },
+    "AdverseEventSource": {
+      "description": "An explicit source; never probe the other family.",
+      "enum": [
+        "faers",
+        "maude"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Drug event reports.",
+        " Device event reports."
+      ]
+    },
     "ArticleInput": {
       "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
@@ -301,6 +355,10 @@
       ],
       "type": "string"
     },
+    "ReportId": {
+      "pattern": "^[0-9]+$",
+      "type": "string"
+    },
     "RetractionFilter": {
       "description": "Native retraction inclusion policy.",
       "enum": [
@@ -463,10 +521,155 @@
       ]
     }
   },
-  "$id": "biodata.request/4",
+  "$id": "biodata.request/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Search source-native adverse event reports.",
+      "properties": {
+        "command": {
+          "const": "search_adverse_event",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Native reports per page; default awaits adapter budget measurement.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native report offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reaction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FAERS MedDRA term phrase match, not exact equality."
+        },
+        "received_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive first FDA receipt lower bound, YYYY-MM-DD."
+        },
+        "received_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
+        },
+        "serious": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AdverseEventSerious"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FAERS report flag, never a reaction outcome."
+        },
+        "source": {
+          "$ref": "#/$defs/AdverseEventSource",
+          "default": "faers",
+          "description": "FAERS by default; no source fallback."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal drug text or MAUDE device generic-name phrase.",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "text"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read one exact source report, without source probing.",
+      "properties": {
+        "command": {
+          "const": "get_adverse_event",
+          "type": "string"
+        },
+        "drug_index": {
+          "description": "Absolute source-array index; required only for identifier sections.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/ReportId",
+          "description": "Published report ID with no source prefix.",
+          "x-positional": 0
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AdverseEventSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One source-owned section; omitted means card only.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Whole source rows per section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Offset within the selected native section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/AdverseEventSource",
+          "default": "faers",
+          "description": "FAERS by default; MAUDE is explicit."
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Discover one source-native disease candidate page.",

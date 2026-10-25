@@ -141,7 +141,10 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchArticle(_) => "search",
         }
         .into(),
-        if matches!(request, Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_)) {
+        if matches!(
+            request,
+            Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_)
+        ) {
             "adverse-event"
         } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
             "disease"

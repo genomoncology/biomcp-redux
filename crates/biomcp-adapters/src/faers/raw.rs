@@ -34,8 +34,22 @@ pub(super) struct Absence {
 impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {
         match self {
-            Self::Page {meta, results} if meta.results.limit > 0 && results.len() as u64 == meta.results.total.saturating_sub(meta.results.skip.into()).min(meta.results.limit.into()) => Ok(()),
-            Self::Absent {error} if error.code == "NOT_FOUND" && error.message == "No matches found!" => Ok(()),
+            Self::Page { meta, results }
+                if meta.results.limit > 0
+                    && results.len() as u64
+                        == meta
+                            .results
+                            .total
+                            .saturating_sub(meta.results.skip.into())
+                            .min(meta.results.limit.into()) =>
+            {
+                Ok(())
+            }
+            Self::Absent { error }
+                if error.code == "NOT_FOUND" && error.message == "No matches found!" =>
+            {
+                Ok(())
+            }
             _ => Err(BadReply),
         }
     }

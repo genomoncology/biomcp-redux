@@ -5,15 +5,40 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod policy;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut cases = vec![Trial::test("adverse-event-search/native-order-and-next", || {
-        navigation().map_err(Into::into)
-    })];
+    let mut cases = vec![Trial::test(
+        "adverse-event-search/native-order-and-next",
+        || navigation().map_err(Into::into),
+    )];
     for (name, flags, suffix) in [
-        ("from", vec!["--received-from", "2024-01-01"], " AND receivedate:[20240101 TO *]"),
-        ("to", vec!["--received-to", "2024-12-31"], " AND receivedate:[* TO 20241231]"),
-        ("combined", vec!["--reaction", "Synthetic reaction", "--serious", "death", "--received-from", "2024-01-01", "--received-to", "2024-12-31"], " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]"),
+        (
+            "from",
+            vec!["--received-from", "2024-01-01"],
+            " AND receivedate:[20240101 TO *]",
+        ),
+        (
+            "to",
+            vec!["--received-to", "2024-12-31"],
+            " AND receivedate:[* TO 20241231]",
+        ),
+        (
+            "combined",
+            vec![
+                "--reaction",
+                "Synthetic reaction",
+                "--serious",
+                "death",
+                "--received-from",
+                "2024-01-01",
+                "--received-to",
+                "2024-12-31",
+            ],
+            " AND patient.reaction.reactionmeddrapt:\"Synthetic reaction\" AND seriousnessdeath:1 AND receivedate:[20240101 TO 20241231]",
+        ),
     ] {
-        cases.push(Trial::test(format!("adverse-event-search/synthetic-{name}"), move || selectors(&flags, suffix).map_err(Into::into)));
+        cases.push(Trial::test(
+            format!("adverse-event-search/synthetic-{name}"),
+            move || selectors(&flags, suffix).map_err(Into::into),
+        ));
     }
     cases.extend(policy::trials());
     cases
@@ -22,23 +47,41 @@ fn expression() -> &'static str {
     "(patient.drug.openfda.generic_name:\"Synthetic \\\"A\\\\B\" OR patient.drug.openfda.brand_name:\"Synthetic \\\"A\\\\B\" OR patient.drug.medicinalproduct:\"Synthetic \\\"A\\\\B\")"
 }
 fn args() -> Vec<String> {
-    ["search", "adverse-event", "Synthetic \"A\\B"].map(str::to_owned).to_vec()
+    ["search", "adverse-event", "Synthetic \"A\\B"]
+        .map(str::to_owned)
+        .to_vec()
 }
 fn encoded(value: &str) -> String {
-    value.bytes().map(|b| if b.is_ascii_alphanumeric() || b"-._~".contains(&b) { char::from(b).to_string() } else { format!("%{b:02X}") }).collect()
+    value
+        .bytes()
+        .map(|b| {
+            if b.is_ascii_alphanumeric() || b"-._~".contains(&b) {
+                char::from(b).to_string()
+            } else {
+                format!("%{b:02X}")
+            }
+        })
+        .collect()
 }
 fn body(limit: u32, offset: u32) -> Value {
     let rows: Vec<_> = (0..limit).map(|n| json!({"safetyreportid":(100+offset+n).to_string(),"safetyreportversion":"1","receivedate":"20240102","serious":"1","patient":{"drug":[{"medicinalproduct":"Synthetic A"},{"medicinalproduct":"Synthetic B"}],"reaction":[{"reactionmeddrapt":"Synthetic term"}]}})).collect();
     json!({"meta":{"last_updated":"2024-09-01","results":{"skip":offset,"limit":limit,"total":20}},"results":rows})
 }
 fn setup(query: &str, limit: u32) -> Result<(Environment, Stub), String> {
-    let expected = format!("GET /drug/event.json?search={}&limit={limit}&skip=0&sort=receivedate%3Adesc HTTP/1.1", encoded(query));
-    let stub = Stub::for_sources(&["api.fda.gov"], |_| "application/json", move |request| {
-        if request.lines().next() != Some(expected.as_str()) {
-            return Err(format!("wrong literal selector: {request}"));
-        }
-        Ok(body(limit, 0).to_string())
-    })?;
+    let expected = format!(
+        "GET /drug/event.json?search={}&limit={limit}&skip=0&sort=receivedate%3Adesc HTTP/1.1",
+        encoded(query)
+    );
+    let stub = Stub::for_sources(
+        &["api.fda.gov"],
+        |_| "application/json",
+        move |request| {
+            if request.lines().next() != Some(expected.as_str()) {
+                return Err(format!("wrong literal selector: {request}"));
+            }
+            Ok(body(limit, 0).to_string())
+        },
+    )?;
     let env = environment(&stub)?;
     Ok((env, stub))
 }
@@ -46,13 +89,19 @@ fn environment(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)})).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
     Ok(env)
 }
 fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let cli = invoke(env, args.clone(), exit)?;
-    let mcp = super::mcp::invoke(env, &[], &args)?.value;
-    if cli != mcp { return Err("CLI/MCP report search differs".into()); }
+    super::schema::Registry::embedded()?.validate(&cli, &args, true)?;
+    let start = args.iter().position(|s| s == "search").unwrap_or(0);
+    let (globals, command) = args.split_at(start);
+    let mcp = super::mcp::call_with_globals(env, command, exit >= 2, globals)?;
+    if cli != mcp {
+        return Err("CLI/MCP report search differs".into());
+    }
     Ok(cli)
 }
 fn selectors(flags: &[&str], suffix: &str) -> Check {
@@ -61,10 +110,14 @@ fn selectors(flags: &[&str], suffix: &str) -> Check {
     let mut words = args();
     words.extend(flags.iter().map(|v| (*v).to_owned()));
     let value = both(&env, words, 0)?;
-    if value.pointer("/result/source_query") != Some(&json!(expected)) || value.pointer("/page/total") != Some(&json!(20)) {
+    if value.pointer("/result/source_query") != Some(&json!(expected))
+        || value.pointer("/page/total") != Some(&json!(20))
+    {
         return Err(format!("synthetic selector changed: {value}"));
     }
-    if stub.finish()?.len() != 1 { return Err("warm search performed HTTP".into()); }
+    if stub.finish()?.len() != 1 {
+        return Err("warm search performed HTTP".into());
+    }
     Ok(())
 }
 fn navigation() -> Check {
@@ -73,26 +126,69 @@ fn navigation() -> Check {
     words.extend(["--limit".into(), "7".into()]);
     let value = both(&env, words.clone(), 0)?;
     words.extend(["--source".into(), "faers".into()]);
-    if invoke(&env, words, 0)? != value { return Err("default FAERS differs from explicit source".into()); }
-    let next = value.get("next").and_then(Value::as_array).ok_or("missing next")?;
-    if next.len() != 8 || value.pointer("/result/source_updated") != Some(&json!("2024-09-01")) || value.pointer("/result/items/0/first_received") != Some(&json!("20240102")) {
-        return Err(format!("report headers, dates or candidate gets changed: {value}"));
+    if invoke(&env, words, 0)? != value {
+        return Err("default FAERS differs from explicit source".into());
+    }
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("missing next")?;
+    if next.len() != 8
+        || value.pointer("/result/source_updated") != Some(&json!("2024-09-01"))
+        || value.pointer("/result/items/0/first_received") != Some(&json!("20240102"))
+    {
+        return Err(format!(
+            "report headers, dates or candidate gets changed: {value}"
+        ));
     }
     for (n, step) in next.iter().take(7).enumerate() {
-        let args = step.get("args").and_then(Value::as_array).ok_or("get args")?;
-        if args.get(2) != Some(&json!((100+n).to_string())) || step.get("kind") != Some(&json!("disambiguate")) {
+        let args = step
+            .get("args")
+            .and_then(Value::as_array)
+            .ok_or("get args")?;
+        if args.get(2) != Some(&json!((100 + n).to_string()))
+            || step.get("kind") != Some(&json!("disambiguate"))
+        {
             return Err("candidate get lost native order/identity".into());
         }
     }
-    let page = next.last().and_then(|s| s.get("args")).and_then(Value::as_array).ok_or("page args")?;
-    if !page.windows(2).any(|v| v == [json!("--offset"),json!("7")]) || !page.contains(&json!("Synthetic \"A\\B")) {
+    let page = next
+        .last()
+        .and_then(|s| s.get("args"))
+        .and_then(Value::as_array)
+        .ok_or("page args")?;
+    if !page
+        .windows(2)
+        .any(|v| v == [json!("--offset"), json!("7")])
+        || !page.contains(&json!("Synthetic \"A\\B"))
+    {
         return Err("page action lost selector".into());
     }
-    let md = env.command(env!("CARGO_BIN_EXE_biomcp"), &["--format".into(),"md".into(),"search".into(),"adverse-event".into(),"Synthetic \"A\\B".into(),"--limit".into(),"7".into()]).output().map_err(|e| e.to_string())?;
+    let md = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &[
+                "--format".into(),
+                "md".into(),
+                "search".into(),
+                "adverse-event".into(),
+                "Synthetic \"A\\B".into(),
+                "--limit".into(),
+                "7".into(),
+            ],
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
     let text = String::from_utf8(md.stdout).map_err(|e| e.to_string())?;
-    if !md.status.success() || !text.contains("Source query") || !text.contains("2024-09-01") || !text.contains("biomcp get adverse-event 100") {
+    if !md.status.success()
+        || !text.contains("Source query")
+        || !text.contains("2024-09-01")
+        || !text.contains("biomcp get adverse-event 100")
+    {
         return Err(format!("Markdown lost report facts or actions: {text}"));
     }
-    if stub.finish()?.len() != 1 { return Err("warm report search reached HTTP".into()); }
+    if stub.finish()?.len() != 1 {
+        return Err("warm report search reached HTTP".into());
+    }
     Ok(())
 }
