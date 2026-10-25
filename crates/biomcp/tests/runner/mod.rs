@@ -10,6 +10,7 @@ mod disease_registry;
 mod disease_seer;
 mod drug_civic;
 mod drug_civic_fixtures;
+mod drug_ddinter;
 mod drug_ema;
 mod drug_label;
 mod drug_mychem;
@@ -316,6 +317,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(drug_registry::trials());
     trials.extend(drug_civic::trials());
     trials.extend(drug_ema::trials());
+    trials.extend(drug_ddinter::trials());
     trials.extend(drug_mychem::trials());
     trials.extend(drug_native::trials());
     trials.extend(drug_native_identity::trials());

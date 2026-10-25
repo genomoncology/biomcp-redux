@@ -1,11 +1,5 @@
 //! Complete-set publication is a public transport concurrency and parser contract.
-#![expect(
-    clippy::unwrap_used,
-    clippy::disallowed_methods,
-    clippy::disallowed_types,
-    reason = "Contract fixtures fail when local setup or worker execution fails"
-)]
-mod support;
+use super::support;
 use biomcp_fetch::{
     BundlePart, BundleSet, Fetch, FetchConfig, Find, Freshness, KeyKind, KeyUse, Keys, Quota, Rate,
     Row, RowFormat, SourceKey,

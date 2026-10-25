@@ -1,5 +1,6 @@
 //! Literal native drug discovery and exact selected source identities.
 mod civic;
+mod ddinter;
 mod ema;
 mod openfda_label;
 use crate::{Action, Ctx, Outcome, status};
@@ -21,6 +22,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     }
     if query.source() == DrugSource::Ema {
         return ema::search(cx, query);
+    }
+    if query.source() == DrugSource::Ddinter {
+        return ddinter::search(cx, query);
     }
     let mut out = empty(QueryBody::DrugPage(DrugPage {
         items: Box::default(),
@@ -57,6 +61,9 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     }
     if query.source() == DrugSource::Ema {
         return ema::get(cx, query);
+    }
+    if query.source() == DrugSource::Ddinter {
+        return ddinter::get(cx, query);
     }
     let xrefs = matches!(query.sections(), [biomcp_types::DrugSection::Xrefs]);
     let mut out = empty(if xrefs {

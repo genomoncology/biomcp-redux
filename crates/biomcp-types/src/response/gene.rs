@@ -93,6 +93,8 @@ pub enum QueryBody {
     DrugLabel(Option<crate::DrugLabel>),
     /// Exact EMA record and native regulator fields from one local snapshot.
     DrugRegulatory(Option<crate::DrugRegulatory>),
+    /// Source-local native drug interaction partners.
+    DrugInteractions(Option<crate::DrugInteractions>),
     /// An exact selected document's bounded native link page.
     DrugXrefs(Option<crate::DrugXrefs>),
     /// Source-native drug target and mechanism page.

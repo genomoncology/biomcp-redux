@@ -1,0 +1,124 @@
+use super::{NativeRow, SPEC, identity, partners};
+use biodata::{DrugId, Text};
+use biomcp_fetch::{
+    BundleInfo, BundlePart, BundleSet, Fetch, Find, Freshness, KeyKind, Leg, RequestError,
+    RowFormat,
+};
+use biomcp_types::{
+    DrugCard, DrugHeader, DrugInteractions, DrugRecords, DrugSection, Section, Source,
+};
+use std::marker::PhantomData;
+macro_rules! part {
+    ($code:literal) => {
+        BundlePart {
+            name: $code,
+            path: concat!(
+                "/static/media/download/ddinter_downloads_code_",
+                $code,
+                ".csv"
+            ),
+        }
+    };
+}
+pub(super) const PARTS: &[BundlePart] = &[
+    part!("A"),
+    part!("B"),
+    part!("D"),
+    part!("H"),
+    part!("L"),
+    part!("P"),
+    part!("R"),
+    part!("V"),
+];
+const PAIRS: BundleSet<NativeRow> = BundleSet {
+    spec: &SPEC,
+    name: "ddinter",
+    parts: PARTS,
+    format: RowFormat::Csv { banner_lines: 0 },
+    fresh: Freshness::Days(7),
+    row: PhantomData,
+};
+/// Synchronize the eight validated partitions as one atomic local replacement.
+pub fn sync(fetch: &Fetch) -> Result<BundleInfo, RequestError> {
+    fetch.sync_set(&PAIRS)
+}
+/// Discover literal native candidates from stored rows; never synchronize on a read.
+pub fn search(leg: &Leg<'_>, query: &str) -> Result<Vec<DrugHeader>, RequestError> {
+    let (rows, _) = leg.stored_set_rows(&PAIRS, Find::Words(query))?;
+    Ok(super::candidates(rows, query))
+}
+fn exact(leg: &Leg<'_>, id: &DrugId) -> Result<(Vec<super::PartRow>, BundleInfo), RequestError> {
+    let id = id.to_string();
+    let (rows, info) = leg.stored_set_rows(&PAIRS, Find::Exact(KeyKind::Id, &id))?;
+    Ok((
+        rows.into_iter()
+            .filter(|r| r.value.id_a() == id || r.value.id_b() == id)
+            .collect(),
+        info,
+    ))
+}
+fn selected(rows: &[super::PartRow], id: &str) -> Option<DrugHeader> {
+    rows.iter()
+        .flat_map(|row| identity::identities(&row.value))
+        .find(|(key, _)| *key == id)
+        .and_then(|(key, name)| identity::identity(key, name).ok())
+        .map(identity::header)
+}
+/// Return only the exact selected native identity and available source section.
+pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError> {
+    let (rows, info) = exact(leg, id)?;
+    Ok(selected(&rows, &id.to_string()).map(|header| DrugCard {
+        header,
+        alternate_names: Box::default(),
+        cross_references: Box::default(),
+        parents: Box::default(),
+        products: Box::default(),
+        formulations: Box::default(),
+        version: info
+            .content_revision
+            .as_deref()
+            .and_then(|v| Text::new(v).ok()),
+        updated: None,
+        retrieved: info.retrieved_at.and_then(crate::received_date),
+        available_sections: vec![DrugSection::Interactions].into(),
+        next: Box::default(),
+    }))
+}
+/// Page exact native partners, preserving the source order and every duplicate origin.
+pub fn interactions(
+    leg: &Leg<'_>,
+    id: &DrugId,
+    limit: u32,
+    offset: u32,
+) -> Result<Option<DrugInteractions>, RequestError> {
+    let (rows, info) = exact(leg, id)?;
+    let Some(identity) = selected(&rows, &id.to_string()) else {
+        return Ok(None);
+    };
+    let pairs = partners(rows, &id.to_string());
+    let total = pairs.len() as u64;
+    let records = pairs
+        .into_iter()
+        .skip(offset as usize)
+        .take(limit as usize)
+        .map(|pair| pair.claim(info.content_revision.as_deref()))
+        .collect::<Result<Box<[_]>, _>>()
+        .map_err(|_| biomcp_fetch::CacheError::Database)?;
+    Ok(Some(DrugInteractions {
+        identity,
+        interactions: Section::Data {
+            source: Source::Ddinter,
+            data: DrugRecords {
+                records,
+                offset,
+                total: Some(total),
+                truncated: None,
+                version: info
+                    .content_revision
+                    .as_deref()
+                    .and_then(|v| Text::new(v).ok()),
+                retrieved: info.retrieved_at.and_then(crate::received_date),
+            },
+        },
+    }))
+}
