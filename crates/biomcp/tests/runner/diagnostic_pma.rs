@@ -107,13 +107,7 @@ fn boundary(mode: &'static str) -> Check {
             return Err(format!("incomplete: {value}"));
         }
         if matches!(mode, "wrong-base" | "wrong-supplement") {
-            use std::io::Write;
-            writeln!(std::io::stdout(),"PMA {mode}: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len()).map_err(|e|e.to_string())?;
-        }
-        if matches!(mode, "wrong-base" | "wrong-supplement")
-            && value.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
-        {
-            return Err(format!("identity problem missing: {value}"));
+            identity_problem(mode, &value)?;
         }
         if mode == "disabled" && value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err(format!("policy: {value}"));
@@ -125,6 +119,15 @@ fn boundary(mode: &'static str) -> Check {
             "bad reply was cached or disabled source fetched: {}",
             requests.len()
         ));
+    }
+    Ok(())
+}
+
+fn identity_problem(mode: &str, value: &Value) -> Check {
+    let baseline: usize = if mode == "wrong-base" { 405 } else { 432 };
+    if value.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
+        || serde_json::to_vec(value).map_err(|e|e.to_string())?.len() > (baseline * 115).div_ceil(100) {
+        return Err(format!("identity problem missing or exceeds measured ceiling: {value}"));
     }
     Ok(())
 }

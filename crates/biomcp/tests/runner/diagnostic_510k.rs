@@ -105,9 +105,8 @@ fn run(mode: &'static str) -> Result<(), String> {
 
 fn validate(mode: &str, v: &Value) -> Result<(), String> {
     let full = serde_json::to_vec(v).map_err(|e| e.to_string())?.len() + 1;
-    if mode == "wrong-status" {
-        use std::io::Write;
-        writeln!(std::io::stdout(),"510k HTTP 200 error: {full}").map_err(|e|e.to_string())?;
+    if mode == "wrong-status" && full > 354 {
+        return Err("HTTP 200 error exceeds its measured ceiling".into());
     }
     if mode == "card" && full > 873 || mode == "absent" && full > 325 {
         return Err(format!(

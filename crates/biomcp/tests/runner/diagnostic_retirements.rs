@@ -77,17 +77,39 @@ fn boundaries() -> Result<(), String> {
         "get diagnostic P150013 --source fda-510k",
         "get diagnostic P150013 --source fda-cdx",
     ] {
-        check(words,"expected a supported command with checked arguments","usage.arguments")?;
+        check(
+            words,
+            "expected a supported command with checked arguments",
+            "usage.arguments",
+        )?;
     }
     Ok(())
 }
 const CASES: &[(&str, &str)] = &[
-    ("get diagnostic GTR000006692.3 --source gtr --section all", "name one diagnostic section per request"),
-    ("get diagnostic GTR000006692.3 --source gtr --full", "name one diagnostic section per request"),
-    ("search diagnostic --source who-ivd --marker HPV", "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd"),
-    ("get diagnostic GTR000006692.3", "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get"),
-    ("--json get diagnostic GTR000006692.3 --source gtr", "use: --format json"),
-    ("get diagnostic GTR000006692.3 --source gtr --no-cache", "use: --fresh"),
+    (
+        "get diagnostic GTR000006692.3 --source gtr --section all",
+        "name one diagnostic section per request",
+    ),
+    (
+        "get diagnostic GTR000006692.3 --source gtr --full",
+        "name one diagnostic section per request",
+    ),
+    (
+        "search diagnostic --source who-ivd --marker HPV",
+        "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd",
+    ),
+    (
+        "get diagnostic GTR000006692.3",
+        "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
+    ),
+    (
+        "--json get diagnostic GTR000006692.3 --source gtr",
+        "use: --format json",
+    ),
+    (
+        "get diagnostic GTR000006692.3 --source gtr --no-cache",
+        "use: --fresh to bypass cached replies",
+    ),
     (
         "search diagnostic --gene BRCA1",
         "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",

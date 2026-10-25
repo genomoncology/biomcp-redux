@@ -88,15 +88,23 @@ fn stale(source: &str) -> Result<(), String> {
         {
             return Err(format!("stale bundle lost data or named sync: {value}"));
         }
-        let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-        writeln!(std::io::stdout(), "{source} stale fresh={fresh}: {bytes}")
-            .map_err(|e| e.to_string())?;
+        bounded(source, &value)?;
         if mcp::call_with_globals(&env, &command, false, &globals)? != value {
             return Err("stale CLI/MCP mismatch".into());
         }
     }
     if listener.accept().is_ok() {
         return Err("stale read opened source connection".into());
+    }
+    Ok(())
+}
+
+fn bounded(source: &str, value: &Value) -> Result<(), String> {
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let baseline: usize = match source { "gtr" => 1559, "who-ivd" => 2576, _ => 1997 };
+    writeln!(std::io::stdout(), "{source} stale: {bytes}").map_err(|e|e.to_string())?;
+    if bytes > (baseline * 115).div_ceil(100) {
+        return Err(format!("{source} stale output exceeds its measured ceiling"));
     }
     Ok(())
 }
