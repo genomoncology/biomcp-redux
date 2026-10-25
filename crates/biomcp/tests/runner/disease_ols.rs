@@ -401,11 +401,11 @@ fn literal_zero() -> Result<(), String> {
     )?;
     replay(
         &directory,
-        json!([{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]},"max_bytes":4096}]),
+        json!([{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]},"max_bytes":463}]),
     )?;
     replay(
         &exact_dir,
-        json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":4096}]),
+        json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":1087}]),
     )?;
     let requests = stub.finish()?;
     if !matches!(requests.as_slice(), [(_, search), (_, get)] if search.contains("/search?") && get.contains("/terms?obo_id="))

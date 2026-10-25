@@ -30,6 +30,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let mut source = None;
     let mut section = None;
     let mut option = None;
+    let mut shared_option = None;
     let mut literal = false;
     let mut args = args.iter();
     while let Some(word) = args.next() {
@@ -45,6 +46,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         let (flag, inline) = word
             .split_once('=')
             .map_or((word, None), |(a, b)| (a, Some(b)));
+        if matches!(flag, "-j" | "--json" | "--no-cache") {
+            shared_option = super::find(FLAGS, flag);
+        }
         let disease = matches!(positional.as_slice(), ["search" | "get", "disease", ..]);
         if disease && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
@@ -52,7 +56,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         if disease && flag == "--name" {
             option = Some(ErrorMessage::DiseaseName);
         }
-        if flag == "--name" || super::takes_value(flag, &positional).unwrap_or(false) {
+        if matches!(flag, "--name" | "--section")
+            || super::takes_value(flag, &positional).unwrap_or(false)
+        {
             let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
             match flag {
                 "--source" => source = value,
@@ -60,6 +66,10 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
                 _ => (),
             }
         }
+    }
+    if shared_option.is_some() && matches!(positional.as_slice(), ["search" | "get", "disease", ..])
+    {
+        return shared_option;
     }
     match positional.as_slice() {
         ["list", "disease", ..] => Some(ErrorMessage::DiseaseHelp),

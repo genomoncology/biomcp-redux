@@ -140,7 +140,7 @@ fn wrong() -> Result<(), String> {
         {
             return Err(format!("wrong Monarch identity admitted: {value}"));
         }
-        if super::super::source_terms::size(&value, "")? > 4096 {
+        if super::super::source_terms::size(&value, "")? > 379 {
             return Err("wrong identity exceeds measured budget".into());
         }
     }
