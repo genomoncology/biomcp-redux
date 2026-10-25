@@ -152,7 +152,7 @@ pub struct PgxAnnotationIdentity {
     pub id:ClinPgxAccession,
 }
 /// Complete proved base-tier annotation.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotation {

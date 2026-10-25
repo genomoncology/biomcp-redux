@@ -20,3 +20,22 @@ impl fmt::Display for ClinPgxAccession {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(self.as_str()) }
 }
 crate::text_value!(ClinPgxAccession, "ClinPgxAccession", r"^PA[1-9][0-9]*$");
+
+/// Exact JSON gene key; ordering preserves spelling and never merges differently cased source keys.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct PgxGeneKey(Box<str>);
+impl FromStr for PgxGeneKey {
+    type Err=crate::Error;
+    fn from_str(value:&str)->Result<Self,Self::Err> {
+        crate::GeneSymbol::new(value)?;
+        Ok(Self(value.into()))
+    }
+}
+impl PgxGeneKey {
+    /// Exact original source spelling.
+    pub fn as_str(&self)->&str { &self.0 }
+}
+impl fmt::Display for PgxGeneKey {
+    fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result {f.write_str(self.as_str())}
+}
+crate::text_value!(PgxGeneKey,"PgxGeneKey",r"^[A-Za-z][A-Za-z0-9._/@-]{0,254}$");

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use super::annotation::*;
 use crate::ClinPgxAccession;
 /// Source-native PgxAllelePhenotype fields; no clinical interpretation.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAllelePhenotype {
@@ -17,7 +17,7 @@ pub struct PgxAllelePhenotype {
     pub phenotype: Box<str>,
 }
 /// Source-native PgxAnnotationHistory fields; no clinical interpretation.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationHistory {
@@ -35,7 +35,7 @@ pub struct PgxAnnotationHistory {
     pub description: Option<Box<str>>,
 }
 /// Source-native PgxAnnotationDetail fields; no clinical interpretation.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PgxAnnotationDetail {

@@ -59,7 +59,7 @@ pub struct PgxRecommendation {
     /// Native `recommendationid`; literal source value.
     pub recommendationid: i64,
     /// Native `lookupkey`; literal source value.
-    pub lookupkey: BTreeMap<GeneSymbol, Box<str>>,
+    pub lookupkey: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `drugname`; literal source value.
     pub drugname: Box<str>,
     /// Native `guidelinename`; literal source value.
@@ -67,15 +67,15 @@ pub struct PgxRecommendation {
     /// Native `guidelineurl`; literal source value.
     pub guidelineurl: Box<str>,
     /// Native `implications`; literal source value.
-    pub implications: BTreeMap<GeneSymbol, Box<str>>,
+    pub implications: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `drugrecommendation`; literal source value.
     pub drugrecommendation: Box<str>,
     /// Native `classification`; literal source value.
     pub classification: Box<str>,
     /// Native `phenotypes`; literal source value.
-    pub phenotypes: BTreeMap<GeneSymbol, Box<str>>,
+    pub phenotypes: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `activityscore`; literal source value.
-    pub activityscore: BTreeMap<GeneSymbol, Box<str>>,
+    pub activityscore: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `population`; literal source value.
     pub population: Box<str>,
     /// Native `comments`; literal source value.
@@ -93,19 +93,19 @@ pub struct PgxDrugRecommendation {
     /// Native `drugid`; literal source value.
     pub drugid: Text,
     /// Native `implications`; literal source value.
-    pub implications: BTreeMap<GeneSymbol, Box<str>>,
+    pub implications: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `drugrecommendation`; literal source value.
     pub drugrecommendation: Box<str>,
     /// Native `classification`; literal source value.
     pub classification: Box<str>,
     /// Native `phenotypes`; literal source value.
-    pub phenotypes: BTreeMap<GeneSymbol, Box<str>>,
+    pub phenotypes: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `activityscore`; literal source value.
-    pub activityscore: BTreeMap<GeneSymbol, Box<str>>,
+    pub activityscore: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `allelestatus`; literal source value.
-    pub allelestatus: BTreeMap<GeneSymbol, Box<str>>,
+    pub allelestatus: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `lookupkey`; literal source value.
-    pub lookupkey: BTreeMap<GeneSymbol, Box<str>>,
+    pub lookupkey: BTreeMap<super::PgxGeneKey, Box<str>>,
     /// Native `population`; literal source value.
     pub population: Box<str>,
     /// Native `comments`; literal source value.
@@ -165,7 +165,7 @@ pub struct PgxDiplotypeResult {
     /// Native `description`; literal source value.
     pub description: Box<str>,
     /// Native `diplotypekey`; literal source value.
-    pub diplotypekey: BTreeMap<GeneSymbol, BTreeMap<Box<str>, u32>>,
+    pub diplotypekey: BTreeMap<super::PgxGeneKey, BTreeMap<Box<str>, u32>>,
     /// Native `generesult`; literal source value.
     pub generesult: Box<str>,
     /// Native `ehrpriority`; literal source value.
@@ -173,5 +173,5 @@ pub struct PgxDiplotypeResult {
     /// Native `consultationtext`; literal source value.
     pub consultationtext: Box<str>,
     /// Native `lookupkey`; literal source value.
-    pub lookupkey: BTreeMap<GeneSymbol, Box<str>>,
+    pub lookupkey: BTreeMap<super::PgxGeneKey, Box<str>>,
 }

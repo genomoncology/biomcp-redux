@@ -153,6 +153,13 @@ fn registry() -> Vec<Contract> {
 }
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
+        Envelope<PgxPage> => ("pgx-page", "biomcp.pgx_page/1"),
+        Envelope<PgxCard> => ("pgx-card", "biomcp.pgx_card/1"),
+        Envelope<PgxGuidelines> => ("pgx-guidelines", "biomcp.pgx_guidelines/1"),
+        Envelope<PgxRecommendations> => ("pgx-recommendations", "biomcp.pgx_recommendations/1"),
+        Envelope<PgxDiplotype> => ("pgx-diplotype", "biomcp.pgx_diplotype/1"),
+        Envelope<PgxAnnotations> => ("pgx-annotations", "biomcp.pgx_annotations/1"),
+        Envelope<PgxAnnotation> => ("pgx-annotation", "biomcp.pgx_annotation/1"),
         Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse_event_page/1"),
         Envelope<AdverseEventFaersCard> => ("adverse-event-faers-card", "biomcp.adverse_event_faers_card/1"),
         Envelope<AdverseEventMaudeCard> => ("adverse-event-maude-card", "biomcp.adverse_event_maude_card/1"),
