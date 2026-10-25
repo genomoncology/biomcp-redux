@@ -4,7 +4,10 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("disease-monarch/wrong-endpoint-without-closure-never-enters-cache", || wrong().map_err(Into::into)),
+        Trial::test(
+            "disease-monarch/wrong-endpoint-without-closure-never-enters-cache",
+            || wrong().map_err(Into::into),
+        ),
         Trial::test(
             "disease-monarch/disabled-before-network-cache-and-replay",
             || disabled().map_err(Into::into),
@@ -133,7 +136,8 @@ fn wrong() -> Result<(), String> {
         let value = invoke(&env, WORDS, 4)?;
         if value.pointer("/status") != Some(&json!("failed"))
             || value.pointer("/problems/0/field") != Some(&json!("record"))
-            || value.pointer("/result/items/0").is_some() {
+            || value.pointer("/result/items/0").is_some()
+        {
             return Err(format!("wrong Monarch identity admitted: {value}"));
         }
         if super::super::source_terms::size(&value, "")? > 4096 {

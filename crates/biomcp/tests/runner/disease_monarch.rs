@@ -53,7 +53,9 @@ fn invoke(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String>
             String::from_utf8_lossy(&output.stdout)
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    measure(words, &value)?;
+    Ok(value)
 }
 fn association() -> Value {
     json!({"id":"synthetic-row","subject":"HGNC:9967","subject_label":"Synthetic gene","object":"MONDO:0007958","object_label":"Synthetic child","predicate":"biolink:associated_with","original_subject":"NCBIGene:5979","original_object":"Orphanet:99361","primary_knowledge_source":"infores:orphanet","aggregator_knowledge_source":["infores:monarchinitiative","infores:hpo-annotations"],"provided_by":"synthetic_collection","has_evidence":["ECO:0000501"],"qualifiers":null,"negated":false,"subject_closure":null,"object_closure":["MONDO:0019003"]})

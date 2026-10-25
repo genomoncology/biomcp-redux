@@ -227,7 +227,9 @@ fn wrong_site() -> Result<(), String> {
     let stub = Stub::for_source("seer.cancer.gov", "application/json", |request| {
         let body = super::wire(request)?;
         let mut encoded: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;
-        let mut document: Value = serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?).map_err(|e| e.to_string())?;
+        let mut document: Value =
+            serde_json::from_str(encoded.as_str().ok_or("missing encoded document")?)
+                .map_err(|e| e.to_string())?;
         let data = document["data"].as_object_mut().ok_or("missing data")?;
         let old = data.keys().next().ok_or("missing series")?.clone();
         let mut parts = old.split('_').collect::<Vec<_>>();
@@ -239,12 +241,24 @@ fn wrong_site() -> Result<(), String> {
         Ok(encoded.to_string())
     })?;
     let env = setup(&stub)?;
-    let words = ["get","disease","55","survival","--source","seer","--dataset","4","--interval","5"];
+    let words = [
+        "get",
+        "disease",
+        "55",
+        "survival",
+        "--source",
+        "seer",
+        "--dataset",
+        "4",
+        "--interval",
+        "5",
+    ];
     for _ in 0..2 {
         let value = invoke(&env, &args(&words), 4)?;
         if value.pointer("/status") != Some(&json!("failed"))
             || value.pointer("/problems/0/field") != Some(&json!("record"))
-            || value.pointer("/result/items/0").is_some() {
+            || value.pointer("/result/items/0").is_some()
+        {
             return Err(format!("wrong SEER site admitted: {value}"));
         }
     }

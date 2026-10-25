@@ -8,7 +8,10 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("disease-ols/literal-zero-never-repairs-to-exact-get", || literal_zero().map_err(Into::into)),
+        Trial::test(
+            "disease-ols/literal-zero-never-repairs-to-exact-get",
+            || literal_zero().map_err(Into::into),
+        ),
         Trial::test("disease-ols/max-page-keeps-all-candidate-actions", || {
             maximum().map_err(Into::into)
         }),
@@ -379,12 +382,27 @@ fn literal_zero() -> Result<(), String> {
         return Err("literal input changed".into());
     }
     let exact_dir = env.root().join("explicit-exact");
-    record(&env, &["get", "disease", "MONDO:0007607", "--source", "ols"], &exact_dir)?;
-    replay(&directory, json!([{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]},"max_bytes":4096}]))?;
-    replay(&exact_dir, json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":4096}]))?;
+    record(
+        &env,
+        &["get", "disease", "MONDO:0007607", "--source", "ols"],
+        &exact_dir,
+    )?;
+    replay(
+        &directory,
+        json!([{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]},"max_bytes":4096}]),
+    )?;
+    replay(
+        &exact_dir,
+        json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":4096}]),
+    )?;
     let requests = stub.finish()?;
-    if requests.len() != 2 || !requests[0].1.contains("/search?") || !requests[1].1.contains("/terms/") {
-        return Err(format!("zero result triggered repair or hidden lookup: {requests:?}"));
+    if requests.len() != 2
+        || !requests[0].1.contains("/search?")
+        || !requests[1].1.contains("/terms/")
+    {
+        return Err(format!(
+            "zero result triggered repair or hidden lookup: {requests:?}"
+        ));
     }
     Ok(())
 }

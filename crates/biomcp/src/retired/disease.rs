@@ -42,7 +42,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             literal = true;
             continue;
         }
-        let (flag, inline) = word.split_once('=').map_or((word, None), |(a,b)| (a, Some(b)));
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word, None), |(a, b)| (a, Some(b)));
         let disease = matches!(positional.as_slice(), ["search" | "get", "disease", ..]);
         if disease && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
@@ -63,7 +65,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         ["list", "disease", ..] => Some(ErrorMessage::DiseaseHelp),
         ["search", "phenotype", ..] => Some(ErrorMessage::DiseaseRanking),
         ["disease", "drugs", ..] => Some(ErrorMessage::DiseaseDrugs),
-        ["search", "disease", ..] if matches!(source, Some("mondo" | "doid" | "mesh")) => Some(ErrorMessage::DiseaseOntologySelector),
+        ["search", "disease", ..] if matches!(source, Some("mondo" | "doid" | "mesh")) => {
+            Some(ErrorMessage::DiseaseOntologySelector)
+        }
         ["get", "disease", id, rest @ ..] => {
             let section = section.or_else(|| (!literal).then(|| rest.first().copied()).flatten());
             if section == Some("genes") && source == Some("opentargets") {
