@@ -36,6 +36,14 @@ pub struct PgxCrossReference {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<str>>,
 }
+/// Native location diplotype reference; its numeric ID is not a ClinPGx accession.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PgxDiplotypeReference {
+    /// Native `id`; no expression, phase or phenotype is inferred.
+    pub id: i64,
+}
 /// Source-native PgxLocation fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -59,7 +67,7 @@ pub struct PgxLocation {
     #[serde(rename = "copyNumber")]
     pub copy_number: Box<str>,
     /// Native `diplotypes`; literal source value.
-    pub diplotypes: Box<[PgxUnobserved]>,
+    pub diplotypes: Box<[PgxDiplotypeReference]>,
     /// Native `displayName`; literal source value.
     #[serde(rename = "displayName")]
     pub display_name: Box<str>,
