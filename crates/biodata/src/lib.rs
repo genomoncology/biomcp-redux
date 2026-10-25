@@ -94,5 +94,5 @@ mod drug;
 pub use drug::{
     AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel,
     DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim, DrugLabelReference,
-    DrugLabelSection, DrugProduct, DrugTargetRelation,
+    DrugLabelSection, DrugProduct, DrugTargetRelation, DrugNativeTarget, DrugDiseaseReference, DrugStage, DrugNativeReference,
 };
