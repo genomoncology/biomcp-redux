@@ -206,7 +206,13 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 
 fn section_words(schema: &Value) -> Vec<HelpWord> {
     let property = field(field(schema, "properties"), "section");
-    let section = resolve(property.get("items").unwrap_or(property), schema);
+    let section = property
+        .get("anyOf")
+        .and_then(Value::as_array)
+        .and_then(|variants| variants.iter().find(|v| v.get("$ref").is_some()))
+        .or_else(|| property.get("items"))
+        .unwrap_or(property);
+    let section = resolve(section, schema);
     field(section, "enum")
         .as_array()
         .into_iter()
