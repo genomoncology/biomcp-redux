@@ -15,7 +15,9 @@
       "expect": {
         "/status": "complete",
         "/result/rows": 6
-      }
+      },
+      "max_bytes": 170,
+      "max_tokens": 43
     },
     {
       "run": [
@@ -43,7 +45,9 @@
         "/result/items/0/id": "EMEA/H/C/005936",
         "/page/returned": 1,
         "/page/offset": 0
-      }
+      },
+      "max_bytes": 697,
+      "max_tokens": 175
     },
     {
       "run": [
@@ -75,7 +79,9 @@
         "/result/total": 2,
         "/result/items/0/id": "EMEA/H/C/005056",
         "/page/offset": 1
-      }
+      },
+      "max_bytes": 597,
+      "max_tokens": 150
     },
     {
       "run": [
@@ -100,7 +106,9 @@
         "/result/available_sections": [
           "regulatory"
         ]
-      }
+      },
+      "max_bytes": 574,
+      "max_tokens": 144
     },
     {
       "run": [
@@ -125,7 +133,9 @@
         "/result/available_sections": [
           "regulatory"
         ]
-      }
+      },
+      "max_bytes": 579,
+      "max_tokens": 145
     },
     {
       "run": [
@@ -150,7 +160,9 @@
         "/result/available_sections": [
           "regulatory"
         ]
-      }
+      },
+      "max_bytes": 579,
+      "max_tokens": 145
     },
     {
       "run": [
@@ -175,7 +187,9 @@
         "/result/available_sections": [
           "regulatory"
         ]
-      }
+      },
+      "max_bytes": 579,
+      "max_tokens": 145
     },
     {
       "run": [
@@ -203,7 +217,9 @@
         "/result/regulatory/data/records/0/status": "Authorised",
         "/result/regulatory/data/records/0/dates/1/role": "marketing_authorisation_date",
         "/result/regulatory/data/records/0/dates/1/date": "2001-11-07"
-      }
+      },
+      "max_bytes": 994,
+      "max_tokens": 249
     },
     {
       "run": [
@@ -231,7 +247,9 @@
         "/result/regulatory/data/records/0/status": "Authorised",
         "/result/regulatory/data/records/0/dates/1/role": "marketing_authorisation_date",
         "/result/regulatory/data/records/0/dates/1/date": "2016-02-01"
-      }
+      },
+      "max_bytes": 1001,
+      "max_tokens": 251
     },
     {
       "run": [
@@ -259,7 +277,9 @@
         "/result/regulatory/data/records/0/status": "Authorised",
         "/result/regulatory/data/records/0/dates/1/role": "marketing_authorisation_date",
         "/result/regulatory/data/records/0/dates/1/date": "2018-08-23"
-      }
+      },
+      "max_bytes": 1001,
+      "max_tokens": 251
     },
     {
       "run": [
@@ -287,7 +307,9 @@
         "/result/regulatory/data/records/0/status": "Application withdrawn",
         "/result/regulatory/data/records/0/dates/1/role": "withdrawal_of_application_date",
         "/result/regulatory/data/records/0/dates/1/date": "2022-07-20"
-      }
+      },
+      "max_bytes": 1016,
+      "max_tokens": 255
     },
     {
       "run": [
@@ -308,7 +330,9 @@
       ],
       "expect": {
         "/result/regulatory/data/records/0/status": "Authorised"
-      }
+      },
+      "max_bytes": 929,
+      "max_tokens": 233
     },
     {
       "run": [
@@ -329,7 +353,9 @@
       ],
       "expect": {
         "/result/regulatory/data/records/0/status": "Application withdrawn"
-      }
+      },
+      "max_bytes": 941,
+      "max_tokens": 236
     },
     {
       "run": [
@@ -357,7 +383,9 @@
         "/result/regulatory/data/offset": 1,
         "/result/regulatory/data/total": 1,
         "/page/returned": 0
-      }
+      },
+      "max_bytes": 616,
+      "max_tokens": 155
     },
     {
       "run": [
@@ -379,7 +407,9 @@
         "/result/total": 0
       },
       "exit": 1,
-      "is_error": false
+      "is_error": false,
+      "max_bytes": 299,
+      "max_tokens": 75
     },
     {
       "run": [
@@ -402,7 +432,9 @@
         "/status": "absent"
       },
       "exit": 1,
-      "is_error": false
+      "is_error": false,
+      "max_bytes": 201,
+      "max_tokens": 51
     },
     {
       "run": [
@@ -429,7 +461,9 @@
         "/sources/0/reason": "disabled"
       },
       "exit": 4,
-      "is_error": true
+      "is_error": true,
+      "max_bytes": 194,
+      "max_tokens": 49
     },
     {
       "run": [
@@ -454,7 +488,9 @@
         "/status": "failed",
         "/sources/0/reason": "unsupported",
         "/sources/0/state": "skipped"
-      }
+      },
+      "max_bytes": 222,
+      "max_tokens": 56
     }
   ]
 }
