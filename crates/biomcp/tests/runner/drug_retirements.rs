@@ -13,7 +13,7 @@ fn check() -> Result<(), String> {
     listener.set_nonblocking(true).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}))
         .map_err(|e| e.to_string())?;
-    for (words, message) in cases() {
+    for &(words, message) in CASES {
         let args = words.split_whitespace().map(str::to_owned).collect::<Vec<_>>();
         let value = invoke(&env, args.clone(), 2)?;
         if value.pointer("/error/code") != Some(&json!("usage.retired"))
@@ -37,8 +37,7 @@ fn check() -> Result<(), String> {
     }
     Ok(())
 }
-fn cases() -> Vec<(&'static str, &'static str)> {
-    vec![
+const CASES: &[(&str, &str)] = &[
         ("drug cell-lines imatinib --cell-line A --dataset B --limit 1 --offset 0", "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice."),
         ("cvx sync", "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge."),
         ("ema sync", "renamed; use: biomcp sync ema"),
@@ -63,5 +62,4 @@ fn cases() -> Vec<(&'static str, &'static str)> {
         ("get drug CHEMBL941 all", "all is not supported: select one named source section."),
         ("get drug CHEMBL941 cell_lines", "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice."),
         ("drug interactions 1744 --limit 1 --offset 0", "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>"),
-    ]
-}
+];

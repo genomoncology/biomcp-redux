@@ -81,3 +81,4 @@ drug-ddinter: Explicit synchronization replaces all eight native pair files atom
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference. Cases: `crates/biomcp/tests/runner/disease_monarch.rs`.
 
 drug-retirements: Retired and unproved drug commands return fixed migration guidance before requests. Cases: `crates/biomcp/tests/runner/drug_retirements.rs`.
+drug-failures: Every kept drug source reports synthetic transport and broken-body failures with publisher terms. Cases: `crates/biomcp/tests/runner/drug_failures.rs`.
