@@ -183,11 +183,11 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["BioMCP. help COMMAND: options and examples.".into()];
+    let mut lines = vec!["BioMCP: help COMMAND lists commands/options; schema ID prints an artifact.".into()];
     for command in commands {
-        if command.command.first().is_some_and(|word| word == "help")
-            && command.command.get(1).is_some_and(|word| word == "key")
-        {
+        if command.command.first().is_none_or(|verb| {
+            !matches!(verb.as_str(), "search" | "get" | "article" | "trial" | "variant" | "sync")
+        }) {
             continue;
         }
         let mut line = command.command.join(" ");
@@ -235,6 +235,11 @@ pub(crate) fn tree() -> String {
             && let Some(source) = command.arguments.iter().find(|a| a.name == "--source")
         {
             line.push_str(&format!(" --source {}", source.choices.join("|")));
+            for argument in command.arguments.iter().filter(|argument| {
+                matches!(argument.name.as_str(), "--gene" | "--gene-id" | "--condition-id" | "--type" | "--device-id" | "--drug-application" | "--biomarker" | "--supplement")
+            }) {
+                line.push_str(&format!(" {}", argument.name));
+            }
         }
         if !command.sections.is_empty() {
             line.push_str(" sections: ");

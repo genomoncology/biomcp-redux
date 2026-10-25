@@ -4,7 +4,7 @@ This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`; the P
 
 ## Evidence boundary
 
-The public documents below establish source scope and candidate fields. Native capture and output measurements are recorded below separately from the proposed product surface. Shared types still require an absence, multiplicity and scope review against those bodies. No API requests, bundle downloads, released executable runs or product measurements have been performed by this design author. Historical repository experiments supply leads only; their text-based gene matching and regulatory name overlays do not prove joins and will not be ported.
+The public documents below establish source scope and candidate fields. Native capture and output measurements are recorded below separately from the proposed product surface. The later type and adapter work reviewed absence, multiplicity and scope against those bodies. No API requests, bundle downloads, released executable runs or product measurements have been performed by this design author. Historical repository experiments supply leads only; their text-based gene matching and regulatory name overlays do not prove joins and will not be ported.
 
 ## Bounded native capture recipe
 
@@ -70,7 +70,7 @@ Every implemented source starts enabled under the existing open-by-default decis
 5. “Can I trust the approval link?” FDA application and supplement IDs remain visible beside each dated decision and companion relation. A name similarity never earns an approval link. No shared identity is claimed when the source supplies none.
 6. “Is this assay suitable for this exact tumor, sample and alteration?” Preserve the source's full scope behind the companion section. Return the attributed scope; leave suitability and clinical interpretation to the clinician.
 7. “Did the source answer or fail?” A successful zero states only the selected dataset/query had no rows. Missing bundle, disabled source, malformed body, timeout, HTTP failure and unsupported tier stay distinct source outcomes. No alternate query hides a zero or failure.
-8. “What is fast?” Stored bundle reads make zero provider calls and do not synchronize. The retained source-query timings are measured below; product default sizes remain unmeasured. No speed promise follows from historical experiments.
+8. “What is fast?” Stored bundle reads make zero provider calls and do not synchronize. The retained source-query timings are measured below; product default sizes are measured in the budget table. No speed promise follows from historical experiments.
 9. “What does the old product miss?” Its name-derived FDA overlay cannot prove identity, disease synonym expansion changes the request and the optional full JSON gene/condition arrays can overwhelm a discovery page. Keep source inventory and explicit paging; remove semantic guessing.
 10. “When can I stop?” The first page can answer that a specific source lists a device, gene or application. It cannot establish clinical equivalence, universal test coverage or current authorization across jurisdictions. Source revision, retrieval date and original link let the agent disclose that limit.
 
@@ -136,7 +136,7 @@ Group-table rows have their four actual cells, including the complete group indi
 | GTR `--type VALUE` | Proven native relation `test_type`: Clinical, Research and the third native microbial category as returned; preserve exact source value. | Conjunctive exact whole field filter. A source category does not prove availability. |
 | Search `--limit`, `--offset` | Keep; source-owned order and mechanical local pages. Default five rows. | Preserve every selector and immutable bundle revision on continuation. |
 | GTR `--laboratory`; WHO `--manufacturer`, `--type` | Deferred. Fields exist but no need/proved selector contract justifies these command options. | No advertised aliases or best-effort substring matching. |
-| WHO search/marker filters | Dropped from initial tree. WHO gets exact product cards only. | `get diagnostic WHO_PRODUCT_ID --source who-ivd`; complete native rows, no extra section. |
+| WHO search/marker filters | Deferred. WHO gets exact product cards only. | `get diagnostic WHO_PRODUCT_ID --source who-ivd`; complete native rows, no extra section. |
 | `search diagnostic --source fda-cdx --drug-application NDA…` | Select only rows whose own drug-cell link carries the exact checked application, with NDA/BLA type established by that owned cell. No match from a number elsewhere in the row. Rows without an owned typed ID remain reachable through device search. | Five complete source relation rows; every combination/group context remains whole. |
 | FDA CDx `--drug-cell` | Dropped; no harvested question needs it. | Whole drug cells remain displayed source facts, not a search option. |
 | FDA CDx `--biomarker TEXT` | Proven exact table-0 cell: captured P110027/S012 has `Biomarker(s)` equal to `KRAS`, `Biomarker(s) (Details)` equal to `G12C`, and the drug cell/link names Lumakras NDA214665. The positive case asserts `--biomarker KRAS` includes this exact row with its whole NSCLC-tissue context. Group table has no biomarker column and is explicitly unsupported for that selector. | No substring matching or parsing of genes, alteration, score or cutoff into independent clinical assertions. |
@@ -286,7 +286,7 @@ Static source inspection is pinned to the existing BioMCP checkout at `4050fdc7d
 
 | Legacy command, option or section | Proposed disposition | Reason and required case |
 | --- | --- | --- |
-| `search diagnostic` | Keep source-specific bounded discovery; require explicit source and supported selector. | Q14 plus zero-filter usage case; WHO search is retired; no hidden `all` merge. |
+| `search diagnostic` | Keep source-specific bounded discovery; require explicit source and supported selector. | Q14 plus explicit-source usage controls; WHO discovery is deferred; no hidden `all` merge. |
 | `--source gtr`, `who-ivd`, default `all` | Keep named sources; retire `all`. FDA CDx and PMA are approved additions below. | GTR search and WHO exact-card known-positive cases; invalid source/selector no-I/O controls. |
 | No legacy `--source fda-cdx` | Approved separate two-table bundle and exact device/owned drug-application association search. | Q01–Q13 native cells/links, exact headers, scoped rows and typed pivots; no CDx card get. |
 | No legacy `--source fda-pma` | Approved exact PMA base/supplement cards, regulatory and supplements sections. Free-text search remains deferred. | Captured native base and supplement identities; empty native base supplement field is preserved. |
