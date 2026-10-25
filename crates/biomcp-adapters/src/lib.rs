@@ -68,7 +68,7 @@ pub mod drug_sources;
 mod chembl;
 mod ddinter;
 mod drugsfda;
-mod ema;
+pub mod ema;
 mod mychem;
 mod openfda_label;
 mod opentargets;

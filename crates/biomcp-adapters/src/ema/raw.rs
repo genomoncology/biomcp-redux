@@ -99,7 +99,7 @@ impl Row for Medicine {
     }
 }
 impl Medicine {
-    pub fn text(&self, field: &str) -> Option<biodata::Text> {
+    pub(super) fn text(&self, field: &str) -> Option<biodata::Text> {
         self.fields
             .get(field)
             .and_then(|v| biodata::Text::new(v).ok())

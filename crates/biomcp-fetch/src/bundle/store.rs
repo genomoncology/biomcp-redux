@@ -220,6 +220,8 @@ fn metadata(row: &rusqlite::Row<'_>) -> rusqlite::Result<Meta> {
     Ok(Meta {
         bytes: u64::from(row.get::<_, u32>(0)?),
         rows: u64::from(row.get::<_, u32>(1)?),
-        fresh_until: row.get(2)?, etag: row.get(3)?, modified: row.get(4)?,
+        fresh_until: row.get(2)?,
+        etag: row.get(3)?,
+        modified: row.get(4)?,
     })
 }
