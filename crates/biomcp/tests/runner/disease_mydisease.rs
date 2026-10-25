@@ -11,7 +11,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "disease-mydisease/exact-alias-and-independent-pages",
         || exact().map_err(Into::into),
     )];
-    tests.push(Trial::test("disease-mydisease/native-proof-retains-success-and-failure", || native::retention().map_err(Into::into)));
+    tests.push(Trial::test(
+        "disease-mydisease/native-proof-retains-success-and-failure",
+        || native::retention().map_err(Into::into),
+    ));
     tests.extend(cases::trials());
     tests
 }

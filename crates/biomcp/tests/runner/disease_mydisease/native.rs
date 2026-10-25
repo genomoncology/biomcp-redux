@@ -1,5 +1,5 @@
 //! Explicit command proof reads unchanged retained bodies outside Git.
-use super::{Stub, record, replay, setup};
+use super::{Stub, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::Path};
@@ -60,8 +60,17 @@ fn prove_row(
 ) -> Result<(), String> {
     let id = row["requested_id"].as_str().ok_or("missing ID")?;
     let words = ["get", "disease", id];
-    let directory = env.root().join(format!("native-{index}"));
-    let value = record(env, &words, &directory, 0)?;
+    let output = root.join("product-proof");
+    fs::create_dir_all(&output).map_err(|e| e.to_string())?;
+    let directory = output.join(format!("native-{index}"));
+    let mut command = vec!["--record".into(), directory.to_string_lossy().into_owned()];
+    command.extend(super::args(&words));
+    let value = super::super::proof::retained_cli(
+        env,
+        &command,
+        0,
+        &output.join(format!("delivery-{index}")),
+    )?;
     let body: Value = serde_json::from_slice(
         &fs::read(
             root.join(row["directory"].as_str().ok_or("missing directory")?)
@@ -88,6 +97,7 @@ fn prove_row(
         super::insert(&mut expected, "/result/sections", json!([]))?;
     }
     replay(
+        env,
         &directory,
         json!([{"run":words,"mcp":words,"expect":expected}]),
     )?;
@@ -126,6 +136,7 @@ fn sections(
             ];
             let exit = if total == 0 { 1 } else { 0 };
             let value = replay(
+                env,
                 directory,
                 json!([{"run":words,"mcp":words,"exit":exit,"expect":{"/page/offset":offset,"/page/total":total,"/page/returned":2.min(total)}}]),
             )?;
@@ -150,7 +161,7 @@ fn sections(
         }
     }
     if id == "DOID:3910" {
-        default_pages(directory, id, body)?;
+        default_pages(env, directory, id, body)?;
     }
     let mut command = super::args(&["get", "disease", id]);
     command.extend([
@@ -163,6 +174,13 @@ fn sections(
         .command(env!("CARGO_BIN_EXE_biomcp"), &command)
         .output()
         .map_err(|e| e.to_string())?;
+    let retained = directory
+        .parent()
+        .ok_or("missing proof directory")?
+        .join(format!("{id}-markdown"));
+    fs::create_dir(&retained).map_err(|e| e.to_string())?;
+    fs::write(retained.join("cli.stdout"), &output.stdout).map_err(|e| e.to_string())?;
+    fs::write(retained.join("cli.stderr"), &output.stderr).map_err(|e| e.to_string())?;
     if !output.status.success() || !String::from_utf8_lossy(&output.stdout).contains(id) {
         return Err("Markdown lost exact requested identity".into());
     }
@@ -213,7 +231,12 @@ fn load(root: &Path) -> Result<Vec<Value>, String> {
         .collect())
 }
 
-fn default_pages(directory: &Path, id: &str, body: &Value) -> Result<(), String> {
+fn default_pages(
+    env: &super::Environment,
+    directory: &Path,
+    id: &str,
+    body: &Value,
+) -> Result<(), String> {
     for section in ["synonyms", "xrefs", "hierarchy"] {
         let total = count(body, section);
         for limit in [5usize, 50] {
@@ -227,6 +250,7 @@ fn default_pages(directory: &Path, id: &str, body: &Value) -> Result<(), String>
                 &limit_string,
             ];
             let value = replay(
+                env,
                 directory,
                 json!([{"run":words,"mcp":words,"expect":{"/page/returned":limit.min(total),"/page/total":total}}]),
             )?;
@@ -242,7 +266,12 @@ pub(super) fn retention() -> Result<(), String> {
         let body = super::annotation().to_string();
         fs::create_dir(root.path().join("synthetic")).map_err(|e| e.to_string())?;
         fs::write(root.path().join("synthetic/body.raw"), &body).map_err(|e| e.to_string())?;
-        let stub = Stub::for_source_status("mydisease.info", "application/json", move |_| Ok(body.clone()), |_| 200)?;
+        let stub = Stub::for_source_status(
+            "mydisease.info",
+            "application/json",
+            move |_| Ok(body.clone()),
+            |_| 200,
+        )?;
         let env = setup(&stub)?;
         let temporary = env.root().to_owned();
         let row = json!({"requested_id":"MONDO:0005061","returned_id":if fail {"MONDO:9999999"} else {"MONDO:0005061"},"directory":"synthetic"});
@@ -251,13 +280,53 @@ pub(super) fn retention() -> Result<(), String> {
         if temporary.exists() || result.is_err() != fail {
             return Err(format!("unexpected synthetic proof result: {result:?}"));
         }
-        if stub.finish()?.len() != 1 { return Err("synthetic proof fetched more than once".into()); }
+        if fail
+            && !result
+                .as_ref()
+                .err()
+                .is_some_and(|e| e.contains("/result/returned_id"))
+        {
+            return Err(format!("failed before the intended comparison: {result:?}"));
+        }
+        if stub.finish()?.len() != 1 {
+            return Err("synthetic proof fetched more than once".into());
+        }
         let output = root.path().join("product-proof");
         if !output.join("native-0/mydisease").is_dir()
             || !output.join("replay-0/cli.stdout").is_file()
-            || !output.join("replay-0/mcp.stdout").is_file() {
+            || !output.join("replay-0/mcp.stdout").is_file()
+        {
             return Err("native proof artifacts disappeared after cleanup".into());
         }
     }
     Ok(())
+}
+
+fn replay(env: &super::Environment, recording: &Path, steps: Value) -> Result<Value, String> {
+    let output = recording
+        .parent()
+        .ok_or("missing external proof directory")?;
+    let mut last = None;
+    for mut value in steps.as_array().ok_or("missing steps")?.clone() {
+        let ceiling = super::ceiling(&value)?;
+        super::insert(&mut value, "max_bytes", json!(ceiling))?;
+        super::insert(&mut value, "max_tokens", json!(ceiling.div_ceil(4)))?;
+        let step: super::super::Step = serde_json::from_value(value).map_err(|e| e.to_string())?;
+        let mut args = vec!["--replay".into(), recording.to_string_lossy().into_owned()];
+        args.extend(step.run.clone().ok_or("missing command")?);
+        let index = fs::read_dir(output)
+            .map_err(|e| e.to_string())?
+            .filter_map(Result::ok)
+            .filter(|v| v.file_name().to_string_lossy().starts_with("replay-"))
+            .count();
+        let directory = output.join(format!("replay-{index}"));
+        let actual = super::super::proof::retained_both(env, &args, step.exit, &directory)?;
+        super::super::assertions::check(
+            &fs::read(directory.join("cli.stdout")).map_err(|e| e.to_string())?,
+            &step,
+            &super::super::assertions::prepare(&step)?,
+        )?;
+        last = Some(actual);
+    }
+    last.ok_or("missing native response".into())
 }

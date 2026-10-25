@@ -1,23 +1,27 @@
 //! Optional retained-body replay; publisher bodies remain outside Git.
-use super::super::configuration::invoke;
-use super::{Check, both};
+use super::Check;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![Trial::test("drug-approvals/native-proof-retains-success-and-failure", || retention().map_err(Into::into))];
+    let mut tests = vec![Trial::test(
+        "drug-approvals/native-proof-retains-success-and-failure",
+        || retention().map_err(Into::into),
+    )];
     let Some(root) = std::env::var_os("BIOMCP_FDA_CAPTURE_ROOT") else {
         return tests;
     };
-    tests.extend((0..15)
-        .map(|n| {
-            let root = PathBuf::from(&root);
-            Trial::test(format!("drug-approvals/native-retained-{n}"), move || {
-                native(&root, n).map_err(Into::into)
+    tests.extend(
+        (0..15)
+            .map(|n| {
+                let root = PathBuf::from(&root);
+                Trial::test(format!("drug-approvals/native-retained-{n}"), move || {
+                    native(&root, n).map_err(Into::into)
+                })
             })
-        })
-        .collect::<Vec<_>>());
+            .collect::<Vec<_>>(),
+    );
     tests
 }
 fn field<'a>(v: &'a Value, k: &str) -> Result<&'a str, String> {
@@ -76,7 +80,9 @@ fn native(root: &Path, n: usize) -> Check {
         .and_then(Value::as_u64)
         .ok_or("native status")? as u16;
     let (env, stub) = delivery(raw.clone(), url, status)?;
-    let recording = env.root().join("recording");
+    let output = root.join("product-proof").join(format!("case-{n:02}"));
+    std::fs::create_dir_all(&output).map_err(|e| e.to_string())?;
+    let recording = output.join("recording");
     let mut args = if key == "application_number" {
         vec![
             "get".into(),
@@ -102,19 +108,19 @@ fn native(root: &Path, n: usize) -> Check {
     let exit = if status == 404 { 1 } else { 0 };
     let mut record = vec!["--record".into(), recording.to_string_lossy().into_owned()];
     record.extend(args.clone());
-    invoke(&env, record, exit)?;
+    super::super::proof::retained_cli(&env, &record, exit, &output.join("local-delivery"))?;
     if stub.finish()?.len() != 1 {
         return Err("native local delivery requested more than once".into());
     }
     let mut replay = vec!["--replay".into(), recording.to_string_lossy().into_owned()];
     replay.append(&mut args);
-    let value = both(&env, replay.clone(), exit)?;
+    let value = both(&env, replay.clone(), exit, &output)?;
     let original: Value = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
     verify(&original, &value, key)?;
     let mut peak = super::measure(&value)?;
     if key == "application_number" {
-        let selected = selected_product(&env, &replay, &original)?;
-        peak = walk(&env, replay, value, &original)?;
+        let selected = selected_product(&env, &replay, &original, &output)?;
+        peak = walk(&env, replay, value, &original, &output)?;
         peak = (peak.0.max(selected.0), peak.1.max(selected.1));
     }
     report(n, peak, &entry)
@@ -242,6 +248,7 @@ fn walk(
     base: Vec<String>,
     mut page: Value,
     raw: &Value,
+    output: &Path,
 ) -> Result<(usize, usize), String> {
     let expected = raw
         .pointer("/results/0/submissions")
@@ -279,7 +286,7 @@ fn walk(
                 .map(|v| v.as_str().map(str::to_owned).ok_or("arg"))
                 .collect::<Result<Vec<_>, _>>()?,
         );
-        page = both(env, next, 0)?;
+        page = both(env, next, 0, output)?;
         let measured = super::measure(&page)?;
         peak = (peak.0.max(measured.0), peak.1.max(measured.1));
         if seen.len() > expected.len() {
@@ -304,10 +311,11 @@ fn selected_product(
     env: &super::Environment,
     base: &[String],
     raw: &Value,
+    output: &Path,
 ) -> Result<(usize, usize), String> {
     let mut args = base.to_vec();
     args.extend(["--product-number".into(), "001".into()]);
-    let value = both(env, args, 0)?;
+    let value = both(env, args, 0, output)?;
     let products = value
         .pointer("/result/products")
         .and_then(Value::as_array)
@@ -398,19 +406,53 @@ fn retention() -> Check {
         let root = tempfile::tempdir().map_err(|e| e.to_string())?;
         let mut application = super::application();
         application["products"][0]["product_number"] = json!("001");
-        if fail { application["products"][0]["reference_standard"] = Value::Null; }
-        let raw = json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[application]}).to_string();
-        let hash = Sha256::digest(raw.as_bytes()).iter().map(|b| format!("{b:02x}")).collect::<String>();
+        if fail {
+            application["products"][0]["reference_standard"] = Value::Null;
+        }
+        let raw =
+            json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[application]})
+                .to_string();
+        let hash = Sha256::digest(raw.as_bytes())
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>();
         std::fs::write(root.path().join("synthetic.json"), raw).map_err(|e| e.to_string())?;
         std::fs::write(root.path().join("ledger.json"), json!([{"body_file":"synthetic.json","sha256":hash,"url":"https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1","http_status":200,"retrieved_at":"2001-05-10T00:00:00Z"}]).to_string()).map_err(|e| e.to_string())?;
         let result = native(root.path(), 0);
-        if result.is_err() != fail { return Err(format!("unexpected synthetic FDA result: {result:?}")); }
+        if result.is_err() != fail {
+            return Err(format!("unexpected synthetic FDA result: {result:?}"));
+        }
+        if fail
+            && !result
+                .as_ref()
+                .err()
+                .is_some_and(|e| e.contains("native application products changed"))
+        {
+            return Err(format!(
+                "failed before the intended FDA comparison: {result:?}"
+            ));
+        }
         let output = root.path().join("product-proof/case-00");
         if !output.join("recording/drugsfda").is_dir()
             || !output.join("replay-0/cli.stdout").is_file()
-            || !output.join("replay-0/mcp.stdout").is_file() {
+            || !output.join("replay-0/mcp.stdout").is_file()
+        {
             return Err("FDA proof artifacts disappeared after cleanup".into());
         }
     }
     Ok(())
+}
+
+fn both(
+    env: &super::Environment,
+    args: Vec<String>,
+    exit: i32,
+    output: &Path,
+) -> Result<Value, String> {
+    let index = std::fs::read_dir(output)
+        .map_err(|e| e.to_string())?
+        .filter_map(Result::ok)
+        .filter(|v| v.file_name().to_string_lossy().starts_with("replay-"))
+        .count();
+    super::super::proof::retained_both(env, &args, exit, &output.join(format!("replay-{index}")))
 }

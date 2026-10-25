@@ -370,13 +370,22 @@ pub(super) fn retained_cli(
     directory: &Path,
 ) -> Result<serde_json::Value, String> {
     fs::create_dir(directory).map_err(|e| e.to_string())?;
-    fs::write(directory.join("args.json"), serde_json::to_vec(args).map_err(|e| e.to_string())?)
+    fs::write(
+        directory.join("args.json"),
+        serde_json::to_vec(args).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), args)
+        .output()
         .map_err(|e| e.to_string())?;
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args).output().map_err(|e| e.to_string())?;
     fs::write(directory.join("cli.stdout"), &output.stdout).map_err(|e| e.to_string())?;
     fs::write(directory.join("cli.stderr"), &output.stderr).map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) || !output.stderr.is_empty() {
-        return Err(format!("native CLI exit {:?}, expected {exit}", output.status.code()));
+        return Err(format!(
+            "native CLI exit {:?}, expected {exit}",
+            output.status.code()
+        ));
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
@@ -387,7 +396,10 @@ pub(super) fn retained_both(
     directory: &Path,
 ) -> Result<serde_json::Value, String> {
     let value = retained_cli(env, args, exit, directory)?;
-    let start = args.iter().position(|s| matches!(s.as_str(), "get" | "search")).ok_or("missing native command")?;
+    let start = args
+        .iter()
+        .position(|s| matches!(s.as_str(), "get" | "search"))
+        .ok_or("missing native command")?;
     let (globals, command) = args.split_at(start);
     let mcp = super::mcp::call_retained(env, command, exit >= 2, globals, Some(directory))?;
     if value != mcp {
