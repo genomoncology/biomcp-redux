@@ -7,10 +7,17 @@ use std::{path::PathBuf, time::Duration};
 fn explicit_sync_keeps_tibsovo_candidates_and_native_regulatory_roles_separate() {
     let cache = ReplayCache::temporary().unwrap();
     let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay { dir: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/drug/ema-synthetic") },
-        replay_cache: Some(cache), ..Default::default()
-    }).unwrap();
-    let leg = fetch.leg(&ema::SPEC, fetch.deadline(Duration::from_secs(10))).fresh(true);
+        mode: Mode::Replay {
+            dir: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../../tests/replies/drug/ema-synthetic"),
+        },
+        replay_cache: Some(cache),
+        ..Default::default()
+    })
+    .unwrap();
+    let leg = fetch
+        .leg(&ema::SPEC, fetch.deadline(Duration::from_secs(10)))
+        .fresh(true);
     assert!(ema::search(&leg, "Tibsovo").is_err());
     assert_eq!(ema::sync(&fetch).unwrap().rows, 6);
     let candidates = ema::search(&leg, "Tibsovo").unwrap();
@@ -24,9 +31,24 @@ fn explicit_sync_keeps_tibsovo_candidates_and_native_regulatory_roles_separate()
     assert_eq!(records.version.unwrap().as_str(), "2026-10-24T18:22:32Z");
     let event = &records.records[0];
     assert!(event.jurisdiction.is_none());
-    assert!(event.dates.iter().any(|date| date.role.as_str() == "marketing_authorisation_date" && date.date.to_string() == "2016-02-01"));
-    let withdrawn = ema::regulatory(&leg, &"EMEA/H/C/005621".parse().unwrap()).unwrap().unwrap();
-    assert_eq!(withdrawn.records[0].status.as_ref().unwrap().as_str(), "Application withdrawn");
+    assert!(
+        event
+            .dates
+            .iter()
+            .any(|date| date.role.as_str() == "marketing_authorisation_date"
+                && date.date.to_string() == "2016-02-01")
+    );
+    let withdrawn = ema::regulatory(&leg, &"EMEA/H/C/005621".parse().unwrap())
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        withdrawn.records[0].status.as_ref().unwrap().as_str(),
+        "Application withdrawn"
+    );
     assert_eq!(withdrawn.records[0].record.to_string(), "EMEA/H/C/005621");
-    assert!(ema::card(&leg, &"EMEA/H/C/999999".parse().unwrap()).unwrap().is_none());
+    assert!(
+        ema::card(&leg, &"EMEA/H/C/999999".parse().unwrap())
+            .unwrap()
+            .is_none()
+    );
 }

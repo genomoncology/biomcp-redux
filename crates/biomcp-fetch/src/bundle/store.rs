@@ -75,54 +75,20 @@ impl Cache {
         find: Find<'_>,
         d: Deadline<'_>,
     ) -> Result<Vec<String>, CacheError> {
-        let (query, a, b, k) = match find {
-            Find::Exact(k, v) => (
-                "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key=?2) ORDER BY n",
-                v.to_ascii_lowercase(),
-                None,
-                kind(k),
-            ),
-            Find::Prefix(k, v) => {
-                let v = v.to_ascii_lowercase();
-                let end = prefix_end(&v);
-                (
-                    "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key>=?2 AND (?3 IS NULL OR key<?3)) ORDER BY n",
-                    v,
-                    end,
-                    kind(k),
-                )
-            }
-            Find::Words(v) => {
-                let words: Vec<_> = v
-                    .split_whitespace()
-                    .filter(|w| w.chars().any(char::is_alphanumeric))
-                    .map(|w| format!("\"{}\"", w.replace('"', "\"\"")))
-                    .collect();
-                if words.is_empty() {
-                    return Ok(Vec::new());
-                }
-                (
-                    "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_words WHERE bundle=?1 AND words MATCH ?2) ORDER BY n",
-                    words.join(" AND "),
-                    None,
-                    0,
-                )
-            }
-        };
+        self.sql(d, |c| selected_rows(c, name, find))
+    }
+    pub(super) fn stored_bundle(
+        &self, name: &str, find: Find<'_>, d: Deadline<'_>,
+    ) -> Result<Option<(Meta, Vec<String>)>, CacheError> {
         self.sql(d, |c| {
-            let mut q = c.prepare(query).map_err(db_error)?;
-            let count = q.parameter_count();
-            let mut out = Vec::new();
-            let mut rows = if count == 2 {
-                q.query(params![name, a])
-            } else {
-                q.query(params![name, a, b, k])
-            }
-            .map_err(db_error)?;
-            while let Some(row) = rows.next().map_err(db_error)? {
-                out.push(row.get(0).map_err(db_error)?);
-            }
-            Ok(out)
+            let tx = c.unchecked_transaction().map_err(db_error)?;
+            let meta = tx.query_row(
+                "SELECT bytes,rows,fresh_until,etag,modified FROM bundle WHERE name=?1", [name],
+                |r| Ok(Meta { bytes: r.get::<_, u64>(0)?, rows: r.get::<_, u64>(1)?, fresh_until: r.get(2)?, etag: r.get(3)?, modified: r.get(4)? }),
+            ).optional().map_err(db_error)?;
+            let value = meta.map(|meta| selected_rows(&tx, name, find).map(|rows| (meta, rows))).transpose()?;
+            tx.commit().map_err(db_error)?;
+            Ok(value)
         })
     }
     pub(super) fn claim(
@@ -196,4 +162,56 @@ fn prefix_end(s: &str) -> Option<String> {
         }
     }
     None
+}
+
+fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<String>, CacheError> {
+        let (query, a, b, k) = match find {
+            Find::Exact(k, v) => (
+                "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key=?2) ORDER BY n",
+                v.to_ascii_lowercase(),
+                None,
+                kind(k),
+            ),
+            Find::Prefix(k, v) => {
+                let v = v.to_ascii_lowercase();
+                let end = prefix_end(&v);
+                (
+                    "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_key WHERE bundle=?1 AND kind=?4 AND key>=?2 AND (?3 IS NULL OR key<?3)) ORDER BY n",
+                    v,
+                    end,
+                    kind(k),
+                )
+            }
+            Find::Words(v) => {
+                let words: Vec<_> = v
+                    .split_whitespace()
+                    .filter(|w| w.chars().any(char::is_alphanumeric))
+                    .map(|w| format!("\"{}\"", w.replace('"', "\"\"")))
+                    .collect();
+                if words.is_empty() {
+                    return Ok(Vec::new());
+                }
+                (
+                    "SELECT row FROM bundle_row WHERE bundle=?1 AND n IN(SELECT n FROM bundle_words WHERE bundle=?1 AND words MATCH ?2) ORDER BY n",
+                    words.join(" AND "),
+                    None,
+                    0,
+                )
+            }
+        };
+
+            let mut q = c.prepare(query).map_err(db_error)?;
+            let count = q.parameter_count();
+            let mut out = Vec::new();
+            let mut rows = if count == 2 {
+                q.query(params![name, a])
+            } else {
+                q.query(params![name, a, b, k])
+            }
+            .map_err(db_error)?;
+            while let Some(row) = rows.next().map_err(db_error)? {
+                out.push(row.get(0).map_err(db_error)?);
+            }
+            Ok(out)
+
 }

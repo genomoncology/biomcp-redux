@@ -5,8 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(super) struct Meta {
     pub timestamp: biodata::Text,
 }
-#[derive(Debug, Deserialize)]
-#[serde(try_from = "Fields")]
+#[derive(Debug)]
 pub(super) struct Medicine {
     pub id: biodata::DrugId,
     pub name: biodata::Text,
@@ -21,6 +20,12 @@ struct Fields {
     meta: Meta,
     #[serde(flatten)]
     fields: BTreeMap<String, String>,
+}
+impl<'de> Deserialize<'de> for Medicine {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Self::try_from(Fields::deserialize(deserializer)?)
+            .map_err(|_| serde::de::Error::custom("Invalid EMA medicine record"))
+    }
 }
 impl TryFrom<Fields> for Medicine {
     type Error = BadReply;
