@@ -183,10 +183,13 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["BioMCP: help COMMAND lists commands/options; schema ID prints an artifact.".into()];
+    let mut lines = vec!["BioMCP: help COMMAND for options; schema ID for artifacts.".into()];
     for command in commands {
         if command.command.first().is_none_or(|verb| {
-            !matches!(verb.as_str(), "search" | "get" | "article" | "trial" | "variant" | "sync")
+            !matches!(
+                verb.as_str(),
+                "search" | "get" | "article" | "trial" | "variant" | "sync"
+            )
         }) {
             continue;
         }
@@ -231,16 +234,7 @@ pub(crate) fn tree() -> String {
                 }
             }
         }
-        if command.command.iter().any(|word| word == "diagnostic")
-            && let Some(source) = command.arguments.iter().find(|a| a.name == "--source")
-        {
-            line.push_str(&format!(" --source {}", source.choices.join("|")));
-            for argument in command.arguments.iter().filter(|argument| {
-                matches!(argument.name.as_str(), "--gene" | "--gene-id" | "--condition-id" | "--type" | "--device-id" | "--drug-application" | "--biomarker" | "--supplement")
-            }) {
-                line.push_str(&format!(" {}", argument.name));
-            }
-        }
+        diagnostic_selectors(&command, &mut line);
         if !command.sections.is_empty() {
             line.push_str(" sections: ");
             line.push_str(
@@ -259,6 +253,29 @@ pub(crate) fn tree() -> String {
         crate::schema::names().count()
     ));
     lines.join("\n")
+}
+
+fn diagnostic_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "diagnostic")
+        && let Some(source) = command.arguments.iter().find(|a| a.name == "--source")
+    {
+        line.push_str(&format!(" --source {}", source.choices.join("|")));
+        for argument in command.arguments.iter().filter(|argument| {
+            matches!(
+                argument.name.as_str(),
+                "--gene"
+                    | "--gene-id"
+                    | "--condition-id"
+                    | "--type"
+                    | "--device-id"
+                    | "--drug-application"
+                    | "--biomarker"
+                    | "--supplement"
+            )
+        }) {
+            line.push_str(&format!(" {}", argument.name));
+        }
+    }
 }
 
 fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
