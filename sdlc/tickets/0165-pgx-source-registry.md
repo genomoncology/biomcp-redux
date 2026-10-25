@@ -1,6 +1,7 @@
 # 0165 — Register CPIC and ClinPGx as noncommercial and retire the pharmgkb spelling
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8b7c4d36d175c749f35823b00b7452b5ed6d5c21
 
 Milestone: 4
 
