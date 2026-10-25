@@ -510,7 +510,7 @@ The generated accounting counts command-specific long-option slots once. Section
 | `drug interactions` | Ported or renamed | `--limit`, `--offset` | — | — | Use get drug ID interactions --source ddinter with --section-limit and --section-offset. Stored pairs retain source level and provenance without a safety conclusion. |
 | `drug cell-lines` | Dropped by ruling | — | `--cell-line`, `--dataset`, `--limit`, `--offset` | — | Cell-line screening is outside the cancer-care drug slice; no replacement call runs. |
 | `ema sync` | Ported or renamed | — | — | — | Use sync ema for one complete validated medicines replacement; reads use stored rows only. |
-| `who sync` | Renamed | — | — | — | Use `biomcp sync who-pq` for the complete finished-product export. |
+| `who sync` | Ported or renamed | — | — | — | Use `biomcp sync who-pq` for the complete finished-product export. |
 | `ddinter sync` | Ported or renamed | — | — | — | Use sync ddinter for one atomic eight-file replacement, preserving the last usable set on failure. |
 | `cvx sync` | Dropped by ruling | — | — | — | This cancer-care drug slice has no vaccine alias bridge; no CVX download runs. |
 <!-- /parity-accounting -->
