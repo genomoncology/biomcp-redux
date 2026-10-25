@@ -33,11 +33,17 @@ pub fn regulatory(row: &DeviceSubmission) -> DiagnosticPmaRegulatory {
 }
 /// Existing label splitter, with its escaped-byte fragment budget.
 pub fn fragments(row: &DeviceSubmission) -> Vec<Option<String>> {
-    row.ao_statement.as_deref().map_or_else(|| vec![None], |text| {
-        if text.is_empty() {
-            vec![Some(String::new())]
-        } else {
-            crate::text_parts::split(text, 6144).into_iter().map(Some).collect()
-        }
-    })
+    row.ao_statement.as_deref().map_or_else(
+        || vec![None],
+        |text| {
+            if text.is_empty() {
+                vec![Some(String::new())]
+            } else {
+                crate::text_parts::split(text, 6144)
+                    .into_iter()
+                    .map(Some)
+                    .collect()
+            }
+        },
+    )
 }

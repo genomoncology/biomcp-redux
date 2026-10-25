@@ -563,12 +563,15 @@ fn ambiguous_parameters() -> Check {
                 .get("next")
                 .and_then(Value::as_array)
                 .is_some_and(|items| {
-                    items
-                        .iter()
-                        .any(|step| {
-                            step.get("kind") == Some(&json!("pivot"))
-                                && step.pointer("/args/1") == Some(&json!(if field == "drug" {"drug"} else {"diagnostic"}))
-                        })
+                    items.iter().any(|step| {
+                        step.get("kind") == Some(&json!("pivot"))
+                            && step.pointer("/args/1")
+                                == Some(&json!(if field == "drug" {
+                                    "drug"
+                                } else {
+                                    "diagnostic"
+                                }))
+                    })
                 })
         {
             return Err(format!(
