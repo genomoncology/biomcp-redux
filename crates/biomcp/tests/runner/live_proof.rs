@@ -12,6 +12,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("live-source-checks/summary-retains-late-drift", || {
             summary().map_err(|e| e.to_string().into())
         }),
+        Trial::test("live-source-checks/retained-drift-witnesses", || {
+            retained().map_err(|e| e.to_string().into())
+        }),
         Trial::test("live-check/offline-planted-drift", || {
             check().map_err(|e| e.to_string().into())
         }),
@@ -458,6 +461,26 @@ fn bounded_command_drift(observed: &[Observation]) -> Result<(), Box<dyn std::er
         {
             return Err("per-command drift evidence or exact omission count missing".into());
         }
+    }
+    Ok(())
+}
+
+fn retained() -> Result<(), String> {
+    let sample = |name: &str, changed: bool, body: Value| json!({
+        "case": name, "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
+        "witness": body
+    });
+    let report = live::summary(vec![
+        sample("clean", false, json!({"output":"must disappear"})),
+        sample("drift", true, json!({"before":{"id":"old"},"after":{"id":"new"}})),
+        sample("large", true, json!({"output":"x".repeat(2 * 1024 * 1024)})),
+    ], BTreeMap::new(), 0, true);
+    let rows = report.get("case_sample").and_then(Value::as_array).ok_or("no rows")?;
+    let row = |name| rows.iter().find(|row| row.get("case").and_then(Value::as_str) == Some(name)).ok_or("missing row");
+    if row("clean")?.get("witness").is_some()
+        || row("drift")?.pointer("/witness/after/id") != Some(&json!("new"))
+        || row("large")?.pointer("/witness/cut") != Some(&json!(true)) {
+        return Err("drift witnesses were discarded, retained for clean cases or unbounded".into());
     }
     Ok(())
 }
