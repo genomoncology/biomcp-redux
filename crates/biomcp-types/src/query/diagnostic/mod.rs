@@ -13,13 +13,20 @@ biodata::wire_enum! {
     DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma", #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
 }
 biodata::wire_enum! {
+    described
     /// Source-supported diagnostic sections; no all section.
-    DiagnosticSection { #[doc = "Native Genes spelling."] Genes => "genes", #[doc = "Native Conditions spelling."] Conditions => "conditions", #[doc = "Native Methods spelling."] Methods => "methods", #[doc = "Native Regulatory spelling."] Regulatory => "regulatory", #[doc = "Native Supplements spelling."] Supplements => "supplements" }
+    DiagnosticSection {
+        #[doc = "GTR native gene rows; five per page."] Genes => "genes",
+        #[doc = "GTR native condition rows; five per page."] Conditions => "conditions",
+        #[doc = "GTR native method entries; five per page."] Methods => "methods",
+        #[doc = "Selected PMA submission statement; one fragment per page."] Regulatory => "regulatory",
+        #[doc = "PMA base application supplement headers; five per page."] Supplements => "supplements"
+    }
 }
 fn limit() -> u32 {
     5
 }
-/// Checked selected-source diagnostic discovery; no identity resolution or I/O.
+/// Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -29,7 +36,7 @@ pub struct DiagnosticSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Required explicit GTR or FDA companion-table source.
+    /// gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment.
     source: DiagnosticSearchSource,
     /// Exact source GeneID, exclusive with gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -53,7 +60,7 @@ struct SearchFields {
     /// Exact table-0 biomarker cell; unsupported in the group table.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     biomarker: Option<Text>,
-    /// Maximum native rows on this page.
+    /// Five rows by default; at most fifty whole native rows.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,

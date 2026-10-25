@@ -22,7 +22,18 @@ pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<
             String::from_utf8_lossy(&output.stderr)
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if args.iter().any(|word| word == "diagnostic")
+        || args.windows(2).any(|words| {
+            words.first().is_some_and(|word| word == "sync")
+                && words
+                    .get(1)
+                    .is_some_and(|word| matches!(word.as_str(), "gtr" | "who-ivd" | "fda-cdx"))
+        })
+    {
+        super::diagnostic_retirements::bounded(&value)?;
+    }
+    Ok(value)
 }
 pub(super) fn cached(args: &[&str], case: &Path, recording: Option<&Path>) -> Vec<String> {
     let mut args: Vec<String> = args.iter().map(|arg| (*arg).into()).collect();
