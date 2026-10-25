@@ -164,6 +164,13 @@
           "$ref": "#/$defs/Concept",
           "description": "Native concept and optional exact ID."
         },
+        "obsolete": {
+          "description": "Publisher obsolete flag when supplied.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "ontology": {
           "$ref": "#/$defs/DiseaseOntology",
           "description": "The explicit queried ontology."

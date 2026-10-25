@@ -124,6 +124,17 @@
   "additionalProperties": false,
   "description": "A native source association without clinical interpretation.",
   "properties": {
+    "aggregator_knowledge_source": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Curie"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native aggregator knowledge source, distinct from the providing collection."
+    },
     "attribution": {
       "$ref": "#/$defs/Attribution",
       "description": "Native row provenance and version."

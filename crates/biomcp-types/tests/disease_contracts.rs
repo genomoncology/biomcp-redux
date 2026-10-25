@@ -145,8 +145,8 @@ fn candidate_header_preserves_publisher_obsolete_state_without_guessing() {
     for state in [true, false] {
         header["obsolete"] = json!(state);
         assert_eq!(
-        roundtrip::<biomcp_types::DiseaseHeader>(header.clone()).unwrap(),
-        header
-    );
+            roundtrip::<biomcp_types::DiseaseHeader>(header.clone()).unwrap(),
+            header
+        );
     }
 }
