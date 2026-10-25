@@ -1,62 +1,48 @@
 use crate::Text;
 use serde::{Deserialize, Serialize};
 use super::gene::QueryInvalid;
-/// One explicit OLS ontology.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum DiseaseOntology {
-    /// Published mondo selector.
-    #[serde(rename = "mondo")]
-    Mondo,
-    /// Published doid selector.
-    #[serde(rename = "doid")]
-    Doid,
-    /// Published ncit selector.
-    #[serde(rename = "ncit")]
-    Ncit,
+biodata::wire_enum! {
+    /// One explicit OLS ontology.
+    DiseaseOntology {
+        /// MONDO ontology.
+        Mondo => "mondo",
+        /// Disease Ontology.
+        Doid => "doid",
+        /// NCI Thesaurus.
+        Ncit => "ncit",
+    }
 }
-/// An explicit disease source without fallback.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum DiseaseSource {
-    /// Published ols selector.
-    #[serde(rename = "ols")]
-    Ols,
-    /// Published mydisease selector.
-    #[serde(rename = "mydisease")]
-    MyDisease,
-    /// Published monarch selector.
-    #[serde(rename = "monarch")]
-    Monarch,
-    /// Published seer selector.
-    #[serde(rename = "seer")]
-    Seer,
+biodata::wire_enum! {
+    /// An explicit disease source without fallback.
+    DiseaseSource {
+        /// Ontology Lookup Service.
+        Ols => "ols",
+        /// MyDisease exact annotation.
+        MyDisease => "mydisease",
+        /// Monarch source association rows.
+        Monarch => "monarch",
+        /// SEER native sites and statistics.
+        Seer => "seer",
+    }
 }
-/// One named disease page.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum DiseaseSection {
-    /// Published synonyms selector.
-    #[serde(rename = "synonyms")]
-    Synonyms,
-    /// Published xrefs selector.
-    #[serde(rename = "xrefs")]
-    Xrefs,
-    /// Published hierarchy selector.
-    #[serde(rename = "hierarchy")]
-    Hierarchy,
-    /// Published genes selector.
-    #[serde(rename = "genes")]
-    Genes,
-    /// Published phenotypes selector.
-    #[serde(rename = "phenotypes")]
-    Phenotypes,
-    /// Published incidence selector.
-    #[serde(rename = "incidence")]
-    Incidence,
-    /// Published survival selector.
-    #[serde(rename = "survival")]
-    Survival,
+biodata::wire_enum! {
+    /// One named disease page.
+    DiseaseSection {
+        /// Publisher scoped synonyms.
+        Synonyms => "synonyms",
+        /// Native cross references.
+        Xrefs => "xrefs",
+        /// Native parent relations.
+        Hierarchy => "hierarchy",
+        /// Native gene association rows.
+        Genes => "genes",
+        /// Native phenotype association rows.
+        Phenotypes => "phenotypes",
+        /// Native stage incidence rows.
+        Incidence => "incidence",
+        /// Annual survival rows.
+        Survival => "survival",
+    }
 }
 impl Default for DiseaseOntology { fn default() -> Self { Self::Mondo } }
 impl Default for DiseaseSource { fn default() -> Self { Self::Ols } }

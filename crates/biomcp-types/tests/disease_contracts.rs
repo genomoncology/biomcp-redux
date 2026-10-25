@@ -55,3 +55,32 @@ fn association_keeps_parent_request_and_native_child_without_becoming_statement(
     assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()), row);
     assert!(serde_json::from_value::<Statement>(row).is_err());
 }
+
+#[test]
+fn native_statistics_keep_requested_and_returned_dimensions_and_missing_observations() {
+    let value = json!({"requested_site":"55","requested_selectors":[{"name":"dataset","code":"4"}],"returned_selectors":[{"name":"site","code":"55"},{"name":"year_range","code":"31"}],"year":2022,"measure":"rel_rate","modeled":{"value":93.690345},"attribution":{"source":"synthetic"}});
+    let result = roundtrip::<biodata::DiseaseStatistic>(value.clone());
+    assert_eq!(result, value);
+    assert!(result.get("observed").is_none());
+    assert_eq!(result["requested_selectors"][0]["code"], "4");
+    assert_eq!(result["returned_selectors"][1]["code"], "31");
+}
+
+#[test]
+fn every_source_and_named_section_roundtrips_with_closed_spellings() {
+    use biomcp_types::{DiseaseSection, DiseaseSource};
+    for spelling in ["ols", "mydisease", "monarch", "seer"] {
+        let source: DiseaseSource = serde_json::from_value(json!(spelling)).unwrap();
+        assert_eq!(source.as_str(), spelling);
+        assert_eq!(roundtrip::<DiseaseSource>(json!(spelling)), spelling);
+    }
+    for spelling in ["synonyms", "xrefs", "hierarchy", "genes", "phenotypes", "incidence", "survival"] {
+        let section: DiseaseSection = serde_json::from_value(json!(spelling)).unwrap();
+        assert_eq!(section.as_str(), spelling);
+        assert_eq!(roundtrip::<DiseaseSection>(json!(spelling)), spelling);
+    }
+    for spelling in ["all", "clinical_features", "pathways", "civic", "shortages"] {
+        assert!(serde_json::from_value::<DiseaseSection>(json!(spelling)).is_err());
+        assert!(serde_json::from_value::<DiseaseSource>(json!(spelling)).is_err());
+    }
+}
