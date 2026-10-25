@@ -407,9 +407,9 @@ The immutable append-only evidence is on Yellow under `data/biomcp-redux/0136-co
 
 The other 14 rerun outputs remain excluded because a required identity was refused or its permitted source allowance was unavailable. The original 41 excluded outputs remain excluded. Across both passes, 34 output files have only their stated bounded measurement scope, and 55 files remain excluded; these counts include repeated commands and warm controls, not complete clinical answers. Actual tokenizer counts, complete bank/section coverage and final 1.0 CLI/MCP parity remain unmeasured. No complete token-budget checkbox follows from these partial measurements.
 
-The following table accounts for every drug-owned leaf and option from static released v0.9.3 declarations. Outcomes are proposals for PM review. They do not close the generated parity ledger before the PM's ruling. Global `--json`, `--no-cache`, `--disable-sources`, short aliases and positional values are outside the historical option denominator. The generic `batch` leaf belongs to the existing shared accounting; its drug choice is mapped below without inventing another historical command.
+The following table accounts for every drug-owned leaf and option from static released v0.9.3 declarations. The mappings follow the accepted source-scoped command tree and the fixed migration guidance. The generated ledger below counts only drug-owned leaves; transferred leaves retain one owner. Global `--json`, `--no-cache`, `--disable-sources`, short aliases and positional values are outside the historical option denominator. The generic `batch` leaf belongs to the existing shared accounting; its drug choice is mapped below without inventing another historical command.
 
-| 0.9 command | Every command-specific option | Proposed mapping and reason |
+| 0.9 command | Every command-specific option | 1.0 mapping and reason |
 | --- | --- | --- |
 | `search drug` | `--query`, `--target`, `--indication`, `--mechanism`, `--type`, `--atc`, `--pharm-class`, `--interactions`, `--limit`, `--offset`, `--region`, `--product-type` | Keep literal query and bounded source paging. Target/indication/type/ATC/pharmacologic-class filters remain unproved and absent from the initial tree until a native-selector known-positive case exists; relation captures do not prove reverse search. Retire semantic mechanism token expansion. Retire unsupported partner-search with guidance to explicit interactions. Replace implicit region fan-out with explicit source selection under the PM ruling. Drop WHO `--product-type` choices because no unique bank question needs that source. No WHO runtime source is kept. |
 | `get drug` | `--name`, `--region`, `--raw` | Name becomes candidate search or requires an explicitly selected source ID. Region maps to explicit source. Complete native label text stays reachable through named sections/continuations; replace the ambiguous raw-rendering switch with that contract. Migration uses the command tree above; it does not ask again for the settled choice. |
@@ -426,9 +426,28 @@ The following table accounts for every drug-owned leaf and option from static re
 | `drug adverse-events` | `--reaction`, `--outcome`, `--serious`, `--date-from`, `--date-to`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--type`, `--limit`, `--offset`; date aliases `--since`, `--until` | Transfer to adverse-event investigation. Preserve that owner for report shares, denominator/source meaning and fallback rulings. Drug identity must remain exact; no FAERS zero becomes safety. |
 | Generic `batch` with drug | Shared `--sections`; `--source` is trial-only, `--mode` and `--pdf` are article-only | Deferred to the shared owner; the initial drug tree is single selected ID. Later multiple-ID cases must prove the same explicit source/sections. Do not claim unsupported drug options or duplicate the generic leaf. |
 
+### Leaf-command parity accounting
+
+The generated accounting counts command-specific long-option slots once. Section words, aliases, positional inputs and global transport flags remain outside its denominator. `--query` maps to literal TEXT, `--name` maps to candidate search, and `--region` maps to explicit source selection through fixed retirement guidance. `--raw` maps to the exact native label heading and complete continuation. Unsupported reverse filters stay undecided; a migration error is not proof that the old capability was ported.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search drug` | Ported or renamed | `--query`, `--limit`, `--offset`, `--region` | `--mechanism`, `--interactions`, `--product-type` | `--target`, `--indication`, `--type`, `--atc`, `--pharm-class` | Use literal TEXT and explicit --source with bounded native pages. Semantic mechanism expansion, partner search and WHO product types retire. Reverse filters need native known-positive selector cases before enabling. |
+| `get drug` | Ported or renamed | `--name`, `--region`, `--raw` | — | — | Select a native identity through search, then get ID --source SOURCE. Native label headings and continuation replace raw rendering; source selection replaces implicit regional fan-out. |
+| `drug interactions` | Ported or renamed | `--limit`, `--offset` | — | — | Use get drug ID interactions --source ddinter with --section-limit and --section-offset. Stored pairs retain source level and provenance without a safety conclusion. |
+| `drug cell-lines` | Dropped by ruling | — | `--cell-line`, `--dataset`, `--limit`, `--offset` | — | Cell-line screening is outside the cancer-care drug slice; no replacement call runs. |
+| `ema sync` | Ported or renamed | — | — | — | Use sync ema for one complete validated medicines replacement; reads use stored rows only. |
+| `who sync` | Dropped by ruling | — | — | — | WHO prequalification answers no unique question in this bank; no WHO runtime source or download is offered. |
+| `ddinter sync` | Ported or renamed | — | — | — | Use sync ddinter for one atomic eight-file replacement, preserving the last usable set on failure. |
+| `cvx sync` | Dropped by ruling | — | — | — | This cancer-care drug slice has no vaccine alias bridge; no CVX download runs. |
+<!-- /parity-accounting -->
+
+`gene drugs` remains one undecided row in gene.md, including its `--limit` and `--offset`: reverse target search has no approved positive selector proof. O01 stays with trial accounting (`drug trials`, its three ported options and retired alias expansion). O02 stays with adverse-event accounting, including date aliases, report filters, counts and paging. O03 stays with disease and pathway owners, including each convenience command's paging. O04 stays with shared batch accounting, including sections and entity-specific options. These references add no duplicate leaf or drug test.
+
 Static source inspection finds `--target` constructed against `gtopdb.interaction_targets.symbol`, followed by local hit checks; indication uses `drugcentral.drug_use.indication.concept_name`. These declarations alone do not prove source-filter correctness. The old mechanism option adds local token clauses and ATC expansions, which conflicts with the accepted no-text-heuristics rule. The drug search declaration has no approval-year flag. This investigation makes no claim to have reproduced or corrected another entity's FDA year bug. Every retained drug filter needs an explicit captured source field and a known-positive case before implementation accepts it.
 
-| 0.9 section or behavior | Proposed outcome |
+| 0.9 section or behavior | 1.0 outcome |
 | --- | --- |
 | Default identity, mechanisms and targets | Keep concise attributed identity; targets/mechanisms are explicit relations and sections. No arbitrary default cross-source target list. |
 | `label` and `--raw` | Keep source-native text, source heading, version and complete continuation; do not silently cap JSON text or synthesize a medical summary. |

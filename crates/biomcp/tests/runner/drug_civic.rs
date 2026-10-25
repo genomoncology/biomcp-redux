@@ -154,7 +154,10 @@ fn check(n: usize) -> Result<(), String> {
     .get(n)
     .copied()
     .ok_or("budget index")?;
-    if comparable > bound {
+    let measured_full: [usize; 15] = [
+        693, 715, 696, 348, 726, 3313, 3320, 3638, 1943, 1965, 2013, 585, 2006, 584, 823,
+    ];
+    if comparable > bound || full > (measured_full[n] * 115).div_ceil(100) {
         return Err(format!(
             "case {n} exceeds CIViC section ceiling: {comparable}"
         ));

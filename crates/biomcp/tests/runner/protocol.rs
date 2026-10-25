@@ -317,6 +317,8 @@ fn discovery() -> Check {
         .get("description")
         .and_then(Value::as_str)
         .ok_or("description missing")?;
+    writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
+        .map_err(|e| e.to_string())?;
     // Keep discovery compact; detailed options live in generated command help.
     if text.len() > 1923 {
         return Err("command description exceeds budget".into());

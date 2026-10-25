@@ -176,7 +176,10 @@ fn help_command() -> Command {
             ),
         );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for &(verb, entity, _) in QUERIES {
+    for &(verb, entity, _) in QUERIES
+        .iter()
+        .chain(&[("sync", "ema", ""), ("sync", "ddinter", "")])
+    {
         let command = verbs
             .remove(verb)
             .unwrap_or_else(|| Command::new(verb).subcommand_required(true));

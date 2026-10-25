@@ -104,7 +104,9 @@ fn check(n: usize) -> Check {
         bytes.div_ceil(4),
         comparable.div_ceil(4)
     ).map_err(|e|e.to_string())?;
-    if bound != 0 && comparable > bound {
+    let measured_full: [usize; 9] = [3822, 3251, 2250, 2443, 1848, 1767, 2398, 1795, 1199];
+    let full_bound = (measured_full[n] * 115).div_ceil(100);
+    if comparable > bound || bytes > full_bound {
         return Err(format!(
             "case {n} exceeds measured comparable output budget: {comparable}/{bound}"
         ));
