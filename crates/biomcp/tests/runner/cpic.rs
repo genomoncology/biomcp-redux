@@ -119,19 +119,7 @@ fn scenario(name: &'static str) -> Check {
     }
     verify_body(name, &cold, &original, total)?;
     markdown(&env, &args)?;
-    for switch in ["cpic", "noncommercial"] {
-        let mut blocked = vec![
-            "--replay".into(),
-            record.to_string_lossy().into(),
-            "--disable-sources".into(),
-            switch.into(),
-        ];
-        blocked.extend(args.clone());
-        let value = both(&env, blocked, 4)?;
-        if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
-            return Err("disabled source restored replay".into());
-        }
-    }
+    blocked(&env, &args, &record)?;
     let expected = follow_page(&env, &cold, total)?;
     if stub.finish()?.len() != expected {
         return Err("warm cache or disabled call opened HTTP".into());
@@ -372,6 +360,23 @@ fn timeout() -> Check {
     }
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached HTTP".into());
+    }
+    Ok(())
+}
+
+fn blocked(env: &Environment, args: &[String], record: &std::path::Path) -> Check {
+    for switch in ["cpic", "noncommercial"] {
+        for replay in [false, true] {
+            let mut blocked = vec!["--disable-sources".into(), switch.into()];
+            if replay {
+                blocked.extend(["--replay".into(), record.to_string_lossy().into()]);
+            }
+            blocked.extend(args.iter().cloned());
+            let value = both(env, blocked, 4)?;
+            if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+                return Err("disabled source restored cache or replay".into());
+            }
+        }
     }
     Ok(())
 }
