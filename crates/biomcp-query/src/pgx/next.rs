@@ -45,16 +45,7 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
                 }
             }
         }
-        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => {
-            for s in [PgxSection::Recommendations, PgxSection::Guidelines] {
-                if let Some(r) = section(q, s) {
-                    next.push((StepKind::Section, run(r)));
-                }
-            }
-            if let Ok(query) = q.with_section(PgxSection::Annotations, PgxSource::Clinpgx) {
-                next.push((StepKind::Section, run(Request::GetPgx(query))));
-            }
-        }
+        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => card_steps(q, &mut next),
         (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => {
             annotation_steps(q, body, &mut next)
         }
@@ -131,5 +122,16 @@ fn annotation_steps(q: &PgxGet, body: &PgxAnnotations, next: &mut Vec<(StepKind,
         PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
             page_step(q, page, next)
         }
+    }
+}
+
+fn card_steps(q: &PgxGet, next: &mut Vec<(StepKind, Action)>) {
+    for s in [PgxSection::Recommendations, PgxSection::Guidelines] {
+        if let Some(r) = section(q, s) {
+            next.push((StepKind::Section, run(r)));
+        }
+    }
+    if let Ok(query) = q.with_section(PgxSection::Annotations, PgxSource::Clinpgx) {
+        next.push((StepKind::Section, run(Request::GetPgx(query))));
     }
 }

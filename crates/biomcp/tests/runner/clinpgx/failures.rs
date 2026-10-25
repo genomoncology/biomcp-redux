@@ -15,6 +15,13 @@ pub(super) fn trials() -> Vec<Trial> {
             move || failure(name).map_err(Into::into),
         ));
     }
+    out.push(Trial::test("clinpgx-annotations/recorded-timeout", || {
+        timeout().map_err(Into::into)
+    }));
+    out.push(Trial::test(
+        "clinpgx-annotations/exclusive-selectors",
+        || selectors().map_err(Into::into),
+    ));
     out
 }
 fn failure(name: &'static str) -> Check {
@@ -77,5 +84,64 @@ fn failure(name: &'static str) -> Check {
         return Err("rejected response entered cache".into());
     }
     stub.finish()?;
+    Ok(())
+}
+
+fn selectors() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    for extra in [
+        vec!["--gene", "DPYD"],
+        vec!["annotations"],
+        vec!["--kind", "clinical"],
+        vec!["--section-offset", "1"],
+        vec!["--source", "cpic"],
+    ] {
+        let mut command = args("annotation");
+        command.extend(extra.into_iter().map(str::to_owned));
+        both(&env, command, 2)?;
+    }
+    Ok(())
+}
+fn timeout() -> Check {
+    let body = native("annotation")?;
+    let stub = Stub::for_sources(
+        &["api.clinpgx.org"],
+        |_| "application/json",
+        move |_| Ok(body.to_string()),
+    )?;
+    let env = environment(&stub)?;
+    let record = env.root().join("record");
+    let mut command = vec!["--record".into(), record.to_string_lossy().into()];
+    command.extend(args("annotation"));
+    invoke(&env, command, 0)?;
+    for entry in std::fs::read_dir(record.join("clinpgx")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        if path.extension().is_none_or(|ext| ext != "json") {
+            continue;
+        }
+        let mut recording: Value =
+            serde_json::from_slice(&std::fs::read(&path).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        *recording
+            .pointer_mut("/exchanges/0/delay_ms")
+            .ok_or("recorded delay")? = json!(16000);
+        std::fs::write(
+            path,
+            serde_json::to_vec(&recording).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    let fresh = Environment::new().map_err(|e| e.to_string())?;
+    let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];
+    replay.extend(args("annotation"));
+    let v = both(&fresh, replay, 4)?;
+    if v.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+        || v.get("result").is_some_and(|v| !v.is_null())
+    {
+        return Err("timeout became negative fact".into());
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("recorded timeout reached provider".into());
+    }
     Ok(())
 }
