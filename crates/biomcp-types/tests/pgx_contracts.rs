@@ -1,5 +1,5 @@
 //! pgx-types: checked public requests and neutral records, with no I/O.
-use biodata::{ClinPgxAccession, PaId};
+use biodata::ClinPgxAccession;
 use biomcp_types::{PgxGet, PgxSearch};
 use serde_json::json;
 #[test]
@@ -24,7 +24,119 @@ fn explicit_sources_and_section_ownership_are_checked_before_io() -> Result<(), 
     }
     let a:ClinPgxAccession="PA166134421".parse()?;
     assert_eq!(a.to_string(),"PA166134421");
-    assert!("PA166134421".parse::<PaId>().is_err());
+    assert_ne!(std::any::TypeId::of::<ClinPgxAccession>(), std::any::TypeId::of::<biodata::PaId>());
     for invalid in ["PA","PA0","PA-1","pa166134421"," PA166134421","clinpgx:PA166134421"] { assert!(invalid.parse::<ClinPgxAccession>().is_err()); }
+    Ok(())
+}
+
+fn roundtrip<T: serde::Serialize + serde::de::DeserializeOwned>(value: serde_json::Value) -> Result<serde_json::Value, serde_json::Error> {
+    serde_json::to_value(serde_json::from_value::<T>(value)?)
+}
+fn recommendation() -> serde_json::Value {
+    json!({"recommendationid":42,"lookupkey":{"TPMT":"synthetic first","NUDT15":"synthetic second"},"drugname":"synthetic drug","guidelinename":"synthetic guide","guidelineurl":"https://example.invalid/guide","implications":{"TPMT":"synthetic implication"},"drugrecommendation":"  Synthetic source text.\n","classification":"synthetic classification","phenotypes":{"TPMT":"synthetic phenotype"},"activityscore":{"TPMT":"n/a","NUDT15":"0.5"},"population":"synthetic population","comments":null})
+}
+fn diplotype() -> serde_json::Value {
+    json!({"genesymbol":"TPMT","diplotype":"*3A/*1","function1":"synthetic","function2":"synthetic","activityvalue1":"n/a","activityvalue2":"n/a","totalactivityscore":"n/a","description":"synthetic","diplotypekey":{"TPMT":{"*3A":1,"*1":1}},"generesult":"synthetic result","ehrpriority":"synthetic priority","consultationtext":"  Synthetic consultation.\n","lookupkey":{"TPMT":"synthetic"}})
+}
+fn annotation() -> serde_json::Value {
+    json!({"id":42,"accessionId":"PA1234","levelOfEvidence":{"id":3,"resource":"synthetic","term":"synthetic evidence","termId":"synthetic-term"},"location":{"id":7,"copyNumber":"synthetic","diplotypes":[],"displayName":"synthetic location","genes":[{"objCls":"Gene","id":"PA1","symbol":"TPMT","name":"synthetic"}],"gpPosition":-1,"haplotypes":[{"objCls":"Haplotype","id":"PA2","symbol":"*3A","name":"synthetic"}],"linkedObjects":[{"objCls":"Haplotype","id":"PA2","symbol":"*3A","name":"synthetic"}],"refSeqPosition":-1,"tagGene":false,"type":"synthetic"},"name":"synthetic annotation","relatedChemicals":[{"objCls":"Chemical","id":"PA3","name":"synthetic first"},{"objCls":"Chemical","id":"PA4","name":"synthetic second"}],"relatedChemicalsLogic":"synthetic relation","relatedGuidelines":[],"relatedLabels":[],"types":["synthetic first","synthetic second"]})
+}
+#[test]
+fn native_records_keep_joint_context_source_text_and_literal_not_applicable() -> Result<(),Box<dyn std::error::Error>> {
+    use biodata::*;
+    for value in [recommendation(), {let mut v=recommendation();v["comments"]=json!("  Synthetic comments.\n");v}] {
+        assert_eq!(roundtrip::<PgxRecommendation>(value.clone())?,value);
+        assert!(serde_json::from_value::<Statement>(value).is_err());
+    }
+    let d=diplotype();
+    assert_eq!(roundtrip::<PgxDiplotypeResult>(d.clone())?,d);
+    assert!(serde_json::from_value::<Statement>(d).is_err());
+    let mut table=recommendation();
+    let object=table.as_object_mut().ok_or("object")?;
+    for key in ["recommendationid","drugname","guidelinename","guidelineurl"] { object.remove(key); }
+    object.extend(serde_json::from_value::<serde_json::Map<String,serde_json::Value>>(json!({"id":91,"guidelineid":3,"drugid":"RxNorm:10324","allelestatus":{},"version":4,"dosinginformation":true,"alternatedrugavailable":false,"otherprescribingguidance":false}))?);
+    assert_eq!(roundtrip::<PgxDrugRecommendation>(table.clone())?,table);
+    assert!(serde_json::from_value::<PgxRecommendation>(table).is_err());
+    let pair=json!({"pairid":3,"drugid":"RxNorm:10324","drugname":"synthetic","genesymbol":"TPMT","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"synthetic distinct level","pgxtesting":null,"pmids":null,"usedforrecommendation":"No","provisional":false});
+    assert_eq!(roundtrip::<PgxPair>(pair.clone())?,pair);
+    let guide=json!({"guideline_name":"synthetic","guideline_url":"https://example.invalid/guide","drugs":["second","first","second"],"genes":[{"url":"https://example.invalid/gene","symbol":"TPMT"}]});
+    assert_eq!(roundtrip::<PgxGuidelineReference>(guide.clone())?,guide);
+    Ok(())
+}
+#[test]
+fn annotation_tiers_preserve_native_arrays_missing_locations_and_base_history() -> Result<(),Box<dyn std::error::Error>> {
+    use biodata::*;
+    let header=annotation();
+    assert_eq!(roundtrip::<PgxAnnotationHeader>(header.clone())?,header);
+    let mut detail=header.clone();
+    let object=detail.as_object_mut().ok_or("object")?;
+    object.extend(serde_json::from_value::<serde_json::Map<String,serde_json::Value>>(json!({"allelePhenotypes":[{"id":1,"allele":"synthetic allele","limitedEvidence":false,"phenotype":"  Synthetic text.\n"}],"conflictingVariantAnnotationIds":[12,13],"history":[{"id":1,"date":"2026-01-01","type":"synthetic","version":3},{"id":2,"date":"2026-02-01","type":"synthetic","version":4,"description":"synthetic change"}],"objCls":"ClinicalAnnotation","overrideLevel":false,"pediatric":false,"relatedAlleles":[{"objCls":"Haplotype","id":"PA2","name":"synthetic","symbol":"*1"}],"relatedDiseases":[],"score":1.5,"scoreDetails":"synthetic details"}))?);
+    assert_eq!(roundtrip::<PgxAnnotationDetail>(detail.clone())?,detail);
+    assert!(serde_json::from_value::<PgxAnnotationHeader>(detail).is_err());
+    let reference=json!({"objCls":"GuidelineAnnotation","id":"PA5","name":"synthetic","crossReferences":[]});
+    assert_eq!(roundtrip::<PgxAnnotationReference>(reference.clone())?,reference);
+    Ok(())
+}
+#[test]
+fn native_selectors_and_closed_sets_roundtrip_and_pages_keep_all_context() -> Result<(),Box<dyn std::error::Error>> {
+    use biomcp_types::*;
+    for value in ["cpic","clinpgx"] {assert_eq!(roundtrip::<PgxSource>(json!(value))?,value);}
+    for value in ["recommendations","guidelines","diplotype","annotations"] {assert_eq!(roundtrip::<PgxSection>(json!(value))?,value);}
+    for value in ["clinical","guideline","label"] {
+        assert_eq!(roundtrip::<PgxAnnotationKind>(json!(value))?,value);
+        let q:PgxGet=serde_json::from_value(json!({"gene":"TPMT","source":"clinpgx","section":"annotations","kind":value,"section_limit":2}))?;
+        let next=q.at_section_offset(2)?;
+        assert_eq!(next.kind(),q.kind());assert_eq!(next.gene(),q.gene());assert_eq!(next.source(),q.source());assert_eq!((next.section_limit(),next.section_offset()),(2,2));
+    }
+    for value in ["source","observed"] {assert_eq!(roundtrip::<PgxTotalKind>(json!(value))?,value);}
+    for invalid in ["all","pharmgkb","unknown"] {
+        assert!(serde_json::from_value::<PgxSource>(json!(invalid)).is_err());
+        assert!(serde_json::from_value::<PgxSection>(json!(invalid)).is_err());
+        assert!(serde_json::from_value::<PgxAnnotationKind>(json!(invalid)).is_err());
+        assert!(serde_json::from_value::<PgxTotalKind>(json!(invalid)).is_err());
+    }
+    let q:PgxGet=serde_json::from_value(json!({"gene":"CYP2D6","source":"cpic","section":"recommendations","drug_id":"RxNorm:10324","section_limit":2}))?;
+    assert_eq!(q.at_section_offset(2)?.drug_id(),q.drug_id());
+    let q:PgxGet=serde_json::from_value(json!({"gene":"TPMT","source":"cpic","section":"diplotype","diplotype":"*3A/*1"}))?;
+    assert_eq!(q.diplotype().map(biodata::Text::as_str),Some("*3A/*1"));
+    let a:PgxAnnotationGet=serde_json::from_value(json!({"id":"PA1234","source":"clinpgx"}))?;
+    assert_eq!(a.id().as_str(),"PA1234");assert_eq!(a.source(),PgxSource::Clinpgx);
+    assert!(serde_json::from_value::<PgxAnnotationGet>(json!({"id":"PA1234","source":"cpic"})).is_err());
+    Ok(())
+}
+#[cfg(feature="schema")]
+fn envelope<T>(query:serde_json::Value,body:serde_json::Value)->Result<(),Box<dyn std::error::Error>>
+where T:biomcp_types::ResponseBody+schemars::JsonSchema+serde::de::DeserializeOwned,
+T::Query:schemars::JsonSchema+serde::de::DeserializeOwned {
+    let query=serde_json::from_value(query)?;
+    let body=serde_json::from_value::<T>(body)?;
+    let value=serde_json::to_value(biomcp_types::Envelope::new(biomcp_types::Status::Complete,query,Some(body)))?;
+    let schema=schemars::generate::SchemaSettings::draft2020_12().into_generator().into_root_schema_for::<biomcp_types::Envelope<T>>();
+    let validator=jsonschema::draft202012::new(&serde_json::to_value(schema)?)?;
+    assert!(validator.is_valid(&value),"{value}");
+    assert_eq!(value.get("schema").and_then(serde_json::Value::as_str),Some(T::SCHEMA));
+    Ok(())
+}
+#[cfg(feature="schema")]
+#[test]
+fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()->Result<(),Box<dyn std::error::Error>> {
+    use biomcp_types::*;
+    let q=json!({"gene":"TPMT","source":"cpic"});
+    let header=json!({"gene":"TPMT","source":"cpic"});
+    let scope=json!({"offset":0,"returned":0,"total":0,"total_kind":"source"});
+    envelope::<PgxPage>(q.clone(),json!({"header":header,"items":[],"page":scope}))?;
+    envelope::<PgxCard>(q.clone(),json!({"header":header,"identity":{"symbol":"TPMT","hgncid":"HGNC:12014","ncbiid":"7172","ensemblid":"ENSG00000137364","clinpgxid":"PA356","lookupmethod":"synthetic method","version":42}}))?;
+    envelope::<PgxGuidelines>(json!({"gene":"TPMT","source":"cpic","section":"guidelines"}),json!({"header":header,"items":[],"page":scope}))?;
+    envelope::<PgxRecommendations>(json!({"gene":"TPMT","source":"cpic","section":"recommendations"}),json!({"representation":"view","header":header,"items":[recommendation()],"page":{"offset":0,"returned":1,"total":2,"total_kind":"source"}}))?;
+    envelope::<PgxRecommendations>(json!({"gene":"TPMT","source":"cpic","section":"recommendations","drug_id":"RxNorm:10324"}),json!({"representation":"table","header":header,"items":[],"page":scope}))?;
+    envelope::<PgxDiplotype>(json!({"gene":"TPMT","source":"cpic","section":"diplotype","diplotype":"*3A/*1"}),json!({"header":header,"diplotypes":[diplotype(),diplotype()]}))?;
+    let clinical=annotation();
+    let mut detail=clinical.clone();
+    detail.as_object_mut().ok_or("object")?.extend(serde_json::from_value::<serde_json::Map<String,serde_json::Value>>(json!({"allelePhenotypes":[],"conflictingVariantAnnotationIds":[],"history":[],"objCls":"ClinicalAnnotation","overrideLevel":false,"pediatric":false,"relatedAlleles":[],"relatedDiseases":[],"score":0.0,"scoreDetails":"synthetic"}))?);
+    envelope::<PgxAnnotation>(json!({"id":"PA1234","source":"clinpgx"}),json!({"header":{"id":"PA1234","source":"clinpgx"},"annotation":detail}))?;
+    for kind in ["clinical","guideline","label"] {
+        let items=if kind=="clinical" {json!([clinical])} else {json!([{"objCls":"synthetic","id":"PA5","name":"synthetic","crossReferences":[]}])};
+        envelope::<PgxAnnotations>(json!({"gene":"TPMT","source":"clinpgx","section":"annotations","kind":kind}),json!({"annotationkind":kind,"header":{"gene":"TPMT","source":"clinpgx"},"items":items,"page":{"offset":0,"returned":1,"total":1,"total_kind":"observed"}}))?;
+    }
     Ok(())
 }

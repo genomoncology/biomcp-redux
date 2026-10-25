@@ -1,5 +1,10 @@
 use std::{fmt, str::FromStr};
 /// A ClinPGx object accession, distinct from the protein allele namespace PaId.
+/// The namespaces overlap in spelling; a source-given ClinPGx object is never converted to a protein allele.
+/// ```compile_fail
+/// let accession: biodata::ClinPgxAccession = "PA166134421".parse().unwrap();
+/// let allele: biodata::PaId = accession;
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ClinPgxAccession(Box<str>);
 impl ClinPgxAccession {
