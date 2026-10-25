@@ -47,16 +47,17 @@ impl Document {
             mondo.is_some_and(|c| c.id == self.id) || doid.is_some_and(|c| c.id == self.id);
         primary
             && (self.id == *id
-                || mondo.is_some_and(|c| {
-                    c.xrefs.get("doid").is_some_and(|values| match values {
-                        OneOrMany::One(value) => {
-                            value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
-                        }
-                        OneOrMany::Many(values) => values
-                            .iter()
-                            .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
-                    })
-                }))
+                || (id.to_string().starts_with("DOID:")
+                    && mondo.is_some_and(|c| {
+                        c.xrefs.get("doid").is_some_and(|values| match values {
+                            OneOrMany::One(value) => {
+                                value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
+                            }
+                            OneOrMany::Many(values) => values
+                                .iter()
+                                .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
+                        })
+                    })))
     }
 }
 #[derive(Debug, Deserialize)]

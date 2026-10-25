@@ -15,27 +15,28 @@ type Error = Box<dyn std::error::Error>;
 #[test]
 fn wrong_identity_never_enters_the_checked_cache() -> Result<(), Error> {
     let mut attempt = 0;
-    let stub =
-        network_stub::Stub::for_source_status(
-            "mydisease.info",
-            "application/json",
-            move |request| {
-                assert!(request.starts_with(
+    let stub = network_stub::Stub::for_source_status(
+        "mydisease.info",
+        "application/json",
+        move |request| {
+            assert!(
+                request.starts_with(
                     "GET /v1/disease/MONDO%3A0000001?fields=mondo%2Cdisease_ontology "
-                ));
-                attempt += 1;
-                let id = if attempt == 1 {
-                    "MONDO:0000002"
-                } else {
-                    "MONDO:0000001"
-                };
-                Ok(
-                    serde_json::json!({"_id":id,"mondo":{"mondo":id,"label":"Synthetic label"}})
+                )
+            );
+            attempt += 1;
+            let id = if attempt == 1 {
+                "MONDO:0000002"
+            } else {
+                "MONDO:0000001"
+            };
+            Ok(
+                    serde_json::json!({"_id":id,"mondo":{"mondo":id,"label":"Synthetic label","xrefs":{"doid":["MONDO:0000001"]}}})
                         .to_string(),
                 )
-            },
-            |_| 200,
-        )?;
+        },
+        |_| 200,
+    )?;
     let directory = tempfile::tempdir()?;
     let fetch = record(&stub, directory.path(), true)?;
     let leg = fetch.leg(&mydisease::SPEC, fetch.deadline(Duration::from_secs(20)));
@@ -71,8 +72,12 @@ fn retained_native_annotations_record_and_replay() -> Result<(), Error> {
 }
 fn record(stub: &network_stub::Stub, root: &Path, cache: bool) -> Result<Fetch, Error> {
     Ok(Fetch::open(FetchConfig {
-        mode: Mode::Record {
-            dir: root.join("recorded"),
+        mode: if cache {
+            Mode::Live { fresh: false }
+        } else {
+            Mode::Record {
+                dir: root.join("recorded"),
+            }
         },
         cache: cache.then(|| root.join("cache.sqlite")),
         proxy: Some(biomcp_fetch::Secret::new(format!(
