@@ -292,4 +292,180 @@ const CASES: &[(&str, &str)] = &[
     ("-j get adverse-event 100", "use: --format json"),
     ("search adverse-event text --json", "use: --format json"),
     ("--json get adverse-event 100", "use: --format json"),
+    (
+        "search adverse-event text --outcome=fatal",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+    ),
+    (
+        "search adverse-event text --outcome=hospitalisation",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+    ),
+    (
+        "search adverse-event text --outcome=disabling",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+    ),
+    (
+        "search adverse-event text --serious=hospitalisation",
+        "only --serious death and --serious hospitalization are supported",
+    ),
+    (
+        "search adverse-event text --serious=lifethreatening",
+        "only --serious death and --serious hospitalization are supported",
+    ),
+    (
+        "search adverse-event text --serious=disabling",
+        "only --serious death and --serious hospitalization are supported",
+    ),
+    (
+        "search adverse-event text --serious=congenital",
+        "only --serious death and --serious hospitalization are supported",
+    ),
+    (
+        "search adverse-event text --serious=congenital_anomaly",
+        "only --serious death and --serious hospitalization are supported",
+    ),
+    (
+        "search adverse-event text --count=reaction",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=reactionmeddrapt",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=patient.reaction.reactionmeddrapt",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=patient.reaction.reactionmeddrapt.exact",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=medicinalproduct",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=medicinalproduct.exact",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=openfda.generic_name",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=openfda.generic_name.exact",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=openfda.brand_name",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=openfda.brand_name.exact",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=patientsex",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=patientonsetage",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=serious",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=seriousnessdeath",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=seriousnesshospitalization",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=seriousnesslifethreatening",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=seriousnessdisabling",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=seriousnesscongenitalanomali",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=seriousnessother",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=reactionoutcome",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=primarysource.qualification",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=total",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=meta.total",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=results.total",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --count=meta.results.total",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --serious=any --source=maude",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --serious=death --source=maude",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --serious=injury --source=maude",
+        "this adverse-event filter is not supported",
+    ),
+    (
+        "search adverse-event text --type=faers",
+        "renamed; use: --source faers",
+    ),
+    (
+        "search adverse-event text --type=device",
+        "use: search adverse-event <TEXT> --source maude",
+    ),
+    (
+        "search adverse-event text --type=devices",
+        "use: search adverse-event <TEXT> --source maude",
+    ),
+    (
+        "search adverse-event text --type=maude",
+        "use: search adverse-event <TEXT> --source maude",
+    ),
+    (
+        "search adverse-event text --type=recall",
+        "recalls are outside this entity",
+    ),
+    (
+        "search adverse-event text --type=recalls",
+        "recalls are outside this entity",
+    ),
+    (
+        "search adverse-event text --type=enforcement",
+        "recalls are outside this entity",
+    ),
+    (
+        "get adverse-event 100 --section=outcomes",
+        "use the card seriousness flags and the reactions section",
+    ),
 ];
