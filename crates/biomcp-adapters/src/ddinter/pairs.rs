@@ -56,8 +56,8 @@ impl Pair {
 /// Select exact source partners in partition/row order, retaining every duplicate origin.
 pub fn partners(mut rows: Vec<PartRow>, anchor: &str) -> Vec<Pair> {
     rows.sort_by(|a, b| (&a.part, a.row).cmp(&(&b.part, b.row)));
-    let mut seen = BTreeMap::<String, usize>::new();
-    let mut pairs: Vec<Pair> = Vec::new();
+    let mut pairs = BTreeMap::<String, Pair>::new();
+    let mut order = Vec::new();
     for row in rows {
         let reversed = row.value.id_b() == anchor;
         if row.value.id_a() != anchor && !reversed {
@@ -72,16 +72,22 @@ pub fn partners(mut rows: Vec<PartRow>, anchor: &str) -> Vec<Pair> {
             part: row.part,
             row: row.row,
         };
-        if let Some(&index) = seen.get(partner) {
-            pairs[index].provenance.push(origin);
+        if let Some(pair) = pairs.get_mut(partner) {
+            pair.provenance.push(origin);
         } else {
-            seen.insert(partner.to_owned(), pairs.len());
-            pairs.push(Pair {
-                native: row.value,
-                provenance: vec![origin],
-                reversed,
-            });
+            order.push(partner.to_owned());
+            pairs.insert(
+                partner.to_owned(),
+                Pair {
+                    native: row.value,
+                    provenance: vec![origin],
+                    reversed,
+                },
+            );
         }
     }
-    pairs
+    order
+        .into_iter()
+        .filter_map(|id| pairs.remove(&id))
+        .collect()
 }

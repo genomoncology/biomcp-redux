@@ -53,3 +53,16 @@ fn drug_ddinter_checks_required_native_cells_before_publication() {
         );
     }
 }
+#[test]
+fn drug_ddinter_names_only_discover_separate_native_candidates() {
+    let rows = vec![
+        row("L", 4, "DDInter1", "DDInter3", "Other"),
+        row("B", 2, "DDInter1", "DDInter2", "Synthetic second"),
+    ];
+    let items = biomcp_adapters::ddinter::candidates(rows, "Synthetic");
+    assert_eq!(items.len(), 2);
+    assert_eq!(items[0].id.to_string(), "DDInter1");
+    assert_eq!(items[1].id.to_string(), "DDInter2");
+    assert_eq!(items[0].identity_level, biodata::DrugIdentityLevel::Unknown);
+    assert!(items[0].url.is_none());
+}

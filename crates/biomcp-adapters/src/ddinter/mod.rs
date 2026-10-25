@@ -1,5 +1,7 @@
 //! DDInter native pair rows and the canonical publisher declaration.
+mod identity;
 mod pairs;
+pub use identity::candidates;
 mod raw;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
