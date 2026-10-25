@@ -6,6 +6,7 @@ mod admission;
 mod budget;
 mod failures;
 mod fixture;
+mod influenza;
 mod navigation;
 mod policy;
 mod rejections;
@@ -13,6 +14,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("vaers-summary/exact-influenza-types-and-native-labels", || {
+            influenza::run().map_err(Into::into)
+        }),
         Trial::test("vaers-summary/policy-before-cache-and-replay", || {
             policy::run().map_err(Into::into)
         }),

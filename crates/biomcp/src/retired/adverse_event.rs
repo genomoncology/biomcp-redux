@@ -110,7 +110,7 @@ fn guidance(
                     || text.eq_ignore_ascii_case("influenza")
                     || text.eq_ignore_ascii_case("Influenza vaccine")
                 {
-                    return Some(ErrorMessage::VaersInfluenza);
+                    return Some(ErrorMessage::VaersInfluenzaCodes);
                 }
                 if biomcp_types::vaers_vaccine_code(text).is_none() {
                     return Some(ErrorMessage::VaersVaccine);

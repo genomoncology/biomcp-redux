@@ -24,15 +24,32 @@ impl VaersSection {
         }
     }
 }
-/// Resolve only exact supported vaccine codes or display names, ignoring case.
+/// Published native influenza types, each selecting an independent table.
+/// Labels preserve the publisher's spelling and qualifications.
+pub const VAERS_INFLUENZA: &[(&str, &str)] = &[
+    ("FLU(H1N1)", "INFLUENZA (H1N1) MONOVALENT (INJECTED)"),
+    ("FLUN(H1N1)", "INFLUENZA (H1N1) MONOVALENT, (INTRANASAL SPRAY)"),
+    ("FLUX(SEASONAL)", "INFLUENZA VIRUS VACCINE, NO BRAND NAME"),
+    ("FLU4(SEASONAL)", "INFLUENZA VIRUS VACCINE, QUADRIVALENT (INJECTED)"),
+    ("FLUN4(SEASONAL)", "INFLUENZA VIRUS VACCINE, QUADRIVALENT (INTRANASAL SPRAY)"),
+    ("FLUA4(SEASONAL)", "INFLUENZA VIRUS VACCINE, QUADRIVALENT, ADJUVANT (INJECTED)"),
+    ("FLUC4(SEASONAL)", "INFLUENZA VIRUS VACCINE, QUADRIVALENT, CELL-CULTURE-DERIVED (INJECTED)"),
+    ("FLUR4(SEASONAL)", "INFLUENZA VIRUS VACCINE, QUADRIVALENT, RECOMBINANT (INJECTED)"),
+    ("FLU3(SEASONAL)", "INFLUENZA VIRUS VACCINE, TRIVALENT (INJECTED)"),
+    ("FLUN3(SEASONAL)", "INFLUENZA VIRUS VACCINE, TRIVALENT (INTRANASAL SPRAY)"),
+    ("FLUA3(SEASONAL)", "INFLUENZA VIRUS VACCINE, TRIVALENT, ADJUVANT (INJECTED)"),
+    ("FLUC3(SEASONAL)", "INFLUENZA VIRUS VACCINE, TRIVALENT, CELL-CULTURE-DERIVED (INJECTED)"),
+    ("FLUR3(SEASONAL)", "INFLUENZA VIRUS VACCINE, TRIVALENT, RECOMBINANT (INJECTED)"),
+    ("FLUX(H1N1)", "INFLUENZA(H1N1) MONOVALENT, UNKNOWN MANUFACTURER"),
+];
+/// Resolve only exact supported vaccine codes or existing display names, ignoring case.
 pub fn vaers_vaccine_code(text: &str) -> Option<&'static str> {
     if text.eq_ignore_ascii_case("MMR") {
         Some("MMR")
-    } else if text.eq_ignore_ascii_case("COVID19") || text.eq_ignore_ascii_case("COVID-19 vaccine")
-    {
+    } else if text.eq_ignore_ascii_case("COVID19") || text.eq_ignore_ascii_case("COVID-19 vaccine") {
         Some("COVID19")
     } else {
-        None
+        VAERS_INFLUENZA.iter().find_map(|(code, _)| text.eq_ignore_ascii_case(code).then_some(*code))
     }
 }
 /// Original native XML attributes, including label, value, displayed footer and suppression.
