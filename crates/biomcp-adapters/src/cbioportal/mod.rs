@@ -7,6 +7,7 @@ pub use raw::Mutation;
 use std::time::Duration;
 /// Study-specific terms must be verified independently of public read access.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     source: Source::Cbioportal,
     base: "https://www.cbioportal.org/api",
     key: KeyUse::None,

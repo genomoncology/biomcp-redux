@@ -374,6 +374,9 @@ impl Leg<'_> {
             agent.get(&prepared.url).force_send_body()
         }
         .header("Accept", accept);
+        if let Some(user_agent) = self.spec.user_agent {
+            request = request.header("User-Agent", user_agent);
+        }
         if prepared.exact_count {
             request = request.header("Prefer", "count=exact");
         }

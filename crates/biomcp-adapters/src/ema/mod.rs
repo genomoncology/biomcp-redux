@@ -12,6 +12,7 @@ use std::marker::PhantomData;
 use std::time::Duration;
 /// Publisher policy shared by health, request admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     source: Source::Ema,
     base: "https://www.ema.europa.eu",
     terms: Terms {

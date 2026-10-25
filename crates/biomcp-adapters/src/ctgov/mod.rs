@@ -10,6 +10,7 @@ use raw::{FirstPage, RawPage, Version};
 use std::{collections::BTreeMap, time::Duration};
 /// Publisher terms apply to this registry; individual records are not a blanket CC0 grant.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     source: biomcp_types::Source::ClinicalTrialsGov,
     base: "https://clinicaltrials.gov/api/v2",
     key: KeyUse::None,
