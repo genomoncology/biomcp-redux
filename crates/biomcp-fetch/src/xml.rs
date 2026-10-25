@@ -59,6 +59,8 @@ pub trait XmlReply: Reply {
 
 type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason> + 'a;
 type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
+type RangeCheck<'a, T> =
+    dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply> + 'a;
 pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
     check: Option<&'a ReplyCheck<'a, T>>,
@@ -69,8 +71,7 @@ pub(crate) struct Decoder<'a, T> {
     pub(crate) json_absence: bool,
     octet_stream: bool,
     parse: fn(&[u8]) -> Option<T>,
-    range_check:
-        Option<&'a dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply>>,
+    range_check: Option<&'a RangeCheck<'a, T>>,
 }
 impl<'a, T: Reply> Decoder<'a, T> {
     pub(crate) fn checked_json(check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>) -> Self {
@@ -78,9 +79,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
         codec.check = Some(check);
         codec
     }
-    pub(crate) fn counted_json(
-        check: &'a dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply>,
-    ) -> Self {
+    pub(crate) fn counted_json(check: &'a RangeCheck<'a, T>) -> Self {
         let mut codec = Self::json();
         codec.range_check = Some(check);
         codec

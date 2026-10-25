@@ -201,12 +201,28 @@ fn failure(name: &'static str) -> Check {
     let env = environment(&stub)?;
     let record = env.root().join("record");
     args.splice(0..0, ["--record".into(), record.to_string_lossy().into()]);
-    let value = invoke(&env, args, 4)?;
+    let value = invoke(&env, args.clone(), 4)?;
     if value.get("result").is_some_and(|v| !v.is_null())
         || value.pointer("/sources/0/state") != Some(&json!("failed"))
         || value.pointer("/sources/0/terms").is_none()
     {
         return Err(format!("source failure hidden as success: {value}"));
+    }
+    let mut replay = args.clone();
+    replay[0] = "--replay".into();
+    let replay_env = Environment::new().map_err(|e| e.to_string())?;
+    let repeated = both(&replay_env, replay, 4)?;
+    if repeated.get("status") != value.get("status")
+        || repeated.get("sources") != value.get("sources")
+    {
+        return Err("recorded source failure changed".into());
+    }
+    let mut offline = args;
+    offline.drain(0..2);
+    offline.insert(0, "--offline".into());
+    let unavailable = both(&env, offline, 4)?;
+    if unavailable.pointer("/sources/0/reason") != Some(&json!("offline")) {
+        return Err("rejected reply entered the checked cache".into());
     }
     let count = stub.finish()?.len();
     if count == 0 {

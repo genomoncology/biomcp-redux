@@ -17,6 +17,15 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
     if out.status == Status::Failed {
+        if out.sources.iter().any(|s| s.state != SourceState::Skipped) {
+            next.push((
+                StepKind::Fresh,
+                Action::Run {
+                    request: request.clone(),
+                    fresh: true,
+                },
+            ));
+        }
         return next;
     }
     match (request, &out.body) {

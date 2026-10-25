@@ -47,7 +47,7 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
-        live: impl FnOnce() -> Result<(T, u16, Vec<u8>, i64, Option<String>), RequestError>,
+        live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
     ) -> Result<(T, i64, Option<crate::ContentRange>), RequestError> {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
         if self.budget().expired() {

@@ -5,6 +5,7 @@ use crate::{InputError, declaration::Method, prepared::Prepared};
 use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
+pub(crate) type Decoded<T> = (T, u16, Vec<u8>, i64, Option<String>);
 struct Wire {
     fetched: i64,
     status: u16,
@@ -269,7 +270,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         keyed: bool,
         codec: &Decoder<T>,
-    ) -> Result<(T, u16, Vec<u8>, i64, Option<String>), RequestError> {
+    ) -> Result<Decoded<T>, RequestError> {
         for attempt in 0..crate::retry::ATTEMPTS {
             let permit = self
                 .fetch
@@ -538,7 +539,7 @@ impl Leg<'_> {
         &self,
         response: Wire,
         codec: &Decoder<T>,
-    ) -> Result<(T, u16, Vec<u8>, i64, Option<String>), SourceError> {
+    ) -> Result<Decoded<T>, SourceError> {
         let status = response.status;
         let bad = || self.failure(Reason::BadReply, Some(status));
         if !codec.accepts(&response.content_type) {
