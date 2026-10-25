@@ -79,8 +79,22 @@ fn run(n: usize) -> Result<(), String> {
         value.to_string().len()
     )
     .map_err(|e| e.to_string())?;
-    if comparable > 8000 {
-        return Err("new case exceeds initial bounded size".into());
+    // Measured full and source-terms-subtracted envelopes, each with 15 percent headroom.
+    let (full_cap, comparable_cap) = [
+        (2137, 2041),
+        (2039, 1943),
+        (1992, 1896),
+        (1983, 1886),
+        (2022, 1926),
+        (1943, 1846),
+        (2014, 1918),
+        (2021, 1924),
+    ]
+    .get(n)
+    .copied()
+    .ok_or("case ceiling")?;
+    if value.to_string().len() > full_cap || comparable > comparable_cap {
+        return Err(format!("case {n} exceeds measured envelope ceilings"));
     }
     Ok(())
 }
@@ -157,7 +171,10 @@ fn follow(env: &Environment, value: &Value, config: &mut Value) -> Result<(), St
     if missing.get("result") != mcp_missing.get("result") {
         return Err("missing-key CLI/MCP differs".into());
     }
-    config["keys"] = json!({"oncokb_api_key":"synthetic-oncokb-variant-key"});
+    config.as_object_mut().ok_or("config object")?.insert(
+        "keys".into(),
+        json!({"oncokb_api_key":"synthetic-oncokb-variant-key"}),
+    );
     env.config(config).map_err(|e| e.to_string())?;
     let recorded = env.root().join("annotation-recording");
     let mut keyed = args.clone();
@@ -197,21 +214,23 @@ fn reply(request: &str) -> Result<String, String> {
         .and_then(Value::as_u64)
         .ok_or("therapy ID")?;
     let n = id - 900;
-    let mut member = json!({"id":900,"name":"Synthetic allele","link":"/variants/900","feature":{"name":"BRAF"},"hgvsDescriptions":["NC_000007.14:g.140753336A>T"],"coordinates":{"referenceBuild":"GRCH38"}});
-    match n {
-        1 => {
-            member["hgvsDescriptions"] =
-                json!(["NC_000007.14:g.140753336A>T", "NC_000007.14:g.140753336A>C"])
-        }
-        2 => {
-            member["name"] = json!("Synthetic expression category");
-            member["hgvsDescriptions"] = json!(["N/A"]);
-        }
-        3 => member["coordinates"] = Value::Null,
-        4 => member["feature"]["name"] = json!("synthetic invalid gene"),
-        6 => member["coordinates"]["referenceBuild"] = json!("NCBI36"),
-        _ => {}
-    }
+    let hgvs = match n {
+        1 => json!(["NC_000007.14:g.140753336A>T", "NC_000007.14:g.140753336A>C"]),
+        2 => json!(["N/A"]),
+        _ => json!(["NC_000007.14:g.140753336A>T"]),
+    };
+    let coordinates = match n {
+        3 => Value::Null,
+        6 => json!({"referenceBuild":"NCBI36"}),
+        _ => json!({"referenceBuild":"GRCH38"}),
+    };
+    let gene = if n == 4 {
+        "synthetic invalid gene"
+    } else {
+        "BRAF"
+    };
+    let member = json!({"id":900,"name":"Synthetic allele","link":"/variants/900",
+        "feature":{"name":gene},"hgvsDescriptions":hgvs,"coordinates":coordinates});
     let profile = json!({"id":900,"name":"Synthetic profile","link":"/molecular-profiles/900","isComplex":n==7,"variants":[member]});
     let disease = if n == 5 {
         Value::Null
