@@ -56,7 +56,7 @@ pub(super) fn selector_error(error: biomcp_adapters::seer::SelectorError) -> io:
         .valid_codes()
         .iter()
         .map(|code| code.parse())
-        .collect::<Result<Vec<biomcp_types::Text>, _>>()
+        .collect::<Result<Vec<biodata::Text>, _>>()
         .map_err(io::Error::other)?;
     let mut envelope = biomcp_types::ErrorEnvelope::source_selector(
         biomcp_types::Source::Seer,
