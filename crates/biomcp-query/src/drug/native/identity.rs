@@ -91,7 +91,6 @@ pub(super) fn chembl_card(row: chembl::Molecule, fetched: i64) -> Result<DrugCar
                     id: r.xref_id.parse()?,
                     source: r.xref_src.parse()?,
                     name: r.xref_name.map(|s| s.parse()).transpose()?,
-                    version: None,
                     identity_level: DrugIdentityLevel::Unknown,
                     r#type: None,
                     url: None,
