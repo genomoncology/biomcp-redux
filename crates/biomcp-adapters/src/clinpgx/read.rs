@@ -5,7 +5,7 @@ use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{PgxAnnotationGet, PgxAnnotationKind, PgxGet};
 use serde::Deserialize;
 /// Bounded whole native collection with no claimed server-wide total.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Native<T> {
     /// Complete native result.

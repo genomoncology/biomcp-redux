@@ -1,6 +1,7 @@
 //! Schema-only union of the two checked PGx get selectors.
 /// CLI grammar preserves distinct gene and exact annotation request contracts.
 #[cfg(feature = "schema")]
+#[derive(Debug)]
 pub struct PgxGetCommand;
 #[cfg(feature = "schema")]
 impl schemars::JsonSchema for PgxGetCommand {
