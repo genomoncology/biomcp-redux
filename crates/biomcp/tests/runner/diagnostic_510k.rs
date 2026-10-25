@@ -3,6 +3,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
+    let mut trials: Vec<_> =
     ["card", "foreign", "absent", "disabled", "invalid"]
         .into_iter()
         .map(|mode| {
@@ -10,7 +11,9 @@ pub(super) fn trials() -> Vec<Trial> {
                 run(mode).map_err(Into::into)
             })
         })
-        .collect()
+        .collect();
+    trials.push(Trial::test("diagnostic-510k/synthetic-companion-pivots", || companion().map_err(Into::into)));
+    trials
 }
 fn run(mode: &'static str) -> Result<(), String> {
     let stub = Stub::for_source_status(
@@ -134,5 +137,29 @@ fn validate(mode:&str, v:&Value)->Result<(),String> {
         {
             return Err(format!("identity or absence: {v}"));
         }
+    Ok(())
+}
+
+fn companion()->Result<(),String> {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let replay=super::diagnostic_cdx::seed(&env)?;
+    for entry in std::fs::read_dir(replay.join("fda-cdx")).map_err(|e|e.to_string())? {
+        let path=entry.map_err(|e|e.to_string())?.path();
+        let mut receipt:Value=serde_json::from_slice(&std::fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+        let body=receipt.pointer_mut("/exchanges/0/body/value").ok_or("missing synthetic HTML")?;
+        let text=body.as_str().ok_or("non-text HTML")?.replace("P200010/S026","K173492").replace("P200010S026","K173492");
+        *body=json!(text);
+        std::fs::write(path,receipt.to_string()).map_err(|e|e.to_string())?;
+    }
+    let mut sync=env.globals(Some(&replay),false);
+    sync.extend(["sync".into(),"fda-cdx".into()]);
+    invoke(&env,sync,0)?;
+    let mut args=env.globals(Some(&replay),false);
+    args.extend(["search","diagnostic","--source","fda-cdx","--device-id","K173492"].into_iter().map(String::from));
+    let value=invoke(&env,args,0)?;
+    let steps=value.get("next").and_then(Value::as_array).ok_or("missing K pivot")?;
+    if value.pointer("/page/total")!=Some(&json!(1)) || steps.iter().filter(|step|step.get("args")==Some(&json!(["get","diagnostic","K173492","--source","fda-510k"]))).count()!=1 {
+        return Err(format!("exact K row or pivot lost: {value}"));
+    }
     Ok(())
 }

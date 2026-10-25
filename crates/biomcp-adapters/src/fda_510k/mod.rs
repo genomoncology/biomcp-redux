@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 /// Failed admission retains whether the returned identity conflicted.
+#[derive(Debug)]
 pub struct Failure {
     /// Ordinary fetch failure and source outcome.
     pub error: RequestError,

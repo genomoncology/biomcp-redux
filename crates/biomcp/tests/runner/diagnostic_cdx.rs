@@ -47,7 +47,7 @@ fn call(env: &Environment, replay: &Path, tail: &[&str], exit: i32) -> Result<Va
     args.extend(tail.iter().map(|s| (*s).to_owned()));
     invoke(env, args, exit)
 }
-fn seed(env: &Environment) -> Result<PathBuf, String> {
+pub(super) fn seed(env: &Environment) -> Result<PathBuf, String> {
     let source = fixtures().join("replies/diagnostic/fda-cdx-synthetic/fda-cdx");
     let replay = env.root().join("replay");
     fs::create_dir_all(replay.join("fda-cdx")).map_err(|e| e.to_string())?;
