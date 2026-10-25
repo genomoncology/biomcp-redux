@@ -97,3 +97,6 @@ pub use drug::{
     DrugLabelReference, DrugLabelSection, DrugNativeReference, DrugNativeTarget, DrugProduct,
     DrugStage, DrugTargetRelation,
 };
+
+mod diagnostic;
+pub use diagnostic::*;

@@ -137,3 +137,6 @@ pub use drug::{
 };
 
 pub use query::QueryInvalid;
+
+pub use query::{DiagnosticGet, DiagnosticSearch, DiagnosticSearchSource, DiagnosticGetSource, DiagnosticSection};
+pub use response::{DiagnosticLaboratory, GtrHeader, DiagnosticCandidate, GtrNativeStatus, GtrCard, DiagnosticCard, DiagnosticRegulatoryFragment, DiagnosticRegulatoryField, DiagnosticPage, DiagnosticGenes, DiagnosticConditions, DiagnosticMethods, DiagnosticRegulatory, DiagnosticSupplements, DiagnosticCompanion};

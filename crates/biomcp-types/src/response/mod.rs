@@ -131,3 +131,6 @@ pub use disease::{
     DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
     DiseaseSynonyms, DiseaseXrefs,
 };
+
+mod diagnostic;
+pub use diagnostic::*;
