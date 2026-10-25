@@ -1,0 +1,12 @@
+{
+  "$id": "biomcp.disease-ontology/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One explicit OLS ontology.",
+  "enum": [
+    "mondo",
+    "doid",
+    "ncit"
+  ],
+  "title": "DiseaseOntology",
+  "type": "string"
+}

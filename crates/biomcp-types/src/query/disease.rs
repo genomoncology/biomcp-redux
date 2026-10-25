@@ -1,6 +1,6 @@
+use super::gene::{QueryInvalid, present};
 use crate::Text;
 use serde::{Deserialize, Serialize};
-use super::gene::QueryInvalid;
 biodata::wire_enum! {
     /// One explicit OLS ontology.
     DiseaseOntology {
@@ -44,10 +44,22 @@ biodata::wire_enum! {
         Survival => "survival",
     }
 }
-impl Default for DiseaseOntology { fn default() -> Self { Self::Mondo } }
-impl Default for DiseaseSource { fn default() -> Self { Self::Ols } }
-fn default_limit() -> u32 { 5 }
-fn get_source() -> DiseaseSource { DiseaseSource::MyDisease }
+impl Default for DiseaseOntology {
+    fn default() -> Self {
+        Self::Mondo
+    }
+}
+impl Default for DiseaseSource {
+    fn default() -> Self {
+        Self::Ols
+    }
+}
+fn default_limit() -> u32 {
+    5
+}
+fn get_source() -> DiseaseSource {
+    DiseaseSource::MyDisease
+}
 /// Literal discovery text or an explicit SEER catalog page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -66,8 +78,9 @@ struct SearchFields {
     #[serde(default)]
     source: DiseaseSource,
     /// Exactly one ontology, default MONDO.
-    #[serde(default)]
-    ontology: DiseaseOntology,
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
+    ontology: Option<DiseaseOntology>,
     /// Maximum source rows on one page.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -78,13 +91,15 @@ struct SearchFields {
 }
 impl TryFrom<SearchFields> for DiseaseSearch {
     type Error = QueryInvalid;
-    fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         if !(1..=50).contains(&v.limit)
             || !matches!(v.source, DiseaseSource::Ols | DiseaseSource::Seer)
             || (v.source == DiseaseSource::Ols && v.text.is_none())
-            || (v.source == DiseaseSource::Seer && v.text.is_some()) {
+            || (v.source == DiseaseSource::Seer && (v.text.is_some() || v.ontology.is_some()))
+        {
             return Err(QueryInvalid);
         }
+        if v.source == DiseaseSource::Ols { v.ontology.get_or_insert_with(DiseaseOntology::default); }
         Ok(Self(v))
     }
 }
@@ -105,8 +120,9 @@ struct GetFields {
     #[serde(default = "get_source")]
     source: DiseaseSource,
     /// One OLS ontology.
-    #[serde(default)]
-    ontology: DiseaseOntology,
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
+    ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
@@ -139,16 +155,34 @@ struct GetFields {
 }
 impl TryFrom<GetFields> for DiseaseGet {
     type Error = QueryInvalid;
-    fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        let statistic = matches!(v.section, Some(DiseaseSection::Incidence | DiseaseSection::Survival));
+    fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
+        let statistic = matches!(
+            v.section,
+            Some(DiseaseSection::Incidence | DiseaseSection::Survival)
+        );
         if !(1..=50).contains(&v.section_limit)
-            || (v.source == DiseaseSource::Seer && (!statistic || !v.id.as_str().bytes().all(|b| b.is_ascii_digit())))
-            || (v.source != DiseaseSource::Seer && (statistic || v.id.as_str().parse::<biodata::Curie>().is_err()))
-            || (v.source != DiseaseSource::Seer && [&v.sex, &v.race, &v.age_range, &v.dataset, &v.period, &v.interval].iter().any(|v| v.is_some()))
+            || (v.source == DiseaseSource::Seer
+                && (!statistic || !v.id.as_str().bytes().all(|b| b.is_ascii_digit())))
+            || (v.source != DiseaseSource::Seer
+                && (statistic || v.id.as_str().parse::<biodata::Curie>().is_err()))
+            || (v.source != DiseaseSource::Seer
+                && [
+                    &v.sex,
+                    &v.race,
+                    &v.age_range,
+                    &v.dataset,
+                    &v.period,
+                    &v.interval,
+                ]
+                .iter()
+                .any(|v| v.is_some()))
+            || (v.source != DiseaseSource::Ols && v.ontology.is_some())
             || (v.section != Some(DiseaseSection::Incidence) && v.period.is_some())
-            || (v.section != Some(DiseaseSection::Survival) && v.interval.is_some()) {
+            || (v.section != Some(DiseaseSection::Survival) && v.interval.is_some())
+        {
             return Err(QueryInvalid);
         }
+        if v.source == DiseaseSource::Ols { v.ontology.get_or_insert_with(DiseaseOntology::default); }
         Ok(Self(v))
     }
 }

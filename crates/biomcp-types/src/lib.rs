@@ -119,7 +119,9 @@ pub use response::{
     VariantAssertions,
 };
 
-pub use query::{DiseaseOntology, DiseaseSource, DiseaseSection, DiseaseSearch, DiseaseGet};
+pub use query::{DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, DiseaseSource};
 
-
-pub use response::{DiseaseCard, DiseaseHeader, DiseaseSite, DiseasePage, DiseaseSynonyms, DiseaseXrefs, DiseaseHierarchy, DiseaseGenes, DiseasePhenotypes, DiseaseSites, DiseaseIncidence, DiseaseSurvival};
+pub use response::{
+    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy, DiseaseIncidence, DiseasePage,
+    DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+};

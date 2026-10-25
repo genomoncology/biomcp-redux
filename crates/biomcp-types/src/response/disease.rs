@@ -1,5 +1,10 @@
-use biodata::{Attribution, Concept, Curie, DiseaseAssociation, DiseaseRelation, DiseaseStatistic, DiseaseSynonym, Text};
-use crate::{ComponentTerms, DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, ResponseBody};
+use crate::{
+    ComponentLabel, DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, ResponseBody,
+};
+use biodata::{
+    Attribution, Concept, Curie, DiseaseAssociation, DiseaseRelation, DiseaseStatistic,
+    DiseaseSynonym, Text,
+};
 use serde::{Deserialize, Serialize};
 /// One source candidate without a selected identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -41,9 +46,12 @@ pub struct DiseaseCard {
     /// Available named sections.
     pub sections: Box<[DiseaseSection]>,
     /// Applicable component terms.
-    pub components: Box<[ComponentTerms]>,
+    pub components: Box<[ComponentLabel]>,
 }
-impl ResponseBody for DiseaseCard { const SCHEMA: &'static str = "biomcp.disease_card/1"; type Query = DiseaseGet; }
+impl ResponseBody for DiseaseCard {
+    const SCHEMA: &'static str = "biomcp.disease_card/1";
+    type Query = DiseaseGet;
+}
 /// One publisher catalog site, independent of ontology identities.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -56,6 +64,16 @@ pub struct DiseaseSite {
     /// Publisher active-state flag.
     pub active: bool,
 }
+/// One native association and the component terms governing that row.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseAssociationItem {
+    /// Complete neutral association, including requested and actual endpoints.
+    pub association: DiseaseAssociation,
+    /// Independently attributed annotation components for this row.
+    pub components: Box<[ComponentLabel]>,
+}
 macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
@@ -66,7 +84,7 @@ macro_rules! page {
             /// Native source rows; totals in the envelope count rows, not distinct entities.
             pub items: Box<[$row]>,
             /// Applicable component use terms, independent of row provenance.
-            pub components: Box<[ComponentTerms]>,
+            pub components: Box<[ComponentLabel]>,
         }
         impl ResponseBody for $name {
             const SCHEMA: &'static str = $schema;
@@ -74,12 +92,66 @@ macro_rules! page {
         }
     };
 }
-page!(DiseasePage, DiseaseHeader, DiseaseSearch, "biomcp.disease_page/1", "One source-ordered disease candidate page.");
-page!(DiseaseSynonyms, DiseaseSynonym, DiseaseGet, "biomcp.disease_synonyms/1", "One publisher synonym page with scope and language.");
-page!(DiseaseXrefs, DiseaseRelation, DiseaseGet, "biomcp.disease_xrefs/1", "Native cross-reference predicates without equivalence promotion.");
-page!(DiseaseHierarchy, DiseaseRelation, DiseaseGet, "biomcp.disease_hierarchy/1", "Native parent relations with both endpoints.");
-page!(DiseaseGenes, DiseaseAssociation, DiseaseGet, "biomcp.disease_genes/1", "Native association rows, not a unique-gene count.");
-page!(DiseasePhenotypes, DiseaseAssociation, DiseaseGet, "biomcp.disease_phenotypes/1", "Native phenotype association rows without diagnostic inference.");
-page!(DiseaseSites, DiseaseSite, DiseaseSearch, "biomcp.disease_sites/1", "Publisher site catalog without an ontology-to-site mapping.");
-page!(DiseaseIncidence, DiseaseStatistic, DiseaseGet, "biomcp.disease_incidence/1", "Native incidence rows preserving requested and returned dimensions.");
-page!(DiseaseSurvival, DiseaseStatistic, DiseaseGet, "biomcp.disease_survival/1", "Native annual survival rows with separate observed and modeled values.");
+page!(
+    DiseasePage,
+    DiseaseHeader,
+    DiseaseSearch,
+    "biomcp.disease_page/1",
+    "One source-ordered disease candidate page."
+);
+page!(
+    DiseaseSynonyms,
+    DiseaseSynonym,
+    DiseaseGet,
+    "biomcp.disease_synonyms/1",
+    "One publisher synonym page with scope and language."
+);
+page!(
+    DiseaseXrefs,
+    DiseaseRelation,
+    DiseaseGet,
+    "biomcp.disease_xrefs/1",
+    "Native cross-reference predicates without equivalence promotion."
+);
+page!(
+    DiseaseHierarchy,
+    DiseaseRelation,
+    DiseaseGet,
+    "biomcp.disease_hierarchy/1",
+    "Native parent relations with both endpoints."
+);
+page!(
+    DiseaseGenes,
+    DiseaseAssociationItem,
+    DiseaseGet,
+    "biomcp.disease_genes/1",
+    "Native association rows, not a unique-gene count."
+);
+page!(
+    DiseasePhenotypes,
+    DiseaseAssociationItem,
+    DiseaseGet,
+    "biomcp.disease_phenotypes/1",
+    "Native phenotype association rows without diagnostic inference."
+);
+page!(
+    DiseaseSites,
+    DiseaseSite,
+    DiseaseSearch,
+    "biomcp.disease_sites/1",
+    "Publisher site catalog without an ontology-to-site mapping."
+);
+page!(
+    DiseaseIncidence,
+    DiseaseStatistic,
+    DiseaseGet,
+    "biomcp.disease_incidence/1",
+    "Native incidence rows preserving requested and returned dimensions."
+);
+page!(
+    DiseaseSurvival,
+    DiseaseStatistic,
+    DiseaseGet,
+    "biomcp.disease_survival/1",
+    "Native annual survival rows with separate observed and modeled values."
+);
