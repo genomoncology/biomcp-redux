@@ -106,8 +106,7 @@ class CaptureTests(unittest.TestCase):
                 rows, calls = capture(recipe, [response], refusal)
                 self.assertEqual(rows[0]['outcome'], expected)
                 self.assertEqual(recipe.comparison_eligible(0, rows), eligible)
-                if not refusal:
-                    self.assertEqual(bool(recipe.FAILED), not eligible)
+                self.assertEqual(bool(recipe.FAILED), not eligible)
                 self.assertEqual(calls, 0 if refusal else 1)
         unknown = recipe.classify('openfda', 'https://api.fda.gov/unknown', 404,
             b'{"error":{"code":"NOT_FOUND","message":"No matches found!"}}')

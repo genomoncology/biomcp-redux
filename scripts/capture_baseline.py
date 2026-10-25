@@ -6,7 +6,7 @@ Call with an owned experiment directory only after its capture budget is approve
 import pathlib,json,hashlib,os,threading,subprocess,http.server,urllib.parse,urllib.request,urllib.error,datetime,time,socket,errno
 import sys
 import textwrap
-from capture_outcome import classify, comparison_eligible
+from capture_outcome import Kind, Outcome, classify, comparison_eligible
 
 def setup(root):
  global ROOT,OUT,PLAN,ENVNAMES,BINARY,SHA,POLICY,PORT,CAPS,COUNTS,LOCK,PHYSICAL,LOCAL,CACHE,FAILED,CURRENT,COMMANDS,RUNNING,ALLOWED,LABELS,CHEMBL,PAGES,LAST,BASES,OVERRIDES
@@ -105,7 +105,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
     file=f'captures/{capture["number"]:04d}.body';(OUT/file).write_bytes(content);capture.update(status=status,file=file,bytes=len(content),sha256=hashlib.sha256(content).hexdigest(),response_headers=response_headers,delivery_headers=headers,elapsed_seconds=time.monotonic()-start,truncated=truncated,state='complete',transport_failure=reason=='provider_transport_failure')
     outcome=classify(source,url,status,content,truncated=truncated,transport_failure=reason=='provider_transport_failure')
     capture['outcome']=outcome.kind.value
-    if outcome.stop_source:FAILED.add(bucket)
     if outcome.comparison_eligible:CACHE[identity]=capture
     if source=='mychem' and status==200 and not reason:
      admit_native_names(content)
@@ -119,7 +118,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
       except (ValueError,KeyError,TypeError):pass
     writeledger()
   with LOCK:
-   outcome=classify(source,url,status,content,truncated=capture.get('truncated',False) if capture else False,transport_failure=capture.get('transport_failure',False) if capture else False,refusal=reason if not capture else None)
+   outcome=Outcome(Kind(capture['outcome'])) if capture else classify(source,url,status,content,refusal=reason)
+   if outcome.stop_source:FAILED.add(bucket)
    local.update(outcome=outcome.kind.value,reason=reason,capture_number=capture.get('number') if capture else None,reused_retained_body=reused,status=status,provider_fresh=bool(capture and not reused),response_sha256=hashlib.sha256(content).hexdigest());dump(OUT/'local-requests.json',LOCAL)
   try:self.send_response(status);[self.send_header(k,v) for k,v in headers.items()];self.send_header('Content-Length',str(len(content)));self.end_headers();self.wfile.write(content)
   except (BrokenPipeError,ConnectionResetError):pass
