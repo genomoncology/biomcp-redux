@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "nci",
+  "url": "https://clinicaltrialsapi.cancer.gov/api/v2/trials?size=1&from=0&diseases.nci_thesaurus_concept_id=C3224&include=nci_id&include=nct_id&include=brief_title&include=current_trial_status&include=phase&include=diseases",
+  "exchanges": [
+    {
+      "fetched": 1792866529,
+      "status": 401,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic rejected request"
+        }
+      }
+    }
+  ]
+}
