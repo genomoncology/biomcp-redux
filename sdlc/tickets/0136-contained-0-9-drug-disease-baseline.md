@@ -1,6 +1,7 @@
 # 0136 — Measure 0.9 on the drug and disease questions behind verified network containment
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9483e4c58552e91e907d7b4aa5ed469e859d21fb
 
 Milestone: 3
 
