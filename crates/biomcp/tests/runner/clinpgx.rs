@@ -58,7 +58,10 @@ fn args(name: &str) -> Vec<String> {
     .map(str::to_owned)
     .to_vec();
     if name == "wide" {
-        args.truncate(args.len().saturating_sub(2));
+        args = args
+            .into_iter()
+            .map(|word| if word == "1" { "5".into() } else { word })
+            .collect();
     }
     if matches!(name, "guideline" | "label") {
         args.extend(["--kind".into(), name.into()]);

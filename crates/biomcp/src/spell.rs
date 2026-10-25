@@ -63,7 +63,15 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
         Request::SearchPgx(query) => serde_json::to_value(query),
-        Request::GetPgx(query) => serde_json::to_value(query),
+        Request::GetPgx(query) => {
+            let mut value = serde_json::to_value(query)?;
+            if query.section_limit() == query.default_section_limit()
+                && let Some(fields) = value.as_object_mut()
+            {
+                fields.remove("section_limit");
+            }
+            Ok(value)
+        }
         Request::GetPgxAnnotation(query) => {
             let mut value = serde_json::to_value(query)?;
             if let Some(object) = value.as_object_mut()

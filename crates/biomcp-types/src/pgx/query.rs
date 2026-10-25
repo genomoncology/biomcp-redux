@@ -5,6 +5,24 @@ use serde::{Deserialize, Serialize};
 fn default_limit() -> u32 {
     5
 }
+fn section_default(source: PgxSource, kind: Option<PgxAnnotationKind>) -> u32 {
+    if source == PgxSource::Clinpgx
+        && kind.unwrap_or(PgxAnnotationKind::Clinical) == PgxAnnotationKind::Clinical
+    {
+        3
+    } else {
+        default_limit()
+    }
+}
+fn explicit_section_limit<'de, D: serde::Deserializer<'de>>(
+    decoder: D,
+) -> Result<Option<u32>, D::Error> {
+    u32::deserialize(decoder).map(Some)
+}
+#[cfg(feature = "schema")]
+fn conditional_limit(schema: &mut schemars::Schema) {
+    schema.remove("default");
+}
 /// Checked gene-keyed CPIC pair search; no positional or drug text input.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -94,10 +112,10 @@ struct GetFields {
     /// One ClinPGx collection; clinical is the default only on annotations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     kind: Option<PgxAnnotationKind>,
-    /// Complete source rows per independent section page.
-    #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
-    section_limit: u32,
+    /// Complete source rows per page; clinical defaults to three, other sections to five.
+    #[serde(default, deserialize_with = "explicit_section_limit")]
+    #[cfg_attr(feature = "schema", schemars(with="u32",range(min = 1, max = 50),transform=conditional_limit))]
+    section_limit: Option<u32>,
     /// Offset within the selected section.
     #[serde(default)]
     section_offset: u32,
@@ -109,8 +127,11 @@ impl TryFrom<GetFields> for PgxGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
         let annotations = v.section == Some(PgxSection::Annotations);
+        let limit = v
+            .section_limit
+            .unwrap_or_else(|| section_default(v.source, v.kind));
         if (v.source == PgxSource::Clinpgx) != annotations
-            || !(1..=50).contains(&v.section_limit)
+            || !(1..=50).contains(&limit)
             || (v.section == Some(PgxSection::Diplotype)) != v.diplotype.is_some()
             || (v.drug_id.is_some() && v.section != Some(PgxSection::Recommendations))
             || (v.kind.is_some() && !annotations)
@@ -122,6 +143,7 @@ impl TryFrom<GetFields> for PgxGet {
         if annotations && v.kind.is_none() {
             v.kind = Some(PgxAnnotationKind::Clinical);
         }
+        v.section_limit = Some(limit);
         Ok(Self(v))
     }
 }
@@ -152,7 +174,13 @@ impl PgxGet {
     }
     /// Checked section_limit selector.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit
+        self.0
+            .section_limit
+            .unwrap_or_else(|| self.default_section_limit())
+    }
+    /// Default complete row count for the checked source and tier.
+    pub fn default_section_limit(&self) -> u32 {
+        section_default(self.source(), self.kind())
     }
     /// Checked section_offset selector.
     pub fn section_offset(&self) -> u32 {
@@ -163,10 +191,10 @@ impl PgxGet {
         self.0.snapshot.as_ref()
     }
     /// Bind later local pages to the complete received collection.
-    pub fn with_snapshot(&self, snapshot: Text) -> Self {
-        let mut q = self.clone();
-        q.0.snapshot = Some(snapshot);
-        q
+    pub fn with_snapshot(&self, snapshot: Text) -> Result<Self, QueryInvalid> {
+        let mut q = self.0.clone();
+        q.snapshot = Some(snapshot);
+        Self::try_from(q)
     }
     /// Restart collection admission without a retained selector.
     pub fn restart(&self) -> Self {

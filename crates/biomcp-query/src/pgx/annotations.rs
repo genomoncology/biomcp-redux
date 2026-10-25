@@ -114,11 +114,13 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PgxGet) -> Outcome {
         local: None,
     };
     match super::snapshot::load(cx, q, deadline, &mut out) {
-        Ok(Some((body, snapshot))) => {
-            let bound = q.with_snapshot(snapshot);
-            out.body = QueryBody::PgxAnnotations(slice(q, body));
-            out.next = next::steps(&Request::GetPgx(bound), &out);
-        }
+        Ok(Some((body, snapshot))) => match q.with_snapshot(snapshot) {
+            Ok(bound) => {
+                out.body = QueryBody::PgxAnnotations(slice(q, body));
+                out.next = next::steps(&Request::GetPgx(bound), &out);
+            }
+            Err(_) => out.local = Some(biomcp_fetch::InputError::Serialization.into()),
+        },
         Ok(None) => {}
         Err(error) => {
             out.local = crate::status::local(error);

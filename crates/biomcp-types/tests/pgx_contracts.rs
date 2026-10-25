@@ -303,6 +303,17 @@ fn card_section_actions_recheck_source_context_and_keep_the_declared_gene()
     assert_eq!(annotations.gene(), card.gene());
     assert_eq!(annotations.section(), Some(PgxSection::Annotations));
     assert_eq!(annotations.kind(), Some(PgxAnnotationKind::Clinical));
+    assert!(card.with_snapshot(Text::new("retained")?).is_err());
+    let retained = annotations.with_snapshot(Text::new("retained")?)?;
+    assert_eq!(retained.snapshot().map(Text::as_str), Some("retained"));
+    assert!(retained.restart().snapshot().is_none());
+    let default_clinical: PgxGet =
+        serde_json::from_value(json!({"gene":"DPYD","source":"clinpgx","section":"annotations"}))?;
+    assert_eq!(default_clinical.section_limit(), 3);
+    assert_eq!(card.section_limit(), 5);
+    for limit in [json!(0), json!(null), json!(51)] {
+        assert!(serde_json::from_value::<PgxGet>(json!({"gene":"DPYD","source":"clinpgx","section":"annotations","section_limit":limit})).is_err());
+    }
     assert!(
         card.with_section(PgxSection::Annotations, PgxSource::Cpic)
             .is_err()
