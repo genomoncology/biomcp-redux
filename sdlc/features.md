@@ -63,3 +63,5 @@ variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assemb
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation. Cases: `tests/cases/variant/help*.yaml`, `tests/cases/variant/retired.yaml`.
 
 drug-types: A public API caller validates published drug identifiers, selected-source requests, neutral records and source-preserving continuations before command adapters exist. Contracts: `biomcp-types/drug_contracts` (features: `schema`).
+
+drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/*.yaml`.
