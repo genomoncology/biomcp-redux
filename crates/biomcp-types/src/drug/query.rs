@@ -19,7 +19,7 @@ biodata::canonical_enum! {
         Approvals => "approvals",
         /// Source-scoped regulator events.
         Regulatory => "regulatory",
-        /// Native DDInter partner rows and levels.
+        /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
         Interactions => "interactions",
     }
 }

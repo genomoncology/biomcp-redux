@@ -53,7 +53,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         ddinter::interactions(
             &leg,
             query.input(),
-            query.section_limit().unwrap_or(10),
+            query.section_limit().unwrap_or(5),
             query.section_offset().unwrap_or(0),
         )
         .map(|body| {

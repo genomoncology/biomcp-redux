@@ -163,11 +163,16 @@ fn seed_many(env: &Environment) -> Result<PathBuf, String> {
     let replay = seed(env)?;
     for entry in fs::read_dir(replay.join("ddinter")).map_err(|e| e.to_string())? {
         let path = entry.map_err(|e| e.to_string())?.path();
-        let mut capture: Value = serde_json::from_slice(
-            &fs::read(&path).map_err(|e| e.to_string())?,
-        ).map_err(|e| e.to_string())?;
-        if capture["url"].as_str().is_some_and(|url| url.ends_with("code_A.csv")) {
-            let body = capture.pointer_mut("/exchanges/0/body/value").ok_or("body")?;
+        let mut capture: Value =
+            serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        if capture["url"]
+            .as_str()
+            .is_some_and(|url| url.ends_with("code_A.csv"))
+        {
+            let body = capture
+                .pointer_mut("/exchanges/0/body/value")
+                .ok_or("body")?;
             let mut text = body.as_str().ok_or("text body")?.to_owned();
             for partner in 100..108 {
                 text.push_str(&format!("DDInter1,Synthetic Anchor One,DDInter{partner},Synthetic Partner {partner},Major\r\n"));
@@ -188,26 +193,56 @@ fn interaction_page(env: &Environment, replay: &Path, args: &[String]) -> Result
         return Err("DDInter default page differs over MCP".into());
     }
     super::schema::Registry::embedded()?.validate(&value, args, true)?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "DDINTER_PAGE args={args:?} full={} comparable={}",
+        value.to_string().len(),
+        super::source_terms::size(&value, "")?
+    )
+    .map_err(|e| e.to_string())?;
     Ok(value)
 }
 fn default_pages() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed_many(&env)?;
-    let base: Vec<String> = ["get", "drug", "DDInter1", "interactions", "--source", "ddinter"]
-        .map(str::to_owned).into();
+    let base: Vec<String> = [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+    ]
+    .map(str::to_owned)
+    .into();
     let mut args = base.clone();
     let mut records = Vec::new();
     for (offset, count) in [(0, 5), (5, 5), (10, 1)] {
         let value = interaction_page(&env, &replay, &args)?;
         if value["page"] != json!({"offset":offset,"returned":count,"total":11}) {
-            return Err(format!("DDInter omitted limit lost its five-row page: {value}"));
+            return Err(format!(
+                "DDInter omitted limit lost its five-row page: {value}"
+            ));
         }
-        records.extend(value.pointer("/result/interactions/data/records")
-            .and_then(Value::as_array).ok_or("records")?.iter().cloned());
-        let next = value.get("next").and_then(Value::as_array).into_iter().flatten()
+        records.extend(
+            value
+                .pointer("/result/interactions/data/records")
+                .and_then(Value::as_array)
+                .ok_or("records")?
+                .iter()
+                .cloned(),
+        );
+        let next = value
+            .get("next")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
             .find(|next| next["kind"] == "page");
         if offset == 10 {
-            if next.is_some() { return Err("DDInter walk continued past total".into()); }
+            if next.is_some() {
+                return Err("DDInter walk continued past total".into());
+            }
         } else {
             args = serde_json::from_value(next.ok_or("missing next page")?["args"].clone())
                 .map_err(|e| e.to_string())?;
@@ -220,7 +255,8 @@ fn default_pages() -> Check {
     explicit.extend(["--section-limit".into(), "10".into()]);
     let page = interaction_page(&env, &replay, &explicit)?;
     if page["page"] != json!({"offset":0,"returned":10,"total":11})
-        || page.pointer("/result/interactions/data/records") != Some(&json!(records[..10])) {
+        || page.pointer("/result/interactions/data/records") != Some(&json!(records[..10]))
+    {
         return Err("DDInter explicit ten changed rows or order".into());
     }
     Ok(())
