@@ -31,4 +31,5 @@ The PM checks each count below on its date and records the result here. A count 
 - One week after 0150 lands: native proofs whose recordings or raw outputs were deleted after a successful comparison. Baseline 2 tickets (0141, 0130). Target 0.
 - 2026-11-01: exact-ID routes whose identity guard rejected a reply without recording a problem, and identity cases that do not assert that problem. Baseline 7 routes (MyChem, ChEMBL, Open Targets, CIViC, SPL, Drugs@FDA, Monarch) and 3 cases. Target 0 for each.
 - 2026-11-01: routes that checked a requested selector after the cache instead of before it, so a reply for another selector could be returned and cached. Baseline 1 (SEER site, High severity, fixed in 0144). Target 0.
+- 2026-11-01: diagnostic jobs that reported success after an earlier step failed, because steps were joined by semicolons. Baseline 2 jobs across 2 tickets (0134 j12338, 0144 j12356). Target 0. Counted apart from the failed-step line, since neither job claimed a review or gate.
 - Proof: each line gains its measured count, the command or source that showed it, and keep or reopen.
