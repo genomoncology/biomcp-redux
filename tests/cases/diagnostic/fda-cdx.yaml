@@ -244,6 +244,48 @@
         "/page/returned": 3,
         "/page/total": 8
       }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "fda-cdx"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "fda-cdx"
+      ],
+      "max_bytes": 394,
+      "max_tokens": 99,
+      "expect": {
+        "/schema": "biomcp.help/2",
+        "/result/commands/0/command": [
+          "sync",
+          "fda-cdx"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "diagnostic"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "diagnostic"
+      ],
+      "max_bytes": 2200,
+      "max_tokens": 550,
+      "expect": {
+        "/schema": "biomcp.help/2",
+        "/result/commands/0/command": [
+          "search",
+          "diagnostic"
+        ]
+      }
     }
   ]
 }
