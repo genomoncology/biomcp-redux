@@ -139,6 +139,7 @@ fn search(n: usize) -> Check {
     .map(str::to_owned)
     .collect();
     let value = both(&env, args, 0)?;
+    budget(&value, if n == 1 { 647 } else { 643 })?;
     if value.pointer("/result/items/0/id") != Some(field(&id, "set_id"))
         || value.pointer("/result/items/0/version") != Some(field(&id, "version"))
     {
@@ -168,6 +169,7 @@ fn absent() -> Check {
     .map(str::to_owned)
     .collect();
     let value = both(&env, args, 1)?;
+    budget(&value, 262)?;
     if field(&value, "status") != "absent"
         || value.pointer("/result/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
@@ -183,6 +185,11 @@ fn card(n: usize) -> Check {
     let id = identity(n)?;
     let (env, stub) = get_setup(&id, record(&id))?;
     let value = both(&env, get_args(&id)?, 0)?;
+    let measured = [1390, 1388, 1392, 1386, 1384, 1386]
+        .get(n - 3)
+        .copied()
+        .ok_or("card budget")?;
+    budget(&value, measured)?;
     if value.pointer("/result/header/id") != Some(field(&id, "set_id"))
         || value.pointer("/result/version") != Some(field(&id, "version"))
         || value.pointer("/result/header/identity_level") != Some(&json!("spl_set"))
@@ -204,10 +211,18 @@ fn headings() -> Check {
     let id = identity(4)?;
     let record = record(&id);
     let (env, stub) = get_setup(&id, record.clone())?;
-    for heading in biomcp_adapters::openfda_label::HEADINGS {
+    for (index, heading) in biomcp_adapters::openfda_label::HEADINGS
+        .into_iter()
+        .enumerate()
+    {
         let mut args = get_args(&id)?;
         args.extend(["label".into(), "--label-section".into(), heading.into()]);
         let value = both(&env, args, 0)?;
+        let measured = [1208, 1232, 1220, 1227, 1224]
+            .get(index)
+            .copied()
+            .ok_or("heading budget")?;
+        budget(&value, measured)?;
         if field(&value, "schema") != "biomcp.drug_label/3"
             || value.pointer("/result/label/data/text") != record.pointer(&format!("/{heading}/0"))
             || value.pointer("/result/label/data/retrieved").is_none()
@@ -223,4 +238,15 @@ fn headings() -> Check {
 
 fn field<'a>(value: &'a Value, key: &str) -> &'a Value {
     value.get(key).unwrap_or(&Value::Null)
+}
+
+fn budget(value: &Value, measured: usize) -> Check {
+    let actual = super::source_terms::size(value, "")?;
+    let bound = (measured * 115).div_ceil(100);
+    if actual > bound {
+        return Err(format!(
+            "label case exceeds measured comparable budget {actual}/{bound}"
+        ));
+    }
+    Ok(())
 }

@@ -62,6 +62,7 @@ fn missing() -> Check {
         "boxed_warning".into(),
     ]);
     let value = both(&env, args, 0)?;
+    super::budget(&value, 608)?;
     if field(&value, "status") != "partial"
         || value.pointer("/result/label/state") != Some(&json!("unavailable"))
         || value.pointer("/result/label/reason") != Some(&json!("not_found"))
@@ -93,6 +94,7 @@ pub(super) fn reconstruct(
             invoke(env, args.clone(), 0)?
         };
         super::measure(&value)?;
+        super::budget(&value, 7612)?;
         super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
         let data = value.pointer("/result/label/data").ok_or("label data")?;
         if field(data, "offset") != offset {
