@@ -98,6 +98,14 @@ fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     if mcp::call_with_globals(env, &command, exit == 4, &globals)? != value {
         return Err("WHO navigation CLI/MCP differ".into());
     }
+    let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    // Full compact output measured by j13524; each fixture ceiling adds fifteen percent.
+    let baseline: usize = if exit == 4 { 355 } else { 3842 };
+    if bytes > (baseline * 115).div_ceil(100) {
+        return Err(format!(
+            "WHO navigation exceeds measured output ceiling: {bytes}"
+        ));
+    }
     writeln!(
         std::io::stdout(),
         "WHO_NAV {} bytes={}",
