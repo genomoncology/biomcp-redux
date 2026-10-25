@@ -138,9 +138,8 @@ fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -
             "malformed" => format!("{CSV}\n\"unclosed"),
             _ => CSV.lines().next().ok_or("header")?.to_owned(),
         };
-        *changed
-            .pointer_mut("/exchanges/0/body")
-            .ok_or("body")? = json!({"kind":"text", "value":text});
+        *changed.pointer_mut("/exchanges/0/body").ok_or("body")? =
+            json!({"kind":"text", "value":text});
         fs::write(&path, changed.to_string()).map_err(|e| e.to_string())?;
         let failed = pair(env, replay, &["sync", "who-pq"], 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
@@ -176,21 +175,39 @@ fn stale(env: &Environment, replay: &Path, get: &[&str]) -> Check {
     cache.execute_batch("BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;")
         .map_err(|e| e.to_string())?;
     drop(cache);
-    for args in [get.to_vec(), vec!["search", "drug", "trastuzumab", "--source", "who-pq"]] {
+    for args in [
+        get.to_vec(),
+        vec!["search", "drug", "trastuzumab", "--source", "who-pq"],
+    ] {
         let value = pair(env, replay, &args, 0)?;
         if value.get("status") != Some(&json!("partial"))
             || value.pointer("/sources/0/state") != Some(&json!("stale"))
-            || !value.get("next").and_then(Value::as_array).is_some_and(|steps|
-                steps.iter().any(|step| step.get("args") == Some(&json!(["sync", "who-pq"])))) {
-            return Err(format!("stale WHO data omitted outcome or explicit sync: {value}"));
+            || !value
+                .get("next")
+                .and_then(Value::as_array)
+                .is_some_and(|steps| {
+                    steps
+                        .iter()
+                        .any(|step| step.get("args") == Some(&json!(["sync", "who-pq"])))
+                })
+        {
+            return Err(format!(
+                "stale WHO data omitted outcome or explicit sync: {value}"
+            ));
         }
     }
     Ok(())
 }
 
 fn bounded(value: &Value) -> Check {
-    let schema = value.get("schema").and_then(Value::as_str).ok_or("schema")?;
-    let status = value.get("status").and_then(Value::as_str).ok_or("status")?;
+    let schema = value
+        .get("schema")
+        .and_then(Value::as_str)
+        .ok_or("schema")?;
+    let status = value
+        .get("status")
+        .and_then(Value::as_str)
+        .ok_or("status")?;
     // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
     let baseline: usize = match (schema, status) {
         ("biomcp.drug_who_page/1", "complete") => 937,
@@ -205,6 +222,8 @@ fn bounded(value: &Value) -> Check {
         _ => return Err(format!("unmeasured WHO output {schema}/{status}")),
     };
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
-    if bytes > (baseline * 115).div_ceil(100) { return Err(format!("WHO output exceeds measured ceiling: {bytes}")); }
+    if bytes > (baseline * 115).div_ceil(100) {
+        return Err(format!("WHO output exceeds measured ceiling: {bytes}"));
+    }
     Ok(())
 }
