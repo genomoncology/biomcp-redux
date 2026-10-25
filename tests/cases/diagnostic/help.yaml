@@ -38,8 +38,8 @@
           "fda-cdx"
         ]
       },
-      "max_bytes": 2332,
-      "max_tokens": 583
+      "max_bytes": 2200,
+      "max_tokens": 550
     },
     {
       "run": [

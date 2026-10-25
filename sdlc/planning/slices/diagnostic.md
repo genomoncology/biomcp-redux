@@ -566,3 +566,11 @@ Every diagnostic YAML run carries its owning `max_bytes` and estimated-token cei
 | `article-help/executable-examples`, `mcp/discovers-artifact-command-tree`, `gene/help.yaml` | Case-derived examples, compact discovery and whole generated help. |
 
 The routine Rust cases test mechanism boundaries and reuse the corresponding source envelope budgets; they do not establish a native source maximum. Fixed usage replies use their authored error-envelope bound. Shared health/configuration contracts retain their shared bounds. No internal-only coverage or investigation projection is counted as successful product parity.
+
+### Final generated help and discovery budgets
+
+The local help preflight j13380 measured search diagnostic at2026 compact/2027 stdout bytes and get diagnostic at2223 compact/2224 stdout bytes. The PM approved get-help growth to2557 compact/2558 stdout because the canonical described enum now makes its five sections visible. Search retains its existing2200-byte ceiling. Sync help measured373 stdout bytes for GTR and389 for WHO and FDA CDx; each exposes exactly two case-derived examples. Their new help-case ceilings use measured stdout plus fifteen percent.
+
+Whole help measured56826 stdout bytes and retains its existing63341 ceiling. MCP discovery measured1920 bytes and retains its1923 ceiling. It adds schema-derived diagnostic source choices and sections while preserving every PGx paging flag. The compact intro is shorter and individual credential-help leaves are omitted from discovery; full generated help still contains those leaves. No public command, source selector or section was removed to fit discovery. The shared executable-example check executes every published example against its owning synthetic recording.
+
+The Rust diagnostic mechanism maxima measured by j13382 live in `runner/diagnostic_retirements.rs::bounded`. The existing isolated invocation path applies them to diagnostic request and sync replies, while registry health/configuration remain under their shared contracts. Each maximum is a complete compact synthetic envelope by schema, result kind and outcome, with fifteen percent headroom. Native page maxima and YAML comparable ceilings remain separate.
