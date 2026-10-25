@@ -54,13 +54,17 @@ fn invoke(env: &Environment, words: &[String], exit: i32) -> Result<Value, Strin
             String::from_utf8_lossy(&output.stdout)
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    measure(
+        &words.iter().map(String::as_str).collect::<Vec<_>>(),
+        &value,
+    )?;
+    Ok(value)
 }
 fn record(env: &Environment, words: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
     let mut command = args(words);
     command.extend(["--record".into(), directory.to_string_lossy().into()]);
     let result = invoke(env, &command, exit)?;
-    measure(words, &result)?;
     Ok(result)
 }
 fn measure(words: &[&str], result: &Value) -> Result<(), String> {
@@ -77,7 +81,9 @@ fn measure(words: &[&str], result: &Value) -> Result<(), String> {
 fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-seer","story":"Native site and statistic selectors retain source values","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    super::run_case(file.path(), &super::schema::Registry::embedded()?)
+    let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    measure(&["replay-terminal"], &value)?;
+    Ok(value)
 }
 fn wire(request: &str) -> Result<String, String> {
     let name = if request.contains("get_var_formats.php") {
@@ -138,7 +144,7 @@ fn catalog() -> Result<(), String> {
         &env,
         &words,
         &directory,
-        &["Example site", "Publisher", "SEER/NCI"],
+        &["Example site", "publisher", "SEER/NCI"],
     )?;
     if stub.finish()?.len() != 1 {
         return Err("catalog page fetched again".into());

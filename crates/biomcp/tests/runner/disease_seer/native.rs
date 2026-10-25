@@ -74,10 +74,49 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
             serde_json::to_vec_pretty(&result).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
+        measure_pages(&env, name, &words, &directory, &output)?;
     }
     if stub.finish()?.len() != count {
         return Err("native command proof changed source delivery count".into());
     }
+    Ok(())
+}
+fn measure_pages(
+    env: &super::Environment,
+    name: &str,
+    words: &[String],
+    directory: &Path,
+    output: &Path,
+) -> Result<(), String> {
+    let (total, option) = match name {
+        "catalog" => (73, "--offset"),
+        "incidence" => (5, "--section-offset"),
+        _ => (48, "--section-offset"),
+    };
+    let mut rows = Vec::new();
+    for offset in (0..total).step_by(5) {
+        let mut command = words.to_vec();
+        command.extend([
+            option.into(),
+            offset.to_string(),
+            "--replay".into(),
+            directory.to_string_lossy().into(),
+        ]);
+        let value = invoke(env, &command, 0)?;
+        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+        let comparable = crate::runner::source_terms::size(&value, "")?;
+        rows.push(json!({"offset":offset,"full":full,"comparable":comparable}));
+        fs::write(
+            output.join(format!("{name}-{offset}.json")),
+            serde_json::to_vec_pretty(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    fs::write(
+        output.join(format!("measurements-{name}.json")),
+        serde_json::to_vec_pretty(&rows).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 fn text<'a>(value: &'a Value, field: &str) -> Result<&'a str, String> {
