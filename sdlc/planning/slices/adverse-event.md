@@ -10,9 +10,9 @@ Shared types cannot be accepted before exact-request native captures. The follow
 
 Run through `pm job` from an exact pushed revision. Retain recipe, exact URL or POST body, start/end times, status, headers, unchanged bytes, SHA-256, byte size and classification for every attempted request. Store raw evidence on Yellow outside Git. Send each listed request once, sequentially, with zero retries, redirects, fallback spellings, extra pages, refreshes or health probes. A failed row stays failed; a 429 stops that source's remaining rows. Never provoke a provider failure. Local synthetic controls are separate evidence. Use HTTPS verification, 30-second request deadlines, 8 MiB openFDA/body cap and 2 MiB WONDER/body cap. These are capture limits, not measured costs.
 
-Maximum provider budget: **33 requests**: 20 FAERS base rows, four device rows, three conditional exact report/identity rows, two CDC files, three WONDER rows, and one reserved exact FAERS aggregation query defined below. No request replaces a skipped row. No account creation, keys borrowed from another user, production data or licensed curator answers. openFDA runs keyless under its documented public quota. WONDER is keyless, includes `accept_datause_restrictions=true`, observes its [data use restrictions](https://wonder.cdc.gov/datause.html) and keeps the existing legacy gap of at least 16 seconds between requests. No re-identification or suppressed-cell reconstruction.
+Maximum provider budget: **34 requests**: 21 FAERS base rows, four device rows, three conditional exact report/identity rows, two CDC files, three WONDER rows, and one reserved exact FAERS aggregation query defined below. No request replaces a skipped row. No account creation, keys borrowed from another user, production data or licensed curator answers. openFDA runs keyless under its documented public quota. WONDER is keyless, includes `accept_datause_restrictions=true`, observes its [data use restrictions](https://wonder.cdc.gov/datause.html) and keeps the existing legacy gap of at least 16 seconds between requests. No re-identification or suppressed-cell reconstruction.
 
-F01–F20 use `GET https://api.fda.gov/drug/event.json`, `limit=5`, `skip=0`, `sort=receivedate:desc`, except where stated. Encode the exact decoded expressions below. `N(x)` means `(patient.drug.openfda.generic_name:"x" OR patient.drug.openfda.brand_name:"x" OR patient.drug.medicinalproduct:"x")`. Expand it literally in the recipe and retain the final expression. These are explicit text searches, never identity joins.
+F01–F20 and F23 use `GET https://api.fda.gov/drug/event.json`, `limit=5`, `skip=0`, `sort=receivedate:desc`, except where stated. Encode the exact decoded expressions below. `N(x)` means `(patient.drug.openfda.generic_name:"x" OR patient.drug.openfda.brand_name:"x" OR patient.drug.medicinalproduct:"x")`. Expand it literally in the recipe and retain the final expression. These are explicit text searches, never identity joins.
 
 | Row | Exact search or operation | Native question |
 |---|---|---|
@@ -36,15 +36,16 @@ F01–F20 use `GET https://api.fda.gov/drug/event.json`, `limit=5`, `skip=0`, `s
 | F18 | `safetyreportid:"BIOMCP-NO-SUCH-REPORT-0152"` | Exact-ID negative control; no-match versus transport failure. |
 | F19 | F01 expression with `count=patient.reaction.reactionmeddrapt.exact`, `limit=5`, no sort/skip | Buckets and native count unit; no sum-of-buckets report denominator. |
 | F20 | F01 expression, `limit=5`, `skip=5`, same sort | Actual next page. |
+| F23 | `N(osimertinib) AND patient.reaction.reactionmeddrapt:"PNEUMONITIS"` | Separate ILD/pneumonitis question. |
 
 D01–D04 use `GET https://api.fda.gov/device/event.json`, `limit=5`, `skip=0`, `sort=date_received:desc`.
 
 | Row | Exact decoded search | Native question |
 |---|---|---|
-| D01 | `device.generic_name:"INFUSION PUMP"` | Complete device list and report identity; query alone does not establish oncology use. |
-| D02 | `device.generic_name:"INFUSION PUMP" AND event_type:"Death"` | Device event types are separate from drug seriousness. |
-| D03 | `device.generic_name:"IMPLANTED PORT"` | Cancer-care access device candidate; empty remains empty. |
-| D04 | `device.generic_name:"INFUSION PUMP" AND date_received:[20240101 TO 20241231]` | Received period and optional narrative. |
+| D01 | `device.generic_name:"BREAST IMPLANT"` | Complete device list and report identity; implant presence does not establish cancer or reconstruction. |
+| D02 | `device.generic_name:"BREAST IMPLANT" AND event_type:"Death"` | Device event types are separate from drug seriousness. |
+| D03 | `mdr_text.text:"SQUAMOUS CELL CARCINOMA" AND device.generic_name:"BREAST IMPLANT"` | Literal capsule-SCC discovery query; no automatic narrative classification or BIA-ALCL equivalence. |
+| D04 | `device.generic_name:"BREAST IMPLANT" AND date_received:[20240101 TO 20241231]` | Received period and optional narrative; no inference of event onset. |
 
 F21 conditionally gets the first actual F01 report in native order with `safetyreportid:"<exact native ID>" AND safetyreportversion:"<exact native version>"`, limit 1. If version is absent, query exact ID alone and preserve every returned version. D05 gets the first actual D01 `mdr_report_key` by that exact field, limit 1. I01 selects the first F01 drug object carrying `openfda.unii` and queries `patient.drug.openfda.unii:"<first exact native UNII>"`, limit 5. All native UNIIs remain visible; this one selected query proves no universal product join. Missing prerequisite IDs skip the conditional row. F22 repeats F01 with `count=seriousnessdeath`, limit 5, no sort/skip, to inspect the aggregate unit without calculating a risk.
 
