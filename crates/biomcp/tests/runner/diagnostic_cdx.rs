@@ -18,6 +18,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("diagnostic-cdx/synthetic-header-replacement", || {
             replacement().map_err(Into::into)
         }),
+        Trial::test("diagnostic-cdx/synthetic-concurrent-replacement", || {
+            concurrent().map_err(Into::into)
+        }),
         Trial::test("diagnostic-cdx/stored-only-policy", || {
             stored().map_err(Into::into)
         }),
@@ -43,7 +46,7 @@ fn identities() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env)?;
     let receipt = call(&env, &replay, &["sync", "fda-cdx"], 0)?;
-    if receipt.pointer("/result/rows") != Some(&json!(4)) {
+    if receipt.pointer("/result/rows") != Some(&json!(8)) {
         return Err(format!("wrong physical row total: {receipt}"));
     }
     let value = call(
@@ -76,6 +79,42 @@ fn identities() -> Check {
             return Err(format!("missing drug pivot {id}: {value}"));
         }
     }
+    let base = call(
+        &env,
+        &replay,
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-cdx",
+            "--device-id",
+            "P200010",
+        ],
+        0,
+    )?;
+    if base.pointer("/page/total") != Some(&json!(6))
+        || base.pointer("/page/returned") != Some(&json!(5))
+    {
+        return Err(format!("base search lost supplement or group rows: {base}"));
+    }
+    let next = base
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|a| a.iter().find(|v| v.get("kind") == Some(&json!("page"))))
+        .and_then(|v| v.get("args"))
+        .and_then(Value::as_array)
+        .ok_or("missing native page action")?;
+    let args = next
+        .iter()
+        .map(|v| v.as_str().ok_or("non-text page arg"))
+        .collect::<Result<Vec<_>, _>>()?;
+    let page = call(&env, &replay, &args, 0)?;
+    if page.pointer("/page/offset") != Some(&json!(5))
+        || page.pointer("/result/items/0/kind") != Some(&json!("group"))
+        || page.pointer("/result/items/0/drug_applications") != Some(&json!([]))
+    {
+        return Err(format!("page or ambiguous group identity changed: {page}"));
+    }
     let mismatch = call(
         &env,
         &replay,
@@ -107,7 +146,7 @@ fn identities() -> Check {
         ],
         0,
     )?;
-    if biomarker.pointer("/page/total") != Some(&json!(3))
+    if biomarker.pointer("/page/total") != Some(&json!(7))
         || !biomarker
             .get("problems")
             .and_then(Value::as_array)
@@ -208,6 +247,62 @@ fn stored() -> Check {
         || disabled.pointer("/sources/0/reason") != Some(&json!("disabled"))
     {
         return Err(format!("disabled source leaked data: {disabled}"));
+    }
+    Ok(())
+}
+fn concurrent() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    call(&env, &replay, &["sync", "fda-cdx"], 0)?;
+    let search = [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--device-id",
+        "P200010",
+    ];
+    let before = call(&env, &replay, &search, 0)?;
+    for entry in fs::read_dir(replay.join("fda-cdx")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let original = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+        fs::write(path, original.replace("Synthetic", "Updated synthetic"))
+            .map_err(|e| e.to_string())?;
+    }
+    let mut sync = env.globals(Some(&replay), false);
+    sync.extend(["sync".into(), "fda-cdx".into()]);
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(search.map(str::to_owned));
+    let spawn = |args: &[String]| {
+        env.command(env!("CARGO_BIN_EXE_biomcp"), args)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())
+    };
+    let replacement = spawn(&sync)?;
+    let readers = [spawn(&args)?, spawn(&args)?];
+    let output = replacement.wait_with_output().map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err(format!(
+            "replacement failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    let after = call(&env, &replay, &search, 0)?;
+    if before.get("result") == after.get("result") {
+        return Err("replacement did not change snapshot".into());
+    }
+    for reader in readers {
+        let output = reader.wait_with_output().map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err("concurrent reader failed".into());
+        }
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if value.get("result") != before.get("result") && value.get("result") != after.get("result")
+        {
+            return Err(format!("reader mixed snapshot rows: {value}"));
+        }
     }
     Ok(())
 }
