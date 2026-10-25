@@ -84,7 +84,7 @@ F01 returned native total 105020 and report 26940567 version 1 first. F21 exact 
 
 The first device key 50952244 returned unchanged through exact D05 get. Device event, received and reporting dates are distinct. Optional source strings can be present and empty; empty must not silently become absent without an explicit reviewed rule. C01 carried 290 seven-column pipe-delimited rows. C02 carried 225 nine-column rows, including its trailing empty column. Exact CVX 118/62/165 and their trade rows were selected by the native CVX column while preserving original whitespace. These native code relations do not prove a WONDER relation.
 
-All three WONDER XML requests returned 403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. PM drops VAERS/CVX from this slice. Losing legacy vaccine search awaits Ian through the PM; this design does not claim he accepted the loss. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's 404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
+All three WONDER XML requests returned 403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. The initial design dropped VAERS/CVX pending Ian. His later retry ruling and the successful MMR/COVID-19 captures supersede that source disposition; the VAERS contract below defines the supported summaries. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's 404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
 
 ### Measured native request table
 
@@ -167,7 +167,7 @@ HPV vaccine questions belong here only as cancer prevention. The reviewer confir
 | A18 | What breast-implant lymphoma reports record death in reconstruction? M1/M2. | Keep event type and stated indication; generic implant query does not establish lymphoma or reconstruction. D01/D02 supply candidates, not a complete answer. |
 | A19 | What reports describe SCC in the capsule around breast implants? M3. | Preserve narrative text as such, distinct from BIA-ALCL and breast carcinoma. D03 is explicit text discovery; no locally inferred diagnosis. |
 | A20 | Does a breast-implant report total represent unique patients/events? M1/M2. | State native report counting unit and duplicates; FDA curated BIA-ALCL cases differ from broad text matches. D01/D05. |
-| A21 | What syncope reports follow HPV vaccination in cancer prevention? V1/V2. | Preserve native vaccine code/reaction rows; no causal claim or incidence. Unanswered: V01 is 403; code tables do not answer this. Vaccine search is dropped pending Ian through PM. |
+| A21 | What syncope reports follow HPV vaccination in cancer prevention? V1/V2. | Preserve native vaccine code/reaction rows; no causal claim or incidence. Unanswered: V01 is 403; code tables do not answer this. HPV remains unsupported by the current MMR/COVID-19 summary contract. |
 | A22 | What serious allergic-reaction reports follow Gardasil 9? V1/V2. | Do not diagnose anaphylaxis from nonspecific symptoms or combine vaccines. Unanswered: V01/V02 are 403; neither marginals nor a joint answer were obtained. |
 | A23 | What can an empty exact cancer-drug/reaction/date query establish? F1/V1. | Only no matching records under those selectors/snapshot. D03 is the real empty SCC query 404; F18 is a synthetic nonexistent-ID control, not this clinical query. |
 | A24 | Synthetic engineering control motivated by source limits: can timeout/refusal/unreadable data display zero reports? F1/M1/V1. | No; unavailable/incomplete is separate from a verified empty. Local controlled failures can prove product handling later; no provider failure is manufactured. |
@@ -301,7 +301,7 @@ Registry-owned component names meddra/gmdn and the restricted group suppress app
 5. Label warnings, reported roles and report counts keep separate attribution and meanings.
 6. Empty, disabled, malformed, stale and unavailable stay distinct; failures never become zero or another source's answer.
 7. The table measures source HTTP only. Adapter tickets own cold/warm product latency and wire budgets.
-8. Wrong outcome aliases, name bridges and trial fallback are dropped. Vaccine loss awaits Ian through PM.
+8. Wrong outcome aliases, name bridges and trial fallback are dropped. VAERS summaries follow the later approved contract; CVX has no proved WONDER mapping.
 9. An agent can stop at a source reporting answer; it cannot infer safety, causation or incidence.
 10. Trust needs query/date/version/source links and explicit unanswered questions.
 
