@@ -539,8 +539,12 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
             .map(Request::SearchArticle)
             .map_err(|_| ()),
-        ("search", "drug") => serde_json::from_value::<biomcp_types::DrugSearch>(value).map(Request::SearchDrug).map_err(|_| ()),
-        ("get", "drug") => serde_json::from_value::<biomcp_types::DrugGet>(value).map(Request::GetDrug).map_err(|_| ()),
+        ("search", "drug") => serde_json::from_value::<biomcp_types::DrugSearch>(value)
+            .map(Request::SearchDrug)
+            .map_err(|_| ()),
+        ("get", "drug") => serde_json::from_value::<biomcp_types::DrugGet>(value)
+            .map(Request::GetDrug)
+            .map_err(|_| ()),
         ("get", "gene") => serde_json::from_value::<GeneGet>(value)
             .map(Request::GetGene)
             .map_err(|_| ()),

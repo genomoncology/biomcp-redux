@@ -16,6 +16,7 @@ pub struct DrugHeader {
     pub source: DrugSource,
     /// Original source display name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub name: Option<Text>,
     /// Level established only by the endpoint or record type.
     pub identity_level: DrugIdentityLevel,

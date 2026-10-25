@@ -15,30 +15,57 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
-mod raw;
 mod map;
+mod raw;
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, PathSegment, RequestError};
 use biomcp_types::{DrugCard, DrugPage};
 /// Reviewed identity fields, excluding every unapproved source component.
 pub const SEARCH_FIELDS: &str = "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.ligand_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.productndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname";
-const CARD_FIELDS: &str = concat!("drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.ligand_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.productndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname", ",drugbank.synonyms,chembl.molecule_hierarchy,chembl.molecule_synonyms,drugcentral.id,drugcentral.synonyms,drugcentral.xrefs,gtopdb.synonyms,gtopdb.chembl_id,gtopdb.xrefs,unii.rxcui,unii.ncit,ndc.applicationnumber,ndc.dosageformname,ndc.package,openfda.generic_name,openfda.brand_name,openfda.spl_set_id,openfda.application_number");
+const CARD_FIELDS: &str = concat!(
+    "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.ligand_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.productndc,ndc.producttypename,ndc.nonproprietaryname,ndc.proprietaryname",
+    ",drugbank.synonyms,chembl.molecule_hierarchy,chembl.molecule_synonyms,drugcentral.id,drugcentral.synonyms,drugcentral.xrefs,gtopdb.synonyms,gtopdb.chembl_id,gtopdb.xrefs,unii.rxcui,unii.ncit,ndc.applicationnumber,ndc.dosageformname,ndc.package,openfda.generic_name,openfda.brand_name,openfda.spl_set_id,openfda.application_number"
+);
 const SEARCH: Endpoint = SPEC.get("/query").fresh(Freshness::Days(7));
 const GET: Endpoint = SPEC.get("/chem").fresh(Freshness::Days(7));
 /// Fetch one literal native page with policy applied before cache and transport identity.
-pub fn search(leg: &Leg<'_>, query: &str, limit: u32, offset: u32) -> Result<DrugPage, RequestError> {
+pub fn search(
+    leg: &Leg<'_>,
+    query: &str,
+    limit: u32,
+    offset: u32,
+) -> Result<DrugPage, RequestError> {
     let fields = crate::drug_sources::components::allowed_fields(leg, SEARCH_FIELDS);
-    let reply = leg.json::<raw::Page>(&SEARCH, &[("q", Arg::Text(query)), ("size", Arg::Num(limit as u64)), ("from", Arg::Num(offset as u64)), ("fields", Arg::Text(&fields))])?;
+    let reply = leg.json::<raw::Page>(
+        &SEARCH,
+        &[
+            ("q", Arg::Text(query)),
+            ("size", Arg::Num(limit as u64)),
+            ("from", Arg::Num(offset as u64)),
+            ("fields", Arg::Text(&fields)),
+        ],
+    )?;
     map::page(reply, leg).map_err(|_| bad_reply())
 }
 /// Retrieve an exact native document and verify the returned identity, never searching by name.
 pub fn get(leg: &Leg<'_>, id: &str) -> Result<DrugCard, RequestError> {
     let segment = PathSegment::new(id).map_err(RequestError::Input)?;
     let fields = crate::drug_sources::components::allowed_fields(leg, CARD_FIELDS);
-    let reply = leg.json::<raw::Hit>(&GET.clone().with_segments(&[segment]), &[("fields", Arg::Text(&fields))])?;
-    if reply.id != id { return Err(bad_reply()); }
+    let reply = leg.json::<raw::Hit>(
+        &GET.clone().with_segments(&[segment]),
+        &[("fields", Arg::Text(&fields))],
+    )?;
+    if reply.id != id {
+        return Err(bad_reply());
+    }
     map::card(reply, leg).map_err(|_| bad_reply())
 }
 
 fn bad_reply() -> RequestError {
-    biomcp_fetch::SourceError { source: Source::Mychem, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into()
+    biomcp_fetch::SourceError {
+        source: Source::Mychem,
+        reason: biomcp_types::Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }

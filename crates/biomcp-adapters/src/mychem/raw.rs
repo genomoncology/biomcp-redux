@@ -8,8 +8,12 @@ pub(super) struct Page {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        for hit in &self.hits { hit.check()?; }
-        if self.hits.len() as u64 > self.total { return Err(BadReply); }
+        for hit in &self.hits {
+            hit.check()?;
+        }
+        if self.hits.len() as u64 > self.total {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }
@@ -29,7 +33,11 @@ pub(super) struct Hit {
 }
 impl Reply for Hit {
     fn check(&self) -> Result<(), BadReply> {
-        if self.id.is_empty() { Err(BadReply) } else { Ok(()) }
+        if self.id.is_empty() {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
     }
 }
 #[derive(Debug, Default, Deserialize)]
@@ -62,7 +70,9 @@ pub(super) struct Component {
     pub application_number: Option<OneOrMany<String>>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Synonym { pub molecule_synonym: Option<String> }
+pub(super) struct Synonym {
+    pub molecule_synonym: Option<String>,
+}
 #[derive(Debug, Deserialize)]
 pub(super) struct Hierarchy {
     pub active_chembl_id: Option<String>,
