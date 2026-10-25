@@ -278,6 +278,8 @@ fn concurrent() -> Check {
             reader_outputs
         ));
     }
+    let receipt: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    super::diagnostic_retirements::bounded(&receipt)?;
     let after = call(&env, &replay, &search, 0)?;
     if before.get("result") == after.get("result") {
         return Err("replacement did not change snapshot".into());
@@ -292,6 +294,7 @@ fn concurrent() -> Check {
             ));
         }
         let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        super::diagnostic_retirements::bounded(&value)?;
         if value.get("result") != before.get("result") && value.get("result") != after.get("result")
         {
             return Err(format!("reader mixed snapshot rows: {value}"));
@@ -378,7 +381,10 @@ fn markdown() -> Check {
     if !output.status.success() || !output.stderr.is_empty() {
         return Err("companion Markdown command failed".into());
     }
-    println!("DIAGNOSTIC_MARKDOWN_BYTES={}", output.stdout.len());
+    // Full synthetic Markdown stdout measured by j13400, plus fifteen percent.
+    if output.stdout.len() > 2260 {
+        return Err("diagnostic Markdown exceeds its measured ceiling".into());
+    }
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
     for expected in [
         "Synthetic tissue context",
