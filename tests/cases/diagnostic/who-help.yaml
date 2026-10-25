@@ -1,0 +1,57 @@
+{
+  "feature": "diagnostic-who",
+  "story": "WHO help advertises explicit synchronization and a known-product card through executable synthetic examples.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "sync",
+        "who-ivd"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "who-ivd"
+      ],
+      "max_bytes": 20000,
+      "max_tokens": 5000,
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "who-ivd"
+        ],
+        "/result/commands/0/examples": [
+          [
+            "sync",
+            "who-ivd"
+          ]
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "diagnostic"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "diagnostic"
+      ],
+      "max_bytes": 20000,
+      "max_tokens": 5000,
+      "expect": {
+        "/result/commands/0/examples": {
+          "includes": [
+            "get",
+            "diagnostic",
+            "0466-046-00",
+            "--source",
+            "who-ivd"
+          ]
+        }
+      }
+    }
+  ]
+}
