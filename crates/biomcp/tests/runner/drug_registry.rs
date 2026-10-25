@@ -231,7 +231,7 @@ impl biomcp_fetch::Reply for Synthetic {
 fn admission() -> Check {
     use biomcp_adapters::{drug_sources, registry};
     use biomcp_fetch::{Certificates, Fetch, FetchConfig, Freshness, Mode, Network, Secret};
-    use biomcp_types::{Reason, Source, SourceState};
+    use biomcp_types::Reason;
     use std::time::Duration;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub =
@@ -248,7 +248,9 @@ fn admission() -> Check {
     )
     .map_err(|e| e.to_string())?;
     let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Record(record.clone()),
+        mode: Mode::Record {
+            dir: record.clone(),
+        },
         cache: Some(cache.clone()),
         network,
         ..Default::default()
@@ -280,7 +282,7 @@ fn admission() -> Check {
     std::fs::remove_dir_all(&record).map_err(|e| e.to_string())?;
     std::fs::create_dir(&record).map_err(|e| e.to_string())?;
     let replay = Fetch::open(FetchConfig {
-        mode: Mode::Replay(record),
+        mode: Mode::Replay { dir: record },
         disabled_sources: registry::disabled(&["ddinter".into()]).map_err(|e| e.to_string())?,
         ..Default::default()
     })
@@ -292,18 +294,31 @@ fn admission() -> Check {
     if stub.finish()?.len() != 1 {
         return Err("prohibited request reached the local source".into());
     }
-    for state in [
-        SourceState::Ok,
-        SourceState::Empty,
-        SourceState::Skipped,
-        SourceState::Failed,
-    ] {
-        let outcome = registry::outcome(Source::Ddinter, state, Some(Reason::Disabled));
-        if outcome.usage != biomcp_types::Use::Noncommercial
-            || outcome.terms != "DDInter CC BY-NC-SA 4.0"
-            || outcome.terms_url != "https://ddinter.scbdd.com/terms/"
-        {
-            return Err("outcome lost source rights".into());
+    outcomes()
+}
+fn outcomes() -> Check {
+    use biomcp_adapters::registry;
+    use biomcp_types::{DrugSource, Reason, SourceState};
+    for drug_source in DrugSource::ALL {
+        let source = drug_source.source();
+        let spec = registry::SOURCES
+            .iter()
+            .find(|s| s.source == source)
+            .ok_or("unregistered drug source")?;
+        for (state, reason, count) in [
+            (SourceState::Ok, None, Some(1)),
+            (SourceState::Ok, None, Some(0)),
+            (SourceState::Skipped, Some(Reason::Disabled), None),
+            (SourceState::Failed, Some(Reason::Unavailable), None),
+        ] {
+            let mut outcome = registry::outcome(source, state, reason);
+            outcome.count = count;
+            if outcome.usage != spec.terms.usage
+                || outcome.terms.as_ref() != spec.terms.name
+                || outcome.terms_url.as_ref() != spec.terms.url
+            {
+                return Err("outcome lost source rights".into());
+            }
         }
     }
     Ok(())
