@@ -9,10 +9,20 @@ pub struct Response<T> {
     errors: Option<Vec<GraphError>>,
 }
 #[derive(Debug, Deserialize)]
-struct GraphError { message: String }
+struct GraphError {
+    message: String,
+}
 impl<T: for<'de> Deserialize<'de>> Reply for Response<T> {
     fn check(&self) -> Result<(), BadReply> {
-        if self.errors.as_ref().is_some_and(|e| !e.is_empty() || e.iter().any(|v| !v.message.is_empty())) { Err(BadReply) } else { Ok(()) }
+        if self
+            .errors
+            .as_ref()
+            .is_some_and(|e| !e.is_empty() || e.iter().any(|v| !v.message.is_empty()))
+        {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
     }
 }
 /// Source candidate collection.
