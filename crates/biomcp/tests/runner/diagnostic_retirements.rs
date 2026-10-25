@@ -3,7 +3,7 @@ use super::{configuration::invoke, launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::json;
 pub(super) fn trials() -> Vec<Trial> {
- CASES.iter().enumerate().map(|(i,&(words,message))| Trial::test(format!("diagnostic-retirements/fixed-guidance-{i}"),move ||check(words,message).map_err(Into::into))).collect()
+ CASES.iter().enumerate().map(|(i,&(words,message))| Trial::test(format!("diagnostic-retirements/fixed-guidance-{i}"),move ||check(words,message).map_err(Into::into))).chain([Trial::test("diagnostic-retirements/literal-values",||boundaries().map_err(Into::into))]).collect()
 }
 fn check(words: &str, message: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -38,6 +38,21 @@ fn check(words: &str, message: &str) -> Result<(), String> {
     }
     if listener.accept().is_ok() {
         return Err("unsupported diagnostic request opened a source connection".into());
+    }
+    Ok(())
+}
+fn boundaries() -> Result<(), String> {
+    let env = Environment::new().map_err(|e|e.to_string())?;
+    for words in [
+        "--disable-sources gtr search diagnostic --gene --manufacturer --source gtr",
+        "--disable-sources gtr search diagnostic --type all --source gtr",
+        "--disable-sources fda-cdx search diagnostic --biomarker --full --source fda-cdx",
+        "--disable-sources who-ivd get diagnostic --source who-ivd -- --json",
+    ] {
+        let value = invoke(&env, words.split_whitespace().map(str::to_owned).collect(),4)?;
+        if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+            return Err(format!("selector value became retirement: {value}"));
+        }
     }
     Ok(())
 }

@@ -3,7 +3,7 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials: Vec<_> = ["card", "foreign", "absent", "disabled", "invalid"]
+    let mut trials: Vec<_> = ["card", "foreign", "absent", "disabled", "invalid", "wrong-status"]
         .into_iter()
         .map(|mode| {
             Trial::test(format!("diagnostic-510k/synthetic-{mode}"), move || {
@@ -27,7 +27,7 @@ fn run(mode: &'static str) -> Result<(), String> {
             ) {
                 return Err(format!("unexpected query: {request}"));
             }
-            Ok(if mode == "absent" {
+            Ok(if matches!(mode, "absent" | "wrong-status") {
             json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}})
         } else {
             json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{
@@ -52,7 +52,7 @@ fn run(mode: &'static str) -> Result<(), String> {
     let exit = match mode {
         "invalid" => 2,
         "absent" => 1,
-        "foreign" | "disabled" => 4,
+        "foreign" | "disabled" | "wrong-status" => 4,
         _ => 0,
     };
     for _ in 0..2 {
@@ -84,7 +84,7 @@ fn run(mode: &'static str) -> Result<(), String> {
     let requests = stub.finish()?;
     let expected = match mode {
         "invalid" | "disabled" => 0,
-        "foreign" | "absent" => 2,
+        "foreign" | "absent" | "wrong-status" => 2,
         _ => 1,
     };
     if requests.len() != expected {
@@ -102,6 +102,10 @@ fn validate(mode: &str, v: &Value) -> Result<(), String> {
         return Err(format!(
             "clearance envelope exceeds measured budget: {full}"
         ));
+    }
+    if mode == "wrong-status" && (v.get("status") != Some(&json!("failed"))
+        || v.pointer("/sources/0/reason") != Some(&json!("bad_reply"))) {
+        return Err(format!("HTTP 200 error became absence: {v}"));
     }
     if mode == "card" {
         for (field, expected) in [

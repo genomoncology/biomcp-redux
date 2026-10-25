@@ -37,6 +37,21 @@ fn selected(
     records: fda_pma::Records,
     fresh: bool,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if let Some(field) = records.identity_conflict {
+        out.status = Status::Failed;
+        out.problems.push(Problem {
+            source: Source::FdaPma,
+            record: Some(q.id().clone()),
+            field: field.into(),
+            code: ProblemCode::IdentityConflict,
+        });
+        return Err(biomcp_fetch::SourceError {
+            source: Source::FdaPma,
+            reason: biomcp_types::Reason::BadReply,
+            status: Some(200),
+            retry_after: None,
+        }.into());
+    }
     if records.incomplete {
         out.status = Status::Partial;
         out.problems.push(Problem {

@@ -29,6 +29,8 @@ pub struct Records {
     pub rows: Vec<DeviceSubmission>,
     /// True only when the source application exceeds its single admitted page.
     pub incomplete: bool,
+    /// Exact native identity field that conflicts with the request.
+    pub identity_conflict: Option<&'static str>,
 }
 /// Validate exact source identity before any record can enter the ordinary cache.
 pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError> {
@@ -52,15 +54,11 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
             if let raw::Response::Page { meta, results } = reply {
                 if meta.results.skip != 0
                     || meta.results.limit != 100
-                    || results.iter().any(|row| {
-                        row.pma_number.as_str() != query.id().as_str()
-                            || row.supplement_number.as_ref().is_none_or(|cell| {
-                                query
-                                    .supplement()
-                                    .is_some_and(|s| s.as_str() != cell.as_str())
-                            })
-                    })
+
                 {
+                    return Err(BadReply);
+                }
+                if results.iter().any(|row|row.supplement_number.is_none()) {
                     return Err(BadReply);
                 }
                 let mut seen = std::collections::BTreeSet::new();
@@ -73,26 +71,31 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
             }
             Ok(())
         },
-        |reply| !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100),
+        |reply| identity(reply, query).is_none() && !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100),
     )?;
+    let identity_conflict = identity(&reply, query);
     Ok(match reply {
         raw::Response::Page { meta, results } => Records {
             rows: results.into_iter().map(raw::Record::mapped).collect(),
             incomplete: meta.results.total > 100,
+            identity_conflict,
         },
         raw::Response::Absent { .. } => Records {
             rows: vec![],
             incomplete: false,
+            identity_conflict: None,
         },
     })
 }
 
-fn bad() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::FdaPma,
-        reason: biomcp_types::Reason::BadReply,
-        status: Some(200),
-        retry_after: None,
+fn identity(reply: &raw::Response, query: &DiagnosticGet) -> Option<&'static str> {
+    let raw::Response::Page { results, .. } = reply else { return None; };
+    if results.iter().any(|row|row.pma_number.as_str()!=query.id().as_str()) {
+        return Some("pma_number");
     }
-    .into()
+    if query.supplement().is_some_and(|wanted|results.iter().any(|row|
+        row.supplement_number.as_ref().is_some_and(|cell| cell.as_str()!=wanted.as_str()))) {
+        return Some("supplement_number");
+    }
+    None
 }
