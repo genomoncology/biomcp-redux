@@ -38,9 +38,9 @@ pub struct DrugDiseaseReference {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugStage {
     /// Exact native field name.
-    pub field: Text,
+    pub field: Box<str>,
     /// Exact source string, without an authorization interpretation.
-    pub value: Text,
+    pub value: Box<str>,
 }
 
 /// Typed source reference shared by mechanism and indication records.

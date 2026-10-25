@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "Fields", transform = target_present))]
+#[cfg_attr(feature = "schema", schemars(with = "Fields", extend("anyOf" = [{"required":["target"]},{"required":["native_target"]}])))]
 pub struct DrugTargetRelation(Fields);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -14,9 +14,11 @@ pub struct DrugTargetRelation(Fields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
     drug: DrugIdentity,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "GeneRef"))]
     target: Option<GeneRef>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "DrugNativeTarget"))]
     native_target: Option<DrugNativeTarget>,
     relation: Text,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -62,13 +64,7 @@ impl TryFrom<Fields> for DrugTargetRelation {
         Ok(Self(value))
     }
 }
-#[cfg(feature = "schema")]
-fn target_present(schema: &mut schemars::Schema) {
-    let rule = schemars::json_schema!({"anyOf":[
-        {"required":["target"],"properties":{"target":{"type":"object"}}},
-        {"required":["native_target"],"properties":{"native_target":{"type":"object"}}}
-    ]});
-    if let Some(value) = rule.get("anyOf") {
-        schema.insert("anyOf".into(), value.clone());
-    }
+fn present<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
+where D: serde::Deserializer<'de>, T: Deserialize<'de> {
+    T::deserialize(deserializer).map(Some)
 }

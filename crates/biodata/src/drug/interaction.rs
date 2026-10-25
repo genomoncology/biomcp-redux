@@ -17,7 +17,7 @@ struct Fields {
     level: Text,
     attribution: Attribution,
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(transform = unique_items))]
+    #[cfg_attr(feature = "schema", schemars(extend("uniqueItems" = true)))]
     additional_attributions: Box<[Attribution]>,
 }
 impl DrugInteractionClaim {
@@ -52,8 +52,4 @@ impl TryFrom<Fields> for DrugInteractionClaim {
         }
         Ok(Self(value))
     }
-}
-#[cfg(feature = "schema")]
-fn unique_items(schema: &mut schemars::Schema) {
-    schema.insert("uniqueItems".into(), true.into());
 }

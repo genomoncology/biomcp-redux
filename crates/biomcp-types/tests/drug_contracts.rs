@@ -341,8 +341,11 @@ fn native_indication_ids_keep_their_own_labels_stage_and_references() {
     let value = json!({"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"indication":"source indication wording","disease_references":[{"namespace":"EFO","id":"EFO:synthetic","label":"native EFO wording"},{"namespace":"MeSH","id":"Dsynthetic","label":"different native MeSH wording"}],"stage":{"field":"max_phase_for_ind","value":"3.0"},"references":[{"ref_type":"native trial","ref_id":"synthetic-trial","ref_url":"https://example.org/trial"}],"attribution":{"source":"chembl"}});
     let parsed: DrugIndicationClaim = serde_json::from_value(value.clone()).expect("native indication");
     assert_eq!(parsed.disease_references.first(), Some(&DrugDiseaseReference { namespace: "EFO".parse().expect("namespace"), id: "EFO:synthetic".parse().expect("id"), label: Some("native EFO wording".parse().expect("label")) }));
-    assert_eq!(parsed.stage, Some(DrugStage { field: "max_phase_for_ind".parse().expect("field"), value: "3.0".parse().expect("value") }));
+    assert_eq!(parsed.stage, Some(DrugStage { field: "max_phase_for_ind".into(), value: "3.0".into() }));
     assert_eq!(serde_json::to_value(parsed).expect("indication JSON"), value);
+    let stage: DrugStage = serde_json::from_value(json!({"field":" native_field ","value":" 3.0 \n"})).expect("unchanged stage strings");
+    assert_eq!(stage.field.as_ref(), " native_field ");
+    assert_eq!(stage.value.as_ref(), " 3.0 \n");
 }
 
 #[test]
