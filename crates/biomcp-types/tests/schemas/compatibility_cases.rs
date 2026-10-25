@@ -291,7 +291,10 @@ fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_element
     let unrestricted_keys = json!({"$id":"biodata.example/1","type":"object","propertyNames":true});
     let mut no_keys = unrestricted_keys.clone();
     no_keys["propertyNames"] = json!(false);
-    assert!(check(&unrestricted_keys, &no_keys).is_err(), "false propertyNames forbids every nonempty object");
+    assert!(
+        check(&unrestricted_keys, &no_keys).is_err(),
+        "false propertyNames forbids every nonempty object"
+    );
     let loose = json!({"$id":"biodata.example/1","type":"object","additionalProperties":true});
     for changed in [
         json!({"$id":"biodata.example/1","type":"object","additionalProperties":{"type":"string"}}),

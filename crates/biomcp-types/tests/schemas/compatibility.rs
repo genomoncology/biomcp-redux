@@ -175,7 +175,10 @@ fn visit_children(
         ("additionalProperties", "{value}"),
         ("propertyNames", "{key}"),
     ] {
-        if let Some(child) = node.get(field).filter(|value| !value.is_boolean()) {
+        if let Some(child) = node
+            .get(field)
+            .filter(|value| field == "propertyNames" || !value.is_boolean())
+        {
             visit(root, child, &format!("{path}/{suffix}"), shapes, refs)?;
         }
     }
