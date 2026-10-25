@@ -1,0 +1,115 @@
+{
+  "live_check": "public",
+  "feature": "drug-civic",
+  "story": "Literal CIViC therapy search preserves native candidates, totals and source-local absence",
+  "replay": "drug/civic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "imatinib",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "imatinib",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 4,
+        "/result/items/0/id": "5"
+      },
+      "max_bytes": 2000,
+      "max_tokens": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "trastuzumab",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "trastuzumab",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 104,
+        "/result/items/0/id": "2986"
+      },
+      "max_bytes": 2000,
+      "max_tokens": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "ivosidenib",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "ivosidenib",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 1,
+        "/result/items/0/id": "454"
+      },
+      "max_bytes": 2000,
+      "max_tokens": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "fam-trastuzumab deruxtecan",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "fam-trastuzumab deruxtecan",
+        "--source",
+        "civic",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 0
+      },
+      "max_bytes": 2000,
+      "max_tokens": 500
+    }
+  ]
+}
