@@ -4,6 +4,8 @@ replay: drug/ema-synthetic
 steps:
   - run: [sync, ema]
     mcp: [sync, ema]
+    max_bytes: 170
+    max_tokens: 43
     expect:
       /schema: biomcp.sync/2
       /status: complete
