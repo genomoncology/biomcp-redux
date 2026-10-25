@@ -84,10 +84,14 @@ fn failure(name: &'static str) -> Check {
     }
     if matches!(name, "wrong-accession" | "wrong-gene")
         && (value.pointer("/problems/0/source") != Some(&json!("clinpgx"))
-            || value.pointer("/problems/0/field") != Some(&json!("record"))) {
+            || value.pointer("/problems/0/field") != Some(&json!("record")))
+    {
         return Err(format!("identity drop omitted its problem: {value}"));
     }
-    println!("ClinPGx {name}: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len());
+    println!(
+        "ClinPGx {name}: {}",
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
+    );
     *command.get_mut(0).ok_or("record switch")? = "--replay".into();
     let fresh = Environment::new().map_err(|e| e.to_string())?;
     let replay = both(&fresh, command, 4)?;
@@ -156,7 +160,10 @@ fn timeout() -> Check {
     {
         return Err("timeout became negative fact".into());
     }
-    println!("ClinPGx timeout: {}", serde_json::to_vec(&v).map_err(|e|e.to_string())?.len());
+    println!(
+        "ClinPGx timeout: {}",
+        serde_json::to_vec(&v).map_err(|e| e.to_string())?.len()
+    );
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached provider".into());
     }

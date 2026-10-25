@@ -24,7 +24,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             literal = true;
             continue;
         }
-        let (flag, inline) = word.split_once('=').map_or((word, None), |(a,b)| (a,Some(b)));
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word, None), |(a, b)| (a, Some(b)));
         if matches!(flag, "-j" | "--json") {
             words.shared = Some(ErrorMessage::DiseaseJson);
         }
@@ -38,7 +40,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         if pgx && flag == "--drug-id" {
             words.drug_id = true;
         }
-        if flag == "--section" || super::takes_value(flag, &words.positional).unwrap_or(false) {
+        if matches!(flag, "--section" | "--drug-id")
+            || super::takes_value(flag, &words.positional).unwrap_or(false)
+        {
             let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
             match flag {
                 "--source" => words.source = value,
@@ -67,21 +71,36 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
         [verb @ ("search" | "get"), "pgx", rest @ ..] => (*verb, rest),
         _ => return None,
     };
-    if words.shared.is_some() { return words.shared; }
+    if words.shared.is_some() {
+        return words.shared;
+    }
     let section = words.section.or_else(|| rest.first().copied());
-    if rest.len() > 1 { return Some(ErrorMessage::PgxSection); }
-    if verb == "search" && !rest.is_empty() { return Some(ErrorMessage::PgxGene); }
+    if rest.len() > 1 {
+        return Some(ErrorMessage::PgxSection);
+    }
+    if verb == "search" && !rest.is_empty() {
+        return Some(ErrorMessage::PgxGene);
+    }
     match section {
         Some("interactions") => return Some(ErrorMessage::PgxInteractions),
         Some("frequencies") => return Some(ErrorMessage::PgxFrequencies),
         Some("all") => return Some(ErrorMessage::PgxSection),
-        Some(s) if !matches!(s, "recommendations" | "guidelines" | "diplotype" | "annotations") => return Some(ErrorMessage::PgxGet),
+        Some(s)
+            if !matches!(
+                s,
+                "recommendations" | "guidelines" | "diplotype" | "annotations"
+            ) =>
+        {
+            return Some(ErrorMessage::PgxGet);
+        }
         _ => (),
     }
     if words.drug_id && (verb != "get" || section != Some("recommendations")) {
         return Some(ErrorMessage::PgxSelector);
     }
-    if words.annotation_id { return None; }
+    if words.annotation_id {
+        return (words.source != Some("clinpgx")).then_some(ErrorMessage::PgxSource);
+    }
     match (words.source, verb, section) {
         (Some("cpic"), "search", None) => None,
         (Some("cpic"), "get", None | Some("recommendations" | "guidelines" | "diplotype")) => None,

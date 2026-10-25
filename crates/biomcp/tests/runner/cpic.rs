@@ -160,7 +160,11 @@ fn check_request(name: &str, r: &str) -> Check {
     Ok(())
 }
 fn verify_next(name: &str, value: &Value) -> Check {
-    let steps = value.get("next").and_then(Value::as_array).ok_or("next")?;
+    let empty = vec![];
+    let steps = value
+        .get("next")
+        .and_then(Value::as_array)
+        .unwrap_or(&empty);
     if name == "guidelines-many" {
         let genes = steps
             .iter()
@@ -263,7 +267,10 @@ fn failure(name: &'static str) -> Check {
     {
         return Err(format!("identity drop omitted its problem: {value}"));
     }
-    println!("CPIC {name}: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len());
+    println!(
+        "CPIC {name}: {}",
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
+    );
     let mut replay = args.clone();
     *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
     let replay_env = Environment::new().map_err(|e| e.to_string())?;
@@ -309,14 +316,19 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
     if name == "table" && cold.pointer("/result/representation") != Some(&json!("table")) {
         return Err("table confused with view".into());
     }
-    if name == "empty" && (cold.get("status") != Some(&json!("complete"))
-        || cold.pointer("/sources/0/state") != Some(&json!("ok"))) {
+    if name == "empty"
+        && (cold.get("status") != Some(&json!("complete"))
+            || cold.pointer("/sources/0/state") != Some(&json!("ok")))
+    {
         return Err("Q33 source-local zero became failure or inferred normal".into());
     }
     if name == "missing-second-gene" && cold.pointer("/result/items/0/lookupkey/TPMT").is_some() {
         return Err("Q16 missing second gene acquired a result".into());
     }
-    println!("CPIC {name}: {}", serde_json::to_vec(cold).map_err(|e|e.to_string())?.len());
+    println!(
+        "CPIC {name}: {}",
+        serde_json::to_vec(cold).map_err(|e| e.to_string())?.len()
+    );
     verify_next(name, cold)?;
     Ok(())
 }
@@ -402,7 +414,10 @@ fn timeout() -> Check {
     {
         return Err(format!("timeout became success: {value}"));
     }
-    println!("CPIC timeout: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len());
+    println!(
+        "CPIC timeout: {}",
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
+    );
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached HTTP".into());
     }

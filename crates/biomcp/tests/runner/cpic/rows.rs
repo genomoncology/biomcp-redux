@@ -19,7 +19,10 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
             "--cpic-level".into(),
             "B/C".into(),
         ]);
-    } else if matches!(name, "view" | "missing-second-gene" | "table" | "guidelines" | "guidelines-many") {
+    } else if matches!(
+        name,
+        "view" | "missing-second-gene" | "table" | "guidelines" | "guidelines-many"
+    ) {
         args.extend(["--section-limit".into(), "1".into()]);
     }
     let body = match name {
@@ -35,7 +38,10 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
             // Q16 authored partial-key control: no unavailable second gene becomes normal.
             if name == "missing-second-gene" {
                 for field in ["lookupkey", "implications", "phenotypes"] {
-                    row.get_mut(field).and_then(Value::as_object_mut).ok_or("joint key")?.remove("TPMT");
+                    row.get_mut(field)
+                        .and_then(Value::as_object_mut)
+                        .ok_or("joint key")?
+                        .remove("TPMT");
                 }
             }
             if matches!(name, "view" | "missing-second-gene") {

@@ -173,11 +173,18 @@ fn request_matches(name: &str, r: &str) -> Check {
     Ok(())
 }
 fn verify(name: &str, v: &Value, native: &Value) -> Check {
-    if name == "empty" && (v.get("status") != Some(&json!("complete"))
-        || v.pointer("/sources/0/state") != Some(&json!("ok"))) {
+    if name == "empty"
+        && (v.get("status") != Some(&json!("complete"))
+            || v.pointer("/sources/0/state") != Some(&json!("ok")))
+    {
         return Err("Q33 successful source-local zero became failure or inferred normal".into());
     }
-    if name == "empty" { println!("ClinPGx empty: {}", serde_json::to_vec(v).map_err(|e|e.to_string())?.len()); }
+    if name == "empty" {
+        println!(
+            "ClinPGx empty: {}",
+            serde_json::to_vec(v).map_err(|e| e.to_string())?.len()
+        );
+    }
     if name == "default" && super::source_terms::size(v, "")? > CLINICAL_PAGE_MAX_BYTES {
         return Err("clinical default exceeds its reviewed output ceiling".into());
     }
