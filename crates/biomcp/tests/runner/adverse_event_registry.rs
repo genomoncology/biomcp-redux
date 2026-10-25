@@ -19,6 +19,9 @@ pub(super) fn trials() -> Vec<Trial> {
             Trial::test("adverse-event-registry/health-switch-union", || {
                 health_switches().map_err(Into::into)
             }),
+            Trial::test("adverse-event-registry/health-before-io", || {
+                health_before_io().map_err(Into::into)
+            }),
             Trial::test("adverse-event-registry/outcome-terms", || {
                 outcomes().map_err(Into::into)
             }),
@@ -126,6 +129,58 @@ fn health_switches() -> Check {
                 return Err(format!("policy union failed: {switch}: {row}"));
             }
         }
+    }
+    Ok(())
+}
+
+fn health_before_io() -> Check {
+    use biomcp_adapters::registry;
+    use biomcp_types::Source;
+    use serde_json::json;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
+    let replay = env.root().join("empty-replay");
+    std::fs::create_dir(&replay).map_err(|e| e.to_string())?;
+    let others = registry::SOURCES
+        .iter()
+        .filter(|s| !matches!(s.source, Source::Faers | Source::Maude))
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>();
+    for switches in [
+        vec!["faers", "maude"],
+        vec!["meddra", "gmdn"],
+        vec!["restricted"],
+    ] {
+        let mut disabled = others.clone();
+        disabled.extend(switches.iter().map(|s| (*s).to_owned()));
+        env.config(&json!({"disable_sources": disabled, "proxy": format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)})).map_err(|e| e.to_string())?;
+        for replay_mode in [false, true] {
+            let mut args = vec!["health".into()];
+            if replay_mode {
+                args.extend(["--replay".into(), replay.to_string_lossy().into()]);
+            }
+            let health = invoke(&env, args, 0)?;
+            let rows = health
+                .pointer("/result/sources")
+                .and_then(Value::as_array)
+                .ok_or("missing health")?;
+            for source in ["faers", "maude"] {
+                let row = rows
+                    .iter()
+                    .find(|r| r["source"] == source)
+                    .ok_or("missing source")?;
+                if row["state"] != "skipped"
+                    || row["reason"] != "disabled"
+                    || row["terms"].as_str().is_none_or(str::is_empty)
+                {
+                    return Err(format!("health executed restricted record probe: {row}"));
+                }
+            }
+        }
+    }
+    if listener.accept().is_ok() {
+        return Err("disabled health opened HTTP".into());
     }
     Ok(())
 }
