@@ -138,5 +138,14 @@ pub use drug::{
 
 pub use query::QueryInvalid;
 
-pub use query::{DiagnosticGet, DiagnosticSearch, DiagnosticSearchSource, DiagnosticGetSource, DiagnosticSection};
-pub use response::{DiagnosticLaboratory, GtrHeader, DiagnosticCandidate, GtrNativeStatus, GtrCard, DiagnosticCard, DiagnosticRegulatoryFragment, DiagnosticRegulatoryField, DiagnosticPage, DiagnosticGenes, DiagnosticConditions, DiagnosticMethods, DiagnosticRegulatory, DiagnosticSupplements, DiagnosticCompanion};
+pub use query::{
+    DiagnosticGet, DiagnosticGetSource, DiagnosticSearch, DiagnosticSearchSource, DiagnosticSection,
+};
+pub use response::{
+    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
+    DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
+    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSupplements, GtrCard,
+    GtrHeader, GtrNativeStatus,
+};
+
+pub use response::{DiagnosticPmaCard, DiagnosticPmaHeader, DiagnosticPmaRegulatory};

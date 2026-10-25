@@ -1,5 +1,5 @@
+use crate::{Concept, Curie, GeneRef, GtrTestId};
 use serde::{Deserialize, Serialize};
-use crate::{GtrTestId, GeneRef, Concept, Curie};
 /// One complete GTR test-version row; repeated identities remain separate records.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -75,54 +75,74 @@ pub struct GtrTestVersion {
 }
 crate::wire_enum! {
     /// Native GTR relation test category, not an offering or authorization judgment.
-    GtrTestType { Clinical => "Clinical", Research => "Research", ClinicalMicrobial => "Clinical microbial" }
+    GtrTestType { #[doc = "Native Clinical spelling."] Clinical => "Clinical", #[doc = "Native Research spelling."] Research => "Research", #[doc = "Native ClinicalMicrobial spelling."] ClinicalMicrobial => "Clinical microbial" }
 }
-/// Native relation membership; methods preserve independent lists rather than guessed pairs.
+/// Source-owned native membership or one independent method-list entry.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(
+    tag = "kind",
+    content = "relation",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum GtrTestRelation {
-    /// Native gene row; numeric source ID may be absent.
-    Gene {
-        /// Complete owning test identity.
-        test_id: GtrTestId,
-        /// Native test type.
-        test_type: GtrTestType,
-        /// Shared source-given gene reference.
-        gene: GeneRef,
-        /// Native GTR MedGen identity, independent of GeneID.
-        native_medgen: Curie,
-        /// Native MIM cell, including empty.
-        mim_number: Box<str>,
-        /// Complete native object label.
-        object_name: Box<str>,
-    },
-    /// Native condition row; its SNOMED value never becomes a gene ID.
-    Condition {
-        /// Complete owning test identity.
-        test_id: GtrTestId,
-        /// Native test type.
-        test_type: GtrTestType,
-        /// Source MedGen concept with native label.
-        condition: Concept,
-        /// Native MIM cell, including empty.
-        mim_number: Box<str>,
-        /// Native SNOMED CT cell, including empty; never GeneID.
-        snomed_ct_id: Box<str>,
-    },
-    /// One method-list entry owned by a test version.
-    Method {
-        /// Complete owning test identity.
-        test_id: GtrTestId,
-        /// Native independent list, never paired by position.
-        list: GtrMethodList,
-        /// Zero-based position within that native list.
-        index: u32,
-        /// Full source entry without clipping.
-        value: Box<str>,
-    },
+    /// Native gene relation row.
+    Gene(GtrGeneRelation),
+    /// Native condition relation row.
+    Condition(GtrConditionRelation),
+    /// One independent method-list entry.
+    Method(GtrMethod),
 }
 crate::wire_enum! {
     /// Independent native GTR method lists.
-    GtrMethodList { Categories => "method_categories", Methods => "methods", Platforms => "platforms" }
+    GtrMethodList { #[doc = "Native Categories spelling."] Categories => "method_categories", #[doc = "Native Methods spelling."] Methods => "methods", #[doc = "Native Platforms spelling."] Platforms => "platforms" }
+}
+/// Native gene relation; its numeric ID comes only from the gene row.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrGeneRelation {
+    /// Complete owning test accession/version.
+    pub test_id: GtrTestId,
+    /// Native source test type.
+    pub test_type: GtrTestType,
+    /// Shared source-given GeneID and gene_symbol; absent GeneID stays absent.
+    pub gene: GeneRef,
+    /// Independent native MedGen identity from GTR_identifier.
+    pub native_medgen: Curie,
+    /// Native MIM cell, including empty.
+    pub mim_number: Box<str>,
+    /// Full source object_name without interpretation.
+    pub object_name: Box<str>,
+}
+/// Native condition membership; SNOMED cells never become GeneID.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrConditionRelation {
+    /// Complete owning test accession/version.
+    pub test_id: GtrTestId,
+    /// Native source test type.
+    pub test_type: GtrTestType,
+    /// Shared MedGen concept with source label.
+    pub condition: Concept,
+    /// Native MIM cell, including empty.
+    pub mim_number: Box<str>,
+    /// Native SNOMED CT cell, including empty; never a gene ID.
+    pub snomed_ct_id: Box<str>,
+}
+/// One entry from one independent native method list.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrMethod {
+    /// Complete owning test accession/version.
+    pub test_id: GtrTestId,
+    /// Independent source list; lists are never positionally paired.
+    pub list: GtrMethodList,
+    /// Zero-based native list position.
+    pub index: u32,
+    /// Complete unmodified source entry.
+    pub value: Box<str>,
 }

@@ -1,5 +1,8 @@
 use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
-use biodata::{CompanionDiagnosticRelation, DeviceSubmission, GtrTestId, GtrTestRelation, Text, WhoIvdProduct};
+use biodata::{
+    CompanionDiagnosticRelation, GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId,
+    PmaNumber, PmaSupplementCell, Text, WhoIvdProduct,
+};
 use serde::{Deserialize, Serialize};
 
 /// Compact native laboratory context without authorization interpretation.
@@ -36,7 +39,11 @@ pub struct GtrHeader {
 }
 /// A conflict is visible once without a selected name or card.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "identity_status", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(
+    tag = "identity_status",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCandidate {
     /// One resolved native identity.
@@ -114,7 +121,7 @@ pub enum DiagnosticCard {
     /// All native rows under one WHO Product ID.
     WhoIvdProduct(WhoIvdProduct),
     /// Exact native FDA base or supplement, never an application-wide inferred claim.
-    PmaSubmission(DeviceSubmission),
+    PmaSubmission(DiagnosticPmaCard),
 }
 impl ResponseBody for DiagnosticCard {
     const SCHEMA: &'static str = "biomcp.diagnostic_card/1";
@@ -126,7 +133,9 @@ impl ResponseBody for DiagnosticCard {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticRegulatoryFragment {
     /// Exact selected native record and its dated regulatory metadata.
-    pub submission: DeviceSubmission,
+    pub submission: DiagnosticPmaHeader,
+    /// Native metadata for this exact record, without a duplicated whole statement.
+    pub metadata: DiagnosticPmaRegulatory,
     /// Native text field being continued.
     pub field: DiagnosticRegulatoryField,
     /// Fragment offset, independent of characters and supplement rows.
@@ -138,7 +147,7 @@ pub struct DiagnosticRegulatoryFragment {
 }
 biodata::wire_enum! {
     /// Regulatory text available in this source tier.
-    DiagnosticRegulatoryField { ApprovalOrderStatement => "ao_statement" }
+    DiagnosticRegulatoryField { #[doc = "Native ApprovalOrderStatement spelling."] ApprovalOrderStatement => "ao_statement" }
 }
 macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
@@ -156,10 +165,114 @@ macro_rules! page {
         }
     };
 }
-page!(DiagnosticPage, DiagnosticCandidate, DiagnosticSearch, "biomcp.diagnostic_page/1", "Source-ordered GTR candidates with explicit conflicts.");
-page!(DiagnosticGenes, GtrTestRelation, DiagnosticGet, "biomcp.diagnostic_genes/1", "Native GTR gene relation rows without variant-coverage inference.");
-page!(DiagnosticConditions, GtrTestRelation, DiagnosticGet, "biomcp.diagnostic_conditions/1", "Native GTR condition rows without ontology or clinical conversion.");
-page!(DiagnosticMethods, GtrTestRelation, DiagnosticGet, "biomcp.diagnostic_methods/1", "Independent native method entries without positional pairing.");
-page!(DiagnosticRegulatory, DiagnosticRegulatoryFragment, DiagnosticGet, "biomcp.diagnostic_regulatory/1", "Exact selected submission regulatory text fragments.");
-page!(DiagnosticSupplements, DeviceSubmission, DiagnosticGet, "biomcp.diagnostic_supplements/1", "Native supplement records retaining exact identity and independent dated decisions.");
-page!(DiagnosticCompanion, CompanionDiagnosticRelation, DiagnosticSearch, "biomcp.diagnostic_companion/1", "Whole distinct physical companion-table rows with cell-owned identifiers.");
+page!(
+    DiagnosticPage,
+    DiagnosticCandidate,
+    DiagnosticSearch,
+    "biomcp.diagnostic_page/1",
+    "Source-ordered GTR candidates with explicit conflicts."
+);
+page!(
+    DiagnosticGenes,
+    GtrGeneRelation,
+    DiagnosticGet,
+    "biomcp.diagnostic_genes/1",
+    "Native GTR gene relation rows without variant-coverage inference."
+);
+page!(
+    DiagnosticConditions,
+    GtrConditionRelation,
+    DiagnosticGet,
+    "biomcp.diagnostic_conditions/1",
+    "Native GTR condition rows without ontology or clinical conversion."
+);
+page!(
+    DiagnosticMethods,
+    GtrMethod,
+    DiagnosticGet,
+    "biomcp.diagnostic_methods/1",
+    "Independent native method entries without positional pairing."
+);
+page!(
+    DiagnosticRegulatory,
+    DiagnosticRegulatoryFragment,
+    DiagnosticGet,
+    "biomcp.diagnostic_regulatory/1",
+    "Exact selected submission regulatory text fragments."
+);
+page!(
+    DiagnosticSupplements,
+    DiagnosticPmaHeader,
+    DiagnosticGet,
+    "biomcp.diagnostic_supplements/1",
+    "Native supplement records retaining exact identity and independent dated decisions."
+);
+page!(
+    DiagnosticCompanion,
+    CompanionDiagnosticRelation,
+    DiagnosticSearch,
+    "biomcp.diagnostic_companion/1",
+    "Whole distinct physical companion-table rows with cell-owned identifiers."
+);
+/// Compact exact PMA row identity; its native empty base cell is explicit.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticPmaHeader {
+    /// Native application.
+    pub pma_number: PmaNumber,
+    /// Absent differs from explicit empty base cell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supplement_number: Option<PmaSupplementCell>,
+    /// Native trade_name when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trade_name: Option<Box<str>>,
+    /// Native applicant when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub applicant: Option<Box<str>>,
+    /// Native decision_date when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_date: Option<Box<str>>,
+    /// Native decision_code when supplied, including explicit empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_code: Option<Box<str>>,
+    /// Exact source record URL.
+    pub url: Text,
+}
+/// Selected PMA card; statement text stays behind its bounded regulatory page.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticPmaCard {
+    /// Exact selected source header.
+    pub header: DiagnosticPmaHeader,
+    /// Source-supported pages for this exact base or supplement.
+    pub sections: Box<[DiagnosticSection]>,
+}
+/// Dated metadata belonging only to the selected submission.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticPmaRegulatory {
+    /// Native date_received when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub date_received: Option<Box<str>>,
+    /// Native fed_reg_notice_date when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fed_reg_notice_date: Option<Box<str>>,
+    /// Native advisory_committee when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advisory_committee: Option<Box<str>>,
+    /// Native advisory_committee_description when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advisory_committee_description: Option<Box<str>>,
+    /// Native product_code when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product_code: Option<Box<str>>,
+    /// Native supplement_type when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supplement_type: Option<Box<str>>,
+    /// Native supplement_reason when supplied, including empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supplement_reason: Option<Box<str>>,
+}

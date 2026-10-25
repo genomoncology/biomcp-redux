@@ -1,5 +1,8 @@
+use crate::{
+    DiagnosticDeviceId, FdaDrugApplication, PmaNumber, PmaSupplement, PmaSupplementCell,
+    WhoProductId,
+};
 use serde::{Deserialize, Serialize};
-use crate::{WhoProductId, PmaNumber, PmaSupplement, DiagnosticDeviceId, FdaDrugApplication};
 /// Whole WHO listing, retaining each original product-code row in source order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -39,7 +42,7 @@ pub struct DeviceSubmission {
     pub pma_number: PmaNumber,
     /// Native supplement cell; Some("") denotes the captured base, None denotes absent.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub supplement_number: Option<Box<str>>,
+    pub supplement_number: Option<PmaSupplementCell>,
     /// Native trade_name; explicit empty and absent remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub trade_name: Option<Box<str>>,
@@ -199,6 +202,8 @@ pub struct CompanionGroupCells {
     #[serde(rename = "PMA (Approval Date)")]
     pub device: DiagnosticCell,
     /// Complete original drug_group cell.
-    #[serde(rename = "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA")]
+    #[serde(
+        rename = "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA"
+    )]
     pub drug_group: DiagnosticCell,
 }

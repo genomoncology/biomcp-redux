@@ -63,4 +63,6 @@ pub use disease::{DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, Di
 pub use gene::QueryInvalid;
 
 mod diagnostic;
-pub use diagnostic::{DiagnosticGet, DiagnosticSearch, DiagnosticSearchSource, DiagnosticGetSource, DiagnosticSection};
+pub use diagnostic::{
+    DiagnosticGet, DiagnosticGetSource, DiagnosticSearch, DiagnosticSearchSource, DiagnosticSection,
+};

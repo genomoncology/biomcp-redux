@@ -1,22 +1,24 @@
+use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, Text};
 use serde::{Deserialize, Serialize};
-use super::QueryInvalid;
 mod get;
 pub use get::DiagnosticGet;
 
 biodata::wire_enum! {
     /// One explicit diagnostic discovery source.
-    DiagnosticSearchSource { Gtr => "gtr", FdaCdx => "fda-cdx" }
+    DiagnosticSearchSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native FdaCdx spelling."] FdaCdx => "fda-cdx" }
 }
 biodata::wire_enum! {
     /// One explicit exact diagnostic record source.
-    DiagnosticGetSource { Gtr => "gtr", WhoIvd => "who-ivd", FdaPma => "fda-pma" }
+    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma" }
 }
 biodata::wire_enum! {
     /// Source-supported diagnostic sections; no all section.
-    DiagnosticSection { Genes => "genes", Conditions => "conditions", Methods => "methods", Regulatory => "regulatory", Supplements => "supplements" }
+    DiagnosticSection { #[doc = "Native Genes spelling."] Genes => "genes", #[doc = "Native Conditions spelling."] Conditions => "conditions", #[doc = "Native Methods spelling."] Methods => "methods", #[doc = "Native Regulatory spelling."] Regulatory => "regulatory", #[doc = "Native Supplements spelling."] Supplements => "supplements" }
 }
-fn limit() -> u32 { 5 }
+fn limit() -> u32 {
+    5
+}
 /// Checked selected-source diagnostic discovery; no identity resolution or I/O.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -64,45 +66,84 @@ struct SearchFields {
 impl TryFrom<SearchFields> for DiagnosticSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        let gtr = v.gene_id.is_some() || v.gene.is_some() || v.condition_id.is_some() || v.test_type.is_some();
+        let gtr = v.gene_id.is_some()
+            || v.gene.is_some()
+            || v.condition_id.is_some()
+            || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         if !(1..=50).contains(&v.limit)
             || (v.gene.is_some() && v.gene_id.is_some())
             || (v.source == DiagnosticSearchSource::Gtr && cdx)
             || (v.source == DiagnosticSearchSource::FdaCdx && gtr)
-            || v.device_id.as_ref().is_some_and(|id| !id.as_str().starts_with('P'))
+            || v.device_id
+                .as_ref()
+                .is_some_and(|id| !id.as_str().starts_with('P'))
             || v.condition_id.as_ref().is_some_and(|id| {
-                id.as_str().strip_prefix("MedGen:C").is_none_or(|id| id.is_empty() || !id.bytes().all(|b| b.is_ascii_digit()))
+                id.as_str()
+                    .strip_prefix("MedGen:C")
+                    .is_none_or(|id| id.is_empty() || !id.bytes().all(|b| b.is_ascii_digit()))
             })
-        { return Err(QueryInvalid); }
+        {
+            return Err(QueryInvalid);
+        }
         Ok(Self(v))
     }
 }
 impl DiagnosticSearch {
     /// Explicit source, without fallback.
-    pub fn source(&self) -> DiagnosticSearchSource { self.0.source }
+    pub fn source(&self) -> DiagnosticSearchSource {
+        self.0.source
+    }
     /// Exact source GeneID.
-    pub fn gene_id(&self) -> Option<NcbiGeneId> { self.0.gene_id }
+    pub fn gene_id(&self) -> Option<NcbiGeneId> {
+        self.0.gene_id
+    }
     /// Exact source symbol.
-    pub fn gene(&self) -> Option<&GeneSymbol> { self.0.gene.as_ref() }
+    pub fn gene(&self) -> Option<&GeneSymbol> {
+        self.0.gene.as_ref()
+    }
     /// Exact source MedGen CUI.
-    pub fn condition_id(&self) -> Option<&Text> { self.0.condition_id.as_ref() }
+    pub fn condition_id(&self) -> Option<&Text> {
+        self.0.condition_id.as_ref()
+    }
     /// Exact native test type.
-    pub fn test_type(&self) -> Option<biodata::GtrTestType> { self.0.test_type }
+    pub fn test_type(&self) -> Option<biodata::GtrTestType> {
+        self.0.test_type
+    }
     /// Selected PMA base or supplement.
-    pub fn device_id(&self) -> Option<&DiagnosticDeviceId> { self.0.device_id.as_ref() }
+    pub fn device_id(&self) -> Option<&DiagnosticDeviceId> {
+        self.0.device_id.as_ref()
+    }
     /// Owned NDA/BLA application.
-    pub fn drug_application(&self) -> Option<&FdaDrugApplication> { self.0.drug_application.as_ref() }
+    pub fn drug_application(&self) -> Option<&FdaDrugApplication> {
+        self.0.drug_application.as_ref()
+    }
     /// Whole exact biomarker cell.
-    pub fn biomarker(&self) -> Option<&Text> { self.0.biomarker.as_ref() }
+    pub fn biomarker(&self) -> Option<&Text> {
+        self.0.biomarker.as_ref()
+    }
     /// Native rows per page.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Native row offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Selected immutable bundle revision.
-    pub fn bundle_revision(&self) -> Option<&Text> { self.0.bundle_revision.as_ref() }
+    pub fn bundle_revision(&self) -> Option<&Text> {
+        self.0.bundle_revision.as_ref()
+    }
     /// Continue without changing source, filters or revision.
-    pub fn at_offset(&self, offset: u32) -> Self { let mut v = self.clone(); v.0.offset = offset; v }
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut v = self.clone();
+        v.0.offset = offset;
+        v
+    }
     /// Bind a stored query to its immutable source snapshot.
-    pub fn with_bundle_revision(&self, revision: Text) -> Self { let mut v = self.clone(); v.0.bundle_revision = Some(revision); v }
+    pub fn with_bundle_revision(&self, revision: Text) -> Self {
+        let mut v = self.clone();
+        v.0.bundle_revision = Some(revision);
+        v
+    }
 }
