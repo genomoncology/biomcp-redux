@@ -88,7 +88,11 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, &["/record/id"])?;
-    hit(next_args("variant", id, envelope).or_else(|| variant_args(id, envelope))?, id, &variant_url(row)?)
+    hit(
+        next_args("variant", id, envelope).or_else(|| variant_args(id, envelope))?,
+        id,
+        &variant_url(row, envelope)?,
+    )
 }
 fn native(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, &["/id", "/header/id", "/concept/id", "/product/id"])?;
@@ -128,13 +132,17 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
         }
         "variant" => {
             let rows = result.get("candidates")?.as_array()?;
-            if rows.len() != 1 || result.get("resolution").and_then(Value::as_str) != Some("resolved") { return None; }
+            if rows.len() != 1
+                || result.get("resolution").and_then(Value::as_str) != Some("resolved")
+            {
+                return None;
+            }
             let row = rows.first()?;
             let native_id = text(row, &["/record/id"])?;
             hit(
                 vec![entity.into(), native_id.into()],
                 native_id,
-                &variant_url(row)?,
+                &variant_url(row, envelope)?,
             )
         }
         "gene" => {
@@ -155,7 +163,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
     Some(found)
 }
 
-fn variant_url(row: &Value) -> Option<String> {
+fn variant_url(row: &Value, envelope: &Value) -> Option<String> {
     if let Some(url) = text(row, &["/record/url"]) {
         return Some(url.into());
     }
@@ -173,15 +181,34 @@ fn variant_url(row: &Value) -> Option<String> {
             }
         })
         .collect::<String>();
-    let assembly = row.pointer("/identity/representations").and_then(Value::as_array)
+    let assembly = text(envelope, &["/query/build"]) == Some("GRCh38") || row
+        .pointer("/identity/representations")
+        .and_then(Value::as_array)
         .is_some_and(|rows| rows.iter().any(|r| text(r, &["/build"]) == Some("GRCh38")));
-    Some(format!("https://myvariant.info/v1/variant/{encoded}{}", if assembly { "?assembly=hg38" } else { "" }))
+    Some(format!(
+        "https://myvariant.info/v1/variant/{encoded}{}",
+        if assembly { "?assembly=hg38" } else { "" }
+    ))
 }
 
 fn variant_args(id: &str, envelope: &Value) -> Option<Vec<String>> {
     // This is the caller's explicit assembly, never an inferred source fact.
-    let build = text(envelope, &["/query/build"] )?.parse().ok()?;
-    let query = biomcp_types::VariantGet::new(id.parse().ok()?, biomcp_types::VariantResolver::Car, Some(build)).ok()?;
-    let action = biomcp_query::Action::Run { request: biomcp_types::Request::GetVariant(query), fresh: false };
-    Some(crate::spell::action_args(&action).ok()?.into_iter().skip(1).collect())
+    let build = text(envelope, &["/query/build"])?.parse().ok()?;
+    let query = biomcp_types::VariantGet::new(
+        id.parse().ok()?,
+        biomcp_types::VariantResolver::Car,
+        Some(build),
+    )
+    .ok()?;
+    let action = biomcp_query::Action::Run {
+        request: biomcp_types::Request::GetVariant(query),
+        fresh: false,
+    };
+    Some(
+        crate::spell::action_args(&action)
+            .ok()?
+            .into_iter()
+            .skip(1)
+            .collect(),
+    )
 }

@@ -70,10 +70,15 @@ fn common_registry() -> Vec<Contract> {
     }
 }
 
-fn registry() -> Vec<Contract> {
-    let mut contracts = contracts! {
+fn research_registry() -> Vec<Contract> {
+    contracts! {
         ResearchSearch<ResearchEnvelope> => ("research-search", "biomcp.research-search/1"),
         ResearchFetch<ResearchEnvelope> => ("research-fetch", "biomcp.research-fetch/1"),
+    }
+}
+
+fn registry() -> Vec<Contract> {
+    let mut contracts = contracts! {
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
         Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/2"),
         HttpHealth => ("http-health", "biomcp.http-health/1"),
@@ -147,6 +152,7 @@ fn registry() -> Vec<Contract> {
     };
     contracts.extend(diagnostic_contracts());
     contracts.extend(common_registry());
+    contracts.extend(research_registry());
     contracts.extend(disease::registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());

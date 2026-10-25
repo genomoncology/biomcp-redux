@@ -116,6 +116,8 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .or_else(|| cli.pointer("/result/candidates"))
         .and_then(Value::as_array)
         .ok_or("CLI rows missing")?;
+    let search_cap = match args.get(1).map(String::as_str) { Some("article") => 1637, Some("trial") => 8192, _ => 2864 };
+    bounded(&wrapped, search_cap)?;
     let hits = wrapped
         .get("results")
         .and_then(Value::as_array)
@@ -162,8 +164,10 @@ fn fetch_parity(
         let fetch_globals = env.globals(Some(&recording), false);
         let mut get = vec!["get".to_owned()];
         get.extend(shlex::split(id).ok_or("invalid argument-list id")?);
-        let cli_get = command(&env, &get, &fetch_globals, 0)?;
-        let fetched = call(&env, "fetch", json!({"id":id}), &fetch_globals)?;
+        let cli_get = command(env, &get, &fetch_globals, 0)?;
+        let fetched = call(env, "fetch", json!({"id":id}), &fetch_globals)?;
+        let cap = match args.get(1).map(String::as_str) { Some("article") => 6012, Some("trial") => 5047, _ => 2451 };
+        bounded(&fetched, cap)?;
         if fetched.get("metadata") != Some(&cli_get) || fetched.get("id") != Some(&json!(id)) {
             return Err("fetch differs from CLI".into());
         }
@@ -237,16 +241,38 @@ fn unprojectable() -> Result<(), String> {
         ("article 99999999", "article/get/synthetic-derived", 1),
         ("variant rs113488022", "variant/synthetic-components", 0),
     ] {
-        let env = Environment::new().map_err(|e|e.to_string())?;
-        let globals = env.globals(Some(&super::launch::fixtures().join("replies").join(capture)), false);
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let globals = env.globals(
+            Some(&super::launch::fixtures().join("replies").join(capture)),
+            false,
+        );
         let mut args = vec!["get".into()];
         args.extend(shlex::split(id).ok_or("test argument syntax")?);
         let cli = command(&env, &args, &globals, exit)?;
-        let replies = super::mcp::exchange_with_globals(&env, &[request(json!(1), "tools/call", json!({"name":"fetch", "arguments":{"id":id}}))], &globals)?;
-        let result = replies.first().and_then(|v|v.get("result")).ok_or("fetch result")?;
-        if result.get("isError") != Some(&json!(true)) || result.get("structuredContent") != Some(&cli) {
+        let replies = super::mcp::exchange_with_globals(
+            &env,
+            &[request(
+                json!(1),
+                "tools/call",
+                json!({"name":"fetch", "arguments":{"id":id}}),
+            )],
+            &globals,
+        )?;
+        let result = replies
+            .first()
+            .and_then(|v| v.get("result"))
+            .ok_or("fetch result")?;
+        if result.get("isError") != Some(&json!(true))
+            || result.get("structuredContent") != Some(&cli)
+        {
             return Err("fetch invented a record or changed an unresolved CLI result".into());
         }
     }
+    Ok(())
+}
+
+// Ceilings use full compact projections measured in j13609 plus fifteen percent.
+fn bounded(value: &Value, cap: usize) -> Result<(), String> {
+    if value.to_string().len() > cap { return Err(format!("research output exceeds {cap} bytes")); }
     Ok(())
 }
