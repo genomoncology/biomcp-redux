@@ -237,7 +237,12 @@ fn next(
     page: Option<&biomcp_types::PageInfo>,
 ) -> Vec<(StepKind, Action)> {
     let mut next = Vec::new();
-    if resolution == VariantResolution::Candidates {
+    if resolution == VariantResolution::Candidates
+        || resolution == VariantResolution::Resolved
+            && candidates.iter().any(|row| {
+                row.source == Source::MyVariant && row.record.id.as_str() != query.input().as_str()
+            })
+    {
         for row in candidates {
             if let Ok(input) = row.record.id.as_str().parse()
                 && let Ok(q) = VariantGet::new(
