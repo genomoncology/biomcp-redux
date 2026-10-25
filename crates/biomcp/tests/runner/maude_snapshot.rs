@@ -48,6 +48,7 @@ pub(super) fn run() -> Check {
     }
     let old_section: Vec<String> =
         serde_json::from_value(old_section.clone()).map_err(|e| e.to_string())?;
+    deny_snapshot(&env, &old_section)?;
     let original = invoke(&env, old_section, 0)?;
     if original.pointer("/result/devices/records/0/brand_name") != Some(&json!("original"))
         || original.pointer("/result/snapshot") != card.pointer("/result/snapshot")
@@ -76,6 +77,20 @@ pub(super) fn run() -> Check {
     }
     if stub.finish()?.len() != 2 {
         return Err("snapshot continuation reached source".into());
+    }
+    Ok(())
+}
+
+fn deny_snapshot(env: &super::launch::Environment, section: &[String]) -> Check {
+    for source in ["gmdn", "restricted", "maude"] {
+        let mut words = vec!["--disable-sources".into(), source.into()];
+        words.extend_from_slice(section);
+        let value = invoke(env, words, 4)?;
+        if value.get("result").is_some()
+            || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        {
+            return Err("disabled component restored retained native device names".into());
+        }
     }
     Ok(())
 }
