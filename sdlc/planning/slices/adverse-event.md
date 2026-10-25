@@ -532,3 +532,23 @@ Routine executable cases are the adverse-event YAML files and native runner case
 The final help measurement in j13144 uses generated source-owned section text and explicit death/hospitalization values. Search help measures 1663 compact bytes and get help 2242. Their proposed compact ceilings are 1913 and 2579, with stdout ceilings 1914 and 2580 including the newline. Entity-help growth requires the PM ruling before landing. The MCP description derives options and source choices from the same schemas and stays within its existing ceiling. Whole-tree help measures 55079 stdout bytes; its standing actual-plus-fifteen-percent ceiling is 63341.
 
 The two synthetic exact-get examples in j13131 measured 1068/953 and 850/735 full/comparable compact bytes. Their cases enforce comparable bytes with fifteen percent headroom through the shared validated source-terms deduction; component terms remain counted. The same real recorder supplied the synthetic exact-ID reply with four local example deliveries in separate environments and zero provider requests. The earlier failed setup used the wrong metadata limit in the invented body, then corrected it to the requested five. The literal-boundary case in j13144 measured argument errors at 143 bytes and offline literal queries at up to 327 full / 212 comparable bytes; its fixed ceilings are 165 and 377 / 244 respectively.
+
+
+### Generated schema output
+
+j13148 invoked each schema command and checked its parsed value against the generated artifact. CLI discovery prints the complete formatted schema; MCP receives the same parsed schema value. These are schema-document sizes, separate from clinical reply envelopes. No provider call runs. The existing generated-schema drift and compatibility contract owns these artifacts.
+
+| Schema artifact | CLI bytes | Compact schema bytes |
+| --- | ---: | ---: |
+| adverse-event-search | 2972 | 2116 |
+| adverse-event-get | 3171 | 2265 |
+| adverse-event-page | 23165 | 14846 |
+| adverse-event-faers-card | 27426 | 17492 |
+| adverse-event-maude-card | 24279 | 15629 |
+| adverse-event-drugs | 30234 | 19320 |
+| adverse-event-reactions | 24326 | 15668 |
+| adverse-event-identifiers | 30241 | 18855 |
+| adverse-event-devices | 28054 | 17970 |
+| adverse-event-narrative | 23870 | 15386 |
+
+The case audit distinguishes source registry health contracts from report commands. Health remains a shared source-controls surface rather than an adverse-event report budget. Public type contracts validate schemas and native shapes; they are not claimed as CLI or MCP executions. The admitted report-command cases retain measured envelope bounds in their owning runners. Every new help example executes through both surfaces in the existing example contract. This audit adds no outside-repo case definition or new source recipe.

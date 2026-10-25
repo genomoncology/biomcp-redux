@@ -551,7 +551,9 @@ fn boundary_size(value: &serde_json::Value) -> Result<(), String> {
         (377, 244)
     };
     if full > full_limit || comparable > comparable_limit {
-        return Err(format!("literal boundary exceeded measured ceiling: {full}/{comparable}"));
+        return Err(format!(
+            "literal boundary exceeded measured ceiling: {full}/{comparable}"
+        ));
     }
     Ok(())
 }
