@@ -85,3 +85,5 @@ BioMCP 0.9's worst answers came from well-formed replies that hid a mistake. Eve
 - Guess meaning from text with regexes, term lists, query rewriting or rerankers, as `decisions/2026-10-24-no-text-heuristics.md` says.
 - Keep a 0.9 behavior because it exists.
 - Write a ticket for a later slice. Later slices start from their own investigation.
+
+Each slice's investigation reads every closed public issue in the 0.9 repository that touches its entity or sources, and its legacy accounting names each one as kept, dropped by ruling with a reason, or not applicable. A real user's request that 0.9 shipped is kept unless Ian rules otherwise. Known issues for slices not yet started: author, issue 289 (`get author orcid:ID` with lowercase visibility values); release, issues 239 and 241/281 (plugin and container channels); skills, issue 114.

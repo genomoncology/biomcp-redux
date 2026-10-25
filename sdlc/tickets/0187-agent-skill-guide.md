@@ -1,0 +1,14 @@
+# 0187 — Ship the agent skill guide for the 1.0 command tree
+
+Status: OPEN.
+
+Milestone: 5
+
+## Outcome
+
+`biomcp skill`, `biomcp skill list`, `biomcp skill render` and `biomcp skill install DIR` ship in 1.0 as in 0.9, with a guide and worked examples rewritten for the 1.0 tree. Every command shown in the guide comes from a passing case.
+
+- Why: public issue 114 asked for agent skills, 0.9 shipped `biomcp skill`, and issue 239 led to packaging it as a plugin. architecture.md lists `skill` as a housekeeping command and says the guide is rewritten from cases, but no ticket owns it.
+- Starts from: 0.9's skill command and guide; architecture.md's housekeeping and skills lines; the landed entity cases and generated help.
+- Rules: the guide is generated or checked from case run steps so it cannot drift. `skill install` writes only inside the named directory. The guide tells agents that report counts are not risk and that a listing is not a recommendation, matching the entity help.
+- Proof: outside-in cases for each subcommand, a docs check that every guide command parses and maps to a case, and size ceilings. Then make landing-gate runs through pm job.
