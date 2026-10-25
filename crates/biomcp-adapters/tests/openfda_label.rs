@@ -11,10 +11,19 @@ fn native_label_parts_keep_every_character_and_missing_fields_stay_missing() {
         "openfda":{"brand_name":["Synthetic brand"],"spl_set_id":["211ef2da-2868-4a77-8055-1cb2cd78e24b"]},
         "dosage_and_administration":["  α\nβ  ","\tSecond part.\n"]
     })).unwrap();
-    assert_eq!(record.parts("dosage_and_administration").unwrap(), ["  α\nβ  ","\tSecond part.\n"]);
+    assert_eq!(
+        record.parts("dosage_and_administration").unwrap(),
+        ["  α\nβ  ", "\tSecond part.\n"]
+    );
     assert!(record.parts("boxed_warning").is_none());
     assert!(record.parts("not_a_heading").is_none());
     assert_eq!(record.header().unwrap().identity_level.as_str(), "spl_set");
-    assert_eq!(record.header().unwrap().id.to_string(), "211ef2da-2868-4a77-8055-1cb2cd78e24b");
-    assert_eq!(record.reference().unwrap().revised.unwrap().to_string(), "2026-07-13");
+    assert_eq!(
+        record.header().unwrap().id.to_string(),
+        "211ef2da-2868-4a77-8055-1cb2cd78e24b"
+    );
+    assert_eq!(
+        record.reference().unwrap().revised.unwrap().to_string(),
+        "2026-07-13"
+    );
 }
