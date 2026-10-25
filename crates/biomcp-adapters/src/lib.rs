@@ -71,7 +71,7 @@ mod drugsfda;
 mod ema;
 /// MyChem literal native candidate and document identity adapter.
 pub mod mychem;
-mod openfda_label;
+pub mod openfda_label;
 pub mod opentargets;
 
 /// Disease publisher policy and pre-request component admission.
@@ -80,3 +80,8 @@ pub mod monarch;
 pub mod mydisease;
 pub mod ols;
 pub mod seer;
+
+mod text_parts;
+
+mod received;
+pub use received::received_date;

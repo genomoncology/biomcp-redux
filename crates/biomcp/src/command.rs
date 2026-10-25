@@ -1,6 +1,7 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod disease;
 mod drug;
+mod drug_label;
 mod steps;
 mod variant;
 
@@ -160,7 +161,7 @@ fn execute(
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, globals, allow_save)?;
-            response(fetch, request, result)
+            response(fetch, request, result, fresh)
         }
     }
 }
@@ -193,8 +194,10 @@ impl ResponseMeta {
 fn response(
     fetch: &biomcp_fetch::Fetch,
     request: Request,
-    result: biomcp_query::Outcome,
+    mut result: biomcp_query::Outcome,
+    fresh: bool,
 ) -> io::Result<Outcome> {
+    drug_label::bound(fetch, &request, &mut result, fresh)?;
     let steps = steps::next(fetch, &result)?;
     let meta = ResponseMeta {
         exit: response_status(&result),

@@ -69,4 +69,5 @@ drug-civic: Search literal CIViC therapy candidates and retrieve independent nat
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/disabled.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
 disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
 
+drug-label: Read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes. Cases: `crates/biomcp/tests/runner/drug_label.rs`.
 disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.

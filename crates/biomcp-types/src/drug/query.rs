@@ -320,3 +320,13 @@ impl DrugGet {
         fields.try_into()
     }
 }
+
+impl DrugGet {
+    /// Select an explicit native label heading for the same source identity.
+    pub fn for_label(&self, heading: Text) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section = vec![DrugSection::Label].into();
+        fields.label_section = Some(heading);
+        fields.try_into()
+    }
+}

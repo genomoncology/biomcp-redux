@@ -39,6 +39,7 @@ impl Therapy {
                 .parse()
                 .map_err(|_| failure(Reason::BadReply))?,
             source: DrugSource::Civic,
+            version: None,
             name: Some(self.name),
             identity_level: DrugIdentityLevel::Unknown,
             r#type: Some(Text::new("Therapy").map_err(|_| failure(Reason::BadReply))?),

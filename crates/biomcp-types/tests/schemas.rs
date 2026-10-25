@@ -196,7 +196,7 @@ fn drug_contracts() -> Vec<Contract> {
         Envelope<DrugPage> => ("drug-page", "biomcp.drug_page/3"),
         Envelope<DrugXrefs> => ("drug-xrefs", "biomcp.drug_xrefs/1"),
         Envelope<DrugCard> => ("drug-card", "biomcp.drug_card/2"),
-        Envelope<DrugLabel> => ("drug-label", "biomcp.drug_label/2"),
+        Envelope<DrugLabel> => ("drug-label", "biomcp.drug_label/3"),
         Envelope<DrugTargets> => ("drug-targets", "biomcp.drug_targets/3"),
         Envelope<DrugIndications> => ("drug-indications", "biomcp.drug_indications/3"),
         Envelope<DrugCivic> => ("drug-civic", "biomcp.drug_civic/3"),

@@ -23,6 +23,9 @@ pub struct DrugHeader {
     /// Native record type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,
+    /// Native source revision, omitted when the source supplies none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<Text>,
     /// Source record URL.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub url: Option<Text>,
@@ -101,6 +104,18 @@ pub struct DrugRecords<T> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub retrieved: Option<PartialDate>,
 }
+/// One slice of a native label array element, partitioning the page's unchanged text.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugLabelFragment {
+    /// Zero-based native array element; empty elements have a zero-character fragment.
+    pub source_part: u32,
+    /// Unicode scalar offset inside that original array element.
+    pub source_offset: u32,
+    /// Consecutive Unicode scalars consumed from the page text for this fragment.
+    pub characters: u32,
+}
 /// A mechanical continuation of one native label heading.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -112,9 +127,14 @@ pub struct DrugLabelText {
     pub heading: Text,
     /// Original text slice, preserving whitespace and wording.
     pub text: Box<str>,
-    /// Continuation offset in the declared source text.
+    /// Original source reply retrieval date; absent for legacy captures without a timestamp.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retrieved: Option<PartialDate>,
+    /// Native array boundaries; consume the flat text in this order without separators.
+    pub fragments: Box<[DrugLabelFragment]>,
+    /// Zero-based bounded text fragment offset; section_limit is a maximum fragment count.
     pub offset: u32,
-    /// Total source text length when known, without local clinical summarization.
+    /// Total bounded text fragments, including fragments for empty native array elements.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub total: Option<u64>,
 }
@@ -197,7 +217,7 @@ impl ResponseBody for DrugCard {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug_label/2";
+    const SCHEMA: &'static str = "biomcp.drug_label/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {

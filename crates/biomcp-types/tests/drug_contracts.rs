@@ -226,7 +226,15 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
         .collect();
     assert_eq!(
         keys,
-        ["id", "identity_level", "name", "source", "type", "url"]
+        [
+            "id",
+            "identity_level",
+            "name",
+            "source",
+            "type",
+            "url",
+            "version"
+        ]
     );
     let schema = serde_json::to_value(schemars::schema_for!(DrugCard)).expect("card schema");
     let text = serde_json::to_string(&schema).expect("schema JSON");
@@ -289,6 +297,25 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
     }
     let query: DrugGet = serde_json::from_value(json!({"source":"civic","input":"5","section":["civic"],"civic_profile":1,"civic_kind":"evidence"})).expect("selected profile");
     assert_eq!(query.civic_profile(), Some(1));
+}
+
+#[test]
+fn label_candidate_versions_are_native_optional_identity_metadata() {
+    let mut value = json!({"id":"211ef2da-2868-4a77-8055-1cb2cd78e24b", "source":"openfda-label", "name":"Synthetic brand", "identity_level":"spl_set"});
+    let unversioned: biomcp_types::DrugHeader =
+        serde_json::from_value(value.clone()).expect("unversioned");
+    assert!(
+        serde_json::to_value(unversioned)
+            .expect("JSON")
+            .get("version")
+            .is_none()
+    );
+    value["version"] = json!("41");
+    let versioned: biomcp_types::DrugHeader =
+        serde_json::from_value(value.clone()).expect("versioned");
+    assert_eq!(serde_json::to_value(versioned).expect("JSON"), value);
+    value["text"] = json!("not an identity field");
+    assert!(serde_json::from_value::<biomcp_types::DrugHeader>(value).is_err());
 }
 
 #[test]
