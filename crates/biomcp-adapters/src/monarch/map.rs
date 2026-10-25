@@ -111,7 +111,7 @@ fn qualifiers(raw: &mut raw::Row) -> Result<Vec<DiseaseAssociationQualifier>, Re
             raw.onset_qualifier.take(),
             raw.onset_qualifier_label.take(),
         ),
-        ("sex_qualifier", raw.sex_qualifier.take(), raw.sex_qualifier_label),
+        ("sex_qualifier", raw.sex_qualifier.take(), raw.sex_qualifier_label.take()),
         (
             "disease_context_qualifier",
             raw.disease_context_qualifier.take(),

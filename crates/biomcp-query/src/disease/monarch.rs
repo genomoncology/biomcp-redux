@@ -30,11 +30,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
                 ))),
             ));
         }
-        let components = page
-            .items
-            .first()
-            .map(|row| row.components.clone())
-            .unwrap_or_default();
+        let components = page.components;
         out.body = body(
             query,
             page.items,

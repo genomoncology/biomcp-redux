@@ -131,7 +131,9 @@ fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
     }
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Selected association rows preserve native context","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    super::run_case(file.path(), &super::schema::Registry::embedded()?)
+    let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    measure(&["replay"], &value)?;
+    Ok(value)
 }
 
 fn phenotype() -> Result<(), String> {
@@ -145,6 +147,12 @@ fn phenotype() -> Result<(), String> {
                 ("subject", json!("MONDO:0019003")),
                 ("object", json!("HP:0000001")),
                 ("frequency_qualifier", json!("HP:0040283")),
+            ("qualifiers",json!(["HP:0000002"])),
+            ("onset_qualifier",json!("HP:0000003")),
+            ("sex_qualifier",json!("PATO:0000384")),
+            ("stage_qualifier",json!("HP:0000004")),
+            ("species_context_qualifier",json!("NCBITaxon:9606")),
+            ("disease_context_qualifier",json!("MONDO:0019003")),
                 ("frequency_qualifier_label", json!("Synthetic frequency")),
                 ("has_count", json!(24)),
                 ("has_total", json!(35)),
@@ -230,7 +238,7 @@ fn navigation() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/next/5/kind":"page","/page/total":6},"max_bytes":12000}]),
+        json!([{"run":words,"mcp":words,"expect":{"/next/5/kind":"page","/page/total":6},"max_bytes":6909}]),
     )?;
     if stub.finish()?.len() != 1 {
         return Err("gene navigation made additional source requests".into());

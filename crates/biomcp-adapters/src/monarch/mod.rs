@@ -26,6 +26,8 @@ use biomcp_types::{DiseaseAssociationItem, DiseaseGet, DiseaseSection};
 pub struct Page {
     /// Source ordered association rows, without gene deduplication.
     pub items: Vec<DiseaseAssociationItem>,
+    /// Reviewed component terms, including an empty native page.
+    pub components: Box<[biomcp_types::ComponentLabel]>,
     /// Publisher association count.
     pub total: u64,
     /// Original checked reply metadata.
@@ -91,6 +93,7 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Page, RequestEr
         .collect::<Result<_, _>>()?;
     Ok(Page {
         items,
+        components: components()?,
         total: page.total,
         metadata,
     })
