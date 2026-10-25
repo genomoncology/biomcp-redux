@@ -47,7 +47,7 @@ pub fn search(
     map::page(reply, leg).map_err(|_| bad_reply())
 }
 /// Retrieve an exact native document and verify the returned identity, never searching by name.
-pub fn get(leg: &Leg<'_>, id: &str) -> Result<DrugCard, RequestError> {
+pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugCard>, RequestError> {
     let segment = PathSegment::new(id).map_err(RequestError::Input)?;
     let fields = crate::drug_sources::components::allowed_fields(leg, CARD_FIELDS);
     let (reply, received) = leg.json_received_checked::<raw::Hit>(
@@ -56,7 +56,7 @@ pub fn get(leg: &Leg<'_>, id: &str) -> Result<DrugCard, RequestError> {
         |hit| if hit.id == id { Ok(()) } else { Err(biomcp_fetch::BadReply) },
     )?;
     let mut card = map::card(reply, leg).map_err(|_| bad_reply())?;
-    card.retrieved = map::received_date(received.fetched);
+    card.value.retrieved = map::received_date(received.fetched);
     Ok(card)
 }
 

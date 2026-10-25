@@ -25,6 +25,7 @@ pub(super) fn trials() -> Vec<Trial> {
     })
     .collect();
     trials.push(Trial::test("drug-mychem/reject-wrong-identity-before-cache",||wrong_identity().map_err(Into::into)));
+    trials.push(Trial::test("drug-mychem/component-policy-before-request-and-projection",||component_policy().map_err(Into::into)));
     trials
 }
 const REPLIES: [&str; 9] = [
@@ -170,5 +171,23 @@ fn wrong_identity() -> Check {
     let mcp=super::mcp::call_with_globals(&env,&args,true,&[])?;
     if value!=mcp {return Err("failed identity differs over MCP".into());}
     if stub.finish()?.len()!=2 {return Err("wrong identity was cached or triggered a fallback".into());}
+    Ok(())
+}
+fn component_policy()->Check {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let stub=Stub::for_source("mychem.info","application/json",|request| {
+        if request.contains("%2Cchembl.") || request.contains("fields=chembl.") {return Err("disabled component entered request fields".into());}
+        Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
+    })?;
+    let cert=env.root().join("ca.pem");std::fs::write(&cert,&stub.certificate).map_err(|e|e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":["chembl"]})).map_err(|e|e.to_string())?;
+    let args=["get","drug","KTUFNOKKBVMGRW-UHFFFAOYSA-N","--source","mychem"].map(str::to_owned).to_vec();
+    let value=invoke(&env,args.clone(),0)?;
+    let rows=value.pointer("/result/cross_references").and_then(Value::as_array).ok_or("crossrefs")?;
+    if rows.iter().any(|r|r.pointer("/attribution/source")==Some(&json!("chembl"))) || !rows.iter().any(|r|r.pointer("/attribution/source")==Some(&json!("drugbank"))) {return Err("component projection leaked or removed unrelated identities".into());}
+    let source=value["sources"].as_array().and_then(|v|v.iter().find(|s|s["source"]=="chembl")).ok_or("component outcome")?;
+    if source["state"]!="skipped" || source["reason"]!="disabled" || source["usage"]!="attribution" {return Err("component policy outcome".into());}
+    if super::mcp::call_with_globals(&env,&args,false,&[])?!=value {return Err("component MCP parity".into());}
+    if stub.finish()?.len()!=1 {return Err("component request cache identity".into());}
     Ok(())
 }

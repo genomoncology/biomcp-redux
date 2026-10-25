@@ -77,7 +77,7 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<DrugPage, BadReply> {
         total: Some(page.total),
     })
 }
-pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<DrugCard, BadReply> {
+pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<crate::Mapped<DrugCard>, BadReply> {
     let (id, version, rows) = components(hit, leg);
     let mut card = DrugCard {
         header: header(&id, &rows)?,
@@ -92,12 +92,14 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<DrugCard, BadReply> {
         available_sections: Box::default(),
         next: Box::default(),
     };
+    let mut problems = Vec::new();
     let mut aliases = Vec::new();
     let mut refs = Vec::new();
     let mut parents = Vec::new();
     for (component, c) in rows {
         aliases.extend(aliases_for(&c));
         refs.extend(references_for(&id, component, &c)?);
+        refs.extend(native_xrefs(&id,component,&c,&mut problems));
         parents.extend(parents_for(&id, component, &c)?);
     }
     let mut names = Vec::new();
@@ -110,7 +112,7 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<DrugCard, BadReply> {
     card.alternate_names = names.into();
     card.cross_references = refs.into();
     card.parents = parents.into();
-    Ok(card)
+    Ok(crate::Mapped { value:card, problems })
 }
 fn strings(values: &crate::raw::OneOrMany<String>) -> Vec<&str> {
     match values {
@@ -126,14 +128,14 @@ fn reference(
     name: Option<&str>,
 ) -> Result<DrugIdentityRelation, BadReply> {
     let source = relation.split('.').next().unwrap_or(component);
-    let target_source = match relation {
+    let target_source = relation.split_once(".xrefs.").map(|(_,key)| key).unwrap_or(match relation {
         "unii.rxcui" => "rxnorm",
         "unii.ncit" => "ncit",
         "ndc.applicationnumber" | "openfda.application_number" => "drugsfda",
         "openfda.spl_set_id" => "openfda-label",
         "gtopdb.chembl_id" => "chembl",
         _ => source,
-    };
+    });
     Ok(DrugIdentityRelation {
         identity: DrugIdentity {
             id: target.parse().map_err(|_| BadReply)?,
@@ -270,4 +272,18 @@ pub(super) fn received_date(fetched:i64)->Option<biodata::PartialDate> {
         }
     }
     None
+}
+
+fn native_xrefs(record:&str,component:&str,c:&Component,problems:&mut Vec<biomcp_types::Problem>)->Vec<DrugIdentityRelation> {
+    let mut rows=Vec::new();
+    for (namespace,ids) in c.xrefs.as_ref().into_iter().flatten() {
+        let relation=format!("{component}.xrefs.{namespace}");
+        for id in strings(ids) {
+            match reference(record,component,&relation,id,None) {
+                Ok(row)=>rows.push(row),
+                Err(_)=>problems.push(biomcp_types::Problem {source:biomcp_types::Source::Mychem, record:Text::new(record).ok(),field:relation.clone().into(),code:biomcp_types::ProblemCode::ValueUnknown}),
+            }
+        }
+    }
+    rows
 }

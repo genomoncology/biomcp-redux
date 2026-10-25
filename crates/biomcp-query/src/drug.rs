@@ -91,7 +91,7 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(card) = result {
-        out.status = if out
+        out.status = if !card.problems.is_empty() || out
             .sources
             .iter()
             .any(|s| s.state == biomcp_types::SourceState::Stale)
@@ -100,7 +100,8 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         } else {
             Status::Complete
         };
-        out.body = QueryBody::DrugCard(Some(card));
+        out.problems = card.problems;
+        out.body = QueryBody::DrugCard(Some(card.value));
     }
     component_outcomes(cx, &mut out, false);
     command.finish(deadline.remaining());
