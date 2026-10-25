@@ -19,7 +19,7 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
             "--cpic-level".into(),
             "B/C".into(),
         ]);
-    } else if matches!(name, "view" | "table" | "guidelines") {
+    } else if matches!(name, "view" | "table" | "guidelines" | "guidelines-many") {
         args.extend(["--section-limit".into(), "1".into()]);
     }
     let body = match name {
@@ -75,9 +75,17 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
             }
             json!([row])
         }
-        "guidelines" => {
+        "guidelines" | "guidelines-many" => {
             args.push("guidelines".into());
-            json!([{"guideline_name":"Synthetic guideline","guideline_url":"https://example.org/synthetic","drugs":["Synthetic A","Synthetic B"],"genes":[{"symbol":"DPYD","url":"https://example.org/gene/DPYD"},{"symbol":"TPMT","url":"https://example.org/gene/TPMT"}]}])
+            let symbols = if name == "guidelines-many" {
+                vec![
+                    "DPYD", "TPMT", "NUDT15", "CYP2D6", "UGT1A1", "TP53", "BRCA1", "TPMT",
+                ]
+            } else {
+                vec!["DPYD", "TPMT"]
+            };
+            let genes = symbols.into_iter().map(|symbol| json!({"symbol":symbol,"url":format!("https://example.org/gene/{symbol}")})).collect::<Vec<_>>();
+            json!([{"guideline_name":"Synthetic guideline","guideline_url":"https://example.org/synthetic","drugs":["Synthetic A","Synthetic B"],"genes":genes}])
         }
         _ => {
             args.extend(["diplotype".into(), "--diplotype".into(), "*1/*2A".into()]);

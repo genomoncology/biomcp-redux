@@ -14,6 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "view",
         "table",
         "guidelines",
+        "guidelines-many",
         "diplotype",
         "empty",
     ] {
@@ -67,7 +68,10 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
 fn scenario(name: &'static str) -> Check {
     let (args, body) = rows::scenario(name)?;
     let returned = body.as_array().ok_or("native array")?.len();
-    let total = if matches!(name, "pairs" | "view" | "table" | "guidelines") {
+    let total = if matches!(
+        name,
+        "pairs" | "view" | "table" | "guidelines" | "guidelines-many"
+    ) {
         2
     } else {
         returned
@@ -137,7 +141,7 @@ fn check_request(name: &str, r: &str) -> Check {
         "card" => "gene",
         "view" => "recommendation_view",
         "table" => "recommendation",
-        "guidelines" => "guideline_summary_view",
+        "guidelines" | "guidelines-many" => "guideline_summary_view",
         _ => "diplotype",
     };
     if !r.starts_with(&format!("GET /v1/{route}?")) {
@@ -156,6 +160,25 @@ fn check_request(name: &str, r: &str) -> Check {
 }
 fn verify_next(name: &str, value: &Value) -> Check {
     let steps = value.get("next").and_then(Value::as_array).ok_or("next")?;
+    if name == "guidelines-many" {
+        let genes = steps
+            .iter()
+            .filter(|s| s.get("kind") == Some(&json!("pivot")))
+            .filter_map(|s| {
+                s.get("args")
+                    .and_then(Value::as_array)
+                    .and_then(|args| args.get(2))
+            })
+            .collect::<Vec<_>>();
+        let expected = ["TPMT", "NUDT15", "CYP2D6", "UGT1A1", "TP53", "BRCA1"].map(Value::from);
+        if genes != expected.iter().collect::<Vec<_>>()
+            || steps.last().and_then(|s| s.get("kind")) != Some(&json!("page"))
+        {
+            return Err(format!(
+                "linked genes or page lost from guideline actions: {steps:?}"
+            ));
+        }
+    }
     if steps
         .iter()
         .any(|s| s.get("kind") == Some(&json!("disambiguate")))

@@ -152,6 +152,38 @@
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
     },
+    "DiagnosticDeviceId": {
+      "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
+      "type": "string"
+    },
+    "DiagnosticGetSource": {
+      "description": "One explicit exact diagnostic record source.",
+      "enum": [
+        "gtr",
+        "who-ivd",
+        "fda-pma"
+      ],
+      "type": "string"
+    },
+    "DiagnosticSearchSource": {
+      "description": "One explicit diagnostic discovery source.",
+      "enum": [
+        "gtr",
+        "fda-cdx"
+      ],
+      "type": "string"
+    },
+    "DiagnosticSection": {
+      "description": "Source-supported diagnostic sections; no all section.",
+      "enum": [
+        "genes",
+        "conditions",
+        "methods",
+        "regulatory",
+        "supplements"
+      ],
+      "type": "string"
+    },
     "DiseaseOntology": {
       "description": "One explicit OLS ontology.",
       "enum": [
@@ -254,6 +286,10 @@
       ],
       "type": "string"
     },
+    "FdaDrugApplication": {
+      "pattern": "^(NDA|BLA)[0-9]{6}$",
+      "type": "string"
+    },
     "GeneInput": {
       "pattern": "\\S",
       "type": "string"
@@ -286,6 +322,15 @@
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
+    "GtrTestType": {
+      "description": "Native GTR relation test category, not an offering or authorization judgment.",
+      "enum": [
+        "Clinical",
+        "Research",
+        "Clinical microbial"
+      ],
+      "type": "string"
+    },
     "HgvsText": {
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
@@ -310,6 +355,10 @@
     },
     "MyVariantQuery": {
       "pattern": "\\S",
+      "type": "string"
+    },
+    "NcbiGeneId": {
+      "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "NctId": {
@@ -388,6 +437,10 @@
         "1/2",
         "2/3"
       ],
+      "type": "string"
+    },
+    "PmaSupplement": {
+      "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
     "ProteinQuery": {
@@ -707,6 +760,201 @@
     },
     {
       "additionalProperties": false,
+      "description": "Discover native diagnostic laboratory tests.",
+      "properties": {
+        "biomarker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact table-0 biomarker cell; unsupported in the group table."
+        },
+        "bundle_revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Immutable stored bundle revision retained by a continuation."
+        },
+        "command": {
+          "const": "search_diagnostic",
+          "type": "string"
+        },
+        "condition_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact MedGen:CUI identifier only."
+        },
+        "device_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticDeviceId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact PMA application or application/supplement identity."
+        },
+        "drug_application": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FdaDrugApplication"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Cell-owned typed NDA/BLA application."
+        },
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneSymbol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact source gene_symbol field, without alias expansion."
+        },
+        "gene_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NcbiGeneId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact source GeneID, exclusive with gene symbol."
+        },
+        "limit": {
+          "default": 5,
+          "description": "Maximum native rows on this page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Zero-based native row offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/DiagnosticSearchSource",
+          "description": "Required explicit GTR or FDA companion-table source."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GtrTestType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native test_type value."
+        }
+      },
+      "required": [
+        "command",
+        "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read an exact source diagnostic record or relation page.",
+      "properties": {
+        "bundle_revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Immutable stored bundle revision retained by a continuation."
+        },
+        "command": {
+          "const": "get_diagnostic",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact native identity, including version for GTR.",
+          "x-positional": 0
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One source-supported named page, absent for the card.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "description": "Maximum native rows; omitted means five rows, or one regulatory fragment.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Zero-based native row or fragment offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "$ref": "#/$defs/DiagnosticGetSource",
+          "description": "Required explicit source; no all or automatic lookup."
+        },
+        "supplement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PmaSupplement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact native PMA supplement; absent selects the base row."
+        }
+      },
+      "required": [
+        "command",
+        "id",
+        "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
       "description": "Search source-native adverse event reports.",
       "properties": {
         "command": {
@@ -837,6 +1085,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked retained report snapshot for provider-free continuation."
         },
         "source": {
           "$ref": "#/$defs/AdverseEventSource",
