@@ -18,12 +18,21 @@ print('offline build log', file=sys.stderr)
 sys.exit(int(os.environ.get('FAKE_EXIT', '0')))
 '''
 SSH = '''#!/usr/bin/env python3
-import os, subprocess, sys
+import io, os, subprocess, sys, tarfile
 if os.environ.get('FAKE_COPY') == 'fail':
     sys.exit(23)
-result = subprocess.run(sys.argv[2:], shell=False, input=sys.stdin.buffer.read()) if False else subprocess.run(sys.argv[2], shell=True, input=sys.stdin.buffer.read())
+payload = sys.stdin.buffer.read()
 if os.environ.get('FAKE_COPY') == 'manifest':
-    sys.exit(24)
+    changed = io.BytesIO()
+    with tarfile.open(fileobj=io.BytesIO(payload)) as original, tarfile.open(fileobj=changed, mode='w') as replacement:
+        for entry in original:
+            body = original.extractfile(entry).read()
+            if entry.name == 'report.json':
+                body += b'corrupt'
+                entry.size = len(body)
+            replacement.addfile(entry, io.BytesIO(body))
+    payload = changed.getvalue()
+result = subprocess.run(sys.argv[-1], shell=True, input=payload)
 sys.exit(result.returncode)
 '''
 
@@ -48,7 +57,7 @@ class NightlyCommand(unittest.TestCase):
             'yellow': {'names': ['offline-store'], 'workspaceRoot': str(self.store)}}))
         self.tools = self.root / 'tools'
         self.tools.mkdir()
-        for name, content in [('cargo', CARGO), ('ssh', SSH)]:
+        for name, content in [('cargo', CARGO), ('ssh', SSH), ('git', '#!/bin/sh\nprintf \"%040d\\n\" 1\n')]:
             target = self.tools / name
             target.write_text(content)
             target.chmod(0o755)
