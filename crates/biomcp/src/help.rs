@@ -186,6 +186,11 @@ pub(crate) fn tree() -> String {
     let mut lines =
         vec!["BioMCP. help COMMAND: options and examples.".into()];
     for command in commands {
+        if command.command.first().is_some_and(|word| word == "help")
+            && command.command.get(1).is_some_and(|word| word == "key")
+        {
+            continue;
+        }
         let mut line = command.command.join(" ");
         // Detailed options belong to help COMMAND; retain search facets
         // required for discovering checked gene and disease searches.
@@ -215,7 +220,10 @@ pub(crate) fn tree() -> String {
                         | "--diplotype"
                         | "--kind"
                         | "--cpic-level"
-
+                        | "--limit"
+                        | "--offset"
+                        | "--section-limit"
+                        | "--section-offset"
                 )
             }) {
                 line.push_str(&format!(" {}", argument.name));
@@ -224,10 +232,10 @@ pub(crate) fn tree() -> String {
                 }
             }
         }
-        if command.command.iter().any(|word| word == "diagnostic") {
-            if let Some(source) = command.arguments.iter().find(|a| a.name == "--source") {
-                line.push_str(&format!(" --source {}", source.choices.join("|")));
-            }
+        if command.command.iter().any(|word| word == "diagnostic")
+            && let Some(source) = command.arguments.iter().find(|a| a.name == "--source")
+        {
+            line.push_str(&format!(" --source {}", source.choices.join("|")));
         }
         if !command.sections.is_empty() {
             line.push_str(" sections: ");
