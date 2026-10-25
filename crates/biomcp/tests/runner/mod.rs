@@ -26,6 +26,7 @@ mod drug_civic;
 mod drug_civic_fixtures;
 mod drug_ddinter;
 mod drug_ema;
+mod drug_who;
 mod drug_failures;
 mod drug_fda;
 mod drug_identity;
@@ -565,6 +566,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_civic::trials());
     trials.extend(drug_next::trials());
     trials.extend(drug_ema::trials());
+    trials.extend(drug_who::trials());
     trials.extend(drug_ddinter::trials());
     trials.extend(drug_fda::trials());
     trials.extend(drug_mychem::trials());
