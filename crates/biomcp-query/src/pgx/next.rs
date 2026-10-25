@@ -55,24 +55,9 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
                 next.push((StepKind::Section, run(Request::GetPgx(query))));
             }
         }
-        (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => match body {
-            PgxAnnotations::Clinical { items, page, .. } => {
-                for row in items {
-                    if let Ok(query) =
-                        serde_json::from_value(json!({"id":row.accession_id,"source":"clinpgx"}))
-                    {
-                        next.push((
-                            StepKind::Disambiguate,
-                            run(Request::GetPgxAnnotation(query)),
-                        ));
-                    }
-                }
-                page_step(q, page, &mut next);
-            }
-            PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
-                page_step(q, page, &mut next)
-            }
-        },
+        (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => {
+            annotation_steps(q, body, &mut next)
+        }
         (
             Request::GetPgx(q),
             QueryBody::PgxRecommendations(
@@ -126,4 +111,25 @@ fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>) {
 
 fn diplotype(request: &Request) -> bool {
     matches!(request,Request::GetPgx(q) if q.section()==Some(PgxSection::Diplotype))
+}
+
+fn annotation_steps(q: &PgxGet, body: &PgxAnnotations, next: &mut Vec<(StepKind, Action)>) {
+    match body {
+        PgxAnnotations::Clinical { items, page, .. } => {
+            for row in items {
+                if let Ok(query) =
+                    serde_json::from_value(json!({"id":row.accession_id,"source":"clinpgx"}))
+                {
+                    next.push((
+                        StepKind::Disambiguate,
+                        run(Request::GetPgxAnnotation(query)),
+                    ));
+                }
+            }
+            page_step(q, page, next);
+        }
+        PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
+            page_step(q, page, next)
+        }
+    }
 }

@@ -1,0 +1,40 @@
+{
+  "$defs": {
+    "ClinPgxAccession": {
+      "pattern": "^PA[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PgxSource": {
+      "description": "Explicit independent source.",
+      "enum": [
+        "cpic",
+        "clinpgx"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " CPIC source-native records.",
+        " ClinPGx annotation records."
+      ]
+    }
+  },
+  "$id": "biomcp.pgx-annotation-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact single clinical annotation get, with no inferred source or annotation kind.",
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/ClinPgxAccession",
+      "description": "Checked ClinPGx accession, never a shared PaId."
+    },
+    "source": {
+      "$ref": "#/$defs/PgxSource",
+      "description": "Required ClinPGx source."
+    }
+  },
+  "required": [
+    "id",
+    "source"
+  ],
+  "title": "PgxAnnotationGet",
+  "type": "object"
+}

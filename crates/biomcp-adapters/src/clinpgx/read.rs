@@ -7,9 +7,9 @@ use serde::Deserialize;
 /// Bounded whole native collection with no claimed server-wide total.
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct Native<T> {
+struct Native<T> {
     /// Complete native result.
-    pub data: T,
+    data: T,
     status: Box<str>,
 }
 impl<T: serde::de::DeserializeOwned> Reply for Native<T> {
