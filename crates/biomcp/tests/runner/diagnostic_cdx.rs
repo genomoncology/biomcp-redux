@@ -280,6 +280,7 @@ fn concurrent() -> Check {
 fn paging() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env)?;
+    unique_applications(&replay)?;
     call(&env, &replay, &["sync", "fda-cdx"], 0)?;
     let base = call(
         &env,
@@ -298,6 +299,17 @@ fn paging() -> Check {
         || base.pointer("/page/returned") != Some(&json!(5))
     {
         return Err(format!("base search lost supplement or group rows: {base}"));
+    }
+    if base.pointer("/next/6/kind") != Some(&json!("page"))
+        || !base.get("next").and_then(Value::as_array).is_some_and(|a| {
+            a.iter()
+                .take(6)
+                .all(|v| v.get("kind") == Some(&json!("pivot")))
+        })
+    {
+        return Err(format!(
+            "association pivots or continuation truncated: {base}"
+        ));
     }
     let next = base
         .get("next")
@@ -356,6 +368,30 @@ fn markdown() -> Check {
         if !text.contains(expected) {
             return Err(format!("Markdown omitted {expected}: {text}"));
         }
+    }
+    Ok(())
+}
+
+fn unique_applications(replay: &Path) -> Check {
+    for entry in fs::read_dir(replay.join("fda-cdx")).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let mut value: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        let cell = value
+            .pointer_mut("/exchanges/0/body/value")
+            .ok_or("missing body")?;
+        let mut rows = Vec::new();
+        for row in cell.as_str().ok_or("non-text body")?.split("<tr>") {
+            let mut updated = row.to_owned();
+            for n in 27..=30 {
+                if row.contains(&format!("P200010S0{n}")) {
+                    updated = updated.replace("210496", &format!("{}", 210496 + n - 26));
+                }
+            }
+            rows.push(updated);
+        }
+        *cell = json!(rows.join("<tr>"));
+        fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
     }
     Ok(())
 }
