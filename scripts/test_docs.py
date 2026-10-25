@@ -22,7 +22,7 @@ def main():
             target = root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
-        for name in ("sdlc/planning/slices", "tests/cases", "crates/biomcp/tests/runner"):
+        for name in ("sdlc/planning/slices", "tests/cases", "crates/biomcp/tests/runner", "crates/biomcp-types"):
             shutil.copytree(ROOT / name, root / name)
         result = check(root)
         assert result.returncode == 0, result.stderr
@@ -51,7 +51,14 @@ def main():
         assert result.returncode != 0 and "unmapped case" in result.stderr, result
         case.unlink()
         features = root / "sdlc/features.md"
-        features.write_text(features.read_text() + "\nmissing: A caller sees a result. Cases: `tests/cases/missing/*.yaml`.\n")
+        original_features = features.read_text()
+        features.write_text(original_features.replace("/drug_contracts`", "/missing_contract`"))
+        result = check(root)
+        assert result.returncode != 0 and "target does not exist" in result.stderr, result
+        features.write_text(original_features.replace("features: `schema`", "features: `missing`"))
+        result = check(root)
+        assert result.returncode != 0 and "feature does not exist" in result.stderr, result
+        features.write_text(original_features + "\nmissing: A caller sees a result. Cases: `tests/cases/missing/*.yaml`.\n")
         result = check(root)
         assert result.returncode != 0 and "matches no cases" in result.stderr, result
     print("Documentation contracts reject wrong counts and missing case mappings")
