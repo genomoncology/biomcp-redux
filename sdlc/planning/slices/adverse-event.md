@@ -584,3 +584,5 @@ The command case helper `vaers/budget.rs` enforces each observed envelope size p
 | Expired snapshot | 224 | 224 |
 
 Search help measured 2542 compact bytes and 2543 stdout bytes. `adverse-event/help.yaml` owns its approved ceiling. Exact report get help retains only FAERS and MAUDE and measured 2243 stdout bytes. The MCP command description measured 1920 bytes under its existing ceiling; snapshot tokens remain in detailed help and emitted continuations. Whole help and the Source enum retain their existing ceilings.
+
+The fixed native geographic selection is `D8.V12` State / Territory, value `00`, with the native label “The United States/Territories/Unknown”. Each table exposes that variable and selected value. This is not a worldwide result or a vaccinated population denominator. There is no new geographic selector. The clinical reviewer confirmed the exact label and selection expansion from both retained native datasets.

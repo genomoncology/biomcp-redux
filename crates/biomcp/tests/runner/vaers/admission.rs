@@ -2,7 +2,7 @@ use super::{Check, both, environment, words};
 use crate::runner::network_stub::Stub;
 use serde_json::json;
 pub(super) fn run() -> Check {
-    for fault in ["oversized", "row-width", "vaccine", "group", "html"] {
+    for fault in ["oversized", "row-width", "vaccine", "group", "scope", "html"] {
         let stub = Stub::for_sources(
             &["wonder.cdc.gov"],
             |_| "application/xml",
@@ -12,6 +12,7 @@ pub(super) fn run() -> Check {
                     "oversized" => {
                         body.replace("Synthetic zero-row notice.", &"x".repeat(2 * 1024 * 1024))
                     }
+                    "scope" => body.replacen("<value code=\"00\"/>", "<value code=\"FR\"/>", 1),
                     "row-width" => body.replacen("<c v=\"80.00%\"/>", "", 1),
                     "vaccine" => body.replacen("code=\"MMR\"", "code=\"COVID19\"", 1),
                     "group" => body.replacen("code=\"D8.V13-level2\"", "code=\"D8.V10\"", 1),

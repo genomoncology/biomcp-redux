@@ -148,7 +148,7 @@ pub use adverse_event::{
     AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage,
     AdverseEventReaction, AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
     AdverseEventSearch, AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
-    VaersCell, VaersNotice, VaersRow, VaersSection, VaersSummary,
+    VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,
 };
 
 mod pgx;

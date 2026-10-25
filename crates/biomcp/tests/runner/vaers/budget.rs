@@ -25,13 +25,13 @@ pub(super) fn check(value: &Value) -> Check {
         .and_then(Value::as_u64)
         .is_some_and(|v| v > 0)
     {
-        (1698, 1586)
+        (1835, 1723)
     } else if value.pointer("/query/section") == Some(&json!("seriousness")) {
-        (1781, 1669)
+        (1918, 1806)
     } else if value.pointer("/query/section") == Some(&json!("age")) {
-        (1782, 1670)
+        (1919, 1807)
     } else {
-        (1856, 1744)
+        (1993, 1881)
     };
     if full > (measured_full * 115).div_ceil(100)
         || comparable > (measured_comparable * 115).div_ceil(100)

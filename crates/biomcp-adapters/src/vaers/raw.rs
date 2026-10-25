@@ -1,6 +1,6 @@
 //! Lossless native cells and applied notices; malformed tables never enter cache.
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
-use biomcp_types::{VaersCell, VaersNotice, VaersRow, VaersSummary};
+use biomcp_types::{VaersCell, VaersNotice, VaersRow, VaersScope, VaersSummary};
 use quick_xml::{
     Reader,
     events::{BytesStart, Event},
@@ -120,6 +120,7 @@ fn map(page: Node) -> Result<VaersSummary, BadReply> {
     let dataset = page.child("dataset")?;
     let response = page.child("response")?;
     let request = response.child("request")?;
+    let scope = scope(dataset, request)?;
     let vaccine = request
         .child("variable-selections")?
         .children
@@ -171,7 +172,7 @@ fn map(page: Node) -> Result<VaersSummary, BadReply> {
             notice(node, kind, &mut notices);
         }
     }
-    Ok(VaersSummary { vaccine, grouping, dataset: dataset.attrs.clone(), measures: measures.into(),
+    Ok(VaersSummary { vaccine, scope, grouping, dataset: dataset.attrs.clone(), measures: measures.into(),
         measure_metadata: response.child("measure-selections")?.children.iter().map(|n| n.attrs.clone()).collect(),
         report_total, footer, rows: rows.into(), notices: notices.into(), interpretation: "Counts are VAERS reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety. A report may mention several symptoms. Each table retains its own source total and percentages.".into() })
 }
@@ -225,4 +226,13 @@ fn table_rows(table: &Node) -> Result<(Vec<VaersRow>, VaersRow), BadReply> {
         return Err(BadReply);
     }
     Ok((rows, footer))
+}
+
+fn scope(dataset: &Node, request: &Node) -> Result<VaersScope, BadReply> {
+    let variable = dataset.children.iter().find(|n| n.name == "variable" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "D8.V12")).ok_or(BadReply)?;
+    let selected = request.child("variable-selections")?.children.iter().find(|n| n.name == "variable" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "D8.V12")).ok_or(BadReply)?.child("value")?;
+    if selected.attrs.get("code").is_none_or(|v| v.as_ref() != "00") { return Err(BadReply); }
+    let value = variable.children.iter().find(|n| n.name == "value" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "00")).ok_or(BadReply)?;
+    if !value.attrs.contains_key("label") { return Err(BadReply); }
+    Ok(VaersScope { variable: variable.attrs.clone(), value: value.attrs.clone() })
 }

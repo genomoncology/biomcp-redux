@@ -58,6 +58,16 @@ pub struct VaersNotice {
     /// Original source text, including embedded publisher markup.
     pub text: Box<str>,
 }
+/// Fixed native geographic selection, without a caller-selectable geography filter.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct VaersScope {
+    /// Native variable attributes, including source name and code.
+    pub variable: VaersCell,
+    /// Exact selected native value and its own catalog label.
+    pub value: VaersCell,
+}
 /// Bounded page of one independent native vaccine summary table.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -65,6 +75,8 @@ pub struct VaersNotice {
 pub struct VaersSummary {
     /// Native selected vaccine attributes.
     pub vaccine: VaersCell,
+    /// Native fixed State / Territory selection.
+    pub scope: VaersScope,
     /// Native grouping attributes.
     pub grouping: VaersCell,
     /// Native dataset attributes including processed-through vintage.
