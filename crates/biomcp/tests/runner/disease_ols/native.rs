@@ -99,6 +99,7 @@ fn prove_row(
         .is_some_and(|s| s.contains("DOID%3A3910"))
     {
         section_outputs(env, &directory, output)?;
+        paged_measurements(env,&directory)?;
     }
     fs::write(
         output.join(format!("output-{index}.json")),
@@ -170,6 +171,10 @@ fn section_outputs(
         )?;
     }
     Ok(())
+}
+
+fn paged_measurements(env:&super::Environment,directory:&Path)->Result<(),String> {
+    for section in ["synonyms","xrefs"] {for offset in ["0","2"] {let q=super::args(&["get","disease","DOID:3910",section,"--source","ols","--ontology","doid","--section-limit","2","--section-offset",offset]);super::measure(env,&q,directory)?;}}Ok(())
 }
 
 fn section_steps(row: &Value, steps: &mut Vec<Value>) {

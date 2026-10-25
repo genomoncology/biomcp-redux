@@ -202,6 +202,7 @@ fn exact() -> Result<(), String> {
             "--section-limit",
             "1",
         ];
+        measure(&env,&args(&command),&directory)?;
         let mut expect = json!({"/page/total":2,"/page/returned":1,"/next/0/kind":"page"});
         let fields = expect.as_object_mut().ok_or("missing expectations")?;
         if section == "synonyms" {
@@ -358,5 +359,12 @@ fn maximum() -> Result<(), String> {
     if stub.finish()?.len() != 1 {
         return Err("invalid page limit reached source".into());
     }
+    Ok(())
+}
+
+fn measure(env:&Environment,words:&[String],directory:&Path)->Result<(),String> {
+    let mut q=words.to_vec();q.extend(["--replay".into(),directory.to_string_lossy().into()]);
+    let result=invoke(env,&q,0)?;
+    writeln!(std::io::stderr(),"section measurement {:?}: full={}, comparable={}",words,serde_json::to_vec(&result).map_err(|e|e.to_string())?.len(),super::source_terms::size(&result,"")?).map_err(|e|e.to_string())?;
     Ok(())
 }
