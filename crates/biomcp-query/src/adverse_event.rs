@@ -1,4 +1,5 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
+mod get;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::faers;
 use biomcp_types::{
@@ -100,4 +101,12 @@ pub fn unsupported() -> Outcome {
         next: Vec::new(),
         local: None,
     }
+}
+
+/// Read an exact FAERS report and its independent retained sections.
+pub fn get(cx: &Ctx<'_>, query: &biomcp_types::AdverseEventGet) -> Outcome {
+    if query.source() != biomcp_types::AdverseEventSource::Faers {
+        return unsupported();
+    }
+    get::get(cx, query)
 }

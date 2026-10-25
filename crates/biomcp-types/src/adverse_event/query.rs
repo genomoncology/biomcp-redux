@@ -127,6 +127,9 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<AdverseEventSection>,
+    /// Checked retained report snapshot for provider-free continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    snapshot: Option<Text>,
     /// Absolute source-array index; required only for identifier sections.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     drug_index: Option<u32>,
@@ -162,6 +165,23 @@ impl AdverseEventGet {
     /// Named section.
     pub fn section(&self) -> Option<AdverseEventSection> {
         self.0.section
+    }
+    /// Retained report identity, absent for an initial get.
+    pub fn snapshot(&self) -> Option<&Text> {
+        self.0.snapshot.as_ref()
+    }
+    /// Bind all subsequent section pages to this checked report.
+    pub fn with_snapshot(&self, snapshot: Text) -> Self {
+        let mut q = self.clone();
+        q.0.snapshot = Some(snapshot);
+        q
+    }
+    /// Restart the exact report without an expired snapshot.
+    pub fn restart(&self) -> Self {
+        let mut q = self.clone();
+        q.0.snapshot = None;
+        q.0.section_offset = 0;
+        q
     }
     /// Absolute native drug index, only for identifier sections.
     pub fn drug_index(&self) -> Option<u32> {

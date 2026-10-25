@@ -58,7 +58,7 @@ pub struct Outcome {
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::SearchAdverseEvent(query) => crate::adverse_event::search(cx, query),
-        Request::GetAdverseEvent(_) => crate::adverse_event::unsupported(),
+        Request::GetAdverseEvent(q) => crate::adverse_event::get(cx, q),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
         Request::SearchDrug(query) => crate::drug::search(cx, query),

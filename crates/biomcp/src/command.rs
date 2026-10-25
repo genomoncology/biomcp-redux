@@ -110,9 +110,9 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if matches!(
         action,
         Action::Run {
-            request: Request::GetAdverseEvent(_),
+            request: Request::GetAdverseEvent(q),
             ..
-        }
+        } if q.source() != biomcp_types::AdverseEventSource::Faers
     ) || matches!(action, Action::Run {request: Request::SearchAdverseEvent(q),..} if q.source() != biomcp_types::AdverseEventSource::Faers)
     {
         return Some(usage_envelope(ErrorEnvelope::arguments()));

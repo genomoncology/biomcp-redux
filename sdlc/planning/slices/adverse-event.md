@@ -414,3 +414,34 @@ A24, F18 and malformed/timeout/wrong-identity controls are explicitly synthetic.
 ## Ian's questions
 
 The PM must ask Ian whether to accept losing 0.9 vaccine search. This is a product capability choice, not a clinical/configuration question. The working design drops VAERS/CVX because all three aggregate requests were denied and the code tables prove no native mapping. The alternative preserves the requirement as blocked and authorizes a separate bounded source-access investigation; its cost is another owned capture recipe and review, with no paid service assumed. This branch does not treat silence as acceptance or claim equivalent vaccine coverage. No other material commitment or Ian decision is needed for the reviewed FAERS/MAUDE search/get surface.
+
+## Exact FAERS report execution
+
+The get adapter accepts one report whose `safetyreportid` equals the requested digit-only ID. It rejects a wrong ID, multiple returned records and a 200 error body before ordinary cache admission. There is no version choice. Native drug roles remain on each original drug row; reaction arrays remain independent. Identifier pages preserve original spelling and order at the absolute drug index and offer no drug pivot. An absent identifier field returns absence; an explicitly empty array returns an empty complete page.
+
+An initial checked get retains the report through the existing expiring source snapshot store. Generated section and continuation commands carry `--snapshot`. These reads require no provider request and cannot switch to a newer report during a walk. Source and MedDRA reaction admission run before reading a retained payload. A missing or expired snapshot returns a restart command. The optional request field is an additive compatible schema change; existing schema identities remain valid.
+
+The bounded source capture `j12975` made exactly four ID-only GETs from landed `82bac28e85fb1b30b6abc41761903cbc86d7c73d`: 26940567, 26581534, 13946660 and the original F18 no-match control. It returned 200/200/200/404 without retries, redirects or fallback. Positive records were respectively version 1 with 2 drugs/1 reaction, version 1 with 12 drugs/4 reactions, and version 3 with 19 drugs/5 reactions. The publisher date was 2026-07-30; original retrieval occurred on 2026-10-25. The F18 string is outside the digit-only product grammar, so its 404 is source evidence only. A separate synthetic numeric-ID reply proves runtime no-match behavior. The capture archive is `data/biomcp-redux/0159-faers-get-native-proof/j12975-native-capture.tar.gz`, SHA-256 `f4bdb731a81a80384fa28d2c619425f80ff4dba34a0144815b5dc7215073511f`, with 37 independently verified manifest files.
+
+Native product replay `j13004` used runtime revision `d6e94cdb3ca9665f1e60435579fc7398721f2ed9` and paired 1,004 CLI and MCP envelopes. Its local fixtures retained the three new exact-get records, the older F01 report witnesses and older F10 report 26749927 version 1. Older search records were explicitly selected into local get fixtures; this does not establish a fresh exact-get positive. Original source captures and local fixture deliveries remain separate. The run made zero provider requests, delivered nine initial local report fixtures and delivered zero further replies during retained paging. It walked all 19 drug rows, all 22 older reaction rows, all seven identifier kinds, the 2,087 package-NDC rows and the 841 SPL arrays without index gaps or duplicates.
+
+The following are compact UTF-8 envelope maxima across the native replay cases. Comparable bytes exclude only the validated service outcome `use`, `terms` and `terms_url` fields. They retain component terms, query selectors, labels and report context. Every native case also has its own actual-plus-15-percent ceiling in the retained result record. These are local replay measurements; they do not measure provider speed.
+
+| Output | Full bytes | Comparable bytes | Full ceiling | Comparable ceiling |
+|---|---:|---:|---:|---:|
+| Card | 1459 | 1344 | 1678 | 1546 |
+| Drugs | 4120 | 4005 | 4738 | 4606 |
+| Reactions | 1528 | 1413 | 1758 | 1625 |
+| UNII | 760 | 645 | 874 | 742 |
+| RxCUI | 948 | 833 | 1091 | 958 |
+| Product NDC | 991 | 876 | 1140 | 1008 |
+| Package NDC | 1006 | 891 | 1157 | 1025 |
+| SPL ID | 1102 | 987 | 1268 | 1136 |
+| SPL set ID | 1118 | 1003 | 1286 | 1154 |
+| Application number | 1016 | 901 | 1169 | 1037 |
+
+Token estimates use ceiling(bytes / 4). These ceilings apply only to the new get outputs and do not relax earlier search, help or shared tool-description ceilings.
+
+The retained product archive is `data/biomcp-redux/0159-faers-get-product-proof/j13004-product-proof.tar.gz`, SHA-256 `8d1644b8698ce5d4905023bccb64e964f63e803cc38532492655d2732be72af7`, 4,572,717 bytes with 7,527 independently verified files. It includes raw CLI stdout/stderr and MCP frames, recorder files, original archive provenance, per-case byte/token results, category maxima and the two preserved local harness failures. The failed attempts concerned nested header selection and an omitted terminal `next`; neither made a provider request or changed product code.
+
+Routine synthetic cases in `faers_get.rs` use their own `j13008` measured compact CLI/MCP maxima plus 15 percent. The shared source-terms validator performs the comparable deduction. The maxima include card 1215/1100 full/comparable bytes, drugs 1453/1338, reactions 1403/1288 and identifier defaults from 692/577 to 924/809. Missing identifier arrays remain separate from empty complete pages. Failed identity, disabled-source, absence and argument envelopes have separately measured bounds in the case code. These synthetic bounds do not replace the native measurements above.

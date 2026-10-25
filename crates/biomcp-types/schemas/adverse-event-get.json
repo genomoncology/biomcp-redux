@@ -45,6 +45,11 @@
     "ReportId": {
       "pattern": "^[0-9]+$",
       "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "biomcp.adverse-event-get/1",
@@ -92,6 +97,17 @@
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
+    },
+    "snapshot": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Checked retained report snapshot for provider-free continuation."
     },
     "source": {
       "$ref": "#/$defs/AdverseEventSource",
