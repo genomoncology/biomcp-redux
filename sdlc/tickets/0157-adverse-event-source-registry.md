@@ -1,6 +1,7 @@
 # 0157 — Register the adverse event sources and components with use labels
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 431a77f15612b4640ced8339cfd49bf7927d9ca1
 
 Milestone: 3
 

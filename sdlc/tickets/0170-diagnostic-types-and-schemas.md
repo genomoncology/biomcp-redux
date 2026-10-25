@@ -1,6 +1,7 @@
 # 0170 — Add the diagnostic types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 903b4d9258128c81dc93bbe83257362027154859
 
 Milestone: 4
 
