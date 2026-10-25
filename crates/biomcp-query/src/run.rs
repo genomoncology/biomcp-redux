@@ -57,6 +57,8 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::SearchAdverseEvent(query) => crate::adverse_event::search(cx, query),
+        Request::GetAdverseEvent(_) => crate::adverse_event::unsupported(),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
         Request::SearchDrug(query) => crate::drug::search(cx, query),

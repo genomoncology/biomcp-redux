@@ -58,6 +58,17 @@
           },
           "type": "array"
         },
+        "fetched": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original retrieval date belonging to this reply, absent for undated legacy recordings."
+        },
         "items": {
           "description": "Native ordered report candidates.",
           "items": {
@@ -65,25 +76,59 @@
           },
           "type": "array"
         },
+        "reaction_match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AdverseEventReactionMatch"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit analyzed reaction selector semantics when a reaction was supplied."
+        },
+        "source_query": {
+          "description": "Exact literal provider expression; reaction selectors use phrase match.",
+          "type": "string"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The publisher last_updated date, separate from retrieval."
+        },
         "unit": {
           "$ref": "#/$defs/ReportUnit",
           "description": "Explicit reports unit for envelope page totals."
         }
       },
       "required": [
+        "source_query",
         "items",
         "unit",
         "components"
       ],
       "type": "object"
     },
+    "AdverseEventReactionMatch": {
+      "description": "Source reaction selector matching semantics.",
+      "enum": [
+        "phrase_match"
+      ],
+      "type": "string"
+    },
     "AdverseEventSearch": {
       "additionalProperties": false,
-      "description": "Checked literal report search with source-specific filters.",
+      "description": "Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.",
       "properties": {
         "limit": {
           "default": 5,
-          "description": "Native reports per page; default awaits adapter budget measurement.",
+          "description": "Native report headers per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -740,7 +785,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.adverse_event_page/1",
+  "$id": "biomcp.adverse_event_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -786,7 +831,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.adverse_event_page/1",
+      "const": "biomcp.adverse_event_page/2",
       "type": "string"
     },
     "sources": {

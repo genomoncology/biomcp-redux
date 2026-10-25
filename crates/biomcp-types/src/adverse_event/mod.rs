@@ -1,4 +1,4 @@
-//! Standalone adverse event contracts; command registration belongs to its runtime slice.
+//! Source-specific adverse event requests and bounded report responses.
 mod query;
 mod response;
 mod selectors;
@@ -8,7 +8,7 @@ pub use response::{
     AdverseEventFaersCard, AdverseEventHeader, AdverseEventIdentifierRecords,
     AdverseEventIdentifiers, AdverseEventIdentityCounts, AdverseEventMaudeCard,
     AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage, AdverseEventReaction,
-    AdverseEventReactions, AdverseEventRecords,
+    AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
 };
 pub use selectors::{
     AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious, AdverseEventSource,

@@ -66,16 +66,21 @@ fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, Strin
     for command in commands.iter().filter(|c| {
         c["command"].as_array().is_some_and(|words| {
             words.len() == 2
-                && words.iter().any(|v| {
-                    v == "article"
-                        || v == "gene"
-                        || v == "trial"
-                        || v == "variant"
-                        || v == "disease"
-                        || v == "drug"
-                        || v == "ema"
-                        || v == "ddinter"
-                })
+                && (words
+                    == &vec![
+                        serde_json::json!("search"),
+                        serde_json::json!("adverse-event"),
+                    ]
+                    || words.iter().any(|v| {
+                        v == "article"
+                            || v == "gene"
+                            || v == "trial"
+                            || v == "variant"
+                            || v == "disease"
+                            || v == "drug"
+                            || v == "ema"
+                            || v == "ddinter"
+                    }))
         })
     }) {
         let examples = command["examples"]

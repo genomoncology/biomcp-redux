@@ -19,3 +19,6 @@ pub mod variant;
 pub mod disease;
 /// Single-source drug discovery and exact native cards.
 pub mod drug;
+
+/// Source-owned adverse event search.
+pub mod adverse_event;

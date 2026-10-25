@@ -26,6 +26,7 @@ mod drug_next;
 mod drug_registry;
 mod drug_retirements;
 mod evidence;
+mod faers_search;
 mod gene_tables;
 mod held_proxy;
 mod help_examples;
@@ -525,6 +526,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_identity::trials());
     trials.extend(drug_registry::trials());
     trials.extend(adverse_event_registry::trials());
+    trials.extend(faers_search::trials());
     trials.extend(diagnostic_registry::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());
@@ -551,4 +553,8 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_monarch::trials())
         .chain(disease_seer::trials())
         .collect()
+}
+
+pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
+    faers_search::record_examples(directory)
 }

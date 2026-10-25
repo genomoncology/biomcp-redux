@@ -1,4 +1,5 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod adverse_event;
 mod disease;
 mod drug;
 mod drug_label;
@@ -106,6 +107,16 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if matches!(
+        action,
+        Action::Run {
+            request: Request::GetAdverseEvent(_),
+            ..
+        }
+    ) || matches!(action, Action::Run {request: Request::SearchAdverseEvent(q),..} if q.source() != biomcp_types::AdverseEventSource::Faers)
+    {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
@@ -214,12 +225,16 @@ fn response(
     response_body(meta, request, result.body)
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
-    if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
-        return disease::encode(meta, request, body);
+    match request {
+        Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => {
+            adverse_event::encode(meta, request, body)
+        }
+        Request::SearchDisease(_) | Request::GetDisease(_) => disease::encode(meta, request, body),
+        Request::SearchDrug(_) | Request::GetDrug(_) => drug::encode(meta, request, body),
+        _ => response_common(meta, request, body),
     }
-    if matches!(&request, Request::SearchDrug(_) | Request::GetDrug(_)) {
-        return drug::encode(meta, request, body);
-    }
+}
+fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())

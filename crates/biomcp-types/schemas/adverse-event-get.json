@@ -1,0 +1,107 @@
+{
+  "$defs": {
+    "AdverseEventSection": {
+      "description": "One source-owned section; no all or reporter section.",
+      "enum": [
+        "drugs",
+        "reactions",
+        "unii",
+        "rxcui",
+        "product-ndc",
+        "package-ndc",
+        "spl-id",
+        "spl-set-id",
+        "application-number",
+        "devices",
+        "narrative"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Independent native drug rows.",
+        " Independent native reaction rows.",
+        " Native UNII strings.",
+        " Native RxCUI strings.",
+        " Native product NDC strings.",
+        " Native package NDC strings.",
+        " Native SPL IDs.",
+        " Native SPL set IDs.",
+        " Native application numbers.",
+        " Native device rows.",
+        " Complete native narrative rows."
+      ]
+    },
+    "AdverseEventSource": {
+      "description": "An explicit source; never probe the other family.",
+      "enum": [
+        "faers",
+        "maude"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Drug event reports.",
+        " Device event reports."
+      ]
+    },
+    "ReportId": {
+      "pattern": "^[0-9]+$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.adverse-event-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact native report identity and an optional independently paged section.",
+  "properties": {
+    "drug_index": {
+      "description": "Absolute source-array index; required only for identifier sections.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "id": {
+      "$ref": "#/$defs/ReportId",
+      "description": "Published report ID with no source prefix.",
+      "x-positional": 0
+    },
+    "section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AdverseEventSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "One source-owned section; omitted means card only.",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "default": 5,
+      "description": "Whole source rows per section page.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Offset within the selected native section.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source": {
+      "$ref": "#/$defs/AdverseEventSource",
+      "default": "faers",
+      "description": "FAERS by default; MAUDE is explicit."
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "AdverseEventGet",
+  "type": "object"
+}
