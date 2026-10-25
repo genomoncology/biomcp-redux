@@ -38,7 +38,7 @@ fn identity(n: usize) -> Result<Value, String> {
     rows.get(n).cloned().ok_or("identity index".into())
 }
 fn record(identity: &Value) -> Value {
-    json!({"id":identity["id"],"set_id":identity["set_id"],"version":identity["version"],"effective_time":identity["effective_time"],"openfda":{"brand_name":[identity["brand"]],"spl_set_id":[identity["set_id"]]},"boxed_warning":["Synthetic warning fixture."],"dosage_and_administration":[" Synthetic dose fixture.\n"],"drug_interactions":["Synthetic interaction fixture."],"indications_and_usage":["Synthetic indication fixture."],"warnings_and_cautions":["Synthetic caution fixture."]})
+    json!({"id":field(identity,"id"),"set_id":field(identity,"set_id"),"version":field(identity,"version"),"effective_time":field(identity,"effective_time"),"openfda":{"brand_name":[field(identity,"brand")],"spl_set_id":[field(identity,"set_id")]},"boxed_warning":["Synthetic warning fixture."],"dosage_and_administration":[" Synthetic dose fixture.\n"],"drug_interactions":["Synthetic interaction fixture."],"indications_and_usage":["Synthetic indication fixture."],"warnings_and_cautions":["Synthetic caution fixture."]})
 }
 fn setup(body: Value, selector: String, status: u16) -> Result<(Environment, Stub), String> {
     setup_raw(body.to_string(), selector, status)
@@ -72,7 +72,7 @@ fn get_args(identity: &Value) -> Result<Vec<String>, String> {
     Ok(vec![
         "get".into(),
         "drug".into(),
-        identity["set_id"].as_str().ok_or("set")?.into(),
+        field(identity,"set_id").as_str().ok_or("set")?.into(),
         "--source".into(),
         "openfda-label".into(),
     ])
@@ -82,7 +82,7 @@ fn get_setup(identity: &Value, record: Value) -> Result<(Environment, Stub), Str
         page(record),
         format!(
             "openfda.spl_set_id%3A%22{}%22",
-            identity["set_id"].as_str().ok_or("set")?
+            field(identity,"set_id").as_str().ok_or("set")?
         ),
         200,
     )
@@ -114,7 +114,7 @@ fn measure(value: &Value) -> Check {
 }
 fn search(n: usize) -> Check {
     let id = identity(n)?;
-    let brand = id["brand"].as_str().ok_or("brand")?;
+    let brand = field(&id,"brand").as_str().ok_or("brand")?;
     let (env, stub) = setup(
         page(record(&id)),
         format!("openfda.brand_name.exact%3A%22{brand}%22"),
@@ -133,8 +133,8 @@ fn search(n: usize) -> Check {
     .map(str::to_owned)
     .collect();
     let value = both(&env, args, 0)?;
-    if value.pointer("/result/items/0/id") != Some(&id["set_id"])
-        || value.pointer("/result/items/0/version") != Some(&id["version"])
+    if value.pointer("/result/items/0/id") != Some(field(&id,"set_id"))
+        || value.pointer("/result/items/0/version") != Some(field(&id,"version"))
     {
         return Err("native label identity or revision changed".into());
     }
@@ -162,7 +162,7 @@ fn absent() -> Check {
     .map(str::to_owned)
     .collect();
     let value = both(&env, args, 1)?;
-    if value["status"] != "absent"
+    if field(&value,"status") != "absent"
         || value.pointer("/result/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
     {
@@ -177,14 +177,14 @@ fn card(n: usize) -> Check {
     let id = identity(n)?;
     let (env, stub) = get_setup(&id, record(&id))?;
     let value = both(&env, get_args(&id)?, 0)?;
-    if value.pointer("/result/header/id") != Some(&id["set_id"])
-        || value.pointer("/result/version") != Some(&id["version"])
+    if value.pointer("/result/header/id") != Some(field(&id,"set_id"))
+        || value.pointer("/result/version") != Some(field(&id,"version"))
         || value.pointer("/result/header/identity_level") != Some(&json!("spl_set"))
     {
         return Err("SPL card identity changed".into());
     }
-    if value["result"].get("label").is_some()
-        || value["result"].get("text").is_some()
+    if field(&value,"result").get("label").is_some()
+        || field(&value,"result").get("text").is_some()
         || value.pointer("/result/retrieved").is_none()
     {
         return Err("card leaks label text or loses retrieval metadata".into());
@@ -202,7 +202,7 @@ fn headings() -> Check {
         let mut args = get_args(&id)?;
         args.extend(["label".into(), "--label-section".into(), heading.into()]);
         let value = both(&env, args, 0)?;
-        if value["schema"] != "biomcp.drug_label/3"
+        if field(&value,"schema") != "biomcp.drug_label/3"
             || value.pointer("/result/label/data/text") != record.pointer(&format!("/{heading}/0"))
             || value.pointer("/result/label/data/retrieved").is_none()
         {
@@ -214,3 +214,5 @@ fn headings() -> Check {
     }
     Ok(())
 }
+
+fn field<'a>(value:&'a Value,key:&str)->&'a Value { value.get(key).unwrap_or(&Value::Null) }
