@@ -67,7 +67,6 @@ const CASES: &[(&str, &str)] = &[
         "get adverse-event 03 --source=cvx",
         "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
     ),
-
     (
         "search adverse-event text --source=vaers",
         "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
