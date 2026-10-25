@@ -554,7 +554,6 @@ impl Leg<'_> {
         let reply = codec
             .decode_response(&response.body, response.content_range.as_deref(), status)
             .ok_or_else(bad)?;
-        reply.check_status(status).map_err(|_| bad())?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
         }

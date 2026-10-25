@@ -23,6 +23,9 @@ pub(super) fn trials() -> Vec<Trial> {
     for name in [
         "wrong-gene",
         "wrong-drug",
+        "status",
+        "count",
+        "unknown-field",
         "range",
         "missing-range",
         "broken",
@@ -75,7 +78,7 @@ fn scenario(name: &'static str) -> Check {
         move |request| {
             check_request(name, request)?;
             let mut body = body.clone();
-            if request.contains("offset=1 ") {
+            if request.contains("offset=1") {
                 if name == "pairs" {
                     body[0]["pairid"] = json!(2);
                 } else if name == "view" {
@@ -87,7 +90,7 @@ fn scenario(name: &'static str) -> Check {
             Ok(body.to_string())
         },
         move |request| {
-            if request.contains("offset=1 ") {
+            if request.contains("offset=1") {
                 "Content-Range: 1-1/2\r\n".into()
             } else {
                 format!("Content-Range: {range}\r\n")
@@ -196,6 +199,9 @@ fn failure(name: &'static str) -> Check {
     if name == "wrong-drug" {
         body[0]["drugid"] = json!("RxNorm:999");
     }
+    if name == "unknown-field" {
+        body[0]["invented_extra"] = json!("unreviewed");
+    }
     let stub = Stub::counted(
         move |_| {
             Ok(if name == "broken" {
@@ -207,9 +213,11 @@ fn failure(name: &'static str) -> Check {
         move |_| match name {
             "missing-range" => String::new(),
             "range" => "Content-Range: 4-4/5\r\n".into(),
+            "count" => "Content-Range: 0-1/2\r\n".into(),
             _ => "Content-Range: 0-0/2\r\n".into(),
         },
         move |_| match name {
+            "status" => 200,
             "429" => 429,
             "500" => 500,
             _ => 206,
