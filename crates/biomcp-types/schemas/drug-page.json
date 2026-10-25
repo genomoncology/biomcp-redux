@@ -41,6 +41,17 @@
             }
           ],
           "description": "Source record URL."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source revision, omitted when the source supplies none."
         }
       },
       "required": [
