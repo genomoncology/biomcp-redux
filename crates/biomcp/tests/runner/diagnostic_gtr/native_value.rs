@@ -19,7 +19,7 @@ pub(super) fn run() -> Result<(), String> {
 fn seed_native(replay: &std::path::Path) -> Result<(), String> {
     for entry in fs::read_dir(replay.join("gtr")).map_err(|e| e.to_string())? {
         let path = entry.map_err(|e| e.to_string())?.path();
-        if !path.extension().is_some_and(|v| v == "json") {
+        if path.extension().is_none_or(|v| v != "json") {
             continue;
         }
         let mut value: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
