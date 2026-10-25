@@ -1,4 +1,5 @@
 //! Feature clinpgx-annotations: independent retained collections through CLI and MCP.
+mod rows;
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -9,10 +10,7 @@ pub(super) fn trials() -> Vec<Trial> {
     )]
 }
 fn scenario() -> Result<(), String> {
-    let body = json!({"data":[
-        {"objCls":"GuidelineAnnotation","id":"PA100001","name":"Synthetic reference one","crossReferences":[]},
-        {"objCls":"GuidelineAnnotation","id":"PA100002","name":"Synthetic reference two","crossReferences":[]}
-    ]});
+    let body = json!({"data": rows::references(), "status":"success"});
     let expected = body.pointer("/data/0").ok_or("synthetic row")?.clone();
     let stub = Stub::for_sources(
         &["api.clinpgx.org"],

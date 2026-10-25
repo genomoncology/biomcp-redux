@@ -16,7 +16,10 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
 }
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
-    let association = matches!(&out.body, QueryBody::PgxGuidelines(_));
+    let association = matches!(
+        &out.body,
+        QueryBody::PgxGuidelines(_) | QueryBody::PgxAnnotations(_)
+    );
     if out.status == Status::Failed {
         if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
             next.push((
@@ -48,7 +51,28 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
                     next.push((StepKind::Section, run(r)));
                 }
             }
+            if let Ok(query) = q.with_section(PgxSection::Annotations, PgxSource::Clinpgx) {
+                next.push((StepKind::Section, run(Request::GetPgx(query))));
+            }
         }
+        (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => match body {
+            PgxAnnotations::Clinical { items, page, .. } => {
+                for row in items {
+                    if let Ok(query) =
+                        serde_json::from_value(json!({"id":row.accession_id,"source":"clinpgx"}))
+                    {
+                        next.push((
+                            StepKind::Disambiguate,
+                            run(Request::GetPgxAnnotation(query)),
+                        ));
+                    }
+                }
+                page_step(q, page, &mut next);
+            }
+            PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
+                page_step(q, page, &mut next)
+            }
+        },
         (
             Request::GetPgx(q),
             QueryBody::PgxRecommendations(

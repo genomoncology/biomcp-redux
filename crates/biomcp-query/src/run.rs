@@ -61,6 +61,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::SearchPgx(query) => crate::pgx::search(cx, query),
         Request::GetPgx(query) => crate::pgx::get(cx, query),
+        Request::GetPgxAnnotation(query) => crate::pgx::annotation(cx, query),
         Request::SearchDiagnostic(q) => crate::diagnostic::search(cx, q),
         Request::GetDiagnostic(q) => crate::diagnostic::get(cx, q),
         Request::SearchAdverseEvent(query) => crate::adverse_event::search(cx, query),

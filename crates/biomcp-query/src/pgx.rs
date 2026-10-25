@@ -1,6 +1,8 @@
 //! CPIC retrieval preserves source contexts and performs no clinical inference.
+mod annotations;
 mod next;
 use crate::{Ctx, Outcome, status};
+pub(crate) use annotations::annotation;
 use biomcp_adapters::cpic;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::*;
@@ -22,13 +24,16 @@ pub fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
         items: Box::default(),
         page: page_info(query.offset(), 0, 0),
     });
-    let mut out = finish(leg, reply, empty);
+    let mut out = finish(leg, reply, empty, Source::Cpic);
     out.next = next::steps(&Request::SearchPgx(query.clone()), &out);
     command.finish(deadline.remaining());
     out
 }
 /// Read one explicit card or section with the same source policy on every path.
 pub fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
+    if query.source() == PgxSource::Clinpgx {
+        return annotations::get(cx, query);
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cpic::SPEC, deadline).fresh(cx.fresh);
@@ -109,9 +114,14 @@ fn empty(q: &PgxGet) -> QueryBody {
         }),
     }
 }
-fn finish(leg: Leg<'_>, reply: Result<QueryBody, RequestError>, empty: QueryBody) -> Outcome {
+fn finish(
+    leg: Leg<'_>,
+    reply: Result<QueryBody, RequestError>,
+    empty: QueryBody,
+    source: Source,
+) -> Outcome {
     let error = reply.as_ref().err().copied();
-    let source = status::source(Source::Cpic, leg.finish(), error);
+    let source = status::source(source, leg.finish(), error);
     let state = if reply.is_err() {
         Status::Failed
     } else if source.state == SourceState::Stale {

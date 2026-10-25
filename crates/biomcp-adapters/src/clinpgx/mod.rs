@@ -15,3 +15,6 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+
+mod read;
+pub use read::{annotation, clinical, references};
