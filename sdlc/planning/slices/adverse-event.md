@@ -4,7 +4,7 @@
 
 This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`. The legacy inventory reads `repos/biomcp` revision `4050fdc7dbdf4d713d94cf02a39a147b863665be`; it does not execute that binary. This proposal follows steps 1–4 of [slices](../slices.md). It changes no product code. The PM reviews this branch before filing implementation tickets.
 
-Shared types cannot be accepted before exact-request native captures. The following recipe goes to a separate build delegate. No provider API requests, product executions, cold/warm timings, output token measurements or legacy comparison runs have occurred here. Documentation fields are questions for capture, never proof that all public records carry them.
+Shared types cannot be accepted before exact-request native captures. The following recipe goes to a separate build delegate. The investigation author made no provider API requests, product executions, cold/warm timings, output token measurements or legacy comparison runs. A separate delegate ran the bounded native recipe; its verified receipts and findings are recorded below. Documentation fields are questions for capture, never proof that all public records carry them.
 
 ## Bounded native capture recipe
 
@@ -249,6 +249,7 @@ This is source inspection at the pinned legacy revision. Dispositions below are 
 | Get `guidance` | Drop generated text-derived drug/indication guidance. Existing drug actions need exact source IDs. | No diagnostic/treatment inference. |
 | Get `all` | Drop unbounded all-sections output. | Named pages retain complete collections. |
 | `drug adverse-events NAME` | Drop duplicate helper and its FAERS404→ClinicalTrials.gov fallback. Typed exact drug-ID pivot may be added only after native identity join proof. | Existing drug ledger already marks adverse-event ownership; no duplicate leaf. |
+| Drug card `top_adverse_events` and `faers_query` enrichment | Drop hidden name-based aggregate calls from a default drug card; explicit source-ID pivot requires proved mapping. | Existing drug ledger owns the card; A17 does not justify unconditional enrichment. |
 | Helper `--type`, `--count`, all filter/page flags above | Same explicit dispositions as their search counterparts, including unused/misleading type routes. | No orphan option retained because helper existed. |
 | `cvx sync` | Investigate explicit two-file sync; defer runtime pending unique need. No automatic reads/downloads or MVX fetch. | C01/C02. |
 | VAERS summary total/seriousness/age/top reactions and source outcomes | Keep separate native tables if adopted; drop maximum-of-three-totals denominator, local percentages, name matching and automatic combined branch. | V01–V03/A21/A22; no per-report get advertised. |
