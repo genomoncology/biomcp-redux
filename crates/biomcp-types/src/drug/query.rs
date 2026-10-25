@@ -1,5 +1,5 @@
 use super::DrugSource;
-use crate::QueryInvalid;
+use crate::{CivicClaimKind, QueryInvalid};
 use biodata::{DrugId, Text};
 use serde::{Deserialize, Serialize};
 biodata::canonical_enum! {
@@ -125,6 +125,16 @@ struct GetFields {
     /// Explicit native application product number, only for approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
+    /// Selected native CIViC molecular profile for a drug-scoped claim stream.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
+    civic_profile: Option<u64>,
+    /// Independent native evidence or assertion collection within the selected profile.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    civic_kind: Option<CivicClaimKind>,
+    /// Native continuation cursor for that exact drug, profile and claim collection.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    civic_cursor: Option<Text>,
 }
 impl TryFrom<GetFields> for DrugGet {
     type Error = QueryInvalid;
@@ -135,6 +145,17 @@ impl TryFrom<GetFields> for DrugGet {
             || fields.section.contains(&DrugSection::Label) != fields.label_section.is_some()
             || fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals)
             || !fields.source.accepts(&fields.input)
+        {
+            return Err(QueryInvalid);
+        }
+        if fields
+            .civic_profile
+            .is_some_and(|id| id == 0 || id > i32::MAX as u64)
+            || fields.civic_profile.is_some() != fields.civic_kind.is_some()
+            || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
+            || fields.civic_profile.is_some()
+                && (fields.source != DrugSource::Civic
+                    || !fields.section.contains(&DrugSection::Civic))
         {
             return Err(QueryInvalid);
         }
@@ -152,8 +173,36 @@ impl DrugGet {
             section_offset: None,
             label_section: None,
             product_number: None,
+            civic_profile: None,
+            civic_kind: None,
+            civic_cursor: None,
         }
         .try_into()
+    }
+    /// Continue one native claim collection while preserving selected drug, source and section paging.
+    pub fn with_civic_page(
+        &self,
+        profile: u64,
+        kind: CivicClaimKind,
+        cursor: Option<Text>,
+    ) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.civic_profile = Some(profile);
+        fields.civic_kind = Some(kind);
+        fields.civic_cursor = cursor;
+        fields.try_into()
+    }
+    /// Selected native drug-scoped CIViC molecular profile.
+    pub fn civic_profile(&self) -> Option<u64> {
+        self.0.civic_profile
+    }
+    /// Selected independent native claim collection.
+    pub fn civic_kind(&self) -> Option<CivicClaimKind> {
+        self.0.civic_kind
+    }
+    /// Original native cursor for that selected claim collection.
+    pub fn civic_cursor(&self) -> Option<&Text> {
+        self.0.civic_cursor.as_ref()
     }
     /// Unchanged published identifier.
     pub fn input(&self) -> &DrugId {

@@ -154,7 +154,7 @@ pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub civic: Section<DrugRecords<CivicProfile>>,
+    pub civic: Section<DrugRecords<CivicProfile<DrugGet>>>,
 }
 /// Explicit native application/product history without a global approval flag.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
