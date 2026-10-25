@@ -228,7 +228,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             adverse_event::encode(meta, request, body)
         }
         Request::SearchDisease(_) | Request::GetDisease(_) => disease::encode(meta, request, body),
-        Request::SearchDrug(_) | Request::GetDrug(_) => drug::encode(meta, request, body),
+        Request::SearchDrug(_) | Request::GetWhoMedicine(_) | Request::GetDrug(_) => {
+            drug::encode(meta, request, body)
+        }
         _ => response_common(meta, request, body),
     }
 }
@@ -404,19 +406,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
-    let source = match bundle {
-        Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
-        Bundle::Gtr => biomcp_types::Source::Gtr,
-        Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
-        Bundle::Ema => biomcp_types::Source::Ema,
-        Bundle::Ddinter => biomcp_types::Source::Ddinter,
-        Bundle::Hgnc => biomcp_types::Source::Hgnc,
-        Bundle::ClinGen => biomcp_types::Source::ClinGen,
-    };
+    let source = bundle_source(bundle);
     let result = match bundle {
         Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
         Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
         Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
+        Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
         Bundle::Ddinter => {
             biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
                 duplicate_identities: None,
@@ -587,5 +582,18 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
         crate::exit::Status::Local
     } else {
         crate::exit::Status::from(result.status)
+    }
+}
+
+fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
+    match bundle {
+        Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
+        Bundle::Gtr => biomcp_types::Source::Gtr,
+        Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
+        Bundle::Ema => biomcp_types::Source::Ema,
+        Bundle::WhoPq => biomcp_types::Source::WhoPq,
+        Bundle::Ddinter => biomcp_types::Source::Ddinter,
+        Bundle::Hgnc => biomcp_types::Source::Hgnc,
+        Bundle::ClinGen => biomcp_types::Source::ClinGen,
     }
 }

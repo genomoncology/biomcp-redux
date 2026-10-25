@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 #[serde(try_from = "String", into = "&'static str")]
 #[non_exhaustive]
 pub enum DrugSource {
+    /// WHO finished pharmaceutical product prequalification.
+    WhoPq,
     /// MyChem candidate identity.
     Mychem,
     /// ChEMBL native records.
@@ -23,7 +25,8 @@ pub enum DrugSource {
 }
 impl DrugSource {
     /// Every retained drug source; registry bindings use these canonical values.
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 9] = [
+        Self::WhoPq,
         Self::Mychem,
         Self::Chembl,
         Self::Opentargets,
@@ -40,6 +43,7 @@ impl DrugSource {
     /// Shared transport identity, also owning the canonical source spelling.
     pub const fn source(self) -> crate::Source {
         match self {
+            Self::WhoPq => crate::Source::WhoPq,
             Self::Mychem => crate::Source::Mychem,
             Self::Chembl => crate::Source::Chembl,
             Self::Opentargets => crate::Source::Opentargets,

@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.drug-who-row/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Every published cell of one WHO finished-product record, including empty cells.",
+  "properties": {
+    "applicant": {
+      "description": "Native Applicant wording.",
+      "type": "string"
+    },
+    "basis_of_listing": {
+      "description": "Native Basis of Listing wording.",
+      "type": "string"
+    },
+    "date_of_prequalification": {
+      "description": "Native Date of Prequalification text, including spacing and empty strings.",
+      "type": "string"
+    },
+    "dosage_form": {
+      "description": "Native Dosage Form cell, independent of the combined cell.",
+      "type": "string"
+    },
+    "inn_dosage_form_strength": {
+      "description": "Native combined INN, Dosage Form and Strength cell; never split or interpreted.",
+      "type": "string"
+    },
+    "product_type": {
+      "description": "Native Product Type, retained even when empty.",
+      "type": "string"
+    },
+    "reference": {
+      "$ref": "#/$defs/Text",
+      "description": "Exact native WHO Reference Number, including spaces and punctuation."
+    },
+    "therapeutic_area": {
+      "description": "Native Therapeutic Area wording.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference",
+    "inn_dosage_form_strength",
+    "product_type",
+    "therapeutic_area",
+    "applicant",
+    "dosage_form",
+    "basis_of_listing",
+    "date_of_prequalification"
+  ],
+  "title": "DrugWhoRow",
+  "type": "object"
+}
