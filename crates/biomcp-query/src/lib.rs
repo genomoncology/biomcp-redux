@@ -17,3 +17,5 @@ pub mod trial;
 pub mod variant;
 
 pub mod disease;
+/// Single-source drug discovery and exact native cards.
+pub mod drug;

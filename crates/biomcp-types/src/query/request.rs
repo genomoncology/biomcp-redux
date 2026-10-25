@@ -9,6 +9,10 @@ pub enum Request {
     SearchDisease(crate::DiseaseSearch),
     /// Read an exact source disease concept or native statistic page.
     GetDisease(crate::DiseaseGet),
+    /// Discover literal native drug candidates.
+    SearchDrug(crate::DrugSearch),
+    /// Read one exact source drug identity.
+    GetDrug(crate::DrugGet),
     /// Read source-native variant assertions.
     VariantAssertions(crate::VariantAssertionsGet),
     /// Read source ancestry observations.

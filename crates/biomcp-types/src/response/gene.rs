@@ -85,6 +85,12 @@ pub enum QueryBody {
     DiseaseIncidence(crate::DiseaseIncidence),
     /// Native survival rows.
     DiseaseSurvival(crate::DiseaseSurvival),
+    /// Native candidate page.
+    DrugPage(crate::DrugPage),
+    /// Exact source identity, absent on failed retrieval.
+    DrugCard(Option<crate::DrugCard>),
+    /// An exact selected document's bounded native link page.
+    DrugXrefs(Option<crate::DrugXrefs>),
     /// Source-native variant assertions.
     VariantAssertions(crate::VariantAssertions),
     /// Independent provider normalization results.

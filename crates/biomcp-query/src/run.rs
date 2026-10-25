@@ -55,6 +55,8 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
+        Request::SearchDrug(query) => crate::drug::search(cx, query),
+        Request::GetDrug(query) => crate::drug::get(cx, query),
         Request::VariantAssertions(query) => crate::variant::assertions::get(cx, query),
         Request::VariantPopulation(query) => crate::variant::population_detail::get(cx, query),
         Request::VariantNormalize(query) => crate::variant::normalize::normalize(cx, query),
