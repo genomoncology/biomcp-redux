@@ -1,6 +1,7 @@
 # 0188 — Make next-step policy exhaustive over response bodies
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6ab3a4bafc5a62bbbc5c4f04a061e4ca3def52e5
 
 Milestone: 4
 

@@ -1,6 +1,7 @@
 # 0178 — Apply Ian's vaccine search ruling to adverse event retirements and docs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b50b2dee48cd628adc99f0c4fa0820bbc6d792b6
 
 Milestone: 3
 

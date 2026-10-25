@@ -1,6 +1,7 @@
 # 0184 — Restore WHO prequalified medicines as a drug region
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9405c3e57d714b8245030a8f913bbab0a2291f8c
 
 Milestone: 3
 
