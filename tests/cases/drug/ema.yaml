@@ -430,6 +430,31 @@
       },
       "exit": 4,
       "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "targets",
+        "--source",
+        "ema"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "targets",
+        "--source",
+        "ema"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "unsupported",
+        "/sources/0/state": "skipped"
+      }
     }
   ]
 }
