@@ -9,35 +9,8 @@ use libtest_mimic::{Arguments, Trial};
 use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
-    if env::args().nth(1).as_deref() == Some("--mydisease-native-proof") {
-        return match env::args()
-            .nth(2)
-            .map(PathBuf::from)
-            .ok_or("missing evidence directory".to_owned())
-            .and_then(|p| runner::mydisease_native(&p))
-        {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "{error}");
-                ExitCode::FAILURE
-            }
-        };
-    }
-    if env::args().nth(1).as_deref() == Some("--disease-native-proof") {
-        return match env::args()
-            .nth(2)
-            .map(PathBuf::from)
-            .ok_or("missing evidence directory".to_owned())
-            .and_then(|p| runner::disease_native(&p))
-        {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "{error}");
-                ExitCode::FAILURE
-            }
-        };
+    if let Some(code) = native_proof() {
+        return code;
     }
     if env::args().nth(1).as_deref() == Some("--installed-http-proof") {
         if env::args().len() != 2 {
@@ -119,4 +92,28 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
         trials.extend(runner::protocol_trials());
     }
     Ok((Arguments::from_iter(cargo_args), trials))
+}
+
+fn native_proof() -> Option<ExitCode> {
+    let mode = env::args().nth(1);
+    let proof: fn(&std::path::Path) -> Result<(), String> = match mode.as_deref() {
+        Some("--mydisease-native-proof") => runner::mydisease_native,
+        Some("--disease-native-proof") => runner::disease_native,
+        _ => return None,
+    };
+    Some(
+        match env::args()
+            .nth(2)
+            .map(PathBuf::from)
+            .ok_or("missing evidence directory".to_owned())
+            .and_then(|p| proof(&p))
+        {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                use std::io::Write;
+                let _ = writeln!(std::io::stderr(), "{error}");
+                ExitCode::FAILURE
+            }
+        },
+    )
 }

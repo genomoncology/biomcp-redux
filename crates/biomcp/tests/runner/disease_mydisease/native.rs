@@ -70,18 +70,22 @@ fn prove_row(
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    let mut expected = json!({"/status":"complete","/result/requested_id":id,"/result/returned_id":row["returned_id"],"/result/concept/label":body["mondo"]["label"]});
+    let mut expected = json!({"/status":"complete","/result/requested_id":id,"/result/returned_id":row["returned_id"],"/result/concept/label":body.pointer("/mondo/label").ok_or("missing source label")?});
     if let Some(definition) = body.pointer("/mondo/definition") {
-        expected["/result/definition"] = definition.clone();
+        super::insert(&mut expected, "/result/definition", definition.clone())?;
     } else if value.pointer("/result/definition").is_some() {
         return Err("absent native definition was filled".into());
     }
     if id == "DOID:3910" {
-        expected["/result/alias/object/id"] = json!(id);
+        super::insert(&mut expected, "/result/alias/object/id", json!(id))?;
     }
     if id == "MONDO:0007607" {
-        expected["/result/consider"] = json!(["MONDO:0800444", "MONDO:0800445"]);
-        expected["/result/sections"] = json!([]);
+        super::insert(
+            &mut expected,
+            "/result/consider",
+            json!(["MONDO:0800444", "MONDO:0800445"]),
+        )?;
+        super::insert(&mut expected, "/result/sections", json!([]))?;
     }
     replay(
         &directory,
@@ -129,20 +133,24 @@ fn sections(
             if offset + 2 >= total && value.get("next").is_some() {
                 return Err("terminal native section advertised continuation".into());
             }
-            if id == "MONDO:0018875" && section == "xrefs" && offset == 0 {
-                if value
+            if id == "MONDO:0018875"
+                && section == "xrefs"
+                && offset == 0
+                && (value
                     .pointer("/result/items/0/object/id")
                     .and_then(Value::as_str)
                     != Some("DOID:3012")
                     || value
                         .pointer("/result/items/1/object/id")
                         .and_then(Value::as_str)
-                        != Some("DOID:0111503")
-                {
-                    return Err("multiple DOID choices were lost".into());
-                }
+                        != Some("DOID:0111503"))
+            {
+                return Err("multiple DOID choices were lost".into());
             }
         }
+    }
+    if id == "DOID:3910" {
+        default_pages(directory, id, body)?;
     }
     let mut command = super::args(&["get", "disease", id]);
     command.extend([
@@ -203,4 +211,27 @@ fn load(root: &Path) -> Result<Vec<Value>, String> {
         .into_iter()
         .filter(|v| v["source"] == "mydisease")
         .collect())
+}
+
+fn default_pages(directory: &Path, id: &str, body: &Value) -> Result<(), String> {
+    for section in ["synonyms", "xrefs", "hierarchy"] {
+        let total = count(body, section);
+        for limit in [5usize, 50] {
+            let limit_string = limit.to_string();
+            let words = [
+                "get",
+                "disease",
+                id,
+                section,
+                "--section-limit",
+                &limit_string,
+            ];
+            let value = replay(
+                directory,
+                json!([{"run":words,"mcp":words,"expect":{"/page/returned":limit.min(total),"/page/total":total}}]),
+            )?;
+            super::measure(&words, &value)?;
+        }
+    }
+    Ok(())
 }

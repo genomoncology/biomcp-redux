@@ -25,6 +25,13 @@ fn setup(stub: &Stub) -> Result<Environment, String> {
 fn args(words: &[&str]) -> Vec<String> {
     words.iter().map(|s| (*s).into()).collect()
 }
+fn insert(value: &mut Value, key: &str, item: Value) -> Result<(), String> {
+    value
+        .as_object_mut()
+        .ok_or("missing object")?
+        .insert(key.into(), item);
+    Ok(())
+}
 fn invoke(env: &Environment, words: &[String], exit: i32) -> Result<Value, String> {
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), words)

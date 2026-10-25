@@ -35,8 +35,12 @@ fn missing_reply(request: &str) -> Result<String, String> {
     };
     let mut mondo = json!({"mondo":id,"label":"Synthetic native primary label"});
     if obsolete {
-        mondo["is_obsolete"] = json!(true);
-        mondo["consider"] = json!(["MONDO:0800444", "MONDO:0800445"]);
+        super::insert(&mut mondo, "is_obsolete", json!(true))?;
+        super::insert(
+            &mut mondo,
+            "consider",
+            json!(["MONDO:0800444", "MONDO:0800445"]),
+        )?;
     }
     Ok(json!({"_id":id,"mondo":mondo,"disease_ontology":{"doid":"DOID:3910","name":"Different component","def":"This must never become the MONDO definition."}}).to_string())
 }
@@ -52,8 +56,12 @@ fn missing() -> Result<(), String> {
         }
         let mut expected = json!({"/result/sections":[],"/result/replaced_by":null});
         if id == "MONDO:0007607" {
-            expected["/result/obsolete"] = json!(true);
-            expected["/result/consider"] = json!(["MONDO:0800444", "MONDO:0800445"]);
+            super::insert(&mut expected, "/result/obsolete", json!(true))?;
+            super::insert(
+                &mut expected,
+                "/result/consider",
+                json!(["MONDO:0800444", "MONDO:0800445"]),
+            )?;
         }
         replay(
             &directory,
@@ -88,7 +96,9 @@ fn wrong() -> Result<(), String> {
             "application/json",
             move |_| {
                 let mut value = annotation();
-                value["mondo"]["xrefs"]["doid"] = if malformed_alias {
+                *value
+                    .pointer_mut("/mondo/xrefs/doid")
+                    .ok_or("missing xref")? = if malformed_alias {
                     json!(["MONDO:0000001"])
                 } else {
                     json!(["DOID:9999"])
