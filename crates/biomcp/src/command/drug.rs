@@ -16,6 +16,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::GetDrug(query), QueryBody::DrugLabel(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugCivic(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugRegulatory(body)) => meta.encode(query, body),
+        (Request::GetDrug(query), QueryBody::DrugApprovals(body)) => meta.encode(query, body),
         _ => Err(io::Error::other("drug response mismatch")),
     }
 }

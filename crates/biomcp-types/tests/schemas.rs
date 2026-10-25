@@ -200,7 +200,7 @@ fn drug_contracts() -> Vec<Contract> {
         Envelope<DrugTargets> => ("drug-targets", "biomcp.drug_targets/3"),
         Envelope<DrugIndications> => ("drug-indications", "biomcp.drug_indications/3"),
         Envelope<DrugCivic> => ("drug-civic", "biomcp.drug_civic/3"),
-        Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug_approvals/2"),
+        Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug_approvals/3"),
         Envelope<DrugRegulatory> => ("drug-regulatory", "biomcp.drug_regulatory/2"),
         Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug_interactions/3"),
     }

@@ -6,6 +6,7 @@ use biomcp_types::{
     DrugCard, DrugGet, DrugPage, DrugSearch, DrugSection, QueryBody, Request, Source, SourceState,
     Status, StepKind,
 };
+mod approvals;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(QueryBody::DrugPage(DrugPage {
         items: Box::default(),
@@ -34,8 +35,13 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = empty(QueryBody::DrugCard(None));
-    if !query.sections().is_empty() {
+    let is_approvals = query.sections() == [DrugSection::Approvals];
+    let mut out = empty(if is_approvals {
+        QueryBody::DrugApprovals(None)
+    } else {
+        QueryBody::DrugCard(None)
+    });
+    if !matches!(query.sections(), [] | [DrugSection::Approvals]) {
         return unsupported(query.source(), out);
     }
     let command = cx.fetch.command_deadline(cx.budget);
@@ -55,28 +61,37 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             Status::Complete
         };
         if let Some(row) = page.records.first() {
-            if let Ok(request) = query.for_section(DrugSection::Approvals) {
-                out.next.push((
-                    StepKind::Section,
-                    Action::Run {
-                        request: Request::GetDrug(request),
-                        fresh: cx.fresh,
-                    },
-                ));
+            if is_approvals {
+                if let Err(error) =
+                    approvals::select(cx, query, row, page.metadata.fetched, &mut out)
+                {
+                    out.status = Status::Failed;
+                    out.local = status::local(error);
+                }
+            } else {
+                if let Ok(request) = query.for_section(DrugSection::Approvals) {
+                    out.next.push((
+                        StepKind::Section,
+                        Action::Run {
+                            request: Request::GetDrug(request),
+                            fresh: cx.fresh,
+                        },
+                    ));
+                }
+                out.body = QueryBody::DrugCard(Some(DrugCard {
+                    header: row.header(),
+                    alternate_names: Box::default(),
+                    cross_references: Box::default(),
+                    parents: Box::default(),
+                    products: Box::default(),
+                    formulations: Box::default(),
+                    version: None,
+                    updated: None,
+                    retrieved: received_date(page.metadata.fetched),
+                    available_sections: vec![DrugSection::Approvals].into(),
+                    next: Box::default(),
+                }));
             }
-            out.body = QueryBody::DrugCard(Some(DrugCard {
-                header: row.header(),
-                alternate_names: Box::default(),
-                cross_references: Box::default(),
-                parents: Box::default(),
-                products: Box::default(),
-                formulations: Box::default(),
-                version: None,
-                updated: None,
-                retrieved: received_date(page.metadata.fetched),
-                available_sections: vec![DrugSection::Approvals].into(),
-                next: Box::default(),
-            }));
         }
     }
     command.finish(deadline.remaining());

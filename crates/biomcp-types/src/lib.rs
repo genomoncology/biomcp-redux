@@ -129,7 +129,8 @@ pub use response::{
 mod drug;
 pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicPage, DrugCivicProfile,
-    DrugCivicStreams, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
+    DrugCivicStreams, DrugFdaDocument, DrugFdaIngredient, DrugFdaProduct, DrugFdaProperty,
+    DrugFdaSubmission, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
     DrugLabelFragment, DrugLabelText, DrugNameSelector, DrugPage, DrugRecords, DrugRegulatory,
     DrugSearch, DrugSection, DrugSource, DrugTargets, DrugXrefs,
 };
