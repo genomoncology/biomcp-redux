@@ -478,7 +478,7 @@ const CASES: &[(&str, &str)] = &[
 // Tokens owned by other options or literal input must never become retirements.
 fn boundaries() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let globals = env.globals(None, true);
+    let globals = vec!["--offline".to_owned()];
     for words in [
         "search adverse-event text --limit=--count",
         "search adverse-event text --offset --outcome",
@@ -525,7 +525,7 @@ fn boundaries() -> Result<(), String> {
         let mut args = globals.clone();
         args.extend(["search", "adverse-event"].map(str::to_owned));
         args.extend(suffix.into_iter().map(str::to_owned));
-        let value = invoke(&env, args.clone(), 4)?;
+        let value = invoke(&env, args.clone(), 4).map_err(|e| format!("{args:?}: {e}"))?;
         if value.pointer("/query/text") != Some(&json!(text))
             || value.pointer("/query/reaction") != reaction.map(|r| json!(r)).as_ref()
             || value.pointer("/sources/0/reason") != Some(&json!("offline"))
