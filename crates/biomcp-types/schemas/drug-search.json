@@ -31,7 +31,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-search/1",
+  "$id": "biomcp.drug-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Literal single-source candidate discovery, without an implicit identity selection.",

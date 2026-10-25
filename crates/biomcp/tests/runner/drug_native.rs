@@ -1,0 +1,197 @@
+//! Feature drug-native-sources: retained native bodies delivered locally through real record and replay.
+//! Original source dates and request identities remain in fixture provenance; delivery is not a live provider check.
+use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use libtest_mimic::Trial;
+use serde::Deserialize;
+use serde_json::{Map, Value, json};
+use std::{fs, path::PathBuf};
+type Check = Result<(), String>;
+#[derive(Clone, Deserialize)]
+struct Case {
+    name: String,
+    args: Vec<String>,
+    requests: Vec<Reply>,
+    expect: Map<String, Value>,
+    missing: Vec<String>,
+    exit: i32,
+    max_bytes: usize,
+    max_comparable: usize,
+}
+#[derive(Clone, Deserialize)]
+struct Reply {
+    file: String,
+    request: String,
+    json: Option<Value>,
+}
+fn fixture_root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/drug/native")
+}
+fn plan() -> Result<Vec<Case>, String> {
+    serde_json::from_str(include_str!(
+        "../../../../tests/fixtures/drug/native/plan.json"
+    ))
+    .map_err(|e| e.to_string())
+}
+pub(super) fn trials() -> Vec<Trial> {
+    match plan() {
+        Ok(cases) => cases
+            .into_iter()
+            .map(|case| {
+                Trial::test(format!("drug-native/{}", case.name), move || {
+                    check(case.clone()).map_err(Into::into)
+                })
+            })
+            .collect(),
+        Err(error) => vec![Trial::test("drug-native/fixture-plan", move || {
+            Err(error.clone().into())
+        })],
+    }
+}
+fn peer(replies: Vec<Reply>) -> Result<Stub, String> {
+    let host = if replies.first().is_some_and(|r| r.json.is_some()) {
+        "api.platform.opentargets.org"
+    } else {
+        "www.ebi.ac.uk"
+    };
+    Stub::for_source_status(
+        host,
+        "application/json",
+        move |request| {
+            let (header, body) = request
+                .split_once("\r\n\r\n")
+                .ok_or("missing HTTP header boundary")?;
+            for reply in &replies {
+                if header.lines().next() != Some(reply.request.as_str()) {
+                    continue;
+                }
+                if let Some(expected) = &reply.json {
+                    let actual: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
+                    if &actual != expected {
+                        continue;
+                    }
+                }
+                return fs::read_to_string(fixture_root().join(&reply.file))
+                    .map_err(|e| e.to_string());
+            }
+            Err(format!("undeclared native request: {request}"))
+        },
+        |_| 200,
+    )
+}
+fn check(case: Case) -> Check {
+    let stub = peer(case.requests.clone())?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let certificate = env.root().join("ca.pem");
+    fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":certificate,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
+    let recording = env.root().join("recording");
+    fs::create_dir(&recording).map_err(|e| e.to_string())?;
+    let mut args = case.args.clone();
+    args.extend([
+        "--fresh".into(),
+        "--record".into(),
+        recording.to_string_lossy().into(),
+    ]);
+    let value = invoke(&env, args, case.exit)?;
+    super::schema::Registry::embedded()?.validate(&value, &case.args, true)?;
+    assertions(&case, &value)?;
+    let globals = vec![
+        "--fresh".into(),
+        "--replay".into(),
+        recording.to_string_lossy().into(),
+    ];
+    let mut replay = case.args.clone();
+    replay.extend(globals.clone());
+    if invoke(&env, replay, case.exit)? != value {
+        return Err("CLI replay changed native response".into());
+    }
+    if super::mcp::call_with_globals(&env, &case.args, case.exit >= 2, &globals)? != value {
+        return Err("MCP replay changed native response".into());
+    }
+    let requests = stub.finish()?;
+    if requests.len() != case.requests.len() {
+        return Err(format!(
+            "native request count changed: {} / {}",
+            requests.len(),
+            case.requests.len()
+        ));
+    }
+    measure(&case, &value)
+}
+fn assertions(case: &Case, value: &Value) -> Check {
+    for (pointer, expected) in &case.expect {
+        if value.pointer(pointer) != Some(expected) {
+            return Err(format!(
+                "{}: {pointer}: expected {expected}, got {:?}",
+                case.name,
+                value.pointer(pointer)
+            ));
+        }
+    }
+    for pointer in &case.missing {
+        if value.pointer(pointer).is_some() {
+            return Err(format!("{}: unexpected {pointer}", case.name));
+        }
+    }
+    let page = value.get("page");
+    if let Some(page) = page {
+        let offset = page["offset"].as_u64().ok_or("offset")?;
+        let returned = page["returned"].as_u64().ok_or("returned")?;
+        let total = page["total"].as_u64().ok_or("total")?;
+        let next = value.get("next").and_then(Value::as_array);
+        let page_next = next.and_then(|items| items.iter().find(|n| n["kind"] == "page"));
+        if returned > 0 && offset + returned < total {
+            let args = page_next
+                .and_then(|p| p["args"].as_array())
+                .ok_or("missing page continuation")?;
+            for flag in ["--source", "--name-selector", "--section-limit"] {
+                if let Some(index) = case.args.iter().position(|s| s == flag) {
+                    let actual = args
+                        .iter()
+                        .position(|s| s == flag)
+                        .and_then(|i| args.get(i + 1))
+                        .ok_or("lost page selector")?;
+                    if actual != &case.args[index + 1] {
+                        return Err(format!("changed next {flag}"));
+                    }
+                }
+            }
+            let flag = if case.args[0] == "search" {
+                "--offset"
+            } else {
+                "--section-offset"
+            };
+            let actual = args
+                .iter()
+                .position(|s| s == flag)
+                .and_then(|i| args.get(i + 1))
+                .and_then(Value::as_str)
+                .ok_or("missing next offset")?;
+            if actual != (offset + returned).to_string() {
+                return Err("incorrect next offset".into());
+            }
+        } else if page_next.is_some() {
+            return Err("unexpected next page".into());
+        }
+    }
+    Ok(())
+}
+fn measure(case: &Case, value: &Value) -> Check {
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(value, "")?;
+    if bytes > case.max_bytes || comparable > case.max_comparable {
+        return Err(format!(
+            "{}: native output budget exceeded {bytes}/{} full, {comparable}/{} comparable",
+            case.name, case.max_bytes, case.max_comparable
+        ));
+    }
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "NATIVE_SIZE {} {bytes} {comparable}",
+        case.name
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
