@@ -46,7 +46,7 @@ fn disabled() -> Result<(), String> {
         }
         replay(
             &recording,
-            json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/state":"skipped","/sources/0/reason":"disabled"}}]),
+            json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/state":"skipped","/sources/0/reason":"disabled"},"max_bytes":264}]),
         )?;
     }
     let mut words = WORDS.to_vec();
@@ -74,7 +74,7 @@ fn failures() -> Result<(), String> {
         stub.finish()?;
         replay(
             &directory,
-            json!([{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"monarch","/sources/0/state":"failed","/sources/0/terms":"Monarch source-specific licensing"}}]),
+            json!([{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"monarch","/sources/0/state":"failed","/sources/0/terms":"Monarch source-specific licensing"},"max_bytes":267}]),
         )?;
     }
     Ok(())
@@ -101,7 +101,7 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded","/sources/0/terms":"Monarch source-specific licensing"}}]),
+        json!([{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded","/sources/0/terms":"Monarch source-specific licensing"},"max_bytes":273}]),
     )?;
     Ok(())
 }

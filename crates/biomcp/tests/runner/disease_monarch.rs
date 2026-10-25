@@ -19,7 +19,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "disease-monarch/five-checked-genes-keep-pivots-and-native-page",
         || navigation().map_err(Into::into),
     ));
-    trials.push(Trial::test("disease-monarch/only-distinct-checked-native-gene-identities-pivot", || checked_identities().map_err(Into::into)));
+    trials.push(Trial::test(
+        "disease-monarch/only-distinct-checked-native-gene-identities-pivot",
+        || checked_identities().map_err(Into::into),
+    ));
     trials.extend(failures::trials());
     trials
 }
@@ -74,6 +77,7 @@ fn exact() -> Result<(), String> {
         ],
         0,
     )?;
+    measure(&["exact-native"], &value)?;
     let row = value
         .pointer("/result/items/0/association")
         .ok_or("missing association")?;
@@ -127,7 +131,10 @@ fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
     for step in steps.as_array_mut().ok_or("missing steps")? {
         let step = step.as_object_mut().ok_or("missing step")?;
         step.entry("max_bytes").or_insert(json!(5300));
-        let ceiling = step.get("max_bytes").and_then(Value::as_u64).ok_or("bad ceiling")?;
+        let ceiling = step
+            .get("max_bytes")
+            .and_then(Value::as_u64)
+            .ok_or("bad ceiling")?;
         step.insert("max_tokens".into(), json!(ceiling.div_ceil(4)));
     }
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
@@ -148,12 +155,12 @@ fn phenotype() -> Result<(), String> {
                 ("subject", json!("MONDO:0019003")),
                 ("object", json!("HP:0000001")),
                 ("frequency_qualifier", json!("HP:0040283")),
-            ("qualifiers",json!(["HP:0000002"])),
-            ("onset_qualifier",json!("HP:0000003")),
-            ("sex_qualifier",json!("PATO:0000384")),
-            ("stage_qualifier",json!("HP:0000004")),
-            ("species_context_qualifier",json!("NCBITaxon:9606")),
-            ("disease_context_qualifier",json!("MONDO:0019003")),
+                ("qualifiers", json!(["HP:0000002"])),
+                ("onset_qualifier", json!("HP:0000003")),
+                ("sex_qualifier", json!("PATO:0000384")),
+                ("stage_qualifier", json!("HP:0000004")),
+                ("species_context_qualifier", json!("NCBITaxon:9606")),
+                ("disease_context_qualifier", json!("MONDO:0019003")),
                 ("frequency_qualifier_label", json!("Synthetic frequency")),
                 ("has_count", json!(24)),
                 ("has_total", json!(35)),
@@ -191,7 +198,7 @@ fn phenotype() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143}}]),
+        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]),
     )?;
     if stub.finish()?.len() != 1 {
         return Err("unexpected phenotype fanout".into());
@@ -207,7 +214,9 @@ fn navigation() -> Result<(), String> {
             let mut items = Vec::new();
             for number in 1..=5 {
                 let mut row = association();
-                row.as_object_mut().ok_or("missing synthetic row")?.insert("subject".into(),json!(format!("HGNC:{number}")));
+                row.as_object_mut()
+                    .ok_or("missing synthetic row")?
+                    .insert("subject".into(), json!(format!("HGNC:{number}")));
                 items.push(row);
             }
             Ok(json!({"limit":5,"offset":0,"total":6,"items":items}).to_string())
@@ -225,7 +234,10 @@ fn navigation() -> Result<(), String> {
         "monarch",
     ];
     let value = record(&env, &words, &directory, 0)?;
-    let next = value.get("next").and_then(Value::as_array).ok_or("missing navigation")?;
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("missing navigation")?;
     if next.len() != 6 {
         return Err(format!("checked-gene pivot was truncated: {next:?}"));
     }
@@ -234,7 +246,7 @@ fn navigation() -> Result<(), String> {
             return Err("gene source order changed".into());
         }
     }
-    if next.get(5).and_then(|row|row.get("kind")) != Some(&json!("page")) {
+    if next.get(5).and_then(|row| row.get("kind")) != Some(&json!("page")) {
         return Err("native page was lost".into());
     }
     replay(
@@ -247,19 +259,52 @@ fn navigation() -> Result<(), String> {
     Ok(())
 }
 
-fn checked_identities() -> Result<(),String> {
-    let stub = Stub::for_source_status("api-v3.monarchinitiative.org","application/json",|_| {
-        let mut unchecked = association();unchecked.as_object_mut().ok_or("missing synthetic row")?.insert("subject".into(),json!("native:unresolved"));
-        let mut ncbi = association();ncbi.as_object_mut().ok_or("missing synthetic row")?.insert("subject".into(),json!("NCBIGene:5979"));
-        Ok(json!({"limit":5,"offset":0,"total":4,"items":[association(),association(),unchecked,ncbi]}).to_string())
-    }, |_|200)?;
+fn checked_identities() -> Result<(), String> {
+    let stub = Stub::for_source_status(
+        "api-v3.monarchinitiative.org",
+        "application/json",
+        |_| {
+            let mut unchecked = association();
+            unchecked
+                .as_object_mut()
+                .ok_or("missing synthetic row")?
+                .insert("subject".into(), json!("native:unresolved"));
+            let mut ncbi = association();
+            ncbi.as_object_mut()
+                .ok_or("missing synthetic row")?
+                .insert("subject".into(), json!("NCBIGene:5979"));
+            Ok(json!({"limit":5,"offset":0,"total":4,"items":[association(),association(),unchecked,ncbi]}).to_string())
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     let directory = env.root().join("checked-identities");
-    let words = ["get","disease","MONDO:0019003","genes","--source","monarch"];
-    let value = record(&env,&words,&directory,0)?;
-    let next = value.get("next").and_then(Value::as_array).ok_or("missing checked gene navigation")?;
-    if next.len()!=2 || next.first().and_then(|row|row.get("args")) != Some(&json!(["get","gene","HGNC:9967"])) || next.get(1).and_then(|row|row.get("args")) != Some(&json!(["get","gene","5979"])) {return Err(format!("invented or duplicated gene identity: {next:?}"));}
-    replay(&directory,json!([{"run":words,"mcp":words,"expect":{"/page/total":4,"/page/returned":4,"/result/items/2/association/subject/id":"native:unresolved"},"max_bytes":7000}]))?;
-    if stub.finish()?.len()!=1 {return Err("gene pivots fetched genes".into());}
+    let words = [
+        "get",
+        "disease",
+        "MONDO:0019003",
+        "genes",
+        "--source",
+        "monarch",
+    ];
+    let value = record(&env, &words, &directory, 0)?;
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("missing checked gene navigation")?;
+    if next.len() != 2
+        || next.first().and_then(|row| row.get("args"))
+            != Some(&json!(["get", "gene", "HGNC:9967"]))
+        || next.get(1).and_then(|row| row.get("args")) != Some(&json!(["get", "gene", "5979"]))
+    {
+        return Err(format!("invented or duplicated gene identity: {next:?}"));
+    }
+    replay(
+        &directory,
+        json!([{"run":words,"mcp":words,"expect":{"/page/total":4,"/page/returned":4,"/result/items/2/association/subject/id":"native:unresolved"},"max_bytes":5484}]),
+    )?;
+    if stub.finish()?.len() != 1 {
+        return Err("gene pivots fetched genes".into());
+    }
     Ok(())
 }

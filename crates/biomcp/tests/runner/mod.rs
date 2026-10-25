@@ -510,9 +510,11 @@ pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
 }
 
 fn disease_trials() -> Vec<Trial> {
-    disease_registry::trials().into_iter()
+    disease_registry::trials()
+        .into_iter()
         .chain(disease_ols::trials())
         .chain(disease_mydisease::trials())
         .chain(disease_monarch::trials())
-        .chain(disease_seer::trials()).collect()
+        .chain(disease_seer::trials())
+        .collect()
 }
