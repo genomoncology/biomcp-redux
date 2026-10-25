@@ -1,6 +1,7 @@
 # 0171 — Register the diagnostic sources with use labels
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5cc3e2529d52cc2f995cf1d79e347a2f2199efcc
 
 Milestone: 4
 
