@@ -298,23 +298,23 @@ fn context(raw: &Value, association: &Value) -> Result<(), String> {
     Ok(())
 }
 
-fn ceiling(id: &str, section: &str, offset: &str) -> Result<u64,String> {
+fn ceiling(id: &str, section: &str, offset: &str) -> Result<u64, String> {
     // Ceil(j12282 native comparable bytes * 1.15); all original terms remain emitted.
-    Ok(match (id,section,offset) {
-        ("MONDO:0018875","genes","0") =>9478,
-        ("MONDO:0018875","phenotypes","0") =>15921,
-        ("MONDO:0008667","genes","0") =>8578,
-        ("MONDO:0008667","phenotypes","0") =>16632,
-        ("MONDO:0019003","genes","0") =>10957,
-        ("MONDO:0019003","phenotypes","0") =>18331,
-        ("MONDO:0018875","genes","5") =>2438,
-        ("MONDO:0018875","phenotypes","5") =>17267,
-        ("MONDO:0008667","genes","5") =>765,
-        ("MONDO:0008667","phenotypes","5") =>18556,
-        ("MONDO:0019003","genes","5") =>7260,
-        ("MONDO:0019003","phenotypes","5") =>18710,
-        ("MONDO:0005835","genes","0") =>10569,
-        ("MONDO:0800444","phenotypes","0") =>15093,
-        _ =>return Err("unmeasured native page".into()),
+    Ok(match (id, section, offset) {
+        ("MONDO:0018875", "genes", "0") => 9478,
+        ("MONDO:0018875", "phenotypes", "0") => 15921,
+        ("MONDO:0008667", "genes", "0") => 8578,
+        ("MONDO:0008667", "phenotypes", "0") => 16632,
+        ("MONDO:0019003", "genes", "0") => 10957,
+        ("MONDO:0019003", "phenotypes", "0") => 18331,
+        ("MONDO:0018875", "genes", "5") => 2438,
+        ("MONDO:0018875", "phenotypes", "5") => 17267,
+        ("MONDO:0008667", "genes", "5") => 765,
+        ("MONDO:0008667", "phenotypes", "5") => 18556,
+        ("MONDO:0019003", "genes", "5") => 7260,
+        ("MONDO:0019003", "phenotypes", "5") => 18710,
+        ("MONDO:0005835", "genes", "0") => 10569,
+        ("MONDO:0800444", "phenotypes", "0") => 15093,
+        _ => return Err("unmeasured native page".into()),
     })
 }
