@@ -15,6 +15,9 @@ pub struct DiseaseHeader {
     pub concept: Concept,
     /// The explicit queried ontology.
     pub ontology: DiseaseOntology,
+    /// Publisher obsolete flag when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub obsolete: Option<bool>,
     /// Source record and version.
     pub attribution: Attribution,
 }

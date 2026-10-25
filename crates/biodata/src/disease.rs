@@ -24,6 +24,9 @@ pub struct DiseaseAssociation {
     /// Native primary knowledge source.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primary_knowledge_source: Option<Curie>,
+    /// Native aggregator knowledge source, distinct from the providing collection.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aggregator_knowledge_source: Option<Curie>,
     /// Native providing collection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provided_by: Option<Text>,
