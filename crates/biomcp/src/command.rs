@@ -71,6 +71,10 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source);
     }
+    let action = match disease::prepare(action) {
+        Ok(action) => action,
+        Err(error) => return disease::selector_error(error),
+    };
     if let Some(outcome) = unsupported(&action) {
         return outcome;
     }

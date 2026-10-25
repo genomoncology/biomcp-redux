@@ -82,6 +82,9 @@ pub struct DiseaseAssociationItem {
 }
 macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
+        page!($name, $row, $query, $schema, $doc, []);
+    };
+    ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal, [$($extra:tt)*]) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
         #[serde(deny_unknown_fields)]
@@ -91,6 +94,7 @@ macro_rules! page {
             pub items: Box<[$row]>,
             /// Applicable component use terms, independent of row provenance.
             pub components: Box<[ComponentLabel]>,
+            $($extra)*
         }
         impl ResponseBody for $name {
             const SCHEMA: &'static str = $schema;
@@ -144,20 +148,35 @@ page!(
     DiseaseSites,
     DiseaseSite,
     DiseaseSearch,
-    "biomcp.disease_sites/1",
-    "Publisher site catalog without an ontology-to-site mapping."
+    "biomcp.disease_sites/2",
+    "Publisher site catalog without an ontology-to-site mapping.",
+    [
+        /// Original response retrieval time in Unix seconds, distinct from publisher version/date.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub fetched: Option<u64>,
+    ]
 );
 page!(
     DiseaseIncidence,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease_incidence/2",
-    "Native incidence rows preserving requested and returned dimensions."
+    "biomcp.disease_incidence/3",
+    "Native incidence rows preserving requested and returned dimensions.",
+    [
+        /// Original response retrieval time in Unix seconds, distinct from dataset publication.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub fetched: Option<u64>,
+    ]
 );
 page!(
     DiseaseSurvival,
     DiseaseStatistic,
     DiseaseGet,
-    "biomcp.disease_survival/2",
-    "Native annual survival rows with separate observed and modeled values."
+    "biomcp.disease_survival/3",
+    "Native annual survival rows with separate observed and modeled values.",
+    [
+        /// Original response retrieval time in Unix seconds, distinct from dataset publication.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub fetched: Option<u64>,
+    ]
 );

@@ -67,6 +67,31 @@ fn main() -> ExitCode {
     }
 }
 
+fn native_proof() -> Option<ExitCode> {
+    let mode = env::args().nth(1)?;
+    let run = match mode.as_str() {
+        "--seer-native-proof" => runner::seer_native,
+        "--mydisease-native-proof" => runner::mydisease_native,
+        "--disease-native-proof" => runner::disease_native,
+        _ => return None,
+    };
+    Some(
+        match env::args()
+            .nth(2)
+            .map(PathBuf::from)
+            .ok_or("missing evidence directory".to_owned())
+            .and_then(|p| run(&p))
+        {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                use std::io::Write;
+                let _ = writeln!(std::io::stderr(), "{error}");
+                ExitCode::FAILURE
+            }
+        },
+    )
+}
+
 fn trials() -> Result<(Arguments, Vec<Trial>), String> {
     let mut args = env::args();
     let mut cargo_args = vec![args.next().unwrap_or_else(|| "cases".into())];
@@ -92,28 +117,4 @@ fn trials() -> Result<(Arguments, Vec<Trial>), String> {
         trials.extend(runner::protocol_trials());
     }
     Ok((Arguments::from_iter(cargo_args), trials))
-}
-
-fn native_proof() -> Option<ExitCode> {
-    let mode = env::args().nth(1);
-    let proof: fn(&std::path::Path) -> Result<(), String> = match mode.as_deref() {
-        Some("--mydisease-native-proof") => runner::mydisease_native,
-        Some("--disease-native-proof") => runner::disease_native,
-        _ => return None,
-    };
-    Some(
-        match env::args()
-            .nth(2)
-            .map(PathBuf::from)
-            .ok_or("missing evidence directory".to_owned())
-            .and_then(|p| proof(&p))
-        {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "{error}");
-                ExitCode::FAILURE
-            }
-        },
-    )
 }

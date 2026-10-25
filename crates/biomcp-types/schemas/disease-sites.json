@@ -128,6 +128,15 @@
           },
           "type": "array"
         },
+        "fetched": {
+          "description": "Original response retrieval time in Unix seconds, distinct from publisher version/date.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
           "items": {
@@ -635,7 +644,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_sites/1",
+  "$id": "biomcp.disease_sites/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -681,7 +690,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_sites/1",
+      "const": "biomcp.disease_sites/2",
       "type": "string"
     },
     "sources": {

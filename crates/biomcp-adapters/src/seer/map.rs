@@ -1,0 +1,176 @@
+use super::{Selection, Statistic, raw};
+use biodata::{
+    Attribution, DiseaseStatistic, FiniteNumber, StatisticEstimate, StatisticSelector, Text,
+};
+use biomcp_fetch::BadReply;
+use biomcp_types::{Problem, ProblemCode, Source};
+
+pub(super) fn problem(field: &str) -> Problem {
+    Problem {
+        source: Source::Seer,
+        record: None,
+        field: field.into(),
+        code: ProblemCode::ValueUnknown,
+    }
+}
+fn selector(name: &str, code: &str) -> Result<StatisticSelector, BadReply> {
+    Ok(StatisticSelector {
+        name: name.parse().map_err(|_| BadReply)?,
+        code: code.parse().map_err(|_| BadReply)?,
+        label: None,
+    })
+}
+fn requested(query: &Selection) -> Result<Box<[StatisticSelector]>, BadReply> {
+    let mut selectors = vec![
+        selector("sex", query.sex.as_str())?,
+        selector("race", query.race.as_str())?,
+        selector("age_range", query.age_range.as_str())?,
+        selector("data_model", query.dataset.as_str())?,
+    ];
+    match &query.statistic {
+        Statistic::Incidence { period } => selectors.push(selector("year_range", period.as_str())?),
+        Statistic::Survival { interval } => {
+            selectors.push(selector("relative_survival_interval", interval.as_str())?);
+            selectors.push(selector("year_range", "31")?);
+        }
+    }
+    Ok(selectors.into())
+}
+fn attribution(key: &str) -> Result<Attribution, BadReply> {
+    Ok(Attribution {
+        source: "seer".parse().map_err(|_| BadReply)?,
+        record: Some(key.parse().map_err(|_| BadReply)?),
+        version: None,
+        release: None,
+        submitter: None,
+        evaluated: None,
+        url: Some(
+            format!("{}/render_region_5.php", super::SPEC.base)
+                .parse()
+                .map_err(|_| BadReply)?,
+        ),
+    })
+}
+fn cell<'a>(fields: &[String], row: &'a [Option<raw::Cell>], name: &str) -> Option<&'a raw::Cell> {
+    fields
+        .iter()
+        .position(|f| f == name)
+        .and_then(|i| row.get(i))
+        .and_then(Option::as_ref)
+}
+fn number(
+    fields: &[String],
+    row: &[Option<raw::Cell>],
+    name: &str,
+) -> Result<Option<FiniteNumber>, BadReply> {
+    cell(fields, row, name).map(raw::Cell::number).transpose()
+}
+fn observed(
+    fields: &[String],
+    row: &[Option<raw::Cell>],
+    measure: &str,
+) -> Result<Option<StatisticEstimate>, BadReply> {
+    let estimate = StatisticEstimate {
+        value: number(fields, row, measure)?,
+        standard_error: number(fields, row, &format!("{measure}_se"))?,
+        lower_ci: number(fields, row, &format!("{measure}_lower_ci"))?,
+        upper_ci: number(fields, row, &format!("{measure}_upper_ci"))?,
+        count: cell(fields, row, "count")
+            .map(raw::Cell::integer)
+            .transpose()?,
+    };
+    Ok(
+        if estimate.value.is_none()
+            && estimate.standard_error.is_none()
+            && estimate.lower_ci.is_none()
+            && estimate.upper_ci.is_none()
+            && estimate.count.is_none()
+        {
+            None
+        } else {
+            Some(estimate)
+        },
+    )
+}
+pub(super) fn rows(
+    document: raw::Document,
+    query: &Selection,
+) -> Result<(Vec<DiseaseStatistic>, Vec<Problem>), BadReply> {
+    let requested = requested(query)?;
+    let mut problems = vec![
+        problem("dataset_membership"),
+        problem("registry_membership"),
+    ];
+    problems.extend(if matches!(query.statistic, Statistic::Incidence { .. }) {
+        vec![
+            problem("standard_population"),
+            problem("observed_or_delay_adjusted_rate"),
+        ]
+    } else {
+        vec![
+            problem("modeling_method"),
+            problem("eligibility"),
+            problem("age_adjustment"),
+        ]
+    });
+    let mut rows = Vec::new();
+    for (key, series) in document.data {
+        let mut returned = document
+            .info
+            .keys
+            .iter()
+            .zip(key.split('_'))
+            .map(|(name, code)| selector(name, code))
+            .collect::<Result<Vec<_>, _>>()?;
+        returned.push(selector("year_range", &series.year_range.to_string())?);
+        mismatches(&requested, &returned, &query.site, &mut problems);
+        for row in series.data_series {
+            let modeled = number(&document.info.fields, &row, "modeled_rel_rate")?.map(|value| {
+                StatisticEstimate {
+                    value: Some(value),
+                    standard_error: None,
+                    lower_ci: None,
+                    upper_ci: None,
+                    count: None,
+                }
+            });
+            let year = cell(&document.info.fields, &row, "year")
+                .map(|c| u32::try_from(c.integer()?).map_err(|_| BadReply))
+                .transpose()?;
+            rows.push(DiseaseStatistic {
+                requested_site: query.site.clone(),
+                requested_selectors: requested.clone(),
+                returned_selectors: returned.clone().into(),
+                year,
+                measure: document.info.measure.parse().map_err(|_| BadReply)?,
+                observed: observed(&document.info.fields, &row, &document.info.measure)?,
+                modeled,
+                attribution: attribution(&key)?,
+            });
+        }
+    }
+    Ok((rows, problems))
+}
+fn mismatches(
+    requested: &[StatisticSelector],
+    returned: &[StatisticSelector],
+    site: &Text,
+    problems: &mut Vec<Problem>,
+) {
+    for selector in returned {
+        let expected = if selector.name.as_str() == "site" {
+            Some(site)
+        } else {
+            requested
+                .iter()
+                .find(|r| r.name == selector.name)
+                .map(|r| &r.code)
+        };
+        if expected.is_some_and(|e| e != &selector.code) {
+            let field = format!("returned_selectors.{}", selector.name);
+            if !problems.iter().any(|p| p.field.as_ref() == field) {
+                problems.push(problem(&field));
+            }
+        }
+    }
+}

@@ -104,6 +104,16 @@ impl Leg<'_> {
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.parameters(ep, params, Decoder::checked_json(&check))
     }
+    /// Decode exactly one JSON-string wrapper, then validate the typed inner reply.
+    /// Cache and replay reads use the same decoder and request-bound check.
+    pub fn json_string_received_checked<T: Reply>(
+        &self,
+        ep: &Endpoint,
+        params: &[(&str, Arg<'_>)],
+        check: impl Fn(&T) -> Result<(), crate::BadReply>,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.parameters(ep, params, Decoder::checked_json_string(&check))
+    }
 
     /// Send checked XML from a GET or form POST.
     pub fn xml<T: XmlReply>(

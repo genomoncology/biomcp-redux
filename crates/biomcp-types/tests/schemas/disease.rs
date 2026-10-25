@@ -18,9 +18,9 @@ pub(super) fn registry() -> Vec<Contract> {
         Envelope<DiseaseHierarchy> => ("disease-hierarchy", "biomcp.disease_hierarchy/2"),
         Envelope<DiseaseGenes> => ("disease-genes", "biomcp.disease_genes/2"),
         Envelope<DiseasePhenotypes> => ("disease-phenotypes", "biomcp.disease_phenotypes/2"),
-        Envelope<DiseaseSites> => ("disease-sites", "biomcp.disease_sites/1"),
-        Envelope<DiseaseIncidence> => ("disease-incidence", "biomcp.disease_incidence/2"),
-        Envelope<DiseaseSurvival> => ("disease-survival", "biomcp.disease_survival/2"),
+        Envelope<DiseaseSites> => ("disease-sites", "biomcp.disease_sites/2"),
+        Envelope<DiseaseIncidence> => ("disease-incidence", "biomcp.disease_incidence/3"),
+        Envelope<DiseaseSurvival> => ("disease-survival", "biomcp.disease_survival/3"),
     }
 }
 

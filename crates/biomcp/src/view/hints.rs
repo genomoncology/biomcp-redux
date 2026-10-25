@@ -7,6 +7,11 @@ pub(super) struct Hint {
 }
 const HINTS: &[Hint] = &[
     Hint {
+        schema: biomcp_types::DiseaseSites::SCHEMA,
+        title: "",
+        columns: &["code", "label", "active"],
+    },
+    Hint {
         schema: biomcp_types::ArticleSupplementResult::SCHEMA,
         title: "",
         columns: &["sheet", "row", "header", "cells", "fragment"],

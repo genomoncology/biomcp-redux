@@ -76,6 +76,16 @@ impl<'a, T: Reply> Decoder<'a, T> {
         codec.check = Some(check);
         codec
     }
+    pub(crate) fn checked_json_string(
+        check: &'a dyn Fn(&T) -> Result<(), crate::BadReply>,
+    ) -> Self {
+        let mut codec = Self::checked_json(check);
+        codec.parse = |body| {
+            let inner: String = serde_json::from_slice(body).ok()?;
+            serde_json::from_str(&inner).ok()
+        };
+        codec
+    }
     pub(crate) fn json() -> Self {
         Self {
             codec: Codec::Json,
