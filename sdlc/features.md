@@ -79,3 +79,7 @@ disease-seer: Select native SEER catalog sites and page stage incidence or annua
 
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision. Cases: `tests/cases/drug/ddinter.yaml`, `crates/biomcp/tests/runner/drug_ddinter.rs`.
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference. Cases: `crates/biomcp/tests/runner/disease_monarch.rs`.
+
+drug-retirements: Retired and unproved drug commands return fixed migration guidance before requests. Cases: `crates/biomcp/tests/runner/drug_retirements.rs`.
+drug-failures: Every kept drug source reports synthetic transport and broken-body failures with publisher terms. Cases: `crates/biomcp/tests/runner/drug_failures.rs`.
+drug-identity: Drug sources reject mismatched, conflicting and absent identity joins before cache admission or product selection. Cases: `crates/biomcp/tests/runner/drug_identity.rs`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/drug_native_identity.rs`, `crates/biomcp/tests/runner/drug_fda/errors.rs`, `crates/biomcp/tests/runner/drug_label.rs`.

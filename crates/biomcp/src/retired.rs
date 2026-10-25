@@ -1,5 +1,7 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
+mod drug;
+
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
 
@@ -101,6 +103,10 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         ["gene", rest @ ..] if !rest.is_empty() => {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
         }
+        ["search", "drug", ..] => words.retired_option,
+        ["get", "drug", input @ ..] => words
+            .retired_option
+            .or_else(|| drug::section(&words, input)),
         ["search", "gene", ..] | ["search", "trial", ..] => words.retired_option,
         ["get", "gene", input @ ..] => trailing(&words, input, SECTIONS, false),
         ["search", "article", ..] | ["search", "variant", ..] | ["variant", "normalize", ..] => {
@@ -116,6 +122,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     }
 }
 fn command(positional: &[&str]) -> Option<ErrorMessage> {
+    if let Some(message) = drug::command(positional) {
+        return Some(message);
+    }
     match positional {
         ["variant", "structure", ..] => Some(ErrorMessage::VariantStructure),
         ["variant", "oncokb", ..] => Some(ErrorMessage::VariantOncokb),
@@ -242,6 +251,8 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
             .split_once('=')
             .map_or((arg, None), |(key, value)| (key, Some(value)));
         let table = match result.positional.get(..2) {
+            Some(["search", "drug"]) => drug::SEARCH,
+            Some(["get", "drug"]) => drug::GET,
             Some(["search", "article"]) => ARTICLE_SEARCH,
             Some(["search", "trial"]) => TRIAL_SEARCH,
             Some(["get", "article"]) => ARTICLE_GET,

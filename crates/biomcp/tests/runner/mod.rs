@@ -13,12 +13,15 @@ mod drug_civic;
 mod drug_civic_fixtures;
 mod drug_ddinter;
 mod drug_ema;
+mod drug_failures;
 mod drug_fda;
+mod drug_identity;
 mod drug_label;
 mod drug_mychem;
 mod drug_native;
 mod drug_native_identity;
 mod drug_registry;
+mod drug_retirements;
 mod evidence;
 mod gene_tables;
 mod held_proxy;
@@ -515,7 +518,10 @@ fn trial_trials() -> Vec<Trial> {
 
 fn drug_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
+    trials.extend(drug_failures::trials());
+    trials.extend(drug_identity::trials());
     trials.extend(drug_registry::trials());
+    trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());
     trials.extend(drug_ema::trials());
     trials.extend(drug_ddinter::trials());
