@@ -183,7 +183,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["Run BioMCP commands. Queries return one card or page; use help COMMAND for options and examples.".into()];
+    let mut lines = vec!["BioMCP: one card or page. help COMMAND lists options and examples.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
         // Detailed options belong to help COMMAND; retain search facets
@@ -192,6 +192,12 @@ pub(crate) fn tree() -> String {
             for argument in command.arguments {
                 line.push_str(&format!(" [{}]", argument.name));
             }
+        }
+        if command.command == ["search", "adverse-event"] {
+            line.push_str(" [--source faers|maude] [--reaction --serious --received-from --received-to]");
+        }
+        if command.command == ["get", "adverse-event"] {
+            line.push_str(" [--source faers|maude --drug-index --section-limit --section-offset]");
         }
         if !command.sections.is_empty() {
             line.push_str(" sections: ");

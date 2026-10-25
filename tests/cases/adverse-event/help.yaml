@@ -1,5 +1,5 @@
 {
-  "feature": "generated-help",
+  "feature": "adverse-event-search",
   "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command.",
   "live_check": "Help performs no source requests.",
   "steps": [

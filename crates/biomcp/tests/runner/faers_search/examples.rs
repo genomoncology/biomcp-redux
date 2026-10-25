@@ -21,7 +21,6 @@ pub(super) fn record(directory: &Path) -> Check {
             }
         },
     )?;
-    let env = environment(&stub)?;
     for (index, words) in [
         vec!["search", "adverse-event", "pembrolizumab"],
         vec![
@@ -37,6 +36,7 @@ pub(super) fn record(directory: &Path) -> Check {
     .into_iter()
     .enumerate()
     {
+        let env = environment(&stub)?;
         let words = words.into_iter().map(str::to_owned);
         let recording = env.root().join(format!("record-{index}"));
         let mut args = vec!["--record".into(), recording.to_string_lossy().into()];

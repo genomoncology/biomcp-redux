@@ -17,7 +17,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/id": "100"
+        "/result/header/id": "100"
       },
       "max_bytes": 2000
     },
@@ -36,8 +36,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/id": "100",
-        "/result/items/0/term/label": "Synthetic term"
+        "/result/header/id": "100",
+        "/result/reactions/records/0/term/label": "Synthetic term"
       },
       "max_bytes": 2000
     }

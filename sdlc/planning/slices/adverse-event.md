@@ -330,19 +330,19 @@ A04's fatal subset, A15's exact combined reaction/date question, A18's lymphoma/
 
 ## Measurement ownership
 
-The FAERS search measurements below cover native report pages. The other kept layers remain unmeasured as product output. The PM-filed adapter/command ticket owns measurement and the case ceiling at measured compact full-envelope size plus the PM-approved margin. Report terms-only deductions separately and validate exact metadata first. Estimated token counts name their estimator and never pretend to be actual tokenization. Native raw bytes and durations cannot substitute for these measurements.
+The measurements below cover actual native FAERS and MAUDE command output. The PM-filed adapter/command ticket owns measurement and the case ceiling at measured compact full-envelope size plus the PM-approved margin. Report terms-only deductions separately and validate exact metadata first. Estimated token counts name their estimator and never pretend to be actual tokenization. Native raw bytes and durations cannot substitute for these measurements.
 
 | Budget row | Measurement owner and acceptance case |
 |---|---|
 | Default/filtered FAERS search | F01/F20/F02/F03/F23/F13/F14/F15 native replay measurements and +15% ceilings appear below. |
-| FAERS card | FAERS adapter ticket: F21 plus largest native fixed shape; measured+margin. |
-| Drug/reaction sections | FAERS adapter ticket: ordinary default plus 19/22-row complete walks; each measured+margin. |
-| Each of seven identity pages | FAERS adapter ticket: named collection default and long-list continuation; each measured+margin. |
+| FAERS card | j13004: 1459 full / 1344 comparable bytes; ceilings 1678 / 1546. |
+| Drug/reaction sections | j13004: drugs 4120 / 4005 bytes, reactions 1528 / 1413; ceilings 4738 / 4606 and 1758 / 1625. Complete 19/22-row walks are retained. |
+| Each of seven identity pages | j13004: UNII 760 / 645, RxCUI 948 / 833, product NDC 991 / 876, package NDC 1006 / 891, SPL ID 1102 / 987, SPL set ID 1118 / 1003, application number 1016 / 901 bytes. Individual ceilings and complete long-list walks appear below and in the retained results. |
 | Default MAUDE search/card | D01/D05 actual CLI/MCP measurements and +15% ceilings appear below. |
 | Devices/narrative sections | D05/D02/D04 actual CLI/MCP measurements, including the empty section and complete narrative walk, appear below. |
 | Entity help/MCP listing/schema | Command owner: generated final typed tree; existing bound or explicit PM change. |
 | VAERS/CVX/count | Dropped; no implementation owner, wire budget or schema. |
-| Legacy 0.9 comparison | Adapter acceptance record: unmeasured unless containment equivalent to 0136 is verified; preserve reason otherwise. |
+| Legacy 0.9 comparison | Unavailable for every row here: no contained adverse-event 0.9 execution has been supplied. Full same-question comparison belongs to 0098. No old fixture, source body or design projection substitutes for it. |
 
 `j12931` measured the actual CLI and MCP on `0c1707e9870a85e28e889793ea5633a912f2cf21`. All eight native five-report pages agreed across CLI and MCP. Default FAERS and explicit `--source faers` agreed. Native report IDs, versions, first-receipt strings, order, totals, offsets, publisher date and exact expressions were compared with the fresh pre-adapter captures from `j12888`. The publisher date was 2026-07-30; the source retrieval occurred on 2026-10-25. These pages establish the individual captured queries, not uncaptured filter combinations or clinical causation.
 
@@ -494,3 +494,36 @@ Token estimates use ceiling(bytes / 4). These ceilings apply only to the new get
 The retained product archive is `data/biomcp-redux/0159-faers-get-product-proof/j13004-product-proof.tar.gz`, SHA-256 `8d1644b8698ce5d4905023bccb64e964f63e803cc38532492655d2732be72af7`, 4,572,717 bytes with 7,527 independently verified files. It includes raw CLI stdout/stderr and MCP frames, recorder files, original archive provenance, per-case byte/token results, category maxima and the two preserved local harness failures. The failed attempts concerned nested header selection and an omitted terminal `next`; neither made a provider request or changed product code.
 
 Routine synthetic cases in `faers_get.rs` use their own `j13008` measured compact CLI/MCP maxima plus 15 percent. The shared source-terms validator performs the comparable deduction. The maxima include card 1215/1100 full/comparable bytes, drugs 1453/1338, reactions 1403/1288 and identifier defaults from 692/577 to 924/809. Missing identifier arrays remain separate from empty complete pages. Failed identity, disabled-source, absence and argument envelopes have separately measured bounds in the case code. These synthetic bounds do not replace the native measurements above.
+
+
+## Shipped command and option ledger
+
+This ledger records the FAERS and MAUDE implementation and the fixed zero-I/O migrations. The vaccine source, CDC WONDER, CVX and vaccine wording remain owned by 0178 pending Ian. Their existing design text above is not a completion claim. The drug slice owns the `top_adverse_events` and `faers_query` card removals. Full same-question 0.9 execution remains owned by 0098.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search adverse-event` | Ported or renamed | `--reaction`, `--serious`, `--date-from`, `--date-to`, `--type`, `--device`, `--limit`, `--offset` | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification`, `--manufacturer`, `--product-code` | `--source` | Use literal TEXT with FAERS by default or explicit MAUDE. Receipt dates replace date aliases; only report death and hospitalization flags remain. Device text is a phrase match. Recall routes retire outside this entity. Vaccine source disposition remains undecided under 0178. |
+| `get adverse-event` | Ported or renamed | — | — | — | Get one exact native report with explicit source and independent bounded sections. Historical versions remain unproved; guidance and unbounded all retire. |
+| `drug adverse-events` | Dropped by ruling | — | `--reaction`, `--outcome`, `--serious`, `--date-from`, `--date-to`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--type`, `--limit`, `--offset` | — | Use search adverse-event TEXT. The duplicate helper and its FAERS-to-ClinicalTrials.gov fallback retire; no trial result substitutes for reports. |
+<!-- /parity-accounting -->
+
+The long-option denominator excludes positional text, aliases, sections and global formatting. The complete source-inspection table above supplies the individual alias and count-field inventory. `-d` and `--drug` point to literal TEXT; `-l` points to `--limit`; `--since` and `--until` point to first-receipt bounds. Outcome spellings and unsupported seriousness values return fixed guidance without I/O. Native report flags never replace reaction outcomes. Demographic, suspect-only, reporter, aggregation, manufacturer and product-code filters retire. Global `--json` and `-j` point to `--format json`; Markdown remains shared formatting.
+
+| Old section or behavior | Shipped outcome and case owner |
+| --- | --- |
+| `reactions` | Independent native reaction rows and outcomes; `faers_get.rs`. |
+| `outcomes` | Card report flags and each reaction's own outcome; fixed migration in `adverse_event_retirements.rs`. |
+| `concomitant` | Complete `drugs` page with every original role; `faers_get.rs` and fixed migration. |
+| `guidance`, `all` | Retired with named-section guidance; no generated clinical inference or unbounded fan-out. |
+| Hidden drug card `top_adverse_events`, `faers_query` | Drug ledger owns removal; no duplicate adverse-event accounting row. |
+| Recall routes and classification | Retired outside this entity; no recall parity claim. |
+| VAERS, CDC WONDER, CVX and vaccine summary/source outcomes | Undecided; 0178 owns wording and accounting after Ian's ruling. |
+
+## Question and case coverage limits
+
+The harvested A01–A24 questions are a question bank, not twenty-four successful product executions. A01–A03, A05–A14 and A16–A17 have the source-report facts described above; only captured query expressions establish native selector positives. A04, A15, A18, A21 and A22 remain unanswered as asked. A19–A20 retain MAUDE native report/device/narrative facts without a causal claim. A23 concerns the limits of an exact empty query; A24 is an explicitly synthetic failure control.
+
+Native F01/F20/F02/F03/F23/F13/F14/F15 product pairs and per-case ceilings live in j12931. F21 and the exact-get witnesses, the older F01/F10 retained report fixtures, all seven identifier pages and the long complete walks live in j13004. The D01/D05/D02/D04 thirteen product pairs and ceilings live in independently verified j13024 output. F04–F12 and F16–F17 remain bounded investigation captures unless explicitly used by those retained get cases; F19/F22 count queries remain investigation only. F18 is source absence evidence outside product ID grammar. D03 is an error-body adapter fixture, not an executed SCC CLI positive. I01 is source identity evidence, not a name-based drug join. V01–V03 do not supply vaccine product positives.
+
+Routine executable cases are the adverse-event YAML files and native runner cases `faers_search.rs`, `faers_get.rs`, `maude.rs`, `maude_policy.rs`, `adverse_event_registry.rs`, `adverse_event_retirements.rs` and `adverse_event_failures.rs`. Their synthetic bodies prove mechanics, source admission, independent rows, empty versus absent, literal boundaries, fixed migrations and failures. Native product archives remain outside Git. Raw terminology is never copied into routine fixtures. Every successful report envelope uses its owning measured full/comparable ceiling; retirement and argument envelopes use their separate error bounds. The external case definitions and archives remain separately identified from routine executions.
