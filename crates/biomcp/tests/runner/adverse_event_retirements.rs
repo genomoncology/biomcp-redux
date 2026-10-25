@@ -7,9 +7,10 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("adverse-event-retirements/fixed-guidance-before-io", || {
             check().map_err(Into::into)
         }),
-        Trial::test("adverse-event-retirements/option-and-literal-boundaries", || {
-            boundaries().map_err(Into::into)
-        }),
+        Trial::test(
+            "adverse-event-retirements/option-and-literal-boundaries",
+            || boundaries().map_err(Into::into),
+        ),
     ]
 }
 fn check() -> Result<(), String> {
@@ -493,7 +494,9 @@ fn boundaries() -> Result<(), String> {
         args.extend(words.split_whitespace().map(str::to_owned));
         let value = invoke(&env, args.clone(), 2)?;
         if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
-            return Err(format!("{words}: literal or unsupported selector retired: {value}"));
+            return Err(format!(
+                "{words}: literal or unsupported selector retired: {value}"
+            ));
         }
         if mcp::call_with_globals(&env, &args, true, &[])? != value {
             return Err(format!("{words}: CLI/MCP boundary differs"));
@@ -503,9 +506,21 @@ fn boundaries() -> Result<(), String> {
         (vec!["--", "--count"], "--count", None),
         (vec!["--", "--outcome"], "--outcome", None),
         (vec!["--", "--json"], "--json", None),
-        (vec!["--", "drug adverse-events"], "drug adverse-events", None),
-        (vec!["--reaction=--count", "literal"], "literal", Some("--count")),
-        (vec!["--reaction", "outcomes", "literal"], "literal", Some("outcomes")),
+        (
+            vec!["--", "drug adverse-events"],
+            "drug adverse-events",
+            None,
+        ),
+        (
+            vec!["--reaction=--count", "literal"],
+            "literal",
+            Some("--count"),
+        ),
+        (
+            vec!["--reaction", "outcomes", "literal"],
+            "literal",
+            Some("outcomes"),
+        ),
     ] {
         let mut args = globals.clone();
         args.extend(["search", "adverse-event"].map(str::to_owned));
