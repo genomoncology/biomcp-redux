@@ -1556,7 +1556,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
 ```json
 {
   "name": "biomcp",
-  "description": "Search and get biomedical records for cancer care. Pass CLI arguments as a list.\n<compact command tree generated from the schemas>",
+  "description": "Search and get biomedical records for medical questions. Pass CLI arguments as a list.\n<compact command tree generated from the schemas>",
   "inputSchema": {
     "type": "object",
     "properties": { "args": { "type": "array", "items": { "type": "string" }, "description": "The argument list after the program name, such as [\"get\", \"gene\", \"BRAF\"]." } },
