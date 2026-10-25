@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 biodata::canonical_enum! {
     /// Explicit drug disclosures; identity cards never expand into these sections.
     DrugSection, SourceUnknown {
+        /// All native identity cross-references and product links, mechanically paged.
+        Xrefs => "xrefs",
         /// Native target and mechanism relations.
         Targets => "targets",
         /// Native indication wording.
@@ -273,5 +275,12 @@ impl DrugGet {
     /// Exact application product selector.
     pub fn product_number(&self) -> Option<&Text> {
         self.0.product_number.as_ref()
+    }
+}
+
+impl DrugGet {
+    /// Select one named disclosure without changing the exact source identity.
+    pub fn for_section(&self, section:DrugSection) -> Result<Self,QueryInvalid> {
+        let mut fields=self.0.clone(); fields.section=vec![section].into(); fields.try_into()
     }
 }

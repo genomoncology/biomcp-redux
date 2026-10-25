@@ -224,3 +224,18 @@ impl ResponseBody for DrugInteractions {
     const SCHEMA: &'static str = "biomcp.drug_interactions/2";
     type Query = DrugGet;
 }
+
+/// A mechanical page of the selected document's complete checked native links.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugXrefs {
+    /// Exact source-selected identity, without choosing any linked product.
+    pub identity: DrugHeader,
+    /// Native links with an exact link count, original version and retrieval date.
+    pub xrefs: Section<DrugRecords<DrugIdentityRelation>>,
+}
+impl ResponseBody for DrugXrefs {
+    const SCHEMA: &'static str = "biomcp.drug_xrefs/1";
+    type Query = DrugGet;
+}

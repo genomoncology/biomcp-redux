@@ -32,6 +32,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "drug-mychem/component-policy-before-request-and-projection",
         || component_policy().map_err(Into::into),
     ));
+    trials.push(Trial::test("drug-mychem/complete-xrefs-page-walk",||xrefs_walk().map_err(Into::into)));
     trials
 }
 const REPLIES: [&str; 9] = [
@@ -51,7 +52,9 @@ fn check(n: usize) -> Check {
     ))
     .map_err(|e| e.to_string())?;
     let selected = plan.get(n).ok_or("plan index")?.clone();
-    let expected = selected.get("request").and_then(Value::as_str)
+    let expected = selected
+        .get("request")
+        .and_then(Value::as_str)
         .ok_or("request")?
         .replace('+', "%20");
     let body = REPLIES.get(n).ok_or("fixture index")?.to_string();
@@ -89,6 +92,8 @@ fn check(n: usize) -> Check {
     }
     let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
+    let bound = [3005,2348,1724,1853,1262,1169,0,1720,516].get(n).copied().ok_or("budget index")?;
+    if bound != 0 && comparable > bound { return Err(format!("case {n} exceeds measured comparable output budget: {comparable}/{bound}")); }
     use std::io::Write;
     writeln!(std::io::stdout(),
         "drug native case {n}: full {bytes} bytes/{} tokens; comparable {comparable} bytes/{} tokens",
@@ -153,7 +158,12 @@ fn verify(n: usize, value: &Value, selected: &Value) -> Check {
         let ids = value
             .pointer("/result/items")
             .and_then(Value::as_array)
-            .map(|items| items.iter().map(|i| i.get("id").cloned().unwrap_or(Value::Null)).collect::<Vec<_>>())
+            .map(|items| {
+                items
+                    .iter()
+                    .map(|i| i.get("id").cloned().unwrap_or(Value::Null))
+                    .collect::<Vec<_>>()
+            })
             .unwrap_or_default();
         if Some(&json!(ids)) != selected.get("ids")
             || value.pointer("/page/total") != selected.get("total")
@@ -185,7 +195,7 @@ fn wrong_identity() -> Check {
     let value = invoke(&env, args.clone(), 4)?;
     if value.get("status") != Some(&json!("failed"))
         || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
-        || value.get("result").is_some_and(|v|!v.is_null())
+        || value.get("result").is_some_and(|v| !v.is_null())
     {
         return Err(format!("wrong identity admitted: {value}"));
     }
@@ -232,7 +242,9 @@ fn component_policy() -> Check {
     {
         return Err("component projection leaked or removed unrelated identities".into());
     }
-    let source = value.get("sources").and_then(Value::as_array)
+    let source = value
+        .get("sources")
+        .and_then(Value::as_array)
         .and_then(|v| v.iter().find(|s| s.get("source") == Some(&json!("chembl"))))
         .ok_or("component outcome")?;
     if source.get("state") != Some(&json!("skipped"))
@@ -248,4 +260,37 @@ fn component_policy() -> Check {
         return Err("component request cache identity".into());
     }
     Ok(())
+}
+
+fn xrefs_walk()->Check {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let stub=Stub::for_source("mychem.info","application/json",|request| {
+        if !request.starts_with("GET /v1/chem/KTUFNOKKBVMGRW-UHFFFAOYSA-N?") {return Err("unexpected link request".into());}
+        Ok(REPLIES.get(6).ok_or("fixture")?.to_string())
+    })?;
+    let cert=env.root().join("ca.pem");std::fs::write(&cert,&stub.certificate).map_err(|e|e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)})).map_err(|e|e.to_string())?;
+    let card=invoke(&env,["get","drug","KTUFNOKKBVMGRW-UHFFFAOYSA-N","--source","mychem"].map(str::to_owned).to_vec(),0)?;
+    let mut next=next(&card,"section")?.ok_or("identity card must offer explicit xrefs action")?;
+    let date=card.pointer("/result/retrieved").ok_or("card retrieval date")?.clone();
+    let mut links=Vec::new();
+    for page in 0..12 {
+        let value=invoke(&env,next.clone(),0)?;
+        super::schema::Registry::embedded()?.validate(&value,&next,true)?;
+        if value.pointer("/result/identity/id")!=Some(&json!("KTUFNOKKBVMGRW-UHFFFAOYSA-N")) || value.pointer("/result/xrefs/data/retrieved")!=Some(&date) || value.pointer("/result/xrefs/data/total")!=Some(&json!(112)) {return Err("xref identity, native link total or retrieval date changed".into());}
+        let rows=value.pointer("/result/xrefs/data/records").and_then(Value::as_array).ok_or("xref rows")?;
+        if rows.len()>10 {return Err("xref default page exceeded limit".into());}
+        links.extend(rows.iter().cloned());
+        if page==0 || page==11 { if super::mcp::call_with_globals(&env,&next,false,&[])?!=value {return Err("xref MCP parity".into());} }
+        let full=serde_json::to_vec(&value).map_err(|e|e.to_string())?.len();let comparable=super::source_terms::size(&value,"")?;
+        use std::io::Write;writeln!(std::io::stdout(),"drug xrefs page {page}: full {full}, comparable {comparable}").map_err(|e|e.to_string())?;
+        match self::next(&value,"page")? {Some(args)=>next=args,None=>break,}
+    }
+    if links.len()!=112 || !links.iter().any(|r|r.pointer("/identity/id")==Some(&json!("CHEMBL941")) && r.pointer("/attribution/source")==Some(&json!("chembl"))) {return Err("xref walk lost native links".into());}
+    for (n,row) in links.iter().enumerate() { if links.iter().take(n).any(|r|r==row) {return Err("duplicate xref in walk".into());} }
+    if stub.finish()?.len()!=1 {return Err("xref pages did not reuse the same original native document".into());}
+    Ok(())
+}
+fn next(value:&Value,kind:&str)->Result<Option<Vec<String>>,String> {
+    value.get("next").and_then(Value::as_array).into_iter().flatten().find(|row|row.get("kind")==Some(&json!(kind))).map(|row|serde_json::from_value(row.get("args").cloned().ok_or("next args")?).map_err(|e|e.to_string())).transpose()
 }

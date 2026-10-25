@@ -47,7 +47,7 @@ pub fn search(
     map::page(reply, leg).map_err(|_| bad_reply())
 }
 /// Retrieve an exact native document and verify the returned identity, never searching by name.
-pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugCard>, RequestError> {
+pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, RequestError> {
     let segment = PathSegment::new(id).map_err(RequestError::Input)?;
     let fields = crate::drug_sources::components::allowed_fields(leg, CARD_FIELDS);
     let (reply, received) = leg.json_received_checked::<raw::Hit>(
@@ -62,7 +62,7 @@ pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugCard>, RequestEr
         },
     )?;
     let mut card = map::card(reply, leg).map_err(|_| bad_reply())?;
-    card.value.retrieved = map::received_date(received.fetched);
+    card.value.card.retrieved = map::received_date(received.fetched);
     Ok(card)
 }
 
@@ -74,4 +74,13 @@ fn bad_reply() -> RequestError {
         retry_after: None,
     }
     .into()
+}
+
+/// One exact native document, separating its small identity from complete native links.
+#[derive(Debug)]
+pub struct DrugDocument {
+    /// Identity and native aliases, with no implicit product selection.
+    pub card:DrugCard,
+    /// All checked native cross-references, products and hierarchy links in stable order.
+    pub xrefs:Box<[biodata::DrugIdentityRelation]>,
 }
