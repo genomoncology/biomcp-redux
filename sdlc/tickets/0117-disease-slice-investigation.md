@@ -34,4 +34,10 @@ Milestone: 3
   5. Settle HPO's use label from the publisher's current terms page and any published license file, not from a 404. If HPO allows commercial use, Monarch's genes and phenotypes stay open.
   6. Move `--condition-id` to its own trial-owned ticket, named in the design.
   7. Rename "Decision boundary" to "Ian's questions" and write None.
+- PM recheck 2026-10-25 of 8610e99e: fixes closed except the SEER get shape; design accepted with these amendments, applied on the branch before it lands:
+  1. SEER statistics use the ID position and named sections: `get disease <site ID> incidence --source seer` and `get disease <site ID> survival --source seer`, in the command table, the JSON next action and the case map.
+  2. Get-level paging uses `--section-limit` and `--section-offset` everywhere, SEER included. `-l` is removed; `--limit` has one spelling.
+  3. The hierarchy section shows MyDisease parents only. Children wait for an OLS positive capture in the OLS ticket; until then D18 subtypes go through OLS search.
+  4. Remove the Open Targets next action from the mapping table, since that section is deferred.
+  5. The card row marks cards other than D08 unmeasured, and every 0.9 section comparison names 0136.
 - Defers: tickets, which the PM files from the reviewed design.
