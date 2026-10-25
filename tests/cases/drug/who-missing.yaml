@@ -27,8 +27,8 @@
           "who-pq"
         ]
       },
-      "max_bytes": 1000,
-      "max_tokens": 250
+      "max_bytes": 282,
+      "max_tokens": 71
     }
   ]
 }

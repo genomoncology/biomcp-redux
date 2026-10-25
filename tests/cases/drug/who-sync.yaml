@@ -19,8 +19,8 @@
         "/result/rows": 4,
         "/result/bytes": 562
       },
-      "max_bytes": 359,
-      "max_tokens": 90
+      "max_bytes": 175,
+      "max_tokens": 44
     },
     {
       "run": [
@@ -40,8 +40,8 @@
         "/result/rows": 4,
         "/result/bytes": 562
       },
-      "max_bytes": 359,
-      "max_tokens": 90
+      "max_bytes": 175,
+      "max_tokens": 44
     }
   ]
 }

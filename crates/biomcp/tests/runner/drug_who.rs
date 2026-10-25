@@ -1,4 +1,5 @@
 //! Feature drug-who-medicines: explicit sync, native cells and exact references.
+mod navigation;
 use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,10 +9,14 @@ use std::{
 };
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "drug-who/native-rows-local-reads-and-replacement",
-        || check().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("drug-who/native-rows-local-reads-and-replacement", || {
+            check().map_err(Into::into)
+        }),
+        Trial::test("drug-who/all-candidates-keep-continuation", || {
+            navigation::check().map_err(Into::into)
+        }),
+    ]
 }
 const CSV: &str = "WHO Reference Number,\"INN, Dosage Form and Strength\",Product Type,Therapeutic Area,Applicant,Dosage Form,Basis of Listing,Date of Prequalification\nBT-ON001,Trastuzumab synthetic powder 150 mg,Synthetic biotherapeutic,Synthetic oncology,Synthetic applicant,Synthetic powder,Synthetic basis,\"18  Dec,  2019\"\nBT-ON002,Trastuzumab synthetic solvent kit,Synthetic biotherapeutic,Synthetic oncology,Synthetic applicant,,Synthetic basis,\nP-13399 - test,,,,,,,\nSYN-003,Trastuzumablike synthetic tablet,Synthetic type,Synthetic area,Synthetic applicant,Synthetic tablet,,";
 fn check() -> Check {
@@ -88,7 +93,15 @@ fn check() -> Check {
     Ok(())
 }
 fn seed(env: &Environment) -> Result<PathBuf, String> {
-    let stub = Stub::for_source("extranet.who.int", "text/csv", |_| Ok(CSV.into()))?;
+    seed_csv(env, CSV.into())
+}
+fn seed_csv(env: &Environment, body: String) -> Result<PathBuf, String> {
+    let count = body.lines().count().saturating_sub(1);
+    let stub = Stub::for_sources(
+        &["extranet.who.int"],
+        |_| "text/csv",
+        move |_| Ok(body.clone()),
+    )?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
@@ -101,9 +114,9 @@ fn seed(env: &Environment) -> Result<PathBuf, String> {
         "who-pq".into(),
     ];
     let synced = invoke(env, args, 0).map_err(|e| format!("record sync: {e}"))?;
-    if synced.pointer("/result/rows") != Some(&json!(4)) || stub.finish()?.len() != 1 {
+    if synced.pointer("/result/rows") != Some(&json!(count)) || stub.finish()?.len() != 1 {
         return Err(format!(
-            "explicit sync did not preserve all four native rows: {synced}"
+            "explicit sync did not preserve all native rows: {synced}"
         ));
     }
     pair(env, &replay, &["sync", "who-pq"], 0)?;
