@@ -1,6 +1,6 @@
-# Disease slice investigation and proposed design
+# Disease slice investigation and implemented contract
 
-This investigation starts from published revision `ecef1096239f8aeee8fcc6cbefc5720e89506035`. It proposes the disease slice through steps 1 to 4 of the slice method. It changes only this design. The clinical harvest and two fresh capture reviews establish the clinical limits below. Proposed schemas, JSON shapes and ceilings are design artifacts, not implemented product proof.
+The initial investigation starts from published revision `ecef1096239f8aeee8fcc6cbefc5720e89506035`. The clinical harvest and capture reviews establish the clinical limits below. Historical proposed JSON remains labeled as illustration. The implemented command, migration, measured budget and case tables identify the accepted product behavior and its evidence limits.
 
 ## Settled product contract
 
@@ -248,7 +248,7 @@ This table applies the settled product dispositions. The implemented spelling an
 
 ### Implemented migration ledger
 
-The rows below close every surface in the accounting table above. Shared aliases and positional section words remain listed here even though the historical command-count inventory excludes aliases, section values and global flags. Trial-owned `disease trials` and its option slots remain counted once in [trial accounting](trial.md#parity-accounting); article-owned `disease articles` remains counted once in [article accounting](article.md#parity-accounting).
+The rows below close every surface in the accounting table above. Shared aliases and positional section words remain listed here even though the historical command-count inventory excludes aliases, section values and global flags. Trial-owned `disease trials` and its option slots remain counted once in [trial accounting](trial.md#09-command-option-and-section-accounting); article-owned `disease articles` remains counted once in [article accounting](article.md#1-how-biomcp-093-does-articles).
 
 | Released surface | Implemented answer and owner | Owning case or limit |
 | --- | --- | --- |
