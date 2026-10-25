@@ -46,7 +46,7 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         fs::write(output.join(format!("{name}.json")), &full).map_err(|e| e.to_string())?;
         copy(&directory, &output.join(name))?;
         let comparable = crate::runner::source_terms::size(&value, "")?;
-        let ceiling = match name {
+        let ceiling: usize = match name {
             "ctgov-primary" => 6777,
             "nci-unique" => 3027,
             "nci-alias-ambiguous" => 2318,
@@ -145,8 +145,8 @@ fn replies(root: &Path, output: &Path) -> Result<BTreeMap<String, String>, Strin
                 continue;
             }
             let original = output.join("original-captures").join(capture);
-            fs::create_dir_all(&original).map_err(|e|e.to_string())?;
-            fs::copy(entry.path(), original.join(entry.file_name())).map_err(|e|e.to_string())?;
+            fs::create_dir_all(&original).map_err(|e| e.to_string())?;
+            fs::copy(entry.path(), original.join(entry.file_name())).map_err(|e| e.to_string())?;
             let record: Value =
                 serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
