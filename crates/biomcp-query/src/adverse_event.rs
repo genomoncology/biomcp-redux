@@ -7,11 +7,12 @@ use biomcp_types::{
 };
 /// Search report headers through the declared source and its reviewed component admission.
 pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
+    if query.source() != biomcp_types::AdverseEventSource::Faers { return unsupported(); }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&faers::SPEC, deadline).fresh(cx.fresh);
     let selector = faers::expression(query);
-    let reply = faers::search(&leg, query, &selector);
+    let reply = faers::search(&leg, query);
     let error = reply.as_ref().err().copied();
     let mut out = Outcome {
         status: Status::Failed,
