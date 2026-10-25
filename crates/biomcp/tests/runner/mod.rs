@@ -6,6 +6,7 @@ mod configuration;
 mod corporate;
 mod credential_containment;
 mod diagnostic_registry;
+mod diagnostic_gtr;
 mod disease_monarch;
 mod disease_mydisease;
 mod disease_ols;
@@ -526,6 +527,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_registry::trials());
     trials.extend(adverse_event_registry::trials());
     trials.extend(diagnostic_registry::trials());
+    trials.extend(diagnostic_gtr::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());
     trials.extend(drug_next::trials());
