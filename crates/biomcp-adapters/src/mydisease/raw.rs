@@ -15,6 +15,14 @@ pub(super) struct Document {
 }
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
+        if self.mondo.as_ref().is_some_and(|c| c.id != self.id)
+            || self
+                .disease_ontology
+                .as_ref()
+                .is_some_and(|c| !c.id.to_string().starts_with("DOID:"))
+        {
+            return Err(BadReply);
+        }
         let mondo = self.mondo.as_ref().is_some_and(|c| c.id == self.id);
         let doid = self
             .disease_ontology

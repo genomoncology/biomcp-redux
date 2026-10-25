@@ -91,9 +91,8 @@ fn record(stub: &network_stub::Stub, root: &Path, cache: bool) -> Result<Fetch, 
 fn captures() -> Result<(std::path::PathBuf, Vec<Value>), Error> {
     let root = std::path::PathBuf::from(std::env::var("BIOMCP_MYDISEASE_NATIVE")?);
     let manifest = std::fs::read(root.join("requests.json"))?;
-    use sha2::Digest;
     assert_eq!(
-        format!("{:x}", sha2::Sha256::digest(&manifest)),
+        digest(&manifest),
         "7cd1db0335a1cb96203260f4ea7887b54ebdc9e94df9f3ee8c3014f063f106ba"
     );
     Ok((root, serde_json::from_slice(&manifest)?))
@@ -102,7 +101,6 @@ fn native_reply(request: &str) -> Result<String, String> {
     native_body(request).map_err(|e| e.to_string())
 }
 fn native_body(request: &str) -> Result<String, Error> {
-    use sha2::Digest;
     let target = request
         .lines()
         .next()
@@ -124,11 +122,18 @@ fn native_body(request: &str) -> Result<String, Error> {
             .join("body.raw"),
     )?;
     assert_eq!(
-        format!("{:x}", sha2::Sha256::digest(&bytes)),
+        digest(&bytes),
         source["sha256"].as_str().ok_or("missing hash")?
     );
     // Original URL/date/hash remain in requests.json. This is a local retained-body delivery.
     Ok(String::from_utf8(bytes)?)
+}
+fn digest(bytes: &[u8]) -> String {
+    use sha2::Digest;
+    sha2::Sha256::digest(bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
 }
 fn exercise(fetch: &Fetch) -> Result<(), Error> {
     let (_, requests) = captures()?;
