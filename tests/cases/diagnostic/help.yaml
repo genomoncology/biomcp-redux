@@ -38,8 +38,8 @@
           "fda-cdx"
         ]
       },
-      "max_bytes": 10000,
-      "max_tokens": 2500
+      "max_bytes": 2332,
+      "max_tokens": 583
     },
     {
       "run": [
@@ -82,8 +82,8 @@
           "supplements"
         ]
       },
-      "max_bytes": 10000,
-      "max_tokens": 2500
+      "max_bytes": 2558,
+      "max_tokens": 640
     },
     {
       "run": [
@@ -101,8 +101,8 @@
           "count": 2
         }
       },
-      "max_bytes": 1000,
-      "max_tokens": 250
+      "max_bytes": 429,
+      "max_tokens": 108
     },
     {
       "run": [
@@ -120,8 +120,8 @@
           "count": 2
         }
       },
-      "max_bytes": 1000,
-      "max_tokens": 250
+      "max_bytes": 448,
+      "max_tokens": 112
     },
     {
       "run": [
@@ -139,8 +139,8 @@
           "count": 2
         }
       },
-      "max_bytes": 1000,
-      "max_tokens": 250
+      "max_bytes": 448,
+      "max_tokens": 112
     }
   ]
 }

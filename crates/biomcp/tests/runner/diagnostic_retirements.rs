@@ -191,10 +191,44 @@ const CASES: &[(&str, &str)] = &[
 pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
     use std::io::Write;
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
-    let schema = value.get("schema").and_then(serde_json::Value::as_str).ok_or("missing schema")?;
-    let kind = value.pointer("/result/kind").and_then(serde_json::Value::as_str).unwrap_or("");
-    let status = value.get("status").and_then(serde_json::Value::as_str).ok_or("missing status")?;
-    writeln!(std::io::stdout(), "DIAGNOSTIC_BYTES={}", json!({"schema":schema,"kind":kind,"status":status,"bytes":bytes}))
+    let schema = value
+        .get("schema")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("missing schema")?;
+    let kind = value
+        .pointer("/result/kind")
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or("");
+    let status = value
+        .get("status")
+        .and_then(serde_json::Value::as_str)
+        .ok_or("missing status")?;
+    // Full compact synthetic maxima measured by j13382.
+    let baseline: usize = match (schema, kind, status) {
+        ("biomcp.diagnostic_card/1", "", "absent") => 281,
+        ("biomcp.diagnostic_card/1", "", "failed") => 436,
+        ("biomcp.diagnostic_card/1", "", "partial") => 393,
+        ("biomcp.diagnostic_card/1", "clearance", "complete") => 725,
+        ("biomcp.diagnostic_card/1", "gtr_test", "complete") => 1519,
+        ("biomcp.diagnostic_card/1", "gtr_test", "partial") => 1559,
+        ("biomcp.diagnostic_card/1", "who_ivd_product", "complete") => 2578,
+        ("biomcp.diagnostic_card/1", "who_ivd_product", "partial") => 2576,
+        ("biomcp.diagnostic_companion/1", "", "complete") => 7879,
+        ("biomcp.diagnostic_companion/1", "", "failed") => 410,
+        ("biomcp.diagnostic_companion/1", "", "partial") => 7035,
+        ("biomcp.diagnostic_genes/2", "", "complete") => 867,
+        ("biomcp.diagnostic_page/2", "", "failed") => 379,
+        ("biomcp.diagnostic_regulatory/1", "", "complete") => 7260,
+        ("biomcp.diagnostic_supplements/1", "", "complete") => 1414,
+        ("biomcp.error/1", "", "usage") => 196,
+        ("biomcp.sync/3", "", "complete") => 348,
+        ("biomcp.sync/3", "", "failed") => 337,
+        _ => return Err(format!("unmeasured diagnostic envelope: {schema}/{kind}/{status}")),
+    };
+    writeln!(std::io::stdout(), "diagnostic {schema}/{kind}/{status}: {bytes}")
         .map_err(|e| e.to_string())?;
+    if bytes > (baseline * 115).div_ceil(100) {
+        return Err(format!("diagnostic output exceeds measured envelope ceiling: {bytes}"));
+    }
     Ok(())
 }

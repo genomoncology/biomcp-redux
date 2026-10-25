@@ -1,6 +1,6 @@
 # Diagnostic slice design and implemented accounting
 
-This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`; the PM review revision merges current main `8f2a1a8329d7f9877b5df7aad0ec987440e67d1f` and applies the 2026-10-25 ticket rulings. It follows steps 1 to 4 of [the slice method](../slices.md). It proposes source-attributed diagnostic inventory and regulatory facts for cancer care. It changes no product code. Provider observations, public document findings and clinical rulings remain separate. No licensed curation answers enter this document.
+This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`; the PM review revision merges current main `8f2a1a8329d7f9877b5df7aad0ec987440e67d1f` and applies the 2026-10-25 ticket rulings. It follows steps 1 to 4 of [the slice method](../slices.md). It proposes source-attributed diagnostic inventory and regulatory facts for cancer care. The original investigation changed no product code; the implementation and accounting sections below record the later landed surface. Provider observations, public document findings and clinical rulings remain separate. No licensed curation answers enter this document.
 
 ## Evidence boundary
 
@@ -200,6 +200,35 @@ The implemented defaults are five GTR search headers or native section rows, fiv
 The product budget table below replaces the investigation's provisional source projections. Complete envelopes include source terms, status and typed next actions. Native measurements retain their original source scope; synthetic fixtures prove mechanics separately. Byte ceilings use the owning runner's measured bytes plus fifteen percent, rounded up. The YAML runner subtracts only registry-validated `use`, `terms` and `terms_url` for comparable limits. Full compact bytes and stdout bytes, which add a final newline, are distinct. Approximate tokens are `ceil(bytes/4)`, not tokenizer counts.
 
 Released diagnostic 0.9 bytes, tokens, cold/warm timings, request counts and same-question factual completeness remain unmeasured. The old executable has not run under a verified diagnostic containment recipe. The earlier drug/disease containment does not supply a diagnostic baseline. Ticket 0098 owns that separate comparison. New FDA source routes also lack a corresponding old source-specific command. No source-only projection or local replay timing is a product or provider-speed measurement.
+
+### Native product envelope measurements
+
+These are retained product measurements, not source projections. Full and comparable columns contain compact UTF-8 bytes. The complete stdout ceiling includes the newline and fifteen percent headroom. GTR maximum-size walks use fifty rows explicitly and do not establish the default five-row size. Maximum means largest observed within the stated deck, never a global bound across the source.
+
+| Product view and measured scope | Full / comparable compact bytes | Full stdout ceiling | Approximate full tokens | 0.9 comparison |
+| --- | ---: | ---: | ---: | --- |
+| GTR full sync, both complete reports | 330 / 180 | 381 | 83 | Not run: verified diagnostic containment and same-question comparator belong to 0098. |
+| GTR Gene672 candidate page, largest of complete433 walk, limit50 | 37115 / 36965 | 42684 | 9279 | Not run: 0098. |
+| GTR condition candidate page, largest of complete127 walk, limit50 | 35564 / 35414 | 40900 | 8891 | Not run: 0098. |
+| GTR card, largest of three selected records | 1684 / 1534 | 1938 | 421 | Not run: 0098. |
+| GTR broad-panel genes, largest complete4668-row walk page, limit50 | 14540 / 14390 | 16723 | 3635 | Not run: 0098. |
+| GTR broad-panel conditions, largest complete5134-row walk page, limit50 | 10311 / 10161 | 11859 | 2578 | Not run: 0098. |
+| WHO full sync | 350 / 157 | 404 | 88 | Not run: 0098. |
+| WHO nine-row0466-046-00 card, largest of four harvested products | 2915 / 2722 | 3354 | 729 | Not run: 0098. |
+| FDA CDx full two-table sync | 310 / 158 | 358 | 78 | No old source-specific FDA table command; executable comparison not run. |
+| FDA CDx default first page, five whole rows | 6336 / 6184 | 7288 | 1584 | No old source-specific FDA table command; 0098 comparison deferred. |
+| FDA CDx default second page, largest of first two unfiltered pages | 7106 / 6954 | 8174 | 1777 | Not a maximum over all241 rows; no old source-specific command. |
+| FDA CDx BLA125514, largest page of complete15-row walk | 7049 / 6897 | 8108 | 1763 | No old source-specific command. |
+| PMA base card, largest of P150013/P200010 | 999 / 897 | 1150 | 250 | No old exact source-specific PMA command. |
+| PMA exact S020/S021 card | 970 / 868 | 1117 | 243 | No old exact source-specific supplement command. |
+| PMA largest native five-supplement page | 2518 / 2416 | 2897 | 630 | No old section with this request contract. |
+| PMA largest retained one-fragment regulatory page | 3258 / 3156 | 3748 | 815 | Old name overlay is not an exact-submission comparator; 0098 deferred. |
+| Native K173492 clearance card | 758 / 643 | 873 | 190 | No old exact source-specific clearance command. |
+| Native K080653 source-local absence | 281 / 166 | 325 | 71 | No old exact source-specific clearance command. |
+
+GTR j13177 completed every CLI walk; CLI/MCP parity was sampled at first, second and terminal pages. Its largest intermediate pages were not individually MCP calls. WHO j13094 checked nineteen CLI/MCP pairs. FDA j13117 checked twenty native plus nine synthetic pairs before an obsolete help check failed; the help defect was fixed separately. Only two unfiltered FDA pages were measured, so the table does not claim a global five-row maximum. FDA comparable values above were recalculated from retained output using the current runner's validated three-field deduction; the original proof's recorded comparable values retained `use` and were thirteen bytes larger. PMA native comparables retain that proof's declared terms deduction; its complete envelope sizes and ceilings remain unchanged.
+
+The GTR full-read artifact is `data/biomcp-redux/0179-gtr-full-product-proof/2292-0179-gtr-reads-final.tar.gz`, SHA-256 `8ff658e9d10f5ef335c5da5627ce55d7bf3a8d79b41b732a454e6f2350525d6a`. WHO product evidence is `data/biomcp-redux/0173-who-ivd-native-proof/j13094-native-proof.tar.gz`, SHA-256 `0a9f6392b9eb4c292b277296f6bc630734379609dea7e5c5e8deb82f0061c4f3`. FDA table product evidence is `data/biomcp-redux/0174-fda-cdx-product-proof/j13117-product-proof.tar.gz`, SHA-256 `aea5e17019f7d6a3357f9f8e3e32f2e58dac9f0937ae34933710e576872f7ea4`. Their raw outputs and manifests remain outside Git and were independently verified before scratch cleanup.
 
 ## Harvested clinical questions and accepted answers
 
