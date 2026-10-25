@@ -106,10 +106,10 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiseaseSection>,
-    /// Native rows per section page.
-    #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
-    section_limit: u32,
+    /// Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
+    #[serde(default, deserialize_with = "present")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
+    section_limit: Option<u32>,
     /// Native row offset within the selected section.
     #[serde(default)]
     section_offset: u32,
@@ -139,7 +139,8 @@ impl TryFrom<GetFields> for DiseaseGet {
             v.section,
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)
         );
-        if !(1..=50).contains(&v.section_limit)
+        if v.section_limit
+            .is_some_and(|limit| !(1..=50).contains(&limit))
             || (v.source == DiseaseSource::Seer
                 && (!statistic || !v.id.as_str().bytes().all(|b| b.is_ascii_digit())))
             || (v.source != DiseaseSource::Seer
@@ -164,6 +165,11 @@ impl TryFrom<GetFields> for DiseaseGet {
         if v.source == DiseaseSource::Ols {
             v.ontology.get_or_insert_with(DiseaseOntology::default);
         }
+        v.section_limit.get_or_insert(match (v.source, v.section) {
+            (DiseaseSource::Monarch, Some(DiseaseSection::Genes)) => 2,
+            (DiseaseSource::Monarch, Some(DiseaseSection::Phenotypes)) => 1,
+            _ => default_limit(),
+        });
         Ok(Self(v))
     }
 }
@@ -215,7 +221,7 @@ impl DiseaseGet {
     }
     /// Maximum section rows.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit
+        self.0.section_limit.unwrap_or_else(default_limit)
     }
     /// Section row offset.
     pub fn section_offset(&self) -> u32 {

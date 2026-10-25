@@ -27,6 +27,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "disease-monarch/native-aggregators-keep-missing-null-and-arrays",
         || aggregator_presence().map_err(Into::into),
     ));
+    trials.push(Trial::test(
+        "disease-monarch/source-defaults-and-explicit-limits",
+        || defaults().map_err(Into::into),
+    ));
     trials.extend(failures::trials());
     trials
 }
@@ -78,6 +82,8 @@ fn exact() -> Result<(), String> {
             "genes",
             "--source",
             "monarch",
+            "--section-limit",
+            "5",
         ],
         0,
     )?;
@@ -197,6 +203,8 @@ fn phenotype() -> Result<(), String> {
         "phenotypes",
         "--source",
         "monarch",
+        "--section-limit",
+        "5",
     ];
     let directory = env.root().join("phenotypes");
     let value = record(&env, &words, &directory, 0)?;
@@ -239,6 +247,8 @@ fn navigation() -> Result<(), String> {
         "genes",
         "--source",
         "monarch",
+        "--section-limit",
+        "5",
     ];
     let value = record(&env, &words, &directory, 0)?;
     let next = value
@@ -293,6 +303,8 @@ fn checked_identities() -> Result<(), String> {
         "genes",
         "--source",
         "monarch",
+        "--section-limit",
+        "5",
     ];
     let value = record(&env, &words, &directory, 0)?;
     let next = value
@@ -346,6 +358,8 @@ fn aggregator_presence() -> Result<(), String> {
             "genes",
             "--source",
             "monarch",
+            "--section-limit",
+            "5",
         ];
         let result = invoke(&env, &words, 0)?;
         if result.pointer("/result/items/0/association/aggregator_knowledge_source")
@@ -359,6 +373,90 @@ fn aggregator_presence() -> Result<(), String> {
         if stub.finish()?.len() != 1 {
             return Err("unexpected aggregator source request count".into());
         }
+    }
+    Ok(())
+}
+
+fn default_reply(request: &str) -> Result<String, String> {
+    let target = request.split_whitespace().nth(1).ok_or("missing target")?;
+    let url =
+        url::Url::parse(&format!("https://example.org{target}")).map_err(|e| e.to_string())?;
+    let parameters: std::collections::BTreeMap<_, _> = url.query_pairs().collect();
+    let limit: usize = parameters
+        .get("limit")
+        .ok_or("missing limit")?
+        .parse()
+        .map_err(|_| "invalid limit")?;
+    let offset: usize = parameters
+        .get("offset")
+        .ok_or("missing offset")?
+        .parse()
+        .map_err(|_| "invalid offset")?;
+    let phenotype = parameters.contains_key("subject");
+    let items = (offset..(offset + limit).min(6))
+        .map(|i| {
+            let mut row = association();
+            row["id"] = json!(format!("synthetic-{i}"));
+            if phenotype {
+                row["subject"] = json!("MONDO:0019003");
+                row["object"] = json!(format!("HP:{:07}", i + 1));
+            } else {
+                row["subject"] = json!(format!("HGNC:{}", i + 1));
+            }
+            row
+        })
+        .collect::<Vec<_>>();
+    Ok(json!({"limit":limit,"offset":offset,"total":6,"items":items}).to_string())
+}
+fn defaults() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "api-v3.monarchinitiative.org",
+        "application/json",
+        default_reply,
+    )?;
+    let env = setup(&stub)?;
+    for (section, default) in [("genes", 2), ("phenotypes", 1)] {
+        for explicit in [false, true] {
+            let mut words = vec![
+                "get",
+                "disease",
+                "MONDO:0019003",
+                section,
+                "--source",
+                "monarch",
+            ];
+            if explicit {
+                words.extend(["--section-limit", "5"]);
+            }
+            let count = if explicit { 5 } else { default };
+            let directory = env.root().join(format!("{section}-{explicit}"));
+            record(&env, &words, &directory, 0)?;
+            replay(
+                &directory,
+                json!([{"run":words,"mcp":words,"expect":{
+                "/query/section_limit":count,"/page/returned":count,"/page/total":6,
+                "/next/*/kind":{"includes":"page"}
+            },"max_bytes":15000}]),
+            )?;
+        }
+    }
+    for value in ["0", "null", "51"] {
+        let words = [
+            "get",
+            "disease",
+            "MONDO:0019003",
+            "genes",
+            "--source",
+            "monarch",
+            "--section-limit",
+            value,
+        ];
+        let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
+        fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,"is_error":true,"expect":{"/status":"usage"},"max_bytes":500}]})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+        super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    }
+    if stub.finish()?.len() != 4 {
+        return Err("default or explicit limit made an extra request".into());
     }
     Ok(())
 }

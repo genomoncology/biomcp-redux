@@ -33,6 +33,8 @@ const WORDS: &[&str] = &[
     "genes",
     "--source",
     "monarch",
+    "--section-limit",
+    "5",
 ];
 fn disabled() -> Result<(), String> {
     let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", reply)?;

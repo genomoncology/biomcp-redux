@@ -62,18 +62,12 @@ fn prove_row(
         .and_then(Value::as_u64)
         .ok_or("missing offset")?
         .to_string();
-    let words = [
-        "get",
-        "disease",
-        id,
-        section,
-        "--source",
-        "monarch",
-        "--section-limit",
-        "5",
-        "--section-offset",
-        &offset,
-    ];
+    let projected = row.get("default_limit") == Some(&json!(true));
+    let mut words = vec!["get", "disease", id, section, "--source", "monarch"];
+    if !projected {
+        words.extend(["--section-limit", "5"]);
+    }
+    words.extend(["--section-offset", &offset]);
     let directory = output.join(format!("record-{index:02}"));
     let expected: Value = serde_json::from_slice(
         &fs::read(root.join(text(row, "body")?)).map_err(|e| e.to_string())?,
@@ -109,7 +103,7 @@ fn prove_row(
     measure(&words, &result)?;
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"exit":exit,"expect":{"/status":if expected.get("total") == Some(&json!(0)) {"absent"} else {"complete"},"/page/offset":expected.get("offset").ok_or("missing offset")?,"/page/total":expected.get("total").ok_or("missing total")?,"/page/returned":expected.get("items").and_then(Value::as_array).ok_or("missing source items")?.len()},"max_bytes":ceiling(id,section,&offset)?}]),
+        json!([{"run":words,"mcp":words,"exit":exit,"expect":{"/status":if expected.get("total") == Some(&json!(0)) {"absent"} else {"complete"},"/page/offset":expected.get("offset").ok_or("missing offset")?,"/page/total":expected.get("total").ok_or("missing total")?,"/page/returned":expected.get("items").and_then(Value::as_array).ok_or("missing source items")?.len()},"max_bytes":if projected {default_ceiling(id,section)?} else {ceiling(id,section,&offset)?}}]),
     )?;
     fs::write(
         output.join(format!("{index:02}-original-date.json")),
@@ -317,4 +311,12 @@ fn ceiling(id: &str, section: &str, offset: &str) -> Result<u64, String> {
         ("MONDO:0800444", "phenotypes", "0") => 15093,
         _ => return Err("unmeasured native page".into()),
     })
+}
+
+fn default_ceiling(_id: &str, section: &str) -> Result<u64, String> {
+    match section {
+        "genes" => Ok(5300),
+        "phenotypes" => Ok(5900),
+        _ => Err("unmeasured default section".into()),
+    }
 }
