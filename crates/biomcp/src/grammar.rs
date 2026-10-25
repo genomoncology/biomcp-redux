@@ -485,7 +485,9 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search" | "get", "adverse-event" | "disease" | "drug") => entity::request(verb, entity, value),
+        ("search" | "get", "adverse-event" | "disease" | "drug") => {
+            entity::request(verb, entity, value)
+        }
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),

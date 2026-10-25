@@ -16,6 +16,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     let mut out = Outcome {
         status: Status::Failed,
         body: QueryBody::AdverseEventPage(AdverseEventPage {
+            reaction_match: query.reaction().map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
             source_query: selector.into_boxed_str(),
             source_updated: None,
             fetched: None,
@@ -74,6 +75,7 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
         };
         if let QueryBody::AdverseEventPage(body) = &mut out.body {
             body.items = page.items.into();
+            body.components = page.components;
             body.source_updated = page.updated;
             body.fetched = biomcp_adapters::received_date(page.metadata.fetched);
         }

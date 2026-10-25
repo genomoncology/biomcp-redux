@@ -11,7 +11,7 @@ fn default_limit() -> u32 {
 fn full_day(date: Option<PartialDate>) -> bool {
     date.is_none_or(|d| d.day().is_some())
 }
-/// Checked literal report search with source-specific filters.
+/// Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -39,7 +39,7 @@ struct SearchFields {
     /// Inclusive first FDA receipt upper bound, YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     received_to: Option<PartialDate>,
-    /// Native reports per page; default awaits adapter budget measurement.
+    /// Native report headers per page; default five.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,

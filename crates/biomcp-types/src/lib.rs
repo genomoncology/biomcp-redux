@@ -144,7 +144,7 @@ pub use adverse_event::{
     AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
     AdverseEventIdentifierSection, AdverseEventIdentifiers, AdverseEventIdentityCounts,
     AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage,
-    AdverseEventReaction, AdverseEventReactions, AdverseEventRecords, AdverseEventSearch,
+    AdverseEventReaction, AdverseEventReactions, AdverseEventReactionMatch, AdverseEventRecords, AdverseEventSearch,
     AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
 };
 pub use query::{

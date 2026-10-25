@@ -154,6 +154,8 @@ fn registry() -> Vec<Contract> {
 }
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
+        AdverseEventSearch => ("adverse-event-search", "biomcp.adverse-event-search/1"),
+        AdverseEventGet => ("adverse-event-get", "biomcp.adverse-event-get/1"),
         Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse_event_page/2"),
         Envelope<AdverseEventFaersCard> => ("adverse-event-faers-card", "biomcp.adverse_event_faers_card/1"),
         Envelope<AdverseEventMaudeCard> => ("adverse-event-maude-card", "biomcp.adverse_event_maude_card/1"),

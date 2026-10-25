@@ -7,6 +7,8 @@ use biomcp_types::{
 /// One native ordered report page; no drug/reaction-array join.
 #[derive(Debug)]
 pub struct Page {
+    /// Applicable filtered terminology terms, independent of service terms.
+    pub components: Box<[biomcp_types::ComponentLabel]>,
     /// Whole report headers in source order.
     pub items: Vec<AdverseEventHeader>,
     /// Native report count, never a population denominator.
@@ -58,6 +60,7 @@ pub fn search(
     if query.reaction().is_some() {
         crate::adverse_event_sources::components::meddra(leg)?;
     }
+    let components = if query.reaction().is_some() { crate::adverse_event_sources::components::labels(biomcp_types::Source::Faers, biomcp_types::Source::Meddra)? } else { Box::default() };
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
     let (response, metadata) = leg.json_received_checked::<raw::Response>(
         &endpoint,
@@ -78,6 +81,7 @@ pub fn search(
     )?;
     match response {
         raw::Response::Page { meta, results } => Ok(Page {
+            components,
             items: results
                 .into_iter()
                 .map(|v| AdverseEventHeader {
@@ -94,6 +98,7 @@ pub fn search(
             metadata,
         }),
         raw::Response::Absent { .. } => Ok(Page {
+            components,
             items: Vec::new(),
             total: 0,
             updated: None,

@@ -31,11 +31,21 @@ pub struct AdverseEventHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first_received: Option<Box<str>>,
 }
+biodata::wire_enum! {
+/// Source reaction selector matching semantics.
+AdverseEventReactionMatch {
+    /// Analyzed-field phrase match, without exact-term equality.
+    PhraseMatch => "phrase_match",
+}
+}
 /// Ordered report headers; totals count reports with no population denominator.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventPage {
+    /// Explicit analyzed reaction selector semantics when a reaction was supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reaction_match: Option<AdverseEventReactionMatch>,
     /// Exact literal provider expression; reaction selectors use phrase match.
     pub source_query: Box<str>,
     /// The publisher last_updated date, separate from retrieval.

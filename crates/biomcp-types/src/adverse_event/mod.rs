@@ -8,7 +8,7 @@ pub use response::{
     AdverseEventFaersCard, AdverseEventHeader, AdverseEventIdentifierRecords,
     AdverseEventIdentifiers, AdverseEventIdentityCounts, AdverseEventMaudeCard,
     AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage, AdverseEventReaction,
-    AdverseEventReactions, AdverseEventRecords,
+    AdverseEventReactions, AdverseEventReactionMatch, AdverseEventRecords,
 };
 pub use selectors::{
     AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
