@@ -3,10 +3,7 @@ use crate::xml::{Decoder, XmlReply};
 use crate::{Arg, Endpoint, KeyPlace, KeyUse, Leg, Reply, RequestError, SourceError};
 use crate::{InputError, declaration::Method, prepared::Prepared};
 use biomcp_types::Reason;
-use std::{
-    io::Read,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 struct Wire {
     fetched: i64,
@@ -16,7 +13,7 @@ struct Wire {
     body: Vec<u8>,
     retry_after: Option<Duration>,
 }
-enum Failure {
+pub(crate) enum Failure {
     Transport(ureq::Error),
     Local(RequestError),
 }
@@ -535,44 +532,6 @@ impl Leg<'_> {
             prepared.post.as_ref(),
             exchange,
         )
-    }
-
-    fn read_body(
-        &self,
-        response: &mut ureq::http::Response<ureq::Body>,
-        status: u16,
-        recording: bool,
-        limit: u64,
-    ) -> Result<Vec<u8>, Failure> {
-        let mut body = Vec::new();
-        if recording || (200..300).contains(&status) {
-            response
-                .body_mut()
-                .as_reader()
-                .take(limit + 1)
-                .read_to_end(&mut body)
-                .map_err(|error| {
-                    Failure::Local(
-                        self.failure(
-                            if error.kind() == std::io::ErrorKind::TimedOut
-                                || self.budget().expired()
-                            {
-                                Reason::DeadlineExceeded
-                            } else {
-                                Reason::BadReply
-                            },
-                            Some(status),
-                        )
-                        .into(),
-                    )
-                })?;
-            if body.len() as u64 > limit {
-                return Err(Failure::Local(
-                    self.failure(Reason::BadReply, Some(status)).into(),
-                ));
-            }
-        }
-        Ok(body)
     }
 
     fn decode<T: Reply>(

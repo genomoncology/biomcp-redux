@@ -48,7 +48,7 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
         (Request::GetPgx(q), QueryBody::PgxGuidelines(body)) => {
             let mut seen = std::collections::BTreeSet::new();
             for gene in body.items.iter().flat_map(|r| r.genes.iter()) {
-                if gene.symbol == *q.gene() || !seen.insert(gene.symbol.clone()) {
+                if gene.symbol == *q.gene() || !seen.insert(gene.symbol.to_string()) {
                     continue;
                 }
                 if let Ok(query) = serde_json::from_value(json!({"input":[gene.symbol]})) {
