@@ -130,6 +130,19 @@ fn assertions(case: &Case, value: &Value) -> Check {
             return Err(format!("{}: unexpected {pointer}", case.name));
         }
     }
+    if case.args.first().is_some_and(|arg| arg == "search") {
+        let items = value
+            .pointer("/result/items")
+            .and_then(Value::as_array)
+            .ok_or("items")?;
+        let next = value.get("next").and_then(Value::as_array).ok_or("next")?;
+        for (index, item) in items.iter().enumerate() {
+            let step = next.get(index).ok_or("candidate get was dropped")?;
+            if step["kind"] != "disambiguate" || step.pointer("/args/2") != item.get("id") {
+                return Err("candidate gets lost native order or moved behind paging".into());
+            }
+        }
+    }
     let page = value.get("page");
     if let Some(page) = page {
         let offset = page["offset"].as_u64().ok_or("offset")?;

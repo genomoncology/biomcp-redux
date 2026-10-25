@@ -1,6 +1,7 @@
 # 0140 — Search diseases through OLS and get an explicit OLS concept
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6aa0ec9e3169ee34be3d5c3dac542f41cb33c5c9
 
 Milestone: 3
 

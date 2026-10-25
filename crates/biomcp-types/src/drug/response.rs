@@ -1,5 +1,5 @@
 use super::{DrugGet, DrugSearch, DrugSection, DrugSource};
-use crate::{CivicProfile, ResponseBody, Section, Step};
+use crate::{ResponseBody, Section, Step};
 use biodata::{
     AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim,
     DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text,
@@ -156,7 +156,7 @@ pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub civic: Section<DrugRecords<CivicProfile<DrugGet>>>,
+    pub civic: Section<super::DrugCivicStreams>,
 }
 /// Explicit native application/product history without a global approval flag.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -209,7 +209,7 @@ impl ResponseBody for DrugIndications {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug_civic/2";
+    const SCHEMA: &'static str = "biomcp.drug_civic/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {

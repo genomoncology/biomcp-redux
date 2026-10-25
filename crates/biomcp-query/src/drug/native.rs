@@ -66,16 +66,13 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .checked_add(returned)
             .filter(|n| returned > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
         {
-            out.next.insert(
-                0,
-                (
-                    StepKind::Page,
-                    Action::Run {
-                        request: Request::SearchDrug(query.at_offset(offset)),
-                        fresh: cx.fresh,
-                    },
-                ),
-            );
+            out.next.push((
+                StepKind::Page,
+                Action::Run {
+                    request: Request::SearchDrug(query.at_offset(offset)),
+                    fresh: cx.fresh,
+                },
+            ));
         }
         out.body = QueryBody::DrugPage(page);
     }

@@ -39,7 +39,7 @@ article-saves: Save whole article Markdown or original supplement bytes only to 
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP. Cases: `tests/cases/article/pdf/*.yaml`, `crates/biomcp/tests/runner/pdf.rs`.
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
 
-variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair. Cases: `tests/cases/variant/*.yaml`, `crates/biomcp/tests/runner/variant.rs`.
+variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair. Cases: `tests/cases/variant/*.yaml`, `crates/biomcp/tests/runner/variant.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
 trial-search: Search the registry with explicit native filters, exact totals, opaque pages and caller-controlled wider alternatives for short searches. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`, `crates/biomcp/tests/runner/trial_wider.rs`.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations. Cases: `tests/cases/trial/get/*.yaml`, `crates/biomcp/tests/runner/trial_get.rs`.
 
@@ -48,7 +48,7 @@ trial-publications: Retrieve native registry references and document manifests a
 trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials. Cases: `tests/cases/trial/sites/*.yaml`, `crates/biomcp/tests/runner/trial_sites.rs`.
 
 variant-population: A caller reads source-given population counts and current catalog associations, keeps missing datasets distinct from zero, and pages ancestry without inferred frequencies or clinical meaning. Cases: `tests/cases/variant/population/*.yaml`, `crates/biomcp/tests/runner/variant_population.rs`.
-variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries with proved literal source filters, preserve native candidates and pages, and honor component terms switches. Cases: `tests/cases/variant/search*.yaml`, `tests/cases/variant/filters/*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`, `crates/biomcp/tests/runner/variant_filters.rs`.
+variant-search: Search explicit gene/protein, assembly-qualified regions or raw MyVariant queries with proved literal source filters, preserve native candidates and pages, and honor component terms switches. Cases: `tests/cases/variant/search*.yaml`, `tests/cases/variant/filters/*.yaml`, `crates/biomcp/tests/runner/variant_search.rs`, `crates/biomcp/tests/runner/variant_filters.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
 trial-help: Discover trial commands through schema-generated help and executable case examples. Cases: `tests/cases/trial/help.yaml`.
 
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator. Cases: `tests/cases/variant/recurrence.yaml`, `crates/biomcp/tests/runner/recurrence.rs`.
@@ -65,5 +65,8 @@ variant-help: Variant help gives executable examples and explicit migration step
 drug-types: A public API caller validates published drug identifiers, selected-source requests, neutral records and source-preserving continuations before command adapters exist. Contracts: `biomcp-types/drug_contracts` (features: `schema`).
 
 drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization. Cases: `crates/biomcp/tests/runner/drug_native.rs`, `crates/biomcp/tests/runner/drug_native_identity.rs`, `tests/cases/drug/native-policy.yaml`.
-drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/disabled.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`.
+drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context. Cases: `crates/biomcp/tests/runner/drug_civic.rs`.
+drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/disabled.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
 disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
+
+disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.

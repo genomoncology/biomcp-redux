@@ -150,3 +150,51 @@ fn candidate_header_preserves_publisher_obsolete_state_without_guessing() {
         );
     }
 }
+
+#[test]
+fn disease_page_continuations_keep_every_native_selector() {
+    let search: DiseaseSearch =
+        serde_json::from_value(json!({"text":"MF","ontology":"doid","limit":2})).unwrap();
+    assert_eq!(search.text().unwrap(), "MF");
+    assert_eq!(search.source(), biomcp_types::DiseaseSource::Ols);
+    assert_eq!(search.ontology(), Some(DiseaseOntology::Doid));
+    let next = search.at_offset(2);
+    assert_eq!((next.limit(), next.offset()), (2, 2));
+    let get: DiseaseGet=serde_json::from_value(json!({"id":"47","source":"seer","section":"incidence","section_limit":2,"sex":"1","race":"1","age_range":"1","dataset":"4","period":"5"})).unwrap();
+    let resolved = get
+        .with_demographics(
+            "1".parse().unwrap(),
+            "1".parse().unwrap(),
+            "1".parse().unwrap(),
+        )
+        .unwrap();
+    let next = resolved.at_section_offset(2);
+    assert_eq!(next.id().as_str(), "47");
+    assert_eq!(next.source(), biomcp_types::DiseaseSource::Seer);
+    assert_eq!(
+        next.section(),
+        Some(biomcp_types::DiseaseSection::Incidence)
+    );
+    assert_eq!((next.section_limit(), next.section_offset()), (2, 2));
+    assert_eq!(next.sex().unwrap().as_str(), "1");
+    assert_eq!(next.race().unwrap().as_str(), "1");
+    assert_eq!(next.age_range().unwrap().as_str(), "1");
+    assert_eq!(next.dataset().unwrap().as_str(), "4");
+    assert_eq!(next.period().unwrap().as_str(), "5");
+    assert!(next.interval().is_none());
+    assert!(next.ontology().is_none());
+}
+
+#[test]
+fn native_alias_proof_keeps_unlabeled_endpoints_and_raw_description() {
+    let relation = json!({"subject":{"id":"DOID:3910"},"predicate":"oboInOwl:hasDbXref","object":{"id":"MONDO:0005061"},"description":"  Native source text  ","attribution":{"source":"synthetic"}});
+    assert_eq!(
+        roundtrip::<biodata::DiseaseRelation>(relation.clone()).unwrap(),
+        relation
+    );
+    let mut invalid = relation.clone();
+    invalid["object"] = json!({"label":"unidentified"});
+    assert!(serde_json::from_value::<biodata::DiseaseRelation>(invalid).is_err());
+    let card = json!({"requested_id":"DOID:3910","returned_id":"MONDO:0005061","alias":relation,"concept":{"id":"MONDO:0005061","label":"synthetic"},"replaced_by":null,"attribution":{"source":"synthetic"},"sections":[],"components":[]});
+    assert_eq!(roundtrip::<DiseaseCard>(card.clone()).unwrap(), card);
+}

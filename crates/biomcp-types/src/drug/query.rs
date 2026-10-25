@@ -138,9 +138,9 @@ impl TryFrom<GetFields> for DrugGet {
         if fields
             .civic_profile
             .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-            || fields.civic_profile.is_some() != fields.civic_kind.is_some()
-            || fields.civic_cursor.is_some() && fields.civic_profile.is_none()
-            || fields.civic_profile.is_some()
+            || fields.civic_profile.is_some() && fields.civic_kind.is_none()
+            || fields.civic_cursor.is_some() && fields.civic_kind.is_none()
+            || fields.civic_kind.is_some()
                 && (fields.source != DrugSource::Civic
                     || !fields.section.contains(&DrugSection::Civic))
         {
@@ -175,6 +175,17 @@ impl DrugGet {
     ) -> Result<Self, QueryInvalid> {
         let mut fields = self.0.clone();
         fields.civic_profile = Some(profile);
+        fields.civic_kind = Some(kind);
+        fields.civic_cursor = cursor;
+        fields.try_into()
+    }
+    /// Continue a therapy-wide claim stream without selecting a molecular profile.
+    pub fn with_civic_stream(
+        &self,
+        kind: CivicClaimKind,
+        cursor: Option<Text>,
+    ) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;
         fields.try_into()
