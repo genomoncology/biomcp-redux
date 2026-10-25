@@ -1,5 +1,6 @@
 //! Literal native drug discovery and exact selected source identities.
 mod civic;
+mod drugsfda;
 mod ema;
 mod openfda_label;
 use crate::{Action, Ctx, Outcome, status};
@@ -10,6 +11,9 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    if query.source() == DrugSource::Drugsfda {
+        return drugsfda::search(cx, query);
+    }
     if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
         return native::search(cx, query);
     }
@@ -46,6 +50,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    if query.source() == DrugSource::Drugsfda {
+        return drugsfda::get(cx, query);
+    }
     if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
         return native::get(cx, query);
     }
