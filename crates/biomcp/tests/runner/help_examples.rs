@@ -22,9 +22,15 @@ pub(super) fn check() -> Result<(), String> {
     for command in commands.iter().filter(|c| {
         c["command"].as_array().is_some_and(|words| {
             words.len() == 2
-                && words
-                    .iter()
-                    .any(|v| v == "article" || v == "gene" || v == "trial" || v == "variant")
+                && words.iter().any(|v| {
+                    v == "article"
+                        || v == "gene"
+                        || v == "trial"
+                        || v == "variant"
+                        || v == "drug"
+                        || v == "ema"
+                        || v == "ddinter"
+                })
         })
     }) {
         let examples = command["examples"]
@@ -63,6 +69,7 @@ pub(super) fn check() -> Result<(), String> {
             .replay
             .as_ref()
             .map(|name| launch::fixtures().join("replies").join(name));
+        prepare_bundles(&case, index, &environment, &registry, replay.as_deref())?;
         let mut step = step.clone();
         step.mcp = step.run.clone();
         run_sequence(
@@ -121,6 +128,31 @@ fn source_description(commands: &[Value]) -> Result<(), String> {
         if !description.contains(word) {
             return Err(format!("source help omits job or failure mode: {word}"));
         }
+    }
+    Ok(())
+}
+
+// Stored-source examples need their owning case's explicit synchronization.
+fn prepare_bundles(
+    case: &Case,
+    index: usize,
+    environment: &launch::Environment,
+    registry: &schema::Registry,
+    replay: Option<&std::path::Path>,
+) -> Result<(), String> {
+    for step in case.steps.iter().take(index).filter(|step| {
+        step.run
+            .as_ref()
+            .is_some_and(|args| args.first().is_some_and(|verb| verb == "sync"))
+    }) {
+        run_sequence(
+            step,
+            environment,
+            &assertions::prepare(step)?,
+            registry,
+            replay,
+            None,
+        )?;
     }
     Ok(())
 }

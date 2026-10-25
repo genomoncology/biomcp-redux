@@ -262,6 +262,24 @@
       "max_tokens": 59,
       "exit": 4,
       "is_error": true
+    },
+    {
+      "run": [
+        "sync",
+        "ddinter",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "ddinter",
+        "--fresh"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 9
+      },
+      "max_bytes": 179,
+      "max_tokens": 45
     }
   ]
 }

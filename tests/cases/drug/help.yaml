@@ -56,15 +56,16 @@
         ],
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
-            "id",
+            "input",
             "--source",
-            "--section",
+            "section",
             "--section-limit",
             "--section-offset",
             "--label-section",
             "--product-number",
-            "--claim-kind",
-            "--molecular-profile"
+            "--civic-kind",
+            "--civic-profile",
+            "--civic-cursor"
           ]
         }
       },
