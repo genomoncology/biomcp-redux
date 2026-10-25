@@ -58,6 +58,9 @@ pub struct Outcome {
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::SearchAdverseEvent(query) => crate::adverse_event::search(cx, query),
+        Request::GetAdverseEvent(q) if q.source() == biomcp_types::AdverseEventSource::Maude => {
+            crate::adverse_event_maude::get(cx, q)
+        }
         Request::GetAdverseEvent(q) => crate::adverse_event::get(cx, q),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),

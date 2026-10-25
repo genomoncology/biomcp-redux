@@ -22,3 +22,6 @@ pub mod drug;
 
 /// Source-owned adverse event search.
 pub mod adverse_event;
+
+/// Explicit native device report cards and sections.
+pub mod adverse_event_maude;

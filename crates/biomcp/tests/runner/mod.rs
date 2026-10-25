@@ -45,6 +45,10 @@ mod markdown_shapes;
 mod markdown_sources;
 mod markdown_variant_sources;
 mod markdown_variant_trial;
+mod maude;
+mod maude_budget;
+mod maude_policy;
+mod maude_snapshot;
 mod mcp;
 mod named_search;
 mod nci;
@@ -529,6 +533,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_registry::trials());
     trials.extend(adverse_event_registry::trials());
     trials.extend(faers_search::trials());
+    trials.extend(maude::trials());
     trials.extend(faers_get::trials());
     trials.extend(diagnostic_registry::trials());
     trials.extend(pgx_registry::trials());

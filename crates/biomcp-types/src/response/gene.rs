@@ -77,6 +77,12 @@ pub enum QueryBody {
     AdverseEventIdentifiers(Option<crate::AdverseEventIdentifiers>),
     /// Source-native adverse event report page.
     AdverseEventPage(crate::AdverseEventPage),
+    /// Exact native device report card.
+    AdverseEventMaudeCard(Option<crate::AdverseEventMaudeCard>),
+    /// Complete native device rows.
+    AdverseEventDevices(Option<crate::AdverseEventDevices>),
+    /// Whole native narrative rows.
+    AdverseEventNarrative(Option<crate::AdverseEventNarrative>),
     /// Native disease candidate page.
     DiseasePage(crate::DiseasePage),
     /// Exact source concept when present.
