@@ -41,7 +41,7 @@ impl Record {
             _ => return None,
         }
         .as_deref()
-        .filter(|parts| parts.iter().any(|part| !part.is_empty()))
+        .filter(|parts| !parts.is_empty())
     }
     pub(super) fn check(&self) -> Result<(), BadReply> {
         use biomcp_types::DrugSource;

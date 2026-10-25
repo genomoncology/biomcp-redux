@@ -72,3 +72,5 @@ mod ema;
 mod mychem;
 pub mod openfda_label;
 mod opentargets;
+
+mod text_parts;
