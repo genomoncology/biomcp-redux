@@ -63,6 +63,30 @@ pub(super) fn selectors() -> Result<(), String> {
             return Err("usage opened a source leg".into());
         }
     }
+    for (selector, extras, valid) in [
+        ("--dataset", vec!["--period", "5"], json!(["3", "1", "4"])),
+        (
+            "--period",
+            vec!["--dataset", "4"],
+            json!([
+                "31", "21", "1", "23", "13", "3", "33", "14", "15", "35", "36", "16", "4", "9",
+                "5", "25", "8", "28", "12"
+            ]),
+        ),
+        (
+            "--sex",
+            vec!["--dataset", "4", "--period", "5", "--sex", "99"],
+            json!(["1", "3", "2"]),
+        ),
+    ] {
+        let mut words = vec!["get", "disease", "47", "incidence", "--source", "seer"];
+        words.extend(extras);
+        replay(
+            env.root(),
+            json!([{"run":words,"mcp":words,"exit":2,"is_error":true,
+            "expect":{"/status":"usage","/error/option":selector,"/error/valid_values":valid,"/error/source":"seer","/next/0/args":["search","disease","--source","seer"]},"max_bytes":20000}]),
+        )?;
+    }
     Ok(())
 }
 pub(super) fn run() -> Result<(), String> {
@@ -88,6 +112,58 @@ pub(super) fn run() -> Result<(), String> {
         )?;
     }
     timeout()?;
+    malformed_statistics()?;
+    Ok(())
+}
+fn malformed_statistics() -> Result<(), String> {
+    for kind in [
+        "object", "double", "broken", "order", "number", "year", "mismatch",
+    ] {
+        let path = crate::runner::launch::fixtures().join(format!("replies/disease/seer-synthetic/{kind}/seer/6034e658f1d299da7d80b7b51bc8f9751bd9ce674eaa5b4f328a617e4c81c671.json"));
+        let raw: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        let body = serde_json::to_string(
+            raw.pointer("/exchanges/0/body/value")
+                .ok_or("missing wire")?,
+        )
+        .map_err(|e| e.to_string())?;
+        let stub = Stub::for_source_status(
+            "seer.cancer.gov",
+            "application/json",
+            move |_| Ok(body.clone()),
+            |_| 200,
+        )?;
+        let env = setup(&stub)?;
+        let directory = env.root().join("statistics");
+        let words = [
+            "get",
+            "disease",
+            "55",
+            "survival",
+            "--source",
+            "seer",
+            "--sex",
+            "3",
+            "--dataset",
+            "4",
+            "--interval",
+            "5",
+        ];
+        let exit = if kind == "mismatch" { 0 } else { 4 };
+        record(&env, &words, &directory, exit)?;
+        let expect = if kind == "mismatch" {
+            json!({"/result/items/0/returned_selectors/5/code":"9","/problems/5/field":"returned_selectors.year_range"})
+        } else {
+            json!({"/status":"failed","/sources/0/reason":"bad_reply","/sources/0/source":"seer"})
+        };
+        replay(
+            &directory,
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":20000}]),
+        )?;
+        if stub.finish()?.len() != 1 {
+            return Err("malformed source retried".into());
+        }
+    }
     Ok(())
 }
 fn timeout() -> Result<(), String> {

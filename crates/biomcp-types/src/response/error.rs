@@ -275,8 +275,7 @@ impl ErrorEnvelope {
     pub fn unsupported_trial_filter(source: crate::Source, option: crate::TrialFilter) -> Self {
         let mut out = Self::arguments();
         out.error.source = Some(source);
-        let option: &'static str = option.into();
-        out.error.option = Some(option.into());
+        out.error.option = Some(option.as_str().into());
         out.error.code = ErrorCode::UnsupportedFilter;
         out.error.message = ErrorMessage::UnsupportedFilter;
         out
@@ -285,8 +284,7 @@ impl ErrorEnvelope {
     pub fn unsupported_filter(source: crate::Source, option: crate::ArticleFilter) -> Self {
         let mut out = Self::arguments();
         out.error.source = Some(source);
-        let option: &'static str = option.into();
-        out.error.option = Some(option.into());
+        out.error.option = Some(option.as_str().into());
         out.error.code = ErrorCode::UnsupportedFilter;
         out.error.message = ErrorMessage::UnsupportedFilter;
         out
