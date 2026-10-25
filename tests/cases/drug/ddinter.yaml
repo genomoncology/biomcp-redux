@@ -186,7 +186,7 @@
       "max_bytes": 15000,
       "max_tokens": 3750,
       "exit": 1,
-      "is_error": true
+      "is_error": false
     },
     {
       "run": [
