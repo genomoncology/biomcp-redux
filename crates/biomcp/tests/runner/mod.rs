@@ -97,6 +97,7 @@ mod trial_get;
 mod trial_sites;
 mod trial_tables;
 mod trial_wider;
+mod vaers;
 mod variant;
 mod variant_civic;
 mod variant_filters;
@@ -543,6 +544,7 @@ fn drug_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(drug_failures::trials());
     trials.extend(adverse_event_failures::trials());
+    trials.extend(vaers::trials());
     trials.extend(drug_identity::trials());
     trials.extend(drug_registry::trials());
     trials.extend(adverse_event_registry::trials());

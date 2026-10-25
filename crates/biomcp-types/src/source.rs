@@ -107,6 +107,8 @@ canonical_enum! {
         Omim => "omim",
         /// openFDA FAERS drug adverse event reports.
         Faers => "faers",
+        /// CDC WONDER vaccine report summaries.
+        Vaers => "vaers",
         /// openFDA MAUDE device event reports.
         Maude => "maude",
         /// Source-reported MedDRA reaction labels and versions.

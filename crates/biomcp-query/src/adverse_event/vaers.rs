@@ -1,0 +1,145 @@
+//! One native table per request, with provider-free retained continuation.
+use crate::{Action, Ctx, Outcome, status, store::Store};
+use biodata::Text;
+use biomcp_adapters::vaers;
+use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{
+    AdverseEventSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, Status,
+    StepKind, VaersSection, VaersSummary,
+};
+use sha2::{Digest, Sha256};
+type Saved = (VaersSummary, Vec<SourceOutcome>);
+
+pub(super) fn search(cx: &Ctx<'_>, q: &AdverseEventSearch) -> Outcome {
+    let mut out = super::unsupported();
+    out.body = QueryBody::VaersSummary(None);
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    if let Err(error) = read(cx, q, deadline, &mut out) {
+        out.local = status::local(error);
+    }
+    command.finish(deadline.remaining());
+    out
+}
+fn key(q: &AdverseEventSearch) -> Vec<u8> {
+    Sha256::digest(
+        format!(
+            "biomcp.vaers_snapshot/1\0{}\0{}",
+            q.vaccine().unwrap_or(""),
+            q.vaers_section().code()
+        )
+        .as_bytes(),
+    )
+    .to_vec()
+}
+fn expired(q: &AdverseEventSearch, out: &mut Outcome) {
+    out.body = QueryBody::PoolError { mismatch: false };
+    out.next.push((
+        StepKind::Restart,
+        Action::Run {
+            request: Request::SearchAdverseEvent(q.restart()),
+            fresh: false,
+        },
+    ));
+}
+fn read(
+    cx: &Ctx<'_>,
+    q: &AdverseEventSearch,
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let leg = cx.fetch.leg(&vaers::SPEC, deadline).fresh(cx.fresh);
+    if cx.fetch.disabled(Source::Vaers) {
+        let error = biomcp_fetch::SourceError {
+            source: Source::Vaers,
+            reason: Reason::Disabled,
+            status: None,
+            retry_after: None,
+        }
+        .into();
+        out.sources
+            .push(status::source(Source::Vaers, leg.finish(), Some(error)));
+        return Err(error);
+    }
+    if q.offset() > 0 && q.snapshot().is_none() {
+        expired(q, out);
+        return Ok(());
+    }
+    let (saved, snapshot) = if let Some(snapshot) = q.snapshot() {
+        let store = Store::open(cx.fetch.cache_access()?, deadline)?;
+        let Some(payload) =
+            store.source_snapshot(snapshot.as_str(), &key(q), |s| cx.fetch.disabled(s))?
+        else {
+            expired(q, out);
+            return Ok(());
+        };
+        let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+        (saved, snapshot.clone())
+    } else {
+        let reply = vaers::read(&leg, q.vaccine().unwrap_or(""), q.vaers_section());
+        let error = reply.as_ref().err().copied();
+        out.sources
+            .push(status::source(Source::Vaers, leg.finish(), error));
+        let saved = (reply?, out.sources.clone());
+        let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
+        let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
+        let snapshot = store.save_source_snapshot(&key(q), &payload, &out.sources)?;
+        (saved, snapshot)
+    };
+    out.sources = saved.1;
+    out.status = if out
+        .sources
+        .iter()
+        .any(|s| s.state == biomcp_types::SourceState::Stale)
+    {
+        Status::Partial
+    } else {
+        Status::Complete
+    };
+    render(q, saved.0, snapshot, out);
+    Ok(())
+}
+fn render(q: &AdverseEventSearch, mut table: VaersSummary, snapshot: Text, out: &mut Outcome) {
+    let total = table.rows.len() as u64;
+    table.rows = table
+        .rows
+        .iter()
+        .skip(q.offset() as usize)
+        .take(q.limit() as usize)
+        .cloned()
+        .collect();
+    let returned = table.rows.len() as u32;
+    out.page = Some(PageInfo {
+        offset: q.offset(),
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    });
+    let offset = q.offset().saturating_add(returned);
+    if returned > 0 && u64::from(offset) < total {
+        out.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::SearchAdverseEvent(q.with_snapshot(snapshot).at_offset(offset)),
+                fresh: false,
+            },
+        ));
+    }
+    for section in [
+        VaersSection::Symptoms,
+        VaersSection::Seriousness,
+        VaersSection::Age,
+    ] {
+        if section != q.vaers_section() {
+            out.next.push((
+                StepKind::Section,
+                Action::Run {
+                    request: Request::SearchAdverseEvent(q.with_vaers_section(section)),
+                    fresh: false,
+                },
+            ));
+        }
+    }
+    out.body = QueryBody::VaersSummary(Some(table));
+}

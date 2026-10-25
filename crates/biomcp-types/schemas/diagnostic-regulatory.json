@@ -3,6 +3,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "product_identities",
         "test_identities",
         "native_relation_rows",
         "native_method_entries"
@@ -548,6 +549,7 @@
         "orphanet",
         "omim",
         "faers",
+        "vaers",
         "maude",
         "meddra",
         "gmdn",
@@ -614,6 +616,7 @@
         " Reviewed Orphadata Science content.",
         " Separately licensed OMIM payload only.",
         " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
         " openFDA MAUDE device event reports.",
         " Source-reported MedDRA reaction labels and versions.",
         " Source-carried GMDN device terminology.",

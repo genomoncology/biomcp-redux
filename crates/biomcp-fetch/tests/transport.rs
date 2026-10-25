@@ -89,6 +89,7 @@ impl Stub {
     }
     fn spec(&self, key: KeyUse, deadline: Duration) -> &'static SourceSpec {
         Box::leak(Box::new(SourceSpec {
+            user_agent: None,
             terms: biomcp_fetch::Terms {
                 name: "Synthetic test data",
                 url: "https://example.test/terms",

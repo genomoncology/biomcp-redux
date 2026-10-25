@@ -1,6 +1,7 @@
 # 0186 — Prove that indel IDs printed by variant get round-trip
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 17cb77a0f1775c3bbbfdd44a49673756f9ec690a
 
 Milestone: 2
 

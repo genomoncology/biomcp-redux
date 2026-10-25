@@ -4,6 +4,8 @@ use std::time::Duration;
 /// A source declaration enforced by the transport.
 #[derive(Debug)]
 pub struct SourceSpec {
+    /// Source-owned compatibility header; absent keeps the transport default.
+    pub user_agent: Option<&'static str>,
     /// Source reported on failures.
     pub source: Source,
     /// Publisher-declared terms, reviewed by the source adapter.

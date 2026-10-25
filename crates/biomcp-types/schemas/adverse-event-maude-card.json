@@ -57,9 +57,13 @@
           "description": "Checked retained report snapshot for provider-free continuation."
         },
         "source": {
-          "$ref": "#/$defs/AdverseEventSource",
           "default": "faers",
-          "description": "FAERS by default; MAUDE is explicit."
+          "description": "FAERS by default; MAUDE is explicit.",
+          "enum": [
+            "faers",
+            "maude"
+          ],
+          "type": "string"
         }
       },
       "required": [
@@ -263,12 +267,14 @@
       "description": "An explicit source; never probe the other family.",
       "enum": [
         "faers",
-        "maude"
+        "maude",
+        "vaers"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Drug event reports.",
-        " Device event reports."
+        " Device event reports.",
+        " Explicit CDC WONDER vaccine aggregate tables."
       ]
     },
     "ComponentLabel": {
@@ -549,6 +555,7 @@
         "orphanet",
         "omim",
         "faers",
+        "vaers",
         "maude",
         "meddra",
         "gmdn",
@@ -615,6 +622,7 @@
         " Reviewed Orphadata Science content.",
         " Separately licensed OMIM payload only.",
         " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
         " openFDA MAUDE device event reports.",
         " Source-reported MedDRA reaction labels and versions.",
         " Source-carried GMDN device terminology.",

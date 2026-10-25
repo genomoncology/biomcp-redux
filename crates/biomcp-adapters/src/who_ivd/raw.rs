@@ -8,15 +8,15 @@ pub(super) struct Native {
     #[serde(rename = "WHO Product ID")]
     pub id: WhoProductId,
     #[serde(rename = "Product name")]
-    product_name: Box<str>,
+    pub product_name: Box<str>,
     #[serde(rename = "Product Code")]
     product_code: Box<str>,
     #[serde(rename = "Assay Format")]
     assay_format: Box<str>,
     #[serde(rename = "Manufacturer name")]
-    manufacturer: Box<str>,
+    pub manufacturer: Box<str>,
     #[serde(rename = "Pathogen/Disease/Marker")]
-    marker: Box<str>,
+    pub marker: Box<str>,
     #[serde(rename = "Regulatory Version")]
     regulatory_version: Box<str>,
     #[serde(rename = "Year prequalification")]

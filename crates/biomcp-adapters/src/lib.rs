@@ -116,3 +116,6 @@ pub mod fda_510k;
 
 /// WHO finished pharmaceutical product prequalification.
 pub mod who_pq;
+
+/// Explicit CDC WONDER vaccine report summaries.
+pub mod vaers;

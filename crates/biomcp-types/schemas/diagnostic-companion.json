@@ -250,6 +250,7 @@
     "DiagnosticCountUnit": {
       "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
       "enum": [
+        "product_identities",
         "test_identities",
         "native_relation_rows",
         "native_method_entries"
@@ -362,22 +363,44 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default; at most fifty whole native rows.",
+          "description": "Five results by default; at most fifty source rows or product headers.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
           "type": "integer"
         },
+        "manufacturer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal whole-word phrase in WHO's Manufacturer name cell."
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell."
+        },
         "offset": {
           "default": 0,
-          "description": "Zero-based native row offset.",
+          "description": "Zero-based source result offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
-          "description": "gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment."
+          "description": "Explicit native GTR, WHO IVD or FDA companion discovery."
         },
         "type": {
           "anyOf": [
@@ -400,7 +423,8 @@
       "description": "One explicit diagnostic discovery source.",
       "enum": [
         "gtr",
-        "fda-cdx"
+        "fda-cdx",
+        "who-ivd"
       ],
       "type": "string"
     },
@@ -656,6 +680,7 @@
         "orphanet",
         "omim",
         "faers",
+        "vaers",
         "maude",
         "meddra",
         "gmdn",
@@ -722,6 +747,7 @@
         " Reviewed Orphadata Science content.",
         " Separately licensed OMIM payload only.",
         " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
         " openFDA MAUDE device event reports.",
         " Source-reported MedDRA reaction labels and versions.",
         " Source-carried GMDN device terminology.",

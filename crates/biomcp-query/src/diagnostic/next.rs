@@ -10,11 +10,16 @@ pub(super) fn candidates(
     fresh: bool,
 ) {
     for row in rows {
-        if let DiagnosticCandidate::Resolved { header, .. } = row
-            && let Ok(mut get) = serde_json::from_value::<DiagnosticGet>(
-                serde_json::json!({"id":header.id,"source":"gtr"}),
-            )
-        {
+        let fields = match row {
+            DiagnosticCandidate::Resolved { header, .. } => {
+                serde_json::json!({"id":header.id,"source":"gtr"})
+            }
+            DiagnosticCandidate::WhoIvd { id, .. } => {
+                serde_json::json!({"id":id,"source":"who-ivd"})
+            }
+            _ => continue,
+        };
+        if let Ok(mut get) = serde_json::from_value::<DiagnosticGet>(fields) {
             if let Some(revision) = query.bundle_revision() {
                 get = get.with_bundle_revision(revision.clone());
             }

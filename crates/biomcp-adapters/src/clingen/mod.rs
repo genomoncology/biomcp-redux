@@ -9,6 +9,7 @@ use biomcp_types::{ClinGenGene, Source, SyncResult};
 use std::{marker::PhantomData, time::Duration};
 /// ClinGen published summaries are generated anew for each request.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",
         url: "https://clinicalgenome.org/docs/terms-of-use/",

@@ -8,6 +8,7 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0 database data",
         url: "https://reactome.org/license",

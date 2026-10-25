@@ -1,5 +1,6 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
 mod get;
+mod vaers;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::{faers, maude};
 use biomcp_types::{
@@ -8,9 +9,13 @@ use biomcp_types::{
 };
 /// Search report headers through the declared source and its reviewed component admission.
 pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
-    let source = match query.source() {
-        biomcp_types::AdverseEventSource::Faers => Source::Faers,
-        biomcp_types::AdverseEventSource::Maude => Source::Maude,
+    if query.source() == biomcp_types::AdverseEventSource::Vaers {
+        return vaers::search(cx, query);
+    }
+    let source = if query.source() == biomcp_types::AdverseEventSource::Faers {
+        Source::Faers
+    } else {
+        Source::Maude
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

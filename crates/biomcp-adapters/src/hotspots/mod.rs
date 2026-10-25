@@ -10,6 +10,7 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Publisher terms remain unverified; raw captures remain external.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "Publisher-specific terms; data reuse unverified",
         url: "https://www.cancerhotspots.org/",

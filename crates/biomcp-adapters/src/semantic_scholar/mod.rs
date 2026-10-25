@@ -4,6 +4,7 @@ use biomcp_types::Source;
 use std::time::Duration;
 /// Shared policy for search, paper records, graph edges and recommendations.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "Semantic Scholar API License Agreement",
         url: "https://api.semanticscholar.org/license/",

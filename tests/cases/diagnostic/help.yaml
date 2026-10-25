@@ -33,13 +33,14 @@
             "--offset"
           ]
         },
-        "/result/commands/0/arguments/9/choices": [
+        "/result/commands/0/arguments/11/choices": [
           "gtr",
-          "fda-cdx"
+          "fda-cdx",
+          "who-ivd"
         ]
       },
-      "max_bytes": 2200,
-      "max_tokens": 550
+      "max_bytes": 2654,
+      "max_tokens": 664
     },
     {
       "run": [

@@ -107,6 +107,8 @@ pub enum QueryBody {
     AdverseEventIdentifiers(Option<crate::AdverseEventIdentifiers>),
     /// Source-native adverse event report page.
     AdverseEventPage(crate::AdverseEventPage),
+    /// Independent native vaccine aggregate table.
+    VaersSummary(Option<crate::VaersSummary>),
     /// Exact native device report card.
     AdverseEventMaudeCard(Option<crate::AdverseEventMaudeCard>),
     /// Complete native device rows.
