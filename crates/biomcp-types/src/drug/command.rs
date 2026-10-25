@@ -12,7 +12,11 @@ impl schemars::JsonSchema for DrugGetCommand {
         if let Some(properties) = schema.get_mut("properties").and_then(|v| v.as_object_mut())
             && let Some(input) = who.pointer("/properties/input")
         {
-            properties.insert("input".into(), input.clone());
+            let mut input = input.clone();
+            if let Some(object) = input.as_object_mut() {
+                object.insert("description".into(), "Exact source-native ID; WHO references retain native spaces. No name or alias resolution.".into());
+            }
+            properties.insert("input".into(), input);
         }
         schema
     }

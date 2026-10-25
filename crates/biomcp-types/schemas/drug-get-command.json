@@ -95,7 +95,7 @@
     },
     "input": {
       "$ref": "#/$defs/Text",
-      "description": "Exact WHO reference number, including native spaces; no name or alias resolution.",
+      "description": "Exact source-native ID; WHO references retain native spaces. No name or alias resolution.",
       "x-positional": 0
     },
     "label_section": {
