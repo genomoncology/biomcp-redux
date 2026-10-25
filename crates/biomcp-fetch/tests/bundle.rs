@@ -454,7 +454,7 @@ mod native {
     use super::*;
     use biomcp_fetch::{BundlePart, BundleSet};
     use std::io::Write;
-    const BODY: &str = "symbol\tband\tname\nBRAF\t\t\"A \"\"quoted\"\" name\"\n";
+    const BODY: &str = "symbol\tband\tname\r\nBRAF\t\t\"A \"\"quoted\"\" name\"\r\n";
     fn gzip(body: &[u8]) -> Vec<u8> {
         let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::fast());
         encoder.write_all(body).unwrap();

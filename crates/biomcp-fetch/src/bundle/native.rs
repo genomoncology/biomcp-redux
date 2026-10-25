@@ -22,6 +22,7 @@ pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Pa
         return Err(BadReply);
     }
     let text = std::str::from_utf8(&bytes).map_err(|_| BadReply)?;
+    check_quotes(text)?;
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(b'\t')
         .from_reader(text.as_bytes());
@@ -48,4 +49,36 @@ pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Pa
             })
         })
         .collect()
+}
+
+// The publisher may use literal quotes inside unquoted fields. A quoted field,
+// however, must close and may be followed only by its delimiter or record end.
+fn check_quotes(text: &str) -> Result<(), BadReply> {
+    let (mut start, mut quoted, mut closed) = (true, false, false);
+    for byte in text.bytes() {
+        if quoted {
+            if byte == b'"' {
+                quoted = false;
+                closed = true;
+            }
+        } else if closed {
+            match byte {
+                b'"' => {
+                    quoted = true;
+                    closed = false;
+                }
+                b'\t' | b'\r' | b'\n' => {
+                    start = true;
+                    closed = false;
+                }
+                _ => return Err(BadReply),
+            }
+        } else if start && byte == b'"' {
+            quoted = true;
+            start = false;
+        } else {
+            start = matches!(byte, b'\t' | b'\r' | b'\n');
+        }
+    }
+    if quoted { Err(BadReply) } else { Ok(()) }
 }
