@@ -2,8 +2,8 @@
 use crate::{Action, Outcome};
 use biodata::{Build, Chromosome, GeneSymbol, Text};
 use biomcp_types::{
-    DrugCivic, DrugCivicClaim, DrugCivicMember, DrugOncokbMissing, Request, Section, Source,
-    StepKind, VariantGet, VariantInput, VariantResolver, VariantSection,
+    DrugCivic, DrugCivicClaim, DrugCivicMember, DrugOncokbMissing, Request, Section, StepKind,
+    VariantGet, VariantInput, VariantResolver, VariantSection,
 };
 
 pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {

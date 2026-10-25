@@ -6,9 +6,9 @@ use serde_json::{Value, json};
 use std::fs;
 const ROOT: &str = "/result/candidates/0/sections/oncokb";
 const NAMES: [&str; 8] = [
-    "d05-explicit-context",
-    "d17-group-context",
-    "d19-no-allele",
+    "synthetic-explicit-context",
+    "synthetic-d17-group-context",
+    "synthetic-d19-no-allele",
     "missing-build",
     "missing-gene",
     "missing-tumor",
@@ -102,10 +102,10 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
                 "variant",
                 "NC_000007.14:g.140753336A>T",
                 "oncokb",
-                "--tumor-type",
-                "Synthetic tumor",
                 "--build",
-                "GRCh38"
+                "GRCh38",
+                "--tumor-type",
+                "Synthetic tumor"
             ])
             .as_array()
             .ok_or("args")?
@@ -152,6 +152,10 @@ fn follow(env: &Environment, value: &Value, config: &mut Value) -> Result<(), St
     let missing = invoke(env, args.clone(), 0)?;
     if missing.pointer(&format!("{ROOT}/reason")) != Some(&json!("no_key")) {
         return Err("missing key did not stop".into());
+    }
+    let mcp_missing = super::mcp::call_with_globals(env, &args, false, &[])?;
+    if missing.get("result") != mcp_missing.get("result") {
+        return Err("missing-key CLI/MCP differs".into());
     }
     config["keys"] = json!({"oncokb_api_key":"synthetic-oncokb-variant-key"});
     env.config(config).map_err(|e| e.to_string())?;
