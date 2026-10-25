@@ -125,3 +125,274 @@ fn checked_get_keeps_base_supplement_and_section_scope() {
         );
     }
 }
+
+fn gene() -> Value {
+    json!({"test_id":"GTR000006692.3","test_type":"Clinical","gene":{"ncbi_gene_id":"672","label":"Synthetic symbol"},"native_medgen":"MedGen:C0376571","mim_number":"","object_name":"Synthetic native gene label"})
+}
+fn condition() -> Value {
+    json!({"test_id":"GTR000006692.3","test_type":"Clinical","condition":{"id":"MedGen:C2676676","label":"Synthetic condition"},"mim_number":"604370","snomed_ct_id":""})
+}
+fn method() -> Value {
+    json!({"test_id":"GTR000006692.3","list":"methods","index":2,"value":"Synthetic unpaired method"})
+}
+fn pma_header() -> Value {
+    json!({"pma_number":"P150013","supplement_number":"","trade_name":"Synthetic device","applicant":"Synthetic applicant","decision_date":"20200101","decision_code":"APPR","url":"https://example.invalid/pma/P150013"})
+}
+fn who() -> Value {
+    let rows: Vec<_> = (0..9).map(|i| json!({"product_name":"Synthetic product","product_code":format!("code-{i}"),"assay_format":"Synthetic format","manufacturer":"Synthetic manufacturer","marker":format!("native marker {i}"),"regulatory_version":"Uninterpreted source prose","prequalification_year":"2024"})).collect();
+    json!({"id":"0466-046-00","native_rows":rows})
+}
+fn companion(group: bool) -> Value {
+    let headers = if group {
+        vec![
+            "Diagnostic Name\n(Manufacturer)",
+            "Indication(s) - Sample Type",
+            "PMA (Approval Date)",
+            "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA",
+        ]
+    } else {
+        vec![
+            "Diagnostic Name (Manufacturer)",
+            "Indication - Sample Type",
+            "Drug Trade Name (Generic) NDA / BLA",
+            "Biomarker(s)",
+            "Biomarker(s) (Details)",
+            "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)",
+        ]
+    };
+    let cells: serde_json::Map<_,_> = headers.into_iter().map(|h| (h.to_owned(),json!({"text":format!("Whole synthetic {h} cell"),"links":[{"href":"https://example.invalid/cell-owned"}]}))).collect();
+    json!({"kind":if group {"group"} else {"individual"},"snapshot":"synthetic-revision","index":7,"cells":cells,"device_ids":["P150013/S020","K173492","DEN170019"],"drug_applications":[{"id":"NDA021335","url":"https://example.invalid/owned/NDA021335"},{"id":"BLA125514","url":"https://example.invalid/owned/BLA125514"}]})
+}
+
+#[test]
+fn native_memberships_keep_namespace_and_cannot_become_statements() {
+    for row in [gene(), condition(), method()] {
+        assert!(serde_json::from_value::<Statement>(row).is_err());
+    }
+    assert_eq!(roundtrip::<GtrGeneRelation>(gene()), gene());
+    assert_eq!(roundtrip::<GtrConditionRelation>(condition()), condition());
+    assert_eq!(roundtrip::<GtrMethod>(method()), method());
+    assert!(serde_json::from_value::<GtrGeneRelation>(condition()).is_err());
+    assert!(serde_json::from_value::<GtrConditionRelation>(gene()).is_err());
+    for kind in ["Clinical", "Research", "Clinical microbial"] {
+        assert_eq!(roundtrip::<GtrTestType>(json!(kind)), kind);
+    }
+    assert!(serde_json::from_value::<GtrTestType>(json!("clinical")).is_err());
+    for list in ["methods", "method_categories", "platforms"] {
+        assert_eq!(roundtrip::<GtrMethodList>(json!(list)), list);
+    }
+    assert!(serde_json::from_value::<GtrMethodList>(json!("all")).is_err());
+}
+
+#[test]
+fn native_test_rows_keep_empty_cells_and_all_five_status_flags() {
+    let mut row = json!({"test_accession_ver":"GTR000551465.2"});
+    for key in [
+        "name_of_laboratory",
+        "name_of_institution",
+        "facility_state",
+        "facility_postcode",
+        "facility_country",
+        "CLIA_number",
+        "state_licenses",
+        "state_license_numbers",
+        "lab_test_id",
+        "last_touch_date",
+        "lab_test_name",
+        "manufacturer_test_name",
+        "test_development",
+        "lab_id",
+        "condition_identifiers",
+        "indication_types",
+        "inheritances",
+        "method_categories",
+        "methods",
+        "platforms",
+        "genes",
+        "drug_responses",
+        "now_current",
+        "test_currStat",
+        "test_pubStat",
+        "lab_currStat",
+        "lab_pubStat",
+        "test_create_date",
+        "test_deletion_date",
+        "test_order_code",
+    ] {
+        row[key] = json!("");
+    }
+    for (key, value) in [
+        ("now_current", "0"),
+        ("test_currStat", "1"),
+        ("test_pubStat", "3"),
+        ("lab_currStat", "72"),
+        ("lab_pubStat", "4"),
+    ] {
+        row[key] = json!(value);
+    }
+    let first = roundtrip::<GtrTestVersion>(row.clone());
+    row["last_touch_date"] = json!("2026-06-29");
+    let second = roundtrip::<GtrTestVersion>(row.clone());
+    assert_ne!(first, second);
+    assert_eq!(second["CLIA_number"], "");
+    assert_eq!(second["lab_currStat"], "72");
+    assert_eq!(second["test_pubStat"], "3");
+    let records = [
+        json!({"kind":"gtr_test_version","record":first}),
+        json!({"kind":"gtr_test_version","record":second}),
+    ];
+    assert_eq!(
+        roundtrip::<Vec<DiagnosticRecord>>(json!(records)),
+        json!(records)
+    );
+}
+
+#[test]
+fn who_cards_preserve_every_complete_code_row_and_original_scope() {
+    let value = who();
+    let card = roundtrip::<WhoIvdProduct>(value.clone());
+    assert_eq!(card, value);
+    assert_eq!(card["native_rows"].as_array().unwrap().len(), 9);
+    assert_eq!(card["native_rows"][8]["marker"], "native marker 8");
+    assert!(serde_json::from_value::<Statement>(card).is_err());
+}
+
+#[test]
+fn pma_absent_empty_and_explicit_supplement_roles_stay_distinct() {
+    let absent = json!({"pma_number":"P150013"});
+    assert_eq!(roundtrip::<DeviceSubmission>(absent.clone()), absent);
+    for sub in ["", "S020"] {
+        let row = json!({"pma_number":"P150013","supplement_number":sub,"ao_statement":"Whole synthetic source statement","supplement_type":"","supplement_reason":""});
+        assert_eq!(roundtrip::<DeviceSubmission>(row.clone()), row);
+    }
+    for sub in ["S000", "020", "S20", "base"] {
+        assert!(
+            serde_json::from_value::<DeviceSubmission>(
+                json!({"pma_number":"P150013","supplement_number":sub})
+            )
+            .is_err()
+        );
+    }
+    assert!(serde_json::from_value::<DiagnosticPmaHeader>(json!({"pma_number":"P150013","supplement_number":"","url":"https://example.invalid","ao_statement":"Whole statement must stay behind regulatory"})).is_err());
+}
+
+#[test]
+fn physical_companion_tables_keep_exact_headers_whole_cells_and_owned_ids() {
+    for group in [false, true] {
+        let row = companion(group);
+        assert_eq!(roundtrip::<CompanionDiagnosticRelation>(row.clone()), row);
+        assert!(serde_json::from_value::<Statement>(row.clone()).is_err());
+        let mut invalid = row.clone();
+        invalid["cells"]["invented column"] = json!({"text":"invented","links":[]});
+        assert!(serde_json::from_value::<CompanionDiagnosticRelation>(invalid).is_err());
+        let mut wrong_kind = row;
+        wrong_kind["kind"] = json!(if group { "individual" } else { "group" });
+        assert!(serde_json::from_value::<CompanionDiagnosticRelation>(wrong_kind).is_err());
+    }
+    let mut bad_id = companion(false);
+    bad_id["drug_applications"][0]["id"] = json!("21335");
+    assert!(serde_json::from_value::<CompanionDiagnosticRelation>(bad_id).is_err());
+}
+
+#[test]
+fn conflict_candidates_have_no_selected_name_or_card() {
+    let value = json!({"identity_status":"conflict","id":"GTR000551465.2","problem":{"source":"pubmed","record":"GTR000551465.2","field":"test_accession_ver","code":"value.unknown"}});
+    // This pre-registry synthetic source is not a GTR provider observation.
+    assert_eq!(roundtrip::<DiagnosticCandidate>(value.clone()), value);
+    assert!(serde_json::from_value::<DiagnosticCard>(value.clone()).is_err());
+    let mut invalid = value;
+    invalid["name"] = json!("Silent winner");
+    assert!(serde_json::from_value::<DiagnosticCandidate>(invalid).is_err());
+}
+
+#[test]
+fn continuation_preserves_revision_filters_and_source_checked_sections() {
+    let search: DiagnosticSearch=serde_json::from_value(json!({"source":"gtr","gene_id":"672","condition_id":"MedGen:C2676676","type":"Clinical","bundle_revision":"revision-1"})).unwrap();
+    assert_eq!(search.source(), DiagnosticSearchSource::Gtr);
+    assert_eq!(search.gene_id().unwrap().to_string(), "672");
+    assert!(search.gene().is_none());
+    assert_eq!(search.condition_id().unwrap().as_str(), "MedGen:C2676676");
+    assert!(search.device_id().is_none());
+    assert!(search.drug_application().is_none());
+    assert!(search.biomarker().is_none());
+    assert_eq!(search.test_type(), Some(GtrTestType::Clinical));
+    let next = search
+        .with_bundle_revision(Text::new("revision-2").unwrap())
+        .at_offset(5);
+    assert_eq!(next.bundle_revision().unwrap().as_str(), "revision-2");
+    assert_eq!((next.limit(), next.offset()), (5, 5));
+    let get: DiagnosticGet =
+        serde_json::from_value(json!({"source":"fda-pma","id":"P150013","supplement":"S020"}))
+            .unwrap();
+    assert_eq!(get.id().as_str(), "P150013");
+    assert_eq!(get.source(), DiagnosticGetSource::FdaPma);
+    assert_eq!(get.supplement().unwrap().as_str(), "S020");
+    assert!(get.with_section(DiagnosticSection::Supplements).is_err());
+    assert!(get.with_section(DiagnosticSection::Genes).is_err());
+    let next = get
+        .with_section(DiagnosticSection::Regulatory)
+        .unwrap()
+        .with_bundle_revision(Text::new("revision-2").unwrap())
+        .at_section_offset(2);
+    assert_eq!(next.section(), Some(DiagnosticSection::Regulatory));
+    assert_eq!(next.section_offset(), 2);
+    assert_eq!(next.bundle_revision().unwrap().as_str(), "revision-2");
+}
+
+#[test]
+fn regulatory_default_counts_one_fragment_and_explicit_limits_remain_explicit() {
+    let base = json!({"source":"fda-pma","id":"P150013","section":"regulatory"});
+    let get: DiagnosticGet = serde_json::from_value(base.clone()).unwrap();
+    assert_eq!(get.section_limit(), 1);
+    for limit in [json!(0), json!(null), json!(51)] {
+        let mut bad = base.clone();
+        bad["section_limit"] = limit;
+        assert!(serde_json::from_value::<DiagnosticGet>(bad).is_err());
+    }
+    let mut explicit = base;
+    explicit["section_limit"] = json!(5);
+    let get: DiagnosticGet = serde_json::from_value(explicit).unwrap();
+    assert_eq!(get.section_limit(), 5);
+}
+
+#[cfg(feature = "schema")]
+fn envelope<T>(query: Value, body: Value)
+where
+    T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
+    T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
+{
+    let body: T = serde_json::from_value(body).unwrap();
+    let query = serde_json::from_value(query).unwrap();
+    let value = serde_json::to_value(Envelope::new(Status::Complete, query, Some(body))).unwrap();
+    let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>)).unwrap();
+    let validator = jsonschema::draft202012::new(&schema).unwrap();
+    assert!(validator.is_valid(&value), "{value}");
+    assert_eq!(value["schema"], T::SCHEMA);
+}
+
+#[cfg(feature = "schema")]
+#[test]
+fn all_eight_consumer_schemas_accept_their_source_owned_views() {
+    let search = json!({"source":"gtr","gene_id":"672"});
+    let get = json!({"source":"gtr","id":"GTR000006692.3"});
+    envelope::<DiagnosticPage>(search, json!({"items":[]}));
+    let mut card = who();
+    card["kind"] = json!("who_ivd_product");
+    envelope::<DiagnosticCard>(json!({"source":"who-ivd","id":"0466-046-00"}), card);
+    envelope::<DiagnosticGenes>(get.clone(), json!({"items":[gene()]}));
+    envelope::<DiagnosticConditions>(get.clone(), json!({"items":[condition()]}));
+    envelope::<DiagnosticMethods>(get, json!({"items":[method()]}));
+    envelope::<DiagnosticRegulatory>(
+        json!({"source":"fda-pma","id":"P150013","section":"regulatory"}),
+        json!({"items":[{"submission":pma_header(),"metadata":{"date_received":"20200101","supplement_type":"","supplement_reason":""},"field":"ao_statement","offset":0,"total":1,"text":"Whole synthetic regulatory fragment."}]}),
+    );
+    envelope::<DiagnosticSupplements>(
+        json!({"source":"fda-pma","id":"P150013","section":"supplements"}),
+        json!({"items":[pma_header()]}),
+    );
+    envelope::<DiagnosticCompanion>(
+        json!({"source":"fda-cdx","drug_application":"NDA021335"}),
+        json!({"items":[companion(false),companion(true)]}),
+    );
+    assert!(serde_json::from_value::<DiagnosticGenes>(json!({"items":[condition()]})).is_err());
+}
