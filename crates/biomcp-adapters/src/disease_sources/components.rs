@@ -88,8 +88,11 @@ pub fn allowed_fields(leg: &Leg<'_>, fields: &str) -> Result<String, RequestErro
     let selected = fields
         .split(',')
         .filter(|field| {
-            let name = field.split('.').next().unwrap_or(field);
-            get(Source::MyDisease, name).is_some_and(|c| !c.disabled_on_leg(leg))
+            let root = field.split('.').next().unwrap_or(field);
+            // MyDisease publishes Disease Ontology under this native field root.
+            let name = if root == "disease_ontology" { Source::Doid.into() } else { root };
+            (root != <&str>::from(Source::Doid))
+                && get(Source::MyDisease, name).is_some_and(|c| !c.disabled_on_leg(leg))
         })
         .collect::<Vec<_>>();
     if selected.is_empty() {

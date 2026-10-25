@@ -68,7 +68,7 @@ fn declarations() -> Check {
     }
     for name in [
         "hpo",
-        "ontotree",
+        "oncotree",
         "medlineplus",
         "umls",
         "disgenet",
@@ -84,7 +84,7 @@ fn declarations() -> Check {
 fn components() -> Check {
     use biomcp_adapters::{disease_sources::components, registry};
     use biomcp_fetch::{Fetch, FetchConfig, Mode};
-    use biomcp_types::{DiseaseOntology, Reason, Source, SourceState};
+    use biomcp_types::DiseaseOntology;
     use std::time::Duration;
     for (switch, blocked) in [
         ("mondo", "mondo"),
@@ -111,6 +111,12 @@ fn components() -> Check {
             }
         }
     }
+    outcome_labels()?;
+    component_labels()
+}
+fn outcome_labels() -> Check {
+    use biomcp_adapters::registry;
+    use biomcp_types::{Reason, Source, SourceState};
     for source in [
         Source::Ols,
         Source::MyDisease,
@@ -129,6 +135,11 @@ fn components() -> Check {
             }
         }
     }
+    Ok(())
+}
+fn component_labels() -> Check {
+    use biomcp_adapters::disease_sources::components;
+    use biomcp_types::Source;
     for (source, name, usage, url) in [
         (
             Source::Ols,
@@ -295,10 +306,10 @@ fn disabled_health() -> Check {
             {
                 return Err(format!("disabled source executed: {row}"));
             }
-            if let Some(components) = row["components"].as_array() {
-                if components.iter().any(|c| c["disabled"] != true) {
-                    return Err(format!("provider left component enabled: {row}"));
-                }
+            if let Some(components) = row["components"].as_array()
+                && components.iter().any(|c| c["disabled"] != true)
+            {
+                return Err(format!("provider left component enabled: {row}"));
             }
         }
     }
