@@ -84,8 +84,8 @@
         "/query/gene": "DPYD",
         "/query/source": "cpic"
       },
-      "max_bytes": 651,
-      "max_tokens": 163
+      "max_bytes": 779,
+      "max_tokens": 195
     },
     {
       "run": [

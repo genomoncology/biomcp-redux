@@ -5,3 +5,8 @@ mod selectors;
 pub use query::*;
 pub use response::*;
 pub use selectors::*;
+
+#[cfg(feature = "schema")]
+mod command;
+#[cfg(feature = "schema")]
+pub use command::PgxGetCommand;

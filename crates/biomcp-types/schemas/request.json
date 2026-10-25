@@ -144,6 +144,10 @@
       ],
       "type": "string"
     },
+    "ClinPgxAccession": {
+      "pattern": "^PA[1-9][0-9]*$",
+      "type": "string"
+    },
     "Curie": {
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
       "type": "string"
@@ -620,7 +624,7 @@
       ]
     }
   },
-  "$id": "biodata.request/6",
+  "$id": "biodata.request/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -732,8 +736,7 @@
           "x-positional": 0
         },
         "section_limit": {
-          "default": 5,
-          "description": "Complete source rows per independent section page.",
+          "description": "Rows per page: three clinical, five elsewhere.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -746,6 +749,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Retained collection for local continuation."
+        },
         "source": {
           "$ref": "#/$defs/PgxSource",
           "description": "Required source, checked against the section."
@@ -754,6 +768,30 @@
       "required": [
         "command",
         "gene",
+        "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read one exact ClinPGx clinical annotation accession.",
+      "properties": {
+        "command": {
+          "const": "get_pgx_annotation",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/ClinPgxAccession",
+          "description": "Checked ClinPGx accession, never a shared PaId."
+        },
+        "source": {
+          "$ref": "#/$defs/PgxSource",
+          "description": "Required ClinPGx source."
+        }
+      },
+      "required": [
+        "command",
+        "id",
         "source"
       ],
       "type": "object"

@@ -188,7 +188,7 @@ fn verify_next(name: &str, value: &Value) -> Check {
     if name == "pairs" && steps.first().and_then(|s| s.get("kind")) != Some(&json!("page")) {
         return Err("page must precede card/recommendations".into());
     }
-    if name == "card" && steps.len() != 2 {
+    if name == "card" && steps.len() != 3 {
         return Err("gene card must offer exactly implemented sections".into());
     }
     if steps.iter().filter_map(|s| s.get("args")).any(|a| {

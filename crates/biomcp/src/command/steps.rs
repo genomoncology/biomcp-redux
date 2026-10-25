@@ -12,10 +12,12 @@ pub(super) fn next(
     let has_more = result
         .page
         .as_ref()
-        .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
+        .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total)
+        || matches!(&result.body, biomcp_types::QueryBody::PgxAnnotations(biomcp_types::PgxAnnotations::Clinical {page,..}) if u64::from(page.offset)+u64::from(page.returned)<page.total);
     let candidates = matches!(
         &result.body,
-        biomcp_types::QueryBody::DiagnosticCompanion(_)
+        biomcp_types::QueryBody::PgxAnnotations(biomcp_types::PgxAnnotations::Clinical { .. })
+            | biomcp_types::QueryBody::DiagnosticCompanion(_)
             | biomcp_types::QueryBody::DiagnosticPage(_)
             | biomcp_types::QueryBody::DiagnosticGenes(_)
             | biomcp_types::QueryBody::AdverseEventPage(_)

@@ -3,6 +3,7 @@ mod adverse_event_registry;
 mod adverse_event_retirements;
 mod article_save;
 mod assertions;
+mod clinpgx;
 mod clinvar_key;
 mod configuration;
 mod corporate;
@@ -548,6 +549,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(diagnostic_cdx::trials());
     trials.extend(pgx_registry::trials());
     trials.extend(cpic::trials());
+    trials.extend(clinpgx::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(adverse_event_retirements::trials());
     trials.extend(drug_civic::trials());

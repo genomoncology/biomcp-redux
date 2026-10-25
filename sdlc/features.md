@@ -102,4 +102,6 @@ adverse-event-get: Read one exact FAERS report and independently page retained d
 diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whole physical association rows using their own checked identifiers. Cases: `crates/biomcp/tests/runner/diagnostic_cdx.rs`, `tests/cases/diagnostic/fda-cdx.yaml`.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests. Cases: `crates/biomcp/tests/runner/adverse_event_retirements.rs`.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports. Cases: `crates/biomcp/tests/runner/adverse_event_failures.rs`.
+
+clinpgx-annotations: Read independent bounded ClinPGx annotation collections and exact base records without clinical inference. Cases: `crates/biomcp/tests/runner/clinpgx.rs`.
 diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without implicit synchronization or inferred authorization. Cases: `crates/biomcp/tests/runner/diagnostic_who.rs`, `crates/biomcp/tests/runner/diagnostic_who/mechanics.rs`, `tests/cases/diagnostic/who.yaml`, `tests/cases/diagnostic/who-help.yaml`.

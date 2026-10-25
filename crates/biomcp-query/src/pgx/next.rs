@@ -16,7 +16,10 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
 }
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
-    let association = matches!(&out.body, QueryBody::PgxGuidelines(_));
+    let association = matches!(
+        &out.body,
+        QueryBody::PgxGuidelines(_) | QueryBody::PgxAnnotations(_)
+    );
     if out.status == Status::Failed {
         if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
             next.push((
@@ -42,12 +45,9 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
                 }
             }
         }
-        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => {
-            for s in [PgxSection::Recommendations, PgxSection::Guidelines] {
-                if let Some(r) = section(q, s) {
-                    next.push((StepKind::Section, run(r)));
-                }
-            }
+        (Request::GetPgx(q), QueryBody::PgxCard(Some(_))) => card_steps(q, &mut next),
+        (Request::GetPgx(q), QueryBody::PgxAnnotations(body)) => {
+            annotation_steps(q, body, &mut next)
         }
         (
             Request::GetPgx(q),
@@ -102,4 +102,36 @@ fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>) {
 
 fn diplotype(request: &Request) -> bool {
     matches!(request,Request::GetPgx(q) if q.section()==Some(PgxSection::Diplotype))
+}
+
+fn annotation_steps(q: &PgxGet, body: &PgxAnnotations, next: &mut Vec<(StepKind, Action)>) {
+    match body {
+        PgxAnnotations::Clinical { items, page, .. } => {
+            for row in items {
+                if let Ok(query) =
+                    serde_json::from_value(json!({"id":row.accession_id,"source":"clinpgx"}))
+                {
+                    next.push((
+                        StepKind::Disambiguate,
+                        run(Request::GetPgxAnnotation(query)),
+                    ));
+                }
+            }
+            page_step(q, page, next);
+        }
+        PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
+            page_step(q, page, next)
+        }
+    }
+}
+
+fn card_steps(q: &PgxGet, next: &mut Vec<(StepKind, Action)>) {
+    for s in [PgxSection::Recommendations, PgxSection::Guidelines] {
+        if let Some(r) = section(q, s) {
+            next.push((StepKind::Section, run(r)));
+        }
+    }
+    if let Ok(query) = q.with_section(PgxSection::Annotations, PgxSource::Clinpgx) {
+        next.push((StepKind::Section, run(Request::GetPgx(query))));
+    }
 }

@@ -250,8 +250,7 @@
           "x-positional": 0
         },
         "section_limit": {
-          "default": 5,
-          "description": "Complete source rows per independent section page.",
+          "description": "Rows per page: three clinical, five elsewhere.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -263,6 +262,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Retained collection for local continuation."
         },
         "source": {
           "$ref": "#/$defs/PgxSource",
