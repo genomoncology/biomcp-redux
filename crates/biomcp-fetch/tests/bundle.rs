@@ -497,6 +497,37 @@ mod native {
         server.next().bytes(bytes);
     }
     #[test]
+    fn malformed_native_quotes_do_not_replace_the_prior_pair() {
+        let server = support::Server::new();
+        let set = native(&server, 1024);
+        let dir = tempfile::tempdir().unwrap();
+        let fetch = cached(&dir.path().join("cache.sqlite"));
+        let bytes = gzip(BODY.as_bytes());
+        std::thread::scope(|scope| {
+            let call = scope.spawn(|| fetch.sync_set(&set));
+            reply(&server, &bytes);
+            reply(&server, BODY.as_bytes());
+            call.join().unwrap().unwrap();
+        });
+        for malformed in [
+            "symbol\tband\tname\nBRAF\t\t\"unterminated",
+            "symbol\tband\tname\nBRAF\t\t\"closed\"suffix\n",
+        ] {
+            std::thread::scope(|scope| {
+                let call = scope.spawn(|| fetch.sync_set(&set));
+                reply(&server, &bytes);
+                reply(&server, malformed.as_bytes());
+                assert!(call.join().unwrap().is_err(), "accepted {malformed:?}");
+            });
+            let leg = fetch.leg(set.spec, fetch.deadline(Duration::from_secs(2)));
+            let (rows, _) = leg
+                .stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
+                .unwrap();
+            assert_eq!(rows.len(), 2);
+            assert!(rows.iter().all(|r| r.value.name == "A \"quoted\" name"));
+        }
+    }
+    #[test]
     fn heterogeneous_native_parts_preserve_empty_quoted_cells_and_reject_decoded_overflow() {
         let server = support::Server::new();
         let set = native(&server, 1024);
