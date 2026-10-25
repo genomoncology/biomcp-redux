@@ -72,7 +72,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if let Ok(page) = result {
         source.count = page.total;
         source.fetched = Some(page.items.len() as u32);
-        apply_page(query, cx.fresh, &mut outcome, page);
+        apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
         body.request = parameters(params);
@@ -89,11 +89,32 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
 fn apply_page(
     query: &TrialSearch,
     fresh: bool,
+    symbol: Option<&str>,
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
+    let short = page.items.len() < query.limit() as usize
+        && page
+            .total
+            .is_some_and(|total| total < u64::from(query.limit()));
     if query.count_only() {
         page.items.clear();
+    }
+    if short && outcome.status == Status::Complete {
+        outcome.next.extend(
+            query
+                .wider_searches(symbol.and_then(|value| biodata::Text::new(value).ok()))
+                .into_iter()
+                .map(|query| {
+                    (
+                        StepKind::Disambiguate,
+                        Action::Run {
+                            request: Request::SearchTrial(query),
+                            fresh,
+                        },
+                    )
+                }),
+        );
     }
     outcome.page = page.total.map(|total| biomcp_types::PageInfo {
         offset: 0,

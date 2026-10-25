@@ -374,6 +374,29 @@ impl TrialSearch {
     pub fn limit(&self) -> u32 {
         self.0.limit
     }
+    /// Explicit alternatives in order: remove variant, then move the resolved gene
+    /// to eligibility text. Existing eligibility text and continuation remain intact.
+    pub fn wider_searches(&self, symbol: Option<Text>) -> Vec<Self> {
+        if self.source() != TrialSource::Ctgov || self.next_page().is_some() {
+            return Vec::new();
+        }
+        let mut alternatives = Vec::new();
+        if self.variant().is_some() {
+            let mut next = self.clone();
+            next.0.variant = None;
+            alternatives.push(next);
+        }
+        if self.gene().is_some()
+            && self.criteria().is_none()
+            && let Some(symbol) = symbol
+        {
+            let mut next = self.clone();
+            next.0.gene = None;
+            next.0.criteria = Some(symbol);
+            alternatives.push(next);
+        }
+        alternatives
+    }
     /// Continue the identical source query with its opaque cursor.
     pub fn at_page(&self, token: Text) -> Self {
         let mut next = self.clone();
