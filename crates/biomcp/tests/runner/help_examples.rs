@@ -71,7 +71,6 @@ fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, Strin
                         || v == "trial" || v == "variant" || v == "disease" || v == "drug"
                         || v == "ema" || v == "ddinter" || v == "diagnostic" || v == "gtr"
                 })
-        }))
         })
     }) {
         let examples = command["examples"]
