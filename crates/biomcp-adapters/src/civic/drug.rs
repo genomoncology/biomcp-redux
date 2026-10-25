@@ -101,10 +101,11 @@ pub fn drug_search(
         };
         let reply: SearchReply =
             leg.post_json_checked_cache(&GENES, &body, |reply: &SearchReply| {
-                reply.data.therapies.progresses(after.as_ref())
+                reply.data.therapies.nodes.len() <= count as usize
+                    && reply.data.therapies.progresses(after.as_ref())
             })?;
         let rows = reply.data.therapies;
-        if !rows.progresses(after.as_ref()) {
+        if rows.nodes.len() > count as usize || !rows.progresses(after.as_ref()) {
             return Err(failure(Reason::BadReply));
         }
         if skipped >= offset || !rows.page_info.has_next_page {
