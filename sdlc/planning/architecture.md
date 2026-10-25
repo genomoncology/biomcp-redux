@@ -1,6 +1,6 @@
 # Architecture
 
-BioMCP is a Rust command with an MCP server for biomedical search and get. Its user is an agent that answers medical questions for clinicians, such as cancer care and rare disease questions. It organizes source information and never requires the user to install or run other bioinformatics tools. It asks providers such as PubMed, ClinicalTrials.gov, MyGene.info and ClinVar, and local data bundles such as HGNC, and returns typed JSON in biodata's shapes. It reports what sources say and never classifies a variant or scores a clinical match.
+BioMCP is a Rust command with an MCP server for biomedical search and get. Its user is an agent that answers biomedical research questions about any human health issue, including clinical questions such as cancer care and rare disease. It organizes source information and never requires the user to install or run other bioinformatics tools. It asks providers such as PubMed, ClinicalTrials.gov, MyGene.info and ClinVar, and local data bundles such as HGNC, and returns typed JSON in biodata's shapes. It reports what sources say and never classifies a variant or scores a clinical match.
 
 Every choice here follows `decisions/2026-10-23-least-code-easy-upkeep-fast.md`: the least code we own, easy upkeep, and fast. Where this design picks a lighter option over a heavier one, it says what it rejected and why. Decisions in `decisions/` are settled, and this design works inside them. Section 13 records the PM's rulings on this design's earlier open questions, and section 14 lists what remains open.
 
@@ -1556,7 +1556,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
 ```json
 {
   "name": "biomcp",
-  "description": "Search and get biomedical records for medical questions. Pass CLI arguments as a list.\n<compact command tree generated from the schemas>",
+  "description": "Search and get biomedical records for biomedical research questions. Pass CLI arguments as a list.\n<compact command tree generated from the schemas>",
   "inputSchema": {
     "type": "object",
     "properties": { "args": { "type": "array", "items": { "type": "string" }, "description": "The argument list after the program name, such as [\"get\", \"gene\", \"BRAF\"]." } },

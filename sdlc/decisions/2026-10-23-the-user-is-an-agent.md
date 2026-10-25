@@ -8,3 +8,5 @@ Decided 2026-10-23 by Ian.
 - The CLI tree must be easy for an agent to understand: one spelling per idea, `search` for headers, `get` for a card, `<entity> <relation> <id>` for drill-downs, and typed next steps in every response.
 
 Amended 2026-10-25 by Ian: the agent may support any medical question, such as cancer care, rare disease or other clinical care, not only cancer care. The limit is that BioMCP organizes source information to answer questions. It never requires the user to install or run other bioinformatics tools, and it does not run analyses with them.
+
+Clarified 2026-10-25 by Ian: the target audience is biomedical research on any human health question. Clinicians are one group within it. The same limit holds: no external bioinformatics tools and no analyses.
