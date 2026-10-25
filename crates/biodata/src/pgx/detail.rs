@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use super::annotation::*;
 use crate::ClinPgxAccession;
+use serde::{Deserialize, Serialize};
 /// Source-native PgxAllelePhenotype fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

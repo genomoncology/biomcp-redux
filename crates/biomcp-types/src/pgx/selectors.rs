@@ -41,5 +41,7 @@ biodata::wire_enum! { described
     }
 }
 impl Default for PgxAnnotationKind {
-    fn default() -> Self { Self::Clinical }
+    fn default() -> Self {
+        Self::Clinical
+    }
 }

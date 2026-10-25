@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::ClinPgxAccession;
+use serde::{Deserialize, Serialize};
 /// Source-native PgxObjectReference fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

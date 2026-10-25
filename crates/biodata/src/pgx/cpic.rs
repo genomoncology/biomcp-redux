@@ -1,5 +1,5 @@
+use crate::{ClinPgxAccession, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, Pmid, Text};
 use serde::{Deserialize, Serialize};
-use crate::{ClinPgxAccession, GeneSymbol, HgncId, NcbiGeneId, EnsemblGeneId, Pmid, Text};
 use std::collections::BTreeMap;
 /// Source-native PgxGeneIdentity fields; no clinical interpretation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
