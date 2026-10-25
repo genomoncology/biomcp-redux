@@ -2,6 +2,9 @@ use super::{AdverseEventSection, AdverseEventSerious, AdverseEventSource};
 use crate::QueryInvalid;
 use biodata::{PartialDate, ReportId, Text};
 use serde::{Deserialize, Serialize};
+fn default_source() -> AdverseEventSource {
+    AdverseEventSource::Faers
+}
 fn default_limit() -> u32 {
     5
 }
@@ -22,7 +25,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     text: Text,
     /// FAERS by default; no source fallback.
-    #[serde(default)]
+    #[serde(default = "default_source")]
     source: AdverseEventSource,
     /// FAERS MedDRA term phrase match, not exact equality.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -118,7 +121,7 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: ReportId,
     /// FAERS by default; MAUDE is explicit.
-    #[serde(default)]
+    #[serde(default = "default_source")]
     source: AdverseEventSource,
     /// One source-owned section; omitted means card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]

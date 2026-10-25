@@ -7,11 +7,6 @@ biodata::wire_enum! { described
         Maude => "maude",
     }
 }
-impl Default for AdverseEventSource {
-    fn default() -> Self {
-        Self::Faers
-    }
-}
 biodata::wire_enum! { described
     /// Report-level seriousness filter, independent of reaction outcome.
     AdverseEventSerious {
