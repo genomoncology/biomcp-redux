@@ -118,7 +118,6 @@ pub(super) fn run() -> Result<(), String> {
             json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"seer","/sources/0/state":"failed","/sources/0/reason":reason,"/sources/0/terms":"SEER/NCI Using This Website"},"max_bytes":match status {429=>197,500=>196,_=>194}}]),
         )?;
     }
-    wrong_site()?;
     timeout()?;
     malformed_statistics()?;
     Ok(())
@@ -230,7 +229,7 @@ pub(super) fn disabled() -> Result<(), String> {
     Ok(())
 }
 
-fn wrong_site() -> Result<(), String> {
+pub(super) fn wrong_site() -> Result<(), String> {
     use std::sync::atomic::{AtomicUsize, Ordering};
     let calls = AtomicUsize::new(0);
     let stub = Stub::for_source_status(
@@ -275,6 +274,9 @@ fn wrong_site() -> Result<(), String> {
     ];
     for _ in 0..2 {
         let value = invoke(&env, &args(&words), 4)?;
+        if crate::runner::source_terms::size(&value, "")? > 426 {
+            return Err("wrong site failure exceeds its measured budget".into());
+        }
         if value.pointer("/status") != Some(&json!("failed"))
             || value.pointer("/sources/0/state") != Some(&json!("failed"))
             || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
