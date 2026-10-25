@@ -248,18 +248,10 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         Action::KeyHelp(source)
     } else if verb == "sync" {
         Action::Sync {
-            bundle: if matches
-                .get_one::<String>("bundle")
-                .is_some_and(|v| v == "ema")
-            {
-                Bundle::Ema
-            } else if matches
-                .get_one::<String>("bundle")
-                .is_some_and(|v| v == "clingen")
-            {
-                Bundle::ClinGen
-            } else {
-                Bundle::Hgnc
+            bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("ema") => Bundle::Ema,
+                Some("clingen") => Bundle::ClinGen,
+                _ => Bundle::Hgnc,
             },
         }
     } else {
