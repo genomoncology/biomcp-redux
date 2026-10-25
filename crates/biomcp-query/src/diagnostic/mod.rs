@@ -55,9 +55,6 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),
         distinct_id_total: None,
     }));
-    if q.source() != DiagnosticSearchSource::Gtr {
-        return unsupported(Source::FdaCdx, out);
-    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gtr::SPEC, deadline);
@@ -96,13 +93,5 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     }
     finish(&mut out, leg, error);
     command.finish(deadline.remaining());
-    out
-}
-fn unsupported(source: Source, mut out: Outcome) -> Outcome {
-    out.sources.push(biomcp_adapters::registry::outcome(
-        source,
-        SourceState::Skipped,
-        Some(biomcp_types::Reason::Unsupported),
-    ));
     out
 }
