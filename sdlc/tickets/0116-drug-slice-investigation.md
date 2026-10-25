@@ -1,6 +1,7 @@
 # 0116 — Investigate the drug slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2291bd852f1ff4fc40bfec59227d06f523b2315c
 
 Milestone: 3
 
@@ -25,4 +26,11 @@ Milestone: 3
   5. Use one spelling for interactions, `biomcp sync <bundle>` as the bundle decision says, and identifiers in their published form, as variant ruling 1 does, instead of a new prefix grammar. Shortage leaves the section list while it is deferred.
   6. Add header and card field lists, and a case list that maps every command and option to its cases. Label the failing-source case as synthetic.
   7. Replace the PM decisions section with a section for Ian's questions. It says there are none, because the bundles fall under the approved bundle decision, unless a fix raises a cost or commitment.
+- PM recheck 2026-10-24 of 36a0aeb1: all seven fixes closed; design accepted with these amendments, applied on the branch before it lands:
+  1. DDInter interactions are a section, `get drug DDInter1744 interactions --source ddinter`, with no separate verb.
+  2. `search drug --source openfda-label` sends the brand-name field only, named in the design, until a generic-name positive case is captured.
+  3. Exact-ID gets for MyChem, ChEMBL, CIViC therapy, EMA and DDInter are marked unproven; each adapter ticket captures a positive case first.
+  4. The default MyChem search page budget is marked unmeasured; its adapter ticket measures it.
+  5. `identity_level` comes from the endpoint or record type, never from a field's shape.
+  6. Text continuation reuses the shipped `section_offset` and `section_limit` spelling, with no new option.
 - Defers: tickets, which the PM files from the reviewed design.
