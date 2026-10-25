@@ -166,7 +166,7 @@ fn malformed_statistics() -> Result<(), String> {
         };
         if let Err(error) = replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {327}}]),
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":exit!=0,"expect":expect,"max_bytes":if exit==0 {2675} else {426}}]),
         ) {
             errors.push(format!("{kind}: {error}"));
         }

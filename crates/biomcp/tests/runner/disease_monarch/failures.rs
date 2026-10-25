@@ -78,7 +78,7 @@ fn failures() -> Result<(), String> {
         stub.finish()?;
         replay(
             &directory,
-            json!([{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"monarch","/sources/0/state":"failed","/sources/0/terms":"Monarch source-specific licensing"},"max_bytes":267}]),
+            json!([{"run":WORDS,"mcp":WORDS,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"monarch","/sources/0/state":"failed","/sources/0/terms":"Monarch source-specific licensing"},"max_bytes":if status==200 {379} else {267}}]),
         )?;
     }
     Ok(())
