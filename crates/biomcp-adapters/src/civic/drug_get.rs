@@ -176,6 +176,9 @@ fn page<T>(
 /// Retrieve only the exact native therapy and its requested accepted claim collections.
 /// Claim profiles retain their own native context; collection totals never become profile counts.
 pub fn drug_civic(leg: &Leg<'_>, query: &DrugGet) -> Result<Mapped<DrugCivic>, RequestError> {
+    if query.source() != biomcp_types::DrugSource::Civic {
+        return Err(failure(Reason::BadReply));
+    }
     let offset = if query.civic_cursor().is_some() {
         0
     } else {
