@@ -12,6 +12,9 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("diagnostic-cdx/synthetic-http-owned-application", || {
+            http_owned().map_err(Into::into)
+        }),
         Trial::test("diagnostic-cdx/synthetic-pagination", || {
             paging().map_err(Into::into)
         }),
@@ -52,7 +55,7 @@ fn identities() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env)?;
     let receipt = call(&env, &replay, &["sync", "fda-cdx"], 0)?;
-    if receipt.pointer("/result/rows") != Some(&json!(8)) {
+    if receipt.pointer("/result/rows") != Some(&json!(9)) {
         return Err(format!("wrong physical row total: {receipt}"));
     }
     let value = call(
@@ -116,7 +119,7 @@ fn identities() -> Check {
         ],
         0,
     )?;
-    if biomarker.pointer("/page/total") != Some(&json!(7))
+    if biomarker.pointer("/page/total") != Some(&json!(8))
         || !biomarker
             .get("problems")
             .and_then(Value::as_array)
@@ -392,6 +395,40 @@ fn unique_applications(replay: &Path) -> Check {
         }
         *cell = json!(rows.join("<tr>"));
         fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+fn http_owned() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    call(&env, &replay, &["sync", "fda-cdx"], 0)?;
+    let value = call(
+        &env,
+        &replay,
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-cdx",
+            "--drug-application",
+            "BLA125514",
+        ],
+        0,
+    )?;
+    if value.pointer("/page/total") != Some(&json!(1))
+        || value.pointer("/result/items/0/device_ids/0") != Some(&json!("P150013/S020"))
+        || value.pointer("/result/items/0/drug_applications/0/id") != Some(&json!("BLA125514"))
+    {
+        return Err(format!("HTTP owned identifier lost: {value}"));
+    }
+    if value.pointer("/result/items/0/drug_applications/0/url")
+        != Some(&json!(
+            "http://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&varApplNo=125514"
+        ))
+        || value.pointer("/next/0/kind") != Some(&json!("pivot"))
+    {
+        return Err(format!("HTTP URL or pivot changed: {value}"));
     }
     Ok(())
 }

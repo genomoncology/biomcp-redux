@@ -1,7 +1,11 @@
 use biodata::{DiagnosticCell, DiagnosticDeviceId, DiagnosticDrugApplication, FdaDrugApplication};
 
 fn parameter<'a>(href: &'a str, keys: &[&str]) -> Option<&'a str> {
-    if !href.starts_with("https://www.accessdata.fda.gov/") {
+    if !href
+        .strip_prefix("https://")
+        .or_else(|| href.strip_prefix("http://"))
+        .is_some_and(|v| v.starts_with("www.accessdata.fda.gov/"))
+    {
         return None;
     }
     href.split_once('?')?.1.split('&').find_map(|pair| {
