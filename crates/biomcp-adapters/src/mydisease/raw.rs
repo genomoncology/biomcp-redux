@@ -1,0 +1,81 @@
+use crate::raw::OneOrMany;
+use biodata::{Curie, Text};
+use biomcp_fetch::{BadReply, Reply};
+use serde::Deserialize;
+use std::collections::BTreeMap;
+
+#[derive(Debug, Deserialize)]
+pub(super) struct Document {
+    #[serde(rename = "_id")]
+    pub id: Curie,
+    #[serde(rename = "_version")]
+    pub version: Option<u64>,
+    pub mondo: Option<Component>,
+    pub disease_ontology: Option<Component>,
+}
+impl Reply for Document {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.mondo.as_ref().is_some_and(|c| c.id != self.id)
+            || self
+                .disease_ontology
+                .as_ref()
+                .is_some_and(|c| !c.id.to_string().starts_with("DOID:"))
+        {
+            return Err(BadReply);
+        }
+        let mondo = self.mondo.as_ref().is_some_and(|c| c.id == self.id);
+        let doid = self
+            .disease_ontology
+            .as_ref()
+            .is_some_and(|c| c.id == self.id);
+        if mondo || doid { Ok(()) } else { Err(BadReply) }
+    }
+}
+impl Document {
+    pub(super) fn matches(&self, id: &Curie, fields: &str) -> bool {
+        let mondo = fields
+            .split(',')
+            .any(|f| f == "mondo")
+            .then_some(self.mondo.as_ref())
+            .flatten();
+        let doid = fields
+            .split(',')
+            .any(|f| f == "disease_ontology")
+            .then_some(self.disease_ontology.as_ref())
+            .flatten();
+        let primary =
+            mondo.is_some_and(|c| c.id == self.id) || doid.is_some_and(|c| c.id == self.id);
+        primary
+            && (self.id == *id
+                || (id.to_string().starts_with("DOID:")
+                    && mondo.is_some_and(|c| {
+                        c.xrefs
+                            .as_ref()
+                            .and_then(|xrefs| xrefs.get("doid"))
+                            .is_some_and(|values| match values {
+                                OneOrMany::One(value) => {
+                                    value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
+                                }
+                                OneOrMany::Many(values) => values
+                                    .iter()
+                                    .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
+                            })
+                    })))
+    }
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct Component {
+    #[serde(alias = "mondo", alias = "doid")]
+    pub id: Curie,
+    #[serde(alias = "name")]
+    pub label: Text,
+    #[serde(alias = "def")]
+    pub definition: Option<Text>,
+    #[serde(alias = "synonyms")]
+    pub synonym: Option<BTreeMap<String, OneOrMany<Text>>>,
+    pub xrefs: Option<BTreeMap<String, OneOrMany<Text>>>,
+    pub parents: Option<Box<[Curie]>>,
+    pub is_obsolete: Option<bool>,
+    pub consider: Option<Box<[Curie]>>,
+    pub replaced_by: Option<Box<[Curie]>>,
+}

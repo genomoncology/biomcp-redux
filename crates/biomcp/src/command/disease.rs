@@ -11,13 +11,25 @@ pub(super) fn unsupported(action: &Action) -> bool {
         Action::Run {
             request: Request::GetDisease(q),
             ..
-        } => {
-            q.source() != DiseaseSource::Ols
-                || !matches!(
-                    q.section(),
-                    None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
-                )
-        }
+        } => match q.source() {
+            DiseaseSource::Ols => !matches!(
+                q.section(),
+                None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
+            ),
+            DiseaseSource::MyDisease => {
+                let supported = biomcp_adapters::mydisease::supported_id(q.id().as_str());
+                !supported
+                    || !matches!(
+                        q.section(),
+                        None | Some(
+                            DiseaseSection::Synonyms
+                                | DiseaseSection::Xrefs
+                                | DiseaseSection::Hierarchy
+                        )
+                    )
+            }
+            _ => true,
+        },
         _ => false,
     }
 }

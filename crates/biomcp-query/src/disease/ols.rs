@@ -1,8 +1,9 @@
-use crate::{Action, Ctx, Outcome, status};
+use super::page::{empty, overall, page_info, run, slice};
+use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
 use biomcp_types::{
     DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,
-    PageInfo, QueryBody, Request, Source, Status, StepKind,
+    QueryBody, Request, Source, Status, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
 pub fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
@@ -120,54 +121,4 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
         }
     }
     out.status = overall(out, out.page.as_ref().is_some_and(|p| p.total == 0));
-}
-fn empty(body: QueryBody) -> Outcome {
-    Outcome {
-        status: Status::Failed,
-        body,
-        page: None,
-        sources: Vec::new(),
-        problems: Vec::new(),
-        next: Vec::new(),
-        local: None,
-    }
-}
-fn run(request: Request) -> Action {
-    Action::Run {
-        request,
-        fresh: false,
-    }
-}
-fn page_info(offset: u32, returned: u32, total: u64) -> PageInfo {
-    PageInfo {
-        offset,
-        returned,
-        total,
-        pool: None,
-        truncated: None,
-    }
-}
-fn slice<T>(rows: Vec<T>, query: &DiseaseGet) -> (Vec<T>, u64) {
-    let total = rows.len() as u64;
-    (
-        rows.into_iter()
-            .skip(query.section_offset() as usize)
-            .take(query.section_limit() as usize)
-            .collect(),
-        total,
-    )
-}
-fn overall(out: &Outcome, absent: bool) -> Status {
-    if !out.problems.is_empty()
-        || out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-    {
-        Status::Partial
-    } else if absent {
-        Status::Absent
-    } else {
-        Status::Complete
-    }
 }
