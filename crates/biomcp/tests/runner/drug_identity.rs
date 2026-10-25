@@ -88,7 +88,11 @@ fn check(fault: &'static str) -> Result<(), String> {
 }
 fn corrupt(value: &mut Value, fault: &str) -> Result<(), String> {
     match fault {
-        "wrong-therapy" => value["data"]["therapy"]["id"] = json!(84),
+        "wrong-therapy" => {
+            *value
+                .pointer_mut("/data/therapy/id")
+                .ok_or("therapy identity")? = json!(84)
+        }
         "missing-join" => {
             let therapies = value
                 .pointer_mut("/data/evidenceItems/nodes/0/therapies")
@@ -99,8 +103,9 @@ fn corrupt(value: &mut Value, fault: &str) -> Result<(), String> {
             }
         }
         _ => {
-            value["results"][0]["openfda"]["spl_set_id"] =
-                json!(["b118a40d-6b56-cee3-10f6-ded821a97018"])
+            *value
+                .pointer_mut("/results/0/openfda/spl_set_id")
+                .ok_or("SPL identity")? = json!(["b118a40d-6b56-cee3-10f6-ded821a97018"])
         }
     }
     Ok(())

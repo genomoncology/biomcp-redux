@@ -58,7 +58,7 @@ const SOURCES: &[Source] = &[
     },
 ];
 pub(super) fn trials() -> Vec<Trial> {
-    SOURCES
+    let mut trials = SOURCES
         .iter()
         .map(|source| {
             Trial::test(
@@ -69,7 +69,41 @@ pub(super) fn trials() -> Vec<Trial> {
                 move || check(source).map_err(Into::into),
             )
         })
-        .collect()
+        .collect::<Vec<_>>();
+    trials.push(Trial::test("drug-failures/ema-record-broken-body", || {
+        ema_record().map_err(Into::into)
+    }));
+    trials
+}
+fn ema_record() -> Check {
+    let stub = Stub::for_source("www.ema.europa.eu", "application/json", |_| {
+        Ok("synthetic broken body".into())
+    })?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let cert = env.root().join("ca.pem");
+    fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
+    let args = vec![
+        "sync".into(),
+        "ema".into(),
+        "--record".into(),
+        env.root().join("record").to_string_lossy().into_owned(),
+    ];
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let requests = stub.finish()?;
+    if output.status.code() != Some(4) {
+        return Err(format!(
+            "EMA malformed recording {:?}, requests={}, stdout={}",
+            output.status,
+            requests.len(),
+            String::from_utf8_lossy(&output.stdout)
+        ));
+    }
+    Ok(())
 }
 fn check(source: &Source) -> Check {
     if matches!(source.name, "ema" | "ddinter") {
