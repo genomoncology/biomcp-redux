@@ -203,12 +203,18 @@ fn native_alias_proof_keeps_unlabeled_endpoints_and_raw_description() {
 fn association_aggregators_keep_missing_null_and_checked_lists_distinct() {
     let base = json!({"requested_id":"MONDO:0019003","subject":{"id":"HGNC:9967","label":"Synthetic"},"object":{"id":"MONDO:0007958","label":"Synthetic child"},"predicate":"biolink:associated_with","attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":[]});
     assert_eq!(roundtrip::<DiseaseAssociation>(base.clone()).unwrap(), base);
-    for sources in [json!(null),json!([]),json!(["infores:monarchinitiative","infores:hpo-annotations"])] {
-        let mut row = base.clone(); row["aggregator_knowledge_source"] = sources;
-        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(),row);
+    for sources in [
+        json!(null),
+        json!([]),
+        json!(["infores:monarchinitiative", "infores:hpo-annotations"]),
+    ] {
+        let mut row = base.clone();
+        row["aggregator_knowledge_source"] = sources;
+        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
     }
-    for sources in [json!("infores:monarchinitiative"),json!(["invalid"])] {
-        let mut row = base.clone(); row["aggregator_knowledge_source"] = sources;
+    for sources in [json!("infores:monarchinitiative"), json!(["invalid"])] {
+        let mut row = base.clone();
+        row["aggregator_knowledge_source"] = sources;
         assert!(serde_json::from_value::<DiseaseAssociation>(row).is_err());
     }
 }
@@ -216,10 +222,17 @@ fn association_aggregators_keep_missing_null_and_checked_lists_distinct() {
 #[test]
 fn association_native_numbers_are_independent_and_never_derived() {
     let base = json!({"requested_id":"MONDO:0019003","subject":{"id":"MONDO:0019003","label":"Synthetic"},"object":{"id":"HP:0000001","label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},"evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":[]});
-    for (field,value) in [("has_count",json!(0)),("has_total",json!(35)),("has_percentage",json!(77.14286)),("has_quotient",json!(0.7714286))] {
-        let mut row = base.clone();row[field]=value;
-        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(),row);
+    for (field, value) in [
+        ("has_count", json!(0)),
+        ("has_total", json!(35)),
+        ("has_percentage", json!(77.14286)),
+        ("has_quotient", json!(0.7714286)),
+    ] {
+        let mut row = base.clone();
+        row[field] = value;
+        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
     }
-    let mut invalid = base;invalid["has_count"]=json!(-1);
+    let mut invalid = base;
+    invalid["has_count"] = json!(-1);
     assert!(serde_json::from_value::<DiseaseAssociation>(invalid).is_err());
 }

@@ -25,7 +25,11 @@ pub struct DiseaseAssociation {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primary_knowledge_source: Option<Curie>,
     /// Native aggregator knowledge sources; missing, null and lists remain distinct.
-    #[serde(default, deserialize_with = "aggregators", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "aggregators",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub aggregator_knowledge_source: Option<Option<Box<[Curie]>>>,
     /// Native providing collection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -159,6 +163,8 @@ pub struct DiseaseEndpoint {
     pub label: Option<Text>,
 }
 
-fn aggregators<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Option<Box<[Curie]>>>, D::Error> {
+fn aggregators<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<Option<Box<[Curie]>>>, D::Error> {
     Option::<Box<[Curie]>>::deserialize(d).map(Some)
 }
