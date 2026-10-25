@@ -516,5 +516,8 @@ fn trial_trials() -> Vec<Trial> {
         trial_condition::trials(),
         trial_documents::trials(),
         trial_sites::trials(),
-    ].into_iter().flatten().collect()
+    ]
+    .into_iter()
+    .flatten()
+    .collect()
 }

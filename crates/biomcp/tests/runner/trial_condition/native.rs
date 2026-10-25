@@ -58,6 +58,7 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         crate::runner::run_case(&file, &crate::runner::schema::Registry::embedded()?)?;
         fs::write(output.join(format!("{name}-size.json")), json!({"full_bytes":full.len(),"comparable_bytes":comparable,"max_bytes":ceiling,"token_estimate":comparable.div_ceil(4)}).to_string()).map_err(|e|e.to_string())?;
     }
+    explicit(&output)?;
     let requests = stub.finish()?;
     fs::write(
         output.join("local-requests.json"),
@@ -79,14 +80,14 @@ fn cases() -> Vec<(&'static str, &'static str, &'static str, i32, Value)> {
             "MONDO:0005105",
             "ctgov",
             0,
-            json!({"/status":"complete","/query/condition_id":"MONDO:0005105","/result/condition_resolution/resolver":"mydisease","/result/condition_resolution/concept/id":"MONDO:0005105","/result/condition_resolution/concept/label":"melanoma","/result/request/3":{"name":"query.cond","value":"melanoma"},"/page/total":3780}),
+            json!({"/status":"complete","/query/condition_id":"MONDO:0005105","/result/condition_resolution/resolver":"mydisease","/result/condition_resolution/concept/id":"MONDO:0005105","/result/condition_resolution/concept/label":"melanoma","/result/request/3/name":"query.cond","/result/request/3/value":"melanoma","/page/total":3780}),
         ),
         (
             "nci-unique",
             "MONDO:0005105",
             "nci",
             0,
-            json!({"/status":"complete","/result/condition_resolution/concept/label":"melanoma","/result/condition_resolution/selected_ncit":"NCIT:C3224","/result/condition_resolution/ncit_candidates":{"count":2},"/result/request/2":{"name":"diseases.nci_thesaurus_concept_id","value":"C3224"},"/page/total":1203}),
+            json!({"/status":"complete","/result/condition_resolution/concept/label":"melanoma","/result/condition_resolution/selected_ncit":"NCIT:C3224","/result/condition_resolution/ncit_candidates":{"count":2},"/result/request/2/name":"diseases.nci_thesaurus_concept_id","/result/request/2/value":"C3224","/page/total":1203}),
         ),
         (
             "nci-alias-ambiguous",
@@ -152,14 +153,20 @@ fn replies(root: &Path, output: &Path) -> Result<BTreeMap<String, String>, Strin
             let record: Value =
                 serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
-            let url = record.get("url").and_then(Value::as_str).ok_or("missing request URL")?;
+            let url = record
+                .get("url")
+                .and_then(Value::as_str)
+                .ok_or("missing request URL")?;
             let path = url
                 .split_once("://")
                 .and_then(|(_, s)| s.find('/').map(|i| &s[i..]))
                 .ok_or("missing request path")?;
             replies.insert(
                 path.into(),
-                record.pointer("/exchanges/0/body/value").ok_or("missing native reply body")?.to_string(),
+                record
+                    .pointer("/exchanges/0/body/value")
+                    .ok_or("missing native reply body")?
+                    .to_string(),
             );
         }
     }
@@ -182,5 +189,14 @@ fn copy(from: &Path, to: &Path) -> Result<(), String> {
             fs::copy(entry.path(), target).map_err(|e| e.to_string())?;
         }
     }
+    Ok(())
+}
+
+fn explicit(output: &Path) -> Result<(), String> {
+    let value = crate::runner::run_case(&crate::runner::launch::fixtures().join("cases/trial/nci-condition-id.yaml"), &crate::runner::schema::Registry::embedded()?)?;
+    fs::write(output.join("nci-explicit.json"), serde_json::to_vec(&value).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    let comparable = crate::runner::source_terms::size(&value, "")?;
+    let full = serde_json::to_vec(&value).map_err(|e|e.to_string())?.len();
+    fs::write(output.join("nci-explicit-size.json"), json!({"full_bytes":full,"comparable_bytes":comparable,"max_bytes":(comparable*115).div_ceil(100),"token_estimate":comparable.div_ceil(4)}).to_string()).map_err(|e|e.to_string())?;
     Ok(())
 }
