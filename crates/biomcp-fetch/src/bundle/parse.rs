@@ -72,9 +72,10 @@ fn csv<R: Row>(body: &[u8], banner_lines: usize) -> Result<Vec<Parsed>, BadReply
     }
     let mut rows = Vec::new();
     for values in records {
-        if values
-            .iter()
-            .all(|v| !v.is_empty() && v.bytes().all(|c| c == b'+'))
+        if banner_lines > 0
+            && values
+                .iter()
+                .all(|v| !v.is_empty() && v.bytes().all(|c| c == b'+'))
         {
             continue;
         }

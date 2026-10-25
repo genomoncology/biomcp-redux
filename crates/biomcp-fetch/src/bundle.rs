@@ -1,6 +1,8 @@
 //! Indexed published TSV files, independent of individual reply cache entries.
 mod download;
 mod parse;
+mod set;
+pub use set::{BundlePart, BundleSet, SetRow};
 pub(crate) mod store;
 use crate::{Fetch, Freshness, Leg, Mode, RequestError, SourceSpec};
 use std::marker::PhantomData;
@@ -103,6 +105,10 @@ pub struct BundleInfo {
     pub rows: u64,
     /// Whether stored freshness has expired.
     pub fresh: bool,
+    /// Computed ordered-part content revision, never a publisher HTTP validator.
+    pub content_revision: Option<Box<str>>,
+    /// Actual local set synchronization time as UTC Unix seconds.
+    pub retrieved_at: Option<i64>,
 }
 impl Fetch {
     /// Synchronize a declared bundle under the configured independent sync budget.

@@ -30,7 +30,7 @@ pub struct BundleSet<R: Row + 'static> {
     pub row: PhantomData<R>,
 }
 /// A checked source row with its original location in the replacement set.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SetRow<R> {
     /// Native part identifier.
     pub part: Box<str>,
@@ -60,7 +60,8 @@ impl Fetch {
     /// Download and check every part, then atomically replace the complete stored set.
     pub fn sync_set<R: Row>(&self, set: &BundleSet<R>) -> Result<BundleInfo, RequestError> {
         let deadline = self.deadline(self.config.sync_budget);
-        let leg = self.leg(set.spec, deadline);
+        let mut leg = self.leg(set.spec, deadline);
+        leg.deadline = deadline;
         let bundle = set.stored();
         leg.bundle_source(&bundle)?;
         let cache = leg.bundle_cache()?;
@@ -94,8 +95,7 @@ impl Fetch {
         if set.parts.is_empty() || leg.budget().expired() {
             return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
         }
-        // Persist in a distinct content_revision field after the metadata migration.
-        let _content_revision = format!("sha256:{:x}", revision.finalize());
+        let content_revision = format!("sha256:{:x}", revision.finalize());
         let metadata = store::Meta {
             bytes,
             rows: complete.len() as u64,
@@ -105,6 +105,8 @@ impl Fetch {
             // Publisher HTTP validators never hold a computed set digest.
             etag: None,
             modified: None,
+            content_revision: Some(content_revision),
+            retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;
         Ok(store::info(&bundle, &metadata))

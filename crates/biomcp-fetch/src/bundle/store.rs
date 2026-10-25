@@ -4,7 +4,7 @@ use crate::{
     cache::{Cache, db_error, now},
 };
 use rusqlite::{Connection, OptionalExtension, params};
-const METADATA: &str = "SELECT bytes,rows,fresh_until,etag,modified FROM bundle WHERE name=?1";
+const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
     pub bytes: u64,
@@ -12,6 +12,8 @@ pub(super) struct Meta {
     pub fresh_until: i64,
     pub etag: Option<String>,
     pub modified: Option<String>,
+    pub content_revision: Option<String>,
+    pub retrieved_at: Option<i64>,
 }
 #[derive(Debug)]
 pub(super) struct Part {
@@ -26,7 +28,11 @@ pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     CREATE TABLE IF NOT EXISTS bundle_row(bundle TEXT NOT NULL,n INTEGER NOT NULL,row TEXT NOT NULL,PRIMARY KEY(bundle,n));
     CREATE TABLE IF NOT EXISTS bundle_key(bundle TEXT NOT NULL,kind INTEGER NOT NULL,key TEXT NOT NULL,n INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS bundle_key_find ON bundle_key(bundle,kind,key,n);
-    CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5(bundle UNINDEXED,n UNINDEXED,words);").map_err(db_error)
+    CREATE VIRTUAL TABLE IF NOT EXISTS bundle_words USING fts5(bundle UNINDEXED,n UNINDEXED,words);
+    CREATE TABLE IF NOT EXISTS bundle_content(name TEXT PRIMARY KEY,revision TEXT NOT NULL,retrieved_at INTEGER NOT NULL);
+    CREATE TRIGGER IF NOT EXISTS bundle_content_insert BEFORE INSERT ON bundle BEGIN DELETE FROM bundle_content WHERE name=NEW.name; END;
+    CREATE TRIGGER IF NOT EXISTS bundle_content_update BEFORE UPDATE ON bundle BEGIN DELETE FROM bundle_content WHERE name=OLD.name OR name=NEW.name; END;
+    CREATE TRIGGER IF NOT EXISTS bundle_content_delete BEFORE DELETE ON bundle BEGIN DELETE FROM bundle_content WHERE name=OLD.name; END;").map_err(db_error)
 }
 fn kind(k: KeyKind) -> u8 {
     match k {
@@ -44,6 +50,8 @@ pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
         bytes: m.bytes,
         rows: m.rows,
         fresh: m.fresh_until > now(),
+        content_revision: m.content_revision.as_deref().map(Into::into),
+        retrieved_at: m.retrieved_at,
     }
 }
 impl Cache {
@@ -138,6 +146,7 @@ impl Cache {
                 }
             }
             tx.execute("INSERT INTO bundle VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(name) DO UPDATE SET bytes=excluded.bytes,rows=excluded.rows,fresh_until=excluded.fresh_until,etag=excluded.etag,modified=excluded.modified",params![b.name,m.bytes as i64,m.rows as i64,m.fresh_until,m.etag,m.modified]).map_err(db_error)?;
+            if let (Some(revision),Some(retrieved_at))=(&m.content_revision,m.retrieved_at) { tx.execute("INSERT INTO bundle_content VALUES(?1,?2,?3)",params![b.name,revision,retrieved_at]).map_err(db_error)?; }
             if let Some(h)=holder{tx.execute("DELETE FROM bundle_sync WHERE name=?1 AND holder=?2",params![b.name,h]).map_err(db_error)?;}
             tx.commit().map_err(db_error)?; Ok(true)
         })
@@ -216,5 +225,7 @@ fn metadata(row: &rusqlite::Row<'_>) -> rusqlite::Result<Meta> {
         fresh_until: row.get(2)?,
         etag: row.get(3)?,
         modified: row.get(4)?,
+        content_revision: row.get(5)?,
+        retrieved_at: row.get(6)?,
     })
 }

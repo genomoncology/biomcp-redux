@@ -8,16 +8,8 @@ pub struct Provenance {
     /// One-based logical CSV row, including the header.
     pub row: u64,
 }
-/// A checked row and its position in the complete replacement set.
-#[derive(Clone, Debug)]
-pub struct PartRow {
-    /// Native partition code.
-    pub part: Box<str>,
-    /// One-based logical CSV row, including the header.
-    pub row: u64,
-    /// Original checked cells.
-    pub value: NativeRow,
-}
+/// A checked row and its original location in the complete replacement set.
+pub type PartRow = biomcp_fetch::SetRow<NativeRow>;
 /// One native pair oriented to the selected source ID.
 #[derive(Debug)]
 pub struct Pair {

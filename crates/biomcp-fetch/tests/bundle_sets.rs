@@ -87,6 +87,11 @@ fn names(fetch: &Fetch, set: &BundleSet<Native>, word: &str) -> Vec<String> {
         .stored_set_rows(set, Find::Words(word))
         .unwrap();
     assert_eq!(info.rows, 8);
+    assert!(
+        info.content_revision
+            .as_deref()
+            .is_some_and(|s| s.starts_with("sha256:"))
+    );
     rows.into_iter().map(|r| r.value.name).collect()
 }
 #[test]
@@ -144,4 +149,56 @@ fn complete_set_readers_see_one_revision_and_failed_parts_preserve_it() {
     }
     // Every read above is stored-only. No unresponded read request exists.
     assert!(server.requests.try_recv().is_err());
+}
+
+#[test]
+fn older_positional_writers_invalidate_computed_revision_on_replace_update_and_delete() {
+    let server = support::Server::new();
+    let set = declared(&server);
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let fetch = cached(&path);
+    for sql in [
+        "INSERT OR REPLACE INTO bundle VALUES('synthetic-complete-set',1,8,0,NULL,NULL)",
+        "UPDATE bundle SET bytes=2 WHERE name='synthetic-complete-set'",
+        "DELETE FROM bundle WHERE name='synthetic-complete-set'",
+    ] {
+        std::thread::scope(|scope| {
+            let call = scope.spawn(|| fetch.sync_set(&set));
+            for part in PARTS {
+                server
+                    .next()
+                    .respond(200, "", &format!("name\nOLD {}\n", part.name));
+            }
+            call.join().unwrap().unwrap();
+        });
+        let db = fetch.cache_access().unwrap().connect().unwrap();
+        let recursive: bool = db
+            .pragma_query_value(None, "recursive_triggers", |r| r.get(0))
+            .unwrap();
+        assert!(
+            !recursive,
+            "proof must use ordinary SQLite trigger settings"
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM bundle_content", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+        db.execute(sql, []).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM bundle_content", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+        if !sql.starts_with("DELETE") {
+            let (_, info) = fetch
+                .leg(set.spec, fetch.deadline(Duration::from_secs(3)))
+                .stored_set_rows(&set, Find::Words("OLD"))
+                .unwrap();
+            assert!(info.content_revision.is_none());
+        }
+    }
 }
