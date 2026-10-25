@@ -1,11 +1,11 @@
 mod adverse_event_registry;
-mod diagnostic_registry;
 mod article_save;
 mod assertions;
 mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
+mod diagnostic_registry;
 mod disease_monarch;
 mod disease_mydisease;
 mod disease_ols;

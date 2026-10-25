@@ -20,12 +20,25 @@ impl biomcp_fetch::Reply for Synthetic {
     }
 }
 fn specs() -> Result<Vec<&'static SourceSpec>, String> {
-    super::SOURCES.iter().map(|&(name, _, _)| registry::SOURCES.iter()
-        .copied().find(|s| s.source.to_string() == name).ok_or_else(|| format!("missing {name}"))).collect()
+    super::SOURCES
+        .iter()
+        .map(|&(name, _, _)| {
+            registry::SOURCES
+                .iter()
+                .copied()
+                .find(|s| s.source.to_string() == name)
+                .ok_or_else(|| format!("missing {name}"))
+        })
+        .collect()
 }
 fn get(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Synthetic, RequestError> {
-    fetch.leg(spec, fetch.deadline(spec.deadline))
-        .json_checked_cache(&spec.get("registry-stub").fresh(Freshness::Days(1)), &[], |_| true)
+    fetch
+        .leg(spec, fetch.deadline(spec.deadline))
+        .json_checked_cache(
+            &spec.get("/registry-stub").fresh(Freshness::Days(1)),
+            &[],
+            |_| true,
+        )
 }
 fn policy(
     mode: Mode,
@@ -50,31 +63,49 @@ fn policy(
 }
 fn assert_routes(fetch: &Fetch, switch: &str, absent: bool) -> Check {
     for spec in specs()? {
-        let blocked = spec.source.to_string() == switch || switch == "noncommercial" && spec.source.to_string() == "who-ivd";
+        let blocked = spec.source.to_string() == switch
+            || switch == "noncommercial" && spec.source.to_string() == "who-ivd";
         let result = get(fetch, spec);
         if blocked {
-            if !matches!(result, Err(RequestError::Source(e)) if e.reason == Reason::Disabled && e.source == spec.source) {
-                return Err(format!("{switch} admitted {}: {:?}", spec.source, result.err()));
+            if !matches!(result, Err(RequestError::Source(e)) if e.reason == Reason::Disabled && e.source == spec.source)
+            {
+                return Err(format!(
+                    "{switch} admitted {}: {:?}",
+                    spec.source,
+                    result.err()
+                ));
             }
             bundle_blocked(fetch, spec)?;
-        } else if !absent { result.map_err(|e| e.to_string())?; }
+        } else if !absent {
+            result.map_err(|e| e.to_string())?;
+        }
     }
     Ok(())
 }
 impl biomcp_fetch::Row for Synthetic {
-    fn keys(&self) -> biomcp_fetch::Keys { biomcp_fetch::Keys { exact: vec![], words: vec![] } }
+    fn keys(&self) -> biomcp_fetch::Keys {
+        biomcp_fetch::Keys {
+            exact: vec![],
+            words: vec![],
+        }
+    }
 }
 fn bundle_blocked(fetch: &Fetch, spec: &'static SourceSpec) -> Check {
     let bundle = biomcp_fetch::Bundle::<Synthetic> {
-        spec, name: "diagnostic-registry-stub", path: "absent-bundle", format: biomcp_fetch::RowFormat::Tsv,
-        fresh: Freshness::Days(1), row: std::marker::PhantomData,
+        spec,
+        name: "diagnostic-registry-stub",
+        path: "/absent-bundle",
+        format: biomcp_fetch::RowFormat::Tsv,
+        fresh: Freshness::Days(1),
+        row: std::marker::PhantomData,
     };
     let leg = fetch.leg(spec, fetch.deadline(spec.deadline));
     let read = leg.stored_rows(&bundle, biomcp_fetch::Find::Words("stub"));
     if !matches!(read, Err(RequestError::Source(e)) if e.reason == Reason::Disabled) {
         return Err("disabled source read a stored bundle".into());
     }
-    if !matches!(fetch.sync(&bundle), Err(RequestError::Source(e)) if e.reason == Reason::Disabled) {
+    if !matches!(fetch.sync(&bundle), Err(RequestError::Source(e)) if e.reason == Reason::Disabled)
+    {
         return Err("disabled source synchronized a bundle".into());
     }
     Ok(())
@@ -82,7 +113,12 @@ fn bundle_blocked(fetch: &Fetch, spec: &'static SourceSpec) -> Check {
 pub(super) fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = crate::runner::network_stub::Stub::for_sources(
-        &["api.fda.gov", "ftp.ncbi.nlm.nih.gov", "extranet.who.int", "www.fda.gov"],
+        &[
+            "api.fda.gov",
+            "ftp.ncbi.nlm.nih.gov",
+            "extranet.who.int",
+            "www.fda.gov",
+        ],
         |_| "application/json",
         |_| Ok(r#"{"present":true}"#.into()),
     )?;

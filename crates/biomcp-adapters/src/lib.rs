@@ -94,11 +94,11 @@ pub mod faers;
 /// MAUDE publisher declaration.
 pub mod maude;
 
-/// Diagnostic publisher declarations; command dispatch is not yet implemented.
-pub mod gtr;
-/// WHO export publisher policy.
-pub mod who_ivd;
 /// FDA companion table publisher policy.
 pub mod fda_cdx;
 /// openFDA PMA publisher policy.
 pub mod fda_pma;
+/// Diagnostic publisher declarations; command dispatch is not yet implemented.
+pub mod gtr;
+/// WHO export publisher policy.
+pub mod who_ivd;
