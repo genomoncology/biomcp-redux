@@ -6,7 +6,3 @@ pub(crate) fn find(name: &str) -> Option<&'static str> {
         .iter()
         .find_map(|(id, text)| (*id == name).then_some(*text))
 }
-
-pub(crate) fn names() -> impl Iterator<Item = &'static str> {
-    SCHEMAS.iter().map(|(name, _)| *name)
-}

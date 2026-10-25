@@ -61,6 +61,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::DiseaseGenes(_)
         | Body::DiseasePhenotypes(_)
         | Body::DrugPage(_)
+        | Body::DrugWhoPage(_)
         | Body::DrugFdaPage(_)
         | Body::DrugCivic(_)
         | Body::VariantPage(_) => Navigation::Selectable,
@@ -81,7 +82,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DiseaseSynonyms(_) | Body::DiseaseXrefs(_) => Navigation::Bounded,
         Body::DiseaseHierarchy(_) | Body::DiseaseSites(_) => Navigation::Bounded,
         Body::DiseaseIncidence(_) | Body::DiseaseSurvival(_) => Navigation::Bounded,
-        Body::DrugCard(_) | Body::DrugLabel(_) => Navigation::Bounded,
+        Body::DrugCard(_) | Body::DrugLabel(_) | Body::DrugWhoCard(_) => Navigation::Bounded,
         Body::DrugRegulatory(_) | Body::DrugApprovals(_) => Navigation::Bounded,
         Body::DrugInteractions(_) | Body::DrugXrefs(_) => Navigation::Bounded,
         Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,

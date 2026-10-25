@@ -27,6 +27,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
                 Bundle::Gtr => "gtr",
                 Bundle::WhoIvd => "who-ivd",
                 Bundle::Ema => "ema",
+                Bundle::WhoPq => "who-pq",
                 Bundle::Ddinter => "ddinter",
                 Bundle::Hgnc => "hgnc",
                 Bundle::ClinGen => "clingen",
@@ -91,6 +92,7 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
         Request::GetDisease(query) => serde_json::to_value(query),
         Request::SearchDrug(q) => serde_json::to_value(q),
         Request::GetDrug(q) => serde_json::to_value(q),
+        Request::GetWhoMedicine(q) => serde_json::to_value(q),
         Request::VariantAssertions(query) => serde_json::to_value(query),
         Request::VariantPopulation(query) => serde_json::to_value(query),
         Request::VariantRecurrence(query) => serde_json::to_value(query),
@@ -156,6 +158,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetDiagnostic(_)
         | Request::GetAdverseEvent(_)
         | Request::GetDisease(_)
+        | Request::GetWhoMedicine(_)
         | Request::GetDrug(_)
         | Request::GetVariant(_)
         | Request::GetTrial(_)
@@ -190,7 +193,10 @@ fn command_entity(request: &Request) -> &'static str {
         "adverse-event"
     } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
         "disease"
-    } else if matches!(request, Request::SearchDrug(_) | Request::GetDrug(_)) {
+    } else if matches!(
+        request,
+        Request::SearchDrug(_) | Request::GetWhoMedicine(_) | Request::GetDrug(_)
+    ) {
         "drug"
     } else if matches!(request, Request::VariantAssertions(_)) {
         "assertions"

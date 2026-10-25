@@ -69,6 +69,8 @@ canonical_enum! {
         Drugsfda => "drugsfda",
         /// European Medicines Agency.
         Ema => "ema",
+        /// WHO finished pharmaceutical products.
+        WhoPq => "who-pq",
         /// DDInter interaction records.
         Ddinter => "ddinter",
         /// MyChem DrugBank Open identity subset only.

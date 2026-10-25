@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// Complete WHO finished pharmaceutical products CSV.
+    WhoPq,
     /// Complete WHO prequalified diagnostics export.
     WhoIvd,
     /// Complete FDA companion diagnostic page.
@@ -77,6 +79,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetDisease(query) => crate::disease::get(cx, query),
         Request::SearchDrug(query) => crate::drug::search(cx, query),
         Request::GetDrug(query) => crate::drug::get(cx, query),
+        Request::GetWhoMedicine(query) => crate::drug::who::get(cx, query),
         Request::VariantAssertions(query) => crate::variant::assertions::get(cx, query),
         Request::VariantPopulation(query) => crate::variant::population_detail::get(cx, query),
         Request::VariantNormalize(query) => crate::variant::normalize::normalize(cx, query),
