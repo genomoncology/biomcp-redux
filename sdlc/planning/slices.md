@@ -57,7 +57,7 @@ Every slice design gives a token budget for each command's default JSON output a
 
 ### 5. Build outside-in
 
-Each ticket writes its cases first and watches them fail, then builds the least code that passes, then removes what the cases do not need. Types and schema land before adapters, adapters before commands.
+Each ticket writes its cases first and watches them fail, then builds the least code that passes, then removes what the cases do not need. Each kept source's exact-request captures exist before its shared types are accepted, and type review checks each field's absence, multiplicity and collection scope against those captures. Types and schema land before adapters, adapters before commands.
 
 ## What a slice delivers
 
