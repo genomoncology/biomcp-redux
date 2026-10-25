@@ -117,3 +117,5 @@ drug-who-medicines: Explicit WHO finished-product sync publishes a validated loc
 
 vaers-summary: Read explicit supported vaccine aggregate tables without inferring individual risks or silently changing sources. Cases: `crates/biomcp/tests/runner/vaers.rs`.
 diagnostic-who-search: Search stored WHO product headers by literal marker and manufacturer words. Cases: `tests/cases/diagnostic/who-search.yaml`, `crates/biomcp/tests/runner/diagnostic_who/search.rs`.
+
+mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools. Cases: `crates/biomcp/tests/runner/research.rs`.

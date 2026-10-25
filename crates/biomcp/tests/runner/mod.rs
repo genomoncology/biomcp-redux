@@ -79,6 +79,7 @@ mod pool_tables;
 mod process;
 pub(super) mod proof;
 mod protocol;
+mod research;
 mod publication;
 mod recurrence;
 mod recurrence_errors;
@@ -308,6 +309,7 @@ fn run_step(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
     }));

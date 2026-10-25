@@ -17,7 +17,7 @@ pub(super) fn request(id: Value, method: &str, mut params: Value) -> Value {
 pub(super) fn exchange(environment: &Environment, frames: &[Value]) -> Result<Vec<Value>, String> {
     exchange_with_globals(environment, frames, &[])
 }
-fn exchange_with_globals(
+pub(super) fn exchange_with_globals(
     environment: &Environment,
     frames: &[Value],
     globals: &[String],
