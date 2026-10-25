@@ -22,17 +22,23 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             literal = true;
             continue;
         }
-        let (flag, inline) = word.split_once('=').map_or((word,None), |(a,b)|(a,Some(b)));
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word, None), |(a, b)| (a, Some(b)));
         if matches!(flag, "-j" | "--json") {
             words.shared = Some(ErrorMessage::DiseaseJson);
         }
-        let diagnostic = matches!(words.positional.as_slice(), ["search" | "get", "diagnostic", ..]);
+        let diagnostic = matches!(
+            words.positional.as_slice(),
+            ["search" | "get", "diagnostic", ..]
+        );
         if diagnostic && let Some(message) = flag_message(flag) {
             return Some(message);
         }
-        if matches!(flag,"--section" | "--query" | "--marker")
-            || super::takes_value(flag, &words.positional).unwrap_or(false) {
-            let value = inline.or_else(||args.next().and_then(|v|v.to_str()));
+        if matches!(flag, "--section" | "--query" | "--marker")
+            || super::takes_value(flag, &words.positional).unwrap_or(false)
+        {
+            let value = inline.or_else(|| args.next().and_then(|v| v.to_str()));
             match flag {
                 "--source" => words.source = value,
                 "--section" => words.section = value,
@@ -57,28 +63,32 @@ fn flag_message(flag: &str) -> Option<ErrorMessage> {
 }
 fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
     match words.positional.as_slice() {
-        ["gtr","sync",..] => return Some(ErrorMessage::DiagnosticGtrSync),
-        ["who-ivd","sync",..] => return Some(ErrorMessage::DiagnosticWhoSync),
-        ["list","diagnostic",..] => return Some(ErrorMessage::DiagnosticList),
+        ["gtr", "sync", ..] => return Some(ErrorMessage::DiagnosticGtrSync),
+        ["who-ivd", "sync", ..] => return Some(ErrorMessage::DiagnosticWhoSync),
+        ["list", "diagnostic", ..] => return Some(ErrorMessage::DiagnosticList),
         _ => (),
     }
-    let (verb,rest) = match words.positional.as_slice() {
-        [verb @ ("search"|"get"),"diagnostic",rest @ ..] => (*verb,rest),
+    let (verb, rest) = match words.positional.as_slice() {
+        [verb @ ("search" | "get"), "diagnostic", rest @ ..] => (*verb, rest),
         _ => return None,
     };
-    if words.shared.is_some() { return words.shared; }
+    if words.shared.is_some() {
+        return words.shared;
+    }
     if words.source.is_none() || words.source == Some("all") {
         return Some(ErrorMessage::DiagnosticSource);
     }
-    let section = words.section.or_else(||rest.get(1).copied());
-    if section == Some("all") { return Some(ErrorMessage::DiagnosticSection); }
-    if section == Some("regulatory") && matches!(words.source,Some("gtr"|"who-ivd")) {
+    let section = words.section.or_else(|| rest.get(1).copied());
+    if section == Some("all") {
+        return Some(ErrorMessage::DiagnosticSection);
+    }
+    if section == Some("regulatory") && matches!(words.source, Some("gtr" | "who-ivd")) {
         return Some(ErrorMessage::DiagnosticRegulatory);
     }
-    match (verb,words.source) {
-        ("search",Some("who-ivd")) => Some(ErrorMessage::DiagnosticWho),
-        ("search",Some("fda-pma")) => Some(ErrorMessage::DiagnosticPma),
-        ("search",Some("fda-510k")) => Some(ErrorMessage::Diagnostic510k),
+    match (verb, words.source) {
+        ("search", Some("who-ivd")) => Some(ErrorMessage::DiagnosticWho),
+        ("search", Some("fda-pma")) => Some(ErrorMessage::DiagnosticPma),
+        ("search", Some("fda-510k")) => Some(ErrorMessage::Diagnostic510k),
         _ => None,
     }
 }

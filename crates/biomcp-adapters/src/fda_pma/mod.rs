@@ -52,13 +52,10 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
         ],
         |reply| {
             if let raw::Response::Page { meta, results } = reply {
-                if meta.results.skip != 0
-                    || meta.results.limit != 100
-
-                {
+                if meta.results.skip != 0 || meta.results.limit != 100 {
                     return Err(BadReply);
                 }
-                if results.iter().any(|row|row.supplement_number.is_none()) {
+                if results.iter().any(|row| row.supplement_number.is_none()) {
                     return Err(BadReply);
                 }
                 let mut seen = std::collections::BTreeSet::new();
@@ -71,7 +68,10 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
             }
             Ok(())
         },
-        |reply| identity(reply, query).is_none() && !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100),
+        |reply| {
+            identity(reply, query).is_none()
+                && !matches!(reply, raw::Response::Page {meta,..} if meta.results.total > 100)
+        },
     )?;
     let identity_conflict = identity(&reply, query);
     Ok(match reply {
@@ -89,12 +89,22 @@ pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Records, RequestError
 }
 
 fn identity(reply: &raw::Response, query: &DiagnosticGet) -> Option<&'static str> {
-    let raw::Response::Page { results, .. } = reply else { return None; };
-    if results.iter().any(|row|row.pma_number.as_str()!=query.id().as_str()) {
+    let raw::Response::Page { results, .. } = reply else {
+        return None;
+    };
+    if results
+        .iter()
+        .any(|row| row.pma_number.as_str() != query.id().as_str())
+    {
         return Some("pma_number");
     }
-    if query.supplement().is_some_and(|wanted|results.iter().any(|row|
-        row.supplement_number.as_ref().is_some_and(|cell| cell.as_str()!=wanted.as_str()))) {
+    if query.supplement().is_some_and(|wanted| {
+        results.iter().any(|row| {
+            row.supplement_number
+                .as_ref()
+                .is_some_and(|cell| cell.as_str() != wanted.as_str())
+        })
+    }) {
         return Some("supplement_number");
     }
     None

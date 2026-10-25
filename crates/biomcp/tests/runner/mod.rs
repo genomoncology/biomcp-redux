@@ -15,6 +15,7 @@ mod diagnostic_gtr;
 mod diagnostic_pma;
 mod diagnostic_registry;
 mod diagnostic_retirements;
+mod diagnostic_bundles;
 mod diagnostic_who;
 mod disease_monarch;
 mod disease_mydisease;
@@ -549,6 +550,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(faers_get::trials());
     trials.extend(diagnostic_registry::trials());
     trials.extend(diagnostic_retirements::trials());
+    trials.extend(diagnostic_bundles::trials());
     trials.extend(diagnostic_gtr::trials());
     trials.extend(diagnostic_who::trials());
     trials.extend(diagnostic_pma::trials());

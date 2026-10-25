@@ -3,14 +3,21 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials: Vec<_> = ["card", "foreign", "absent", "disabled", "invalid", "wrong-status"]
-        .into_iter()
-        .map(|mode| {
-            Trial::test(format!("diagnostic-510k/synthetic-{mode}"), move || {
-                run(mode).map_err(Into::into)
-            })
+    let mut trials: Vec<_> = [
+        "card",
+        "foreign",
+        "absent",
+        "disabled",
+        "invalid",
+        "wrong-status",
+    ]
+    .into_iter()
+    .map(|mode| {
+        Trial::test(format!("diagnostic-510k/synthetic-{mode}"), move || {
+            run(mode).map_err(Into::into)
         })
-        .collect();
+    })
+    .collect();
     trials.push(Trial::test(
         "diagnostic-510k/synthetic-companion-pivots",
         || companion().map_err(Into::into),
@@ -103,8 +110,10 @@ fn validate(mode: &str, v: &Value) -> Result<(), String> {
             "clearance envelope exceeds measured budget: {full}"
         ));
     }
-    if mode == "wrong-status" && (v.get("status") != Some(&json!("failed"))
-        || v.pointer("/sources/0/reason") != Some(&json!("bad_reply"))) {
+    if mode == "wrong-status"
+        && (v.get("status") != Some(&json!("failed"))
+            || v.pointer("/sources/0/reason") != Some(&json!("bad_reply")))
+    {
         return Err(format!("HTTP 200 error became absence: {v}"));
     }
     if mode == "card" {

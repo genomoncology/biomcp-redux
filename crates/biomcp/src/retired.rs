@@ -1,9 +1,9 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
 mod adverse_event;
+mod diagnostic;
 mod drug;
 mod pgx;
-mod diagnostic;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;

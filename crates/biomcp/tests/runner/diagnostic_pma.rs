@@ -107,7 +107,8 @@ fn boundary(mode: &'static str) -> Check {
             return Err(format!("incomplete: {value}"));
         }
         if matches!(mode, "wrong-base" | "wrong-supplement")
-            && value.pointer("/problems/0/code") != Some(&json!("identity.conflict")) {
+            && value.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
+        {
             return Err(format!("identity problem missing: {value}"));
         }
         if mode == "disabled" && value.pointer("/sources/0/reason") != Some(&json!("disabled")) {

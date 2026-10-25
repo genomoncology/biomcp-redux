@@ -50,7 +50,8 @@ fn selected(
             reason: biomcp_types::Reason::BadReply,
             status: Some(200),
             retry_after: None,
-        }.into());
+        }
+        .into());
     }
     if records.incomplete {
         out.status = Status::Partial;
