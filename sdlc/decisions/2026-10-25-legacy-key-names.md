@@ -1,16 +1,14 @@
-# 0.9 key environment names stay supported
+# Keys keep their 0.9 environment names
 
 Date: 2026-10-25. Decided by Ian.
 
-BioMCP 1.0 reads both its own environment variable and the 0.9 name for every key. Users who upgrade keep their existing settings and never rename a variable.
+BioMCP 1.0 reads each key from the same environment variable 0.9 used. Users who upgrade keep their settings and never rename a variable. Ian never asked for a rename. The PM renamed two variables on 2026-10-23 and 2026-10-24 only to match the new config field names, and that reason does not justify breaking existing settings. 1.0 has not shipped, so each key keeps one name and no fallback is needed.
 
-| Key | 1.0 name | 0.9 name |
+| Key | Environment variable | Config field |
 |---|---|---|
-| Semantic Scholar | `SEMANTIC_SCHOLAR_API_KEY` | `S2_API_KEY` |
-| OncoKB | `ONCOKB_API_KEY` | `ONCOKB_TOKEN` |
-| NCBI | `NCBI_API_KEY` | same |
-| NCI | `NCI_API_KEY` | same |
+| Semantic Scholar | `S2_API_KEY` | `keys.semantic_scholar_api_key` |
+| OncoKB | `ONCOKB_TOKEN` | `keys.oncokb_api_key` |
+| NCBI | `NCBI_API_KEY` | `keys.ncbi_api_key` |
+| NCI | `NCI_API_KEY` | `keys.nci_api_key` |
 
-Precedence: the config file, then the 1.0 name, then the 0.9 name. When both variables are set, the 1.0 name wins and BioMCP says nothing about it. Keys added later, such as openFDA, UMLS, ORCID and AlphaGenome, take their 0.9 name (`OPENFDA_API_KEY`, `UMLS_API_KEY`, `ORCID_ACCESS_TOKEN`, `ALPHAGENOME_API_KEY`) as their 1.0 name, or read it as the fallback when 1.0 picks a different name.
-
-`biomcp help key <source>` names both variables. The upgrade guide says the old names keep working and does not tell users to rename them.
+Keys added later keep their 0.9 names: `OPENFDA_API_KEY`, `UMLS_API_KEY`, `ORCID_ACCESS_TOKEN` and `ALPHAGENOME_API_KEY`. Precedence stays the config file, then the environment variable. `biomcp help key <source>` names the config field and the variable.

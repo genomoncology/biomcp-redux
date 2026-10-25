@@ -824,7 +824,7 @@ Article page cases use the recorded real output plus 15 percent, capped by the r
 | Semantic Scholar | `semantic_scholar_api_key`, optional, in header `x-api-key` | The `semantic-scholar` search source, `tldr`, `pdf`, the Semantic Scholar edges, citation evidence and recommendations | Runs without a key at 1 request every 2 seconds with one in flight, and with the user's key at 1 per second. Never part of a default command. A 429 that outlasts the retries fails the leg with reason `rate_limited` and adds a `key` step |
 | PubTator3, LitVar2, LitSense2, iCite, Europe PMC, PMC OA bucket | none | | Public, no key |
 
-The key is config key `keys.semantic_scholar_api_key`, environment variable `SEMANTIC_SCHOLAR_API_KEY`, or the 0.9 name `S2_API_KEY` when the 1.0 name is unset. It is outgoing only: it never appears in a request key, a recording, a trace, an error or an envelope, and BioMCP never prints it. `biomcp help key semantic-scholar` names both places and says the key is free and raises the limit.
+The key is config key `keys.semantic_scholar_api_key`, or environment variable `S2_API_KEY`, its 0.9 name. It is outgoing only: it never appears in a request key, a recording, a trace, an error or an envelope, and BioMCP never prints it. `biomcp help key semantic-scholar` names both places and says the key is free and raises the limit.
 
 ### Keyless access, checked 2026-10-24
 
