@@ -18,33 +18,7 @@ pub(super) fn check() -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("help commands missing")?;
     source_description(commands)?;
-    let mut printed = BTreeSet::new();
-    for command in commands.iter().filter(|c| {
-        c["command"].as_array().is_some_and(|words| {
-            words.len() == 2
-                && words.iter().any(|v| {
-                    v == "article"
-                        || v == "gene"
-                        || v == "trial"
-                        || v == "variant"
-                        || v == "drug"
-                        || v == "ema"
-                        || v == "ddinter"
-                })
-        })
-    }) {
-        let examples = command["examples"]
-            .as_array()
-            .filter(|v| v.len() == 2)
-            .ok_or("query help requires two examples")?;
-        for example in examples {
-            let args: Vec<String> =
-                serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;
-            if !printed.insert(args) {
-                return Err("help repeats an example".into());
-            }
-        }
-    }
+    let mut printed = collected_examples(commands)?;
     let witnesses: Vec<(String, usize)> = serde_json::from_str(include_str!(concat!(
         env!("OUT_DIR"),
         "/example-cases.json"
@@ -85,6 +59,37 @@ pub(super) fn check() -> Result<(), String> {
         return Err("printed example has no owning case witness".into());
     }
     Ok(())
+}
+
+fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
+    let mut printed = BTreeSet::new();
+    for command in commands.iter().filter(|c| {
+        c["command"].as_array().is_some_and(|words| {
+            words.len() == 2
+                && words.iter().any(|v| {
+                    v == "article"
+                        || v == "gene"
+                        || v == "trial"
+                        || v == "variant"
+                        || v == "drug"
+                        || v == "ema"
+                        || v == "ddinter"
+                })
+        })
+    }) {
+        let examples = command["examples"]
+            .as_array()
+            .filter(|v| v.len() == 2)
+            .ok_or("query help requires two examples")?;
+        for example in examples {
+            let args: Vec<String> =
+                serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;
+            if !printed.insert(args) {
+                return Err("help repeats an example".into());
+            }
+        }
+    }
+    Ok(printed)
 }
 
 fn source_description(commands: &[Value]) -> Result<(), String> {
