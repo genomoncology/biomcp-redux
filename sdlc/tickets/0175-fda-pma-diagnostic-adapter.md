@@ -1,6 +1,7 @@
 # 0175 — Get FDA PMA base and supplement records with regulatory and supplements sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 381fc858acc9e7172206554abf464afcdc041d50
 
 Milestone: 4
 

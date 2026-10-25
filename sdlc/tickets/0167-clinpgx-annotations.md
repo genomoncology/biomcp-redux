@@ -1,6 +1,7 @@
 # 0167 — Add the ClinPGx annotations section by kind
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b88365a20734ea4404e61bb6ff4134b6f6427c39
 
 Milestone: 4
 
