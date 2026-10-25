@@ -25,7 +25,7 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
     let (page, _) = leg.json_received_checked::<raw::Search>(
         &endpoint,
         &[
-            ("q", Arg::Text(text.as_str())),
+            ("q", Arg::Text(text)),
             ("rows", Arg::Num(u64::from(query.limit()))),
             ("start", Arg::Num(u64::from(query.offset()))),
             ("ontology", Arg::Text(ontology.as_str())),

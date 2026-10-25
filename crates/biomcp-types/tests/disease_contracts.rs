@@ -155,7 +155,7 @@ fn candidate_header_preserves_publisher_obsolete_state_without_guessing() {
 fn disease_page_continuations_keep_every_native_selector() {
     let search: DiseaseSearch =
         serde_json::from_value(json!({"text":"MF","ontology":"doid","limit":2})).unwrap();
-    assert_eq!(search.text().unwrap().as_str(), "MF");
+    assert_eq!(search.text().unwrap(), "MF");
     assert_eq!(search.source(), biomcp_types::DiseaseSource::Ols);
     assert_eq!(search.ontology(), Some(DiseaseOntology::Doid));
     let next = search.at_offset(2);

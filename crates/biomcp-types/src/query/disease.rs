@@ -40,8 +40,8 @@ pub struct DiseaseSearch(SearchFields);
 struct SearchFields {
     /// Literal source search text; absent for the SEER site catalog.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    text: Option<Text>,
+    #[cfg_attr(feature = "schema", schemars(length(min=1),extend("x-positional" = 0)))]
+    text: Option<Box<str>>,
     /// One explicit source, default OLS.
     #[serde(default)]
     source: DiseaseSource,
@@ -66,7 +66,7 @@ impl TryFrom<SearchFields> for DiseaseSearch {
     fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         if !(1..=50).contains(&v.limit)
             || !matches!(v.source, DiseaseSource::Ols | DiseaseSource::Seer)
-            || (v.source == DiseaseSource::Ols && v.text.is_none())
+            || (v.source == DiseaseSource::Ols && v.text.as_ref().is_none_or(|t|t.trim().is_empty()))
             || (v.source == DiseaseSource::Seer && (v.text.is_some() || v.ontology.is_some()))
         {
             return Err(QueryInvalid);
@@ -169,8 +169,8 @@ impl TryFrom<GetFields> for DiseaseGet {
 
 impl DiseaseSearch {
     /// Literal search text, absent for a native site catalog.
-    pub fn text(&self) -> Option<&Text> {
-        self.0.text.as_ref()
+    pub fn text(&self) -> Option<&str> {
+        self.0.text.as_deref()
     }
     /// Explicit service.
     pub fn source(&self) -> DiseaseSource {

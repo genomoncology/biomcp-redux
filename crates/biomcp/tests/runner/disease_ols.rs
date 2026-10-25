@@ -21,6 +21,8 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("disease-ols/empty-is-not-provider-failure", || {
             failures().map_err(Into::into)
         }),
+        Trial::test("disease-ols/timeout-retains-source-terms",||timeout().map_err(Into::into)),
+        Trial::test("disease-ols/disabled-component-bypasses-cache",||disabled().map_err(Into::into)),
     ]
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
@@ -68,6 +70,14 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     super::run_case(file.path(), &super::schema::Registry::embedded()?)
 }
+fn markdown(env:&Environment, words:&[&str], directory:&Path, required:&[&str]) -> Result<(),String> {
+    let mut command=args(words);command.extend(["--replay".into(),directory.to_string_lossy().into(),"--format".into(),"md".into()]);
+    let output=env.command(env!("CARGO_BIN_EXE_biomcp"),&command).output().map_err(|e|e.to_string())?;
+    let text=String::from_utf8(output.stdout).map_err(|e|e.to_string())?;
+    if !output.status.success() || required.iter().any(|value| !text.contains(value)) {return Err(format!("Markdown lost source facts: {text}"));}
+    Ok(())
+}
+
 fn search_reply(request: &str) -> Result<String, String> {
     let offset = if request.contains("start=5") {
         5
@@ -95,14 +105,14 @@ fn search() -> Result<(), String> {
         let mut words = vec![
             "search",
             "disease",
-            "literal MF : cancer",
+            "  literal MF : cancer  ",
             "--ontology",
             ontology,
         ];
         record(&env, &words, &directory)?;
         let result = replay(
             &directory,
-            json!([{"run":words,"mcp":words,"expect":{"/query/text":"literal MF : cancer","/query/ontology":ontology,"/page/total":11,"/result/items/0/concept/id":format!("{}:0000001",ontology.to_uppercase()),"/next/5/kind":"page"},"max_bytes":8000}]),
+            json!([{"run":words,"mcp":words,"expect":{"/query/text":"  literal MF : cancer  ","/query/ontology":ontology,"/page/total":11,"/result/items/0/concept/id":format!("{}:0000001",ontology.to_uppercase()),"/next/5/kind":"page"},"max_bytes":8000}]),
         )?;
         if result
             .pointer("/result/items")
@@ -118,7 +128,7 @@ fn search() -> Result<(), String> {
     if requests.len() != 3
         || requests
             .iter()
-            .any(|(_, r)| !r.contains("q=literal+MF+%3A+cancer") || !r.contains("groupField=iri"))
+            .any(|(_, r)| !r.contains("q=++literal+MF+%3A+cancer++") || !r.contains("groupField=iri"))
     {
         return Err(format!("literal or ontology request changed: {requests:?}"));
     }
@@ -136,6 +146,7 @@ fn exact() -> Result<(), String> {
     let directory = env.root().join("exact");
     let words = ["get", "disease", "MONDO:0007607", "--source", "ols"];
     record(&env, &words, &directory)?;
+    markdown(&env,&words,&directory,&["## Result","MONDO:0007607","Complete synthetic definition.","MONDO:0800444","MONDO:0800445","biomcp get disease"])?;
     let mut steps = vec![
         json!({"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result/replaced_by":null,"/result/consider":["MONDO:0800444","MONDO:0800445"],"/result/obsolete":true,"/result/sections":["synonyms","xrefs"]}}),
     ];
@@ -153,9 +164,10 @@ fn exact() -> Result<(), String> {
         steps.push(json!({"run":command,"mcp":command,"expect":{"/page/total":2,"/page/returned":1,"/next/0/kind":"page"},"max_bytes":5000}));
         let mut command = args(&command);
         command.extend(["--section-offset".into(), "1".into()]);
-        steps.push(json!({"run":command,"mcp":command,"expect":{"/page/offset":1,"/page/total":2,"/next":{"count":0}}}));
+        steps.push(json!({"run":command,"mcp":command,"expect":{"/page/offset":1,"/page/total":2}}));
     }
-    replay(&directory, Value::Array(steps))?;
+    let terminal=replay(&directory, Value::Array(steps))?;
+    if terminal.get("next").is_some() {return Err("terminal section advertised another page".into());}
     if stub.finish()?.len() != 1 {
         return Err("exact section paging fetched again".into());
     }
@@ -171,7 +183,7 @@ fn wrong() -> Result<(), String> {
         let value = invoke(
             &env,
             &args(&["get", "disease", "MONDO:0007607", "--source", "ols"]),
-            1,
+            4,
         )?;
         if value.pointer("/status").unwrap_or(&Value::Null) != "failed"
             || value.get("result").is_some()
@@ -202,7 +214,7 @@ fn failures() -> Result<(), String> {
             move |_| status,
         )?;
         let env = setup(&stub)?;
-        let value = invoke(&env, &args(&["search", "disease", "empty"]), 1)?;
+        let value = invoke(&env, &args(&["search", "disease", "empty"]), if status==200 && body.starts_with('{') {1}else{4})?;
         let expected = if status == 200 && body.starts_with('{') {
             "absent"
         } else {
@@ -221,4 +233,24 @@ fn failures() -> Result<(), String> {
         stub.finish()?;
     }
     Ok(())
+}
+
+fn timeout()->Result<(),String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",search_reply)?;
+    let env=setup(&stub)?;let directory=env.root().join("timeout");
+    let words=["search","disease","synthetic"];
+    record(&env,&words,&directory)?;stub.finish()?;
+    for file in fs::read_dir(directory.join("ols")).map_err(|e|e.to_string())? {let file=file.map_err(|e|e.to_string())?;let mut value:Value=serde_json::from_slice(&fs::read(file.path()).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+        *value.pointer_mut("/exchanges/0/delay_ms").ok_or("missing exchange delay")?=json!(20000);
+        fs::write(file.path(),serde_json::to_vec(&value).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    }
+    replay(&directory,json!([{"run":words,"mcp":words,"exit":4,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline"}}]))?;Ok(())
+}
+fn disabled()->Result<(),String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",exact_reply)?;
+    let env=setup(&stub)?;let words=["get","disease","MONDO:0007607","--source","ols"];
+    invoke(&env,&args(&words),0)?;
+    for disabled in ["ols","mondo"] {let mut q=args(&words);q.extend(["--disable-sources".into(),disabled.into()]);let value=invoke(&env,&q,4)?;
+        if value.pointer("/sources/0/reason").and_then(Value::as_str)!=Some("disabled") || value.get("result").is_some() {return Err(format!("disabled component leaked stored rows: {value}"));}}
+    if stub.finish()?.len()!=1 {return Err("disabled component made a request".into());}Ok(())
 }
