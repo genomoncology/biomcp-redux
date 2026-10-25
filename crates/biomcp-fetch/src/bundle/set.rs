@@ -94,14 +94,16 @@ impl Fetch {
         if set.parts.is_empty() || leg.budget().expired() {
             return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
         }
-        let revision = format!("\"{:x}\"", revision.finalize());
+        // Persist in a distinct content_revision field after the metadata migration.
+        let _content_revision = format!("sha256:{:x}", revision.finalize());
         let metadata = store::Meta {
             bytes,
             rows: complete.len() as u64,
             fresh_until: crate::cache::now().saturating_add(
                 i64::try_from(set.fresh.seconds().unwrap_or(0)).unwrap_or(i64::MAX),
             ),
-            etag: Some(revision),
+            // Publisher HTTP validators never hold a computed set digest.
+            etag: None,
             modified: None,
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;

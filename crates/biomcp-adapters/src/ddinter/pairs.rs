@@ -28,6 +28,30 @@ pub struct Pair {
     reversed: bool,
 }
 impl Pair {
+    /// Map the complete native pair with primary and distinct further source origins.
+    pub fn claim(
+        &self,
+        content_revision: &str,
+    ) -> Result<biodata::DrugInteractionClaim, biodata::Error> {
+        let anchor_id = if self.reversed {
+            self.native.id_b()
+        } else {
+            self.native.id_a()
+        };
+        let mut origins = self
+            .provenance
+            .iter()
+            .map(|origin| attribution(origin, content_revision));
+        let primary = origins.next().ok_or(biodata::Error::TextEmpty)??;
+        let additional = origins.collect::<Result<Vec<_>, _>>()?;
+        biodata::DrugInteractionClaim::new(
+            super::identity::identity(anchor_id, self.anchor_name())?,
+            super::identity::identity(self.partner_id(), self.partner_name())?,
+            biodata::Text::new(self.native.level())?,
+            primary,
+            additional.into_boxed_slice(),
+        )
+    }
     /// Exact native partner ID, without a name join.
     pub fn partner_id(&self) -> &str {
         if self.reversed {
@@ -90,4 +114,23 @@ pub fn partners(mut rows: Vec<PartRow>, anchor: &str) -> Vec<Pair> {
         .into_iter()
         .filter_map(|id| pairs.remove(&id))
         .collect()
+}
+
+fn attribution(
+    origin: &Provenance,
+    revision: &str,
+) -> Result<biodata::Attribution, biodata::Error> {
+    use biodata::Text;
+    let filename = format!("ddinter_downloads_code_{}.csv", origin.part);
+    Ok(biodata::Attribution {
+        source: Text::new("ddinter")?,
+        record: Some(Text::new(&format!("{filename}:{}", origin.row))?),
+        version: Some(Text::new(revision)?),
+        release: None,
+        submitter: None,
+        evaluated: None,
+        url: Some(Text::new(&format!(
+            "https://ddinter.scbdd.com/static/media/download/{filename}"
+        ))?),
+    })
 }

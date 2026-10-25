@@ -12,7 +12,7 @@ pub fn candidates(mut rows: Vec<PartRow>, query: &str) -> Vec<DrugHeader> {
         for (id, name) in identities(&row.value) {
             if name.to_lowercase().contains(&query)
                 && seen.insert(id.to_owned())
-                && let Some(identity) = identity(id, name)
+                && let Ok(identity) = identity(id, name)
             {
                 items.push(header(identity));
             }
@@ -23,14 +23,14 @@ pub fn candidates(mut rows: Vec<PartRow>, query: &str) -> Vec<DrugHeader> {
 pub(super) fn identities(row: &NativeRow) -> [(&str, &str); 2] {
     [(row.id_a(), row.name_a()), (row.id_b(), row.name_b())]
 }
-pub(super) fn identity(id: &str, name: &str) -> Option<DrugIdentity> {
-    Some(DrugIdentity {
-        id: id.parse().ok()?,
-        source: Text::new("ddinter").ok()?,
-        name: Text::new(name).ok()?,
+pub(super) fn identity(id: &str, name: &str) -> Result<DrugIdentity, biodata::Error> {
+    Ok(DrugIdentity {
+        id: id.parse()?,
+        source: Text::new("ddinter")?,
+        name: Text::new(name)?,
         // The CSV describes drug pairs, without identifying ingredient/product level.
         identity_level: DrugIdentityLevel::Unknown,
-        r#type: Some(Text::new("DDInter drug").ok()?),
+        r#type: Some(Text::new("DDInter drug")?),
         url: None,
     })
 }
