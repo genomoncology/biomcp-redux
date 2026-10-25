@@ -88,6 +88,9 @@ fn check_pages(env: &Environment, replay: &std::path::Path) -> Result<(), String
         }
         budget(&page, 4096)?;
     }
+    check_known(env, replay)
+}
+fn check_known(env: &Environment, replay: &std::path::Path) -> Result<(), String> {
     let positive = call(
         env,
         replay,
