@@ -424,7 +424,11 @@ fn enabled_health() -> Check {
         if matched.len() != 1 {
             return Err(format!("wrong native probe for {name}: {requests:?}"));
         }
-        if name == "opentargets" && !matched[0].1.contains("{ __typename }") {
+        if name == "opentargets"
+            && matched
+                .first()
+                .is_none_or(|(_, request)| !request.contains("{ __typename }"))
+        {
             return Err("Open Targets probe lost its bounded GraphQL query".into());
         }
     }
