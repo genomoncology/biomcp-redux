@@ -12,6 +12,12 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("diagnostic-cdx/synthetic-pagination", || {
+            paging().map_err(Into::into)
+        }),
+        Trial::test("diagnostic-cdx/markdown-whole-cells", || {
+            markdown().map_err(Into::into)
+        }),
         Trial::test("diagnostic-cdx/synthetic-owned-identities", || {
             identities().map_err(Into::into)
         }),
@@ -78,42 +84,6 @@ fn identities() -> Check {
         {
             return Err(format!("missing drug pivot {id}: {value}"));
         }
-    }
-    let base = call(
-        &env,
-        &replay,
-        &[
-            "search",
-            "diagnostic",
-            "--source",
-            "fda-cdx",
-            "--device-id",
-            "P200010",
-        ],
-        0,
-    )?;
-    if base.pointer("/page/total") != Some(&json!(6))
-        || base.pointer("/page/returned") != Some(&json!(5))
-    {
-        return Err(format!("base search lost supplement or group rows: {base}"));
-    }
-    let next = base
-        .get("next")
-        .and_then(Value::as_array)
-        .and_then(|a| a.iter().find(|v| v.get("kind") == Some(&json!("page"))))
-        .and_then(|v| v.get("args"))
-        .and_then(Value::as_array)
-        .ok_or("missing native page action")?;
-    let args = next
-        .iter()
-        .map(|v| v.as_str().ok_or("non-text page arg"))
-        .collect::<Result<Vec<_>, _>>()?;
-    let page = call(&env, &replay, &args, 0)?;
-    if page.pointer("/page/offset") != Some(&json!(5))
-        || page.pointer("/result/items/0/kind") != Some(&json!("group"))
-        || page.pointer("/result/items/0/drug_applications") != Some(&json!([]))
-    {
-        return Err(format!("page or ambiguous group identity changed: {page}"));
     }
     let mismatch = call(
         &env,
@@ -302,6 +272,89 @@ fn concurrent() -> Check {
         if value.get("result") != before.get("result") && value.get("result") != after.get("result")
         {
             return Err(format!("reader mixed snapshot rows: {value}"));
+        }
+    }
+    Ok(())
+}
+
+fn paging() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    call(&env, &replay, &["sync", "fda-cdx"], 0)?;
+    let base = call(
+        &env,
+        &replay,
+        &[
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-cdx",
+            "--device-id",
+            "P200010",
+        ],
+        0,
+    )?;
+    if base.pointer("/page/total") != Some(&json!(6))
+        || base.pointer("/page/returned") != Some(&json!(5))
+    {
+        return Err(format!("base search lost supplement or group rows: {base}"));
+    }
+    let next = base
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|a| a.iter().find(|v| v.get("kind") == Some(&json!("page"))))
+        .and_then(|v| v.get("args"))
+        .and_then(Value::as_array)
+        .ok_or("missing native page action")?;
+    let args = next
+        .iter()
+        .map(|v| v.as_str().ok_or("non-text page arg"))
+        .collect::<Result<Vec<_>, _>>()?;
+    let page = call(&env, &replay, &args, 0)?;
+    if page.pointer("/page/offset") != Some(&json!(5))
+        || page.pointer("/result/items/0/kind") != Some(&json!("group"))
+        || page.pointer("/result/items/0/drug_applications") != Some(&json!([]))
+    {
+        return Err(format!("page or ambiguous group identity changed: {page}"));
+    }
+    Ok(())
+}
+fn markdown() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    call(&env, &replay, &["sync", "fda-cdx"], 0)?;
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(
+        [
+            "search",
+            "diagnostic",
+            "--source",
+            "fda-cdx",
+            "--device-id",
+            "P200010/S026",
+            "--format",
+            "md",
+        ]
+        .map(str::to_owned),
+    );
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty() {
+        return Err("companion Markdown command failed".into());
+    }
+    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    for expected in [
+        "Synthetic tissue context",
+        "P200010/S026",
+        "NDA210496",
+        "BLA125084",
+        "FDA website policies",
+        "get drug",
+    ] {
+        if !text.contains(expected) {
+            return Err(format!("Markdown omitted {expected}: {text}"));
         }
     }
     Ok(())
