@@ -569,3 +569,18 @@ The bounded native capture retained 658 distinct references and ten trastuzumab 
 
 
 WHO response measurements use full compact JSON, raw stdout including its newline, and the existing runner's comparable projection after verifying publisher terms. The new missing-bundle search measured 404 compact bytes, 405 stdout bytes and 245 comparable stdout bytes. Synthetic sync examples use a genuine recorder exchange and its sidecar; their four rows contain synthetic values and preserve native CSV shape. The navigation regression uses ten synthetic rows, proves all ten default get actions and a five-row continuation, and applies its measured output ceiling. These measurements do not establish a 0.9 comparison.
+
+
+The retained whole export supplied 658 rows and ten trastuzumab matches. Nineteen CLI/MCP pairs and the ordinary external schema runner checked the restored output without new provider calls or reply deliveries. The native card checks include a spaced reference, an empty dosage-form cell and the test-labelled reference. Every native cell compared in these products retained its original value.
+
+| WHO output | Full compact bytes | Full stdout bytes | Comparable compact bytes |
+| --- | ---: | ---: | ---: |
+| Complete native sync | 316 | 317 | 156 |
+| Default ten-row trastuzumab page | 5,313 | 5,314 | 5,153 |
+| First explicit five-row page | 2,863 | 2,864 | 2,703 |
+| Terminal explicit five-row page | 2,990 | 2,991 | 2,830 |
+| Whole-phrase match | 5,320 | 5,321 | 5,160 |
+| Exact BT-ON001 card | 745 | 746 | 585 |
+| Missing local bundle | 404 | 405 | 244 |
+
+The external native cases enforce each measured reply plus fifteen percent. Routine synthetic cases keep their own measured ceilings. The current comparable projection removes only the existing verified publisher-terms fields; it does not substitute for a 0.9 measurement or a clinical comparison.
