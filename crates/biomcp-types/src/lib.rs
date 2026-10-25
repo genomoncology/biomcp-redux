@@ -1,4 +1,6 @@
 #![doc = include_str!("../README.md")]
+// The fixed migration-message schema expands one enum of wire literals.
+#![recursion_limit = "256"]
 use biodata::*;
 
 mod predictor;
