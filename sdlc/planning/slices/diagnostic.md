@@ -208,17 +208,17 @@ These are retained product measurements, not source projections. Full and compar
 | Product view and measured scope | Full / comparable compact bytes | Full stdout ceiling | Approximate full tokens | 0.9 comparison |
 | --- | ---: | ---: | ---: | --- |
 | GTR full sync, both complete reports | 330 / 180 | 381 | 83 | Not run: verified diagnostic containment and same-question comparator belong to 0098. |
-| GTR Gene672 candidate page, largest of complete433 walk, limit50 | 37115 / 36965 | 42684 | 9279 | Not run: 0098. |
-| GTR condition candidate page, largest of complete127 walk, limit50 | 35564 / 35414 | 40900 | 8891 | Not run: 0098. |
+| GTR Gene 672 candidate page, largest of complete 433 walk, limit 50 | 37115 / 36965 | 42684 | 9279 | Not run: 0098. |
+| GTR condition candidate page, largest of complete 127 walk, limit 50 | 35564 / 35414 | 40900 | 8891 | Not run: 0098. |
 | GTR card, largest of three selected records | 1684 / 1534 | 1938 | 421 | Not run: 0098. |
-| GTR broad-panel genes, largest complete4668-row walk page, limit50 | 14540 / 14390 | 16723 | 3635 | Not run: 0098. |
-| GTR broad-panel conditions, largest complete5134-row walk page, limit50 | 10311 / 10161 | 11859 | 2578 | Not run: 0098. |
+| GTR broad-panel genes, largest complete 4668-row walk page, limit 50 | 14540 / 14390 | 16723 | 3635 | Not run: 0098. |
+| GTR broad-panel conditions, largest complete 5134-row walk page, limit 50 | 10311 / 10161 | 11859 | 2578 | Not run: 0098. |
 | WHO full sync | 350 / 157 | 404 | 88 | Not run: 0098. |
-| WHO nine-row0466-046-00 card, largest of four harvested products | 2915 / 2722 | 3354 | 729 | Not run: 0098. |
+| WHO nine-row 0466-046-00 card, largest of four harvested products | 2915 / 2722 | 3354 | 729 | Not run: 0098. |
 | FDA CDx full two-table sync | 310 / 158 | 358 | 78 | No old source-specific FDA table command; executable comparison not run. |
 | FDA CDx default first page, five whole rows | 6336 / 6184 | 7288 | 1584 | No old source-specific FDA table command; 0098 comparison deferred. |
-| FDA CDx default second page, largest of first two unfiltered pages | 7106 / 6954 | 8174 | 1777 | Not a maximum over all241 rows; no old source-specific command. |
-| FDA CDx BLA125514, largest page of complete15-row walk | 7049 / 6897 | 8108 | 1763 | No old source-specific command. |
+| FDA CDx default second page, largest of first two unfiltered pages | 7106 / 6954 | 8174 | 1777 | Not a maximum over all 241 rows; no old source-specific command. |
+| FDA CDx BLA125514, largest page of complete 15-row walk | 7049 / 6897 | 8108 | 1763 | No old source-specific command. |
 | PMA base card, largest of P150013/P200010 | 999 / 897 | 1150 | 250 | No old exact source-specific PMA command. |
 | PMA exact S020/S021 card | 970 / 868 | 1117 | 243 | No old exact source-specific supplement command. |
 | PMA largest native five-supplement page | 2518 / 2416 | 2897 | 630 | No old section with this request contract. |
@@ -326,7 +326,7 @@ The legacy diagnostic surface has no positional free-text search, drug selector,
 | Search/association `--limit`, `--offset` | Default five rows, terminal page, every selector and immutable revision retained; native row order and count unit explicit; warm stored read makes zero requests. Association `next` includes all distinct valid typed pivots, then page and at most three extras. |
 | GTR get genes/conditions/methods and section paging | Q14 broad panel complete walk, missing versus empty optional native fields, real differing symbol/Gene-ID counts and row/distinct MedGen counts; no display clipping loses source rows. |
 | PMA get, optional `--supplement`, regulatory and supplements sections | Captured P150013 base has empty native supplement number; exact S020/S021 positive rows remain distinct. Omitted supplement selects base only; unknown supplement returns absence with no fallback. Supplements section pages only base application members; invalid section-plus-supplement errors before I/O. Exact record identity checked before admission. |
-| PMA/CDx/gene/drug next | Gene672, exact PMA/supplement and whole-cell-owned NDA/BLA pivots use existing checked request spellings. K identities have exact clearance gets; DEN/H and ambiguous/untyped cells have source links but no get. Parsed CLI/MCP steps execute against recordings; no name bridge. |
+| PMA/CDx/gene/drug next | Gene 672, exact PMA/supplement and whole-cell-owned NDA/BLA pivots use existing checked request spellings. K identities have exact clearance gets; DEN/H and ambiguous/untyped cells have source links but no get. Parsed CLI/MCP steps execute against recordings; no name bridge. |
 | All syncs | GTR pair, full WHO CSV and approved FDA tables publish atomically; wrong/malformed member, failed second file, concurrent reads and failed replacement preserve the prior complete revision. No read-triggered sync. |
 | Shared policy/output | CLI/MCP equality, generated schemas/help, bounded Markdown, noncommercial disable before cache/replay, registry source/terms identity and failed/skipped outcomes. |
 | Empty/failure | Q17 challenged website stays separate from captured bulk current record; Q18 zero semantics. Actual captured absent application remains a separate native zero. Synthetic 429/500/timeout/broken body/HTTP200 error controls never become clinical absence or claimed live outages. Raw bodies/output survive comparison failure. |
@@ -528,7 +528,7 @@ Question IDs name reviewed questions, not twenty-four successful clinical answer
 | Q09, Q10 | P150013/S020 and S021 table rows plus native exact PMA j13229. | Scoring text remains in its own row; PMA statement belongs to that submission. |
 | Q11, Q12 | P210001/S001 and P230011 table rows; j13117. | No gene-level eligibility or universal panel companion claim. |
 | Q13 | P200010 table and native PMA application j13229. | Neither source becomes a clinical negative-result interpretation engine. |
-| Q14 | Full native GTR j13177: BRCA1/Gene672 selection and complete broad-panel gene/condition walks. | Membership, native row totals and distinct IDs remain different quantities. |
+| Q14 | Full native GTR j13177: BRCA1/Gene 672 selection and complete broad-panel gene/condition walks. | Membership, native row totals and distinct IDs remain different quantities. |
 | Q15, Q16 | GTR type/status/source fields; native j13177 and synthetic GTR cases. | Listing, current version and Clinical/Research do not establish authorization or present availability. |
 | Q17 | Original G02/G03 native bulk has current GTR000021517.11; no new website request. | The challenged web page remains unverified; bulk facts do not repair that access observation. |
 | Q18 | Synthetic GTR unknown selector zero and WHO absent product; native K080653 absence. | No empty BRCA1 result or general absence is claimed. P000000 product zero and unknown PMA supplement are synthetic. |
@@ -539,8 +539,8 @@ Question IDs name reviewed questions, not twenty-four successful clinical answer
 | W01 | Original j12632 export, repeated unchanged capture j13073 and native product j13094. | All 435 rows/125 products preserved; no source-row filtering. |
 | F01 | Original HTML, unchanged j13075 capture and j13117 product outputs. | Twenty native and nine synthetic pairs passed; later sync-help failure was repaired and checked separately. |
 | F02, F03, F04, F05, F06, F07, F08, F09, F10, F11, F12, F13 | Original twelve complete application responses in j12632. | Investigation inputs only unless explicitly reused by a named product proof. Native j13229 uses its separately approved unchanged P150013/P200010 captures. |
-| F14 | Original exact K080653 native404; native product j13314. | Source-local absence, not proof the ID is invalid elsewhere. |
-| F15 | Original P000000 native404 at limit1. | Product uses limit100; product absence is synthetic, not a relabeled native query receipt. |
+| F14 | Original exact K080653 native 404; native product j13314. | Source-local absence, not proof the ID is invalid elsewhere. |
+| F15 | Original P000000 native 404 at limit 1. | Product uses limit 100; product absence is synthetic, not a relabeled native query receipt. |
 
 The later K173492 positive comes from the separately approved j13187 capture and j13314 product replay. Both companion directions execute in j13314. Native PMA j13229 checks emitted companion selectors without mounting the companion bundle; it does not independently prove their native execution. Bodies and raw CLI/MCP evidence remain outside Git.
 
@@ -554,7 +554,7 @@ Every diagnostic YAML run carries its owning `max_bytes` and estimated-token cei
 | `tests/cases/diagnostic/who.yaml`, `who-help.yaml` | Synthetic whole known-product card, multiplicity, absence, sync and generated help. |
 | `tests/cases/diagnostic/fda-cdx.yaml`, `help.yaml` | Synthetic whole cells, source-owned selectors, pagination, two sync examples and full generated diagnostic help. |
 | `tests/cases/diagnostic/pma.yaml`, `pma-failures.yaml` | Synthetic exact base/supplement, absent selection, bounded statement, supplements and transport failures. |
-| `tests/cases/diagnostic/510k-failures.yaml` | Synthetic429/500/deadline/malformed reply controls. |
+| `tests/cases/diagnostic/510k-failures.yaml` | Synthetic 429/500/deadline/malformed reply controls. |
 | `runner/diagnostic_gtr.rs`, `diagnostic_gtr/mechanics.rs`, `diagnostic_gtr/native_value.rs` | Missing bundle, atomic replacement, policy, conflicting identities, Markdown and opaque native Gene-ID values without false pivots. |
 | `runner/diagnostic_who.rs`, `diagnostic_who/mechanics.rs` | Missing/unsupported/policy, complete replacement, concurrent readers and Markdown. |
 | `runner/diagnostic_cdx.rs`, `diagnostic_cdx/pivots.rs` | All-header replacement matrix, concurrency, owned links, conflicting aliases, entity decoding, page/action preservation and Markdown. |
@@ -569,8 +569,8 @@ The routine Rust cases test mechanism boundaries and reuse the corresponding sou
 
 ### Final generated help and discovery budgets
 
-The local help preflight j13380 measured search diagnostic at2026 compact/2027 stdout bytes and get diagnostic at2223 compact/2224 stdout bytes. The PM approved get-help growth to2557 compact/2558 stdout because the canonical described enum now makes its five sections visible. Search retains its existing2200-byte ceiling. Sync help measured373 stdout bytes for GTR and389 for WHO and FDA CDx; each exposes exactly two case-derived examples. Their new help-case ceilings use measured stdout plus fifteen percent.
+The local help preflight j13380 measured search diagnostic at 2026 compact/2027 stdout bytes and get diagnostic at 2223 compact/2224 stdout bytes. The PM approved get-help growth to 2557 compact/2558 stdout because the canonical described enum now makes its five sections visible. Search retains its existing 2200-byte ceiling. Sync help measured 373 stdout bytes for GTR and389 for WHO and FDA CDx; each exposes exactly two case-derived examples. Their new help-case ceilings use measured stdout plus fifteen percent.
 
-Whole help measured56826 stdout bytes and retains its existing63341 ceiling. MCP discovery measured1920 bytes and retains its1923 ceiling. It adds schema-derived diagnostic source choices and sections while preserving every PGx paging flag. The compact intro is shorter and individual credential-help leaves are omitted from discovery; full generated help still contains those leaves. No public command, source selector or section was removed to fit discovery. The shared executable-example check executes every published example against its owning synthetic recording.
+Whole help measured 56826 stdout bytes and retains its existing 63341 ceiling. MCP discovery measured 1920 bytes and retains its 1923 ceiling. It adds schema-derived diagnostic source choices and sections while preserving every PGx paging flag. The compact intro is shorter and individual credential-help leaves are omitted from discovery; full generated help still contains those leaves. No public command, source selector or section was removed to fit discovery. The shared executable-example check executes every published example against its owning synthetic recording.
 
 The Rust diagnostic mechanism maxima measured by j13382 live in `runner/diagnostic_retirements.rs::bounded`. The existing isolated invocation path applies them to diagnostic request and sync replies, while registry health/configuration remain under their shared contracts. Each maximum is a complete compact synthetic envelope by schema, result kind and outcome, with fifteen percent headroom. Native page maxima and YAML comparable ceilings remain separate.
