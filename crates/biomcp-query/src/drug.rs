@@ -1,4 +1,5 @@
 //! Literal native drug discovery and exact selected source identities.
+mod civic;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
@@ -7,6 +8,9 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    if query.source() == DrugSource::Civic {
+        return civic::search(cx, query);
+    }
     let mut out = empty(QueryBody::DrugPage(DrugPage {
         items: Box::default(),
         total: None,
@@ -78,6 +82,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    if query.source() == DrugSource::Civic {
+        return civic::get(cx, query);
+    }
     let xrefs = matches!(query.sections(), [biomcp_types::DrugSection::Xrefs]);
     let mut out = empty(if xrefs {
         QueryBody::DrugXrefs(None)

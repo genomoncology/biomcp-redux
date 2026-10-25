@@ -9,6 +9,21 @@ use libtest_mimic::{Arguments, Trial};
 use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
+    if env::args().nth(1).as_deref() == Some("--disease-native-proof") {
+        return match env::args()
+            .nth(2)
+            .map(PathBuf::from)
+            .ok_or("missing evidence directory".to_owned())
+            .and_then(|p| runner::disease_native(&p))
+        {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                use std::io::Write;
+                let _ = writeln!(std::io::stderr(), "{error}");
+                ExitCode::FAILURE
+            }
+        };
+    }
     if env::args().nth(1).as_deref() == Some("--installed-http-proof") {
         if env::args().len() != 2 {
             return ExitCode::FAILURE;

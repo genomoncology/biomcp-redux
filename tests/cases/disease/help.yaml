@@ -1,0 +1,22 @@
+{
+  "feature": "disease-ols",
+  "story": "Discover one explicit ontology and read exact source concepts through CLI and MCP.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "disease"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "disease"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": ["search", "disease"]
+      }
+    }
+  ]
+}

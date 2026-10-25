@@ -247,15 +247,12 @@
           "description": "One explicit source, default OLS."
         },
         "text": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
           "description": "Literal source search text; absent for the SEER site catalog.",
+          "minLength": 1,
+          "type": [
+            "string",
+            "null"
+          ],
           "x-positional": 0
         }
       },

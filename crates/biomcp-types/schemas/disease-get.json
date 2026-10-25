@@ -38,7 +38,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease-get/1",
+  "$id": "biomcp.disease-get/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Exact concept or native SEER site with independently paged section.",
@@ -118,7 +118,7 @@
         }
       ],
       "description": "One named section; absent means identity card only.",
-      "x-trailing-section": true
+      "x-positional": 1
     },
     "section_limit": {
       "default": 5,
