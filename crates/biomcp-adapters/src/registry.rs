@@ -43,12 +43,17 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::drugsfda::SPEC,
     &crate::ema::SPEC,
     &crate::ddinter::SPEC,
+    &crate::ols::SPEC,
+    &crate::mydisease::SPEC,
+    &crate::monarch::SPEC,
+    &crate::seer::SPEC,
 ];
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
     crate::myvariant::components::all()
         .iter()
         .chain(crate::drug_sources::components::COMPONENTS)
+        .chain(crate::disease_sources::components::COMPONENTS)
 }
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
@@ -98,6 +103,9 @@ pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::Monarch {
+        crate::disease_sources::components::monarch(leg)?;
+    }
     if spec.source == Source::LitVar {
         return leg.probe(
             &crate::litvar::AUTOCOMPLETE,
@@ -158,7 +166,10 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
-        Source::MyVariant | Source::Mychem => ("/metadata", vec![]),
+        Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
+        Source::Ols => ("/api/ontologies", vec![("size", Arg::Num(1))]),
+        Source::Monarch => ("/v3/api/association", vec![("object", Arg::Text("MONDO:0018875")), ("subject_category", Arg::Text("biolink:Gene")), ("limit", Arg::Num(1))]),
+        Source::Seer => ("/get_var_formats.php", vec![]),
         Source::Chembl => ("/status.json", vec![]),
         Source::OpenfdaLabel | Source::Drugsfda => ("", vec![("limit", Arg::Num(1))]),
         Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),

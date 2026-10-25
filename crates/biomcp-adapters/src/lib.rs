@@ -72,3 +72,10 @@ mod ema;
 mod mychem;
 mod openfda_label;
 mod opentargets;
+
+/// Disease publisher policy and pre-request component admission.
+pub mod disease_sources;
+pub mod ols;
+pub mod mydisease;
+pub mod monarch;
+pub mod seer;
