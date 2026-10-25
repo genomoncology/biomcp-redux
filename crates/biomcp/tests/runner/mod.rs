@@ -55,6 +55,7 @@ mod normalization;
 mod oncokb;
 mod oncokb_context;
 mod pdf;
+mod pgx_registry;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -528,6 +529,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(adverse_event_registry::trials());
     trials.extend(faers_search::trials());
     trials.extend(diagnostic_registry::trials());
+    trials.extend(pgx_registry::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());
     trials.extend(drug_next::trials());

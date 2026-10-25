@@ -119,6 +119,10 @@ canonical_enum! {
         FdaCdx => "fda-cdx",
         /// openFDA premarket approval submissions.
         FdaPma => "fda-pma",
+        /// Clinical Pharmacogenetics Implementation Consortium.
+        Cpic => "cpic",
+        /// ClinPGx pharmacogenomics annotations.
+        ClinPgx => "clinpgx",
         /// Public cBioPortal with study-specific reuse terms.
         Cbioportal => "cbioportal",
     }

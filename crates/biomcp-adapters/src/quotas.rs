@@ -174,3 +174,10 @@ pub(crate) static FDA_WEBSITE: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative serial local policies; no published numeric CPIC quota is claimed.
+pub(crate) static CPIC: Quota =
+    Quota::new(SourceKey::declare("cpic"), Rate::per_second(1), None, 1);
+// ClinPGx publishes two requests per second; this serial policy stays below it.
+pub(crate) static CLINPGX: Quota =
+    Quota::new(SourceKey::declare("clinpgx"), Rate::per_second(1), None, 1);
