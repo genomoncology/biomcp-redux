@@ -57,3 +57,5 @@ pub use variant_population::VariantPopulationQuery;
 
 mod gene_input;
 pub use gene_input::GeneInput;
+
+pub use gene::QueryInvalid;

@@ -19,7 +19,8 @@ pub struct VariantCivic {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct CivicProfile {
+#[cfg_attr(feature = "schema", schemars(rename = "CivicProfile"))]
+pub struct CivicProfile<Continuation = VariantGet> {
     /// Native profile identity and link.
     pub record: SourceRecord,
     /// Whole source profile label, including its logical expression.
@@ -37,9 +38,9 @@ pub struct CivicProfile {
     /// Source claims; a compound claim retains a profile subject.
     pub statements: Box<[CivicStatement]>,
     /// Native evidence stream and its independent continuation.
-    pub evidence_page: CivicClaimPage,
+    pub evidence_page: CivicClaimPage<Continuation>,
     /// Native assertion stream and its independent continuation.
-    pub assertion_page: CivicClaimPage,
+    pub assertion_page: CivicClaimPage<Continuation>,
 }
 
 /// A native CIViC member, including members without a common-model subject.
@@ -65,14 +66,15 @@ pub struct CivicMember {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct CivicClaimPage {
+#[cfg_attr(feature = "schema", schemars(rename = "CivicClaimPage"))]
+pub struct CivicClaimPage<Continuation = VariantGet> {
     /// Number of native rows displayed in this stream.
     pub returned: u32,
     /// Native total for this stream.
     pub total: u64,
     /// Continue the same source candidate, profile and claim stream.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub next: Option<VariantGet>,
+    pub next: Option<Continuation>,
 }
 
 /// One CIViC claim with native labels that exceed the common statement model.

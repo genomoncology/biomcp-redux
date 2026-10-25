@@ -1,6 +1,7 @@
 # 0124 — Add the drug types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: af3daecce81d720bb0d33c5c894a9a07f4d33783
 
 Milestone: 3
 

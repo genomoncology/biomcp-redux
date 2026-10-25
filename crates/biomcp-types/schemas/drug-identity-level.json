@@ -1,0 +1,37 @@
+{
+  "$id": "biodata.drug-identity-level/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
+  "enum": [
+    "ingredient",
+    "salt",
+    "clinical_formulation",
+    "branded_product",
+    "spl_set",
+    "spl_version",
+    "ndc_package",
+    "fda_application",
+    "fda_product",
+    "ema_authorization",
+    "ema_application",
+    "orphan_designation",
+    "unknown"
+  ],
+  "title": "DrugIdentityLevel",
+  "type": "string",
+  "x-enum-descriptions": [
+    " Source-stated ingredient identity.",
+    " Source-stated salt identity.",
+    " Source-stated clinical formulation identity.",
+    " Source-stated branded product identity.",
+    " Source-stated spl set identity.",
+    " Source-stated spl version identity.",
+    " Source-stated ndc package identity.",
+    " Source-stated fda application identity.",
+    " Source-stated fda product identity.",
+    " Source-stated ema authorization identity.",
+    " Source-stated ema application identity.",
+    " Source-stated orphan designation identity.",
+    " Source-stated unknown identity."
+  ]
+}
