@@ -222,7 +222,7 @@
     },
     "PgxSearch": {
       "additionalProperties": false,
-      "description": "Checked gene-keyed CPIC pair search; no positional or drug text input.",
+      "description": "Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.",
       "properties": {
         "cpic_level": {
           "anyOf": [
@@ -255,8 +255,11 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/PgxSource",
-          "description": "Required CPIC source."
+          "description": "Required CPIC source; ClinPGx is not supported for search.",
+          "enum": [
+            "cpic"
+          ],
+          "type": "string"
         }
       },
       "required": [
@@ -755,7 +758,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx_page/1",
+  "$id": "biomcp.pgx_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -801,7 +804,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx_page/1",
+      "const": "biomcp.pgx_page/2",
       "type": "string"
     },
     "sources": {

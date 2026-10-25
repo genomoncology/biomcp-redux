@@ -117,6 +117,7 @@ fn scenario(name: &'static str) -> Check {
     if both(&env, args.clone(), 0)? != cold {
         return Err("warm cache changed native response".into());
     }
+    super::pgx_retirements::bounded(&format!("ClinPGx {name}"), &cold)?;
     verify(name, &cold, &original)?;
     let fresh = Environment::new().map_err(|e| e.to_string())?;
     let mut replay = vec!["--replay".into(), record.to_string_lossy().into()];

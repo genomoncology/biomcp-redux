@@ -625,7 +625,7 @@
       ]
     }
   },
-  "$id": "biodata.request/7",
+  "$id": "biodata.request/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -668,8 +668,11 @@
           "type": "integer"
         },
         "source": {
-          "$ref": "#/$defs/PgxSource",
-          "description": "Required CPIC source."
+          "description": "Required CPIC source; ClinPGx is not supported for search.",
+          "enum": [
+            "cpic"
+          ],
+          "type": "string"
         }
       },
       "required": [

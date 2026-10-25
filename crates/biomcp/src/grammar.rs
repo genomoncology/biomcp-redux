@@ -40,7 +40,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
-        Request::SearchPgx(_) => "biomcp.pgx-search/1",
+        Request::SearchPgx(_) => "biomcp.pgx-search/2",
         Request::GetPgx(_) => "biomcp.pgx-get/1",
         Request::GetPgxAnnotation(_) => "biomcp.pgx-get-command/1",
         Request::SearchDiagnostic(_) => "biomcp.diagnostic-search/1",
@@ -73,7 +73,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
-    ("search", "pgx", "biomcp.pgx-search/1"),
+    ("search", "pgx", "biomcp.pgx-search/2"),
     ("get", "pgx", "biomcp.pgx-get-command/1"),
     ("search", "diagnostic", "biomcp.diagnostic-search/1"),
     ("get", "diagnostic", "biomcp.diagnostic-get/1"),

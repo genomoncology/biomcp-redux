@@ -46,7 +46,7 @@ macro_rules! collection {
         }
     };
 }
-collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx_page/1");
+collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx_page/2");
 collection!(
     PgxGuidelines,
     PgxGuidelineReference,

@@ -42,6 +42,8 @@ The generated table below lists decided leaf commands and their dropped options 
 | `gene trials` | Ported or renamed | — | [The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page.](slices/gene.md) |
 | `gene articles` | Ported or renamed | — | [Section 1 maps this capability to search article --gene; article search preserves paging.](slices/gene.md) |
 | `gene pathways` | Ported or renamed | — | [Section 1 maps the command to the pathways section and moves old paging to the pathway slice.](slices/gene.md) |
+| `search pgx` | Ported or renamed | `--drug`, `--evidence` | [Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof.](slices/pharmacogenomics.md) |
+| `get pgx` | Ported or renamed | `--full` | [Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire.](slices/pharmacogenomics.md) |
 | `search trial` | Ported or renamed | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
 | `get trial` | Ported or renamed | — | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
 | `batch trial` | Ported or renamed | `--mode`, `--pdf` | [The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements.](slices/trial.md) |
