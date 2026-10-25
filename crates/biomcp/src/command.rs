@@ -1,7 +1,7 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod disease;
 mod steps;
 mod variant;
-mod disease;
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{Envelope, ErrorEnvelope, QueryBody, Request, Status};
@@ -100,7 +100,9 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if disease::unsupported(action) { return Some(usage_envelope(ErrorEnvelope::arguments())); }
+    if disease::unsupported(action) {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if let Action::Run {
         request: Request::SearchTrial(q),
         ..
@@ -204,7 +206,9 @@ fn response(
     response_body(meta, request, result.body)
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
-    if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) { return disease::encode(meta,request,body); }
+    if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+        return disease::encode(meta, request, body);
+    }
     match (request, body) {
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())

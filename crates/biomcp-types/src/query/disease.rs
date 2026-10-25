@@ -103,7 +103,7 @@ struct GetFields {
     ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "DiseaseSection", extend("x-positional" = 1, "x-section" = true)))]
+    #[cfg_attr(feature = "schema", schemars(with = "DiseaseSection", extend("x-positional" = 1)))]
     section: Option<DiseaseSection>,
     /// Native rows per section page.
     #[serde(default = "default_limit")]
@@ -169,45 +169,92 @@ impl TryFrom<GetFields> for DiseaseGet {
 
 impl DiseaseSearch {
     /// Literal search text, absent for a native site catalog.
-    pub fn text(&self) -> Option<&Text> { self.0.text.as_ref() }
+    pub fn text(&self) -> Option<&Text> {
+        self.0.text.as_ref()
+    }
     /// Explicit service.
-    pub fn source(&self) -> DiseaseSource { self.0.source }
+    pub fn source(&self) -> DiseaseSource {
+        self.0.source
+    }
     /// Selected OLS ontology, absent for other sources.
-    pub fn ontology(&self) -> Option<DiseaseOntology> { self.0.ontology }
+    pub fn ontology(&self) -> Option<DiseaseOntology> {
+        self.0.ontology
+    }
     /// Maximum source rows.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Native row offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Continue with every other selector unchanged.
-    pub fn at_offset(&self, offset: u32) -> Self { let mut q = self.clone(); q.0.offset = offset; q }
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
+    }
 }
 impl DiseaseGet {
     /// Exact source identifier.
-    pub fn id(&self) -> &Text { &self.0.id }
+    pub fn id(&self) -> &Text {
+        &self.0.id
+    }
     /// Explicit service.
-    pub fn source(&self) -> DiseaseSource { self.0.source }
+    pub fn source(&self) -> DiseaseSource {
+        self.0.source
+    }
     /// Selected OLS ontology.
-    pub fn ontology(&self) -> Option<DiseaseOntology> { self.0.ontology }
+    pub fn ontology(&self) -> Option<DiseaseOntology> {
+        self.0.ontology
+    }
     /// Selected source section.
-    pub fn section(&self) -> Option<DiseaseSection> { self.0.section }
+    pub fn section(&self) -> Option<DiseaseSection> {
+        self.0.section
+    }
     /// Maximum section rows.
-    pub fn section_limit(&self) -> u32 { self.0.section_limit }
+    pub fn section_limit(&self) -> u32 {
+        self.0.section_limit
+    }
     /// Section row offset.
-    pub fn section_offset(&self) -> u32 { self.0.section_offset }
+    pub fn section_offset(&self) -> u32 {
+        self.0.section_offset
+    }
     /// Continue the selected section while keeping its selectors.
-    pub fn at_section_offset(&self, offset: u32) -> Self { let mut q=self.clone(); q.0.section_offset=offset; q }
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.section_offset = offset;
+        q
+    }
     /// Select an available section from this exact card.
-    pub fn with_section(&self, section: DiseaseSection) -> Self { let mut q=self.clone(); q.0.section=Some(section); q.0.section_offset=0; q }
+    pub fn with_section(&self, section: DiseaseSection) -> Self {
+        let mut q = self.clone();
+        q.0.section = Some(section);
+        q.0.section_offset = 0;
+        q
+    }
     /// Native sex selector.
-    pub fn sex(&self) -> Option<&Text> { self.0.sex.as_ref() }
+    pub fn sex(&self) -> Option<&Text> {
+        self.0.sex.as_ref()
+    }
     /// Native race selector.
-    pub fn race(&self) -> Option<&Text> { self.0.race.as_ref() }
+    pub fn race(&self) -> Option<&Text> {
+        self.0.race.as_ref()
+    }
     /// Native age range selector.
-    pub fn age_range(&self) -> Option<&Text> { self.0.age_range.as_ref() }
+    pub fn age_range(&self) -> Option<&Text> {
+        self.0.age_range.as_ref()
+    }
     /// Native dataset selector.
-    pub fn dataset(&self) -> Option<&Text> { self.0.dataset.as_ref() }
+    pub fn dataset(&self) -> Option<&Text> {
+        self.0.dataset.as_ref()
+    }
     /// Native period selector.
-    pub fn period(&self) -> Option<&Text> { self.0.period.as_ref() }
+    pub fn period(&self) -> Option<&Text> {
+        self.0.period.as_ref()
+    }
     /// Native interval selector.
-    pub fn interval(&self) -> Option<&Text> { self.0.interval.as_ref() }
+    pub fn interval(&self) -> Option<&Text> {
+        self.0.interval.as_ref()
+    }
 }

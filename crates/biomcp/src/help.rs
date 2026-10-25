@@ -205,10 +205,8 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 }
 
 fn section_words(schema: &Value) -> Vec<HelpWord> {
-    let section = resolve(
-        field(field(field(schema, "properties"), "section"), "items"),
-        schema,
-    );
+    let property=field(field(schema,"properties"),"section");
+    let section=resolve(property.get("items").unwrap_or(property),schema);
     field(section, "enum")
         .as_array()
         .into_iter()

@@ -22,7 +22,9 @@ pub(super) struct Hit {
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
-        if self.response.docs.len() > 50 || self.response.docs.len() as u64 > self.response.total { return Err(BadReply); }
+        if self.response.docs.len() > 50 || self.response.docs.len() as u64 > self.response.total {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }
@@ -32,7 +34,9 @@ pub(super) struct Exact {
     pub embedded: Embedded,
 }
 #[derive(Deserialize)]
-pub(super) struct Embedded { pub terms: Vec<Term> }
+pub(super) struct Embedded {
+    pub terms: Vec<Term>,
+}
 #[derive(Deserialize)]
 pub(super) struct Term {
     pub obo_id: Curie,
@@ -48,14 +52,26 @@ pub(super) struct Term {
     pub obo_xref: Option<Vec<Xref>>,
 }
 #[derive(Default, Deserialize)]
-pub(super) struct Annotation { #[serde(default)] pub consider: Vec<Text> }
+pub(super) struct Annotation {
+    #[serde(default)]
+    pub consider: Vec<Text>,
+}
 #[derive(Deserialize)]
-pub(super) struct Synonym { pub name: Text, pub scope: Option<Text> }
+pub(super) struct Synonym {
+    pub name: Text,
+    pub scope: Option<Text>,
+}
 #[derive(Deserialize)]
-pub(super) struct Xref { pub database: Text, pub id: Text, pub description: Option<Text> }
+pub(super) struct Xref {
+    pub database: Text,
+    pub id: Text,
+    pub description: Option<Text>,
+}
 impl Reply for Exact {
     fn check(&self) -> Result<(), BadReply> {
-        if self.embedded.terms.len() > 1 { return Err(BadReply); }
+        if self.embedded.terms.len() > 1 {
+            return Err(BadReply);
+        }
         Ok(())
     }
 }

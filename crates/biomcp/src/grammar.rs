@@ -479,8 +479,12 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let value = arguments(matches, &schema)?;
     match (verb, entity) {
-        ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value).map(Request::SearchDisease).map_err(|_| ()),
-        ("get", "disease") => serde_json::from_value::<biomcp_types::DiseaseGet>(value).map(Request::GetDisease).map_err(|_| ()) ,
+        ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
+            .map(Request::SearchDisease)
+            .map_err(|_| ()),
+        ("get", "disease") => serde_json::from_value::<biomcp_types::DiseaseGet>(value)
+            .map(Request::GetDisease)
+            .map_err(|_| ()),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),

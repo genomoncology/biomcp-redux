@@ -16,10 +16,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
 };
 
-mod raw;
-mod map;
-mod search;
 mod get;
-pub use search::{SearchPage, search};
+mod map;
+mod raw;
+mod search;
 pub use get::{Record, get};
 pub use map::components;
+pub use search::{SearchPage, search};

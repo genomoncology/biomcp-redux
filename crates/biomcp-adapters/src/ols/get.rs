@@ -1,4 +1,4 @@
-use super::{SPEC, raw, map};
+use super::{SPEC, map, raw};
 use crate::Mapped;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::{DiseaseCard, DiseaseGet};
@@ -14,11 +14,34 @@ pub struct Record {
 }
 /// Request the exact CURIE and refuse wrong returned identities before cache admission.
 pub fn get(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Option<Record>, RequestError> {
-    let ontology = crate::disease_sources::components::ontology(leg, query.ontology().ok_or(biomcp_fetch::InputError::Serialization)?)?;
-    let endpoint=SPEC.get("/api/ontologies").with_path(format!("/api/ontologies/{}/terms", ontology.as_str()))?.fresh(Freshness::Days(1));
-    let (reply, _) = leg.json_received_checked::<raw::Exact>(&endpoint, &[("obo_id", Arg::Text(query.id().as_str()))], |reply| {
-        if reply.embedded.terms.iter().any(|t| t.obo_id.as_str()!=query.id().as_str() || t.ontology_name.as_str()!=ontology.as_str()) { return Err(BadReply); }
-        Ok(())
-    })?;
-    reply.embedded.terms.into_iter().next().map(|term| map::record(term, ontology)).transpose()
+    let ontology = crate::disease_sources::components::ontology(
+        leg,
+        query
+            .ontology()
+            .ok_or(biomcp_fetch::InputError::Serialization)?,
+    )?;
+    let endpoint = SPEC
+        .get("/api/ontologies")
+        .with_path(format!("/api/ontologies/{}/terms", ontology.as_str()))?
+        .fresh(Freshness::Days(1));
+    let (reply, _) = leg.json_received_checked::<raw::Exact>(
+        &endpoint,
+        &[("obo_id", Arg::Text(query.id().as_str()))],
+        |reply| {
+            if reply.embedded.terms.iter().any(|t| {
+                t.obo_id.as_str() != query.id().as_str()
+                    || t.ontology_name.as_str() != ontology.as_str()
+            }) {
+                return Err(BadReply);
+            }
+            Ok(())
+        },
+    )?;
+    reply
+        .embedded
+        .terms
+        .into_iter()
+        .next()
+        .map(|term| map::record(term, ontology))
+        .transpose()
 }
