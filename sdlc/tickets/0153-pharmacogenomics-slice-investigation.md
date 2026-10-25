@@ -24,4 +24,10 @@ Milestone: 4
   5. Add JSON shapes for the header, card and each page, per-command next steps under architecture 6.10, and remove frequency from next steps.
   6. Project page bytes offline from retained captures, mark the rest unmeasured, and name the contained 0.9 run as a later ticket.
   7. Move the PM choices out of "Ian's questions", which says None.
+- PM recheck 2026-10-25 of ea085c5d: all fixes closed; accepted with these amendments, applied on the branch before it lands:
+  1. `--source cpic` is required on the search, card, recommendations, guidelines and diplotype commands; `annotations` requires `--source clinpgx`; any other source and section pairing fails before I/O, including `get pgx --gene X --source clinpgx` with no section.
+  2. Next steps: pair search gives page, then the gene card, then the `recommendations` section, with no disambiguate step while pair get is deferred. The gene card gives `recommendations`, `guidelines` and `annotations --source clinpgx` section steps. Help and diplotype lookup are not steps.
+  3. `biomcp.pgx_annotation/1` is deferred with its command.
+  4. `--pgx-testing` is deferred until a native positive capture.
+  5. CYP2D6 has 1,316 recommendation rows and no drug filter yet, so tamoxifen questions Q18 to Q23 need paging until the adapter ticket proves the native `drugid` filter; that capture is required in the adapter ticket.
 - Defers: tickets, which the PM files from the reviewed design.

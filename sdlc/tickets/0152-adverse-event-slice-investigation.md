@@ -26,4 +26,9 @@ Milestone: 3
   7. Prove the `reporter` section's fields from the field inventory or drop it; mark multi-version get unproven.
   8. Count rows reuse the shared `CohortObservation` or state why not; reaction terms are `Concept` without a CURIE; identifiers keep published forms; record openFDA's third-party marks for MedDRA reaction terms and GMDN device names, with use labels.
   9. Every budget row is marked for measurement by its adapter ticket, with a ceiling at measured size plus margin.
+- PM recheck 2026-10-25 of 0ec89216: all fixes closed; accepted with these amendments, applied on the branch before it lands:
+  1. `--reaction TERM` adds `patient.reaction.reactionmeddrapt:"TERM"`, which openFDA treats as a phrase match on an analyzed field, not exact preferred-term equality; help and the query echo say phrase match. Positional MAUDE text is also a phrase match on `device.generic_name`. A `.exact` selector needs its own captured positive first.
+  2. `get` defaults to FAERS; MAUDE needs `--source maude`; there is no probing.
+  3. Delete the line saying source counts and report IDs remain pending the capture.
+  4. The `gmdn` component covers `device.generic_name` and any other device field the registry ticket names by exact path.
 - Defers: tickets, which the PM files from the reviewed design.
