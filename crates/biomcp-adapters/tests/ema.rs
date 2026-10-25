@@ -1,5 +1,5 @@
 //! Native EMA boundaries using a deliberately synthetic local document.
-#![expect(clippy::unwrap_used, reason = "Test setup and contract assertions")]
+
 use biomcp_adapters::ema;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache};
 use std::{path::PathBuf, time::Duration};
