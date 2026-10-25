@@ -89,6 +89,18 @@
         " Source-stated unknown identity."
       ]
     },
+    "DrugNameSelector": {
+      "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
+      "enum": [
+        "preferred",
+        "synonym"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Match the native preferred name exactly, ignoring case.",
+        " Match an explicit native synonym exactly, ignoring case."
+      ]
+    },
     "DrugPage": {
       "additionalProperties": false,
       "description": "A single source candidate page in native order, without selecting the first hit.",
@@ -123,6 +135,10 @@
           "maximum": 50,
           "minimum": 1,
           "type": "integer"
+        },
+        "name_selector": {
+          "$ref": "#/$defs/DrugNameSelector",
+          "description": "Explicit ChEMBL native name selector; omitted means preferred name."
         },
         "offset": {
           "default": 0,

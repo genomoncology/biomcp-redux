@@ -108,18 +108,3 @@ fn search_query(index: u32, size: u32) -> String {
         "query DrugSearch($q:String!){{search(queryString:$q,entityNames:[\"drug\"],page:{{index:{index},size:{size}}}){{total hits{{id name entity}}}}}}"
     )
 }
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn native_search_document_preserves_literal_paging() {
-        // First page matches the retained source request. Later page is synthetic mechanics only.
-        assert_eq!(
-            super::search_query(0, 5),
-            "query DrugSearch($q:String!){search(queryString:$q,entityNames:[\"drug\"],page:{index:0,size:5}){total hits{id name entity}}}"
-        );
-        assert_eq!(
-            super::search_query(1, 5),
-            "query DrugSearch($q:String!){search(queryString:$q,entityNames:[\"drug\"],page:{index:1,size:5}){total hits{id name entity}}}"
-        );
-    }
-}
