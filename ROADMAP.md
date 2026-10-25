@@ -218,7 +218,7 @@ Sources:
 - [x] CIViC
 - [x] DDInter (bundle, investigate)
 
-- Dropped: WHO prequalification (no unique harvested question), FDA orphan designations (the bank asks EU designation), DGIdb (duplicates kept target relations), PharmacoDB (cell-line screening is outside this slice), and CVX (no vaccine alias bridge).
+- Dropped: FDA orphan designations (the bank asks EU designation), DGIdb (duplicates kept target relations), PharmacoDB (cell-line screening is outside this slice), and CVX (no vaccine alias bridge).
 
 The drug output budget uses measured CLI/MCP envelopes, qualified bounded 0.9 figures and explicit unavailable-comparator reasons. Full same-question clinical parity remains a separate release requirement.
 
