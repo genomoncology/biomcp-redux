@@ -161,7 +161,7 @@ fn root() -> Result<Command, ()> {
     }
     root = root.subcommand(
         Command::new("sync")
-            .arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter", "gtr"])),
+            .arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter", "gtr", "fda-cdx"])),
     );
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
@@ -271,6 +271,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("fda-cdx") => Bundle::FdaCdx,
                 Some("gtr") => Bundle::Gtr,
                 Some("ema") => Bundle::Ema,
                 Some("ddinter") => Bundle::Ddinter,

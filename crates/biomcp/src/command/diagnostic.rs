@@ -4,6 +4,9 @@ use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     let usable = meta.status != Status::Failed;
     match (request, body) {
+        (Request::SearchDiagnostic(q), QueryBody::DiagnosticCompanion(body)) => {
+            meta.encode(q, usable.then_some(body))
+        },
         (Request::SearchDiagnostic(q), QueryBody::DiagnosticPage(body)) => {
             meta.encode(q, usable.then_some(body))
         }

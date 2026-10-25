@@ -40,7 +40,7 @@ fn identities() -> Check {
     let mismatch = call(&env, &replay, &["search", "diagnostic", "--source", "fda-cdx", "--device-id", "P150013/S020"], 0)?;
     if mismatch.pointer("/result/items/0/drug_applications") != Some(&json!([])) || mismatch.pointer("/problems/0/code") != Some(&json!("identity.conflict")) { return Err(format!("mismatched cell supplied identity: {mismatch}")); }
     let biomarker = call(&env, &replay, &["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "KRAS"], 0)?;
-    if biomarker.pointer("/page/total") != Some(&json!(3)) || !biomarker.get("problems").and_then(Value::as_array).is_some_and(|a| a.iter().any(|v|v.get("code")==Some(&json!("query.unsupported")))) { return Err(format!("group biomarker unsupported missing: {biomarker}")); }
+    if biomarker.pointer("/page/total") != Some(&json!(3)) || !biomarker.get("problems").and_then(Value::as_array).is_some_and(|a| a.iter().any(|v|v.get("field")==Some(&json!("table_1.biomarker")))) { return Err(format!("group biomarker unsupported missing: {biomarker}")); }
     Ok(())
 }
 fn replacement() -> Check {
@@ -60,10 +60,13 @@ fn replacement() -> Check {
                 let replacement = match fault {
                     "missing" => String::new(),
                     "extra" => format!("{original}<th>Extra</th>"),
-                    "reordered" => format!("<th>Reordered</th>{original}"),
+                    "reordered" => original.clone(),
                     _ => format!("<th>{header} changed</th>"),
                 };
-                *cell = json!(body.replace(&original, &replacement));
+                *cell = json!(if fault == "reordered" {
+                    let previous = if header == "Biomarker(s)" { "Drug Trade Name (Generic) NDA / BLA" } else { "Indication(s) - Sample Type" };
+                    body.replace(&format!("<th>{previous}</th>{original}"), &format!("{original}<th>{previous}</th>"))
+                } else { body.replace(&original, &replacement) });
                 fs::write(path, value.to_string()).map_err(|e|e.to_string())?;
             }
             let failed = call(&env, &replay, &["sync", "fda-cdx"], 4)?;

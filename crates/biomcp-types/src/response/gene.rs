@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Whole physical FDA companion association rows.
+    DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-ordered diagnostic candidates.
     DiagnosticPage(crate::DiagnosticPage),
     /// Exact selected diagnostic card.

@@ -15,7 +15,8 @@ pub(super) fn next(
         .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
     let candidates = matches!(
         &result.body,
-        biomcp_types::QueryBody::DiagnosticPage(_)
+        biomcp_types::QueryBody::DiagnosticCompanion(_)
+            | biomcp_types::QueryBody::DiagnosticPage(_)
             | biomcp_types::QueryBody::DiagnosticGenes(_)
             | biomcp_types::QueryBody::AdverseEventPage(_)
             | biomcp_types::QueryBody::DrugPage(_)

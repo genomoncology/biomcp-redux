@@ -1,4 +1,11 @@
-//! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
+//! Stored FDA companion diagnostic tables with source-owned association selectors.
+mod bundle;
+mod html;
+mod identity;
+mod raw;
+mod search;
+pub use bundle::sync;
+pub use search::{Search, search};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
@@ -15,3 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+
+fn bad() -> biomcp_fetch::RequestError {
+    biomcp_fetch::SourceError { source: Source::FdaCdx, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into()
+}
