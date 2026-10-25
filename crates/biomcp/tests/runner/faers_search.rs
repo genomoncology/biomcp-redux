@@ -3,9 +3,11 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
-mod policy;
 mod examples;
-pub(super) fn record_examples(directory: &std::path::Path) -> Check { examples::record(directory) }
+mod policy;
+pub(super) fn record_examples(directory: &std::path::Path) -> Check {
+    examples::record(directory)
+}
 pub(super) fn trials() -> Vec<Trial> {
     let mut cases = vec![Trial::test(
         "adverse-event-search/native-order-and-next",
@@ -78,10 +80,10 @@ fn setup(query: &str, limit: u32) -> Result<(Environment, Stub), String> {
         &["api.fda.gov"],
         |_| "application/json",
         move |request| {
-            if request.lines().next() != Some(expected.as_str()) {
+            let offset = if request.lines().next() == Some(expected.as_str()) {0} else if request.lines().next() == Some(expected.replace("skip=0", "skip=5").as_str()) {5} else {
                 return Err(format!("wrong literal selector: {request}"));
-            }
-            Ok(body(limit, 0).to_string())
+            };
+            Ok(body(limit, offset).to_string())
         },
     )?;
     let env = environment(&stub)?;
@@ -117,9 +119,14 @@ fn selectors(flags: &[&str], suffix: &str) -> Check {
     {
         return Err(format!("synthetic selector changed: {value}"));
     }
-    if stub.finish()?.len() != 1 {
-        return Err("warm search performed HTTP".into());
+    let page = value.get("next").and_then(Value::as_array).and_then(|v|v.iter().find(|s|s.get("kind")==Some(&json!("page")))).and_then(|s|s.get("args")).ok_or("filtered page action")?;
+    let words: Vec<String> = serde_json::from_value(page.clone()).map_err(|e|e.to_string())?;
+    let second = both(&env,words,0)?;
+    if second.pointer("/result/source_query") != Some(&json!(expected)) || second.pointer("/query/offset") != Some(&json!(5)) { return Err("next page lost native selector".into()); }
+    for (key, first) in value.get("query").and_then(Value::as_object).ok_or("query")? {
+        if key != "offset" && second.get("query").and_then(|v|v.get(key)) != Some(first) { return Err(format!("page lost {key}")); }
     }
+    if stub.finish()?.len() != 2 { return Err("warm filtered pages performed HTTP".into()); }
     Ok(())
 }
 fn navigation() -> Check {
