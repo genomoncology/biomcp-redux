@@ -99,7 +99,7 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<crate::Mapped<DrugCard>, B
     for (component, c) in rows {
         aliases.extend(aliases_for(&c));
         refs.extend(references_for(&id, component, &c)?);
-        refs.extend(native_xrefs(&id,component,&c,&mut problems));
+        refs.extend(native_xrefs(&id, component, &c, &mut problems));
         parents.extend(parents_for(&id, component, &c)?);
     }
     let mut names = Vec::new();
@@ -110,9 +110,14 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<crate::Mapped<DrugCard>, B
         }
     }
     card.alternate_names = names.into();
-    card.cross_references = refs.into();
+    let mut distinct=Vec::new();
+    for reference in refs { if !distinct.contains(&reference) { distinct.push(reference); } }
+    card.cross_references = distinct.into();
     card.parents = parents.into();
-    Ok(crate::Mapped { value:card, problems })
+    Ok(crate::Mapped {
+        value: card,
+        problems,
+    })
 }
 fn strings(values: &crate::raw::OneOrMany<String>) -> Vec<&str> {
     match values {
@@ -128,14 +133,17 @@ fn reference(
     name: Option<&str>,
 ) -> Result<DrugIdentityRelation, BadReply> {
     let source = relation.split('.').next().unwrap_or(component);
-    let target_source = relation.split_once(".xrefs.").map(|(_,key)| key).unwrap_or(match relation {
-        "unii.rxcui" => "rxnorm",
-        "unii.ncit" => "ncit",
-        "ndc.applicationnumber" | "openfda.application_number" => "drugsfda",
-        "openfda.spl_set_id" => "openfda-label",
-        "gtopdb.chembl_id" => "chembl",
-        _ => source,
-    });
+    let target_source = relation
+        .split_once(".xrefs.")
+        .map(|(_, key)| key)
+        .unwrap_or(match relation {
+            "unii.rxcui" => "rxnorm",
+            "unii.ncit" => "ncit",
+            "ndc.applicationnumber" | "openfda.application_number" => "drugsfda",
+            "openfda.spl_set_id" => "openfda-label",
+            "gtopdb.chembl_id" => "chembl",
+            _ => source,
+        });
     Ok(DrugIdentityRelation {
         identity: DrugIdentity {
             id: target.parse().map_err(|_| BadReply)?,
@@ -214,10 +222,15 @@ fn references_for(
     ] {
         if let Some(target) = target {
             let native_name = match relation {
-                    "drugbank.id"|"chembl.molecule_chembl_id"|"gtopdb.ligand_id"|"unii.unii"|"ndc.product_id"|"ndc.productndc" => name(c),
-                    _ => None,
-                };
-                refs.push(reference(id, component, relation, target, native_name)?);
+                "drugbank.id"
+                | "chembl.molecule_chembl_id"
+                | "gtopdb.ligand_id"
+                | "unii.unii"
+                | "ndc.product_id"
+                | "ndc.productndc" => name(c),
+                _ => None,
+            };
+            refs.push(reference(id, component, relation, target, native_name)?);
         }
     }
     for (relation, values) in [
@@ -256,16 +269,27 @@ fn parents_for(
 }
 
 // Convert only the transport's original retrieval epoch; never use the current clock.
-pub(super) fn received_date(fetched:i64)->Option<biodata::PartialDate> {
-    if fetched <= 0 { return None; }
+pub(super) fn received_date(fetched: i64) -> Option<biodata::PartialDate> {
+    if fetched <= 0 {
+        return None;
+    }
     let mut days = fetched / 86_400;
     for year in 1970..=9999 {
-        let year_days = if biodata::PartialDate::new(year,Some(2),Some(29)).is_ok() {366} else {365};
-        if days >= year_days { days -= year_days; continue; }
+        let year_days = if biodata::PartialDate::new(year, Some(2), Some(29)).is_ok() {
+            366
+        } else {
+            365
+        };
+        if days >= year_days {
+            days -= year_days;
+            continue;
+        }
         for month in 1..=12 {
             for day in 1..=31 {
-                if let Ok(date)=biodata::PartialDate::new(year,Some(month),Some(day)) {
-                    if days == 0 { return Some(date); }
+                if let Ok(date) = biodata::PartialDate::new(year, Some(month), Some(day)) {
+                    if days == 0 {
+                        return Some(date);
+                    }
                     days -= 1;
                 }
             }
@@ -274,14 +298,24 @@ pub(super) fn received_date(fetched:i64)->Option<biodata::PartialDate> {
     None
 }
 
-fn native_xrefs(record:&str,component:&str,c:&Component,problems:&mut Vec<biomcp_types::Problem>)->Vec<DrugIdentityRelation> {
-    let mut rows=Vec::new();
-    for (namespace,ids) in c.xrefs.as_ref().into_iter().flatten() {
-        let relation=format!("{component}.xrefs.{namespace}");
+fn native_xrefs(
+    record: &str,
+    component: &str,
+    c: &Component,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<DrugIdentityRelation> {
+    let mut rows = Vec::new();
+    for (namespace, ids) in c.xrefs.as_ref().into_iter().flatten() {
+        let relation = format!("{component}.xrefs.{namespace}");
         for id in strings(ids) {
-            match reference(record,component,&relation,id,None) {
-                Ok(row)=>rows.push(row),
-                Err(_)=>problems.push(biomcp_types::Problem {source:biomcp_types::Source::Mychem, record:Text::new(record).ok(),field:relation.clone().into(),code:biomcp_types::ProblemCode::ValueUnknown}),
+            match reference(record, component, &relation, id, None) {
+                Ok(row) => rows.push(row),
+                Err(_) => problems.push(biomcp_types::Problem {
+                    source: biomcp_types::Source::Mychem,
+                    record: Text::new(record).ok(),
+                    field: relation.clone().into(),
+                    code: biomcp_types::ProblemCode::ValueUnknown,
+                }),
             }
         }
     }

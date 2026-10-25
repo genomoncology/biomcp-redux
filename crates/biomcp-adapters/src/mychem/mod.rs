@@ -53,7 +53,13 @@ pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugCard>, RequestEr
     let (reply, received) = leg.json_received_checked::<raw::Hit>(
         &GET.clone().with_segments(&[segment]),
         &[("fields", Arg::Text(&fields))],
-        |hit| if hit.id == id { Ok(()) } else { Err(biomcp_fetch::BadReply) },
+        |hit| {
+            if hit.id == id {
+                Ok(())
+            } else {
+                Err(biomcp_fetch::BadReply)
+            }
+        },
     )?;
     let mut card = map::card(reply, leg).map_err(|_| bad_reply())?;
     card.value.retrieved = map::received_date(received.fetched);

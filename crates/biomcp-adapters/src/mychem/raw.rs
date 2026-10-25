@@ -42,7 +42,7 @@ impl Reply for Hit {
 }
 #[derive(Debug, Default, Deserialize)]
 pub(super) struct Component {
-    pub xrefs: Option<std::collections::BTreeMap<String,OneOrMany<String>>>,
+    pub xrefs: Option<std::collections::BTreeMap<String, OneOrMany<String>>>,
     pub id: Option<String>,
     pub name: Option<String>,
     pub molecule_chembl_id: Option<String>,
