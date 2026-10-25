@@ -49,7 +49,7 @@ pub(super) fn environment(stub: &Stub) -> Result<Environment, String> {
 }
 pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let value = raw_invoke(env, args, exit)?;
-    super::maude_budget::observe(&value)?;
+    super::maude_budget::check(&value)?;
     Ok(value)
 }
 pub(super) fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String> {

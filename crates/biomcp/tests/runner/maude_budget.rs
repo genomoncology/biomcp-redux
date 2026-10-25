@@ -1,7 +1,6 @@
-//! Feature maude-reports: compact output observations keep native facts and component labels.
+//! Feature maude-reports: synthetic output ceilings retain native facts and component labels.
 use serde_json::{Value, json};
-use std::io::Write;
-pub(super) fn observe(value: &Value) -> Result<(), String> {
+pub(super) fn check(value: &Value) -> Result<(), String> {
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let mut comparable = value.clone();
     if let Some(outcomes) = comparable.get_mut("sources").and_then(Value::as_array_mut) {
@@ -29,10 +28,41 @@ pub(super) fn observe(value: &Value) -> Result<(), String> {
         .get("schema")
         .and_then(Value::as_str)
         .ok_or("schema identity")?;
-    writeln!(
-        std::io::stderr(),
-        "MAUDE_OUTPUT {schema} full={full} comparable={bytes}"
-    )
-    .map_err(|e| e.to_string())?;
+    let caps = ceiling(value, schema).ok_or("unbudgeted synthetic MAUDE schema")?;
+    if full > caps.0 || bytes > caps.1 {
+        return Err(format!(
+            "synthetic MAUDE budget exceeded for {schema}: {full}/{bytes} > {caps:?}"
+        ));
+    }
     Ok(())
+}
+
+// j13034 observed each class maximum; ceilings add 15 percent and round up.
+fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
+    if value.get("error").is_some() {
+        return Some(if value.get("next").is_some() {
+            (250, 250)
+        } else {
+            (165, 165)
+        });
+    }
+    if value.get("status") == Some(&json!("failed")) {
+        return match schema {
+            "biomcp.adverse_event_page/2" => Some((364, 232)),
+            "biomcp.adverse_event_maude_card/1" => Some((472, 340)),
+            "biomcp.adverse_event_devices/1" => Some((481, 349)),
+            "biomcp.adverse_event_narrative/1" => Some((500, 367)),
+            _ => None,
+        };
+    }
+    if value.get("status") == Some(&json!("absent")) {
+        return Some((733, 601));
+    }
+    match schema {
+        "biomcp.adverse_event_page/2" => Some((948, 816)),
+        "biomcp.adverse_event_maude_card/1" => Some((1497, 1364)),
+        "biomcp.adverse_event_devices/1" => Some((1241, 1109)),
+        "biomcp.adverse_event_narrative/1" => Some((912, 780)),
+        _ => None,
+    }
 }
