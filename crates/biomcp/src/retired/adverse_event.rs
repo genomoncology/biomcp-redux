@@ -101,6 +101,9 @@ fn guidance(
     match positional {
         ["drug", "adverse-events", ..] => Some(ErrorMessage::AdverseText),
         ["search" | "get", "adverse-event", rest @ ..] => {
+            if source == Some("cvx") {
+                return Some(ErrorMessage::CvxUnavailable);
+            }
             if source == Some("vaers") {
                 if positional.first() == Some(&"get") {
                     return Some(ErrorMessage::VaersGet);

@@ -178,6 +178,7 @@
         "use: help search disease; help get disease",
         "use: search trial --condition <text>; NCI requires an NCIt identifier",
         "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
+        "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
         "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.",
         "renamed; use: biomcp sync ema",
         "renamed; use: biomcp sync ddinter",

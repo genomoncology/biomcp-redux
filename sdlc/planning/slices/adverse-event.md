@@ -67,7 +67,7 @@ D01 retained total 23,863 and ordered native keys 50952244, 50884084, 50884224, 
 |---|---|---|---|
 | openFDA FAERS | Keep explicit report search and exact report get; captured aggregation stays investigation-only. Independent drug and reaction arrays. [Overview](https://open.fda.gov/apis/drug/event/), [fields](https://open.fda.gov/apis/drug/event/searchable-fields/). | `open`, [openFDA terms](https://open.fda.gov/terms/), CC0 default with stated third-party exceptions; attribution visible. | Versions, optional UNII/RxCUI/NDC/SPL identities, dates, roles, multiplicity. |
 | openFDA MAUDE | Separate device report family with native key/event type. [Overview](https://open.fda.gov/apis/device/event/), [endpoint](https://open.fda.gov/apis/device/event/how-to-use-the-endpoint/). | `open`, same FDA terms and exceptions. | Full device list, product code/UDI availability, report multiplicity, narrative size. |
-| CDC WONDER VAERS | Dropped: three denied replies prove no aggregate fields. Previously considered HPV9 aggregates. [API](https://wonder.cdc.gov/wonder/help/wonder-api.html), [help](https://wonder.cdc.gov/wonder/help/vaers.html). | Historical research terms: purpose-restricted statistical use under [data use](https://wonder.cdc.gov/datause.html); no runtime registry/category addition. | Actual fields, totals/counting unit; no promised individual report get. |
+| CDC WONDER VAERS | Ported for MMR and COVID-19 after the approved user-agent retry returned aggregate tables. The earlier HPV9 denials remain historical evidence. [API](https://wonder.cdc.gov/wonder/help/wonder-api.html), [help](https://wonder.cdc.gov/wonder/help/vaers.html). | Restricted statistical use under [CDC WONDER data use restrictions](https://wonder.cdc.gov/datause.html); the runtime registry enforces source and restricted-group controls. | Actual fields, totals/counting unit; no promised individual report get. |
 | CDC CVX/trade names | Dropped: no proved WONDER mapping. Previously considered vaccine identities. [Code sets](https://www.cdc.gov/iis/code-sets/index.html). No token-based name bridge or automatic search-time bundle sync. | Historical research terms: government tables with native notices retained; no runtime registry addition. CPT/AMA tables excluded. | Status/dates, native product-to-CVX/MVX relations, no proved WONDER join. |
 | ClinicalTrials.gov results | Drop automatic fallback after FAERS empty. Trial-owned explicit evidence remains separate. | Existing trial source terms. | No capture requested; trial denominators cannot replace spontaneous report counts. |
 | FDA recalls | Drop the legacy recall route from this entity; regulatory notices need separate question-driven ownership. | Existing FDA terms. | No capture requested; no claim of recall parity. |
@@ -84,7 +84,7 @@ F01 returned native total 105020 and report 26940567 version 1 first. F21 exact 
 
 The first device key 50952244 returned unchanged through exact D05 get. Device event, received and reporting dates are distinct. Optional source strings can be present and empty; empty must not silently become absent without an explicit reviewed rule. C01 carried 290 seven-column pipe-delimited rows. C02 carried 225 nine-column rows, including its trailing empty column. Exact CVX 118/62/165 and their trade rows were selected by the native CVX column while preserving original whitespace. These native code relations do not prove a WONDER relation.
 
-All three WONDER XML requests returned 403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. PM drops VAERS/CVX from this slice. Losing legacy vaccine search awaits Ian through the PM; this design does not claim he accepted the loss. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's 404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
+All three WONDER XML requests returned 403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. The initial design dropped VAERS/CVX pending Ian. His later retry ruling and the successful MMR/COVID-19 captures supersede that source disposition; the VAERS contract below defines the supported summaries. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's 404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
 
 ### Measured native request table
 
@@ -167,7 +167,7 @@ HPV vaccine questions belong here only as cancer prevention. The reviewer confir
 | A18 | What breast-implant lymphoma reports record death in reconstruction? M1/M2. | Keep event type and stated indication; generic implant query does not establish lymphoma or reconstruction. D01/D02 supply candidates, not a complete answer. |
 | A19 | What reports describe SCC in the capsule around breast implants? M3. | Preserve narrative text as such, distinct from BIA-ALCL and breast carcinoma. D03 is explicit text discovery; no locally inferred diagnosis. |
 | A20 | Does a breast-implant report total represent unique patients/events? M1/M2. | State native report counting unit and duplicates; FDA curated BIA-ALCL cases differ from broad text matches. D01/D05. |
-| A21 | What syncope reports follow HPV vaccination in cancer prevention? V1/V2. | Preserve native vaccine code/reaction rows; no causal claim or incidence. Unanswered: V01 is 403; code tables do not answer this. Vaccine search is dropped pending Ian through PM. |
+| A21 | What syncope reports follow HPV vaccination in cancer prevention? V1/V2. | Preserve native vaccine code/reaction rows; no causal claim or incidence. Unanswered: V01 is 403; code tables do not answer this. HPV remains unsupported by the current MMR/COVID-19 summary contract. |
 | A22 | What serious allergic-reaction reports follow Gardasil 9? V1/V2. | Do not diagnose anaphylaxis from nonspecific symptoms or combine vaccines. Unanswered: V01/V02 are 403; neither marginals nor a joint answer were obtained. |
 | A23 | What can an empty exact cancer-drug/reaction/date query establish? F1/V1. | Only no matching records under those selectors/snapshot. D03 is the real empty SCC query 404; F18 is a synthetic nonexistent-ID control, not this clinical query. |
 | A24 | Synthetic engineering control motivated by source limits: can timeout/refusal/unreadable data display zero reports? F1/M1/V1. | No; unavailable/incomplete is separate from a verified empty. Local controlled failures can prove product handling later; no provider failure is manufactured. |
@@ -290,7 +290,7 @@ FAERS/MAUDE records remain `open` under [openFDA terms](https://open.fda.gov/ter
 
 openFDA's license explicitly marks GMDN term codes/names/definitions as licensed third-party content and requires a suitable license for listed commercial categorization/mapping/AI-training uses. Label proven GMDN content `restricted` with that publisher link. The `gmdn` component owns the exact source path `device.generic_name`. The registry ticket must name every additional covered device field by its exact source path; no broad device-name heuristic determines component membership. This conservative field assignment does not assert that every captured string is a proved GMDN term; preserve its native field provenance. No GMDN codes or inferred mappings are added. Source IDs/report counts/outcomes keep independent terms.
 
-Registry-owned component names meddra/gmdn and the restricted group suppress applicable fields before cache/replay reads; source-wide disable suppresses the whole source. Every component stays on by default under the standing rule. No user key is required for the kept keyless public tier. Dropped VAERS/CVX have no runtime registry addition or budget.
+Registry-owned component names meddra/gmdn and the restricted group suppress applicable fields before cache/replay reads; source-wide disable suppresses the whole source. Every component stays on by default under the standing rule. No user key is required for the kept keyless public tier. VAERS has a restricted runtime registry entry and bounded summary pages. Dropped CVX has no runtime registry addition or budget.
 
 ## Delight questions
 
@@ -301,7 +301,7 @@ Registry-owned component names meddra/gmdn and the restricted group suppress app
 5. Label warnings, reported roles and report counts keep separate attribution and meanings.
 6. Empty, disabled, malformed, stale and unavailable stay distinct; failures never become zero or another source's answer.
 7. The table measures source HTTP only. Adapter tickets own cold/warm product latency and wire budgets.
-8. Wrong outcome aliases, name bridges and trial fallback are dropped. Vaccine loss awaits Ian through PM.
+8. Wrong outcome aliases, name bridges and trial fallback are dropped. VAERS summaries follow the later approved contract; CVX has no proved WONDER mapping.
 9. An agent can stop at a source reporting answer; it cannot infer safety, causation or incidence.
 10. Trust needs query/date/version/source links and explicit unanswered questions.
 
@@ -341,7 +341,7 @@ The measurements below cover actual native FAERS and MAUDE command output. The P
 | Default MAUDE search/card | D01/D05 actual CLI/MCP measurements and +15% ceilings appear below. |
 | Devices/narrative sections | D05/D02/D04 actual CLI/MCP measurements, including the empty section and complete narrative walk, appear below. |
 | Entity help/MCP listing/schema | j13144: search help 1663 compact / 1664 stdout bytes; get help 2242 / 2243. MCP description 1751 bytes within its existing ceiling. Schema bytes are measured separately below. |
-| VAERS/CVX/count | Dropped; no implementation owner, wire budget or schema. |
+| VAERS/CVX/count | VAERS summaries use the contract and budgets below. CVX identity lookup and unsupported count options remain dropped. |
 | Legacy 0.9 comparison | Unavailable for every row here: no contained adverse-event 0.9 execution has been supplied. Full same-question comparison belongs to 0098. No old fixture, source body or design projection substitutes for it. |
 
 `j12931` measured the actual CLI and MCP on `0c1707e9870a85e28e889793ea5633a912f2cf21`. All eight native five-report pages agreed across CLI and MCP. Default FAERS and explicit `--source faers` agreed. Native report IDs, versions, first-receipt strings, order, totals, offsets, publisher date and exact expressions were compared with the fresh pre-adapter captures from `j12888`. The publisher date was 2026-07-30; the source retrieval occurred on 2026-10-25. These pages establish the individual captured queries, not uncaptured filter combinations or clinical causation.
@@ -436,7 +436,7 @@ This is source inspection at the pinned legacy revision. Dispositions apply the 
 | `--type faers` | Rename to explicit `--source faers`. | A01–A17. |
 | `--type device/devices/maude` | Rename to explicit `--source maude`. | A18–A20. |
 | `--type recall/recalls/enforcement`, `--classification` | Drop from adverse-event entity; recall ownership needs separate PM decision. | No recall capture or parity claim. |
-| `--source faers/vaers/all`, default all | FAERS default, MAUDE explicit; drop vaers/all and automatic vaccine detection. | Vaccine-search loss awaits Ian through PM. |
+| `--source faers/vaers/all`, default all | FAERS default; MAUDE and VAERS explicit. Drop all and automatic vaccine detection. | VAERS supports MMR and COVID-19 summaries; influenza awaits a proved current code. |
 | `--device` | Replace with positional literal MAUDE generic-name search; wildcard expansion is dropped. | D01–D04. |
 | `--manufacturer`, `--product-code` | Drop both filters; no raw query replacement or unproved identity filter. | Retirement controls; native fields remain in rows. |
 | Device serious any/death/injury | Drop device seriousness filter; keep native event_type on card/header. | D02 is evidence only; no unsupported CLI promise. |
@@ -450,19 +450,19 @@ This is source inspection at the pinned legacy revision. Dispositions apply the 
 | `drug adverse-events NAME` | Drop duplicate helper and its FAERS404→ClinicalTrials.gov fallback. Typed exact drug-ID pivot may be added only after native identity join proof. | Existing drug ledger already marks adverse-event ownership; no duplicate leaf. |
 | Drug card `top_adverse_events` and `faers_query` enrichment | Drop hidden name-based aggregate calls from a default drug card; explicit source-ID pivot requires proved mapping. | Existing drug ledger owns the card; A17 does not justify unconditional enrichment. |
 | Helper `--type`, `--count`, all filter/page flags above | Same explicit dispositions as their search counterparts, including unused/misleading type routes. | No orphan option retained because helper existed. |
-| `cvx sync` | Drop complete sync route from this slice; no read-triggered downloads or MVX fetch. | Retirement says vaccine identity sync is unavailable; loss awaits Ian. |
-| VAERS summary total/seriousness/age/top reactions and source outcomes | Drop all tables, source outcomes and name bridge runtime; no native aggregate schema was proved. | V01–V03 actual 403; vaccine search loss awaits Ian. |
+| `cvx sync` | Drop complete sync route from this slice; no read-triggered downloads or MVX fetch. | No proved WONDER mapping; retirement points to explicit VAERS report summary search. |
+| VAERS summary total/seriousness/age/top reactions and source outcomes | Port native independent symptom, seriousness and age tables with source outcomes; drop the name bridge. | Approved MMR and COVID-19 captures support the VAERS contract below; earlier V01–V03 denials do not retire this source. |
 | Global `--json/-j`, Markdown sections and section-parser acceptance of trailing json flags | Use existing `--format json\|md`; schema/CLI/MCP share typed tree. No section parser accepts format flags as clinical sections. | Existing shared formatting contract plus generated help cases. |
 
 ## Retirement messages and unanswered scope
 
-Retired --drug/-d says use positional TEXT. Retired outcome aliases say use --serious death or hospitalization for report flags and reactions for native outcomes. Date aliases name --received-from/--received-to. Unsupported demographic/suspect/reporter/count/raw-query flags say this filter is not supported and make no request. Retired all/guidance says choose a named section. Retired helper says use search adverse-event TEXT. VAERS source selection says “Vaccine adverse-event search is unavailable in this slice; the captured CDC endpoint denied access.” CVX routes say “Vaccine identity lookup and sync are unavailable in this slice.” Neither message claims vaccines are safe or redirects silently to FAERS. All retirement spellings get recorded zero-I/O cases.
+Retired --drug/-d says use positional TEXT. Retired outcome aliases say use --serious death or hospitalization for report flags and reactions for native outcomes. Date aliases name --received-from/--received-to. Unsupported demographic/suspect/reporter/count/raw-query flags say this filter is not supported and make no request. Retired all/guidance says choose a named section. Retired helper says use search adverse-event TEXT. VAERS source selection uses the summary contract below. CVX routes and `cvx sync` say “Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.” Neither message claims vaccines are safe or redirects silently to FAERS. All retirement spellings get recorded zero-I/O cases.
 
 A24, F18 and malformed/timeout/wrong-identity controls are explicitly synthetic. D03 is the real empty provider reply. A04/A15/A21/A22 and the combined/joint questions named above remain unanswered. No new provider call, alternate code, user-agent workaround or capture retry is authorized by this revision.
 
 ## Ian's questions
 
-The PM must ask Ian whether to accept losing 0.9 vaccine search. This is a product capability choice, not a clinical/configuration question. The working design drops VAERS/CVX because all three aggregate requests were denied and the code tables prove no native mapping. The alternative preserves the requirement as blocked and authorizes a separate bounded source-access investigation; its cost is another owned capture recipe and review, with no paid service assumed. This branch does not treat silence as acceptance or claim equivalent vaccine coverage. No other material commitment or Ian decision is needed for the reviewed FAERS/MAUDE search/get surface.
+Ian authorized the bounded retry with the legacy client user agent. MMR and COVID-19 returned aggregate tables, and the PM approved explicit VAERS summary search. CVX remains dropped because no native WONDER mapping was proved. Influenza requires a separate code investigation. These rulings do not establish complete 0.9 vaccine coverage.
 
 ## Exact FAERS report execution
 
@@ -498,12 +498,12 @@ Routine synthetic cases in `faers_get.rs` use their own `j13008` measured compac
 
 ## Shipped command and option ledger
 
-This ledger records the FAERS and MAUDE implementation and the fixed zero-I/O migrations. The vaccine source, CDC WONDER, CVX and vaccine wording remain owned by 0178 pending Ian. Their existing design text above is not a completion claim. The drug slice owns the `top_adverse_events` and `faers_query` card removals. Full same-question 0.9 execution remains owned by 0098.
+This ledger records FAERS, MAUDE and the explicit VAERS summaries through CDC WONDER, with fixed zero-I/O migrations. CVX identity lookup and sync are dropped because no WONDER mapping was proved. The drug slice owns the `top_adverse_events` and `faers_query` card removals. Full same-question 0.9 execution remains owned by 0098.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- |
-| `search adverse-event` | Ported or renamed | `--reaction`, `--serious`, `--date-from`, `--date-to`, `--type`, `--device`, `--limit`, `--offset` | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification`, `--manufacturer`, `--product-code` | `--source` | Use literal TEXT with FAERS by default or explicit MAUDE. Receipt dates replace date aliases; only report death and hospitalization flags remain. Device text is a phrase match. Recall routes retire outside this entity. Vaccine source disposition remains undecided under 0178. |
+| `search adverse-event` | Ported or renamed | `--reaction`, `--serious`, `--date-from`, `--date-to`, `--type`, `--device`, `--limit`, `--offset`, `--source` | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification`, `--manufacturer`, `--product-code` | — | Use literal TEXT with FAERS by default or explicit MAUDE. Receipt dates replace date aliases; only report death and hospitalization flags remain. Device text is a phrase match. Recall routes retire outside this entity. VAERS and CDC WONDER provide explicit MMR and COVID-19 report summaries; CVX identity mapping remains dropped. |
 | `get adverse-event` | Ported or renamed | — | — | — | Get one exact native report with explicit source and independent bounded sections. Historical versions remain unproved; guidance and unbounded all retire. |
 | `drug adverse-events` | Dropped by ruling | — | `--reaction`, `--outcome`, `--serious`, `--date-from`, `--date-to`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--type`, `--limit`, `--offset` | — | Use search adverse-event TEXT. The duplicate helper and its FAERS-to-ClinicalTrials.gov fallback retire; no trial result substitutes for reports. |
 <!-- /parity-accounting -->
@@ -518,7 +518,8 @@ The long-option denominator excludes positional text, aliases, sections and glob
 | `guidance`, `all` | Retired with named-section guidance; no generated clinical inference or unbounded fan-out. |
 | Hidden drug card `top_adverse_events`, `faers_query` | Drug ledger owns removal; no duplicate adverse-event accounting row. |
 | Recall routes and classification | Retired outside this entity; no recall parity claim. |
-| VAERS, CDC WONDER, CVX and vaccine summary/source outcomes | Undecided; 0178 owns wording and accounting after Ian's ruling. |
+| VAERS, CDC WONDER and vaccine summary/source outcomes | Ported for explicit MMR and COVID-19 independent tables; `vaers/` cases own the contract. Influenza remains unavailable pending a current code. |
+| CVX identity lookup and sync | Dropped with fixed zero-I/O guidance to VAERS summaries; no proved WONDER mapping. |
 
 ## Question and case coverage limits
 
@@ -526,7 +527,7 @@ The harvested A01–A24 questions are a question bank, not twenty-four successfu
 
 Native F01/F20/F02/F03/F23/F13/F14/F15 product pairs and per-case ceilings live in j12931. F21 and the exact-get witnesses, the older F01/F10 retained report fixtures, all seven identifier pages and the long complete walks live in j13004. The D01/D05/D02/D04 thirteen product pairs and ceilings live in independently verified j13024 output. F04–F12 and F16–F17 remain bounded investigation captures unless explicitly used by those retained get cases; F19/F22 count queries remain investigation only. F18 is source absence evidence outside product ID grammar. D03 is an error-body adapter fixture, not an executed SCC CLI positive. I01 is source identity evidence, not a name-based drug join. V01–V03 do not supply vaccine product positives.
 
-Routine executable cases are the adverse-event YAML files and native runner cases `faers_search.rs`, `faers_get.rs`, `maude.rs`, `maude_policy.rs`, `adverse_event_registry.rs`, `adverse_event_retirements.rs` and `adverse_event_failures.rs`. Their synthetic bodies prove mechanics, source admission, independent rows, empty versus absent, literal boundaries, fixed migrations and failures. Native product archives remain outside Git. Raw terminology is never copied into routine fixtures. Every successful report envelope uses its owning measured full/comparable ceiling; retirement and argument envelopes use their separate error bounds. The external case definitions and archives remain separately identified from routine executions.
+Routine executable cases are the adverse-event YAML files and native runner cases `faers_search.rs`, `faers_get.rs`, `maude.rs`, `maude_policy.rs`, `adverse_event_registry.rs`, `adverse_event_retirements.rs`, `adverse_event_failures.rs` and `vaers/`. Their synthetic bodies prove mechanics, source admission, independent rows, empty versus absent, literal boundaries, fixed migrations and failures. Native product archives remain outside Git. Raw terminology is never copied into routine fixtures. Every successful report envelope uses its owning measured full/comparable ceiling; retirement and argument envelopes use their separate error bounds. The external case definitions and archives remain separately identified from routine executions.
 
 
 The final help measurement in j13144 uses generated source-owned section text and explicit death/hospitalization values. Search help measures 1663 compact bytes and get help 2242. Their PM-approved compact ceilings are 1913 and 2579, with stdout ceilings 1914 and 2580 including the newline. The PM approved this measured help growth in the ticket ruling of 2026-10-25. The MCP description derives options and source choices from the same schemas and stays within its existing ceiling. Whole-tree help measures 55079 stdout bytes; its standing actual-plus-fifteen-percent ceiling is 63341.

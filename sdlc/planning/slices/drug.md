@@ -484,7 +484,7 @@ The following table accounts for every drug-owned leaf and option from static re
 | `ema sync` | No command-specific options | Rename to `biomcp sync ema`; preserve atomic complete-file replacement, with only the kept medicines file in the initial bundle. |
 | `who sync` | No command-specific options | Dropped initial runtime. Retirement message names WHO prequalification as outside this question bank; no download or replacement command is offered. |
 | `ddinter sync` | No command-specific options | Rename to `biomcp sync ddinter`; complete eight-file replacement preserves the previous usable set on failure. |
-| `cvx sync` | No command-specific options | Dropped. Retirement message: `cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.` No download follows. |
+| `cvx sync` | No command-specific options | Dropped. Retirement message: “Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.” No download follows. |
 | `gene drugs` | `--limit`, `--offset` | Gene design transferred ownership here. Reverse target search stays unproved and absent from the initial tree until its own native positive selector case. Named drug targets remain reachable by selected identity. The gene ledger stays untouched until coordinated final accounting. |
 | `disease drugs` | `--limit`, `--offset` | The disease slice owns its input and final shared ledger placement. Reverse indication search remains unproved here; it needs native known-positive cases before enabling. No free-text synonym expansion. |
 | `pathway drugs` | `--limit`, `--offset` | Leave with the pathway slice. A pathway's gene list is not a locally computed treatment indication or drug relevance ranking. |
@@ -506,7 +506,7 @@ The generated accounting counts command-specific long-option slots once. Section
 | `ema sync` | Ported or renamed | — | — | — | Use sync ema for one complete validated medicines replacement; reads use stored rows only. |
 | `who sync` | Dropped by ruling | — | — | — | WHO prequalification answers no unique question in this bank; no WHO runtime source or download is offered. |
 | `ddinter sync` | Ported or renamed | — | — | — | Use sync ddinter for one atomic eight-file replacement, preserving the last usable set on failure. |
-| `cvx sync` | Dropped by ruling | — | — | — | This cancer-care drug slice has no vaccine alias bridge; no CVX download runs. |
+| `cvx sync` | Dropped by ruling | — | — | — | No proved CVX-to-WONDER mapping; vaccine identity lookup and sync retire with guidance to explicit VAERS report summaries. No CVX download runs. |
 <!-- /parity-accounting -->
 
 `gene drugs` remains one undecided row in gene.md, including its `--limit` and `--offset`: reverse target search has no approved positive selector proof. O01 stays with trial accounting (`drug trials`, its three ported options and retired alias expansion). O02 stays with adverse-event accounting, including date aliases, report filters, counts and paging. O03 stays with disease and pathway owners, including each convenience command's paging. O04 stays with shared batch accounting, including sections and entity-specific options. These references add no duplicate leaf or drug test.

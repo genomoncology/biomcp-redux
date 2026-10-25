@@ -52,6 +52,22 @@ fn check() -> Result<(), String> {
 }
 const CASES: &[(&str, &str)] = &[
     (
+        "search adverse-event MMR --source cvx",
+        "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
+    ),
+    (
+        "search adverse-event MMR --source=cvx",
+        "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
+    ),
+    (
+        "get adverse-event 03 --source cvx",
+        "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
+    ),
+    (
+        "get adverse-event 03 --source=cvx",
+        "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
+    ),
+    (
         "search adverse-event text --source=vaers",
         "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
     ),
@@ -490,7 +506,6 @@ fn boundaries() -> Result<(), String> {
         "search adverse-event text --type=unsupported",
         "search adverse-event text --type",
         "search adverse-event text --type=vaers",
-        "search adverse-event text --source=cvx",
         "search adverse-event text --counted",
     ] {
         let mut args = globals.clone();
