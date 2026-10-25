@@ -586,3 +586,7 @@ The command case helper `vaers/budget.rs` enforces each observed envelope size p
 Search help measured 2542 compact bytes and 2543 stdout bytes. `adverse-event/help.yaml` owns its approved ceiling. Exact report get help retains only FAERS and MAUDE and measured 2243 stdout bytes. The MCP command description measured 1920 bytes under its existing ceiling; snapshot tokens remain in detailed help and emitted continuations. Whole help and the Source enum retain their existing ceilings.
 
 The fixed native geographic selection is `D8.V12` State / Territory, value `00`, with the native label “The United States/Territories/Unknown”. Each table exposes that variable and selected value. This is not a worldwide result or a vaccinated population denominator. There is no new geographic selector. The clinical reviewer confirmed the exact label and selection expansion from both retained native datasets.
+
+The adapter decoder enforces `MAX_XML` before its native DOM parse and cache admission. Shared transport `max_body` independently bounds wire reads. The valid oversized synthetic table proves the decoder limit; an HTML denial or malformed table never becomes a zero-report answer.
+
+The retained MMR symptom table has 4074 physical rows including the footer and 4073 pageable rows. Its native report-total message is 84,004 and its symptom footer is 269,356 / 320.65%. These remain separate source values, as do the independently returned seriousness and age totals.

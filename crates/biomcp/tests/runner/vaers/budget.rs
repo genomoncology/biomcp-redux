@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 pub(super) fn check(value: &Value) -> Check {
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = crate::runner::source_terms::size(value, "")?;
-    // j13424 measured the synthetic complete, disabled, bad-reply and expiry shapes.
+    // j13466 measured scoped complete shapes; j13429 measured failures and expiry.
     let (measured_full, measured_comparable): (usize, usize) = if value.get("error").is_some() {
         (224, 224)
     } else if value.get("status") != Some(&json!("complete")) {
