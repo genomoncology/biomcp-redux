@@ -1,6 +1,7 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
 mod adverse_event;
+mod diagnostic;
 mod drug;
 mod pgx;
 
@@ -108,6 +109,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         return Some(message);
     }
     if let Some(message) = pgx::message(args) {
+        return Some(message);
+    }
+    if let Some(message) = diagnostic::message(args) {
         return Some(message);
     }
     let words = words(args)?;

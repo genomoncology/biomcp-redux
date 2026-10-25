@@ -110,3 +110,5 @@ diagnostic-pma: Read an exact native FDA base or supplement and page its own reg
 
 pgx-retirements: Refuse retired PGx spellings and unsupported source pairings before requests without rewriting queries or inferring phase. Cases: `crates/biomcp/tests/runner/pgx_retirements.rs`.
 diagnostic-510k: Retrieve one exact native FDA clearance with source-owned identity, native decision fields and companion-table navigation. Cases: `crates/biomcp/tests/runner/diagnostic_510k.rs`, `tests/cases/diagnostic/510k-failures.yaml`.
+
+diagnostic-retirements: Retired diagnostic spellings return fixed supported routes before any source request. Cases: `crates/biomcp/tests/runner/diagnostic_retirements.rs`, `crates/biomcp/tests/runner/diagnostic_bundles.rs`.

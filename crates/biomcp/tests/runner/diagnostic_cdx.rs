@@ -208,7 +208,9 @@ fn stored() -> Check {
         "P200010/S026",
     ];
     let missing = call(&env, &replay, &args, 4)?;
-    if missing.pointer("/sources/0/reason") != Some(&json!("syncing")) {
+    if missing.pointer("/sources/0/reason") != Some(&json!("syncing"))
+        || missing.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
+    {
         return Err(format!("read synchronized: {missing}"));
     }
     call(&env, &replay, &["sync", "fda-cdx"], 0)?;
