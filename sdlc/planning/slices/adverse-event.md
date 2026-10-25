@@ -4,9 +4,9 @@
 
 This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`. The revision applies the PM review of 21ad15d2 and merges main cdc677b0bc2c1abff17d04e3138d8bd5e9dcc4b4. The legacy inventory reads `repos/biomcp` revision `4050fdc7dbdf4d713d94cf02a39a147b863665be`; it does not execute that binary. This proposal follows steps 1–4 of [slices](../slices.md). It changes no product code. The PM reviews this branch before filing implementation tickets.
 
-Shared types cannot be accepted before exact-request native captures. The following recipe goes to a separate build delegate. The investigation author made no provider API requests, product executions, cold/warm timings, output token measurements or legacy comparison runs. A separate delegate ran the bounded native recipe; its verified receipts and findings are recorded below. Documentation fields are questions for capture, never proof that all public records carry them.
+Shared types cannot be accepted before exact-request native captures. The following recipe documents the completed separate-delegate capture; it authorizes no repeat. The investigation author made no provider API requests, product executions, cold/warm timings, output token measurements or legacy comparison runs. A separate delegate ran the bounded native recipe; its verified receipts and findings are recorded below. Documentation fields are questions for capture, never proof that all public records carry them.
 
-## Bounded native capture recipe
+## Executed bounded native capture recipe
 
 Run through `pm job` from an exact pushed revision. Retain recipe, exact URL or POST body, start/end times, status, headers, unchanged bytes, SHA-256, byte size and classification for every attempted request. Store raw evidence on Yellow outside Git. Send each listed request once, sequentially, with zero retries, redirects, fallback spellings, extra pages, refreshes or health probes. A failed row stays failed; a 429 stops that source's remaining rows. Never provoke a provider failure. Local synthetic controls are separate evidence. Use HTTPS verification, 30-second request deadlines, 8 MiB openFDA/body cap and 2 MiB WONDER/body cap. These are capture limits, not measured costs.
 
@@ -59,7 +59,7 @@ Each harvested question will map to these rows or a specific out-of-scope reason
 
 | Candidate | Proposed use and official reference | Use and terms | Native questions |
 |---|---|---|---|
-| openFDA FAERS | Explicit report search, exact report/version get, aggregation; independent drug and reaction arrays. [Overview](https://open.fda.gov/apis/drug/event/), [fields](https://open.fda.gov/apis/drug/event/searchable-fields/). | `open`, [openFDA terms](https://open.fda.gov/terms/), CC0 default with stated third-party exceptions; attribution visible. | Versions, optional UNII/RxCUI/NDC/SPL identities, dates, roles, multiplicity. |
+| openFDA FAERS | Keep explicit report search and exact report get; captured aggregation stays investigation-only. Independent drug and reaction arrays. [Overview](https://open.fda.gov/apis/drug/event/), [fields](https://open.fda.gov/apis/drug/event/searchable-fields/). | `open`, [openFDA terms](https://open.fda.gov/terms/), CC0 default with stated third-party exceptions; attribution visible. | Versions, optional UNII/RxCUI/NDC/SPL identities, dates, roles, multiplicity. |
 | openFDA MAUDE | Separate device report family with native key/event type. [Overview](https://open.fda.gov/apis/device/event/), [endpoint](https://open.fda.gov/apis/device/event/how-to-use-the-endpoint/). | `open`, same FDA terms and exceptions. | Full device list, product code/UDI availability, report multiplicity, narrative size. |
 | CDC WONDER VAERS | Dropped: three denied replies prove no aggregate fields. Previously considered HPV9 aggregates. [API](https://wonder.cdc.gov/wonder/help/wonder-api.html), [help](https://wonder.cdc.gov/wonder/help/vaers.html). | Historical research terms: purpose-restricted statistical use under [data use](https://wonder.cdc.gov/datause.html); no runtime registry/category addition. | Actual fields, totals/counting unit; no promised individual report get. |
 | CDC CVX/trade names | Dropped: no proved WONDER mapping. Previously considered vaccine identities. [Code sets](https://www.cdc.gov/iis/code-sets/index.html). No token-based name bridge or automatic search-time bundle sync. | Historical research terms: government tables with native notices retained; no runtime registry addition. CPT/AMA tables excluded. | Status/dates, native product-to-CVX/MVX relations, no proved WONDER join. |
@@ -78,7 +78,7 @@ F01 returned native total 105020 and report 26940567 version 1 first. F21 exact 
 
 The first device key 50952244 returned unchanged through exact D05 get. Device event, received and reporting dates are distinct. Optional source strings can be present and empty; empty must not silently become absent without an explicit reviewed rule. C01 carried 290 seven-column pipe-delimited rows. C02 carried 225 nine-column rows, including its trailing empty column. Exact CVX 118/62/165 and their trade rows were selected by the native CVX column while preserving original whitespace. These native code relations do not prove a WONDER relation.
 
-All three WONDER XML requests returned403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. PM drops VAERS/CVX from this slice. Losing legacy vaccine search awaits Ian through the PM; this design does not claim he accepted the loss. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
+All three WONDER XML requests returned 403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. PM drops VAERS/CVX from this slice. Losing legacy vaccine search awaits Ian through the PM; this design does not claim he accepted the loss. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's 404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
 
 ### Measured native request table
 
@@ -212,7 +212,7 @@ Search and get are the only commands. FAERS is the default source. Input is posi
 |---|---|---|
 | `search adverse-event TEXT [--source faers] [--reaction TERM] [--serious death\|hospitalization] [--received-from YYYY-MM-DD] [--received-to YYYY-MM-DD] [--limit N] [--offset N]` | Native report headers, total/unit, source date and exact built query echo. Four typed filter names only. | F01–F15/F20/F23. Combined selectors absent from captures remain unproved. |
 | `search adverse-event TEXT --source maude [--limit N] [--offset N]` | Device generic-name report candidates, exact keys, native event type/date and total. | D01; FAERS filters reject before I/O. |
-| `get adverse-event ID [--source faers]` | Exact native ID/version, fixed dates/seriousness/patient/reporter fields, collection counts, links and sections. | F21 exact 26940567/version1. No --version; historical/multi-version get unproved. |
+| `get adverse-event ID [--source faers]` | Exact native ID/version, fixed dates/seriousness/patient/reporter fields, collection counts, links and sections. | F21 exact 26940567/version 1. No --version; historical/multi-version get unproved. |
 | `get adverse-event ID drugs\|reactions [--source faers] [--section-limit N] [--section-offset N]` | Independent ordered drug or reaction rows. Identity arrays stay behind named pages. | Native arrays up to 19 drug and 22 reaction rows. |
 | `get adverse-event ID unii\|rxcui\|product-ndc\|package-ndc\|spl-id\|spl-set-id\|application-number --drug-index N [--source faers] [--section-limit N] [--section-offset N]` | One named original identifier array from one absolute native drug row. | F01/F08/I01 long collections; no inferred administered product or name join. |
 | `get adverse-event ID --source maude` | Exact key/report number, native event type/date roles, source counts, links and sections. | D05 exact 50952244 and D01/D02/D04 variants. |
@@ -308,7 +308,7 @@ All native facts below were captured October 25, 2026 in j12641. Publisher dates
 | --limit/--offset | F01 five rows/F20 skip 5. | Bounds, result window, snapshot expiry and exact selector preservation. |
 | MAUDE positional/source | D01 total 23863 and D05 exact key. | Four FAERS filters reject before I/O; no wildcard expansion. |
 | Real empty | D03 exact historical SCC expression 404 NOT_FOUND. | Current simple CLI cannot express that two-field query; it is an adapter no-match fixture, not an invented CLI positive. F18 is a synthetic ID control. |
-| FAERS get | F21 exact 26940567/version1. | Wrong returned ID/version before cache; historical/multi-version get unproved and --version rejected. |
+| FAERS get | F21 exact 26940567/version 1. | Wrong returned ID/version before cache; historical/multi-version get unproved and --version rejected. |
 | drugs/reactions and section paging | F01 arrays 2/9/6/5/2 and 1/3/4/1/2; maxima 19/22. | Independent arrays/role on another drug; missing versus empty and snapshot full walk. |
 | Seven identity sections and --drug-index | Native long F08/I01 collections; I01 is PADCEV UNII. | Each closed selector/bad index/multiple mappings; no name joins, no omitted rows or duplicated page. |
 | MAUDE get/devices/narrative | D05 exact key and empty narrative; D01/D02/D04 arrays 0–5. | Multiple devices is a labeled synthetic case, not native proof; long narrative refusal. |
@@ -326,7 +326,7 @@ Every kept layer is unmeasured as product output. The PM-filed adapter/command t
 |---|---|
 | Default/filtered FAERS search | FAERS adapter ticket: F01/F02/F03/F13/F14/F15/F20 five-row/default and explicit page; wire ceiling measured+margin. |
 | FAERS card | FAERS adapter ticket: F21 plus largest native fixed shape; measured+margin. |
-| Drug/reaction sections | FAERS adapter ticket: ordinary default plus19/22-row complete walks; each measured+margin. |
+| Drug/reaction sections | FAERS adapter ticket: ordinary default plus 19/22-row complete walks; each measured+margin. |
 | Each of seven identity pages | FAERS adapter ticket: named collection default and long-list continuation; each measured+margin. |
 | Default MAUDE search/card | MAUDE adapter ticket: D01/D05; each measured+margin. |
 | Devices/narrative sections | MAUDE adapter ticket: D01/D02/D04, empty and largest native row; each measured+margin. |
@@ -377,7 +377,7 @@ This is source inspection at the pinned legacy revision. Dispositions apply the 
 | Drug card `top_adverse_events` and `faers_query` enrichment | Drop hidden name-based aggregate calls from a default drug card; explicit source-ID pivot requires proved mapping. | Existing drug ledger owns the card; A17 does not justify unconditional enrichment. |
 | Helper `--type`, `--count`, all filter/page flags above | Same explicit dispositions as their search counterparts, including unused/misleading type routes. | No orphan option retained because helper existed. |
 | `cvx sync` | Drop complete sync route from this slice; no read-triggered downloads or MVX fetch. | Retirement says vaccine identity sync is unavailable; loss awaits Ian. |
-| VAERS summary total/seriousness/age/top reactions and source outcomes | Drop all tables, source outcomes and name bridge runtime; no native aggregate schema was proved. | V01–V03 actual403; vaccine search loss awaits Ian. |
+| VAERS summary total/seriousness/age/top reactions and source outcomes | Drop all tables, source outcomes and name bridge runtime; no native aggregate schema was proved. | V01–V03 actual 403; vaccine search loss awaits Ian. |
 | Global `--json/-j`, Markdown sections and section-parser acceptance of trailing json flags | Use existing `--format json\|md`; schema/CLI/MCP share typed tree. No section parser accepts format flags as clinical sections. | Existing shared formatting contract plus generated help cases. |
 
 ## Retirement messages and unanswered scope
