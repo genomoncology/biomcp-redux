@@ -100,6 +100,12 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
 fn measure(value: &Value) -> Check {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
+    // Peak retained full-body replay is 7661 comparable bytes; allow 15% growth.
+    if comparable > 8811 {
+        return Err(format!(
+            "label exceeds measured comparable budget {comparable}/8811"
+        ));
+    }
     if bytes > 8192 {
         return Err(format!("label exceeds full allocation {bytes}/8192"));
     }
