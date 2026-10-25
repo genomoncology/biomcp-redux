@@ -20,7 +20,7 @@ pub mod disease;
 /// Single-source drug discovery and exact native cards.
 pub mod drug;
 
-/// Source-owned diagnostic laboratory tests and relations.
-pub mod diagnostic;
 /// Source-owned adverse event search.
 pub mod adverse_event;
+/// Source-owned diagnostic laboratory tests and relations.
+pub mod diagnostic;

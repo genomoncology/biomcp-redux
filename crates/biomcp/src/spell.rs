@@ -114,7 +114,9 @@ fn trailing_input(schema: &Value, query: &Value, property: &Value) -> bool {
 }
 
 pub(crate) fn command_words(request: &Request) -> Vec<String> {
-    vec![
+    vec![command_verb(request).into(), command_entity(request).into()]
+}
+fn command_verb(request: &Request) -> &'static str {
         match request {
             Request::VariantAssertions(_)
             | Request::VariantPopulation(_)
@@ -145,8 +147,13 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
             | Request::SearchGene(_)
             | Request::SearchArticle(_) => "search",
         }
-        .into(),
-        if matches!(request, Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)) {
+
+}
+fn command_entity(request: &Request) -> &'static str {
+        if matches!(
+            request,
+            Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)
+        ) {
             "diagnostic"
         } else if matches!(
             request,
@@ -192,8 +199,7 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
         } else {
             "gene"
         }
-        .into(),
-    ]
+
 }
 
 fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {

@@ -1,6 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
-mod diagnostic;
 mod adverse_event;
+mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
@@ -227,7 +227,9 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
-        Request::SearchDiagnostic(_) | Request::GetDiagnostic(_) => diagnostic::encode(meta, request, body),
+        Request::SearchDiagnostic(_) | Request::GetDiagnostic(_) => {
+            diagnostic::encode(meta, request, body)
+        }
         Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => {
             adverse_event::encode(meta, request, body)
         }
