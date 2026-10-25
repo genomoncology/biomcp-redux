@@ -191,7 +191,8 @@
       "max_tokens": 3500,
       "expect": {
         "/status": "absent"
-      }
+      },
+      "exit": 1
     },
     {
       "run": [
@@ -212,7 +213,8 @@
       "max_tokens": 250,
       "expect": {
         "/status": "absent"
-      }
+      },
+      "exit": 1
     }
   ]
 }

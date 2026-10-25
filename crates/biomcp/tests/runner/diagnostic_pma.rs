@@ -55,7 +55,7 @@ fn boundary(mode: &'static str) -> Check {
         "application/json",
         move |request| {
             if !request.starts_with(
-                "GET /device/pma.json?search=pma_number%3A%22P150013%22&limit=100&skip=0 HTTP/1.1",
+                &format!("GET /device/pma.json?search=pma_number%3A%22P150013%22{}&limit=100&skip=0 HTTP/1.1", if mode == "wrong-supplement" {"%20AND%20supplement_number%3A%22S020%22"}else{""}),
             ) {
                 return Err(format!("wrong exact query: {request}"));
             }
@@ -82,10 +82,13 @@ fn boundary(mode: &'static str) -> Check {
         vec![]
     };
     env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address),"disable_sources":disabled})).map_err(|e|e.to_string())?;
-    let args: Vec<String> = ["get", "diagnostic", "P150013", "--source", "fda-pma"]
+    let mut args: Vec<String> = ["get", "diagnostic", "P150013", "--source", "fda-pma"]
         .into_iter()
         .map(String::from)
         .collect();
+    if mode == "wrong-supplement" {
+        args.extend(["--supplement".into(), "S020".into()]);
+    }
     for _ in 0..2 {
         let value = invoke(&env, args.clone(), if mode == "incomplete" { 0 } else { 4 })?;
         if value.get("result").is_some()
@@ -94,6 +97,12 @@ fn boundary(mode: &'static str) -> Check {
             || value.pointer("/sources/0/terms").is_none()
         {
             return Err(format!("failed native boundary: {value}"));
+        }
+        if mode == "incomplete"
+            && (value.get("status") != Some(&json!("partial"))
+                || value.pointer("/problems/0/code") != Some(&json!("collection.incomplete")))
+        {
+            return Err(format!("incomplete: {value}"));
         }
         if mode == "disabled" && value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err(format!("policy: {value}"));
