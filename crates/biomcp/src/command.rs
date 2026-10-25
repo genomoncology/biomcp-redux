@@ -406,16 +406,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
 }
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
-    let source = match bundle {
-        Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
-        Bundle::Gtr => biomcp_types::Source::Gtr,
-        Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
-        Bundle::Ema => biomcp_types::Source::Ema,
-        Bundle::WhoPq => biomcp_types::Source::WhoPq,
-        Bundle::Ddinter => biomcp_types::Source::Ddinter,
-        Bundle::Hgnc => biomcp_types::Source::Hgnc,
-        Bundle::ClinGen => biomcp_types::Source::ClinGen,
-    };
+    let source = bundle_source(bundle);
     let result = match bundle {
         Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
         Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
@@ -591,5 +582,18 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
         crate::exit::Status::Local
     } else {
         crate::exit::Status::from(result.status)
+    }
+}
+
+fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
+    match bundle {
+        Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
+        Bundle::Gtr => biomcp_types::Source::Gtr,
+        Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
+        Bundle::Ema => biomcp_types::Source::Ema,
+        Bundle::WhoPq => biomcp_types::Source::WhoPq,
+        Bundle::Ddinter => biomcp_types::Source::Ddinter,
+        Bundle::Hgnc => biomcp_types::Source::Hgnc,
+        Bundle::ClinGen => biomcp_types::Source::ClinGen,
     }
 }

@@ -99,16 +99,6 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 }
 
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
-    let drug = args.get(1).and_then(|s| s.to_str()) == Some("drug");
-    if drug && args.iter().any(|s| s == "--region=who")
-        || drug
-            && args.windows(2).any(|pair| {
-                pair.first().is_some_and(|s| s == "--region")
-                    && pair.get(1).is_some_and(|s| s == "who")
-            })
-    {
-        return Some(ErrorMessage::DrugWhoRegion);
-    }
     if retired_source(args) {
         return Some(ErrorMessage::Pharmgkb);
     }
@@ -298,6 +288,10 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
             continue;
         }
         let value = inline.or_else(|| args.next().and_then(|arg| arg.to_str()));
+        if retired == Some(ErrorMessage::DrugRegion) && value == Some("who")
+            && result.retired_option == retired {
+            result.retired_option = Some(ErrorMessage::DrugWhoRegion);
+        }
         if flag == "--section" {
             result.sections.push(value?);
         }

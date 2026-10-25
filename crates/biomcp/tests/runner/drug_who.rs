@@ -3,7 +3,7 @@ use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub}
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
-    fs,
+    fs, io::Write,
     path::{Path, PathBuf},
 };
 type Check = Result<(), String>;
@@ -101,7 +101,7 @@ fn seed(env: &Environment) -> Result<PathBuf, String> {
         "sync".into(),
         "who-pq".into(),
     ];
-    let synced = invoke(env, args, 0)?;
+    let synced = invoke(env, args, 0).map_err(|e| format!("record sync: {e}"))?;
     if synced.pointer("/result/rows") != Some(&json!(4)) || stub.finish()?.len() != 1 {
         return Err(format!(
             "explicit sync did not preserve all four native rows: {synced}"
@@ -113,16 +113,13 @@ fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     let globals = env.globals(Some(replay), false);
     let mut words = globals.clone();
     words.extend(args.iter().map(|s| (*s).into()));
-    let value = invoke(env, words, exit)?;
+    let value = invoke(env, words, exit).map_err(|e| format!("{}: {e}", args.join(" ")))?;
     let command: Vec<String> = args.iter().map(|s| (*s).into()).collect();
     if mcp::call_with_globals(env, &command, exit == 4, &globals)? != value {
         return Err("WHO CLI/MCP outputs differ".into());
     }
-    println!(
-        "WHO_PQ {} bytes={}",
-        args.join(" "),
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()
-    );
+    writeln!(std::io::stdout(), "WHO_PQ {} bytes={}", args.join(" "),
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()).map_err(|e| e.to_string())?;
     Ok(value)
 }
 fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -> Check {
