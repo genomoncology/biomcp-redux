@@ -66,7 +66,7 @@ pub mod gwas;
 pub mod drug_sources;
 
 pub mod chembl;
-mod ddinter;
+pub mod ddinter;
 pub mod drugsfda;
 /// EMA medicines bundle with explicit synchronization.
 pub mod ema;

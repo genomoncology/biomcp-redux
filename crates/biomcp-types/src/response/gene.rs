@@ -97,6 +97,9 @@ pub enum QueryBody {
     DrugApprovals(Option<crate::DrugApprovals>),
     /// Source-native FDA application and product candidate page.
     DrugFdaPage(crate::DrugFdaPage),
+    /// Source-local native drug interaction partners.
+    DrugInteractions(Option<crate::DrugInteractions>),
+
     /// An exact selected document's bounded native link page.
     DrugXrefs(Option<crate::DrugXrefs>),
     /// Source-native drug target and mechanism page.

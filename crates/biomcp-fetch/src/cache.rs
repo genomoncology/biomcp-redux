@@ -145,7 +145,7 @@ impl Cache {
         }
         if version.is_none() {
             let orphan: bool = tx.query_row(
-                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_words'))",
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_words','bundle_content'))",
                 [], |r| r.get(0),
             ).map_err(db_error)?;
             if orphan {

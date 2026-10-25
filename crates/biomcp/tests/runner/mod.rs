@@ -4,12 +4,14 @@ mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
+mod disease_monarch;
 mod disease_mydisease;
 mod disease_ols;
 mod disease_registry;
 mod disease_seer;
 mod drug_civic;
 mod drug_civic_fixtures;
+mod drug_ddinter;
 mod drug_ema;
 mod drug_fda;
 mod drug_label;
@@ -63,6 +65,7 @@ mod semantic_tables;
 mod source_controls;
 mod source_terms;
 mod supplement_tables;
+mod trial_condition;
 mod trial_documents;
 mod trial_get;
 mod trial_sites;
@@ -293,14 +296,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
-    trials.extend(trial_tables::trials());
-    trials.extend(trial_wider::trials());
-    trials.extend(trial_get::trials());
-    trials.extend(nci::trials());
+    trials.extend(trial_trials());
     trials.extend(clinvar_key::trials());
-    trials.extend(nci_walk::trials());
-    trials.extend(trial_documents::trials());
-    trials.extend(trial_sites::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
     }));
@@ -314,18 +311,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
-    trials.extend(drug_registry::trials());
-    trials.extend(drug_civic::trials());
-    trials.extend(drug_ema::trials());
-    trials.extend(drug_mychem::trials());
-    trials.extend(drug_native::trials());
-    trials.extend(drug_native_identity::trials());
-    trials.extend(drug_label::trials());
-    trials.extend(drug_fda::trials());
-    trials.extend(disease_registry::trials());
-    trials.extend(disease_ols::trials());
-    trials.extend(disease_mydisease::trials());
-    trials.extend(disease_seer::trials());
+    trials.extend(drug_trials());
+    trials.extend(disease_trials());
+
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
@@ -503,4 +491,52 @@ pub(super) fn mydisease_native(path: &Path) -> Result<(), String> {
 }
 pub(super) fn seer_native(path: &Path) -> Result<(), String> {
     disease_seer::native(path)
+}
+
+pub(super) fn trial_condition_native(path: &Path) -> Result<(), String> {
+    trial_condition::native(path)
+}
+
+fn trial_trials() -> Vec<Trial> {
+    [
+        trial_tables::trials(),
+        trial_wider::trials(),
+        trial_get::trials(),
+        nci::trials(),
+        nci_walk::trials(),
+        trial_condition::trials(),
+        trial_documents::trials(),
+        trial_sites::trials(),
+    ]
+    .into_iter()
+    .flatten()
+    .collect()
+}
+
+fn drug_trials() -> Vec<Trial> {
+    let mut trials = Vec::new();
+    trials.extend(drug_registry::trials());
+    trials.extend(drug_civic::trials());
+    trials.extend(drug_ema::trials());
+    trials.extend(drug_ddinter::trials());
+    trials.extend(drug_fda::trials());
+    trials.extend(drug_mychem::trials());
+    trials.extend(drug_native::trials());
+    trials.extend(drug_native_identity::trials());
+    trials.extend(drug_label::trials());
+    trials
+}
+
+pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
+    disease_monarch::native(path)
+}
+
+fn disease_trials() -> Vec<Trial> {
+    disease_registry::trials()
+        .into_iter()
+        .chain(disease_ols::trials())
+        .chain(disease_mydisease::trials())
+        .chain(disease_monarch::trials())
+        .chain(disease_seer::trials())
+        .collect()
 }

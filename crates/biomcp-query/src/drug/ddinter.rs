@@ -1,0 +1,146 @@
+use super::{empty, searched, unsupported};
+use crate::{Action, Bundle, Ctx, Outcome, status};
+use biomcp_adapters::ddinter;
+use biomcp_types::{
+    DrugGet, DrugInteractions, DrugPage, DrugSearch, DrugSection, PageInfo, QueryBody, Request,
+    Section, Source, SourceState, Status, StepKind,
+};
+
+pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    let mut out = empty(QueryBody::DrugPage(DrugPage {
+        items: Box::default(),
+        total: None,
+    }));
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&ddinter::SPEC, deadline).fresh(cx.fresh);
+    let result = ddinter::search(&leg, query.query().as_str());
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::Ddinter, leg.finish(), error));
+    if let Ok(rows) = result {
+        let total = rows.len() as u64;
+        let page = DrugPage {
+            items: rows
+                .into_iter()
+                .skip(query.offset() as usize)
+                .take(query.limit() as usize)
+                .collect(),
+            total: Some(total),
+        };
+        searched(query, cx.fresh, page, &mut out);
+    }
+    sync_step(&mut out);
+    command.finish(deadline.remaining());
+    out
+}
+
+pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let interactions = query.sections() == [DrugSection::Interactions];
+    let mut out = empty(if interactions {
+        QueryBody::DrugInteractions(None)
+    } else {
+        QueryBody::DrugCard(None)
+    });
+    if !matches!(query.sections(), [] | [DrugSection::Interactions]) {
+        return unsupported(query.source(), out);
+    }
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&ddinter::SPEC, deadline).fresh(cx.fresh);
+    let result = if interactions {
+        ddinter::interactions(
+            &leg,
+            query.input(),
+            query.section_limit().unwrap_or(10),
+            query.section_offset().unwrap_or(0),
+        )
+        .map(|body| {
+            let found = body.is_some();
+            out.body =
+                QueryBody::DrugInteractions(body.map(|body| page(query, cx.fresh, body, &mut out)));
+            found
+        })
+    } else {
+        ddinter::card(&leg, query.input()).map(|card| {
+            if card.is_some()
+                && let Ok(get) = query.for_section(DrugSection::Interactions)
+            {
+                out.next.push((
+                    StepKind::Section,
+                    Action::Run {
+                        request: Request::GetDrug(get),
+                        fresh: cx.fresh,
+                    },
+                ));
+            }
+            let found = card.is_some();
+            out.body = QueryBody::DrugCard(card);
+            found
+        })
+    };
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::Ddinter, leg.finish(), error));
+    if let Ok(found) = result {
+        out.status = if !found {
+            Status::Absent
+        } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+            Status::Partial
+        } else {
+            Status::Complete
+        };
+    }
+    sync_step(&mut out);
+    command.finish(deadline.remaining());
+    out
+}
+fn page(
+    query: &DrugGet,
+    fresh: bool,
+    body: DrugInteractions,
+    out: &mut Outcome,
+) -> DrugInteractions {
+    if let Section::Data { data, .. } = &body.interactions {
+        let returned = data.records.len() as u32;
+        let total = data.total.unwrap_or(0);
+        out.page = Some(PageInfo {
+            offset: data.offset,
+            returned,
+            total,
+            pool: None,
+            truncated: None,
+        });
+        if let Some(offset) = data
+            .offset
+            .checked_add(returned)
+            .filter(|n| returned > 0 && u64::from(*n) < total)
+            && let Ok(get) = query.at_section_offset(offset)
+        {
+            out.next.push((
+                StepKind::Page,
+                Action::Run {
+                    request: Request::GetDrug(get),
+                    fresh,
+                },
+            ));
+        }
+    }
+    body
+}
+fn sync_step(out: &mut Outcome) {
+    if out
+        .sources
+        .iter()
+        .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
+    {
+        out.next.push((
+            StepKind::Sync,
+            Action::Sync {
+                bundle: Bundle::Ddinter,
+            },
+        ));
+    }
+}

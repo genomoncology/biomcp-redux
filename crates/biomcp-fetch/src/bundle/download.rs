@@ -490,6 +490,8 @@ fn meta<R: Row>(
         fresh_until: fresh_until(b),
         etag,
         modified,
+        content_revision: None,
+        retrieved_at: None,
     }
 }
 
