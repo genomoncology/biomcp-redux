@@ -1,5 +1,5 @@
-use super::field;
 use super::super::configuration::invoke;
+use super::field;
 use super::{Check, both, get_args, get_setup, identity, record};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -29,7 +29,9 @@ fn walk(n: usize, limit: u32) -> Check {
         ])
         .collect::<Vec<_>>();
     let mut record = record(&id);
-    *record.get_mut("dosage_and_administration").ok_or("dose field")? = json!(originals);
+    *record
+        .get_mut("dosage_and_administration")
+        .ok_or("dose field")? = json!(originals);
     let (env, stub) = get_setup(&id, record)?;
     let mut args = get_args(&id)?;
     args.extend([
@@ -60,7 +62,7 @@ fn missing() -> Check {
         "boxed_warning".into(),
     ]);
     let value = both(&env, args, 0)?;
-    if field(&value,"status") != "partial"
+    if field(&value, "status") != "partial"
         || value.pointer("/result/label/state") != Some(&json!("unavailable"))
         || value.pointer("/result/label/reason") != Some(&json!("not_found"))
     {
@@ -92,11 +94,11 @@ pub(super) fn reconstruct(
         };
         super::measure(&value)?;
         super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-        let data=value.pointer("/result/label/data").ok_or("label data")?;
-        if field(data,"offset") != offset {
+        let data = value.pointer("/result/label/data").ok_or("label data")?;
+        if field(data, "offset") != offset {
             return Err("fragment offset changed unit".into());
         }
-        let fragments = field(data,"fragments").as_array().ok_or("fragments")?;
+        let fragments = field(data, "fragments").as_array().ok_or("fragments")?;
         if fragments.is_empty() || fragments.len() > limit as usize {
             return Err("fragment maximum changed".into());
         }
@@ -106,14 +108,14 @@ pub(super) fn reconstruct(
         let Some(next) = value
             .get("next")
             .and_then(Value::as_array)
-            .and_then(|steps| steps.iter().find(|s| field(&s,"kind") == "page"))
+            .and_then(|steps| steps.iter().find(|s| field(&s, "kind") == "page"))
         else {
-            if field(data,"total") != offset {
+            if field(data, "total") != offset {
                 return Err("walk ended before final source fragment".into());
             }
             break;
         };
-        args = field(&next,"args")
+        args = field(&next, "args")
             .as_array()
             .ok_or("next args")?
             .iter()
@@ -134,18 +136,22 @@ struct Rebuilt {
 }
 impl Rebuilt {
     fn append(&mut self, data: &Value) -> Check {
-        let mut chars = field(data,"text").as_str().ok_or("text")?.chars();
-        for fragment in field(data,"fragments").as_array().ok_or("fragments")? {
-            let source_part = field(&fragment,"source_part").as_u64().ok_or("source part")? as usize;
+        let mut chars = field(data, "text").as_str().ok_or("text")?.chars();
+        for fragment in field(data, "fragments").as_array().ok_or("fragments")? {
+            let source_part = field(&fragment, "source_part")
+                .as_u64()
+                .ok_or("source part")? as usize;
             let rebuilt = self.rows.get_mut(source_part).ok_or("array boundary")?;
             *self.seen.get_mut(source_part).ok_or("array boundary")? = true;
-            if field(&fragment,"source_offset") != rebuilt.chars().count() {
+            if field(&fragment, "source_offset") != rebuilt.chars().count() {
                 return Err("native scalar offset changed".into());
             }
             rebuilt.extend(
-                chars
-                    .by_ref()
-                    .take(field(&fragment,"characters").as_u64().ok_or("characters")? as usize),
+                chars.by_ref().take(
+                    field(&fragment, "characters")
+                        .as_u64()
+                        .ok_or("characters")? as usize,
+                ),
             );
         }
         if chars.next().is_some() {

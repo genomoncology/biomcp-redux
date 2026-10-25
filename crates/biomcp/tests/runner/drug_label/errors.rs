@@ -1,5 +1,5 @@
-use super::field;
 use super::super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use super::field;
 use super::{Check, both, get_args, identity, page, record, setup};
 use libtest_mimic::Trial;
 use serde_json::json;
@@ -21,7 +21,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn rejected(value: &serde_json::Value) -> Check {
-    if field(value,"status") != "failed"
+    if field(value, "status") != "failed"
         || value.get("result").is_some()
         || value.pointer("/sources/0/state") != Some(&json!("failed"))
         || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
@@ -35,7 +35,7 @@ fn wrong_set() -> Check {
     let other = identity(4)?;
     let expected = format!(
         "GET /drug/label.json?search=openfda.spl_set_id%3A%22{}%22&limit=1&sort=effective_time%3Adesc HTTP/1.1",
-        field(&id,"set_id").as_str().ok_or("id")?
+        field(&id, "set_id").as_str().ok_or("id")?
     );
     let mut count = 0;
     let stub = Stub::for_source_status(
@@ -59,7 +59,8 @@ fn wrong_set() -> Check {
     let args = get_args(&id)?;
     rejected(&invoke(&env, args.clone(), 4)?)?;
     let value = both(&env, args, 0)?;
-    if value.pointer("/result/header/id") != Some(field(&id,"set_id")) || stub.finish()?.len() != 2 {
+    if value.pointer("/result/header/id") != Some(field(&id, "set_id")) || stub.finish()?.len() != 2
+    {
         return Err("unsafe identity entered cache".into());
     }
     Ok(())
