@@ -1,6 +1,7 @@
 # 0155 — Add one make target for the scheduled nightly live check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4bdb400a37b39fa7c28a2a5cf41ca40c8fd28728
 
 Milestone: 3
 
