@@ -111,6 +111,14 @@ canonical_enum! {
         Meddra => "meddra",
         /// Source-carried GMDN device terminology.
         Gmdn => "gmdn",
+        /// NCBI Genetic Testing Registry public reports.
+        Gtr => "gtr",
+        /// WHO prequalified in vitro diagnostics.
+        WhoIvd => "who-ivd",
+        /// FDA companion diagnostic device tables.
+        FdaCdx => "fda-cdx",
+        /// openFDA premarket approval submissions.
+        FdaPma => "fda-pma",
         /// Public cBioPortal with study-specific reuse terms.
         Cbioportal => "cbioportal",
     }

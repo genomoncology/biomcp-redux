@@ -528,6 +528,10 @@
         "maude",
         "meddra",
         "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
         "cbioportal"
       ],
       "type": "string",
@@ -586,6 +590,10 @@
         " openFDA MAUDE device event reports.",
         " Source-reported MedDRA reaction labels and versions.",
         " Source-carried GMDN device terminology.",
+        " NCBI Genetic Testing Registry public reports.",
+        " WHO prequalified in vitro diagnostics.",
+        " FDA companion diagnostic device tables.",
+        " openFDA premarket approval submissions.",
         " Public cBioPortal with study-specific reuse terms."
       ]
     },
