@@ -74,6 +74,7 @@ fn run(n: usize) -> Result<(), String> {
         }
     }
     if n == 0 {
+        visible_scope(&env, &args, &globals)?;
         follow(&env, &value, &mut config)?;
     }
     let requests = stub.finish()?;
@@ -91,7 +92,7 @@ fn run(n: usize) -> Result<(), String> {
     .map_err(|e| e.to_string())?;
     // Measured full and source-terms-subtracted envelopes, each with 15 percent headroom.
     let (full_cap, comparable_cap) = [
-        (3000, 3000),
+        (2496, 2399),
         (2039, 1943),
         (1992, 1896),
         (1983, 1886),
@@ -99,7 +100,7 @@ fn run(n: usize) -> Result<(), String> {
         (1943, 1846),
         (2014, 1918),
         (2021, 1924),
-        (23000, 23000),
+        (13813, 13717),
     ]
     .get(n)
     .copied()
@@ -332,5 +333,25 @@ fn expand(value: &mut Value) -> Result<(), String> {
     fields.insert("variantOrigin".into(), json!("SOMATIC"));
     *value.pointer_mut("/data/evidenceItems").ok_or("evidence")? = json!({"totalCount":7,"pageInfo":{"hasNextPage":true,"endCursor":"next-evidence"},"nodes":rows});
     *value.pointer_mut("/data/assertions").ok_or("assertions")? = json!({"totalCount":2,"pageInfo":{"hasNextPage":true,"endCursor":"next-assertions"},"nodes":[assertion]});
+    Ok(())
+}
+
+fn visible_scope(env: &Environment, command: &[String], globals: &[String]) -> Result<(), String> {
+    let mut args = globals.to_vec();
+    args.extend(["--format".into(), "md".into()]);
+    args.extend_from_slice(command);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    if !output.status.success()
+        || !output.stderr.is_empty()
+        || !text.contains("Look up this source-listed genomic variant in the stated tumor context")
+        || !text.contains("NC_000007.14:g.140753336A&gt;T")
+            && !text.contains("NC_000007.14:g.140753336A>T")
+    {
+        return Err("Markdown omitted the scoped source-listed lookup".into());
+    }
     Ok(())
 }
