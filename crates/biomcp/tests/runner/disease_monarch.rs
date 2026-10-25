@@ -14,7 +14,7 @@ fn setup(stub: &Stub) -> Result<Environment, String> {
     Ok(env)
 }
 fn invoke(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String> {
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), words.iter().map(|s| (*s).into())).output().map_err(|e|e.to_string())?;
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words.iter().map(|s| (*s).into()).collect::<Vec<String>>()).output().map_err(|e|e.to_string())?;
     if output.status.code() != Some(exit) {return Err(format!("unexpected exit {:?}: {}",output.status.code(),String::from_utf8_lossy(&output.stdout)));}
     serde_json::from_slice(&output.stdout).map_err(|e|e.to_string())
 }
