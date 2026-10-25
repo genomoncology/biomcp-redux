@@ -1,6 +1,7 @@
 # 0162 — Document the adverse event commands and close the adverse event accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 17b0203c8cac27da1247322a8399b2428a8ecd0b
 
 Milestone: 3
 

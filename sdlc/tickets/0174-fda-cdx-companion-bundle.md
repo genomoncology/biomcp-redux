@@ -1,6 +1,7 @@
 # 0174 — Sync the FDA companion diagnostic tables and search them by device, drug application and biomarker
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 49b4f4574daa29d6c1b96e47c23bfd9bbab45478
 
 Milestone: 4
 
