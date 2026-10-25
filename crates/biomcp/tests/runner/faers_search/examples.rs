@@ -12,26 +12,35 @@ pub(super) fn record(directory: &Path) -> Check {
             {
                 return Err("unexpected synthetic example request".into());
             }
-            Ok(body(5, 0).to_string())
+            if request.contains("search=safetyreportid%3A%22100%22&") {
+                let mut report = body(1, 0);
+                *report.pointer_mut("/meta/results/total").ok_or("total")? = serde_json::json!(1);
+                *report.pointer_mut("/meta/results/limit").ok_or("limit")? = serde_json::json!(5);
+                Ok(report.to_string())
+            } else {
+                Ok(body(5, 0).to_string())
+            }
         },
     )?;
-    let env = environment(&stub)?;
-    for (index, flags) in [
-        vec![],
+    for (index, words) in [
+        vec!["search", "adverse-event", "pembrolizumab"],
         vec![
+            "search",
+            "adverse-event",
+            "pembrolizumab",
             "--received-from",
             "2024-01-01",
             "--received-to",
             "2024-12-31",
         ],
+        vec!["get", "adverse-event", "100"],
+        vec!["get", "adverse-event", "100", "reactions"],
     ]
     .into_iter()
     .enumerate()
     {
-        let words = ["search", "adverse-event", "pembrolizumab"]
-            .into_iter()
-            .chain(flags)
-            .map(str::to_owned);
+        let env = environment(&stub)?;
+        let words = words.into_iter().map(str::to_owned);
         let recording = env.root().join(format!("record-{index}"));
         let mut args = vec!["--record".into(), recording.to_string_lossy().into()];
         args.extend(words);
@@ -50,12 +59,12 @@ pub(super) fn record(directory: &Path) -> Check {
     if std::fs::read_dir(directory.join("faers"))
         .map_err(|e| e.to_string())?
         .count()
-        != 2
+        != 3
     {
         return Err("synthetic recordings were not retained".into());
     }
-    if stub.finish()?.len() != 2 {
-        return Err("synthetic examples did not record two actual requests".into());
+    if stub.finish()?.len() != 4 {
+        return Err("synthetic examples did not record four actual requests".into());
     }
     Ok(())
 }

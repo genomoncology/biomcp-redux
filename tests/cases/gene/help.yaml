@@ -27,7 +27,7 @@
           ]
         }
       },
-      "max_bytes": 60283
+      "max_bytes": 63341
     },
     {
       "run": [
@@ -246,5 +246,5 @@
       }
     }
   ],
-  "verified": "The combined FAERS, MAUDE and GTR generated help measured 52136 compact UTF-8 bytes in j13049 on cf9def4826ac03de1b0df945f978bc879ecb3e78. The whole-tree ceiling follows the standing measured-output plus fifteen percent rule. Existing entity-specific bounds remain unchanged."
+  "verified": "j13144 measured whole-tree stdout at 55079 UTF-8 bytes. The ceiling follows the standing actual-plus-fifteen-percent rule. Existing unrelated entity bounds remain unchanged."
 }

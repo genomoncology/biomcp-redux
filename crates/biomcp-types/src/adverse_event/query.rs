@@ -30,7 +30,7 @@ struct SearchFields {
     /// FAERS MedDRA term phrase match, not exact equality.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     reaction: Option<Text>,
-    /// FAERS report flag, never a reaction outcome.
+    /// FAERS report flag: death or hospitalization; never a reaction outcome.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
     /// Inclusive first FDA receipt lower bound, YYYY-MM-DD.
@@ -123,7 +123,7 @@ struct GetFields {
     /// FAERS by default; MAUDE is explicit.
     #[serde(default = "default_source")]
     source: AdverseEventSource,
-    /// One source-owned section; omitted means card only.
+    /// FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<AdverseEventSection>,
