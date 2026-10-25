@@ -30,7 +30,7 @@ pub(super) fn identity(id: &str, name: &str) -> Result<DrugIdentity, biodata::Er
         name: Some(Text::new(name)?),
         // The CSV describes drug pairs, without identifying ingredient/product level.
         identity_level: DrugIdentityLevel::Unknown,
-        r#type: Some(Text::new("DDInter drug")?),
+        r#type: None,
         url: None,
     })
 }
