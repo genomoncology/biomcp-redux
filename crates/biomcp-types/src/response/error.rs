@@ -246,7 +246,7 @@ impl ErrorEnvelope {
     pub fn retired(message: ErrorMessage) -> Self {
         let valid_values = (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
             crate::VAERS_INFLUENZA.iter().filter_map(|(code, label)| {
-                crate::Text::new(format!("{code}: {label}")).ok()
+                crate::Text::new(&format!("{code}: {label}")).ok()
             }).collect()
         });
         Self {
