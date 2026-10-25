@@ -56,9 +56,7 @@
             "terms_url": "https://faq.oncokb.org/licensing"
           }
         },
-        "/next/*/kind": {
-          "includes": "key"
-        }
+        "/next/*/kind": ["key", "section"]
       },
       "max_bytes": 2800,
       "max_tokens": 650,
