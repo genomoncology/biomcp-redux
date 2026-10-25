@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 biodata::canonical_enum! {
     /// Explicit drug disclosures; identity cards never expand into these sections.
     DrugSection, SourceUnknown {
+        /// All native identity cross-references and product links, mechanically paged.
+        Xrefs => "xrefs",
         /// Native target and mechanism relations.
         Targets => "targets",
         /// Native indication wording.
@@ -203,6 +205,13 @@ impl DrugSource {
     /// Check only published ID grammar for this endpoint, without inferring identity level or joining records.
     pub fn accepts(self, id: &DrugId) -> bool {
         let id = id.to_string();
+        if id.split_once(':').is_some_and(|(prefix, _)| {
+            Self::ALL
+                .into_iter()
+                .any(|source| source.as_str().eq_ignore_ascii_case(prefix))
+        }) {
+            return false;
+        }
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
             Self::Mychem => true,
@@ -229,5 +238,62 @@ impl DrugSource {
                         .all(|s| s.bytes().all(|b| b.is_ascii_hexdigit()))
             }
         }
+    }
+}
+
+impl DrugSearch {
+    /// Literal source query, without rewriting.
+    pub fn query(&self) -> &Text {
+        &self.0.query
+    }
+    /// Single selected native source.
+    pub fn source(&self) -> DrugSource {
+        self.0.source
+    }
+    /// Native page bound.
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
+    /// Native page offset.
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
+    /// Continue that exact literal source query.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut fields = self.0.clone();
+        fields.offset = offset;
+        Self(fields)
+    }
+}
+impl DrugGet {
+    /// Explicit requested disclosures.
+    pub fn sections(&self) -> &[DrugSection] {
+        &self.0.section
+    }
+}
+
+impl DrugGet {
+    /// Continue the same named section without changing source, identity or section selectors.
+    pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section_offset = Some(offset);
+        fields.try_into()
+    }
+    /// Exact selected native label heading.
+    pub fn label_section(&self) -> Option<&Text> {
+        self.0.label_section.as_ref()
+    }
+    /// Exact application product selector.
+    pub fn product_number(&self) -> Option<&Text> {
+        self.0.product_number.as_ref()
+    }
+}
+
+impl DrugGet {
+    /// Select one named disclosure without changing the exact source identity.
+    pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section = vec![section].into();
+        fields.try_into()
     }
 }

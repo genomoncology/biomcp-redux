@@ -1,6 +1,7 @@
 # 0138 — Add the disease types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7858544e18f537ff84270008ddd08f7b01be1095
 
 Milestone: 3
 

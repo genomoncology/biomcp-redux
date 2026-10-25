@@ -122,3 +122,10 @@ pub use gene_discovery::{GeneHeader, GeneResolution, Match};
 
 mod trial_header;
 pub use trial_header::TrialHeader;
+
+mod disease;
+pub use disease::{
+    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
+    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
+    DiseaseSynonyms, DiseaseXrefs,
+};

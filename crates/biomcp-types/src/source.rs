@@ -83,6 +83,26 @@ canonical_enum! {
         Ndc => "ndc",
         /// MyChem openFDA cross-references only.
         OpenfdaXref => "openfda-xref",
+        /// Ontology Lookup Service.
+        Ols => "ols",
+        /// MyDisease.info aggregation.
+        MyDisease => "mydisease",
+        /// Monarch associations.
+        Monarch => "monarch",
+        /// SEER Explorer.
+        Seer => "seer",
+        /// MONDO published ontology content.
+        Mondo => "mondo",
+        /// Disease Ontology published content.
+        Doid => "doid",
+        /// NCI Thesaurus ontology content.
+        Ncit => "ncit",
+        /// HPO-published annotations.
+        Hpo => "hpo",
+        /// Reviewed Orphadata Science content.
+        Orphanet => "orphanet",
+        /// Separately licensed OMIM payload only.
+        Omim => "omim",
         /// Public cBioPortal with study-specific reuse terms.
         Cbioportal => "cbioportal",
     }

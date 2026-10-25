@@ -7,7 +7,7 @@ mod source;
 pub use query::{DrugGet, DrugSearch, DrugSection};
 pub use response::{
     DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
-    DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugTargets,
+    DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugTargets, DrugXrefs,
 };
 
 pub use source::DrugSource;

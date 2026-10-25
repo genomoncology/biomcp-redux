@@ -81,7 +81,7 @@
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentity": {
@@ -130,7 +130,6 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
@@ -179,18 +178,26 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-interaction-claim/1",
+  "$id": "biodata.drug-interaction-claim/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One native interaction pair and level, without invented management advice.",
   "properties": {
+    "additional_attributions": {
+      "description": "Further distinct provenance, excluding the primary attribution.",
+      "items": {
+        "$ref": "#/$defs/Attribution"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
     "anchor": {
       "$ref": "#/$defs/DrugIdentity",
       "description": "Selected native anchor ID and name."
     },
     "attribution": {
       "$ref": "#/$defs/Attribution",
-      "description": "Pair record and bundle provenance."
+      "description": "Primary pair record and bundle provenance."
     },
     "level": {
       "$ref": "#/$defs/Text",
