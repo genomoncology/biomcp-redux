@@ -1,0 +1,31 @@
+{
+  "source": "civic",
+  "terms": "CC0 1.0",
+  "terms_url": "https://civicdb.org/releases/licensing",
+  "capture": {
+    "number": 1,
+    "source": "civic",
+    "method": "POST",
+    "url": "https://civicdb.org/api/graphql",
+    "request_body_sha256": "a95cb0cd2f3499f5d511e6d70ec0a326a0d6af2487a0c9251cf68df36aeffdd4",
+    "retrieved_at": "2026-10-25T04:24:15.533528+00:00",
+    "state": "complete",
+    "status": 200,
+    "body_file": "native.body",
+    "sha256": "67f9d50f493e6c93062bc272d8036bf4e0cb3a63801b7287b18d04b0518aca37",
+    "bytes": 1916,
+    "outcome": "success",
+    "stop_source": false,
+    "finished_at": "2026-10-25T04:24:15.932531+00:00",
+    "truncated": false,
+    "transport_failure": false
+  },
+  "original_request": {
+    "query": "query($id:Int!,$after:String){therapy(id:$id){id name link} evidenceItems(therapyId:$id,molecularProfileId:34,status:ACCEPTED,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id status significance disease{name doid} therapies{id name} therapyInteractionType evidenceType evidenceLevel evidenceDirection source{citationId sourceType} molecularProfile{id name link isComplex variants{__typename id name link feature{name} variantTypes{name soid} ... on GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}}} assertions(therapyId:$id,molecularProfileId:34,status:ACCEPTED,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id status significance disease{name doid} therapies{id name} therapyInteractionType assertionType assertionDirection ampLevel variantOrigin molecularProfile{id name link isComplex variants{__typename id name link feature{name} variantTypes{name soid} ... on GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}}}}",
+    "variables": {
+      "id": 187,
+      "after": null
+    }
+  },
+  "local_delivery": "Original combined accepted evidence/assertion capture is projected to the requested single stream. Product requests retain therapy187/profile34 and original row fields/totals. This proves product mapping and recorder/replay, not that the one-stream query was sent to the provider. Original retrieval date is separate from local delivery and recorder dates."
+}

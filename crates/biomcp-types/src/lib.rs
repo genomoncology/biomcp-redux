@@ -128,11 +128,12 @@ pub use response::{
 };
 mod drug;
 pub use drug::{
-    DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicPage, DrugCivicProfile,
-    DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaPage,
-    DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader, DrugIndications,
-    DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameSelector, DrugPage,
-    DrugRecords, DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets, DrugXrefs,
+    DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage,
+    DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
+    DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugGet, DrugHeader,
+    DrugIndications, DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText,
+    DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecords, DrugRegulatory,
+    DrugSearch, DrugSection, DrugSource, DrugTargets, DrugXrefs,
 };
 
 pub use query::QueryInvalid;

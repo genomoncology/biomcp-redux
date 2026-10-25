@@ -20,6 +20,7 @@ mod drug_label;
 mod drug_mychem;
 mod drug_native;
 mod drug_native_identity;
+mod drug_next;
 mod drug_registry;
 mod drug_retirements;
 mod evidence;
@@ -523,6 +524,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_registry::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());
+    trials.extend(drug_next::trials());
     trials.extend(drug_ema::trials());
     trials.extend(drug_ddinter::trials());
     trials.extend(drug_fda::trials());
