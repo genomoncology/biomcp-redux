@@ -68,11 +68,12 @@ fn outcomes() -> Check {
         let terms = registry::terms(source).ok_or("missing declaration")?;
         for state in [
             SourceState::Ok,
-            SourceState::Empty,
+            SourceState::Stale,
             SourceState::Skipped,
             SourceState::Failed,
         ] {
-            let row = registry::outcome(source, state, Some(Reason::Disabled));
+            let mut row = registry::outcome(source, state, Some(Reason::Disabled));
+            row.count = Some(0);
             if row.usage != terms.usage || row.terms != terms.name || row.terms_url != terms.url {
                 return Err(format!("outcome lost terms: {row:?}"));
             }
