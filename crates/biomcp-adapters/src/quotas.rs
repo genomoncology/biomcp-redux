@@ -158,3 +158,8 @@ pub(crate) static MONARCH: Quota =
 // Conservative serial local policy; no published numeric provider quota verified.
 pub(crate) static SEER: Quota =
     Quota::new(SourceKey::declare("seer"), Rate::per_second(1), None, 1);
+
+// Conservative serial public-file policies; no published numeric quota is claimed.
+pub(crate) static GTR: Quota = Quota::new(SourceKey::declare("gtr-files"), Rate::per_second(1), None, 1);
+pub(crate) static WHO: Quota = Quota::new(SourceKey::declare("who-ivd"), Rate::per_second(1), None, 1);
+pub(crate) static FDA_WEBSITE: Quota = Quota::new(SourceKey::declare("fda-website"), Rate::per_second(1), None, 1);
