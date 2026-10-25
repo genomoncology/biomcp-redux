@@ -9,9 +9,12 @@ use std::path::Path;
 /// Total serialized witness payload per report; summaries remain independent.
 const MAX_WITNESS_BYTES: usize = 1024 * 1024;
 
+fn cut() -> Value {
+    json!({"cut":true,"reason":"report witness byte limit", "limit_bytes":MAX_WITNESS_BYTES})
+}
+
 pub(super) fn retain(results: &mut [Value]) {
-    let cut =
-        json!({"cut":true,"reason":"report witness byte limit", "limit_bytes":MAX_WITNESS_BYTES});
+    let cut = cut();
     let overhead = serde_json::to_vec(&cut).map_or(MAX_WITNESS_BYTES, |bytes| bytes.len());
     let mut remaining = MAX_WITNESS_BYTES.saturating_sub(results.len().saturating_mul(overhead));
     for result in results {
@@ -71,7 +74,15 @@ pub(in crate::runner) fn invoke(
         }
     };
     if let Some(map) = capture.as_object_mut() {
-        map.insert(side.into(), context);
+        let size = serde_json::to_vec(&context).map_or(usize::MAX, |bytes| bytes.len());
+        map.insert(
+            side.into(),
+            if size <= MAX_WITNESS_BYTES {
+                context
+            } else {
+                cut()
+            },
+        );
     }
     result
 }

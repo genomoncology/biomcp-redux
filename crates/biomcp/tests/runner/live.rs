@@ -73,10 +73,12 @@ pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
         }
         let mut captures = Vec::new();
         let result = check(&case, &registry, &mut sources, started, &mut captures);
-        results.push(match result {
+        let mut result = match result {
             Ok(report) => json!({"case": name, "result": report, "witness": captures}),
             Err(error) => json!({"case": name, "error": error, "witness": captures}),
-        });
+        };
+        witness::retain(std::slice::from_mut(&mut result));
+        results.push(result);
     }
     if list {
         return Ok(json!({"mode": "live-check-plan", "cases": results}));
