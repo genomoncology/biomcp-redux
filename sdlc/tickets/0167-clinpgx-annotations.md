@@ -1,0 +1,18 @@
+# 0167 — Add the ClinPGx annotations section by kind
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: 0164
+Depends on: 0165
+Depends on: 0166
+
+## Outcome
+
+`get pgx --gene DPYD annotations --source clinpgx` returns a local page of the ClinPGx clinical annotation collection from `data/clinicalAnnotation?location.genes.symbol=DPYD&view=min`, in native order, with the received collection length labeled as an observed total and five rows per page by default. `--kind guideline` reads `data/guidelineAnnotation?relatedGenes.symbol=GENE&view=min` and `--kind label` reads the label annotation collection for the gene, each as its own collection. `--section-limit` and `--section-offset` page the retained collection locally with no extra provider request. The gene card from 0166 gains its `annotations --source clinpgx` step. If 0163 proved the single base get, `get pgx --annotation-id PA166134421 --source clinpgx` returns the full base annotation with schema `biomcp.pgx_annotation/1`, and each clinical row offers one disambiguate get by exact accession before the page step.
+
+- Why: Q28 and Q29 ask a variant's clinical annotation level, and the 0153 rulings keep ClinPGx annotations as one collection per kind from the min tier, defaulting to clinical, with the single get behind a disambiguate step once one capture proves it.
+- Starts from: pharmacogenomics.md's annotation rows, body shapes and offline projections, with the 0153 PM rulings and recheck amendments; the j12644 rows P01 to P10 and 0163's base get witness; 0166's dispatch registration; 0164's types and 0165's registry.
+- Rules: kinds never merge or deduplicate. A min guideline or label row is a reference, not guidance. A field the min tier lacks, such as disease, history or genotype text, is unsupported disclosure and never a negative fact. PA166134421 and PA166224841 stay separate records. A ClinPGx accession is never a `PaId`, and the numeric ID and accession stay separate fields. The observed total never claims a server-wide total or stable provider paging. A collection over the admission bound returns an incomplete problem, never a silently cut page. The single get compares the returned accession with the requested one, or drops the record with a problem and never caches it. Without 0163's base get, the single get, its schema and the disambiguate steps stay deferred. No ClinPGx level maps to a shared proposition.
+- Proof: outside-in cases first, watched to fail. Before section code, one bounded keyless pm job captures the DPYD clinical min collection, the DPYD guideline min collection, a label min collection by gene for UGT1A1, the TP53 clinical collection and, if 0163 proved it, the PA166134421 base get. Q28 asserts PA166134421 and PA166224841 as separate rows in the DPYD clinical page and, with the base get, PA166134421's Level 1A Toxicity record with its Neoplasms relation; P07 asserts the DPYD guideline kind; the label case asserts its own collection or, if the by-gene request returns nothing, a successful zero with the kind kept; P09 and C27 assert ClinPGx TP53's three records beside CPIC's zero (Q33); a local walk asserts every row reachable with no gap or duplicate. Recorded 429, 500, timeout and broken-body cases assert a failed outcome with source and terms. The job measures the default clinical page, which the projections put at up to 22,960 bytes, and the PM reviews a smaller default row count before a ceiling is set at measured size plus 15 percent, recorded in pharmacogenomics.md. Real ClinPGx rows fall under the noncommercial data use policy, so they replay from outside the repo through `--cases DIR`, and synthetic replies prove failure mechanics. No licensed content enters the repo. Then make landing-gate runs through pm job.
