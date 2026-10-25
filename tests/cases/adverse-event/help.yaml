@@ -1,6 +1,6 @@
 {
-  "feature": "adverse-event-search",
-  "story": "A caller discovers the report budget, four typed filters and executable examples in generated help.",
+  "feature": "generated-help",
+  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command.",
   "live_check": "Help performs no source requests.",
   "steps": [
     {
@@ -26,14 +26,69 @@
           "count": 2
         },
         "/result/commands/0/arguments/*/name": {
-          "includes": "--reaction"
+          "includes_all_of": [
+            "text",
+            "--source",
+            "--reaction",
+            "--serious",
+            "--received-from",
+            "--received-to",
+            "--limit",
+            "--offset"
+          ]
         },
         "": {
           "max_bytes": 1883
-        }
+        },
+        "/result/commands/0/arguments/6/choices": [
+          "faers",
+          "maude"
+        ]
       },
       "max_bytes": 1884,
       "max_tokens": 471
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "adverse-event"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "adverse-event"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/sections/*/word": [
+          "drugs",
+          "reactions",
+          "unii",
+          "rxcui",
+          "product-ndc",
+          "package-ndc",
+          "spl-id",
+          "spl-set-id",
+          "application-number",
+          "devices",
+          "narrative"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "--source",
+            "section",
+            "--snapshot",
+            "--drug-index",
+            "--section-limit",
+            "--section-offset"
+          ]
+        }
+      },
+      "max_bytes": 4000
     }
   ]
 }

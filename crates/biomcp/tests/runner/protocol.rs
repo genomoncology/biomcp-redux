@@ -358,6 +358,8 @@ fn discovery_description(text: &str) -> Check {
         "variant population",
         "variant normalize",
         "variant recurrence",
+        "search adverse-event",
+        "get adverse-event sections: drugs|reactions|unii|rxcui|product-ndc|package-ndc|spl-id|spl-set-id|application-number|devices|narrative",
         "search drug",
         "get drug",
         "sync ema",
