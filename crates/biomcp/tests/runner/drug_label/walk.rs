@@ -88,9 +88,9 @@ pub(super) fn reconstruct(
     let mut pages = 0;
     loop {
         let value = if pages == 0 {
-            both(&env, args.clone(), 0)?
+            both(env, args.clone(), 0)?
         } else {
-            invoke(&env, args.clone(), 0)?
+            invoke(env, args.clone(), 0)?
         };
         super::measure(&value)?;
         super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
@@ -108,14 +108,14 @@ pub(super) fn reconstruct(
         let Some(next) = value
             .get("next")
             .and_then(Value::as_array)
-            .and_then(|steps| steps.iter().find(|s| field(&s, "kind") == "page"))
+            .and_then(|steps| steps.iter().find(|s| field(s, "kind") == "page"))
         else {
             if field(data, "total") != offset {
                 return Err("walk ended before final source fragment".into());
             }
             break;
         };
-        args = field(&next, "args")
+        args = field(next, "args")
             .as_array()
             .ok_or("next args")?
             .iter()
@@ -138,20 +138,18 @@ impl Rebuilt {
     fn append(&mut self, data: &Value) -> Check {
         let mut chars = field(data, "text").as_str().ok_or("text")?.chars();
         for fragment in field(data, "fragments").as_array().ok_or("fragments")? {
-            let source_part = field(&fragment, "source_part")
+            let source_part = field(fragment, "source_part")
                 .as_u64()
                 .ok_or("source part")? as usize;
             let rebuilt = self.rows.get_mut(source_part).ok_or("array boundary")?;
             *self.seen.get_mut(source_part).ok_or("array boundary")? = true;
-            if field(&fragment, "source_offset") != rebuilt.chars().count() {
+            if field(fragment, "source_offset") != rebuilt.chars().count() {
                 return Err("native scalar offset changed".into());
             }
             rebuilt.extend(
-                chars.by_ref().take(
-                    field(&fragment, "characters")
-                        .as_u64()
-                        .ok_or("characters")? as usize,
-                ),
+                chars
+                    .by_ref()
+                    .take(field(fragment, "characters").as_u64().ok_or("characters")? as usize),
             );
         }
         if chars.next().is_some() {

@@ -26,7 +26,7 @@ fn native(root: &Path, n: usize) -> Result<(Value, Value, String), String> {
     let id = identity(n)?;
     let entry = manifest
         .into_iter()
-        .find(|m| field(&m, "sha256") == field(&id, "original_sha256"))
+        .find(|m| field(m, "sha256") == field(&id, "original_sha256"))
         .ok_or("source manifest identity")?;
     let path = root
         .join("retained")
