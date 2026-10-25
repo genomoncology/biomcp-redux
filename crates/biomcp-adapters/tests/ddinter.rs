@@ -1,4 +1,8 @@
 //! Feature drug-ddinter: source-local identity, pair order and duplicate provenance.
+#![expect(
+    clippy::unwrap_used,
+    reason = "Malformed synthetic fixture setup must fail the contract"
+)]
 use biomcp_adapters::ddinter::{NativeRow, PartRow, partners};
 
 fn row(part: &str, number: u64, a: &str, b: &str, name: &str) -> PartRow {
