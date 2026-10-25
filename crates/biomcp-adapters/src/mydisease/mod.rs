@@ -1,11 +1,11 @@
 //! Canonical mydisease publisher declaration.
 mod native;
 mod raw;
-pub use native::{Component, Record, Value};
 use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, PathSegment, RequestError};
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
+pub use native::{Component, Record, Value};
 use std::time::Duration;
 /// Publisher policy shared by health, admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -32,17 +32,33 @@ pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
     let fields = crate::disease_sources::components::allowed_fields(leg, FIELDS)?;
     let endpoint = GET.clone().with_segments(&[PathSegment::new(id.as_str())?]);
     let (raw, metadata) = leg.json_received_checked::<raw::Document>(
-        &endpoint, &[("fields", Arg::Text(&fields))],
-        |record| if record.matches(id, &fields) { Ok(()) } else { Err(BadReply) },
+        &endpoint,
+        &[("fields", Arg::Text(&fields))],
+        |record| {
+            if record.matches(id, &fields) {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        },
     )?;
     // Ignore any unrequested component even if a provider or old replay includes it.
     let mut components = Vec::new();
-    if fields.split(',').any(|f| f == "mondo") && let Some(value) = raw.mondo {
+    if fields.split(',').any(|f| f == "mondo")
+        && let Some(value) = raw.mondo
+    {
         components.push(native::component("mondo", value));
     }
-    if fields.split(',').any(|f| f == "disease_ontology") && let Some(value) = raw.disease_ontology {
+    if fields.split(',').any(|f| f == "disease_ontology")
+        && let Some(value) = raw.disease_ontology
+    {
         components.push(native::component("doid", value));
     }
-    Ok(Record { requested_id: id.clone(), returned_id: raw.id, version: raw.version,
-        components: components.into(), metadata })
+    Ok(Record {
+        requested_id: id.clone(),
+        returned_id: raw.id,
+        version: raw.version,
+        components: components.into(),
+        metadata,
+    })
 }

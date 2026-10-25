@@ -16,21 +16,35 @@ pub(super) struct Document {
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
         let mondo = self.mondo.as_ref().is_some_and(|c| c.id == self.id);
-        let doid = self.disease_ontology.as_ref().is_some_and(|c| c.id == self.id);
+        let doid = self
+            .disease_ontology
+            .as_ref()
+            .is_some_and(|c| c.id == self.id);
         if mondo || doid { Ok(()) } else { Err(BadReply) }
     }
 }
 impl Document {
     pub fn matches(&self, id: &Curie, fields: &str) -> bool {
-        let mondo = fields.split(',').any(|f| f == "mondo").then_some(self.mondo.as_ref()).flatten();
-        let doid = fields.split(',').any(|f| f == "disease_ontology").then_some(self.disease_ontology.as_ref()).flatten();
-        let primary = mondo.is_some_and(|c| c.id == self.id) || doid.is_some_and(|c| c.id == self.id);
-        primary && (self.id == *id || mondo.is_some_and(|c| {
-            c.xrefs.get("doid").is_some_and(|values| match values {
-                OneOrMany::One(value) => value.as_str() == id.as_str(),
-                OneOrMany::Many(values) => values.iter().any(|v| v.as_str() == id.as_str()),
-            })
-        }))
+        let mondo = fields
+            .split(',')
+            .any(|f| f == "mondo")
+            .then_some(self.mondo.as_ref())
+            .flatten();
+        let doid = fields
+            .split(',')
+            .any(|f| f == "disease_ontology")
+            .then_some(self.disease_ontology.as_ref())
+            .flatten();
+        let primary =
+            mondo.is_some_and(|c| c.id == self.id) || doid.is_some_and(|c| c.id == self.id);
+        primary
+            && (self.id == *id
+                || mondo.is_some_and(|c| {
+                    c.xrefs.get("doid").is_some_and(|values| match values {
+                        OneOrMany::One(value) => value.as_str() == id.as_str(),
+                        OneOrMany::Many(values) => values.iter().any(|v| v.as_str() == id.as_str()),
+                    })
+                }))
     }
 }
 #[derive(Debug, Deserialize)]

@@ -49,13 +49,26 @@ pub struct Value {
 }
 pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Component {
     Component {
-        name, id: raw.id, label: raw.label, definition: raw.definition,
-        synonyms: values(raw.synonym), xrefs: values(raw.xrefs), parents: raw.parents,
-        obsolete: raw.is_obsolete, consider: raw.consider, replaced_by: raw.replaced_by,
+        name,
+        id: raw.id,
+        label: raw.label,
+        definition: raw.definition,
+        synonyms: values(raw.synonym),
+        xrefs: values(raw.xrefs),
+        parents: raw.parents,
+        obsolete: raw.is_obsolete,
+        consider: raw.consider,
+        replaced_by: raw.replaced_by,
     }
 }
 fn values(fields: std::collections::BTreeMap<String, crate::raw::OneOrMany<Text>>) -> Box<[Value]> {
-    fields.into_iter().flat_map(|(field, values)| {
-        values.values().into_iter().map(move |value| Value { field: field.clone(), value })
-    }).collect()
+    fields
+        .into_iter()
+        .flat_map(|(field, values)| {
+            values.values().into_iter().map(move |value| Value {
+                field: field.clone(),
+                value,
+            })
+        })
+        .collect()
 }
