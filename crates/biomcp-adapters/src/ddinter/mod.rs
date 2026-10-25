@@ -1,6 +1,10 @@
-//! Canonical DDINTER source declaration.
+//! DDInter native pair rows and the canonical publisher declaration.
+mod pairs;
+mod raw;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
+pub use pairs::{Pair, PartRow, Provenance, partners};
+pub use raw::NativeRow;
 use std::time::Duration;
 /// Publisher policy shared by health, request admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {

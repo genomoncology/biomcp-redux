@@ -8,7 +8,8 @@ fn row(part: &str, number: u64, a: &str, b: &str, name: &str) -> PartRow {
         value: serde_json::from_value(serde_json::json!({
             "DDInterID_A": a, "Drug_A": "Synthetic anchor",
             "DDInterID_B": b, "Drug_B": name, "Level": "Native test level"
-        })).unwrap(),
+        }))
+        .unwrap(),
     }
 }
 #[test]
@@ -25,15 +26,30 @@ fn drug_ddinter_preserves_pair_order_orientation_and_all_provenances() {
     assert_eq!(pairs[0].provenance[0].part, "B");
     assert_eq!(pairs[0].provenance[1].part, "L");
     assert_eq!(pairs[1].partner_id(), "DDInter3");
-    assert!(partners(vec![row("A", 2, "DDInter1", "DDInter2", "Other")], "DDInter9").is_empty());
+    assert!(
+        partners(
+            vec![row("A", 2, "DDInter1", "DDInter2", "Other")],
+            "DDInter9"
+        )
+        .is_empty()
+    );
 }
 #[test]
 fn drug_ddinter_checks_required_native_cells_before_publication() {
     let good = serde_json::json!({"DDInterID_A":"DDInter1", "Drug_A":"Synthetic A", "DDInterID_B":"DDInter2", "Drug_B":"Synthetic B", "Level":"Native test level"});
     assert!(serde_json::from_value::<NativeRow>(good.clone()).is_ok());
-    for (key, value) in [("DDInterID_A", "1"), ("DDInterID_B", "DDInter"), ("Drug_A", ""), ("Drug_B", ""), ("Level", "")] {
+    for (key, value) in [
+        ("DDInterID_A", "1"),
+        ("DDInterID_B", "DDInter"),
+        ("Drug_A", ""),
+        ("Drug_B", ""),
+        ("Level", ""),
+    ] {
         let mut bad = good.clone();
         bad[key] = value.into();
-        assert!(serde_json::from_value::<NativeRow>(bad).is_err(), "accepted {key}={value}");
+        assert!(
+            serde_json::from_value::<NativeRow>(bad).is_err(),
+            "accepted {key}={value}"
+        );
     }
 }

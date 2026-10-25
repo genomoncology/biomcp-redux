@@ -66,7 +66,7 @@ pub mod gwas;
 pub mod drug_sources;
 
 mod chembl;
-mod ddinter;
+pub mod ddinter;
 mod drugsfda;
 mod ema;
 mod mychem;
