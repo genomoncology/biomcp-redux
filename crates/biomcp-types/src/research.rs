@@ -1,5 +1,5 @@
 //! Research compatibility projections; the CLI retains the entity schemas.
-use crate::{Problem, SourceOutcome};
+use crate::Status;
 use serde::{Deserialize, Serialize};
 
 /// A citable exact source record, without inferred identity or relevance.
@@ -18,12 +18,10 @@ pub struct ResearchHit {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ResearchEnvelope {
-    /// Original source outcomes, including their terms.
-    #[serde(default)]
-    pub sources: Vec<SourceOutcome>,
-    /// Original problems, without translation.
-    #[serde(default)]
-    pub problems: Vec<Problem>,
+    /// Original CLI schema identity; its schema describes all entity fields.
+    pub schema: String,
+    /// Original command outcome.
+    pub status: Status,
 }
 /// Search disclosures preserve the original CLI response without inventing hits.
 #[derive(Clone, Debug, Serialize, Deserialize)]

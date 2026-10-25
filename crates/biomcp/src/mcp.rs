@@ -4,8 +4,8 @@ mod framing;
 pub(crate) mod http;
 mod legacy;
 mod protocol;
-mod rpc;
 mod research;
+mod rpc;
 
 use framing::Frame;
 use serde_json::Value;

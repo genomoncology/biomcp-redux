@@ -318,11 +318,14 @@ fn discovery() -> Check {
         .and_then(Value::as_str)
         .ok_or("description missing")?;
     for (name, key) in [("search", "query"), ("fetch", "id")] {
-        let wrapper = tools.iter().find(|tool| tool.get("name") == Some(&json!(name)))
+        let wrapper = tools
+            .iter()
+            .find(|tool| tool.get("name") == Some(&json!(name)))
             .ok_or("research wrapper missing")?;
         if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
             || wrapper.get("outputSchema").is_none()
-            || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true)) {
+            || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
+        {
             return Err("research tool contract differs".into());
         }
     }
