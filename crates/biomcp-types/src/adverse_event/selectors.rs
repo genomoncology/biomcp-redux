@@ -5,6 +5,8 @@ biodata::wire_enum! { described
         Faers => "faers",
         /// Device event reports.
         Maude => "maude",
+        /// Explicit CDC WONDER vaccine aggregate tables.
+        Vaers => "vaers",
     }
 }
 biodata::wire_enum! { described

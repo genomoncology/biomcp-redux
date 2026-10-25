@@ -5,6 +5,7 @@ use biomcp_types::{DiagnosticClearance, DiagnosticGet, Source, Use};
 use std::time::Duration;
 /// One source declaration for policy, quota and dispatch.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     source: Source::Fda510k,
     base: "https://api.fda.gov/device/510k.json",
     terms: Terms {

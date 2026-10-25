@@ -12,6 +12,7 @@ use std::{collections::BTreeSet, time::Duration};
 pub const BATCH_LIMIT: usize = 200;
 /// Conservative application quota; no provider rate is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NIH public-domain data",
         url: "https://support.icite.nih.gov/hc/en-us/articles/9066501755291-Citations-Module-Overview",

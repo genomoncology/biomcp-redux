@@ -17,6 +17,7 @@ use biomcp_types::{ArticleSort, Source, SourceNotice};
 use std::time::Duration;
 /// Shared NCBI E-utilities policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in abstracts",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",

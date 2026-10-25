@@ -14,3 +14,8 @@ pub use selectors::{
     AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
     ReportUnit,
 };
+
+mod vaers;
+pub use vaers::{
+    VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary, vaers_vaccine_code,
+};

@@ -26,6 +26,7 @@ pub fn annotation(leg: &Leg<'_>, id: &Curie) -> Result<crate::Mapped<Annotation>
 use std::time::Duration;
 /// Publisher policy shared by health, admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     source: Source::MyDisease,
     base: "https://mydisease.info/v1",
     terms: Terms {

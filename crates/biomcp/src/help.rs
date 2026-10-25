@@ -183,7 +183,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["BioMCP: help COMMAND for options; schema ID for artifacts.".into()];
+    let mut lines = vec!["Use help COMMAND or schema ID.".into()];
     for command in commands {
         if command.command.first().is_none_or(|verb| {
             !matches!(
@@ -205,7 +205,7 @@ pub(crate) fn tree() -> String {
             for argument in command
                 .arguments
                 .iter()
-                .filter(|arg| arg.position.is_none())
+                .filter(|arg| arg.position.is_none() && arg.name != "--snapshot")
             {
                 line.push_str(&format!(" [{}", argument.name));
                 if !argument.choices.is_empty() {

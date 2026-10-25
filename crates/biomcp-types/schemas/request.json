@@ -46,12 +46,14 @@
       "description": "An explicit source; never probe the other family.",
       "enum": [
         "faers",
-        "maude"
+        "maude",
+        "vaers"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Drug event reports.",
-        " Device event reports."
+        " Device event reports.",
+        " Explicit CDC WONDER vaccine aggregate tables."
       ]
     },
     "ArticleInput": {
@@ -570,6 +572,20 @@
       ],
       "type": "string"
     },
+    "VaersSection": {
+      "description": "One independent CDC WONDER grouping.",
+      "enum": [
+        "symptoms",
+        "seriousness",
+        "age"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native reported symptom rows.",
+        " Reports classified by native seriousness.",
+        " Native age groups."
+      ]
+    },
     "VariantInput": {
       "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
@@ -1012,7 +1028,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Native report headers per page; default five.",
+          "description": "Native report headers or VAERS rows per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -1020,7 +1036,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native report offset.",
+          "description": "Native row offset. VAERS continuation requires its retained snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1058,6 +1074,18 @@
           ],
           "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
         },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VaersSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent VAERS table; omitted means reported symptoms.",
+          "x-positional": 1
+        },
         "serious": {
           "anyOf": [
             {
@@ -1069,14 +1097,25 @@
           ],
           "description": "FAERS report flag: death or hospitalization; never a reaction outcome."
         },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Retained VAERS table for provider-free continuation."
+        },
         "source": {
           "$ref": "#/$defs/AdverseEventSource",
           "default": "faers",
-          "description": "FAERS by default; no source fallback."
+          "description": "FAERS by default; VAERS accepts only exact supported vaccine names."
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Literal drug text or MAUDE device generic-name phrase.",
+          "description": "Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.",
           "x-positional": 0
         }
       },
@@ -1147,9 +1186,13 @@
           "description": "Checked retained report snapshot for provider-free continuation."
         },
         "source": {
-          "$ref": "#/$defs/AdverseEventSource",
           "default": "faers",
-          "description": "FAERS by default; MAUDE is explicit."
+          "description": "FAERS by default; MAUDE is explicit.",
+          "enum": [
+            "faers",
+            "maude"
+          ],
+          "type": "string"
         }
       },
       "required": [

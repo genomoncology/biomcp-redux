@@ -9,6 +9,7 @@ mod normalization;
 use std::time::Duration;
 /// Service rights remain distinct from the software license.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "Mutalyzer service output terms require review",
         url: "https://mutalyzer.nl/",

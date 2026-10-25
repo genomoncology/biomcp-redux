@@ -8,6 +8,7 @@ use biomcp_types::{Protein, Source};
 use std::time::Duration;
 /// Source policy for UniProt's accession endpoint.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC BY 4.0",
         url: "https://www.uniprot.org/help/license",

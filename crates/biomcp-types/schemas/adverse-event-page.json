@@ -124,11 +124,11 @@
     },
     "AdverseEventSearch": {
       "additionalProperties": false,
-      "description": "Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.",
+      "description": "Search five report headers by default. VAERS accepts only MMR, COVID19 or the exact display name COVID-19 vaccine, matched without case. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
       "properties": {
         "limit": {
           "default": 5,
-          "description": "Native report headers per page; default five.",
+          "description": "Native report headers or VAERS rows per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -136,7 +136,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native report offset.",
+          "description": "Native row offset. VAERS continuation requires its retained snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -174,6 +174,18 @@
           ],
           "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
         },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VaersSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent VAERS table; omitted means reported symptoms.",
+          "x-positional": 1
+        },
         "serious": {
           "anyOf": [
             {
@@ -185,14 +197,25 @@
           ],
           "description": "FAERS report flag: death or hospitalization; never a reaction outcome."
         },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Retained VAERS table for provider-free continuation."
+        },
         "source": {
           "$ref": "#/$defs/AdverseEventSource",
           "default": "faers",
-          "description": "FAERS by default; no source fallback."
+          "description": "FAERS by default; VAERS accepts only exact supported vaccine names."
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Literal drug text or MAUDE device generic-name phrase.",
+          "description": "Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.",
           "x-positional": 0
         }
       },
@@ -217,12 +240,14 @@
       "description": "An explicit source; never probe the other family.",
       "enum": [
         "faers",
-        "maude"
+        "maude",
+        "vaers"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Drug event reports.",
-        " Device event reports."
+        " Device event reports.",
+        " Explicit CDC WONDER vaccine aggregate tables."
       ]
     },
     "ComponentLabel": {
@@ -516,6 +541,7 @@
         "orphanet",
         "omim",
         "faers",
+        "vaers",
         "maude",
         "meddra",
         "gmdn",
@@ -581,6 +607,7 @@
         " Reviewed Orphadata Science content.",
         " Separately licensed OMIM payload only.",
         " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
         " openFDA MAUDE device event reports.",
         " Source-reported MedDRA reaction labels and versions.",
         " Source-carried GMDN device terminology.",
@@ -794,6 +821,20 @@
         "restricted"
       ],
       "type": "string"
+    },
+    "VaersSection": {
+      "description": "One independent CDC WONDER grouping.",
+      "enum": [
+        "symptoms",
+        "seriousness",
+        "age"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native reported symptom rows.",
+        " Reports classified by native seriousness.",
+        " Native age groups."
+      ]
     }
   },
   "$id": "biomcp.adverse_event_page/2",

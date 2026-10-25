@@ -59,7 +59,7 @@ fn check(source: &str) -> Check {
     }
     Ok(())
 }
-fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
+pub(super) fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
     for source in fs::read_dir(original).map_err(|e| e.to_string())? {
         let source = source.map_err(|e| e.to_string())?;
         if !source.path().is_dir() {
@@ -77,6 +77,7 @@ fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
                     .map_err(|e| e.to_string())?;
             let exchange = value.pointer_mut("/exchanges/0").ok_or("exchange")?;
             *exchange.get_mut("status").ok_or("status")? = json!(match fault {
+                "403" => 403,
                 "429" => 429,
                 "500" => 500,
                 _ => 200,
@@ -85,6 +86,10 @@ fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
                 json!(if fault == "timeout" { 180000 } else { 0 });
             *exchange.get_mut("body").ok_or("body")? =
                 json!({"kind":"text","value":"synthetic broken body"});
+            if fault == "403" {
+                *exchange.get_mut("content_type").ok_or("media")? = json!("text/html");
+                *exchange.get_mut("body").ok_or("body")? = json!({"kind":"text","value":"<html><body>Synthetic access denied</body></html>"});
+            }
             let exchanges = json!(vec![exchange.clone(); 5]);
             *value.get_mut("exchanges").ok_or("exchanges")? = exchanges;
             fs::write(target.join(file.file_name()), value.to_string())

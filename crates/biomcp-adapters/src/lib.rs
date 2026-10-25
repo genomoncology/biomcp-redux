@@ -113,3 +113,6 @@ pub mod cpic;
 
 /// Exact native FDA clearance retrieval.
 pub mod fda_510k;
+
+/// Explicit CDC WONDER vaccine report summaries.
+pub mod vaers;

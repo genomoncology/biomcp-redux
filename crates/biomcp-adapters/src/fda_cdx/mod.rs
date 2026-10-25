@@ -11,6 +11,7 @@ pub use search::{Search, search};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
+    user_agent: None,
     source: Source::FdaCdx,
     base: "https://www.fda.gov",
     terms: Terms {
