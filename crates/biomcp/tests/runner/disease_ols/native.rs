@@ -152,6 +152,11 @@ fn expectations(body: &Value) -> Result<serde_json::Map<String, Value>, String> 
             "/page/offset".into(),
             response.pointer("/start").unwrap_or(&Value::Null).clone(),
         );
+        let count=response.get("docs").and_then(Value::as_array).ok_or("missing source rows")?.len();
+        let offset=response.get("start").and_then(Value::as_u64).ok_or("missing source offset")?;
+        let total=response.get("numFound").and_then(Value::as_u64).ok_or("missing source total")?;
+        if offset+(count as u64)<total {expected.insert(format!("/next/{count}/kind"),json!("page"));}
+        else {expected.insert("/next".into(),json!({"count":count}));}
         for (i, hit) in response
             .pointer("/docs")
             .unwrap_or(&Value::Null)

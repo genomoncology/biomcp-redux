@@ -8,6 +8,7 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("disease-ols/max-page-keeps-all-candidate-actions",||maximum().map_err(Into::into)),
         Trial::test("disease-ols/native-order-and-literal-selectors", || {
             search().map_err(Into::into)
         }),
@@ -95,7 +96,7 @@ fn search_reply(request: &str) -> Result<String, String> {
     };
     let prefix = ontology.to_uppercase();
     let rows=(offset..(offset+5).min(11)).map(|i| json!({"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,"iri":format!("http://example.org/{i}"),"is_obsolete":i==3})).collect::<Vec<_>>();
-    Ok(json!({"response":{"numFound":11,"start":offset,"docs":rows}}).to_string())
+    Ok(json!({"response":{"numFound":total,"start":offset,"docs":rows}}).to_string())
 }
 fn search() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", search_reply)?;
@@ -202,41 +203,15 @@ fn wrong() -> Result<(), String> {
     Ok(())
 }
 fn failures() -> Result<(), String> {
-    for (status, body) in [
-        (
-            200,
-            "{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}",
-        ),
-        (429, "{}"),
-        (500, "{}"),
-        (200, "broken JSON"),
-    ] {
-        let stub = Stub::for_source_status(
-            "www.ebi.ac.uk",
-            "application/json",
-            move |_| Ok(body.into()),
-            move |_| status,
-        )?;
-        let env = setup(&stub)?;
-        let value = invoke(&env, &args(&["search", "disease", "empty"]), if status==200 && body.starts_with('{') {1}else{4})?;
-        let expected = if status == 200 && body.starts_with('{') {
-            "absent"
-        } else {
-            "failed"
-        };
-        if value.pointer("/status").unwrap_or(&Value::Null) != expected
-            || value.pointer("/sources/0/source").unwrap_or(&Value::Null) != "ols"
-            || value
-                .pointer("/sources/0/terms")
-                .unwrap_or(&Value::Null)
-                .as_str()
-                .is_none()
-        {
-            return Err(format!("failed source became empty page: {value}"));
-        }
-        stub.finish()?;
-    }
-    Ok(())
+    for (status,body) in [(200,"{\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]}}"),(429,"{}"),(500,"{}"),(200,"broken JSON")] {
+        let stub=Stub::for_source_status("www.ebi.ac.uk","application/json",move |_|Ok(body.into()),move |_|status)?;
+        let env=setup(&stub)?;let directory=env.root().join("failure-record");
+        let absent=status==200 && body.starts_with('{');let exit=if absent {1}else{4};
+        let words=["search","disease","empty"];
+        let mut q=args(&words);q.extend(["--record".into(),directory.to_string_lossy().into()]);invoke(&env,&q,exit)?;stub.finish()?;
+        let expected=if absent {"absent"}else{"failed"};
+        replay(&directory,json!([{"run":words,"mcp":words,"exit":exit,"is_error":!absent,"expect":{"/status":expected,"/sources/0/source":"ols","/sources/0/terms":"EMBL-EBI Terms of Use; ontology-specific rights"}}]))?;
+    }Ok(())
 }
 
 fn timeout()->Result<(),String> {
@@ -248,7 +223,7 @@ fn timeout()->Result<(),String> {
         *value.pointer_mut("/exchanges/0/delay_ms").ok_or("missing exchange delay")?=json!(20000);
         fs::write(file.path(),serde_json::to_vec(&value).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     }
-    replay(&directory,json!([{"run":words,"mcp":words,"exit":4,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"}}]))?;Ok(())
+    replay(&directory,json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"}}]))?;Ok(())
 }
 fn disabled()->Result<(),String> {
     let stub=Stub::for_source("www.ebi.ac.uk","application/json",exact_reply)?;
@@ -257,4 +232,14 @@ fn disabled()->Result<(),String> {
     for disabled in ["ols","mondo"] {let mut q=args(&words);q.extend(["--disable-sources".into(),disabled.into()]);let value=invoke(&env,&q,4)?;
         if value.pointer("/sources/0/reason").and_then(Value::as_str)!=Some("disabled") || value.get("result").is_some() {return Err(format!("disabled component leaked stored rows: {value}"));}}
     if stub.finish()?.len()!=1 {return Err("disabled component made a request".into());}Ok(())
+}
+
+fn maximum()->Result<(),String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",search_reply)?;
+    let env=setup(&stub)?;let directory=env.root().join("maximum");
+    let words=["search","disease","synthetic","--limit","50"];
+    record(&env,&words,&directory)?;
+    replay(&directory,json!([{"run":words,"mcp":words,"expect":{"/page/returned":50,"/page/total":51,"/next":{"count":51},"/next/49/kind":"disambiguate","/next/50/kind":"page"},"max_bytes":30000}]))?;
+    invoke(&env,&args(&["search","disease","synthetic","--limit","51"]),2)?;
+    if stub.finish()?.len()!=1 {return Err("invalid page limit reached source".into());}Ok(())
 }
