@@ -1,5 +1,11 @@
 # Drug slice investigation and proposed design
 
+## WHO finished pharmaceutical products export terms
+
+The restored WHO medicines source uses the [finished pharmaceutical products listing](https://extranet.who.int/prequal/medicines/prequalified/finished-pharmaceutical-products) and its linked CSV export. The listing supplies no export-specific reuse grant. The [WHO copyright policy](https://www.who.int/about/policies/publishing/copyright), reviewed on 2026-10-25, grants permission-free reuse only for material issued under its stated Creative Commons licence. It requires permission for other material, including licensing technical information in electronic database products and services, and for commercial uses. This does not establish that the CSV has that licence. Register the export as `restricted` with that copyright policy; infer no commercial grant. Keep native exports outside Git and use synthetic cases in the routine suite.
+
+The exact finished-product export is `https://extranet.who.int/prequal/medicines/prequalified/finished-pharmaceutical-products/export?page&_format=csv`. The approved capture makes one keyless GET with no retries or redirects. API and vaccine exports remain excluded. WHO rows state source-scoped prequalification and do not establish US or EU authorization. Earlier dropped-runtime entries below describe the initial question-bank ruling; the restored FPP region supersedes those entries only for finished pharmaceutical products.
+
 This design starts from `ecef1096239f8aeee8fcc6cbefc5720e89506035` and follows steps 1 to 4 of [the slice method](../slices.md). It serves cancer-care drug identity, authorization, label, target, biomarker-evidence and interaction questions. It proposes retrieval of attributed source facts. It authorizes no treatment interpretation, product code, new public service, or release. The PM reviews this design before filing implementation tickets.
 
 ## 1. Harvested clinical questions
