@@ -313,10 +313,17 @@ fn ceiling(id: &str, section: &str, offset: &str) -> Result<u64, String> {
     })
 }
 
-fn default_ceiling(_id: &str, section: &str) -> Result<u64, String> {
-    match section {
-        "genes" => Ok(5300),
-        "phenotypes" => Ok(5900),
-        _ => Err("unmeasured default section".into()),
-    }
+fn default_ceiling(id: &str, section: &str) -> Result<u64, String> {
+    // Derived-prefix local deliveries in j12430; measured comparable bytes + 15%.
+    Ok(match (id, section) {
+        ("MONDO:0018875", "genes") => 4403,
+        ("MONDO:0008667", "genes") => 4089,
+        ("MONDO:0019003", "genes") => 5020,
+        ("MONDO:0005835", "genes") => 4790,
+        ("MONDO:0018875", "phenotypes") => 3659,
+        ("MONDO:0008667", "phenotypes") => 4468,
+        ("MONDO:0019003", "phenotypes") => 3687,
+        ("MONDO:0800444", "phenotypes") => 4177,
+        _ => return Err("unmeasured default page".into()),
+    })
 }

@@ -413,27 +413,7 @@ fn defaults() -> Result<(), String> {
     let env = setup(&stub)?;
     for (section, default) in [("genes", 2), ("phenotypes", 1)] {
         for explicit in [false, true] {
-            let mut words = vec![
-                "get",
-                "disease",
-                "MONDO:0019003",
-                section,
-                "--source",
-                "monarch",
-            ];
-            if explicit {
-                words.extend(["--section-limit", "5"]);
-            }
-            let count = if explicit { 5 } else { default };
-            let directory = env.root().join(format!("{section}-{explicit}"));
-            record(&env, &words, &directory, 0)?;
-            replay(
-                &directory,
-                json!([{"run":words,"mcp":words,"expect":{
-                "/query/section_limit":count,"/page/returned":count,"/page/total":6,
-                "/next/*/kind":{"includes":"page"}
-            },"max_bytes":15000}]),
-            )?;
+            default_walk(&env, section, if explicit { 5 } else { default }, explicit)?;
         }
     }
     for value in ["0", "null", "51"] {
@@ -451,8 +431,52 @@ fn defaults() -> Result<(), String> {
         fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,"is_error":true,"expect":{"/status":"usage"},"max_bytes":500}]})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
         super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
     }
-    if stub.finish()?.len() != 4 {
+    if stub.finish()?.len() != 13 {
         return Err("default or explicit limit made an extra request".into());
+    }
+    Ok(())
+}
+
+fn default_walk(
+    env: &Environment,
+    section: &str,
+    count: usize,
+    explicit: bool,
+) -> Result<(), String> {
+    for offset in (0..6).step_by(count) {
+        let offset_text = offset.to_string();
+        let mut words = vec![
+            "get",
+            "disease",
+            "MONDO:0019003",
+            section,
+            "--source",
+            "monarch",
+        ];
+        if explicit {
+            words.extend(["--section-limit", "5"]);
+        }
+        words.extend(["--section-offset", &offset_text]);
+        let returned = count.min(6 - offset);
+        let ids = (offset..offset + returned)
+            .map(|i| format!("synthetic-{i}"))
+            .collect::<Vec<_>>();
+        let directory = env.root().join(format!("{section}-{explicit}-{offset}"));
+        record(env, &words, &directory, 0)?;
+        let mut expect = json!({"/query/section_limit":count,"/page/offset":offset,"/page/returned":returned,"/page/total":6,"/result/items/*/association/attribution/record":ids});
+        if offset + count < 6 {
+            expect["/next/*/kind"] = json!({"includes":"page"});
+        }
+        let cap = match (section, explicit) {
+            ("genes", false) => 3324,
+            ("genes", true) => 6922,
+            ("phenotypes", false) => 2083,
+            _ => 6646,
+        };
+        replay(
+            &directory,
+            json!([{"run":words,"mcp":words,"expect":expect,"max_bytes":cap}]),
+        )?;
     }
     Ok(())
 }

@@ -107,7 +107,11 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiseaseSection>,
     /// Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
-    #[serde(default, deserialize_with = "present")]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
     section_limit: Option<u32>,
     /// Native row offset within the selected section.
