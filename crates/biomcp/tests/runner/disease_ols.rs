@@ -59,16 +59,7 @@ fn invoke(env: &Environment, args: &[String], exit: i32) -> Result<Value, String
             String::from_utf8_lossy(&output.stdout)
         ));
     }
-    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    writeln!(
-        std::io::stderr(),
-        "OLS {:?}: full={} comparable={}",
-        args,
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len(),
-        super::source_terms::size(&value, "")?
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(value)
+    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
 fn args(words: &[&str]) -> Vec<String> {
     words.iter().map(|s| (*s).into()).collect()
@@ -91,7 +82,15 @@ fn record(env: &Environment, words: &[&str], directory: &Path) -> Result<Value, 
 fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    super::run_case(file.path(), &super::schema::Registry::embedded()?)
+    let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    writeln!(
+        std::io::stderr(),
+        "OLS replay: full={} comparable={}",
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len(),
+        super::source_terms::size(&value, "")?
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(value)
 }
 fn markdown(
     env: &Environment,
@@ -262,6 +261,9 @@ fn wrong() -> Result<(), String> {
             &args(&["get", "disease", "MONDO:0007607", "--source", "ols"]),
             4,
         )?;
+        if super::source_terms::size(&value, "")? > 365 {
+            return Err("wrong OLS identity exceeds its measured bound".into());
+        }
         if value.pointer("/status").unwrap_or(&Value::Null) != "failed"
             || value.get("result").is_some()
             || value.pointer("/problems/0/field").unwrap_or(&Value::Null) != "record"
@@ -300,9 +302,22 @@ fn failures() -> Result<(), String> {
         invoke(&env, &q, exit)?;
         stub.finish()?;
         let expected = if absent { "absent" } else { "failed" };
+        let reason = match status {
+            429 => Some("rate_limited"),
+            500 => Some("unavailable"),
+            _ if !absent => Some("bad_reply"),
+            _ => None,
+        };
+        let mut expect = json!({"/status":expected,"/sources/0/source":"ols","/sources/0/terms":"EMBL-EBI Terms of Use; ontology-specific rights"});
+        if let Some(reason) = reason {
+            expect
+                .as_object_mut()
+                .ok_or("missing expectation")?
+                .insert("/sources/0/reason".into(), json!(reason));
+        }
         replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":exit,"is_error":!absent,"expect":{"/status":expected,"/sources/0/source":"ols","/sources/0/terms":"EMBL-EBI Terms of Use; ontology-specific rights"}}]),
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":!absent,"expect":expect,"max_bytes":if absent {454} else {match status {429=>234,500=>233,_=>230}}}]),
         )?;
     }
     Ok(())
@@ -331,7 +346,7 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"}}]),
+        json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"},"max_bytes":244}]),
     )?;
     Ok(())
 }

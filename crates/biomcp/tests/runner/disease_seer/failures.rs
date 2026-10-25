@@ -288,6 +288,11 @@ pub(super) fn wrong_site() -> Result<(), String> {
     }
     let repaired = invoke(&env, &args(&words), 0)?;
     let cached = invoke(&env, &args(&words), 0)?;
+    if crate::runner::source_terms::size(&repaired, "")? > 2671
+        || crate::runner::source_terms::size(&cached, "")? > 2671
+    {
+        return Err("corrected site output exceeds its measured budget".into());
+    }
     if repaired.get("result").is_none() || cached.get("result") != repaired.get("result") {
         return Err("corrected SEER reply did not return and cache its native rows".into());
     }
