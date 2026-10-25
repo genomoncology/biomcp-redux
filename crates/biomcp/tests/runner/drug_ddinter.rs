@@ -166,8 +166,9 @@ fn seed_many(env: &Environment) -> Result<PathBuf, String> {
         let mut capture: Value =
             serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
-        if capture["url"]
-            .as_str()
+        if capture
+            .get("url")
+            .and_then(Value::as_str)
             .is_some_and(|url| url.ends_with("code_A.csv"))
         {
             let body = capture
@@ -201,6 +202,26 @@ fn interaction_page(env: &Environment, replay: &Path, args: &[String]) -> Result
         super::source_terms::size(&value, "")?
     )
     .map_err(|e| e.to_string())?;
+    let offset = args
+        .windows(2)
+        .find(|pair| pair[0] == "--section-offset")
+        .map_or("0", |pair| pair[1].as_str());
+    let (measured_full, measured_comparable): (usize, usize) =
+        if args.iter().any(|arg| arg == "--section-limit") {
+            (5546, 5443)
+        } else {
+            match offset {
+                "0" => (3133, 3030),
+                "5" => (3152, 3049),
+                "10" => (1141, 1038),
+                _ => return Err("unexpected default offset".into()),
+            }
+        };
+    if value.to_string().len() > (measured_full * 115).div_ceil(100)
+        || super::source_terms::size(&value, "")? > (measured_comparable * 115).div_ceil(100)
+    {
+        return Err("DDInter page exceeds measured full/comparable ceilings".into());
+    }
     Ok(value)
 }
 fn default_pages() -> Check {
@@ -220,7 +241,7 @@ fn default_pages() -> Check {
     let mut records = Vec::new();
     for (offset, count) in [(0, 5), (5, 5), (10, 1)] {
         let value = interaction_page(&env, &replay, &args)?;
-        if value["page"] != json!({"offset":offset,"returned":count,"total":11}) {
+        if value.get("page") != Some(&json!({"offset":offset,"returned":count,"total":11})) {
             return Err(format!(
                 "DDInter omitted limit lost its five-row page: {value}"
             ));
@@ -238,26 +259,50 @@ fn default_pages() -> Check {
             .and_then(Value::as_array)
             .into_iter()
             .flatten()
-            .find(|next| next["kind"] == "page");
+            .find(|next| next.get("kind") == Some(&json!("page")));
         if offset == 10 {
             if next.is_some() {
                 return Err("DDInter walk continued past total".into());
             }
         } else {
-            args = serde_json::from_value(next.ok_or("missing next page")?["args"].clone())
-                .map_err(|e| e.to_string())?;
+            args = serde_json::from_value(
+                next.ok_or("missing next page")?
+                    .get("args")
+                    .ok_or("next args")?
+                    .clone(),
+            )
+            .map_err(|e| e.to_string())?;
             if args.iter().any(|arg| arg == "--section-limit") {
                 return Err("DDInter omitted limit became an explicit override".into());
             }
         }
     }
+    explicit_ten(&env, &replay, base, &records)
+}
+fn explicit_ten(env: &Environment, replay: &Path, base: Vec<String>, records: &[Value]) -> Check {
     let mut explicit = base;
     explicit.extend(["--section-limit".into(), "10".into()]);
-    let page = interaction_page(&env, &replay, &explicit)?;
-    if page["page"] != json!({"offset":0,"returned":10,"total":11})
-        || page.pointer("/result/interactions/data/records") != Some(&json!(records[..10]))
+    let page = interaction_page(env, replay, &explicit)?;
+    if page.get("page") != Some(&json!({"offset":0,"returned":10,"total":11}))
+        || page.pointer("/result/interactions/data/records")
+            != Some(&json!(records.get(..10).ok_or("ten default records")?))
     {
         return Err("DDInter explicit ten changed rows or order".into());
+    }
+    let next: Vec<String> = serde_json::from_value(
+        page.pointer("/next/0/args")
+            .ok_or("explicit next page")?
+            .clone(),
+    )
+    .map_err(|e| e.to_string())?;
+    if !next
+        .windows(2)
+        .any(|pair| pair == ["--section-limit", "10"])
+        || !next
+            .windows(2)
+            .any(|pair| pair == ["--section-offset", "10"])
+    {
+        return Err("DDInter explicit continuation lost its limit or offset".into());
     }
     Ok(())
 }
