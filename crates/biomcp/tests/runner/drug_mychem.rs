@@ -42,7 +42,10 @@ fn check(n: usize) -> Check {
     ))
     .map_err(|e| e.to_string())?;
     let selected = plan.get(n).ok_or("plan index")?.clone();
-    let expected = selected["request"].as_str().ok_or("request")?.replace('+', "%20");
+    let expected = selected["request"]
+        .as_str()
+        .ok_or("request")?
+        .replace('+', "%20");
     let body = REPLIES.get(n).ok_or("fixture index")?.to_string();
     let stub = Stub::for_source_status(
         "mychem.info",

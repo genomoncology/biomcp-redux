@@ -65,13 +65,14 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             out.next.push((
                 StepKind::Page,
                 Action::Run {
-                    request: Request::SearchDrug(query.with_offset(offset)),
+                    request: Request::SearchDrug(query.at_offset(offset)),
                     fresh: cx.fresh,
                 },
             ));
         }
         out.body = QueryBody::DrugPage(page);
     }
+    component_outcomes(cx, &mut out, true);
     command.finish(deadline.remaining());
     out
 }
@@ -101,6 +102,7 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         };
         out.body = QueryBody::DrugCard(Some(card));
     }
+    component_outcomes(cx, &mut out, false);
     command.finish(deadline.remaining());
     out
 }
@@ -122,4 +124,16 @@ fn unsupported(source: DrugSource, mut out: Outcome) -> Outcome {
         Some(biomcp_types::Reason::Unsupported),
     ));
     out
+}
+
+fn component_outcomes(cx:&Ctx<'_>,out:&mut Outcome,search:bool) {
+    let Some(parent)=out.sources.first().cloned() else { return; };
+    for component in biomcp_adapters::drug_sources::components::COMPONENTS {
+        if search && matches!(component.name,"drugcentral"|"openfda") { continue; }
+        let Some(source)=component.native_source else { continue; };
+        let disabled=component.disabled(cx.fetch);
+        out.sources.push(biomcp_adapters::registry::outcome(source,
+            if disabled {biomcp_types::SourceState::Skipped}else{parent.state},
+            if disabled {Some(biomcp_types::Reason::Disabled)}else{parent.reason}));
+    }
 }

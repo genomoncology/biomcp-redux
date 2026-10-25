@@ -104,7 +104,6 @@
   "required": [
     "id",
     "source",
-    "name",
     "identity_level"
   ],
   "title": "DrugHeader",

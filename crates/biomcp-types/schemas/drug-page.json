@@ -46,7 +46,6 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"

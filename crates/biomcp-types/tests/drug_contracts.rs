@@ -6,6 +6,7 @@ use serde_json::json;
 #[test]
 fn published_ids_roundtrip_without_source_prefixes() {
     for value in [
+        "CHEBI:756472",
         "CHEMBL941",
         "EMEA/H/C/000406",
         "NDA021335",
@@ -53,6 +54,7 @@ fn selected_source_checks_its_native_identifier_grammar() {
     use biomcp_types::DrugSource;
     for (source, id) in [
         ("mychem", "KTUFNOKKBVMGRW-UHFFFAOYSA-N"),
+        ("mychem", "CHEBI:756472"),
         ("chembl", "CHEMBL941"),
         ("opentargets", "CHEMBL941"),
         ("ema", "EMEA/H/C/000406"),
@@ -72,6 +74,8 @@ fn selected_source_checks_its_native_identifier_grammar() {
         );
     }
     for (source, id) in [
+        ("mychem", "MYCHEM:CHEMBL941"),
+        ("mychem", "CHEMBL:CHEMBL941"),
         ("chembl", "Gleevec"),
         ("ema", "CHEMBL941"),
         ("drugsfda", "NDA1"),

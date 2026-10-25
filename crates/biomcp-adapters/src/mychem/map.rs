@@ -97,8 +97,8 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<DrugCard, BadReply> {
     let mut parents = Vec::new();
     for (component, c) in rows {
         aliases.extend(aliases_for(&c));
-        refs.extend(references_for(&id,component,&c)?);
-        parents.extend(parents_for(&id,component,&c)?);
+        refs.extend(references_for(&id, component, &c)?);
+        parents.extend(parents_for(&id, component, &c)?);
     }
     let mut names = Vec::new();
     for alias in aliases {
@@ -157,86 +157,94 @@ fn reference(
 }
 
 fn aliases_for(c: &Component) -> Vec<String> {
-    let mut aliases=Vec::new();
+    let mut aliases = Vec::new();
+    aliases.extend(
+        c.synonyms
+            .as_ref()
+            .map(strings)
+            .unwrap_or_default()
+            .into_iter()
+            .map(str::to_owned),
+    );
+    aliases.extend(
+        c.molecule_synonyms
+            .as_ref()
+            .into_iter()
+            .flatten()
+            .filter_map(|s| s.molecule_synonym.clone()),
+    );
+    for values in [&c.generic_name, &c.brand_name] {
         aliases.extend(
-            c.synonyms
+            values
                 .as_ref()
                 .map(strings)
                 .unwrap_or_default()
                 .into_iter()
                 .map(str::to_owned),
         );
-        aliases.extend(
-            c.molecule_synonyms
-                .as_ref()
-                .into_iter()
-                .flatten()
-                .filter_map(|s| s.molecule_synonym.clone()),
-        );
-        for values in [&c.generic_name, &c.brand_name] {
-            aliases.extend(
-                values
-                    .as_ref()
-                    .map(strings)
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(str::to_owned),
-            );
-        }
+    }
     aliases
 }
-fn references_for(id:&str,component:&str,c:&Component)->Result<Vec<DrugIdentityRelation>,BadReply> {
-    let mut refs=Vec::new();
-        for (relation, target) in [
-            (
-                "drugbank.id",
-                c.id.as_deref().filter(|_| component == "drugbank"),
-            ),
-            ("chembl.molecule_chembl_id", c.molecule_chembl_id.as_deref()),
-            (
-                "drugcentral.id",
-                c.id.as_deref().filter(|_| component == "drugcentral"),
-            ),
-            ("gtopdb.ligand_id", c.ligand_id.as_deref()),
-            ("gtopdb.chembl_id", c.chembl_id.as_deref()),
-            ("unii.unii", c.unii.as_deref()),
-            ("unii.rxcui", c.rxcui.as_deref()),
-            ("unii.ncit", c.ncit.as_deref()),
-            ("ndc.product_id", c.product_id.as_deref()),
-            ("ndc.productndc", c.productndc.as_deref()),
-            ("ndc.applicationnumber", c.applicationnumber.as_deref()),
-        ] {
-            if let Some(target) = target {
-                refs.push(reference(id, component, relation, target, name(&c))?);
-            }
+fn references_for(
+    id: &str,
+    component: &str,
+    c: &Component,
+) -> Result<Vec<DrugIdentityRelation>, BadReply> {
+    let mut refs = Vec::new();
+    for (relation, target) in [
+        (
+            "drugbank.id",
+            c.id.as_deref().filter(|_| component == "drugbank"),
+        ),
+        ("chembl.molecule_chembl_id", c.molecule_chembl_id.as_deref()),
+        (
+            "drugcentral.id",
+            c.id.as_deref().filter(|_| component == "drugcentral"),
+        ),
+        ("gtopdb.ligand_id", c.ligand_id.as_deref()),
+        ("gtopdb.chembl_id", c.chembl_id.as_deref()),
+        ("unii.unii", c.unii.as_deref()),
+        ("unii.rxcui", c.rxcui.as_deref()),
+        ("unii.ncit", c.ncit.as_deref()),
+        ("ndc.product_id", c.product_id.as_deref()),
+        ("ndc.productndc", c.productndc.as_deref()),
+        ("ndc.applicationnumber", c.applicationnumber.as_deref()),
+    ] {
+        if let Some(target) = target {
+            refs.push(reference(id, component, relation, target, name(&c))?);
         }
-        for (relation, values) in [
-            ("openfda.spl_set_id", &c.spl_set_id),
-            ("openfda.application_number", &c.application_number),
-        ] {
-            for target in values.as_ref().map(strings).unwrap_or_default() {
-                refs.push(reference(id, component, relation, target, name(&c))?);
-            }
+    }
+    for (relation, values) in [
+        ("openfda.spl_set_id", &c.spl_set_id),
+        ("openfda.application_number", &c.application_number),
+    ] {
+        for target in values.as_ref().map(strings).unwrap_or_default() {
+            refs.push(reference(id, component, relation, target, name(&c))?);
         }
+    }
     Ok(refs)
 }
-fn parents_for(id:&str,component:&str,c:&Component)->Result<Vec<DrugIdentityRelation>,BadReply> {
-    let mut parents=Vec::new();
-        if let Some(h) = &c.molecule_hierarchy {
-            for (relation, target) in [
-                (
-                    "chembl.molecule_hierarchy.parent_chembl_id",
-                    &h.parent_chembl_id,
-                ),
-                (
-                    "chembl.molecule_hierarchy.active_chembl_id",
-                    &h.active_chembl_id,
-                ),
-            ] {
-                if let Some(target) = target {
-                    parents.push(reference(id, component, relation, target, None)?);
-                }
+fn parents_for(
+    id: &str,
+    component: &str,
+    c: &Component,
+) -> Result<Vec<DrugIdentityRelation>, BadReply> {
+    let mut parents = Vec::new();
+    if let Some(h) = &c.molecule_hierarchy {
+        for (relation, target) in [
+            (
+                "chembl.molecule_hierarchy.parent_chembl_id",
+                &h.parent_chembl_id,
+            ),
+            (
+                "chembl.molecule_hierarchy.active_chembl_id",
+                &h.active_chembl_id,
+            ),
+        ] {
+            if let Some(target) = target {
+                parents.push(reference(id, component, relation, target, None)?);
             }
         }
+    }
     Ok(parents)
 }
