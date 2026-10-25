@@ -57,13 +57,12 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentityLevel": {
@@ -386,6 +385,16 @@
         "unii",
         "ndc",
         "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
         "cbioportal"
       ],
       "type": "string",
@@ -430,6 +439,16 @@
         " MyChem UNII identities.",
         " MyChem NDC package identities.",
         " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
         " Public cBioPortal with study-specific reuse terms."
       ]
     },
@@ -634,7 +653,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_page/1",
+  "$id": "biomcp.drug_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -680,7 +699,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_page/1",
+      "const": "biomcp.drug_page/2",
       "type": "string"
     },
     "sources": {

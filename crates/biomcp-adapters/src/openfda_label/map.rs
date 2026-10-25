@@ -27,13 +27,14 @@ impl Record {
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: Some(self.version.clone()),
-            name: self
-                .openfda
-                .brand_name
-                .first()
-                .or_else(|| self.openfda.generic_name.first())
-                .cloned()
-                .ok_or_else(bad)?,
+            name: Some(
+                self.openfda
+                    .brand_name
+                    .first()
+                    .or_else(|| self.openfda.generic_name.first())
+                    .cloned()
+                    .ok_or_else(bad)?,
+            ),
             identity_level: DrugIdentityLevel::SplSet,
             r#type: Some("SPL set".parse().map_err(|_| bad())?),
             url: Some(self.url()?),

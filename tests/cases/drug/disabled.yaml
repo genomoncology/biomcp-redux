@@ -1,0 +1,32 @@
+{
+  "feature": "drug-mychem",
+  "story": "A caller disables MyChem before any request, cache read, or replay and receives source policy without choosing an identity.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "imatinib",
+        "--disable-sources",
+        "mychem"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "imatinib",
+        "--disable-sources",
+        "mychem"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/query/source": "mychem",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "exit": 4,
+      "max_bytes": 1500,
+      "max_tokens": 375,
+      "is_error": true
+    }
+  ]
+}

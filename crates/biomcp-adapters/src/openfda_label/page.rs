@@ -42,6 +42,7 @@ impl Record {
             label: self.reference()?,
             heading: heading.parse().map_err(|_| bad())?,
             text: text.into(),
+            retrieved: None,
             fragments: selected.into(),
             offset,
             total: Some(total),

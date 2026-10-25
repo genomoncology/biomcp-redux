@@ -1,34 +1,8 @@
 use super::gene::{QueryInvalid, present};
 use crate::Text;
 use serde::{Deserialize, Serialize};
-biodata::wire_enum! {
-    /// One explicit OLS ontology.
-    #[derive(Default)]
-    DiseaseOntology {
-        /// MONDO ontology.
-        #[default]
-        Mondo => "mondo",
-        /// Disease Ontology.
-        Doid => "doid",
-        /// NCI Thesaurus.
-        Ncit => "ncit",
-    }
-}
-biodata::wire_enum! {
-    /// An explicit disease source without fallback.
-    #[derive(Default)]
-    DiseaseSource {
-        /// Ontology Lookup Service.
-        #[default]
-        Ols => "ols",
-        /// MyDisease exact annotation.
-        MyDisease => "mydisease",
-        /// Monarch source association rows.
-        Monarch => "monarch",
-        /// SEER native sites and statistics.
-        Seer => "seer",
-    }
-}
+mod source;
+pub use source::{DiseaseOntology, DiseaseSource};
 biodata::wire_enum! {
     /// One named disease page.
     DiseaseSection {

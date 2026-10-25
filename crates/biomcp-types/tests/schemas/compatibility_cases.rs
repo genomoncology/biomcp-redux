@@ -238,3 +238,17 @@ fn cli_flag_annotations_are_metadata_with_checked_shape() {
         assert!(check(&old, &invalid).is_err());
     }
 }
+
+#[test]
+fn compatibility_checks_unique_array_items_without_waiving_versions() {
+    let old = contract(json!({"rows":{"type":"array","items":{"type":"string"}}}));
+    let mut unique = old.clone();
+    unique["properties"]["rows"]["uniqueItems"] = json!(true);
+    assert!(check(&unique, &unique).is_ok());
+    assert!(check(&old, &unique).is_err());
+    assert!(check(&unique, &old).is_ok());
+    unique["$id"] = json!("biodata.example/2");
+    assert!(check(&old, &unique).is_ok());
+    unique["properties"]["rows"]["uniqueItems"] = json!("true");
+    assert!(check(&unique, &unique).is_err());
+}

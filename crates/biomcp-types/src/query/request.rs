@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover literal native drug candidates.
+    SearchDrug(crate::DrugSearch),
+    /// Read one exact source drug identity.
+    GetDrug(crate::DrugGet),
     /// Read source-native variant assertions.
     VariantAssertions(crate::VariantAssertionsGet),
     /// Read source ancestry observations.
