@@ -27,6 +27,7 @@ mod drug_registry;
 mod drug_retirements;
 mod evidence;
 mod faers_search;
+mod faers_get;
 mod gene_tables;
 mod held_proxy;
 mod help_examples;
@@ -528,6 +529,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(drug_registry::trials());
     trials.extend(adverse_event_registry::trials());
     trials.extend(faers_search::trials());
+    trials.extend(faers_get::trials());
     trials.extend(diagnostic_registry::trials());
     trials.extend(pgx_registry::trials());
     trials.extend(drug_retirements::trials());
