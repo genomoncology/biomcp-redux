@@ -1,5 +1,5 @@
 //! Lossless native cells and applied notices; malformed tables never enter cache.
-use biomcp_fetch::{BadReply, Reply, XmlReply};
+use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
 use biomcp_types::{VaersCell, VaersNotice, VaersRow, VaersSummary};
 use quick_xml::{Reader, events::{BytesStart, Event}};
 use serde::Deserialize;

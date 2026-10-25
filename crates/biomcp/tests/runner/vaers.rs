@@ -1,10 +1,14 @@
 //! Feature vaers-summary: explicit vaccine selection and failed source outcomes.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
+mod fixture;
+mod navigation;
+type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("vaers-summary/independent-tables-retained-walk-and-suppression", || navigation::run().map_err(Into::into)),
         Trial::test("vaers-summary/unsupported-vaccine-before-io", || {
             unsupported().map_err(Into::into)
         }),
@@ -68,4 +72,18 @@ fn broken() -> Result<(), String> {
         return Err("broken XML source was retried".into());
     }
     Ok(())
+}
+
+fn environment(stub: &Stub) -> Result<Environment, String> {
+    let env = Environment::new().map_err(|e|e.to_string())?;
+    let ca = env.root().join("ca.pem");
+    std::fs::write(&ca, &stub.certificate).map_err(|e|e.to_string())?;
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)})).map_err(|e|e.to_string())?;
+    Ok(env)
+}
+fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
+    let value = invoke(env, args.clone(), exit)?;
+    super::schema::Registry::embedded()?.validate(&value, &args, true)?;
+    if super::mcp::call_with_globals(env, &args, exit >= 2, &[])? != value { return Err("VAERS CLI/MCP mismatch".into()); }
+    Ok(value)
 }
