@@ -1,0 +1,118 @@
+{
+  "feature": "generated-help",
+  "story": "Drug help exposes source-scoped sections and options with two executable examples per command and bundle sync.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "drug"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "drug"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "query",
+            "--source",
+            "--limit",
+            "--offset",
+            "--name-selector"
+          ]
+        }
+      },
+      "max_bytes": 4096
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "drug"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "drug"
+      ],
+      "expect": {
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/sections/*/word": [
+          "xrefs",
+          "targets",
+          "indications",
+          "civic",
+          "label",
+          "approvals",
+          "regulatory",
+          "interactions"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "--source",
+            "--section",
+            "--section-limit",
+            "--section-offset",
+            "--label-section",
+            "--product-number",
+            "--claim-kind",
+            "--molecular-profile"
+          ]
+        }
+      },
+      "max_bytes": 7000
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "ema"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "ema"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "ema"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 1024
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "ddinter"
+      ],
+      "mcp": [
+        "help",
+        "sync",
+        "ddinter"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "ddinter"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 1024
+    }
+  ]
+}
