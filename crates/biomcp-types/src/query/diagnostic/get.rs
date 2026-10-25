@@ -61,6 +61,15 @@ impl TryFrom<GetFields> for DiagnosticGet {
                     && v.section_limit.is_none()
                     && v.section_offset == 0
             }
+            DiagnosticGetSource::Fda510k => {
+                v.id.as_str().parse::<biodata::DiagnosticDeviceId>().is_ok()
+                    && v.id.as_str().starts_with('K')
+                    && v.supplement.is_none()
+                    && v.section.is_none()
+                    && v.section_limit.is_none()
+                    && v.section_offset == 0
+                    && v.bundle_revision.is_none()
+            }
             DiagnosticGetSource::FdaPma => {
                 v.id.as_str().parse::<PmaNumber>().is_ok()
                     && matches!(

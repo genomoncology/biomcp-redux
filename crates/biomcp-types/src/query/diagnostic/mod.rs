@@ -10,7 +10,7 @@ biodata::wire_enum! {
 }
 biodata::wire_enum! {
     /// One explicit exact diagnostic record source.
-    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma" }
+    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma", #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
 }
 biodata::wire_enum! {
     /// Source-supported diagnostic sections; no all section.
@@ -44,7 +44,7 @@ struct SearchFields {
     /// Exact native test_type value.
     #[serde(default, rename = "type", skip_serializing_if = "Option::is_none")]
     test_type: Option<biodata::GtrTestType>,
-    /// Exact PMA application or application/supplement identity.
+    /// Exact PMA application, application/supplement or native K identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     device_id: Option<DiagnosticDeviceId>,
     /// Cell-owned typed NDA/BLA application.
@@ -86,7 +86,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || (v.source == DiagnosticSearchSource::FdaCdx && gtr)
             || v.device_id
                 .as_ref()
-                .is_some_and(|id| !id.as_str().starts_with('P'))
+                .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
             || v.condition_id.as_ref().is_some_and(|id| {
                 id.as_str()
                     .strip_prefix("MedGen:C")
@@ -119,7 +119,7 @@ impl DiagnosticSearch {
     pub fn test_type(&self) -> Option<biodata::GtrTestType> {
         self.0.test_type
     }
-    /// Selected PMA base or supplement.
+    /// Selected PMA base, supplement or native K identity.
     pub fn device_id(&self) -> Option<&DiagnosticDeviceId> {
         self.0.device_id.as_ref()
     }

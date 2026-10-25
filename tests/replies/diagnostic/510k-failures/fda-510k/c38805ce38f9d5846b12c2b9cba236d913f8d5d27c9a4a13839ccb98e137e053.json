@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-510k",
+  "url": "https://api.fda.gov/device/510k.json?search=k_number%3A%22K999993%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1792921798,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 16000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{}"
+      }
+    }
+  ]
+}

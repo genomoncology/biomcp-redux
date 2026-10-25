@@ -783,6 +783,7 @@
         "who-ivd",
         "fda-cdx",
         "fda-pma",
+        "fda-510k",
         "cpic",
         "clinpgx",
         "cbioportal"
@@ -847,6 +848,7 @@
         " WHO prequalified in vitro diagnostics.",
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms."

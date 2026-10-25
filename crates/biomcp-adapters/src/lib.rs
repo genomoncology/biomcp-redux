@@ -110,3 +110,6 @@ pub mod pgx_sources;
 pub mod clinpgx;
 /// CPIC publisher policy.
 pub mod cpic;
+
+/// Exact native FDA clearance retrieval.
+pub mod fda_510k;

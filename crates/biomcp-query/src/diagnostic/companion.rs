@@ -92,12 +92,14 @@ fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) 
             } => (device_ids, drug_applications),
         };
         for device in devices {
-            if !device.as_str().starts_with('P') || !seen.insert(device.as_str().to_owned()) {
+            if !(device.as_str().starts_with('P') || device.as_str().starts_with('K'))
+                || !seen.insert(device.as_str().to_owned())
+            {
                 continue;
             }
             let mut parts = device.as_str().split('/');
             if let Some(base) = parts.next() {
-                let mut fields = serde_json::json!({"id":base,"source":"fda-pma"});
+                let mut fields = serde_json::json!({"id":base,"source":if base.starts_with('K') {"fda-510k"}else{"fda-pma"}});
                 if let Some(supplement) = parts.next() {
                     fields
                         .as_object_mut()

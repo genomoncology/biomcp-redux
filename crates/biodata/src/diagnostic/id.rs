@@ -112,7 +112,7 @@ id!(
     DiagnosticDeviceId,
     device,
     "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
-    "Source device identifier; K, DEN and H identifiers imply no executable get."
+    "Source device identifier; DEN and H identifiers imply no executable get."
 );
 
 id!(

@@ -109,3 +109,4 @@ diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every 
 diagnostic-pma: Read an exact native FDA base or supplement and page its own regulatory statement and supplement headers. Cases: `tests/cases/diagnostic/pma.yaml`, `tests/cases/diagnostic/pma-failures.yaml`, `crates/biomcp/tests/runner/diagnostic_pma.rs`, `crates/biomcp/tests/runner/diagnostic_pma/walks.rs`, `crates/biomcp/tests/runner/diagnostic_pma/metadata.rs`.
 
 pgx-retirements: Refuse retired PGx spellings and unsupported source pairings before requests without rewriting queries or inferring phase. Cases: `crates/biomcp/tests/runner/pgx_retirements.rs`.
+diagnostic-510k: Retrieve one exact native FDA clearance with source-owned identity, native decision fields and companion-table navigation. Cases: `crates/biomcp/tests/runner/diagnostic_510k.rs`, `tests/cases/diagnostic/510k-failures.yaml`.

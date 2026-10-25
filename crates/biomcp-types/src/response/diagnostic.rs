@@ -132,6 +132,8 @@ pub enum DiagnosticCard {
     WhoIvdProduct(WhoIvdProduct),
     /// Exact native FDA base or supplement, never an application-wide inferred claim.
     PmaSubmission(DiagnosticPmaCard),
+    /// Exact native 510(k) clearance, separate from PMA approval.
+    Clearance(DiagnosticClearance),
 }
 impl ResponseBody for DiagnosticCard {
     const SCHEMA: &'static str = "biomcp.diagnostic_card/1";
@@ -304,4 +306,34 @@ pub struct DiagnosticPmaRegulatory {
     /// Native supplement_reason when supplied, including empty.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub supplement_reason: Option<Box<str>>,
+}
+
+/// Native 510(k) fields without harmonized or inferred clinical content.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticClearance {
+    /// Exact native K number.
+    pub k_number: biodata::DiagnosticDeviceId,
+    /// Native device_name; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub device_name: Option<Box<str>>,
+    /// Native applicant; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub applicant: Option<Box<str>>,
+    /// Native decision_code; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_code: Option<Box<str>>,
+    /// Native decision_description; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_description: Option<Box<str>>,
+    /// Native decision_date; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_date: Option<Box<str>>,
+    /// Native date_received; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub date_received: Option<Box<str>>,
+    /// Native product_code; missing and empty remain distinct.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product_code: Option<Box<str>>,
 }

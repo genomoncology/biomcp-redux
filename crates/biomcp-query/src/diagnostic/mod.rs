@@ -1,4 +1,5 @@
 //! Explicit diagnostic source ownership; reads consume only complete local snapshots.
+mod clearance;
 mod companion;
 mod get;
 mod next;

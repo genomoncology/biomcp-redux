@@ -14,6 +14,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::who_ivd::SPEC,
     &crate::fda_cdx::SPEC,
     &crate::fda_pma::SPEC,
+    &crate::fda_510k::SPEC,
     &crate::gwas::SPEC,
     &crate::myvariant::SPEC,
     &crate::allele_registry::SPEC,

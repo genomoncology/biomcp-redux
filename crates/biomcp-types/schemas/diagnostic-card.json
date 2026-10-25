@@ -138,8 +138,80 @@
             "sections"
           ],
           "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Exact native 510(k) clearance, separate from PMA approval.",
+          "properties": {
+            "applicant": {
+              "description": "Native applicant; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "date_received": {
+              "description": "Native date_received; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "decision_code": {
+              "description": "Native decision_code; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "decision_date": {
+              "description": "Native decision_date; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "decision_description": {
+              "description": "Native decision_description; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "device_name": {
+              "description": "Native device_name; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "k_number": {
+              "$ref": "#/$defs/DiagnosticDeviceId",
+              "description": "Exact native K number."
+            },
+            "kind": {
+              "const": "clearance",
+              "type": "string"
+            },
+            "product_code": {
+              "description": "Native product_code; missing and empty remain distinct.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "k_number"
+          ],
+          "type": "object"
         }
       ]
+    },
+    "DiagnosticDeviceId": {
+      "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
+      "type": "string"
     },
     "DiagnosticGet": {
       "additionalProperties": false,
@@ -214,7 +286,8 @@
       "enum": [
         "gtr",
         "who-ivd",
-        "fda-pma"
+        "fda-pma",
+        "fda-510k"
       ],
       "type": "string"
     },
@@ -656,6 +729,7 @@
         "who-ivd",
         "fda-cdx",
         "fda-pma",
+        "fda-510k",
         "cpic",
         "clinpgx",
         "cbioportal"
@@ -720,6 +794,7 @@
         " WHO prequalified in vitro diagnostics.",
         " FDA companion diagnostic device tables.",
         " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms."

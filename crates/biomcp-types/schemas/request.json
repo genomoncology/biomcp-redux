@@ -165,7 +165,8 @@
       "enum": [
         "gtr",
         "who-ivd",
-        "fda-pma"
+        "fda-pma",
+        "fda-510k"
       ],
       "type": "string"
     },
@@ -846,7 +847,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact PMA application or application/supplement identity."
+          "description": "Exact PMA application, application/supplement or native K identity."
         },
         "drug_application": {
           "anyOf": [

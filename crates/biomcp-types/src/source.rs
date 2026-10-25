@@ -119,6 +119,8 @@ canonical_enum! {
         FdaCdx => "fda-cdx",
         /// openFDA premarket approval submissions.
         FdaPma => "fda-pma",
+        /// FDA native 510(k) clearance records.
+        Fda510k => "fda-510k",
         /// Clinical Pharmacogenetics Implementation Consortium.
         Cpic => "cpic",
         /// ClinPGx pharmacogenomics annotations.

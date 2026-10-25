@@ -9,6 +9,7 @@ mod configuration;
 mod corporate;
 mod cpic;
 mod credential_containment;
+mod diagnostic_510k;
 mod diagnostic_cdx;
 mod diagnostic_gtr;
 mod diagnostic_pma;
@@ -549,6 +550,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(diagnostic_gtr::trials());
     trials.extend(diagnostic_who::trials());
     trials.extend(diagnostic_pma::trials());
+    trials.extend(diagnostic_510k::trials());
     trials.extend(diagnostic_cdx::trials());
     trials.extend(pgx_registry::trials());
     trials.extend(pgx_retirements::trials());
