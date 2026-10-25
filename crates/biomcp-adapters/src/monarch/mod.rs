@@ -18,6 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 
 mod map;
 mod raw;
+mod presence;
 use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{DiseaseAssociationItem, DiseaseGet, DiseaseSection};

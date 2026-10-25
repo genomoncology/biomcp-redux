@@ -34,7 +34,7 @@ pub(super) fn row(
                 evaluated: None,
             },
             primary_knowledge_source: raw.primary_knowledge_source,
-            aggregator_knowledge_source: raw.aggregator_knowledge_source,
+            aggregator_knowledge_source: raw.aggregators.0,
             provided_by: raw.provided_by,
             evidence: references(raw.has_evidence, raw.has_evidence_links),
             publications: references(raw.publications, raw.publications_links),

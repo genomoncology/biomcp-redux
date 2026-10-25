@@ -30,8 +30,8 @@ pub(super) struct Row {
     pub original_subject: Option<Curie>,
     pub original_object: Option<Curie>,
     pub primary_knowledge_source: Option<Curie>,
-    #[serde(default, deserialize_with = "aggregators")]
-    pub aggregator_knowledge_source: Option<Option<Box<[Curie]>>>,
+    #[serde(flatten)]
+    pub aggregators: super::presence::Aggregators,
     pub provided_by: Option<Text>,
     pub provided_by_link: Option<Link>,
     pub has_evidence: Option<Box<[Curie]>>,
@@ -68,11 +68,6 @@ pub(super) struct Row {
 pub(super) struct Link {
     pub url: Text,
 }
-type Aggregators = Option<Option<Box<[Curie]>>>;
-fn aggregators<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Aggregators, D::Error> {
-    Option::<Box<[Curie]>>::deserialize(d).map(Some)
-}
-
 #[derive(Debug, Deserialize)]
 pub(super) struct Reference {
     pub id: Curie,

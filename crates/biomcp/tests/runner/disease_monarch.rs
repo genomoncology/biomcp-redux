@@ -23,6 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "disease-monarch/only-distinct-checked-native-gene-identities-pivot",
         || checked_identities().map_err(Into::into),
     ));
+    trials.push(Trial::test("disease-monarch/native-aggregators-keep-missing-null-and-arrays", || aggregator_presence().map_err(Into::into)));
     trials.extend(failures::trials());
     trials
 }
@@ -306,6 +307,25 @@ fn checked_identities() -> Result<(), String> {
     )?;
     if stub.finish()?.len() != 1 {
         return Err("gene pivots fetched genes".into());
+    }
+    Ok(())
+}
+
+fn aggregator_presence() -> Result<(),String> {
+    for value in [None,Some(json!(null)),Some(json!([])),Some(json!(["infores:monarchinitiative"]))] {
+        let expected=value.clone();
+        let stub = Stub::for_source_status("api-v3.monarchinitiative.org","application/json",move |_| {
+            let mut row=association();let map=row.as_object_mut().ok_or("missing native row")?;
+            map.remove("aggregator_knowledge_source");
+            if let Some(value)=value.clone() {map.insert("aggregator_knowledge_source".into(),value);}
+            Ok(json!({"limit":5,"offset":0,"total":1,"items":[row]}).to_string())
+        }, |_|200)?;
+        let env=setup(&stub)?;
+        let words=["get","disease","MONDO:0019003","genes","--source","monarch"];
+        let result=invoke(&env,&words,0)?;
+        if result.pointer("/result/items/0/association/aggregator_knowledge_source") != expected.as_ref() {return Err("native missing/null/list aggregators collapsed".into());}
+        if super::source_terms::size(&result,"")? >1983 {return Err("aggregator mechanics page exceeds measured bound".into());}
+        if stub.finish()?.len()!=1 {return Err("unexpected aggregator source request count".into());}
     }
     Ok(())
 }
