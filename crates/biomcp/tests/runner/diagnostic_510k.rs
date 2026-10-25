@@ -99,7 +99,9 @@ fn run(mode: &'static str) -> Result<(), String> {
 fn validate(mode: &str, v: &Value) -> Result<(), String> {
     let full = serde_json::to_vec(v).map_err(|e| e.to_string())?.len() + 1;
     if mode == "card" && full > 873 || mode == "absent" && full > 325 {
-        return Err(format!("clearance envelope exceeds measured budget: {full}"));
+        return Err(format!(
+            "clearance envelope exceeds measured budget: {full}"
+        ));
     }
     if mode == "card" {
         for (field, expected) in [
