@@ -6,6 +6,7 @@ mod corporate;
 mod credential_containment;
 mod disease_ols;
 mod disease_registry;
+mod disease_seer;
 mod drug_civic;
 mod drug_civic_fixtures;
 mod drug_mychem;
@@ -311,6 +312,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(drug_mychem::trials());
     trials.extend(disease_registry::trials());
     trials.extend(disease_ols::trials());
+    trials.extend(disease_seer::trials());
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
@@ -485,4 +487,7 @@ mod variant_condition_relationship;
 
 pub(super) fn disease_native(path: &Path) -> Result<(), String> {
     disease_ols::native(path)
+}
+pub(super) fn seer_native(path: &Path) -> Result<(), String> {
+    disease_seer::native(path)
 }
