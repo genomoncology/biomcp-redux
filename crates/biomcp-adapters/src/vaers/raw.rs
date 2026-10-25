@@ -229,10 +229,39 @@ fn table_rows(table: &Node) -> Result<(Vec<VaersRow>, VaersRow), BadReply> {
 }
 
 fn scope(dataset: &Node, request: &Node) -> Result<VaersScope, BadReply> {
-    let variable = dataset.children.iter().find(|n| n.name == "variable" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "D8.V12")).ok_or(BadReply)?;
-    let selected = request.child("variable-selections")?.children.iter().find(|n| n.name == "variable" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "D8.V12")).ok_or(BadReply)?.child("value")?;
-    if selected.attrs.get("code").is_none_or(|v| v.as_ref() != "00") { return Err(BadReply); }
-    let value = variable.children.iter().find(|n| n.name == "value" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "00")).ok_or(BadReply)?;
-    if !value.attrs.contains_key("label") { return Err(BadReply); }
-    Ok(VaersScope { variable: variable.attrs.clone(), value: value.attrs.clone() })
+    let variable = dataset
+        .children
+        .iter()
+        .find(|n| {
+            n.name == "variable" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "D8.V12")
+        })
+        .ok_or(BadReply)?;
+    let selected = request
+        .child("variable-selections")?
+        .children
+        .iter()
+        .find(|n| {
+            n.name == "variable" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "D8.V12")
+        })
+        .ok_or(BadReply)?
+        .child("value")?;
+    if selected
+        .attrs
+        .get("code")
+        .is_none_or(|v| v.as_ref() != "00")
+    {
+        return Err(BadReply);
+    }
+    let value = variable
+        .children
+        .iter()
+        .find(|n| n.name == "value" && n.attrs.get("code").is_some_and(|v| v.as_ref() == "00"))
+        .ok_or(BadReply)?;
+    if !value.attrs.contains_key("label") {
+        return Err(BadReply);
+    }
+    Ok(VaersScope {
+        variable: variable.attrs.clone(),
+        value: value.attrs.clone(),
+    })
 }

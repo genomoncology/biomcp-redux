@@ -695,6 +695,31 @@
       ],
       "type": "object"
     },
+    "VaersScope": {
+      "additionalProperties": false,
+      "description": "Fixed native geographic selection, without a caller-selectable geography filter.",
+      "properties": {
+        "value": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Exact selected native value and its own catalog label.",
+          "type": "object"
+        },
+        "variable": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Native variable attributes, including source name and code.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "variable",
+        "value"
+      ],
+      "type": "object"
+    },
     "VaersSection": {
       "description": "One independent CDC WONDER grouping.",
       "enum": [
@@ -773,6 +798,10 @@
           },
           "type": "array"
         },
+        "scope": {
+          "$ref": "#/$defs/VaersScope",
+          "description": "Native fixed State / Territory selection."
+        },
         "vaccine": {
           "additionalProperties": {
             "type": "string"
@@ -783,6 +812,7 @@
       },
       "required": [
         "vaccine",
+        "scope",
         "grouping",
         "dataset",
         "measures",

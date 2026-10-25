@@ -112,10 +112,7 @@ fn guidance(
                 {
                     return Some(ErrorMessage::VaersInfluenza);
                 }
-                if !["MMR", "COVID19", "COVID-19 vaccine"]
-                    .iter()
-                    .any(|v| text.eq_ignore_ascii_case(v))
-                {
+                if biomcp_types::vaers_vaccine_code(text).is_none() {
                     return Some(ErrorMessage::VaersVaccine);
                 }
                 if serious.is_some() {

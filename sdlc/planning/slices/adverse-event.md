@@ -570,10 +570,10 @@ The command case helper `vaers/budget.rs` enforces each observed envelope size p
 
 | Synthetic response | Full compact bytes | Comparable compact bytes |
 | --- | ---: | ---: |
-| Symptoms first page | 1856 | 1744 |
-| Symptoms continuation | 1698 | 1586 |
-| Seriousness | 1781 | 1669 |
-| Age | 1782 | 1670 |
+| Symptoms first page | 1993 | 1881 |
+| Symptoms continuation | 1835 | 1723 |
+| Seriousness | 1918 | 1806 |
+| Age | 1919 | 1807 |
 | 403 HTML | 294 | 182 |
 | 429 | 298 | 186 |
 | 500 | 297 | 185 |

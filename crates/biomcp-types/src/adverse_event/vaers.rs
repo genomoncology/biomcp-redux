@@ -24,7 +24,8 @@ impl VaersSection {
         }
     }
 }
-pub(super) fn vaccine(text: &str) -> Option<&'static str> {
+/// Resolve only exact supported vaccine codes or display names, ignoring case.
+pub fn vaers_vaccine_code(text: &str) -> Option<&'static str> {
     if text.eq_ignore_ascii_case("MMR") {
         Some("MMR")
     } else if text.eq_ignore_ascii_case("COVID19") || text.eq_ignore_ascii_case("COVID-19 vaccine")

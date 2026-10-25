@@ -149,6 +149,7 @@ pub use adverse_event::{
     AdverseEventReaction, AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
     AdverseEventSearch, AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
     VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,
+    vaers_vaccine_code,
 };
 
 mod pgx;

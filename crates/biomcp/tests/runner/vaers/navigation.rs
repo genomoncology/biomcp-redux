@@ -31,7 +31,9 @@ pub(super) fn run() -> Check {
     let first = both(&env, args.clone(), 0)?;
     if first.pointer("/result/scope/variable/code") != Some(&json!("D8.V12"))
         || first.pointer("/result/scope/value/code") != Some(&json!("00"))
-        || first.pointer("/result/scope/value/label") != Some(&json!("The United States/Territories/Unknown")) {
+        || first.pointer("/result/scope/value/label")
+            != Some(&json!("The United States/Territories/Unknown"))
+    {
         return Err(format!("native geographic scope omitted: {first}"));
     }
     if first.pointer("/result/report_total") != Some(&json!("5"))

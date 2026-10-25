@@ -37,9 +37,6 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("vaers-summary/unsupported-vaccine-before-io", || {
             unsupported().map_err(Into::into)
         }),
-        Trial::test("vaers-summary/broken-xml-is-not-zero-reports", || {
-            broken().map_err(Into::into)
-        }),
     ]
 }
 
@@ -76,33 +73,6 @@ fn unsupported() -> Result<(), String> {
     }
     if listener.accept().is_ok() {
         return Err("unsupported vaccine opened a source connection".into());
-    }
-    Ok(())
-}
-
-fn broken() -> Result<(), String> {
-    let stub = Stub::for_source("wonder.cdc.gov", "application/xml", |_| {
-        Ok("<synthetic-broken>".into())
-    })?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let ca = env.root().join("ca.pem");
-    std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
-        .map_err(|e| e.to_string())?;
-    let args = words("MMR");
-    let value = invoke(&env, args.clone(), 4)?;
-    super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-    if value.get("status") != Some(&json!("failed"))
-        || value.get("result").is_some()
-        || value.pointer("/sources/0/source") != Some(&json!("vaers"))
-        || value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
-        || value.pointer("/sources/0/terms_url")
-            != Some(&json!("https://wonder.cdc.gov/datause.html"))
-    {
-        return Err(format!("broken XML became an aggregate answer: {value}"));
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("broken XML source was retried".into());
     }
     Ok(())
 }

@@ -2,7 +2,14 @@ use super::{Check, both, environment, words};
 use crate::runner::network_stub::Stub;
 use serde_json::json;
 pub(super) fn run() -> Check {
-    for fault in ["oversized", "row-width", "vaccine", "group", "scope", "html"] {
+    for fault in [
+        "oversized",
+        "row-width",
+        "vaccine",
+        "group",
+        "scope",
+        "html",
+    ] {
         let stub = Stub::for_sources(
             &["wonder.cdc.gov"],
             |_| "application/xml",

@@ -16,4 +16,4 @@ pub use selectors::{
 };
 
 mod vaers;
-pub use vaers::{VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary};
+pub use vaers::{VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary, vaers_vaccine_code};

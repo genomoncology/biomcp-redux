@@ -27,6 +27,7 @@ pub(super) fn run() -> Check {
         let mut args = globals.clone();
         args.extend(words("MMR"));
         let value = invoke(&replay, args, 4)?;
+        crate::runner::schema::Registry::embedded()?.validate(&value, &words("MMR"), true)?;
         assert_failed(&value, reason)?;
         super::budget::check(&value)?;
         if crate::runner::mcp::call_with_globals(&replay, &words("MMR"), true, &globals)? != value {
@@ -38,6 +39,9 @@ pub(super) fn run() -> Check {
 fn assert_failed(value: &Value, reason: &str) -> Check {
     if value.get("status") != Some(&json!("failed"))
         || value.get("result").is_some()
+        || value.pointer("/sources/0/source") != Some(&json!("vaers"))
+        || value.pointer("/sources/0/state") != Some(&json!("failed"))
+        || value.pointer("/sources/0/terms_url") != Some(&json!("https://wonder.cdc.gov/datause.html"))
         || value.pointer("/sources/0/reason") != Some(&json!(reason))
         || value.pointer("/sources/0/use") != Some(&json!("restricted"))
         || value.pointer("/sources/0/terms") != Some(&json!("CDC WONDER data use restrictions"))

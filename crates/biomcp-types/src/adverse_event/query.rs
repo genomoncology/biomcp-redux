@@ -66,7 +66,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
             || (v.source != AdverseEventSource::Vaers
                 && (v.section.is_some() || v.snapshot.is_some()))
             || (v.source == AdverseEventSource::Vaers
-                && super::vaers::vaccine(v.text.as_str()).is_none())
+                && super::vaers::vaers_vaccine_code(v.text.as_str()).is_none())
             || (v.source != AdverseEventSource::Faers
                 && (v.reaction.is_some()
                     || v.serious.is_some()
@@ -110,7 +110,7 @@ impl AdverseEventSearch {
     }
     /// Exact supported vaccine code, never an inferred code bridge.
     pub fn vaccine(&self) -> Option<&'static str> {
-        super::vaers::vaccine(self.0.text.as_str())
+        super::vaers::vaers_vaccine_code(self.0.text.as_str())
     }
     /// Literal source text.
     pub fn text(&self) -> &Text {
