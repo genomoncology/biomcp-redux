@@ -448,3 +448,6 @@ fn fresh_bundle_refresh_is_shared_by_one_leg_and_its_batch_children() {
 mod download;
 #[path = "bundle/rows.rs"]
 mod rows;
+
+#[path = "bundle/json.rs"]
+mod json;
