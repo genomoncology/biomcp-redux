@@ -32,7 +32,17 @@ pub(super) fn next(
         biomcp_types::QueryBody::VariantCard(card)
             if card.resolution == biomcp_types::VariantResolution::Candidates
     );
-    network_steps(&mut steps, &result.sources, candidates.then_some(has_more));
+    if matches!(
+        &result.body,
+        biomcp_types::QueryBody::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(
+            _
+        )))
+    ) {
+        append_network_steps(&mut steps, &result.sources);
+        steps.truncate(5);
+    } else {
+        network_steps(&mut steps, &result.sources, candidates.then_some(has_more));
+    }
     Ok(source_steps(fetch, steps))
 }
 
