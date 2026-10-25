@@ -22,6 +22,7 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
     let body: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
     let q = at(&body, "/query").as_str().ok_or("missing GraphQL")?;
     let v = at(&body, "/variables");
+    check_request(q, v)?;
     // Synthetic connection tests candidate separation using identities observed in the source proof.
     if at(v, "/q").as_str() == Some("synthetic distinct therapy identities") {
         return serde_json::to_string(&serde_json::json!({"data":{"therapies":{
@@ -86,4 +87,54 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
 
 fn at<'a>(value: &'a Value, path: &str) -> &'a Value {
     value.pointer(path).unwrap_or(&Value::Null)
+}
+
+fn check_request(query: &str, variables: &Value) -> Result<(), String> {
+    if let Some(text) = at(variables, "/q").as_str() {
+        let count = if text == "synthetic distinct therapy identities" {
+            2
+        } else {
+            1
+        };
+        if !query.contains(&format!("therapies(name:$q,first:{count},after:$after)")) {
+            return Err("candidate request changed its literal selector or page size".into());
+        }
+        return Ok(());
+    }
+    let id = at(variables, "/id").as_u64().ok_or("missing therapy ID")?;
+    if !matches!(id, 5 | 84 | 454) || !query.contains("therapy(id:$id){id name link}") {
+        return Err("undeclared exact therapy request".into());
+    }
+    let mut profile = String::new();
+    for suffix in query.split("molecularProfileId:").skip(1) {
+        let value = suffix.split_once(',').ok_or("missing profile delimiter")?.0;
+        if id != 5 || !matches!(value, "1" | "65") {
+            return Err(format!("undeclared selected profile {value}"));
+        }
+        let selected = format!(",molecularProfileId:{value}");
+        if !profile.is_empty() && profile != selected {
+            return Err("mixed selected profiles".into());
+        }
+        profile = selected;
+    }
+    let mut streams = 0;
+    for field in ["evidenceItems", "assertions"] {
+        if query.contains(&format!("{field}(")) {
+            if !query.contains(&format!(
+                "{field}(therapyId:$id{profile},status:ACCEPTED,first:1,after:$after)"
+            )) {
+                return Err(format!(
+                    "{field} changed its therapy, status or page selector"
+                ));
+            }
+            if !profile.is_empty() && (field == "evidenceItems") != profile.ends_with(":1") {
+                return Err("undeclared profile and claim stream pair".into());
+            }
+            streams += 1;
+        }
+    }
+    if streams == 0 {
+        return Err("missing claim collection".into());
+    }
+    Ok(())
 }
