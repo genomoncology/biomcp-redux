@@ -24,6 +24,11 @@
           [
             "sync",
             "who-ivd"
+          ],
+          [
+            "sync",
+            "who-ivd",
+            "--fresh"
           ]
         ]
       }

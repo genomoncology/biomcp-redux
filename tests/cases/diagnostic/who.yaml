@@ -101,6 +101,24 @@
       },
       "exit": 1,
       "is_error": false
+    },
+    {
+      "run": [
+        "sync",
+        "who-ivd",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "who-ivd",
+        "--fresh"
+      ],
+      "max_bytes": 179,
+      "max_tokens": 45,
+      "expect": {
+        "/schema": "biomcp.sync/3",
+        "/result/rows": 10
+      }
     }
   ]
 }
