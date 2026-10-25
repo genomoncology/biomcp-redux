@@ -3,6 +3,7 @@ story: Explicit EMA synchronization imports one complete synthetic medicines fil
 replay: drug/ema-synthetic
 steps:
   - run: [sync, ema]
+    mcp: [sync, ema]
     expect:
       /schema: biomcp.sync/2
       /status: complete
