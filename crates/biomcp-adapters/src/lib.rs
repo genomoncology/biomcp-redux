@@ -70,5 +70,5 @@ mod ddinter;
 mod drugsfda;
 mod ema;
 mod mychem;
-mod openfda_label;
+pub mod openfda_label;
 mod opentargets;
