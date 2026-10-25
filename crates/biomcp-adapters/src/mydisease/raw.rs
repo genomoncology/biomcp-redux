@@ -24,7 +24,7 @@ impl Reply for Document {
     }
 }
 impl Document {
-    pub fn matches(&self, id: &Curie, fields: &str) -> bool {
+    pub(super) fn matches(&self, id: &Curie, fields: &str) -> bool {
         let mondo = fields
             .split(',')
             .any(|f| f == "mondo")
