@@ -957,6 +957,10 @@
         "hpo",
         "orphanet",
         "omim",
+        "faers",
+        "maude",
+        "meddra",
+        "gmdn",
         "cbioportal"
       ],
       "type": "string",
@@ -1011,6 +1015,10 @@
         " HPO-published annotations.",
         " Reviewed Orphadata Science content.",
         " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
         " Public cBioPortal with study-specific reuse terms."
       ]
     },

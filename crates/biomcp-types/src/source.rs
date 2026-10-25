@@ -103,6 +103,14 @@ canonical_enum! {
         Orphanet => "orphanet",
         /// Separately licensed OMIM payload only.
         Omim => "omim",
+        /// openFDA FAERS drug adverse event reports.
+        Faers => "faers",
+        /// openFDA MAUDE device event reports.
+        Maude => "maude",
+        /// Source-reported MedDRA reaction labels and versions.
+        Meddra => "meddra",
+        /// Source-carried GMDN device terminology.
+        Gmdn => "gmdn",
         /// Public cBioPortal with study-specific reuse terms.
         Cbioportal => "cbioportal",
     }
