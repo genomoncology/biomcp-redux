@@ -36,8 +36,7 @@ pub fn read(
         );
     let endpoint = SPEC
         .post_form("/controller/datarequest/D8")
-        .fresh(Freshness::Days(1))
-        .bytes(2 * 1024 * 1024);
+        .fresh(Freshness::Days(1));
     let (reply, _) = leg.xml_received_checked::<raw::Native>(
         &endpoint,
         &[

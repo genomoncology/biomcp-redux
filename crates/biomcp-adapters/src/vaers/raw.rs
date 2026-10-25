@@ -7,6 +7,8 @@ use quick_xml::{
 };
 use serde::Deserialize;
 
+const MAX_XML: usize = 2 * 1024 * 1024;
+
 #[derive(Deserialize)]
 pub(super) struct Native(pub VaersSummary);
 impl Reply for Native {
@@ -16,6 +18,9 @@ impl Reply for Native {
 }
 impl XmlReply for Native {
     fn decode_xml(xml: &str) -> Result<Self, BadReply> {
+        if xml.len() > MAX_XML {
+            return Err(BadReply);
+        }
         map(document(xml)?).map(Self)
     }
 }
