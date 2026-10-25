@@ -96,7 +96,13 @@ fn parity() -> Result<(), String> {
         ),
         (
             "article 'AKT1 E17K' --disable-sources oncokb",
-            vec!["search", "article", "AKT1 E17K", "--disable-sources", "oncokb"],
+            vec![
+                "search",
+                "article",
+                "AKT1 E17K",
+                "--disable-sources",
+                "oncokb",
+            ],
             "article/search/synthetic-card-step",
         ),
     ] {
@@ -122,7 +128,7 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("CLI rows missing")?;
     let search_cap = match args.get(1).map(String::as_str) {
-        Some("article") => 1637,
+        Some("article") => 1732,
         Some("trial") => 8192,
         _ => 2864,
     };
@@ -134,12 +140,16 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
     if rows.len() != hits.len() || hits.is_empty() {
         return Err("research dropped source rows".into());
     }
+    headers(rows, hits, args.get(1).ok_or("entity missing")?)?;
     let hit = if capture == "variant/search/raw" {
         hits.get(1)
     } else {
         hits.first()
     }
     .ok_or("hit missing")?;
+    if args.get(1).is_some_and(|s| s == "variant") && hit.get("url") != Some(&json!("https://myvariant.info/v1/variant/chr7%3Ag.140453136A%3ET")) {
+        return Err("variant citation does not name the exact source record".into());
+    }
     let id = hit
         .get("id")
         .and_then(Value::as_str)
@@ -155,15 +165,16 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
     if args.iter().any(|a| a == "--disable-sources") && !id.contains("--disable-sources oncokb") {
         return Err("get id dropped search source restrictions".into());
     }
-    fetch_parity(&env, &args, id, &recording)?;
+    fetch_parity(&env, &args, hit, &recording)?;
     Ok(())
 }
 fn fetch_parity(
     env: &Environment,
     args: &[String],
-    id: &str,
+    hit: &Value,
     recording: &std::path::Path,
 ) -> Result<(), String> {
+    let id = hit.get("id").and_then(Value::as_str).ok_or("hit id")?;
     // Search and get captures are retained separately; exact ids come from the wrapper.
     let get_capture = match args.get(1).map(String::as_str) {
         Some("article") => "article/search/synthetic-card-step",
@@ -179,12 +190,13 @@ fn fetch_parity(
         let cli_get = command(env, &get, &fetch_globals, 0)?;
         let fetched = call(env, "fetch", json!({"id":id}), &fetch_globals)?;
         let cap = match args.get(1).map(String::as_str) {
-            Some("article") => 6012,
+            Some("article") => 6289,
             Some("trial") => 5047,
             _ => 2451,
         };
         bounded(&fetched, cap)?;
-        if fetched.get("metadata") != Some(&cli_get) || fetched.get("id") != Some(&json!(id)) {
+        if fetched.get("metadata") != Some(&cli_get) || fetched.get("id") != Some(&json!(id))
+            || fetched.get("title") != hit.get("title") || fetched.get("url") != hit.get("url") {
             return Err("fetch differs from CLI".into());
         }
         let mut md = get;
@@ -287,10 +299,28 @@ fn unprojectable() -> Result<(), String> {
     Ok(())
 }
 
-// Ceilings use full compact projections measured in j13609 plus fifteen percent.
+// Ceilings use full compact projections measured in the focused retained-fixture run plus fifteen percent.
 fn bounded(value: &Value, cap: usize) -> Result<(), String> {
     if value.to_string().len() > cap {
         return Err(format!("research output exceeds {cap} bytes"));
+    }
+    Ok(())
+}
+
+fn headers(rows: &[Value], hits: &[Value], entity: &str) -> Result<(), String> {
+    for (row, hit) in rows.iter().zip(hits) {
+        let (native_id, title, url) = match entity {
+            "article" => {
+                let id = row.get("pmid").and_then(Value::as_str).ok_or("PMID missing")?;
+                (id, row.pointer("/header/title"), format!("https://pubmed.ncbi.nlm.nih.gov/{id}/"))
+            }
+            "trial" => (row.get("nct_id").and_then(Value::as_str).ok_or("NCT id")?, row.get("title"), row.get("url").and_then(Value::as_str).ok_or("source URL")?.to_owned()),
+            _ => (row.pointer("/record/id").and_then(Value::as_str).ok_or("variant key")?, row.pointer("/record/id"), String::new()),
+        };
+        let args = hit.get("id").and_then(Value::as_str).and_then(shlex::split).ok_or("get arguments")?;
+        if !args.iter().any(|s| s == native_id) || hit.get("title") != title || (!url.is_empty() && hit.get("url") != Some(&json!(url))) {
+            return Err("research header differs from source row".into());
+        }
     }
     Ok(())
 }

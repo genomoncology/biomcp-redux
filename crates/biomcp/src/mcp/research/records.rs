@@ -78,8 +78,15 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
             .collect::<Option<Vec<_>>>()?;
         let command = args.iter().position(|s| s == "get")?;
         if args.get(command + 1).is_some_and(|s| s == entity) && args.iter().any(|s| s == id) {
-            Some(args.into_iter().enumerate().filter_map(|(index, arg)| (index != command).then_some(arg)).collect())
-        } else { None }
+            Some(
+                args.into_iter()
+                    .enumerate()
+                    .filter_map(|(index, arg)| (index != command).then_some(arg))
+                    .collect(),
+            )
+        } else {
+            None
+        }
     })
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {

@@ -340,7 +340,7 @@ fn discovery() -> Check {
         "RESEARCH_DESCRIPTION_BYTES={descriptions}"
     )
     .map_err(|e| e.to_string())?;
-    if descriptions > 250 {
+    if descriptions > 226 {
         return Err("research descriptions exceed budget".into());
     }
     discovery_description(text)
