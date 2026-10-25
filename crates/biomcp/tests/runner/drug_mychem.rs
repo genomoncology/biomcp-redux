@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    [
+    let mut trials:Vec<_> = [
         "imatinib-default",
         "trastuzumab-default",
         "deruxtecan-default",
@@ -23,7 +23,9 @@ pub(super) fn trials() -> Vec<Trial> {
             check(n).map_err(Into::into)
         })
     })
-    .collect()
+    .collect();
+    trials.push(Trial::test("drug-mychem/reject-wrong-identity-before-cache",||wrong_identity().map_err(Into::into)));
+    trials
 }
 const REPLIES: [&str; 9] = [
     include_str!("../../../../tests/fixtures/drug/mychem/001.json"),
@@ -80,10 +82,8 @@ fn check(n: usize) -> Check {
         ));
     }
     let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    println!(
-        "drug native case {n}: {bytes} bytes; {} tokens",
-        bytes.div_ceil(4)
-    );
+    let comparable=super::source_terms::size(&value, "")?;
+    println!("drug native case {n}: full {bytes} bytes/{} tokens; comparable {comparable} bytes/{} tokens",bytes.div_ceil(4),comparable.div_ceil(4));
     Ok(())
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
@@ -154,5 +154,21 @@ fn verify(n: usize, value: &Value, selected: &Value) -> Check {
             return Err("invented name on ID-only candidate".into());
         }
     }
+    Ok(())
+}
+fn wrong_identity() -> Check {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let stub=Stub::for_source("mychem.info","application/json",|request| {
+        if !request.starts_with("GET /v1/chem/CHEMBL941?") {return Err("unexpected identity request".into());}
+        Ok("{\"_id\":\"different-native-document\"}".into())
+    })?;
+    let cert=env.root().join("ca.pem");std::fs::write(&cert,&stub.certificate).map_err(|e|e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)})).map_err(|e|e.to_string())?;
+    let args=["get","drug","CHEMBL941","--source","mychem"].map(str::to_owned).to_vec();
+    let value=invoke(&env,args.clone(),4)?;
+    if value["status"]!="failed" || value.pointer("/sources/0/reason")!=Some(&json!("bad_reply")) || value["result"]!=Value::Null {return Err(format!("wrong identity admitted: {value}"));}
+    let mcp=super::mcp::call_with_globals(&env,&args,true,&[])?;
+    if value!=mcp {return Err("failed identity differs over MCP".into());}
+    if stub.finish()?.len()!=2 {return Err("wrong identity was cached or triggered a fallback".into());}
     Ok(())
 }

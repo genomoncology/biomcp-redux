@@ -81,7 +81,7 @@
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentity": {
@@ -202,7 +202,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-product/1",
+  "$id": "biodata.drug-product/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A native product record and its explicit formulation links.",

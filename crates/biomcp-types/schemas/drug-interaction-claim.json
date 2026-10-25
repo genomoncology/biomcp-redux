@@ -81,7 +81,7 @@
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentity": {
@@ -178,7 +178,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-interaction-claim/1",
+  "$id": "biodata.drug-interaction-claim/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One native interaction pair and level, without invented management advice.",

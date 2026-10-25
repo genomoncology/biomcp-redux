@@ -211,7 +211,11 @@ fn references_for(
         ("ndc.applicationnumber", c.applicationnumber.as_deref()),
     ] {
         if let Some(target) = target {
-            refs.push(reference(id, component, relation, target, name(&c))?);
+            let native_name = match relation {
+                    "drugbank.id"|"chembl.molecule_chembl_id"|"gtopdb.ligand_id"|"unii.unii"|"ndc.product_id"|"ndc.productndc" => name(c),
+                    _ => None,
+                };
+                refs.push(reference(id, component, relation, target, native_name)?);
         }
     }
     for (relation, values) in [
@@ -219,7 +223,7 @@ fn references_for(
         ("openfda.application_number", &c.application_number),
     ] {
         for target in values.as_ref().map(strings).unwrap_or_default() {
-            refs.push(reference(id, component, relation, target, name(&c))?);
+            refs.push(reference(id, component, relation, target, None)?);
         }
     }
     Ok(refs)
@@ -247,4 +251,23 @@ fn parents_for(
         }
     }
     Ok(parents)
+}
+
+// Convert only the transport's original retrieval epoch; never use the current clock.
+pub(super) fn received_date(fetched:i64)->Option<biodata::PartialDate> {
+    if fetched <= 0 { return None; }
+    let mut days = fetched / 86_400;
+    for year in 1970..=9999 {
+        let year_days = if biodata::PartialDate::new(year,Some(2),Some(29)).is_ok() {366} else {365};
+        if days >= year_days { days -= year_days; continue; }
+        for month in 1..=12 {
+            for day in 1..=31 {
+                if let Ok(date)=biodata::PartialDate::new(year,Some(month),Some(day)) {
+                    if days == 0 { return Some(date); }
+                    days -= 1;
+                }
+            }
+        }
+    }
+    None
 }

@@ -192,7 +192,13 @@ impl DrugSource {
     /// Check only published ID grammar for this endpoint, without inferring identity level or joining records.
     pub fn accepts(self, id: &DrugId) -> bool {
         let id = id.to_string();
-        if id.split_once(':').is_some_and(|(prefix,_)| Self::ALL.into_iter().any(|source| source.as_str().eq_ignore_ascii_case(prefix))) { return false; }
+        if id.split_once(':').is_some_and(|(prefix, _)| {
+            Self::ALL
+                .into_iter()
+                .any(|source| source.as_str().eq_ignore_ascii_case(prefix))
+        }) {
+            return false;
+        }
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
             Self::Mychem => true,
@@ -255,11 +261,17 @@ impl DrugGet {
 
 impl DrugGet {
     /// Continue the same named section without changing source, identity or section selectors.
-    pub fn at_section_offset(&self, offset:u32) -> Result<Self,QueryInvalid> {
-        let mut fields=self.0.clone(); fields.section_offset=Some(offset); fields.try_into()
+    pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section_offset = Some(offset);
+        fields.try_into()
     }
     /// Exact selected native label heading.
-    pub fn label_section(&self)->Option<&Text> { self.0.label_section.as_ref() }
+    pub fn label_section(&self) -> Option<&Text> {
+        self.0.label_section.as_ref()
+    }
     /// Exact application product selector.
-    pub fn product_number(&self)->Option<&Text> { self.0.product_number.as_ref() }
+    pub fn product_number(&self) -> Option<&Text> {
+        self.0.product_number.as_ref()
+    }
 }

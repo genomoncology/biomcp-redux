@@ -81,7 +81,7 @@
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "PartialDate": {
@@ -94,7 +94,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-label-reference/1",
+  "$id": "biodata.drug-label-reference/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One independently identified label set and revision.",

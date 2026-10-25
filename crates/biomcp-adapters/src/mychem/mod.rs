@@ -50,14 +50,14 @@ pub fn search(
 pub fn get(leg: &Leg<'_>, id: &str) -> Result<DrugCard, RequestError> {
     let segment = PathSegment::new(id).map_err(RequestError::Input)?;
     let fields = crate::drug_sources::components::allowed_fields(leg, CARD_FIELDS);
-    let reply = leg.json::<raw::Hit>(
+    let (reply, received) = leg.json_received_checked::<raw::Hit>(
         &GET.clone().with_segments(&[segment]),
         &[("fields", Arg::Text(&fields))],
+        |hit| if hit.id == id { Ok(()) } else { Err(biomcp_fetch::BadReply) },
     )?;
-    if reply.id != id {
-        return Err(bad_reply());
-    }
-    map::card(reply, leg).map_err(|_| bad_reply())
+    let mut card = map::card(reply, leg).map_err(|_| bad_reply())?;
+    card.retrieved = map::received_date(received.fetched);
+    Ok(card)
 }
 
 fn bad_reply() -> RequestError {

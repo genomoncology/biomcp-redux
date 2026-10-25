@@ -126,14 +126,30 @@ fn unsupported(source: DrugSource, mut out: Outcome) -> Outcome {
     out
 }
 
-fn component_outcomes(cx:&Ctx<'_>,out:&mut Outcome,search:bool) {
-    let Some(parent)=out.sources.first().cloned() else { return; };
+fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
+    let Some(parent) = out.sources.first().cloned() else {
+        return;
+    };
     for component in biomcp_adapters::drug_sources::components::COMPONENTS {
-        if search && matches!(component.name,"drugcentral"|"openfda") { continue; }
-        let Some(source)=component.native_source else { continue; };
-        let disabled=component.disabled(cx.fetch);
-        out.sources.push(biomcp_adapters::registry::outcome(source,
-            if disabled {biomcp_types::SourceState::Skipped}else{parent.state},
-            if disabled {Some(biomcp_types::Reason::Disabled)}else{parent.reason}));
+        if search && matches!(component.name, "drugcentral" | "openfda") {
+            continue;
+        }
+        let Some(source) = component.native_source else {
+            continue;
+        };
+        let disabled = component.disabled(cx.fetch);
+        out.sources.push(biomcp_adapters::registry::outcome(
+            source,
+            if disabled {
+                biomcp_types::SourceState::Skipped
+            } else {
+                parent.state
+            },
+            if disabled {
+                Some(biomcp_types::Reason::Disabled)
+            } else {
+                parent.reason
+            },
+        ));
     }
 }
