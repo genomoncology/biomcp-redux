@@ -15,7 +15,7 @@ The gene sketches follow `planning/slices/gene.md` and `decisions/2026-10-24-gen
 | Very fast | Blocking I/O on threads with no async runtime. One leg per source, each with its own deadline, under a limiter keyed by the source key its adapter declares. A SQLite reply cache, pinned pools and indexed bundle rows make warm calls local. A budget per command, measured in replay. |
 | Right information in context | The densest facts sit at the top of the tree, as `decisions/2026-10-24-dense-facts-first-with-a-token-budget.md` says. Search returns capped headers. Get returns cards with requested sections. Every response names the sections it left out and typed next steps that go deeper. Nulls, empty lists and unrequested sections are omitted. Cases hold size ceilings per command and per section. |
 | JSON by default, shaped by biodata | Every response is one envelope type from `biomcp-types`, with a generated, checked-in and versioned JSON Schema. |
-| MCP as one tool over the CLI | The tool takes the CLI argument list. The same grammar parses it and the same service call runs. |
+| MCP over the CLI | The main tool takes the CLI argument list. Research search and fetch wrappers use the same grammar and command functions. |
 | Search and get scope | The request type holds search, get and drill-down commands only. |
 | Data bundles as local APIs | A bundle is an endpoint kind in the transport. Its rows sit in SQLite with lookup keys and a word index, and its adapter maps them like any reply. |
 | Cache that later backs a wiki | One SQLite file holds typed results with their sources and times, and the wiki tables join it when the wiki arrives. |
@@ -1934,3 +1934,9 @@ CLI health uses these same declarations and transport policies. Its probes bypas
 Exact FDA PMA retrieval uses the shared checked admission predicate to withhold an incomplete native application collection from the reply cache. Its envelope reports partial status with the additive `collection.incomplete` problem code at `meta.results.total`; it emits no selected card or supplement page from that cut collection. Request identity checks apply before cache admission and on every cache or replay read. Regulatory text uses the existing label splitter and its escaped-byte fragment budget.
 
 PMA regulatory pages preserve the selected submission metadata even when `ao_statement` is absent. A metadata-only item omits the optional fragment `text`; an explicitly empty source statement keeps `text: ""`. Present statement fragments and their paging retain the existing representation.
+
+### Research search and fetch compatibility
+
+The [official OpenAI MCP contract](https://developers.openai.com/api/docs/mcp), checked on 2026-10-25, defines read-only search and fetch inputs, declared output schemas, and matching structured JSON and JSON text. Search exposes citable headers; fetch exposes the existing Markdown view. Each result carries a nonempty canonical publisher URL and an exact get argument list as its opaque identifier. Source outcomes, terms, problems and continuations retain the CLI values in metadata. The wrappers share command execution with the main tool and add no provider or ranking logic.
+
+The [Company knowledge compatibility guidance](https://developers.openai.com/plugins/build/mcp-server#company-knowledge-compatibility) scopes this interface to research and Company knowledge use. [Custom MCP plugins](https://developers.openai.com/api/docs/guides/custom-mcp-server) do not universally require these tool names. This server supplies the compatibility interface; it does not register a service or establish client eligibility.

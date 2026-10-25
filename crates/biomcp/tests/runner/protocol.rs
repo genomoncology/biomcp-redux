@@ -302,8 +302,8 @@ fn discovery() -> Check {
         .ok_or("tools missing")?;
     let tool = tools
         .first()
-        .filter(|_| tools.len() == 1)
-        .ok_or("expected one tool")?;
+        .filter(|_| tools.len() == 3)
+        .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
         || tool.get("outputSchema") != Some(&json!({"type":"object"}))
         || tool.get("inputSchema")
@@ -317,6 +317,15 @@ fn discovery() -> Check {
         .get("description")
         .and_then(Value::as_str)
         .ok_or("description missing")?;
+    for (name, key) in [("search", "query"), ("fetch", "id")] {
+        let wrapper = tools.iter().find(|tool| tool.get("name") == Some(&json!(name)))
+            .ok_or("research wrapper missing")?;
+        if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
+            || wrapper.get("outputSchema").is_none()
+            || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true)) {
+            return Err("research tool contract differs".into());
+        }
+    }
     discovery_description(text)
 }
 
