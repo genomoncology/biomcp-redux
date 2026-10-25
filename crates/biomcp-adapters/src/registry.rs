@@ -106,6 +106,12 @@ pub fn probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
+    if spec.source == Source::Faers {
+        crate::adverse_event_sources::components::meddra(leg)?;
+    }
+    if spec.source == Source::Maude {
+        crate::adverse_event_sources::components::gmdn(leg)?;
+    }
     if spec.source == Source::Monarch {
         crate::disease_sources::components::monarch(leg)?;
     }

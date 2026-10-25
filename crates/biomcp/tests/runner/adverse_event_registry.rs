@@ -74,7 +74,10 @@ fn outcomes() -> Check {
         ] {
             let mut row = registry::outcome(source, state, Some(Reason::Disabled));
             row.count = Some(0);
-            if row.usage != terms.usage || row.terms != terms.name || row.terms_url != terms.url {
+            if row.usage != terms.usage
+                || row.terms.as_ref() != terms.name
+                || row.terms_url.as_ref() != terms.url
+            {
                 return Err(format!("outcome lost terms: {row:?}"));
             }
         }
@@ -87,13 +90,14 @@ fn health_switches() -> Check {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&json!({"disable_sources":[switch]}))
             .map_err(|e| e.to_string())?;
+        let cli_disabled = if switch == "gmdn" { "faers" } else { "maude" };
         let health = invoke(
             &env,
             vec![
                 "health".into(),
                 "--offline".into(),
                 "--disable-sources".into(),
-                "maude".into(),
+                cli_disabled.into(),
             ],
             0,
         )?;
@@ -106,9 +110,11 @@ fn health_switches() -> Check {
                 .iter()
                 .find(|r| r["source"] == source)
                 .ok_or("missing source")?;
-            let disabled = source == "maude" || switch == source;
-            let component_disabled =
-                disabled || switch == "restricted" || (source == "faers" && switch == "meddra");
+            let disabled = source == cli_disabled || switch == source;
+            let component_disabled = disabled
+                || switch == "restricted"
+                || (source == "faers" && switch == "meddra")
+                || (source == "maude" && switch == "gmdn");
             let component = row["components"]
                 .as_array()
                 .and_then(|r| r.first())

@@ -38,7 +38,7 @@ const ROUTES: &[(&SourceSpec, &str, bool)] = &[
 fn get(
     fetch: &Fetch,
     spec: &'static SourceSpec,
-    path: &str,
+    path: &'static str,
     component: bool,
 ) -> Result<Synthetic, RequestError> {
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(3)));

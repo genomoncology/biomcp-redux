@@ -7,9 +7,9 @@ pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Faers,
     base: "https://api.fda.gov/drug/event.json",
     terms: Terms {
-        name: crate::drug_sources::FDA_TERMS.name,
-        url: crate::drug_sources::FDA_TERMS.url,
-        usage: crate::drug_sources::FDA_TERMS.usage,
+        name: crate::adverse_event_sources::FDA_TERMS.name,
+        url: crate::adverse_event_sources::FDA_TERMS.url,
+        usage: crate::adverse_event_sources::FDA_TERMS.usage,
     },
     quota: &crate::quotas::OPENFDA,
     key: KeyUse::None,
