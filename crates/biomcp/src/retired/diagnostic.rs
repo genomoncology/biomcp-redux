@@ -50,7 +50,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
 }
 fn flag_message(flag: &str) -> Option<ErrorMessage> {
     Some(match flag {
-        "-g" => ErrorMessage::DiagnosticGene,
+        "-g" => ErrorMessage::GeneOption,
         "-t" => ErrorMessage::DiagnosticType,
         "-l" => ErrorMessage::DiseaseLimit,
         "-d" | "--disease" => ErrorMessage::DiagnosticCondition,

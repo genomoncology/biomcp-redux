@@ -57,7 +57,6 @@ singleton! {
         AdverseConcomitant => "renamed; use: drugs",
         AdverseSection => "choose a named adverse-event section",
         DiagnosticSource => "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
-        DiagnosticGene => "use: --gene",
         DiagnosticType => "use: --type",
         DiagnosticCondition => "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
         DiagnosticManufacturer => "manufacturer and laboratory selectors are deferred",
