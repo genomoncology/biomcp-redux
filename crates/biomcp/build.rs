@@ -36,6 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("diagnostic/who.yaml", 0),
+    ("diagnostic/who.yaml", 1),
     ("diagnostic/gtr.yaml", 0),
     ("diagnostic/gtr.yaml", 10),
     ("diagnostic/gtr.yaml", 1),

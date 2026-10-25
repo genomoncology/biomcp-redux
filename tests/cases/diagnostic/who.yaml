@@ -89,7 +89,7 @@
         "/status": "absent"
       },
       "exit": 1,
-      "is_error": true
+      "is_error": false
     }
   ]
 }

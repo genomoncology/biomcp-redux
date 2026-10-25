@@ -75,6 +75,15 @@ fn missing() -> Check {
             "genes",
         ],
         vec![
+            "get",
+            "diagnostic",
+            "0466-046-00",
+            "--source",
+            "who-ivd",
+            "--section-limit",
+            "1",
+        ],
+        vec![
             "search",
             "diagnostic",
             "--source",

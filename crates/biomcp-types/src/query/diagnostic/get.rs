@@ -58,6 +58,8 @@ impl TryFrom<GetFields> for DiagnosticGet {
                 v.id.as_str().parse::<WhoProductId>().is_ok()
                     && v.supplement.is_none()
                     && v.section.is_none()
+                    && v.section_limit.is_none()
+                    && v.section_offset == 0
             }
             DiagnosticGetSource::FdaPma => {
                 v.id.as_str().parse::<PmaNumber>().is_ok()
