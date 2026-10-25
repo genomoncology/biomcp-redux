@@ -75,7 +75,11 @@ fn check(fault: &'static str) -> Result<(), String> {
     }
     let full = serde_json::to_vec(&bad).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&bad, "")?;
-    if full > 8192 || comparable > 8192 {
+    let (full_bound, comparable_bound): (usize, usize) =
+        if civic { (334, 250) } else { (399, 288) };
+    if full > (full_bound * 115).div_ceil(100)
+        || comparable > (comparable_bound * 115).div_ceil(100)
+    {
         return Err("identity refusal exceeds size ceiling".into());
     }
     use std::io::Write;

@@ -8,30 +8,36 @@ struct Source {
     name: &'static str,
     host: &'static str,
     words: &'static [&'static str],
+    measured: (usize, usize),
 }
 const SOURCES: &[Source] = &[
     Source {
         name: "mychem",
+        measured: (1621, 659),
         host: "mychem.info",
         words: &["get", "drug", "SYNTHETIC", "--source", "mychem"],
     },
     Source {
         name: "chembl",
+        measured: (347, 240),
         host: "www.ebi.ac.uk",
         words: &["get", "drug", "CHEMBL941", "--source", "chembl"],
     },
     Source {
         name: "opentargets",
+        measured: (394, 255),
         host: "api.platform.opentargets.org",
         words: &["get", "drug", "CHEMBL941", "--source", "opentargets"],
     },
     Source {
         name: "civic",
+        measured: (336, 252),
         host: "civicdb.org",
         words: &["get", "drug", "169", "civic", "--source", "civic"],
     },
     Source {
         name: "openfda-label",
+        measured: (399, 288),
         host: "api.fda.gov",
         words: &[
             "get",
@@ -43,16 +49,19 @@ const SOURCES: &[Source] = &[
     },
     Source {
         name: "drugsfda",
+        measured: (357, 246),
         host: "api.fda.gov",
         words: &["get", "drug", "NDA021335", "--source", "drugsfda"],
     },
     Source {
         name: "ema",
+        measured: (316, 144),
         host: "www.ema.europa.eu",
         words: &["sync", "ema"],
     },
     Source {
         name: "ddinter",
+        measured: (255, 152),
         host: "ddinter.scbdd.com",
         words: &["sync", "ddinter"],
     },
@@ -103,7 +112,12 @@ fn ema_record() -> Check {
             String::from_utf8_lossy(&output.stdout)
         ));
     }
-    Ok(())
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let source = SOURCES
+        .iter()
+        .find(|source| source.name == "ema")
+        .ok_or("EMA source")?;
+    assert_failed(source, "broken", &value)
 }
 fn check(source: &Source) -> Check {
     if matches!(source.name, "ema" | "ddinter") {
@@ -195,7 +209,8 @@ fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
             });
             exchange["body"] = json!({"kind":"text","value":"synthetic broken body"});
             exchange["delay_ms"] = json!(if fault == "timeout" { 180000 } else { 0 });
-            value["exchanges"] = json!(vec![exchange.clone(); 5]);
+            let exchanges = json!(vec![exchange.clone(); 5]);
+            *value.get_mut("exchanges").ok_or("missing exchanges")? = exchanges;
             fs::write(target.join(file.file_name()), value.to_string())
                 .map_err(|e| e.to_string())?;
         }
@@ -234,7 +249,10 @@ fn assert_failed(source: &Source, fault: &str, value: &Value) -> Check {
     }
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    if full > 8192 || comparable > 8192 {
+    let (full_bound, comparable_bound) = source.measured;
+    if full > (full_bound * 115).div_ceil(100)
+        || comparable > (comparable_bound * 115).div_ceil(100)
+    {
         return Err("synthetic failure exceeds size ceiling".into());
     }
     use std::io::Write;
