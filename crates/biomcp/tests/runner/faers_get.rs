@@ -21,8 +21,14 @@ pub(super) fn trials() -> Vec<Trial> {
         || source_policy().map_err(Into::into),
     ));
     for mode in [
-        "wrong-id", "two-versions", "absent", "bad-drug-index",
-        "missing-patient", "missing-drugs", "missing-reactions", "empty-collections",
+        "wrong-id",
+        "two-versions",
+        "absent",
+        "bad-drug-index",
+        "missing-patient",
+        "missing-drugs",
+        "missing-reactions",
+        "empty-collections",
     ] {
         trials.push(Trial::test(
             format!("adverse-event-get/synthetic-{mode}"),
@@ -37,15 +43,22 @@ fn native() -> Value {
 fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     let mut body = native();
     if mode == "missing-patient" {
-        body.pointer_mut("/results/0").and_then(Value::as_object_mut)
-            .ok_or("report")?.remove("patient");
+        body.pointer_mut("/results/0")
+            .and_then(Value::as_object_mut)
+            .ok_or("report")?
+            .remove("patient");
     }
     for field in ["drug", "reaction"] {
         if mode == format!("missing-{field}s") || mode == "empty-collections" {
-            let patient = body.pointer_mut("/results/0/patient")
-                .and_then(Value::as_object_mut).ok_or("patient")?;
-            if mode == "empty-collections" { patient.insert(field.into(), json!([])); }
-            else { patient.remove(field); }
+            let patient = body
+                .pointer_mut("/results/0/patient")
+                .and_then(Value::as_object_mut)
+                .ok_or("patient")?;
+            if mode == "empty-collections" {
+                patient.insert(field.into(), json!([]));
+            } else {
+                patient.remove(field);
+            }
         }
     }
     if mode == "walks" {
@@ -208,7 +221,9 @@ fn identity(mode: &str) -> Check {
     if mode == "empty-collections" {
         if value.pointer("/result/drug_count") != Some(&json!(0))
             || value.pointer("/result/reaction_count") != Some(&json!(0))
-        { return Err(format!("explicit empty arrays lost: {value}")); }
+        {
+            return Err(format!("explicit empty arrays lost: {value}"));
+        }
     } else if mode == "absent" {
         if value.get("status") != Some(&json!("absent")) {
             return Err(format!("absence: {value}"));
@@ -219,7 +234,11 @@ fn identity(mode: &str) -> Check {
     {
         return Err(format!("identity admitted: {value}"));
     }
-    let expected = if matches!(mode, "bad-drug-index" | "empty-collections") { 1 } else { 2 };
+    let expected = if matches!(mode, "bad-drug-index" | "empty-collections") {
+        1
+    } else {
+        2
+    };
     if stub.finish()?.len() != expected {
         return Err("invalid identity entered cache".into());
     }

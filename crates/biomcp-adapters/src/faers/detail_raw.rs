@@ -63,7 +63,7 @@ pub(super) struct Report {
     pub seriousnesscongenitalanomali: Option<Box<str>>,
     pub seriousnessother: Option<Box<str>>,
     pub primarysource: Option<Reporter>,
-    pub patient: Option<Patient>,
+    pub patient: Patient,
 }
 strings!(Reporter {
     qualification,
@@ -75,9 +75,7 @@ pub(super) struct Patient {
     pub patientonsetageunit: Option<Box<str>>,
     pub patientsex: Option<Box<str>>,
     pub patientweight: Option<Box<str>>,
-    #[serde(default)]
     pub drug: Vec<Drug>,
-    #[serde(default)]
     pub reaction: Vec<Reaction>,
 }
 #[derive(Debug, Deserialize)]

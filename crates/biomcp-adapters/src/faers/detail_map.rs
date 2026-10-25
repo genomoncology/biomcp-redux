@@ -18,29 +18,26 @@ pub(super) fn report(r: raw::Report) -> FaersReport {
         || seriousness.disabling.is_some()
         || seriousness.congenitalanomali.is_some()
         || seriousness.other.is_some();
-    let (patient, drugs, reactions) = match r.patient {
-        Some(p) => (
-            Some(FaersPatient {
-                age: p.patientonsetage,
-                age_unit: p.patientonsetageunit,
-                sex: p.patientsex,
-                weight: p.patientweight,
-            }),
-            p.drug.into_iter().map(drug).collect(),
-            p.reaction
-                .into_iter()
-                .map(|v| FaersReaction {
-                    term: biodata::Concept {
-                        id: None,
-                        label: v.reactionmeddrapt,
-                    },
-                    vocabulary_version: v.reactionmeddraversionpt,
-                    outcome: v.reactionoutcome,
-                })
-                .collect(),
-        ),
-        None => (None, Box::default(), Box::default()),
-    };
+    let p = r.patient;
+    let patient = Some(FaersPatient {
+        age: p.patientonsetage,
+        age_unit: p.patientonsetageunit,
+        sex: p.patientsex,
+        weight: p.patientweight,
+    });
+    let drugs = p.drug.into_iter().map(drug).collect();
+    let reactions = p
+        .reaction
+        .into_iter()
+        .map(|v| FaersReaction {
+            term: biodata::Concept {
+                id: None,
+                label: v.reactionmeddrapt,
+            },
+            vocabulary_version: v.reactionmeddraversionpt,
+            outcome: v.reactionoutcome,
+        })
+        .collect();
     FaersReport {
         safetyreportid: r.safetyreportid,
         safetyreportversion: r.safetyreportversion,
