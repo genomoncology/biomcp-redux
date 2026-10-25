@@ -97,7 +97,8 @@ fn default_cache_migration() -> Check {
         "--offline".into(),
     ];
     let value = invoke(&env, args.clone(), 0)?;
-    let peer = mcp::call_with_globals(&env, &args[..3], false, &args[3..])?;
+    let (command, globals) = args.split_at_checked(3).ok_or("missing offline command")?;
+    let peer = mcp::call_with_globals(&env, command, false, globals)?;
     if value != peer || value.pointer("/result/items/0/answer/gene/symbol") != Some(&json!("BRAF"))
     {
         return Err(format!(
