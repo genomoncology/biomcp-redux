@@ -32,9 +32,6 @@
       "expect": {
         "/status": "complete",
         "/page/total": 0,
-        "/result/items/*/nct_id": {
-          "equals": []
-        },
         "/next": [
           {
             "kind": "disambiguate",
@@ -64,7 +61,8 @@
               "L576P"
             ]
           }
-        ]
+        ],
+        "/result/items": []
       },
       "max_bytes": 1541,
       "max_tokens": 386
