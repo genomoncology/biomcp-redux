@@ -63,7 +63,7 @@ fn declarations() -> Check {
         if row["usage"] != usage || row["terms_url"] != url || row["disabled"] != false {
             return Err(format!("wrong declaration: {row}"));
         }
-        if !row["terms"].as_str().is_some_and(|s| !s.is_empty()) {
+        if row["terms"].as_str().is_none_or(|s| s.is_empty()) {
             return Err("missing terms".into());
         }
     }

@@ -1,5 +1,8 @@
 //! Implemented source declarations are the sole registry for terms and source switches.
 
+mod component;
+pub use component::Component;
+
 use biomcp_fetch::SourceSpec;
 use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
@@ -42,7 +45,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::drug_sources::DDINTER,
 ];
 /// Independently labeled fields from every implemented aggregator.
-pub fn components() -> impl Iterator<Item = &'static crate::myvariant::components::Component> {
+pub fn components() -> impl Iterator<Item = &'static Component> {
     crate::myvariant::components::all()
         .iter()
         .chain(crate::drug_sources::components::COMPONENTS)

@@ -1,5 +1,5 @@
 //! Only reviewed MyChem fields may enter a source projection.
-use crate::myvariant::components::Component;
+use crate::registry::Component;
 use biomcp_fetch::{Fetch, Leg, Terms};
 use biomcp_types::{Source, Use};
 const fn component(name: &'static str, native_source: Source, terms: Terms) -> Component {
