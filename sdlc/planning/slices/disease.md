@@ -430,3 +430,28 @@ The bounded native capture `j11900` sent the default search to one ontology with
 The same capture requested `https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0019003/children` on 2026-10-25 at 01:37:08 UTC. Its HTTP 200 body contains three native children: MONDO:0007958, MONDO:0008082 and MONDO:0008234. The body SHA-256 is `3c6533a9e3dc11f2bc79a460c3e97c541c1bef48c712b408c7bcaf4e7e05c985`. This positive witness supports a later child-relation ticket. The current hierarchy remains parents only, and the OLS adapter does not implement hierarchy in this ticket.
 
 The exact DOID:3910 record contains synonym strings and a null `obo_synonym` field. Its synonym rows therefore omit scope. A missing source label on a cross-reference endpoint remains absent. Native cross-reference descriptions remain unchanged beside `oboInOwl:hasDbXref`; arbitrary description text does not become a label or an equivalence predicate. The obsolete MONDO:0007607 card retains both native `consider` IDs and a null replacement. No alternative is selected automatically.
+
+
+### Executed OLS command budgets
+
+The OLS product proof `j11984` used eleven hash-checked retained responses through the real transport recorder and then offline CLI/MCP cases against the generated schemas. It made no provider requests. These executed values supersede the earlier OLS unmeasured notes for the specific identities below; the earlier tables remain historical illustrations. Retrieval dates in recordings remain the original capture dates. The actual transport URL can encode a query space as `%20` where the source capture used `+`; the decoded parameters and literal text are compared exactly, and the recorder creates each request identity itself.
+
+| Exact command witness | Full JSON bytes | Comparable bytes | Comparable case ceiling |
+|---|---:|---:|---:|
+| MONDO breast cancer, offset 0 | 2,056 | 1,922 | 2,211 |
+| DOID lung adenocarcinoma | 2,112 | 1,978 | 2,275 |
+| NCIt melanoma | 2,147 | 2,013 | 2,315 |
+| Literal MONDO:0007254 discovery | 816 | 682 | 785 |
+| Ambiguous MF discovery | 2,105 | 1,971 | 2,267 |
+| Multiple endocrine neoplasia type 2 discovery | 2,021 | 1,887 | 2,171 |
+| MONDO breast cancer, offset 5 | 2,104 | 1,970 | 2,266 |
+| MONDO breast cancer, offset 71 | 1,948 | 1,814 | 2,087 |
+| Exact MONDO:0007254 card | 1,223 | 1,089 | 1,253 |
+| Exact DOID:3910 card | 1,097 | 963 | 1,108 |
+| Exact obsolete MONDO:0007607 card | 839 | 705 | 811 |
+
+The comparable calculation removes exactly 134 validated bytes for the OLS outcome's canonical `use`, `terms` and `terms_url` fields. Component terms remain included. Each fixed case ceiling is the measured comparable size plus 15 percent, rounded up. Full sizes remain visible. Token figures remain byte-count proxies; no tokenizer measurement is claimed.
+
+The synthetic maximum-page boundary returns fifty source-ordered candidates and all fifty exact get actions plus one continuation. It measures 14,160 full bytes and 14,026 comparable bytes, with a fixed 16,130-byte case ceiling. The default remains five candidates. A limit of 51 fails before I/O. Other entities keep their existing next-action bound.
+
+The contained 0.9.3 discovery measurements below use MyDisease's older rewritten requests, so they do not provide matched OLS request ratios. The historical D02 default get measured 8,462 bytes and included hidden enrichment. The exact OLS card now exposes only its requested source facts and named section actions. Those different command scopes do not establish complete clinical parity. The broader comparison remains owned by the comparison work after the source adapters integrate.

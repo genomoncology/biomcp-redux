@@ -129,15 +129,11 @@
       "description": "Publisher record and version."
     },
     "description": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Text"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Unchanged native cross-reference description when supplied."
+      "description": "Unchanged native cross-reference description when supplied.",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "object": {
       "$ref": "#/$defs/DiseaseEndpoint",

@@ -47,7 +47,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     if !xrefs.value.is_empty() {
         sections.push(DiseaseSection::Xrefs);
     }
-    let consider = ids(&term.annotation.consider)?;
+    let consider = ids(term.annotation.consider.as_deref().unwrap_or_default())?;
     let replaced_by = term
         .term_replaced_by
         .as_ref()

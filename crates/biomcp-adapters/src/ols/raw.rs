@@ -51,10 +51,9 @@ pub(super) struct Term {
     pub obo_synonym: Option<Vec<Synonym>>,
     pub obo_xref: Option<Vec<Xref>>,
 }
-#[derive(Default, Deserialize)]
+#[derive(Deserialize)]
 pub(super) struct Annotation {
-    #[serde(default)]
-    pub consider: Vec<Text>,
+    pub consider: Option<Vec<Text>>,
 }
 #[derive(Deserialize)]
 pub(super) struct Synonym {

@@ -1,5 +1,5 @@
 //! Retained source bytes enter only this explicit external-evidence proof.
-use super::{args, record, replay, setup, markdown};
+use super::{args, markdown, record, replay, setup};
 use crate::runner::network_stub::Stub;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -88,11 +88,18 @@ fn prove_row(
     let size = serde_json::to_vec(&result)
         .map_err(|e| e.to_string())?
         .len();
-    let mut steps = vec![json!({"run":words,"mcp":words,"expect":expected,"max_bytes":page_cap(index)?})];
+    let mut steps =
+        vec![json!({"run":words,"mcp":words,"expect":expected,"max_bytes":page_cap(index)?})];
     section_steps(row, &mut steps);
     replay(&directory, Value::Array(steps))?;
-    markdown(env,&refs,&directory,&["## Result","## Sources"])?;
-    if row.pointer("/url").and_then(Value::as_str).is_some_and(|s|s.contains("DOID%3A3910")) { section_outputs(env,&directory,output)?; }
+    markdown(env, &refs, &directory, &["## Result", "## Sources"])?;
+    if row
+        .pointer("/url")
+        .and_then(Value::as_str)
+        .is_some_and(|s| s.contains("DOID%3A3910"))
+    {
+        section_outputs(env, &directory, output)?;
+    }
     fs::write(
         output.join(format!("output-{index}.json")),
         serde_json::to_vec_pretty(&result).map_err(|e| e.to_string())?,
@@ -107,22 +114,62 @@ fn prove_row(
     Ok(())
 }
 
-fn page_cap(index:usize)->Result<usize,String> {
+fn page_cap(index: usize) -> Result<usize, String> {
     // Ceil(j11984 comparable CLI bytes * 1.15), exact validated service terms excluded.
-    [2211,2275,2315,785,2267,2171,2266,2087,1253,1108,811].get(index).copied().ok_or("unknown native witness".into())
+    [
+        2211, 2275, 2315, 785, 2267, 2171, 2266, 2087, 1253, 1108, 811,
+    ]
+    .get(index)
+    .copied()
+    .ok_or("unknown native witness".into())
 }
-fn section_outputs(env:&super::Environment,directory:&Path,output:&Path)->Result<(),String> {
-    for section in ["synonyms","xrefs"] {
-        let words=["get","disease","DOID:3910",section,"--source","ols","--ontology","doid"];
-        let mut command=args(&words);command.extend(["--replay".into(),directory.to_string_lossy().into()]);
-        let result=super::invoke(env,&command,0)?;
-        let full=serde_json::to_vec(&result).map_err(|e|e.to_string())?.len();
-        let comparable=crate::runner::source_terms::size(&result,"")?;
-        writeln!(std::io::stderr(),"native {section}: full={full}, comparable={comparable}").map_err(|e|e.to_string())?;
-        if section=="synonyms" && result.pointer("/result/items").and_then(Value::as_array).is_none_or(|rows|rows.iter().any(|r|r.get("scope").is_some())) {return Err("DOID missing scopes were invented".into());}
-        fs::write(output.join(format!("{section}.json")),serde_json::to_vec_pretty(&result).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-        replay(directory,json!([{"run":words,"mcp":words,"expect":{"/page/offset":0}}]))?;
-    }Ok(())
+fn section_outputs(
+    env: &super::Environment,
+    directory: &Path,
+    output: &Path,
+) -> Result<(), String> {
+    for section in ["synonyms", "xrefs"] {
+        let words = [
+            "get",
+            "disease",
+            "DOID:3910",
+            section,
+            "--source",
+            "ols",
+            "--ontology",
+            "doid",
+        ];
+        let mut command = args(&words);
+        command.extend(["--replay".into(), directory.to_string_lossy().into()]);
+        let result = super::invoke(env, &command, 0)?;
+        let full = serde_json::to_vec(&result)
+            .map_err(|e| e.to_string())?
+            .len();
+        let comparable = crate::runner::source_terms::size(&result, "")?;
+        writeln!(
+            std::io::stderr(),
+            "native {section}: full={full}, comparable={comparable}"
+        )
+        .map_err(|e| e.to_string())?;
+        if section == "synonyms"
+            && result
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .is_none_or(|rows| rows.iter().any(|r| r.get("scope").is_some()))
+        {
+            return Err("DOID missing scopes were invented".into());
+        }
+        fs::write(
+            output.join(format!("{section}.json")),
+            serde_json::to_vec_pretty(&result).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+        replay(
+            directory,
+            json!([{"run":words,"mcp":words,"expect":{"/page/offset":0}}]),
+        )?;
+    }
+    Ok(())
 }
 
 fn section_steps(row: &Value, steps: &mut Vec<Value>) {
