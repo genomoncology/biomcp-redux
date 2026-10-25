@@ -91,8 +91,14 @@ fn check(env: &Environment, stream: &str, root: &Path) -> Result<(), String> {
         result.to_string().len()
     )
     .map_err(|e| e.to_string())?;
-    if size > 8000 {
-        return Err("native lookup exceeded initial bounded ceiling".into());
+    // Each observed envelope has 15 percent headroom; publisher terms are reported separately.
+    let (full_cap, comparable_cap) = if stream == "evidence" {
+        (3116, 3019)
+    } else {
+        (2907, 2810)
+    };
+    if result.to_string().len() > full_cap || size > comparable_cap {
+        return Err("native lookup exceeded measured envelope ceilings".into());
     }
     Ok(())
 }
