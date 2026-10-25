@@ -80,6 +80,47 @@ The first device key 50952244 returned unchanged through exact D05 get. Device e
 
 All three WONDER XML requests returned403 Access Denied HTML. No aggregate schema, code acceptance, vintage, total, suppression or report-level identifier was proved. Do not accept VAERS response types or advertise a working summary from these replies. Recommended disposition is to retain the source as a proposed future explicit option and defer runtime implementation pending a separately approved bounded native positive capture. No alternate HPV code, user-agent workaround or repeated attempt is authorized by this evidence. The HPV questions remain unanswered by this tier. The literal SCC device query's404 is a verified no-match for that exact expression, not evidence that capsule SCC does not occur.
 
+### Measured native request table
+
+Each row used one physical request. Retrieval ran October 25, 2026, from 05:50:13 through 05:51:19 UTC. Successful FAERS JSON carried publisher `last_updated` July 30, 2026; device JSON carried October 13, 2026. Those dates are distinct from retrieval. Duration is one HTTP capture rounded to milliseconds, not cold/warm CLI/MCP time. Bytes are unchanged source bodies, not product output. A dash means the provider supplied no report total or this response is not a report page. C01/C02 file row counts are recorded above. Native aggregation totals remain absent.
+
+| Row | HTTP | Returned rows | Native report total | Source bytes | HTTP seconds |
+|---|---|---|---|---|---|
+| F01 | 200 | 5 | 105020 | 220,919 | 0.737 |
+| F02 | 200 | 5 | 2147 | 57,911 | 0.607 |
+| F03 | 200 | 5 | 2608 | 95,557 | 0.521 |
+| F04 | 200 | 5 | 727 | 107,070 | 0.564 |
+| F05 | 200 | 5 | 1020 | 22,325 | 0.690 |
+| F06 | 200 | 5 | 4503 | 24,410 | 0.522 |
+| F07 | 200 | 5 | 3355 | 50,902 | 0.510 |
+| F08 | 200 | 5 | 343 | 498,926 | 0.709 |
+| F09 | 200 | 5 | 1147 | 122,064 | 0.608 |
+| F10 | 200 | 5 | 1131 | 80,611 | 0.572 |
+| F11 | 200 | 5 | 6160 | 25,409 | 0.448 |
+| F12 | 200 | 5 | 53 | 189,906 | 0.576 |
+| F13 | 200 | 5 | 18819 | 334,430 | 0.659 |
+| F14 | 200 | 5 | 44253 | 234,202 | 0.630 |
+| F15 | 200 | 5 | 16093 | 92,376 | 0.493 |
+| F16 | 200 | 5 | 104869 | 220,919 | 0.636 |
+| F17 | 200 | 5 | 8060 | 97,917 | 0.703 |
+| F18 | 404 | 0 | — | 80 | 0.354 |
+| F19 | 200 | 5 | — | 769 | 0.437 |
+| F20 | 200 | 5 | 105020 | 60,551 | 0.506 |
+| F23 | 200 | 5 | 134 | 54,278 | 0.485 |
+| D01 | 200 | 5 | 23863 | 30,568 | 1.262 |
+| D02 | 200 | 5 | 17 | 30,951 | 0.453 |
+| D03 | 404 | 0 | — | 80 | 0.365 |
+| D04 | 200 | 5 | 2046 | 36,916 | 0.516 |
+| F21 | 200 | 1 | 1 | 6,681 | 0.372 |
+| D05 | 200 | 1 | 1 | 5,931 | 0.364 |
+| I01 | 200 | 5 | 7224 | 416,953 | 0.662 |
+| F22 | 200 | 2 | — | 551 | 0.406 |
+| C01 | 200 | — | — | 55,005 | 0.257 |
+| C02 | 200 | — | — | 28,227 | 0.187 |
+| V01 | 403 | — | — | 401 | 0.363 |
+| V02 | 403 | — | — | 401 | 0.307 |
+| V03 | 403 | — | — | 401 | 0.302 |
+
 ### Observed native fields and disclosure consequences
 
 The JSON field inventory contains strings, integer metadata/counts, objects and arrays. No null-valued field was observed in this sample; this does not establish a universal no-null schema. Age/outcome/role/date values are source strings, not inferred JSON integers. Report drug arrays reached 19 rows and reaction arrays 22. Harmonized `package_ndc` arrays reached 2,087 entries and `spl_set_id` arrays 841. Those many identifiers do not establish which marketed product was administered. Device arrays happened to contain one row per captured report; narrative arrays ranged from empty to five. A single captured device never justifies a scalar schema.
