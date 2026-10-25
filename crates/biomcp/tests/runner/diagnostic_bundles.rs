@@ -65,10 +65,13 @@ fn stale(source: &str) -> Result<(), String> {
         ],
     };
     for fresh in [false, true] {
-        let mut args = env.globals(Some(&replay), false);
-        args.extend(tail.iter().map(|v| (*v).into()));
+        let globals = env.globals(Some(&replay), false);
+        let mut command: Vec<String> = tail.iter().map(|v| (*v).into()).collect();
+        let mut args = globals.clone();
+        args.extend(command.clone());
         if fresh {
             args.push("--fresh".into());
+            command.push("--fresh".into());
         }
         let value = invoke(&env, args.clone(), 0)?;
         if value.get("status") != Some(&json!("partial"))
@@ -88,7 +91,7 @@ fn stale(source: &str) -> Result<(), String> {
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         writeln!(std::io::stdout(), "{source} stale fresh={fresh}: {bytes}")
             .map_err(|e| e.to_string())?;
-        if mcp::call_with_globals(&env, &args, true, &[])? != value {
+        if mcp::call_with_globals(&env, &command, false, &globals)? != value {
             return Err("stale CLI/MCP mismatch".into());
         }
     }

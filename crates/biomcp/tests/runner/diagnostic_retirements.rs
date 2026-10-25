@@ -9,7 +9,7 @@ pub(super) fn trials() -> Vec<Trial> {
         .map(|(i, &(words, message))| {
             Trial::test(
                 format!("diagnostic-retirements/fixed-guidance-{i}"),
-                move || check(words, message).map_err(Into::into),
+                move || check(words, message, "usage.retired").map_err(Into::into),
             )
         })
         .chain([Trial::test("diagnostic-retirements/literal-values", || {
@@ -17,7 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
         })])
         .collect()
 }
-fn check(words: &str, message: &str) -> Result<(), String> {
+fn check(words: &str, message: &str, code: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let listener = std::net::TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
     listener.set_nonblocking(true).map_err(|e| e.to_string())?;
@@ -30,7 +30,7 @@ fn check(words: &str, message: &str) -> Result<(), String> {
         .map(str::to_owned)
         .collect::<Vec<_>>();
     let value = invoke(&env, args.clone(), 2)?;
-    if value.pointer("/error/code") != Some(&json!("usage.retired"))
+    if value.pointer("/error/code") != Some(&json!(code))
         || value.pointer("/error/message") != Some(&json!(message))
         || value.get("sources").is_some()
     {
@@ -40,7 +40,7 @@ fn check(words: &str, message: &str) -> Result<(), String> {
         return Err(format!("{words}: CLI/MCP guidance differs"));
     }
     let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage",
-        "error":{"code":"usage.retired","message":message}}))
+        "error":{"code":code,"message":message}}))
     .map_err(|e| e.to_string())?
     .len();
 
@@ -56,10 +56,9 @@ fn check(words: &str, message: &str) -> Result<(), String> {
 fn boundaries() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     for words in [
-        "--disable-sources gtr search diagnostic --gene --manufacturer --source gtr",
-        "--disable-sources gtr search diagnostic --type all --source gtr",
-        "--disable-sources fda-cdx search diagnostic --biomarker --full --source fda-cdx",
-        "--disable-sources who-ivd get diagnostic --source who-ivd -- --json",
+        "--disable-sources gtr search diagnostic --gene all --source gtr",
+        "--disable-sources gtr search diagnostic --gene regulatory --source gtr",
+        "--disable-sources fda-cdx search diagnostic --biomarker=--full --source fda-cdx",
     ] {
         let value = invoke(
             &env,
@@ -70,9 +69,25 @@ fn boundaries() -> Result<(), String> {
             return Err(format!("selector value became retirement: {value}"));
         }
     }
+    for words in [
+        "search diagnostic --source gtr --device-id K173492",
+        "search diagnostic --source fda-cdx --gene BRCA1",
+        "get diagnostic P150013 --source gtr",
+        "get diagnostic K173492 --source fda-pma",
+        "get diagnostic P150013 --source fda-510k",
+        "get diagnostic P150013 --source fda-cdx",
+    ] {
+        check(words,"expected a supported command with checked arguments","usage.arguments")?;
+    }
     Ok(())
 }
 const CASES: &[(&str, &str)] = &[
+    ("get diagnostic GTR000006692.3 --source gtr --section all", "name one diagnostic section per request"),
+    ("get diagnostic GTR000006692.3 --source gtr --full", "name one diagnostic section per request"),
+    ("search diagnostic --source who-ivd --marker HPV", "WHO discovery, type and marker search are deferred; use: get diagnostic PRODUCT-ID --source who-ivd"),
+    ("get diagnostic GTR000006692.3", "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get"),
+    ("--json get diagnostic GTR000006692.3 --source gtr", "use: --format json"),
+    ("get diagnostic GTR000006692.3 --source gtr --no-cache", "use: --fresh"),
     (
         "search diagnostic --gene BRCA1",
         "choose --source gtr or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",

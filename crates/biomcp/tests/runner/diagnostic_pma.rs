@@ -106,6 +106,10 @@ fn boundary(mode: &'static str) -> Check {
         {
             return Err(format!("incomplete: {value}"));
         }
+        if matches!(mode, "wrong-base" | "wrong-supplement") {
+            use std::io::Write;
+            writeln!(std::io::stdout(),"PMA {mode}: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len()).map_err(|e|e.to_string())?;
+        }
         if matches!(mode, "wrong-base" | "wrong-supplement")
             && value.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
         {
