@@ -186,3 +186,15 @@ const CASES: &[(&str, &str)] = &[
     ("who-ivd sync", "use: biomcp sync who-ivd"),
     ("list diagnostic", "use: biomcp help diagnostic"),
 ];
+
+// Diagnostic mechanism cases share one measured envelope bound per view/outcome.
+pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
+    use std::io::Write;
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let schema = value.get("schema").and_then(serde_json::Value::as_str).ok_or("missing schema")?;
+    let kind = value.pointer("/result/kind").and_then(serde_json::Value::as_str).unwrap_or("");
+    let status = value.get("status").and_then(serde_json::Value::as_str).ok_or("missing status")?;
+    writeln!(std::io::stdout(), "DIAGNOSTIC_BYTES={}", json!({"schema":schema,"kind":kind,"status":status,"bytes":bytes}))
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
