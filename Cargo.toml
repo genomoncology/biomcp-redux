@@ -9,6 +9,7 @@ rust-version = "1.95.0"
 license = "MIT"
 
 [workspace.dependencies]
+shlex = "=2.0.1"
 winnow = { version = "1.0.4", default-features = false, features = ["ascii", "alloc"] }
 url = "2.5.8"
 base64 = "0.23.1"

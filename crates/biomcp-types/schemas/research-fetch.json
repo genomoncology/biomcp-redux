@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "ResearchEnvelope": {
+      "description": "Forward-compatible envelope metadata; entity fields use their CLI schemas.",
+      "properties": {
+        "schema": {
+          "description": "Original CLI schema identity; its schema describes all entity fields.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "Original command outcome."
+        }
+      },
+      "required": [
+        "schema",
+        "status"
+      ],
+      "type": "object"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.research-fetch/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Research fetch response using the existing CLI Markdown view.",
+  "properties": {
+    "id": {
+      "description": "Unchanged caller identifier.",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ResearchEnvelope",
+      "description": "Complete original CLI envelope."
+    },
+    "text": {
+      "description": "Complete Markdown view of the bounded CLI record.",
+      "type": "string"
+    },
+    "title": {
+      "$ref": "#/$defs/Text",
+      "description": "Original source title, or exact identifier."
+    },
+    "url": {
+      "$ref": "#/$defs/Text",
+      "description": "Nonempty canonical source URL."
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "text",
+    "url",
+    "metadata"
+  ],
+  "title": "ResearchFetch",
+  "type": "object"
+}

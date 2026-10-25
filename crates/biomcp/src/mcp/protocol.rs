@@ -1,4 +1,4 @@
-//! Shared RPC validation and the one advertised tool.
+//! Shared RPC validation and advertised CLI tool.
 use serde_json::{Value, json};
 
 // Official contracts: https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning
@@ -38,20 +38,10 @@ pub(super) fn tool() -> Value {
             "required":["args"],"additionalProperties":false},"outputSchema":{"type":"object"}})
 }
 
-pub(super) fn args(params: &Value) -> Option<Vec<std::ffi::OsString>> {
-    if params.get("name")?.as_str()? != "biomcp" {
-        return None;
-    }
-    let arguments = params.get("arguments")?.as_object()?;
-    if arguments.len() != 1 {
-        return None;
-    }
-    arguments
-        .get("args")?
-        .as_array()?
-        .iter()
-        .map(|arg| arg.as_str().map(std::ffi::OsString::from))
-        .collect()
+pub(super) fn tools() -> Vec<Value> {
+    let mut tools = vec![tool()];
+    tools.extend(super::research::tools());
+    tools
 }
 
 pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {

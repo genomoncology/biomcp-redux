@@ -4,6 +4,7 @@ mod framing;
 pub(crate) mod http;
 mod legacy;
 mod protocol;
+mod research;
 mod rpc;
 
 use framing::Frame;
@@ -131,7 +132,7 @@ impl Server {
         reason = "Bounded tool workers own command execution"
     )]
     fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
-        let Some(args) = protocol::args(params) else {
+        let Some(call) = research::parse(params) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
         };
         let key = id.to_string();
@@ -148,7 +149,7 @@ impl Server {
         let worker = thread::Builder::new()
             .name("mcp-tool".into())
             .spawn(move || {
-                let outcome = crate::command::tool(&args, &globals, &fetch);
+                let outcome = research::execute(&call, &globals, &fetch, false);
                 let _ = sender.send(Event::Completed(worker_key, outcome));
             })?;
         self.active.insert(

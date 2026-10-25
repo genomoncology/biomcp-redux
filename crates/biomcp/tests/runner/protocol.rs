@@ -302,8 +302,8 @@ fn discovery() -> Check {
         .ok_or("tools missing")?;
     let tool = tools
         .first()
-        .filter(|_| tools.len() == 1)
-        .ok_or("expected one tool")?;
+        .filter(|_| tools.len() == 3)
+        .ok_or("expected three tools")?;
     if tool.get("name") != Some(&json!("biomcp"))
         || tool.get("outputSchema") != Some(&json!({"type":"object"}))
         || tool.get("inputSchema")
@@ -317,6 +317,33 @@ fn discovery() -> Check {
         .get("description")
         .and_then(Value::as_str)
         .ok_or("description missing")?;
+    let mut descriptions = 0;
+    for (name, key) in [("search", "query"), ("fetch", "id")] {
+        let wrapper = tools
+            .iter()
+            .find(|tool| tool.get("name") == Some(&json!(name)))
+            .ok_or("research wrapper missing")?;
+        descriptions += wrapper
+            .get("description")
+            .and_then(Value::as_str)
+            .ok_or("wrapper description missing")?
+            .len();
+        if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
+            || wrapper.pointer("/outputSchema/$id")
+                != Some(&json!(format!("biomcp.research-{name}/1")))
+            || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
+        {
+            return Err("research tool contract differs".into());
+        }
+    }
+    writeln!(
+        std::io::stdout(),
+        "RESEARCH_DESCRIPTION_BYTES={descriptions}"
+    )
+    .map_err(|e| e.to_string())?;
+    if descriptions > 226 {
+        return Err("research descriptions exceed budget".into());
+    }
     discovery_description(text)
 }
 

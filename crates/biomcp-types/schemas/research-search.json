@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "ResearchEnvelope": {
+      "description": "Forward-compatible envelope metadata; entity fields use their CLI schemas.",
+      "properties": {
+        "schema": {
+          "description": "Original CLI schema identity; its schema describes all entity fields.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "Original command outcome."
+        }
+      },
+      "required": [
+        "schema",
+        "status"
+      ],
+      "type": "object"
+    },
+    "ResearchHit": {
+      "additionalProperties": false,
+      "description": "A citable exact source record, without inferred identity or relevance.",
+      "properties": {
+        "id": {
+          "description": "Exact quoted get argument list, excluding the get verb.",
+          "type": "string"
+        },
+        "title": {
+          "$ref": "#/$defs/Text",
+          "description": "Original source title, or its exact identifier when no title is supplied."
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Nonempty canonical source record URL."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ResearchSearchMetadata": {
+      "additionalProperties": false,
+      "description": "Search disclosures preserve the original CLI response without inventing hits.",
+      "properties": {
+        "envelope": {
+          "$ref": "#/$defs/ResearchEnvelope",
+          "description": "Complete original CLI envelope."
+        },
+        "note": {
+          "description": "Explains where unprojected rows remain available.",
+          "type": "string"
+        },
+        "omitted_rows": {
+          "description": "Native rows that lack an exact citable get target.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "envelope",
+        "omitted_rows",
+        "note"
+      ],
+      "type": "object"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.research-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Research search response.",
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/ResearchSearchMetadata",
+      "description": "Original response and projection disclosures."
+    },
+    "results": {
+      "description": "Citable records in unchanged CLI order.",
+      "items": {
+        "$ref": "#/$defs/ResearchHit"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "results",
+    "metadata"
+  ],
+  "title": "ResearchSearch",
+  "type": "object"
+}

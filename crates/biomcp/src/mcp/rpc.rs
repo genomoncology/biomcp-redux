@@ -56,7 +56,7 @@ pub(super) fn message(frame: &[u8], legacy: &mut bool) -> Message {
     let result = match method {
         "ping" => json!({}),
         "server/discover" => current::discover(),
-        "tools/list" => json!({"tools":[protocol::tool()]}),
+        "tools/list" => json!({"tools":protocol::tools()}),
         "tools/call" => {
             return Message::Tool {
                 id: id.clone(),

@@ -70,11 +70,15 @@ fn common_registry() -> Vec<Contract> {
     }
 }
 
-fn registry() -> Vec<Contract> {
-    let mut contracts = contracts! {
-        TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
-        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/2"),
-        HttpHealth => ("http-health", "biomcp.http-health/1"),
+fn research_registry() -> Vec<Contract> {
+    contracts! {
+        ResearchSearch<ResearchEnvelope> => ("research-search", "biomcp.research-search/1"),
+        ResearchFetch<ResearchEnvelope> => ("research-fetch", "biomcp.research-fetch/1"),
+    }
+}
+
+fn article_registry() -> Vec<Contract> {
+    contracts! {
         ArticleEvidence => ("article-evidence", "biodata.article-evidence/1"),
         ArticleRecommend => ("article-recommend", "biodata.article-recommend/1"),
         Envelope<ArticleEvidenceResult> => ("article-evidence-result", "biomcp.article_evidence/2"),
@@ -83,8 +87,6 @@ fn registry() -> Vec<Contract> {
         Envelope<ArticlePdfResult> => ("article-pdf-result", "biomcp.article_pdf/2"),
         ArticleSupplement => ("article-supplement", "biodata.article-supplement/1"),
         Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article_supplement/2"),
-        Envelope<Health> => ("health", "biomcp.health/2"),
-        Markdown => ("markdown", "biodata.markdown/1"),
         ArticleText => ("article-text", "biodata.article-text/2"),
         Envelope<ArticleTextResult> => ("article-text-result", "biomcp.article_text/3"),
         ArticleEdges => ("article-edges", "biodata.article-edges/2"),
@@ -99,6 +101,16 @@ fn registry() -> Vec<Contract> {
         Pmid => ("pmid", "biodata.pmid/1"),
         Pmcid => ("pmcid", "biodata.pmcid/1"),
         Doi => ("doi", "biodata.doi/1"),
+    }
+}
+
+fn registry() -> Vec<Contract> {
+    let mut contracts = contracts! {
+        TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
+        Envelope<TrialDocumentResult> => ("trial-document-result", "biomcp.trial_document/2"),
+        HttpHealth => ("http-health", "biomcp.http-health/1"),
+        Envelope<Health> => ("health", "biomcp.health/2"),
+        Markdown => ("markdown", "biodata.markdown/1"),
         Envelope<Help> => ("help", "biomcp.help/2"),
         Envelope<KeyHelp> => ("key", "biomcp.key/2"),
         Envelope<RegisteredKeys> => ("registered-keys", "biomcp.registered-keys/2"),
@@ -145,6 +157,8 @@ fn registry() -> Vec<Contract> {
     };
     contracts.extend(diagnostic_contracts());
     contracts.extend(common_registry());
+    contracts.extend(article_registry());
+    contracts.extend(research_registry());
     contracts.extend(disease::registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
