@@ -19,9 +19,9 @@ const FLAGS: &[(&str, ErrorMessage)] = &[
     ("--product-code", ErrorMessage::AdverseFilter),
     ("--count", ErrorMessage::AdverseFilter),
     ("--classification", ErrorMessage::AdverseRecalls),
-    ("-l", ErrorMessage::AdverseLimit),
-    ("-j", ErrorMessage::AdverseJson),
-    ("--json", ErrorMessage::AdverseJson),
+    ("-l", ErrorMessage::DiseaseLimit),
+    ("-j", ErrorMessage::DiseaseJson),
+    ("--json", ErrorMessage::DiseaseJson),
 ];
 pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     let mut positional = Vec::new();
@@ -45,7 +45,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             .split_once('=')
             .map_or((word, None), |(a, b)| (a, Some(b)));
         if matches!(flag, "-j" | "--json") {
-            shared = Some(ErrorMessage::AdverseJson);
+            shared = Some(ErrorMessage::DiseaseJson);
         }
         let adverse = matches!(
             positional.as_slice(),
