@@ -27,4 +27,5 @@ The PM checks each count below on its date and records the result here. A count 
 - Next source slice: adapters that took a forbidden JSON or other dependency instead of the typed transport. Baseline 1 implemented (0131), with 1 intercepted proposal (0143) counted apart. Target 0 implemented.
 - 2026-11-01: jobs rejected by test placement since 2026-10-25 (reviewers now inspect every added test path against the placement rule). Baseline 3 jobs across 2 tickets: 0127 j11938, 0131 j12038 and j12051. Target 0.
 - Next drug integration batch: structural failures from parallel source branches each growing one central response function past its length limit. Baseline 3 jobs across 3 tickets: EMA j12157, openFDA j12152, ChEMBL and Open Targets j12161. Target 0.
+- Next optional-field integration: compile jobs that failed because a struct initializer missed a new optional header field. Baseline 4 omissions across 3 jobs (j12147, j12176, j12180; cancelled j12184 excluded). Target 0. Reviewers now check the complete initializer inventory.
 - Proof: each line gains its measured count, the command or source that showed it, and keep or reopen.
