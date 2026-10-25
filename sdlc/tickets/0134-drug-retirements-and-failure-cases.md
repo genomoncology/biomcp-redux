@@ -1,6 +1,7 @@
 # 0134 — Retire old drug options and prove drug failure and identity cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 10e2c2af316130c4dbc179f1a3dc0d8d2e591582
 
 Milestone: 3
 

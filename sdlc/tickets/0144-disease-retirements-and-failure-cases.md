@@ -1,6 +1,7 @@
 # 0144 — Retire old disease options and prove disease failure and identity cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 461eddd282c3c0df9a9277ae8273b219bb297113
 
 Milestone: 3
 
