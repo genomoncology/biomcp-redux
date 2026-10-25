@@ -75,7 +75,10 @@ pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>
         RowFormat::Tsv => tsv::<R>(body),
         RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines, false),
         RowFormat::NativeCsv { max_bytes } => {
-            if max_bytes == 0 || max_bytes > super::MAX_BUNDLE_BYTES || body.len() as u64 > max_bytes {
+            if max_bytes == 0
+                || max_bytes > super::MAX_BUNDLE_BYTES
+                || body.len() as u64 > max_bytes
+            {
                 return Err(BadReply);
             }
             csv::<R>(body, 0, true)

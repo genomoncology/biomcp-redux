@@ -24,7 +24,10 @@ pub(super) struct Native {
 }
 impl Row for Native {
     fn keys(&self) -> Keys {
-        Keys { exact: vec![(KeyKind::Id, self.id.to_string().into_boxed_str())], words: Vec::new() }
+        Keys {
+            exact: vec![(KeyKind::Id, self.id.to_string().into_boxed_str())],
+            words: Vec::new(),
+        }
     }
 }
 impl From<Native> for WhoIvdRow {

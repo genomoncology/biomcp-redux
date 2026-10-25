@@ -24,7 +24,13 @@ fn empty(body: QueryBody) -> Outcome {
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     finish_bundle(out, leg, error, Source::Gtr, Bundle::Gtr);
 }
-fn finish_bundle(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>, source: Source, bundle: Bundle) {
+fn finish_bundle(
+    out: &mut Outcome,
+    leg: Leg<'_>,
+    error: Option<RequestError>,
+    source: Source,
+    bundle: Bundle,
+) {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(source, leg.finish(), error));
@@ -39,14 +45,12 @@ fn finish_bundle(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>, s
         .sources
         .iter()
         .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
-        && !out.next.iter().any(|(_, action)| action == &Action::Sync { bundle })
+        && !out
+            .next
+            .iter()
+            .any(|(_, action)| action == &Action::Sync { bundle })
     {
-        out.next.push((
-            StepKind::Sync,
-            Action::Sync {
-                bundle,
-            },
-        ));
+        out.next.push((StepKind::Sync, Action::Sync { bundle }));
     }
 }
 /// Search only stored source-native GTR relations and retain matched selectors.

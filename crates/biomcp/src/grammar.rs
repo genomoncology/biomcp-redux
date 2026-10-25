@@ -159,10 +159,9 @@ fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root.subcommand(
-        Command::new("sync")
-            .arg(Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter", "gtr", "who-ivd"])),
-    );
+    root = root.subcommand(Command::new("sync").arg(
+        Arg::new("bundle").value_parser(["hgnc", "clingen", "ema", "ddinter", "gtr", "who-ivd"]),
+    ));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(help_command());
