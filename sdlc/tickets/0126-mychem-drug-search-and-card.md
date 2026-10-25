@@ -1,6 +1,7 @@
 # 0126 — Search drugs and get the exact card through MyChem
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6a6fe8be4d7449b543dd2cbe353f96ec5ee897ad
 
 Milestone: 3
 

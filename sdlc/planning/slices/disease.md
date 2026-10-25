@@ -421,3 +421,42 @@ Retained trial evidence is reused without a refresh from `/home/ian/workspace/da
 The repair capture directory is `biomcp-redux-0117-disease-repair-captures`; its `requests.json` SHA-256 is `8cc788bb74db36532fbf713fce98fbfe48d54c6582fb10c5e87de952802c300d`. All six copied body hashes were verified on Yellow. The two structured SEER body hashes are `cfc6e2d3339f378349fe1b5de64a29e247acfd1279c4e3537a6a2bdbaf0d41c1` and `d0133734879bb7f014eb507727d0de750080fddfc8c16e4be05e3ec534ae3eb4`. The exact six-request plan is retained alongside them. A fresh clinical reviewer independently checked those bodies plus the earlier selector catalog; the ruling is recorded in the structured repair section above.
 
 Formatting-only jobs `j11428` and `j11436` read retained bodies and made no requests or product executions. The initial repair illustrations remain separate from the final examples. `biomcp-redux-0117-disease-repair-views-final/measurements.json` SHA-256 is `8717dd166377498876a73b9c8dc5887b7d691bdcd559936c50ea4b339753381e`. All 43 copied final illustrative envelope hashes were verified on Yellow. The executed formatting scripts are retained separately. These proposal measurements never substitute for generated-schema CLI/MCP acceptance or future verified source request identities.
+
+
+## Exact OLS discovery and child witness
+
+The bounded native capture `j11900` sent the default search to one ontology with literal text, `q=breast+cancer&rows=5&start=0&ontology=mondo&groupField=iri`. OLS returned 76 candidates. Offsets 0, 5 and 71 each returned five native rows. Separate DOID lung-adenocarcinoma and NCIt melanoma searches, literal CURIE discovery, the ambiguous `MF` query and the multiple-endocrine-neoplasia subtype search all returned positive pages. The immutable request manifest SHA-256 is `7cd1db0335a1cb96203260f4ea7887b54ebdc9e94df9f3ee8c3014f063f106ba`. These source facts do not establish a completed product comparison with 0.9.
+
+The same capture requested `https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0019003/children` on 2026-10-25 at 01:37:08 UTC. Its HTTP 200 body contains three native children: MONDO:0007958, MONDO:0008082 and MONDO:0008234. The body SHA-256 is `3c6533a9e3dc11f2bc79a460c3e97c541c1bef48c712b408c7bcaf4e7e05c985`. This positive witness supports a later child-relation ticket. The current hierarchy remains parents only, and the OLS adapter does not implement hierarchy in this ticket.
+
+The exact DOID:3910 record contains synonym strings and a null `obo_synonym` field. Its synonym rows therefore omit scope. A missing source label on a cross-reference endpoint remains absent. Native cross-reference descriptions remain unchanged beside `oboInOwl:hasDbXref`; arbitrary description text does not become a label or an equivalence predicate. The obsolete MONDO:0007607 card retains both native `consider` IDs and a null replacement. No alternative is selected automatically.
+
+
+### Executed OLS command budgets
+
+The OLS product proof `j11984` used eleven hash-checked retained responses through the real transport recorder and then offline CLI/MCP cases against the generated schemas. It made no provider requests. These executed values supersede the earlier OLS unmeasured notes for the specific identities below; the earlier tables remain historical illustrations. Retrieval dates in recordings remain the original capture dates. The actual transport URL can encode a query space as `%20` where the source capture used `+`; the decoded parameters and literal text are compared exactly, and the recorder creates each request identity itself.
+
+| Exact command witness | Full JSON bytes | Comparable bytes | Comparable case ceiling |
+|---|---:|---:|---:|
+| MONDO breast cancer, offset 0 | 2,056 | 1,922 | 2,211 |
+| DOID lung adenocarcinoma | 2,112 | 1,978 | 2,275 |
+| NCIt melanoma | 2,147 | 2,013 | 2,315 |
+| Literal MONDO:0007254 discovery | 816 | 682 | 785 |
+| Ambiguous MF discovery | 2,105 | 1,971 | 2,267 |
+| Multiple endocrine neoplasia type 2 discovery | 2,021 | 1,887 | 2,171 |
+| MONDO breast cancer, offset 5 | 2,104 | 1,970 | 2,266 |
+| MONDO breast cancer, offset 71 | 1,948 | 1,814 | 2,087 |
+| Exact MONDO:0007254 card | 1,223 | 1,089 | 1,253 |
+| Exact DOID:3910 card | 1,097 | 963 | 1,108 |
+| Exact obsolete MONDO:0007607 card | 839 | 705 | 811 |
+
+The comparable calculation removes exactly 134 validated bytes for the OLS outcome's canonical `use`, `terms` and `terms_url` fields. Component terms remain included. Each fixed case ceiling is the measured comparable size plus 15 percent, rounded up. Full sizes remain visible. Token figures remain byte-count proxies; no tokenizer measurement is claimed.
+
+The synthetic maximum-page boundary returns fifty source-ordered candidates and all fifty exact get actions plus one continuation. It measures 14,160 full bytes and 14,026 comparable bytes, with a fixed 16,130-byte case ceiling. The default remains five candidates. A limit of 51 fails before I/O. Other entities keep their existing next-action bound.
+
+The contained 0.9.3 discovery measurements below use MyDisease's older rewritten requests, so they do not provide matched OLS request ratios. The historical D02 default get measured 8,462 bytes and included hidden enrichment. The exact OLS card now exposes only its requested source facts and named section actions. Those different command scopes do not establish complete clinical parity. The broader comparison remains owned by the comparison work after the source adapters integrate.
+
+
+The final section measurement `j12001` reused the exact DOID:3910 response. Its three unscoped synonyms measure 1,003 full bytes and 869 comparable bytes, with a 1,000-byte comparable ceiling. Five cross-references measure 1,829 full bytes and 1,695 comparable bytes, with a 1,950-byte ceiling. The two-row synonym pages at offsets 0 and 2 measure 881 and 585 comparable bytes, with ceilings 1,014 and 673. The two-row cross-reference pages at offsets 0 and 2 measure 1,038 and 1,043 comparable bytes, with ceilings 1,194 and 1,200. These actual DOID command measurements differ from the earlier illustrative D08 allocations. Native endpoints, predicates, descriptions and per-row attribution remain included. Every ceiling uses the measured comparable output plus 15 percent, rounded up. No same-case old synonym or cross-reference command measurement exists, so no reduction ratio is claimed.
+
+The external product proof is preserved on Yellow at `data/biomcp-redux/0140-ols-product-proof/j12001.tar.gz`, SHA-256 `b64dc7a38c101250c1b0cb34fdaf874dd21842c03fe07f0daa8b4faa4a9d57d0`. Its 36-file manifest SHA-256 is `666fbab85dc675197eed992e4ab7042c5f0b53c9368895c9183f80bc823f9edd`. Every stored file was independently checked after transfer. Source bodies and recordings remain outside Git.

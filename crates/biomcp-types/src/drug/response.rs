@@ -1,5 +1,5 @@
 use super::{DrugGet, DrugSearch, DrugSection, DrugSource};
-use crate::{CivicProfile, ResponseBody, Section, Step};
+use crate::{ResponseBody, Section, Step};
 use biodata::{
     AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim,
     DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text,
@@ -15,7 +15,9 @@ pub struct DrugHeader {
     /// The single source responsible for this header.
     pub source: DrugSource,
     /// Original source display name.
-    pub name: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub name: Option<Text>,
     /// Level established only by the endpoint or record type.
     pub identity_level: DrugIdentityLevel,
     /// Native record type.
@@ -154,7 +156,7 @@ pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub civic: Section<DrugRecords<CivicProfile<DrugGet>>>,
+    pub civic: Section<super::DrugCivicStreams>,
 }
 /// Explicit native application/product history without a global approval flag.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -187,38 +189,53 @@ pub struct DrugInteractions {
     pub interactions: Section<DrugRecords<DrugInteractionClaim>>,
 }
 impl ResponseBody for DrugPage {
-    const SCHEMA: &'static str = "biomcp.drug_page/1";
+    const SCHEMA: &'static str = "biomcp.drug_page/2";
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {
-    const SCHEMA: &'static str = "biomcp.drug_card/1";
+    const SCHEMA: &'static str = "biomcp.drug_card/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug_label/1";
+    const SCHEMA: &'static str = "biomcp.drug_label/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug_targets/2";
+    const SCHEMA: &'static str = "biomcp.drug_targets/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug_indications/2";
+    const SCHEMA: &'static str = "biomcp.drug_indications/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug_civic/1";
+    const SCHEMA: &'static str = "biomcp.drug_civic/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug_approvals/1";
+    const SCHEMA: &'static str = "biomcp.drug_approvals/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug_regulatory/1";
+    const SCHEMA: &'static str = "biomcp.drug_regulatory/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug_interactions/2";
+    const SCHEMA: &'static str = "biomcp.drug_interactions/3";
+    type Query = DrugGet;
+}
+
+/// A mechanical page of the selected document's complete checked native links.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugXrefs {
+    /// Exact source-selected identity, without choosing any linked product.
+    pub identity: DrugHeader,
+    /// Native links with an exact link count, original version and retrieval date.
+    pub xrefs: Section<DrugRecords<DrugIdentityRelation>>,
+}
+impl ResponseBody for DrugXrefs {
+    const SCHEMA: &'static str = "biomcp.drug_xrefs/1";
     type Query = DrugGet;
 }

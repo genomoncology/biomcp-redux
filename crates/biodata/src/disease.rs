@@ -47,12 +47,15 @@ pub struct DiseaseAssociation {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseRelation {
+    /// Unchanged native cross-reference description when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
     /// Native subject.
-    pub subject: Concept,
+    pub subject: DiseaseEndpoint,
     /// Publisher predicate, without equivalence promotion.
     pub predicate: Curie,
     /// Native object.
-    pub object: Concept,
+    pub object: DiseaseEndpoint,
     /// Publisher record and version.
     pub attribution: Attribution,
 }
@@ -130,4 +133,16 @@ pub struct StatisticEstimate {
     /// Native count; no inferred denominator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub count: Option<u64>,
+}
+
+/// One native endpoint with an identifier and an optional source label.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseEndpoint {
+    /// Exact source identifier.
+    pub id: Curie,
+    /// Source label when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
 }
