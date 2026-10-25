@@ -69,6 +69,10 @@ pub(super) fn retained() -> Result<(), String> {
     {
         return Err("multiple cases bypassed the total witness bound".into());
     }
+    retained_context()
+}
+
+fn retained_context() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::super::launch::fixtures().join("replies/gene/main");
     let mut captured = json!({});
