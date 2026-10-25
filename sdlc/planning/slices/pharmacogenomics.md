@@ -298,7 +298,7 @@ Every bounded collection body follows this shape:
 {"header":{"source":"cpic","gene":"DPYD"},"items":[],"page":{"offset":0,"returned":0,"total":0,"total_kind":"source"}}
 ```
 
-The empty values demonstrate fields only; native fixtures supply actual counts and rows. Pair items contain the entire C03–C08/C28 row. Recommendation items contain the entire C09–C15 row. Guideline-reference items contain the entire C21–C23 row. A ClinPGx collection header adds `kind`; its page uses `total_kind: "observed"`, the received collection length, and ordinary checked local page bounds. It does not claim native server total or stable provider pagination. An explicitly bounded retained collection supplies all later local pages in observed order. No row or context field is dropped to satisfy output cost.
+The empty values demonstrate fields only; native fixtures supply actual counts and rows. Pair items contain the entire C03–C08/C28 row. Recommendation items contain the entire C09–C15 row. Guideline-reference items contain the entire C21–C23 row. A ClinPGx collection header adds `annotationkind`; its page uses `total_kind: "observed"`, the received collection length, and ordinary checked local page bounds. It does not claim native server total or stable provider pagination. An explicitly bounded retained collection supplies all later local pages in observed order. No row or context field is dropped to satisfy output cost.
 
 Diplotype result:
 
@@ -360,6 +360,28 @@ The default pair search and gene card answer identity/guideline-presence questio
 The separate offline projection recipe uses only the verified j12644 archive, compact UTF-8 JSON with `ensure_ascii=False` and separators `(',', ':')`. It constructs the exact result-body shapes above, keeping complete native rows. Pair and recommendation/guideline pages use captured Content-Range total and requested offset. Diplotypes preserve the whole captured list. Gene cards select the seven named identity fields, exactly as supplied. ClinPGx min arrays are paged five at a time through every retained collection, with observed totals. Each P10 annotation is projected as one design-only base detail body. No provider call, program build, old binary or clinical transform runs.
 
 Each output is bounded at 1 MiB and the full projection set at 20 MiB. Record row identities/provenance, compact bytes, `ceil(bytes/4)` approximate tokens and provisional `ceil(bytes*1.15)` body ceiling; retain recipe/outputs/measurements on Yellow. These are offline design projections, not actual native product outputs, tokenizers or passing case ceilings. Complete envelope bytes, source outcomes, typed-next cost, CLI/MCP parity and cold/warm latency remain unmeasured until product implementation. The later contained 0.9 PGx comparison ticket first proves network containment, then measures the same harvested questions within a separately approved ledger. It does not run in this investigation.
+
+### Executed offline projections and provisional body ceilings
+
+Separate job `j12701` ran offline from pushed landed main `cdc677b0bc2c1abff17d04e3138d8bd5e9dcc4b4`. It verified the retained native archive and all 220 source files, then emitted 177 projections totaling 964,975 bytes. Every body stayed below 1 MiB and the total below 20 MiB. There was zero provider traffic, source HTTP, build, product command, tokenizer or legacy executable use. The investigator independently checked all 405 projection archive manifest files and every output hash/byte/token/ceiling measurement.
+
+The durable Yellow archive is `data/biomcp-redux/0153-pgx-offline-projections/j12701-pgx-offline-projections.tar.gz`, 554,234 bytes, SHA-256 `f28ff861655673ec02d317d8ed31d52eea6d9cae19ea00850def546cec1898f5`. Its root `2290-pgx-offline-projections` contains recipe, outputs, job log, per-page native identities and measurements. `measurements.json` records each exact output and source URL/retrieval/hash. The family ranges below do not replace those exact per-case figures.
+
+| Projected body | Outputs | Compact bytes | Approximate tokens | Provisional body ceiling |
+| --- | --- | --- | --- | --- |
+| CPIC gene card | 6 | 200–211 | 50–53 | 230–243 |
+| CPIC pair page | 7 | 809–1985 | 203–497 | 931–2283 |
+| CPIC recommendation page | 7 | 3045–7380 | 762–1845 | 3502–8487 |
+| CPIC diplotype result | 4 | 1171–1248 | 293–312 | 1347–1436 |
+| CPIC guideline-reference page | 3 | 346–1845 | 87–462 | 398–2122 |
+| ClinPGx clinical min page | 64 | 1553–22960 | 389–5740 | 1786–26404 |
+| ClinPGx guideline min page | 2 | 872–947 | 218–237 | 1003–1090 |
+| ClinPGx label min page | 1 | 827–827 | 207–207 | 952–952 |
+| ClinPGx base annotation body | 83 | 3055–22442 | 764–5611 | 3514–25809 |
+
+These ceilings are proposed result-body limits, measured size plus 15 percent, not passing full-envelope case budgets. Typed next, exact query, source/terms and problems remain additional unmeasured bytes. The default clinical page contains five complete min-tier rows; the largest observed page is 22,960 bytes because native location/link arrays vary substantially. Do not remove context or lower collection totals to meet a smaller cap. Implementation measures complete CLI/MCP envelopes and can review a smaller default page before adopting an enforced full-output ceiling. The full annotation projection is from a retained collection row; it supplies no direct-get API proof. The API/body bound remains explicit; if a future collection exceeds admission limits, return the appropriate incomplete/unavailable problem rather than a silently complete truncated collection.
+
+CPIC gene identity figures cover all six C01 cards. Pair and recommendation figures cover exactly their captured pages, preserving native totals and order. ClinPGx clinical figures cover every local page of P01–P06 and P09; guideline and label figures cover P07/P08. Base detail figures cover all 83 P10 rows. No additional provider request or projection rerun is needed for this review. Complete product envelopes, cold/warm timing and the contained 0.9 comparison remain explicitly unmeasured later proof.
 
 ### Structural risks
 
