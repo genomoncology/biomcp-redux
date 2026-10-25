@@ -341,5 +341,6 @@ The retained-body command proof reuses the original MyDisease projection and pub
 | DOID:3910 ambiguous NCIt mappings | 2,143 | 2,015 | 504 | 2,318 |
 | MONDO:0800444 missing NCIt mapping | 994 | 866 | 217 | 996 |
 | Explicit NCIT:C3224 to NCI | 1,727 | 1,577 | 395 | 1,814 |
+| Explicit NCIT:C3224 with rejected NCI reply | 926 | 776 | 194 | 893 |
 
 Comparable bytes subtract only the validated source outcome terms fields under the shared rule. Component terms and mapping provenance remain included. Token figures use `ceil(bytes/4)`, not a tokenizer. New case ceilings use each measured comparable output plus 15 percent. The older literal `--condition melanoma` case and its cap stay unchanged. No equivalent 0.9 explicit identifier-resolution command measurement exists, so no same-command reduction is claimed. Original capture metadata stays separate from each local delivery recording outside Git.
