@@ -23,7 +23,7 @@ pub(super) fn next(
         Navigation::Nested(page) => network_steps(
             &mut steps,
             &result.sources,
-            Some(u64::from(page.offset) + u64::from(page.returned) < page.total),
+            Some(has_more || u64::from(page.offset) + u64::from(page.returned) < page.total),
         ),
     }
     Ok(source_steps(fetch, steps))
