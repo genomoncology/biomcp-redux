@@ -3,11 +3,16 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
+mod cases;
+mod native;
+pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
+    let mut tests = vec![Trial::test(
         "disease-mydisease/exact-alias-and-independent-pages",
         || exact().map_err(Into::into),
-    )]
+    )];
+    tests.extend(cases::trials());
+    tests
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -39,6 +44,25 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-mydisease","story":"Selected source facts stay complete and independently paged","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     super::run_case(file.path(), &super::schema::Registry::embedded()?)
 }
+fn record(env: &Environment, words: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
+    let mut command = args(words);
+    command.extend(["--record".into(), directory.to_string_lossy().into()]);
+    let value = invoke(env, &command, exit)?;
+    measure(words, &value)?;
+    Ok(value)
+}
+fn measure(words: &[&str], value: &Value) -> Result<(), String> {
+    use std::io::Write;
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    writeln!(
+        std::io::stderr(),
+        "MyDisease {:?}: full={} comparable={}",
+        words,
+        bytes,
+        super::source_terms::size(value, "")?
+    )
+    .map_err(|e| e.to_string())
+}
 fn annotation() -> Value {
     json!({"_id":"MONDO:0005061","_version":1,
       "mondo":{"mondo":"MONDO:0005061","label":"Synthetic lung concept","definition":"Complete synthetic definition, including its original punctuation. [Native reference]","synonym":{"exact":["first native synonym","second native synonym"],"related":["related wording"]},"xrefs":{"doid":["DOID:3910","DOID:0111503"],"efo":["EFO:0000571"],"icd10cm":["C34.9"],"oncotree":["LUAD"]},"parents":["MONDO:0004970","MONDO:0005233"]},
@@ -54,13 +78,75 @@ fn exact() -> Result<(), String> {
     let stub = Stub::for_source("mydisease.info", "application/json", reply)?;
     let env = setup(&stub)?;
     let directory = env.root().join("exact");
-    let mut command = args(&["get", "disease", "DOID:3910"]);
-    command.extend(["--record".into(), directory.to_string_lossy().into()]);
-    invoke(&env, &command, 0)?;
+    record(&env, &["get", "disease", "DOID:3910"], &directory, 0)?;
     replay(
         &directory,
         json!([{"run":["get","disease","DOID:3910"],"mcp":["get","disease","DOID:3910"],"expect":{"/result/requested_id":"DOID:3910","/result/returned_id":"MONDO:0005061","/result/alias/object/id":"DOID:3910","/result/definition":"Complete synthetic definition, including its original punctuation. [Native reference]","/result/sections":["synonyms","xrefs","hierarchy"]}}]),
     )?;
+    for (section, total, pointer, expected) in [
+        (
+            "synonyms",
+            4,
+            "/result/items/0/scope",
+            json!("mydisease:mondo.synonym.exact"),
+        ),
+        ("xrefs", 8, "/result/items/0/object/id", json!("DOID:3910")),
+        (
+            "hierarchy",
+            4,
+            "/result/items/0/object/id",
+            json!("MONDO:0004970"),
+        ),
+    ] {
+        let words = [
+            "get",
+            "disease",
+            "DOID:3910",
+            section,
+            "--source",
+            "mydisease",
+            "--section-limit",
+            "2",
+        ];
+        let mut expect = json!({"/page/total":total,"/page/returned":2,"/next/0/kind":"page"});
+        expect
+            .as_object_mut()
+            .ok_or("missing expectations")?
+            .insert(pointer.into(), expected);
+        let value = replay(
+            &directory,
+            json!([{"run":words,"mcp":words,"expect":expect}]),
+        )?;
+        measure(&words, &value)?;
+        let terminal = (total - 2).to_string();
+        let words = [
+            "get",
+            "disease",
+            "DOID:3910",
+            section,
+            "--source",
+            "mydisease",
+            "--section-limit",
+            "2",
+            "--section-offset",
+            &terminal,
+        ];
+        let value = replay(
+            &directory,
+            json!([{"run":words,"mcp":words,"expect":{"/page/offset":total-2,"/page/returned":2,"/page/total":total}}]),
+        )?;
+        if value.get("next").is_some() {
+            return Err("terminal page advertised continuation".into());
+        }
+        if section == "hierarchy"
+            && value
+                .pointer("/result/items/0/subject/id")
+                .and_then(Value::as_str)
+                != Some("DOID:3910")
+        {
+            return Err("component parent provenance was merged".into());
+        }
+    }
     if stub.finish()?.len() != 1 {
         return Err("unexpected source fanout".into());
     }

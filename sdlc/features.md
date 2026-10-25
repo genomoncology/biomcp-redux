@@ -69,4 +69,4 @@ drug-mychem: Search literal MyChem candidate pages and retrieve exact native doc
 disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
 
 disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.
-disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment. Cases: `crates/biomcp/tests/runner/disease_mydisease.rs`.
+disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment. Cases: `crates/biomcp/tests/runner/disease_mydisease.rs`, `crates/biomcp/tests/runner/disease_mydisease/cases.rs`, `crates/biomcp/tests/runner/disease_mydisease/native.rs`.

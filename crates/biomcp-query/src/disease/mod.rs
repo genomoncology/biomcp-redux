@@ -1,4 +1,5 @@
 //! Source-owned disease facts without identity choice or cross-provider fallback.
+/// MyDisease exact annotation outcomes.
 pub mod mydisease;
 /// OLS source-owned identity and discovery outcomes.
 pub mod ols;

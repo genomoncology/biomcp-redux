@@ -488,3 +488,6 @@ mod variant_condition_relationship;
 pub(super) fn disease_native(path: &Path) -> Result<(), String> {
     disease_ols::native(path)
 }
+pub(super) fn mydisease_native(path: &Path) -> Result<(), String> {
+    disease_mydisease::native(path)
+}
