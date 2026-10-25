@@ -113,3 +113,6 @@ pub mod cpic;
 
 /// Exact native FDA clearance retrieval.
 pub mod fda_510k;
+
+/// WHO finished pharmaceutical product prequalification.
+pub mod who_pq;

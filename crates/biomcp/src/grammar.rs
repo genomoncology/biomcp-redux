@@ -1,7 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
 
-pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "gtr", "who-ivd", "fda-cdx"];
+pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx"];
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
@@ -50,7 +50,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchDisease(_) => "biomcp.disease-search/1",
         Request::GetDisease(_) => "biomcp.disease-get/2",
         Request::SearchDrug(_) => "biomcp.drug-search/2",
-        Request::GetDrug(_) => "biomcp.drug-get/2",
+        Request::GetDrug(_) | Request::GetWhoMedicine(_) => "biomcp.drug-get-command/1",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
         Request::VariantNormalize(_) => "biodata.variant-normalize/2",
@@ -82,7 +82,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "disease", "biomcp.disease-search/1"),
     ("get", "disease", "biomcp.disease-get/2"),
     ("search", "drug", "biomcp.drug-search/2"),
-    ("get", "drug", "biomcp.drug-get/2"),
+    ("get", "drug", "biomcp.drug-get-command/1"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -167,7 +167,7 @@ fn root() -> Result<Command, ()> {
         root = root.subcommand(command);
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
-        "hgnc", "clingen", "ema", "ddinter", "gtr", "who-ivd", "fda-cdx",
+        "hgnc", "clingen", "ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx",
     ])));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(crate::keys::grammar());
@@ -281,6 +281,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
                 Some("gtr") => Bundle::Gtr,
                 Some("who-ivd") => Bundle::WhoIvd,
                 Some("ema") => Bundle::Ema,
+                Some("who-pq") => Bundle::WhoPq,
                 Some("ddinter") => Bundle::Ddinter,
                 Some("clingen") => Bundle::ClinGen,
                 _ => Bundle::Hgnc,

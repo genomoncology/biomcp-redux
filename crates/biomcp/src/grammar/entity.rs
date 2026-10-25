@@ -22,6 +22,9 @@ pub(super) fn request(verb: &str, entity: &str, value: Value) -> Result<Request,
         ("search", "disease") => serde_json::from_value(value).map(Request::SearchDisease),
         ("get", "disease") => serde_json::from_value(value).map(Request::GetDisease),
         ("search", "drug") => serde_json::from_value(value).map(Request::SearchDrug),
+        ("get", "drug") if value.get("source").and_then(Value::as_str) == Some("who-pq") => {
+            serde_json::from_value(value).map(Request::GetWhoMedicine)
+        }
         ("get", "drug") => serde_json::from_value(value).map(Request::GetDrug),
         _ => return Err(()),
     };

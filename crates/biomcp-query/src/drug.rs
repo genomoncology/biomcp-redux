@@ -3,6 +3,7 @@ mod civic;
 mod ddinter;
 mod drugsfda;
 mod ema;
+pub(crate) mod who;
 mod next;
 mod openfda_label;
 use crate::{Action, Ctx, Outcome, status};
@@ -13,6 +14,7 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    if query.source() == DrugSource::WhoPq { return who::search(cx, query); }
     if query.source() == DrugSource::Drugsfda {
         return drugsfda::search(cx, query);
     }
