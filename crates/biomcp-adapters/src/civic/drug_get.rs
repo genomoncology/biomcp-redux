@@ -9,7 +9,7 @@ use biomcp_types::{
 };
 use serde::Serialize;
 
-const MEMBERS: &str = "molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}";
+const MEMBERS: &str = "molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}";
 const COMMON: &str =
     "id status significance disease{name doid} therapies{id name} therapyInteractionType";
 #[derive(Serialize)]

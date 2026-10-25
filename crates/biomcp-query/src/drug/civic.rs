@@ -103,6 +103,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             }
         }
         out.problems = mapped.problems;
+        super::next::civic(&mapped.value, cx.fresh, &mut out);
         out.status = state(&out);
         out.body = QueryBody::DrugCivic(Some(mapped.value));
     }

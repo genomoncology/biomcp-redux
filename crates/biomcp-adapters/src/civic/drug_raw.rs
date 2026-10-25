@@ -22,7 +22,7 @@ pub(super) struct Profile {
     pub name: Text,
     pub link: Text,
     pub is_complex: bool,
-    pub variants: Vec<raw::Member>,
+    pub variants: Vec<Member>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -73,9 +73,21 @@ fn check(id: u64, profile: &Profile) -> Result<(), BadReply> {
         || profile
             .variants
             .iter()
-            .any(|v| v.id == 0 || v.id > i32::MAX as u64)
+            .any(|v| v.variant.id == 0 || v.variant.id > i32::MAX as u64)
     {
         return Err(BadReply);
     }
     Ok(())
+}
+
+#[derive(Deserialize)]
+pub(super) struct Member {
+    #[serde(flatten)]
+    pub variant: raw::Member,
+    pub coordinates: Option<Coordinates>,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct Coordinates {
+    pub reference_build: Option<Text>,
 }

@@ -52,5 +52,18 @@ pub struct DrugCivicProfile {
     /// Source complex-profile flag.
     pub compound: bool,
     /// Every source member, including members without a common-model subject.
-    pub members: Box<[CivicMember]>,
+    pub members: Box<[DrugCivicMember]>,
+}
+
+/// A drug claim member with its source-owned build, without altering variant responses.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugCivicMember {
+    /// Existing native member facts and unchanged HGVS descriptions.
+    #[serde(flatten)]
+    pub member: CivicMember,
+    /// Native coordinates.referenceBuild spelling, including unsupported builds.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reference_build: Option<Text>,
 }
