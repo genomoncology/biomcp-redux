@@ -92,11 +92,7 @@ pub(super) fn execute(
         Projection::Cli => return Ok(outcome),
         Projection::Search => search(call, outcome.value)?,
         Projection::Fetch(id) => {
-            let entity = call
-                .args
-                .get(1)
-                .and_then(|s| s.to_str())
-                .unwrap_or_default();
+            let entity = entity(call);
             let hit = records::fetch(entity, id, &outcome.value);
             let Some(hit) = hit else {
                 outcome.status = crate::exit::Status::Failed;
@@ -115,11 +111,7 @@ pub(super) fn execute(
     Ok(outcome)
 }
 fn search(call: &Call, envelope: Value) -> io::Result<Value> {
-    let entity = call
-        .args
-        .get(1)
-        .and_then(|s| s.to_str())
-        .unwrap_or_default();
+    let entity = entity(call);
     let rows = envelope.pointer("/result/items").and_then(Value::as_array);
     let results = rows
         .into_iter()
@@ -165,4 +157,14 @@ fn restrictions(
     }
     hit.id = shlex::try_join(words.iter().map(String::as_str)).map_err(io::Error::other)?;
     Ok(hit)
+}
+
+fn entity(call: &Call) -> &'static str {
+    match crate::grammar::parse(&call.args)
+        .ok()
+        .and_then(|parsed| parsed.action)
+    {
+        Some(biomcp_query::Action::Run { request, .. }) => crate::spell::command_entity(&request),
+        _ => "",
+    }
 }

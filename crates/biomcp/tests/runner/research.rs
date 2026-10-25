@@ -96,7 +96,18 @@ fn parity() -> Result<(), String> {
         ),
         (
             "variant --query rs113488022 --source myvariant --build GRCh37 --disable-sources oncokb",
-            vec!["search", "variant", "--query", "rs113488022", "--source", "myvariant", "--build", "GRCh37", "--disable-sources", "oncokb"],
+            vec![
+                "search",
+                "variant",
+                "--query",
+                "rs113488022",
+                "--source",
+                "myvariant",
+                "--build",
+                "GRCh37",
+                "--disable-sources",
+                "oncokb",
+            ],
             "variant/search/raw",
         ),
         (
@@ -164,7 +175,10 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .get("id")
         .and_then(Value::as_str)
         .ok_or("hit id missing")?;
-    if !shlex::split(id).ok_or("invalid get id")?.iter().any(|word| Some(word) == args.get(1))
+    if !shlex::split(id)
+        .ok_or("invalid get id")?
+        .iter()
+        .any(|word| Some(word) == args.get(1))
         || hit
             .get("url")
             .and_then(Value::as_str)

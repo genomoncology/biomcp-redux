@@ -64,6 +64,7 @@ const LAYERS: &[(&str, &[&str])] = &[
             "biomcp-adapters",
             "biomcp-query",
             "clap",
+            "shlex",
             "sha2",
             "tempfile",
             "httparse",

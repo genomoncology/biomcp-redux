@@ -175,7 +175,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::SearchArticle(_) => "search",
     }
 }
-fn command_entity(request: &Request) -> &'static str {
+pub(crate) fn command_entity(request: &Request) -> &'static str {
     if matches!(
         request,
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_)
