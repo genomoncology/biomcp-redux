@@ -1,8 +1,9 @@
+use super::links::{native_xrefs, reference, strings};
 use super::raw::{Component, Hit, Page};
-use biodata::{Attribution, DrugIdentity, DrugIdentityLevel, DrugIdentityRelation, Text};
+use biodata::{DrugIdentityLevel, DrugIdentityRelation, Text};
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{DrugCard, DrugHeader, DrugPage, DrugSource};
-fn text(value: &str) -> Result<Text, BadReply> {
+pub(super) fn text(value: &str) -> Result<Text, BadReply> {
     Text::new(value).map_err(|_| BadReply)
 }
 fn components(hit: Hit, leg: &Leg<'_>) -> (String, Option<u64>, Vec<(&'static str, Component)>) {
@@ -128,53 +129,6 @@ pub(super) fn card(
             xrefs: distinct.into(),
         },
         problems,
-    })
-}
-fn strings(values: &crate::raw::OneOrMany<String>) -> Vec<&str> {
-    match values {
-        crate::raw::OneOrMany::One(v) => vec![v],
-        crate::raw::OneOrMany::Many(v) => v.iter().map(String::as_str).collect(),
-    }
-}
-fn reference(
-    record: &str,
-    component: &str,
-    c: &Component,
-    relation: &str,
-    target: &str,
-    name: Option<&str>,
-) -> Result<DrugIdentityRelation, BadReply> {
-    let source = relation.split('.').next().unwrap_or(component);
-    let target_source = relation
-        .split_once(".xrefs.")
-        .map(|(_, key)| key)
-        .unwrap_or(match relation {
-            "unii.rxcui" => "rxnorm",
-            "unii.ncit" => "ncit",
-            "ndc.applicationnumber" | "openfda.application_number" => "drugsfda",
-            "openfda.spl_set_id" => "openfda-label",
-            "gtopdb.chembl_id" => "chembl",
-            _ => source,
-        });
-    Ok(DrugIdentityRelation {
-        identity: DrugIdentity {
-            id: target.parse().map_err(|_| BadReply)?,
-            source: text(target_source)?,
-            name: name.map(text).transpose()?,
-            identity_level: DrugIdentityLevel::Unknown,
-            r#type: None,
-            url: None,
-        },
-        relation: text(relation)?,
-        attribution: Attribution {
-            source: text(component)?,
-            record: native_record(component, c).map(text).transpose()?,
-            version: None,
-            release: None,
-            submitter: None,
-            evaluated: None,
-            url: Some(text(&format!("https://mychem.info/v1/chem/{record}"))?),
-        },
     })
 }
 
@@ -308,39 +262,4 @@ pub(super) fn received_date(fetched: i64) -> Option<biodata::PartialDate> {
         }
     }
     None
-}
-
-fn native_xrefs(
-    record: &str,
-    component: &str,
-    c: &Component,
-    problems: &mut Vec<biomcp_types::Problem>,
-) -> Vec<DrugIdentityRelation> {
-    let mut rows = Vec::new();
-    for (namespace, ids) in c.xrefs.as_ref().into_iter().flatten() {
-        let relation = format!("{component}.xrefs.{namespace}");
-        for id in strings(ids) {
-            match reference(record, component, c, &relation, id, None) {
-                Ok(row) => rows.push(row),
-                Err(_) => problems.push(biomcp_types::Problem {
-                    source: biomcp_types::Source::Mychem,
-                    record: Text::new(record).ok(),
-                    field: relation.clone().into(),
-                    code: biomcp_types::ProblemCode::ValueUnknown,
-                }),
-            }
-        }
-    }
-    rows
-}
-
-fn native_record<'a>(component: &str, c: &'a Component) -> Option<&'a str> {
-    match component {
-        "drugbank" | "drugcentral" => c.id.as_deref(),
-        "chembl" => c.molecule_chembl_id.as_deref(),
-        "gtopdb" => c.ligand_id.as_deref(),
-        "unii" => c.unii.as_deref(),
-        "ndc" => c.product_id.as_deref().or(c.productndc.as_deref()),
-        _ => None,
-    }
 }

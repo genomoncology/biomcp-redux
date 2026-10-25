@@ -15,6 +15,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod links;
 mod map;
 mod raw;
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, PathSegment, RequestError};
