@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "AdverseEventSerious": {
+      "description": "Report-level seriousness filter, independent of reaction outcome.",
+      "enum": [
+        "death",
+        "hospitalization"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native report death flag.",
+        " Native report hospitalization flag."
+      ]
+    },
+    "AdverseEventSource": {
+      "description": "An explicit source; never probe the other family.",
+      "enum": [
+        "faers",
+        "maude"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Drug event reports.",
+        " Device event reports."
+      ]
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.adverse-event-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.",
+  "properties": {
+    "limit": {
+      "default": 5,
+      "description": "Native report headers per page; default five.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native report offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "reaction": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "FAERS MedDRA term phrase match, not exact equality."
+    },
+    "received_from": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Inclusive first FDA receipt lower bound, YYYY-MM-DD."
+    },
+    "received_to": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
+    },
+    "serious": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AdverseEventSerious"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "FAERS report flag, never a reaction outcome."
+    },
+    "source": {
+      "$ref": "#/$defs/AdverseEventSource",
+      "default": "faers",
+      "description": "FAERS by default; no source fallback."
+    },
+    "text": {
+      "$ref": "#/$defs/Text",
+      "description": "Literal drug text or MAUDE device generic-name phrase.",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "AdverseEventSearch",
+  "type": "object"
+}
