@@ -231,6 +231,14 @@ fn walk(env: &Environment, v: &Value) -> Check {
                 .ok_or("page argument".to_owned())
         })
         .collect::<Result<Vec<_>, _>>()?;
+    if !next.iter().any(|arg| arg == "--snapshot") {
+        return Err("continuation lost retained collection selector".into());
+    }
+    let mut disabled = vec!["--disable-sources".into(), "noncommercial".into()];
+    disabled.extend(next.clone());
+    if both(env, disabled, 4)?.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+        return Err("retained collection bypassed source admission".into());
+    }
     let second = both(env, next, 0)?;
     if second.pointer("/result/page/offset") != v.pointer("/result/page/returned")
         || second.pointer("/result/page/returned") != Some(&json!(1))
