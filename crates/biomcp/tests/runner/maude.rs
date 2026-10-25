@@ -223,7 +223,7 @@ fn policy() -> Check {
 fn wrong_key() -> Check {
     let stub = Stub::for_source("api.fda.gov", "application/json", |_| {
         let mut r = row();
-        r["mdr_report_key"] = json!("999");
+        *r.get_mut("mdr_report_key").ok_or("synthetic key")? = json!("999");
         Ok(response(r))
     })?;
     let env = environment(&stub)?;
@@ -243,7 +243,8 @@ fn wrong_key() -> Check {
 fn oversized() -> Check {
     let stub = Stub::for_source("api.fda.gov", "application/json", |_| {
         let mut r = row();
-        r["mdr_text"] = json!([{"text":"X".repeat(100_000)}]);
+        *r.get_mut("mdr_text").ok_or("synthetic narrative")? =
+            json!([{"text":"X".repeat(100_000)}]);
         Ok(response(r))
     })?;
     let env = environment(&stub)?;

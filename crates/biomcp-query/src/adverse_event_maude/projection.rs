@@ -47,18 +47,15 @@ pub(super) fn project(
         }
         Some(AdverseEventSection::Narrative) => {
             let total = row.narrative.len() as u64;
-            let records: Box<[_]> = row
+            let candidates = row
                 .narrative
                 .into_vec()
                 .into_iter()
                 .enumerate()
                 .skip(offset)
                 .take(limit)
-                .map(|(i, r)| maude::narrative(i as u32, r))
-                .collect();
-            if serde_json::to_vec(&records).map_err(|_| ())?.len() > NARRATIVE_PAGE_BYTES {
-                return Err(());
-            }
+                .map(|(i, r)| maude::narrative(i as u32, r));
+            let records = narrative_page(candidates)?;
             let returned = records.len() as u32;
             (
                 QueryBody::AdverseEventNarrative(Some(AdverseEventNarrative {
@@ -127,4 +124,24 @@ fn snapshot(metadata: biomcp_fetch::ReplyMetadata) -> Result<Text, ()> {
     ))?;
 
     Ok(snapshot)
+}
+
+fn narrative_page(
+    rows: impl Iterator<Item = biomcp_types::AdverseEventNarrativeItem>,
+) -> Result<Box<[biomcp_types::AdverseEventNarrativeItem]>, ()> {
+    let mut records = Vec::new();
+    let mut bytes = 2;
+    for row in rows {
+        let additional =
+            serde_json::to_vec(&row).map_err(|_| ())?.len() + usize::from(!records.is_empty());
+        if bytes + additional > NARRATIVE_PAGE_BYTES {
+            if records.is_empty() {
+                return Err(());
+            }
+            break;
+        }
+        bytes += additional;
+        records.push(row);
+    }
+    Ok(records.into())
 }
