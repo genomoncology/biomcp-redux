@@ -26,21 +26,44 @@ fn collection<T: serde::de::DeserializeOwned>(
     q: &PgxGet,
     path: &'static str,
     key: &'static str,
+    check: impl Fn(&[T]) -> bool,
 ) -> Result<Vec<T>, RequestError> {
     let endpoint = SPEC
         .get(path)
         .fresh(Freshness::Days(1))
         .bytes(4 * 1024 * 1024);
     let gene = q.gene().to_string();
-    let body: Native<Vec<T>> = leg.json(
+    let body: Native<Vec<T>> = leg.json_checked_admission(
         &endpoint,
         &[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))],
+        |body: &Native<Vec<T>>| {
+            if check(&body.data) {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        },
+        |_| true,
     )?;
     Ok(body.data)
 }
 /// Clinical min preserves full locations, evidence labels and relationship arrays.
 pub fn clinical(leg: &Leg<'_>, q: &PgxGet) -> Result<Vec<PgxAnnotationHeader>, RequestError> {
-    collection(leg, q, "/data/clinicalAnnotation", "location.genes.symbol")
+    let symbol = q.gene().to_string();
+    collection(
+        leg,
+        q,
+        "/data/clinicalAnnotation",
+        "location.genes.symbol",
+        |rows: &[PgxAnnotationHeader]| {
+            rows.iter().all(|row| {
+                row.location
+                    .genes
+                    .iter()
+                    .any(|gene| gene.symbol.as_deref() == Some(symbol.as_str()))
+            })
+        },
+    )
 }
 /// Reference collections remain independent; neither supplies full guidance.
 pub fn references(leg: &Leg<'_>, q: &PgxGet) -> Result<Vec<PgxAnnotationReference>, RequestError> {
@@ -49,7 +72,7 @@ pub fn references(leg: &Leg<'_>, q: &PgxGet) -> Result<Vec<PgxAnnotationReferenc
         Some(PgxAnnotationKind::Label) => "/data/labelAnnotation",
         _ => return Err(biomcp_fetch::InputError::Serialization.into()),
     };
-    collection(leg, q, path, "relatedGenes.symbol")
+    collection(leg, q, path, "relatedGenes.symbol", |_| true)
 }
 /// Check exact returned accession on every read before cache admission.
 pub fn annotation(

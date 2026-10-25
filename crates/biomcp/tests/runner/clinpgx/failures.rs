@@ -8,6 +8,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "broken",
         "status",
         "wrong-accession",
+        "wrong-gene",
         "unknown-field",
     ] {
         out.push(Trial::test(
@@ -35,6 +36,11 @@ fn failure(name: &'static str) -> Check {
         *body
             .pointer_mut("/data/accessionId")
             .ok_or("synthetic identity")? = json!("PA999999");
+    }
+    if name == "wrong-gene" {
+        *body
+            .pointer_mut("/data/0/location/genes/0/symbol")
+            .ok_or("synthetic symbol")? = json!("TP53");
     }
     if name == "status" {
         *body.get_mut("status").ok_or("status")? = json!("error");
