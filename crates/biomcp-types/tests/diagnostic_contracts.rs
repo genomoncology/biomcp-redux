@@ -315,7 +315,7 @@ fn continuation_preserves_revision_filters_and_source_checked_sections() {
     assert_eq!(search.source(), DiagnosticSearchSource::Gtr);
     assert_eq!(search.gene_id().unwrap().to_string(), "672");
     assert!(search.gene().is_none());
-    assert_eq!(search.condition_id().unwrap().as_str(), "MedGen:C2676676");
+    assert!(search.condition_id().is_none());
     assert!(search.device_id().is_none());
     assert!(search.drug_application().is_none());
     assert!(search.biomarker().is_none());
