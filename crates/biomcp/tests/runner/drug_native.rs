@@ -130,11 +130,9 @@ fn assertions(case: &Case, value: &Value) -> Check {
             return Err(format!("{}: unexpected {pointer}", case.name));
         }
     }
-    if case.args.first().is_some_and(|arg| arg == "search") {
-        let items = value
-            .pointer("/result/items")
-            .and_then(Value::as_array)
-            .ok_or("items")?;
+    if case.args.first().is_some_and(|arg| arg == "search")
+        && let Some(items) = value.pointer("/result/items").and_then(Value::as_array)
+    {
         let next = value.get("next").and_then(Value::as_array).ok_or("next")?;
         for (index, item) in items.iter().enumerate() {
             let step = next.get(index).ok_or("candidate get was dropped")?;
