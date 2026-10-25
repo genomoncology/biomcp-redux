@@ -64,22 +64,9 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         fs::write(output.join(format!("{name}-size.json")), json!({"full_bytes":full.len(),"comparable_bytes":comparable,"max_bytes":ceiling,"token_estimate":comparable.div_ceil(4)}).to_string()).map_err(|e|e.to_string())?;
     }
     explicit(&output)?;
-    let requests = stub.finish()?;
-    fs::write(
-        output.join("local-requests.json"),
-        serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| e.to_string())?;
-    if requests.len() != 7 {
-        return Err(format!(
-            "expected seven local deliveries, got {}",
-            requests.len()
-        ));
-    }
-    use std::io::Write;
-    writeln!(std::io::stderr(), "Trial condition native proof: seven local deliveries, four resolved CLI/MCP pairs and one explicit NCIt pair; zero provider calls").map_err(|e|e.to_string())?;
-    Ok(())
+    finish(stub, &output)
 }
+
 fn cases() -> Vec<(&'static str, &'static str, &'static str, i32, Value)> {
     vec![
         (
@@ -215,5 +202,23 @@ fn explicit(output: &Path) -> Result<(), String> {
     let comparable = crate::runner::source_terms::size(&value, "")?;
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     fs::write(output.join("nci-explicit-size.json"), json!({"full_bytes":full,"comparable_bytes":comparable,"max_bytes":(comparable*115).div_ceil(100),"token_estimate":comparable.div_ceil(4)}).to_string()).map_err(|e|e.to_string())?;
+    Ok(())
+}
+
+fn finish(stub: Stub, output: &Path) -> Result<(), String> {
+    let requests = stub.finish()?;
+    fs::write(
+        output.join("local-requests.json"),
+        serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    if requests.len() != 7 {
+        return Err(format!(
+            "expected seven local deliveries, got {}",
+            requests.len()
+        ));
+    }
+    use std::io::Write;
+    writeln!(std::io::stderr(), "Trial condition native proof: seven local deliveries, four resolved CLI/MCP pairs and one explicit NCIt pair; zero provider calls").map_err(|e|e.to_string())?;
     Ok(())
 }
