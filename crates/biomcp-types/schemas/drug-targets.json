@@ -235,13 +235,12 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentity": {
@@ -290,7 +289,6 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
@@ -328,6 +326,83 @@
         " Source-stated orphan designation identity.",
         " Source-stated unknown identity."
       ]
+    },
+    "DrugNativeReference": {
+      "additionalProperties": false,
+      "description": "Typed source reference shared by mechanism and indication records.",
+      "properties": {
+        "ref_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference identifier, when supplied."
+        },
+        "ref_type": {
+          "$ref": "#/$defs/Text",
+          "description": "Native reference type."
+        },
+        "ref_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference link, when supplied."
+        }
+      },
+      "required": [
+        "ref_type"
+      ],
+      "type": "object"
+    },
+    "DrugNativeTarget": {
+      "additionalProperties": false,
+      "description": "One source-native target identity, without inventing a gene label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact published target identifier."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native target label, only when supplied."
+        },
+        "source": {
+          "$ref": "#/$defs/Text",
+          "description": "Source responsible for the native identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native target link, only when supplied."
+        }
+      },
+      "required": [
+        "source",
+        "id"
+      ],
+      "type": "object"
     },
     "DrugRecords": {
       "additionalProperties": false,
@@ -393,6 +468,7 @@
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
+        "xrefs",
         "targets",
         "indications",
         "civic",
@@ -403,6 +479,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " All native identity cross-references and product links, mechanically paged.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -427,6 +504,18 @@
     },
     "DrugTargetRelation": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "target"
+          ]
+        },
+        {
+          "required": [
+            "native_target"
+          ]
+        }
+      ],
       "description": "A native target or mechanism relation, without an indication inference.",
       "properties": {
         "attribution": {
@@ -446,7 +535,18 @@
               "type": "null"
             }
           ],
-          "description": "Native mechanism wording, when supplied."
+          "description": "Native mechanism wording, only when supplied."
+        },
+        "native_target": {
+          "$ref": "#/$defs/DrugNativeTarget",
+          "description": "Native target identity independent of a gene reference."
+        },
+        "references": {
+          "description": "Source-native supporting references.",
+          "items": {
+            "$ref": "#/$defs/DrugNativeReference"
+          },
+          "type": "array"
         },
         "relation": {
           "$ref": "#/$defs/Text",
@@ -454,12 +554,11 @@
         },
         "target": {
           "$ref": "#/$defs/GeneRef",
-          "description": "Source-stated target gene."
+          "description": "Source-stated target gene, without using mechanism text as a gene label."
         }
       },
       "required": [
         "drug",
-        "target",
         "relation",
         "attribution"
       ],
@@ -879,6 +978,16 @@
         "unii",
         "ndc",
         "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
         "cbioportal"
       ],
       "type": "string",
@@ -923,6 +1032,16 @@
         " MyChem UNII identities.",
         " MyChem NDC package identities.",
         " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
         " Public cBioPortal with study-specific reuse terms."
       ]
     },
@@ -1152,7 +1271,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_targets/1",
+  "$id": "biomcp.drug_targets/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1198,7 +1317,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_targets/1",
+      "const": "biomcp.drug_targets/3",
       "type": "string"
     },
     "sources": {

@@ -5,7 +5,7 @@ Status: OPEN.
 Milestone: 3
 
 Depends on: 0124
-
+Depends on: 0126
 Depends on: 0125
 
 ## Outcome
@@ -16,3 +16,4 @@ Depends on: 0125
 - Starts from: drug.md's EMA rows, the bundle inventory and cases R01 and B01; the existing shared `sync <bundle>` contract and atomic bundle recipe; 0124 and 0125.
 - Rules: only `medicines.json` enters the initial bundle; the other EMA feeds wait for a matching question. Reads never trigger a sync. A failed validation keeps the old usable copy. Both Tibsovo records stay separate, D06 keeps EMA's structured 2016-02-01 date, and D24's withdrawn application never means absence from every European route. No EMA event reaches a card, and nothing infers a US status. `identity_level` comes from the EMA record type, never from a field's shape.
 - Proof: outside-in cases first. Before adapter code, a bounded keyless pm job syncs the bundle once and captures positive exact-ID gets for EMEA/H/C/000406, EMEA/H/C/004124, EMEA/H/C/004480 and EMEA/H/C/005621, and a known positive for the search. Cases S04 for `ema`, G01 for EMA IDs, R01 (D02, D06, D22, D24 and the two Tibsovo records) and the EMA half of B01 (recorded size and hash, synthetic partial download, malformed file, and two concurrent readers during one replacement each seeing a complete old or new copy, and zero sync requests on reads) pass with size ceilings. No licensed content enters the repo, and replies whose terms bar storage replay from outside the repo. Then make landing-gate runs through pm job.
+- Owns the shared stored-only bundle read API that 0132 consumes after this lands. The sync receipt schema stays unchanged.

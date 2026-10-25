@@ -119,11 +119,18 @@ pub use response::{
     VariantAssertions,
 };
 
+pub use query::{DiseaseGet, DiseaseOntology, DiseaseSearch, DiseaseSection, DiseaseSource};
+
+pub use response::{
+    DiseaseAssociationItem, DiseaseCard, DiseaseGenes, DiseaseHeader, DiseaseHierarchy,
+    DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
+    DiseaseSynonyms, DiseaseXrefs,
+};
 mod drug;
 pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugGet, DrugHeader, DrugIndications, DrugInteractions,
     DrugLabel, DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection,
-    DrugSource, DrugTargets,
+    DrugSource, DrugTargets, DrugXrefs,
 };
 
 pub use query::QueryInvalid;
