@@ -35,15 +35,19 @@ impl DrugSource {
     ];
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {
+        self.source().into()
+    }
+    /// Shared transport identity, also owning the canonical source spelling.
+    pub const fn source(self) -> crate::Source {
         match self {
-            Self::Mychem => "mychem",
-            Self::Chembl => "chembl",
-            Self::Opentargets => "opentargets",
-            Self::Civic => crate::Source::Civic.into(),
-            Self::OpenfdaLabel => "openfda-label",
-            Self::Drugsfda => "drugsfda",
-            Self::Ema => "ema",
-            Self::Ddinter => "ddinter",
+            Self::Mychem => crate::Source::Mychem,
+            Self::Chembl => crate::Source::Chembl,
+            Self::Opentargets => crate::Source::Opentargets,
+            Self::Civic => crate::Source::Civic,
+            Self::OpenfdaLabel => crate::Source::OpenfdaLabel,
+            Self::Drugsfda => crate::Source::Drugsfda,
+            Self::Ema => crate::Source::Ema,
+            Self::Ddinter => crate::Source::Ddinter,
         }
     }
 }

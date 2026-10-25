@@ -25,17 +25,14 @@ fn strip_row(row: &mut Value) -> Result<(), String> {
     let outcome: biomcp_types::SourceOutcome =
         serde_json::from_value(row.clone()).map_err(|e| e.to_string())?;
     let source = outcome.source;
-    let spec = biomcp_adapters::registry::SOURCES
-        .iter()
-        .find(|spec| spec.source == source)
-        .ok_or("unregistered outcome source")?;
+    let terms = biomcp_adapters::registry::terms(source).ok_or("unregistered outcome source")?;
     let object = row
         .as_object_mut()
         .ok_or("source outcome is not an object")?;
     for (field, expected) in [
-        ("use", json!(spec.terms.usage)),
-        ("terms", json!(spec.terms.name)),
-        ("terms_url", json!(spec.terms.url)),
+        ("use", json!(terms.usage)),
+        ("terms", json!(terms.name)),
+        ("terms_url", json!(terms.url)),
     ] {
         if object.remove(field) != Some(expected) {
             return Err(format!("{source}: missing or changed registry {field}"));

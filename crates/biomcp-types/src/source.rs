@@ -57,6 +57,32 @@ canonical_enum! {
         Mutalyzer => "mutalyzer",
         /// VariantValidator.
         VariantValidator => "variantvalidator",
+        /// MyChem.info aggregation.
+        Mychem => "mychem",
+        /// ChEMBL native records and carried component.
+        Chembl => "chembl",
+        /// Open Targets.
+        Opentargets => "opentargets",
+        /// openFDA SPL labels.
+        OpenfdaLabel => "openfda-label",
+        /// Drugs@FDA application records.
+        Drugsfda => "drugsfda",
+        /// European Medicines Agency.
+        Ema => "ema",
+        /// DDInter interaction records.
+        Ddinter => "ddinter",
+        /// MyChem DrugBank Open identity subset only.
+        DrugbankOpen => "drugbank-open",
+        /// MyChem DrugCentral component.
+        Drugcentral => "drugcentral",
+        /// MyChem Guide to Pharmacology component.
+        Gtopdb => "gtopdb",
+        /// MyChem UNII identities.
+        Unii => "unii",
+        /// MyChem NDC package identities.
+        Ndc => "ndc",
+        /// MyChem openFDA cross-references only.
+        OpenfdaXref => "openfda-xref",
         /// Public cBioPortal with study-specific reuse terms.
         Cbioportal => "cbioportal",
     }
