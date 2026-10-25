@@ -77,6 +77,12 @@ fn check(fault: &'static str) -> Result<(), String> {
     {
         return Err(format!("unsafe identity became a product pick: {bad}"));
     }
+    if bad.pointer("/problems/0/source")
+        != Some(&json!(if civic { "civic" } else { "openfda-label" }))
+        || bad.pointer("/problems/0/field") != Some(&json!("record"))
+    {
+        return Err(format!("unsafe identity has no record problem: {bad}"));
+    }
     let good = invoke(&env, args.clone(), 0)?;
     if super::mcp::call_with_globals(&env, &args, false, &[])? != good || stub.finish()?.len() != 2
     {

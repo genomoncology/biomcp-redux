@@ -72,6 +72,17 @@ pub(super) fn trials() -> Vec<Trial> {
         .collect()
 }
 fn check(source: &Source) -> Check {
+    if matches!(source.name, "ema" | "ddinter") {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let recording = env.root().join("recording");
+        super::response_cases::copy_capture(
+            &format!("drug/{}-synthetic", source.name),
+            &recording,
+            |_, _| {},
+        )
+        .map_err(|e| e.to_string())?;
+        return matrix(source, &recording, env.root());
+    }
     let stub = Stub::for_source(source.host, "application/json", |_| {
         Ok("synthetic broken body".into())
     })?;
@@ -91,9 +102,12 @@ fn check(source: &Source) -> Check {
     if stub.finish()?.is_empty() {
         return Err(format!("{}: fixture was never delivered", source.name));
     }
+    matrix(source, &recording, env.root())
+}
+fn matrix(source: &Source, recording: &Path, root: &Path) -> Check {
     for fault in ["503", "429", "timeout", "broken"] {
-        let directory = env.root().join(fault);
-        mutate(&recording, &directory, fault)?;
+        let directory = root.join(fault);
+        mutate(recording, &directory, fault)?;
         let replay = Environment::new().map_err(|e| e.to_string())?;
         let mut args = replay.globals(Some(&directory), false);
         args.extend(source.words.iter().map(|w| (*w).to_owned()));
@@ -127,6 +141,13 @@ fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
         fs::create_dir(&target).map_err(|e| e.to_string())?;
         for file in fs::read_dir(directory.path()).map_err(|e| e.to_string())? {
             let file = file.map_err(|e| e.to_string())?;
+            if file
+                .path()
+                .extension()
+                .is_none_or(|extension| extension != "json")
+            {
+                continue;
+            }
             let mut value: Value =
                 serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
@@ -138,6 +159,7 @@ fn mutate(original: &Path, destination: &Path, fault: &str) -> Check {
                 "429" => 429,
                 _ => 200,
             });
+            exchange["body"] = json!({"kind":"text","value":"synthetic broken body"});
             exchange["delay_ms"] = json!(if fault == "timeout" { 60000 } else { 0 });
             value["exchanges"] = json!(vec![exchange.clone(); 5]);
             fs::write(target.join(file.file_name()), value.to_string())
@@ -156,7 +178,7 @@ fn assert_failed(source: &Source, fault: &str, value: &Value) -> Check {
         .find(|row| row["source"] == source.name)
         .ok_or("missing failed source")?;
     let reason = match fault {
-        "503" => "upstream_5xx",
+        "503" => "unavailable",
         "429" => "rate_limited",
         "timeout" => "deadline_exceeded",
         _ => "bad_reply",
@@ -172,7 +194,7 @@ fn assert_failed(source: &Source, fault: &str, value: &Value) -> Check {
     }
     if outcome["terms"].as_str().is_none_or(str::is_empty)
         || outcome["terms_url"].as_str().is_none_or(str::is_empty)
-        || outcome["usage"].as_str().is_none()
+        || outcome["use"].as_str().is_none()
     {
         return Err("synthetic failure lost publisher terms".into());
     }
