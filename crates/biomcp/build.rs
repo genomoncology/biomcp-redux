@@ -60,6 +60,8 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("drug/ema.yaml", 2),
     ("drug/ema.yaml", 3),
     ("drug/ema.yaml", 7),
+    ("drug/who-sync.yaml", 0),
+    ("drug/who-sync.yaml", 1),
     ("drug/ema-sync.yaml", 0),
     ("drug/ema-sync.yaml", 1),
     ("drug/ddinter.yaml", 0),

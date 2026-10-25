@@ -23,6 +23,7 @@ pub(super) fn next(
             | biomcp_types::QueryBody::DiagnosticGenes(_)
             | biomcp_types::QueryBody::AdverseEventPage(_)
             | biomcp_types::QueryBody::DrugPage(_)
+            | biomcp_types::QueryBody::DrugWhoPage(_)
             | biomcp_types::QueryBody::DrugFdaPage(_)
             | biomcp_types::QueryBody::DrugCivic(_)
             | biomcp_types::QueryBody::DiseasePage(_)

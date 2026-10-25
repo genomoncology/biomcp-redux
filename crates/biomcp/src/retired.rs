@@ -288,6 +288,12 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
             continue;
         }
         let value = inline.or_else(|| args.next().and_then(|arg| arg.to_str()));
+        if retired == Some(ErrorMessage::DrugRegion)
+            && value == Some("who")
+            && result.retired_option == retired
+        {
+            result.retired_option = Some(ErrorMessage::DrugWhoRegion);
+        }
         if flag == "--section" {
             result.sections.push(value?);
         }

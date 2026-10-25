@@ -27,6 +27,8 @@ pub enum Request {
     SearchDrug(crate::DrugSearch),
     /// Read one exact source drug identity.
     GetDrug(crate::DrugGet),
+    /// Read native WHO prequalification rows by exact reference.
+    GetWhoMedicine(crate::DrugWhoGet),
     /// Read source-native variant assertions.
     VariantAssertions(crate::VariantAssertionsGet),
     /// Read source ancestry observations.

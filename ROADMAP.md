@@ -25,8 +25,8 @@ Each key is read from the config file's `keys` or its environment variable, sent
 | Measure | Count |
 | --- | --- |
 | 0.9 commands and options | 112 commands, 375 options |
-| Ported or renamed | 45 commands, 134 options |
-| Dropped by ruling | 7 commands, 78 options |
+| Ported or renamed | 46 commands, 134 options |
+| Dropped by ruling | 6 commands, 78 options |
 | Not yet decided | 60 commands, 163 options |
 <!-- /parity-ledger -->
 

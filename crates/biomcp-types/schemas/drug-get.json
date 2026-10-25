@@ -38,6 +38,7 @@
     },
     "DrugSource": {
       "enum": [
+        "who-pq",
         "mychem",
         "chembl",
         "opentargets",

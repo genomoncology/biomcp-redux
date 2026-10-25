@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "CivicClaimKind": {
+      "description": "CIViC native claim collection.",
+      "enum": [
+        "evidence",
+        "assertions"
+      ],
+      "type": "string"
+    },
+    "DrugId": {
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "type": "string"
+    },
+    "DrugSection": {
+      "description": "Explicit drug disclosures; identity cards never expand into these sections.",
+      "enum": [
+        "xrefs",
+        "targets",
+        "indications",
+        "civic",
+        "label",
+        "approvals",
+        "regulatory",
+        "interactions"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " All native identity cross-references and product links, mechanically paged.",
+        " Native target and mechanism relations.",
+        " Native indication wording.",
+        " Native CIViC therapy evidence and profile context.",
+        " One exact native label heading.",
+        " Native application and product history rows.",
+        " Source-scoped regulator events.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved."
+      ]
+    },
+    "DrugSource": {
+      "enum": [
+        "who-pq",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.drug-get-command/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact native ID retrieval with an explicitly selected source.",
+  "properties": {
+    "civic_cursor": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native continuation cursor for that exact drug, profile and claim collection."
+    },
+    "civic_kind": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CivicClaimKind"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Independent native evidence or assertion collection within the selected profile."
+    },
+    "civic_profile": {
+      "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+      "format": "uint64",
+      "maximum": 2147483647,
+      "minimum": 1,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "input": {
+      "$ref": "#/$defs/Text",
+      "description": "Exact source-native ID; WHO references retain native spaces. No name or alias resolution.",
+      "x-positional": 0
+    },
+    "label_section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Exact native label heading, required only for the label section."
+    },
+    "product_number": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Explicit native application product number, only for approvals."
+    },
+    "section": {
+      "description": "Explicit named disclosures; empty means identity only.",
+      "items": {
+        "$ref": "#/$defs/DrugSection"
+      },
+      "type": "array",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "description": "Named section page size, refused on an identity-only card.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "section_offset": {
+      "description": "Named section continuation, refused on an identity-only card.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "source": {
+      "$ref": "#/$defs/DrugSource",
+      "description": "Required source; there is no default exact-ID resolver."
+    }
+  },
+  "required": [
+    "input",
+    "source"
+  ],
+  "title": "DrugGetCommand",
+  "type": "object"
+}

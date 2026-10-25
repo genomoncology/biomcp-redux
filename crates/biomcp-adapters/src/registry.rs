@@ -12,6 +12,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::clinpgx::SPEC,
     &crate::gtr::SPEC,
     &crate::who_ivd::SPEC,
+    &crate::who_pq::SPEC,
     &crate::fda_cdx::SPEC,
     &crate::fda_pma::SPEC,
     &crate::fda_510k::SPEC,

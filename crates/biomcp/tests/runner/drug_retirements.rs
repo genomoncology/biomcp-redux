@@ -47,6 +47,14 @@ fn check() -> Result<(), String> {
 }
 const CASES: &[(&str, &str)] = &[
     (
+        "search drug trastuzumab --region who",
+        "--region who is retired: use --source who-pq.",
+    ),
+    (
+        "get drug BT-ON001 --region=who",
+        "--region who is retired: use --source who-pq.",
+    ),
+    (
         "drug cell-lines imatinib --cell-line A --dataset B --limit 1 --offset 0",
         "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
     ),
@@ -56,10 +64,7 @@ const CASES: &[(&str, &str)] = &[
     ),
     ("ema sync", "renamed; use: biomcp sync ema"),
     ("ddinter sync", "renamed; use: biomcp sync ddinter"),
-    (
-        "who sync",
-        "who sync is retired: WHO prequalification is outside this question bank.",
-    ),
+    ("who sync", "renamed; use: biomcp sync who-pq"),
     (
         "search drug --query imatinib",
         "renamed; use: search drug <TEXT> --source <SOURCE>",
