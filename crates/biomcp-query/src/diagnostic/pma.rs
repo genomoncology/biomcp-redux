@@ -188,7 +188,7 @@ fn regulatory(
         .skip(q.section_offset() as usize)
         .take(q.section_limit() as usize)
     {
-        let size = fda_pma::escaped_bytes(&text);
+        let size = text.as_deref().map_or(0, fda_pma::escaped_bytes);
         if !items.is_empty() && bytes + size > 6144 {
             break;
         }
@@ -199,7 +199,7 @@ fn regulatory(
             field: DiagnosticRegulatoryField::ApprovalOrderStatement,
             offset: index as u32,
             total: total as u32,
-            text: text.into(),
+            text: text.map(Into::into),
         });
     }
     page(out, q, items.len(), total, fresh);
