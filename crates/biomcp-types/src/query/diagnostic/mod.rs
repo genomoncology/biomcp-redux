@@ -36,7 +36,7 @@ pub struct DiagnosticSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment.
+    /// Explicit native GTR, WHO IVD or FDA companion discovery.
     source: DiagnosticSearchSource,
     /// Exact source GeneID, exclusive with gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -60,17 +60,17 @@ struct SearchFields {
     /// Exact table-0 biomarker cell; unsupported in the group table.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     biomarker: Option<Text>,
-    /// Literal whole words in WHO's Pathogen/Disease/Marker cell.
+    /// Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     marker: Option<Text>,
-    /// Literal whole words in WHO's Manufacturer name cell.
+    /// Literal whole-word phrase in WHO's Manufacturer name cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     manufacturer: Option<Text>,
-    /// Five rows by default; at most fifty whole native rows.
+    /// Five results by default; at most fifty source rows or product headers.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Zero-based native row offset.
+    /// Zero-based source result offset.
     #[serde(default)]
     offset: u32,
     /// Immutable stored bundle revision retained by a continuation.

@@ -214,7 +214,7 @@ page!(
     DiagnosticCandidate,
     DiagnosticSearch,
     "biomcp.diagnostic_page/2",
-    "Source-ordered GTR candidates with explicit conflicts."
+    "Source-ordered GTR test candidates or WHO product headers."
 );
 page!(
     DiagnosticGenes,
