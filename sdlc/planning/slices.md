@@ -2,7 +2,7 @@
 
 BioMCP 1.0 grows one entity at a time. A slice takes one entity with its sources from investigation to landed commands. Simpler entities come first and complex ones build on them. Tickets come out of each slice, never from a list made up front, as `decisions/2026-10-23-slices-not-preplanned-tickets.md` says.
 
-BioMCP 0.9 is not the spec. A slice looks critically at every 0.9 command, section and option for its entity and keeps only what a real question needs.
+BioMCP 0.9 is not the spec. It is the quality floor: 1.0 must answer at least as well, and matching 0.9 is a starting point, never the goal or the definition of good. A slice looks critically at every 0.9 command, section and option for its entity and keeps only what a real question needs.
 
 ## The steps
 
@@ -53,11 +53,11 @@ The slice writes `planning/slices/<entity>.md`. It holds the examples' summary, 
 
 Every slice design states its progressive disclosure strategy. The densest, highest-priority facts for a clinician's question sit at the top of the command and option tree: the search header and the default card answer the common question alone, and each drill-down section or option adds the next most useful layer. Rarely needed or bulky data lives deepest, behind a named section or option, never in the default output.
 
-Every slice design gives a token budget for each command's default JSON output and for each section, measured on the slice's harvested cases, and compares it with 0.9's output for the same questions in tokens and in facts carried. A 1.0 default output that costs more tokens than 0.9 for the same question needs a stated reason. The cases assert the budget with a byte or token ceiling, so growth fails a check instead of drifting.
+Every slice design gives a token budget for each command's default JSON output and for each section, measured on the slice's harvested cases, and compares it with 0.9's output for the same questions in tokens and in facts carried. A 1.0 default output that costs more tokens than 0.9 for the same question needs a stated reason. The cases assert the budget with a byte or token ceiling, so growth fails a check instead of drifting. The one exception is the source name list in the schema output: when a slice adds sources and components its design approved, that list's byte and token ceilings move to the measured size plus 15 percent without a new ruling, and the earlier sizes stay as history.
 
 ### 5. Build outside-in
 
-Each ticket writes its cases first and watches them fail, then builds the least code that passes, then removes what the cases do not need. Types and schema land before adapters, adapters before commands.
+Each ticket writes its cases first and watches them fail, then builds the least code that passes, then removes what the cases do not need. Each kept source's exact-request captures exist before its shared types are accepted, and type review checks each field's absence, multiplicity and collection scope against those captures. Types and schema land before adapters, adapters before commands.
 
 ## What a slice delivers
 

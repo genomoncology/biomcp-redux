@@ -1,0 +1,46 @@
+{
+  "$defs": {
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biodata.drug-native-reference/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Typed source reference shared by mechanism and indication records.",
+  "properties": {
+    "ref_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source reference identifier, when supplied."
+    },
+    "ref_type": {
+      "$ref": "#/$defs/Text",
+      "description": "Native reference type."
+    },
+    "ref_url": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source reference link, when supplied."
+    }
+  },
+  "required": [
+    "ref_type"
+  ],
+  "title": "DrugNativeReference",
+  "type": "object"
+}

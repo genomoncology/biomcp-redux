@@ -11,6 +11,7 @@ struct Shape {
     selectors: Option<Vec<BTreeSet<String>>>,
     minimum_length: u64,
     minimum_items: u64,
+    unique_items: bool,
     maximum_items: Option<u64>,
     pattern: Option<String>,
     minimum: Option<Bound>,
@@ -52,6 +53,7 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || !new.required.is_subset(&old.required)
             || new.minimum_length > old.minimum_length
             || new.minimum_items > old.minimum_items
+            || new.unique_items && !old.unique_items
             || new
                 .maximum_items
                 .is_some_and(|bound| old.maximum_items.is_none_or(|old| bound < old))
@@ -156,6 +158,9 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             }
             shape.types.insert(kind.into());
         }
+    }
+    if let Some(unique) = node.get("uniqueItems") {
+        shape.unique_items |= unique.as_bool().ok_or("invalid uniqueItems")?;
     }
     if let Some(pattern) = node.get("pattern") {
         shape.pattern = Some(pattern.as_str().ok_or("invalid pattern")?.into());
@@ -343,6 +348,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "default",
             "minItems",
             "maxItems",
+            "uniqueItems",
             "x-enum-descriptions",
             "x-positional",
             "x-trailing-section",

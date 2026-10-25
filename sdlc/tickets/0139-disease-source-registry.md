@@ -1,6 +1,7 @@
 # 0139 — Register the disease sources and components with use labels
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 94fd5620d91b80053fd1480e648f37dace411ea4
 
 Milestone: 3
 

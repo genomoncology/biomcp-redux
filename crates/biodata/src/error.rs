@@ -4,6 +4,10 @@
 pub enum Error {
     /// A published native drug identifier was invalid.
     DrugIdInvalid,
+    /// Neither a source gene nor native target identifies the relation.
+    DrugTargetAbsent,
+    /// Interaction provenance repeats a primary or further attribution.
+    DrugAttributionDuplicate,
     /// The source identity level is outside the closed vocabulary.
     DrugIdentityLevelUnknown,
     /// A shared numeric value violates its bounds.
@@ -172,6 +176,8 @@ impl Error {
             Self::IntervalChromosomeMismatch => "coord.interval.chromosome_mismatch",
             Self::AccessionVersionPresent => "accession.version.present",
             Self::ManeStatusUnknown => "gene.mane.status_unknown",
+            Self::DrugTargetAbsent => "drug.target_absent",
+            Self::DrugAttributionDuplicate => "drug.attribution_duplicate",
             Self::GeneRefLabelEmpty => "gene.ref.label_empty",
             Self::HgvsTextEmpty => "hgvs.text.empty",
             Self::HgvsReferenceMissing => "hgvs.reference.missing",

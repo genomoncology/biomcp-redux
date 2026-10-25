@@ -1,0 +1,22 @@
+{
+  "$id": "biodata.drug-stage/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One source development-stage field and its unchanged value.",
+  "properties": {
+    "field": {
+      "description": "Exact native field name.",
+      "type": "string"
+    },
+    "value": {
+      "description": "Exact source string, without an authorization interpretation.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "field",
+    "value"
+  ],
+  "title": "DrugStage",
+  "type": "object"
+}
