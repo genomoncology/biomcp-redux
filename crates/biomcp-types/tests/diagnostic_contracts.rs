@@ -73,6 +73,7 @@ fn checked_search_rejects_cross_source_selectors_before_io() {
         json!({"source":"gtr","gene":"BRCA1","gene_id":"672"}),
         json!({"source":"gtr","condition_id":"MONDO:0007254"}),
         json!({"source":"gtr","condition_id":"MedGen:2676676"}),
+        json!({"source":"gtr","gene_id":"672","condition_id":"MedGen:C2676676"}),
         json!({"source":"gtr","device_id":"P150013"}),
         json!({"source":"fda-cdx","gene_id":"672"}),
         json!({"source":"fda-cdx","condition_id":"MedGen:C2676676"}),
@@ -307,7 +308,10 @@ fn conflict_candidates_have_no_selected_name_or_card() {
 
 #[test]
 fn continuation_preserves_revision_filters_and_source_checked_sections() {
-    let search: DiagnosticSearch=serde_json::from_value(json!({"source":"gtr","gene_id":"672","condition_id":"MedGen:C2676676","type":"Clinical","bundle_revision":"revision-1"})).unwrap();
+    let search: DiagnosticSearch = serde_json::from_value(
+        json!({"source":"gtr","gene_id":"672","type":"Clinical","bundle_revision":"revision-1"}),
+    )
+    .unwrap();
     assert_eq!(search.source(), DiagnosticSearchSource::Gtr);
     assert_eq!(search.gene_id().unwrap().to_string(), "672");
     assert!(search.gene().is_none());

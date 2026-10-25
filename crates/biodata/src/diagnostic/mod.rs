@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticRecord {
     /// Original GTR test-version row, including independently retained conflicts.
-    GtrTestVersion(GtrTestVersion),
+    GtrTestVersion(Box<GtrTestVersion>),
     /// One native GTR membership or method row.
     GtrTestRelation(GtrTestRelation),
     /// Complete selected WHO listing.

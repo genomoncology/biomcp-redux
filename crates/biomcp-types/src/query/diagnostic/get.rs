@@ -25,7 +25,7 @@ struct GetFields {
     supplement: Option<PmaSupplement>,
     /// Native rows or regulatory fragments per section page.
     #[serde(default, deserialize_with = "super::super::gene::present")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
     section_limit: Option<u32>,
     /// Zero-based native row or fragment offset.
     #[serde(default)]

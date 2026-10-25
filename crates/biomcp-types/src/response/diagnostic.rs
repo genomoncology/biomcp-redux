@@ -117,7 +117,7 @@ pub struct GtrCard {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum DiagnosticCard {
     /// Exact resolved GTR accession/version.
-    GtrTest(GtrCard),
+    GtrTest(Box<GtrCard>),
     /// All native rows under one WHO Product ID.
     WhoIvdProduct(WhoIvdProduct),
     /// Exact native FDA base or supplement, never an application-wide inferred claim.

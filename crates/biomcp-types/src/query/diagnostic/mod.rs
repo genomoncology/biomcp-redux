@@ -39,6 +39,7 @@ struct SearchFields {
     gene: Option<GeneSymbol>,
     /// Exact MedGen:CUI identifier only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(regex(pattern = "^MedGen:C[0-9]+$")))]
     condition_id: Option<Text>,
     /// Exact native test_type value.
     #[serde(default, rename = "type", skip_serializing_if = "Option::is_none")]
@@ -72,7 +73,15 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         if !(1..=50).contains(&v.limit)
-            || (v.gene.is_some() && v.gene_id.is_some())
+            || [
+                v.gene.is_some(),
+                v.gene_id.is_some(),
+                v.condition_id.is_some(),
+            ]
+            .into_iter()
+            .filter(|v| *v)
+            .count()
+                > 1
             || (v.source == DiagnosticSearchSource::Gtr && cdx)
             || (v.source == DiagnosticSearchSource::FdaCdx && gtr)
             || v.device_id
