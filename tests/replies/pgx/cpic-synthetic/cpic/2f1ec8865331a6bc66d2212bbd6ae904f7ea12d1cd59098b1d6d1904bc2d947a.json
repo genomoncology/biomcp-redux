@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.DPYD&order=pairid.asc&limit=1&offset=0&cpiclevel=eq.B%2FC",
+  "exchanges": [
+    {
+      "fetched": 1792918636,
+      "status": 206,
+      "content_type": "application/json",
+      "content_range": "0-0/2",
+      "delay_ms": 9,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"clinpgxlevel":"Synthetic level","cpiclevel":"B/C","drugid":"RxNorm:10324","drugname":"Synthetic drug","genesymbol":"DPYD","guidelinename":null,"guidelineurl":null,"pairid":1,"pgxtesting":null,"pmids":["12345678"],"provisional":false,"usedforrecommendation":"No"}]
+      }
+    }
+  ]
+}

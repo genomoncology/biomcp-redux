@@ -17,7 +17,7 @@ fn section(q: &PgxGet, s: PgxSection) -> Option<Request> {
 pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)> {
     let mut next = vec![];
     if out.status == Status::Failed {
-        if out.sources.iter().any(|s| s.state != SourceState::Skipped) {
+        if !diplotype(request) && out.sources.iter().any(|s| s.state != SourceState::Skipped) {
             next.push((
                 StepKind::Fresh,
                 Action::Run {
@@ -75,7 +75,7 @@ pub(super) fn steps(request: &Request, out: &Outcome) -> Vec<(StepKind, Action)>
         }
         _ => {}
     }
-    if out.status == Status::Partial {
+    if out.status == Status::Partial && !diplotype(request) {
         next.push((
             StepKind::Fresh,
             Action::Run {
@@ -95,4 +95,8 @@ fn page_step(q: &PgxGet, p: &PgxPageInfo, next: &mut Vec<(StepKind, Action)>) {
     {
         next.push((StepKind::Page, run(Request::GetPgx(query))));
     }
+}
+
+fn diplotype(request: &Request) -> bool {
+    matches!(request,Request::GetPgx(q) if q.section()==Some(PgxSection::Diplotype))
 }

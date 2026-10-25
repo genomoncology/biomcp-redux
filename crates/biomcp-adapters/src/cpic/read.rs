@@ -26,13 +26,13 @@ fn read<T: serde::de::DeserializeOwned>(
     args: &[(&str, Arg<'_>)],
     offset: u32,
     limit: u32,
-    check: impl Fn(&[T]) -> bool,
+    check: impl Fn(&[T], biomcp_fetch::ContentRange) -> bool,
 ) -> Result<Page<T>, RequestError> {
     let endpoint = SPEC.get(path).fresh(Freshness::Days(1));
     let (rows, metadata) =
         leg.json_counted::<Rows<T>>(&endpoint, args, |rows, range, status| {
             range.check(offset, limit, rows.0.len(), status)?;
-            if !check(&rows.0) {
+            if !check(&rows.0, range) {
                 return Err(BadReply);
             }
             Ok(())
@@ -65,7 +65,7 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
         &args,
         query.offset(),
         query.limit(),
-        |rows: &[PgxPair]| {
+        |rows: &[PgxPair], _range| {
             rows.iter().all(|r| {
                 &r.genesymbol == query.gene()
                     && query
@@ -92,7 +92,7 @@ pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, Requ
         ],
         0,
         5,
-        |rows: &[PgxGeneIdentity]| {
+        |rows: &[PgxGeneIdentity], _range| {
             rows.len() <= 1 && rows.iter().all(|r| &r.symbol == query.gene())
         },
     )
@@ -115,7 +115,7 @@ pub fn recommendations(
         ],
         query.section_offset(),
         query.section_limit(),
-        |rows: &[PgxRecommendation]| {
+        |rows: &[PgxRecommendation], _range| {
             rows.iter().all(|r| {
                 r.lookupkey
                     .keys()
@@ -147,7 +147,7 @@ pub fn drug_recommendations(
         ],
         query.section_offset(),
         query.section_limit(),
-        |rows: &[PgxDrugRecommendation]| {
+        |rows: &[PgxDrugRecommendation], _range| {
             rows.iter().all(|r| {
                 &r.drugid == id
                     && r.lookupkey
@@ -179,7 +179,7 @@ pub fn guidelines(
         ],
         query.section_offset(),
         query.section_limit(),
-        |rows: &[PgxGuidelineReference]| {
+        |rows: &[PgxGuidelineReference], _range| {
             rows.iter()
                 .all(|r| r.genes.iter().any(|g| &g.symbol == query.gene()))
         },
@@ -204,10 +204,11 @@ pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResul
         ],
         query.section_offset(),
         query.section_limit(),
-        |rows: &[PgxDiplotypeResult]| {
-            rows.iter().all(|r| {
-                &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()
-            })
+        |rows: &[PgxDiplotypeResult], range| {
+            range.total == rows.len() as u64
+                && rows.iter().all(|r| {
+                    &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()
+                })
         },
     )
 }

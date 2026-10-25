@@ -31,6 +31,39 @@
     },
     {
       "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--limit",
+        "1",
+        "--cpic-level",
+        "B/C"
+      ],
+      "mcp": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--limit",
+        "1",
+        "--cpic-level",
+        "B/C"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/gene": "DPYD",
+        "/query/source": "cpic"
+      },
+      "max_bytes": 995,
+      "max_tokens": 249
+    },
+    {
+      "run": [
         "get",
         "pgx",
         "--gene",
@@ -53,6 +86,37 @@
       },
       "max_bytes": 651,
       "max_tokens": 163
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "diplotype",
+        "--diplotype",
+        "*1/*2A"
+      ],
+      "mcp": [
+        "get",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "diplotype",
+        "--diplotype",
+        "*1/*2A"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/gene": "DPYD",
+        "/query/source": "cpic"
+      },
+      "max_bytes": 907,
+      "max_tokens": 227
     }
   ]
 }
