@@ -126,3 +126,11 @@ pub use response::{
     DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites, DiseaseSurvival,
     DiseaseSynonyms, DiseaseXrefs,
 };
+mod drug;
+pub use drug::{
+    DrugApprovals, DrugCard, DrugCivic, DrugGet, DrugHeader, DrugIndications, DrugInteractions,
+    DrugLabel, DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection,
+    DrugSource, DrugTargets,
+};
+
+pub use query::QueryInvalid;

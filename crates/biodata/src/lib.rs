@@ -89,3 +89,10 @@ pub use disease::{
     DiseaseAssociation, DiseaseRelation, DiseaseStatistic, DiseaseSynonym, StatisticEstimate,
     StatisticSelector,
 };
+
+mod drug;
+pub use drug::{
+    AuthorizationDate, AuthorizationEvent, DrugId, DrugIdentity, DrugIdentityLevel,
+    DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim, DrugLabelReference,
+    DrugLabelSection, DrugProduct, DrugTargetRelation,
+};
