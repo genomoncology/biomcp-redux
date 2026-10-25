@@ -185,6 +185,14 @@ fn fetch_parity(
     recording: &std::path::Path,
 ) -> Result<(), String> {
     let id = hit.get("id").and_then(Value::as_str).ok_or("hit id")?;
+    let leading_policy = format!("--disable-sources oncokb {id}");
+    let id = if args.get(1).is_some_and(|a| a == "variant")
+        && args.iter().any(|a| a == "--disable-sources")
+    {
+        leading_policy.as_str()
+    } else {
+        id
+    };
     // Search and get captures are retained separately; exact ids come from the wrapper.
     let get_capture = match args.get(1).map(String::as_str) {
         Some("article") => "article/search/synthetic-card-step",
