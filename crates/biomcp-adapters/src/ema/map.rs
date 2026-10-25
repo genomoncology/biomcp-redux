@@ -6,6 +6,7 @@ pub(super) fn header(row: &raw::Medicine) -> DrugHeader {
         id: row.id.clone(),
         source: DrugSource::Ema,
         name: Some(row.name.clone()),
+        version: None,
         // The feed's category describes Human/Veterinary, not identity granularity.
         identity_level: DrugIdentityLevel::Unknown,
         r#type: row.text("category"),

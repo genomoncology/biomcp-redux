@@ -234,6 +234,3 @@ fn parents_for(
     }
     Ok(parents)
 }
-
-// Convert only the transport's original retrieval epoch; never use the current clock.
-pub(super) use crate::received_date;
