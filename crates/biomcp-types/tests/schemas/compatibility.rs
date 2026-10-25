@@ -21,6 +21,7 @@ struct Shape {
     impossible: bool,
     map_values: bool,
     map_keys: bool,
+    map_patterns: BTreeSet<String>,
 }
 
 pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
@@ -38,7 +39,8 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
         let new = new_shapes
             .get(&path)
             .ok_or_else(|| format!("removed {path}"))?;
-        if old.impossible != new.impossible
+        if old.map_patterns != new.map_patterns
+            || old.impossible != new.impossible
             || new.map_values && !old.map_values
             || new.map_keys && !old.map_keys
             || old.markdown && !new.markdown
@@ -135,6 +137,12 @@ fn visit(
         }
     }
     collect(node, path, shapes)?;
+    if let Some(patterns) = node.get("patternProperties") {
+        for (pattern, child) in patterns.as_object().ok_or("invalid patternProperties")? {
+            let key = pattern.replace('~', "~0").replace('/', "~1");
+            visit(root, child, &format!("{path}/{{pattern={key}}}"), shapes, refs)?;
+        }
+    }
     for (field, suffix) in [("additionalProperties", "{value}"), ("propertyNames", "{key}")] {
         if let Some(child) = node.get(field).filter(|value| !value.is_boolean()) {
             visit(root, child, &format!("{path}/{suffix}"), shapes, refs)?;
@@ -229,6 +237,9 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.map_values = additional.is_object();
     }
     shape.map_keys = node.get("propertyNames").is_some();
+    if let Some(patterns) = node.get("patternProperties") {
+        shape.map_patterns = patterns.as_object().ok_or("invalid patternProperties")?.keys().cloned().collect();
+    }
     Ok(())
 }
 
@@ -352,6 +363,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "required",
             "additionalProperties",
             "propertyNames",
+            "patternProperties",
             "anyOf",
             "oneOf",
             "const",

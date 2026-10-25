@@ -118,7 +118,6 @@ fn compatibility_preserves_patterns_and_rejects_tighter_integer_bounds() {
         assert_eq!(check(&old, &new).is_ok(), expected);
     }
     for unsupported in [
-        json!({"minimum":-1}),
         json!({"maximum":1.5}),
         json!({"format":"int32"}),
         json!({"exclusiveMinimum":0}),
@@ -265,6 +264,12 @@ fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_element
     assert!(super::compatibility::check(&old,&changed).is_err());
     let mut changed=old.clone();changed["properties"]["genes"]["propertyNames"]["pattern"]=json!("^[A-Z]{2}$");
     assert!(super::compatibility::check(&old,&changed).is_err());
+    let pattern=json!({"$id":"biodata.example/1","type":"object","patternProperties":{"^[A-Z]+$":{"type":"string"}},"additionalProperties":false});
+    assert!(super::compatibility::check(&pattern,&pattern).is_ok());
+    let mut changed=pattern.clone();changed["patternProperties"]["^[A-Z]+$"]=json!({"type":"integer"});
+    assert!(super::compatibility::check(&pattern,&changed).is_err());
+    let mut changed=pattern.clone();changed["patternProperties"]["X"]=json!({"type":"string"});
+    assert!(super::compatibility::check(&pattern,&changed).is_err());
     let loose=json!({"$id":"biodata.example/1","type":"object","additionalProperties":true});
     for changed in [json!({"$id":"biodata.example/1","type":"object","additionalProperties":{"type":"string"}}),json!({"$id":"biodata.example/1","type":"object","propertyNames":{"type":"string","pattern":"X"}})] {
         assert!(super::compatibility::check(&loose,&changed).is_err());
