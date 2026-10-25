@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "who-ivd",
+  "url": "https://extranet.who.int/prequal/vitro-diagnostics/prequalified/in-vitro-diagnostics/export?page&_format=csv",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/csv",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "WHO Product ID,Product name,Product Code,Assay Format,Manufacturer name,Pathogen/Disease/Marker,Regulatory Version,Year prequalification\r\n0466-046-00,\"Synthetic \"\"quoted\"\" product\",CODE-0,Synthetic assay,Synthetic manufacturer,Synthetic marker,US FDA text without application,2024\r\n0466-046-00,Distinct row name,\"two\nlines\",Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-2,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-3,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-4,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-5,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-6,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-7,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n0466-046-00,Distinct row name,CODE-8,Synthetic assay,Synthetic manufacturer,Synthetic marker,,2024\r\n12345-12345-00,Other product,CODE-0,Other assay,Other manufacturer,Other marker,,2023\r\n"
+      }
+    }
+  ]
+}

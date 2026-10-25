@@ -1,11 +1,15 @@
 //! Feature diagnostic-gtr: local reads require an explicit complete synchronization.
 mod mechanics;
+mod native_value;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("diagnostic-gtr/native-gene-values-preserve-bundle", || {
+            native_value::run().map_err(Into::into)
+        }),
         Trial::test(
             "diagnostic-gtr/markdown-preserves-native-facts-and-next",
             || mechanics::markdown().map_err(Into::into),

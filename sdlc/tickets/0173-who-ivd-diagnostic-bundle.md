@@ -1,6 +1,7 @@
 # 0173 — Sync the WHO in vitro diagnostics bundle and get the exact product card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2783bcd3f1a409a938d8d4cde75bcc87f62d95de
 
 Milestone: 4
 

@@ -280,7 +280,7 @@ Each entity below carries the same ten-step checklist when its slice starts.
 - [x] Search
 - [x] Get and sections
 - [x] Outside-in cases
-- [ ] Token budget
+- [x] Token budget
 - [x] MCP parity
 - [x] Docs
 - [x] 0.9 accounting

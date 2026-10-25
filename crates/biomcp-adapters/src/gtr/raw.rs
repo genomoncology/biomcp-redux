@@ -60,7 +60,9 @@ impl Row for Native {
                 exact.push((KeyKind::Alias, r.test_type.as_str().into()));
                 if r.object == Object::Gene {
                     exact.push((KeyKind::Symbol, r.gene_symbol.clone()));
-                    exact.push((KeyKind::Xref, format!("gene:{}", r.object_id).into()));
+                    if let Ok(id) = r.object_id.parse::<biodata::NcbiGeneId>() {
+                        exact.push((KeyKind::Xref, format!("gene:{id}").into()));
+                    }
                 } else {
                     exact.push((KeyKind::Xref, format!("MedGen:{}", r.medgen).into()));
                 }

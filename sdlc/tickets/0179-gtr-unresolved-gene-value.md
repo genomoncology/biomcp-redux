@@ -1,6 +1,7 @@
 # 0179 — Keep GTR gene values that are not NCBI Gene IDs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3a92fbb3dbc4e7f3ced702e265b3e75d625b55f1
 
 Milestone: 4
 
