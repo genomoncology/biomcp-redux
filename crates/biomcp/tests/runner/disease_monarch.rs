@@ -175,12 +175,12 @@ fn phenotype() -> Result<(), String> {
                 ("has_quotient", json!(0.6857143)),
                 (
                     "has_evidence_links",
-                    json!([{"id":"ECO:0000501","url":"http://purl.obolibrary.org/obo/ECO_0000501"}]),
+                    json!([{"id":"ECO:0000501","label":"Synthetic evidence","url":"http://purl.obolibrary.org/obo/ECO_0000501"}]),
                 ),
                 ("publications", json!(["PMID:1"])),
                 (
                     "publications_links",
-                    json!([{"id":"PMID:1","url":"http://identifiers.org/pubmed/1"}]),
+                    json!([{"id":"PMID:1","label":"Synthetic publication"}]),
                 ),
             ] {
                 map.insert(key.into(), value);
@@ -205,7 +205,7 @@ fn phenotype() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]),
+        json!([{"run":words,"mcp":words,"expect":{"/result/items/0/association/evidence/0/label":"Synthetic evidence","/result/items/0/association/publications/0":{"id":"PMID:1","label":"Synthetic publication"},"/result/items/0/association/has_count":24,"/result/items/0/association/has_total":35,"/result/items/0/association/has_percentage":68.57143,"/result/items/0/association/has_quotient":0.6857143},"max_bytes":2588}]),
     )?;
     if stub.finish()?.len() != 1 {
         return Err("unexpected phenotype fanout".into());
