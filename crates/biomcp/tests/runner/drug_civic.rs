@@ -31,115 +31,50 @@ pub(super) fn trials() -> Vec<Trial> {
         .collect()
 }
 fn arguments(n: usize) -> Result<Vec<String>, String> {
-    let args = match n {
-        0 => vec![
-            "search", "drug", "imatinib", "--source", "civic", "--limit", "1",
-        ],
-        1 => vec![
-            "search",
-            "drug",
+    let mut args = if n < 5 {
+        let q = [
+            "imatinib",
             "trastuzumab",
-            "--source",
-            "civic",
-            "--limit",
-            "1",
-        ],
-        2 => vec![
-            "search",
-            "drug",
             "ivosidenib",
-            "--source",
-            "civic",
-            "--limit",
-            "1",
-        ],
-        3 => vec![
-            "search",
-            "drug",
             "fam-trastuzumab deruxtecan",
-            "--source",
-            "civic",
-            "--limit",
-            "1",
-        ],
-        4 => vec![
-            "search",
-            "drug",
             "trastuzumab",
-            "--source",
-            "civic",
-            "--limit",
-            "1",
-            "--offset",
-            "1",
-        ],
-        5 => vec!["get", "drug", "5", "civic", "--source", "civic"],
-        6 => vec!["get", "drug", "84", "civic", "--source", "civic"],
-        7 => vec!["get", "drug", "454", "civic", "--source", "civic"],
-        8 => vec![
-            "get",
-            "drug",
-            "5",
-            "civic",
-            "--source",
-            "civic",
-            "--section-limit",
-            "1",
-            "--civic-profile",
-            "1",
-            "--civic-kind",
-            "evidence",
-        ],
-        9 => vec![
-            "get",
-            "drug",
-            "5",
-            "civic",
-            "--source",
-            "civic",
-            "--section-limit",
-            "1",
-            "--civic-profile",
-            "1",
-            "--civic-kind",
-            "evidence",
-            "--civic-cursor",
-            "MQ",
-        ],
-        10 => vec![
-            "get",
-            "drug",
-            "5",
-            "civic",
-            "--source",
-            "civic",
-            "--section-limit",
-            "1",
-            "--civic-profile",
-            "65",
-            "--civic-kind",
-            "assertions",
-        ],
-        11 => vec![
-            "get",
-            "drug",
-            "5",
-            "civic",
-            "--source",
-            "civic",
-            "--section-limit",
-            "1",
-            "--civic-profile",
-            "65",
-            "--civic-kind",
-            "assertions",
-            "--civic-cursor",
-            "MQ",
-        ],
-        _ => return Err("unknown case".into()),
+        ]
+        .get(n)
+        .ok_or("query index")?;
+        vec!["search", "drug", q, "--source", "civic", "--limit", "1"]
+    } else {
+        let id = match n {
+            5 | 8..=11 => "5",
+            6 => "84",
+            7 => "454",
+            _ => return Err("unknown case".into()),
+        };
+        vec!["get", "drug", id, "civic", "--source", "civic"]
     };
+    if n == 4 {
+        args.extend(["--offset", "1"]);
+    }
+    if n >= 8 {
+        let (profile, kind) = if n >= 10 {
+            ("65", "assertions")
+        } else {
+            ("1", "evidence")
+        };
+        args.extend([
+            "--section-limit",
+            "1",
+            "--civic-profile",
+            profile,
+            "--civic-kind",
+            kind,
+        ]);
+        if matches!(n, 9 | 11) {
+            args.extend(["--civic-cursor", "MQ"]);
+        }
+    }
     Ok(args.into_iter().map(String::from).collect())
 }
+
 fn check(n: usize) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::for_source(
@@ -196,6 +131,34 @@ fn check(n: usize) -> Result<(), String> {
 }
 fn verify(n: usize, value: &Value) -> Result<(), String> {
     let expected = match n {
+        0..=4 => search_expected(n)?,
+        5..=7 => drug_expected(n)?,
+        _ => stream_expected(n)?,
+    };
+    for (path, expected) in expected {
+        if value.pointer(path) != Some(&expected) {
+            return Err(format!("{path}: expected {expected}, received {value}"));
+        }
+    }
+    if matches!(n, 10 | 11)
+        && value
+            .pointer("/result/civic/data/assertions/page/next")
+            .is_some()
+    {
+        return Err("invented a positive assertion continuation".into());
+    }
+    if n == 5
+        && value
+            .pointer("/result/civic/data/evidence/page/next/civic_profile")
+            .is_some()
+    {
+        return Err("therapy-wide total relabeled as a selected profile".into());
+    }
+    Ok(())
+}
+
+fn search_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
+    Ok(match n {
         0 => vec![
             ("/result/total", json!(11)),
             ("/result/items/0/id", json!("27062")),
@@ -213,6 +176,12 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
             ("/result/total", json!(104)),
             ("/result/items/0/id", json!("2988")),
         ],
+        _ => return Err("unknown verification".into()),
+    })
+}
+
+fn drug_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
+    Ok(match n {
         5 => vec![
             ("/result/identity/id", json!("5")),
             ("/result/civic/data/evidence/page/total", json!(169)),
@@ -246,6 +215,12 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
             ),
         ],
         7 => vec![("/result/identity/id", json!("454"))],
+        _ => return Err("unknown verification".into()),
+    })
+}
+
+fn stream_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
+    Ok(match n {
         8 => vec![
             ("/result/civic/data/evidence/page/total", json!(4)),
             (
@@ -276,25 +251,5 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
             ("/result/civic/data/assertions/page/returned", json!(0)),
         ],
         _ => return Err("unknown verification".into()),
-    };
-    for (path, expected) in expected {
-        if value.pointer(path) != Some(&expected) {
-            return Err(format!("{path}: expected {expected}, received {value}"));
-        }
-    }
-    if matches!(n, 10 | 11)
-        && value
-            .pointer("/result/civic/data/assertions/page/next")
-            .is_some()
-    {
-        return Err("invented a positive assertion continuation".into());
-    }
-    if n == 5
-        && value
-            .pointer("/result/civic/data/evidence/page/next/civic_profile")
-            .is_some()
-    {
-        return Err("therapy-wide total relabeled as a selected profile".into());
-    }
-    Ok(())
+    })
 }
