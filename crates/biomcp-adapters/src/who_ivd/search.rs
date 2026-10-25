@@ -58,14 +58,14 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Search, RequestErro
 fn words(cell: &str, selector: Option<&biodata::Text>) -> bool {
     selector.is_none_or(|value| {
         let cell = cell.to_lowercase();
-        value
-            .as_str()
-            .to_lowercase()
-            .split(|c: char| !c.is_alphanumeric())
-            .filter(|word| !word.is_empty())
-            .all(|word| {
-                cell.split(|c: char| !c.is_alphanumeric())
-                    .any(|v| v == word)
-            })
+        let needle = value.as_str().to_lowercase();
+        cell.match_indices(&needle).any(|(position, matched)| {
+            let before = cell.get(..position).and_then(|v| v.chars().next_back());
+            let after = cell
+                .get(position + matched.len()..)
+                .and_then(|v| v.chars().next());
+            before.is_none_or(|c| !c.is_alphanumeric())
+                && after.is_none_or(|c| !c.is_alphanumeric())
+        })
     })
 }

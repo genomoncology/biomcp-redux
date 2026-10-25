@@ -130,8 +130,8 @@
         "--manufacturer",
         "North Synthetic"
       ],
-      "max_bytes": 326,
-      "max_tokens": 82,
+      "max_bytes": 332,
+      "max_tokens": 83,
       "expect": {
         "/page/total": 0,
         "/result/items": []
