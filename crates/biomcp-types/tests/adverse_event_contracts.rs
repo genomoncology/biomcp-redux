@@ -3,13 +3,13 @@ use biodata::{FaersReport, MaudeReport};
 use biomcp_types::{AdverseEventGet, AdverseEventSearch};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
-fn roundtrip<T: Serialize + DeserializeOwned>(value: Value) -> Value {
-    serde_json::to_value(serde_json::from_value::<T>(value).unwrap()).unwrap()
+fn roundtrip<T: Serialize + DeserializeOwned>(value: Value) -> Result<Value, serde_json::Error> {
+    serde_json::to_value(serde_json::from_value::<T>(value)?)
 }
 #[test]
 fn source_requests_refuse_cross_family_filters_sections_and_invented_ids() {
     assert_eq!(
-        roundtrip::<AdverseEventSearch>(json!({"text":"synthetic"}))["source"],
+        roundtrip::<AdverseEventSearch>(json!({"text":"synthetic"})).unwrap()["source"],
         "faers"
     );
     for value in [
@@ -40,13 +40,13 @@ fn report_records_preserve_array_order_empty_strings_and_missing_reporter_qualif
         .map(|n| json!({"term":{"label":format!("synthetic reaction {n}")},"outcome":"1"}))
         .collect();
     let report = json!({"safetyreportid":"26940567","safetyreportversion":"1","receivedate":"20240101","receiptdate":"20240201","seriousness":{"death":"1","hospitalization":"1"},"reporter":{"country":""},"patient":{"age":"","age_unit":"801"},"drugs":drugs,"reactions":reactions});
-    assert_eq!(roundtrip::<FaersReport>(report.clone()), report);
+    assert_eq!(roundtrip::<FaersReport>(report.clone()).unwrap(), report);
     for length in [0, 5] {
         let narrative: Vec<_> = (0..length)
             .map(|n| json!({"text_type_code":"N","text":format!("Synthetic narrative {n}")}))
             .collect();
         let device = json!({"mdr_report_key":"50952244","devices":[{"brand_name":""},{"brand_name":"synthetic"}],"narrative":narrative});
-        assert_eq!(roundtrip::<MaudeReport>(device.clone()), device);
+        assert_eq!(roundtrip::<MaudeReport>(device.clone()).unwrap(), device);
     }
 }
 
@@ -54,11 +54,14 @@ fn report_records_preserve_array_order_empty_strings_and_missing_reporter_qualif
 fn headers_and_cards_refuse_flattened_lists_titles_and_count_buckets() {
     use biomcp_types::{AdverseEventFaersCard, AdverseEventHeader, AdverseEventMaudeCard};
     let header = json!({"id":"26940567","source":"faers","version":"1","first_received":"20240101","serious":"1"});
-    assert_eq!(roundtrip::<AdverseEventHeader>(header.clone()), header);
+    assert_eq!(
+        roundtrip::<AdverseEventHeader>(header.clone()).unwrap(),
+        header
+    );
     let faers = json!({"header":header,"snapshot":"synthetic-snapshot","drug_count":19,"reaction_count":22,"source_url":"https://example.invalid/source","report_url":"https://example.invalid/exact-report","available_sections":["drugs","reactions"],"components":[]});
     let maude = json!({"header":{"id":"50952244","source":"maude","event_type":"Death"},"snapshot":"synthetic-snapshot","device_count":1,"narrative_count":0,"source_url":"https://example.invalid/source","report_url":"https://example.invalid/exact-report","available_sections":["devices","narrative"],"components":[]});
-    roundtrip::<AdverseEventFaersCard>(faers.clone());
-    roundtrip::<AdverseEventMaudeCard>(maude.clone());
+    roundtrip::<AdverseEventFaersCard>(faers.clone()).unwrap();
+    roundtrip::<AdverseEventMaudeCard>(maude.clone()).unwrap();
     for field in ["drugs", "reactions", "counts", "title"] {
         let mut h = header.clone();
         h[field] = json!([]);
@@ -77,7 +80,10 @@ fn every_closed_selector_and_published_id_roundtrips() {
         AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
     };
     for source in ["faers", "maude"] {
-        assert_eq!(roundtrip::<AdverseEventSource>(json!(source)), source);
+        assert_eq!(
+            roundtrip::<AdverseEventSource>(json!(source)).unwrap(),
+            source
+        );
         let q: AdverseEventGet =
             serde_json::from_value(json!({"id":"001234","source":source})).unwrap();
         assert_eq!(q.id().as_str(), "001234");
@@ -85,7 +91,7 @@ fn every_closed_selector_and_published_id_roundtrips() {
         assert_eq!(q.section_limit(), 5);
     }
     for flag in ["death", "hospitalization"] {
-        assert_eq!(roundtrip::<AdverseEventSerious>(json!(flag)), flag);
+        assert_eq!(roundtrip::<AdverseEventSerious>(json!(flag)).unwrap(), flag);
     }
     for name in [
         "drugs",
@@ -102,7 +108,7 @@ fn every_closed_selector_and_published_id_roundtrips() {
     ] {
         let section: AdverseEventSection = serde_json::from_value(json!(name)).unwrap();
         assert_eq!(section.as_str(), name);
-        assert_eq!(roundtrip::<AdverseEventSection>(json!(name)), name);
+        assert_eq!(roundtrip::<AdverseEventSection>(json!(name)).unwrap(), name);
         let identifier = serde_json::from_value::<AdverseEventIdentifierSection>(json!(name));
         assert_eq!(identifier.is_ok(), section.is_identifier());
         if let Ok(value) = identifier {
@@ -151,21 +157,22 @@ fn paging_preserves_all_selectors_and_absolute_drug_scope() {
 }
 
 #[cfg(feature = "schema")]
-fn envelope<T>(query: Value, body: Value)
+fn envelope<T>(query: Value, body: Value) -> Result<(), Box<dyn std::error::Error>>
 where
     T: biomcp_types::ResponseBody + schemars::JsonSchema + DeserializeOwned,
     T::Query: schemars::JsonSchema + DeserializeOwned,
 {
     use biomcp_types::{Envelope, Status};
-    let query = serde_json::from_value(query).unwrap();
-    let body = serde_json::from_value::<T>(body).unwrap();
-    let value = serde_json::to_value(Envelope::new(Status::Complete, query, Some(body))).unwrap();
+    let query = serde_json::from_value(query)?;
+    let body = serde_json::from_value::<T>(body)?;
+    let value = serde_json::to_value(Envelope::new(Status::Complete, query, Some(body)))?;
     let schema = schemars::generate::SchemaSettings::draft2020_12()
         .into_generator()
         .into_root_schema_for::<Envelope<T>>();
-    let validator = jsonschema::draft202012::new(&serde_json::to_value(schema).unwrap()).unwrap();
+    let validator = jsonschema::draft202012::new(&serde_json::to_value(schema)?)?;
     assert!(validator.is_valid(&value), "{value}");
-    assert_eq!(value["schema"], T::SCHEMA);
+    assert_eq!(value.get("schema").and_then(Value::as_str), Some(T::SCHEMA));
+    Ok(())
 }
 #[cfg(feature = "schema")]
 #[test]
@@ -177,14 +184,15 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     envelope::<AdverseEventPage>(
         json!({"text":"synthetic"}),
         json!({"items":[header],"unit":"reports","components":[]}),
-    );
+    )
+    .unwrap();
     let mut faers = base.clone();
     faers["drug_count"] = json!(19);
     faers["reaction_count"] = json!(22);
     faers["source_url"] = json!("https://example.invalid/source");
     faers["report_url"] = json!("https://example.invalid/report");
     faers["available_sections"] = json!(["drugs", "reactions"]);
-    envelope::<AdverseEventFaersCard>(query.clone(), faers);
+    envelope::<AdverseEventFaersCard>(query.clone(), faers).unwrap();
     let mut maude = base.clone();
     maude["header"] = json!({"id":"50952244","source":"maude"});
     maude["device_count"] = json!(1);
@@ -192,14 +200,16 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     maude["source_url"] = json!("https://example.invalid/source");
     maude["report_url"] = json!("https://example.invalid/report");
     maude["available_sections"] = json!(["devices", "narrative"]);
-    envelope::<AdverseEventMaudeCard>(json!({"id":"50952244","source":"maude"}), maude);
+    envelope::<AdverseEventMaudeCard>(json!({"id":"50952244","source":"maude"}), maude).unwrap();
     base["drugs"] = json!({"records":[{"index":18,"medicinalproduct":"","role":"1","identity_counts":{"unii":2}}],"offset":18,"total":19});
-    envelope::<AdverseEventDrugs>(json!({"id":"26940567","section":"drugs"}), base.clone());
+    envelope::<AdverseEventDrugs>(json!({"id":"26940567","section":"drugs"}), base.clone())
+        .unwrap();
     base.as_object_mut().unwrap().remove("drugs");
     base["reactions"] = json!({"records":[{"index":21,"term":{"label":"Synthetic reaction"},"vocabulary_version":"27.1","outcome":"5"}],"offset":21,"total":22});
-    let reaction = roundtrip::<AdverseEventReactions>(base.clone());
+    let reaction = roundtrip::<AdverseEventReactions>(base.clone()).unwrap();
     assert!(reaction.pointer("/reactions/records/0/term/id").is_none());
-    envelope::<AdverseEventReactions>(json!({"id":"26940567","section":"reactions"}), base.clone());
+    envelope::<AdverseEventReactions>(json!({"id":"26940567","section":"reactions"}), base.clone())
+        .unwrap();
     base.as_object_mut().unwrap().remove("reactions");
     for (name, field) in [
         ("unii", "unii"),
@@ -214,11 +224,15 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
         page["section"] = json!(name);
         page[field] =
             json!({"drug_index":18,"records":["001-02","001-02",""],"offset":0,"total":3});
-        assert_eq!(roundtrip::<AdverseEventIdentifiers>(page.clone()), page);
+        assert_eq!(
+            roundtrip::<AdverseEventIdentifiers>(page.clone()).unwrap(),
+            page
+        );
         envelope::<AdverseEventIdentifiers>(
             json!({"id":"26940567","section":name,"drug_index":18}),
             page.clone(),
-        );
+        )
+        .unwrap();
         page["arbitrary_field"] = json!([]);
         assert!(serde_json::from_value::<AdverseEventIdentifiers>(page).is_err());
     }
@@ -227,14 +241,19 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     envelope::<AdverseEventDevices>(
         json!({"id":"50952244","source":"maude","section":"devices"}),
         base.clone(),
-    );
+    )
+    .unwrap();
     base.as_object_mut().unwrap().remove("devices");
     base["narrative"] = json!({"records":[{"index":0,"type":"N","text":"  Complete synthetic text.\n"}],"offset":0,"total":1});
-    assert_eq!(roundtrip::<AdverseEventNarrative>(base.clone()), base);
+    assert_eq!(
+        roundtrip::<AdverseEventNarrative>(base.clone()).unwrap(),
+        base
+    );
     envelope::<AdverseEventNarrative>(
         json!({"id":"50952244","source":"maude","section":"narrative"}),
         base,
-    );
+    )
+    .unwrap();
 }
 #[test]
 fn request_boundaries_reject_missing_text_null_limits_partial_dates_and_removed_options() {
