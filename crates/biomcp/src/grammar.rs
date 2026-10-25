@@ -37,6 +37,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchAdverseEvent(_) => "biomcp.adverse-event-search/1",
+        Request::GetAdverseEvent(_) => "biomcp.adverse-event-get/1",
         Request::SearchDisease(_) => "biomcp.disease-search/1",
         Request::GetDisease(_) => "biomcp.disease-get/2",
         Request::SearchDrug(_) => "biomcp.drug-search/2",
@@ -63,6 +65,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "adverse-event", "biomcp.adverse-event-search/1"),
+    ("get", "adverse-event", "biomcp.adverse-event-get/1"),
     ("search", "disease", "biomcp.disease-search/1"),
     ("get", "disease", "biomcp.disease-get/2"),
     ("search", "drug", "biomcp.drug-search/2"),
@@ -480,6 +484,8 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
+        ("search", "adverse-event") => serde_json::from_value::<biomcp_types::AdverseEventSearch>(value).map(Request::SearchAdverseEvent).map_err(|_| ()),
+        ("get", "adverse-event") => serde_json::from_value::<biomcp_types::AdverseEventGet>(value).map(Request::GetAdverseEvent).map_err(|_| ()),
         ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
             .map(Request::SearchDisease)
             .map_err(|_| ()),

@@ -183,7 +183,7 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     let mut base = json!({"header":header,"snapshot":"synthetic-snapshot","components":[]});
     envelope::<AdverseEventPage>(
         json!({"text":"synthetic"}),
-        json!({"items":[header],"unit":"reports","components":[]}),
+        json!({"source_query":"synthetic","items":[header],"unit":"reports","components":[]}),
     )
     .unwrap();
     let mut faers = base.clone();

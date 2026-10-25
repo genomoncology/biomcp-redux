@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Report get belongs to its next runtime slice.
+    UnsupportedAdverseEvent,
+    /// Source-native adverse event report page.
+    AdverseEventPage(crate::AdverseEventPage),
     /// Native disease candidate page.
     DiseasePage(crate::DiseasePage),
     /// Exact source concept when present.

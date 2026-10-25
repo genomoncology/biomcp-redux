@@ -89,4 +89,4 @@ drug-help: Discover source-scoped drug sections, selectors and explicit bundle s
 
 adverse-event-types: A public API caller validates source-specific report requests and preserves independent native arrays, code strings and bounded consumer schemas before adapters exist. Contracts: `biomcp-types/adverse_event_contracts` (features: `schema`).
 diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).
-adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/*.yaml`.
+adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/*.yaml`, `crates/biomcp/tests/runner/faers_search.rs`.

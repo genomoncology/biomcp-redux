@@ -106,6 +106,9 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if matches!(action, Action::Run {request: Request::GetAdverseEvent(_),..}) || matches!(action, Action::Run {request: Request::SearchAdverseEvent(q),..} if q.source() != biomcp_types::AdverseEventSource::Faers) {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
@@ -221,6 +224,11 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         return drug::encode(meta, request, body);
     }
     match (request, body) {
+        (_, QueryBody::UnsupportedAdverseEvent) => usage_envelope(ErrorEnvelope::arguments()),
+        (Request::SearchAdverseEvent(query), QueryBody::AdverseEventPage(body)) => {
+            let body = (meta.status != Status::Failed).then_some(body);
+            meta.encode(query, body)
+        }
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
         }

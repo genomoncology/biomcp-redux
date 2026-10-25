@@ -15,3 +15,6 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod raw;
+mod search;
+pub use search::{Page, expression, search};

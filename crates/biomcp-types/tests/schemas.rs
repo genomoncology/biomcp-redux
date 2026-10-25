@@ -105,7 +105,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/4"),
+        Request => ("request", "biodata.request/5"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/2"),
@@ -154,7 +154,7 @@ fn registry() -> Vec<Contract> {
 }
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
-        Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse_event_page/1"),
+        Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse_event_page/2"),
         Envelope<AdverseEventFaersCard> => ("adverse-event-faers-card", "biomcp.adverse_event_faers_card/1"),
         Envelope<AdverseEventMaudeCard> => ("adverse-event-maude-card", "biomcp.adverse_event_maude_card/1"),
         Envelope<AdverseEventDrugs> => ("adverse-event-drugs", "biomcp.adverse_event_drugs/1"),
