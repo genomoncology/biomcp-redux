@@ -68,7 +68,7 @@ fn table(fragment: &str) -> Result<Vec<Vec<DiagnosticCell>>, BadReply> {
             Event::CData(t) => table.append(t.as_ref()),
             Event::GeneralRef(r) => {
                 let escaped = format!("&{r};", r = r.as_ref());
-                table.append(&quick_xml::escape::unescape(&escaped).map_err(|_| BadReply)?);
+                table.append(&unescape(&escaped)?);
             }
             Event::End(e) => table.end(e.name().as_ref())?,
             Event::Eof => break,
@@ -111,10 +111,7 @@ impl Table {
                     .map_err(|_| BadReply)?
                     .ok_or(BadReply)?;
                 self.link = Some(DiagnosticCellLink {
-                    href: quick_xml::escape::unescape(href.value.as_ref())
-                        .map_err(|_| BadReply)?
-                        .into_owned()
-                        .into(),
+                    href: unescape(href.value.as_ref())?.into_owned().into(),
                     label: Some("".into()),
                 });
             }
@@ -156,4 +153,17 @@ impl Table {
             l.label = Some(format!("{}{value}", l.label.as_deref().unwrap_or_default()).into());
         }
     }
+}
+
+// FDA's retained fixed tables add only nbsp to the XML named entities.
+// Numeric references stay with quick-xml; unknown names reject the replacement.
+fn unescape(text: &str) -> Result<std::borrow::Cow<'_, str>, BadReply> {
+    quick_xml::escape::unescape_with(text, |name| {
+        if name == "nbsp" {
+            Some("\u{a0}")
+        } else {
+            quick_xml::escape::resolve_xml_entity(name)
+        }
+    })
+    .map_err(|_| BadReply)
 }

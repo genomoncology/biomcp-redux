@@ -12,6 +12,9 @@ use std::{
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("diagnostic-cdx/synthetic-entity-boundary", || {
+            entities().map_err(Into::into)
+        }),
         Trial::test("diagnostic-cdx/synthetic-http-owned-application", || {
             http_owned().map_err(Into::into)
         }),
@@ -429,6 +432,61 @@ fn http_owned() -> Check {
         || value.pointer("/next/0/kind") != Some(&json!("pivot"))
     {
         return Err(format!("HTTP URL or pivot changed: {value}"));
+    }
+    Ok(())
+}
+
+fn entities() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    let entry = fs::read_dir(replay.join("fda-cdx"))
+        .map_err(|e| e.to_string())?
+        .next()
+        .ok_or("missing recording")?
+        .map_err(|e| e.to_string())?;
+    let mut value: Value =
+        serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+    let cell = value
+        .pointer_mut("/exchanges/0/body/value")
+        .ok_or("missing body")?;
+    *cell = json!(cell.as_str().ok_or("non-text body")?.replacen(
+        "<td>G12C</td>",
+        "<td>G12C &amp; &gt; &quot; &nbsp; &#8805; &#x2265;</td>",
+        1
+    ));
+    fs::write(entry.path(), value.to_string()).map_err(|e| e.to_string())?;
+    call(&env, &replay, &["sync", "fda-cdx"], 0)?;
+    let args = [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--device-id",
+        "P200010/S026",
+    ];
+    let before = call(&env, &replay, &args, 0)?;
+    if before.pointer("/result/items/0/cells/Biomarker(s) (Details)/text")
+        != Some(&json!("G12C & > \" \u{a0} ≥ ≥"))
+    {
+        return Err(format!("named or numeric entity changed: {before}"));
+    }
+    let cell = value
+        .pointer_mut("/exchanges/0/body/value")
+        .ok_or("missing body")?;
+    *cell = json!(
+        cell.as_str()
+            .ok_or("non-text body")?
+            .replace("&nbsp;", "&unknown_fda_entity;")
+    );
+    fs::write(entry.path(), value.to_string()).map_err(|e| e.to_string())?;
+    let failed = call(&env, &replay, &["sync", "fda-cdx"], 4)?;
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || call(&env, &replay, &args, 0)? != before
+    {
+        return Err(format!(
+            "unknown entity published partial document: {failed}"
+        ));
     }
     Ok(())
 }
