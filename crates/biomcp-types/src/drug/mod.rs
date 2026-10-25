@@ -23,3 +23,6 @@ pub use source::DrugSource;
 
 mod name_selector;
 pub use name_selector::DrugNameSelector;
+
+mod region;
+pub use region::{DrugRegion, DrugRegionalGet};
