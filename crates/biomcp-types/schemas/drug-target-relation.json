@@ -329,10 +329,12 @@
   "description": "A native target or mechanism relation, without an indication inference.",
   "properties": {
     "attribution": {
-      "$ref": "#/$defs/Attribution"
+      "$ref": "#/$defs/Attribution",
+      "description": "Native relation provenance."
     },
     "drug": {
-      "$ref": "#/$defs/DrugIdentity"
+      "$ref": "#/$defs/DrugIdentity",
+      "description": "Source drug identity."
     },
     "mechanism": {
       "anyOf": [
@@ -342,22 +344,27 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "description": "Native mechanism wording, only when supplied."
     },
     "native_target": {
-      "$ref": "#/$defs/DrugNativeTarget"
+      "$ref": "#/$defs/DrugNativeTarget",
+      "description": "Native target identity independent of a gene reference."
     },
     "references": {
+      "description": "Source-native supporting references.",
       "items": {
         "$ref": "#/$defs/DrugNativeReference"
       },
       "type": "array"
     },
     "relation": {
-      "$ref": "#/$defs/Text"
+      "$ref": "#/$defs/Text",
+      "description": "Native relationship label."
     },
     "target": {
-      "$ref": "#/$defs/GeneRef"
+      "$ref": "#/$defs/GeneRef",
+      "description": "Source-stated target gene, without using mechanism text as a gene label."
     }
   },
   "required": [

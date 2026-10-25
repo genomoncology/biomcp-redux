@@ -185,6 +185,7 @@
   "description": "One native interaction pair and level, without invented management advice.",
   "properties": {
     "additional_attributions": {
+      "description": "Further distinct provenance, excluding the primary attribution.",
       "items": {
         "$ref": "#/$defs/Attribution"
       },
@@ -192,16 +193,20 @@
       "uniqueItems": true
     },
     "anchor": {
-      "$ref": "#/$defs/DrugIdentity"
+      "$ref": "#/$defs/DrugIdentity",
+      "description": "Selected native anchor ID and name."
     },
     "attribution": {
-      "$ref": "#/$defs/Attribution"
+      "$ref": "#/$defs/Attribution",
+      "description": "Primary pair record and bundle provenance."
     },
     "level": {
-      "$ref": "#/$defs/Text"
+      "$ref": "#/$defs/Text",
+      "description": "Original native level, without a computed severity."
     },
     "partner": {
-      "$ref": "#/$defs/DrugIdentity"
+      "$ref": "#/$defs/DrugIdentity",
+      "description": "Native partner ID and name."
     }
   },
   "required": [
