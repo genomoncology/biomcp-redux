@@ -5,7 +5,9 @@ use std::{collections::BTreeSet, io::Read};
 const MAX_DECODED_BYTES: u64 = 256 * 1024 * 1024;
 
 pub(super) fn rows<R: Row>(body: &[u8], gzip: bool, limit: u64) -> Result<Vec<Parsed>, BadReply> {
-    if limit == 0 || limit > MAX_DECODED_BYTES { return Err(BadReply); }
+    if limit == 0 || limit > MAX_DECODED_BYTES {
+        return Err(BadReply);
+    }
     let bytes = if gzip {
         let mut bytes = Vec::new();
         flate2::read::MultiGzDecoder::new(body)

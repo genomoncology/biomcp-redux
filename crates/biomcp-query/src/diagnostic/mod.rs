@@ -47,6 +47,8 @@ fn finish(out: &mut Outcome, leg: &Leg<'_>, error: Option<RequestError>) {
 pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
         items: Box::default(),
+        count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities),
+        distinct_id_total: None,
     }));
     if q.source() != DiagnosticSearchSource::Gtr {
         return unsupported(Source::FdaCdx, out);
@@ -81,7 +83,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = QueryBody::DiagnosticPage(DiagnosticPage { items: page.items });
+        out.body = QueryBody::DiagnosticPage(DiagnosticPage { items: page.items, count_unit: Some(biomcp_types::DiagnosticCountUnit::TestIdentities), distinct_id_total: None });
     }
     finish(&mut out, &leg, error);
     command.finish(deadline.remaining());

@@ -506,7 +506,7 @@ mod sets {
                 assert!(call.join().unwrap().is_err());
             });
             assert_eq!(names(&reader, &set, "NEW").len(), 8);
-        assert_eq!(names(&second_reader, &set, "NEW").len(), 8);
+            assert_eq!(names(&second_reader, &set, "NEW").len(), 8);
             assert!(names(&reader, &set, "BROKEN").is_empty());
         }
         // Every read above is stored-only. No unresponded read request exists.

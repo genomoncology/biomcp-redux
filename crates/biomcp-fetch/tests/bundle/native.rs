@@ -9,15 +9,38 @@ fn gzip(body: &[u8]) -> Vec<u8> {
     encoder.finish().unwrap()
 }
 fn native(server: &support::Server, limit: u64) -> BundleSet<Gene> {
-    BundleSet { spec: server.spec(&QUOTA, KeyUse::None), name: "native-tsv",
-        parts: &[BundlePart { name: "compressed", path: "/one.gz",
-            format: Some(RowFormat::NativeTsv { gzip: true, max_decoded_bytes: 1024 }) },
-            BundlePart { name: "plain", path: "/two", format: None }],
-        format: RowFormat::NativeTsv { gzip: false, max_decoded_bytes: limit },
-        fresh: Freshness::Days(1), row: PhantomData }
+    BundleSet {
+        spec: server.spec(&QUOTA, KeyUse::None),
+        name: "native-tsv",
+        parts: &[
+            BundlePart {
+                name: "compressed",
+                path: "/one.gz",
+                format: Some(RowFormat::NativeTsv {
+                    gzip: true,
+                    max_decoded_bytes: 1024,
+                }),
+            },
+            BundlePart {
+                name: "plain",
+                path: "/two",
+                format: None,
+            },
+        ],
+        format: RowFormat::NativeTsv {
+            gzip: false,
+            max_decoded_bytes: limit,
+        },
+        fresh: Freshness::Days(1),
+        row: PhantomData,
+    }
 }
 fn reply(server: &support::Server, body: &[u8]) {
-    let mut bytes = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len()).into_bytes();
+    let mut bytes = format!(
+        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        body.len()
+    )
+    .into_bytes();
     bytes.extend_from_slice(body);
     server.next().bytes(bytes);
 }
@@ -36,7 +59,8 @@ fn heterogeneous_native_parts_preserve_empty_quoted_cells_and_reject_decoded_ove
     });
     let read = || {
         let leg = fetch.leg(set.spec, fetch.deadline(Duration::from_secs(2)));
-        leg.stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF")).unwrap()
+        leg.stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
+            .unwrap()
     };
     let (rows, old) = read();
     assert_eq!(rows.len(), 2);
@@ -46,8 +70,17 @@ fn heterogeneous_native_parts_preserve_empty_quoted_cells_and_reject_decoded_ove
         let limited = native(&server, 16);
         std::thread::scope(|scope| {
             let call = scope.spawn(|| fetch.sync_set(&limited));
-            reply(&server, if truncated { &bytes[..bytes.len() - 4] } else { &bytes });
-            if !truncated { reply(&server, BODY.as_bytes()); }
+            reply(
+                &server,
+                if truncated {
+                    &bytes[..bytes.len() - 4]
+                } else {
+                    &bytes
+                },
+            );
+            if !truncated {
+                reply(&server, BODY.as_bytes());
+            }
             assert!(call.join().unwrap().is_err());
         });
         let (rows, info) = read();

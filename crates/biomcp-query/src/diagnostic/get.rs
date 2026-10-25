@@ -73,6 +73,7 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
                     }
                 })
                 .collect();
+            let distinct_id_total = Some(rows.iter().filter_map(|r| r.condition.id.as_ref()).map(ToString::to_string).collect::<BTreeSet<_>>().len() as u64);
             let total = rows.len();
             let items = rows
                 .into_iter()
@@ -80,7 +81,7 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
                 .take(q.section_limit() as usize)
                 .collect::<Box<[_]>>();
             page(out, q, items.len(), total, fresh);
-            out.body = QueryBody::DiagnosticConditions(DiagnosticConditions { items });
+            out.body = QueryBody::DiagnosticConditions(DiagnosticConditions { items, count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows), distinct_id_total });
         }
         Some(DiagnosticSection::Methods) => {
             let total = record.methods.len();
@@ -91,7 +92,7 @@ fn selected(out: &mut Outcome, q: &DiagnosticGet, record: gtr::Record, fresh: bo
                 .take(q.section_limit() as usize)
                 .collect::<Box<[_]>>();
             page(out, q, items.len(), total, fresh);
-            out.body = QueryBody::DiagnosticMethods(DiagnosticMethods { items });
+            out.body = QueryBody::DiagnosticMethods(DiagnosticMethods { items, count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeMethodEntries), distinct_id_total: None });
         }
         _ => {}
     }
@@ -115,35 +116,35 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fre
 }
 
 fn genes(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, fresh: bool) {
-            let rows: Vec<_> = relations
-                .into_iter()
-                .filter_map(|r| {
-                    if let GtrTestRelation::Gene(v) = r {
-                        Some(v)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            let total = rows.len();
-            let items: Box<[_]> = rows
-                .into_iter()
-                .skip(q.section_offset() as usize)
-                .take(q.section_limit() as usize)
-                .collect();
-            let mut seen = BTreeSet::new();
-            for id in items
-                .iter()
-                .filter_map(|r| r.gene.ncbi_gene_id())
-                .filter(|id| seen.insert(id.to_string()))
-            {
-                if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
-                    && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
-                {
-                    next::push(out, StepKind::Disambiguate, Request::GetGene(query), fresh);
-                }
+    let rows: Vec<_> = relations
+        .into_iter()
+        .filter_map(|r| {
+            if let GtrTestRelation::Gene(v) = r {
+                Some(v)
+            } else {
+                None
             }
-            page(out, q, items.len(), total, fresh);
-            out.body = QueryBody::DiagnosticGenes(DiagnosticGenes { items });
-
+        })
+        .collect();
+    let distinct_id_total = Some(rows.iter().filter_map(|r| r.gene.ncbi_gene_id()).map(|id| id.to_string()).collect::<BTreeSet<_>>().len() as u64);
+    let total = rows.len();
+    let items: Box<[_]> = rows
+        .into_iter()
+        .skip(q.section_offset() as usize)
+        .take(q.section_limit() as usize)
+        .collect();
+    let mut seen = BTreeSet::new();
+    for id in items
+        .iter()
+        .filter_map(|r| r.gene.ncbi_gene_id())
+        .filter(|id| seen.insert(id.to_string()))
+    {
+        if let Ok(input) = biomcp_types::GeneInput::new(&id.to_string())
+            && let Ok(query) = biomcp_types::GeneGet::new(vec![input].into())
+        {
+            next::push(out, StepKind::Disambiguate, Request::GetGene(query), fresh);
+        }
+    }
+    page(out, q, items.len(), total, fresh);
+    out.body = QueryBody::DiagnosticGenes(DiagnosticGenes { items, count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows), distinct_id_total });
 }

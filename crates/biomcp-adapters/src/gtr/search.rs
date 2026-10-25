@@ -7,6 +7,7 @@ use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
 use biomcp_types::{DiagnosticCandidate, DiagnosticSearch};
 use std::collections::{HashMap, HashSet};
 /// One bounded source page and its complete distinct-test count.
+#[derive(Debug)]
 pub struct Search {
     /// Native test candidates in relation report order.
     pub items: Box<[DiagnosticCandidate]>,
@@ -74,7 +75,7 @@ fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
         && q.gene()
             .is_none_or(|v| r.object == Object::Gene && &*r.gene_symbol == v.as_str())
         && q.gene_id()
-            .is_none_or(|v| r.object == Object::Gene && &*r.object_id == v.to_string())
+            .is_none_or(|v| r.object == Object::Gene && *r.object_id == v.to_string())
         && q.condition_id().is_none_or(|v| {
             r.object == Object::Condition && format!("MedGen:{}", r.medgen) == v.as_str()
         })

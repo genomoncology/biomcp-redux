@@ -3,6 +3,7 @@ use biodata::{GtrMethod, GtrTestRelation};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
 use biomcp_types::{DiagnosticGet, GtrCard, Problem};
 /// Exact source identity and independent relation collections under one local snapshot.
+#[derive(Debug)]
 pub struct Record {
     /// Selected card, absent for missing or conflicting identities.
     pub card: Option<GtrCard>,

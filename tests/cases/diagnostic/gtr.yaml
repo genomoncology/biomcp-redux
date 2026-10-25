@@ -45,7 +45,8 @@
         "/page/returned": 5,
         "/result/items/0/header/id": "GTR000006692.3",
         "/result/items/0/matched/kind": "gene",
-        "/result/items/0/matched/relation/gene/ncbi_gene_id": "672"
+        "/result/items/0/matched/relation/gene/ncbi_gene_id": "672",
+        "/result/count_unit": "test_identities"
       }
     },
     {
@@ -173,7 +174,9 @@
       "max_tokens": 3500,
       "expect": {
         "/page/total": 2,
-        "/result/items/1/gene/ncbi_gene_id": "7157"
+        "/result/items/1/gene/ncbi_gene_id": "7157",
+        "/result/count_unit": "native_relation_rows",
+        "/result/distinct_id_total": 2
       }
     },
     {
@@ -197,7 +200,9 @@
       "max_tokens": 3500,
       "expect": {
         "/page/total": 1,
-        "/result/items/0/snomed_ct_id": ""
+        "/result/items/0/snomed_ct_id": "",
+        "/result/count_unit": "native_relation_rows",
+        "/result/distinct_id_total": 1
       }
     },
     {
@@ -226,7 +231,8 @@
       "expect": {
         "/page/total": 4,
         "/result/items/0/list": "method_categories",
-        "/result/items/1/index": 1
+        "/result/items/1/index": 1,
+        "/result/count_unit": "native_method_entries"
       }
     },
     {

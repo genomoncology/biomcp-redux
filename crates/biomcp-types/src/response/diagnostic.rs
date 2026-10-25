@@ -159,6 +159,17 @@ biodata::wire_enum! {
     /// Regulatory text available in this source tier.
     DiagnosticRegulatoryField { #[doc = "Native ApprovalOrderStatement spelling."] ApprovalOrderStatement => "ao_statement" }
 }
+biodata::wire_enum! {
+    /// Meaning of the envelope's total for a source-owned diagnostic page.
+    DiagnosticCountUnit {
+        /// Distinct exact GTR accession and version identities.
+        TestIdentities => "test_identities",
+        /// Native relation rows, including repeated IDs and label-only rows.
+        NativeRelationRows => "native_relation_rows",
+        /// Independent source list entries, without positional pairing.
+        NativeMethodEntries => "native_method_entries"
+    }
+}
 macro_rules! page {
     ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         #[doc = $doc]
@@ -168,6 +179,12 @@ macro_rules! page {
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
             pub items: Box<[$row]>,
+            /// Exact meaning of the envelope total; supplied by the owning source command.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub count_unit: Option<DiagnosticCountUnit>,
+            /// Distinct complete native IDs across the selected relation collection.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub distinct_id_total: Option<u64>,
         }
         impl ResponseBody for $name {
             const SCHEMA: &'static str = $schema;
