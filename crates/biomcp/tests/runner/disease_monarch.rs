@@ -78,6 +78,8 @@ fn exact() -> Result<(), String> {
         0,
     )?;
     measure(&["exact-native"], &value)?;
+    // Ceil(j12282 comparable1833 * 1.15).
+    if super::source_terms::size(&value, "")? > 2108 {return Err("exact native mechanics page exceeds its measured bound".into());}
     let row = value
         .pointer("/result/items/0/association")
         .ok_or("missing association")?;
@@ -130,7 +132,6 @@ fn measure(words: &[&str], value: &Value) -> Result<(), String> {
 fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
     for step in steps.as_array_mut().ok_or("missing steps")? {
         let step = step.as_object_mut().ok_or("missing step")?;
-        step.entry("max_bytes").or_insert(json!(5300));
         let ceiling = step
             .get("max_bytes")
             .and_then(Value::as_u64)
