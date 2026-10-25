@@ -1,0 +1,14 @@
+{
+  "feature": "adverse-event-search",
+  "story": "A caller disables FAERS before search reaches cache, replay or network and retains the typed selectors and publisher policy.",
+  "live_check": "synthetic source policy",
+  "steps": [
+    {
+      "run": ["search", "adverse-event", "pembrolizumab", "--disable-sources", "faers"],
+      "mcp": ["search", "adverse-event", "pembrolizumab", "--disable-sources", "faers"],
+      "expect": {"/schema": "biomcp.adverse_event_page/2", "/status": "failed", "/query/source": "faers", "/query/limit": 5, "/sources/0/state": "skipped", "/sources/0/reason": "disabled"},
+      "exit": 4,
+      "is_error": true
+    }
+  ]
+}
