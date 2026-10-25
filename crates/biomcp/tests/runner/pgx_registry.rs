@@ -95,7 +95,7 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
     Ok(())
 }
 fn switches() -> Check {
-    for configured in ["cpic", "clinpgx", "noncommercial"] {
+    for (configured, command) in [("cpic", "cpic"), ("clinpgx", "clinpgx"), ("noncommercial", "noncommercial"), ("clinpgx", "cpic")] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&json!({"disable_sources":[configured]}))
             .map_err(|e| e.to_string())?;
@@ -105,7 +105,7 @@ fn switches() -> Check {
                 "health".into(),
                 "--offline".into(),
                 "--disable-sources".into(),
-                "cpic".into(),
+                command.into(),
             ],
             0,
         )?;
@@ -118,7 +118,7 @@ fn switches() -> Check {
                 .iter()
                 .find(|r| r.get("source") == Some(&json!(name)))
                 .ok_or("missing source")?;
-            let disabled = name == "cpic" || name == configured || configured == "noncommercial";
+            let disabled = name == command || name == configured || configured == "noncommercial";
             if disabled
                 && (row.get("state") != Some(&json!("skipped"))
                     || row.get("reason") != Some(&json!("disabled")))

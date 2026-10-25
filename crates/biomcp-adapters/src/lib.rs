@@ -105,3 +105,8 @@ pub mod who_ivd;
 
 /// Shared pharmacogenomics publisher policy.
 pub mod pgx_sources;
+
+/// CPIC publisher policy.
+pub mod cpic;
+/// ClinPGx publisher policy.
+pub mod clinpgx;
