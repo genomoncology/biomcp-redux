@@ -80,7 +80,7 @@ fn bad_reply() -> RequestError {
 #[derive(Debug)]
 pub struct DrugDocument {
     /// Identity and native aliases, with no implicit product selection.
-    pub card:DrugCard,
+    pub card: DrugCard,
     /// All checked native cross-references, products and hierarchy links in stable order.
-    pub xrefs:Box<[biodata::DrugIdentityRelation]>,
+    pub xrefs: Box<[biodata::DrugIdentityRelation]>,
 }

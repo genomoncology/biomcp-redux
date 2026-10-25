@@ -77,7 +77,10 @@ pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<DrugPage, BadReply> {
         total: Some(page.total),
     })
 }
-pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<crate::Mapped<super::DrugDocument>, BadReply> {
+pub(super) fn card(
+    hit: Hit,
+    leg: &Leg<'_>,
+) -> Result<crate::Mapped<super::DrugDocument>, BadReply> {
     let (id, version, rows) = components(hit, leg);
     let mut card = DrugCard {
         header: header(&id, &rows)?,
@@ -116,9 +119,14 @@ pub(super) fn card(hit: Hit, leg: &Leg<'_>) -> Result<crate::Mapped<super::DrugD
             distinct.push(reference);
         }
     }
-    if !distinct.is_empty() || !problems.is_empty() {card.available_sections=vec![biomcp_types::DrugSection::Xrefs].into();}
+    if !distinct.is_empty() || !problems.is_empty() {
+        card.available_sections = vec![biomcp_types::DrugSection::Xrefs].into();
+    }
     Ok(crate::Mapped {
-        value: super::DrugDocument {card,xrefs:distinct.into()},
+        value: super::DrugDocument {
+            card,
+            xrefs: distinct.into(),
+        },
         problems,
     })
 }

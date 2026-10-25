@@ -92,9 +92,9 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(card) = result {
         out.status = if out
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Stale)
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
         {
             Status::Partial
         } else {

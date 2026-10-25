@@ -280,7 +280,9 @@ impl DrugGet {
 
 impl DrugGet {
     /// Select one named disclosure without changing the exact source identity.
-    pub fn for_section(&self, section:DrugSection) -> Result<Self,QueryInvalid> {
-        let mut fields=self.0.clone(); fields.section=vec![section].into(); fields.try_into()
+    pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section = vec![section].into();
+        fields.try_into()
     }
 }
