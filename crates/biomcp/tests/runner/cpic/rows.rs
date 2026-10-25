@@ -19,7 +19,7 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
             "--cpic-level".into(),
             "B/C".into(),
         ]);
-    } else if matches!(name, "view" | "table" | "guidelines" | "guidelines-many") {
+    } else if matches!(name, "view" | "missing-second-gene" | "table" | "guidelines" | "guidelines-many") {
         args.extend(["--section-limit".into(), "1".into()]);
     }
     let body = match name {
@@ -29,10 +29,16 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
         "card" => {
             json!([{"symbol":"DPYD","hgncid":"HGNC:2865","ncbiid":"1806","ensemblid":"ENSG00000188641","clinpgxid":"PA145","lookupmethod":"SYNTHETIC","version":7}])
         }
-        "view" | "table" => {
+        "view" | "missing-second-gene" | "table" => {
             args.push("recommendations".into());
             let mut row = json!({"lookupkey":{"DPYD":"n/a","TPMT":"Synthetic other gene"},"implications":{"DPYD":"Synthetic context","TPMT":"Independent synthetic context"},"phenotypes":{"DPYD":"Uncertain synthetic result","TPMT":"Synthetic label"},"activityscore":{},"drugrecommendation":"Synthetic source text without clinical advice.","classification":"Synthetic classification","population":"Synthetic population","comments":"Keep this synthetic qualification."});
-            if name == "view" {
+            // Q16 authored partial-key control: no unavailable second gene becomes normal.
+            if name == "missing-second-gene" {
+                for field in ["lookupkey", "implications", "phenotypes"] {
+                    row.get_mut(field).and_then(Value::as_object_mut).ok_or("joint key")?.remove("TPMT");
+                }
+            }
+            if matches!(name, "view" | "missing-second-gene") {
                 row.as_object_mut()
                     .ok_or("synthetic object")?
                     .insert("recommendationid".into(), json!(1));

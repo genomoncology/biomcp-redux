@@ -17,6 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "guidelines-many",
         "diplotype",
         "empty",
+        "missing-second-gene",
     ] {
         out.push(Trial::test(
             format!("cpic-pgx/{name}-network-cache-replay"),
@@ -139,7 +140,7 @@ fn check_request(name: &str, r: &str) -> Check {
     let route = match name {
         "pairs" => "pair_view",
         "card" => "gene",
-        "view" => "recommendation_view",
+        "view" | "missing-second-gene" => "recommendation_view",
         "table" => "recommendation",
         "guidelines" | "guidelines-many" => "guideline_summary_view",
         _ => "diplotype",
@@ -150,7 +151,7 @@ fn check_request(name: &str, r: &str) -> Check {
     if name == "table" && (!r.contains("drugid=eq.RxNorm%3A10324") || !r.contains("order=id.asc")) {
         return Err("native drug filter/order missing".into());
     }
-    if name == "view"
+    if matches!(name, "view" | "missing-second-gene")
         && (!r.contains("lookupkey-%3E%3EDPYD=not.is.null")
             || !r.contains("order=recommendationid.asc"))
     {
@@ -225,7 +226,9 @@ fn failure(name: &'static str) -> Check {
     }
     let stub = Stub::counted(
         move |_| {
-            Ok(if name == "broken" {
+            Ok(if name == "status" {
+                json!({"code":"SYNTHETIC","message":"Synthetic HTTP 200 error"}).to_string()
+            } else if name == "broken" {
                 "{".into()
             } else {
                 body.to_string()
@@ -254,6 +257,13 @@ fn failure(name: &'static str) -> Check {
     {
         return Err(format!("source failure hidden as success: {value}"));
     }
+    if matches!(name, "wrong-gene" | "wrong-drug")
+        && (value.pointer("/problems/0/source") != Some(&json!("cpic"))
+            || value.pointer("/problems/0/field") != Some(&json!("record")))
+    {
+        return Err(format!("identity drop omitted its problem: {value}"));
+    }
+    println!("CPIC {name}: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len());
     let mut replay = args.clone();
     *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
     let replay_env = Environment::new().map_err(|e| e.to_string())?;
@@ -299,6 +309,14 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
     if name == "table" && cold.pointer("/result/representation") != Some(&json!("table")) {
         return Err("table confused with view".into());
     }
+    if name == "empty" && (cold.get("status") != Some(&json!("complete"))
+        || cold.pointer("/sources/0/state") != Some(&json!("ok"))) {
+        return Err("Q33 source-local zero became failure or inferred normal".into());
+    }
+    if name == "missing-second-gene" && cold.pointer("/result/items/0/lookupkey/TPMT").is_some() {
+        return Err("Q16 missing second gene acquired a result".into());
+    }
+    println!("CPIC {name}: {}", serde_json::to_vec(cold).map_err(|e|e.to_string())?.len());
     verify_next(name, cold)?;
     Ok(())
 }
@@ -384,6 +402,7 @@ fn timeout() -> Check {
     {
         return Err(format!("timeout became success: {value}"));
     }
+    println!("CPIC timeout: {}", serde_json::to_vec(&value).map_err(|e|e.to_string())?.len());
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached HTTP".into());
     }

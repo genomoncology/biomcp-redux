@@ -2,6 +2,7 @@
 
 mod adverse_event;
 mod drug;
+mod pgx;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
@@ -104,6 +105,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         return Some(message);
     }
     if let Some(message) = disease::message(args) {
+        return Some(message);
+    }
+    if let Some(message) = pgx::message(args) {
         return Some(message);
     }
     let words = words(args)?;
