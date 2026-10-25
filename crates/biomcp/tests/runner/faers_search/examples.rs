@@ -15,6 +15,7 @@ pub(super) fn record(directory: &Path) -> Check {
             if request.contains("search=safetyreportid%3A%22100%22&") {
                 let mut report = body(1, 0);
                 *report.pointer_mut("/meta/results/total").ok_or("total")? = serde_json::json!(1);
+                *report.pointer_mut("/meta/results/limit").ok_or("limit")? = serde_json::json!(5);
                 Ok(report.to_string())
             } else {
                 Ok(body(5, 0).to_string())
