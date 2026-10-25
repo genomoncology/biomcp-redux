@@ -91,15 +91,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     super::schema::Registry::embedded()?.validate(&cli, &args, true)?;
     let full = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&cli, "")?;
-    use std::io::Write;
-    writeln!(
-        std::io::stdout(),
-        "FAERS_GET_SIZE query={} schema={} status={} full={full} comparable={comparable}",
-        cli.get("query").unwrap_or(&Value::Null),
-        cli.get("schema").unwrap_or(&Value::Null),
-        cli.get("status").unwrap_or(&Value::Null)
-    )
-    .map_err(|e| e.to_string())?;
+    budget(&cli, full, comparable)?;
     Ok(cli)
 }
 fn sections() -> Check {
@@ -337,6 +329,45 @@ fn source_policy() -> Check {
     }
     if stub.finish()?.len() != 1 {
         return Err("disabled source reached HTTP".into());
+    }
+    Ok(())
+}
+
+fn budget(value: &Value, full: usize, comparable: usize) -> Check {
+    let section = value
+        .pointer("/query/section")
+        .and_then(Value::as_str)
+        .unwrap_or("card");
+    let status = value.get("status").and_then(Value::as_str).unwrap_or("");
+    // j13008: compact CLI/MCP maxima; every ceiling is measured bytes plus15%.
+    let measured: (usize, usize) = match (section, status) {
+        (_, "usage") => (143, 143),
+        ("card", "complete") => (1215, 1100),
+        ("card", "absent") => (298, 183),
+        ("card", "failed") => (428, 313),
+        ("drugs", "failed") => (419, 304),
+        ("reactions", "failed") => (423, 308),
+        ("unii", "failed") => (433, 318),
+        ("unii", "absent") => (409, 294),
+        ("drugs", "complete") => (1453, 1338),
+        ("reactions", "complete") => (1403, 1288),
+        ("unii", "complete") => (693, 578),
+        ("rxcui", "complete") => (692, 577),
+        ("product-ndc", "complete") => (718, 603),
+        ("package-ndc", "complete") => (924, 809),
+        ("spl-id", "complete") => (706, 591),
+        ("spl-set-id", "complete") => (719, 604),
+        ("application-number", "complete") => (751, 636),
+        _ => return Err(format!("unmeasured FAERS envelope: {section}/{status}")),
+    };
+    let caps = (
+        (measured.0 * 115).div_ceil(100),
+        (measured.1 * 115).div_ceil(100),
+    );
+    if full > caps.0 || comparable > caps.1 {
+        return Err(format!(
+            "FAERS output exceeds measured +15% ceiling: {full}/{comparable} > {caps:?}"
+        ));
     }
     Ok(())
 }
