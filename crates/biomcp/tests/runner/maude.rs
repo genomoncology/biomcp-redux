@@ -29,7 +29,7 @@ fn both(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String> {
     let args: Vec<String> = words.iter().map(|v| (*v).into()).collect();
     let cli = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&cli, &args, true)?;
-    let mcp = super::mcp::call(env, &args, exit >= 2)?;
+    let mcp = super::mcp::call_with_globals(env, &args, exit >= 2, &[])?;
     if cli != mcp { return Err(format!("MAUDE CLI/MCP differ: {cli} / {mcp}")); }
     Ok(cli)
 }
