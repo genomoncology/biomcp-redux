@@ -6,6 +6,7 @@ use serde_json::json;
 #[test]
 fn published_ids_roundtrip_without_source_prefixes() {
     for value in [
+        "CHEBI:756472",
         "CHEMBL941",
         "EMEA/H/C/000406",
         "NDA021335",
@@ -27,6 +28,10 @@ fn published_ids_roundtrip_without_source_prefixes() {
         "openfda-label:741ff3e3-dc1a-45a6-84e5-2481b27131aa",
         "",
         "Gleevec tablets",
+        "1:foo",
+        "CHEBI:",
+        "CHEBI::1",
+        "CHEBI:/1",
         " CHEMBL941",
     ] {
         assert!(value.parse::<DrugId>().is_err(), "{value}");
@@ -53,6 +58,7 @@ fn selected_source_checks_its_native_identifier_grammar() {
     use biomcp_types::DrugSource;
     for (source, id) in [
         ("mychem", "KTUFNOKKBVMGRW-UHFFFAOYSA-N"),
+        ("mychem", "CHEBI:756472"),
         ("chembl", "CHEMBL941"),
         ("opentargets", "CHEMBL941"),
         ("ema", "EMEA/H/C/000406"),
@@ -72,6 +78,8 @@ fn selected_source_checks_its_native_identifier_grammar() {
         );
     }
     for (source, id) in [
+        ("mychem", "MYCHEM:CHEMBL941"),
+        ("mychem", "CHEMBL:CHEMBL941"),
         ("chembl", "Gleevec"),
         ("ema", "CHEMBL941"),
         ("drugsfda", "NDA1"),
@@ -109,6 +117,7 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
         );
     }
     for name in [
+        "xrefs",
         "targets",
         "indications",
         "civic",
@@ -492,12 +501,12 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
 
 #[test]
 #[cfg(feature = "schema")]
-fn changed_native_record_responses_publish_version_two_and_checked_target_schema() {
+fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
-    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug_targets/2");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug_indications/2");
-    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug_interactions/2");
+    assert_eq!(DrugTargets::SCHEMA, "biomcp.drug_targets/3");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug_indications/3");
+    assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug_interactions/3");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
             .expect("target schema");

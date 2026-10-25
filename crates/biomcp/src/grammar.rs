@@ -37,6 +37,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchDrug(_) => "biomcp.drug-search/1",
+        Request::GetDrug(_) => "biomcp.drug-get/2",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
         Request::VariantNormalize(_) => "biodata.variant-normalize/2",
@@ -59,6 +61,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "drug", "biomcp.drug-search/1"),
+    ("get", "drug", "biomcp.drug-get/2"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),
     ("search", "article", "biodata.article-search/1"),
@@ -535,6 +539,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
             .map(Request::SearchArticle)
             .map_err(|_| ()),
+        ("search" | "get", "drug") => drug_request(verb, value),
         ("get", "gene") => serde_json::from_value::<GeneGet>(value)
             .map(Request::GetGene)
             .map_err(|_| ()),
@@ -559,4 +564,16 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
+}
+
+fn drug_request(verb: &str, value: Value) -> Result<Request, ()> {
+    if verb == "search" {
+        serde_json::from_value::<biomcp_types::DrugSearch>(value)
+            .map(Request::SearchDrug)
+            .map_err(|_| ())
+    } else {
+        serde_json::from_value::<biomcp_types::DrugGet>(value)
+            .map(Request::GetDrug)
+            .map_err(|_| ())
+    }
 }

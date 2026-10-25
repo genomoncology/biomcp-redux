@@ -1,0 +1,265 @@
+use super::links::{native_xrefs, reference, strings};
+use super::raw::{Component, Hit, Page};
+use biodata::{DrugIdentityLevel, DrugIdentityRelation, Text};
+use biomcp_fetch::{BadReply, Leg};
+use biomcp_types::{DrugCard, DrugHeader, DrugPage, DrugSource};
+pub(super) fn text(value: &str) -> Result<Text, BadReply> {
+    Text::new(value).map_err(|_| BadReply)
+}
+fn components(hit: Hit, leg: &Leg<'_>) -> (String, Option<u64>, Vec<(&'static str, Component)>) {
+    let mut rows = Vec::new();
+    for (name, values) in [
+        ("drugbank", hit.drugbank),
+        ("chembl", hit.chembl),
+        ("drugcentral", hit.drugcentral),
+        ("gtopdb", hit.gtopdb),
+        ("unii", hit.unii),
+        ("ndc", hit.ndc),
+        ("openfda", hit.openfda),
+    ] {
+        if crate::drug_sources::components::COMPONENTS
+            .iter()
+            .find(|c| c.name == name)
+            .is_some_and(|c| !c.disabled_on_leg(leg))
+        {
+            rows.extend(
+                values
+                    .into_iter()
+                    .flat_map(|v| v.values())
+                    .map(|v| (name, v)),
+            );
+        }
+    }
+    (hit.id, hit.version, rows)
+}
+fn name(c: &Component) -> Option<&str> {
+    c.name
+        .as_deref()
+        .or(c.pref_name.as_deref())
+        .or(c.display_name.as_deref())
+        .or(c.proprietaryname.as_deref())
+        .or(c.nonproprietaryname.as_deref())
+}
+fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> {
+    Ok(DrugHeader {
+        id: id.parse().map_err(|_| BadReply)?,
+        source: DrugSource::Mychem,
+        name: rows
+            .iter()
+            .find_map(|(_, c)| name(c))
+            .map(text)
+            .transpose()?,
+        identity_level: DrugIdentityLevel::Unknown,
+        r#type: rows
+            .iter()
+            .find_map(|(_, c)| {
+                c.molecule_type
+                    .as_deref()
+                    .or(c.r#type.as_deref())
+                    .or(c.ingredient_type.as_deref())
+                    .or(c.producttypename.as_deref())
+            })
+            .map(text)
+            .transpose()?,
+        url: Some(text(&format!("https://mychem.info/v1/chem/{id}"))?),
+    })
+}
+pub(super) fn page(page: Page, leg: &Leg<'_>) -> Result<DrugPage, BadReply> {
+    let items = page
+        .hits
+        .into_iter()
+        .map(|hit| {
+            let (id, _, rows) = components(hit, leg);
+            header(&id, &rows)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(DrugPage {
+        items: items.into(),
+        total: Some(page.total),
+    })
+}
+pub(super) fn card(
+    hit: Hit,
+    leg: &Leg<'_>,
+) -> Result<crate::Mapped<super::DrugDocument>, BadReply> {
+    let (id, version, rows) = components(hit, leg);
+    let mut card = DrugCard {
+        header: header(&id, &rows)?,
+        alternate_names: Box::default(),
+        cross_references: Box::default(),
+        parents: Box::default(),
+        products: Box::default(),
+        formulations: Box::default(),
+        version: version.map(|n| text(&n.to_string())).transpose()?,
+        updated: None,
+        retrieved: None,
+        available_sections: Box::default(),
+        next: Box::default(),
+    };
+    let mut problems = Vec::new();
+    let mut aliases = Vec::new();
+    let mut refs = Vec::new();
+    let mut parents = Vec::new();
+    for (component, c) in rows {
+        aliases.extend(aliases_for(&c));
+        refs.extend(references_for(&id, component, &c)?);
+        refs.extend(native_xrefs(&id, component, &c, &mut problems));
+        parents.extend(parents_for(&id, component, &c)?);
+    }
+    let mut names = Vec::new();
+    for alias in aliases {
+        let alias = text(&alias)?;
+        if !names.contains(&alias) {
+            names.push(alias);
+        }
+    }
+    card.alternate_names = names.into();
+    let mut distinct = Vec::new();
+    for reference in refs.into_iter().chain(parents) {
+        if !distinct.contains(&reference) {
+            distinct.push(reference);
+        }
+    }
+    if !distinct.is_empty() || !problems.is_empty() {
+        card.available_sections = vec![biomcp_types::DrugSection::Xrefs].into();
+    }
+    Ok(crate::Mapped {
+        value: super::DrugDocument {
+            card,
+            xrefs: distinct.into(),
+        },
+        problems,
+    })
+}
+
+fn aliases_for(c: &Component) -> Vec<String> {
+    let mut aliases = Vec::new();
+    aliases.extend(
+        c.synonyms
+            .as_ref()
+            .map(strings)
+            .unwrap_or_default()
+            .into_iter()
+            .map(str::to_owned),
+    );
+    aliases.extend(
+        c.molecule_synonyms
+            .as_ref()
+            .into_iter()
+            .flatten()
+            .filter_map(|s| s.molecule_synonym.clone()),
+    );
+    for values in [&c.generic_name, &c.brand_name] {
+        aliases.extend(
+            values
+                .as_ref()
+                .map(strings)
+                .unwrap_or_default()
+                .into_iter()
+                .map(str::to_owned),
+        );
+    }
+    aliases
+}
+fn references_for(
+    id: &str,
+    component: &str,
+    c: &Component,
+) -> Result<Vec<DrugIdentityRelation>, BadReply> {
+    let mut refs = Vec::new();
+    for (relation, target) in [
+        (
+            "drugbank.id",
+            c.id.as_deref().filter(|_| component == "drugbank"),
+        ),
+        ("chembl.molecule_chembl_id", c.molecule_chembl_id.as_deref()),
+        (
+            "drugcentral.id",
+            c.id.as_deref().filter(|_| component == "drugcentral"),
+        ),
+        ("gtopdb.ligand_id", c.ligand_id.as_deref()),
+        ("gtopdb.chembl_id", c.chembl_id.as_deref()),
+        ("unii.unii", c.unii.as_deref()),
+        ("unii.rxcui", c.rxcui.as_deref()),
+        ("unii.ncit", c.ncit.as_deref()),
+        ("ndc.product_id", c.product_id.as_deref()),
+        ("ndc.productndc", c.productndc.as_deref()),
+        ("ndc.applicationnumber", c.applicationnumber.as_deref()),
+    ] {
+        if let Some(target) = target {
+            let native_name = match relation {
+                "drugbank.id"
+                | "chembl.molecule_chembl_id"
+                | "gtopdb.ligand_id"
+                | "unii.unii"
+                | "ndc.product_id"
+                | "ndc.productndc" => name(c),
+                _ => None,
+            };
+            refs.push(reference(id, component, c, relation, target, native_name)?);
+        }
+    }
+    for (relation, values) in [
+        ("openfda.spl_set_id", &c.spl_set_id),
+        ("openfda.application_number", &c.application_number),
+    ] {
+        for target in values.as_ref().map(strings).unwrap_or_default() {
+            refs.push(reference(id, component, c, relation, target, None)?);
+        }
+    }
+    Ok(refs)
+}
+fn parents_for(
+    id: &str,
+    component: &str,
+    c: &Component,
+) -> Result<Vec<DrugIdentityRelation>, BadReply> {
+    let mut parents = Vec::new();
+    if let Some(h) = &c.molecule_hierarchy {
+        for (relation, target) in [
+            (
+                "chembl.molecule_hierarchy.parent_chembl_id",
+                &h.parent_chembl_id,
+            ),
+            (
+                "chembl.molecule_hierarchy.active_chembl_id",
+                &h.active_chembl_id,
+            ),
+        ] {
+            if let Some(target) = target {
+                parents.push(reference(id, component, c, relation, target, None)?);
+            }
+        }
+    }
+    Ok(parents)
+}
+
+// Convert only the transport's original retrieval epoch; never use the current clock.
+pub(super) fn received_date(fetched: i64) -> Option<biodata::PartialDate> {
+    if fetched <= 0 {
+        return None;
+    }
+    let mut days = fetched / 86_400;
+    for year in 1970..=9999 {
+        let year_days = if biodata::PartialDate::new(year, Some(2), Some(29)).is_ok() {
+            366
+        } else {
+            365
+        };
+        if days >= year_days {
+            days -= year_days;
+            continue;
+        }
+        for month in 1..=12 {
+            for day in 1..=31 {
+                if let Ok(date) = biodata::PartialDate::new(year, Some(month), Some(day)) {
+                    if days == 0 {
+                        return Some(date);
+                    }
+                    days -= 1;
+                }
+            }
+        }
+    }
+    None
+}

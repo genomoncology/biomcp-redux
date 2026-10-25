@@ -796,13 +796,12 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentityLevel": {
@@ -903,6 +902,7 @@
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
+        "xrefs",
         "targets",
         "indications",
         "civic",
@@ -913,6 +913,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " All native identity cross-references and product links, mechanically paged.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -2028,7 +2029,7 @@
       ]
     }
   },
-  "$id": "biomcp.drug_civic/1",
+  "$id": "biomcp.drug_civic/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2074,7 +2075,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_civic/1",
+      "const": "biomcp.drug_civic/2",
       "type": "string"
     },
     "sources": {
