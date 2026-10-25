@@ -102,3 +102,6 @@ pub mod fda_pma;
 pub mod gtr;
 /// WHO export publisher policy.
 pub mod who_ivd;
+
+/// Shared pharmacogenomics publisher policy.
+pub mod pgx_sources;

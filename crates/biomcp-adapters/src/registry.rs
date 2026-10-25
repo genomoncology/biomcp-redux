@@ -8,6 +8,8 @@ use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
+    &crate::pgx_sources::CPIC,
+    &crate::pgx_sources::CLINPGX,
     &crate::gtr::SPEC,
     &crate::who_ivd::SPEC,
     &crate::fda_cdx::SPEC,
