@@ -86,6 +86,10 @@ pub(super) fn mutate(original: &Path, destination: &Path, fault: &str) -> Check 
                 json!(if fault == "timeout" { 180000 } else { 0 });
             *exchange.get_mut("body").ok_or("body")? =
                 json!({"kind":"text","value":"synthetic broken body"});
+            if fault == "403" {
+                *exchange.get_mut("content_type").ok_or("media")? = json!("text/html");
+                *exchange.get_mut("body").ok_or("body")? = json!({"kind":"text","value":"<html><body>Synthetic access denied</body></html>"});
+            }
             let exchanges = json!(vec![exchange.clone(); 5]);
             *value.get_mut("exchanges").ok_or("exchanges")? = exchanges;
             fs::write(target.join(file.file_name()), value.to_string())

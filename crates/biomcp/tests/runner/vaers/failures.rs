@@ -14,7 +14,7 @@ pub(super) fn run() -> Check {
         return Err("broken table retried".into());
     }
     for (fault, reason) in [
-        ("403", "unavailable"),
+        ("403", "rejected"),
         ("429", "rate_limited"),
         ("500", "unavailable"),
         ("timeout", "deadline_exceeded"),
