@@ -18,11 +18,19 @@ pub(super) fn run() -> Check {
         {
             return Err(format!("wrong influenza guidance: {value}"));
         }
-        let choices = value.pointer("/error/valid_values").and_then(|v| v.as_array())
+        let choices = value
+            .pointer("/error/valid_values")
+            .and_then(|v| v.as_array())
             .ok_or("influenza choices absent")?;
-        if choices.len() != 14 || choices.first() != Some(&json!("FLU(H1N1): INFLUENZA (H1N1) MONOVALENT (INJECTED)"))
-            || !choices.contains(&json!("FLUX(SEASONAL): INFLUENZA VIRUS VACCINE, NO BRAND NAME"))
-            || !choices.contains(&json!("FLUX(H1N1): INFLUENZA(H1N1) MONOVALENT, UNKNOWN MANUFACTURER")) {
+        if choices.len() != 14
+            || choices.first() != Some(&json!("FLU(H1N1): INFLUENZA (H1N1) MONOVALENT (INJECTED)"))
+            || !choices.contains(&json!(
+                "FLUX(SEASONAL): INFLUENZA VIRUS VACCINE, NO BRAND NAME"
+            ))
+            || !choices.contains(&json!(
+                "FLUX(H1N1): INFLUENZA(H1N1) MONOVALENT, UNKNOWN MANUFACTURER"
+            ))
+        {
             return Err(format!("native influenza choices changed: {value}"));
         }
         if crate::runner::mcp::call_with_globals(&env, &words(text), true, &[])? != value {

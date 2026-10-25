@@ -14,9 +14,10 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("vaers-summary/exact-influenza-types-and-native-labels", || {
-            influenza::run().map_err(Into::into)
-        }),
+        Trial::test(
+            "vaers-summary/exact-influenza-types-and-native-labels",
+            || influenza::run().map_err(Into::into),
+        ),
         Trial::test("vaers-summary/policy-before-cache-and-replay", || {
             policy::run().map_err(Into::into)
         }),
@@ -59,7 +60,15 @@ fn unsupported() -> Result<(), String> {
         &json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}),
     )
     .map_err(|e| e.to_string())?;
-    for text in ["HPV9", "MMR vaccine", "COVID", "165", "FLU3", "FLUX", "FLU( H1N1 )"] {
+    for text in [
+        "HPV9",
+        "MMR vaccine",
+        "COVID",
+        "165",
+        "FLU3",
+        "FLUX",
+        "FLU( H1N1 )",
+    ] {
         let args = words(text);
         let value = invoke(&env, args.clone(), 2)?;
         let message = value

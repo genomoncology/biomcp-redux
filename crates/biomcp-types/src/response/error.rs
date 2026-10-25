@@ -248,9 +248,10 @@ impl ErrorEnvelope {
     /// Report fixed migration guidance without accepting caller input.
     pub fn retired(message: ErrorMessage) -> Self {
         let valid_values = (message == ErrorMessage::VaersInfluenzaCodes).then(|| {
-            crate::VAERS_INFLUENZA.iter().filter_map(|(code, label)| {
-                crate::Text::new(&format!("{code}: {label}")).ok()
-            }).collect()
+            crate::VAERS_INFLUENZA
+                .iter()
+                .filter_map(|(code, label)| crate::Text::new(&format!("{code}: {label}")).ok())
+                .collect()
         });
         Self {
             next: Vec::new(),

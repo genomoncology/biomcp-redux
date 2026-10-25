@@ -5,12 +5,14 @@ use serde_json::{Value, json};
 
 pub(super) fn run() -> Check {
     let stub = Stub::for_source("wonder.cdc.gov", "application/xml", |request| {
-        let (code, label) = biomcp_types::VAERS_INFLUENZA.iter().find(|(code, _)| {
-            let encoded = code.replace('(', "%28").replace(')', "%29");
-            request.contains(&format!("%3Cvalue%3E{encoded}%3C"))
-        }).ok_or("request did not carry an exact qualified influenza code")?;
-        Ok(super::fixture::table(code, "D8.V13-level2")
-            .replace("Synthetic vaccine", label))
+        let (code, label) = biomcp_types::VAERS_INFLUENZA
+            .iter()
+            .find(|(code, _)| {
+                let encoded = code.replace('(', "%28").replace(')', "%29");
+                request.contains(&format!("%3Cvalue%3E{encoded}%3C"))
+            })
+            .ok_or("request did not carry an exact qualified influenza code")?;
+        Ok(super::fixture::table(code, "D8.V13-level2").replace("Synthetic vaccine", label))
     })?;
     let env = environment(&stub)?;
     for (code, label) in biomcp_types::VAERS_INFLUENZA {
@@ -21,14 +23,25 @@ pub(super) fn run() -> Check {
         if value.pointer("/result/vaccine/code") != Some(&json!(code))
             || value.pointer("/result/vaccine/label") != Some(&json!(label))
             || value.pointer("/result/report_total") != Some(&json!("5"))
-            || value.pointer("/result/footer/reports/dt") != Some(&json!("9")) {
-            return Err(format!("influenza identity or table facts changed: {value}"));
+            || value.pointer("/result/footer/reports/dt") != Some(&json!("9"))
+        {
+            return Err(format!(
+                "influenza identity or table facts changed: {value}"
+            ));
         }
         if super::super::mcp::call_with_globals(&env, &args, false, &[])? != value {
             return Err("influenza CLI and MCP differ".into());
         }
-        for step in value.get("next").and_then(Value::as_array).ok_or("table actions")? {
-            if !step.get("args").and_then(Value::as_array).is_some_and(|args| args.contains(&json!(code))) {
+        for step in value
+            .get("next")
+            .and_then(Value::as_array)
+            .ok_or("table actions")?
+        {
+            if !step
+                .get("args")
+                .and_then(Value::as_array)
+                .is_some_and(|args| args.contains(&json!(code)))
+            {
                 return Err("influenza continuation lost its qualified selector".into());
             }
         }
