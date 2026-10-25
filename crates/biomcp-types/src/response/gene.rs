@@ -65,6 +65,26 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native disease candidate page.
+    DiseasePage(crate::DiseasePage),
+    /// Exact source concept when present.
+    DiseaseCard(Option<crate::DiseaseCard>),
+    /// Native scoped synonym page.
+    DiseaseSynonyms(crate::DiseaseSynonyms),
+    /// Native cross-reference page.
+    DiseaseXrefs(crate::DiseaseXrefs),
+    /// Native parent relations.
+    DiseaseHierarchy(crate::DiseaseHierarchy),
+    /// Native source gene association rows.
+    DiseaseGenes(crate::DiseaseGenes),
+    /// Native source phenotype association rows.
+    DiseasePhenotypes(crate::DiseasePhenotypes),
+    /// Native site catalog.
+    DiseaseSites(crate::DiseaseSites),
+    /// Native incidence rows.
+    DiseaseIncidence(crate::DiseaseIncidence),
+    /// Native survival rows.
+    DiseaseSurvival(crate::DiseaseSurvival),
     /// Native candidate page.
     DrugPage(crate::DrugPage),
     /// Exact source identity, absent on failed retrieval.
@@ -73,6 +93,8 @@ pub enum QueryBody {
     DrugLabel(Option<crate::DrugLabel>),
     /// An exact selected document's bounded native link page.
     DrugXrefs(Option<crate::DrugXrefs>),
+    /// Source-local CIViC therapy evidence and assertion streams.
+    DrugCivic(Option<crate::DrugCivic>),
     /// Source-native variant assertions.
     VariantAssertions(crate::VariantAssertions),
     /// Independent provider normalization results.

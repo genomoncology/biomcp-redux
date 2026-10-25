@@ -1,4 +1,5 @@
 //! Literal native drug discovery and exact selected source identities.
+mod civic;
 mod openfda_label;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
@@ -10,6 +11,9 @@ use biomcp_types::{
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::OpenfdaLabel {
         return openfda_label::search(cx, query);
+    }
+    if query.source() == DrugSource::Civic {
+        return civic::search(cx, query);
     }
     let mut out = empty(QueryBody::DrugPage(DrugPage {
         items: Box::default(),
@@ -84,6 +88,9 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if query.source() == DrugSource::OpenfdaLabel {
         return openfda_label::get(cx, query);
+    }
+    if query.source() == DrugSource::Civic {
+        return civic::get(cx, query);
     }
     let xrefs = matches!(query.sections(), [biomcp_types::DrugSection::Xrefs]);
     let mut out = empty(if xrefs {

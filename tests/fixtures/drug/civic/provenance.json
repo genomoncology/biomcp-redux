@@ -1,0 +1,192 @@
+{
+  "source": "CIViC",
+  "terms": "CC0 1.0",
+  "terms_url": "https://civicdb.org/releases/licensing",
+  "retained_manifest_sha256": "fbe43672172bc61bfec0a40e940f9dadab93d2f286807661c15f0f2d3898a44c",
+  "delivery": "Original captured response bodies copied without alteration. Local replay is not a fresh provider check.",
+  "requests": [
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($id:Int!){therapy(id:$id){id name link ncitId therapyAliases deprecated} evidenceItems(therapyId:$id,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status evidenceType evidenceLevel evidenceDirection significance disease{name doid} therapies{id name} therapyInteractionType source{citationId sourceType} molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}} assertions(therapyId:$id,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status assertionType assertionDirection significance ampLevel disease{name doid} therapies{id name} therapyInteractionType variantOrigin molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}}}",
+        "variables": {
+          "id": 5
+        }
+      },
+      "purpose": "Exact therapy identity and separate native claim streams",
+      "request_id": 21,
+      "retrieved_at": "2026-10-25T00:55:22.969409+00:00",
+      "status": 200,
+      "sha256": "679ecb881a29f3fa9342be7895e620982c0f35a0130b3dab7d76d6bc6ca0b26f",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($id:Int!){therapy(id:$id){id name link ncitId therapyAliases deprecated} evidenceItems(therapyId:$id,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status evidenceType evidenceLevel evidenceDirection significance disease{name doid} therapies{id name} therapyInteractionType source{citationId sourceType} molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}} assertions(therapyId:$id,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status assertionType assertionDirection significance ampLevel disease{name doid} therapies{id name} therapyInteractionType variantOrigin molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}}}",
+        "variables": {
+          "id": 84
+        }
+      },
+      "purpose": "Exact therapy identity and separate native claim streams",
+      "request_id": 22,
+      "retrieved_at": "2026-10-25T00:55:23.757764+00:00",
+      "status": 200,
+      "sha256": "fafef80cdd121722beb8a737719da382b6e5f0e786a9b7a23e4fe6daddcd2ca0",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($id:Int!){therapy(id:$id){id name link ncitId therapyAliases deprecated} evidenceItems(therapyId:$id,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status evidenceType evidenceLevel evidenceDirection significance disease{name doid} therapies{id name} therapyInteractionType source{citationId sourceType} molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}} assertions(therapyId:$id,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status assertionType assertionDirection significance ampLevel disease{name doid} therapies{id name} therapyInteractionType variantOrigin molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}}}",
+        "variables": {
+          "id": 454
+        }
+      },
+      "purpose": "Exact therapy identity and separate native claim streams",
+      "request_id": 23,
+      "retrieved_at": "2026-10-25T00:55:24.457079+00:00",
+      "status": 200,
+      "sha256": "67cc011138086fbdd03d656be96e841d0966cca7274f87f873b91982da6f6024",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($q:String!,$after:String){therapies(name:$q,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id name link ncitId therapyAliases deprecated}}}",
+        "variables": {
+          "q": "imatinib",
+          "after": null
+        }
+      },
+      "purpose": "Literal native therapy candidate search; preserve actual outcome",
+      "request_id": 24,
+      "retrieved_at": "2026-10-25T00:55:25.146132+00:00",
+      "status": 200,
+      "sha256": "71a04f0ef9a8310ce33b0c6138e1f133d4485af1f9d52f98e9871c4b1a96e6d5",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($q:String!,$after:String){therapies(name:$q,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id name link ncitId therapyAliases deprecated}}}",
+        "variables": {
+          "q": "trastuzumab",
+          "after": null
+        }
+      },
+      "purpose": "Literal native therapy candidate search; preserve actual outcome",
+      "request_id": 25,
+      "retrieved_at": "2026-10-25T00:55:25.863050+00:00",
+      "status": 200,
+      "sha256": "77a46b2bdeb04c5401c34359bdbc5443e4b7ef2a3d00e5c56b800db9cd7a803d",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($q:String!,$after:String){therapies(name:$q,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id name link ncitId therapyAliases deprecated}}}",
+        "variables": {
+          "q": "ivosidenib",
+          "after": null
+        }
+      },
+      "purpose": "Literal native therapy candidate search; preserve actual outcome",
+      "request_id": 26,
+      "retrieved_at": "2026-10-25T00:55:26.536524+00:00",
+      "status": 200,
+      "sha256": "c50e442f7c08bd26d5800ef03e23e28a97f2f273054fb825c99448abe8ae8a98",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($q:String!,$after:String){therapies(name:$q,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id name link ncitId therapyAliases deprecated}}}",
+        "variables": {
+          "q": "fam-trastuzumab deruxtecan",
+          "after": null
+        }
+      },
+      "purpose": "Literal native therapy candidate search; preserve actual outcome",
+      "request_id": 27,
+      "retrieved_at": "2026-10-25T00:55:27.240237+00:00",
+      "status": 200,
+      "sha256": "d30d7423dbc6c558deb795399c09b6ec9da2d76431911f73abd9cd8f3ee7838b",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($q:String!,$after:String){therapies(name:$q,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id name link ncitId therapyAliases deprecated}}}",
+        "variables": {
+          "q": "trastuzumab",
+          "after": "MQ"
+        }
+      },
+      "purpose": "One actual next candidate page, conditional on native next",
+      "request_id": 28,
+      "retrieved_at": "2026-10-25T00:55:27.994262+00:00",
+      "status": 200,
+      "sha256": "d7327af1ad354f516f9122348b88fdfcf636e4a131c6bbf0ab3f35d7825e8c5b",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($id:Int!){evidenceItems(therapyId:$id,molecularProfileId:1,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status evidenceType evidenceLevel evidenceDirection significance disease{name doid} therapies{id name} therapyInteractionType source{citationId sourceType} molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}} assertions(therapyId:$id,molecularProfileId:65,status:ACCEPTED,first:1){totalCount pageInfo{hasNextPage endCursor} nodes{id status assertionType assertionDirection significance ampLevel disease{name doid} therapies{id name} therapyInteractionType variantOrigin molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}}}",
+        "variables": {
+          "id": 5
+        }
+      },
+      "purpose": "Known source profiles 1 and 65 from retained claims 259/260/344 and assertion85",
+      "request_id": 29,
+      "retrieved_at": "2026-10-25T00:55:28.715410+00:00",
+      "status": 200,
+      "sha256": "d2dcf5d7b7b33fcd150d79f81c55ce61c3393249dd557e605cab79f8372ba866",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($id:Int!,$after:String!){evidenceItems(therapyId:$id,molecularProfileId:1,status:ACCEPTED,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id status evidenceType evidenceLevel evidenceDirection significance disease{name doid} therapies{id name} therapyInteractionType source{citationId sourceType} molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}}}",
+        "variables": {
+          "id": 5,
+          "after": "MQ"
+        }
+      },
+      "purpose": "One independent native evidence continuation",
+      "request_id": 30,
+      "retrieved_at": "2026-10-25T00:55:29.396683+00:00",
+      "status": 200,
+      "sha256": "7e5bb0b66ec881323cf7dc2e4ea5b04cf79cbc81c10729cd605cd5872fa38a0b",
+      "outcome": "success"
+    },
+    {
+      "method": "POST",
+      "url": "https://civicdb.org/api/graphql",
+      "body": {
+        "query": "query($id:Int!,$after:String!){assertions(therapyId:$id,molecularProfileId:65,status:ACCEPTED,first:1,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id status assertionType assertionDirection significance ampLevel disease{name doid} therapies{id name} therapyInteractionType variantOrigin molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions}}}}}}",
+        "variables": {
+          "id": 5,
+          "after": "MQ"
+        }
+      },
+      "purpose": "Native terminal assertion page; total one in retained evidence",
+      "request_id": 31,
+      "retrieved_at": "2026-10-25T00:55:30.070378+00:00",
+      "status": 200,
+      "sha256": "ab6a45e6c5df07e195ddbf500df244ae6c2b19fceace55fdbc8f935d5507c624",
+      "outcome": "success"
+    }
+  ]
+}

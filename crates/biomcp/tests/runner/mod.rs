@@ -4,7 +4,10 @@ mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
+mod disease_ols;
 mod disease_registry;
+mod drug_civic;
+mod drug_civic_fixtures;
 mod drug_label;
 mod drug_mychem;
 mod drug_registry;
@@ -32,6 +35,7 @@ mod nci;
 mod nci_walk;
 mod negative_cases;
 mod network_stub;
+mod next_navigation;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
@@ -305,9 +309,11 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
     trials.extend(drug_registry::trials());
+    trials.extend(drug_civic::trials());
     trials.extend(drug_mychem::trials());
     trials.extend(drug_label::trials());
     trials.extend(disease_registry::trials());
+    trials.extend(disease_ols::trials());
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
@@ -331,6 +337,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(recurrence_metadata::trials());
     trials.extend(normalization::trials());
     trials.extend(variant_search::trials());
+    trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
@@ -479,3 +486,7 @@ pub(super) fn installed_http_trials() -> Vec<Trial> {
 mod variant_assertion_wire;
 mod variant_assertions;
 mod variant_condition_relationship;
+
+pub(super) fn disease_native(path: &Path) -> Result<(), String> {
+    disease_ols::native(path)
+}

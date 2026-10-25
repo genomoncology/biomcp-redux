@@ -206,14 +206,6 @@
       ],
       "type": "object"
     },
-    "CivicMembership": {
-      "description": "Identity strength of a CIViC profile lookup.",
-      "enum": [
-        "exact",
-        "candidate"
-      ],
-      "type": "string"
-    },
     "CivicNativeClaim": {
       "additionalProperties": false,
       "description": "Source facts retained without inventing a common-model subject or proposition.",
@@ -277,75 +269,6 @@
       "required": [
         "classification",
         "attribution"
-      ],
-      "type": "object"
-    },
-    "CivicProfile": {
-      "additionalProperties": false,
-      "description": "One source molecular profile, preserving compound expressions.",
-      "properties": {
-        "assertion_count": {
-          "description": "Native assertion count, independent of the displayed page.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "assertion_page": {
-          "$ref": "#/$defs/CivicClaimPage",
-          "description": "Native assertion stream and its independent continuation."
-        },
-        "compound": {
-          "description": "Native complex-profile flag; a member match does not satisfy the whole profile.",
-          "type": "boolean"
-        },
-        "evidence_count": {
-          "description": "Native evidence count, independent of the displayed page.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "evidence_page": {
-          "$ref": "#/$defs/CivicClaimPage",
-          "description": "Native evidence stream and its independent continuation."
-        },
-        "label": {
-          "$ref": "#/$defs/Text",
-          "description": "Whole source profile label, including its logical expression."
-        },
-        "members": {
-          "description": "Every source member reference, without collapsing compound profiles.",
-          "items": {
-            "$ref": "#/$defs/CivicMember"
-          },
-          "type": "array"
-        },
-        "membership": {
-          "$ref": "#/$defs/CivicMembership",
-          "description": "Whether a source member was joined to the requested exact identity."
-        },
-        "record": {
-          "$ref": "#/$defs/SourceRecord",
-          "description": "Native profile identity and link."
-        },
-        "statements": {
-          "description": "Source claims; a compound claim retains a profile subject.",
-          "items": {
-            "$ref": "#/$defs/CivicStatement"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "record",
-        "label",
-        "compound",
-        "membership",
-        "members",
-        "evidence_count",
-        "assertion_count",
-        "statements",
-        "evidence_page",
-        "assertion_page"
       ],
       "type": "object"
     },
@@ -649,6 +572,127 @@
       ],
       "type": "object"
     },
+    "DrugCivicClaim": {
+      "additionalProperties": false,
+      "description": "One native claim with its complete source therapy set and molecular profile.",
+      "properties": {
+        "claim": {
+          "$ref": "#/$defs/CivicStatement",
+          "description": "Existing source claim mapping, including unmapped native facts."
+        },
+        "profile": {
+          "$ref": "#/$defs/DrugCivicProfile",
+          "description": "Source molecular profile context; its member expression is never collapsed."
+        },
+        "therapies": {
+          "description": "Complete native therapy identities, without cross-source equivalence.",
+          "items": {
+            "$ref": "#/$defs/DrugHeader"
+          },
+          "type": "array"
+        },
+        "therapy_interaction_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native combination interaction label when supplied."
+        }
+      },
+      "required": [
+        "profile",
+        "claim",
+        "therapies"
+      ],
+      "type": "object"
+    },
+    "DrugCivicPage": {
+      "additionalProperties": false,
+      "description": "One native claim stream and its own continuation.",
+      "properties": {
+        "page": {
+          "$ref": "#/$defs/CivicClaimPage",
+          "description": "Stream totals and continuation, independent of every other stream."
+        },
+        "records": {
+          "description": "Native claim order; each row carries the profile to which that claim belongs.",
+          "items": {
+            "$ref": "#/$defs/DrugCivicClaim"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "records",
+        "page"
+      ],
+      "type": "object"
+    },
+    "DrugCivicProfile": {
+      "additionalProperties": false,
+      "description": "Profile context embedded in a therapy claim, with no invented profile totals.",
+      "properties": {
+        "compound": {
+          "description": "Source complex-profile flag.",
+          "type": "boolean"
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete source expression."
+        },
+        "members": {
+          "description": "Every source member, including members without a common-model subject.",
+          "items": {
+            "$ref": "#/$defs/CivicMember"
+          },
+          "type": "array"
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native profile identity and link."
+        }
+      },
+      "required": [
+        "record",
+        "label",
+        "compound",
+        "members"
+      ],
+      "type": "object"
+    },
+    "DrugCivicStreams": {
+      "additionalProperties": false,
+      "description": "Independent accepted therapy claim collections, without profile count inference.",
+      "properties": {
+        "assertions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugCivicPage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Assertions filtered independently by the selected native therapy and optional profile."
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugCivicPage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evidence items filtered by the selected native therapy and optional profile."
+        }
+      },
+      "type": "object"
+    },
     "DrugGet": {
       "additionalProperties": false,
       "description": "Exact native ID retrieval with an explicitly selected source.",
@@ -848,67 +892,6 @@
         " Source-stated orphan designation identity.",
         " Source-stated unknown identity."
       ]
-    },
-    "DrugRecords": {
-      "additionalProperties": false,
-      "description": "One bounded native row page, without fabricating an unknown total.",
-      "properties": {
-        "offset": {
-          "description": "Source row offset.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "records": {
-          "description": "Native source rows in order.",
-          "items": {
-            "$ref": "#/$defs/CivicProfile"
-          },
-          "type": "array"
-        },
-        "retrieved": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/PartialDate"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Actual retrieval date, never substituted for source revision."
-        },
-        "total": {
-          "description": "Native total only when supplied.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "truncated": {
-          "description": "Native source truncation indicator.",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "version": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Dataset or bundle revision."
-        }
-      },
-      "required": [
-        "offset"
-      ],
-      "type": "object"
     },
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
@@ -1333,7 +1316,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/DrugRecords",
+              "$ref": "#/$defs/DrugCivicStreams",
               "description": "Whole section data."
             },
             "source": {
@@ -2040,7 +2023,7 @@
       ]
     }
   },
-  "$id": "biomcp.drug_civic/2",
+  "$id": "biomcp.drug_civic/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2086,7 +2069,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_civic/2",
+      "const": "biomcp.drug_civic/3",
       "type": "string"
     },
     "sources": {
