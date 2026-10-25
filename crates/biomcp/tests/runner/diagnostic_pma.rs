@@ -4,6 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod walks;
+mod metadata;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials: Vec<_> = [
         "wrong-base",
@@ -25,6 +26,9 @@ pub(super) fn trials() -> Vec<Trial> {
         "diagnostic-pma/synthetic-complete-walks",
         || walks::run().map_err(Into::into),
     ));
+    trials.push(Trial::test("diagnostic-pma/regulatory-missing-and-empty-statement", || {
+        metadata::run().map_err(Into::into)
+    }));
     trials
 }
 fn native(mode: &str) -> Result<Value, String> {
