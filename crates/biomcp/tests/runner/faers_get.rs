@@ -16,6 +16,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "adverse-event-get/synthetic-identifier-kinds",
         || identifier_kinds().map_err(Into::into),
     ));
+    trials.push(Trial::test(
+        "adverse-event-get/synthetic-source-admission-before-retained-read",
+        || source_policy().map_err(Into::into),
+    ));
     for mode in ["wrong-id", "two-versions", "absent", "bad-drug-index"] {
         trials.push(Trial::test(
             format!("adverse-event-get/synthetic-{mode}"),
@@ -291,6 +295,37 @@ fn identifier_kinds() -> Check {
     }
     if stub.finish()?.len() != 1 {
         return Err("identifier sections reached HTTP".into());
+    }
+    Ok(())
+}
+
+fn source_policy() -> Check {
+    let (env, stub) = setup("valid")?;
+    let card = both(&env, args(None), 0)?;
+    let snapshot = card
+        .pointer("/result/snapshot")
+        .and_then(Value::as_str)
+        .ok_or("snapshot")?;
+    for section in [None, Some("drugs"), Some("reactions"), Some("unii")] {
+        let mut words = args(section);
+        words.extend([
+            "--snapshot".into(),
+            snapshot.into(),
+            "--disable-sources".into(),
+            "faers".into(),
+        ]);
+        if section == Some("unii") {
+            words.extend(["--drug-index".into(), "0".into()]);
+        }
+        let result = both(&env, words, 4)?;
+        if result.get("result").is_some()
+            || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        {
+            return Err(format!("disabled source restored report: {result}"));
+        }
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("disabled source reached HTTP".into());
     }
     Ok(())
 }
