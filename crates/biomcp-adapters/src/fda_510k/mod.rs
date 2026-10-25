@@ -2,7 +2,7 @@
 mod raw;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, RequestError, SourceSpec, Terms};
 use biomcp_types::{DiagnosticClearance, DiagnosticGet, Source, Use};
-use std::{cell::Cell, time::Duration};
+use std::time::Duration;
 /// One source declaration for policy, quota and dispatch.
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Fda510k,
@@ -32,7 +32,6 @@ pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearanc
         .fresh(Freshness::Days(1))
         .bytes(2 * 1024 * 1024)
         .json_absence();
-    let conflict = Cell::new(false);
     let reply = leg
         .json_checked_admission::<raw::Response>(
             &endpoint,
@@ -43,26 +42,22 @@ pub fn get(leg: &Leg<'_>, q: &DiagnosticGet) -> Result<Option<DiagnosticClearanc
             ],
             |reply| {
                 if let raw::Response::Page { meta, results } = reply {
-                    let foreign = results
-                        .iter()
-                        .any(|row| row.k_number.as_str() != q.id().as_str());
-                    conflict.set(foreign);
-                    if foreign
-                        || meta.results.skip != 0
-                        || meta.results.limit != 1
-                        || meta.results.total != 1
+                    if meta.results.skip != 0 || meta.results.limit != 1 || meta.results.total != 1
                     {
                         return Err(BadReply);
                     }
                 }
                 Ok(())
             },
-            |_| true,
+            |reply| !matches!(reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str())),
         )
         .map_err(|error| Failure {
             error,
-            identity_conflict: conflict.get(),
+            identity_conflict: false,
         })?;
+    if matches!(&reply,raw::Response::Page{results,..} if results.iter().any(|row|row.k_number.as_str()!=q.id().as_str())) {
+        return Err(Failure { error:biomcp_fetch::SourceError {source:Source::Fda510k,reason:biomcp_types::Reason::BadReply,status:Some(200),retry_after:None}.into(),identity_conflict:true });
+    }
     Ok(match reply {
         raw::Response::Page { results, .. } => results.into_iter().next().map(raw::Record::mapped),
         raw::Response::Absent { .. } => None,
