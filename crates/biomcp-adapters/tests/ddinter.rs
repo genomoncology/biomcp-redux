@@ -23,8 +23,8 @@ fn drug_ddinter_preserves_pair_order_orientation_and_all_provenances() {
     assert_eq!(pairs.len(), 2);
     assert_eq!(pairs[0].partner_id(), "DDInter2");
     assert_eq!(pairs[0].provenance.len(), 2);
-    assert_eq!(pairs[0].provenance[0].part, "B");
-    assert_eq!(pairs[0].provenance[1].part, "L");
+    assert_eq!(pairs[0].provenance[0].part.as_ref(), "B");
+    assert_eq!(pairs[0].provenance[1].part.as_ref(), "L");
     assert_eq!(pairs[1].partner_id(), "DDInter3");
     assert!(
         partners(
