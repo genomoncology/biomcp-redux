@@ -12,13 +12,22 @@
         "/schema": "biomcp.help/2",
         "/result/commands/*/command": {
           "includes_all_of": [
-            ["get", "gene"],
-            ["search", "drug"],
-            ["get", "drug"]
+            [
+              "get",
+              "gene"
+            ],
+            [
+              "search",
+              "drug"
+            ],
+            [
+              "get",
+              "drug"
+            ]
           ]
         }
       },
-      "max_bytes": 49413
+      "max_bytes": 50782
     },
     {
       "run": [
@@ -237,5 +246,5 @@
       }
     }
   ],
-  "verified": "Whole help includes trial and article verbs and variant identity. The combined landing preflight measures root help and sets max_bytes to ceil(actual*1.15). No comparable 0.9 generated-help JSON baseline exists. Entity-specific bounds remain unchanged."
+  "verified": "Whole help measured 44,158 stdout bytes after approved drug command examples and explicit EMA/DDInter synchronization help. Whole-tree max_bytes follows measured output plus 15 percent under the standing rule. No comparable 0.9 generated-help JSON baseline exists. Existing entity-specific bounds remain unchanged."
 }

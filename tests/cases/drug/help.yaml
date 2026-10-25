@@ -27,7 +27,8 @@
           ]
         }
       },
-      "max_bytes": 4096
+      "max_bytes": 1422,
+      "max_tokens": 356
     },
     {
       "run": [
@@ -69,7 +70,8 @@
           ]
         }
       },
-      "max_bytes": 7000
+      "max_bytes": 3291,
+      "max_tokens": 823
     },
     {
       "run": [
@@ -91,7 +93,8 @@
           "count": 2
         }
       },
-      "max_bytes": 1024
+      "max_bytes": 429,
+      "max_tokens": 108
     },
     {
       "run": [
@@ -113,7 +116,9 @@
           "count": 2
         }
       },
-      "max_bytes": 1024
+      "max_bytes": 448,
+      "max_tokens": 112
     }
-  ]
+  ],
+  "verified": "Measured complete CLI and MCP help envelopes, including the output newline, use 15 percent headroom. Examples are embedded from case run steps and executed with only their owning explicit sync prerequisites."
 }
