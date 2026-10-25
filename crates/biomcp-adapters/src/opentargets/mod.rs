@@ -87,3 +87,5 @@ pub fn drug(
     })
     .map(|(r, meta)| (r.data.drug, meta))
 }
+mod map;
+pub use map::{indications as map_indications, targets as map_targets};

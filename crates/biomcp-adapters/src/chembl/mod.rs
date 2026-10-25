@@ -26,14 +26,7 @@ const MOLECULE: biomcp_fetch::Endpoint = SPEC.get("/molecule").fresh(Freshness::
 const MECHANISMS: biomcp_fetch::Endpoint = SPEC.get("/mechanism.json").fresh(Freshness::Days(1));
 const INDICATIONS: biomcp_fetch::Endpoint =
     SPEC.get("/drug_indication.json").fresh(Freshness::Days(1));
-/// One explicit native name selector; a synonym query never silently replaces a preferred name.
-#[derive(Clone, Copy, Debug)]
-pub enum NameSelector {
-    /// Exact preferred name.
-    Preferred,
-    /// Exact source synonym.
-    Synonym,
-}
+pub use biomcp_types::DrugNameSelector as NameSelector;
 /// Read a candidate page with an unchanged literal selector.
 pub fn search(
     leg: &Leg<'_>,
@@ -140,3 +133,5 @@ fn page(meta: &PageMeta, count: usize, limit: u32, offset: u32) -> Result<(), Ba
         Err(BadReply)
     }
 }
+mod map;
+pub use map::{indications as map_indications, targets as map_targets};

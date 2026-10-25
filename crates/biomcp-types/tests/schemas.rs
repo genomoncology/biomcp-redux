@@ -187,6 +187,7 @@ fn drug_contracts() -> Vec<Contract> {
         DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/2"),
         AuthorizationDate => ("authorization-date", "biodata.authorization-date/1"),
         AuthorizationEvent => ("authorization-event", "biodata.authorization-event/1"),
+        DrugNameSelector => ("drug-name-selector", "biomcp.drug_name_selector/1"),
         DrugSearch => ("drug-search", "biomcp.drug-search/1"),
         DrugGet => ("drug-get", "biomcp.drug-get/1"),
         DrugSource => ("drug-source", "biomcp.drug-source/1"),

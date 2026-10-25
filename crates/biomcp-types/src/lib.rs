@@ -129,8 +129,8 @@ pub use response::{
 mod drug;
 pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugGet, DrugHeader, DrugIndications, DrugInteractions,
-    DrugLabel, DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection,
-    DrugSource, DrugTargets,
+    DrugLabel, DrugLabelText, DrugNameSelector, DrugPage, DrugRecords, DrugRegulatory, DrugSearch,
+    DrugSection, DrugSource, DrugTargets,
 };
 
 pub use query::QueryInvalid;
