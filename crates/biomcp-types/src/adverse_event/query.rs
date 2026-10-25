@@ -167,14 +167,21 @@ impl AdverseEventGet {
         self.0.section
     }
     /// Retained report identity, absent for an initial get.
-    pub fn snapshot(&self) -> Option<&Text> { self.0.snapshot.as_ref() }
+    pub fn snapshot(&self) -> Option<&Text> {
+        self.0.snapshot.as_ref()
+    }
     /// Bind all subsequent section pages to this checked report.
     pub fn with_snapshot(&self, snapshot: Text) -> Self {
-        let mut q = self.clone(); q.0.snapshot = Some(snapshot); q
+        let mut q = self.clone();
+        q.0.snapshot = Some(snapshot);
+        q
     }
     /// Restart the exact report without an expired snapshot.
     pub fn restart(&self) -> Self {
-        let mut q = self.clone(); q.0.snapshot = None; q.0.section_offset = 0; q
+        let mut q = self.clone();
+        q.0.snapshot = None;
+        q.0.section_offset = 0;
+        q
     }
     /// Absolute native drug index, only for identifier sections.
     pub fn drug_index(&self) -> Option<u32> {

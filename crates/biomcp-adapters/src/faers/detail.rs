@@ -13,16 +13,40 @@ pub struct Detail {
     pub metadata: ReplyMetadata,
 }
 /// Fetch one ID without choosing a version or a result among multiple records.
-pub fn get(leg:&Leg<'_>, id:&ReportId)->Result<Detail,RequestError> {
-    let expression=format!("safetyreportid:\"{id}\"");
-    let endpoint=SPEC.get("").fresh(Freshness::Days(1)).json_absence();
-    let (reply,metadata)=leg.json_received_checked::<raw::Response>(&endpoint,&[
-        ("search",Arg::Text(&expression)),("limit",Arg::Num(5)),("skip",Arg::Num(0)),("sort",Arg::Text("receivedate:desc"))
-    ],|response| {
-        if let raw::Response::Found{results,..}=response && results.first().is_none_or(|r|r.safetyreportid!=*id) {return Err(BadReply);}
-        Ok(())
-    })?;
-    let report=match reply {raw::Response::Found{results,..}=>results.into_iter().next().map(super::detail_map::report),raw::Response::Absent{..}=>None};
-    let report_url=biodata::Text::new(&format!("{}?search=safetyreportid%3A%22{id}%22&limit=5&skip=0&sort=receivedate%3Adesc",SPEC.base)).map_err(|_|biomcp_fetch::InputError::Serialization)?;
-    Ok(Detail{report,report_url,metadata})
+pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
+    let expression = format!("safetyreportid:\"{id}\"");
+    let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
+    let (reply, metadata) = leg.json_received_checked::<raw::Response>(
+        &endpoint,
+        &[
+            ("search", Arg::Text(&expression)),
+            ("limit", Arg::Num(5)),
+            ("skip", Arg::Num(0)),
+            ("sort", Arg::Text("receivedate:desc")),
+        ],
+        |response| {
+            if let raw::Response::Found { results, .. } = response
+                && results.first().is_none_or(|r| r.safetyreportid != *id)
+            {
+                return Err(BadReply);
+            }
+            Ok(())
+        },
+    )?;
+    let report = match reply {
+        raw::Response::Found { results, .. } => {
+            results.into_iter().next().map(super::detail_map::report)
+        }
+        raw::Response::Absent { .. } => None,
+    };
+    let report_url = biodata::Text::new(&format!(
+        "{}?search=safetyreportid%3A%22{id}%22&limit=5&skip=0&sort=receivedate%3Adesc",
+        SPEC.base
+    ))
+    .map_err(|_| biomcp_fetch::InputError::Serialization)?;
+    Ok(Detail {
+        report,
+        report_url,
+        metadata,
+    })
 }

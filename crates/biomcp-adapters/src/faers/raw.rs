@@ -32,7 +32,9 @@ pub(super) struct Absence {
     message: String,
 }
 impl Absence {
-    pub(super) fn valid(&self) -> bool { self.code == "NOT_FOUND" && self.message == "No matches found!" }
+    pub(super) fn valid(&self) -> bool {
+        self.code == "NOT_FOUND" && self.message == "No matches found!"
+    }
 }
 impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {

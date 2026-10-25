@@ -104,7 +104,9 @@ pub fn unsupported() -> Outcome {
 }
 
 /// Read an exact FAERS report and its independent retained sections.
-pub fn get(cx:&Ctx<'_>,query:&biomcp_types::AdverseEventGet)->Outcome{
-    if query.source()!=biomcp_types::AdverseEventSource::Faers{return unsupported();}
-    get::get(cx,query)
+pub fn get(cx: &Ctx<'_>, query: &biomcp_types::AdverseEventGet) -> Outcome {
+    if query.source() != biomcp_types::AdverseEventSource::Faers {
+        return unsupported();
+    }
+    get::get(cx, query)
 }

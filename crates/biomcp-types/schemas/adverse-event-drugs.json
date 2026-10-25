@@ -266,6 +266,17 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Checked retained report snapshot for provider-free continuation."
+        },
         "source": {
           "$ref": "#/$defs/AdverseEventSource",
           "default": "faers",

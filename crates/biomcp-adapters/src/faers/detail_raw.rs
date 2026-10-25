@@ -1,23 +1,42 @@
 //! Exact native FAERS fields; unrelated publisher fields are ignored at this edge.
 use biodata::{ReportId, Text};
-use serde::Deserialize;
 use biomcp_fetch::{BadReply, Reply};
+use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub(super) enum Response {
-    Found { meta: super::raw::Meta, results: Vec<Report> },
-    Absent { error: super::raw::Absence },
+    Found {
+        meta: super::raw::Meta,
+        results: Vec<Report>,
+    },
+    Absent {
+        error: super::raw::Absence,
+    },
 }
 impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {
         match self {
-            Self::Found { meta, results } if meta.results.skip==0 && meta.results.limit==5 && meta.results.total==1 && results.len()==1 => Ok(()),
+            Self::Found { meta, results }
+                if meta.results.skip == 0
+                    && meta.results.limit == 5
+                    && meta.results.total == 1
+                    && results.len() == 1 =>
+            {
+                Ok(())
+            }
             Self::Absent { error } if error.valid() => Ok(()),
             _ => Err(BadReply),
         }
     }
-    fn check_status(&self, status:u16)->Result<(),BadReply> {
-        if matches!((self,status),(Self::Found{..},200)|(Self::Absent{..},404)){Ok(())}else{Err(BadReply)}
+    fn check_status(&self, status: u16) -> Result<(), BadReply> {
+        if matches!(
+            (self, status),
+            (Self::Found { .. }, 200) | (Self::Absent { .. }, 404)
+        ) {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
 }
 macro_rules! strings {
@@ -46,7 +65,10 @@ pub(super) struct Report {
     pub primarysource: Option<Reporter>,
     pub patient: Option<Patient>,
 }
-strings!(Reporter {qualification, reportercountry});
+strings!(Reporter {
+    qualification,
+    reportercountry
+});
 #[derive(Debug, Deserialize)]
 pub(super) struct Patient {
     pub patientonsetage: Option<Box<str>>,

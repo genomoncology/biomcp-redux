@@ -1,32 +1,117 @@
-use super::{page,QueryBody,S};
+use super::{QueryBody, S, page};
 use crate::Outcome;
-use biodata::{FaersIdentifiers,FaersReport,Text};
-use biomcp_types::{AdverseEventGet,AdverseEventHeader,AdverseEventIdentifiers as I,AdverseEventIdentifierRecords,ComponentLabel};
+use biodata::{FaersIdentifiers, FaersReport, Text};
 use biomcp_fetch::RequestError;
-fn values(ids:&FaersIdentifiers,section:S)->Option<&[Box<str>]> {
-    match section {S::Unii=>ids.unii.as_deref(),S::Rxcui=>ids.rxcui.as_deref(),S::ProductNdc=>ids.product_ndc.as_deref(),S::PackageNdc=>ids.package_ndc.as_deref(),S::SplId=>ids.spl_id.as_deref(),S::SplSetId=>ids.spl_set_id.as_deref(),S::ApplicationNumber=>ids.application_number.as_deref(),_=>None}
+use biomcp_types::{
+    AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
+    AdverseEventIdentifiers as I, ComponentLabel,
+};
+fn values(ids: &FaersIdentifiers, section: S) -> Option<&[Box<str>]> {
+    match section {
+        S::Unii => ids.unii.as_deref(),
+        S::Rxcui => ids.rxcui.as_deref(),
+        S::ProductNdc => ids.product_ndc.as_deref(),
+        S::PackageNdc => ids.package_ndc.as_deref(),
+        S::SplId => ids.spl_id.as_deref(),
+        S::SplSetId => ids.spl_set_id.as_deref(),
+        S::ApplicationNumber => ids.application_number.as_deref(),
+        _ => None,
+    }
 }
-pub(super) fn available(ids:&FaersIdentifiers)->impl Iterator<Item=S>+'_ {
-    [S::Unii,S::Rxcui,S::ProductNdc,S::PackageNdc,S::SplId,S::SplSetId,S::ApplicationNumber].into_iter().filter(|s|values(ids,*s).is_some())
+pub(super) fn available(ids: &FaersIdentifiers) -> impl Iterator<Item = S> + '_ {
+    [
+        S::Unii,
+        S::Rxcui,
+        S::ProductNdc,
+        S::PackageNdc,
+        S::SplId,
+        S::SplSetId,
+        S::ApplicationNumber,
+    ]
+    .into_iter()
+    .filter(|s| values(ids, *s).is_some())
 }
-pub(super) fn render(q:&AdverseEventGet,r:&FaersReport,section:S,header:AdverseEventHeader,snapshot:Text,components:Box<[ComponentLabel]>,out:&mut Outcome)->Result<(),RequestError>{
-    let index=q.drug_index().ok_or(biomcp_fetch::InputError::Serialization)?;
-    let Some(drug)=r.drugs.get(index as usize) else {out.body=QueryBody::TextPositionError;return Ok(())};
-    let array=drug.openfda.as_ref().and_then(|v|values(v,section));
-    let Some(array)=array else {out.status=biomcp_types::Status::Absent;out.body=QueryBody::AdverseEventIdentifiers(None);return Ok(())};
-    let total=array.len() as u64;
-    let records:Box<[_]>=array.iter().skip(q.section_offset() as usize).take(q.section_limit() as usize).cloned().collect();
-    page(q,records.len(),total,out);
-    let records=AdverseEventIdentifierRecords{drug_index:index,records,offset:q.section_offset(),total};
-    let result=match section {
-        S::Unii=>I::Unii{header,snapshot,unii:records,components},
-        S::Rxcui=>I::Rxcui{header,snapshot,rxcui:records,components},
-        S::ProductNdc=>I::ProductNdc{header,snapshot,product_ndc:records,components},
-        S::PackageNdc=>I::PackageNdc{header,snapshot,package_ndc:records,components},
-        S::SplId=>I::SplId{header,snapshot,spl_id:records,components},
-        S::SplSetId=>I::SplSetId{header,snapshot,spl_set_id:records,components},
-        S::ApplicationNumber=>I::ApplicationNumber{header,snapshot,application_number:records,components},
-        _=>return Err(biomcp_fetch::InputError::Serialization.into()),
+pub(super) fn render(
+    q: &AdverseEventGet,
+    r: &FaersReport,
+    section: S,
+    header: AdverseEventHeader,
+    snapshot: Text,
+    components: Box<[ComponentLabel]>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let index = q
+        .drug_index()
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let Some(drug) = r.drugs.get(index as usize) else {
+        out.body = QueryBody::TextPositionError;
+        return Ok(());
     };
-    out.body=QueryBody::AdverseEventIdentifiers(Some(result));Ok(())
+    let array = drug.openfda.as_ref().and_then(|v| values(v, section));
+    let Some(array) = array else {
+        out.status = biomcp_types::Status::Absent;
+        out.body = QueryBody::AdverseEventIdentifiers(None);
+        return Ok(());
+    };
+    let total = array.len() as u64;
+    let records: Box<[_]> = array
+        .iter()
+        .skip(q.section_offset() as usize)
+        .take(q.section_limit() as usize)
+        .cloned()
+        .collect();
+    page(q, records.len(), total, out);
+    let records = AdverseEventIdentifierRecords {
+        drug_index: index,
+        records,
+        offset: q.section_offset(),
+        total,
+    };
+    let result = match section {
+        S::Unii => I::Unii {
+            header,
+            snapshot,
+            unii: records,
+            components,
+        },
+        S::Rxcui => I::Rxcui {
+            header,
+            snapshot,
+            rxcui: records,
+            components,
+        },
+        S::ProductNdc => I::ProductNdc {
+            header,
+            snapshot,
+            product_ndc: records,
+            components,
+        },
+        S::PackageNdc => I::PackageNdc {
+            header,
+            snapshot,
+            package_ndc: records,
+            components,
+        },
+        S::SplId => I::SplId {
+            header,
+            snapshot,
+            spl_id: records,
+            components,
+        },
+        S::SplSetId => I::SplSetId {
+            header,
+            snapshot,
+            spl_set_id: records,
+            components,
+        },
+        S::ApplicationNumber => I::ApplicationNumber {
+            header,
+            snapshot,
+            application_number: records,
+            components,
+        },
+        _ => return Err(biomcp_fetch::InputError::Serialization.into()),
+    };
+    out.body = QueryBody::AdverseEventIdentifiers(Some(result));
+    Ok(())
 }
