@@ -4,7 +4,7 @@ This investigation starts from `d18bfbba511e3852c99228f1a5166a14633e5cee`. It co
 
 ## Evidence boundaries
 
-Official documentation was read on 2026-10-25. Source response counts, field presence and single-request latency are measured below. Product budgets remain unmeasured. A documented capability is not a successful public-tier request. The source captures must precede acceptance of shared types. Historical source adapters and public papers do not replace that proof.
+Official documentation was read on 2026-10-25. Source response counts, field presence and single-request latency are measured below. Implemented product measurements below supersede the historical body projections. The contained 0.9 comparison remains unmeasured. A documented capability is not a successful public-tier request. The source captures must precede acceptance of shared types. Historical source adapters and public papers do not replace that proof.
 
 The reviewed drug, variant and disease designs establish source-owned identities, explicit selectors, independent collection pages and absence distinct from zero. The shared model in [biodata variants and annotations](../biodata-variants-and-annotations.md) establishes `Statement`, `Subject`, source attribution and native fallback. Its proposed `Subject` is broader than the `VariantRef` currently implemented at the starting revision. This slice must not silently implement either expansion or a star-allele subject.
 
@@ -97,7 +97,7 @@ Status here describes whether the retained API captures answer the entire questi
 | Q30 | answered | CPIC pairs/recommendations | C07 has level A without guideline; C13's complete UGT1A1 collection concerns another drug. |
 | Q31 | unanswered | CPIC diplotype | Declared-expression lookup is proved; no phase resolution or ambiguity API was captured. |
 | Q32 | unanswered | CPIC diplotype | No unphased-variant-to-diplotype conversion is offered or captured. |
-| Q33 | partial | CPIC pairs; ClinPGx annotations; authored failures | C27 zero and P09 positive establish source-locality. Failure controls are proposed, not executed. |
+| Q33 | partial | CPIC pairs; ClinPGx annotations; authored failures | C27 zero and P09 positive establish source-locality. Authored failure controls execute in `cpic.rs`, `clinpgx/failures.rs` and `pgx_retirements.rs`; their results are not native capture answers. |
 
 CYP2D6 has 1,316 native recommendation rows in C12, and the current gene-keyed section has no drug filter. Tamoxifen questions Q18–Q23 therefore require paging through that source collection until the adapter ticket proves the native `drugid` filter. That exact positive capture is required in the adapter ticket. This investigation does not execute the page walk or infer tamoxifen answers from the first amitriptyline page.
 
@@ -282,7 +282,7 @@ The delegate reports raw compact JSON bytes and a consistently labeled approxima
 5. **Annotations.** One ClinPGx kind is disclosed at a time. Min pages let the agent choose an exact accession; the W07 exact single-record base-get contract permits clinical detail. Missing disease fields in min never become disease absence.
 6. **Disagreement and dates.** Keep source records independent, complete contexts and source versions distinct from retrieval date. A website notice absent from API tables remains an explicit limitation, never a local correction.
 7. **Failure.** A successful zero, missing key, disabled source, unavailable transport, identity rejection and unsupported field remain different. None implies a normal phenotype or safe dose.
-8. **Cost.** Start with a bounded page and one source. Offline projections below measure proposed bodies only. Product latency, full envelopes and contained 0.9 comparison remain later proof.
+8. **Cost.** Start with a bounded page and one source. Measured product envelopes and local timings appear below. Provider latency remains the original capture measurement; contained 0.9 comparison remains separate.
 9. **Stop early.** Pair facts can answer guideline presence; a declared diplotype can answer a source-reported label. Neither is a patient treatment choice.
 10. **Trust.** Return exact native IDs, source links, original scope, terms and available dates. Every next step keeps the selectors and selection scope that produced it.
 
@@ -358,7 +358,7 @@ These rules apply architecture 6.10. The pair-search exception above emits page,
 
 ### Deferred selectors and proof obligations
 
-Exact pair card, `--population`, `--lookup-key` and `--pgx-testing` remain unproved and deferred. W06 permits `--drug-id` only on the native recommendation table, with the explicit gene selector; drug-ID search and an exact drug or pair card remain deferred. `--pgx-testing` requires a native positive capture before implementation. No positional search or drug-text search is proposed; the question bank does not need a drug-name search. W02–W06 supply the bounded native order and recommendation drug-ID witnesses without local drug filtering. W07 supplies the exact clinical single base get. W01 leaves current policy text unproved; the PM category ruling remains authoritative. Product implementation and full-envelope proof remain later tasks. No remaining gap authorizes expansion of the provider ledger.
+Exact pair card, `--population`, `--lookup-key` and `--pgx-testing` remain unproved and deferred. W06 permits `--drug-id` only on the native recommendation table, with the explicit gene selector; drug-ID search and an exact drug or pair card remain deferred. `--pgx-testing` requires a native positive capture before implementation. No positional search or drug-text search is proposed; the question bank does not need a drug-name search. W02–W06 supply the bounded native order and recommendation drug-ID witnesses without local drug filtering. W07 supplies the exact clinical single base get. W01 leaves current policy text unproved; the PM category ruling remains authoritative. The implemented cases and complete envelope measurements appear below. No remaining gap authorizes expansion of the provider ledger.
 
 ### Case map and failure boundaries
 
@@ -379,33 +379,31 @@ Exact pair card, `--population`, `--lookup-key` and `--pgx-testing` remain unpro
 
 ### Disclosure and offline byte projections
 
-The default pair search and gene card answer identity/guideline-presence questions. Recommendation prose belongs behind its named section. Min annotation pages expose choices; source base detail stays behind exact selection. Start with five rows per page. Smaller pages never delete a returned row's clinical context.
+The default pair search and gene card answer identity/guideline-presence questions. Recommendation prose belongs behind its named section. Min annotation pages expose choices; source base detail stays behind exact selection. Start with three clinical annotation rows and five rows for the other page kinds. Smaller pages never delete a returned row's clinical context.
 
 The separate offline projection recipe uses only the verified j12644 archive, compact UTF-8 JSON with `ensure_ascii=False` and separators `(',', ':')`. It constructs the exact result-body shapes above, keeping complete native rows. Pair and recommendation/guideline pages use captured Content-Range total and requested offset. Diplotypes preserve the whole captured list. Gene cards select the seven named identity fields, exactly as supplied. ClinPGx min arrays are paged five at a time through every retained collection, with observed totals. Each P10 annotation is projected as one design-only base detail body. No provider call, program build, old binary or clinical transform runs.
 
 Each output is bounded at 1 MiB and the full projection set at 20 MiB. Record row identities/provenance, compact bytes, `ceil(bytes/4)` approximate tokens and provisional `ceil(bytes*1.15)` body ceiling; retain recipe/outputs/measurements on Yellow. These are offline design projections, not actual native product outputs, tokenizers or passing case ceilings. Complete envelope bytes, source outcomes, typed-next cost, CLI/MCP parity and cold/warm latency remain unmeasured until product implementation. The later contained 0.9 PGx comparison ticket first proves network containment, then measures the same harvested questions within a separately approved ledger. It does not run in this investigation.
 
-### Executed offline projections and provisional body ceilings
+### Measured output budget
 
-Separate job `j12701` ran offline from pushed landed main `cdc677b0bc2c1abff17d04e3138d8bd5e9dcc4b4`. It verified the retained native archive and all 220 source files, then emitted 177 projections totaling 964,975 bytes. Every body stayed below 1 MiB and the total below 20 MiB. There was zero provider traffic, source HTTP, build, product command, tokenizer or legacy executable use. The investigator independently checked all 405 projection archive manifest files and every output hash/byte/token/ceiling measurement.
+This table replaces the historical result-body projections with measured complete product envelopes. CPIC measurements come from the 22-command `j13010` run, with guideline action sizes corrected in `j13081`. ClinPGx measurements come from `j13182` and retain its scope and partial-run qualification below. Values are compact UTF-8 bytes; raw CLI stdout adds its newline. Comparison values remove only validated publisher terms and URL and retain `use`; the ordinary case runner also removes validated `use`. Tokens below are approximate `ceil(full bytes / 4)`, not tokenizer counts. Ceilings use `ceil(bytes × 1.15)` and never turn an old projection into an actual measurement.
 
-The durable Yellow archive is `data/biomcp-redux/0153-pgx-offline-projections/j12701-pgx-offline-projections.tar.gz`, 554,234 bytes, SHA-256 `f28ff861655673ec02d317d8ed31d52eea6d9cae19ea00850def546cec1898f5`. Its root `2290-pgx-offline-projections` contains recipe, outputs, job log, per-page native identities and measurements. `measurements.json` records each exact output and source URL/retrieval/hash. The family ranges below do not replace those exact per-case figures.
+| Implemented command or section | Measured full compact bytes | Approximate full tokens | Full compact ceiling | Qualified 0.9 figure |
+| --- | ---: | ---: | ---: | --- |
+| CPIC gene card, G01/G02 | 751–757 | 188–190 | 864–871 | Not measured: contained same-question comparison belongs to 0098. |
+| CPIC pair page, P01–P06 | 640–2099 | 160–525 | 736–2414 | Not measured: 0098 containment and comparator execution deferred. |
+| CPIC recommendations, R01–R06 | 3611–7931 | 903–1983 | 4153–9121 | Not measured: 0098 containment and comparator execution deferred. |
+| CPIC declared diplotype, D01–D05 | 570–1760 | 143–440 | 656–2024 | No separate legacy helper; no old-binary execution claimed. |
+| CPIC guideline references, L01–L03 | 738–2640 | 185–660 | 849–3036 | Not measured: 0098 containment and comparator execution deferred. |
+| ClinPGx clinical min, largest three-row DPYD page | 5279 | 1320 | 6071 | Not measured: legacy merged kinds differ; contained comparison deferred to 0098. |
+| ClinPGx guideline references | 1512 | 378 | 1739 | Not measured: 0098 containment and comparator execution deferred. |
+| ClinPGx UGT1A1 label references | 1609 | 403 | 1851 | Not measured: 0098 containment and comparator execution deferred. |
+| ClinPGx exact PA166134421 base annotation | 22785 | 5697 | 26203 | No corresponding legacy exact-accession command; old-binary comparison not run. |
 
-| Projected body | Outputs | Compact bytes | Approximate tokens | Provisional body ceiling |
-| --- | --- | --- | --- | --- |
-| CPIC gene card | 6 | 200–211 | 50–53 | 230–243 |
-| CPIC pair page | 7 | 809–1985 | 203–497 | 931–2283 |
-| CPIC recommendation page | 7 | 3045–7380 | 762–1845 | 3502–8487 |
-| CPIC diplotype result | 4 | 1171–1248 | 293–312 | 1347–1436 |
-| CPIC guideline-reference page | 3 | 346–1845 | 87–462 | 398–2122 |
-| ClinPGx clinical min page | 64 | 1553–22960 | 389–5740 | 1786–26404 |
-| ClinPGx guideline min page | 2 | 872–947 | 218–237 | 1003–1090 |
-| ClinPGx label min page | 1 | 827–827 | 207–207 | 952–952 |
-| ClinPGx base annotation body | 83 | 3055–22442 | 764–5611 | 3514–25809 |
+The complete base annotation remains about 22 KB. Its native fields are intact. Five-row and one-row clinical alternatives, all 83 DPYD rows, TP53, timings, comparison bytes and independent kind measurements are retained in the detailed product table below. No measurement here asserts coverage of every gene or every source row. The six historical C01 identities and the projected 83 base details are not six measured product cards or 83 executed exact gets.
 
-These ceilings are proposed result-body limits, measured size plus 15 percent, not passing full-envelope case budgets. Typed next, exact query, source/terms and problems remain additional unmeasured bytes. The default clinical page contains five complete min-tier rows; the largest observed page is 22,960 bytes because native location/link arrays vary substantially. Do not remove context or lower collection totals to meet a smaller cap. Implementation measures complete CLI/MCP envelopes and can review a smaller default page before adopting an enforced full-output ceiling. The full annotation projection is from a retained collection row; it supplies no direct-get API proof. The API/body bound remains explicit; if a future collection exceeds admission limits, return the appropriate incomplete/unavailable problem rather than a silently complete truncated collection.
-
-CPIC gene identity figures cover all six C01 cards. Pair and recommendation figures cover exactly their captured pages, preserving native totals and order. ClinPGx clinical figures cover every local page of P01–P06 and P09; guideline and label figures cover P07/P08. Base detail figures cover all 83 P10 rows. No additional provider request or projection rerun is needed for this review. Complete product envelopes, cold/warm timing and the contained 0.9 comparison remain explicitly unmeasured later proof.
+Historical `j12701` body projections remain outside Git in `data/biomcp-redux/0153-pgx-offline-projections/j12701-pgx-offline-projections.tar.gz` on Yellow, SHA-256 `f28ff861655673ec02d317d8ed31d52eea6d9cae19ea00850def546cec1898f5`. They are design history, not case ceilings or executed product envelopes. Product envelopes are larger than some historical body-only ceilings because they include query, source terms and next actions. The PM reviewed the intact clinical page alternatives and chose three rows; the previously approved CPIC and ClinPGx product ceilings govern the implemented cases. A future oversized source collection must fail its admission bound instead of silently truncating.
 
 ### Structural risks
 
@@ -413,7 +411,7 @@ Each adapter defines native fields and identities once; help/schema derive from 
 
 ## 0.9 command, option and section accounting
 
-Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b863665be`, especially `src/cli/pgx/mod.rs`, `src/cli/pgx/dispatch.rs`, `src/entities/pgx.rs`, source adapters and `docs/user-guide/pgx.md`. This is source inspection, not executed output, not evidence of a released 0.9 binary's behavior and not a timing or parity claim. Proposed dispositions await PM review.
+Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b863665be`, especially `src/cli/pgx/mod.rs`, `src/cli/pgx/dispatch.rs`, `src/entities/pgx.rs`, source adapters and `docs/user-guide/pgx.md`. This is source inspection, not executed output, not evidence of a released 0.9 binary's behavior and not a timing or parity claim. The dispositions below describe the shipped tree and the recorded deferrals.
 
 | Legacy surface | Static behavior | Proposed disposition and case need |
 | --- | --- | --- |
@@ -424,7 +422,7 @@ Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b86
 | `--cpic-level` | Local filter after a bounded overfetch. | Keep only after direct native positive filter capture C28. Separate from recommendation strength and ClinPGx level. |
 | `--pgx-testing` | Local match over five accepted labels. | Deferred until a native positive selector capture and current vocabulary proof; no hard-coded carry-forward. |
 | `--evidence` | Free-text substring of guideline name or CPIC level. | Drop under no-text-heuristics ruling. Return source labels and use exact proved native selectors. |
-| search `-l`, `--limit` | Default 10, allowed 1–50; fetches up to five times requested rows, capped at 200; truncates after local filters. | Keep bounded native paging, remove hidden overfetch and source-total/locally-filtered-count ambiguity. Proposed default five needs measurements. |
+| search `-l`, `--limit` | Default 10, allowed 1–50; fetches up to five times requested rows, capped at 200; truncates after local filters. | Keep bounded native paging, remove hidden overfetch and source-total/locally-filtered-count ambiguity. The measured pair-search default is five. |
 | search `--offset` | Native offset precedes local filtering. | Keep only with a proved native stable page contract and all selectors retained in next. |
 | `get pgx QUERY` | Word-shape helper chooses gene or drug; default interactions. | Replace with explicitly declared gene identity card and named sections; old bare form retires. Drug-keyed cards and exact pair cards remain deferred; W06 permits only the explicit gene-plus-drug recommendation selector. |
 | `interactions` | Gene-drug tracked-pair rows, not drug-drug interactions. | Rename pair disclosure into search/card; retirement explains the selected explicit route. |
@@ -435,19 +433,47 @@ Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b86
 | `all` | Includes every section. | Drop automatic section fan-out; named sections remain one action away. |
 | get `--full` | All sections, up to 50 rows each. | Drop bulk expansion. Explicit section pages retain all facts. |
 | multiple `SECTION` arguments | Several sections allowed at offset zero. | Replace with one named section per request and exact next actions. |
-| get `-l`, `--limit` | Bounds rows of each selected section, default 10, allowed 1–50. | Pair-search paging uses `--limit`; named sections use shared `--section-limit`, with provisional offline body budgets and later full-output checks. |
+| get `-l`, `--limit` | Bounds rows of each selected section, default 10, allowed 1–50. | Pair-search paging uses `--limit`; named sections use shared `--section-limit`, with measured complete CLI/MCP budgets below. |
 | get `--offset` | Nonzero only for one named section and without full. | Rename named-section paging to `--section-offset`; reject incompatible selectors before I/O. |
 | `--json`, `-j`, section-position JSON shorthand | Shared CLI rendering selection and a legacy section-token extraction. | Global output follows current JSON-default/`--format md` contract. No PGx-specific renderer or section-token trick. |
 | PGx helper family | No separate helper in legacy CLI. | The new `get pgx --gene SYMBOL diplotype --diplotype TEXT --source cpic` is an explicit source lookup, not a claim of legacy parity. |
 | recommendation drug summary and annotation note | Legacy output fields, not commands/options. | Replace hidden fan-out summaries with source row contexts and ordinary problems; preserve any captured unique fact in its owning section. |
 
+The generated accounting counts leaf commands and long command options. It excludes shared formatting, aliases, positional text and section names. `--pgx-testing` remains undecided for implementation because its positive native selector is unproved; its deferred outcome is explicit rather than silently dropped.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset` | `--drug`, `--evidence` | `--pgx-testing` | Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof. |
+| `get pgx` | Ported or renamed | `--limit`, `--offset` | `--full` | — | Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire. |
+<!-- /parity-accounting -->
+
+| Accounting surface | Shipped spelling or disposition | Owning cases |
+| --- | --- | --- |
+| Search gene, source, level, limit, offset | `search pgx --gene SYMBOL --source cpic`; exact `--cpic-level`, `--limit`, `--offset` | `cpic.rs` pairs and page walk; `pgx/examples.yaml`; external CPIC P01–P06. |
+| Positional search; `-g` | Explicit `--gene`; ambiguous positional route retires. | `pgx_retirements.rs`. |
+| `-d`, `--drug`, `--evidence` | Drug-text and guideline-text search dropped; no local name join. | `pgx_retirements.rs`. |
+| `--pgx-testing`, `--population`, `--lookup-key` | Deferred until positive native selector proof; fixed unsupported guidance. | `pgx_retirements.rs`. |
+| Bare get, drug-keyed card, exact pair | Gene card uses `get pgx --gene SYMBOL --source cpic`; drug and pair cards deferred. | `cpic.rs` card; `pgx_retirements.rs`. |
+| `interactions` | Pair search and explicit gene card replace the old section. | `pgx_retirements.rs`. |
+| `recommendations`; exact `--drug-id` | Named CPIC section; only the W06 gene-plus-drug native recommendation table is supported. Drug-ID search remains deferred. | `cpic.rs` view/table/missing-second-gene; external R01–R06. |
+| `frequencies` | Deferred because no harvested question needs the page; automatic drug-name fan-out dropped. | `pgx_retirements.rs`; C24 remains source inventory only. |
+| `guidelines` | Named CPIC summary references, complete linked genes and explicit page. | `cpic.rs` guidelines/guidelines-many; external L01–L03. |
+| `annotations` | ClinPGx `--kind clinical`, `guideline` or `label`; no merge or deduplication. Clinical default three; other kinds five. | `clinpgx.rs` clinical/default/wide/guideline/label; external retained walks. |
+| Exact annotation and diplotype helpers | New explicit `--annotation-id` ClinPGx base get; declared CPIC `--diplotype` source lookup. Neither claims a legacy helper. | `clinpgx.rs` annotation; `cpic.rs` diplotype/empty; external base get and D01–D05. |
+| `all`, multiple sections, `--full` | Name one section; automatic fan-out and bulk expansion dropped. | `pgx_retirements.rs`. |
+| Search `-l` and get `-l`, `--limit`, `--offset` | Search uses `--limit`/`--offset`; get uses `--section-limit`/`--section-offset`. | `pgx_retirements.rs`; CPIC and ClinPGx page walks. |
+| `--json`, `-j`, section-position JSON shorthand | Shared `--format json`; no PGx-specific renderer. | `pgx_retirements.rs`; existing shared formatting cases. |
+| Hidden drug summary and annotation note | Complete source context stays in the owning row; no hidden fan-out summary. | `cpic.rs` view/table; `clinpgx.rs` exact row equality. |
+| `pharmgkb` spelling | Fixed `clinpgx` replacement without I/O. | `pgx_retirements.rs`; `pgx_registry.rs`. |
+
 Shared transport/configuration options remain shared. Keys, disabled-source groups, replay/record, freshness, output format and help need no PGx-specific duplicate. Section failures keep current envelope outcomes. The old local CPIC-level rank and case-insensitive guideline filtering do not define a new clinical ranking. The comparison still owes actual contained old-binary outputs for the same questions; a legacy request plan alone does not prove the old runtime remained contained.
 
 ## Sources kept and deferred
 
-Keep `cpic` for proved gene identity, pair/guideline-reference pages, gene-keyed recommendation views, W06 gene-plus-drug recommendation table pages and native declared-diplotype results. Keep `clinpgx` for separate min annotation collections and the W07 exact clinical single-record base get. Both have PM-ruled noncommercial terms and stay on by default unless disabled. Retire `pharmgkb` spelling without provider work. Defer frequency commands and actions because the question bank needs none. Do not add PharmCAT calling, PharmVar downloads, DPWG scraping or a patient genotype calculator. Linked external guidelines remain attributed source references without a new adapter.
+Keep `cpic` for proved gene identity, pair/guideline-reference pages, gene-keyed recommendation views, W06 gene-plus-drug recommendation table pages and native declared-diplotype results. Keep `clinpgx` for separate min annotation collections and the W07 exact clinical single-record base get. Both have PM-ruled noncommercial terms and stay on by default unless disabled. Retire `pharmgkb` spelling without provider work. Defer frequency commands and actions because the question bank needs none. Dropped: PharmCAT calling (patient genotype calculation is outside source retrieval), PharmVar downloads (no indispensable question), and DPWG scraping (kept source references already carry attribution; richer detail remains unproved). No patient genotype calculator is added. Linked external guidelines remain attributed source references without a new adapter.
 
-The remaining source gap is current policy text; W01 retains the PM ruling without proving that text. W02–W07 discharge the bounded native order, recommendation drug-ID and exact clinical base-get source obligations. Measured full product envelopes and implemented behavior remain later proof. Contained 0.9 comparison is a later proof ticket. No further provider request is authorized by this design review correction.
+The remaining source gap is current policy text; W01 retains the PM ruling without proving that text. W02–W07 discharge the bounded native order, recommendation drug-ID and exact clinical base-get source obligations. The implemented cases and measured product envelopes appear below. Contained 0.9 comparison is a later proof ticket. No further provider request is authorized by this design review correction.
 
 ## Ian's questions
 

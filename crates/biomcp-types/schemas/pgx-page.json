@@ -222,7 +222,7 @@
     },
     "PgxSearch": {
       "additionalProperties": false,
-      "description": "Checked gene-keyed CPIC pair search; no positional or drug text input.",
+      "description": "Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.",
       "properties": {
         "cpic_level": {
           "anyOf": [

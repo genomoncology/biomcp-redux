@@ -209,9 +209,17 @@ pub(crate) fn tree() -> String {
         }
         if command.command.iter().any(|word| word == "pgx") {
             for argument in command.arguments.iter().filter(|arg| {
-                matches!(arg.name.as_str(), "--source" | "--diplotype" | "--kind"
-                    | "--cpic-level" | "--limit" | "--offset" | "--section-limit"
-                    | "--section-offset")
+                matches!(
+                    arg.name.as_str(),
+                    "--source"
+                        | "--diplotype"
+                        | "--kind"
+                        | "--cpic-level"
+                        | "--limit"
+                        | "--offset"
+                        | "--section-limit"
+                        | "--section-offset"
+                )
             }) {
                 line.push_str(&format!(" {}", argument.name));
                 if argument.name == "--source" {

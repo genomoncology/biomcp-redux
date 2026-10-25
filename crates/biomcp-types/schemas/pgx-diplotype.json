@@ -189,7 +189,7 @@
     },
     "PgxGet": {
       "additionalProperties": false,
-      "description": "Checked exact gene card or one independently paged section.",
+      "description": "Checked source gene card, section or exact ClinPGx annotation accession. No phenotype, phase or dose is calculated.",
       "properties": {
         "diplotype": {
           "anyOf": [

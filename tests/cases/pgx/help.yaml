@@ -22,9 +22,7 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": {
-          "regex": "No phenotype, phase or dose is calculated"
-        },
+        "/result/commands/0/description": "Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
@@ -58,9 +56,7 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": {
-          "regex": "No phenotype, phase or dose is calculated"
-        },
+        "/result/commands/0/description": "Checked source gene card, section or exact ClinPGx annotation accession. No phenotype, phase or dose is calculated.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
