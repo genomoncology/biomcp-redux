@@ -49,11 +49,11 @@ pub(super) fn run() -> Check {
     {
         return Err("retained page lost suppression or terminal state".into());
     }
-    for section in ["seriousness", "age"] {
+    for (section, total) in [("seriousness", "7"), ("age", "11")] {
         let mut args = words("MMR");
         args.push(section.into());
         let value = both(&env, args, 0)?;
-        if value.pointer("/result/report_total") != Some(&json!("5")) {
+        if value.pointer("/result/report_total") != Some(&json!(total)) {
             return Err("section borrowed another total".into());
         }
     }

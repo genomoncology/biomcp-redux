@@ -2,19 +2,26 @@
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+mod admission;
 mod failures;
 mod fixture;
-mod admission;
-mod policy;
 mod navigation;
+mod policy;
 mod rejections;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("vaers-summary/policy-before-cache-and-replay", || policy::run().map_err(Into::into)),
-        Trial::test("vaers-summary/user-agent-is-source-specific", || policy::default_agent().map_err(Into::into)),
-        Trial::test("vaers-summary/invalid-shape-and-identity-never-cache", || admission::run().map_err(Into::into)),
+        Trial::test("vaers-summary/policy-before-cache-and-replay", || {
+            policy::run().map_err(Into::into)
+        }),
+        Trial::test("vaers-summary/user-agent-is-source-specific", || {
+            policy::default_agent().map_err(Into::into)
+        }),
+        Trial::test(
+            "vaers-summary/invalid-shape-and-identity-never-cache",
+            || admission::run().map_err(Into::into),
+        ),
         Trial::test(
             "vaers-summary/rejected-filters-and-influenza-before-io",
             || rejections::run().map_err(Into::into),
@@ -110,7 +117,7 @@ fn environment(stub: &Stub) -> Result<Environment, String> {
 fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let value = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-    let start = args.iter().position(|s|s=="search").unwrap_or(0);
+    let start = args.iter().position(|s| s == "search").unwrap_or(0);
     let (globals, command) = args.split_at(start);
     if super::mcp::call_with_globals(env, command, exit >= 2, globals)? != value {
         return Err("VAERS CLI/MCP mismatch".into());

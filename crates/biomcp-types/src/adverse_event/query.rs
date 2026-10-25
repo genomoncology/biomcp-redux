@@ -21,7 +21,7 @@ pub struct AdverseEventSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Literal drug text or MAUDE device generic-name phrase.
+    /// Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     text: Text,
     /// FAERS by default; VAERS accepts only exact supported vaccine names.
@@ -46,11 +46,11 @@ struct SearchFields {
     /// Inclusive first FDA receipt upper bound, YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     received_to: Option<PartialDate>,
-    /// Native report headers per page; default five.
+    /// Native report headers or VAERS rows per page; default five.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native report offset.
+    /// Native row offset. VAERS continuation requires its retained snapshot.
     #[serde(default)]
     offset: u32,
 }
