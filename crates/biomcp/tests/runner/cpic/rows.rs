@@ -1,6 +1,6 @@
 //! Entirely authored synthetic source rows; no publisher data or guidance.
 use serde_json::{Value, json};
-pub(super) fn scenario(name: &str) -> (Vec<String>, Value) {
+pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
     let mut args = vec![
         if name == "pairs" { "search" } else { "get" },
         "pgx",
@@ -33,20 +33,45 @@ pub(super) fn scenario(name: &str) -> (Vec<String>, Value) {
             args.push("recommendations".into());
             let mut row = json!({"lookupkey":{"DPYD":"n/a","TPMT":"Synthetic other gene"},"implications":{"DPYD":"Synthetic context","TPMT":"Independent synthetic context"},"phenotypes":{"DPYD":"Uncertain synthetic result","TPMT":"Synthetic label"},"activityscore":{},"drugrecommendation":"Synthetic source text without clinical advice.","classification":"Synthetic classification","population":"Synthetic population","comments":"Keep this synthetic qualification."});
             if name == "view" {
-                row["recommendationid"] = json!(1);
-                row["drugname"] = json!("Synthetic drug");
-                row["guidelinename"] = json!("Synthetic guideline");
-                row["guidelineurl"] = json!("https://example.org/synthetic");
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("recommendationid".into(), json!(1));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("drugname".into(), json!("Synthetic drug"));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("guidelinename".into(), json!("Synthetic guideline"));
+                row.as_object_mut().ok_or("synthetic object")?.insert(
+                    "guidelineurl".into(),
+                    json!("https://example.org/synthetic"),
+                );
             } else {
                 args.extend(["--drug-id".into(), "RxNorm:10324".into()]);
-                row["id"] = json!(1);
-                row["drugid"] = json!("RxNorm:10324");
-                row["guidelineid"] = json!(2);
-                row["allelestatus"] = json!({"DPYD":"Synthetic status"});
-                row["version"] = json!(3);
-                row["dosinginformation"] = json!(false);
-                row["alternatedrugavailable"] = json!(true);
-                row["otherprescribingguidance"] = json!(false);
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("id".into(), json!(1));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("drugid".into(), json!("RxNorm:10324"));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("guidelineid".into(), json!(2));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("allelestatus".into(), json!({"DPYD":"Synthetic status"}));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("version".into(), json!(3));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("dosinginformation".into(), json!(false));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("alternatedrugavailable".into(), json!(true));
+                row.as_object_mut()
+                    .ok_or("synthetic object")?
+                    .insert("otherprescribingguidance".into(), json!(false));
             }
             json!([row])
         }
@@ -63,5 +88,5 @@ pub(super) fn scenario(name: &str) -> (Vec<String>, Value) {
             }
         }
     };
-    (args, body)
+    Ok((args, body))
 }

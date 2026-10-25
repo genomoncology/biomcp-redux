@@ -61,7 +61,7 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     Ok(cli)
 }
 fn scenario(name: &'static str) -> Check {
-    let (args, body) = rows::scenario(name);
+    let (args, body) = rows::scenario(name)?;
     let returned = body.as_array().ok_or("native array")?.len();
     let total = if matches!(name, "pairs" | "view" | "table" | "guidelines") {
         2
@@ -80,11 +80,13 @@ fn scenario(name: &'static str) -> Check {
             let mut body = body.clone();
             if request.contains("offset=1") {
                 if name == "pairs" {
-                    body[0]["pairid"] = json!(2);
+                    *body.pointer_mut("/0/pairid").ok_or("synthetic field")? = json!(2);
                 } else if name == "view" {
-                    body[0]["recommendationid"] = json!(2);
+                    *body
+                        .pointer_mut("/0/recommendationid")
+                        .ok_or("synthetic field")? = json!(2);
                 } else if name == "table" {
-                    body[0]["id"] = json!(2);
+                    *body.pointer_mut("/0/id").ok_or("synthetic field")? = json!(2);
                 }
             }
             Ok(body.to_string())
@@ -192,15 +194,18 @@ fn failure(name: &'static str) -> Check {
         "table"
     } else {
         "pairs"
-    });
+    })?;
     if name == "wrong-gene" {
-        body[0]["genesymbol"] = json!("TPMT");
+        *body.pointer_mut("/0/genesymbol").ok_or("synthetic field")? = json!("TPMT");
     }
     if name == "wrong-drug" {
-        body[0]["drugid"] = json!("RxNorm:999");
+        *body.pointer_mut("/0/drugid").ok_or("synthetic field")? = json!("RxNorm:999");
     }
     if name == "unknown-field" {
-        body[0]["invented_extra"] = json!("unreviewed");
+        body.pointer_mut("/0")
+            .and_then(Value::as_object_mut)
+            .ok_or("synthetic row")?
+            .insert("invented_extra".into(), json!("unreviewed"));
     }
     let stub = Stub::counted(
         move |_| {
@@ -234,7 +239,7 @@ fn failure(name: &'static str) -> Check {
         return Err(format!("source failure hidden as success: {value}"));
     }
     let mut replay = args.clone();
-    replay[0] = "--replay".into();
+    *replay.get_mut(0).ok_or("missing replay flag")? = "--replay".into();
     let replay_env = Environment::new().map_err(|e| e.to_string())?;
     let repeated = both(&replay_env, replay, 4)?;
     if repeated.get("status") != value.get("status")
