@@ -1,4 +1,5 @@
 //! Literal native drug discovery and exact selected source identities.
+mod ema;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::mychem;
 use biomcp_types::{
@@ -7,6 +8,7 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    if query.source() == DrugSource::Ema { return ema::search(cx, query); }
     let mut out = empty(QueryBody::DrugPage(DrugPage {
         items: Box::default(),
         total: None,
@@ -23,54 +25,7 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(page) = result {
-        out.status = if page.items.is_empty() {
-            Status::Absent
-        } else if out
-            .sources
-            .iter()
-            .any(|s| s.state == biomcp_types::SourceState::Stale)
-        {
-            Status::Partial
-        } else {
-            Status::Complete
-        };
-        let returned = page.items.len() as u32;
-        out.sources.iter_mut().for_each(|s| {
-            s.count = page.total;
-            s.fetched = Some(returned);
-        });
-        out.page = page.total.map(|total| PageInfo {
-            offset: query.offset(),
-            returned,
-            total,
-            pool: None,
-            truncated: None,
-        });
-        for item in &page.items {
-            if let Ok(get) = DrugGet::new(item.id.clone(), DrugSource::Mychem) {
-                out.next.push((
-                    StepKind::Disambiguate,
-                    Action::Run {
-                        request: Request::GetDrug(get),
-                        fresh: cx.fresh,
-                    },
-                ));
-            }
-        }
-        if let Some(offset) = query
-            .offset()
-            .checked_add(returned)
-            .filter(|n| returned > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
-        {
-            out.next.push((
-                StepKind::Page,
-                Action::Run {
-                    request: Request::SearchDrug(query.at_offset(offset)),
-                    fresh: cx.fresh,
-                },
-            ));
-        }
-        out.body = QueryBody::DrugPage(page);
+        searched(query, cx.fresh, page, &mut out);
     }
     component_outcomes(cx, &mut out, true);
     command.finish(deadline.remaining());
@@ -78,6 +33,7 @@ pub fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    if query.source() == DrugSource::Ema { return ema::get(cx, query); }
     let xrefs = matches!(query.sections(), [biomcp_types::DrugSection::Xrefs]);
     let mut out = empty(if xrefs {
         QueryBody::DrugXrefs(None)
@@ -233,4 +189,55 @@ fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
             },
         ));
     }
+}
+
+fn searched(query: &DrugSearch, fresh: bool, page: DrugPage, out: &mut Outcome) {
+        out.status = if page.items.is_empty() {
+            Status::Absent
+        } else if out
+            .sources
+            .iter()
+            .any(|s| s.state == biomcp_types::SourceState::Stale)
+        {
+            Status::Partial
+        } else {
+            Status::Complete
+        };
+        let returned = page.items.len() as u32;
+        out.sources.iter_mut().for_each(|s| {
+            s.count = page.total;
+            s.fetched = Some(returned);
+        });
+        out.page = page.total.map(|total| PageInfo {
+            offset: query.offset(),
+            returned,
+            total,
+            pool: None,
+            truncated: None,
+        });
+        for item in &page.items {
+            if let Ok(get) = DrugGet::new(item.id.clone(), query.source()) {
+                out.next.push((
+                    StepKind::Disambiguate,
+                    Action::Run {
+                        request: Request::GetDrug(get),
+                        fresh,
+                    },
+                ));
+            }
+        }
+        if let Some(offset) = query
+            .offset()
+            .checked_add(returned)
+            .filter(|n| returned > 0 && page.total.is_some_and(|t| u64::from(*n) < t))
+        {
+            out.next.push((
+                StepKind::Page,
+                Action::Run {
+                    request: Request::SearchDrug(query.at_offset(offset)),
+                    fresh,
+                },
+            ));
+        }
+        out.body = QueryBody::DrugPage(page);
 }
