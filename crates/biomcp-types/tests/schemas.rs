@@ -38,6 +38,9 @@ macro_rules! contracts {
         };
     }
 
+#[path = "schemas/disease.rs"]
+mod disease;
+
 fn common_registry() -> Vec<Contract> {
     contracts! {
         Accession => ("accession", "biodata.accession/2"),
@@ -141,6 +144,7 @@ fn registry() -> Vec<Contract> {
         Contig => ("contig", "biodata.contig/1"),
     };
     contracts.extend(common_registry());
+    contracts.extend(disease::registry());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts.extend(drug_contracts());
@@ -174,9 +178,13 @@ fn drug_contracts() -> Vec<Contract> {
         DrugProduct => ("drug-product", "biodata.drug-product/1"),
         DrugLabelReference => ("drug-label-reference", "biodata.drug-label-reference/1"),
         DrugLabelSection => ("drug-label-section", "biodata.drug-label-section/1"),
-        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/1"),
-        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/1"),
-        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/1"),
+        DrugNativeTarget => ("drug-native-target", "biodata.drug-native-target/1"),
+        DrugDiseaseReference => ("drug-disease-reference", "biodata.drug-disease-reference/1"),
+        DrugStage => ("drug-stage", "biodata.drug-stage/1"),
+        DrugNativeReference => ("drug-native-reference", "biodata.drug-native-reference/1"),
+        DrugTargetRelation => ("drug-target-relation", "biodata.drug-target-relation/2"),
+        DrugIndicationClaim => ("drug-indication-claim", "biodata.drug-indication-claim/2"),
+        DrugInteractionClaim => ("drug-interaction-claim", "biodata.drug-interaction-claim/2"),
         AuthorizationDate => ("authorization-date", "biodata.authorization-date/1"),
         AuthorizationEvent => ("authorization-event", "biodata.authorization-event/1"),
         DrugSearch => ("drug-search", "biomcp.drug-search/1"),
@@ -187,12 +195,12 @@ fn drug_contracts() -> Vec<Contract> {
         Envelope<DrugPage> => ("drug-page", "biomcp.drug_page/1"),
         Envelope<DrugCard> => ("drug-card", "biomcp.drug_card/1"),
         Envelope<DrugLabel> => ("drug-label", "biomcp.drug_label/1"),
-        Envelope<DrugTargets> => ("drug-targets", "biomcp.drug_targets/1"),
-        Envelope<DrugIndications> => ("drug-indications", "biomcp.drug_indications/1"),
+        Envelope<DrugTargets> => ("drug-targets", "biomcp.drug_targets/2"),
+        Envelope<DrugIndications> => ("drug-indications", "biomcp.drug_indications/2"),
         Envelope<DrugCivic> => ("drug-civic", "biomcp.drug_civic/1"),
         Envelope<DrugApprovals> => ("drug-approvals", "biomcp.drug_approvals/1"),
         Envelope<DrugRegulatory> => ("drug-regulatory", "biomcp.drug_regulatory/1"),
-        Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug_interactions/1"),
+        Envelope<DrugInteractions> => ("drug-interactions", "biomcp.drug_interactions/2"),
     }
 }
 

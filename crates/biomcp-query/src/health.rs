@@ -39,7 +39,9 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                             _ => Reason::Unavailable,
                         });
                         (
-                            if reason.is_some() {
+                            if reason == Some(Reason::Disabled) {
+                                SourceState::Skipped
+                            } else if reason.is_some() {
                                 SourceState::Failed
                             } else {
                                 SourceState::Ok

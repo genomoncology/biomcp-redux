@@ -199,11 +199,11 @@ impl ResponseBody for DrugLabel {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug_targets/1";
+    const SCHEMA: &'static str = "biomcp.drug_targets/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug_indications/1";
+    const SCHEMA: &'static str = "biomcp.drug_indications/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
@@ -219,6 +219,6 @@ impl ResponseBody for DrugRegulatory {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug_interactions/1";
+    const SCHEMA: &'static str = "biomcp.drug_interactions/2";
     type Query = DrugGet;
 }
