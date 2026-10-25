@@ -34,6 +34,7 @@ mod nci;
 mod nci_walk;
 mod negative_cases;
 mod network_stub;
+mod next_navigation;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
@@ -334,6 +335,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(recurrence_metadata::trials());
     trials.extend(normalization::trials());
     trials.extend(variant_search::trials());
+    trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
