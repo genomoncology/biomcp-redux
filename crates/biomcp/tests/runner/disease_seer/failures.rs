@@ -301,3 +301,35 @@ pub(super) fn wrong_site() -> Result<(), String> {
     }
     Ok(())
 }
+
+pub(super) fn stale_rejection() -> Result<(), String> {
+    let mut calls = 0;
+    let stub = Stub::for_source("seer.cancer.gov", "application/json", move |request| {
+        calls += 1;
+        if calls == 1 { wire(request) } else { Ok("broken JSON".into()) }
+    })?;
+    let env = setup(&stub)?;
+    let words = args(&["get", "disease", "55", "survival", "--source", "seer",
+        "--dataset", "4", "--interval", "5"]);
+    let original = invoke(&env, &words, 0)?;
+    let directory = env.root().join("cache/biomcp");
+    let path = fs::read_dir(directory).map_err(|e| e.to_string())?
+        .filter_map(Result::ok).map(|entry| entry.path())
+        .find(|path| path.extension().is_some_and(|extension| extension == "sqlite"))
+        .ok_or("missing cache")?;
+    let connection = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
+    connection.execute("UPDATE reply SET fresh_until=0 WHERE source='seer'", [])
+        .map_err(|e| e.to_string())?;
+    let stale = invoke(&env, &words, 0)?;
+    if stale.pointer("/status") != Some(&json!("partial"))
+        || stale.pointer("/sources/0/state") != Some(&json!("stale"))
+        || stale.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || stale.pointer("/problems/0/field") != Some(&json!("record"))
+        || stale.get("result") != original.get("result")
+    { return Err(format!("stale checked rows lost the rejected-reply problem: {stale}")); }
+    if crate::runner::source_terms::size(&stale, "")? > 3000 {
+        return Err("stale response exceeds bounded output".into());
+    }
+    if stub.finish()?.len() != 2 { return Err("unexpected stale request count".into()); }
+    Ok(())
+}
