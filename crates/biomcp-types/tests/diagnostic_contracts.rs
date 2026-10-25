@@ -3,6 +3,10 @@ use biodata::*;
 use biomcp_types::*;
 use serde_json::{Value, json};
 
+#[expect(
+    clippy::unwrap_used,
+    reason = "Contract setup must fail when synthetic public values cannot round-trip"
+)]
 fn roundtrip<T: serde::Serialize + serde::de::DeserializeOwned>(value: Value) -> Value {
     serde_json::to_value(serde_json::from_value::<T>(value).unwrap()).unwrap()
 }
@@ -361,6 +365,10 @@ fn regulatory_default_counts_one_fragment_and_explicit_limits_remain_explicit() 
 }
 
 #[cfg(feature = "schema")]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Contract setup requires valid synthetic bodies, queries and generated schemas"
+)]
 fn envelope<T>(query: Value, body: Value)
 where
     T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
@@ -372,7 +380,7 @@ where
     let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>)).unwrap();
     let validator = jsonschema::draft202012::new(&schema).unwrap();
     assert!(validator.is_valid(&value), "{value}");
-    assert_eq!(value["schema"], T::SCHEMA);
+    assert_eq!(value.get("schema").and_then(Value::as_str), Some(T::SCHEMA));
 }
 
 #[cfg(feature = "schema")]
