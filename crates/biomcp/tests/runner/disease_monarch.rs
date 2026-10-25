@@ -392,16 +392,17 @@ fn default_reply(request: &str) -> Result<String, String> {
     let items = (offset..(offset + limit).min(6))
         .map(|i| {
             let mut row = association();
-            row["id"] = json!(format!("synthetic-{i}"));
+            let fields = row.as_object_mut().ok_or("missing synthetic association")?;
+            fields.insert("id".into(), json!(format!("synthetic-{i}")));
             if phenotype {
-                row["subject"] = json!("MONDO:0019003");
-                row["object"] = json!(format!("HP:{:07}", i + 1));
+                fields.insert("subject".into(), json!("MONDO:0019003"));
+                fields.insert("object".into(), json!(format!("HP:{:07}", i + 1)));
             } else {
-                row["subject"] = json!(format!("HGNC:{}", i + 1));
+                fields.insert("subject".into(), json!(format!("HGNC:{}", i + 1)));
             }
-            row
+            Ok(row)
         })
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>, String>>()?;
     Ok(json!({"limit":limit,"offset":offset,"total":6,"items":items}).to_string())
 }
 fn defaults() -> Result<(), String> {
@@ -428,7 +429,7 @@ fn defaults() -> Result<(), String> {
             value,
         ];
         let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
-        fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,"is_error":true,"expect":{"/status":"usage"},"max_bytes":500}]})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+        fs::write(file.path(), serde_json::to_vec(&json!({"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,"is_error":true,"expect":{"/status":"usage"},"max_bytes":165}]})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
         super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
     }
     if stub.finish()?.len() != 13 {
@@ -465,7 +466,10 @@ fn default_walk(
         record(env, &words, &directory, 0)?;
         let mut expect = json!({"/query/section_limit":count,"/page/offset":offset,"/page/returned":returned,"/page/total":6,"/result/items/*/association/attribution/record":ids});
         if offset + count < 6 {
-            expect["/next/*/kind"] = json!({"includes":"page"});
+            expect
+                .as_object_mut()
+                .ok_or("missing expectation")?
+                .insert("/next/*/kind".into(), json!({"includes":"page"}));
         }
         let cap = match (section, explicit) {
             ("genes", false) => 3324,
