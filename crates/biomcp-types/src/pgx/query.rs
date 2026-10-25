@@ -36,6 +36,7 @@ struct SearchFields {
     /// Explicit source gene symbol.
     gene: GeneSymbol,
     /// Required CPIC source; ClinPGx is not supported for search.
+    #[cfg_attr(feature = "schema", schemars(with="str", extend("enum"=["cpic"])))]
     source: PgxSource,
     /// Literal native level, including compound levels such as B/C.
     #[serde(default, skip_serializing_if = "Option::is_none")]
