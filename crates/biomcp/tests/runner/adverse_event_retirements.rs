@@ -52,6 +52,10 @@ fn check() -> Result<(), String> {
 }
 const CASES: &[(&str, &str)] = &[
     (
+        "search adverse-event text --source=vaers",
+        "supported vaccines are MMR and COVID-19 vaccine; use MMR or COVID19",
+    ),
+    (
         "search adverse-event -d text",
         "use: search adverse-event <TEXT>; text stays literal",
     ),
@@ -485,7 +489,6 @@ fn boundaries() -> Result<(), String> {
         "get adverse-event 100 --snapshot --json",
         "search adverse-event text --type=unsupported",
         "search adverse-event text --type",
-        "search adverse-event text --source=vaers",
         "search adverse-event text --type=vaers",
         "search adverse-event text --source=cvx",
         "search adverse-event text --counted",
