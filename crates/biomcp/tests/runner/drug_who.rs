@@ -3,7 +3,7 @@ use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub}
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
-    fs, io::Write,
+    fs,
     path::{Path, PathBuf},
 };
 type Check = Result<(), String>;
@@ -118,8 +118,7 @@ fn pair(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     if mcp::call_with_globals(env, &command, exit == 4, &globals)? != value {
         return Err("WHO CLI/MCP outputs differ".into());
     }
-    writeln!(std::io::stdout(), "WHO_PQ {} bytes={}", args.join(" "),
-        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len()).map_err(|e| e.to_string())?;
+    bounded(&value)?;
     Ok(value)
 }
 fn replacement(env: &Environment, replay: &Path, get: &[&str], before: &Value) -> Check {
@@ -186,5 +185,26 @@ fn stale(env: &Environment, replay: &Path, get: &[&str]) -> Check {
             return Err(format!("stale WHO data omitted outcome or explicit sync: {value}"));
         }
     }
+    Ok(())
+}
+
+fn bounded(value: &Value) -> Check {
+    let schema = value.get("schema").and_then(Value::as_str).ok_or("schema")?;
+    let status = value.get("status").and_then(Value::as_str).ok_or("status")?;
+    // Compact synthetic maxima measured by j13484; every cap adds fifteen percent.
+    let baseline: usize = match (schema, status) {
+        ("biomcp.drug_who_page/1", "complete") => 937,
+        ("biomcp.drug_who_page/1", "partial") => 1242,
+        ("biomcp.drug_who_page/1", "absent") => 433,
+        ("biomcp.drug_who_card/1", "complete") => 677,
+        ("biomcp.drug_who_card/1", "partial") => 729,
+        ("biomcp.drug_who_card/1", "absent") => 305,
+        ("biomcp.drug_who_card/1", "failed") => 330,
+        ("biomcp.sync/3", "complete") => 311,
+        ("biomcp.sync/3", "failed") => 302,
+        _ => return Err(format!("unmeasured WHO output {schema}/{status}")),
+    };
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    if bytes > (baseline * 115).div_ceil(100) { return Err(format!("WHO output exceeds measured ceiling: {bytes}")); }
     Ok(())
 }
