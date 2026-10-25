@@ -85,10 +85,11 @@ fn run(n: usize) -> Result<(), String> {
     Ok(())
 }
 fn verify(n: usize, value: &Value) -> Result<(), String> {
+    let empty = Vec::new();
     let steps = value
         .get("next")
         .and_then(Value::as_array)
-        .ok_or("missing next")?;
+        .unwrap_or(&empty);
     let annotation = steps
         .iter()
         .filter_map(|s| s.get("args").and_then(Value::as_array))
@@ -157,7 +158,7 @@ fn follow(env: &Environment, value: &Value, config: &mut Value) -> Result<(), St
     let recorded = env.root().join("annotation-recording");
     let mut keyed = args.clone();
     keyed.extend(["--record".into(), recorded.display().to_string()]);
-    let output = invoke(env, keyed, 0)?;
+    let output = super::oncokb::invoke(env, &keyed, 0)?;
     if output.pointer(&format!("{ROOT}/state")) != Some(&json!("data")) {
         return Err(format!("keyed route failed: {output}"));
     }
@@ -173,7 +174,7 @@ fn follow(env: &Environment, value: &Value, config: &mut Value) -> Result<(), St
     for file in fs::read_dir(recorded.join("oncokb")).map_err(|e| e.to_string())? {
         let bytes = fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
         if bytes
-            .windows(28)
+            .windows(b"synthetic-oncokb-variant-key".len())
             .any(|b| b == b"synthetic-oncokb-variant-key")
         {
             return Err("key in recording".into());

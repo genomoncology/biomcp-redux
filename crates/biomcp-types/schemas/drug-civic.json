@@ -164,48 +164,6 @@
       ],
       "type": "string"
     },
-    "CivicMember": {
-      "additionalProperties": false,
-      "description": "A native CIViC member, including members without a common-model subject.",
-      "properties": {
-        "feature": {
-          "$ref": "#/$defs/Text",
-          "description": "Native feature label, including fusion features."
-        },
-        "hgvs_descriptions": {
-          "description": "Every native notation, without selecting a transcript or repairing a spelling.",
-          "items": {
-            "$ref": "#/$defs/Text"
-          },
-          "type": "array"
-        },
-        "label": {
-          "$ref": "#/$defs/Text",
-          "description": "Whole source variant label."
-        },
-        "record": {
-          "$ref": "#/$defs/SourceRecord",
-          "description": "Native variant identity and link."
-        },
-        "subject": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/VariantRef"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Source-qualified subject when supported by the common model."
-        }
-      },
-      "required": [
-        "record",
-        "label",
-        "feature"
-      ],
-      "type": "object"
-    },
     "CivicNativeClaim": {
       "additionalProperties": false,
       "description": "Source facts retained without inventing a common-model subject or proposition.",
@@ -610,6 +568,59 @@
       ],
       "type": "object"
     },
+    "DrugCivicMember": {
+      "additionalProperties": false,
+      "description": "A drug claim member with its source-owned build, without altering variant responses.",
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/Text",
+          "description": "Native feature label, including fusion features."
+        },
+        "hgvs_descriptions": {
+          "description": "Every native notation, without selecting a transcript or repairing a spelling.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole source variant label."
+        },
+        "record": {
+          "$ref": "#/$defs/SourceRecord",
+          "description": "Native variant identity and link."
+        },
+        "reference_build": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native coordinates.referenceBuild spelling, including unsupported builds."
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source-qualified subject when supported by the common model."
+        }
+      },
+      "required": [
+        "record",
+        "label",
+        "feature"
+      ],
+      "type": "object"
+    },
     "DrugCivicPage": {
       "additionalProperties": false,
       "description": "One native claim stream and its own continuation.",
@@ -647,7 +658,7 @@
         "members": {
           "description": "Every source member, including members without a common-model subject.",
           "items": {
-            "$ref": "#/$defs/CivicMember"
+            "$ref": "#/$defs/DrugCivicMember"
           },
           "type": "array"
         },
@@ -2023,7 +2034,7 @@
       ]
     }
   },
-  "$id": "biomcp.drug_civic/3",
+  "$id": "biomcp.drug_civic/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2069,7 +2080,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_civic/3",
+      "const": "biomcp.drug_civic/4",
       "type": "string"
     },
     "sources": {

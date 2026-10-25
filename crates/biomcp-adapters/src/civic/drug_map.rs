@@ -11,7 +11,7 @@ fn context(raw: raw::Profile) -> Result<(DrugCivicProfile, Option<VariantRef>), 
         .variants
         .iter()
         .map(|row| {
-            Ok(DrugCivicMember {
+            Ok::<_, RequestError>(DrugCivicMember {
                 member: variant_map::member(&row.variant)?,
                 reference_build: row
                     .coordinates
