@@ -1,6 +1,7 @@
 # 0150 — Keep native proof recordings and raw outputs before cleanup
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5adfb43ecd056d9944bdcdab992a659446b7d0a1
 
 Milestone: 3
 

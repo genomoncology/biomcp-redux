@@ -149,7 +149,12 @@ impl Leg<'_> {
             Duration::from_millis(exchange.delay_ms),
         );
         if exchange.status != 200 {
-            return Err(self.failure(Reason::BadReply, Some(exchange.status)).into());
+            return Err(self
+                .failure(
+                    crate::retry::status_reason(exchange.status),
+                    Some(exchange.status),
+                )
+                .into());
         }
         let rows = parse::rows::<R>(exchange.body.bytes(), b.format)
             .map_err(|_| self.failure(Reason::BadReply, Some(200)))?;

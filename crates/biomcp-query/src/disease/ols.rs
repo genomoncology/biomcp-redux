@@ -65,18 +65,9 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
     match reply {
         Ok(Some(record)) => apply(&mut out, query, record),
         Ok(None) => out.status = Status::Absent,
-        Err(biomcp_fetch::RequestError::Source(e))
-            if e.reason == biomcp_types::Reason::BadReply =>
-        {
-            out.problems.push(biomcp_types::Problem {
-                source: Source::Ols,
-                record: Some(query.id().clone()),
-                field: "record".into(),
-                code: biomcp_types::ProblemCode::ValueUnknown,
-            })
-        }
         _ => (),
     }
+    super::page::record_problem(&mut out, query, Source::Ols);
     command.finish(deadline.remaining());
     out
 }

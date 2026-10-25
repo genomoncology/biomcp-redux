@@ -106,6 +106,7 @@ pub fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         };
         out.status = overall(&out, page.total == 0);
     }
+    super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());
     out
 }

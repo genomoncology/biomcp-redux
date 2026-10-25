@@ -8,6 +8,13 @@ mod native;
 pub(super) use native::run as native;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("disease-ols/retired-spellings-never-open-source", || {
+            retired_requests().map_err(Into::into)
+        }),
+        Trial::test(
+            "disease-ols/literal-zero-never-repairs-to-exact-get",
+            || literal_zero().map_err(Into::into),
+        ),
         Trial::test("disease-ols/max-page-keeps-all-candidate-actions", || {
             maximum().map_err(Into::into)
         }),
@@ -75,7 +82,15 @@ fn record(env: &Environment, words: &[&str], directory: &Path) -> Result<Value, 
 fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    super::run_case(file.path(), &super::schema::Registry::embedded()?)
+    let value = super::run_case(file.path(), &super::schema::Registry::embedded()?)?;
+    writeln!(
+        std::io::stderr(),
+        "OLS replay: full={} comparable={}",
+        serde_json::to_vec(&value).map_err(|e| e.to_string())?.len(),
+        super::source_terms::size(&value, "")?
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(value)
 }
 fn markdown(
     env: &Environment,
@@ -246,6 +261,9 @@ fn wrong() -> Result<(), String> {
             &args(&["get", "disease", "MONDO:0007607", "--source", "ols"]),
             4,
         )?;
+        if super::source_terms::size(&value, "")? > 365 {
+            return Err("wrong OLS identity exceeds its measured bound".into());
+        }
         if value.pointer("/status").unwrap_or(&Value::Null) != "failed"
             || value.get("result").is_some()
             || value.pointer("/problems/0/field").unwrap_or(&Value::Null) != "record"
@@ -284,9 +302,22 @@ fn failures() -> Result<(), String> {
         invoke(&env, &q, exit)?;
         stub.finish()?;
         let expected = if absent { "absent" } else { "failed" };
+        let reason = match status {
+            429 => Some("rate_limited"),
+            500 => Some("unavailable"),
+            _ if !absent => Some("bad_reply"),
+            _ => None,
+        };
+        let mut expect = json!({"/status":expected,"/sources/0/source":"ols","/sources/0/terms":"EMBL-EBI Terms of Use; ontology-specific rights"});
+        if let Some(reason) = reason {
+            expect
+                .as_object_mut()
+                .ok_or("missing expectation")?
+                .insert("/sources/0/reason".into(), json!(reason));
+        }
         replay(
             &directory,
-            json!([{"run":words,"mcp":words,"exit":exit,"is_error":!absent,"expect":{"/status":expected,"/sources/0/source":"ols","/sources/0/terms":"EMBL-EBI Terms of Use; ontology-specific rights"}}]),
+            json!([{"run":words,"mcp":words,"exit":exit,"is_error":!absent,"expect":expect,"max_bytes":if absent {454} else {match status {429=>234,500=>233,_=>230}}}]),
         )?;
     }
     Ok(())
@@ -315,7 +346,7 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"}}]),
+        json!([{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols","/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"},"max_bytes":244}]),
     )?;
     Ok(())
 }
@@ -357,6 +388,84 @@ fn maximum() -> Result<(), String> {
     )?;
     if stub.finish()?.len() != 1 {
         return Err("invalid page limit reached source".into());
+    }
+    Ok(())
+}
+
+fn literal_zero() -> Result<(), String> {
+    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |request| {
+        if request.starts_with("GET /ols4/api/search?") {
+            Ok(json!({"response":{"numFound":0,"start":0,"docs":[]}}).to_string())
+        } else {
+            exact_reply(request)
+        }
+    })?;
+    let env = setup(&stub)?;
+    let directory = env.root().join("literal-zero");
+    let mut words = args(&["search", "disease", "MONDO:0007607"]);
+    words.extend(["--record".into(), directory.to_string_lossy().into()]);
+    let value = invoke(&env, &words, 1)?;
+    if value.pointer("/query/text") != Some(&json!("MONDO:0007607")) {
+        return Err("literal input changed".into());
+    }
+    let exact_dir = env.root().join("explicit-exact");
+    record(
+        &env,
+        &["get", "disease", "MONDO:0007607", "--source", "ols"],
+        &exact_dir,
+    )?;
+    replay(
+        &directory,
+        json!([{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]},"max_bytes":463}]),
+    )?;
+    replay(
+        &exact_dir,
+        json!([{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],"expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":1087}]),
+    )?;
+    let requests = stub.finish()?;
+    if !matches!(requests.as_slice(), [(_, search), (_, get)] if search.contains("/search?") && get.contains("/terms?obo_id="))
+    {
+        return Err(format!(
+            "zero result triggered repair or hidden lookup: {requests:?}"
+        ));
+    }
+    Ok(())
+}
+
+fn retired_requests() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &[
+            "www.ebi.ac.uk",
+            "mydisease.info",
+            "api-v3.monarchinitiative.org",
+            "seer.cancer.gov",
+        ],
+        |_| "application/json",
+        |_| Err("retired input opened a source".into()),
+    )?;
+    let env = setup(&stub)?;
+    let path = super::launch::fixtures().join("cases/disease/retired.yaml");
+    let case: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    for step in case
+        .get("steps")
+        .and_then(Value::as_array)
+        .ok_or("missing cases")?
+    {
+        let words = step
+            .get("run")
+            .and_then(Value::as_array)
+            .ok_or("missing command")?
+            .iter()
+            .map(|w| w.as_str().map(String::from).ok_or("invalid word"))
+            .collect::<Result<Vec<_>, _>>()?;
+        let output = invoke(&env, &words, 2)?;
+        if output.get("sources").is_some() {
+            return Err("retired input reached source outcomes".into());
+        }
+    }
+    if !stub.finish()?.is_empty() {
+        return Err("retired input made a request".into());
     }
     Ok(())
 }

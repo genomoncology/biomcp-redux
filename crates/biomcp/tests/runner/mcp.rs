@@ -22,6 +22,14 @@ fn exchange_with_globals(
     frames: &[Value],
     globals: &[String],
 ) -> Result<Vec<Value>, String> {
+    exchange_retained(environment, frames, globals, None)
+}
+fn exchange_retained(
+    environment: &Environment,
+    frames: &[Value],
+    globals: &[String],
+    directory: Option<&std::path::Path>,
+) -> Result<Vec<Value>, String> {
     let mut args = vec!["serve".into()];
     args.extend_from_slice(globals);
     let child = environment
@@ -39,6 +47,10 @@ fn exchange_with_globals(
     }
     drop(stdin);
     let (status, stdout, stderr) = process.finish()?;
+    if let Some(directory) = directory {
+        std::fs::write(directory.join("mcp.stdout"), &stdout).map_err(|e| e.to_string())?;
+        std::fs::write(directory.join("mcp.stderr"), &stderr).map_err(|e| e.to_string())?;
+    }
     if !status.success() || !stderr.is_empty() {
         return Err(format!(
             "MCP process: {:?}; {}",
@@ -59,7 +71,16 @@ pub(super) fn call_with_globals(
     is_error: bool,
     globals: &[String],
 ) -> Result<Value, String> {
-    let replies = exchange_with_globals(
+    call_retained(environment, args, is_error, globals, None)
+}
+pub(super) fn call_retained(
+    environment: &Environment,
+    args: &[String],
+    is_error: bool,
+    globals: &[String],
+    directory: Option<&std::path::Path>,
+) -> Result<Value, String> {
+    let replies = exchange_retained(
         environment,
         &[request(
             json!(1),
@@ -67,6 +88,7 @@ pub(super) fn call_with_globals(
             json!({"name":"biomcp","arguments":{"args":args}}),
         )],
         globals,
+        directory,
     )?;
     let reply = replies
         .first()
