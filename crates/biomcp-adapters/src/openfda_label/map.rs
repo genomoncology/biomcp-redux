@@ -30,6 +30,8 @@ impl Record {
             name: Some(
                 self.openfda
                     .brand_name
+                    .as_deref()
+                    .unwrap_or_default()
                     .first()
                     .or_else(|| {
                         self.openfda
