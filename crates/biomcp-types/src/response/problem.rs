@@ -6,6 +6,8 @@ canonical_enum! {
     ProblemCode, ProblemCodeUnknown {
         /// The field value was not recognized.
         ValueUnknown => "value.unknown",
+        /// A source repeats one exact identity with incompatible records.
+        IdentityConflict => "identity.conflict",
     }
 }
 

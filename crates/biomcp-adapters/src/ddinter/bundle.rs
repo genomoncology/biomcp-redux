@@ -11,6 +11,7 @@ use std::marker::PhantomData;
 macro_rules! part {
     ($code:literal) => {
         BundlePart {
+            format: None,
             name: $code,
             path: concat!(
                 "/static/media/download/ddinter_downloads_code_",

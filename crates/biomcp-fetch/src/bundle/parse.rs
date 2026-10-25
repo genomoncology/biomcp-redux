@@ -52,9 +52,26 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<Vec<Parsed>, BadReply> {
     Ok(rows)
 }
 
+pub(super) fn part_rows<R: Row>(
+    body: &[u8],
+    format: RowFormat,
+    part: &str,
+) -> Result<Vec<Parsed>, BadReply> {
+    let rows = rows::<R>(body, format)?;
+    for row in &rows {
+        let decoded: R = serde_json::from_str(&row.row).map_err(|_| BadReply)?;
+        decoded.check_part(part)?;
+    }
+    Ok(rows)
+}
+
 pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<Vec<Parsed>, BadReply> {
     match format {
         RowFormat::Json { rows, metadata } => json::<R>(body, rows, metadata),
+        RowFormat::NativeTsv {
+            gzip,
+            max_decoded_bytes,
+        } => super::native::rows::<R>(body, gzip, max_decoded_bytes),
         RowFormat::Tsv => tsv::<R>(body),
         RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines),
     }

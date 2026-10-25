@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover native diagnostic laboratory tests.
+    SearchDiagnostic(crate::DiagnosticSearch),
+    /// Read an exact source diagnostic record or relation page.
+    GetDiagnostic(crate::DiagnosticGet),
     /// Search source-native adverse event reports.
     SearchAdverseEvent(crate::AdverseEventSearch),
     /// Read one exact source report, without source probing.

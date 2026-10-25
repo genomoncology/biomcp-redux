@@ -22,6 +22,8 @@ const LAYERS: &[(&str, &[&str])] = &[
             "serde",
             "serde_json",
             "quick-xml",
+            "csv",
+            "flate2",
             "sha2",
             "thiserror",
         ],

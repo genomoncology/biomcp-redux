@@ -33,6 +33,26 @@
       "additionalProperties": false,
       "description": "Native GTR condition rows without ontology or clinical conversion.",
       "properties": {
+        "count_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticCountUnit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact meaning of the envelope total; supplied by the owning source command."
+        },
+        "distinct_id_total": {
+          "description": "Distinct complete native IDs across the selected relation collection.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {
@@ -45,6 +65,15 @@
         "items"
       ],
       "type": "object"
+    },
+    "DiagnosticCountUnit": {
+      "description": "Meaning of the envelope's total for a source-owned diagnostic page.",
+      "enum": [
+        "test_identities",
+        "native_relation_rows",
+        "native_method_entries"
+      ],
+      "type": "string"
     },
     "DiagnosticGet": {
       "additionalProperties": false,
@@ -306,11 +335,13 @@
     "ProblemCode": {
       "description": "A stable code for a rejected field value.",
       "enum": [
-        "value.unknown"
+        "value.unknown",
+        "identity.conflict"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " The field value was not recognized."
+        " The field value was not recognized.",
+        " A source repeats one exact identity with incompatible records."
       ]
     },
     "Reason": {
@@ -688,7 +719,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic_conditions/1",
+  "$id": "biomcp.diagnostic_conditions/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -734,7 +765,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic_conditions/1",
+      "const": "biomcp.diagnostic_conditions/2",
       "type": "string"
     },
     "sources": {

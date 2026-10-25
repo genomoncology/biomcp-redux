@@ -65,6 +65,16 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Source-ordered diagnostic candidates.
+    DiagnosticPage(crate::DiagnosticPage),
+    /// Exact selected diagnostic card.
+    DiagnosticCard(Option<crate::DiagnosticCard>),
+    /// Native gene membership rows.
+    DiagnosticGenes(crate::DiagnosticGenes),
+    /// Native condition membership rows.
+    DiagnosticConditions(crate::DiagnosticConditions),
+    /// Independent native method entries.
+    DiagnosticMethods(crate::DiagnosticMethods),
     /// Report get belongs to its next runtime slice.
     UnsupportedAdverseEvent,
     /// Exact checked FAERS report.
@@ -220,11 +230,14 @@ pub struct SyncQuery {
 pub struct SyncResult {
     /// Imported rows.
     pub rows: u64,
-    /// Unencoded source bytes.
+    /// Imported source-file bytes before native file decoding.
     pub bytes: u64,
+    /// Distinct repeated identities across the whole source version report.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub duplicate_identities: Option<u64>,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/2";
+    const SCHEMA: &'static str = "biomcp.sync/3";
     type Query = SyncQuery;
 }
 

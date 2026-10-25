@@ -192,6 +192,8 @@ version = "1.0.0"
 dependencies = [
  "biodata",
  "biomcp-types",
+ "csv",
+ "flate2",
  "httpdate",
  "quick-xml",
  "rusqlite",

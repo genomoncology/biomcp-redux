@@ -5,6 +5,7 @@ mod clinvar_key;
 mod configuration;
 mod corporate;
 mod credential_containment;
+mod diagnostic_gtr;
 mod diagnostic_registry;
 mod disease_monarch;
 mod disease_mydisease;
@@ -536,6 +537,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(maude::trials());
     trials.extend(faers_get::trials());
     trials.extend(diagnostic_registry::trials());
+    trials.extend(diagnostic_gtr::trials());
     trials.extend(pgx_registry::trials());
     trials.extend(drug_retirements::trials());
     trials.extend(drug_civic::trials());

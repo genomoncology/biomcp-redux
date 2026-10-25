@@ -1,0 +1,58 @@
+use super::{bad, bundle, map, raw::Native};
+use biodata::{GtrMethod, GtrTestRelation};
+use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
+use biomcp_types::{DiagnosticGet, GtrCard, Problem};
+/// Exact source identity and independent relation collections under one local snapshot.
+#[derive(Debug)]
+pub struct Record {
+    /// Selected card, absent for missing or conflicting identities.
+    pub card: Option<GtrCard>,
+    /// Conflict supplied before any current flag selection.
+    pub conflict: Option<Problem>,
+    /// Native relation rows, including rows without a current card.
+    pub relations: Vec<GtrTestRelation>,
+    /// Independent method lists with original indices.
+    pub methods: Vec<GtrMethod>,
+    /// Stored snapshot identity.
+    pub info: BundleInfo,
+}
+/// Read one exact accession/version; no latest-version fallback or implicit synchronization.
+pub fn get(leg: &Leg<'_>, query: &DiagnosticGet) -> Result<Record, RequestError> {
+    let (rows, info) = bundle::read(leg, Find::Exact(KeyKind::Id, query.id().as_str()))?;
+    super::revision(query.bundle_revision(), &info)?;
+    let mut versions = Vec::new();
+    let mut relations = Vec::new();
+    for row in rows {
+        match row.value {
+            Native::Version(v) => versions.push(v),
+            Native::Relation(r) => relations.push(map::relation(&r)?),
+        }
+    }
+    let conflict = if versions.len() > 1 {
+        Some(super::conflict(
+            &query.id().as_str().parse().map_err(|_| bad())?,
+        ))
+    } else {
+        None
+    };
+    let card = if conflict.is_none() {
+        versions.first().map(|v| map::card(v)).transpose()?
+    } else {
+        None
+    };
+    let methods = if conflict.is_none() {
+        versions
+            .first()
+            .map(|v| map::methods(v))
+            .unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    Ok(Record {
+        card,
+        conflict,
+        relations,
+        methods,
+        info,
+    })
+}
