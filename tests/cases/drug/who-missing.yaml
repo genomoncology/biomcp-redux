@@ -1,5 +1,5 @@
 {
-  "feature": "drug-ema",
+  "feature": "drug-who-medicines",
   "story": "A missing WHO medicines bundle names explicit sync without downloading on a read",
   "steps": [
     {
