@@ -20,3 +20,4 @@ mod map;
 mod raw;
 mod search;
 pub use get::get;
+pub use search::{expression, search};
