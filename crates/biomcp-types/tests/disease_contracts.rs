@@ -134,3 +134,13 @@ fn association_component_terms_stay_bound_to_the_native_row() {
     );
     assert!(serde_json::from_value::<DiseaseAssociation>(row).is_err());
 }
+
+#[test]
+fn candidate_header_preserves_publisher_obsolete_state_without_guessing() {
+    let mut header = json!({"concept":{"id":"MONDO:0007607","label":"synthetic obsolete concept"},"ontology":"mondo","attribution":{"source":"synthetic"}});
+    assert_eq!(roundtrip::<biomcp_types::DiseaseHeader>(header.clone()).unwrap(), header);
+    for state in [true, false] {
+        header["obsolete"] = json!(state);
+        assert_eq!(roundtrip::<biomcp_types::DiseaseHeader>(header.clone()).unwrap(), header);
+    }
+}
