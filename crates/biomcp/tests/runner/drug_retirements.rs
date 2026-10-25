@@ -52,7 +52,7 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "cvx sync",
-        "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.",
+        "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
     ),
     ("ema sync", "renamed; use: biomcp sync ema"),
     ("ddinter sync", "renamed; use: biomcp sync ddinter"),
