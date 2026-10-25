@@ -5,6 +5,7 @@ mod configuration;
 mod corporate;
 mod credential_containment;
 mod disease_mydisease;
+mod disease_monarch;
 mod disease_ols;
 mod disease_registry;
 mod disease_seer;
@@ -323,6 +324,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(disease_registry::trials());
     trials.extend(disease_ols::trials());
     trials.extend(disease_mydisease::trials());
+    trials.extend(disease_monarch::trials());
     trials.extend(disease_seer::trials());
     trials.extend(source_terms::trials());
 
