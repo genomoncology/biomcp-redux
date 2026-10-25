@@ -82,7 +82,7 @@ pub(super) fn check() -> Result<(), String> {
     }
     if next.get(5)
         != Some(
-            &json!({"kind":"page","args":["search","drug","Synthetic","--source","ema","--limit","5","--offset","5"]}),
+            &json!({"kind":"page","args":["search","drug","Synthetic","--limit","5","--offset","5","--source","ema"]}),
         )
     {
         return Err(format!("EMA page continuation lost: {next:?}"));
