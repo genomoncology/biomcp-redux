@@ -31,7 +31,8 @@
         "/next/*/kind": [
           "section",
           "section",
-          "pivot"
+          "pivot",
+          "fresh"
         ]
       }
     },

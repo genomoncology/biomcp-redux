@@ -12,7 +12,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let mut out = empty(QueryBody::DiagnosticCard(None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&fda_pma::SPEC, deadline);
+    let leg = cx.fetch.leg(&fda_pma::SPEC, deadline).fresh(cx.fresh);
     let result = fda_pma::get(&leg, q).and_then(|records| selected(&mut out, q, records, cx.fresh));
     let error = result.err();
     out.local = error.and_then(status::local);
@@ -20,6 +20,13 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
         .push(status::source(Source::FdaPma, leg.finish(), error));
     if error.is_some() {
         out.status = Status::Failed;
+    } else if out.status == Status::Complete
+        && out
+            .sources
+            .iter()
+            .any(|source| source.state == biomcp_types::SourceState::Stale)
+    {
+        out.status = Status::Partial;
     }
     command.finish(deadline.remaining());
     out
@@ -79,6 +86,15 @@ fn selected(
         Some(DiagnosticSection::Supplements) => supplements(out, q, &records.rows, fresh)?,
         Some(DiagnosticSection::Regulatory) => regulatory(out, q, row, fresh)?,
         _ => {}
+    }
+    if !fresh {
+        out.next.push((
+            StepKind::Fresh,
+            crate::Action::Run {
+                request: Request::GetDiagnostic(q.clone()),
+                fresh: true,
+            },
+        ));
     }
     Ok(())
 }
