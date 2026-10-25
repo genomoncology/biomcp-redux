@@ -34,14 +34,38 @@ impl Reply for Response {
         match self {
             Self::Page { meta, results }
                 if meta.results.limit > 0
-                    && results.len() as u64 == meta.results.total.saturating_sub(meta.results.skip.into()).min(meta.results.limit.into())
-                    && results.iter().all(|r| r.mdr_report_key.as_str().bytes().all(|b|b.is_ascii_digit())) => Ok(()),
-            Self::Absent { error } if error.code == "NOT_FOUND" && error.message == "No matches found!" => Ok(()),
+                    && results.len() as u64
+                        == meta
+                            .results
+                            .total
+                            .saturating_sub(meta.results.skip.into())
+                            .min(meta.results.limit.into())
+                    && results.iter().all(|r| {
+                        r.mdr_report_key
+                            .as_str()
+                            .bytes()
+                            .all(|b| b.is_ascii_digit())
+                    }) =>
+            {
+                Ok(())
+            }
+            Self::Absent { error }
+                if error.code == "NOT_FOUND" && error.message == "No matches found!" =>
+            {
+                Ok(())
+            }
             _ => Err(BadReply),
         }
     }
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!((self,status),(Self::Page {..},200)|(Self::Absent {..},404)) { Ok(()) } else { Err(BadReply) }
+        if matches!(
+            (self, status),
+            (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)
+        ) {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     }
 }
 #[derive(Debug, Deserialize)]
@@ -131,10 +155,10 @@ pub struct Report {
     pub number_devices_in_event: Option<Box<str>>,
     /// Native number_patients_in_event without inferred interpretation.
     pub number_patients_in_event: Option<Box<str>>,
-    #[serde(rename="device")]
+    #[serde(rename = "device")]
     /// Native devices without inferred interpretation.
     pub devices: Box<[Device]>,
-    #[serde(rename="mdr_text")]
+    #[serde(rename = "mdr_text")]
     /// Native narrative without inferred interpretation.
     pub narrative: Box<[Narrative]>,
 }

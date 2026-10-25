@@ -1,5 +1,5 @@
 use super::raw;
-use biomcp_types::{AdverseEventDevice,AdverseEventNarrativeItem};
+use biomcp_types::{AdverseEventDevice, AdverseEventNarrativeItem};
 /// Preserve the complete reviewed native row without administrative fields.
 pub fn device(index: u32, value: raw::Device) -> AdverseEventDevice {
     AdverseEventDevice {

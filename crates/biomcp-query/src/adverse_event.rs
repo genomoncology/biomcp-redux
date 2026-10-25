@@ -1,19 +1,34 @@
 //! One explicit adverse-event source; no inference, drug choice or source probing.
 use crate::{Action, Ctx, Outcome, status};
-use biomcp_adapters::{faers,maude};
+use biomcp_adapters::{faers, maude};
 use biomcp_types::{
     AdverseEventPage, AdverseEventSearch, PageInfo, QueryBody, ReportUnit, Request, Source, Status,
     StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
 pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
-    let source = match query.source() { biomcp_types::AdverseEventSource::Faers => Source::Faers, biomcp_types::AdverseEventSource::Maude => Source::Maude };
+    let source = match query.source() {
+        biomcp_types::AdverseEventSource::Faers => Source::Faers,
+        biomcp_types::AdverseEventSource::Maude => Source::Maude,
+    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let spec=if source==Source::Faers {&faers::SPEC} else {&maude::SPEC};
+    let spec = if source == Source::Faers {
+        &faers::SPEC
+    } else {
+        &maude::SPEC
+    };
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let selector = if source==Source::Faers {faers::expression(query)} else {maude::expression(query)};
-    let reply = if source==Source::Faers {faers::search(&leg, query)} else {maude::search(&leg, query)};
+    let selector = if source == Source::Faers {
+        faers::expression(query)
+    } else {
+        maude::expression(query)
+    };
+    let reply = if source == Source::Faers {
+        faers::search(&leg, query)
+    } else {
+        maude::search(&leg, query)
+    };
     let error = reply.as_ref().err().copied();
     let mut out = Outcome {
         status: Status::Failed,

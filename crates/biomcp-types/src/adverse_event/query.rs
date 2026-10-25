@@ -141,7 +141,8 @@ struct GetFields {
 impl TryFrom<GetFields> for AdverseEventGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if (v.source == AdverseEventSource::Maude && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
+        if (v.source == AdverseEventSource::Maude
+            && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
             || !(1..=50).contains(&v.section_limit)
             || v.section.is_some_and(|s| s.source() != v.source)
             || v.drug_index.is_some() != v.section.is_some_and(AdverseEventSection::is_identifier)
