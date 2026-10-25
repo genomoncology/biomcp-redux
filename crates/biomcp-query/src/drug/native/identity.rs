@@ -63,12 +63,14 @@ pub(super) fn chembl_card(row: chembl::Molecule, fetched: i64) -> Result<DrugCar
     let mut card = card(chembl_header(&row)?, fetched);
     let mut names = Vec::new();
     for synonym in row.molecule_synonyms {
-        let name = synonym.molecule_synonym.parse()?;
-        if !names.contains(&name) {
-            names.push(name);
+        if !names.contains(&synonym.molecule_synonym) {
+            names.push(synonym.molecule_synonym);
         }
     }
-    card.alternate_names = names.into();
+    card.alternate_names = names
+        .into_iter()
+        .map(|name| name.parse())
+        .collect::<Result<_, _>>()?;
     let attribution = Attribution {
         source: "chembl".parse()?,
         record: Some(row.molecule_chembl_id.parse()?),
