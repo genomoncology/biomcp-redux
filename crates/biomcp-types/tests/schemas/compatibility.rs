@@ -18,6 +18,9 @@ struct Shape {
     maximum: Option<Bound>,
     closed: bool,
     markdown: bool,
+    impossible: bool,
+    map_values: bool,
+    map_keys: bool,
 }
 
 pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
@@ -35,7 +38,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
         let new = new_shapes
             .get(&path)
             .ok_or_else(|| format!("removed {path}"))?;
-        if old.markdown && !new.markdown
+        if old.impossible != new.impossible
+            || new.map_values && !old.map_values
+            || new.map_keys && !old.map_keys
+            || old.markdown && !new.markdown
             || old.pattern != new.pattern
             || new
                 .minimum
@@ -89,6 +95,10 @@ fn visit(
     shapes: &mut BTreeMap<String, Shape>,
     refs: &mut BTreeSet<String>,
 ) -> Check<()> {
+    if let Some(boolean) = node.as_bool() {
+        shapes.entry(path.into()).or_default().impossible = !boolean;
+        return Ok(());
+    }
     let object = node
         .as_object()
         .ok_or_else(|| format!("unsupported schema at {path}"))?;
@@ -125,6 +135,11 @@ fn visit(
         }
     }
     collect(node, path, shapes)?;
+    for (field, suffix) in [("additionalProperties", "{value}"), ("propertyNames", "{key}")] {
+        if let Some(child) = node.get(field).filter(|value| !value.is_boolean()) {
+            visit(root, child, &format!("{path}/{suffix}"), shapes, refs)?;
+        }
+    }
     if let Some(items) = node.get("items") {
         visit(root, items, &format!("{path}/[]"), shapes, refs)?;
     }
@@ -172,7 +187,7 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.maximum = Some(bound(node, maximum)?);
     }
     if node.get("format").is_some_and(|format| {
-        format != "uint32" && format != "uint64" && format != "double" && format != "markdown"
+        format != "uint32" && format != "uint64" && format != "int64" && format != "double" && format != "markdown"
     }) {
         return Err("unsupported format".into());
     }
@@ -210,10 +225,10 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
         shape.minimum_length = minimum.as_u64().ok_or("invalid minLength")?;
     }
     if let Some(additional) = node.get("additionalProperties") {
-        shape.closed = !additional
-            .as_bool()
-            .ok_or("unsupported additionalProperties")?;
+        shape.closed = additional == &Value::Bool(false);
+        shape.map_values = additional.is_object();
     }
+    shape.map_keys = node.get("propertyNames").is_some();
     Ok(())
 }
 
@@ -336,6 +351,7 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
             "properties",
             "required",
             "additionalProperties",
+            "propertyNames",
             "anyOf",
             "oneOf",
             "const",
@@ -407,13 +423,13 @@ fn validate_keywords(object: &serde_json::Map<String, Value>, path: &str) -> Che
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 enum Bound {
-    Integer(u64),
+    Integer(i128),
     Decimal(f64),
 }
 fn bound(node: &Value, value: &Value) -> Check<Bound> {
     if node["type"] == "integer" {
         return value
-            .as_u64()
+            .as_i64().map(i128::from).or_else(|| value.as_u64().map(i128::from))
             .map(Bound::Integer)
             .ok_or_else(|| "unsupported integer bound".into());
     }

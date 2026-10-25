@@ -120,7 +120,7 @@ fn compatibility_preserves_patterns_and_rejects_tighter_integer_bounds() {
     for unsupported in [
         json!({"minimum":-1}),
         json!({"maximum":1.5}),
-        json!({"format":"int64"}),
+        json!({"format":"int32"}),
         json!({"exclusiveMinimum":0}),
     ] {
         let mut new = old.clone();
@@ -251,4 +251,22 @@ fn compatibility_checks_unique_array_items_without_waiving_versions() {
     assert!(check(&old, &unique).is_ok());
     unique["properties"]["rows"]["uniqueItems"] = json!("true");
     assert!(check(&unique, &unique).is_err());
+}
+
+#[test]
+fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_elements() {
+    let old=json!({"$id":"biodata.example/1","type":"object","properties":{"genes":{"type":"object","propertyNames":{"type":"string","pattern":"^[A-Z]+$"},"additionalProperties":{"type":"string"}},"position":{"type":"integer","format":"int64","minimum":-1},"empty":{"type":"array","items":false}}});
+    assert!(super::compatibility::check(&old,&old).is_ok());
+    for changed in [json!({"type":"integer"}),json!({"type":"string","minLength":2})] {
+        let mut new=old.clone();new["properties"]["genes"]["additionalProperties"]=changed;
+        assert!(super::compatibility::check(&old,&new).is_err());
+    }
+    let mut changed=old.clone();changed["properties"]["position"]["minimum"]=json!(0);
+    assert!(super::compatibility::check(&old,&changed).is_err());
+    let mut changed=old.clone();changed["properties"]["genes"]["propertyNames"]["pattern"]=json!("^[A-Z]{2}$");
+    assert!(super::compatibility::check(&old,&changed).is_err());
+    let loose=json!({"$id":"biodata.example/1","type":"object","additionalProperties":true});
+    for changed in [json!({"$id":"biodata.example/1","type":"object","additionalProperties":{"type":"string"}}),json!({"$id":"biodata.example/1","type":"object","propertyNames":{"type":"string","pattern":"X"}})] {
+        assert!(super::compatibility::check(&loose,&changed).is_err());
+    }
 }
