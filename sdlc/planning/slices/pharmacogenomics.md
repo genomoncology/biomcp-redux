@@ -10,7 +10,62 @@ The reviewed drug, variant and disease designs establish source-owned identities
 
 ## 1. Questions and accepted answers
 
-Clinical question rulings are delegated to a fresh clinical reviewer. The question bank below will name each primary passage and its accepted source-level answer. A public paper supports the question and clinical scope; captured replies establish which current API answers it. A failed API cannot invalidate a published recommendation, and a publication cannot prove an API field exists.
+A fresh clinical reviewer read the passages below on 2026-10-25 and accepted these source-level answers as confirmed with high confidence for the stated versions. These are explicit investigation questions drawn from published guidance, not transcripts of patient requests. No licensed curation answers or patient details were supplied. Clinical dose text below describes source content for retrieval testing; it supplies no patient-specific instruction. Source reachability and API support remain separate measurements.
+
+| Key | Primary source, version and passage |
+| --- | --- |
+| D | [CPIC DPYD guideline PA166251462](https://www.clinpgx.org/guideline/PA166251462), [fluorouracil annotation PA166122686](https://www.clinpgx.org/guidelineAnnotation/PA166122686), PMID 29152729, DOI 10.1002/cpt.911. Read the current table and November 2018, January 2024 and July 9, 2026 updates. The July notice explicitly says its changes await incorporation into website/database tables. |
+| T | [Thiopurine update](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/cpt.70209), PMID 41618934, published 2026-01-31; [April 2026 correction](https://pmc.ncbi.nlm.nih.gov/articles/PMC13652152/), PMID 42050374. Corrected Table 1 and Tables 2–3 control the answers. Guideline PA166251442. [Allele-function study](https://pmc.ncbi.nlm.nih.gov/articles/PMC13446156/), PMID 42560154, supports current function assignments. |
+| N | [CPIC thiopurine update notice](https://blog.clinpgx.org/cpic-guideline-for/), 2026-02-06, passages on retired NUDT15 *2, current *3 suballeles and phase ambiguity. |
+| M | [Joint AMP/CPIC/CAP/DPWG genotyping consensus](https://pmc.ncbi.nlm.nih.gov/articles/PMC9808500/), TPMT *3A/*3B/*3C cis/trans discussion. |
+| C | [CPIC tamoxifen guideline](https://pmc.ncbi.nlm.nih.gov/articles/5931215/), 2018, PMID 29385237; Table 2, therapeutic recommendations, endpoint evidence and other considerations. Guideline PA166251458. Current source genotype/phenotype mapping is separate from these historical activity-score categories; [2019 translation consensus](https://ascpt.onlinelibrary.wiley.com/doi/10.1111/cts.12692), PMID 31647186, documents changed translation. |
+| I | [DPWG UGT1A1/irinotecan guideline](https://pmc.ncbi.nlm.nih.gov/articles/PMC10474017/), online 2022-11-28, PMID 36443464, DOI 10.1038/s41431-022-01243-2; Table 2, titration and comparison with RNPGx/GPCO. |
+| A | [Current ClinPGx DPYD/fluorouracil annotations](https://www.clinpgx.org/combination/PA128406956%2CPA145/clinicalAnnotation), read 2026-10-25; rs3918290 rows and positive-chromosomal-strand warning. Individual annotation identities must come from native capture. |
+| E | [PharmGKB evidence framework](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/cpt.2350), 2021; association-summary purpose, guideline/label weighting and limits on ranking. [CPIC level definitions](https://cpicpgx.org/wp-content/uploads/2021/03/FDA-vs-CPIC-march-2021-c-002.pdf), 2021, distinguish pair actionability from guideline publication. |
+
+| Case | Question | Accepted source answer | Capture coverage to inspect |
+| --- | --- | --- | --- |
+| Q01 | Which guideline covers DPYD with fluorouracil and capecitabine? | D: PA166251462; preserve both drugs and update dates. | C03, C09, C21; P01, P07. |
+| Q02 | Which identifier accompanies DPYD *2A? | D: rs3918290 and NM_000110.3:c.1905+1G>A are source-given mappings. | C16, C25; P01, P10. |
+| Q03 | What does the November 2018 update say for DPYD scores 1 and 1.5? | D: 50% starting-dose reduction with titration; the later specific HapB3 notice remains distinct. | C09; P07; source notice. |
+| Q04 | What changed for heterozygous causal c.1129-5923C>G in July 2026? | D: value 0.75, score 1.75 and 75% initial dose; database tables are explicitly not yet updated. | C09; P07; notice/table discrepancy. |
+| Q05 | Does rs56038477 establish causal rs75017182? | D: no; the January 2024 notice distinguishes proxy and causal testing. | C25; P01, P10; missing direct causal context. |
+| Q06 | Does this guideline provide actionable tegafur guidance? | D: tegafur is listed without actionable recommendations. Preserve evaluated/no-action. | C03, C09; P07. |
+| Q07 | What source phenotype accompanies TPMT *1/*3A? | T: intermediate metabolizer. | C17; P02. |
+| Q08 | What source phenotype accompanies NUDT15 *1/*3? | N: intermediate metabolizer with current nomenclature. | C18; P03. |
+| Q09 | What source phenotype accompanies NUDT15 *5/*5? | T: intermediate; *5 has decreased function. | Current mapping not reserved in C18; remains a capture gap. |
+| Q10 | What does one no-function and one decreased-function TPMT allele mean in corrected Table 1? | T: intermediate, not possible intermediate. | C10; exact function-pair mapping remains unmeasured. |
+| Q11 | What does the analogous NUDT15 function pair mean? | T: poor. Do not reuse TPMT's mapping. | C11; exact function-pair mapping remains unmeasured. |
+| Q12 | What mercaptopurine guidance applies with both genes normal? | T: standard starting dose, with protocol and toxicity adjustment. | C10, C11; P02, P03. |
+| Q13 | What applies with one intermediate and the other normal in malignancy? | T: 30–80% when standard starts at least 75 mg/m²/day; retain the lower-dose qualification. | C10, C11; complete joint keys/population. |
+| Q14 | What changes when both genes are intermediate? | T: 20–50% at that same threshold; preserve the joint context. | C10, C11; independent rows, no flattened gene result. |
+| Q15 | What thioguanine guidance applies to either poor metabolizer? | T: tenfold daily reduction and thrice-weekly frequency, with monitoring. | C10, C11; P02, P03. |
+| Q16 | Does an unavailable second gene count as normal? | T: no; preserve missingness. | C10, C11; authored partial-key negative control. |
+| Q17 | Which setting does the tamoxifen guideline address? | C: adjuvant ER-positive breast cancer; other settings are not automatically covered. | C12, C23; P04. |
+| Q18 | What does its normal-metabolizer table say? | C: 20 mg/day and avoid moderate/strong inhibitors, attributed to the 2018 source. | C12; historical/current version contrast. |
+| Q19 | What is its postmenopausal poor-metabolizer recommendation? | C: alternative endocrine therapy, such as an aromatase inhibitor. | C12; retain population/context. |
+| Q20 | What qualifies the premenopausal alternative? | C: ovarian-function suppression accompanies the aromatase inhibitor recommendation. | C12; do not discard qualifying text. |
+| Q21 | Does tamoxifen 40 mg normalize poor-metabolizer endoxifen? | C: no; levels rise but do not normalize. | C12; preserve comments and endpoint. |
+| Q22 | Can tumor CYP2D6 automatically supply the germline result? | C: no; tumor loss of heterozygosity can distort it. | No tumor-to-germline join; authored unsafe-context control. |
+| Q23 | Are all tamoxifen endpoint associations equally established? | C: no; preserve endpoint-specific strength and source scope. | C12; P04; no common evidence score. |
+| Q24 | What does DPWG say for UGT1A1 *28/*28 and irinotecan? | I: 70% initial dose, with source-qualified escalation. | C07, C13, C20; P05, P08; DPWG attribution. |
+| Q25 | What does it say for *1/*28? | I: no genotype-based reduction; no inference of zero toxicity. | C13; exact diplotype not in reserved capture. |
+| Q26 | Does its deficient-allele scope include *6, *28 and *37 combinations? | I: yes; preserve its defined phenotype grouping. | C13; P05, P08; exact group fields may be absent. |
+| Q27 | Do guidelines agree below irinotecan 180 mg/m²? | I: no; preserve DPWG versus RNPGx/GPCO attribution. | P08; no source ranking or consensus. |
+| Q28 | Which level/category accompanies current rs3918290/fluorouracil annotations? | A: Level 1A, Toxicity, Neoplasms; separate Other rows also exist. | P01, P10; exact native annotation identities. |
+| Q29 | Does Level 1A itself specify a dose? | E: no; annotation evidence and prescribing guidance are distinct. | C03 versus P01 and P07. |
+| Q30 | Does CPIC pair level A prove a CPIC guideline exists? | E: no. Attribute an irinotecan DPWG guideline to DPWG. | C07, C13; P05, P08. |
+| Q31 | Can unphased NUDT15 c.415C>T plus c.50_55dup select one diplotype? | N: no; *1/*3 and *3/*6 can differ clinically. | C18; authored phase-ambiguity control. |
+| Q32 | Can unphased TPMT c.460G>A and c.719A>G establish *1/*3A? | M: no; *3B/*3C in trans remains possible. | C17; authored phase-ambiguity control. |
+| Q33 | What do empty and unavailable results establish? | Retrieval-only controls: source-local no matches versus failure; neither supplies a normal result or dose. | C27/P09 if native zero; explicit authored failure controls. |
+
+A 38-attempt recipe samples the current tiers for these questions; it does not claim every question has a positive captured answer. In particular Q09–Q11, Q25 and complete guideline prose may need explicit future capture requests. Preserve these gaps rather than expanding the recipe. A source's five-row page may not include a question's exact recommendation. No row outside that actual page is asserted as observed.
+
+### Clinical ruling boundaries
+
+The reviewer separated logical guideline identity, source-reported allele function, source-reported diplotype/phenotype, recommendation context and patient treatment. It rejected inferred phase, calculated activity scores, proxy-to-causal substitution, complementing annotation alleles and treating a missing second gene as normal. It also rejected collapsing CPIC pair levels, ClinPGx evidence levels, recommendation strength and PharmVar definition confidence into one scale. Identity, phase, dose, scope and stale-version errors carry high severity; evidence-namespace errors carry medium severity. New dated guidance or actual current table captures can change version-specific answers.
+
+The July 2026 DPYD notice and the April 2026 thiopurine correction are explicit discrepancy tests. A source API can faithfully return a stale table. The product preserves that source/version limitation; it does not calculate an updated answer from a notice. Supporting website notices as an executable section requires its own captured, structured source contract. Until then retain the source link and explicit design gap. Do not claim complete current clinical guidance from an API table alone.
 
 ## 2. Source findings
 
@@ -81,7 +136,7 @@ ClinPGx base is exactly `https://api.clinpgx.org/v1/`. Requests send `Accept: ap
 
 Record each physical attempt in an append-only ledger with row ID, exact URL and method, safe headers, UTC start/end, elapsed milliseconds, response status/content type, source response request ID if present, byte length, SHA-256, retrieval date, redirects refused, complete/truncated/read-failed state, parse outcome, top-level count, collection totals and continuation fields. Record native identity paths, absent/null/empty distinctions, nested row multiplicities and all scopes. Never invent a request ID, hash, count or date. Do not store secrets in the ledger. The recorder must begin in an empty directory and capture actual requests, not reconstruct identities later.
 
-The delegate reports raw compact JSON bytes and a consistently labeled approximate token count, separate from hypothetical 1.0 bytes. Do not compare complete upstream rows to compact command output as a product regression. No 1.0 PGx command exists at the starting revision, so its output, request cost and cold/warm timings remain unmeasured. Documentation/policy retrieval is a separate bounded allowance to be set by the coordinator; preserve the exact policy text or script asset and distinguish website/footer evidence from API data rights.
+The delegate reports raw compact JSON bytes and a consistently labeled approximate token count, separate from hypothetical 1.0 bytes. Do not compare complete upstream rows to compact command output as a product regression. No 1.0 PGx command exists at the starting revision, so its output, request cost and cold/warm timings remain unmeasured. Documentation/policy retrieval has a separate fixed six-request proposal: M01 `https://www.clinpgx.org/page/dataUsagePolicy`, M02 `https://www.clinpgx.org/gene/PA142672008`, M03 `https://api.clinpgx.org/`, M04 `https://api.clinpgx.org/swagger/`, M05 `https://api.cpicpgx.org/`, M06 `https://api.cpicpgx.org/v1/`. Bound M01–M05 at 1 MiB and M06 at 4 MiB. Use the same deadline and admission spacing; no redirects, retries, credentials, script-link crawling or inferred specification paths. A shell or failure stays a limitation. Preserve exact text/bytes and distinguish website/footer evidence from API data rights.
 
 ## 3. What would delight the agent
 
@@ -188,7 +243,7 @@ Shared transport/configuration options remain shared. Keys, disabled-source grou
 
 ## Sources kept and deferred
 
-Keep CPIC as the source candidate for pair/guideline/recommendation and source-reported diplotype/frequency records. Keep PharmGKB through the current ClinPGx API as the annotation candidate, with independent kinds and current terms. Neither is accepted as a complete public implementation until its exact captures prove fields and identities. Do not add PharmCAT allele calling, PharmVar downloads, DPWG scraping, a sequence interpreter or a patient genotype calculator. A ClinPGx annotation may link another guideline, which remains a source link without a silently added adapter. Defer a frequency page if no harvested question needs it after clinical review. Drop neither source merely because it is keyed or noncommercial; use the existing key and disable rules.
+Keep CPIC as the source candidate for pair/guideline/recommendation and source-reported diplotype/frequency records. Keep PharmGKB through the current ClinPGx API as the annotation candidate, with independent kinds and current terms. Neither is accepted as a complete public implementation until its exact captures prove fields and identities. Do not add PharmCAT allele calling, PharmVar downloads, DPWG scraping, a sequence interpreter or a patient genotype calculator. A ClinPGx annotation may link another guideline, which remains a source link without a silently added adapter. The reviewed 33-question bank names no population-frequency question, so defer a product frequency section. C24 still examines the legacy field contract for explicit accounting; the command table records an optional proposal, not a recommendation to build it. Drop neither source merely because it is keyed or noncommercial; use the existing key and disable rules.
 
 ## Ian's questions
 
