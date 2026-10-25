@@ -173,9 +173,9 @@ pub(crate) fn tree() -> String {
     let mut lines = vec!["Run BioMCP commands. Queries return one card or page; use help COMMAND for options and examples.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
-        // Detailed options belong to help COMMAND; retain the gene facets
-        // required for discovering checked gene searches.
-        if command.command == ["search", "gene"] {
+        // Detailed options belong to help COMMAND; retain search facets
+        // required for discovering checked gene and disease searches.
+        if command.command == ["search", "gene"] || command.command == ["search", "disease"] {
             for argument in command.arguments {
                 line.push_str(&format!(" [{}]", argument.name));
             }

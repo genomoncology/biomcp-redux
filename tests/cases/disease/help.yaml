@@ -1,6 +1,7 @@
 {
   "feature": "disease-ols",
-  "story": "Discover one explicit ontology and read exact source concepts through CLI and MCP.",
+  "live_check": "Local generated help; no provider requests.",
+  "story": "Disease help exposes exact source selectors, independent sections and two executable examples per command.",
   "steps": [
     {
       "run": [
@@ -15,8 +16,73 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/commands/0/command": ["search", "disease"]
-      }
+        "/result/commands/0/command": [
+          "search",
+          "disease"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": [
+          "--limit",
+          "--offset",
+          "--ontology",
+          "--source",
+          "text"
+        ],
+        "/result/commands/0/arguments/2/choices": [
+          "mondo",
+          "doid",
+          "ncit"
+        ]
+      },
+      "max_bytes": 10000
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "disease"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "disease"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "get",
+          "disease"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/sections/*/word": [
+          "synonyms",
+          "xrefs",
+          "hierarchy",
+          "genes",
+          "phenotypes",
+          "incidence",
+          "survival"
+        ],
+        "/result/commands/0/arguments/*/name": [
+          "--age-range",
+          "--dataset",
+          "id",
+          "--interval",
+          "--ontology",
+          "--period",
+          "--race",
+          "section",
+          "--section-limit",
+          "--section-offset",
+          "--sex",
+          "--source"
+        ]
+      },
+      "max_bytes": 10000
     }
   ]
 }
