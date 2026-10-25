@@ -13,16 +13,17 @@ pub(super) fn candidates(
         if let DiagnosticCandidate::Resolved { header, .. } = row
             && let Ok(mut get) = serde_json::from_value::<DiagnosticGet>(
                 serde_json::json!({"id":header.id,"source":"gtr"}),
-            ) {
-                if let Some(revision) = query.bundle_revision() {
-                    get = get.with_bundle_revision(revision.clone());
-                }
-                push(
-                    out,
-                    StepKind::Disambiguate,
-                    Request::GetDiagnostic(get),
-                    fresh,
-                );
+            )
+        {
+            if let Some(revision) = query.bundle_revision() {
+                get = get.with_bundle_revision(revision.clone());
+            }
+            push(
+                out,
+                StepKind::Disambiguate,
+                Request::GetDiagnostic(get),
+                fresh,
+            );
         }
     }
 }

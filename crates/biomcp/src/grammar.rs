@@ -1,10 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 
 use biomcp_query::{Action, Bundle};
-use biomcp_types::{
-    ArticleEdges, ArticleGet, ArticleSearch, ArticleText, GeneGet, GeneSearch, Request,
-    VariantAssertionsGet, VariantPopulationQuery, VariantRecurrenceQuery,
-};
+use biomcp_types::Request;
 use clap::{Arg, ArgAction, Command};
 use serde_json::{Map, Value};
 use std::{ffi::OsString, path::PathBuf};
@@ -486,85 +483,37 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticSearch>(value)
-            .map(Request::SearchDiagnostic)
-            .map_err(|_| ()),
-        ("get", "diagnostic") => serde_json::from_value::<biomcp_types::DiagnosticGet>(value)
-            .map(Request::GetDiagnostic)
-            .map_err(|_| ()),
-        ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
-            .map(Request::SearchDisease)
-            .map_err(|_| ()),
-        ("get", "disease") => serde_json::from_value::<biomcp_types::DiseaseGet>(value)
-            .map(Request::GetDisease)
-            .map_err(|_| ()),
-        ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
-            .map(Request::VariantAssertions)
-            .map_err(|_| ()),
-        ("variant", "population") => serde_json::from_value::<VariantPopulationQuery>(value)
-            .map(Request::VariantPopulation)
-            .map_err(|_| ()),
-        ("variant", "normalize") => serde_json::from_value::<biomcp_types::VariantNormalize>(value)
-            .map(Request::VariantNormalize)
-            .map_err(|_| ()),
-        ("search", "variant") => serde_json::from_value::<biomcp_types::VariantSearch>(value)
-            .map(Request::SearchVariant)
-            .map_err(|_| ()),
-        ("variant", "recurrence") => serde_json::from_value::<VariantRecurrenceQuery>(value)
-            .map(Request::VariantRecurrence)
-            .map_err(|_| ()),
-        ("get", "variant") => serde_json::from_value::<biomcp_types::VariantGet>(value)
-            .map(Request::GetVariant)
-            .map_err(|_| ()),
-        ("get", "trial") => serde_json::from_value::<biomcp_types::TrialGet>(value)
-            .map(Request::GetTrial)
-            .map_err(|_| ()),
-        ("search", "trial") => serde_json::from_value::<biomcp_types::TrialSearch>(value)
-            .map(Request::SearchTrial)
-            .map_err(|_| ()),
-        ("trial", "document") => serde_json::from_value::<biomcp_types::TrialDocumentGet>(value)
-            .map(Request::TrialDocument)
-            .map_err(|_| ()),
-        ("article", "pdf") => serde_json::from_value::<biomcp_types::ArticlePdf>(value)
-            .map(Request::ArticlePdf)
-            .map_err(|_| ()),
+        ("search", "diagnostic") => checked(value, Request::SearchDiagnostic),
+        ("get", "diagnostic") => checked(value, Request::GetDiagnostic),
+        ("search", "disease") => checked(value, Request::SearchDisease),
+        ("get", "disease") => checked(value, Request::GetDisease),
+        ("variant", "assertions") => checked(value, Request::VariantAssertions),
+        ("variant", "population") => checked(value, Request::VariantPopulation),
+        ("variant", "normalize") => checked(value, Request::VariantNormalize),
+        ("search", "variant") => checked(value, Request::SearchVariant),
+        ("variant", "recurrence") => checked(value, Request::VariantRecurrence),
+        ("get", "variant") => checked(value, Request::GetVariant),
+        ("get", "trial") => checked(value, Request::GetTrial),
+        ("search", "trial") => checked(value, Request::SearchTrial),
+        ("trial", "document") => checked(value, Request::TrialDocument),
+        ("article", "pdf") => checked(value, Request::ArticlePdf),
         ("article", "citation-evidence") => {
-            serde_json::from_value::<biomcp_types::ArticleEvidence>(value)
-                .map(Request::ArticleEvidence)
-                .map_err(|_| ())
+            checked(value, Request::ArticleEvidence)
         }
         ("article", "recommendations") => {
-            serde_json::from_value::<biomcp_types::ArticleRecommend>(value)
-                .map(Request::ArticleRecommend)
-                .map_err(|_| ())
+            checked(value, Request::ArticleRecommend)
         }
         ("article", "supplement") => {
-            serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
-                .map(Request::ArticleSupplement)
-                .map_err(|_| ())
+            checked(value, Request::ArticleSupplement)
         }
-        ("article", "text") => serde_json::from_value::<ArticleText>(value)
-            .map(Request::ArticleText)
-            .map_err(|_| ()),
-        ("article", "citations") => serde_json::from_value::<ArticleEdges>(value)
-            .map(Request::ArticleCitations)
-            .map_err(|_| ()),
-        ("article", "references") => serde_json::from_value::<ArticleEdges>(value)
-            .map(Request::ArticleReferences)
-            .map_err(|_| ()),
-        ("get", "article") => serde_json::from_value::<ArticleGet>(value)
-            .map(Request::GetArticle)
-            .map_err(|_| ()),
-        ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
-            .map(Request::SearchArticle)
-            .map_err(|_| ()),
+        ("article", "text") => checked(value, Request::ArticleText),
+        ("article", "citations") => checked(value, Request::ArticleCitations),
+        ("article", "references") => checked(value, Request::ArticleReferences),
+        ("get", "article") => checked(value, Request::GetArticle),
+        ("search", "article") => checked(value, Request::SearchArticle),
         ("search" | "get", "drug") => drug_request(verb, value),
-        ("get", "gene") => serde_json::from_value::<GeneGet>(value)
-            .map(Request::GetGene)
-            .map_err(|_| ()),
-        ("search", "gene") => serde_json::from_value::<GeneSearch>(value)
-            .map(Request::SearchGene)
-            .map_err(|_| ()),
+        ("get", "gene") => checked(value, Request::GetGene),
+        ("search", "gene") => checked(value, Request::SearchGene),
         _ => Err(()),
     }
 }
@@ -597,12 +546,12 @@ fn property_type(property: &Value) -> Option<&str> {
 
 fn drug_request(verb: &str, value: Value) -> Result<Request, ()> {
     if verb == "search" {
-        serde_json::from_value::<biomcp_types::DrugSearch>(value)
-            .map(Request::SearchDrug)
-            .map_err(|_| ())
+        checked(value, Request::SearchDrug)
     } else {
-        serde_json::from_value::<biomcp_types::DrugGet>(value)
-            .map(Request::GetDrug)
-            .map_err(|_| ())
+        checked(value, Request::GetDrug)
     }
+}
+
+fn checked<T: serde::de::DeserializeOwned>(value: Value, request: fn(T) -> Request) -> Result<Request, ()> {
+    serde_json::from_value(value).map(request).map_err(|_| ())
 }

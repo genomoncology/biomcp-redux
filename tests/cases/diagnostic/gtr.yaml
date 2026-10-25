@@ -259,6 +259,25 @@
         "/page/total": 0,
         "/result/items": []
       }
+    },
+    {
+      "run": [
+        "sync",
+        "gtr",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "gtr",
+        "--fresh"
+      ],
+      "max_bytes": 14000,
+      "max_tokens": 3500,
+      "expect": {
+        "/schema": "biomcp.sync/3",
+        "/result/rows": 19,
+        "/result/duplicate_identities": 1
+      }
     }
   ]
 }

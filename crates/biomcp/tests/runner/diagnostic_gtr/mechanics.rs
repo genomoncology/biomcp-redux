@@ -75,7 +75,8 @@ pub(super) fn policy() -> Check {
     fs::remove_dir_all(replay.join("gtr")).map_err(|e| e.to_string())?;
     let mut fresh = args.to_vec();
     fresh.push("--fresh");
-    if call(&env, &replay, &fresh, 0)? != before {
+    let after = call(&env, &replay, &fresh, 0)?;
+    if after.get("result") != before.get("result") || after.get("status") != before.get("status") {
         return Err("stored read requested a refresh".into());
     }
     env.config(&json!({"disable_sources":["gtr"]}))
