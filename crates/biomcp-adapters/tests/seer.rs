@@ -3,7 +3,7 @@ use biomcp_adapters::seer::{self, Selection, Statistic};
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use std::time::Duration;
 
-fn fetch() -> Fetch {
+fn fetch() -> Result<Fetch, biomcp_fetch::FetchError> {
     Fetch::open(FetchConfig {
         mode: Mode::Replay {
             dir: std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -11,10 +11,9 @@ fn fetch() -> Fetch {
         },
         ..Default::default()
     })
-    .unwrap()
 }
-fn replay_and_offline() -> (Fetch, Fetch) {
-    let cache = biomcp_fetch::ReplayCache::temporary().unwrap();
+fn replay_and_offline() -> Result<(Fetch, Fetch), Box<dyn std::error::Error>> {
+    let cache = biomcp_fetch::ReplayCache::temporary()?;
     let replay = Fetch::open(FetchConfig {
         mode: Mode::Replay {
             dir: std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -22,53 +21,39 @@ fn replay_and_offline() -> (Fetch, Fetch) {
         },
         replay_cache: Some(cache.clone()),
         ..Default::default()
-    })
-    .unwrap();
+    })?;
     let offline = Fetch::open(FetchConfig {
         mode: Mode::Offline,
         replay_cache: Some(cache),
         ..Default::default()
-    })
-    .unwrap();
-    (replay, offline)
+    })?;
+    Ok((replay, offline))
 }
-
-fn changed(change: impl FnOnce(&mut serde_json::Value)) -> (Fetch, tempfile::TempDir) {
-    let directory = tempfile::tempdir().unwrap();
-    let target = directory.path().join("seer");
-    std::fs::create_dir(&target).unwrap();
-    let name = "6034e658f1d299da7d80b7b51bc8f9751bd9ce674eaa5b4f328a617e4c81c671.json";
-    let source = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tests/replies/disease/seer-synthetic/seer")
-        .join(name);
-    let mut reply: serde_json::Value =
-        serde_json::from_slice(&std::fs::read(source).unwrap()).unwrap();
-    change(&mut reply["exchanges"][0]["body"]["value"]);
-    std::fs::write(target.join(name), serde_json::to_vec(&reply).unwrap()).unwrap();
-    let fetch = Fetch::open(FetchConfig {
+fn changed(kind: &str) -> Result<Fetch, biomcp_fetch::FetchError> {
+    Fetch::open(FetchConfig {
         mode: Mode::Replay {
-            dir: directory.path().into(),
+            dir: std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../../tests/replies/disease/seer-synthetic")
+                .join(kind),
         },
         ..Default::default()
     })
-    .unwrap();
-    (fetch, directory)
 }
 
-fn selected(statistic: Statistic) -> Selection {
-    Selection {
-        site: "55".parse().unwrap(),
-        sex: "3".parse().unwrap(),
-        race: "1".parse().unwrap(),
-        age_range: "1".parse().unwrap(),
-        dataset: "4".parse().unwrap(),
+fn selected(statistic: Statistic) -> Result<Selection, biodata::Error> {
+    Ok(Selection {
+        site: "55".parse()?,
+        sex: "3".parse()?,
+        race: "1".parse()?,
+        age_range: "1".parse()?,
+        dataset: "4".parse()?,
         statistic,
-    }
+    })
 }
 
 #[test]
 fn catalog_pages_preserve_native_order_labels_and_active_state() {
-    let (fetch, offline) = replay_and_offline();
+    let (fetch, offline) = replay_and_offline().unwrap();
     let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
     let first = seer::catalog(&leg, 1, 0).unwrap();
     assert_eq!(first.total, 2);
@@ -82,11 +67,12 @@ fn catalog_pages_preserve_native_order_labels_and_active_state() {
 
 #[test]
 fn annual_pages_keep_model_only_values_and_original_fetch_metadata() {
-    let fetch = fetch();
+    let fetch = fetch().unwrap();
     let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
     let query = selected(Statistic::Survival {
         interval: "5".parse().unwrap(),
-    });
+    })
+    .unwrap();
     let page = seer::statistics(&leg, &query, 1, 1).unwrap();
     assert_eq!(page.total, 2);
     assert_eq!(page.rows[0].year, Some(2022));
@@ -110,35 +96,12 @@ fn annual_pages_keep_model_only_values_and_original_fetch_metadata() {
 #[test]
 fn malformed_wrapper_field_order_and_numbers_fail_the_source() {
     for kind in ["object", "double", "broken", "order", "number", "year"] {
-        let (fetch, _directory) = changed(|value| {
-            let text = value.as_str().unwrap().to_owned();
-            let mut document: serde_json::Value = serde_json::from_str(&text).unwrap();
-            match kind {
-                "object" => {
-                    *value = document;
-                    return;
-                }
-                "double" => {
-                    *value = serde_json::to_string(&text).unwrap().into();
-                    return;
-                }
-                "broken" => {
-                    *value = "{".into();
-                    return;
-                }
-                "order" => document["info"]["data-fields"][0] = "wrong".into(),
-                "number" => document["data"]["5_3_1_1_55"]["data_series"][0][1] = "NaN".into(),
-                "year" => {
-                    document["data"]["5_3_1_1_55"]["data_series"][0][0] = serde_json::Value::Null
-                }
-                _ => unreachable!(),
-            }
-            *value = serde_json::to_string(&document).unwrap().into();
-        });
+        let fetch = changed(kind).unwrap();
         let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
         let query = selected(Statistic::Survival {
             interval: "5".parse().unwrap(),
-        });
+        })
+        .unwrap();
         assert!(
             matches!(seer::statistics(&leg, &query, 5, 0),
             Err(biomcp_fetch::RequestError::Source(e)) if e.source == biomcp_types::Source::Seer && e.reason == biomcp_types::Reason::BadReply),
@@ -149,16 +112,12 @@ fn malformed_wrapper_field_order_and_numbers_fail_the_source() {
 
 #[test]
 fn contradictory_returned_period_is_retained_as_a_problem() {
-    let (fetch, _directory) = changed(|value| {
-        let mut document: serde_json::Value =
-            serde_json::from_str(value.as_str().unwrap()).unwrap();
-        document["data"]["5_3_1_1_55"]["year_range"] = 9.into();
-        *value = serde_json::to_string(&document).unwrap().into();
-    });
+    let fetch = changed("mismatch").unwrap();
     let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
     let query = selected(Statistic::Survival {
         interval: "5".parse().unwrap(),
-    });
+    })
+    .unwrap();
     let page = seer::statistics(&leg, &query, 5, 0).unwrap();
     assert_eq!(
         page.rows[0]
@@ -183,7 +142,7 @@ fn contradictory_returned_period_is_retained_as_a_problem() {
 
 #[test]
 fn incidence_preserves_stage_order_and_native_counts_without_aggregating() {
-    let (fetch, offline) = replay_and_offline();
+    let (fetch, offline) = replay_and_offline().unwrap();
     let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
     let query = Selection {
         site: "47".parse().unwrap(),

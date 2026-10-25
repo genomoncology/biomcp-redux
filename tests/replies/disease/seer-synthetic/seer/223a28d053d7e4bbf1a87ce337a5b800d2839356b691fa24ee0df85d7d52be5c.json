@@ -15,7 +15,11 @@
             "site": {
               "55": "Example site",
               "47": "Other example"
-            }
+            },
+            "survival_interval": [
+              "Diagnosis",
+              "1 year"
+            ]
           },
           "CancerSites": [
             {

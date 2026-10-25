@@ -68,7 +68,7 @@ const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(
 pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSite>, RequestError> {
     let (raw, metadata) = leg.json_received::<raw::Catalog>(&CATALOG, &[])?;
     let total = raw.sites.len() as u64;
-    let labels = raw.formats.get("site");
+    let labels = &raw.formats.site;
     let rows = raw
         .sites
         .into_iter()
@@ -77,7 +77,7 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         .filter_map(|site| {
             let code = site.value.to_string().parse().ok()?;
             Some(DiseaseSite {
-                label: labels?.get(&site.value.to_string())?.clone(),
+                label: labels.get(&site.value.to_string())?.clone(),
                 code,
                 active: site.active,
             })

@@ -9,9 +9,13 @@ use std::{collections::BTreeMap, fmt};
 #[derive(Debug, Deserialize)]
 pub(super) struct Catalog {
     #[serde(rename = "VariableFormats")]
-    pub formats: BTreeMap<String, BTreeMap<String, Text>>,
+    pub formats: Formats,
     #[serde(rename = "CancerSites")]
     pub sites: Vec<Site>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct Formats {
+    pub site: BTreeMap<String, Text>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Site {
@@ -20,7 +24,7 @@ pub(super) struct Site {
 }
 impl Reply for Catalog {
     fn check(&self) -> Result<(), BadReply> {
-        let labels = self.formats.get("site").ok_or(BadReply)?;
+        let labels = &self.formats.site;
         if self
             .sites
             .iter()
