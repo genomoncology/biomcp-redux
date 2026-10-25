@@ -209,12 +209,12 @@ fn table_rows(table: &Node) -> Result<(Vec<VaersRow>, VaersRow), BadReply> {
         .collect::<Result<Vec<_>, _>>()?;
     let footer = rows.pop().ok_or(BadReply)?;
     if footer.label.get("c").is_none_or(|v| v.as_ref() != "1")
-        || footer.reports.get("dt").is_none()
-        || footer.percent.get("dt").is_none()
+        || !footer.reports.contains_key("dt")
+        || !footer.percent.contains_key("dt")
         || rows.iter().any(|r| {
-            r.label.get("l").is_none()
-                || r.reports.get("v").is_none()
-                || r.percent.get("v").is_none()
+            !r.label.contains_key("l")
+                || !r.reports.contains_key("v")
+                || !r.percent.contains_key("v")
         })
     {
         return Err(BadReply);
