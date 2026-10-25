@@ -89,6 +89,17 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
         return Err(format!("CLI/MCP differ: {cli} {mcp}"));
     }
     super::schema::Registry::embedded()?.validate(&cli, &args, true)?;
+    let full = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(&cli, "")?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "FAERS_GET_SIZE query={} schema={} status={} full={full} comparable={comparable}",
+        cli.get("query").unwrap_or(&Value::Null),
+        cli.get("schema").unwrap_or(&Value::Null),
+        cli.get("status").unwrap_or(&Value::Null)
+    )
+    .map_err(|e| e.to_string())?;
     Ok(cli)
 }
 fn sections() -> Check {
