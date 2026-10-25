@@ -76,6 +76,17 @@
           },
           "type": "array"
         },
+        "reaction_match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AdverseEventReactionMatch"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit analyzed reaction selector semantics when a reaction was supplied."
+        },
         "source_query": {
           "description": "Exact literal provider expression; reaction selectors use phrase match.",
           "type": "string"
@@ -104,13 +115,20 @@
       ],
       "type": "object"
     },
+    "AdverseEventReactionMatch": {
+      "description": "Source reaction selector matching semantics.",
+      "enum": [
+        "phrase_match"
+      ],
+      "type": "string"
+    },
     "AdverseEventSearch": {
       "additionalProperties": false,
-      "description": "Checked literal report search with source-specific filters.",
+      "description": "Search five report headers by default with native totals in reports. Literal mentions do not establish incidence, risk or causation; reaction selectors use phrase match.",
       "properties": {
         "limit": {
           "default": 5,
-          "description": "Native reports per page; default awaits adapter budget measurement.",
+          "description": "Native report headers per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,

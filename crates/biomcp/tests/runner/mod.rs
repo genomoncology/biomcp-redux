@@ -552,3 +552,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_seer::trials())
         .collect()
 }
+
+pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
+    faers_search::record_examples(directory)
+}

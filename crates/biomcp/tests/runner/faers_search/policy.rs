@@ -17,7 +17,7 @@ fn admission() -> Check {
     let record = env.root().join("recording");
     let mut recorded = vec!["--record".into(), record.to_string_lossy().into()];
     recorded.extend(args());
-    both(&env, recorded, 0)?;
+    super::invoke(&env, recorded, 0)?;
     for switch in ["meddra", "restricted"] {
         let mut allowed = vec!["--disable-sources".into(), switch.into()];
         allowed.extend(args());
@@ -52,7 +52,7 @@ fn admission() -> Check {
     let mut recorded = vec!["--record".into(), record.to_string_lossy().into()];
     recorded.extend(args());
     recorded.extend(["--reaction".into(), "Synthetic term".into()]);
-    both(&env, recorded, 0)?;
+    super::invoke(&env, recorded, 0)?;
     for switch in ["meddra", "restricted", "faers"] {
         for replay in [false, true] {
             let mut blocked = vec!["--disable-sources".into(), switch.into()];

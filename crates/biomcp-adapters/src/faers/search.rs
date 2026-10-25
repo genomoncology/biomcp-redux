@@ -60,7 +60,14 @@ pub fn search(
     if query.reaction().is_some() {
         crate::adverse_event_sources::components::meddra(leg)?;
     }
-    let components = if query.reaction().is_some() { crate::adverse_event_sources::components::labels(biomcp_types::Source::Faers, biomcp_types::Source::Meddra)? } else { Box::default() };
+    let components = if query.reaction().is_some() {
+        crate::adverse_event_sources::components::labels(
+            biomcp_types::Source::Faers,
+            biomcp_types::Source::Meddra,
+        )?
+    } else {
+        Box::default()
+    };
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
     let (response, metadata) = leg.json_received_checked::<raw::Response>(
         &endpoint,

@@ -61,11 +61,24 @@ fn admit(leg: &Leg<'_>, component: Source, owner: Source) -> Result<(), RequestE
     }
 }
 /// Label one carried terminology using the same canonical declaration as admission.
-pub fn labels(owner: Source, component: Source) -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
-    let declaration = COMPONENTS.iter().find(|v| v.source == owner && v.native_source == Some(component)).ok_or(biomcp_fetch::InputError::Serialization)?;
-    let text = |value: &str| biodata::Text::new(value).map_err(|_| biomcp_fetch::InputError::Serialization);
+pub fn labels(
+    owner: Source,
+    component: Source,
+) -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
+    let declaration = COMPONENTS
+        .iter()
+        .find(|v| v.source == owner && v.native_source == Some(component))
+        .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let text = |value: &str| {
+        biodata::Text::new(value).map_err(|_| biomcp_fetch::InputError::Serialization)
+    };
     Ok(vec![biomcp_types::ComponentLabel {
         component: text(declaration.name)?,
-        terms: biomcp_types::ComponentTerms { usage:declaration.terms.usage,name:text(declaration.terms.name)?,url:text(declaration.terms.url)? },
-    }].into())
+        terms: biomcp_types::ComponentTerms {
+            usage: declaration.terms.usage,
+            name: text(declaration.terms.name)?,
+            url: text(declaration.terms.url)?,
+        },
+    }]
+    .into())
 }

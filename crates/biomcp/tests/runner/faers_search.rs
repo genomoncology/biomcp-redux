@@ -4,6 +4,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod policy;
+mod examples;
+pub(super) fn record_examples(directory: &std::path::Path) -> Check { examples::record(directory) }
 pub(super) fn trials() -> Vec<Trial> {
     let mut cases = vec![Trial::test(
         "adverse-event-search/native-order-and-next",
@@ -181,7 +183,7 @@ fn navigation() -> Check {
         .map_err(|e| e.to_string())?;
     let text = String::from_utf8(md.stdout).map_err(|e| e.to_string())?;
     if !md.status.success()
-        || !text.contains("Source query")
+        || !text.contains("**source\\_query:**")
         || !text.contains("2024-09-01")
         || !text.contains("biomcp get adverse-event 100")
     {

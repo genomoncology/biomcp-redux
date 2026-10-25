@@ -16,7 +16,9 @@ pub fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     let mut out = Outcome {
         status: Status::Failed,
         body: QueryBody::AdverseEventPage(AdverseEventPage {
-            reaction_match: query.reaction().map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
+            reaction_match: query
+                .reaction()
+                .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
             source_query: selector.into_boxed_str(),
             source_updated: None,
             fetched: None,

@@ -226,7 +226,9 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
-        Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => adverse_event::encode(meta, request, body),
+        Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_) => {
+            adverse_event::encode(meta, request, body)
+        }
         Request::SearchDisease(_) | Request::GetDisease(_) => disease::encode(meta, request, body),
         Request::SearchDrug(_) | Request::GetDrug(_) => drug::encode(meta, request, body),
         _ => response_common(meta, request, body),

@@ -535,7 +535,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Native reports per page; default awaits adapter budget measurement.",
+          "description": "Native report headers per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
