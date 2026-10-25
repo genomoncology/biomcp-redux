@@ -1,0 +1,25 @@
+{
+  "$id": "biomcp.drug-section/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Explicit drug disclosures; identity cards never expand into these sections.",
+  "enum": [
+    "targets",
+    "indications",
+    "civic",
+    "label",
+    "approvals",
+    "regulatory",
+    "interactions"
+  ],
+  "title": "DrugSection",
+  "type": "string",
+  "x-enum-descriptions": [
+    " Native target and mechanism relations.",
+    " Native indication wording.",
+    " Native CIViC therapy evidence and profile context.",
+    " One exact native label heading.",
+    " Native application and product history rows.",
+    " Source-scoped regulator events.",
+    " Native DDInter partner rows and levels."
+  ]
+}

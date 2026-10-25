@@ -1,0 +1,16 @@
+{
+  "$id": "biomcp.drug-source/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "enum": [
+    "mychem",
+    "chembl",
+    "opentargets",
+    "civic",
+    "openfda-label",
+    "drugsfda",
+    "ema",
+    "ddinter"
+  ],
+  "title": "DrugSource",
+  "type": "string"
+}

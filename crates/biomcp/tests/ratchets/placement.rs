@@ -12,6 +12,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-types/tests/drug_contracts.rs",
+        "Exercise published drug identifier, neutral record and consumer schema contracts through the public library API before adapters exist.",
+    ),
+    (
         "crates/biomcp-types/tests/core.rs",
         "Exercise checked values and schema contracts through the public library API.",
     ),

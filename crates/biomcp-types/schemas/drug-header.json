@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "DrugId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "type": "string"
+    },
+    "DrugIdentityLevel": {
+      "description": "Identity level established by the source endpoint or record type, never inferred from ID shape.",
+      "enum": [
+        "ingredient",
+        "salt",
+        "clinical_formulation",
+        "branded_product",
+        "spl_set",
+        "spl_version",
+        "ndc_package",
+        "fda_application",
+        "fda_product",
+        "ema_authorization",
+        "ema_application",
+        "orphan_designation",
+        "unknown"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Source-stated ingredient identity.",
+        " Source-stated salt identity.",
+        " Source-stated clinical formulation identity.",
+        " Source-stated branded product identity.",
+        " Source-stated spl set identity.",
+        " Source-stated spl version identity.",
+        " Source-stated ndc package identity.",
+        " Source-stated fda application identity.",
+        " Source-stated fda product identity.",
+        " Source-stated ema authorization identity.",
+        " Source-stated ema application identity.",
+        " Source-stated orphan designation identity.",
+        " Source-stated unknown identity."
+      ]
+    },
+    "DrugSource": {
+      "enum": [
+        "mychem",
+        "chembl",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.drug-header/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One source candidate, without authorization, targets, label text or interactions.",
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/DrugId",
+      "description": "Published native identifier."
+    },
+    "identity_level": {
+      "$ref": "#/$defs/DrugIdentityLevel",
+      "description": "Level established only by the endpoint or record type."
+    },
+    "name": {
+      "$ref": "#/$defs/Text",
+      "description": "Original source display name."
+    },
+    "source": {
+      "$ref": "#/$defs/DrugSource",
+      "description": "The single source responsible for this header."
+    },
+    "type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native record type."
+    },
+    "url": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source record URL."
+    }
+  },
+  "required": [
+    "id",
+    "source",
+    "name",
+    "identity_level"
+  ],
+  "title": "DrugHeader",
+  "type": "object"
+}

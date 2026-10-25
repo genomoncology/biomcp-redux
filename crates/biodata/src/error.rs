@@ -2,6 +2,10 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// A published native drug identifier was invalid.
+    DrugIdInvalid,
+    /// The source identity level is outside the closed vocabulary.
+    DrugIdentityLevelUnknown,
     /// A shared numeric value violates its bounds.
     PopulationCountExceedsNumber,
     /// A shared numeric value violates its bounds.
@@ -147,6 +151,8 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::DrugIdInvalid => "drug.id.invalid",
+            Self::DrugIdentityLevelUnknown => "drug.identity_level.unknown",
             Self::PopulationCountExceedsNumber => "population.count.exceeds_number",
             Self::PopulationFrequencyRange => "population.frequency.range",
             Self::NumberNonFinite => "number.value.non_finite",
