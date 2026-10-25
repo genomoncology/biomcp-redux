@@ -1,6 +1,7 @@
 # 0182 — Search VAERS report summaries for MMR, COVID-19 and influenza through CDC WONDER
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 46fbe099fdc48297eeadc843e6036d62f3b0026f
 
 Milestone: 3
 

@@ -1,6 +1,7 @@
 # 0185 — Search WHO prequalified diagnostics by marker and manufacturer
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 16fc1324f15e26338295bb1e0cab804f913c9db9
 
 Milestone: 4
 
