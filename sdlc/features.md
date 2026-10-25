@@ -107,3 +107,5 @@ clinpgx-annotations: Read independent bounded ClinPGx annotation collections and
 diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without implicit synchronization or inferred authorization. Cases: `crates/biomcp/tests/runner/diagnostic_who.rs`, `crates/biomcp/tests/runner/diagnostic_who/mechanics.rs`, `tests/cases/diagnostic/who.yaml`, `tests/cases/diagnostic/who-help.yaml`.
 
 diagnostic-pma: Read an exact native FDA base or supplement and page its own regulatory statement and supplement headers. Cases: `tests/cases/diagnostic/pma.yaml`, `tests/cases/diagnostic/pma-failures.yaml`, `crates/biomcp/tests/runner/diagnostic_pma.rs`, `crates/biomcp/tests/runner/diagnostic_pma/walks.rs`, `crates/biomcp/tests/runner/diagnostic_pma/metadata.rs`.
+
+pgx-retirements: Refuse retired PGx spellings and unsupported source pairings before requests without rewriting queries or inferring phase. Cases: `crates/biomcp/tests/runner/pgx_retirements.rs`.
