@@ -2,7 +2,7 @@
 
 BioMCP 1.0 grows one entity at a time. A slice takes one entity with its sources from investigation to landed commands. Simpler entities come first and complex ones build on them. Tickets come out of each slice, never from a list made up front, as `decisions/2026-10-23-slices-not-preplanned-tickets.md` says.
 
-BioMCP 0.9 is not the spec. A slice looks critically at every 0.9 command, section and option for its entity and keeps only what a real question needs.
+BioMCP 0.9 is not the spec. It is the quality floor: 1.0 must answer at least as well, and matching 0.9 is a starting point, never the goal or the definition of good. A slice looks critically at every 0.9 command, section and option for its entity and keeps only what a real question needs.
 
 ## The steps
 
