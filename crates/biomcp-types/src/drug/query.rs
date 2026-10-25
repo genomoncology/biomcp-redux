@@ -44,7 +44,12 @@ struct SearchFields {
     #[serde(default = "default_source")]
     source: DrugSource,
     /// Explicit ChEMBL native name selector; omitted means preferred name.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "selected_name",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "super::DrugNameSelector"))]
     name_selector: Option<super::DrugNameSelector>,
     /// Native candidate rows per page.
     #[serde(default = "default_limit")]
@@ -232,4 +237,10 @@ impl DrugSource {
             }
         }
     }
+}
+
+fn selected_name<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<super::DrugNameSelector>, D::Error> {
+    super::DrugNameSelector::deserialize(d).map(Some)
 }

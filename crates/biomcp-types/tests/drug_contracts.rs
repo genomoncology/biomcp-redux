@@ -560,6 +560,14 @@ fn chembl_name_selector_is_explicit_and_source_scoped() {
             );
         }
     }
+    for source in ["chembl", "mychem"] {
+        assert!(
+            serde_json::from_value::<DrugSearch>(
+                json!({"query":"imatinib","source":source,"name_selector":null})
+            )
+            .is_err()
+        );
+    }
     assert!(
         serde_json::from_value::<DrugSearch>(
             json!({"query":"imatinib","source":"chembl","name_selector":"automatic"})
