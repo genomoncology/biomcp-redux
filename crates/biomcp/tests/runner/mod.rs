@@ -27,6 +27,7 @@ mod markdown_variant_sources;
 mod markdown_variant_trial;
 mod mcp;
 mod named_search;
+mod next_navigation;
 mod nci;
 mod nci_walk;
 mod negative_cases;
@@ -329,6 +330,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(recurrence_metadata::trials());
     trials.extend(normalization::trials());
     trials.extend(variant_search::trials());
+    trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
     trials.extend(markdown_shapes::trials());
