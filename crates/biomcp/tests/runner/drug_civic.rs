@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 
-const CASES: [&str; 12] = [
+const CASES: [&str; 14] = [
     "imatinib-search",
     "trastuzumab-search",
     "ivosidenib-search",
@@ -18,6 +18,8 @@ const CASES: [&str; 12] = [
     "profile-evidence-next",
     "profile-assertion",
     "profile-assertion-terminal",
+    "profile-evidence-offset",
+    "profile-assertion-offset",
 ];
 pub(super) fn trials() -> Vec<Trial> {
     CASES
@@ -44,7 +46,7 @@ fn arguments(n: usize) -> Result<Vec<String>, String> {
         vec!["search", "drug", q, "--source", "civic", "--limit", "1"]
     } else {
         let id = match n {
-            5 | 8..=11 => "5",
+            5 | 8..=13 => "5",
             6 => "84",
             7 => "454",
             _ => return Err("unknown case".into()),
@@ -55,7 +57,7 @@ fn arguments(n: usize) -> Result<Vec<String>, String> {
         args.extend(["--offset", "1"]);
     }
     if n >= 8 {
-        let (profile, kind) = if n >= 10 {
+        let (profile, kind) = if matches!(n, 10 | 11 | 13) {
             ("65", "assertions")
         } else {
             ("1", "evidence")
@@ -71,6 +73,9 @@ fn arguments(n: usize) -> Result<Vec<String>, String> {
         if matches!(n, 9 | 11) {
             args.extend(["--civic-cursor", "MQ"]);
         }
+    }
+    if n >= 12 {
+        args.extend(["--section-offset", "1"]);
     }
     Ok(args.into_iter().map(String::from).collect())
 }
@@ -95,7 +100,7 @@ fn check(n: usize) -> Result<(), String> {
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
     verify(n, &value)?;
     let requests = stub.finish()?;
-    let expected = if n == 4 { 2 } else { 1 };
+    let expected = if matches!(n, 4 | 12) { 2 } else { 1 };
     if requests.len() != expected {
         return Err(format!(
             "expected {expected} local requests, got {}",
@@ -145,7 +150,7 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
             return Err(format!("{path}: expected {expected}, received {value}"));
         }
     }
-    if matches!(n, 10 | 11)
+    if matches!(n, 10 | 11 | 13)
         && value
             .pointer("/result/civic/data/assertions/page/next")
             .is_some()
@@ -237,7 +242,7 @@ fn stream_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
                 json!("MQ"),
             ),
         ],
-        9 => vec![
+        9 | 12 => vec![
             (
                 "/result/civic/data/evidence/records/0/claim/record/id",
                 json!("EID260"),
@@ -251,7 +256,7 @@ fn stream_expected(n: usize) -> Result<Vec<(&'static str, Value)>, String> {
                 json!("65"),
             ),
         ],
-        11 => vec![
+        11 | 13 => vec![
             ("/result/civic/data/assertions/page/total", json!(1)),
             ("/result/civic/data/assertions/page/returned", json!(0)),
         ],
