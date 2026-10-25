@@ -11,11 +11,44 @@ use std::{
 };
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "drug-ddinter/failed-parts-preserve-stored-set-and-policy",
-        || check().map_err(Into::into),
-    )]
+    vec![
+        Trial::test(
+            "drug-ddinter/failed-parts-preserve-stored-set-and-policy",
+            || check().map_err(Into::into),
+        ),
+        Trial::test(
+            "drug-ddinter/missing-local-set-offers-explicit-sync",
+            || missing().map_err(Into::into),
+        ),
+    ]
 }
+fn missing() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = env.root().join("empty-replay");
+    fs::create_dir(&replay).map_err(|e| e.to_string())?;
+    for args in [
+        vec!["search", "drug", "Synthetic", "--source", "ddinter"],
+        vec![
+            "get",
+            "drug",
+            "DDInter1",
+            "interactions",
+            "--source",
+            "ddinter",
+        ],
+    ] {
+        let value = call(&env, &replay, &args, 4)?;
+        if value.pointer("/sources/0/state") != Some(&json!("syncing"))
+            || value.pointer("/next/0/args") != Some(&json!(["sync", "ddinter"]))
+        {
+            return Err(format!(
+                "read fetched or hid the missing local set: {value}"
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
@@ -55,7 +88,8 @@ fn check() -> Check {
         .find(|(_, bytes)| String::from_utf8_lossy(bytes).contains("code_L.csv"))
         .ok_or("missing L partition")?;
     let mut bad: Value = serde_json::from_slice(&original).map_err(|e| e.to_string())?;
-    bad["exchanges"][0]["body"]["value"] =
+    *bad.pointer_mut("/exchanges/0/body/value")
+        .ok_or("missing synthetic body")? =
         "DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level\nwrong,bad,DDInter1,Synthetic,Major\n".into();
     fs::write(path, bad.to_string()).map_err(|e| e.to_string())?;
     let failed = call(&env, &replay, &["sync", "ddinter"], 4)?;
