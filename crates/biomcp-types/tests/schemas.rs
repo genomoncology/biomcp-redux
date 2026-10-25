@@ -65,6 +65,7 @@ fn common_registry() -> Vec<Contract> {
         ClinVarAlleleId => ("clinvar-allele-id", "biodata.clinvar-allele-id/1"),
         CosmicId => ("cosmic-id", "biodata.cosmic-id/1"),
         VrsId => ("vrs-id", "biodata.vrs-id/1"),
+        Contig => ("contig", "biodata.contig/1"),
 
     }
 }
@@ -141,7 +142,6 @@ fn registry() -> Vec<Contract> {
         HgncStatus => ("hgnc-status", "biodata.hgnc-status/2"),
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
-        Contig => ("contig", "biodata.contig/1"),
     };
     contracts.extend(diagnostic_contracts());
     contracts.extend(common_registry());
