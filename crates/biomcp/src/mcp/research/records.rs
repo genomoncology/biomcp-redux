@@ -1,6 +1,6 @@
 //! Mechanical record identity and publisher-link projections; no lookups.
-use biomcp_types::ResearchHit;
 use biodata::Text;
+use biomcp_types::ResearchHit;
 use serde_json::Value;
 fn text<'a>(value: &'a Value, paths: &[&str]) -> Option<&'a str> {
     paths.iter().find_map(|path| {
@@ -88,7 +88,7 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, &["/record/id"])?;
-    hit(next_args("variant", id, envelope)?, id, &variant_url(row)?)
+    hit(next_args("variant", id, envelope).or_else(|| variant_args(id, envelope))?, id, &variant_url(row)?)
 }
 fn native(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
     let id = text(row, &["/id", "/header/id", "/concept/id", "/product/id"])?;
@@ -107,6 +107,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
     let first = result
         .get("items")
         .and_then(Value::as_array)
+        .filter(|v| v.len() == 1)
         .and_then(|v| v.first());
     let mut found = match entity {
         "article" => {
@@ -126,7 +127,9 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
             )
         }
         "variant" => {
-            let row = result.get("candidates")?.as_array()?.first()?;
+            let rows = result.get("candidates")?.as_array()?;
+            if rows.len() != 1 || result.get("resolution").and_then(Value::as_str) != Some("resolved") { return None; }
+            let row = rows.first()?;
             let native_id = text(row, &["/record/id"])?;
             hit(
                 vec![entity.into(), native_id.into()],
@@ -170,5 +173,15 @@ fn variant_url(row: &Value) -> Option<String> {
             }
         })
         .collect::<String>();
-    Some(format!("https://myvariant.info/v1/variant/{encoded}"))
+    let assembly = row.pointer("/identity/representations").and_then(Value::as_array)
+        .is_some_and(|rows| rows.iter().any(|r| text(r, &["/build"]) == Some("GRCh38")));
+    Some(format!("https://myvariant.info/v1/variant/{encoded}{}", if assembly { "?assembly=hg38" } else { "" }))
+}
+
+fn variant_args(id: &str, envelope: &Value) -> Option<Vec<String>> {
+    // This is the caller's explicit assembly, never an inferred source fact.
+    let build = text(envelope, &["/query/build"] )?.parse().ok()?;
+    let query = biomcp_types::VariantGet::new(id.parse().ok()?, biomcp_types::VariantResolver::Car, Some(build)).ok()?;
+    let action = biomcp_query::Action::Run { request: biomcp_types::Request::GetVariant(query), fresh: false };
+    Some(crate::spell::action_args(&action).ok()?.into_iter().skip(1).collect())
 }

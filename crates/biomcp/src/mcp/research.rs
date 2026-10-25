@@ -99,6 +99,7 @@ pub(super) fn execute(
                 .unwrap_or_default();
             let hit = records::fetch(entity, id, &outcome.value);
             let Some(hit) = hit else {
+                outcome.status = crate::exit::Status::Failed;
                 return Ok(outcome);
             };
             serde_json::to_value(biomcp_types::ResearchFetch {
