@@ -154,6 +154,7 @@ pub struct DiagnosticRegulatoryFragment {
     pub total: u32,
     /// Complete unmodified text fragment; omitted when the source statement is absent.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "String"))]
     pub text: Option<Box<str>>,
 }
 biodata::wire_enum! {

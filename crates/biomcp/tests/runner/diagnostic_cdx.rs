@@ -320,10 +320,10 @@ fn paging() -> Check {
     {
         return Err(format!("base search lost supplement or group rows: {base}"));
     }
-    if base.pointer("/next/6/kind") != Some(&json!("page"))
+    if base.pointer("/next/11/kind") != Some(&json!("page"))
         || !base.get("next").and_then(Value::as_array).is_some_and(|a| {
             a.iter()
-                .take(6)
+                .take(11)
                 .all(|v| v.get("kind") == Some(&json!("pivot")))
         })
     {
@@ -565,7 +565,10 @@ fn ambiguous_parameters() -> Check {
                 .is_some_and(|items| {
                     items
                         .iter()
-                        .any(|step| step.get("kind") == Some(&json!("pivot")))
+                        .any(|step| {
+                            step.get("kind") == Some(&json!("pivot"))
+                                && step.pointer("/args/1") == Some(&json!(if field == "drug" {"drug"} else {"diagnostic"}))
+                        })
                 })
         {
             return Err(format!(
