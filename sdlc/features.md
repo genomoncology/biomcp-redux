@@ -67,4 +67,4 @@ drug-types: A public API caller validates published drug identifiers, selected-s
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/*.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`.
 disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
 
-disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references.
+disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.
