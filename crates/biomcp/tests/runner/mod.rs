@@ -47,6 +47,7 @@ mod schema_proof;
 mod scholar;
 mod semantic_tables;
 mod source_controls;
+mod drug_registry;
 mod source_terms;
 mod supplement_tables;
 mod trial_documents;
@@ -300,6 +301,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
+    trials.extend(drug_registry::trials());
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
