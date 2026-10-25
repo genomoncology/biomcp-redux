@@ -88,7 +88,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Civic, leg.finish(), error));
-    if let Ok(mapped) = result {
+    if let Ok(mut mapped) = result {
         if let biomcp_types::Section::Data { data, .. } = &mapped.value.civic {
             for stream in [&data.evidence, &data.assertions].into_iter().flatten() {
                 if let Some(next) = &stream.page.next {
@@ -103,7 +103,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             }
         }
         out.problems = mapped.problems;
-        super::next::civic(&mapped.value, cx.fresh, &mut out);
+        super::next::civic(&mut mapped.value, cx.fresh, &mut out);
         out.status = state(&out);
         out.body = QueryBody::DrugCivic(Some(mapped.value));
     }

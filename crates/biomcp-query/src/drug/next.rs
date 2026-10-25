@@ -2,22 +2,19 @@
 use crate::{Action, Outcome};
 use biodata::{Build, Chromosome, GeneSymbol, Text};
 use biomcp_types::{
-    DrugCivic, DrugCivicClaim, DrugCivicMember, Problem, ProblemCode, Request, Section, Source,
+    DrugCivic, DrugCivicClaim, DrugCivicMember, DrugOncokbMissing, Request, Section, Source,
     StepKind, VariantGet, VariantInput, VariantResolver, VariantSection,
 };
 
-pub(super) fn civic(body: &DrugCivic, fresh: bool, out: &mut Outcome) {
-    let Section::Data { data, .. } = &body.civic else {
+pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
+    let Section::Data { data, .. } = &mut body.civic else {
         return;
     };
-    for stream in [&data.evidence, &data.assertions].into_iter().flatten() {
-        for row in &stream.records {
-            let missing = |field: &str| Problem {
-                source: Source::Civic,
-                record: Some(row.claim.record.id.clone()),
-                field: format!("oncokb.{field}").into(),
-                code: ProblemCode::ValueUnknown,
-            };
+    for stream in [&mut data.evidence, &mut data.assertions]
+        .into_iter()
+        .flatten()
+    {
+        for row in &mut stream.records {
             let member = match row.profile.members.as_ref() {
                 [member] if !row.profile.compound => Some(member),
                 _ => None,
@@ -25,17 +22,17 @@ pub(super) fn civic(body: &DrugCivic, fresh: bool, out: &mut Outcome) {
             let gene = member.and_then(|m| m.member.feature.as_str().parse::<GeneSymbol>().ok());
             let build = member.and_then(build);
             let variant = member.zip(build).and_then(|(m, b)| genomic(m, b));
-            let tumor = tumor(row);
-            for (field, present) in [
-                ("gene", gene.is_some()),
-                ("build", build.is_some()),
-                ("variant", variant.is_some()),
-                ("tumor_type", tumor.is_some()),
-            ] {
-                if !present {
-                    out.problems.push(missing(field));
-                }
-            }
+            let tumor = tumor(row).cloned();
+            use DrugOncokbMissing as M;
+            row.oncokb_missing = [
+                (M::Gene, gene.is_some()),
+                (M::Build, build.is_some()),
+                (M::Variant, variant.is_some()),
+                (M::TumorType, tumor.is_some()),
+            ]
+            .into_iter()
+            .filter_map(|(field, present)| (!present).then_some(field))
+            .collect();
             if gene.is_none() {
                 continue;
             }
@@ -45,7 +42,7 @@ pub(super) fn civic(body: &DrugCivic, fresh: bool, out: &mut Outcome) {
                 continue;
             };
             if let Ok(query) = VariantGet::new(variant, VariantResolver::Car, Some(build))
-                .and_then(|q| q.with_tumor_type(tumor.clone()))
+                .and_then(|q| q.with_tumor_type(tumor))
             {
                 let action = (
                     StepKind::Section,

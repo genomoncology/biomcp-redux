@@ -118,16 +118,16 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
             return Err("invented complete allele context".into());
         }
         let field = match n {
-            1 | 2 | 7 => "oncokb.variant",
-            3 | 6 => "oncokb.build",
-            4 => "oncokb.gene",
-            5 => "oncokb.tumor_type",
+            1 | 2 | 7 => "variant",
+            3 | 6 => "build",
+            4 => "gene",
+            5 => "tumor_type",
             _ => return Err("case".into()),
         };
         if !value
-            .get("problems")
+            .pointer("/result/civic/data/evidence/records/0/oncokb_missing")
             .and_then(Value::as_array)
-            .is_some_and(|p| p.iter().any(|p| p.get("field") == Some(&json!(field))))
+            .is_some_and(|p| p.iter().any(|p| p == &json!(field)))
         {
             return Err(format!("missing named context {field}: {value}"));
         }

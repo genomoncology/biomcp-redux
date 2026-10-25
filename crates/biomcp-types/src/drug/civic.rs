@@ -39,6 +39,9 @@ pub struct DrugCivicClaim {
     /// Native combination interaction label when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub therapy_interaction_type: Option<Text>,
+    /// Missing source context prevents a keyed variant annotation next command.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub oncokb_missing: Box<[DrugOncokbMissing]>,
 }
 /// Profile context embedded in a therapy claim, with no invented profile totals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -66,4 +69,18 @@ pub struct DrugCivicMember {
     /// Native coordinates.referenceBuild spelling, including unsupported builds.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference_build: Option<Text>,
+}
+
+biodata::wire_enum! {
+    /// Context absent or insufficient for an exact source-owned annotation command.
+    DrugOncokbMissing {
+        /// No single checked gene in the native profile.
+        Gene => "gene",
+        /// No explicit supported native reference build.
+        Build => "build",
+        /// No single genomic description on that build, or a compound profile.
+        Variant => "variant",
+        /// No source claim tumor label.
+        TumorType => "tumor_type",
+    }
 }
