@@ -88,3 +88,5 @@ drug-identity: Drug sources reject mismatched, conflicting and absent identity j
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples. Cases: `tests/cases/drug/help.yaml`.
 
 adverse-event-types: A public API caller validates source-specific report requests and preserves independent native arrays, code strings and bounded consumer schemas before adapters exist. Contracts: `biomcp-types/adverse_event_contracts` (features: `schema`).
+
+pgx-types: A public API caller preserves source-native PGx context and validates explicit source and section requests before adapters exist. Contracts: `biomcp-types/pgx_contracts` (features: `schema`).
