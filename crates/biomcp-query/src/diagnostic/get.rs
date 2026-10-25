@@ -7,6 +7,7 @@ use biomcp_types::{
     DiagnosticMethods, DiagnosticSection, PageInfo, QueryBody, Request, Source, Status, StepKind,
 };
 use std::collections::BTreeSet;
+/// Read one exact GTR test or its independently paged native relations.
 pub fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let mut out = empty(QueryBody::DiagnosticCard(None));
     if q.source() != DiagnosticGetSource::Gtr {
@@ -143,34 +144,33 @@ fn genes(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, 
 }
 
 fn conditions(out: &mut Outcome, q: &DiagnosticGet, relations: Vec<GtrTestRelation>, fresh: bool) {
-            let rows: Vec<_> = relations
-                .into_iter()
-                .filter_map(|r| {
-                    if let GtrTestRelation::Condition(v) = r {
-                        Some(v)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            let distinct_id_total = Some(
-                rows.iter()
-                    .filter_map(|r| r.condition.id.as_ref())
-                    .map(ToString::to_string)
-                    .collect::<BTreeSet<_>>()
-                    .len() as u64,
-            );
-            let total = rows.len();
-            let items = rows
-                .into_iter()
-                .skip(q.section_offset() as usize)
-                .take(q.section_limit() as usize)
-                .collect::<Box<[_]>>();
-            page(out, q, items.len(), total, fresh);
-            out.body = QueryBody::DiagnosticConditions(DiagnosticConditions {
-                items,
-                count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
-                distinct_id_total,
-            });
-
+    let rows: Vec<_> = relations
+        .into_iter()
+        .filter_map(|r| {
+            if let GtrTestRelation::Condition(v) = r {
+                Some(v)
+            } else {
+                None
+            }
+        })
+        .collect();
+    let distinct_id_total = Some(
+        rows.iter()
+            .filter_map(|r| r.condition.id.as_ref())
+            .map(ToString::to_string)
+            .collect::<BTreeSet<_>>()
+            .len() as u64,
+    );
+    let total = rows.len();
+    let items = rows
+        .into_iter()
+        .skip(q.section_offset() as usize)
+        .take(q.section_limit() as usize)
+        .collect::<Box<[_]>>();
+    page(out, q, items.len(), total, fresh);
+    out.body = QueryBody::DiagnosticConditions(DiagnosticConditions {
+        items,
+        count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
+        distinct_id_total,
+    });
 }

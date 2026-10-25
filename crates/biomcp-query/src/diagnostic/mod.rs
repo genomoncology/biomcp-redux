@@ -44,6 +44,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
         ));
     }
 }
+/// Search only stored source-native GTR relations and retain matched selectors.
 pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
         items: Box::default(),

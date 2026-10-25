@@ -10,8 +10,8 @@ pub(super) fn candidates(
     fresh: bool,
 ) {
     for row in rows {
-        if let DiagnosticCandidate::Resolved { header, .. } = row {
-            if let Ok(mut get) = serde_json::from_value::<DiagnosticGet>(
+        if let DiagnosticCandidate::Resolved { header, .. } = row
+            && let Ok(mut get) = serde_json::from_value::<DiagnosticGet>(
                 serde_json::json!({"id":header.id,"source":"gtr"}),
             ) {
                 if let Some(revision) = query.bundle_revision() {
@@ -23,7 +23,6 @@ pub(super) fn candidates(
                     Request::GetDiagnostic(get),
                     fresh,
                 );
-            }
         }
     }
 }

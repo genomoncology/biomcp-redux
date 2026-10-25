@@ -504,7 +504,7 @@
       "description": "Published bundle metadata after synchronization.",
       "properties": {
         "bytes": {
-          "description": "Unencoded source bytes.",
+          "description": "Imported source-file bytes before native file decoding.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
