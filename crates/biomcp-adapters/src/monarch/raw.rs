@@ -68,9 +68,10 @@ pub(super) struct Row {
 pub(super) struct Link {
     pub url: Text,
 }
+type Aggregators = Option<Option<Box<[Curie]>>>;
 fn aggregators<'de, D: serde::Deserializer<'de>>(
     d: D,
-) -> Result<Option<Option<Box<[Curie]>>>, D::Error> {
+) -> Result<Aggregators, D::Error> {
     Option::<Box<[Curie]>>::deserialize(d).map(Some)
 }
 

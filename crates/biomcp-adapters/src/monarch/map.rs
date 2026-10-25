@@ -6,48 +6,10 @@ use biodata::{
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::DiseaseAssociationItem;
 pub(super) fn row(
-    raw: raw::Row,
+    mut raw: raw::Row,
     requested: &Curie,
 ) -> Result<DiseaseAssociationItem, RequestError> {
-    let mut qualifiers = raw
-        .qualifiers
-        .unwrap_or_default()
-        .into_vec()
-        .into_iter()
-        .map(|id| qualifier("qualifiers", id, None))
-        .collect::<Result<Vec<_>, _>>()?;
-    for (field, id, label) in [
-        (
-            "frequency_qualifier",
-            raw.frequency_qualifier,
-            raw.frequency_qualifier_label,
-        ),
-        (
-            "onset_qualifier",
-            raw.onset_qualifier,
-            raw.onset_qualifier_label,
-        ),
-        ("sex_qualifier", raw.sex_qualifier, raw.sex_qualifier_label),
-        (
-            "disease_context_qualifier",
-            raw.disease_context_qualifier,
-            raw.disease_context_qualifier_label,
-        ),
-        (
-            "species_context_qualifier",
-            raw.species_context_qualifier,
-            raw.species_context_qualifier_label,
-        ),
-        (
-            "stage_qualifier",
-            raw.stage_qualifier,
-            raw.stage_qualifier_label,
-        ),
-    ] {
-        if let Some(id) = id {
-            qualifiers.push(qualifier(field, id, label)?);
-        }
-    }
+    let qualifiers = qualifiers(&mut raw)?;
     Ok(DiseaseAssociationItem {
         association: DiseaseAssociation {
             requested_id: requested.clone(),
@@ -127,4 +89,48 @@ fn references(
         url: Some(link.url),
     }));
     references.into()
+}
+
+fn qualifiers(raw: &mut raw::Row) -> Result<Vec<DiseaseAssociationQualifier>, RequestError> {
+    let mut qualifiers = raw
+        .qualifiers
+        .take()
+        .unwrap_or_default()
+        .into_vec()
+        .into_iter()
+        .map(|id| qualifier("qualifiers", id, None))
+        .collect::<Result<Vec<_>, _>>()?;
+    for (field, id, label) in [
+        (
+            "frequency_qualifier",
+            raw.frequency_qualifier.take(),
+            raw.frequency_qualifier_label.take(),
+        ),
+        (
+            "onset_qualifier",
+            raw.onset_qualifier.take(),
+            raw.onset_qualifier_label.take(),
+        ),
+        ("sex_qualifier", raw.sex_qualifier.take(), raw.sex_qualifier_label),
+        (
+            "disease_context_qualifier",
+            raw.disease_context_qualifier.take(),
+            raw.disease_context_qualifier_label.take(),
+        ),
+        (
+            "species_context_qualifier",
+            raw.species_context_qualifier.take(),
+            raw.species_context_qualifier_label.take(),
+        ),
+        (
+            "stage_qualifier",
+            raw.stage_qualifier.take(),
+            raw.stage_qualifier_label.take(),
+        ),
+    ] {
+        if let Some(id) = id {
+            qualifiers.push(qualifier(field, id, label)?);
+        }
+    }
+    Ok(qualifiers)
 }

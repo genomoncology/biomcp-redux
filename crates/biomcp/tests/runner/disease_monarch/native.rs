@@ -148,22 +148,14 @@ fn verify(id: &str, native: &Value, result: &Value) -> Result<(), String> {
             "has_total",
             "has_percentage",
             "has_quotient",
+            "original_predicate", "category", "agent_type", "knowledge_level", "evidence_count",
         ] {
             let expected = raw.get(field).filter(|v| !v.is_null());
             if association.get(field) != expected {
                 return Err(format!("native optional {field} changed"));
             }
         }
-        for field in ["subject_closure", "object_closure"] {
-            let expected = raw
-                .get(field)
-                .filter(|v| !v.is_null())
-                .cloned()
-                .unwrap_or(json!([]));
-            if association.get(field) != Some(&expected) {
-                return Err(format!("native {field} changed"));
-            }
-        }
+        context(raw,association)?;
     }
     if original.is_empty() && result.get("next").is_some() {
         return Err("terminal empty page advertises a next action".into());
@@ -211,4 +203,33 @@ fn text<'a>(value: &'a Value, field: &str) -> Result<&'a str, String> {
     value[field]
         .as_str()
         .ok_or_else(|| format!("missing {field}"))
+}
+
+fn references(raw: &Value, association: &Value, ids: &str, links: &str, field: &str) -> Result<(),String> {
+    let expected = raw[ids].as_array().cloned().unwrap_or_default().into_iter().map(|id| {
+        let link = raw[links].as_array().and_then(|links|links.iter().find(|link|link["id"]==id));
+        match link {Some(link)=>json!({"id":id,"url":link["url"]}),None=>json!({"id":id})}
+    }).collect::<Vec<_>>();
+    let actual = association.get(field).and_then(Value::as_array).cloned().unwrap_or_default();
+    if actual != expected {return Err(format!("native {field} IDs/URLs changed or invented labels"));}
+    Ok(())
+}
+
+fn context(raw: &Value, association: &Value) -> Result<(),String> {
+        references(raw,association,"has_evidence","has_evidence_links","evidence")?;
+        references(raw,association,"publications","publications_links","publications")?;
+        let qualifiers = association["qualifiers"].as_array().ok_or("missing qualifiers")?;
+        let expected = if raw["frequency_qualifier"].is_null() {json!([])} else {json!([{"field":"frequency_qualifier","id":raw["frequency_qualifier"],"label":raw["frequency_qualifier_label"]}])};
+        if qualifiers != expected.as_array().ok_or("bad expected qualifiers")? {return Err("native frequency role or label changed".into());}
+        for field in ["subject_closure", "object_closure"] {
+            let expected = raw
+                .get(field)
+                .filter(|v| !v.is_null())
+                .cloned()
+                .unwrap_or(json!([]));
+            if association.get(field) != Some(&expected) {
+                return Err(format!("native {field} changed"));
+            }
+        }
+    Ok(())
 }

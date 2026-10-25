@@ -36,7 +36,6 @@ pub(super) fn unsupported(action: &Action) -> bool {
                 q.section(),
                 Some(DiseaseSection::Incidence | DiseaseSection::Survival)
             ),
-            _ => true,
         },
         _ => false,
     }

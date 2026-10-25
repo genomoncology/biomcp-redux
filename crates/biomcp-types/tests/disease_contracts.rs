@@ -236,3 +236,9 @@ fn association_native_numbers_are_independent_and_never_derived() {
     invalid["has_count"] = json!(-1);
     assert!(serde_json::from_value::<DiseaseAssociation>(invalid).is_err());
 }
+
+#[test]
+fn association_references_allow_native_urls_without_invented_labels() {
+    let row = json!({"requested_id":"MONDO:0019003","subject":{"id":"MONDO:0019003","label":"Synthetic"},"object":{"id":"HP:0000001","label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},"evidence":[{"id":"ECO:0000501","url":"http://purl.obolibrary.org/obo/ECO_0000501"}],"publications":[{"id":"PMID:1","url":"http://identifiers.org/pubmed/1"}],"qualifiers":[{"field":"frequency_qualifier","id":"HP:0040283","label":"Synthetic frequency"}],"subject_closure":[],"object_closure":[]});
+    assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(),row);
+}
