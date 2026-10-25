@@ -90,7 +90,7 @@ fn get_setup(identity: &Value, record: Value) -> Result<(Environment, Stub), Str
 fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let value = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
-    let mcp = super::mcp::call_with_globals(env, &args, false, &[])?;
+    let mcp = super::mcp::call_with_globals(env, &args, exit >= 2, &[])?;
     if value != mcp {
         return Err("CLI and MCP differ".into());
     }
