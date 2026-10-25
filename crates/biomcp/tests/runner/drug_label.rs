@@ -78,7 +78,7 @@ fn get_setup(identity: &Value, record: Value) -> Result<(Environment, Stub), Str
         200,
     )
 }
-fn both(env: &Environment, args: Vec<String>, exit: u8) -> Result<Value, String> {
+fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String> {
     let value = invoke(env, args.clone(), exit)?;
     super::schema::Registry::embedded()?.validate(&value, &args, true)?;
     let mcp = super::mcp::call_with_globals(env, &args, false, &[])?;
