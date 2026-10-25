@@ -13,10 +13,20 @@ pub(super) fn run() -> Check {
         let value = invoke(&env, words(text), 2)?;
         if value.pointer("/error/message")
             != Some(&json!(
-                "Influenza VAERS summaries are not available yet; supported vaccines are MMR and COVID-19."
+                "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One report may list several vaccines."
             ))
         {
             return Err(format!("wrong influenza guidance: {value}"));
+        }
+        let choices = value.pointer("/error/valid_values").and_then(|v| v.as_array())
+            .ok_or("influenza choices absent")?;
+        if choices.len() != 14 || choices.first() != Some(&json!("FLU(H1N1): INFLUENZA (H1N1) MONOVALENT (INJECTED)"))
+            || !choices.contains(&json!("FLUX(SEASONAL): INFLUENZA VIRUS VACCINE, NO BRAND NAME"))
+            || !choices.contains(&json!("FLUX(H1N1): INFLUENZA(H1N1) MONOVALENT, UNKNOWN MANUFACTURER")) {
+            return Err(format!("native influenza choices changed: {value}"));
+        }
+        if crate::runner::mcp::call_with_globals(&env, &words(text), true, &[])? != value {
+            return Err("influenza choices differ through MCP".into());
         }
     }
     for (flag, value) in [
