@@ -136,7 +136,7 @@
         "/error": {
           "equals": {
             "code": "usage.retired",
-            "message": "use: search drug --target <gene>"
+            "message": "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; select a drug identity to read source sections."
           }
         }
       },

@@ -1,6 +1,6 @@
 //! Drug migration guidance runs before parsing or source admission.
-use biomcp_types::{DrugSection, ErrorMessage};
 use super::{Words, find};
+use biomcp_types::{DrugSection, ErrorMessage};
 pub(super) const SEARCH: &[(&str, ErrorMessage)] = &[
     ("--query", ErrorMessage::DrugQuery),
     ("--mechanism", ErrorMessage::DrugMechanism),
@@ -41,9 +41,18 @@ pub(super) fn section(words: &Words<'_>, input: &[&str]) -> Option<ErrorMessage>
     if !words.sections.is_empty() {
         return words.sections.iter().find_map(|word| find(SECTIONS, word));
     }
-    if words.literal { return None; }
-    input.get(1..).unwrap_or_default().iter().rev().take_while(|word| {
-        find(SECTIONS, word).is_some()
-            || serde_json::from_value::<DrugSection>(serde_json::Value::String((**word).into())).is_ok()
-    }).find_map(|word| find(SECTIONS, word))
+    if words.literal {
+        return None;
+    }
+    input
+        .get(1..)
+        .unwrap_or_default()
+        .iter()
+        .rev()
+        .take_while(|word| {
+            find(SECTIONS, word).is_some()
+                || serde_json::from_value::<DrugSection>(serde_json::Value::String((**word).into()))
+                    .is_ok()
+        })
+        .find_map(|word| find(SECTIONS, word))
 }

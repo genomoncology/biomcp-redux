@@ -104,7 +104,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
         }
         ["search", "drug", ..] => words.retired_option,
-        ["get", "drug", input @ ..] => words.retired_option.or_else(|| drug::section(&words, input)),
+        ["get", "drug", input @ ..] => words
+            .retired_option
+            .or_else(|| drug::section(&words, input)),
         ["search", "gene", ..] | ["search", "trial", ..] => words.retired_option,
         ["get", "gene", input @ ..] => trailing(&words, input, SECTIONS, false),
         ["search", "article", ..] | ["search", "variant", ..] | ["variant", "normalize", ..] => {
@@ -120,7 +122,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     }
 }
 fn command(positional: &[&str]) -> Option<ErrorMessage> {
-    if let Some(message) = drug::command(positional) { return Some(message); }
+    if let Some(message) = drug::command(positional) {
+        return Some(message);
+    }
     match positional {
         ["variant", "structure", ..] => Some(ErrorMessage::VariantStructure),
         ["variant", "oncokb", ..] => Some(ErrorMessage::VariantOncokb),
