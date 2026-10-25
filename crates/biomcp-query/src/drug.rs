@@ -57,9 +57,7 @@ pub fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = selected_get(cx, query);
     let source = query.source().source();
     if out.sources.iter().any(|outcome| {
-        outcome.source == source
-            && outcome.state == biomcp_types::SourceState::Failed
-            && outcome.reason == Some(biomcp_types::Reason::BadReply)
+        outcome.source == source && outcome.reason == Some(biomcp_types::Reason::BadReply)
     }) {
         out.problems.push(biomcp_types::Problem {
             source,

@@ -80,11 +80,17 @@ fn stale() -> Result<(), String> {
     }
     let full = serde_json::to_vec(&stale).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&stale, "")?;
-    if full > 1600 || comparable > 1472 {
+    if full > 897 || comparable > 770 {
         return Err(format!(
             "stale identity refusal exceeds size ceiling: full={full}, comparable={comparable}"
         ));
     }
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "synthetic stale identity: full={full}, comparable={comparable}"
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 fn check(fault: &'static str) -> Result<(), String> {
