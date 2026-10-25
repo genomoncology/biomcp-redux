@@ -1,21 +1,33 @@
 use super::{empty, searched, unsupported};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ema;
-use biomcp_types::{DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, QueryBody, Request, Section, Source, SourceState, Status, StepKind};
+use biomcp_types::{
+    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, QueryBody, Request, Section, Source,
+    SourceState, Status, StepKind,
+};
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    let mut out = empty(QueryBody::DrugPage(DrugPage { items: Box::default(), total: None }));
+    let mut out = empty(QueryBody::DrugPage(DrugPage {
+        items: Box::default(),
+        total: None,
+    }));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
     let result = ema::search(&leg, query.query().as_str());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    out.sources.push(status::source(Source::Ema, leg.finish(), error));
+    out.sources
+        .push(status::source(Source::Ema, leg.finish(), error));
     if let Ok(rows) = result {
         let total = rows.len() as u64;
         let page = DrugPage {
-            items: rows.into_iter().skip(query.offset() as usize).take(query.limit() as usize).collect(), total: Some(total),
+            items: rows
+                .into_iter()
+                .skip(query.offset() as usize)
+                .take(query.limit() as usize)
+                .collect(),
+            total: Some(total),
         };
         searched(query, cx.fresh, page, &mut out);
     }
@@ -26,7 +38,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let regulatory = query.sections() == [DrugSection::Regulatory];
-    let mut out = empty(if regulatory { QueryBody::DrugRegulatory(None) } else { QueryBody::DrugCard(None) });
+    let mut out = empty(if regulatory {
+        QueryBody::DrugRegulatory(None)
+    } else {
+        QueryBody::DrugCard(None)
+    });
     if !matches!(query.sections(), [] | [DrugSection::Regulatory]) {
         return unsupported(query.source(), out);
     }
@@ -36,13 +52,22 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let result = if regulatory {
         ema::regulatory(&leg, query.input()).map(|body| {
             let found = body.is_some();
-            out.body = QueryBody::DrugRegulatory(body.map(|body| regulatory_page(query, body, &mut out)));
+            out.body =
+                QueryBody::DrugRegulatory(body.map(|body| regulatory_page(query, body, &mut out)));
             found
         })
     } else {
         ema::card(&leg, query.input()).map(|card| {
-            if card.is_some() && let Ok(get) = query.for_section(DrugSection::Regulatory) {
-                out.next.push((StepKind::Section, Action::Run { request: Request::GetDrug(get), fresh: cx.fresh }));
+            if card.is_some()
+                && let Ok(get) = query.for_section(DrugSection::Regulatory)
+            {
+                out.next.push((
+                    StepKind::Section,
+                    Action::Run {
+                        request: Request::GetDrug(get),
+                        fresh: cx.fresh,
+                    },
+                ));
             }
             let found = card.is_some();
             out.body = QueryBody::DrugCard(card);
@@ -51,27 +76,59 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    out.sources.push(status::source(Source::Ema, leg.finish(), error));
+    out.sources
+        .push(status::source(Source::Ema, leg.finish(), error));
     if let Ok(found) = result {
-        out.status = if !found { Status::Absent } else if out.sources.iter().any(|s| s.state == SourceState::Stale) { Status::Partial } else { Status::Complete };
+        out.status = if !found {
+            Status::Absent
+        } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+            Status::Partial
+        } else {
+            Status::Complete
+        };
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
 }
 
-fn regulatory_page(query: &DrugGet, mut body: biomcp_types::DrugRegulatory, out: &mut Outcome) -> biomcp_types::DrugRegulatory {
+fn regulatory_page(
+    query: &DrugGet,
+    mut body: biomcp_types::DrugRegulatory,
+    out: &mut Outcome,
+) -> biomcp_types::DrugRegulatory {
     if let Section::Data { data, .. } = &mut body.regulatory {
         let offset = query.section_offset().unwrap_or(0);
         let total = data.records.len() as u64;
-        data.records = data.records.iter().skip(offset as usize).take(query.section_limit().unwrap_or(10) as usize).cloned().collect();
+        data.records = data
+            .records
+            .iter()
+            .skip(offset as usize)
+            .take(query.section_limit().unwrap_or(10) as usize)
+            .cloned()
+            .collect();
         data.offset = offset;
-        out.page = Some(PageInfo { offset, returned: data.records.len() as u32, total, pool: None, truncated: None });
+        out.page = Some(PageInfo {
+            offset,
+            returned: data.records.len() as u32,
+            total,
+            pool: None,
+            truncated: None,
+        });
     }
     body
 }
 fn sync_step(out: &mut Outcome) {
-    if out.sources.iter().any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale)) {
-        out.next.push((StepKind::Sync, Action::Sync { bundle: Bundle::Ema }));
+    if out
+        .sources
+        .iter()
+        .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
+    {
+        out.next.push((
+            StepKind::Sync,
+            Action::Sync {
+                bundle: Bundle::Ema,
+            },
+        ));
     }
 }
