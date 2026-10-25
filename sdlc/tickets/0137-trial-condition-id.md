@@ -18,3 +18,4 @@ Changes: trial search requests, disease identity resolution, trial cases and gen
 ## Design authority
 
 The PM's 0117 review accepts explicit condition identifiers and requires this behavior in a separate trial-owned ticket. The disease design names this ticket and leaves trial implementation here. Implementation dependencies on the disease resolver belong in the PM's ordered build queue.
+- PM ruling 2026-10-25: ClinicalTrials.gov and NCI trial pages gain an optional `condition_resolution` record: the input CURIE, the resolver when one was used, the returned concept and its unchanged primary label, source-provenanced NCIt choices, and the selected NCIt only when unique. An explicit NCIt input names no MyDisease resolver. Ambiguous or missing mappings show the resolution and make zero trial requests. The native request field is unchanged, and schema versions follow the compatibility check.
