@@ -26,7 +26,7 @@ corporate-network: A caller adds corporate certificate authorities, follows stan
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP. Cases: `crates/biomcp/tests/runner/markdown_shapes.rs`.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar. Cases: `tests/cases/article/tldr/*.yaml`, `tests/cases/article/edges/*.yaml`.
 source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests. Cases: `crates/biomcp/tests/runner/source_controls.rs`, `crates/biomcp/tests/runner/drug_registry.rs`, `crates/biomcp/tests/runner/adverse_event_registry.rs`, `crates/biomcp/tests/runner/diagnostic_registry.rs`, `crates/biomcp/tests/runner/pgx_registry.rs`.
-live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`, `crates/biomcp/tests/runner/live_follow_proof.rs`.
+live-source-checks: A separate keyless live diagnostic reports upstream drift without changing replay assertions or recordings. Cases: `crates/biomcp/tests/runner/live_proof.rs`, `crates/biomcp/tests/runner/live_follow_proof.rs`, `crates/biomcp/tests/runner/live_witness_proof.rs`.
 article-named-search: A caller searches sentence resemblance and PubTator entities by name while retaining native order, matched sentences and explicit unsupported filters. Cases: `tests/cases/article/litsense/*.yaml`, `tests/cases/article/pubtator/*.yaml`, `crates/biomcp/tests/runner/named_search.rs`.
 article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP. Cases: `tests/cases/article/supplements/*.yaml`, `crates/biomcp/tests/runner/supplement_tables.rs`.
 article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID. Cases: `tests/cases/article/preprint/*.yaml`.
@@ -93,13 +93,15 @@ pgx-types: A public API caller preserves source-native PGx context and validates
 diagnostic-types: A public API caller validates source-owned diagnostic identities, neutral records and standalone consumer schemas before adapters exist. Contracts: `biomcp-types/diagnostic_contracts` (features: `schema`).
 
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference. Cases: `crates/biomcp/tests/runner/diagnostic_gtr.rs`, `crates/biomcp/tests/runner/diagnostic_gtr/mechanics.rs`, `tests/cases/diagnostic/gtr.yaml`.
-adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/*.yaml`, `crates/biomcp/tests/runner/faers_search.rs`.
+adverse-event-search: Search literal FAERS report mentions with typed phrase, seriousness and receipt selectors, native report pages and exact next requests. Cases: `tests/cases/adverse-event/help.yaml`, `tests/cases/adverse-event/examples.yaml`, `tests/cases/adverse-event/search-policy.yaml`, `crates/biomcp/tests/runner/faers_search.rs`.
 
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference. Cases: `tests/cases/pgx/*.yaml`, `crates/biomcp/tests/runner/cpic.rs`.
 maude-reports: Search explicit device report phrases and read exact native cards, device rows and complete narratives with source terms and independent count units. Cases: `crates/biomcp/tests/runner/maude.rs`.
-adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference. Cases: `crates/biomcp/tests/runner/faers_get.rs`.
+adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference. Cases: `crates/biomcp/tests/runner/faers_get.rs`, `tests/cases/adverse-event/get-examples.yaml`.
 
+diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whole physical association rows using their own checked identifiers. Cases: `crates/biomcp/tests/runner/diagnostic_cdx.rs`, `tests/cases/diagnostic/fda-cdx.yaml`.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests. Cases: `crates/biomcp/tests/runner/adverse_event_retirements.rs`.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports. Cases: `crates/biomcp/tests/runner/adverse_event_failures.rs`.
 
 clinpgx-annotations: Read independent bounded ClinPGx annotation collections and exact base records without clinical inference. Cases: `crates/biomcp/tests/runner/clinpgx.rs`.
+diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without implicit synchronization or inferred authorization. Cases: `crates/biomcp/tests/runner/diagnostic_who.rs`, `crates/biomcp/tests/runner/diagnostic_who/mechanics.rs`, `tests/cases/diagnostic/who.yaml`, `tests/cases/diagnostic/who-help.yaml`.

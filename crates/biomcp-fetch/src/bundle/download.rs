@@ -142,7 +142,7 @@ impl Leg<'_> {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
         self.observe_bundle(
-            &key,
+            (&key, &url),
             Some(exchange.status),
             exchange.body.bytes(),
             b.format,
@@ -222,7 +222,7 @@ impl Leg<'_> {
                 }
                 Err(error) => {
                     self.observe(
-                        &prepared.identity,
+                        (&prepared.identity, &prepared.url),
                         None,
                         &[],
                         b.format.media(),
@@ -261,7 +261,7 @@ impl Leg<'_> {
     ) {
         if status != 200 && status != 206 {
             self.observe(
-                &prepared.identity,
+                (&prepared.identity, &prepared.url),
                 Some(status),
                 &[],
                 format.media(),
@@ -301,7 +301,7 @@ impl Leg<'_> {
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
         self.observe_bundle(
-            &crate::retry::identity(&url),
+            (&crate::retry::identity(&url), &url),
             Some(status),
             &body,
             b.format,

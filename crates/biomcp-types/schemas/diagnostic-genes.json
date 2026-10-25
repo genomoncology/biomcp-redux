@@ -197,6 +197,13 @@
           "description": "Native MIM cell, including empty.",
           "type": "string"
         },
+        "native_gene_or_snomed_ct_id": {
+          "description": "Uninterpreted nonempty `gene_or_SNOMED_CT_ID` when it is not a checked NCBI Gene ID.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "native_medgen": {
           "$ref": "#/$defs/Curie",
           "description": "Independent native MedGen identity from GTR_identifier."

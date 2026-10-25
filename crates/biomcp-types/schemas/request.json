@@ -1056,7 +1056,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS report flag, never a reaction outcome."
+          "description": "FAERS report flag: death or hospitalization; never a reaction outcome."
         },
         "source": {
           "$ref": "#/$defs/AdverseEventSource",
@@ -1106,7 +1106,7 @@
               "type": "null"
             }
           ],
-          "description": "One source-owned section; omitted means card only.",
+          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
           "x-positional": 1
         },
         "section_limit": {

@@ -109,6 +109,9 @@ pub struct GtrGeneRelation {
     pub test_type: GtrTestType,
     /// Shared source-given GeneID and gene_symbol; absent GeneID stays absent.
     pub gene: GeneRef,
+    /// Uninterpreted nonempty `gene_or_SNOMED_CT_ID` when it is not a checked NCBI Gene ID.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub native_gene_or_snomed_ct_id: Option<Box<str>>,
     /// Independent native MedGen identity from GTR_identifier.
     pub native_medgen: Curie,
     /// Native MIM cell, including empty.

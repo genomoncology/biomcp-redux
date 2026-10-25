@@ -501,6 +501,7 @@ fn boundaries() -> Result<(), String> {
         if mcp::call_with_globals(&env, &args, true, &[])? != value {
             return Err(format!("{words}: CLI/MCP boundary differs"));
         }
+        boundary_size(&value)?;
     }
     for (suffix, text, reaction) in [
         (vec!["--", "--count"], "--count", None),
@@ -535,6 +536,24 @@ fn boundaries() -> Result<(), String> {
         if mcp::call_with_globals(&env, &args, true, &[])? != value {
             return Err("literal query differs through MCP".into());
         }
+        boundary_size(&value)?;
+    }
+    Ok(())
+}
+
+fn boundary_size(value: &serde_json::Value) -> Result<(), String> {
+    let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let comparable = super::source_terms::size(value, "")?;
+    // j13144: argument errors 143/143; offline literal queries at most 327/212.
+    let (full_limit, comparable_limit) = if value.get("error").is_some() {
+        (165, 165)
+    } else {
+        (377, 244)
+    };
+    if full > full_limit || comparable > comparable_limit {
+        return Err(format!(
+            "literal boundary exceeded measured ceiling: {full}/{comparable}"
+        ));
     }
     Ok(())
 }

@@ -23,7 +23,9 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::FdaCdx => "fda-cdx",
                 Bundle::Gtr => "gtr",
+                Bundle::WhoIvd => "who-ivd",
                 Bundle::Ema => "ema",
                 Bundle::Ddinter => "ddinter",
                 Bundle::Hgnc => "hgnc",

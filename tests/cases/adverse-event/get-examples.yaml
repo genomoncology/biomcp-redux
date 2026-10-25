@@ -1,0 +1,54 @@
+{
+  "feature": "adverse-event-get",
+  "story": "A caller executes exact report card and reaction examples from generated help.",
+  "live_check": "Invented local report rows prove mechanics only. No clinical positive or provider call.",
+  "replay": "adverse-event/faers-synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "100"
+      ],
+      "mcp": [
+        "get",
+        "adverse-event",
+        "100"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "100",
+        "": {
+          "max_bytes": 1096
+        }
+      },
+      "max_bytes": 1098,
+      "max_tokens": 275
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "100",
+        "reactions"
+      ],
+      "mcp": [
+        "get",
+        "adverse-event",
+        "100",
+        "reactions"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "100",
+        "/result/reactions/records/0/term/label": "Synthetic term",
+        "": {
+          "max_bytes": 846
+        }
+      },
+      "max_bytes": 847,
+      "max_tokens": 212
+    }
+  ],
+  "verified": "j13131 measured full/comparable compact bytes 1068/953 and 850/735. Bounds apply fifteen percent headroom to the comparable bytes through the shared validated source-terms deduction; component terms remain counted. The final routine gate executes both CLI and MCP."
+}

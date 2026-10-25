@@ -111,7 +111,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
     );
 }
 fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
-    for bundle in ["ema", "ddinter", "gtr"] {
+    for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
             command: vec!["sync".into(), bundle.into()],
             description: "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.".into(),
@@ -183,14 +183,28 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["Run BioMCP commands. Queries return one card or page; use help COMMAND for options and examples.".into()];
+    let mut lines =
+        vec!["BioMCP: one card or page. help COMMAND lists options and examples.".into()];
     for command in commands {
         let mut line = command.command.join(" ");
         // Detailed options belong to help COMMAND; retain search facets
         // required for discovering checked gene and disease searches.
         if command.command == ["search", "gene"] || command.command == ["search", "disease"] {
-            for argument in command.arguments {
+            for argument in &command.arguments {
                 line.push_str(&format!(" [{}]", argument.name));
+            }
+        }
+        if command.command.iter().any(|word| word == "adverse-event") {
+            for argument in command
+                .arguments
+                .iter()
+                .filter(|arg| arg.position.is_none())
+            {
+                line.push_str(&format!(" [{}", argument.name));
+                if !argument.choices.is_empty() {
+                    line.push_str(&format!(" {}", argument.choices.join("|")));
+                }
+                line.push(']');
             }
         }
         if !command.sections.is_empty() {

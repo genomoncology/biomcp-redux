@@ -17,9 +17,8 @@ pub(super) fn next(
     let candidates = matches!(
         &result.body,
         biomcp_types::QueryBody::PgxAnnotations(biomcp_types::PgxAnnotations::Clinical { .. })
-    ) || matches!(
-        &result.body,
-        biomcp_types::QueryBody::DiagnosticPage(_)
+            | biomcp_types::QueryBody::DiagnosticCompanion(_)
+            | biomcp_types::QueryBody::DiagnosticPage(_)
             | biomcp_types::QueryBody::DiagnosticGenes(_)
             | biomcp_types::QueryBody::AdverseEventPage(_)
             | biomcp_types::QueryBody::DrugPage(_)

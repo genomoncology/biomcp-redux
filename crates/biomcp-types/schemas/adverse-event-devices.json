@@ -243,7 +243,7 @@
               "type": "null"
             }
           ],
-          "description": "One source-owned section; omitted means card only.",
+          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
           "x-positional": 1
         },
         "section_limit": {

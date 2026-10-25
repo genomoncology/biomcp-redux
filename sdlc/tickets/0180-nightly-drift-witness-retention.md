@@ -1,6 +1,7 @@
 # 0180 — Keep drift witnesses from the nightly live check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: dd41f16bca8a26a9656f5377af872448a209672e
 
 Milestone: 3
 

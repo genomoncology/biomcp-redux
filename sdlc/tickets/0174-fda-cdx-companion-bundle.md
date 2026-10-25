@@ -1,6 +1,7 @@
 # 0174 — Sync the FDA companion diagnostic tables and search them by device, drug application and biomarker
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 49b4f4574daa29d6c1b96e47c23bfd9bbab45478
 
 Milestone: 4
 
@@ -10,7 +11,7 @@ Depends on: 0172
 
 ## Outcome
 
-`biomcp sync fda-cdx` downloads FDA's companion diagnostic list page, requires exactly two tables whose ordered headers equal diagnostic.md's two header arrays, including their internal line breaks, keeps every physical row with whole cell text and original links, and replaces the local copy atomically with a `biomcp.sync/2` receipt. Any missing, extra, reordered or changed header in either table fails the whole replacement and keeps the prior usable copy. `search diagnostic --source fda-cdx --device-id P150013` returns that application's rows and `--device-id P150013/S020` only that exact supplement's rows. `--drug-application BLA125514` returns rows whose own drug cell link carries that exact application. `--biomarker KRAS` returns table-0 rows whose whole `Biomarker(s)` cell equals the value. Each search returns a five-row association page with the snapshot revision, table index and physical row index as row provenance, paged with `--limit` and `--offset`.
+`biomcp sync fda-cdx` downloads FDA's companion diagnostic list page, requires exactly two tables whose ordered headers equal diagnostic.md's two header arrays, including their internal line breaks, keeps every physical row with whole cell text and original links, and replaces the local copy atomically with a `biomcp.sync/3` receipt. Any missing, extra, reordered or changed header in either table fails the whole replacement and keeps the prior usable copy. `search diagnostic --source fda-cdx --device-id P150013` returns that application's rows and `--device-id P150013/S020` only that exact supplement's rows. `--drug-application BLA125514` returns rows whose own drug cell link carries that exact application. `--biomarker KRAS` returns table-0 rows whose whole `Biomarker(s)` cell equals the value. Each search returns a five-row association page with the snapshot revision, table index and physical row index as row provenance, paged with `--limit` and `--offset`.
 
 - Why: 13 of 24 diagnostic questions need device, drug and indication rows that no structured source carries, and the 0154 PM ruling approved this bundle with exact header checks and the recheck amendments fixed its selectors.
 - Starts from: diagnostic.md's exact FDA table contract, owned identifier rules, companion page sketch, next-step table and case map, with the 0154 PM rulings and recheck amendments 1, 2 and 3; the j12632 capture's physical tables and resolved rows; the shared `sync <bundle>` contract and stored-only bundle read API; 0172's dispatch registration; 0170's types and 0171's registry.
