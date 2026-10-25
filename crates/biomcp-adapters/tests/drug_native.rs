@@ -2,15 +2,15 @@
 use biodata::{DrugIdentity, DrugIdentityLevel};
 use biomcp_adapters::{chembl, opentargets};
 use serde_json::json;
-fn identity(id: &str, name: &str, source: &str) -> DrugIdentity {
-    DrugIdentity {
-        id: id.parse().unwrap(),
-        source: source.parse().unwrap(),
-        name: name.parse().unwrap(),
+fn identity(id: &str, name: &str, source: &str) -> Result<DrugIdentity, biodata::Error> {
+    Ok(DrugIdentity {
+        id: id.parse()?,
+        source: source.parse()?,
+        name: name.parse()?,
         identity_level: DrugIdentityLevel::Unknown,
         r#type: None,
         url: None,
-    }
+    })
 }
 #[test]
 fn chembl_target_records_do_not_manufacture_a_gene() {
@@ -18,7 +18,7 @@ fn chembl_target_records_do_not_manufacture_a_gene() {
         "fixtures/drug/chembl-trastuzumab-mechanisms.json"
     ))
     .unwrap();
-    let drug = identity("CHEMBL1201585", "TRASTUZUMAB", "chembl");
+    let drug = identity("CHEMBL1201585", "TRASTUZUMAB", "chembl").unwrap();
     let rows = chembl::map_targets(&drug, page.mechanisms).unwrap();
     assert_eq!(rows.len(), 1);
     assert!(rows[0].target().is_none());
@@ -36,7 +36,7 @@ fn chembl_indications_keep_each_native_disease_label_stage_and_reference() {
     ))
     .unwrap();
     let rows = chembl::map_indications(
-        &identity("CHEMBL941", "IMATINIB", "chembl"),
+        &identity("CHEMBL941", "IMATINIB", "chembl").unwrap(),
         page.drug_indications,
     )
     .unwrap();
@@ -67,7 +67,7 @@ fn opentargets_preserves_native_stage_and_all_target_members_without_authorizati
         serde_json::from_str(include_str!("fixtures/drug/opentargets-axicel-detail.json")).unwrap();
     let mut drug: opentargets::Drug =
         serde_json::from_value(value["data"]["drug"].clone()).unwrap();
-    let identity = identity(&drug.id, &drug.name, "opentargets");
+    let identity = identity(&drug.id, &drug.name, "opentargets").unwrap();
     let extra = json!({"id":"ENSG00000141736","approvedSymbol":"ERBB2","approvedName":"erb-b2 receptor tyrosine kinase 2"});
     // Synthetic second member protects complete native member context; the first remains captured CD19.
     drug.mechanisms_of_action.rows[0]
