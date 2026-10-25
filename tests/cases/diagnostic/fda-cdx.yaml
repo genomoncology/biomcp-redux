@@ -286,6 +286,24 @@
           "diagnostic"
         ]
       }
+    },
+    {
+      "run": [
+        "sync",
+        "fda-cdx",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "fda-cdx",
+        "--fresh"
+      ],
+      "max_bytes": 354,
+      "max_tokens": 89,
+      "expect": {
+        "/schema": "biomcp.sync/3",
+        "/result/rows": 9
+      }
     }
   ]
 }

@@ -19,7 +19,7 @@ biodata::wire_enum! {
 fn limit() -> u32 {
     5
 }
-/// Checked selected-source diagnostic discovery; no identity resolution or I/O.
+/// Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -29,7 +29,7 @@ pub struct DiagnosticSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Required explicit GTR or FDA companion-table source.
+    /// gtr: exact native gene/condition/type fields. fda-cdx: whole companion rows; no inferred treatment.
     source: DiagnosticSearchSource,
     /// Exact source GeneID, exclusive with gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -53,7 +53,7 @@ struct SearchFields {
     /// Exact table-0 biomarker cell; unsupported in the group table.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     biomarker: Option<Text>,
-    /// Maximum native rows on this page.
+    /// Five rows by default; at most fifty whole native rows.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,

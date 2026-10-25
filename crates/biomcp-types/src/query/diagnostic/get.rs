@@ -1,7 +1,7 @@
 use super::{DiagnosticGetSource, DiagnosticSection, QueryInvalid, limit};
 use biodata::{GtrTestId, PmaNumber, PmaSupplement, Text, WhoProductId};
 use serde::{Deserialize, Serialize};
-/// Checked exact diagnostic selection with source-owned section pagination.
+/// Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -14,9 +14,9 @@ struct GetFields {
     /// Exact native identity, including version for GTR.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: Text,
-    /// Required explicit source; no all or automatic lookup.
+    /// Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number.
     source: DiagnosticGetSource,
-    /// One source-supported named page, absent for the card.
+    /// gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<DiagnosticSection>,
