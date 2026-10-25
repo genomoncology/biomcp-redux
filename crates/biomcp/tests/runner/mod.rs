@@ -1,6 +1,7 @@
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
+mod vaers;
 mod article_save;
 mod assertions;
 mod clinpgx;
@@ -542,6 +543,7 @@ fn drug_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(drug_failures::trials());
     trials.extend(adverse_event_failures::trials());
+    trials.extend(vaers::trials());
     trials.extend(drug_identity::trials());
     trials.extend(drug_registry::trials());
     trials.extend(adverse_event_registry::trials());
