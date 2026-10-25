@@ -41,6 +41,34 @@ pub(super) fn retained() -> Result<(), String> {
     {
         return Err("drift witnesses were discarded, retained for clean cases or unbounded".into());
     }
+    let big = "x".repeat(600 * 1024);
+    let report = live::summary(
+        vec![
+            sample("first", true, json!(big)),
+            sample("second", true, json!(big)),
+        ],
+        BTreeMap::new(),
+        0,
+        true,
+    );
+    let rows = report
+        .get("case_sample")
+        .and_then(Value::as_array)
+        .ok_or("no bounded rows")?;
+    let size = rows
+        .iter()
+        .filter_map(|row| row.get("witness"))
+        .try_fold(0, |size, value| {
+            serde_json::to_vec(value).map(|bytes| size + bytes.len())
+        })
+        .map_err(|e| e.to_string())?;
+    if size > 1024 * 1024
+        || !rows
+            .iter()
+            .any(|row| row.pointer("/witness/cut") == Some(&json!(true)))
+    {
+        return Err("multiple cases bypassed the total witness bound".into());
+    }
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::super::launch::fixtures().join("replies/gene/main");
     let mut captured = json!({});

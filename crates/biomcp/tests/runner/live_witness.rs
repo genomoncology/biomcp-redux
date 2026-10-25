@@ -35,6 +35,25 @@ pub(super) fn retain(results: &mut [Value]) {
     }
 }
 
+type Reply = (Value, Vec<Observation>);
+pub(super) fn command(
+    baseline: &Environment,
+    live: &Environment,
+    args: (&[String], &[String]),
+    replay: &Path,
+    ordinal: usize,
+    captures: &mut Vec<Value>,
+) -> Result<(Reply, Result<Reply, String>), String> {
+    captures.push(json!({"ordinal":ordinal}));
+    let capture = captures.last_mut().ok_or("missing command capture")?;
+    let expected = invoke(baseline, args.0, Some(replay), ordinal, capture, "baseline")?;
+    if ordinal == 1 && expected.1.is_empty() {
+        return Err("recorded command has no provider observations".into());
+    }
+    let actual = invoke(live, args.1, None, ordinal, capture, "live");
+    Ok((expected, actual))
+}
+
 pub(in crate::runner) fn invoke(
     environment: &Environment,
     args: &[String],

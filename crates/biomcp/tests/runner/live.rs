@@ -201,20 +201,14 @@ fn check(
             if ordinal > 128 {
                 return Err("case command budget exhausted".into());
             }
-            captures.push(json!({"ordinal": ordinal}));
-            let capture = captures.last_mut().ok_or("missing command capture")?;
-            let (expected, before) = witness::invoke(
+            let ((expected, before), reply) = witness::command(
                 &baseline,
-                &args.0,
-                Some(&replay),
+                &live,
+                (&args.0, &args.1),
+                &replay,
                 ordinal,
-                capture,
-                "baseline",
+                captures,
             )?;
-            if ordinal == 1 && before.is_empty() {
-                return Err("recorded command has no provider observations".into());
-            }
-            let reply = witness::invoke(&live, &args.1, None, ordinal, capture, "live");
             pace(&before, &reply, started);
             let (actual, after) = reply?;
             if registry.validate(&actual, &args.1, true).is_err() {
@@ -234,8 +228,8 @@ fn check(
                 break;
             }
             let next = (
-                next_page(previous.0.as_ref()),
-                next_page(previous.1.as_ref()),
+                action(previous.0.as_ref().ok_or("missing baseline")?, "page"),
+                action(previous.1.as_ref().ok_or("missing live result")?, "page"),
             );
             match next {
                 (Ok(before), Ok(after)) => args = (before, after),
@@ -251,9 +245,6 @@ fn check(
         }
     }
     Ok(json!({"drift": changes, "skipped_steps": skipped, "commands": commands}))
-}
-fn next_page(value: Option<&Value>) -> Result<Vec<String>, String> {
-    action(value.ok_or("missing page result")?, "page")
 }
 
 fn pace(
