@@ -181,3 +181,6 @@ pub(crate) static CPIC: Quota =
 // ClinPGx publishes two requests per second; this serial policy stays below it.
 pub(crate) static CLINPGX: Quota =
     Quota::new(SourceKey::declare("clinpgx"), Rate::per_second(1), None, 1);
+
+/// CDC WONDER shared minimum spacing.
+pub static WONDER: Quota = Quota::new(SourceKey::declare("wonder"), Rate::every_seconds(16), None, 1);

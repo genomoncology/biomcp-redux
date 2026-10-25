@@ -89,6 +89,15 @@ fn guidance(
     match positional {
         ["drug", "adverse-events", ..] => Some(ErrorMessage::AdverseText),
         ["search" | "get", "adverse-event", rest @ ..] => {
+            if source == Some("vaers") {
+                if positional.first() == Some(&"get") { return Some(ErrorMessage::VaersGet); }
+                let text = rest.first().copied().unwrap_or("");
+                if text.eq_ignore_ascii_case("FLU") || text.eq_ignore_ascii_case("influenza") || text.eq_ignore_ascii_case("Influenza vaccine") {
+                    return Some(ErrorMessage::VaersInfluenza);
+                }
+                if !["MMR", "COVID19", "COVID-19 vaccine"].iter().any(|v| text.eq_ignore_ascii_case(v)) { return Some(ErrorMessage::VaersVaccine); }
+                if serious.is_some() { return Some(ErrorMessage::VaersFilter); }
+            }
             if shared.is_some() {
                 return shared;
             }

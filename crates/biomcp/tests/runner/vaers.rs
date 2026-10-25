@@ -27,11 +27,11 @@ fn unsupported() -> Result<(), String> {
     listener.set_nonblocking(true).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",listener.local_addr().map_err(|e|e.to_string())?)}))
         .map_err(|e| e.to_string())?;
-    for text in ["HPV9", "MMR vaccine", "COVID", "influenza vaccine", "165"] {
+    for text in ["HPV9", "MMR vaccine", "COVID", "165"] {
         let args = words(text);
         let value = invoke(&env, args.clone(), 2)?;
         let message = value.pointer("/error/message").and_then(|v| v.as_str()).ok_or("argument message")?;
-        if !["MMR", "COVID19", "FLU"].iter().all(|name| message.contains(name)) {
+        if !["MMR", "COVID19"].iter().all(|name| message.contains(name)) {
             return Err(format!("unsupported vaccine lacks exact supported codes: {value}"));
         }
         if super::mcp::call_with_globals(&env, &args, true, &[])? != value {

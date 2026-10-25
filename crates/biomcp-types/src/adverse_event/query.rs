@@ -24,9 +24,16 @@ struct SearchFields {
     /// Literal drug text or MAUDE device generic-name phrase.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     text: Text,
-    /// FAERS by default; no source fallback.
+    /// FAERS by default; VAERS accepts only exact supported vaccine names.
     #[serde(default = "default_source")]
     source: AdverseEventSource,
+    /// Independent VAERS table; omitted means reported symptoms.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    section: Option<super::VaersSection>,
+    /// Retained VAERS table for provider-free continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    snapshot: Option<Text>,
     /// FAERS MedDRA term phrase match, not exact equality.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     reaction: Option<Text>,
@@ -56,7 +63,9 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
             || v.received_from
                 .zip(v.received_to)
                 .is_some_and(|(a, b)| a.to_string() > b.to_string())
-            || (v.source == AdverseEventSource::Maude
+            || (v.source != AdverseEventSource::Vaers && (v.section.is_some() || v.snapshot.is_some()))
+            || (v.source == AdverseEventSource::Vaers && super::vaers::vaccine(v.text.as_str()).is_none())
+            || (v.source != AdverseEventSource::Faers
                 && (v.reaction.is_some()
                     || v.serious.is_some()
                     || v.received_from.is_some()
@@ -68,6 +77,26 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
     }
 }
 impl AdverseEventSearch {
+    /// Selected VAERS grouping.
+    pub fn vaers_section(&self) -> super::VaersSection {
+        self.0.section.unwrap_or(super::VaersSection::Symptoms)
+    }
+    /// Checked retained table identity.
+    pub fn snapshot(&self) -> Option<&Text> { self.0.snapshot.as_ref() }
+    /// Bind navigation to one native table.
+    pub fn with_snapshot(&self, snapshot: Text) -> Self {
+        let mut q = self.clone(); q.0.snapshot = Some(snapshot); q
+    }
+    /// Begin a separate grouping without borrowing its sibling denominator.
+    pub fn with_vaers_section(&self, section: super::VaersSection) -> Self {
+        let mut q = self.clone(); q.0.section = Some(section); q.0.snapshot = None; q.0.offset = 0; q
+    }
+    /// Restart without an expired retained table.
+    pub fn restart(&self) -> Self {
+        let mut q = self.clone(); q.0.snapshot = None; q.0.offset = 0; q
+    }
+    /// Exact supported vaccine code, never an inferred code bridge.
+    pub fn vaccine(&self) -> Option<&'static str> { super::vaers::vaccine(self.0.text.as_str()) }
     /// Literal source text.
     pub fn text(&self) -> &Text {
         &self.0.text
@@ -144,7 +173,8 @@ struct GetFields {
 impl TryFrom<GetFields> for AdverseEventGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if (v.source == AdverseEventSource::Maude
+        if v.source == AdverseEventSource::Vaers
+            || (v.source == AdverseEventSource::Maude
             && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
             || !(1..=50).contains(&v.section_limit)
             || v.section.is_some_and(|s| s.source() != v.source)

@@ -56,6 +56,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::seer::SPEC,
     &crate::faers::SPEC,
     &crate::maude::SPEC,
+    &crate::vaers::SPEC,
 ];
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
