@@ -95,3 +95,11 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+fn unsupported(source: Source, mut out: Outcome) -> Outcome {
+    out.sources.push(biomcp_adapters::registry::outcome(
+        source,
+        SourceState::Skipped,
+        Some(biomcp_types::Reason::Unsupported),
+    ));
+    out
+}
