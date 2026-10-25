@@ -31,7 +31,12 @@ docs-check:
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_coverage.py
+	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer
 .PHONY: release-artifacts
 release-artifacts:
 	sh release/matrix.sh
+
+.PHONY: nightly-live-check
+nightly-live-check:
+	python3 scripts/nightly_live_check.py

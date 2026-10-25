@@ -16,4 +16,14 @@ Milestone: 3
 - 0.9: measure 0.9's adverse event commands on the same examples only behind verified network containment, as 0136 did; otherwise mark the comparison unmeasured. Account for every command, option and section.
 - Design: the delight questions, types and schema, command tree with headers, drill-downs and next steps, disclosure layers and measured token budget, sources kept and dropped with use labels and groups, a case list per command and option, and an "Ian's questions" section.
 - Proof: the PM reviews the design on its branch. Live captures run through pm job with raw evidence on the evidence store. No licensed content enters the repo.
+- PM review 2026-10-25 of 21ad15d2, returned with fixes that use the evidence already captured:
+  1. Search and get only: remove `count`, `summary`, `sync cvx` and CVX search and get. Counts become `search adverse-event TEXT --count reaction` only if one harvested most-reported-reactions question is added from the F19 capture; the seriousness count is dropped because F13's total answers it.
+  2. FAERS is the default source. Input is positional, with no `--query`. The table shows the exact query text built and its echo. Typed filters `--reaction` (exact MedDRA preferred term), `--serious death|hospitalization` and `--received-from` and `--received-to` (first FDA receipt) each tie to a captured positive row; suspect-only, age, sex and reporter filters are dropped. For MAUDE, positional text searches the device generic name.
+  3. VAERS and CVX end as dropped from this slice, with retirement messages and reasons. Whether to accept losing 0.9's vaccine search goes to Ian; until he rules, the design records the loss.
+  4. Tie every case to its captured facts and date; D03 is the real empty case; A24 is labeled synthetic; A04's fatal filter, A15 and A21 to A22 are marked unanswered or removed.
+  5. Source and report links are card fields. Next steps follow architecture 6.10.
+  6. Add JSON shapes and field lists for the report header, both cards and each section page, and a case map per command and option.
+  7. Prove the `reporter` section's fields from the field inventory or drop it; mark multi-version get unproven.
+  8. Count rows reuse the shared `CohortObservation` or state why not; reaction terms are `Concept` without a CURIE; identifiers keep published forms; record openFDA's third-party marks for MedDRA reaction terms and GMDN device names, with use labels.
+  9. Every budget row is marked for measurement by its adapter ticket, with a ceiling at measured size plus margin.
 - Defers: tickets, which the PM files from the reviewed design.
