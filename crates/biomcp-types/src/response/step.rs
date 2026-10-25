@@ -14,6 +14,8 @@ StepKind {
     Fresh => "fresh",
     /// Select a canonical identity.
     Disambiguate => "disambiguate",
+    /// Follow an exact linked record in another entity.
+    Pivot => "pivot",
     /// Synchronize a missing or stale identity file.
     Sync => "sync",
     /// Explain how to configure a source key.
