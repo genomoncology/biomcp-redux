@@ -95,7 +95,12 @@ impl Fetch {
         if set.parts.is_empty() || leg.budget().expired() {
             return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
         }
-        let content_revision = format!("sha256:{:x}", revision.finalize());
+        let hex: String = revision
+            .finalize()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
+        let content_revision = format!("sha256:{hex}");
         let metadata = store::Meta {
             bytes,
             rows: complete.len() as u64,
