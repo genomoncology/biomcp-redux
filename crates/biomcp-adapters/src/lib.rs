@@ -69,7 +69,8 @@ mod chembl;
 mod ddinter;
 mod drugsfda;
 mod ema;
-mod mychem;
+/// MyChem literal native candidate and document identity adapter.
+pub mod mychem;
 mod openfda_label;
 mod opentargets;
 

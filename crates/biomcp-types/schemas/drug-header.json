@@ -1,7 +1,7 @@
 {
   "$defs": {
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentityLevel": {
@@ -57,7 +57,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-header/1",
+  "$id": "biomcp.drug-header/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One source candidate, without authorization, targets, label text or interactions.",
@@ -104,7 +104,6 @@
   "required": [
     "id",
     "source",
-    "name",
     "identity_level"
   ],
   "title": "DrugHeader",

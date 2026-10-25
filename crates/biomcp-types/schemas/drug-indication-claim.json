@@ -111,7 +111,7 @@
       "type": "object"
     },
     "DrugId": {
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
     "DrugIdentity": {
@@ -160,7 +160,6 @@
       "required": [
         "id",
         "source",
-        "name",
         "identity_level"
       ],
       "type": "object"
@@ -264,7 +263,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.drug-indication-claim/2",
+  "$id": "biodata.drug-indication-claim/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A source indication retaining its full population and combination wording.",
