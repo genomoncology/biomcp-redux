@@ -1,6 +1,7 @@
 # 0168 — Retire old pharmacogenomics options and prove pharmacogenomics failure and pairing cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 79d1d02bb76d5106ed754f12b88c7d1f9f3f669a
 
 Milestone: 4
 
