@@ -13,6 +13,8 @@ const MAX_CASES: usize = 1024;
 mod comparison;
 pub(super) use comparison::compare;
 const CASE_SAMPLE: usize = 20;
+#[path = "live_witness.rs"]
+pub(super) mod witness;
 const RUN_BUDGET: Duration = Duration::from_secs(3600);
 
 pub(super) fn drift(before: &Shape, after: &Shape) -> Vec<String> {
@@ -69,11 +71,14 @@ pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
             results.push(json!({"case": name, "eligible": true}));
             continue;
         }
-        let result = check(&case, &registry, &mut sources, started);
-        results.push(match result {
-            Ok(report) => json!({"case": name, "result": report}),
-            Err(error) => json!({"case": name, "error": error}),
-        });
+        let mut captures = Vec::new();
+        let result = check(&case, &registry, &mut sources, started, &mut captures);
+        let mut result = match result {
+            Ok(report) => json!({"case": name, "result": report, "witness": captures}),
+            Err(error) => json!({"case": name, "error": error, "witness": captures}),
+        };
+        witness::retain(std::slice::from_mut(&mut result));
+        results.push(result);
     }
     if list {
         return Ok(json!({"mode": "live-check-plan", "cases": results}));
@@ -86,11 +91,12 @@ pub(crate) fn run(list: bool, details: bool) -> Result<Value, String> {
     ))
 }
 pub(super) fn summary(
-    results: Vec<Value>,
+    mut results: Vec<Value>,
     sources: BTreeMap<String, Value>,
     elapsed_ms: u128,
     details: bool,
 ) -> Value {
+    witness::retain(&mut results);
     let mut skipped = BTreeMap::<String, usize>::new();
     for result in &results {
         if let Some(reason) = result.get("skipped").and_then(Value::as_str) {
@@ -163,6 +169,7 @@ fn check(
     registry: &schema::Registry,
     sources: &mut BTreeMap<String, Value>,
     started: Instant,
+    captures: &mut Vec<Value>,
 ) -> Result<Value, String> {
     let replay = super::launch::fixtures()
         .join("replies")
@@ -196,11 +203,14 @@ fn check(
             if ordinal > 128 {
                 return Err("case command budget exhausted".into());
             }
-            let (expected, before) = invoke(&baseline, &args.0, Some(&replay), ordinal)?;
-            if ordinal == 1 && before.is_empty() {
-                return Err("recorded command has no provider observations".into());
-            }
-            let reply = invoke(&live, &args.1, None, ordinal);
+            let ((expected, before), reply) = witness::command(
+                &baseline,
+                &live,
+                (&args.0, &args.1),
+                &replay,
+                ordinal,
+                captures,
+            )?;
             pace(&before, &reply, started);
             let (actual, after) = reply?;
             if registry.validate(&actual, &args.1, true).is_err() {
@@ -238,6 +248,7 @@ fn check(
     }
     Ok(json!({"drift": changes, "skipped_steps": skipped, "commands": commands}))
 }
+
 fn pace(
     before: &[Observation],
     reply: &Result<(Value, Vec<Observation>), String>,
@@ -294,15 +305,21 @@ fn invoke(
     let (_, stdout, _) =
         super::process::Process::new(command.spawn().map_err(|e| e.to_string())?)?.finish()?;
     let value = serde_json::from_slice(&stdout).map_err(|_| "command did not return JSON")?;
+    let observations = observations(environment, ordinal)?;
+    Ok((value, observations))
+}
+
+fn observations(environment: &Environment, ordinal: usize) -> Result<Vec<Observation>, String> {
+    let path = environment
+        .root()
+        .join(format!("observations-{ordinal}.jsonl"));
     let text = fs::read_to_string(path).map_err(|e| e.to_string())?;
     if text.len() > 8 * 1024 * 1024 {
         return Err("observation file exceeds bound".into());
     }
-    let observations = text
-        .lines()
+    text.lines()
         .map(|line| serde_json::from_str(line).map_err(|e| e.to_string()))
-        .collect::<Result<_, _>>()?;
-    Ok((value, observations))
+        .collect()
 }
 
 pub(super) fn command_report(

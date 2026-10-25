@@ -1,4 +1,4 @@
-//! Opt-in bounded wire summaries without response values or request URLs.
+//! Opt-in bounded wire summaries with credential-free request URLs.
 #![expect(
     clippy::disallowed_types,
     reason = "Serialize bounded summaries across source workers"
@@ -114,6 +114,9 @@ impl Shape {
 pub struct Observation {
     /// Transport's prepared credential-free identity.
     pub identity: String,
+    /// Prepared URL, before any credential or contact insertion.
+    #[serde(default)]
+    pub url: String,
     /// Checked reply type, identifying the endpoint role without request values.
     #[serde(default)]
     pub role: String,
@@ -172,7 +175,7 @@ impl Observations {
 impl crate::Leg<'_> {
     pub(crate) fn observe(
         &self,
-        identity: &[u8; 32],
+        request: (&[u8; 32], &str),
         status: Option<u16>,
         body: &[u8],
         media: &str,
@@ -180,18 +183,18 @@ impl crate::Leg<'_> {
     ) {
         if self.fetch.config.observations.is_some() {
             self.observed(
-                identity,
+                request.0,
                 status,
                 body.len() as u64,
                 Shape::inspect(body, media),
                 elapsed,
-                ("bundle", false),
+                ("bundle", false, request.1),
             );
         }
     }
     pub(crate) fn observe_bundle(
         &self,
-        identity: &[u8; 32],
+        request: (&[u8; 32], &str),
         status: Option<u16>,
         body: &[u8],
         format: crate::RowFormat,
@@ -221,12 +224,12 @@ impl crate::Leg<'_> {
             crate::RowFormat::Csv { .. } | crate::RowFormat::NativeCsv { .. } => "text/csv",
         };
         self.observed(
-            identity,
+            request.0,
             status,
             body.len() as u64,
             Shape::inspect(header, media),
             elapsed,
-            ("bundle", false),
+            ("bundle", false, request.1),
         );
     }
     pub(crate) fn observed(
@@ -236,11 +239,12 @@ impl crate::Leg<'_> {
         bytes: u64,
         shape: Shape,
         elapsed: std::time::Duration,
-        context: (&str, bool),
+        context: (&str, bool, &str),
     ) {
         if let Some(sink) = &self.fetch.config.observations {
             sink.push(&Observation {
                 identity: identity.iter().map(|byte| format!("{byte:02x}")).collect(),
+                url: context.2.to_owned(),
                 role: context.0.to_owned(),
                 cached: context.1,
                 source: self.spec.source,

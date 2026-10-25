@@ -77,8 +77,7 @@ transport enforces within-command quotas. Commands run serially with a keyless
 interval between them. The run has a discovery limit and a total time budget;
 child watchdogs kill and reap hung commands. The optional `--observe PATH` creates
 an exclusive bounded JSON-lines diagnostic file. It contains existing transport
-identities, attempts, status, received bytes, elapsed time and sampled raw field
-structure. It contains no URL, response text or scalar values. Truncated samples
+identities, credential-free prepared request URLs, attempts, status, received bytes, elapsed time and sampled raw field structure. It contains no HTTP headers or response body values. Drifted and errored cases retain bounded baseline and live context in the report; clean cases retain summaries. The total witness bound is `MAX_WITNESS_BYTES`, and discarded context has an explicit cut marker. Product output values are retained only when every contributing source has open use; other terms retain shape and identities. Truncated samples
 can miss optional-field changes; schema failures and status transitions remain
 reported separately. Live counts compare only positive to zero, never historical
 exact totals. Drift is diagnostic and does not fail the landing gate.

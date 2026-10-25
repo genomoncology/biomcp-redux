@@ -192,7 +192,7 @@ impl Leg<'_> {
                     0,
                     crate::Shape::default(),
                     std::time::Duration::ZERO,
-                    (std::any::type_name::<T>(), true),
+                    (std::any::type_name::<T>(), true, &prepared.url),
                 );
             }
             return Ok(fresh.then_some(Checked::Absent));
@@ -222,7 +222,7 @@ impl Leg<'_> {
                 0,
                 crate::Shape::inspect(&entry.body, codec.name()),
                 std::time::Duration::ZERO,
-                (std::any::type_name::<T>(), true),
+                (std::any::type_name::<T>(), true, &prepared.url),
             );
         }
         Ok(Some(Checked::Positive(
