@@ -234,8 +234,8 @@ fn check(
                 break;
             }
             let next = (
-                action(previous.0.as_ref().ok_or("missing baseline")?, "page"),
-                action(previous.1.as_ref().ok_or("missing live result")?, "page"),
+                next_page(previous.0.as_ref()),
+                next_page(previous.1.as_ref()),
             );
             match next {
                 (Ok(before), Ok(after)) => args = (before, after),
@@ -252,6 +252,10 @@ fn check(
     }
     Ok(json!({"drift": changes, "skipped_steps": skipped, "commands": commands}))
 }
+fn next_page(value: Option<&Value>) -> Result<Vec<String>, String> {
+    action(value.ok_or("missing page result")?, "page")
+}
+
 fn pace(
     before: &[Observation],
     reply: &Result<(Value, Vec<Observation>), String>,
