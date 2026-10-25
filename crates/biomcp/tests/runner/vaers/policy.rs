@@ -5,7 +5,7 @@ pub(super) fn run() -> Check {
     let stub = Stub::for_source("wonder.cdc.gov", "application/xml", |_| Ok(super::fixture::table("MMR","D8.V13-level2")))?;
     let env = environment(&stub)?;
     let recording = env.root().join("recording");
-    let mut args = vec!["--record".into(),recording.to_string_lossy().into_owned()]; args.extend(words("MMR"));
+    let mut args = vec!["--record".into(),recording.to_string_lossy().into_owned()]; args.extend(words("MMR")); args.extend(["--limit".into(),"2".into()]);
     let value = invoke(&env,args,0)?;
     let page = value.get("next").and_then(|v|v.as_array()).and_then(|v|v.iter().find(|v|v.get("kind")==Some(&json!("page")))).and_then(|v|v.get("args"));
     for switch in ["vaers","restricted"] {
