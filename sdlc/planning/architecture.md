@@ -1311,7 +1311,7 @@ Link commands that equal a filter on the target's search do not exist. Drill-dow
 
 ### 6.10 Next steps
 
-Each response type has one pure `next` function in its entity's `next.rs`. It returns typed actions with their kinds, ordered by what the slice found agents need first. When a page holds selectable candidates, `next` holds one `disambiguate` get per candidate on that page, bounded by the checked page limit, then the `page` step, then at most three other steps. Otherwise it holds at most five steps:
+Each response type has one pure `next` function in its entity's `next.rs`. It returns typed actions with their kinds, ordered by what the slice found agents need first. When a page holds selectable candidates, `next` holds one `disambiguate` get per candidate on that page, bounded by the checked page limit, then the `page` step, then at most three other steps. An association page treats each distinct linked record on the page, such as a gene, the same way, with one `pivot` per record in source order. Otherwise it holds at most five steps:
 
 | Kind | When |
 | --- | --- |
