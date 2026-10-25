@@ -1,27 +1,7 @@
+use super::DrugSource;
 use crate::QueryInvalid;
 use biodata::{DrugId, Text};
 use serde::{Deserialize, Serialize};
-biodata::canonical_enum! {
-    /// One explicitly selected drug source; omitted search source means MyChem alone.
-    DrugSource, SourceUnknown {
-        /// MyChem candidate identity.
-        Mychem => "mychem",
-        /// ChEMBL native records.
-        Chembl => "chembl",
-        /// Open Targets native drug records.
-        Opentargets => "opentargets",
-        /// CIViC therapy records.
-        Civic => "civic",
-        /// openFDA SPL label records.
-        OpenfdaLabel => "openfda-label",
-        /// Drugs@FDA native application records.
-        Drugsfda => "drugsfda",
-        /// EMA native medicines records.
-        Ema => "ema",
-        /// DDInter native bundle records.
-        Ddinter => "ddinter",
-    }
-}
 biodata::canonical_enum! {
     /// Explicit drug disclosures; identity cards never expand into these sections.
     DrugSection, SourceUnknown {
