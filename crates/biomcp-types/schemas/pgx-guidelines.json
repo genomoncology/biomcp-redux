@@ -128,7 +128,7 @@
           "x-positional": 0
         },
         "section_limit": {
-          "description": "Complete source rows per page; clinical defaults to three, other sections to five.",
+          "description": "Rows per page: three clinical, five elsewhere.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -150,7 +150,7 @@
               "type": "null"
             }
           ],
-          "description": "Checked retained ClinPGx collection for provider-free continuation."
+          "description": "Retained collection for local continuation."
         },
         "source": {
           "$ref": "#/$defs/PgxSource",
