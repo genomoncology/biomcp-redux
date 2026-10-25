@@ -11,6 +11,7 @@ mod cpic;
 mod credential_containment;
 mod diagnostic_cdx;
 mod diagnostic_gtr;
+mod diagnostic_pma;
 mod diagnostic_registry;
 mod diagnostic_who;
 mod disease_monarch;
@@ -546,6 +547,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(diagnostic_registry::trials());
     trials.extend(diagnostic_gtr::trials());
     trials.extend(diagnostic_who::trials());
+    trials.extend(diagnostic_pma::trials());
     trials.extend(diagnostic_cdx::trials());
     trials.extend(pgx_registry::trials());
     trials.extend(cpic::trials());

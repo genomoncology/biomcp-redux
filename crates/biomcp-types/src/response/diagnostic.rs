@@ -152,8 +152,10 @@ pub struct DiagnosticRegulatoryFragment {
     pub offset: u32,
     /// Total mechanical fragments.
     pub total: u32,
-    /// Complete unmodified text fragment.
-    pub text: Box<str>,
+    /// Complete unmodified text fragment; omitted when the source statement is absent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "String"))]
+    pub text: Option<Box<str>>,
 }
 biodata::wire_enum! {
     /// Regulatory text available in this source tier.

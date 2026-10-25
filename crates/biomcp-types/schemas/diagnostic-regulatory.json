@@ -267,7 +267,7 @@
           "description": "Exact selected native record and its dated regulatory metadata."
         },
         "text": {
-          "description": "Complete unmodified text fragment.",
+          "description": "Complete unmodified text fragment; omitted when the source statement is absent.",
           "type": "string"
         },
         "total": {
@@ -282,8 +282,7 @@
         "metadata",
         "field",
         "offset",
-        "total",
-        "text"
+        "total"
       ],
       "type": "object"
     },
@@ -432,11 +431,13 @@
       "description": "A stable code for a rejected field value.",
       "enum": [
         "value.unknown",
+        "collection.incomplete",
         "identity.conflict"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " The field value was not recognized.",
+        " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records."
       ]
     },

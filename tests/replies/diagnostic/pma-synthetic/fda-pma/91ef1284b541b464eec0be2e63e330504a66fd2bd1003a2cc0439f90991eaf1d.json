@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "fda-pma",
+  "url": "https://api.fda.gov/device/pma.json?search=pma_number%3A%22P000000%22&limit=100&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1792921798,
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": {
+            "code": "NOT_FOUND",
+            "message": "No matches found!"
+          }
+        }
+      }
+    }
+  ]
+}

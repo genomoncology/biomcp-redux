@@ -2,6 +2,7 @@
 mod companion;
 mod get;
 mod next;
+mod pma;
 mod who;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;

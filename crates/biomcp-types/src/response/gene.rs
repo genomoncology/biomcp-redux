@@ -91,6 +91,10 @@ pub enum QueryBody {
     DiagnosticConditions(crate::DiagnosticConditions),
     /// Independent native method entries.
     DiagnosticMethods(crate::DiagnosticMethods),
+    /// Exact selected submission statement fragments.
+    DiagnosticRegulatory(crate::DiagnosticRegulatory),
+    /// Native supplement headers for one exact application.
+    DiagnosticSupplements(crate::DiagnosticSupplements),
     /// Report get belongs to its next runtime slice.
     UnsupportedAdverseEvent,
     /// Exact checked FAERS report.

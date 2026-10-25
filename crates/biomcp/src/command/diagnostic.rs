@@ -20,6 +20,12 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::GetDiagnostic(q), QueryBody::DiagnosticMethods(body)) => {
             meta.encode(q, usable.then_some(body))
         }
+        (Request::GetDiagnostic(q), QueryBody::DiagnosticRegulatory(body)) => {
+            meta.encode(q, usable.then_some(body))
+        }
+        (Request::GetDiagnostic(q), QueryBody::DiagnosticSupplements(body)) => {
+            meta.encode(q, usable.then_some(body))
+        }
         _ => Err(io::Error::other("diagnostic response mismatch")),
     }
 }
