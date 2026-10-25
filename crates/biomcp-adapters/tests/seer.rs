@@ -160,3 +160,37 @@ fn contradictory_returned_period_is_retained_as_a_problem() {
             .any(|p| p.field.as_ref() == "dataset_membership")
     );
 }
+
+#[test]
+fn incidence_preserves_stage_order_and_native_counts_without_aggregating() {
+    let fetch = fetch();
+    let leg = fetch.leg(&seer::SPEC, fetch.deadline(Duration::from_secs(20)));
+    let query = Selection {
+        site: "47".parse().unwrap(),
+        sex: "1".parse().unwrap(),
+        race: "1".parse().unwrap(),
+        age_range: "1".parse().unwrap(),
+        dataset: "4".parse().unwrap(),
+        statistic: Statistic::Incidence {
+            period: "5".parse().unwrap(),
+        },
+    };
+    let page = seer::statistics(&leg, &query, 1, 0).unwrap();
+    assert_eq!(page.total, 2);
+    assert_eq!(page.rows[0].observed.as_ref().unwrap().count, Some(100));
+    assert!(page.rows[0].modeled.is_none());
+    assert!(page.rows[0].year.is_none());
+    assert_eq!(
+        page.rows[0]
+            .returned_selectors
+            .iter()
+            .find(|s| s.name.as_str() == "stage")
+            .unwrap()
+            .code
+            .as_str(),
+        "104"
+    );
+    let terminal = seer::statistics(&leg, &query, 1, 2).unwrap();
+    assert_eq!(terminal.total, 2);
+    assert!(terminal.rows.is_empty());
+}

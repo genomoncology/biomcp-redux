@@ -64,7 +64,7 @@ pub(super) enum Cell {
     Text(String),
 }
 impl Cell {
-    pub fn number(&self) -> Result<biodata::FiniteNumber, BadReply> {
+    pub(super) fn number(&self) -> Result<biodata::FiniteNumber, BadReply> {
         let value = match self {
             Self::Integer(n) => n.to_string().parse().map_err(|_| BadReply)?,
             Self::Number(n) => *n,
@@ -72,7 +72,7 @@ impl Cell {
         };
         biodata::FiniteNumber::try_from(value).map_err(|_| BadReply)
     }
-    pub fn integer(&self) -> Result<u64, BadReply> {
+    pub(super) fn integer(&self) -> Result<u64, BadReply> {
         match self {
             Self::Integer(n) => Ok(*n),
             Self::Text(n) => n.parse().map_err(|_| BadReply),
