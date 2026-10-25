@@ -66,3 +66,5 @@ drug-types: A public API caller validates published drug identifiers, selected-s
 
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/*.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`.
 disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
+
+drug-label: Read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes. Cases: `crates/biomcp/tests/runner/drug_label.rs`.
