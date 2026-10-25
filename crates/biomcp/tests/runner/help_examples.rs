@@ -80,6 +80,7 @@ fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, Strin
                         || v == "diagnostic"
                         || v == "gtr"
                         || v == "who-ivd"
+                        || v == "who-pq"
                         || v == "fda-cdx"
                 })
         })
