@@ -67,6 +67,14 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Report get belongs to its next runtime slice.
     UnsupportedAdverseEvent,
+    /// Exact checked FAERS report.
+    AdverseEventFaersCard(Option<crate::AdverseEventFaersCard>),
+    /// Independent native drug rows.
+    AdverseEventDrugs(Option<crate::AdverseEventDrugs>),
+    /// Independent native reaction rows.
+    AdverseEventReactions(Option<crate::AdverseEventReactions>),
+    /// One original harmonized identifier array.
+    AdverseEventIdentifiers(Option<crate::AdverseEventIdentifiers>),
     /// Source-native adverse event report page.
     AdverseEventPage(crate::AdverseEventPage),
     /// Exact native device report card.
