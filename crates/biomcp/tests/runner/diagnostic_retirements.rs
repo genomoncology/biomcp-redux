@@ -210,6 +210,12 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         .ok_or("missing status")?;
     // Full compact synthetic maxima measured by j13382.
     let baseline: usize = match (schema, kind, status) {
+        // New WHO search view, full compact maximum measured by j13465.
+        ("biomcp.diagnostic_page/2", "", _)
+            if value.pointer("/query/source") == Some(&json!("who-ivd")) =>
+        {
+            2249
+        }
         ("biomcp.diagnostic_card/1", "", "absent") => 281,
         ("biomcp.diagnostic_card/1", "", "failed") => 436,
         ("biomcp.diagnostic_card/1", "", "partial") => 393,
