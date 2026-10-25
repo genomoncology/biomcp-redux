@@ -1,0 +1,3 @@
+These are synthetic local report replies. The real transport recorder wrote their request identities and timestamps through a local TLS peer. The generator is the case runner's `--faers-search-synthetic-examples DIRECTORY` mode. It retains both recordings before its isolated environment ends and refuses an incomplete output.
+
+Report IDs 100 through 104, the total 20, dataset date 2024-09-01, drug names and reaction labels are invented mechanical witnesses. These bodies prove command and help behavior. They do not prove a native drug, reaction, clinical association or provider total. No provider was contacted.

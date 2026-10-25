@@ -80,7 +80,12 @@ fn setup(query: &str, limit: u32) -> Result<(Environment, Stub), String> {
         &["api.fda.gov"],
         |_| "application/json",
         move |request| {
-            let offset = if request.lines().next() == Some(expected.as_str()) {0} else if request.lines().next() == Some(expected.replace("skip=0", "skip=5").as_str()) {5} else {
+            let offset = if request.lines().next() == Some(expected.as_str()) {
+                0
+            } else if request.lines().next() == Some(expected.replace("skip=0", "skip=5").as_str())
+            {
+                5
+            } else {
                 return Err(format!("wrong literal selector: {request}"));
             };
             Ok(body(limit, offset).to_string())
@@ -106,7 +111,22 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
     if cli != mcp {
         return Err("CLI/MCP report search differs".into());
     }
+    measure(&cli, &args)?;
     Ok(cli)
+}
+fn measure(value: &Value, args: &[String]) -> Check {
+    let full = serde_json::to_vec(value).map_err(|e|e.to_string())?.len();
+    let mut comparable = value.clone();
+    if let Some(rows) = comparable.get_mut("sources").and_then(Value::as_array_mut) {
+        for row in rows {
+            let row = row.as_object_mut().ok_or("source outcome")?;
+            for field in ["use","terms","terms_url"] { row.remove(field).ok_or("source terms")?; }
+        }
+    }
+    let bytes = serde_json::to_vec(&comparable).map_err(|e|e.to_string())?.len();
+    use std::io::Write;
+    writeln!(std::io::stdout(),"FAERS synthetic full={full} comparable={bytes} args={args:?}").map_err(|e|e.to_string())?;
+    Ok(())
 }
 fn selectors(flags: &[&str], suffix: &str) -> Check {
     let expected = format!("{}{suffix}", expression());
@@ -119,14 +139,31 @@ fn selectors(flags: &[&str], suffix: &str) -> Check {
     {
         return Err(format!("synthetic selector changed: {value}"));
     }
-    let page = value.get("next").and_then(Value::as_array).and_then(|v|v.iter().find(|s|s.get("kind")==Some(&json!("page")))).and_then(|s|s.get("args")).ok_or("filtered page action")?;
-    let words: Vec<String> = serde_json::from_value(page.clone()).map_err(|e|e.to_string())?;
-    let second = both(&env,words,0)?;
-    if second.pointer("/result/source_query") != Some(&json!(expected)) || second.pointer("/query/offset") != Some(&json!(5)) { return Err("next page lost native selector".into()); }
-    for (key, first) in value.get("query").and_then(Value::as_object).ok_or("query")? {
-        if key != "offset" && second.get("query").and_then(|v|v.get(key)) != Some(first) { return Err(format!("page lost {key}")); }
+    let page = value
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|v| v.iter().find(|s| s.get("kind") == Some(&json!("page"))))
+        .and_then(|s| s.get("args"))
+        .ok_or("filtered page action")?;
+    let words: Vec<String> = serde_json::from_value(page.clone()).map_err(|e| e.to_string())?;
+    let second = both(&env, words, 0)?;
+    if second.pointer("/result/source_query") != Some(&json!(expected))
+        || second.pointer("/query/offset") != Some(&json!(5))
+    {
+        return Err("next page lost native selector".into());
     }
-    if stub.finish()?.len() != 2 { return Err("warm filtered pages performed HTTP".into()); }
+    for (key, first) in value
+        .get("query")
+        .and_then(Value::as_object)
+        .ok_or("query")?
+    {
+        if key != "offset" && second.get("query").and_then(|v| v.get(key)) != Some(first) {
+            return Err(format!("page lost {key}"));
+        }
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("warm filtered pages performed HTTP".into());
+    }
     Ok(())
 }
 fn navigation() -> Check {

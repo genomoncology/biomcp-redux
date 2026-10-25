@@ -39,12 +39,21 @@ pub(super) fn record(directory: &Path) -> Check {
         for entry in std::fs::read_dir(recording.join("faers")).map_err(|e| e.to_string())? {
             let entry = entry.map_err(|e| e.to_string())?;
             if entry.path().extension().is_some_and(|s| s == "json") {
-                std::fs::copy(entry.path(), directory.join("faers").join(entry.file_name()))
-                    .map_err(|e| e.to_string())?;
+                std::fs::copy(
+                    entry.path(),
+                    directory.join("faers").join(entry.file_name()),
+                )
+                .map_err(|e| e.to_string())?;
             }
         }
     }
-    if std::fs::read_dir(directory.join("faers")).map_err(|e|e.to_string())?.count() != 2 { return Err("synthetic recordings were not retained".into()); }
+    if std::fs::read_dir(directory.join("faers"))
+        .map_err(|e| e.to_string())?
+        .count()
+        != 2
+    {
+        return Err("synthetic recordings were not retained".into());
+    }
     if stub.finish()?.len() != 2 {
         return Err("synthetic examples did not record two actual requests".into());
     }
