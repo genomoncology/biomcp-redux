@@ -75,7 +75,10 @@ impl Fetch {
             let endpoint = set
                 .spec
                 .get(part.path)
-                .bytes(super::MAX_BUNDLE_BYTES)
+                .bytes(match format {
+                    RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
+                    _ => super::MAX_BUNDLE_BYTES,
+                })
                 .fresh(Freshness::Never);
             let body = leg.bytes_checked(&endpoint, &[], |body| {
                 let parsed = parse::part_rows::<R>(body, format, part.name)
