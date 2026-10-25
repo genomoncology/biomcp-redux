@@ -9,10 +9,9 @@ pub(super) fn run() -> Check {
             move |_| {
                 let body = super::fixture::table("MMR", "D8.V13-level2");
                 Ok(match fault {
-                "oversized" => body.replace(
-                    "Synthetic zero-row notice.",
-                    &"x".repeat(2 * 1024 * 1024),
-                ),
+                    "oversized" => {
+                        body.replace("Synthetic zero-row notice.", &"x".repeat(2 * 1024 * 1024))
+                    }
                     "row-width" => body.replacen("<c v=\"80.00%\"/>", "", 1),
                     "vaccine" => body.replacen("code=\"MMR\"", "code=\"COVID19\"", 1),
                     "group" => body.replacen("code=\"D8.V13-level2\"", "code=\"D8.V10\"", 1),
