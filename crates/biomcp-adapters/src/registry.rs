@@ -1,5 +1,8 @@
 //! Implemented source declarations are the sole registry for terms and source switches.
 
+mod component;
+pub use component::Component;
+
 use biomcp_fetch::SourceSpec;
 use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
@@ -33,7 +36,20 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
     &crate::cbioportal::SPEC,
+    &crate::mychem::SPEC,
+    &crate::chembl::SPEC,
+    &crate::opentargets::SPEC,
+    &crate::openfda_label::SPEC,
+    &crate::drugsfda::SPEC,
+    &crate::ema::SPEC,
+    &crate::ddinter::SPEC,
 ];
+/// Independently labeled fields from every implemented aggregator.
+pub fn components() -> impl Iterator<Item = &'static Component> {
+    crate::myvariant::components::all()
+        .iter()
+        .chain(crate::drug_sources::components::COMPONENTS)
+}
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
     match name {
@@ -55,10 +71,7 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
                 SOURCES
                     .iter()
                     .filter(|s| {
-                        s.terms.usage == usage
-                            && !crate::myvariant::components::all()
-                                .iter()
-                                .any(|c| c.source == s.source)
+                        s.terms.usage == usage && !components().any(|c| c.source == s.source)
                     })
                     .map(|s| s.source),
             );
@@ -68,8 +81,7 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
                 .find(|s| s.source.to_string() == *name)
                 .map(|s| s.source)
                 .or_else(|| {
-                    crate::myvariant::components::all()
-                        .iter()
+                    components()
                         .filter_map(|c| c.native_source)
                         .find(|s| s.to_string() == *name)
                 })
@@ -107,11 +119,16 @@ pub fn probe(
     if spec.source == Source::Oncokb {
         return leg.probe(&crate::oncokb::INFO, &[]);
     }
-    if matches!(spec.source, Source::Gnomad | Source::Civic) {
+    if matches!(
+        spec.source,
+        Source::Gnomad | Source::Civic | Source::Opentargets
+    ) {
         let path = if spec.source == Source::Gnomad {
             "/api"
-        } else {
+        } else if spec.source == Source::Civic {
             "/api/graphql"
+        } else {
+            "/graphql"
         };
         return leg.probe_json(
             &spec.post_json(path).idempotent(),
@@ -141,7 +158,11 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
-        Source::MyVariant => ("/metadata", vec![]),
+        Source::MyVariant | Source::Mychem => ("/metadata", vec![]),
+        Source::Chembl => ("/status.json", vec![]),
+        Source::OpenfdaLabel | Source::Drugsfda => ("", vec![("limit", Arg::Num(1))]),
+        Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),
+        Source::Ddinter => ("/terms/", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
         Source::Mutalyzer => ("/normalize/NM_004333.4:c.1799T%3EA", vec![]),
         Source::VariantValidator => (
@@ -228,6 +249,19 @@ fn assertion_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     })
 }
 
+/// Publisher terms for a direct service or its independently switchable component.
+pub fn terms(source: Source) -> Option<biomcp_fetch::Terms> {
+    SOURCES
+        .iter()
+        .find(|spec| spec.source == source)
+        .map(|spec| spec.terms)
+        .or_else(|| {
+            components()
+                .find(|component| component.native_source == Some(source))
+                .map(|component| component.terms)
+        })
+}
+
 /// Construct every outcome with the same publisher declaration used by health.
 #[expect(
     clippy::expect_used,
@@ -238,15 +272,12 @@ pub fn outcome(
     state: biomcp_types::SourceState,
     reason: Option<biomcp_types::Reason>,
 ) -> biomcp_types::SourceOutcome {
-    let spec = SOURCES
-        .iter()
-        .find(|spec| spec.source == source)
-        .expect("source has a registered publisher declaration");
+    let terms = terms(source).expect("source has a registered publisher declaration");
     biomcp_types::SourceOutcome {
         source,
-        usage: spec.terms.usage,
-        terms: spec.terms.name.into(),
-        terms_url: spec.terms.url.into(),
+        usage: terms.usage,
+        terms: terms.name.into(),
+        terms_url: terms.url.into(),
         state,
         reason,
         term: None,
