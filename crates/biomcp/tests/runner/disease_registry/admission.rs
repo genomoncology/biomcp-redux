@@ -169,8 +169,15 @@ pub(super) fn run() -> Check {
             .map_err(|e| format!("{switch} removed reviewed HPO annotations: {e}"))?;
     }
     projection(&network, &record)?;
-    std::fs::remove_dir_all(&record).map_err(|e| e.to_string())?;
-    std::fs::create_dir(&record).map_err(|e| e.to_string())?;
+    absent_replay(&network, &record)?;
+    if stub.finish()?.len() != 4 {
+        return Err("disabled or warm request reached source".into());
+    }
+    Ok(())
+}
+fn absent_replay(network: &Network, record: &std::path::Path) -> Check {
+    std::fs::remove_dir_all(record).map_err(|e| e.to_string())?;
+    std::fs::create_dir(record).map_err(|e| e.to_string())?;
     for switch in [
         "ols",
         "mydisease",
@@ -182,7 +189,7 @@ pub(super) fn run() -> Check {
     ] {
         let fetch = policy(
             Mode::Replay {
-                dir: record.clone(),
+                dir: record.to_owned(),
             },
             None,
             network.clone(),
@@ -204,11 +211,9 @@ pub(super) fn run() -> Check {
             return Err(format!("{switch} touched absent replay"));
         }
     }
-    if stub.finish()?.len() != 4 {
-        return Err("disabled or warm request reached source".into());
-    }
     Ok(())
 }
+
 fn projection(network: &Network, record: &std::path::Path) -> Check {
     let fields = "_id,mondo.label,doid.name,hpo.phenotype_related_to_disease,orphanet.label,omim.description,disgenet.associations";
     for (switch, absent) in [

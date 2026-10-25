@@ -167,16 +167,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::CancerHotspots => ("/api/hotspots/single/byGene/BRAF", vec![]),
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
-        Source::Ols => ("/api/ontologies", vec![("size", Arg::Num(1))]),
-        Source::Monarch => (
-            "/v3/api/association",
-            vec![
-                ("object", Arg::Text("MONDO:0018875")),
-                ("subject_category", Arg::Text("biolink:Gene")),
-                ("limit", Arg::Num(1)),
-            ],
-        ),
-        Source::Seer => ("/get_var_formats.php", vec![]),
         Source::Chembl => ("/status.json", vec![]),
         Source::OpenfdaLabel | Source::Drugsfda => ("", vec![("limit", Arg::Num(1))]),
         Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),
@@ -237,6 +227,23 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             "/pubs",
             vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
         ),
+        _ => return disease_probe(source),
+    })
+}
+
+fn disease_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::Ols => ("/api/ontologies", vec![("size", Arg::Num(1))]),
+        Source::Monarch => (
+            "/v3/api/association",
+            vec![
+                ("object", Arg::Text("MONDO:0018875")),
+                ("subject_category", Arg::Text("biolink:Gene")),
+                ("limit", Arg::Num(1)),
+            ],
+        ),
+        Source::Seer => ("/get_var_formats.php", vec![]),
         _ => return assertion_probe(source),
     })
 }
