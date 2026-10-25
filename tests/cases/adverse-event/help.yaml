@@ -1,6 +1,39 @@
 {
-  "feature":"adverse-event-search",
-  "story":"A caller discovers the report budget, four typed filters and executable examples in generated help.",
-  "live_check":"Help performs no source requests.",
-  "steps":[{"run":["help","search","adverse-event"],"mcp":["help","search","adverse-event"],"expect":{"/result/commands":{"count":1},"/result/commands/0/command":["search","adverse-event"],"/result/commands/0/examples":{"count":2},"/result/commands/0/arguments/*/name":{"includes":"--reaction"}}}]
+  "feature": "adverse-event-search",
+  "story": "A caller discovers the report budget, four typed filters and executable examples in generated help.",
+  "live_check": "Help performs no source requests.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "adverse-event"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "adverse-event"
+      ],
+      "expect": {
+        "/result/commands": {
+          "count": 1
+        },
+        "/result/commands/0/command": [
+          "search",
+          "adverse-event"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes": "--reaction"
+        },
+        "": {
+          "max_bytes": 1883
+        }
+      },
+      "max_bytes": 1884,
+      "max_tokens": 471
+    }
+  ]
 }

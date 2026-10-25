@@ -1,4 +1,4 @@
-//! Canonical openFDA publisher declaration; report dispatch belongs to its adapter slice.
+//! Source-native FAERS report discovery and its canonical publisher declaration.
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;

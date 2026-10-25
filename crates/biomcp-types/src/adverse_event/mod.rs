@@ -1,4 +1,4 @@
-//! Standalone adverse event contracts; command registration belongs to its runtime slice.
+//! Source-specific adverse event requests and bounded report responses.
 mod query;
 mod response;
 mod selectors;

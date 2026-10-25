@@ -4,7 +4,62 @@
   "story": "A caller uses generated FAERS examples with literal text and explicit first-receipt bounds.",
   "replay": "adverse-event/faers-synthetic",
   "steps": [
-    {"run":["search","adverse-event","pembrolizumab"],"mcp":["search","adverse-event","pembrolizumab"],"expect":{"/status":"complete","/result/items/0/id":"100","/result/items":{"count":5},"/page/total":20,"/result/source_updated":"2024-09-01"}},
-    {"run":["search","adverse-event","pembrolizumab","--received-from","2024-01-01","--received-to","2024-12-31"],"mcp":["search","adverse-event","pembrolizumab","--received-from","2024-01-01","--received-to","2024-12-31"],"expect":{"/status":"complete","/query/received_from":"2024-01-01","/query/received_to":"2024-12-31","/result/source_query":"(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND receivedate:[20240101 TO 20241231]"}}
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "100",
+        "/result/items": {
+          "count": 5
+        },
+        "/page/total": 20,
+        "/result/source_updated": "2024-09-01",
+        "": {
+          "max_bytes": 1658
+        }
+      },
+      "max_bytes": 1659,
+      "max_tokens": 415
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--received-from",
+        "2024-01-01",
+        "--received-to",
+        "2024-12-31"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--received-from",
+        "2024-01-01",
+        "--received-to",
+        "2024-12-31"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/received_from": "2024-01-01",
+        "/query/received_to": "2024-12-31",
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND receivedate:[20240101 TO 20241231]",
+        "": {
+          "max_bytes": 1836
+        }
+      },
+      "max_bytes": 1837,
+      "max_tokens": 459
+    }
   ]
 }
