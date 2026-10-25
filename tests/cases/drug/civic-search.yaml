@@ -110,6 +110,37 @@
       },
       "max_bytes": 2000,
       "max_tokens": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "trastuzumab",
+        "--source",
+        "civic",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "trastuzumab",
+        "--source",
+        "civic",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 104,
+        "/result/items/0/id": "2988"
+      },
+      "max_bytes": 2000,
+      "max_tokens": 500
     }
   ]
 }
