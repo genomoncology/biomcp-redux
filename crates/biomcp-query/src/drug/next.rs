@@ -45,7 +45,7 @@ pub(super) fn civic(body: &mut DrugCivic, fresh: bool, out: &mut Outcome) {
                 .and_then(|q| q.with_tumor_type(tumor))
             {
                 let action = (
-                    StepKind::Section,
+                    StepKind::Disambiguate,
                     Action::Run {
                         request: Request::GetVariant(
                             query.with_sections(vec![VariantSection::Oncokb].into()),

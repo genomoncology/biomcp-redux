@@ -5,7 +5,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 const ROOT: &str = "/result/candidates/0/sections/oncokb";
-const NAMES: [&str; 8] = [
+const NAMES: [&str; 9] = [
     "synthetic-explicit-context",
     "synthetic-d17-group-context",
     "synthetic-d19-no-allele",
@@ -14,6 +14,7 @@ const NAMES: [&str; 8] = [
     "missing-tumor",
     "unsupported-build",
     "compound-profile",
+    "all-distinct-pivots-and-both-stream-pages",
 ];
 pub(super) fn trials() -> Vec<Trial> {
     NAMES
@@ -37,7 +38,7 @@ fn run(n: usize) -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
     env.config(&config).map_err(|e| e.to_string())?;
-    let args = [
+    let mut args = [
         "get",
         "drug",
         &(900 + n).to_string(),
@@ -45,7 +46,11 @@ fn run(n: usize) -> Result<(), String> {
         "--source",
         "civic",
     ]
-    .map(str::to_owned);
+    .map(str::to_owned)
+    .to_vec();
+    if n == 8 {
+        args.extend(["--section-limit".into(), "7".into()]);
+    }
     let recording = env.root().join("civic-recording");
     let mut record = args.to_vec();
     record.extend(["--record".into(), recording.display().to_string()]);
@@ -89,6 +94,7 @@ fn run(n: usize) -> Result<(), String> {
         (1943, 1846),
         (2014, 1918),
         (2021, 1924),
+        (18000, 18000),
     ]
     .get(n)
     .copied()
@@ -104,6 +110,9 @@ fn verify(n: usize, value: &Value) -> Result<(), String> {
         .get("next")
         .and_then(Value::as_array)
         .unwrap_or(&empty);
+    if n == 8 {
+        return many(value, steps);
+    }
     let annotation = steps
         .iter()
         .filter_map(|s| s.get("args").and_then(Value::as_array))
@@ -237,5 +246,66 @@ fn reply(request: &str) -> Result<String, String> {
     } else {
         json!({"name":"Synthetic tumor","doid":"0000"})
     };
-    Ok(json!({"data":{"therapy":{"id":id,"name":"Synthetic therapy","link":format!("/therapies/{id}")},"evidenceItems":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[{"id":900,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","disease":disease,"therapies":[{"id":id,"name":"Synthetic therapy"}],"source":{"citationId":"17611497","sourceType":"PUBMED"},"molecularProfile":profile}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}}).to_string())
+    let mut value = json!({"data":{"therapy":{"id":id,"name":"Synthetic therapy","link":format!("/therapies/{id}")},"evidenceItems":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[{"id":900,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","disease":disease,"therapies":[{"id":id,"name":"Synthetic therapy"}],"source":{"citationId":"17611497","sourceType":"PUBMED"},"molecularProfile":profile}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}});
+    if n == 8 {
+        expand(&mut value)?;
+    }
+    Ok(value.to_string())
+}
+
+fn many(value: &Value, steps: &[Value]) -> Result<(), String> {
+    let gets = steps
+        .iter()
+        .filter_map(|s| s.get("args").and_then(Value::as_array))
+        .filter(|a| a.get(1) == Some(&json!("variant")))
+        .collect::<Vec<_>>();
+    if gets.len() != 6 {
+        return Err(format!("expected all six distinct pivots: {value}"));
+    }
+    for (n, args) in gets.iter().enumerate() {
+        if args.get(2) != Some(&json!(format!("NC_000007.14:g.{}A>T", 140753336 + n))) {
+            return Err("variant pivot order changed".into());
+        }
+    }
+    let pages = steps
+        .iter()
+        .filter(|s| s.get("kind") == Some(&json!("page")))
+        .collect::<Vec<_>>();
+    if pages.len() != 2 {
+        return Err("independent claim continuations were hidden".into());
+    }
+    for kind in ["evidence", "assertions"] {
+        if !pages.iter().any(|s| {
+            s.get("args").and_then(Value::as_array).is_some_and(|a| {
+                a.windows(2)
+                    .any(|v| v == [json!("--civic-kind"), json!(kind)])
+            })
+        }) {
+            return Err(format!("missing {kind} continuation"));
+        }
+    }
+    Ok(())
+}
+fn expand(value: &mut Value) -> Result<(), String> {
+    let base = value
+        .pointer("/data/evidenceItems/nodes/0")
+        .ok_or("source claim")?
+        .clone();
+    let rows = (0..6)
+        .map(|n| {
+            let mut row = base.clone();
+            *row.pointer_mut("/id").ok_or("claim ID")? = json!(900 + n);
+            *row.pointer_mut("/molecularProfile/variants/0/hgvsDescriptions")
+                .ok_or("HGVS")? = json!([format!("NC_000007.14:g.{}A>T", 140753336 + n)]);
+            Ok(row)
+        })
+        .collect::<Result<Vec<Value>, String>>()?;
+    let mut assertion = base;
+    let fields = assertion.as_object_mut().ok_or("assertion object")?;
+    fields.insert("assertionType".into(), json!("PREDICTIVE"));
+    fields.insert("assertionDirection".into(), json!("SUPPORTS"));
+    fields.insert("variantOrigin".into(), json!("SOMATIC"));
+    *value.pointer_mut("/data/evidenceItems").ok_or("evidence")? = json!({"totalCount":7,"pageInfo":{"hasNextPage":true,"endCursor":"next-evidence"},"nodes":rows});
+    *value.pointer_mut("/data/assertions").ok_or("assertions")? = json!({"totalCount":2,"pageInfo":{"hasNextPage":true,"endCursor":"next-assertions"},"nodes":[assertion]});
+    Ok(())
 }
