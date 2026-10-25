@@ -1,5 +1,5 @@
 {
-  "feature": "generated-help",
+  "feature": "cpic-pgx",
   "story": "PGx help lists source-scoped selectors, sections and two parsed executable examples without calculating phenotype, phase or dose.",
   "steps": [
     {
