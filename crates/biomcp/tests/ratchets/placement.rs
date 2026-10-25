@@ -16,6 +16,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise neutral disease records and standalone consumer contracts through the public library API before adapters exist.",
     ),
     (
+        "crates/biomcp-types/tests/adverse_event_contracts.rs",
+        "Exercise neutral report records and checked source-specific adverse event contracts before adapters exist.",
+    ),
+    (
         "crates/biomcp-types/tests/drug_contracts.rs",
         "Exercise published drug identifier, neutral record and consumer schema contracts through the public library API before adapters exist.",
     ),

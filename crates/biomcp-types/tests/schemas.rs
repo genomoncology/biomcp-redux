@@ -145,11 +145,25 @@ fn registry() -> Vec<Contract> {
     };
     contracts.extend(common_registry());
     contracts.extend(disease::registry());
+    contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts.extend(drug_contracts());
     contracts
 }
+fn adverse_event_contracts() -> Vec<Contract> {
+    contracts! {
+        Envelope<AdverseEventPage> => ("adverse-event-page", "biomcp.adverse_event_page/1"),
+        Envelope<AdverseEventFaersCard> => ("adverse-event-faers-card", "biomcp.adverse_event_faers_card/1"),
+        Envelope<AdverseEventMaudeCard> => ("adverse-event-maude-card", "biomcp.adverse_event_maude_card/1"),
+        Envelope<AdverseEventDrugs> => ("adverse-event-drugs", "biomcp.adverse_event_drugs/1"),
+        Envelope<AdverseEventReactions> => ("adverse-event-reactions", "biomcp.adverse_event_reactions/1"),
+        Envelope<AdverseEventIdentifiers> => ("adverse-event-identifiers", "biomcp.adverse_event_identifiers/1"),
+        Envelope<AdverseEventDevices> => ("adverse-event-devices", "biomcp.adverse_event_devices/1"),
+        Envelope<AdverseEventNarrative> => ("adverse-event-narrative", "biomcp.adverse_event_narrative/1"),
+    }
+}
+
 fn variant_contracts() -> Vec<Contract> {
     contracts! {
         VariantAssertionsGet => ("variant-assertions", "biodata.variant-assertions/1"),

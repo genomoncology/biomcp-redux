@@ -137,3 +137,13 @@ pub use drug::{
 };
 
 pub use query::QueryInvalid;
+
+mod adverse_event;
+pub use adverse_event::{
+    AdverseEventDevice, AdverseEventDevices, AdverseEventDrug, AdverseEventDrugs,
+    AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
+    AdverseEventIdentifierSection, AdverseEventIdentifiers, AdverseEventIdentityCounts,
+    AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage,
+    AdverseEventReaction, AdverseEventReactions, AdverseEventRecords, AdverseEventSearch,
+    AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
+};
