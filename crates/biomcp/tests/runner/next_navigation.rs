@@ -56,6 +56,19 @@ fn check(mode: &str, terminal: bool) -> Result<(), String> {
         "navigation {mode} terminal={terminal}: full={full}, comparable={comparable}"
     )
     .map_err(|e| e.to_string())?;
+    let ceiling = match (mode, terminal) {
+        ("drug-search", false) => 1647,
+        ("drug-search", true) => 1550,
+        ("variant-search", false) => 2297,
+        ("variant-search", true) => 2136,
+        ("variant-get", false) => 4050,
+        _ => 3869,
+    };
+    if comparable > ceiling {
+        return Err(format!(
+            "navigation exceeds measured budget: {comparable}/{ceiling}"
+        ));
+    }
     if stub.finish()?.len() != 1 {
         return Err("navigation or warm MCP unexpectedly requested another source".into());
     }
@@ -144,6 +157,12 @@ fn verify(value: &Value, mode: &str, terminal: bool) -> Result<(), String> {
                 return Err(format!("lost page selector {pair:?}: {args:?}"));
             }
         }
+    }
+    if mode == "variant-get"
+        && (next.last().and_then(|step| step.get("kind")) != Some(&json!("key"))
+            || next.len() != 5 + usize::from(!terminal) + 1)
+    {
+        return Err("key guidance was dropped or displaced candidate navigation".into());
     }
     if next.len() > 5 + usize::from(!terminal) + 3 {
         return Err("more than three extra actions".into());
