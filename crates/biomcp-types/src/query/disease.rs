@@ -3,8 +3,10 @@ use crate::Text;
 use serde::{Deserialize, Serialize};
 biodata::wire_enum! {
     /// One explicit OLS ontology.
+    #[derive(Default)]
     DiseaseOntology {
         /// MONDO ontology.
+        #[default]
         Mondo => "mondo",
         /// Disease Ontology.
         Doid => "doid",
@@ -14,8 +16,10 @@ biodata::wire_enum! {
 }
 biodata::wire_enum! {
     /// An explicit disease source without fallback.
+    #[derive(Default)]
     DiseaseSource {
         /// Ontology Lookup Service.
+        #[default]
         Ols => "ols",
         /// MyDisease exact annotation.
         MyDisease => "mydisease",
@@ -42,16 +46,6 @@ biodata::wire_enum! {
         Incidence => "incidence",
         /// Annual survival rows.
         Survival => "survival",
-    }
-}
-impl Default for DiseaseOntology {
-    fn default() -> Self {
-        Self::Mondo
-    }
-}
-impl Default for DiseaseSource {
-    fn default() -> Self {
-        Self::Ols
     }
 }
 fn default_limit() -> u32 {

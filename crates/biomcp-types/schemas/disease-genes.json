@@ -80,6 +80,25 @@
       ],
       "type": "object"
     },
+    "ComponentLabel": {
+      "additionalProperties": false,
+      "description": "Terms attached to a named carried component on a consumer response.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component name."
+        },
+        "terms": {
+          "$ref": "#/$defs/ComponentTerms",
+          "description": "Canonical publisher terms."
+        }
+      },
+      "required": [
+        "component",
+        "terms"
+      ],
+      "type": "object"
+    },
     "ComponentTerms": {
       "additionalProperties": false,
       "description": "Terms attached to one independently licensed source component.",
@@ -250,6 +269,28 @@
       ],
       "type": "object"
     },
+    "DiseaseAssociationItem": {
+      "additionalProperties": false,
+      "description": "One native association and the component terms governing that row.",
+      "properties": {
+        "association": {
+          "$ref": "#/$defs/DiseaseAssociation",
+          "description": "Complete neutral association, including requested and actual endpoints."
+        },
+        "components": {
+          "description": "Independently attributed annotation components for this row.",
+          "items": {
+            "$ref": "#/$defs/ComponentLabel"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "association",
+        "components"
+      ],
+      "type": "object"
+    },
     "DiseaseGenes": {
       "additionalProperties": false,
       "description": "Native association rows, not a unique-gene count.",
@@ -257,14 +298,14 @@
         "components": {
           "description": "Applicable component use terms, independent of row provenance.",
           "items": {
-            "$ref": "#/$defs/ComponentTerms"
+            "$ref": "#/$defs/ComponentLabel"
           },
           "type": "array"
         },
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
           "items": {
-            "$ref": "#/$defs/DiseaseAssociation"
+            "$ref": "#/$defs/DiseaseAssociationItem"
           },
           "type": "array"
         }

@@ -80,6 +80,25 @@
       ],
       "type": "object"
     },
+    "ComponentLabel": {
+      "additionalProperties": false,
+      "description": "Terms attached to a named carried component on a consumer response.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Text",
+          "description": "Native component name."
+        },
+        "terms": {
+          "$ref": "#/$defs/ComponentTerms",
+          "description": "Canonical publisher terms."
+        }
+      },
+      "required": [
+        "component",
+        "terms"
+      ],
+      "type": "object"
+    },
     "ComponentTerms": {
       "additionalProperties": false,
       "description": "Terms attached to one independently licensed source component.",
@@ -144,7 +163,7 @@
         "components": {
           "description": "Applicable component terms.",
           "items": {
-            "$ref": "#/$defs/ComponentTerms"
+            "$ref": "#/$defs/ComponentLabel"
           },
           "type": "array"
         },
