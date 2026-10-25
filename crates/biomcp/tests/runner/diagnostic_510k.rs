@@ -123,7 +123,14 @@ fn validate(mode: &str, v: &Value) -> Result<(), String> {
             .ok_or("missing association action")?;
         if !actions.iter().any(|a| {
             a.get("args")
-                == Some(&json!(["search","diagnostic","--device-id","K173492","--source","fda-cdx"]))
+                == Some(&json!([
+                    "search",
+                    "diagnostic",
+                    "--device-id",
+                    "K173492",
+                    "--source",
+                    "fda-cdx"
+                ]))
         }) {
             return Err(format!("missing exact device association: {v}"));
         }
