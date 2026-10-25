@@ -379,20 +379,16 @@ fn aggregator_presence() -> Result<(), String> {
 
 fn default_reply(request: &str) -> Result<String, String> {
     let target = request.split_whitespace().nth(1).ok_or("missing target")?;
-    let url =
-        url::Url::parse(&format!("https://example.org{target}")).map_err(|e| e.to_string())?;
-    let parameters: std::collections::BTreeMap<_, _> = url.query_pairs().collect();
-    let limit: usize = parameters
-        .get("limit")
+    let parameter = |key: &str| target.split('&').find_map(|part| part.strip_prefix(key));
+    let limit: usize = parameter("limit=")
         .ok_or("missing limit")?
         .parse()
         .map_err(|_| "invalid limit")?;
-    let offset: usize = parameters
-        .get("offset")
+    let offset: usize = parameter("offset=")
         .ok_or("missing offset")?
         .parse()
         .map_err(|_| "invalid offset")?;
-    let phenotype = parameters.contains_key("subject");
+    let phenotype = target.contains("?subject=");
     let items = (offset..(offset + limit).min(6))
         .map(|i| {
             let mut row = association();
