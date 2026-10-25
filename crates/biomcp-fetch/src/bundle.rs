@@ -200,7 +200,7 @@ impl Leg<'_> {
                 0,
                 crate::Shape::default(),
                 std::time::Duration::ZERO,
-                ("bundle", true),
+                ("bundle", true, &url),
             );
         }
         if offline && !fresh {
