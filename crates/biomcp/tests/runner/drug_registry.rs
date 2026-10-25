@@ -60,7 +60,7 @@ fn declarations() -> Check {
             .iter()
             .find(|r| r["source"] == name)
             .ok_or_else(|| format!("missing {name}"))?;
-        if row["use"] != usage || row["terms_url"] != url || row["disabled"] != false {
+        if row["usage"] != usage || row["terms_url"] != url || row["disabled"] != false {
             return Err(format!("wrong declaration: {row}"));
         }
         if !row["terms"].as_str().is_some_and(|s| !s.is_empty()) {
@@ -252,7 +252,7 @@ fn admission() -> Check {
             dir: record.clone(),
         },
         cache: Some(cache.clone()),
-        network,
+        network: network.clone(),
         ..Default::default()
     })
     .map_err(|e| e.to_string())?;
@@ -267,6 +267,15 @@ fn admission() -> Check {
             )
             .json_checked_cache::<Synthetic>(&endpoint, &[], |_| true)
     };
+    get(&fetch).map_err(|e| e.to_string())?;
+    drop(fetch);
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Live { fresh: false },
+        cache: Some(cache),
+        network,
+        ..Default::default()
+    })
+    .map_err(|e| e.to_string())?;
     get(&fetch).map_err(|e| e.to_string())?;
     for disabled in ["ddinter", "noncommercial"] {
         let restricted = fetch

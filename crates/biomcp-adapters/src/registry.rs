@@ -246,6 +246,19 @@ fn assertion_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     })
 }
 
+/// Publisher terms for a direct service or its independently switchable component.
+pub fn terms(source: Source) -> Option<biomcp_fetch::Terms> {
+    SOURCES
+        .iter()
+        .find(|spec| spec.source == source)
+        .map(|spec| spec.terms)
+        .or_else(|| {
+            components()
+                .find(|component| component.native_source == Some(source))
+                .map(|component| component.terms)
+        })
+}
+
 /// Construct every outcome with the same publisher declaration used by health.
 #[expect(
     clippy::expect_used,
@@ -256,15 +269,12 @@ pub fn outcome(
     state: biomcp_types::SourceState,
     reason: Option<biomcp_types::Reason>,
 ) -> biomcp_types::SourceOutcome {
-    let spec = SOURCES
-        .iter()
-        .find(|spec| spec.source == source)
-        .expect("source has a registered publisher declaration");
+    let terms = terms(source).expect("source has a registered publisher declaration");
     biomcp_types::SourceOutcome {
         source,
-        usage: spec.terms.usage,
-        terms: spec.terms.name.into(),
-        terms_url: spec.terms.url.into(),
+        usage: terms.usage,
+        terms: terms.name.into(),
+        terms_url: terms.url.into(),
         state,
         reason,
         term: None,
