@@ -1,7 +1,5 @@
 use super::{Selection, Statistic, raw};
-use biodata::{
-    Attribution, DiseaseStatistic, FiniteNumber, StatisticEstimate, StatisticSelector, Text,
-};
+use biodata::{Attribution, DiseaseStatistic, FiniteNumber, StatisticEstimate, StatisticSelector};
 use biomcp_fetch::BadReply;
 use biomcp_types::{Problem, ProblemCode, Source};
 
@@ -123,7 +121,7 @@ pub(super) fn rows(
             .map(|(name, code)| selector(name, code))
             .collect::<Result<Vec<_>, _>>()?;
         returned.push(selector("year_range", &series.year_range.to_string())?);
-        mismatches(&requested, &returned, &query.site, &mut problems);
+        mismatches(&requested, &returned, &mut problems);
         for row in series.data_series {
             let modeled = number(&document.info.fields, &row, "modeled_rel_rate")?.map(|value| {
                 StatisticEstimate {
@@ -154,18 +152,14 @@ pub(super) fn rows(
 fn mismatches(
     requested: &[StatisticSelector],
     returned: &[StatisticSelector],
-    site: &Text,
     problems: &mut Vec<Problem>,
 ) {
     for selector in returned {
-        let expected = if selector.name.as_str() == "site" {
-            Some(site)
-        } else {
-            requested
-                .iter()
-                .find(|r| r.name == selector.name)
-                .map(|r| &r.code)
-        };
+        // Site identity has already passed the transport's checked cache admission.
+        let expected = requested
+            .iter()
+            .find(|r| r.name == selector.name)
+            .map(|r| &r.code);
         if expected.is_some_and(|e| e != &selector.code) {
             let field = format!("returned_selectors.{}", selector.name);
             if !problems.iter().any(|p| p.field.as_ref() == field) {
