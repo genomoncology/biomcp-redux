@@ -26,7 +26,7 @@ macro_rules! selector {
             fn schema_name() -> std::borrow::Cow<'static, str> { stringify!($name).into() }
             fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
                 let names: Vec<_> = Self::ALL.iter().map(|s| s.as_str()).collect();
-                schemars::json_schema!({"type":"string","enum":names})
+                schemars::json_schema!({"description":$description,"type":"string","enum":names})
             }
         }
     }
