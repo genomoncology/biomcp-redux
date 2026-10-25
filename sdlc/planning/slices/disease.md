@@ -117,6 +117,21 @@ The proposed ceilings stay close to the measured illustrations with room for fin
 
 Actual tokenizer counts remain unavailable. The explicit bytes/4 proxy matches the runner's approximate cost convention and must never be labeled measured tokens. Use `max_bytes` for the actual ceiling; a `max_tokens` proxy can additionally assert the corresponding rounded bound. Search/card, every section, the site catalog and statistics must have CLI/MCP cases against the actual generated schemas before those ceilings become implementation acceptance. Further 0.9 comparisons belong to [0136](../../tickets/0136-contained-0-9-drug-disease-baseline.md) and require verified network containment. No old executable runs under this design ticket.
 
+
+### Implemented SEER command measurements
+
+The SEER implementation ran retained bodies through the real CLI recorder, then checked CLI/MCP replay and offline pages in `j12155`. This job made no provider requests. It verified the original body hashes and retained the catalog/incidence capture times and the later correct survival request time. The later survival request used native year range 31; it did not relabel the historical request for 9. Publisher catalog date/version remain absent and produce separate source problems. The optional `fetched` field is the original response retrieval timestamp, never a publisher revision or a current provider fetch claim.
+
+| Implemented surface | Full JSON bytes | Comparable JSON bytes | Comparable `ceil(bytes/4)` estimate | Measured case ceiling |
+|---|---:|---:|---:|---:|
+| Native catalog, all 15 pages at five rows per page | 690–994 | 576–880 | 144–220 | 1,012 |
+| Native site 47 incidence, all five separate stage rows | 4,462 | 4,348 | 1,087 | 5,001 |
+| Native site 55 annual survival, all ten five-row pages | 2,971–5,087 | 2,857–4,973 | 715–1,244 | 5,719 |
+
+Comparable size removes only the 114 exact validated bytes of the required source use/terms fields. Full sizes remain reported. Each case ceiling is the measured maximum for its page profile plus 15 percent, rounded up. The statistics exceed the historical illustrations because the checked rows retain each requested and returned selector, native stage or annual context, uncertainty, count and attribution. Their estimates are not measured tokenizer counts.
+
+No same-surface 0.9 statistic/catalog ratio is available from the bounded baseline. Its retained D19 discovery output is 176 bytes and its D20 discovery output is 1,463 bytes; these are different query surfaces and do not measure the native statistics commands. The annual view supplies no recent aggregate survival answer. Full clinical parity remains a separate review.
+
 ## Complete command and option case map
 
 The D identifiers below are harvested stories, not claims that implementation cases already exist. Suffixes name the proposed outside-in witness using that story. Direct capture identities and remaining exact-selector gaps stay explicit. Each retained option gets a positive source fact and a contrast; each dropped spelling gets a typed retirement/usage case. No unsupported filter is quietly accepted.
