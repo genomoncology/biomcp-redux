@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "fda-cdx",
+  "url": "https://www.fda.gov/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<html><body><table><thead><tr><th>Diagnostic Name (Manufacturer)</th><th>Indication - Sample Type</th><th>Drug Trade Name (Generic) NDA / BLA</th><th>Biomarker(s)</th><th>Biomarker(s) (Details)</th><th>PMA / 510(k) /<br>513(f)(2) / HDE (Approval / Clearance / Grant Date)</th></tr></thead><tbody><tr><td>Synthetic assay</td><td>Synthetic tissue context</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&amp;ApplNo=210496\">BRAFTOVI NDA 210496</a> in combination with <a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&amp;ApplNo=125084\">ERBITUX BLA 125084</a></td><td>KRAS</td><td>G12C</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P200010S026\">P200010/S026</a></td></tr><tr><td>Synthetic mismatch</td><td>Synthetic context</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&amp;ApplNo=214665\">Keytruda BLA 125514</a></td><td>KRAS</td><td>G12C</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P150013S020\">P150013/S020</a></td></tr><tr><td>Synthetic mismatch device</td><td>Synthetic context</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&amp;ApplNo=021120\">Drug NDA 021120</a></td><td>KRAS</td><td>G12C</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P150013S020\">P150013/S021</a></td></tr></tbody></table><table><thead><tr><th>Diagnostic Name<br>(Manufacturer)</th><th>Indication(s) - Sample Type</th><th>PMA (Approval Date)</th><th>Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) \u2013 NDA/BLA</th></tr></thead><tbody><tr><td>Synthetic group</td><td>Whole group context</td><td><a href=\"https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=P200010\">P200010</a></td><td><a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&amp;ApplNo=000001\">NDA 000001 and BLA 000001</a></td></tr></tbody></table></body></html>"
+      }
+    }
+  ]
+}
