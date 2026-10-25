@@ -94,6 +94,38 @@
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
     },
+    "DiseaseOntology": {
+      "description": "One explicit OLS ontology.",
+      "enum": [
+        "mondo",
+        "doid",
+        "ncit"
+      ],
+      "type": "string"
+    },
+    "DiseaseSection": {
+      "description": "One named disease page.",
+      "enum": [
+        "synonyms",
+        "xrefs",
+        "hierarchy",
+        "genes",
+        "phenotypes",
+        "incidence",
+        "survival"
+      ],
+      "type": "string"
+    },
+    "DiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer"
+      ],
+      "type": "string"
+    },
     "DrugId": {
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
@@ -410,6 +442,177 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Discover one source-native disease candidate page.",
+      "properties": {
+        "command": {
+          "const": "search_disease",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Maximum source rows on one page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native row offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ontology": {
+          "$ref": "#/$defs/DiseaseOntology",
+          "default": "mondo",
+          "description": "Exactly one ontology, default MONDO."
+        },
+        "source": {
+          "$ref": "#/$defs/DiseaseSource",
+          "default": "ols",
+          "description": "One explicit source, default OLS."
+        },
+        "text": {
+          "description": "Literal source search text; absent for the SEER site catalog.",
+          "minLength": 1,
+          "type": [
+            "string",
+            "null"
+          ],
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read an exact source disease concept or native statistic page.",
+      "properties": {
+        "age_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native age-range code."
+        },
+        "command": {
+          "const": "get_disease",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested native dataset selector, not proof of returned membership."
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact ontology CURIE or an explicit SEER catalog site ID.",
+          "x-positional": 0
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Survival-only interval code."
+        },
+        "ontology": {
+          "$ref": "#/$defs/DiseaseOntology",
+          "default": "mondo",
+          "description": "One OLS ontology."
+        },
+        "period": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Incidence-only native period code."
+        },
+        "race": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native race code."
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiseaseSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One named section; absent means identity card only.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Native rows per section page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Native row offset within the selected section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native sex code."
+        },
+        "source": {
+          "$ref": "#/$defs/DiseaseSource",
+          "default": "mydisease",
+          "description": "Default MyDisease; no automatic fallback."
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Discover literal native drug candidates.",

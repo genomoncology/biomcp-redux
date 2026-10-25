@@ -1,6 +1,7 @@
 # 0128 — Search CIViC therapies and add the drug civic section
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 92dd6fdb60bcb05a6a23f0a1077e53d2d14beb78
 
 Milestone: 3
 

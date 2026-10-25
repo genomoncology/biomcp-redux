@@ -37,6 +37,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchDisease(_) => "biomcp.disease-search/1",
+        Request::GetDisease(_) => "biomcp.disease-get/2",
         Request::SearchDrug(_) => "biomcp.drug-search/1",
         Request::GetDrug(_) => "biomcp.drug-get/2",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
@@ -61,6 +63,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "disease", "biomcp.disease-search/1"),
+    ("get", "disease", "biomcp.disease-get/2"),
     ("search", "drug", "biomcp.drug-search/1"),
     ("get", "drug", "biomcp.drug-get/2"),
     ("get", "gene", "biodata.gene-get/1"),
@@ -469,14 +473,14 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 }
 
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let id = QUERIES
-        .iter()
-        .find(|(v, e, _)| *v == verb && *e == entity)
-        .map(|(_, _, id)| *id)
-        .ok_or(())?;
-    let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
-    let value = arguments(matches, &schema)?;
+    let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
+        ("search", "disease") => serde_json::from_value::<biomcp_types::DiseaseSearch>(value)
+            .map(Request::SearchDisease)
+            .map_err(|_| ()),
+        ("get", "disease") => serde_json::from_value::<biomcp_types::DiseaseGet>(value)
+            .map(Request::GetDisease)
+            .map_err(|_| ()),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),
@@ -546,6 +550,16 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             .map_err(|_| ()),
         _ => Err(()),
     }
+}
+
+fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Value, ()> {
+    let id = QUERIES
+        .iter()
+        .find(|(v, e, _)| *v == verb && *e == entity)
+        .map(|(_, _, id)| *id)
+        .ok_or(())?;
+    let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
+    arguments(matches, &schema)
 }
 
 fn property_type(property: &Value) -> Option<&str> {

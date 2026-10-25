@@ -1,4 +1,5 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
+mod disease;
 mod steps;
 mod variant;
 
@@ -99,6 +100,9 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
+    if disease::unsupported(action) {
+        return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
     if let Action::Run {
         request: Request::SearchTrial(q),
         ..
@@ -202,6 +206,9 @@ fn response(
     response_body(meta, request, result.body)
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
+    if matches!(&request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+        return disease::encode(meta, request, body);
+    }
     match (request, body) {
         (Request::SearchDrug(query), QueryBody::DrugPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
@@ -210,6 +217,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         (Request::GetDrug(query), QueryBody::DrugCard(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugRegulatory(body)) => meta.encode(query, body),
         (Request::GetDrug(query), QueryBody::DrugXrefs(body)) => meta.encode(query, body),
+        (Request::GetDrug(query), QueryBody::DrugCivic(body)) => meta.encode(query, body),
         (_, QueryBody::VariantQueryPolicyError) => {
             usage_envelope(ErrorEnvelope::variant_query_policy())
         }
@@ -432,7 +440,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         },
         reason,
     ));
-    steps::network_steps(&mut envelope.next, &envelope.sources);
+    steps::network_steps(&mut envelope.next, &envelope.sources, None);
     encode(
         envelope,
         if local {
