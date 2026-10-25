@@ -6,17 +6,19 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 pub(super) fn trials() -> Vec<Trial> {
+    let mut tests = vec![Trial::test("drug-approvals/native-proof-retains-success-and-failure", || retention().map_err(Into::into))];
     let Some(root) = std::env::var_os("BIOMCP_FDA_CAPTURE_ROOT") else {
-        return Vec::new();
+        return tests;
     };
-    (0..15)
+    tests.extend((0..15)
         .map(|n| {
             let root = PathBuf::from(&root);
             Trial::test(format!("drug-approvals/native-retained-{n}"), move || {
                 native(&root, n).map_err(Into::into)
             })
         })
-        .collect()
+        .collect::<Vec<_>>());
+    tests
 }
 fn field<'a>(v: &'a Value, k: &str) -> Result<&'a str, String> {
     v.get(k)
@@ -389,4 +391,26 @@ fn decode(value: &str) -> Result<String, String> {
         }
     }
     String::from_utf8(out).map_err(|e| e.to_string())
+}
+
+fn retention() -> Check {
+    for fail in [false, true] {
+        let root = tempfile::tempdir().map_err(|e| e.to_string())?;
+        let mut application = super::application();
+        application["products"][0]["product_number"] = json!("001");
+        if fail { application["products"][0]["reference_standard"] = Value::Null; }
+        let raw = json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[application]}).to_string();
+        let hash = Sha256::digest(raw.as_bytes()).iter().map(|b| format!("{b:02x}")).collect::<String>();
+        std::fs::write(root.path().join("synthetic.json"), raw).map_err(|e| e.to_string())?;
+        std::fs::write(root.path().join("ledger.json"), json!([{"body_file":"synthetic.json","sha256":hash,"url":"https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1","http_status":200,"retrieved_at":"2001-05-10T00:00:00Z"}]).to_string()).map_err(|e| e.to_string())?;
+        let result = native(root.path(), 0);
+        if result.is_err() != fail { return Err(format!("unexpected synthetic FDA result: {result:?}")); }
+        let output = root.path().join("product-proof/case-00");
+        if !output.join("recording/drugsfda").is_dir()
+            || !output.join("replay-0/cli.stdout").is_file()
+            || !output.join("replay-0/mcp.stdout").is_file() {
+            return Err("FDA proof artifacts disappeared after cleanup".into());
+        }
+    }
+    Ok(())
 }
