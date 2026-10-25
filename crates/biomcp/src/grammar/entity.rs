@@ -3,6 +3,15 @@ use serde_json::Value;
 pub(super) fn request(verb: &str, entity: &str, value: Value) -> Result<Request, ()> {
     let result = match (verb, entity) {
         ("search", "pgx") => serde_json::from_value(value).map(Request::SearchPgx),
+        ("get", "pgx") if value.get("annotation_id").is_some() => {
+            let mut value = value;
+            if let Some(object) = value.as_object_mut()
+                && let Some(id) = object.remove("annotation_id")
+            {
+                object.insert("id".into(), id);
+            }
+            serde_json::from_value(value).map(Request::GetPgxAnnotation)
+        }
         ("get", "pgx") => serde_json::from_value(value).map(Request::GetPgx),
         ("search", "diagnostic") => serde_json::from_value(value).map(Request::SearchDiagnostic),
         ("get", "diagnostic") => serde_json::from_value(value).map(Request::GetDiagnostic),

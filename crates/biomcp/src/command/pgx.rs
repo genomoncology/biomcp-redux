@@ -11,6 +11,8 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         }
         (Request::GetPgx(q), QueryBody::PgxGuidelines(b)) => meta.encode(q, success.then_some(b)),
         (Request::GetPgx(q), QueryBody::PgxDiplotype(b)) => meta.encode(q, success.then_some(b)),
+        (Request::GetPgx(q), QueryBody::PgxAnnotations(b)) => meta.encode(q, success.then_some(b)),
+        (Request::GetPgxAnnotation(q), QueryBody::PgxAnnotation(b)) => meta.encode(q, b),
         _ => super::usage_envelope(biomcp_types::ErrorEnvelope::arguments()),
     }
 }

@@ -64,6 +64,15 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
         Request::SearchPgx(query) => serde_json::to_value(query),
         Request::GetPgx(query) => serde_json::to_value(query),
+        Request::GetPgxAnnotation(query) => {
+            let mut value = serde_json::to_value(query)?;
+            if let Some(object) = value.as_object_mut()
+                && let Some(id) = object.remove("id")
+            {
+                object.insert("annotation_id".into(), id);
+            }
+            Ok(value)
+        }
         Request::SearchDiagnostic(q) => serde_json::to_value(q),
         Request::GetDiagnostic(q) => serde_json::to_value(q),
         Request::SearchAdverseEvent(query) => serde_json::to_value(query),
@@ -133,6 +142,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
         Request::GetPgx(_)
+        | Request::GetPgxAnnotation(_)
         | Request::GetDiagnostic(_)
         | Request::GetAdverseEvent(_)
         | Request::GetDisease(_)
@@ -153,7 +163,10 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 fn command_entity(request: &Request) -> &'static str {
-    if matches!(request, Request::SearchPgx(_) | Request::GetPgx(_)) {
+    if matches!(
+        request,
+        Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_)
+    ) {
         "pgx"
     } else if matches!(
         request,

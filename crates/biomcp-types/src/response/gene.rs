@@ -75,6 +75,10 @@ pub enum QueryBody {
     PgxGuidelines(crate::PgxGuidelines),
     /// Complete source diplotype lookup.
     PgxDiplotype(crate::PgxDiplotype),
+    /// One independently paged ClinPGx min collection.
+    PgxAnnotations(crate::PgxAnnotations),
+    /// Exact clinical base annotation.
+    PgxAnnotation(Option<crate::PgxAnnotation>),
     /// Source-ordered diagnostic candidates.
     DiagnosticPage(crate::DiagnosticPage),
     /// Exact selected diagnostic card.
