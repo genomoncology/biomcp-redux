@@ -319,10 +319,23 @@ fn xrefs_walk() -> Check {
     {
         return Err("xref walk lost native links".into());
     }
-    let applications=links.iter().filter(|r|r.get("relation")==Some(&json!("ndc.applicationnumber"))).collect::<Vec<_>>();
-    if applications.len()!=32 {return Err("native NDC product/application contexts were merged".into());}
-    for product in ["82009-087_8d48cd1c-474c-49f9-8e70-aa7525bb1087","82009-086_8d48cd1c-474c-49f9-8e70-aa7525bb1087"] {
-        if !applications.iter().any(|r|r.pointer("/identity/id")==Some(&json!("ANDA212773")) && r.pointer("/attribution/record")==Some(&json!(product))) {return Err("an application lost its source product record".into());}
+    let applications = links
+        .iter()
+        .filter(|r| r.get("relation") == Some(&json!("ndc.applicationnumber")))
+        .collect::<Vec<_>>();
+    if applications.len() != 32 {
+        return Err("native NDC product/application contexts were merged".into());
+    }
+    for product in [
+        "82009-087_8d48cd1c-474c-49f9-8e70-aa7525bb1087",
+        "82009-086_8d48cd1c-474c-49f9-8e70-aa7525bb1087",
+    ] {
+        if !applications.iter().any(|r| {
+            r.pointer("/identity/id") == Some(&json!("ANDA212773"))
+                && r.pointer("/attribution/record") == Some(&json!(product))
+        }) {
+            return Err("an application lost its source product record".into());
+        }
     }
     for (n, row) in links.iter().enumerate() {
         if links.iter().take(n).any(|r| r == row) {
@@ -372,17 +385,12 @@ fn walk_pages(
             return Err("xref default page exceeded limit".into());
         }
         links.extend(rows.iter().cloned());
-        if (page == 0 || page == 13) && super::mcp::call_with_globals(env, &next, false, &[])? != value {
+        if (page == 0 || page == 13)
+            && super::mcp::call_with_globals(env, &next, false, &[])? != value
+        {
             return Err("xref MCP parity".into());
         }
-        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-        let comparable = super::source_terms::size(&value, "")?;
-        use std::io::Write;
-        writeln!(
-            std::io::stdout(),
-            "drug xrefs page {page}: full {full}, comparable {comparable}"
-        )
-        .map_err(|e| e.to_string())?;
+        measure_links(page,&value)?;
         if page == 13 && self::next(&value, "page")?.is_some() {
             return Err("xref walk advertised a page past its exact total".into());
         }
@@ -425,5 +433,15 @@ fn custom_page(env: &Environment, links: &[Value], date: &Value) -> Check {
     {
         return Err("xref continuation lost explicit selectors".into());
     }
+    Ok(())
+}
+
+fn measure_links(page:usize,value:&Value)->Check {
+    let max_bytes=[3979,3925,3991,4061,4623,4581,4571,4632,4590,4566,4628,4586,4545,2667].get(page).copied().ok_or("xref page budget")?;
+    let full=serde_json::to_vec(value).map_err(|e|e.to_string())?.len();
+    let comparable=super::source_terms::size(value,"")?;
+    if comparable>max_bytes {return Err(format!("xref page {page} exceeds its measured output budget: {comparable}/{max_bytes}"));}
+    use std::io::Write;
+    writeln!(std::io::stdout(),"drug xrefs page {page}: full {full}, comparable {comparable}").map_err(|e|e.to_string())?;
     Ok(())
 }

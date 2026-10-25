@@ -214,10 +214,7 @@ fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
     let Some(parent) = out.sources.first().cloned() else {
         return;
     };
-    for component in biomcp_adapters::drug_sources::components::COMPONENTS {
-        if search && matches!(component.name, "drugcentral" | "openfda") {
-            continue;
-        }
+    for component in mychem::requested_components(search) {
         let Some(source) = component.native_source else {
             continue;
         };

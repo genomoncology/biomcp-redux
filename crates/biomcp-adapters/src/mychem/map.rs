@@ -168,7 +168,7 @@ fn reference(
         relation: text(relation)?,
         attribution: Attribution {
             source: text(component)?,
-            record: native_record(component,c).map(text).transpose()?,
+            record: native_record(component, c).map(text).transpose()?,
             version: None,
             release: None,
             submitter: None,
@@ -334,13 +334,13 @@ fn native_xrefs(
     rows
 }
 
-fn native_record<'a>(component:&str,c:&'a Component)->Option<&'a str> {
+fn native_record<'a>(component: &str, c: &'a Component) -> Option<&'a str> {
     match component {
-        "drugbank"|"drugcentral"=>c.id.as_deref(),
-        "chembl"=>c.molecule_chembl_id.as_deref(),
-        "gtopdb"=>c.ligand_id.as_deref(),
-        "unii"=>c.unii.as_deref(),
-        "ndc"=>c.product_id.as_deref().or(c.productndc.as_deref()),
-        _=>None,
+        "drugbank" | "drugcentral" => c.id.as_deref(),
+        "chembl" => c.molecule_chembl_id.as_deref(),
+        "gtopdb" => c.ligand_id.as_deref(),
+        "unii" => c.unii.as_deref(),
+        "ndc" => c.product_id.as_deref().or(c.productndc.as_deref()),
+        _ => None,
     }
 }
