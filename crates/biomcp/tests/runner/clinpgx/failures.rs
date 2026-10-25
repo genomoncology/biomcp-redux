@@ -23,6 +23,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "clinpgx-annotations/exclusive-selectors",
         || selectors().map_err(Into::into),
     ));
+    out.push(Trial::test(
+        "clinpgx-annotations/missing-snapshot-no-http",
+        || missing_snapshot().map_err(Into::into),
+    ));
     out
 }
 fn failure(name: &'static str) -> Check {
@@ -148,6 +152,27 @@ fn timeout() -> Check {
     }
     if stub.finish()?.len() != 1 {
         return Err("recorded timeout reached provider".into());
+    }
+    Ok(())
+}
+
+fn missing_snapshot() -> Check {
+    let stub = Stub::for_sources(
+        &["api.clinpgx.org"],
+        |_| "application/json",
+        |_| Err("snapshot continuation reached HTTP".into()),
+    )?;
+    let env = environment(&stub)?;
+    let mut command = args("clinical");
+    command.extend(["--snapshot".into(), "0".repeat(64)]);
+    let v = both(&env, command, 3)?;
+    if v.pointer("/error/code") != Some(&json!("pool.expired"))
+        || v.pointer("/next/0/kind") != Some(&json!("restart"))
+    {
+        return Err("missing snapshot did not offer explicit restart".into());
+    }
+    if stub.finish()?.len() != 0 {
+        return Err("missing snapshot reached HTTP".into());
     }
     Ok(())
 }
