@@ -25,12 +25,13 @@ const FIELDS: &str = "mondo,disease_ontology";
 
 /// Read one exact MONDO or DOID annotation, with no search, fallback or fanout.
 pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
-    let (namespace, local) = id.as_str().split_once(':').ok_or(InputError::Path)?;
+    let identifier = id.to_string();
+    let (namespace, local) = identifier.split_once(':').ok_or(InputError::Path)?;
     if !matches!(namespace, "MONDO" | "DOID") || !local.bytes().all(|v| v.is_ascii_digit()) {
         return Err(InputError::Path.into());
     }
     let fields = crate::disease_sources::components::allowed_fields(leg, FIELDS)?;
-    let endpoint = GET.clone().with_segments(&[PathSegment::new(id.as_str())?]);
+    let endpoint = GET.clone().with_segments(&[PathSegment::new(&identifier)?]);
     let (raw, metadata) = leg.json_received_checked::<raw::Document>(
         &endpoint,
         &[("fields", Arg::Text(&fields))],

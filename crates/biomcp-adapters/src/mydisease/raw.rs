@@ -41,8 +41,12 @@ impl Document {
             && (self.id == *id
                 || mondo.is_some_and(|c| {
                     c.xrefs.get("doid").is_some_and(|values| match values {
-                        OneOrMany::One(value) => value.as_str() == id.as_str(),
-                        OneOrMany::Many(values) => values.iter().any(|v| v.as_str() == id.as_str()),
+                        OneOrMany::One(value) => {
+                            value.as_str().parse::<Curie>().ok().as_ref() == Some(id)
+                        }
+                        OneOrMany::Many(values) => values
+                            .iter()
+                            .any(|v| v.as_str().parse::<Curie>().ok().as_ref() == Some(id)),
                     })
                 }))
     }
