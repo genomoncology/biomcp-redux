@@ -80,6 +80,11 @@
           "guidelines",
           "diplotype",
           "annotations"
+        ],
+        "/result/commands/0/arguments/9/name": "--source",
+        "/result/commands/0/arguments/9/choices": [
+          "cpic",
+          "clinpgx"
         ]
       },
       "max_bytes": 2178,

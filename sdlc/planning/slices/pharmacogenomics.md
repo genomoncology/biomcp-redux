@@ -338,7 +338,7 @@ Proposed single annotation detail:
 
 The annotation object retains the full captured base-tier row. The existing offline size projection uses P10. W07 separately proves the native direct-get request and returned-accession equality; it does not measure a product envelope. An annotation numeric ID and its PA accession remain separate fields.
 
-Current pair search uses `biomcp.pgx-search/2`, its embedded query response uses `biomcp.pgx_page/2`, and the shared request uses `biodata.request/8`. These versions narrow the search source schema to the CPIC-only behavior the checked request already enforces; get keeps both independently scoped sources. No response field, source row, query value or output byte length changes under the version correction. The other schemas are, `biomcp.pgx_card/1`, `biomcp.pgx_guidelines/1`, `biomcp.pgx_recommendations/1`, `biomcp.pgx_diplotype/1` and `biomcp.pgx_annotations/1`. W07 also permits `biomcp.pgx_annotation/1` and its exact clinical single-annotation command to proceed through implementation and review. No frequency schema is approved. The source adapters own native decoding and checked identity; query composes disclosure without clinical inference. No new client, cache or variant parser is introduced.
+Current pair search uses `biomcp.pgx-search/2`, its embedded query response uses `biomcp.pgx_page/2`, and the shared request uses `biodata.request/8`. These versions narrow the search source schema to the CPIC-only behavior the checked request already enforces; get keeps both independently scoped sources. The pair envelope changes only its equal-length schema identity. Native source rows and query values remain unchanged. The other schemas are `biomcp.pgx_card/1`, `biomcp.pgx_guidelines/1`, `biomcp.pgx_recommendations/1`, `biomcp.pgx_diplotype/1` and `biomcp.pgx_annotations/1`. W07 also permits `biomcp.pgx_annotation/1` and its exact clinical single-annotation command to proceed through implementation and review. No frequency schema is approved. The source adapters own native decoding and checked identity; query composes disclosure without clinical inference. No new client, cache or variant parser is introduced.
 
 ### Command tree and per-command next actions
 
@@ -401,6 +401,28 @@ The native capture IDs below identify source observations, not a claim that each
 | Source registry and policy | `runner/pgx_registry.rs` and `runner/pgx_registry/admission.rs` test source declarations and admission before cached reads. |
 
 The native CPIC cases remain in the verified `j13036` archive named below. ClinPGx native commands, raw CLI/MCP outputs and complete local walks remain in `j13182`; the separate `j13195-focused-schema-and-help.tar.gz` archive validates 155 retained CLI envelopes against final embedded schemas without replay. Its Yellow location is `data/biomcp-redux/0167-clinpgx-product-proof/`, SHA-256 `0f19e83de7e061d08dcf02f5c7b18d6a6ee2ea0f42638beda40810e6e9dbf5be`. All 11 content hashes and the archive hash were independently checked before unique scratch cleanup. Its help sizes precede the final shortening and are not current help measurements.
+
+### Executable ceilings and help measurements
+
+`j13358` regenerated the schemas from code, executed 83 PGx cases, checked the installed help examples, whole help and MCP discovery, and passed the ten structural ratchets. The case outputs below were measured from that built binary in isolated temporary homes using only authored recordings or offline source-policy failures. The owning cases verify CLI/MCP JSON equality and validate their source labels before comparable sizing. No provider or legacy binary ran. Compact full output includes publisher fields; the runner comparison removes exactly validated `use`, `terms` and `terms_url`. Raw CLI stdout includes its newline. Existing caps stayed unchanged because every output fits.
+
+| YAML case and zero-based step | Full compact bytes | Full stdout bytes | Runner comparison compact bytes | Runner comparison stdout bytes | Existing stdout max_bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `pgx/help.yaml` 0 | 1069 | 1070 | 1069 | 1070 | 1189 |
+| `pgx/help.yaml` 1 | 2165 | 2166 | 2165 | 2166 | 2178 |
+| `pgx/examples.yaml` 0 | 993 | 994 | 810 | 811 | 933 |
+| `pgx/examples.yaml` 1 | 1047 | 1048 | 864 | 865 | 995 |
+| `pgx/examples.yaml` 2 | 859 | 860 | 676 | 677 | 779 |
+| `pgx/examples.yaml` 3 | 970 | 971 | 787 | 788 | 907 |
+| `pgx/policy.yaml` 0 | 360 | 361 | 177 | 178 | 205 |
+| `pgx/policy.yaml` 1 | 376 | 377 | 193 | 194 | 223 |
+| `pgx/policy.yaml` 2 | 415 | 416 | 232 | 233 | 268 |
+| `pgx/policy.yaml` 3 | 405 | 406 | 222 | 223 | 257 |
+| `pgx/policy.yaml` 4 | 424 | 425 | 241 | 242 | 279 |
+
+Rust cases keep their exact full compact baselines in the existing `runner/pgx_retirements.rs::bounded` table, with `ceil(baseline × 1.15)` enforced for CPIC retrieval, source failures and the ClinPGx success kinds. The added success baselines measured in `j13345` are clinical 1451, default 2711, explicit five-row 4015, guideline 916, label 904 and exact annotation 1235 bytes; source-local zero remains 569. These synthetic sizes do not replace native clinical page or exact-base measurements. The independent `CLINICAL_PAGE_MAX_BYTES` check retains the PM-reviewed native default budget. Fixed usage refusals measure their complete authored error envelope and enforce the same headroom rule. Public registry checks retain the existing shared health/configuration bounds.
+
+Generated help now offers only `cpic` for search and both independent sources for get. Search lists its exact source level and source paging; get lists all four sections, annotation accession, declared diplotype, kind, exact recommendation drug key, section paging and retained collection selectors. Each command embeds exactly two successful case-derived examples. Help explicitly says no phenotype, phase or dose is calculated. The final whole help measures 55935 compact bytes and 55936 stdout bytes. MCP discovery measures 1895 bytes. Both remain inside their existing ceilings; neither cap changes. Detailed source pairing and arguments remain in generated command help rather than duplicating the full help tree in discovery.
 
 ### Disclosure and offline byte projections
 
