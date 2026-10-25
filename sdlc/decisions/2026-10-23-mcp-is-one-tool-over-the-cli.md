@@ -7,4 +7,4 @@ Decided 2026-10-23 by Ian.
 - The tool's input and output schemas come from the same types as the CLI grammar, so the two cannot drift.
 - A case may send its request through the CLI or the MCP tool, so the suite proves both agree.
 
-Amended 2026-10-25 by Ian: the server also offers `search` and `fetch` for ChatGPT, whose deep research uses only those two tool names and which refuses servers without them outside developer mode. Both are thin wrappers that run the same CLI commands as the main tool, and they stay consistent with it.
+Amended 2026-10-25 by Ian: the server also offers `search` and `fetch` for ChatGPT, whose deep research and company knowledge features require those two tool names. Both are thin wrappers that run the same CLI commands as the main tool, and they stay consistent with it.
