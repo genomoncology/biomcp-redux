@@ -61,22 +61,8 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if q.source() == DiagnosticSearchSource::FdaCdx {
         return companion::search(cx, q);
     }
+    let (spec, source, bundle, count) = search_source(q.source());
     let who = q.source() == DiagnosticSearchSource::WhoIvd;
-    let (spec, source, bundle, count) = if who {
-        (
-            &biomcp_adapters::who_ivd::SPEC,
-            Source::WhoIvd,
-            Bundle::WhoIvd,
-            biomcp_types::DiagnosticCountUnit::ProductIdentities,
-        )
-    } else {
-        (
-            &gtr::SPEC,
-            Source::Gtr,
-            Bundle::Gtr,
-            biomcp_types::DiagnosticCountUnit::TestIdentities,
-        )
-    };
     let mut out = empty(QueryBody::DiagnosticPage(DiagnosticPage {
         items: Box::default(),
         count_unit: Some(count),
@@ -111,7 +97,7 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         out.page = Some(PageInfo {
             offset: q.offset(),
             returned,
-            total: total,
+            total,
             pool: None,
             truncated: None,
         });
@@ -124,6 +110,30 @@ pub fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     finish_bundle(&mut out, leg, error, source, bundle);
     command.finish(deadline.remaining());
     out
+}
+fn search_source(
+    source: DiagnosticSearchSource,
+) -> (
+    &'static biomcp_fetch::SourceSpec,
+    Source,
+    Bundle,
+    biomcp_types::DiagnosticCountUnit,
+) {
+    if source == DiagnosticSearchSource::WhoIvd {
+        (
+            &biomcp_adapters::who_ivd::SPEC,
+            Source::WhoIvd,
+            Bundle::WhoIvd,
+            biomcp_types::DiagnosticCountUnit::ProductIdentities,
+        )
+    } else {
+        (
+            &gtr::SPEC,
+            Source::Gtr,
+            Bundle::Gtr,
+            biomcp_types::DiagnosticCountUnit::TestIdentities,
+        )
+    }
 }
 fn unsupported(source: Source, mut out: Outcome) -> Outcome {
     out.sources.push(biomcp_adapters::registry::outcome(

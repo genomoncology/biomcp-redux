@@ -132,11 +132,11 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 -d cancer",
-        "use: --condition-id MedGen:CUI with --source gtr; use --marker with --source who-ivd",
+        "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 --disease cancer",
-        "use: --condition-id MedGen:CUI with --source gtr; use --marker with --source who-ivd",
+        "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
     ),
     (
         "search diagnostic --source gtr --gene BRCA1 --manufacturer lab",

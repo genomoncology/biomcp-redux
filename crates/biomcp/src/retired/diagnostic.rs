@@ -89,7 +89,7 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
         return words.shared;
     }
     if words.source.is_none() || words.source == Some("all") {
-        return Some(ErrorMessage::DiagnosticSource);
+        return Some(ErrorMessage::DiagnosticSearchSources);
     }
     let section = words.section.or_else(|| rest.get(1).copied());
     if section == Some("all") {
@@ -109,7 +109,7 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
         return Some(ErrorMessage::DiagnosticManufacturer);
     }
     match (verb, words.source) {
-        ("search", Some("who-ivd")) if words.test_type => Some(ErrorMessage::DiagnosticWho),
+        ("search", Some("who-ivd")) if words.test_type => Some(ErrorMessage::DiagnosticWhoType),
         ("search", Some("fda-pma")) => Some(ErrorMessage::DiagnosticPma),
         ("search", Some("fda-510k")) => Some(ErrorMessage::Diagnostic510k),
         _ => None,
