@@ -261,7 +261,16 @@
         "incidence",
         "survival"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Publisher scoped synonyms.",
+        " Native cross references.",
+        " Native parent relations.",
+        " Native gene association rows.",
+        " Native phenotype association rows.",
+        " Native stage incidence rows.",
+        " Annual survival rows."
+      ]
     },
     "DiseaseSource": {
       "description": "An explicit disease source without fallback.",

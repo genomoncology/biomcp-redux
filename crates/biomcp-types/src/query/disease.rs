@@ -3,7 +3,7 @@ use crate::Text;
 use serde::{Deserialize, Serialize};
 mod source;
 pub use source::{DiseaseOntology, DiseaseSource};
-biodata::wire_enum! {
+biodata::wire_enum! { described
     /// One named disease page.
     DiseaseSection {
         /// Publisher scoped synonyms.
