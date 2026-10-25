@@ -1,6 +1,7 @@
 # 0148 — Correct the shared drug records to keep native source facts
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8364fe50b98025dbce54c077ccc220ab19d9baea
 
 Milestone: 3
 

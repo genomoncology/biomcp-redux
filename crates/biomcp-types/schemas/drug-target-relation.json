@@ -168,6 +168,83 @@
         " Source-stated unknown identity."
       ]
     },
+    "DrugNativeReference": {
+      "additionalProperties": false,
+      "description": "Typed source reference shared by mechanism and indication records.",
+      "properties": {
+        "ref_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference identifier, when supplied."
+        },
+        "ref_type": {
+          "$ref": "#/$defs/Text",
+          "description": "Native reference type."
+        },
+        "ref_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference link, when supplied."
+        }
+      },
+      "required": [
+        "ref_type"
+      ],
+      "type": "object"
+    },
+    "DrugNativeTarget": {
+      "additionalProperties": false,
+      "description": "One source-native target identity, without inventing a gene label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact published target identifier."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native target label, only when supplied."
+        },
+        "source": {
+          "$ref": "#/$defs/Text",
+          "description": "Source responsible for the native identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native target link, only when supplied."
+        }
+      },
+      "required": [
+        "source",
+        "id"
+      ],
+      "type": "object"
+    },
     "EnsemblGeneId": {
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
@@ -236,6 +313,18 @@
   "$id": "biodata.drug-target-relation/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "anyOf": [
+    {
+      "required": [
+        "target"
+      ]
+    },
+    {
+      "required": [
+        "native_target"
+      ]
+    }
+  ],
   "description": "A native target or mechanism relation, without an indication inference.",
   "properties": {
     "attribution": {
@@ -255,7 +344,18 @@
           "type": "null"
         }
       ],
-      "description": "Native mechanism wording, when supplied."
+      "description": "Native mechanism wording, only when supplied."
+    },
+    "native_target": {
+      "$ref": "#/$defs/DrugNativeTarget",
+      "description": "Native target identity independent of a gene reference."
+    },
+    "references": {
+      "description": "Source-native supporting references.",
+      "items": {
+        "$ref": "#/$defs/DrugNativeReference"
+      },
+      "type": "array"
     },
     "relation": {
       "$ref": "#/$defs/Text",
@@ -263,12 +363,11 @@
     },
     "target": {
       "$ref": "#/$defs/GeneRef",
-      "description": "Source-stated target gene."
+      "description": "Source-stated target gene, without using mechanism text as a gene label."
     }
   },
   "required": [
     "drug",
-    "target",
     "relation",
     "attribution"
   ],
