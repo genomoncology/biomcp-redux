@@ -117,89 +117,87 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
     vec![command_verb(request).into(), command_entity(request).into()]
 }
 fn command_verb(request: &Request) -> &'static str {
-        match request {
-            Request::VariantAssertions(_)
-            | Request::VariantPopulation(_)
-            | Request::VariantRecurrence(_)
-            | Request::VariantNormalize(_) => "variant",
-            Request::TrialDocument(_) => "trial",
-            Request::ArticlePdf(_)
-            | Request::ArticleEvidence(_)
-            | Request::ArticleRecommend(_)
-            | Request::ArticleSupplement(_)
-            | Request::ArticleText(_)
-            | Request::ArticleCitations(_)
-            | Request::ArticleReferences(_) => "article",
-            Request::GetDiagnostic(_)
-            | Request::GetAdverseEvent(_)
-            | Request::GetDisease(_)
-            | Request::GetDrug(_)
-            | Request::GetVariant(_)
-            | Request::GetTrial(_)
-            | Request::GetGene(_)
-            | Request::GetArticle(_) => "get",
-            Request::SearchDiagnostic(_)
-            | Request::SearchAdverseEvent(_)
-            | Request::SearchDisease(_)
-            | Request::SearchDrug(_)
-            | Request::SearchVariant(_)
-            | Request::SearchTrial(_)
-            | Request::SearchGene(_)
-            | Request::SearchArticle(_) => "search",
-        }
-
+    match request {
+        Request::VariantAssertions(_)
+        | Request::VariantPopulation(_)
+        | Request::VariantRecurrence(_)
+        | Request::VariantNormalize(_) => "variant",
+        Request::TrialDocument(_) => "trial",
+        Request::ArticlePdf(_)
+        | Request::ArticleEvidence(_)
+        | Request::ArticleRecommend(_)
+        | Request::ArticleSupplement(_)
+        | Request::ArticleText(_)
+        | Request::ArticleCitations(_)
+        | Request::ArticleReferences(_) => "article",
+        Request::GetDiagnostic(_)
+        | Request::GetAdverseEvent(_)
+        | Request::GetDisease(_)
+        | Request::GetDrug(_)
+        | Request::GetVariant(_)
+        | Request::GetTrial(_)
+        | Request::GetGene(_)
+        | Request::GetArticle(_) => "get",
+        Request::SearchDiagnostic(_)
+        | Request::SearchAdverseEvent(_)
+        | Request::SearchDisease(_)
+        | Request::SearchDrug(_)
+        | Request::SearchVariant(_)
+        | Request::SearchTrial(_)
+        | Request::SearchGene(_)
+        | Request::SearchArticle(_) => "search",
+    }
 }
 fn command_entity(request: &Request) -> &'static str {
-        if matches!(
-            request,
-            Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)
-        ) {
-            "diagnostic"
-        } else if matches!(
-            request,
-            Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_)
-        ) {
-            "adverse-event"
-        } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
-            "disease"
-        } else if matches!(request, Request::SearchDrug(_) | Request::GetDrug(_)) {
-            "drug"
-        } else if matches!(request, Request::VariantAssertions(_)) {
-            "assertions"
-        } else if matches!(request, Request::VariantPopulation(_)) {
-            "population"
-        } else if matches!(request, Request::VariantRecurrence(_)) {
-            "recurrence"
-        } else if matches!(request, Request::VariantNormalize(_)) {
-            "normalize"
-        } else if matches!(request, Request::TrialDocument(_)) {
-            "document"
-        } else if matches!(request, Request::SearchTrial(_)) {
-            "trial"
-        } else if matches!(request, Request::GetVariant(_) | Request::SearchVariant(_)) {
-            "variant"
-        } else if matches!(request, Request::ArticlePdf(_)) {
-            "pdf"
-        } else if matches!(request, Request::ArticleEvidence(_)) {
-            "citation-evidence"
-        } else if matches!(request, Request::ArticleRecommend(_)) {
-            "recommendations"
-        } else if matches!(request, Request::ArticleSupplement(_)) {
-            "supplement"
-        } else if matches!(request, Request::ArticleText(_)) {
-            "text"
-        } else if matches!(request, Request::ArticleCitations(_)) {
-            "citations"
-        } else if matches!(request, Request::ArticleReferences(_)) {
-            "references"
-        } else if matches!(request, Request::GetTrial(_) | Request::SearchTrial(_)) {
-            "trial"
-        } else if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
-            "article"
-        } else {
-            "gene"
-        }
-
+    if matches!(
+        request,
+        Request::SearchDiagnostic(_) | Request::GetDiagnostic(_)
+    ) {
+        "diagnostic"
+    } else if matches!(
+        request,
+        Request::SearchAdverseEvent(_) | Request::GetAdverseEvent(_)
+    ) {
+        "adverse-event"
+    } else if matches!(request, Request::SearchDisease(_) | Request::GetDisease(_)) {
+        "disease"
+    } else if matches!(request, Request::SearchDrug(_) | Request::GetDrug(_)) {
+        "drug"
+    } else if matches!(request, Request::VariantAssertions(_)) {
+        "assertions"
+    } else if matches!(request, Request::VariantPopulation(_)) {
+        "population"
+    } else if matches!(request, Request::VariantRecurrence(_)) {
+        "recurrence"
+    } else if matches!(request, Request::VariantNormalize(_)) {
+        "normalize"
+    } else if matches!(request, Request::TrialDocument(_)) {
+        "document"
+    } else if matches!(request, Request::SearchTrial(_)) {
+        "trial"
+    } else if matches!(request, Request::GetVariant(_) | Request::SearchVariant(_)) {
+        "variant"
+    } else if matches!(request, Request::ArticlePdf(_)) {
+        "pdf"
+    } else if matches!(request, Request::ArticleEvidence(_)) {
+        "citation-evidence"
+    } else if matches!(request, Request::ArticleRecommend(_)) {
+        "recommendations"
+    } else if matches!(request, Request::ArticleSupplement(_)) {
+        "supplement"
+    } else if matches!(request, Request::ArticleText(_)) {
+        "text"
+    } else if matches!(request, Request::ArticleCitations(_)) {
+        "citations"
+    } else if matches!(request, Request::ArticleReferences(_)) {
+        "references"
+    } else if matches!(request, Request::GetTrial(_) | Request::SearchTrial(_)) {
+        "trial"
+    } else if matches!(request, Request::SearchArticle(_) | Request::GetArticle(_)) {
+        "article"
+    } else {
+        "gene"
+    }
 }
 
 fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> {

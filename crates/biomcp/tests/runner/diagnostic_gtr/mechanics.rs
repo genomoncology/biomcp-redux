@@ -112,3 +112,43 @@ pub(super) fn conflict() -> Check {
     }
     Ok(())
 }
+
+pub(super) fn markdown() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env)?;
+    call(&env, &replay, &["sync", "gtr"], 0)?;
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(
+        [
+            "get",
+            "diagnostic",
+            "GTR000006692.3",
+            "--source",
+            "gtr",
+            "--format",
+            "md",
+        ]
+        .map(str::to_owned),
+    );
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() || !output.stderr.is_empty() {
+        return Err("diagnostic Markdown command failed".into());
+    }
+    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    for expected in [
+        "GTR000006692.3",
+        "Synthetic test",
+        "Synthetic \"quoted\" laboratory",
+        "2026-10-22",
+        "get diagnostic GTR000006692.3 genes",
+        "NCBI usage policies",
+    ] {
+        if !text.contains(expected) {
+            return Err(format!("diagnostic Markdown omitted {expected}"));
+        }
+    }
+    Ok(())
+}

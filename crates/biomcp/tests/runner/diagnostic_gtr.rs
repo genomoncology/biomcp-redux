@@ -6,6 +6,10 @@ use serde_json::json;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "diagnostic-gtr/markdown-preserves-native-facts-and-next",
+            || mechanics::markdown().map_err(Into::into),
+        ),
         Trial::test("diagnostic-gtr/read-does-not-synchronize", || {
             missing().map_err(Into::into)
         }),
