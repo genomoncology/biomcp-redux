@@ -230,14 +230,14 @@ pub(super) fn disabled() -> Result<(), String> {
 }
 
 pub(super) fn wrong_site() -> Result<(), String> {
-    use std::sync::atomic::{AtomicUsize, Ordering};
-    let calls = AtomicUsize::new(0);
+    let mut calls = 0;
     let stub = Stub::for_source_status(
         "seer.cancer.gov",
         "application/json",
         move |request| {
             let body = super::wire(request)?;
-            if calls.fetch_add(1, Ordering::SeqCst) >= 2 {
+            calls += 1;
+            if calls > 2 {
                 return Ok(body);
             }
             let mut encoded: Value = serde_json::from_str(&body).map_err(|e| e.to_string())?;

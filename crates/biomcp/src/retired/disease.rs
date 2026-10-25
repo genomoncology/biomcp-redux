@@ -89,7 +89,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             if let Some(retired) = section.and_then(|s| super::find(SECTIONS, s)) {
                 return Some(retired);
             }
-            if !id.contains(':') && source != Some("seer") {
+            if id.parse::<biodata::Curie>().is_err() && source != Some("seer") {
                 return Some(ErrorMessage::DiseaseName);
             }
             option
