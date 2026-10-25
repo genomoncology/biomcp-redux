@@ -149,6 +149,7 @@
       "max_tokens": 386,
       "expect": {
         "/result/kind": "gtr_test",
+        "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
         "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
         "/result/clia_number": ""
       }
