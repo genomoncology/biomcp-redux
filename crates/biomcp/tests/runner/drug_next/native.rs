@@ -16,7 +16,10 @@ pub(super) fn trials() -> Vec<Trial> {
 fn run() -> Result<(), String> {
     use sha2::{Digest, Sha256};
     let meta: Value = serde_json::from_str(META).map_err(|e| e.to_string())?;
-    let hash = format!("{:x}", Sha256::digest(BODY.as_bytes()));
+    let hash: String = Sha256::digest(BODY.as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
     if meta.pointer("/capture/sha256") != Some(&json!(hash)) {
         return Err("native body hash changed".into());
     }

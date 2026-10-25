@@ -312,6 +312,14 @@ fn expand(value: &mut Value) -> Result<(), String> {
         .map(|n| {
             let mut row = base.clone();
             *row.pointer_mut("/id").ok_or("claim ID")? = json!(900 + n);
+            *row.pointer_mut("/molecularProfile/id")
+                .ok_or("profile ID")? = json!(900 + n);
+            *row.pointer_mut("/molecularProfile/link")
+                .ok_or("profile link")? = json!(format!("/molecular-profiles/{}", 900 + n));
+            *row.pointer_mut("/molecularProfile/variants/0/id")
+                .ok_or("member ID")? = json!(900 + n);
+            *row.pointer_mut("/molecularProfile/variants/0/link")
+                .ok_or("member link")? = json!(format!("/variants/{}", 900 + n));
             *row.pointer_mut("/molecularProfile/variants/0/hgvsDescriptions")
                 .ok_or("HGVS")? = json!([format!("NC_000007.14:g.{}A>T", 140753336 + n)]);
             Ok(row)
