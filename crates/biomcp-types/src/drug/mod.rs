@@ -11,3 +11,6 @@ pub use response::{
 };
 
 pub use source::DrugSource;
+
+mod name_selector;
+pub use name_selector::DrugNameSelector;

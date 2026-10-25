@@ -1,0 +1,252 @@
+use super::{failure, identity};
+use crate::{Action, Outcome};
+use biomcp_adapters::{chembl, opentargets};
+use biomcp_fetch::{Leg, RequestError};
+use biomcp_types::{
+    DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo,
+    QueryBody, Request, Section, Source, Status, StepKind,
+};
+pub(super) fn chembl(
+    leg: &Leg<'_>,
+    query: &DrugGet,
+    fresh: bool,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let source = Source::Chembl;
+    let (row, metadata) = chembl::molecule(leg, query.input())?;
+    let header = identity::chembl_header(&row).map_err(|_| failure(source))?;
+    let drug = identity::neutral(&header).map_err(|_| failure(source))?;
+    let limit = query.section_limit().unwrap_or(10);
+    let offset = query.section_offset().unwrap_or(0);
+    match query.sections() {
+        [DrugSection::Targets] => {
+            let (page, meta) = chembl::mechanisms(leg, query.input(), limit, offset)?;
+            let records =
+                chembl::map_targets(&drug, page.mechanisms).map_err(|_| failure(source))?;
+            targets(
+                out,
+                query,
+                header,
+                records,
+                page.page_meta.total_count,
+                meta.fetched,
+                fresh,
+            );
+        }
+        [DrugSection::Indications] => {
+            let (page, meta) = chembl::indications(leg, query.input(), limit, offset)?;
+            let records = chembl::map_indications(&drug, page.drug_indications)
+                .map_err(|_| failure(source))?;
+            indications(
+                out,
+                query,
+                header,
+                records,
+                page.page_meta.total_count,
+                meta.fetched,
+                fresh,
+            );
+        }
+        _ => chembl_card(row, metadata.fetched, query, fresh, out)?,
+    }
+    Ok(())
+}
+pub(super) fn opentargets(
+    leg: &Leg<'_>,
+    query: &DrugGet,
+    fresh: bool,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let (row, meta) = opentargets::drug(leg, query.input())?;
+    let Some(row) = row else {
+        out.status = Status::Absent;
+        return Ok(());
+    };
+    let source = Source::Opentargets;
+    let header = identity::ot_identity(&row).map_err(|_| failure(source))?;
+    let drug = identity::neutral(&header).map_err(|_| failure(source))?;
+    let limit = query.section_limit().unwrap_or(10) as usize;
+    let offset = query.section_offset().unwrap_or(0) as usize;
+    match query.sections() {
+        [DrugSection::Targets] => {
+            let rows = opentargets::map_targets(&drug, row.mechanisms_of_action.rows)
+                .map_err(|_| failure(source))?;
+            let total = rows.len() as u64;
+            let records = rows
+                .into_vec()
+                .into_iter()
+                .skip(offset)
+                .take(limit)
+                .collect();
+            targets(out, query, header, records, total, meta.fetched, fresh);
+        }
+        [DrugSection::Indications] => {
+            let rows = opentargets::map_indications(&drug, row.indications.rows)
+                .map_err(|_| failure(source))?;
+            let total = rows.len() as u64;
+            let records = rows
+                .into_vec()
+                .into_iter()
+                .skip(offset)
+                .take(limit)
+                .collect();
+            indications(out, query, header, records, total, meta.fetched, fresh);
+        }
+        _ => {
+            out.status = Status::Complete;
+            out.body = QueryBody::DrugCard(Some(identity::card(header, meta.fetched)));
+            card_next(out, query, fresh, false);
+        }
+    }
+    Ok(())
+}
+fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
+    for section in [
+        DrugSection::Targets,
+        DrugSection::Indications,
+        DrugSection::Xrefs,
+    ]
+    .into_iter()
+    .filter(|s| *s != DrugSection::Xrefs || xrefs)
+    {
+        if let Ok(get) = query.for_section(section) {
+            out.next.push((
+                StepKind::Section,
+                Action::Run {
+                    request: Request::GetDrug(get),
+                    fresh,
+                },
+            ));
+        }
+    }
+}
+fn page<T>(
+    out: &mut Outcome,
+    query: &DrugGet,
+    records: Box<[T]>,
+    total: u64,
+    fetched: i64,
+    fresh: bool,
+) -> Section<DrugRecords<T>> {
+    let offset = query.section_offset().unwrap_or(0);
+    let returned = records.len() as u32;
+    let source = query.source().source();
+    out.status = if total == 0 {
+        Status::Absent
+    } else {
+        Status::Complete
+    };
+    out.page = Some(PageInfo {
+        offset,
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    });
+    if let Some(offset) = offset
+        .checked_add(returned)
+        .filter(|n| returned > 0 && u64::from(*n) < total)
+        && let Ok(get) = query.at_section_offset(offset)
+    {
+        out.next.push((
+            StepKind::Page,
+            Action::Run {
+                request: Request::GetDrug(get),
+                fresh,
+            },
+        ));
+    }
+    if total == 0 {
+        Section::Empty {
+            source,
+            record: query
+                .input()
+                .to_string()
+                .parse()
+                .ok()
+                .map(|id| biomcp_types::SourceRecord { id, url: None }),
+        }
+    } else {
+        Section::Data {
+            source,
+            data: DrugRecords {
+                records,
+                offset,
+                total: Some(total),
+                truncated: None,
+                version: None,
+                retrieved: biomcp_adapters::drug_sources::received_date(fetched),
+            },
+        }
+    }
+}
+fn targets(
+    out: &mut Outcome,
+    query: &DrugGet,
+    identity: DrugHeader,
+    records: Box<[biodata::DrugTargetRelation]>,
+    total: u64,
+    fetched: i64,
+    fresh: bool,
+) {
+    let targets = page(out, query, records, total, fetched, fresh);
+    out.body = QueryBody::DrugTargets(Some(DrugTargets { identity, targets }));
+}
+fn indications(
+    out: &mut Outcome,
+    query: &DrugGet,
+    identity: DrugHeader,
+    records: Box<[biodata::DrugIndicationClaim]>,
+    total: u64,
+    fetched: i64,
+    fresh: bool,
+) {
+    let indications = page(out, query, records, total, fetched, fresh);
+    out.body = QueryBody::DrugIndications(Some(DrugIndications {
+        identity,
+        indications,
+    }));
+}
+
+fn chembl_card(
+    row: chembl::Molecule,
+    fetched: i64,
+    query: &DrugGet,
+    fresh: bool,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let source = Source::Chembl;
+    let limit = query.section_limit().unwrap_or(10);
+    let offset = query.section_offset().unwrap_or(0);
+    let mut card = identity::chembl_card(row, fetched).map_err(|_| failure(source))?;
+    let has_xrefs = !card.cross_references.is_empty();
+    let xrefs = std::mem::take(&mut card.cross_references);
+    if query.sections() == [DrugSection::Xrefs] {
+        let total = xrefs.len() as u64;
+        let records = xrefs
+            .into_vec()
+            .into_iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .collect();
+        let xrefs = page(out, query, records, total, fetched, fresh);
+        out.body = QueryBody::DrugXrefs(Some(biomcp_types::DrugXrefs {
+            identity: card.header,
+            xrefs,
+        }));
+        return Ok(());
+    }
+    out.status = Status::Complete;
+    out.body = QueryBody::DrugCard(Some(card));
+    card_next(out, query, fresh, has_xrefs);
+    if let Ok(get) = DrugGet::new(query.input().clone(), biomcp_types::DrugSource::Opentargets) {
+        out.next.push((
+            StepKind::Section,
+            Action::Run {
+                request: Request::GetDrug(get),
+                fresh,
+            },
+        ));
+    }
+    Ok(())
+}

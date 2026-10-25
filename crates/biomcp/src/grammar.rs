@@ -39,7 +39,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::SearchDisease(_) => "biomcp.disease-search/1",
         Request::GetDisease(_) => "biomcp.disease-get/2",
-        Request::SearchDrug(_) => "biomcp.drug-search/1",
+        Request::SearchDrug(_) => "biomcp.drug-search/2",
         Request::GetDrug(_) => "biomcp.drug-get/2",
         Request::VariantAssertions(_) => "biodata.variant-assertions/1",
         Request::VariantPopulation(_) => "biodata.variant-population/2",
@@ -65,7 +65,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "disease", "biomcp.disease-search/1"),
     ("get", "disease", "biomcp.disease-get/2"),
-    ("search", "drug", "biomcp.drug-search/1"),
+    ("search", "drug", "biomcp.drug-search/2"),
     ("get", "drug", "biomcp.drug-get/2"),
     ("get", "gene", "biodata.gene-get/1"),
     ("search", "gene", "biodata.gene-search/1"),

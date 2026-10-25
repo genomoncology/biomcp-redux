@@ -64,8 +64,9 @@ variant-help: Variant help gives executable examples and explicit migration step
 
 drug-types: A public API caller validates published drug identifiers, selected-source requests, neutral records and source-preserving continuations before command adapters exist. Contracts: `biomcp-types/drug_contracts` (features: `schema`).
 
+drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization. Cases: `crates/biomcp/tests/runner/drug_native.rs`, `crates/biomcp/tests/runner/drug_native_identity.rs`, `tests/cases/drug/native-policy.yaml`.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context. Cases: `crates/biomcp/tests/runner/drug_civic.rs`.
-drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/*.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
+drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references. Cases: `tests/cases/drug/disabled.yaml`, `crates/biomcp/tests/runner/drug_mychem.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
 disease-types: A public API caller validates disease identifiers, source-selected requests, native association provenance and statistics without hidden enrichment before command adapters exist. Contracts: `biomcp-types/disease_contracts` (features: `schema`).
 
 disease-ols: Discover source-ordered ontology candidates and read exact OLS cards, synonyms and cross references. Cases: `tests/cases/disease/*.yaml`, `crates/biomcp/tests/runner/disease_ols.rs`, `crates/biomcp/tests/runner/disease_ols/native.rs`.

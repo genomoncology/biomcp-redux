@@ -329,6 +329,22 @@ The default MyChem search page is measured through the actual CLI and MCP agains
 
 The initial command tree has no `all` section. Every named section returns independently bounded pages with exact next actions and source outcomes. A text continuation is a mechanical slice of the original source section with offsets and total, not a selected clinical summary. Unknown total, source truncation and unsupported fields remain visible. Output growth fails the actual cases; these design allocations do not create another runtime configuration table.
 
+### Native source envelope measurements
+
+The ChEMBL and Open Targets cases use retained public responses or labeled identity subsets, delivered by a local TLS peer through the actual transport recorder and then replayed through CLI and MCP. This delivery is not a fresh provider check. Original source requests, capture dates and body hashes remain in `tests/fixtures/drug/native/provenance.json`; transport retrieval dates describe the local delivery. The later Open Targets candidate page and missing-record fixture prove synthetic mechanics only. Named Open Targets sections page the complete returned collections locally without adding unproved GraphQL paging arguments.
+
+The following measured examples include `--fresh` and preserve the source fields required by their cases. Tokens are compact JSON bytes divided by four, rounded up. Comparable bytes subtract only validated mandatory publisher terms metadata. The case plan owns the enforcing `max_bytes`, `max_comparable`, `max_tokens` and `max_comparable_tokens` values under the existing headroom rule. These measurements establish no historical parity claim.
+
+| Measured native example | Full bytes | Comparable bytes | Estimated full / comparable tokens |
+| --- | ---: | ---: | ---: |
+| ChEMBL candidate page with native limit three | 694 | 587 | 174 / 147 |
+| ChEMBL trastuzumab identity card | 2,326 | 2,219 | 582 / 555 |
+| ChEMBL default reference page | 3,388 | 3,281 | 847 / 821 |
+| Largest harvested one-row target/mechanism page | 1,334 | 1,195 | 334 / 299 |
+| Largest harvested one-row indication page | 1,860 | 1,753 | 465 / 439 |
+
+The exact ChEMBL cards retain all distinct `molecule_synonyms[].molecule_synonym` strings, removing only exact duplicates. The imatinib, trastuzumab and axicabtagene ciloleucel records supply 18, 60 and four distinct strings. Trastuzumab's complete native reference collection remains reachable as ten rows followed by two rows. ChEMBL's source-attributed EMA website paths remain paths; they do not become authorization identities or joined product claims. The native Open Targets `maxClinicalStage` value `APPROVAL` remains a stage value in its indication record and never becomes an authorization event.
+
 ## 0.9 static accounting and comparison limit
 
 The GitHub release-tag lookup for v0.9.4 returned HTTP 404; this does not establish that no such version exists elsewhere. The acquired published v0.9.3 archive matched its official checksum; observed executable version was `biomcp 0.9.3`. The archive SHA-256 is `e637062c18c6692f3ec49c5847e69b29f6feee7f7909345970bd504d72174994`; executable SHA-256 is `54f66769d9193c569d1b65756ad766eafd1a2c5e92d08f8c855cc8964e9a7145`. This design does not silently use the machine's installed 0.9.1 binary.

@@ -130,8 +130,8 @@ mod drug;
 pub use drug::{
     DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim, DrugCivicPage, DrugCivicProfile,
     DrugCivicStreams, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
-    DrugLabelText, DrugPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection, DrugSource,
-    DrugTargets, DrugXrefs,
+    DrugLabelText, DrugNameSelector, DrugPage, DrugRecords, DrugRegulatory, DrugSearch,
+    DrugSection, DrugSource, DrugTargets, DrugXrefs,
 };
 
 pub use query::QueryInvalid;

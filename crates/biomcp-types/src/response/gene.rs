@@ -91,6 +91,10 @@ pub enum QueryBody {
     DrugCard(Option<crate::DrugCard>),
     /// An exact selected document's bounded native link page.
     DrugXrefs(Option<crate::DrugXrefs>),
+    /// Source-native drug target and mechanism page.
+    DrugTargets(Option<crate::DrugTargets>),
+    /// Source-native drug indication page.
+    DrugIndications(Option<crate::DrugIndications>),
     /// Source-local CIViC therapy evidence and assertion streams.
     DrugCivic(Option<crate::DrugCivic>),
     /// Source-native variant assertions.

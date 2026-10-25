@@ -45,6 +45,14 @@ struct SearchFields {
     /// Exactly one source; default MyChem never fans out.
     #[serde(default = "default_source")]
     source: DrugSource,
+    /// Explicit ChEMBL native name selector; omitted means preferred name.
+    #[serde(
+        default,
+        deserialize_with = "selected_name",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "super::DrugNameSelector"))]
+    name_selector: Option<super::DrugNameSelector>,
     /// Native candidate rows per page.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -56,10 +64,20 @@ struct SearchFields {
 impl TryFrom<SearchFields> for DrugSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&fields.limit) {
+        if !(1..=50).contains(&fields.limit)
+            || fields.name_selector.is_some() && fields.source != DrugSource::Chembl
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(fields))
+    }
+}
+impl DrugSearch {
+    /// Checked native selector, with preferred name as the ChEMBL default.
+    pub fn name_selector(&self) -> super::DrugNameSelector {
+        self.0
+            .name_selector
+            .unwrap_or(super::DrugNameSelector::Preferred)
     }
 }
 /// Exact native ID retrieval with an explicitly selected source.
@@ -241,6 +259,11 @@ impl DrugSource {
     }
 }
 
+fn selected_name<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<super::DrugNameSelector>, D::Error> {
+    super::DrugNameSelector::deserialize(d).map(Some)
+}
 impl DrugSearch {
     /// Literal source query, without rewriting.
     pub fn query(&self) -> &Text {

@@ -48,3 +48,6 @@ pub(crate) const DDINTER_TERMS: Terms = Terms {
     url: "https://ddinter.scbdd.com/terms/",
     usage: Use::Noncommercial,
 };
+
+mod date;
+pub use date::received_date;
