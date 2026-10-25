@@ -5,12 +5,12 @@ use super::super::{
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
-fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+pub(super) fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
     invoke(env, command, exit)
 }
-fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
+pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
     let source = fixtures().join("replies/diagnostic/gtr-synthetic/gtr");
     let replay = env.root().join("replay");
     fs::create_dir_all(replay.join("gtr")).map_err(|e| e.to_string())?;
