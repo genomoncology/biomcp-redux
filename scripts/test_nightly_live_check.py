@@ -109,6 +109,20 @@ class NightlyCommand(unittest.TestCase):
                 self.assertEqual(self.scratch(), [])
                 shutil.rmtree(self.store)
 
+    def test_diagnostic_witness_survives_verified_delivery(self):
+        witness = {"baseline": {"output": {"id": "old"}}, "live": {
+            "requests": [{"url": "https://example.org/search?q=cancer", "status": 200,
+                          "shape": {"fields": {"/id": True}}}],
+            "result_ids": [{"field": "id", "value": "new"}], "output": {"id": "new"}}}
+        report = {"drift_cases": 1, "error_cases": 0,
+                  "case_sample": [{"case": "changed", "witness": witness},
+                                  {"case": "clean", "result": {"drift": []}}]}
+        result = self.run_command(FAKE_REPORT=json.dumps(report))
+        self.assertNotEqual(result.returncode, 0)
+        copied = json.loads((self.copied() / 'report.json').read_text())
+        self.assertEqual(copied, report)
+        self.assertEqual(self.scratch(), [])
+
     def test_failed_copy_or_manifest_keeps_scratch(self):
         for failure in ['fail', 'manifest']:
             with self.subTest(failure=failure):

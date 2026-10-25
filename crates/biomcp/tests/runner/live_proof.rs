@@ -4,6 +4,9 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path};
 
+#[path = "live_witness_proof.rs"]
+mod witness_proof;
+
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test("live-source-checks/cache-retries-and-request-plans", || {
@@ -11,6 +14,12 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         Trial::test("live-source-checks/summary-retains-late-drift", || {
             summary().map_err(|e| e.to_string().into())
+        }),
+        Trial::test("live-source-checks/retained-drift-witnesses", || {
+            witness_proof::retained().map_err(Into::into)
+        }),
+        Trial::test("live-source-checks/credential-free-witness-urls", || {
+            witness_proof::credentials().map_err(Into::into)
         }),
         Trial::test("live-check/offline-planted-drift", || {
             check().map_err(|e| e.to_string().into())
@@ -95,8 +104,8 @@ fn observe(
         .into());
     }
     let text = fs::read_to_string(report)?;
-    if text.is_empty() || text.contains("https:") || text.contains("summary\":\"") {
-        return Err("wire report empty or contains payload/URL".into());
+    if text.is_empty() || text.contains("summary\":\"") {
+        return Err("wire report empty or contains payload".into());
     }
     Ok(text
         .lines()
