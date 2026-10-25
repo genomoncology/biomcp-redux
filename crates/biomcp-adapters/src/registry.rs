@@ -36,13 +36,13 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::semantic_scholar::SPEC,
     &crate::nci::SPEC,
     &crate::cbioportal::SPEC,
-    &crate::drug_sources::MYCHEM,
-    &crate::drug_sources::CHEMBL,
-    &crate::drug_sources::OPENTARGETS,
-    &crate::drug_sources::OPENFDA_LABEL,
-    &crate::drug_sources::DRUGSFDA,
-    &crate::drug_sources::EMA,
-    &crate::drug_sources::DDINTER,
+    &crate::mychem::SPEC,
+    &crate::chembl::SPEC,
+    &crate::opentargets::SPEC,
+    &crate::openfda_label::SPEC,
+    &crate::drugsfda::SPEC,
+    &crate::ema::SPEC,
+    &crate::ddinter::SPEC,
 ];
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {

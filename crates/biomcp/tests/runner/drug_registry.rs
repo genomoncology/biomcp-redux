@@ -11,6 +11,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("drug-registry/disabled-health-no-io", || {
             disabled_health().map_err(Into::into)
         }),
+        Trial::test("drug-registry/enabled-health-native-probes", || {
+            enabled_health().map_err(Into::into)
+        }),
         Trial::test("drug-registry/component-projection", || {
             projection().map_err(Into::into)
         }),
@@ -328,6 +331,101 @@ fn outcomes() -> Check {
             {
                 return Err("outcome lost source rights".into());
             }
+        }
+    }
+    Ok(())
+}
+
+const HEALTH_PROBES: &[(&str, &str, &str)] = &[
+    ("mychem", "mychem.info", "GET /v1/metadata HTTP/1.1"),
+    (
+        "chembl",
+        "www.ebi.ac.uk",
+        "GET /chembl/api/data/status.json HTTP/1.1",
+    ),
+    (
+        "opentargets",
+        "api.platform.opentargets.org",
+        "POST /api/v4/graphql HTTP/1.1",
+    ),
+    (
+        "openfda-label",
+        "api.fda.gov",
+        "GET /drug/label.json?limit=1 HTTP/1.1",
+    ),
+    (
+        "drugsfda",
+        "api.fda.gov",
+        "GET /drug/drugsfda.json?limit=1 HTTP/1.1",
+    ),
+    (
+        "ema",
+        "www.ema.europa.eu",
+        "GET /en/about-us/about-website/legal-notice HTTP/1.1",
+    ),
+    ("ddinter", "ddinter.scbdd.com", "GET /terms/ HTTP/1.1"),
+];
+
+fn enabled_health() -> Check {
+    use biomcp_adapters::registry;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let probes = HEALTH_PROBES;
+    let hosts = probes.iter().map(|(_, host, _)| *host).collect::<Vec<_>>();
+    let stub = super::network_stub::Stub::for_sources(
+        &hosts,
+        |_| "application/json",
+        |_| Ok("{}".into()),
+    )?;
+    let cert = env.root().join("private-ca.pem");
+    std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
+    let disabled = registry::SOURCES
+        .iter()
+        .filter(|s| {
+            !probes
+                .iter()
+                .any(|(name, _, _)| s.source.to_string() == *name)
+        })
+        .map(|s| s.source.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+    let health = invoke(
+        &env,
+        vec!["health".into(), "--disable-sources".into(), disabled],
+        0,
+    )?;
+    let rows = health
+        .pointer("/result/sources")
+        .and_then(Value::as_array)
+        .ok_or("missing health")?;
+    let requests = stub.finish()?;
+    if requests.len() != probes.len() {
+        return Err(format!(
+            "expected one probe per source, got {}",
+            requests.len()
+        ));
+    }
+    for &(name, host, first_line) in probes {
+        let row = rows
+            .iter()
+            .find(|row| row["source"] == name)
+            .ok_or("missing source")?;
+        if row["state"] != "ok" || row["disabled"] != false {
+            return Err(format!("enabled probe failed: {row}"));
+        }
+        let matched = requests
+            .iter()
+            .filter(|(connect, request)| {
+                connect.starts_with(&format!("CONNECT {host}:443 "))
+                    && request.lines().next() == Some(first_line)
+            })
+            .collect::<Vec<_>>();
+        if matched.len() != 1 {
+            return Err(format!("wrong native probe for {name}: {requests:?}"));
+        }
+        if name == "opentargets" && !matched[0].1.contains("{ __typename }") {
+            return Err("Open Targets probe lost its bounded GraphQL query".into());
         }
     }
     Ok(())
