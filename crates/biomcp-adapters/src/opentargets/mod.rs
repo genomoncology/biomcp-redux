@@ -20,7 +20,6 @@ use biomcp_fetch::{BadReply, Freshness, Leg, RequestError};
 pub use raw::{Disease, Drug, Hit, Indication, Mechanism, Rows, Search, Target};
 use serde::Serialize;
 const GRAPHQL: biomcp_fetch::Endpoint = SPEC.post_json("/graphql").fresh(Freshness::Days(1));
-const SEARCH: &str = "query DrugSearch($q:String!){search(queryString:$q,entityNames:[\"drug\"],page:{index:0,size:5}){total hits{id name entity}}}";
 const DETAIL: &str = "query Drug($id:String!){drug(chemblId:$id){id name indications{rows{maxClinicalStage disease{id name}}} mechanismsOfAction{rows{mechanismOfAction actionType targets{id approvedSymbol approvedName}}}}}";
 #[derive(Serialize)]
 struct Query<'a, T> {
@@ -35,13 +34,24 @@ struct SearchVariables<'a> {
 struct DrugVariables<'a> {
     id: &'a str,
 }
-/// Fetch the proved native five-candidate collection; page locally without claiming unproved GraphQL arguments.
+/// Fetch one native candidate page in source order with its unchanged native total.
 pub fn search(
     leg: &Leg<'_>,
     text: &str,
+    index: u32,
+    size: u32,
 ) -> Result<(Search, biomcp_fetch::ReplyMetadata), RequestError> {
+    if !(1..=50).contains(&size) {
+        return Err(RequestError::Source(biomcp_fetch::SourceError {
+            source: Source::Opentargets,
+            reason: biomcp_types::Reason::BadReply,
+            status: None,
+            retry_after: None,
+        }));
+    }
+    let query = search_query(index, size);
     let body = Query {
-        query: SEARCH,
+        query: &query,
         variables: SearchVariables { q: text },
     };
     leg.post_json_received_checked(
@@ -49,7 +59,10 @@ pub fn search(
         &[],
         &body,
         |r: &raw::Response<raw::SearchData>| {
-            if r.data.search.hits.len() <= 5
+            if r.data.search.hits.len() <= size as usize
+                && (r.data.search.hits.is_empty()
+                    || u64::from(index) * u64::from(size) + r.data.search.hits.len() as u64
+                        <= r.data.search.total)
                 && r.data
                     .search
                     .hits
@@ -89,3 +102,24 @@ pub fn drug(
 }
 mod map;
 pub use map::{indications as map_indications, targets as map_targets};
+
+fn search_query(index: u32, size: u32) -> String {
+    format!(
+        "query DrugSearch($q:String!){{search(queryString:$q,entityNames:[\"drug\"],page:{{index:{index},size:{size}}}){{total hits{{id name entity}}}}}}"
+    )
+}
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn native_search_document_preserves_literal_paging() {
+        // First page matches the retained source request. Later page is synthetic mechanics only.
+        assert_eq!(
+            super::search_query(0, 5),
+            "query DrugSearch($q:String!){search(queryString:$q,entityNames:[\"drug\"],page:{index:0,size:5}){total hits{id name entity}}}"
+        );
+        assert_eq!(
+            super::search_query(1, 5),
+            "query DrugSearch($q:String!){search(queryString:$q,entityNames:[\"drug\"],page:{index:1,size:5}){total hits{id name entity}}}"
+        );
+    }
+}
