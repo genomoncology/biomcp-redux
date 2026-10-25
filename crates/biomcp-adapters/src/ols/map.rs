@@ -98,13 +98,12 @@ fn ids(values: &[Text]) -> Result<Option<Box<[Curie]>>, RequestError> {
         .map(|v| Some(v.into()))
 }
 fn iri_id(value: &str) -> Option<Curie> {
-    if let Ok(id) = value.parse() {
-        return Some(id);
-    }
-    let native = value.strip_prefix("http://purl.obolibrary.org/obo/")?;
-    let (prefix, local) = native.split_once('_')?;
-    format!("{prefix}:{local}").parse().ok()
+    if let Some(native)=value.strip_prefix("http://purl.obolibrary.org/obo/") {
+        let (prefix,local)=native.split_once('_')?;
+        format!("{prefix}:{local}").parse().ok()
+    } else { value.parse().ok() }
 }
+
 fn problem(id: &Curie, field: &str) -> Problem {
     Problem {
         source: Source::Ols,

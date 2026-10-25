@@ -234,9 +234,19 @@ impl DiseaseGet {
         q
     }
     /// Apply source-resolved demographics to a checked SEER query.
-    pub fn with_demographics(&self, sex: Text, race: Text, age_range: Text) -> Result<Self, QueryInvalid> {
-        if self.source()!=DiseaseSource::Seer {return Err(QueryInvalid);}
-        let mut fields=self.0.clone(); fields.sex=Some(sex);fields.race=Some(race);fields.age_range=Some(age_range);
+    pub fn with_demographics(
+        &self,
+        sex: Text,
+        race: Text,
+        age_range: Text,
+    ) -> Result<Self, QueryInvalid> {
+        if self.source() != DiseaseSource::Seer {
+            return Err(QueryInvalid);
+        }
+        let mut fields = self.0.clone();
+        fields.sex = Some(sex);
+        fields.race = Some(race);
+        fields.age_range = Some(age_range);
         fields.try_into()
     }
     /// Native sex selector.

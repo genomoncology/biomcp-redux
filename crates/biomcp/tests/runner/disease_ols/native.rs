@@ -2,17 +2,28 @@
 use super::{args, record, replay, setup};
 use crate::runner::network_stub::Stub;
 use serde_json::{Value, json};
-use std::io::Write;
 use sha2::{Digest, Sha256};
+use std::io::Write;
 use std::{collections::BTreeMap, fs, path::Path};
 pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
     let requests = load(root)?;
     let mut replies = BTreeMap::new();
     for row in &requests {
         replies.insert(
-            key(row.pointer("/url").unwrap_or(&Value::Null).as_str().ok_or("missing url")?),
-            fs::read_to_string(root.join(row.pointer("/local_body").unwrap_or(&Value::Null).as_str().ok_or("missing body")?))
-                .map_err(|e| e.to_string())?,
+            key(row
+                .pointer("/url")
+                .unwrap_or(&Value::Null)
+                .as_str()
+                .ok_or("missing url")?),
+            fs::read_to_string(
+                root.join(
+                    row.pointer("/local_body")
+                        .unwrap_or(&Value::Null)
+                        .as_str()
+                        .ok_or("missing body")?,
+                ),
+            )
+            .map_err(|e| e.to_string())?,
         );
     }
     let stub = Stub::for_source_status(
@@ -55,11 +66,21 @@ fn prove_row(
     let result = record(env, &refs, &directory)?;
     restore_date(
         &directory,
-        row.pointer("/fetched").unwrap_or(&Value::Null).as_u64().ok_or("missing original date")?,
+        row.pointer("/fetched")
+            .unwrap_or(&Value::Null)
+            .as_u64()
+            .ok_or("missing original date")?,
     )?;
     let body: Value = serde_json::from_str(
-        &fs::read_to_string(root.join(row.pointer("/local_body").unwrap_or(&Value::Null).as_str().ok_or("missing body")?))
-            .map_err(|e| e.to_string())?,
+        &fs::read_to_string(
+            root.join(
+                row.pointer("/local_body")
+                    .unwrap_or(&Value::Null)
+                    .as_str()
+                    .ok_or("missing body")?,
+            ),
+        )
+        .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
     let expected = expectations(&body)?;
@@ -68,22 +89,26 @@ fn prove_row(
         .map_err(|e| e.to_string())?
         .len();
     let mut steps = vec![json!({"run":words,"mcp":words,"expect":expected})];
-    section_steps(row,&mut steps);
+    section_steps(row, &mut steps);
     replay(&directory, Value::Array(steps))?;
     fs::write(
         output.join(format!("output-{index}.json")),
         serde_json::to_vec_pretty(&result).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    writeln!(std::io::stderr(),
+    writeln!(
+        std::io::stderr(),
         "native disease proof {index}: {size} full JSON bytes; original {}",
         row.pointer("/sha256").unwrap_or(&Value::Null)
-    ).map_err(|e|e.to_string())?;
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 
-fn section_steps(row:&Value,steps:&mut Vec<Value>) {
-    if row.pointer("/url").unwrap_or(&Value::Null)
+fn section_steps(row: &Value, steps: &mut Vec<Value>) {
+    if row
+        .pointer("/url")
+        .unwrap_or(&Value::Null)
         .as_str()
         .is_some_and(|s| s.contains("DOID%3A3910"))
     {
@@ -116,9 +141,20 @@ fn expectations(body: &Value) -> Result<serde_json::Map<String, Value>, String> 
 
     expected.insert("/status".into(), json!("complete"));
     if let Some(response) = body.get("response") {
-        expected.insert("/page/total".into(), response.pointer("/numFound").unwrap_or(&Value::Null).clone());
-        expected.insert("/page/offset".into(), response.pointer("/start").unwrap_or(&Value::Null).clone());
-        for (i, hit) in response.pointer("/docs").unwrap_or(&Value::Null)
+        expected.insert(
+            "/page/total".into(),
+            response
+                .pointer("/numFound")
+                .unwrap_or(&Value::Null)
+                .clone(),
+        );
+        expected.insert(
+            "/page/offset".into(),
+            response.pointer("/start").unwrap_or(&Value::Null).clone(),
+        );
+        for (i, hit) in response
+            .pointer("/docs")
+            .unwrap_or(&Value::Null)
             .as_array()
             .ok_or("missing docs")?
             .iter()
@@ -131,8 +167,14 @@ fn expectations(body: &Value) -> Result<serde_json::Map<String, Value>, String> 
         }
     } else {
         let term = &body.pointer("/_embedded/terms/0").unwrap_or(&Value::Null);
-        expected.insert("/result/returned_id".into(), term.pointer("/obo_id").unwrap_or(&Value::Null).clone());
-        expected.insert("/result/obsolete".into(), term.pointer("/is_obsolete").unwrap_or(&Value::Null).clone());
+        expected.insert(
+            "/result/returned_id".into(),
+            term.pointer("/obo_id").unwrap_or(&Value::Null).clone(),
+        );
+        expected.insert(
+            "/result/obsolete".into(),
+            term.pointer("/is_obsolete").unwrap_or(&Value::Null).clone(),
+        );
         if term.pointer("/is_obsolete").unwrap_or(&Value::Null) == true {
             expected.insert("/result/replaced_by".into(), Value::Null);
             expected.insert(
@@ -150,13 +192,20 @@ fn load(root: &Path) -> Result<Vec<Value>, String> {
     )
     .map_err(|e| e.to_string())?;
     for row in &rows {
-        let bytes = fs::read(root.join(row.pointer("/local_body").unwrap_or(&Value::Null).as_str().ok_or("missing body")?))
-            .map_err(|e| e.to_string())?;
+        let bytes = fs::read(
+            root.join(
+                row.pointer("/local_body")
+                    .unwrap_or(&Value::Null)
+                    .as_str()
+                    .ok_or("missing body")?,
+            ),
+        )
+        .map_err(|e| e.to_string())?;
         let hash = Sha256::digest(bytes)
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect::<String>();
-        if row.pointer("/sha256").unwrap_or(&Value::Null) != hash {
+        if row.pointer("/sha256").and_then(Value::as_str) != Some(hash.as_str()) {
             return Err("retained source hash mismatch".into());
         }
     }
@@ -170,16 +219,29 @@ fn key(url: &str) -> String {
     format!("{path}?{}", fields.join("&"))
 }
 fn decode(value: &str) -> String {
-    let mut out=Vec::new(); let mut i=0;
-    while let Some(&byte)=value.as_bytes().get(i) {
-        if byte==b'%' && let Some(pair)=value.get(i+1..i+3) && let Ok(decoded)=u8::from_str_radix(pair,16) {out.push(decoded);i+=3;continue;}
-        out.push(if byte==b'+' {b' '} else {byte});i+=1;
+    let mut out = Vec::new();
+    let mut i = 0;
+    while let Some(&byte) = value.as_bytes().get(i) {
+        if byte == b'%'
+            && let Some(pair) = value.get(i + 1..i + 3)
+            && let Ok(decoded) = u8::from_str_radix(pair, 16)
+        {
+            out.push(decoded);
+            i += 3;
+            continue;
+        }
+        out.push(if byte == b'+' { b' ' } else { byte });
+        i += 1;
     }
     String::from_utf8_lossy(&out).into()
 }
 
 fn command(row: &Value) -> Result<Vec<String>, String> {
-    let url = row.pointer("/url").unwrap_or(&Value::Null).as_str().ok_or("missing url")?;
+    let url = row
+        .pointer("/url")
+        .unwrap_or(&Value::Null)
+        .as_str()
+        .ok_or("missing url")?;
     let mut fields = BTreeMap::new();
     for pair in url.split_once('?').ok_or("missing query")?.1.split('&') {
         let (k, v) = pair.split_once('=').ok_or("missing value")?;
@@ -223,7 +285,9 @@ fn restore_date(root: &Path, fetched: u64) -> Result<(), String> {
             let mut value: Value =
                 serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
-            for exchange in value.get_mut("exchanges").ok_or("missing exchanges")?
+            for exchange in value
+                .get_mut("exchanges")
+                .ok_or("missing exchanges")?
                 .as_array_mut()
                 .ok_or("missing exchanges")?
             {

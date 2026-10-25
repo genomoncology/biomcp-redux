@@ -52,13 +52,15 @@ fn record(env: &Environment, words: &[&str], directory: &Path) -> Result<Value, 
     let mut command = args(words);
     command.extend(["--record".into(), directory.to_string_lossy().into()]);
     let result = invoke(env, &command, 0)?;
-    writeln!(std::io::stderr(),
+    writeln!(
+        std::io::stderr(),
         "disease measurement {:?}: {} JSON bytes",
         words,
         serde_json::to_vec(&result)
             .map_err(|e| e.to_string())?
             .len()
-    ).map_err(|e|e.to_string())?;
+    )
+    .map_err(|e| e.to_string())?;
     Ok(result)
 }
 fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
@@ -102,7 +104,9 @@ fn search() -> Result<(), String> {
             &directory,
             json!([{"run":words,"mcp":words,"expect":{"/query/text":"literal MF : cancer","/query/ontology":ontology,"/page/total":11,"/result/items/0/concept/id":format!("{}:0000001",ontology.to_uppercase()),"/next/5/kind":"page"},"max_bytes":8000}]),
         )?;
-        if result.pointer("/result/items").unwrap_or(&Value::Null)
+        if result
+            .pointer("/result/items")
+            .unwrap_or(&Value::Null)
             .as_array()
             .is_none_or(|r| r.len() != 5)
         {
@@ -206,7 +210,11 @@ fn failures() -> Result<(), String> {
         };
         if value.pointer("/status").unwrap_or(&Value::Null) != expected
             || value.pointer("/sources/0/source").unwrap_or(&Value::Null) != "ols"
-            || value.pointer("/sources/0/terms").unwrap_or(&Value::Null).as_str().is_none()
+            || value
+                .pointer("/sources/0/terms")
+                .unwrap_or(&Value::Null)
+                .as_str()
+                .is_none()
         {
             return Err(format!("failed source became empty page: {value}"));
         }
