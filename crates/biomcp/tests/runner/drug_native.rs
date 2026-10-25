@@ -16,6 +16,8 @@ struct Case {
     exit: i32,
     max_bytes: usize,
     max_comparable: usize,
+    max_tokens: usize,
+    max_comparable_tokens: usize,
 }
 #[derive(Clone, Deserialize)]
 struct Reply {
@@ -146,12 +148,17 @@ fn assertions(case: &Case, value: &Value) -> Check {
                         .position(|s| s == flag)
                         .and_then(|i| args.get(i + 1))
                         .ok_or("lost page selector")?;
-                    if actual != &case.args[index + 1] {
+                    if actual
+                        != case
+                            .args
+                            .get(index + 1)
+                            .ok_or("missing case selector value")?
+                    {
                         return Err(format!("changed next {flag}"));
                     }
                 }
             }
-            let flag = if case.args[0] == "search" {
+            let flag = if case.args.first().is_some_and(|s| s == "search") {
                 "--offset"
             } else {
                 "--section-offset"
@@ -174,7 +181,11 @@ fn assertions(case: &Case, value: &Value) -> Check {
 fn measure(case: &Case, value: &Value) -> Check {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    if bytes > case.max_bytes || comparable > case.max_comparable {
+    if bytes > case.max_bytes
+        || comparable > case.max_comparable
+        || bytes.div_ceil(4) > case.max_tokens
+        || comparable.div_ceil(4) > case.max_comparable_tokens
+    {
         return Err(format!(
             "{}: native output budget exceeded {bytes}/{} full, {comparable}/{} comparable",
             case.name, case.max_bytes, case.max_comparable
