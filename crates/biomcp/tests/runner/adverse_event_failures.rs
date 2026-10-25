@@ -117,8 +117,16 @@ fn assert_failed(source: &str, fault: &str, value: &Value) -> Check {
     }
     let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    // Measurements are printed by the first targeted run; final caps use its maxima +15%.
-    if full > 10000 || comparable > 10000 {
+    // j13072: both source families had the same measured envelopes for each fault.
+    let (full_measured, comparable_measured): (usize, usize) = match fault {
+        "429" => (320, 205),
+        "500" => (319, 204),
+        "timeout" => (325, 210),
+        _ => (317, 202),
+    };
+    if full > (full_measured * 115).div_ceil(100)
+        || comparable > (comparable_measured * 115).div_ceil(100)
+    {
         return Err("failure exceeds size ceiling".into());
     }
     use std::io::Write;
