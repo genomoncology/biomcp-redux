@@ -436,7 +436,7 @@ This is source inspection at the pinned legacy revision. Dispositions apply the 
 | `--type faers` | Rename to explicit `--source faers`. | A01–A17. |
 | `--type device/devices/maude` | Rename to explicit `--source maude`. | A18–A20. |
 | `--type recall/recalls/enforcement`, `--classification` | Drop from adverse-event entity; recall ownership needs separate PM decision. | No recall capture or parity claim. |
-| `--source faers/vaers/all`, default all | FAERS default; MAUDE and VAERS explicit. Drop all and automatic vaccine detection. | VAERS supports MMR and COVID-19 summaries; influenza awaits a proved current code. |
+| `--source faers/vaers/all`, default all | FAERS default; MAUDE and VAERS explicit. Drop all and automatic vaccine detection. | VAERS supports MMR, COVID-19 and fourteen separately selected native influenza types. Broad influenza text lists the qualified codes before I/O. |
 | `--device` | Replace with positional literal MAUDE generic-name search; wildcard expansion is dropped. | D01–D04. |
 | `--manufacturer`, `--product-code` | Drop both filters; no raw query replacement or unproved identity filter. | Retirement controls; native fields remain in rows. |
 | Device serious any/death/injury | Drop device seriousness filter; keep native event_type on card/header. | D02 is evidence only; no unsupported CLI promise. |
@@ -622,3 +622,28 @@ The independent retained proof at revision `037b321dc552391eafa002a4ebf9ddecf94c
 The approved default remains five rows. Each native external ceiling is its own measured compact actual plus fifteen percent, rounded up. These external bounds remain separate from the synthetic case ceilings above and from existing help, discovery and source-enum caps. Full bytes describe compact envelopes. Comparable bytes remove only the validated registry use, terms and terms URL fields, a 112-byte difference. Raw CLI stdout adds one newline byte; MCP frames include protocol wrapping. Explicit limits remain visible in the query, and a one-row seriousness page adds continuation metadata. Preserved native notices dominate response size: reducing the symptom page from five rows to one saves only 294 bytes for MMR and 320 bytes for COVID19.
 
 The verified archive is `data/biomcp-redux/0182-vaers-product-proof/2291-vaers-offline-product-proof-037b321d.tar.gz` on Yellow, SHA-256 `f7b0e6d4a9661c8a80738d40d6908cdceb50f6e39e210eed84f008571cd2cd78`, with 287 exact members and 286 verified content hashes. Its measurements and raw CLI/MCP outputs remain outside Git.
+
+
+### Native influenza command costs
+
+The retained product replay `j13591` at revision `a0fa49078211027c880e45a4e239b008036d59be` recorded each of the 42 captured tables once through localhost, with zero provider requests or retries. It checked all 42 default CLI/MCP pairs and eight representative continuation pairs against the original native fields. The external Rust case runner validated all 50 envelopes across 42 cases with the current source-terms comparison. Disabled-policy and broad-selector checks preserved refusal before I/O.
+
+The default remains five rows under the existing ruling. The section maxima below summarize the fourteen observed default commands per section; they do not bound unseen native values. Seriousness returned its two complete native rows. Each external case owns its measured full and comparable compact ceiling, calculated as its own actual plus fifteen percent, rounded up. These bounds do not raise any synthetic, help or discovery ceiling.
+
+| Native influenza response | Full/comparable compact bytes | Full/comparable ceilings |
+| --- | ---: | ---: |
+| Default symptoms, observed maximum | 8067 / 7955 | 9278 / 9149 |
+| Default seriousness, observed maximum | 8071 / 7959 | 9282 / 9153 |
+| Default age, observed maximum | 8045 / 7933 | 9252 / 9123 |
+| FLU(H1N1)-symptoms-second | 8087 / 7975 | 9301 / 9172 |
+| FLU(H1N1)-symptoms-terminal | 7621 / 7509 | 8765 / 8636 |
+| FLU(H1N1)-age-second | 7979 / 7867 | 9176 / 9048 |
+| FLU(H1N1)-age-terminal | 7630 / 7518 | 8775 / 8646 |
+| FLUX(H1N1)-symptoms-second | 8095 / 7983 | 9310 / 9181 |
+| FLUX(H1N1)-symptoms-terminal | 7759 / 7647 | 8923 / 8795 |
+| FLUX(H1N1)-age-second | 7984 / 7872 | 9182 / 9053 |
+| FLUX(H1N1)-age-terminal | 7638 / 7526 | 8784 / 8655 |
+
+Comparable sizes remove only the validated registry `use`, `terms` and `terms_url` fields. CLI stdout adds one newline byte; MCP frame measurements include protocol wrapping. All native notices, independent source totals, exact labels and qualified selectors remain present. Representative second and terminal pages cover two native selections; the complete walk remains covered by synthetic cases. No three-row or one-row native comparison ran for influenza. Local replay timings do not measure provider latency.
+
+The archive on Yellow is `data/biomcp-redux/0183-vaers-influenza-product-proof/j13591-native-proof.tar.gz`, SHA-256 `6546dea01779d51757a46cb1461f9f04bb20aec38ab048eea4de2319cd85f8aa`. Its 648 members include 647 verified content hashes. The original per-case measurements, external caps and raw CLI/MCP outputs remain in that archive.
