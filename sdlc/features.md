@@ -78,3 +78,4 @@ disease-mydisease: Read an exact selected annotation and independently page nati
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts. Cases: `crates/biomcp/tests/runner/disease_seer.rs`, `crates/biomcp/tests/runner/disease_seer/failures.rs`, `crates/biomcp/tests/runner/disease_seer/native.rs`.
 
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision. Cases: `tests/cases/drug/ddinter.yaml`, `crates/biomcp/tests/runner/drug_ddinter.rs`.
+disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference. Cases: `crates/biomcp/tests/runner/disease_monarch.rs`.

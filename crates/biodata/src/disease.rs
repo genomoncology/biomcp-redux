@@ -24,19 +24,53 @@ pub struct DiseaseAssociation {
     /// Native primary knowledge source.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primary_knowledge_source: Option<Curie>,
-    /// Native aggregator knowledge source, distinct from the providing collection.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub aggregator_knowledge_source: Option<Curie>,
+    /// Native aggregator knowledge sources; missing, null and lists remain distinct.
+    #[serde(
+        default,
+        deserialize_with = "aggregators",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub aggregator_knowledge_source: Option<Option<Box<[Curie]>>>,
     /// Native providing collection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provided_by: Option<Text>,
     /// Source evidence terms without interpretation.
-    pub evidence: Box<[Concept]>,
+    pub evidence: Box<[DiseaseAssociationReference]>,
     /// Native qualifiers, including frequency or onset if supplied.
-    pub qualifiers: Box<[Concept]>,
+    pub qualifiers: Box<[DiseaseAssociationQualifier]>,
+    /// Native publication references, without inferred links or labels.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub publications: Box<[DiseaseAssociationReference]>,
+    /// Native pre-normalization predicate, without interpretation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub original_predicate: Option<Text>,
+    /// Native association category.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub category: Option<Curie>,
+    /// Native agent type.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_type: Option<Text>,
+    /// Native source knowledge level.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub knowledge_level: Option<Text>,
+    /// Native evidence count, distinct from returned reference count.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence_count: Option<u64>,
     /// Source negation; absent is not false.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub negated: Option<bool>,
+    /// Native annotation count, without a computed denominator.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub has_count: Option<u64>,
+    /// Native annotation total, without inferring an assayed denominator.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub has_total: Option<u64>,
+    /// Native percentage, never computed from another field.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub has_percentage: Option<FiniteNumber>,
+    /// Native quotient, never computed from another field.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub has_quotient: Option<FiniteNumber>,
     /// Native subject closure.
     pub subject_closure: Box<[Curie]>,
     /// Native object closure.
@@ -143,6 +177,39 @@ pub struct DiseaseEndpoint {
     /// Exact source identifier.
     pub id: Curie,
     /// Source label when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+}
+
+type Aggregators = Option<Option<Box<[Curie]>>>;
+fn aggregators<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Aggregators, D::Error> {
+    Option::<Box<[Curie]>>::deserialize(d).map(Some)
+}
+
+/// One native association reference, with no invented display label or link.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseAssociationReference {
+    /// Native evidence or publication identity.
+    pub id: Curie,
+    /// Native label when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+    /// Unchanged native link when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+}
+/// A named native qualifier without an inferred role.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseAssociationQualifier {
+    /// Original native qualifier field.
+    pub field: Text,
+    /// Native qualifier identity.
+    pub id: Curie,
+    /// Native label when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,
 }
