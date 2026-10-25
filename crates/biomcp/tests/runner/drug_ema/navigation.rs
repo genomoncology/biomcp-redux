@@ -95,5 +95,10 @@ pub(super) fn check() -> Result<(), String> {
         "EMA navigation full={full}, comparable={comparable}"
     )
     .map_err(|e| e.to_string())?;
+    if full > 2096 || comparable > 1898 || comparable.div_ceil(4) > 475 {
+        return Err(format!(
+            "EMA navigation exceeds measured budget: full={full}, comparable={comparable}"
+        ));
+    }
     Ok(())
 }
