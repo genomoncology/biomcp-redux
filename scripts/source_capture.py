@@ -162,14 +162,14 @@ def curl_reply(request, plan):
         key = request['key']
         headers[key['header']] = key.get('prefix', '') + os.environ[key['env']]
         validate_header(key['header'], headers[key['header']])
-    config = ['url = ' + json.dumps(request['url']),
+    config = ['url = ' + json.dumps(request['url'], ensure_ascii=False),
               'request = ' + json.dumps(request.get('method', 'GET'))]
-    config.extend('header = ' + json.dumps(name + ': ' + value)
+    config.extend('header = ' + json.dumps(name + ': ' + value, ensure_ascii=False)
                   for name, value in headers.items())
     if 'body' in request:
-        config.append('data-raw = ' + json.dumps(request['body']))
+        config.append('data-raw = ' + json.dumps(request['body'], ensure_ascii=False))
     command = ['curl', '--disable', '--config', '-', '--silent', '--show-error',
-               '--include', '--max-time', str(plan['deadline_seconds']),
+               '--include', '--globoff', '--max-time', str(plan['deadline_seconds']),
                '--max-filesize', str(plan['max_bytes']), '--retry', '0',
                '--proto', '=http,https']
     if request.get('method') == 'HEAD':

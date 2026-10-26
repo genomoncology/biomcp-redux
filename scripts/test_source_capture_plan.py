@@ -36,6 +36,13 @@ class Source(http.server.BaseHTTPRequestHandler):
         else:
             self.wfile.write(b'{"rows":[]}')
 
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers['Content-Length']))
+        self.server.calls.append((self.path, body))
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'{}')
+
     def log_message(self, *_args):
         pass
 
@@ -141,6 +148,16 @@ class CapturePlanTests(unittest.TestCase):
                     self.assertEqual(json.loads((out / '0000.receipt.json').read_text())
                                      ['outcome'], 'transport_failure')
         self.assertEqual(self.server.calls, ['/redirect', '/large', '/reflect', '/escaped'])
+
+    def test_literal_post_and_url_are_sent_once_without_rewriting(self):
+        plan = self.plan(['/query?value=[1-2]'])
+        value = json.loads(plan.read_text())
+        body = json.dumps({'query': 'café'}, ensure_ascii=False)
+        value['requests'][0].update(method='POST', body=body)
+        plan.write_text(json.dumps(value))
+        result = self.run_capture(plan, self.base / 'post')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.server.calls, [('/query?value=[1-2]', body.encode())])
 
     def test_make_target_runs_one_request(self):
         result = subprocess.run(['make', 'source-capture', 'PLAN=' + str(self.plan(['/make'])),
