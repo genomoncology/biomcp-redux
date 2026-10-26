@@ -52,17 +52,26 @@ fn pages() -> Check {
     let replay = seed(&env, rows(), 200)?;
     call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
     let cold = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
-    let has_files = cold.get("next").and_then(Value::as_array).is_some_and(|steps| {
-        steps.iter().any(|step| {
-            step.get("kind") == Some(&json!("section"))
-                && step.get("args").and_then(Value::as_array)
-                    .is_some_and(|args| args.iter().any(|word| word.as_str() == Some("files")))
-        })
-    });
-    if !has_files { return Err("stored card lost files action".into()); }
+    let has_files = cold
+        .get("next")
+        .and_then(Value::as_array)
+        .is_some_and(|steps| {
+            steps.iter().any(|step| {
+                step.get("kind") == Some(&json!("section"))
+                    && step
+                        .get("args")
+                        .and_then(Value::as_array)
+                        .is_some_and(|args| args.iter().any(|word| word.as_str() == Some("files")))
+            })
+        });
+    if !has_files {
+        return Err("stored card lost files action".into());
+    }
     record(&replay, entries(), 200, 0)?;
     let mut seen = std::collections::BTreeSet::new();
-    let mut args = ["get", "study", "synthetic_0", "files"].map(str::to_owned).to_vec();
+    let mut args = ["get", "study", "synthetic_0", "files"]
+        .map(str::to_owned)
+        .to_vec();
     for offset in [0, 5, 10] {
         let words: Vec<_> = args.iter().map(String::as_str).collect();
         let value = call(&env, &replay, &words, 0)?;
