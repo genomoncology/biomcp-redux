@@ -14,7 +14,7 @@ Each key is read from the config file's `keys` or its environment variable, sent
 - [x] `oncokb_api_key` (keyed): OncoKB variant
 - [x] `semantic_scholar_api_key` (optional): Semantic Scholar
 - [x] NCI Clinical Trials Search key (keyed)
-- [ ] openFDA key (optional)
+- [x] openFDA key (optional)
 - [ ] UMLS key (keyed, investigate)
 - [ ] AlphaGenome key (keyed)
 - [ ] ORCID credentials (optional)

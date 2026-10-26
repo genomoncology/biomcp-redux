@@ -285,7 +285,10 @@ fn disabled_openfda_sources_never_read_credentials() {
             source,
         ];
         assert_eq!(execute(&command, None), 0);
-        assert_eq!(execute(&command[..5], Some(SecretName::OpenfdaApiKey)), 1);
+        assert_eq!(
+            execute(command.get(..5).unwrap(), Some(SecretName::OpenfdaApiKey)),
+            1
+        );
     }
     assert_eq!(execute(&["sync", "fda-cdx"], None), 0);
 }
