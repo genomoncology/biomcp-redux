@@ -74,7 +74,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 value.items.push(PathwayMember {
                     node_id: None,
                     reference: PathwaySourceRef {
-                        namespace: Some(namespace.into()),
+                        namespace: Some(text(namespace)?.as_str().into()),
                         value: text(identifier)?,
                     },
                     name: reference.display_name.as_deref().map(text).transpose()?,
