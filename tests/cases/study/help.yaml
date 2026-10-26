@@ -31,9 +31,7 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": {
-          "regex": "No frequency, denominator, survival or comparison is calculated. Source counts keep their native names."
-        }
+        "/result/commands/0/description": "Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names."
       }
     },
     {
@@ -68,9 +66,7 @@
             "--section-offset"
           ]
         },
-        "/result/commands/0/description": {
-          "regex": "No frequency, denominator, survival or comparison is calculated. Source counts keep their native names."
-        }
+        "/result/commands/0/description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names."
       }
     },
     {
