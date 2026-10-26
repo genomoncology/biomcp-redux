@@ -52,7 +52,11 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/page/limit": 5
+        "/result/page/returned": 5,
+        "/result/items": {
+          "count": 5
+        },
+        "/result/page/next_offset": 5
       },
       "max_bytes": 2035
     },
@@ -73,7 +77,11 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/page/limit": 50
+        "/result/page/returned": 50,
+        "/result/items": {
+          "count": 50
+        },
+        "/result/page/next_offset": 50
       },
       "max_bytes": 11203
     }
