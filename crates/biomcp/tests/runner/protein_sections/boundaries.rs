@@ -1,10 +1,18 @@
 use super::*;
 pub(super) fn features() -> Result<(), String> {
-    let stub = Stub::for_sources(&["rest.uniprot.org", "www.ebi.ac.uk"], |_| "application/json", |request| {
-        if request.contains("/interpro/") { Ok(json!({"count":0,"next":null,"results":[]}).to_string()) }
-        else if request.contains("/complex-ws/") { Ok(json!({"size":0,"totalNumberOfResults":0,"elements":[]}).to_string()) }
-        else { Ok(entry().to_string()) }
-    })?;
+    let stub = Stub::for_sources(
+        &["rest.uniprot.org", "www.ebi.ac.uk"],
+        |_| "application/json",
+        |request| {
+            if request.contains("/interpro/") {
+                Ok(json!({"count":0,"next":null,"results":[]}).to_string())
+            } else if request.contains("/complex-ws/") {
+                Ok(json!({"size":0,"totalNumberOfResults":0,"elements":[]}).to_string())
+            } else {
+                Ok(entry().to_string())
+            }
+        },
+    )?;
     let env = setup(&stub)?;
     let first = call(
         &env,

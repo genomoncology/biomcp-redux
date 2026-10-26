@@ -33,6 +33,7 @@ def case(name, args, expect):
 
 for accession, total in [('P15056',11),('P04637',9),('Q8N726',1)]:
     case('domains-'+accession,['protein','domains',accession],{'/status':'complete','/result/native_total':total,'/page/total':total,'/page/returned':min(5,total)})
+case('tp53-family',['protein','domains','P04637','--type','family'],{'/status':'complete','/result/items/*/id':['IPR002117'],'/result/items/*/entry_type':['family']})
 case('tp53-domain',['protein','domains','P04637','--type','domain'],{'/status':'complete','/result/items/0/id':'IPR010991','/result/items/0/entry_type':'domain','/result/native_total':9})
 case('mutyh-domain-empty',['protein','domains','Q8N726','--type','domain'],{'/status':'complete','/result/items':[],'/result/native_total':1,'/page/total':0})
 case('mutyh-family',['protein','domains','Q8N726'],{'/result/items/0/id':'IPR010868','/result/items/0/entry_type':'family'})
