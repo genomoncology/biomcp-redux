@@ -3,3 +3,7 @@ use std::io;
 pub(crate) fn execute<T>(work: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
     work()
 }
+
+#[cfg(test)]
+#[path = "worker_tests.rs"]
+mod tests;

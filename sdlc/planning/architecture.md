@@ -1762,6 +1762,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp/src/mcp/worker_tests.rs` | Inject a panic at the private worker completion boundary because public requests cannot intentionally panic. |
 | `crates/biomcp/src/config/deferred_keys_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
 | `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
 | `crates/biomcp-types/tests/cell_line_contracts.rs` | Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist. |

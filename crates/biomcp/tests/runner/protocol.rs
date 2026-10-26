@@ -1,5 +1,3 @@
-#[path = "../../src/mcp/worker.rs"]
-mod worker;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -30,14 +28,6 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         Trial::test("mcp/cancel-stops-work-and-frees-capacity", || {
             super::held_proxy::cancelled().map_err(Into::into)
-        }),
-        Trial::test("mcp/panicking-worker-completes-with-internal-error", || {
-            let outcome: std::io::Result<()> =
-                worker::execute(|| std::panic::resume_unwind(Box::new("injected worker failure")));
-            if outcome.is_ok() {
-                return Err("panic did not become an internal error".into());
-            }
-            Ok(())
         }),
         Trial::test("mcp/cancel-preserves-another-active-call", || {
             super::held_proxy::isolated_cancel().map_err(Into::into)
