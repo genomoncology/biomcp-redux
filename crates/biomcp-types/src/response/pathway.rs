@@ -87,7 +87,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway_card/3";
+    const SCHEMA: &'static str = "biomcp.pathway_card/4";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {
@@ -127,7 +127,7 @@ pub struct PathwayGenes {
     pub physical_entities: u64,
 }
 impl ResponseBody for PathwayGenes {
-    const SCHEMA: &'static str = "biomcp.pathway_genes/2";
+    const SCHEMA: &'static str = "biomcp.pathway_genes/3";
     type Query = PathwayGenesQuery;
 }
 relation_page!(
