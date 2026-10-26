@@ -3,15 +3,19 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-mod complexes;
 mod cards;
+mod complexes;
 mod failures;
 mod native;
 mod paging;
 pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("protein-domain-native");
     let absent = !root.is_dir();
-    vec![Trial::test("protein-domains-complexes/card-sections-and-source-policy",||cards::run().map_err(Into::into)),
+    vec![
+        Trial::test(
+            "protein-domains-complexes/card-sections-and-source-policy",
+            || cards::run().map_err(Into::into),
+        ),
         Trial::test("protein-domains-complexes/source-failures", || {
             failures::run().map_err(Into::into)
         }),

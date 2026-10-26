@@ -53,7 +53,7 @@ with tarfile.open(archive,'w:gz') as packed:
 source_capture.verify_archive(archive)
 (root/'archive-sha.txt').write_text(hashlib.sha256(archive.read_bytes()).hexdigest())
 PY
-archive_name="$(basename "$proof_root").tar.gz"
+archive_name="$(basename "$proof_root")-$(git rev-parse --short HEAD).tar.gz"
 ssh yellow 'mkdir -p /home/ian/workspace/data/biomcp-redux/0241-protein-domains-complexes'
 scp "$proof_root/native-proof.tar.gz" "yellow:/home/ian/workspace/data/biomcp-redux/0241-protein-domains-complexes/$archive_name"
 ssh yellow python3 - "$archive_name" "$(cat "$proof_root/archive-sha.txt")" <<'PY'

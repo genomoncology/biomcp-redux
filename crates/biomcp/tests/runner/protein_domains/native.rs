@@ -23,6 +23,7 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
     fs::create_dir_all(&replay).map_err(|e| e.to_string())?;
     let output = root.join("outputs");
     fs::create_dir_all(&output).map_err(|e| e.to_string())?;
+    retained_outputs(&output)?;
     let registry = super::super::schema::Registry::embedded()?;
     let mut paths = fs::read_dir(root.join("cases"))
         .map_err(|e| e.to_string())?
@@ -193,6 +194,21 @@ fn copy_recordings(from: &Path, to: &Path) -> Result<(), String> {
             let file = file.map_err(|e| e.to_string())?;
             fs::copy(file.path(), destination.join(file.file_name())).map_err(|e| e.to_string())?;
         }
+    }
+    Ok(())
+}
+
+fn retained_outputs(output:&Path)->Result<(),String>{
+    for path in fs::read_dir(output).map_err(|e|e.to_string())? {
+        let path=path.map_err(|e|e.to_string())?.path();
+        let name=path.file_stem().and_then(|s|s.to_str()).ok_or("retained output name")?;
+        let value:Value=serde_json::from_slice(&fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+        if name=="get-all" {
+            for section in ["features","isoforms","structures","sequence","function"] {
+                if value.pointer(&format!("/result/items/0/sections/{section}/state"))!=Some(&json!("data")){return Err(format!("composite all lost {section}"));}
+            }
+        }
+        measure(name,&value,output)?;
     }
     Ok(())
 }

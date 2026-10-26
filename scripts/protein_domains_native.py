@@ -42,4 +42,4 @@ for accession, native, admitted in [('P04637',18,11),('P38398',9,6),('P15056',18
 case('members-CPX-715',['protein','complex-members','P38398','--complex','CPX-715'],{'/status':'complete','/page/total':2,'/result/items/*/id':['P38398','Q99728'],'/result/items/*/stoichiometry':['minValue: 1, maxValue: 1']*2})
 for accession, section in [('P15056','domains'),('P38398','complexes')]:
     case('get-'+section,['get','protein',accession,section],{'/status':'complete',f'/result/items/0/sections/{section}/state':'data'})
-case('get-all',['get','protein','P00533','all'],{'/status':'complete','/result/items/0/sections/domains/state':'data','/result/items/0/sections/complexes/state':'empty'})
+case('get-all',['get','protein','P00533','all'],{'/status':'complete','/result/items/0/sections/domains/state':'data','/result/items/0/sections/complexes/state':'empty',**{f'/result/items/0/sections/{s}/state':'data' for s in ['features','isoforms','structures','sequence','function']}})

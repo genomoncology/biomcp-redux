@@ -92,6 +92,4 @@ for point, description, start, end in [(1642, 'BRCT 1', 1642, 1736), (1736, 'BRC
     case(f'brct-endpoint-{point}', ['protein', 'features', 'P38398', '--type', 'Domain', '--position', str(point)], {
         '/page/total': 1, '/result/items/0/feature/description': description,
         '/result/items/0/feature/span/start/min': start - 1, '/result/items/0/feature/span/end/min': end})
-case('get-P00533-all', ['get', 'protein', 'P00533', 'all'], {
-    f'/result/items/0/sections/{section}/state': 'data'
-    for section in ['features', 'isoforms', 'structures', 'sequence', 'function']})
+# The changed composite all proof belongs to protein_domains_native.py.
