@@ -7,6 +7,9 @@ use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("phenotype-identity/generated-help-matches-markdown", || {
+            help().map_err(Into::into)
+        }),
         Trial::test(
             "phenotype-identity/literal-native-pages-and-default-card-pivots",
             || search().map_err(Into::into),
@@ -285,6 +288,36 @@ fn timeout() -> Result<(), String> {
         || result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
     {
         return Err("timeout lost source failure or terms".into());
+    }
+    Ok(())
+}
+
+fn help() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    for verb in ["search", "get"] {
+        let result = invoke(&env, &["help", verb, "phenotype"], 0)?;
+        let words = ["help", verb, "phenotype", "--format", "md"].map(String::from);
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &words)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err("phenotype Markdown help failed".into());
+        }
+        let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+        for argument in result
+            .pointer("/result/commands/0/arguments")
+            .and_then(Value::as_array)
+            .ok_or("help arguments")?
+        {
+            let name = argument
+                .get("name")
+                .and_then(Value::as_str)
+                .ok_or("argument name")?;
+            if !markdown.contains(name) {
+                return Err(format!("Markdown help omitted {name}"));
+            }
+        }
     }
     Ok(())
 }
