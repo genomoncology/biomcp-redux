@@ -169,3 +169,29 @@ fn exact_isoform_header_uses_shared_identity_fields_without_base_replacement()
     assert_eq!(roundtrip::<ProteinHeader>(header.clone())?, header);
     Ok(())
 }
+
+#[test]
+fn inclusive_conversion_refuses_reversed_or_zero_residues() -> Result<(), Box<dyn std::error::Error>>
+{
+    let exact = |n| Bound::new(Some(n), Some(n));
+    assert_eq!(
+        UncertainSpan0::from_inclusive(exact(2)?, exact(1)?),
+        Err(Error::SpanOrder)
+    );
+    assert_eq!(
+        UncertainSpan0::from_inclusive(exact(0)?, exact(1)?),
+        Err(Error::PositionZero)
+    );
+    assert_eq!(
+        UncertainSpan0::from_inclusive(exact(1)?, exact(0)?),
+        Err(Error::PositionZero)
+    );
+    assert!(
+        UncertainSpan0::from_inclusive(
+            Bound::new(Some(2), Some(4))?,
+            Bound::new(Some(1), Some(3))?
+        )
+        .is_ok()
+    );
+    Ok(())
+}

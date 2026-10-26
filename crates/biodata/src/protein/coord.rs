@@ -75,6 +75,9 @@ impl UncertainSpan0 {
     }
     /// Convert native one-based inclusive bounds without collapsing uncertainty.
     pub fn from_inclusive(start: Bound, end: Bound) -> Result<Self, Error> {
+        if start.min().zip(end.max()).is_some_and(|(a, b)| a > b) {
+            return Err(Error::SpanOrder);
+        }
         if end.min() == Some(0) || end.max() == Some(0) {
             return Err(Error::PositionZero);
         }
