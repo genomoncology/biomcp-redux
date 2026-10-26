@@ -425,6 +425,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     if crate::grammar::gwas::invalid_threshold(args) {
         error = ErrorEnvelope::gwas_threshold();
     }
+    if root == Some("mcp-config") {
+        error.next = vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: vec!["mcp-config".into(), "--client".into(), "mcp-servers".into()].into(),
+        }];
+    }
     if root == Some("key") {
         error.next = biomcp_fetch::SecretName::ALL
             .iter()

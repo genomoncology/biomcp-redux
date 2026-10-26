@@ -65,6 +65,11 @@ fn check() -> Check {
         if output.status.code() != Some(2) {
             return Err("unknown client was not a usage error".into());
         }
+        let value: Value = serde_json::from_slice(&output.stdout)?;
+        if value.pointer("/next/0/args") != Some(&json!(["mcp-config", "--client", "mcp-servers"]))
+        {
+            return Err("invalid client omitted the supported replacement command".into());
+        }
     }
     help(&env)?;
     if env.root().join("cache/biomcp").exists() {
