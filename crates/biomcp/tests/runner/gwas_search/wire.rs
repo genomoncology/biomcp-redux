@@ -35,6 +35,10 @@ pub(super) fn selectors() -> Result<(), String> {
             vec![("accession_id", "GCST000035")],
         ),
         (
+            vec!["--pubmed", "17529967", "-l", "3"],
+            vec![("pubmed_id", "17529967")],
+        ),
+        (
             vec!["--pubmed", "17529967"],
             vec![("pubmed_id", "17529967")],
         ),

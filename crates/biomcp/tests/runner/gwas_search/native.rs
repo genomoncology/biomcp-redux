@@ -13,6 +13,7 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
     }
     for path in paths {
         let value = super::super::run_case(&path, &registry)?;
+        continuation(&value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::super::source_terms::size(&value, "")?;
         writeln!(
@@ -25,6 +26,27 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
             comparable.div_ceil(4)
         )
         .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+fn continuation(value: &Value) -> Result<(), String> {
+    let Some(next) = value.pointer("/result/continuation/query") else {
+        return Ok(());
+    };
+    let mut original = value.pointer("/query/query").ok_or("query echo")?.clone();
+    let fields = original.as_object_mut().ok_or("query fields")?;
+    let offset = fields.remove("offset");
+    if offset.is_none() {
+        return Err("missing original offset".into());
+    }
+    let mut continued = next.clone();
+    continued
+        .as_object_mut()
+        .ok_or("continued fields")?
+        .remove("offset");
+    if original != continued || value.pointer("/next/0/kind") != Some(&json!("page")) {
+        return Err("continuation changed checked selectors or source order".into());
     }
     Ok(())
 }
