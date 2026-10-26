@@ -1,6 +1,7 @@
 # 0239 — Add the UniProt features, isoforms, structures, sequence and function sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d0e8f5dab27f27fa684d03a659781232dd56f802
 
 Milestone: 4
 
