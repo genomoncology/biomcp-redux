@@ -1,0 +1,101 @@
+{
+  "feature": "study-catalog",
+  "story": "Synthetic catalog examples run through CLI and MCP without provider requests.",
+  "replay": "study/synthetic-examples",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "cbioportal-studies"
+      ],
+      "mcp": [
+        "sync",
+        "cbioportal-studies"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "sync",
+        "cbioportal-studies",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "cbioportal-studies",
+        "--fresh"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "study",
+        "Atlas"
+      ],
+      "mcp": [
+        "search",
+        "study",
+        "Atlas"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "study",
+        "--cancer-type",
+        "mixed",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "study",
+        "--cancer-type",
+        "mixed",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "synthetic_0"
+      ],
+      "mcp": [
+        "get",
+        "study",
+        "synthetic_0"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "synthetic_1"
+      ],
+      "mcp": [
+        "get",
+        "study",
+        "synthetic_1"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    }
+  ]
+}

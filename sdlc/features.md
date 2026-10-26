@@ -124,7 +124,7 @@ study-types: A public API caller preserves exact study identities, source-scoped
 store-clean: Publishing removes bounded expired pools and snapshots; explicit cleanup removes expired replies and older incompatible cache files while preserving fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `tests/cases/store/clean.yaml`.
 gwas-types: A public API caller validates Catalog identities, exact scientific probabilities, native association context and standalone source-scoped consumer contracts before adapters exist. Contracts: `biomcp-types/gwas_contracts` (features: `schema`).
 
-study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order. Cases: `crates/biomcp/tests/runner/study_catalog.rs`.
+study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order. Cases: `crates/biomcp/tests/runner/study_catalog.rs`, `tests/cases/study/*.yaml`.
 phenotype-types: A public API caller preserves native phenotype fields and validates HP identities and source section pairs before adapters exist. Contracts: `biomcp-types/phenotype_contracts` (features: `schema`).
 pathway-types: A public API caller validates source-owned pathway identities and selectors, preserves native references and distinguishes source totals from observed relation counts before adapters exist. Contracts: `biomcp-types/pathway_contracts` (features: `schema`).
 protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist. Contracts: `biomcp-types/protein_contracts` (features: `schema`).
