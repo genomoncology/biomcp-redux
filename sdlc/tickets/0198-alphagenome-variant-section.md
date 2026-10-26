@@ -2,12 +2,13 @@
 
 Status: OPEN.
 
+Milestone: 5
 
-Milestone: 4
+Depends on: 0271
 
 ## Outcome
 
-- Unblocked 2026-10-26 by `2026-10-26-new-sources-follow-open-by-default.md`: AlphaGenome is labeled `restricted`, runs only with the user's `ALPHAGENOME_API_KEY`, and captures may inherit the machine's key by name.
+- Unblocked 2026-10-26 by `2026-10-26-new-sources-follow-open-by-default.md`: AlphaGenome is labeled `restricted`, runs only with the user's `ALPHAGENOME_API_KEY`, and captures may inherit the machine's key by name. PM ruling 2026-10-26 (m7290): AlphaGenome needs streaming gRPC, which the shared transport lacks, so this ticket moves to milestone 5 behind the 0271 transport design, with no source call or dependency before then.
 
 `get variant ID alphagenome` returns AlphaGenome's numeric predictions for that one variant, as the API sends them, only when the user has set their own AlphaGenome key. Without a key it sends nothing and names the key to set.
 
