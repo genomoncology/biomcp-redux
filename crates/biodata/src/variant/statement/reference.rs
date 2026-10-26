@@ -25,7 +25,7 @@ impl fmt::Display for Curie {
         formatter.write_str(&self.0)
     }
 }
-crate::text_value!(Curie, "Curie", "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$");
+crate::text_value!(Curie, "Curie", "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$");
 /// A source subject reference, never an embedded variant entity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "level", rename_all = "snake_case", deny_unknown_fields)]
