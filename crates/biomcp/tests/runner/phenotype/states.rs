@@ -77,6 +77,7 @@ fn states() -> Result<(), String> {
             result.get("status").cloned(),
             result.pointer("/sources/0/state").cloned(),
             result.pointer("/sources/0/reason").cloned(),
+            result.get("result").is_some(),
         ));
         if stub.finish()?.is_empty() {
             return Err("synthetic state made no request".into());

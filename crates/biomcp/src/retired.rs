@@ -321,6 +321,9 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
 }
 
 fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
+    if flag == "-l" && matches!(positional.get(..2), Some(["search", "phenotype"])) {
+        return Some(true);
+    }
     let globals = crate::grammar::global_arguments();
     if let Some(argument) = globals
         .get_arguments()
