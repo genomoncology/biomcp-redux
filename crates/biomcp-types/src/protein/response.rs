@@ -83,7 +83,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein_card/1";
+    const SCHEMA: &'static str = "biomcp.protein_card/2";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.
@@ -160,6 +160,6 @@ pub struct ProteinFunctionResult {
     pub items: Box<[ProteinFunction]>,
 }
 impl ResponseBody for ProteinFunctionResult {
-    const SCHEMA: &'static str = "biomcp.protein_function/1";
+    const SCHEMA: &'static str = "biomcp.protein_function/2";
     type Query = ProteinGet;
 }

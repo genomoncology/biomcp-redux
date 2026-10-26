@@ -268,7 +268,8 @@
       "properties": {
         "isoform": {
           "$ref": "#/$defs/UniProtIsoform",
-          "description": "Exact isoform or base accession; no canonical suffix is synthesized."
+          "description": "Exact isoform or base accession; no canonical suffix is synthesized.",
+          "x-positional": 0
         }
       },
       "required": [

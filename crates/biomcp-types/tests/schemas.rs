@@ -120,7 +120,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/18"),
+        Request => ("request", "biodata.request/19"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -440,10 +440,13 @@ fn pathway_contracts() -> Vec<Contract> {
 
 fn protein_contracts() -> Vec<Contract> {
     contracts! {
+        ProteinFeaturesQuery => ("protein-features-query", "biomcp.protein-features-query/1"),
+        ProteinRelationQuery => ("protein-relation-query", "biomcp.protein-relation-query/1"),
+        ProteinSequenceQuery => ("protein-sequence-query", "biomcp.protein-sequence-query/1"),
         ProteinSearch => ("protein-search", "biomcp.protein-search/1"),
         ProteinGet => ("protein-get", "biomcp.protein-get/1"),
         Envelope<ProteinPage> => ("protein-page", "biomcp.protein_page/1"),
-        Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/1"),
+        Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/2"),
         Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein_features/1"),
         Envelope<ProteinDomains> => ("protein-domains", "biomcp.protein_domains/1"),
         Envelope<ProteinIsoforms> => ("protein-isoforms", "biomcp.protein_isoforms/1"),
@@ -451,6 +454,6 @@ fn protein_contracts() -> Vec<Contract> {
         Envelope<ProteinComplexMembers> => ("protein-complex-members", "biomcp.protein_complex_members/1"),
         Envelope<ProteinStructures> => ("protein-structures", "biomcp.protein_structures/1"),
         Envelope<ProteinSequenceResult> => ("protein-sequence", "biomcp.protein_sequence/1"),
-        Envelope<ProteinFunctionResult> => ("protein-function", "biomcp.protein_function/1")
+        Envelope<ProteinFunctionResult> => ("protein-function", "biomcp.protein_function/2")
     }
 }

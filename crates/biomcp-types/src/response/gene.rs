@@ -75,6 +75,14 @@ pub enum QueryBody {
     GwasLoci(Option<crate::GwasLoci>),
     /// Local retained study ancestry rows.
     GwasAncestries(Option<crate::GwasAncestries>),
+    /// Exact filtered native features.
+    ProteinFeatures(Option<crate::ProteinFeatures>),
+    /// Native alternative products.
+    ProteinIsoforms(Option<crate::ProteinIsoforms>),
+    /// Source PDB cross-reference properties.
+    ProteinStructures(Option<crate::ProteinStructures>),
+    /// Whole exact source sequence.
+    ProteinSequence(Option<crate::ProteinSequenceResult>),
     /// Native reviewed-human protein headers.
     ProteinPage(crate::ProteinPage),
     /// Caller-ordered exact protein cards and unselected candidates.

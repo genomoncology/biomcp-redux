@@ -241,7 +241,12 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("gwas response mismatch")),
         },
-        Request::SearchProtein(_) | Request::GetProtein(_) => protein::encode(meta, request, body),
+        Request::SearchProtein(_)
+        | Request::GetProtein(_)
+        | Request::ProteinFeatures(_)
+        | Request::ProteinIsoforms(_)
+        | Request::ProteinStructures(_)
+        | Request::ProteinSequence(_) => protein::encode(meta, request, body),
         Request::SearchPathway(_)
         | Request::GetPathway(_)
         | Request::PathwayGenes(_)

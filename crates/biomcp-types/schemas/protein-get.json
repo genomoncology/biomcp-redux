@@ -40,7 +40,8 @@
       "items": {
         "$ref": "#/$defs/ProteinSection"
       },
-      "type": "array"
+      "type": "array",
+      "x-trailing-section": true
     },
     "section_limit": {
       "default": 5,
