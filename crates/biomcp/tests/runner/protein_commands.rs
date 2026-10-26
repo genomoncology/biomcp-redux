@@ -147,7 +147,8 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
             serde_json::json!("UniProtKB unreviewed (TrEMBL)"),
         ),
     ] {
-        let value = super::response_cases::checked_steps(
+        super::protein_budgets::steps(
+            &format!("search-cache-admission/{pointer}"),
             "protein/pages",
             |_, record| {
                 if record
@@ -166,11 +167,6 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
                 {"run":["search","protein","EGFR","--fresh"], "offline":true,"exit":4,
                  "expect":{"/status":"failed"}}
             ]),
-        )?;
-        super::protein_budgets::check(
-            &value,
-            &format!("search-cache-admission/{pointer}/offline"),
-            "cli",
         )?;
     }
     Ok(())

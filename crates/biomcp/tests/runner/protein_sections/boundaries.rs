@@ -176,7 +176,12 @@ pub(super) fn sequence() -> Result<(), String> {
         ">sp|P38398|SYNTHETIC_HUMAN Synthetic OX=9606 GN=SYN\nACDEFG\n",
         ">sp|P38398-2|SYNTHETIC_HUMAN Synthetic OX=9606 GN=SYN\nACD!\n",
     ] {
-        let value = super::super::response_cases::checked_steps(
+        super::super::protein_budgets::steps(
+            if replacement.contains("ACD!") {
+                "sequence-admission/invalid-alphabet"
+            } else {
+                "sequence-admission/wrong-accession"
+            },
             directory.to_str().ok_or("capture directory")?,
             |_, recording| {
                 if let Some(exchange) = recording.pointer_mut("/exchanges/0/body") {
@@ -189,15 +194,6 @@ pub(super) fn sequence() -> Result<(), String> {
             "expect":{"/sources/0/reason":"offline"}}]),
         )
         .map_err(|e| e.to_string())?;
-        super::super::protein_budgets::check(
-            &value,
-            if replacement.contains("ACD!") {
-                "sequence-admission/invalid-alphabet/offline"
-            } else {
-                "sequence-admission/wrong-accession/offline"
-            },
-            "cli",
-        )?;
     }
     Ok(())
 }
