@@ -25,7 +25,8 @@ const GENES: Endpoint = SPEC
     .post_json("/api")
     .idempotent()
     .fresh(Freshness::Days(7));
-const FIELDS: &str = "gene_id canonical_transcript_id mane_select_transcript { ensembl_id ensembl_version } gnomad_constraint { pli oe_lof oe_lof_upper mis_z syn_z flags }";
+const FIELDS: &str = "gene_id canonical_transcript_id mane_select_transcript { ensembl_id ensembl_version } \
+    gnomad_constraint { pli oe_lof oe_lof_upper mis_z syn_z flags }";
 #[derive(Serialize)]
 struct Query {
     query: String,

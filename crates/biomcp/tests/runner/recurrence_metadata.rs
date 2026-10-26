@@ -56,7 +56,9 @@ fn prove() -> Result<(), String> {
             return Err("summary walk exceeded bounds or fetched membership".into());
         }
         for (number, (_, request)) in pages.iter().enumerate() {
-            if !request.contains(&format!("projection=SUMMARY&pageSize=50&pageNumber={number}&sortBy=sampleListId&direction=ASC")) { return Err(format!("metadata walk lost native bounds: {request}")); }
+            if !request.contains(&format!("projection=SUMMARY&pageSize=50&pageNumber={number}&sortBy=sampleListId&direction=ASC")) {
+ return Err(format!("metadata walk lost native bounds: {request}"));
+ }
         }
     }
     Ok(())

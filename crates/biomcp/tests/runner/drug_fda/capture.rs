@@ -152,7 +152,14 @@ fn report(n: usize, peak: (usize, usize), entry: &Value) -> Check {
         peak.1
     )
     .map_err(|e| e.to_string())?;
-    writeln!(std::io::stdout(),"FDA original_url={} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",field(entry,"url")?,field(entry,"retrieved_at")?,field(entry,"sha256")?).map_err(|e|e.to_string())
+    writeln!(std::io::stdout(),
+"FDA original_url={} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",
+field(entry,
+"url")?,
+field(entry,
+"retrieved_at")?,
+field(entry,
+"sha256")?).map_err(|e|e.to_string())
 }
 fn delivery(
     raw: String,
@@ -421,7 +428,16 @@ fn retention() -> Check {
             .map(|b| format!("{b:02x}"))
             .collect::<String>();
         std::fs::write(root.path().join("synthetic.json"), raw).map_err(|e| e.to_string())?;
-        std::fs::write(root.path().join("ledger.json"), json!([{"body_file":"synthetic.json","sha256":hash,"url":"https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1","http_status":200,"retrieved_at":"2001-05-10T00:00:00Z"}]).to_string()).map_err(|e| e.to_string())?;
+        std::fs::write(
+            root.path().join("ledger.json"),
+            json!([{"body_file":"synthetic.json",
+"sha256":hash,
+"url":"https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1",
+"http_status":200,
+"retrieved_at":"2001-05-10T00:00:00Z"}])
+            .to_string(),
+        )
+        .map_err(|e| e.to_string())?;
         let result = native(root.path(), 0);
         if result.is_err() != fail {
             return Err(format!("unexpected synthetic FDA result: {result:?}"));

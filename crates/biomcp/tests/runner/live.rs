@@ -110,7 +110,16 @@ pub(super) fn summary(
     let drift_cases = checked.iter().filter(|r| has_drift(r)).count();
     let error_cases = checked.iter().filter(|r| r.get("error").is_some()).count();
     checked.sort_by_key(|r| !(has_drift(r) || r.get("error").is_some()));
-    json!({"mode": "live-check", "drift_cases": drift_cases, "error_cases": error_cases, "elapsed_ms": elapsed_ms, "sources": sources, "discovered": results.len(), "checked": checked.len(), "skipped": skipped, "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(), "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })})
+    json!({"mode": "live-check",
+ "drift_cases": drift_cases,
+ "error_cases": error_cases,
+ "elapsed_ms": elapsed_ms,
+ "sources": sources,
+ "discovered": results.len(),
+ "checked": checked.len(),
+ "skipped": skipped,
+ "case_sample": checked.iter().take(if details { MAX_CASES } else { CASE_SAMPLE }).collect::<Vec<_>>(),
+ "omitted": checked.len().saturating_sub(if details { MAX_CASES } else { CASE_SAMPLE })})
 }
 fn has_drift(result: &Value) -> bool {
     result

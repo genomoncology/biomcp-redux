@@ -195,7 +195,9 @@ impl Cache {
         }
         if version.is_none() {
             let orphan: bool = tx.query_row(
-                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_words','bundle_content'))",
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name IN \
+                    ('reply','reply_fresh','bundle','bundle_sync','bundle_row','bundle_key','bundle_key_find','bundle_wo\
+                    rds','bundle_content'))",
                 [], |r| r.get(0),
             ).map_err(db_error)?;
             if orphan {
@@ -276,8 +278,25 @@ impl Cache {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
         let operation = |connection: &Connection| {
             let entry = connection.query_row(
-                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range, pagination FROM reply WHERE key=?1",
-                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?, row.get::<_, Option<String>>(5)?, row.get::<_, Option<String>>(6)?)),
+                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, \
+                    content_type, content_range, pagination FROM reply WHERE key=?1",
+                params![key,
+ limit],
+ |row| Ok((row.get::<_,
+ u16>(0)?,
+ row.get::<_,
+ Option<Vec<u8>>>(1)?,
+ row.get::<_,
+ i64>(2)?,
+ row.get::<_,
+ i64>(3)?,
+ row.get::<_,
+ Option<String>>(4)?,
+ row.get::<_,
+ Option<String>>(5)?,
+ row.get::<_,
+ Option<String>>(6)?)),
+
             ).optional().map_err(db_error)?;
             match entry {
                 Some((
@@ -362,9 +381,23 @@ impl Cache {
     ) -> Result<(), CacheError> {
         self.write_sql(deadline, |connection| {
             connection.execute(
-                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
-                ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",
-                params![key, source.to_string(), url, entry.status, entry.content_type, entry.body, entry.fetched_at, entry.fresh_until, entry.content_range, entry.pagination.as_ref().map(serde_json::to_string).transpose().map_err(|_| CacheError::Database)?],
+                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
+        VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
+                ON CONFLICT(key) DO UPDATE SET \
+        source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,bo\
+        dy=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=exclu\
+        ded.content_range,pagination=excluded.pagination",
+                params![key,
+ source.to_string(),
+ url,
+ entry.status,
+ entry.content_type,
+ entry.body,
+ entry.fetched_at,
+ entry.fresh_until,
+ entry.content_range,
+ entry.pagination.as_ref().map(serde_json::to_string).transpose().map_err(|_| CacheError::Database)?],
+
             ).map_err(db_error)?;
             Ok(())
         })

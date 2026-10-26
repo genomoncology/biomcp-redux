@@ -44,8 +44,19 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn catalog(search: bool, changed: bool) -> Value {
     json!({"pathwayInfo":(0..13).map(|n| {
-        let mut row = json!({"id":format!("WP{}",n+1),"url":format!("https://www.wikipathways.org/instance/WP{}",n+1),"name":if changed {format!("New Atlas {n}")} else {format!("Literal Atlas {n}")},"species":if n==12 {"Mus musculus"} else {"Homo sapiens"},"revision":"2025-05-22","authors":"Source Author","description":"Native source description...","citedIn":""});
-        if search && let Some(map)=row.as_object_mut() { map.insert("datanodes".into(),json!("TP53, unchecked label")); map.insert("annotations".into(),json!("native annotation")); }
+        let mut row = json!({"id":format!("WP{}",
+n+1),
+"url":format!("https://www.wikipathways.org/instance/WP{}",
+n+1),
+"name":if changed {format!("New Atlas {n}")} else {format!("Literal Atlas {n}")},
+"species":if n==12 {"Mus musculus"} else {"Homo sapiens"},
+"revision":"2025-05-22",
+"authors":"Source Author",
+"description":"Native source description...",
+"citedIn":""});
+        if search && let Some(map)=row.as_object_mut() { map.insert("datanodes".into(),
+json!("TP53, unchecked label")); map.insert("annotations".into(),
+json!("native annotation")); }
         row
     }).collect::<Vec<_>>()})
 }
@@ -62,7 +73,12 @@ fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<Pat
     let dir = root.join("wikipathways");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     for (url, body, code) in [(SEARCH, search, 200), (GET, get, status)] {
-        let exchange = json!({"status":code,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+        let exchange = json!({"status":code,
+"content_type":"application/json",
+"delay_ms":0,
+"retry_after_ms":null,
+"body":{"kind":"text",
+"value":body.to_string()}});
         let exchanges = vec![exchange; if code == 500 { 3 } else { 1 }];
         let wire = json!({"source":"wikipathways","method":"GET","url":url,"exchanges":exchanges});
         fs::write(recording(&root, url), wire.to_string()).map_err(|e| e.to_string())?;
@@ -426,7 +442,9 @@ fn read_policy() -> Check {
     if expired.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err(format!("expired catalog pool: {expired}"));
     }
-    db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0 WHERE name='wikipathways'; INSERT INTO bundle_content SELECT * FROM original_content; COMMIT;").map_err(|e|e.to_string())?;
+    db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+        fresh_until=0 WHERE name='wikipathways'; INSERT INTO bundle_content SELECT * FROM \
+        original_content; COMMIT;").map_err(|e|e.to_string())?;
     let stale = call(
         "wikipathways/read_policy/4",
         &env,

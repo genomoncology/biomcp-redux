@@ -53,7 +53,9 @@ pub(super) fn trials() -> Vec<Trial> {
     cases
 }
 fn expression() -> &'static str {
-    "(patient.drug.openfda.generic_name:\"Synthetic \\\"A\\\\B\" OR patient.drug.openfda.brand_name:\"Synthetic \\\"A\\\\B\" OR patient.drug.medicinalproduct:\"Synthetic \\\"A\\\\B\")"
+    "(patient.drug.openfda.generic_name:\"Synthetic \\\"A\\\\B\" OR \
+        patient.drug.openfda.brand_name:\"Synthetic \\\"A\\\\B\" OR \
+        patient.drug.medicinalproduct:\"Synthetic \\\"A\\\\B\")"
 }
 fn args() -> Vec<String> {
     ["search", "adverse-event", "Synthetic \"A\\B"]
@@ -73,7 +75,17 @@ fn encoded(value: &str) -> String {
         .collect()
 }
 fn body(limit: u32, offset: u32) -> Value {
-    let rows: Vec<_> = (0..limit).map(|n| json!({"safetyreportid":(100+offset+n).to_string(),"safetyreportversion":"1","receivedate":"20240102","serious":"1","patient":{"drug":[{"medicinalproduct":"Synthetic A"},{"medicinalproduct":"Synthetic B"}],"reaction":[{"reactionmeddrapt":"Synthetic term"}]}})).collect();
+    let rows: Vec<_> = (0..limit)
+        .map(|n| {
+            json!({"safetyreportid":(100+offset+n).to_string(),
+"safetyreportversion":"1",
+"receivedate":"20240102",
+"serious":"1",
+"patient":{"drug":[{"medicinalproduct":"Synthetic A"},
+{"medicinalproduct":"Synthetic B"}],
+"reaction":[{"reactionmeddrapt":"Synthetic term"}]}})
+        })
+        .collect();
     json!({"meta":{"last_updated":"2024-09-01","results":{"skip":offset,"limit":limit,"total":20}},"results":rows})
 }
 fn setup(query: &str, limit: u32) -> Result<(Environment, Stub), String> {

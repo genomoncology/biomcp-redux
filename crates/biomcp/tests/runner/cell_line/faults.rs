@@ -53,7 +53,12 @@ fn failure(surface: &str, fault: &str, measure: bool) -> Result<(), String> {
         let mut record: Value =
             serde_json::from_slice(&fs::read(&file).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
-        let exchange = json!({"status":fault.parse::<u16>().unwrap_or(200),"content_type":if fault=="html"{"text/html"}else{"application/json"},"delay_ms":if fault=="timeout"{30000}else{0},"retry_after_ms":null,"body":{"kind":"text","value":body}});
+        let exchange = json!({"status":fault.parse::<u16>().unwrap_or(200),
+"content_type":if fault=="html"{"text/html"}else{"application/json"},
+"delay_ms":if fault=="timeout"{30000}else{0},
+"retry_after_ms":null,
+"body":{"kind":"text",
+"value":body}});
         *record.get_mut("exchanges").ok_or("exchanges")? =
             json!([exchange.clone(), exchange.clone(), exchange]);
         fs::write(file, record.to_string()).map_err(|e| e.to_string())?;

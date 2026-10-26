@@ -132,7 +132,14 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
                 .flatten()
                 .map(contact)
                 .collect();
-            rows.push(json!({"facility":row["facility"],"city":row["city"],"state":row["state"],"zip":row["zip"],"country":row["country"],"status":row["status"],"coordinates":coordinates,"contacts":contacts}));
+            rows.push(json!({"facility":row["facility"],
+"city":row["city"],
+"state":row["state"],
+"zip":row["zip"],
+"country":row["country"],
+"status":row["status"],
+"coordinates":coordinates,
+"contacts":contacts}));
         }
     } else {
         for row in module["centralContacts"].as_array().into_iter().flatten() {
@@ -159,18 +166,54 @@ fn attachments() -> Check {
             record["exchanges"][0]["body"]["value"]["protocolSection"]["contactsLocationsModule"] = json!({
                 "centralContacts":[{"name":"Central Contact","role":"CONTACT","phone":"555-0100","phoneExt":"123","email":"central@example.org"}],
                 "overallOfficials":[{"name":"Trial Chair","role":"STUDY_CHAIR","affiliation":"Registry Organization"}],
-                "locations":[{"facility":"First Facility","city":"First City","country":"United States","status":"RECRUITING","geoPoint":{"lat":90,"lon":180},"contacts":[{"name":"Site One","role":"PRINCIPAL_INVESTIGATOR","email":"one@example.org"}]},
-                {"facility":"Second Facility","status":"SUSPENDED","geoPoint":{"lat":-90,"lon":-180},"contacts":[{"name":"Site Two","role":"SUB_INVESTIGATOR","phone":"555-0102"}]}]
+                "locations":[{"facility":"First Facility",
+            "city":"First City",
+            "country":"United States",
+            "status":"RECRUITING",
+            "geoPoint":{"lat":90,
+            "lon":180},
+            "contacts":[{"name":"Site One",
+            "role":"PRINCIPAL_INVESTIGATOR",
+            "email":"one@example.org"}]},
+
+                {"facility":"Second Facility",
+            "status":"SUSPENDED",
+            "geoPoint":{"lat":-90,
+            "lon":-180},
+            "contacts":[{"name":"Site Two",
+            "role":"SUB_INVESTIGATOR",
+            "phone":"555-0102"}]}]
             });
         },
         json!([
-            {"run":["get","trial","NCT02987543","locations","--limit","1"],"mcp":["get","trial","NCT02987543","locations","--limit","1"],"expect":{
-                "/result/items/0/card/status":"COMPLETED","/result/items/0/sections/locations/data/total":2,
-                "/result/items/0/sections/locations/data/items/0/status":"RECRUITING","/result/items/0/sections/locations/data/items/0/contacts/0/name":"Site One",
-                "/result/items/0/sections/locations/data/items/0/coordinates":{"equals":{"latitude":90.0,"longitude":180.0}}}},
-            {"follow":"page","offline":true,"expect":{"/result/items/0/sections/locations/data/offset":1,"/result/items/0/sections/locations/data/items/0/facility":"Second Facility","/result/items/0/sections/locations/data/items/0/status":"SUSPENDED","/result/items/0/sections/locations/data/items/0/contacts/0/name":"Site Two"}},
-            {"run":["get","trial","NCT02987543","contacts"],"expect":{"/result/items/0/sections/contacts/data/items":[{"record":"central","data":{"name":"Central Contact","role":"CONTACT","phone":"555-0100","phone_ext":"123","email":"central@example.org"}},{"record":"official","data":{"name":"Trial Chair","affiliation":"Registry Organization","role":"STUDY_CHAIR"}}]}}
-        ]),
+                    {"run":["get","trial","NCT02987543","locations","--limit","1"],"mcp":["get","trial","NCT02987543","locations","--limit","1"],"expect":{
+                        "/result/items/0/card/status":"COMPLETED","/result/items/0/sections/locations/data/total":2,
+                        "/result/items/0/sections/locations/data/items/0/status":"RECRUITING",
+        "/result/items/0/sections/locations/data/items/0/contacts/0/name":"Site One",
+
+                        "/result/items/0/sections/locations/data/items/0/coordinates":{"equals":{"latitude":90.0,"longitude":180.0}}}},
+                    {"follow":"page",
+        "offline":true,
+        "expect":{"/result/items/0/sections/locations/data/offset":1,
+        "/result/items/0/sections/locations/data/items/0/facility":"Second Facility",
+        "/result/items/0/sections/locations/data/items/0/status":"SUSPENDED",
+        "/result/items/0/sections/locations/data/items/0/contacts/0/name":"Site Two"}},
+
+                    {"run":["get",
+        "trial",
+        "NCT02987543",
+        "contacts"],
+        "expect":{"/result/items/0/sections/contacts/data/items":[{"record":"central",
+        "data":{"name":"Central Contact",
+        "role":"CONTACT",
+        "phone":"555-0100",
+        "phone_ext":"123",
+        "email":"central@example.org"}},
+        {"record":"official",
+        "data":{"name":"Trial Chair",
+        "affiliation":"Registry Organization",
+        "role":"STUDY_CHAIR"}}]}}
+                ]),
     )?;
     Ok(())
 }

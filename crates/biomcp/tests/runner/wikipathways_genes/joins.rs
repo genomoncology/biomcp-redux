@@ -1,10 +1,14 @@
 //! Exact xref namespaces resolve through approved identifiers, without aliases or labels.
 use super::{Check, Stub, Value, json};
 use crate::runner::pathway_budgets as budgets;
-const HGNC: &str = "hgnc_id\tsymbol\tname\tlocus_group\tstatus\tentrez_id\tensembl_gene_id\talias_symbol\nHGNC:1\tSYNTHONE\tSynthetic one\tprotein-coding gene\tApproved\t101\tENSG00000000001\tALIASONE\nHGNC:2\tSYNTHTWO\tSynthetic two\tprotein-coding gene\tApproved\t102\tENSG00000000002\t\n";
+const HGNC: &str = "hgnc_id\tsymbol\tname\tlocus_group\tstatus\tentrez_id\tensembl_gene_id\talias_symbol\nHGNC:1\tSYNTHO\
+    NE\tSynthetic one\tprotein-coding \
+    gene\tApproved\t101\tENSG00000000001\tALIASONE\nHGNC:2\tSYNTHTWO\tSynthetic two\tprotein-coding \
+    gene\tApproved\t102\tENSG00000000002\t\n";
 fn body() -> String {
     let mut xml = String::from(
-        "<Pathway xmlns=\"http://pathvisio.org/GPML/2013a\" Name=\"Synthetic pathway\" Data-Source=\"WikiPathways\" Version=\"WP382_r1\" Organism=\"Homo sapiens\">",
+        "<Pathway xmlns=\"http://pathvisio.org/GPML/2013a\" Name=\"Synthetic pathway\" \
+            Data-Source=\"WikiPathways\" Version=\"WP382_r1\" Organism=\"Homo sapiens\">",
     );
     for (n, (namespace, id)) in [
         ("Entrez Gene", "101"),
@@ -19,7 +23,10 @@ fn body() -> String {
     .into_iter()
     .enumerate()
     {
-        xml.push_str(&format!("<DataNode GraphId=\"n{n}\" TextLabel=\"SYNTHONE\" Type=\"GeneProduct\"><Xref Database=\"{namespace}\" ID=\"{id}\"/></DataNode>"));
+        xml.push_str(&format!(
+            "<DataNode GraphId=\"n{n}\" TextLabel=\"SYNTHONE\" Type=\"GeneProduct\"><Xref \
+            Database=\"{namespace}\" ID=\"{id}\"/></DataNode>"
+        ));
     }
     xml + "</Pathway>"
 }

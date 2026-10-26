@@ -36,11 +36,26 @@ fn assertions_wire() -> Result<(), String> {
         return Err(format!("native assertion lost: {value}"));
     }
     let requests = stub.finish()?;
-    if requests.len()!=1 || !requests.first().is_some_and(|(_, request)| request.starts_with("GET /entrez/eutils/efetch.fcgi?db=clinvar&id=128042&rettype=vcv&is_variationid=true&retmode=xml&tool=biomcp HTTP/1.1")) {return Err(format!("wrong exact ClinVar wire: {requests:?}"));}
+    if requests.len()!=1 || !requests.first().is_some_and(|(_, request)| request.starts_with("GET \
+        /entrez/eutils/efetch.fcgi?db=clinvar&id=128042&rettype=vcv&is_variationid=true&retmode=xml&tool=bio\
+        mcp HTTP/1.1")) {return Err(format!("wrong exact ClinVar wire: {requests:?}"));}
     Ok(())
 }
 
 pub(super) fn clinvar_body(_: &str) -> Result<String, String> {
     // Explicit synthetic XML uses clinically reviewed public fixture facts; this is not a source capture.
-    Ok(r#"<ClinVarResult-Set><VariationArchive VariationID="128042" Accession="VCV000128042" Version="175"><ClassifiedRecord><Classifications><GermlineClassification><Description>Pathogenic</Description></GermlineClassification></Classifications><ClinicalAssertionList><ClinicalAssertion><ClinVarAccession Accession="SCV000611258" Version="1" SubmitterName="Fulgent Genetics, Fulgent Genetics"/><Classification DateLastEvaluated="2017-05-18"><ReviewStatus>criteria provided, single submitter</ReviewStatus><GermlineClassification>Pathogenic</GermlineClassification></Classification><AttributeSet><Attribute Type="AssertionMethod">ACMG Guidelines, 2015</Attribute><Citation><ID Source="PubMed">25741868</ID></Citation></AttributeSet><ObservedInList><ObservedIn><Sample><Origin>unknown</Origin></Sample></ObservedIn></ObservedInList><TraitSet><Trait><XRef DB="OMIM" ID="114480"/></Trait><Trait><XRef DB="OMIM" ID="176807"/></Trait><Trait><XRef DB="OMIM" ID="259500"/></Trait><Trait><XRef DB="OMIM" ID="609265"/></Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"#.into())
+    Ok("<ClinVarResult-Set><VariationArchive VariationID=\"128042\" Accession=\"VCV000128042\" \
+        Version=\"175\"><ClassifiedRecord><Classifications><GermlineClassification><Description>Pathogenic</\
+        Description></GermlineClassification></Classifications><ClinicalAssertionList><ClinicalAssertion><Cl\
+        inVarAccession Accession=\"SCV000611258\" Version=\"1\" SubmitterName=\"Fulgent Genetics, Fulgent \
+        Genetics\"/><Classification DateLastEvaluated=\"2017-05-18\"><ReviewStatus>criteria provided, \
+        single \
+        submitter</ReviewStatus><GermlineClassification>Pathogenic</GermlineClassification></Classification>\
+        <AttributeSet><Attribute Type=\"AssertionMethod\">ACMG Guidelines, 2015</Attribute><Citation><ID \
+        Source=\"PubMed\">25741868</ID></Citation></AttributeSet><ObservedInList><ObservedIn><Sample><Origin\
+        >unknown</Origin></Sample></ObservedIn></ObservedInList><TraitSet><Trait><XRef DB=\"OMIM\" \
+        ID=\"114480\"/></Trait><Trait><XRef DB=\"OMIM\" ID=\"176807\"/></Trait><Trait><XRef DB=\"OMIM\" \
+        ID=\"259500\"/></Trait><Trait><XRef DB=\"OMIM\" \
+        ID=\"609265\"/></Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></V\
+        ariationArchive></ClinVarResult-Set>".into())
 }

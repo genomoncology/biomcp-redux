@@ -288,6 +288,7 @@ fn retained(directory: &Path, output: &Path, index: usize, row: &Value) -> Resul
         return Err("measured association cap exceeded".into());
     }
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    writeln!(std::io::stderr(),"retained {section} limit{limit} offset{offset}: full={full} comparable={bytes} tokens={} cap={cap} token_cap={}",bytes.div_ceil(4),cap.div_ceil(4)).map_err(|e|e.to_string())?;
+    writeln!(std::io::stderr(),"retained {section} limit{limit} offset{offset}: full={full} comparable={bytes} tokens={} cap={cap} \
+        token_cap={}",bytes.div_ceil(4),cap.div_ceil(4)).map_err(|e|e.to_string())?;
     Ok(())
 }

@@ -57,7 +57,8 @@ fn catalog(search: bool) -> String {
 }
 fn gpml() -> String {
     let mut body = String::from(
-        "<Pathway xmlns=\"http://pathvisio.org/GPML/2013a\" Name=\"Synthetic pathway\" Data-Source=\"WikiPathways\" Version=\"WP382_r140476\" Organism=\"Homo sapiens\">",
+        "<Pathway xmlns=\"http://pathvisio.org/GPML/2013a\" Name=\"Synthetic pathway\" \
+            Data-Source=\"WikiPathways\" Version=\"WP382_r140476\" Organism=\"Homo sapiens\">",
     );
     for n in 0..12 {
         let namespace = if n == 10 { "" } else { " Database=\"\"" };
@@ -68,7 +69,9 @@ fn gpml() -> String {
         };
         body.push_str(&format!("<DataNode TextLabel=\"Node {n}\" GraphId=\"n{n}\" Type=\"GeneProduct\"><Xref {xref}/></DataNode>"));
     }
-    body.push_str("<DataNode TextLabel=\"Not a gene\" GraphId=\"p1\" Type=\"Pathway\"><Xref Database=\"\" ID=\"\"/></DataNode><DataNode TextLabel=\"Metabolite\" GraphId=\"m1\" Type=\"Metabolite\"><Xref Database=\"ChEBI\" ID=\"CHEBI:1\"/></DataNode></Pathway>");
+    body.push_str("<DataNode TextLabel=\"Not a gene\" GraphId=\"p1\" Type=\"Pathway\"><Xref Database=\"\" \
+        ID=\"\"/></DataNode><DataNode TextLabel=\"Metabolite\" GraphId=\"m1\" Type=\"Metabolite\"><Xref \
+        Database=\"ChEBI\" ID=\"CHEBI:1\"/></DataNode></Pathway>");
     body
 }
 fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {

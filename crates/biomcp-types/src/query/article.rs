@@ -46,7 +46,15 @@ pub enum ArticleSort {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="str",extend("enum"=["trial", "randomized", "review", "systematic_review", "meta_analysis", "guideline", "case_report"])))]
+#[cfg_attr(feature="schema",
+ schemars(with="str",
+extend("enum"=["trial",
+ "randomized",
+ "review",
+ "systematic_review",
+ "meta_analysis",
+ "guideline",
+ "case_report"])))]
 pub enum ArticleType {
     /// Clinical trials, including narrower phases.
     Trial,
@@ -67,7 +75,18 @@ pub enum ArticleType {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature="schema", schemars(with="Fields", extend("anyOf"=[{"required":["text"]},{"required":["gene"]},{"required":["variant"]},{"required":["disease"]},{"required":["drug"]},{"required":["author"]},{"required":["journal"]},{"required":["since"]},{"required":["until"]},{"required":["type"]}])))]
+#[cfg_attr(feature="schema",
+ schemars(with="Fields",
+ extend("anyOf"=[{"required":["text"]},
+{"required":["gene"]},
+{"required":["variant"]},
+{"required":["disease"]},
+{"required":["drug"]},
+{"required":["author"]},
+{"required":["journal"]},
+{"required":["since"]},
+{"required":["until"]},
+{"required":["type"]}])))]
 pub struct ArticleSearch(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -81,7 +100,9 @@ struct Fields {
     no_preprints: bool,
     /// Include retracted papers by default, or exclude them using a native filter.
     #[serde(default, skip_serializing_if = "is_include")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-cli-flags" = {"include-retracted":RetractionFilter::Include, "exclude-retracted":RetractionFilter::Exclude})))]
+    #[cfg_attr(feature = "schema",
+ schemars(extend("x-cli-flags" = {"include-retracted":RetractionFilter::Include,
+ "exclude-retracted":RetractionFilter::Exclude})))]
     retracted: RetractionFilter,
     /// Words sent to each named source in its default fields.
     #[serde(

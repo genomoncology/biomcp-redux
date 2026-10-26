@@ -178,7 +178,8 @@ impl Server {
             .map(|name| format!("Mcp-Name: {name}\r\n"))
             .unwrap_or_default();
         let headers = format!(
-            "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\n{method_header}{name_header}"
+            "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: \
+        2026-07-28\r\n{method_header}{name_header}"
         );
         let (status, body, _) =
             self.raw(method, path, &self.address.to_string(), &headers, body)?;
@@ -532,7 +533,8 @@ fn metadata_cases(server: &Server) -> Check {
         "tools/call",
         json!({"name":"biomcp","arguments":{"args":["help"]}}),
     );
-    let prefix = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\n";
+    let prefix = "Content-Type: application/json\r\nAccept: application/json, \
+        text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\n";
     for (name, expected) in [
         ("=?base64?YmlvbWNw?=", 200),
         ("=?base64?***?=", 400),

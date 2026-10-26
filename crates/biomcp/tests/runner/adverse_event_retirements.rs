@@ -69,7 +69,8 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --source=vaers",
-        "supported vaccines are MMR and COVID19, or one exact native influenza code; use search adverse-event influenza --source vaers to list influenza codes and labels",
+        "supported vaccines are MMR and COVID19, or one exact native influenza code; use search \
+            adverse-event influenza --source vaers to list influenza codes and labels",
     ),
     (
         "search adverse-event -d text",
@@ -81,23 +82,28 @@ const CASES: &[(&str, &str)] = &[
     ),
     (
         "search adverse-event text --outcome death",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --outcome hospitalization",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --outcome disability",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --outcome recovered",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --outcome any",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --date-from 2024-01-01",
@@ -319,15 +325,18 @@ const CASES: &[(&str, &str)] = &[
     ("--json get adverse-event 100", "use: --format json"),
     (
         "search adverse-event text --outcome=fatal",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --outcome=hospitalisation",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --outcome=disabling",
-        "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
+        "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
+            reactions for native outcomes; the old hospitalization and disability mappings were wrong",
     ),
     (
         "search adverse-event text --serious=hospitalisation",

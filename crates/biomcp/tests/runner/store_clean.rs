@@ -36,17 +36,21 @@ fn active(env: &Environment) -> PathBuf {
     ))
 }
 fn seed(cx: &Connection) -> Check {
-    cx.execute_batch("INSERT INTO pool VALUES ('expired',x'01',0,0,1,'[]');
+    cx.execute_batch(
+        "INSERT INTO pool VALUES ('expired',x'01',0,0,1,'[]');
         INSERT INTO pool_item(pool,rank,identity,item) VALUES ('expired',0,'old','{}');
         INSERT INTO pool_current VALUES (x'01','expired');
         INSERT INTO trial_snapshot VALUES ('old-trial',x'02',0,'{}','[]');
         INSERT INTO citation_evidence VALUES ('old-citation',x'03',0,'{}','[]');
         INSERT INTO trial_snapshot VALUES ('live-trial',x'02',9223372036854775807,'{}','[]');
         INSERT INTO citation_evidence VALUES ('live-citation',x'03',9223372036854775807,'{}','[]');
-        INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES (x'01','pubmed','https://example.test/',200,x'7b7d',0,0);
-        INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES (x'02','pubmed','https://example.test/',200,x'7b7d',0,9223372036854775807);
+        INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES \
+        (x'01','pubmed','https://example.test/',200,x'7b7d',0,0);
+        INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES \
+        (x'02','pubmed','https://example.test/',200,x'7b7d',0,9223372036854775807);
         CREATE TABLE foreign_state(value TEXT); INSERT INTO foreign_state VALUES ('keep');
-        INSERT INTO meta VALUES ('foreign-owner',77);")?;
+        INSERT INTO meta VALUES ('foreign-owner',77);",
+    )?;
     Ok(())
 }
 fn count(cx: &Connection, table: &str) -> Check<i64> {
@@ -173,7 +177,8 @@ fn publish() -> Check {
     let cx = Connection::open(state.join("replay.sqlite"))?;
     seed(&cx)?;
     // More than one publication batch: a single publish must not delete everything.
-    cx.execute_batch("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<150) INSERT INTO pool SELECT 'expired-'||x,x'04',0,0,0,'[]' FROM n;")?;
+    cx.execute_batch("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<150) INSERT INTO pool SELECT \
+        'expired-'||x,x'04',0,0,0,'[]' FROM n;")?;
     let reader = Connection::open(state.join("replay.sqlite"))?;
     reader.execute_batch("BEGIN")?;
     let live: i64 =

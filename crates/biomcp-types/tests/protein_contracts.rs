@@ -114,7 +114,14 @@ fn checked_requests_refuse_conflicts_and_bounds_before_io() -> Result<(), Box<dy
 
 #[test]
 fn uncertain_feature_bounds_keep_source_ranges() -> Result<(), Box<dyn std::error::Error>> {
-    let feature = json!({"protein":"P00533-1","span":{"start":{"min":711,"max":711},"end":{"min":979}},"kind":{"label":"Domain"},"original":"L","alternative":["R"],"evidence":["ECO:0000269|PubMed:1"]});
+    let feature = json!({"protein":"P00533-1",
+"span":{"start":{"min":711,
+"max":711},
+"end":{"min":979}},
+"kind":{"label":"Domain"},
+"original":"L",
+"alternative":["R"],
+"evidence":["ECO:0000269|PubMed:1"]});
     assert_eq!(roundtrip::<UniProtFeature>(feature.clone())?, feature);
     for bound in [json!({}), json!({"min":2,"max":1})] {
         assert!(serde_json::from_value::<Bound>(bound).is_err());
@@ -133,9 +140,39 @@ fn uncertain_feature_bounds_keep_source_ranges() -> Result<(), Box<dyn std::erro
 #[test]
 fn source_rows_keep_discontinuous_fragments_and_independent_complex_totals()
 -> Result<(), Box<dyn std::error::Error>> {
-    let domain = json!({"id":"IPR000494","name":"Synthetic source match","entry_type":"family","protein":"P00533","protein_length":1210,"taxon":9606,"locations":[{"fragments":[{"span":{"start":{"min":56,"max":56},"end":{"min":167,"max":167}},"dc_status":"N_TERMINAL_DISC"},{"span":{"start":{"min":360,"max":360},"end":{"min":480,"max":480}},"dc_status":"C_TERMINAL_DISC"}]},{"fragments":[{"span":{"start":{"min":700,"max":700},"end":{"min":710,"max":710}}}]}],"member_signatures":[{"database":"pfam","accession":"PF01030","name":"Synthetic member"}],"attribution":{"source":"interpro","record":"IPR000494"}});
+    let domain = json!({"id":"IPR000494",
+"name":"Synthetic source match",
+"entry_type":"family",
+"protein":"P00533",
+"protein_length":1210,
+"taxon":9606,
+"locations":[{"fragments":[{"span":{"start":{"min":56,
+"max":56},
+"end":{"min":167,
+"max":167}},
+"dc_status":"N_TERMINAL_DISC"},
+{"span":{"start":{"min":360,
+"max":360},
+"end":{"min":480,
+"max":480}},
+"dc_status":"C_TERMINAL_DISC"}]},
+{"fragments":[{"span":{"start":{"min":700,
+"max":700},
+"end":{"min":710,
+"max":710}}}]}],
+"member_signatures":[{"database":"pfam",
+"accession":"PF01030",
+"name":"Synthetic member"}],
+"attribution":{"source":"interpro",
+"record":"IPR000494"}});
     assert_eq!(roundtrip::<ProteinDomainMatch>(domain.clone())?, domain);
-    let complex = json!({"id":"CPX-715","name":"Synthetic complex","taxon":9606,"predicted":true,"participant_total":93,"matched_participant":"P38398","url":"https://example.org/CPX-715"});
+    let complex = json!({"id":"CPX-715",
+"name":"Synthetic complex",
+"taxon":9606,
+"predicted":true,
+"participant_total":93,
+"matched_participant":"P38398",
+"url":"https://example.org/CPX-715"});
     assert_eq!(roundtrip::<ProteinComplexHeader>(complex.clone())?, complex);
     let member = json!({"id":"CHEBI:1","participant_type":"small molecule","name":"Synthetic non-protein member","stoichiometry":"minValue: 1, maxValue: 1"});
     let v = roundtrip::<ProteinComplexMember>(member.clone())?;
@@ -151,7 +188,12 @@ fn external_products_and_exact_sequences_remain_independent()
     assert_eq!(roundtrip::<ProteinIsoform>(external.clone())?, external);
     let absent = json!({"ids":["P00533-4"],"name":"Synthetic absent direct sequence","sequence_status":"Described","direct_sequence":"not_available"});
     assert_eq!(roundtrip::<ProteinIsoform>(absent.clone())?, absent);
-    let sequence = json!({"accession":"P38398-2","sequence":"M","length":1,"audit":{"entry_version":2,"sequence_version":1,"last_sequence_update":"2026-01-01"}});
+    let sequence = json!({"accession":"P38398-2",
+"sequence":"M",
+"length":1,
+"audit":{"entry_version":2,
+"sequence_version":1,
+"last_sequence_update":"2026-01-01"}});
     assert_eq!(roundtrip::<ProteinSequence>(sequence.clone())?, sequence);
     for status in ["Displayed", "Described", "External"] {
         assert_eq!(roundtrip::<ProteinIsoformStatus>(json!(status))?, status);
@@ -165,7 +207,13 @@ fn external_products_and_exact_sequences_remain_independent()
 #[test]
 fn exact_isoform_header_uses_shared_identity_fields_without_base_replacement()
 -> Result<(), Box<dyn std::error::Error>> {
-    let header = json!({"protein":{"accession":"P38398-2","name":"Synthetic exact isoform","length":63},"entry_id":"Synthetic entry","taxon":9606,"reviewed":true,"url":"https://example.org/P38398-2"});
+    let header = json!({"protein":{"accession":"P38398-2",
+"name":"Synthetic exact isoform",
+"length":63},
+"entry_id":"Synthetic entry",
+"taxon":9606,
+"reviewed":true,
+"url":"https://example.org/P38398-2"});
     assert_eq!(roundtrip::<ProteinHeader>(header.clone())?, header);
     Ok(())
 }
@@ -199,7 +247,15 @@ fn inclusive_conversion_refuses_reversed_or_zero_residues() -> Result<(), Box<dy
 #[test]
 fn feature_provenance_and_sequence_availability_use_closed_native_contracts()
 -> Result<(), Box<dyn std::error::Error>> {
-    let feature = json!({"feature":{"protein":"P00533","span":{"start":{"min":711,"max":711},"end":{"min":979,"max":979}},"kind":{"label":"Domain"}},"attribution":{"source":"uniprot","record":"P00533"},"source_coordinates":"one_based_inclusive"});
+    let feature = json!({"feature":{"protein":"P00533",
+"span":{"start":{"min":711,
+"max":711},
+"end":{"min":979,
+"max":979}},
+"kind":{"label":"Domain"}},
+"attribution":{"source":"uniprot",
+"record":"P00533"},
+"source_coordinates":"one_based_inclusive"});
     assert_eq!(roundtrip::<ProteinFeature>(feature.clone())?, feature);
     for state in ["available", "not_available", "not_checked"] {
         assert_eq!(

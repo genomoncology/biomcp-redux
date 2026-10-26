@@ -259,7 +259,11 @@ fn rust_lines_obey_width_limit() -> Check {
         let tree = tree()?;
         put(tree.path(), path, &format!("//{}\n", "x".repeat(158)))?;
         check(tree.path())?;
-        rejects(path, &format!("//{}\n", "x".repeat(159)), "line width limit")?;
+        rejects(
+            path,
+            &format!("//{}\n", "x".repeat(159)),
+            "line width limit",
+        )?;
     }
     Ok(())
 }

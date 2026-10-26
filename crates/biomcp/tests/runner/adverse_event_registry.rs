@@ -154,7 +154,10 @@ fn health_before_io() -> Check {
     ] {
         let mut disabled = others.clone();
         disabled.extend(switches.iter().map(|s| (*s).to_owned()));
-        env.config(&json!({"disable_sources": disabled, "proxy": format!("http://{}", listener.local_addr().map_err(|e| e.to_string())?)})).map_err(|e| e.to_string())?;
+        env.config(&json!({"disable_sources": disabled,
+ "proxy": format!("http://{}",
+ listener.local_addr().map_err(|e| e.to_string())?)}))
+            .map_err(|e| e.to_string())?;
         for replay_mode in [false, true] {
             let mut args = vec!["health".into()];
             if replay_mode {

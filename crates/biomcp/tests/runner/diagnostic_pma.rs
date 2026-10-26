@@ -33,7 +33,10 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 fn native(mode: &str) -> Result<Value, String> {
-    let row = json!({"pma_number":if mode == "wrong-base" {"P200010"} else {"P150013"},"supplement_number":if mode == "wrong-supplement" {"S021"} else {""},"trade_name":"Synthetic device","ao_statement":"Synthetic statement"});
+    let row = json!({"pma_number":if mode == "wrong-base" {"P200010"} else {"P150013"},
+"supplement_number":if mode == "wrong-supplement" {"S021"} else {""},
+"trade_name":"Synthetic device",
+"ao_statement":"Synthetic statement"});
     let mut rows = vec![row.clone()];
     if mode == "duplicate-base" {
         rows.push(row);
@@ -63,7 +66,9 @@ fn boundary(mode: &'static str) -> Check {
         "application/json",
         move |request| {
             if !request.starts_with(
-                &format!("GET /device/pma.json?search=pma_number%3A%22P150013%22{}&limit=100&skip=0 HTTP/1.1", if mode == "wrong-supplement" {"%20AND%20supplement_number%3A%22S020%22"}else{""}),
+                &format!("GET /device/pma.json?search=pma_number%3A%22P150013%22{}&limit=100&skip=0 HTTP/1.1",
+ if mode == "wrong-supplement" {"%20AND%20supplement_number%3A%22S020%22"}else{""}),
+
             ) {
                 return Err(format!("wrong exact query: {request}"));
             }

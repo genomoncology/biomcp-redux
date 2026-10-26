@@ -14,7 +14,8 @@ struct Fields {
     /// One to twenty exact NCT identifiers, in caller order.
     #[cfg_attr(feature="schema", schemars(length(min=1,max=20), extend("x-positional"=0)))]
     input: Box<[NctId]>,
-    /// Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
+    /// Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are
+    /// unsupported.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,

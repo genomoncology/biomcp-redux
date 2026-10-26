@@ -117,7 +117,11 @@ fn wire() -> Result<(), String> {
         return Err("OncoKB request without key or redundant request".into());
     }
     let request = &keyed.first().ok_or("missing annotation request")?.1;
-    if !request.starts_with("GET /api/v1/annotate/mutations/byHGVSg?hgvsg=7%3Ag.140753336A%3ET&referenceGenome=GRCh38&tumorType=Synthetic%20tumor HTTP/1.1") || !request.lines().any(|l|l.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}"))) {return Err(format!("source request context/header mismatch: {}", request.lines().next().unwrap_or_default()));}
+    if !request.starts_with("GET \
+        /api/v1/annotate/mutations/byHGVSg?hgvsg=7%3Ag.140753336A%3ET&referenceGenome=GRCh38&tumorType=Synth\
+        etic%20tumor HTTP/1.1") || !request.lines().any(|l|l.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}"))) {
+return Err(format!("source request context/header mismatch: {}",
+ request.lines().next().unwrap_or_default()));}
     for file in fs::read_dir(directory.join("oncokb")).map_err(|e| e.to_string())? {
         let bytes = fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
         if bytes.windows(KEY.len()).any(|b| b == KEY.as_bytes()) {
@@ -132,7 +136,29 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/variant/") {
         return Ok(json!({"_id":INPUT,"dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string());
     }
-    Ok(json!({"query":{"hgvs":"7:g.140753336A>T","referenceGenome":"GRCh38","tumorType":"Synthetic tumor","hugoSymbol":"BRAF","alteration":"V600E"},"variantExist":false,"alleleExist":false,"oncogenic":"Oncogenic","mutationEffect":{"knownEffect":"Neutral","description":"Synthetic mutation effect.","citations":{"pmids":["17611497"]}},"variantSummary":" Synthetic source text Ω ","dataVersion":"synthetic-v1","lastUpdate":"10/24/2026","treatments":[{"level":"LEVEL_1","alterations":["V600E","V600K"],"drugs":[{"drugName":"Synthetic drug","ncitCode":"C0000"}],"pmids":["17611497"]}],"diagnosticImplications":[],"prognosticImplications":[]}).to_string())
+    Ok(json!({"query":{"hgvs":"7:g.140753336A>T",
+"referenceGenome":"GRCh38",
+"tumorType":"Synthetic tumor",
+"hugoSymbol":"BRAF",
+"alteration":"V600E"},
+"variantExist":false,
+"alleleExist":false,
+"oncogenic":"Oncogenic",
+"mutationEffect":{"knownEffect":"Neutral",
+"description":"Synthetic mutation effect.",
+"citations":{"pmids":["17611497"]}},
+"variantSummary":" Synthetic source text Ω ",
+"dataVersion":"synthetic-v1",
+"lastUpdate":"10/24/2026",
+"treatments":[{"level":"LEVEL_1",
+"alterations":["V600E",
+"V600K"],
+"drugs":[{"drugName":"Synthetic drug",
+"ncitCode":"C0000"}],
+"pmids":["17611497"]}],
+"diagnosticImplications":[],
+"prognosticImplications":[]})
+    .to_string())
 }
 
 fn content(data: &Value) -> Result<(), String> {

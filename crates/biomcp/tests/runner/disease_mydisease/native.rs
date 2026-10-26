@@ -79,7 +79,10 @@ fn prove_row(
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    let mut expected = json!({"/status":"complete","/result/requested_id":id,"/result/returned_id":row["returned_id"],"/result/concept/label":body.pointer("/mondo/label").ok_or("missing source label")?});
+    let mut expected = json!({"/status":"complete",
+"/result/requested_id":id,
+"/result/returned_id":row["returned_id"],
+"/result/concept/label":body.pointer("/mondo/label").ok_or("missing source label")?});
     if let Some(definition) = body.pointer("/mondo/definition") {
         super::insert(&mut expected, "/result/definition", definition.clone())?;
     } else if value.pointer("/result/definition").is_some() {

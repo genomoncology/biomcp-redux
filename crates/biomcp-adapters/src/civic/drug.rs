@@ -93,7 +93,8 @@ pub fn drug_search(
         };
         let body = SearchRequest {
             query: format!(
-                "query($q:String!,$after:String){{therapies(name:$q,first:{count},after:$after){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{id name link ncitId therapyAliases deprecated}}}}}}"
+                "query($q:String!,$after:String){{therapies(name:$q,first:{count},after:$after){{totalCount \
+                    pageInfo{{hasNextPage endCursor}} nodes{{id name link ncitId therapyAliases deprecated}}}}}}"
             ),
             variables: SearchVariables {
                 q: text,

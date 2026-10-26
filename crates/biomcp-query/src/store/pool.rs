@@ -20,11 +20,32 @@ pub(crate) struct StoredItem {
 impl Store<'_> {
     pub(crate) fn find(&self, key: &[u8], id: Option<&str>) -> Result<Option<Pool>, CacheError> {
         self.read(|connection| {
-            let sql=if id.is_some(){"SELECT id,request_key,created,expires,size,outcomes FROM pool WHERE id=?1 AND expires>?2"}else{"SELECT p.id,p.request_key,p.created,p.expires,p.size,p.outcomes FROM pool p JOIN pool_current c ON c.pool=p.id WHERE c.request_key=?1 AND p.expires>?2"};
+            let sql=if id.is_some(){
+"SELECT id,request_key,created,expires,size,outcomes FROM pool WHERE id=?1 AND expires>?2"}
+else{
+"SELECT p.id,p.request_key,p.created,p.expires,p.size,p.outcomes FROM pool p JOIN pool_current c ON \
+                c.pool=p.id WHERE c.request_key=?1 AND p.expires>?2"};
             let parameter=if let Some(id)=id {rusqlite::types::Value::Text(id.into())} else {rusqlite::types::Value::Blob(key.into())};
-            let row:Option<(String,Vec<u8>,i64,i64,u32,String)>=connection.query_row(sql,params![parameter,Self::now()],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional().map_err(db)?;
+            let row:Option<(String,
+Vec<u8>,
+i64,
+i64,
+u32,
+String)>=connection.query_row(sql,
+params![parameter,
+Self::now()],
+|r|Ok((r.get(0)?,
+r.get(1)?,
+r.get(2)?,
+r.get(3)?,
+r.get(4)?,
+r.get(5)?))).optional().map_err(db)?;
             row.map(|(id,key,created,expires,size,sources)|Ok(Pool {
-                info:PoolInfo{id:Text::new(&id).map_err(|_|CacheError::Database)?,size,created:u64::try_from(created).map_err(|_|CacheError::Database)?,expires:u64::try_from(expires).map_err(|_|CacheError::Database)?},
+                info:PoolInfo{id:Text::new(&id).map_err(|_|CacheError::Database)?,
+size,
+created:u64::try_from(created).map_err(|_|CacheError::Database)?,
+expires:u64::try_from(expires).map_err(|_|CacheError::Database)?},
+
                 key,sources:serde_json::from_str(&sources).map_err(|_|CacheError::Database)?
             })).transpose()
         })
@@ -42,7 +63,13 @@ impl Store<'_> {
             let id:String=tx.query_row("SELECT lower(hex(randomblob(16)))",[],|r|r.get(0)).map_err(db)?;
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;
             let size=u32::try_from(items.len()).map_err(|_|CacheError::Database)?;
-            tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",params![id,key,created,expires,size,outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",
+params![id,
+key,
+created,
+expires,
+size,
+outcomes]).map_err(db)?;
             {
                 let mut insert=tx.prepare("INSERT INTO pool_item(pool,rank,identity,item,header,checked,problems) VALUES (?1,?2,?3,?4,?5,?6,?7)").map_err(db)?;
                 for (rank,item) in items.iter().enumerate(){
@@ -58,8 +85,14 @@ impl Store<'_> {
                     insert.execute(params![id,rank as u32,identity,payload,header,item.pmid.is_none(),own]).map_err(db)?;
                 }
             }
-            tx.execute("INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",params![key,id]).map_err(db)?;
-            Ok(Pool {info:PoolInfo{id:Text::new(&id).map_err(|_|CacheError::Database)?,size,created:u64::try_from(created).map_err(|_|CacheError::Database)?,expires:u64::try_from(expires).map_err(|_|CacheError::Database)?},key:key.into(),sources:sources.into()})
+            tx.execute("INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET \
+                pool=excluded.pool",params![key,id]).map_err(db)?;
+            Ok(Pool {info:PoolInfo{id:Text::new(&id).map_err(|_|CacheError::Database)?,
+size,
+created:u64::try_from(created).map_err(|_|CacheError::Database)?,
+expires:u64::try_from(expires).map_err(|_|CacheError::Database)?},
+key:key.into(),
+sources:sources.into()})
         })
     }
     /// Publish arbitrary source snapshot payload and its fixed-lifetime pool metadata together.
@@ -76,10 +109,27 @@ impl Store<'_> {
             let expires = created.saturating_add(86400);
             let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
             let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
-            tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",params![id,key,created,expires,size,outcomes]).map_err(db)?;
-            tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5)",params![id,key,expires,payload,outcomes]).map_err(db)?;
-            tx.execute("INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",params![key,id]).map_err(db)?;
-            Ok(Pool { info: PoolInfo { id: Text::new(&id).map_err(|_| CacheError::Database)?, size, created: u64::try_from(created).map_err(|_| CacheError::Database)?, expires: u64::try_from(expires).map_err(|_| CacheError::Database)? }, key: key.into(), sources: sources.into() })
+            tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",
+params![id,
+key,
+created,
+expires,
+size,
+outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5)",
+params![id,
+key,
+expires,
+payload,
+outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET \
+                pool=excluded.pool",params![key,id]).map_err(db)?;
+            Ok(Pool { info: PoolInfo { id: Text::new(&id).map_err(|_| CacheError::Database)?,
+ size,
+ created: u64::try_from(created).map_err(|_| CacheError::Database)?,
+ expires: u64::try_from(expires).map_err(|_| CacheError::Database)? },
+ key: key.into(),
+ sources: sources.into() })
         })
     }
     /// Extend a source window without renewing its published identity or lifetime.
@@ -120,7 +170,8 @@ impl Store<'_> {
         limit: u32,
     ) -> Result<Vec<StoredItem>, CacheError> {
         self.read(|connection| {
-            let mut statement=connection.prepare("SELECT item,checked,header,problems,outcome FROM pool_item WHERE pool=?1 ORDER BY rank LIMIT ?2 OFFSET ?3").map_err(db)?;
+            let mut statement=connection.prepare("SELECT item,checked,header,problems,outcome FROM pool_item WHERE pool=?1 ORDER BY rank LIMIT ?2 \
+                OFFSET ?3").map_err(db)?;
             let rows=statement.query_map(params![pool,limit,offset],|r| {
                 Ok((r.get::<_,String>(0)?,r.get::<_,bool>(1)?,r.get::<_,Option<String>>(2)?,r.get::<_,String>(3)?,r.get::<_,Option<String>>(4)?))
             }).map_err(db)?;
@@ -164,7 +215,8 @@ impl Store<'_> {
                 for problem in problems {if !merged.contains(problem) {merged.push(problem.clone());}}
                 let problems=serde_json::to_string(&merged).map_err(|_|CacheError::Database)?;
                 // A concurrent accepted header always wins over a missing or later response.
-                tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND identity=?2 AND header IS NULL",params![pool,identity,header,problems,outcome]).map_err(db)?;
+                tx.execute("UPDATE pool_item SET checked=1,header=?3,problems=?4,outcome=?5 WHERE pool=?1 AND identity=?2 AND \
+                    header IS NULL",params![pool,identity,header,problems,outcome]).map_err(db)?;
             }
             Ok(())
         })

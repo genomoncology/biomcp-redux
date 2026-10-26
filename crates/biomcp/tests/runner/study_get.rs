@@ -25,10 +25,32 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn profiles() -> Value {
-    json!((0..17).map(|n| json!({"molecularProfileId":format!("native_profile_{n}"),"studyId":"synthetic_0","molecularAlterationType":"MRNA_EXPRESSION","datatype":"CONTINUOUS","name":"Synthetic profile","description":"Native profile description","patientLevel":false,"showProfileInAnalysisTab":true})).collect::<Vec<_>>())
+    json!(
+        (0..17)
+            .map(
+                |n| json!({"molecularProfileId":format!("native_profile_{n}"),
+"studyId":"synthetic_0",
+"molecularAlterationType":"MRNA_EXPRESSION",
+"datatype":"CONTINUOUS",
+"name":"Synthetic profile",
+"description":"Native profile description",
+"patientLevel":false,
+"showProfileInAnalysisTab":true})
+            )
+            .collect::<Vec<_>>()
+    )
 }
 fn lists() -> Value {
-    json!((0..13).map(|n| json!({"sampleListId":format!("native_list_{n}"),"studyId":"synthetic_0","category":"all_cases_in_study","name":"Synthetic list","description":"Native list description","sampleCount":n})).collect::<Vec<_>>())
+    json!(
+        (0..13)
+            .map(|n| json!({"sampleListId":format!("native_list_{n}"),
+"studyId":"synthetic_0",
+"category":"all_cases_in_study",
+"name":"Synthetic list",
+"description":"Native list description",
+"sampleCount":n}))
+            .collect::<Vec<_>>()
+    )
 }
 fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
     recording(replay, section, body, status, 0)
@@ -82,7 +104,13 @@ pub(super) fn recording_raw(
         let mut value: Value =
             serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
-        let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
+        let exchange = json!({"status":status,
+"fetched":42,
+"content_type":"application/json",
+"delay_ms":delay,
+"retry_after_ms":null,
+"body":{"kind":"text",
+"value":body}});
         let exchanges = if matches!(status, 429 | 500) {
             vec![exchange; 3]
         } else {

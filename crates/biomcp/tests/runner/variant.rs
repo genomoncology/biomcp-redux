@@ -63,7 +63,9 @@ fn car() -> Result<(), String> {
     let [(_, request)] = requests.as_slice() else {
         return Err("expected one CAR request".into());
     };
-    if !request.starts_with("GET /allele?hgvs=NM_004333.4%3Ac.1799T%3EA&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles%2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations HTTP/1.1") {
+    if !request.starts_with("GET \
+        /allele?hgvs=NM_004333.4%3Ac.1799T%3EA&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles\
+        %2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations HTTP/1.1") {
         return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
     }
     if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
@@ -80,7 +82,9 @@ fn myvariant() -> Result<(), String> {
     let [(_, request)] = requests.as_slice() else {
         return Err("expected one exact MyVariant request".into());
     };
-    if !request.starts_with("GET /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id&assembly=hg38 HTTP/1.1") { return Err(format!("exact annotation endpoint/build was not sent: {request}")); }
+    if !request.starts_with("GET \
+        /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id\
+        &assembly=hg38 HTTP/1.1") { return Err(format!("exact annotation endpoint/build was not sent: {request}")); }
     if output.pointer("/result/candidates/0/identity/representations/0/build")
         != Some(&json!("GRCh38"))
     {
@@ -105,7 +109,16 @@ fn call(
     Ok((value, stub.finish()?))
 }
 fn car_body(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38","referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}).to_string())
+    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643",
+"genomicAlleles":[{"chromosome":"7",
+"referenceGenome":"GRCh38",
+"referenceSequence":"http://reg.genome.network/refseq/RS000055",
+"hgvs":["NC_000007.14:g.140753336A>T"],
+"coordinates":[{"start":140753335,
+"end":140753336,
+"referenceAllele":"A",
+"allele":"T"}]}]})
+    .to_string())
 }
 fn myvariant_body(_: &str) -> Result<String, String> {
     Ok(json!({"_id":"chr7:g.140753336A>T","dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string())
@@ -178,7 +191,14 @@ fn candidate_walk() -> Result<(), String> {
     Ok(())
 }
 fn candidates_body(_: &str) -> Result<String, String> {
-    Ok(json!({"total":3,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>C","dbsnp":{"rsid":"rs113488022"}}]}).to_string())
+    Ok(json!({"total":3,
+"hits":[{"_id":"chr7:g.140453136A>G",
+"dbsnp":{"rsid":"rs113488022"}},
+{"_id":"chr7:g.140453136A>T",
+"dbsnp":{"rsid":"rs113488022"}},
+{"_id":"chr7:g.140453136A>C",
+"dbsnp":{"rsid":"rs113488022"}}]})
+    .to_string())
 }
 
 pub(super) fn source_environment(stub: &Stub) -> Result<Environment, String> {
@@ -226,7 +246,12 @@ fn mixed_page() -> Result<(), String> {
     Ok(())
 }
 fn mixed_body(_: &str) -> Result<String, String> {
-    Ok(json!({"total":2,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs1"}},{"_id":"chr7:g.140453136A>T","dbsnp":{"rsid":"rs113488022"}}]}).to_string())
+    Ok(json!({"total":2,
+"hits":[{"_id":"chr7:g.140453136A>G",
+"dbsnp":{"rsid":"rs1"}},
+{"_id":"chr7:g.140453136A>T",
+"dbsnp":{"rsid":"rs113488022"}}]})
+    .to_string())
 }
 fn validator_order() -> Result<(), String> {
     let (value, requests) = call(
@@ -255,7 +280,9 @@ fn validator_order() -> Result<(), String> {
     Ok(())
 }
 fn validator_body(_: &str) -> Result<String, String> {
-    Ok(r#"{"flag":"gene_variant","metadata":{"variantvalidator_version":"synthetic"},"z":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.2A>T"},"a":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.1A>T"}}"#.into())
+    Ok("{\"flag\":\"gene_variant\",\"metadata\":{\"variantvalidator_version\":\"synthetic\"},\"z\":{\"submit\
+        ted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.2A>T\"},\"a\":{\
+        \"submitted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.1A>T\"}}".into())
 }
 
 fn components() -> Result<(), String> {
@@ -317,7 +344,11 @@ fn component_body(request: &str) -> Result<String, String> {
     // Synthetic provider bodies test transport and association, not source truth.
     if request.starts_with("GET /v1/metadata") {
         return Ok(json!({"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{
-            "cosmic":{"version":"synthetic-68","license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
+            "cosmic":{"version":"synthetic-68",
+"license_url":"https://example.org/component-terms",
+"upload_date":"2019-01-01T00:00:00Z",
+"note":"synthetic historical snapshot"},
+
             "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
             "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms","upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}}
         }}).to_string());
@@ -332,7 +363,17 @@ fn component_body(request: &str) -> Result<String, String> {
         }).to_string());
     }
     if request.contains("fields=_id%2Ccosmic") {
-        return Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,"end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}).to_string());
+        return Ok(json!({"_id":"chr7:g.140453136A>T",
+"cosmic":{"cosmic_id":"COSM999999",
+"ref":"T",
+"alt":"A",
+"chrom":"7",
+"hg19":{"start":140453136,
+"end":140453136},
+"mut_nt":"T>A",
+"mut_freq":0,
+"tumor_site":"synthetic_site"}})
+        .to_string());
     }
     myvariant_body37(request)
 }
@@ -430,7 +471,12 @@ fn component_page_body(request: &str) -> Result<String, String> {
         return component_body(request);
     }
     // Explicit synthetic rows keep source order and use no captured source content.
-    Ok(json!({"_id":"chr7:g.140453136A>T","cosmic":[{"cosmic_id":"COSM999991"},{"cosmic_id":"COSM999992"},{"cosmic_id":"COSM999993"},{"cosmic_id":"COSM999994"}]}).to_string())
+    Ok(json!({"_id":"chr7:g.140453136A>T",
+"cosmic":[{"cosmic_id":"COSM999991"},
+{"cosmic_id":"COSM999992"},
+{"cosmic_id":"COSM999993"},
+{"cosmic_id":"COSM999994"}]})
+    .to_string())
 }
 
 fn component_groups() -> Result<(), String> {
@@ -533,7 +579,12 @@ fn configured_component_groups(
     stub: &Stub,
     base: &[&str],
 ) -> Result<(), String> {
-    environment.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":environment.root().join("synthetic-ca.pem"),"disable_sources":["noncommercial"]})).map_err(|e|e.to_string())?;
+    environment
+        .config(&json!({"proxy":format!("http://{}",
+stub.address),
+"ca_bundle":environment.root().join("synthetic-ca.pem"),
+"disable_sources":["noncommercial"]}))
+        .map_err(|e| e.to_string())?;
     for extra in [
         Vec::<String>::new(),
         vec!["--disable-sources".into(), "restricted".into()],

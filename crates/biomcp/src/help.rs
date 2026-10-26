@@ -59,7 +59,14 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     extra_commands(&mut commands, &examples);
     Ok(commands)
 }
-const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.";
+const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. \
+    Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are \
+    unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with \
+    --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set \
+    semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use \
+    semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source \
+    semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l \
+    and Semantic Scholar details/--full.";
 const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.";
 
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
@@ -78,7 +85,8 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
     for (command, description) in [
         (
             vec!["store", "clean"],
-            "Remove expired replies, pools and snapshots and older incompatible cache files. Return removal counts in one bounded reply. Fresh state and bundles remain.",
+            "Remove expired replies, pools and snapshots and older incompatible cache files. Return removal \
+                counts in one bounded reply. Fresh state and bundles remain.",
         ),
         (
             vec!["health"],
@@ -110,7 +118,9 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         ),
         (
             vec!["serve"],
-            "Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.",
+            "Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or \
+                http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. \
+                Stdio saves refuse --replace.",
         ),
     ] {
         commands.push(HelpCommand {
@@ -141,9 +151,11 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
         commands.push(HelpCommand {
             command: vec!["sync".into(), bundle.into()],
             description: if bundle == "wikipathways" {
-                "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated."
+                "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a \
+                    source and release; it implies no therapy, response or actionability. No enrichment is calculated."
             } else {
-                "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle."
+                "Replace the complete validated local bundle atomically. Reads use stored data and never \
+                    synchronize. Failed replacement preserves the last usable bundle."
             }.into(),
             arguments: Vec::new(),
             sections: Vec::new(),
@@ -287,12 +299,15 @@ fn tree_intro() -> Vec<String> {
     vec![
         "help CMD;schema ID".into(),
         CELL_LINE_BOUNDARY.into(),
-        "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid (ORCID_ACCESS_TOKEN)".into(),
+        "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources \
+            noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid \
+            (ORCID_ACCESS_TOKEN)".into(),
         "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
         "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
         "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
         "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
-        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
+        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic \
+            interpretation; --p-value requires default p-value-ascending".into(),
     ]
 }
 
@@ -476,10 +491,13 @@ fn section_words(schema: &Value) -> Vec<HelpWord> {
 fn network(setting: &str) -> Help {
     let description = match setting {
         "ca_bundle" => {
-            "Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. Keep certificate verification enabled."
+            "Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. \
+        Keep certificate verification enabled."
         }
         _ => {
-            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional ports, or *. An explicit proxy overrides proxy environment settings."
+            "Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY \
+                select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional \
+                ports, or *. An explicit proxy overrides proxy environment settings."
         }
     };
     Help {

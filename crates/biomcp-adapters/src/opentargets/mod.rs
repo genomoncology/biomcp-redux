@@ -21,7 +21,9 @@ use biomcp_fetch::{BadReply, Freshness, Leg, RequestError};
 pub use raw::{Disease, Drug, Hit, Indication, Mechanism, Rows, Search, Target};
 use serde::Serialize;
 const GRAPHQL: biomcp_fetch::Endpoint = SPEC.post_json("/graphql").fresh(Freshness::Days(1));
-const DETAIL: &str = "query Drug($id:String!){drug(chemblId:$id){id name indications{rows{maxClinicalStage disease{id name}}} mechanismsOfAction{rows{mechanismOfAction actionType targets{id approvedSymbol approvedName}}}}}";
+const DETAIL: &str = "query Drug($id:String!){drug(chemblId:$id){id name indications{rows{maxClinicalStage disease{id \
+    name}}} mechanismsOfAction{rows{mechanismOfAction actionType targets{id approvedSymbol \
+    approvedName}}}}}";
 #[derive(Serialize)]
 struct Query<'a, T> {
     query: &'a str,
@@ -106,6 +108,8 @@ pub use map::{indications as map_indications, targets as map_targets};
 
 fn search_query(index: u32, size: u32) -> String {
     format!(
-        "query DrugSearch($q:String!){{search(queryString:$q,entityNames:[\"drug\"],page:{{index:{index},size:{size}}}){{total hits{{id name entity}}}}}}"
+        "query \
+        DrugSearch($q:String!){{search(queryString:$q,entityNames:[\"drug\"],page:{{index:{index},size:{size\
+        }}}){{total hits{{id name entity}}}}}}"
     )
 }

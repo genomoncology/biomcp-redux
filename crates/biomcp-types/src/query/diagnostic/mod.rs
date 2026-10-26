@@ -6,11 +6,16 @@ pub use get::DiagnosticGet;
 
 biodata::wire_enum! {
     /// One explicit diagnostic discovery source.
-    DiagnosticSearchSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native FdaCdx spelling."] FdaCdx => "fda-cdx", #[doc = "Stored WHO product headers."] WhoIvd => "who-ivd" }
+    DiagnosticSearchSource { #[doc = "Native Gtr spelling."] Gtr => "gtr",
+ #[doc = "Native FdaCdx spelling."] FdaCdx => "fda-cdx",
+ #[doc = "Stored WHO product headers."] WhoIvd => "who-ivd" }
 }
 biodata::wire_enum! {
     /// One explicit exact diagnostic record source.
-    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr", #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd", #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma", #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
+    DiagnosticGetSource { #[doc = "Native Gtr spelling."] Gtr => "gtr",
+ #[doc = "Native WhoIvd spelling."] WhoIvd => "who-ivd",
+ #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma",
+ #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k" }
 }
 biodata::wire_enum! {
     described

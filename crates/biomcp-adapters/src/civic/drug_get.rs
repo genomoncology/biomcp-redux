@@ -9,7 +9,8 @@ use biomcp_types::{
 };
 use serde::Serialize;
 
-const MEMBERS: &str = "molecularProfile{id name link isComplex variants{id name link feature{name} ... on GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}";
+const MEMBERS: &str = "molecularProfile{id name link isComplex variants{id name link feature{name} ... on \
+    GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}";
 const COMMON: &str =
     "id status significance disease{name doid} therapies{id name} therapyInteractionType";
 #[derive(Serialize)]
@@ -50,7 +51,8 @@ fn fetch(
             ),
         };
         format!(
-            "{name}(therapyId:$id{profile},status:ACCEPTED,first:{count},after:$after){{totalCount pageInfo{{hasNextPage endCursor}} nodes{{{COMMON} {fields} {MEMBERS}}}}}"
+            "{name}(therapyId:$id{profile},status:ACCEPTED,first:{count},after:$after){{totalCount \
+                pageInfo{{hasNextPage endCursor}} nodes{{{COMMON} {fields} {MEMBERS}}}}}"
         )
     };
     let fields = kind.map_or_else(

@@ -84,7 +84,29 @@ fn selectors_and_sections_reject_invalid_requests_before_io()
 #[test]
 fn one_association_record_preserves_arrays_unknown_frequency_and_effects()
 -> Result<(), Box<dyn std::error::Error>> {
-    let value = json!({"id":6110,"study":"GCST000035","traits":["Whole synthetic trait","Second trait"],"ontology_traits":[{"id":"MONDO_0004989","label":"Native label"}],"alleles":[{"rs_id":"rs2981582","allele":"A"},{"rs_id":"rs1","allele":"T"}],"p_value":0.0,"exact_p_value":{"mantissa":"2","exponent":-28539},"odds_ratio":1.26,"beta":"source beta text","risk_frequency":"NR","publication":"17529967","author":"Native author","mapped_genes":["FGFR2","intergenic"],"locations":["10:123"],"ci_lower":1.1,"ci_upper":1.4});
+    let value = json!({"id":6110,
+"study":"GCST000035",
+"traits":["Whole synthetic trait",
+"Second trait"],
+"ontology_traits":[{"id":"MONDO_0004989",
+"label":"Native label"}],
+"alleles":[{"rs_id":"rs2981582",
+"allele":"A"},
+{"rs_id":"rs1",
+"allele":"T"}],
+"p_value":0.0,
+"exact_p_value":{"mantissa":"2",
+"exponent":-28539},
+"odds_ratio":1.26,
+"beta":"source beta text",
+"risk_frequency":"NR",
+"publication":"17529967",
+"author":"Native author",
+"mapped_genes":["FGFR2",
+"intergenic"],
+"locations":["10:123"],
+"ci_lower":1.1,
+"ci_upper":1.4});
     let row: biomcp_types::GwasAssociation = serde_json::from_value(value.clone())?;
     assert_eq!(serde_json::to_value(&row)?, value);
     let card: biomcp_types::GwasAssociationCard =
@@ -156,15 +178,36 @@ fn native_relation_scopes_have_valid_consumer_envelopes() -> Result<(), Box<dyn 
     )?;
     envelope::<GwasLoci>(
         association,
-        json!({"association":"association:6110","items":[{"description":"Native description","strongest_risk_alleles":["rs2981582-A"],"author_reported_genes":[{"name":"FGFR2","ensembl_ids":["ENSG00000066468"],"entrez_ids":["2263"]}]}]}),
+        json!({"association":"association:6110",
+"items":[{"description":"Native description",
+"strongest_risk_alleles":["rs2981582-A"],
+"author_reported_genes":[{"name":"FGFR2",
+"ensembl_ids":["ENSG00000066468"],
+"entrez_ids":["2263"]}]}]}),
     )?;
     envelope::<GwasStudy>(
         study.clone(),
-        json!({"id":"GCST000035","reported_traits":["Synthetic source label"],"ontology_traits":[],"initial_sample_description":"Discovery prose","replication_sample_description":"Replication prose","discovery_ancestries":["Source discovery count"],"replication_ancestries":["Independent replication count"],"genotyping_technologies":[],"summary_statistics_available":false}),
+        json!({"id":"GCST000035",
+"reported_traits":["Synthetic source label"],
+"ontology_traits":[],
+"initial_sample_description":"Discovery prose",
+"replication_sample_description":"Replication prose",
+"discovery_ancestries":["Source discovery count"],
+"replication_ancestries":["Independent replication count"],
+"genotyping_technologies":[],
+"summary_statistics_available":false}),
     )?;
     envelope::<GwasAncestries>(
         study,
-        json!({"study":"GCST000035","items":[{"stage":"replication","number_of_individuals":13475,"ancestry_groups":["Native label"],"country_of_origin":[{"country":"NR"}],"country_of_recruitment":[{"country":"Source country","major_area":"Native area","region":"Native region"}],"source_url":"https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST000035/ancestries"}]}),
+        json!({"study":"GCST000035",
+"items":[{"stage":"replication",
+"number_of_individuals":13475,
+"ancestry_groups":["Native label"],
+"country_of_origin":[{"country":"NR"}],
+"country_of_recruitment":[{"country":"Source country",
+"major_area":"Native area",
+"region":"Native region"}],
+"source_url":"https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST000035/ancestries"}]}),
     )?;
     Ok(())
 }

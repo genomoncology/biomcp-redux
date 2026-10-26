@@ -129,7 +129,9 @@ fn markup() -> Check {
         &["get", "article", "28944238", "fulltext"],
         json!({"/result/items/0/sections/fulltext/reason": "bad_reply"}),
     )?;
-    let body = "<sec><title>Results</title><p><xref ref-type=\"table\" rid=\"T2 T1\">2, 1</xref></p><table-wrap id=\"T1\"><label>Table 1</label></table-wrap><table-wrap id=\"T2\"><label>Table 2</label></table-wrap></sec>";
+    let body = "<sec><title>Results</title><p><xref ref-type=\"table\" rid=\"T2 T1\">2, 1</xref></p><table-wrap \
+        id=\"T1\"><label>Table 1</label></table-wrap><table-wrap id=\"T2\"><label>Table \
+        2</label></table-wrap></sec>";
     run(
         "",
         body,
@@ -137,7 +139,11 @@ fn markup() -> Check {
         &["get", "article", "28944238", "fulltext"],
         json!({"/result/items/0/sections/fulltext/data/parts/*/title": ["Results", "Table 2", "Table 1"]}),
     )?;
-    let body = "<sec><title>Results</title><sec><title>First</title><p>A &amp; B &#945; <![CDATA[<sample>]]> <xref ref-type=\"table\" rid=\"T1\">1</xref>.</p></sec><sec><title>Second</title><p>Again <xref ref-type=\"table-wrap\" rid=\"T1\">1</xref>.</p></sec><table-wrap id=\"T1\"><label>Table 1</label><caption><p>Invented caption.</p></caption><table><tr><th colspan=\"2\">Header</th></tr><tr><td>Left</td><td/></tr></table></table-wrap></sec>";
+    let body = "<sec><title>Results</title><sec><title>First</title><p>A &amp; B &#945; <![CDATA[<sample>]]> <xref \
+        ref-type=\"table\" rid=\"T1\">1</xref>.</p></sec><sec><title>Second</title><p>Again <xref \
+        ref-type=\"table-wrap\" rid=\"T1\">1</xref>.</p></sec><table-wrap id=\"T1\"><label>Table \
+        1</label><caption><p>Invented caption.</p></caption><table><tr><th \
+        colspan=\"2\">Header</th></tr><tr><td>Left</td><td/></tr></table></table-wrap></sec>";
     run(
         "",
         body,

@@ -167,7 +167,12 @@ fn compatibility_preserves_consumed_boolean_and_array_bounds() {
 
 #[test]
 fn selector_unions_accept_only_required_lists_and_detect_narrowing() {
-    let base = json!({"$id":"biodata.example/1","type":"object", "properties":{"query":{"type":"string"},"band":{"type":"string"}}, "anyOf":[{"required":["query"]},{"required":["band"]}]});
+    let base = json!({"$id":"biodata.example/1",
+"type":"object",
+ "properties":{"query":{"type":"string"},
+"band":{"type":"string"}},
+ "anyOf":[{"required":["query"]},
+{"required":["band"]}]});
     assert!(check(&base, &base).is_ok());
     let mut narrow = base.clone();
     narrow["anyOf"] = json!([{"required":["query"]}]);
@@ -254,7 +259,17 @@ fn compatibility_checks_unique_array_items_without_waiving_versions() {
 
 #[test]
 fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_elements() {
-    let old = json!({"$id":"biodata.example/1","type":"object","properties":{"genes":{"type":"object","propertyNames":{"type":"string","pattern":"^[A-Z]+$"},"additionalProperties":{"type":"string"}},"position":{"type":"integer","format":"int64","minimum":-1},"empty":{"type":"array","items":false}}});
+    let old = json!({"$id":"biodata.example/1",
+"type":"object",
+"properties":{"genes":{"type":"object",
+"propertyNames":{"type":"string",
+"pattern":"^[A-Z]+$"},
+"additionalProperties":{"type":"string"}},
+"position":{"type":"integer",
+"format":"int64",
+"minimum":-1},
+"empty":{"type":"array",
+"items":false}}});
     assert!(super::compatibility::check(&old, &old).is_ok());
     for changed in [
         json!({"type":"integer"}),

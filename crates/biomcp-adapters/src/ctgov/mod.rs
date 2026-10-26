@@ -131,7 +131,10 @@ fn advanced(query: &TrialSearch) -> String {
         advanced.push(format!("AREA[StudyType]{}", study_type.as_str()));
     }
     if let Some(age) = query.age() {
-        advanced.push(format!("(AREA[MinimumAge]RANGE[MIN,{age} years] OR AREA[MinimumAge]MISSING) AND (AREA[MaximumAge]RANGE[{age} years,MAX] OR AREA[MaximumAge]MISSING)"));
+        advanced.push(format!(
+            "(AREA[MinimumAge]RANGE[MIN,{age} years] OR AREA[MinimumAge]MISSING) AND \
+            (AREA[MaximumAge]RANGE[{age} years,MAX] OR AREA[MaximumAge]MISSING)"
+        ));
     }
     if query.updated_since().is_some() || query.updated_until().is_some() {
         advanced.push(format!(

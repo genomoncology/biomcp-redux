@@ -103,7 +103,15 @@ fn walk() -> Result<(), String> {
     Ok(())
 }
 fn normalized(_: &str) -> Result<String, String> {
-    Ok(json!({"input_description":"NM_004333.4:c.1799T>A","normalized_description":"NM_004333.4:c.1799T>A","corrected_description":"NM_004333.4:c.1799T>A","protein":{"description":"NP_004324.2:p.(Val600Glu)"},"rna":{"description":"NM_004333.4:r.(1799u>a)"},"equivalent_descriptions":{"g":[{"description":"NC_000007.14:g.140753336A>T"}]},"infos":[{"code":"ISOURCE","details":"  native whitespace  "}]}).to_string())
+    Ok(json!({"input_description":"NM_004333.4:c.1799T>A",
+"normalized_description":"NM_004333.4:c.1799T>A",
+"corrected_description":"NM_004333.4:c.1799T>A",
+"protein":{"description":"NP_004324.2:p.(Val600Glu)"},
+"rna":{"description":"NM_004333.4:r.(1799u>a)"},
+"equivalent_descriptions":{"g":[{"description":"NC_000007.14:g.140753336A>T"}]},
+"infos":[{"code":"ISOURCE",
+"details":"  native whitespace  "}]})
+    .to_string())
 }
 fn warning() -> Result<(), String> {
     let stub = Stub::for_source("rest.variantvalidator.org", "application/json", rejected)?;
@@ -139,7 +147,12 @@ fn warning() -> Result<(), String> {
 }
 
 fn rejected(_: &str) -> Result<String, String> {
-    Ok(json!({"flag":"warning","metadata":{"variantvalidator_version":"synthetic-version"},"validation_warning_1":{"submitted_variant":"LRG_321p1:p.Arg273His","hgvs_transcript_variant":"","validation_warnings":["  provider warning  "]}}).to_string())
+    Ok(json!({"flag":"warning",
+"metadata":{"variantvalidator_version":"synthetic-version"},
+"validation_warning_1":{"submitted_variant":"LRG_321p1:p.Arg273His",
+"hgvs_transcript_variant":"",
+"validation_warnings":["  provider warning  "]}})
+    .to_string())
 }
 fn independent() -> Result<(), String> {
     let stub = Stub::for_source("mutalyzer.nl", "application/json", normalized)?;
@@ -201,7 +214,13 @@ fn nested() -> Result<(), String> {
     Ok(())
 }
 fn nested_body(_: &str) -> Result<String, String> {
-    Ok(json!({"custom":{"input_description":"NC_000017.10:g.7576633A>G","errors":[{"code":"ESEQUENCEMISMATCH","details":"source reference mismatch"}]},"message":"Errors encountered."}).to_string())
+    Ok(
+        json!({"custom":{"input_description":"NC_000017.10:g.7576633A>G",
+"errors":[{"code":"ESEQUENCEMISMATCH",
+"details":"source reference mismatch"}]},
+"message":"Errors encountered."})
+        .to_string(),
+    )
 }
 
 fn transcripts() -> Result<(), String> {
@@ -236,5 +255,7 @@ fn transcripts() -> Result<(), String> {
     Ok(())
 }
 fn transcripts_body(_: &str) -> Result<String, String> {
-    Ok(r#"{"flag":"gene_variant","metadata":{"variantvalidator_version":"synthetic"},"z":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.2A>T"},"a":{"submitted_variant":"NM_004333.4:c.1799T>A","hgvs_transcript_variant":"NM_004333.4:c.1A>T"}}"#.into())
+    Ok("{\"flag\":\"gene_variant\",\"metadata\":{\"variantvalidator_version\":\"synthetic\"},\"z\":{\"submit\
+        ted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.2A>T\"},\"a\":{\
+        \"submitted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.1A>T\"}}".into())
 }

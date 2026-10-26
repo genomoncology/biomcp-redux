@@ -12,13 +12,25 @@ pub(super) fn search() -> Value {
     json!({"results":[{"entries":[{"stId":ID,"name":"Synthetic pathway","species":["Homo sapiens"],"exactType":"Pathway"}]}],"rowCount":1,"numberOfMatches":1})
 }
 pub(super) fn body(request: &str) -> Result<String, String> {
-    Ok(if request.contains("/json/") { catalog(request.contains("findPathwaysByText")) }
-    else if request.contains("/search/query?") { search() }
-    else if request.contains("/database/version") { json!(97) }
-    else if request.contains("/participants/") { json!([]) }
-    else if request.contains("/containedEvents") { json!([123]) }
-    else if request.contains("/mapping/UniProt/") { json!([{"stId":ID,"displayName":"Synthetic pathway","speciesName":"Homo sapiens","schemaClass":"Pathway"}]) }
-    else { card() }.to_string())
+    Ok(if request.contains("/json/") {
+        catalog(request.contains("findPathwaysByText"))
+    } else if request.contains("/search/query?") {
+        search()
+    } else if request.contains("/database/version") {
+        json!(97)
+    } else if request.contains("/participants/") {
+        json!([])
+    } else if request.contains("/containedEvents") {
+        json!([123])
+    } else if request.contains("/mapping/UniProt/") {
+        json!([{"stId":ID,
+"displayName":"Synthetic pathway",
+"speciesName":"Homo sapiens",
+"schemaClass":"Pathway"}])
+    } else {
+        card()
+    }
+    .to_string())
 }
 pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
     let stub = crate::runner::network_stub::Stub::for_sources(
@@ -91,7 +103,12 @@ pub(super) fn replace_source(
             .and_then(Value::as_str)
             .is_some_and(|v| v.contains(route))
         {
-            let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
+            let exchange = json!({"status":status,
+"content_type":"application/json",
+"delay_ms":delay,
+"retry_after_ms":null,
+"body":{"kind":"text",
+"value":body}});
             *wire.get_mut("exchanges").ok_or("exchanges")? =
                 json!(vec![
                     exchange;
@@ -105,7 +122,14 @@ pub(super) fn replace_source(
 }
 
 pub(super) fn catalog(search: bool) -> Value {
-    let mut row = json!({"id":"WP382","url":"https://www.wikipathways.org/instance/WP382","name":"Synthetic pathway","species":"Homo sapiens","revision":"2025-05-22","authors":"Synthetic Author","description":"Synthetic description","citedIn":""});
+    let mut row = json!({"id":"WP382",
+"url":"https://www.wikipathways.org/instance/WP382",
+"name":"Synthetic pathway",
+"species":"Homo sapiens",
+"revision":"2025-05-22",
+"authors":"Synthetic Author",
+"description":"Synthetic description",
+"citedIn":""});
     if search && let Some(fields) = row.as_object_mut() {
         fields.insert("datanodes".into(), json!(""));
         fields.insert("annotations".into(), json!(""));

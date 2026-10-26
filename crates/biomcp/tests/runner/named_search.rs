@@ -42,7 +42,11 @@ fn failures() -> Check {
                 "--source",
                 &format!("pubmed,{source}"),
             ];
-            let expect = json!({"/status":"partial","/sources/1/source":source,"/sources/1/reason":reason,"/result/items":{"count":10},"/next/*/kind":{"includes":"fresh"}});
+            let expect = json!({"/status":"partial",
+"/sources/1/source":source,
+"/sources/1/reason":reason,
+"/result/items":{"count":10},
+"/next/*/kind":{"includes":"fresh"}});
             checked_steps(
                 capture,
                 |name, record| {
@@ -330,7 +334,11 @@ fn merged_sentence() -> Check {
                 ids.pop();
             }
         },
-        json!({"/status":"complete","/result/items/0/pmid":"34718584","/result/items/0/sentence/section":"METHODS","/result/items/0/found_by/pubmed":1,"/result/items/0/found_by/litsense":1}),
+        json!({"/status":"complete",
+"/result/items/0/pmid":"34718584",
+"/result/items/0/sentence/section":"METHODS",
+"/result/items/0/found_by/pubmed":1,
+"/result/items/0/found_by/litsense":1}),
         0,
     )?;
     Ok(())

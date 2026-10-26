@@ -475,7 +475,13 @@ fn population_strata_enforce_counts_and_frequencies() -> Check {
 
 #[test]
 fn source_predictor_contract_keeps_zero_and_native_labels() {
-    let source = json!({"subject":{"level":"allele","hgvs":"NC_000007.13:g.140453136A>T"},"method":"cadd.sift.val","score":0.0,"label":"deleterious","attribution":{"source":"myvariant","record":"chr7:g.140453136A>T"}});
+    let source = json!({"subject":{"level":"allele",
+"hgvs":"NC_000007.13:g.140453136A>T"},
+"method":"cadd.sift.val",
+"score":0.0,
+"label":"deleterious",
+"attribution":{"source":"myvariant",
+"record":"chr7:g.140453136A>T"}});
     let score: PredictorScore = serde_json::from_value(source.clone()).expect("valid source score");
     assert_eq!(serde_json::to_value(score).expect("serialize"), source);
     assert!(serde_json::from_value::<PredictorScore>(json!({"score":null})).is_err());

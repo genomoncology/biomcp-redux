@@ -13,11 +13,13 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp-types/tests/cell_line_contracts.rs",
-        "Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise checked cell identities, native variation members and provenance, and standalone consumer \
+            contracts through the public library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/gwas_contracts.rs",
-        "Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public \
+        library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/phenotype_contracts.rs",
@@ -33,11 +35,13 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp-types/tests/study_contracts.rs",
-        "Exercise exact study identities, neutral source metadata and bounded standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise exact study identities, neutral source metadata and bounded standalone consumer contracts \
+            through the public library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/diagnostic_contracts.rs",
-        "Exercise neutral diagnostic records, native identities and checked standalone consumer contracts through the public library API before adapters exist.",
+        "Exercise neutral diagnostic records, native identities and checked standalone consumer contracts \
+            through the public library API before adapters exist.",
     ),
     (
         "crates/biomcp-types/tests/variant_values.rs",

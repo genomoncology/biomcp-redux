@@ -112,7 +112,8 @@ fn constraint() -> Check {
                             json!("NM_004333.4")
                     }
                     _ => {
-                        *body = json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null},\"errors\":[{\"message\":\"Gene not found\"},{\"message\":\"Gene not found\"}]}"})
+                        *body = json!({"kind":"text", "value":"{\"data\":{\"g0\":null,\"g0\":null},\"errors\":[{\"message\":\"Gene not \
+                            found\"},{\"message\":\"Gene not found\"}]}"})
                     }
                 }
             },

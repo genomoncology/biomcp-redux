@@ -315,12 +315,14 @@ fn bundle_source_and_storage_boundaries_are_checked_before_requests() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("cache.sqlite");
     let f = cached(&path);
-    assert!(
-        matches!(f.leg(foreign.spec,f.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Rejected)
-    );
-    assert!(
-        matches!(f.leg(b.spec,f.deadline(Duration::ZERO)).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::DeadlineExceeded)
-    );
+    assert!(matches!(f.leg(foreign.spec,
+f.deadline(Duration::from_secs(1))).rows(&b,
+Find::Words("x")),
+Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Rejected));
+    assert!(matches!(f.leg(b.spec,
+f.deadline(Duration::ZERO)).rows(&b,
+Find::Words("x")),
+Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::DeadlineExceeded));
     let uncached = Fetch::open(FetchConfig::default()).unwrap();
     assert!(matches!(
         uncached.sync(&b),
@@ -334,9 +336,10 @@ fn bundle_source_and_storage_boundaries_are_checked_before_requests() {
     assert!(
         matches!(offline.sync(&b),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Offline)
     );
-    assert!(
-        matches!(offline.leg(b.spec,offline.deadline(Duration::from_secs(1))).rows(&b,Find::Words("x")),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Offline)
-    );
+    assert!(matches!(offline.leg(b.spec,
+offline.deadline(Duration::from_secs(1))).rows(&b,
+Find::Words("x")),
+Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Offline));
     assert!(server.requests.try_recv().is_err());
 }
 #[test]

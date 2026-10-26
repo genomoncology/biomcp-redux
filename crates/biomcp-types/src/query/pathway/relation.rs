@@ -81,13 +81,17 @@ macro_rules! relation {
     };
 }
 relation!(PathwayGenesQuery, GeneFields, "GeneFields", valid_genes,
-    "Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.", details: None);
+    "Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses \
+        complete Reactome physical contexts. Membership names a source and release; it implies no therapy, \
+        response or actionability. No enrichment is calculated.", details: None);
 relation!(
     PathwayEventsQuery,
     EventFields,
     "EventFields",
     valid_events,
-    "Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated."
+    "Read Reactome event objects and unresolved native integer references in source order. Membership \
+        names a source and release; it implies no therapy, response or actionability. No enrichment is \
+        calculated."
 );
 impl PathwayGenesQuery {
     /// Request all physical contexts where the native source provides them.

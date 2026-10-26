@@ -72,7 +72,29 @@ fn call(env: &Environment, extra: &[&str]) -> Result<Value, String> {
         .map_err(|e| format!("{e}: {}", String::from_utf8_lossy(&output.stdout)))
 }
 fn body(caid: &str) -> String {
-    json!({"status":{"code":200,"name":"OK"},"data":[{"caId":caid,"PCERDocID":"PCER000001171","docVersion":"1.1.0","classification":"Pathogenic","condition":"Li-Fraumeni syndrome","mondoId":"MONDO:0018875","ep":"TP53 VCEP","gene":"TP53","metCodes":["PP4_Moderate","PM2_Supporting","PS2","PS3","PS4","PM1","PP3"],"unMetCodes":["BS1"],"publishedDate":"2024-08-05","approvedDate":"2024-08-05","versionsList":["1.1.0","1.0.0"],"summaryDesc":"Synthetic public-fixture payload; structured PS4 and source prose PS4_Very Strong remain separate."}]}).to_string()
+    json!({"status":{"code":200,
+"name":"OK"},
+"data":[{"caId":caid,
+"PCERDocID":"PCER000001171",
+"docVersion":"1.1.0",
+"classification":"Pathogenic",
+"condition":"Li-Fraumeni syndrome",
+"mondoId":"MONDO:0018875",
+"ep":"TP53 VCEP",
+"gene":"TP53",
+"metCodes":["PP4_Moderate",
+"PM2_Supporting",
+"PS2",
+"PS3",
+"PS4",
+"PM1",
+"PP3"],
+"unMetCodes":["BS1"],
+"publishedDate":"2024-08-05",
+"approvedDate":"2024-08-05",
+"versionsList":["1.1.0",
+"1.0.0"],
+"summaryDesc":"Synthetic public-fixture payload; structured PS4 and source prose PS4_Very Strong remain separate."}]}).to_string()
 }
 fn erepo_absence() -> Result<(), String> {
     let mut body_count = 0;
@@ -381,15 +403,24 @@ fn history_stub(mode: u8) -> Result<Stub, String> {
             return Err(format!("unexpected historical source request: {request}"));
         }
             Ok(json!({"data":{
-            "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190",
-            "id":"CG-PCER-VARINT:synthetic-history",
-            "type":"VariantPathogenicityInterpretation",
-            "metadata":{"version":if mode == 1 {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
-            "variant":{"id":"CAR:CA000434"},
-            "condition":{"label":"Synthetic historical condition"},
-            "statementOutcome":{"label":"Pathogenic","id":"LN:LA6668-3"},
-            "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment","criterion":{"label":if mode == 2 {""} else {"PM2"},"id":"0030","@id":"https://obofoundry.org/sepio/clingen/0030","defaultStrength":{"label":"Pathogenic Supporting","id":"SEPIO:0000329","@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},"statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}]
-        }}).to_string())
+                "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190",
+                "id":"CG-PCER-VARINT:synthetic-history",
+                "type":"VariantPathogenicityInterpretation",
+                "metadata":{"version":if mode == 1 {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
+                "variant":{"id":"CAR:CA000434"},
+                "condition":{"label":"Synthetic historical condition"},
+                "statementOutcome":{"label":"Pathogenic","id":"LN:LA6668-3"},
+                "evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment",
+            "criterion":{"label":if mode == 2 {""} else {"PM2"},
+            "id":"0030",
+            "@id":"https://obofoundry.org/sepio/clingen/0030",
+            "defaultStrength":{"label":"Pathogenic Supporting",
+            "id":"SEPIO:0000329",
+            "@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},
+            "statementOutcome":{"label":"Met",
+            "@id":"SEPIO:0000224"}}]}]
+            }})
+            .to_string())
         },
         |_| 200,
     )
@@ -398,7 +429,12 @@ fn history_stub(mode: u8) -> Result<Stub, String> {
 fn native_walk_body(request: &str) -> Result<String, String> {
     let xml = super::variant_assertion_wire::clinvar_body(request)?;
     // Explicit synthetic XML retains the public record's native not-provided classification.
-    Ok(xml.replace("</ClinicalAssertionList>",r#"<ClinicalAssertion><ClinVarAccession Accession="SCV000601142" Version="6"/><Classification><GermlineClassification>pathogenic</GermlineClassification></Classification></ClinicalAssertion><ClinicalAssertion><ClinVarAccession Accession="SCV000607207" Version="3" SubmitterName="GenomeConnect, ClinGen"/><Classification><ReviewStatus>no classification provided</ReviewStatus><GermlineClassification>not provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>"#))
+    Ok(xml.replace("</ClinicalAssertionList>","<ClinicalAssertion><ClinVarAccession Accession=\"SCV000601142\" \
+        Version=\"6\"/><Classification><GermlineClassification>pathogenic</GermlineClassification></Classifi\
+        cation></ClinicalAssertion><ClinicalAssertion><ClinVarAccession Accession=\"SCV000607207\" \
+        Version=\"3\" SubmitterName=\"GenomeConnect, ClinGen\"/><Classification><ReviewStatus>no \
+        classification provided</ReviewStatus><GermlineClassification>not \
+        provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>"))
 }
 
 fn native_row(value: &Value, offset: u32) -> Result<Value, String> {

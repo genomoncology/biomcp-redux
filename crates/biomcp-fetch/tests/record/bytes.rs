@@ -26,7 +26,8 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     thread::scope(|scope| {
         let worker = scope.spawn(|| [bytes(&capture, spec), bytes(&capture, spec)]);
         for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
-            let mut response=format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",payload.len()).into_bytes();
+            let mut response=format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: \
+                close\r\n\r\n",payload.len()).into_bytes();
             response.extend_from_slice(payload);
             server.next().bytes(response);
         }
@@ -71,9 +72,11 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     assert!(
         matches!(bytes(&disabled, spec), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
     );
-    assert!(
-        matches!(disabled.leg(spec, disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20), &[], |_| Err(biomcp_types::Reason::BadReply)), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled)
-    );
+    assert!(matches!(disabled.leg(spec,
+ disabled.deadline(Duration::from_secs(10))).bytes_checked(&spec.get("/bytes").bytes(20),
+ &[],
+ |_| Err(biomcp_types::Reason::BadReply)),
+ Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::Disabled));
     std::fs::write(&path, &original).unwrap();
     let sidecar = path.parent().unwrap().join(name);
     std::fs::remove_file(&sidecar).unwrap();

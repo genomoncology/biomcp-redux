@@ -130,7 +130,11 @@ fn copy(
                         exchange.insert("delay_ms".into(), json!(120001));
                     }
                     _ => {
-                        exchange.insert("body".into(), json!({"kind":"text","value":if fault == "broken" { "{" } else { r#"{"error":"synthetic source error"}"# }}));
+                        exchange.insert(
+                            "body".into(),
+                            json!({"kind":"text",
+"value":if fault == "broken" { "{" } else { "{\"error\":\"synthetic source error\"}" }}),
+                        );
                     }
                 }
                 let exchange = Value::Object(exchange.clone());

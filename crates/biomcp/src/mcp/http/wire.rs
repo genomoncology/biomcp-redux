@@ -145,7 +145,8 @@ pub(super) fn write(
         .map(|method| format!("Allow: {method}\r\n"))
         .unwrap_or_default();
     let head = format!(
-        "HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nConnection: close\r\nCache-Control: no-store\r\n{allow}{revision}Content-Length: {}\r\n\r\n",
+        "HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nConnection: \
+            close\r\nCache-Control: no-store\r\n{allow}{revision}Content-Length: {}\r\n\r\n",
         body.len()
     );
     write_part(stream, head.as_bytes(), end)?;

@@ -51,8 +51,13 @@ fn release() -> Result<(), String> {
                 "expected one identity and one population request: {requests:?}"
             ));
         };
-        if !request.contains("va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}") {
-            return Err(format!("same-response versions and count checks not requested: {request}"));
+        if !request.contains(
+            "va{exome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}} \
+            genome{derivedFrom{version} focusAlleleCount locusAlleleCount cohort{id}}}",
+        ) {
+            return Err(format!(
+                "same-response versions and count checks not requested: {request}"
+            ));
         }
         if problem.is_none() {
             let replay = env

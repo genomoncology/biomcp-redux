@@ -34,7 +34,29 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 pub(super) fn row() -> Value {
-    json!({"mdr_report_key":"160","report_number":"Synthetic-160","event_type":"Other","date_of_event":"20240101","date_received":"20240202","report_date":"20240303","date_report":"","number_devices_in_event":"9","number_patients_in_event":"2","device":[{"device_sequence_number":"1","generic_name":"Synthetic device","brand_name":"","manufacturer_d_name":"Synthetic maker","manufacturer_d_address_1":"Excluded"},{"device_sequence_number":"2","model_number":"MODEL2"}],"mdr_text":[{"mdr_text_key":"A","patient_sequence_number":"1","text_type_code":"D","text":"Synthetic complete first narrative."},{"mdr_text_key":"B","text":""},{"mdr_text_key":"C"}]})
+    json!({"mdr_report_key":"160",
+"report_number":"Synthetic-160",
+"event_type":"Other",
+"date_of_event":"20240101",
+"date_received":"20240202",
+"report_date":"20240303",
+"date_report":"",
+"number_devices_in_event":"9",
+"number_patients_in_event":"2",
+"device":[{"device_sequence_number":"1",
+"generic_name":"Synthetic device",
+"brand_name":"",
+"manufacturer_d_name":"Synthetic maker",
+"manufacturer_d_address_1":"Excluded"},
+{"device_sequence_number":"2",
+"model_number":"MODEL2"}],
+"mdr_text":[{"mdr_text_key":"A",
+"patient_sequence_number":"1",
+"text_type_code":"D",
+"text":"Synthetic complete first narrative."},
+{"mdr_text_key":"B",
+"text":""},
+{"mdr_text_key":"C"}]})
 }
 pub(super) fn response(row: Value) -> String {
     json!({"meta":{"last_updated":"2024-09-01","results":{"skip":0,"limit":1,"total":1}},"results":[row]}).to_string()

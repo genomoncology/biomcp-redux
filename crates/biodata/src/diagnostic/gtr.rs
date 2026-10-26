@@ -75,7 +75,9 @@ pub struct GtrTestVersion {
 }
 crate::wire_enum! {
     /// Native GTR relation test category, not an offering or authorization judgment.
-    GtrTestType { #[doc = "Native Clinical spelling."] Clinical => "Clinical", #[doc = "Native Research spelling."] Research => "Research", #[doc = "Native ClinicalMicrobial spelling."] ClinicalMicrobial => "Clinical microbial" }
+    GtrTestType { #[doc = "Native Clinical spelling."] Clinical => "Clinical",
+ #[doc = "Native Research spelling."] Research => "Research",
+ #[doc = "Native ClinicalMicrobial spelling."] ClinicalMicrobial => "Clinical microbial" }
 }
 /// Source-owned native membership or one independent method-list entry.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -96,7 +98,9 @@ pub enum GtrTestRelation {
 }
 crate::wire_enum! {
     /// Independent native GTR method lists.
-    GtrMethodList { #[doc = "Native Categories spelling."] Categories => "method_categories", #[doc = "Native Methods spelling."] Methods => "methods", #[doc = "Native Platforms spelling."] Platforms => "platforms" }
+    GtrMethodList { #[doc = "Native Categories spelling."] Categories => "method_categories",
+ #[doc = "Native Methods spelling."] Methods => "methods",
+ #[doc = "Native Platforms spelling."] Platforms => "platforms" }
 }
 /// Native gene relation; its numeric ID comes only from the gene row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

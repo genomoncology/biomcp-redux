@@ -27,10 +27,27 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
     }
     let body = match name {
         "pairs" => {
-            json!([{"pairid":1,"drugid":"RxNorm:10324","drugname":"Synthetic drug","genesymbol":"DPYD","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"Synthetic level","pgxtesting":null,"pmids":["12345678"],"usedforrecommendation":"No","provisional":false}])
+            json!([{"pairid":1,
+"drugid":"RxNorm:10324",
+"drugname":"Synthetic drug",
+"genesymbol":"DPYD",
+"guidelinename":null,
+"guidelineurl":null,
+"cpiclevel":"B/C",
+"clinpgxlevel":"Synthetic level",
+"pgxtesting":null,
+"pmids":["12345678"],
+"usedforrecommendation":"No",
+"provisional":false}])
         }
         "card" => {
-            json!([{"symbol":"DPYD","hgncid":"HGNC:2865","ncbiid":"1806","ensemblid":"ENSG00000188641","clinpgxid":"PA145","lookupmethod":"SYNTHETIC","version":7}])
+            json!([{"symbol":"DPYD",
+"hgncid":"HGNC:2865",
+"ncbiid":"1806",
+"ensemblid":"ENSG00000188641",
+"clinpgxid":"PA145",
+"lookupmethod":"SYNTHETIC",
+"version":7}])
         }
         "view" | "missing-second-gene" | "table" => {
             args.push("recommendations".into());
@@ -48,7 +65,20 @@ pub(super) fn scenario(name: &str) -> Result<(Vec<String>, Value), String> {
             if name == "empty" {
                 json!([])
             } else {
-                json!([{"genesymbol":"DPYD","diplotype":"*1/*2A","function1":"Synthetic uncertainty","function2":"n/a","activityvalue1":"n/a","activityvalue2":"n/a","totalactivityscore":"n/a","description":"Synthetic unresolved mapping","diplotypekey":{"DPYD":{"*1":1,"*2A":1}},"generesult":"Synthetic result","ehrpriority":"Synthetic priority","consultationtext":"Synthetic source consultation","lookupkey":{"DPYD":"n/a"}}])
+                json!([{"genesymbol":"DPYD",
+"diplotype":"*1/*2A",
+"function1":"Synthetic uncertainty",
+"function2":"n/a",
+"activityvalue1":"n/a",
+"activityvalue2":"n/a",
+"totalactivityscore":"n/a",
+"description":"Synthetic unresolved mapping",
+"diplotypekey":{"DPYD":{"*1":1,
+"*2A":1}},
+"generesult":"Synthetic result",
+"ehrpriority":"Synthetic priority",
+"consultationtext":"Synthetic source consultation",
+"lookupkey":{"DPYD":"n/a"}}])
             }
         }
     };
@@ -71,7 +101,17 @@ fn guideline_rows(name: &str) -> Value {
 }
 
 fn recommendation(name: &str) -> Result<Value, String> {
-    let mut row = json!({"lookupkey":{"DPYD":"n/a","TPMT":"Synthetic other gene"},"implications":{"DPYD":"Synthetic context","TPMT":"Independent synthetic context"},"phenotypes":{"DPYD":"Uncertain synthetic result","TPMT":"Synthetic label"},"activityscore":{},"drugrecommendation":"Synthetic source text without clinical advice.","classification":"Synthetic classification","population":"Synthetic population","comments":"Keep this synthetic qualification."});
+    let mut row = json!({"lookupkey":{"DPYD":"n/a",
+"TPMT":"Synthetic other gene"},
+"implications":{"DPYD":"Synthetic context",
+"TPMT":"Independent synthetic context"},
+"phenotypes":{"DPYD":"Uncertain synthetic result",
+"TPMT":"Synthetic label"},
+"activityscore":{},
+"drugrecommendation":"Synthetic source text without clinical advice.",
+"classification":"Synthetic classification",
+"population":"Synthetic population",
+"comments":"Keep this synthetic qualification."});
     // Q16 authored partial-key control: no unavailable second gene becomes normal.
     if name == "missing-second-gene" {
         for field in ["lookupkey", "implications", "phenotypes"] {

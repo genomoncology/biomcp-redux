@@ -4,7 +4,11 @@ use serde_json::json;
 pub(super) fn run() -> Check {
     let template = Environment::new().map_err(|e| e.to_string())?;
     let root = fixtures::seed(&template)?;
-    let empty = json!({"code":404,"reason":"NOT_FOUND","url":"http://reactome.org/ContentService/search/query","messages":["No entries found for query: Synthetic"],"targets":null});
+    let empty = json!({"code":404,
+"reason":"NOT_FOUND",
+"url":"http://reactome.org/ContentService/search/query",
+"messages":["No entries found for query: Synthetic"],
+"targets":null});
     let mut foreign = empty.clone();
     *foreign.get_mut("messages").ok_or("messages")? = json!(["No entries found for query: Other"]);
     for body in [json!({"message":"Not found"}), foreign] {
