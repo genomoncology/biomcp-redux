@@ -82,6 +82,14 @@ fn execute(
     } else {
         snapshot::save(cx, q, deadline, &saved, old_pool)?
     };
+    present(q, out, saved, pool)
+}
+fn present(
+    q: &AuthorSearch,
+    out: &mut Outcome,
+    saved: snapshot::Saved,
+    pool: crate::store::Pool,
+) -> Result<(), RequestError> {
     let page = saved
         .pages
         .into_iter()
