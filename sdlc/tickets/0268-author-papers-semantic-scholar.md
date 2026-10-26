@@ -1,0 +1,18 @@
+# 0268 — Page Semantic Scholar author papers with the details section
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: 0266
+
+## Outcome
+
+`author papers semantic-scholar:ID` returns that record's papers in native order with native paging, five compact rows by default, each with the native paper ID, an exact PMID or DOI where supplied, the whole title, year and venue, and the native total where the source provides one. `author papers semantic-scholar:ID details` returns the same page with the source abstract, dates, counts, access metadata, fields, publication types and byline, and `--full` keeps working as its alias. A paper row offers an exact article pivot only for a native PMID or DOI, and the page step keeps source, author ID, page size and the details selection.
+
+- Why: Questions A02, A04, A06, A08, A10, A12, A14 and A15 ask what an author record lists and how to follow its papers, and the author rulings keep compact rows with the named `details` section.
+- Starts from: author.md's command shape, delight questions and case list, with the author rulings and the new-sources decision; 0264's papers witnesses; 0265's types; 0266's registration and adapter; the article slice's PMID and DOI types and `get article` pivots.
+- Rules: no paper gains a PMID from a title match, and a paper without one keeps its source paper ID and native DOI. No corpus merge, coauthor aggregation or enrichment call. Abstracts and bylines appear only in `details`. Where an article reply already carries a Semantic Scholar author ID, the byline offers the exact `get author` pivot with no new request. The key rule follows 0266.
+- Proof: outside-in cases first, watched to fail. Cases reuse 0264's captures where the request matches exactly, and one bounded pm job captures once, with zero retries and keys inherited by name only, any exact request a case needs that those archives lack. A02, A06 and A10 assert native papers pages for their records; A04 asserts an exact PMID or DOI pivot; A08 asserts a paper with no PMID keeps its source ID; A12 asserts `details` and `--full` return the same paper IDs and page; A14 asserts the native total and a continuation; A15 asserts the continuation keeps every selector; a page walk asserts no gap or duplicate, and a warm page sends no request. A synthetic reply for a different author asserts the drop and no cache admission. Recorded 429, 500, timeout and broken JSON replies assert a failed outcome with source and terms. The job measures compact and details pages in CLI and MCP output, and each case gets a ceiling at measured size plus 15 percent, recorded in author.md. No publisher abstract text enters the repo unless its license permits it. Then make landing-gate runs through pm job.
+- Defers: retirements and remaining failure cases to 0269.
+- Changes: the Semantic Scholar adapter, the author papers query code, the article byline pivot, cases and author.md.
