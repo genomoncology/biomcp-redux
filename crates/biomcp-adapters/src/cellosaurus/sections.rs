@@ -72,17 +72,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
         .collect();
     let species = row.species_list.clone().unwrap_or_default().into_vec();
     let diseases = row.disease_list.clone().unwrap_or_default().into_vec();
-    let warnings = row
-        .comment_list
-        .as_deref()
-        .unwrap_or_default()
-        .iter()
-        .filter(|r| matches!(r.category.as_str(), "Problematic cell line" | "Caution"))
-        .map(|r| CellLineWarning {
-            scope: r.category.clone(),
-            text: r.value.clone(),
-        })
-        .collect();
+    let warnings = super::map::warnings(row.comment_list.as_deref().unwrap_or_default());
     let xrefs = row
         .xref_list
         .take()
@@ -108,6 +98,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
         accession: accession.clone(),
         items: super::map::capped(names, usize::MAX),
         offset: 0,
+        release: None,
+        fetched: None,
     }));
     card.sections.identity = Some(Section::Data {
         source: Source::Cellosaurus,
@@ -117,6 +109,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
             diseases: super::map::capped(diseases, usize::MAX),
             warnings: super::map::capped(warnings, usize::MAX),
             offset: 0,
+            release: None,
+            fetched: None,
         },
     });
     card.sections.xrefs = Some(Section::Data {
@@ -125,6 +119,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
             accession: accession.clone(),
             items: super::map::capped(xrefs, usize::MAX),
             offset: 0,
+            release: None,
+            fetched: None,
         },
     });
     card.sections.variants = Some(Section::Data {
@@ -133,6 +129,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<CellLineCard, RequestError> {
             accession,
             items: super::map::capped(variants, usize::MAX),
             offset: 0,
+            release: None,
+            fetched: None,
         },
     });
     Ok(card)

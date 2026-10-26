@@ -25,17 +25,7 @@ pub(super) fn header(row: raw::Record) -> Result<CellLineHeader, RequestError> {
 pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
     let accession = row.accession().map_err(super::bad)?.clone();
     let name = row.name().map_err(super::bad)?.clone();
-    let warnings = row
-        .comment_list
-        .unwrap_or_default()
-        .into_vec()
-        .into_iter()
-        .filter(|r| matches!(r.category.as_str(), "Problematic cell line" | "Caution"))
-        .map(|r| CellLineWarning {
-            scope: r.category,
-            text: r.value,
-        })
-        .collect();
+    let warnings = warnings(row.comment_list.as_deref().unwrap_or_default());
     let version = row
         .entry_version
         .map(|v| v.as_str().parse().map_err(|_| BadReply))
@@ -82,4 +72,14 @@ pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
         release: None,
         fetched: None,
     })
+}
+
+pub(super) fn warnings(rows: &[raw::Comment]) -> Vec<CellLineWarning> {
+    rows.iter()
+        .filter(|r| matches!(r.category.as_str(), "Problematic cell line" | "Caution"))
+        .map(|r| CellLineWarning {
+            scope: r.category.clone(),
+            text: r.value.clone(),
+        })
+        .collect()
 }

@@ -124,20 +124,7 @@ pub(in crate::runner) fn generate_xrefs(directory: &Path) -> Result<(), String> 
                 .cloned(),
         );
     }
-    let raw: Value = serde_json::from_str(&fixture("portable-cellosaurus-cell-CVCL_0004.json")?)
-        .map_err(|e| e.to_string())?;
-    let expected = raw
-        .pointer("/Cellosaurus/cell-line-list/0/xref-list")
-        .and_then(Value::as_array)
-        .ok_or("native xrefs")?
-        .clone();
-    if all != expected || all.len() != 1398 {
-        return Err("xref walk lost order or rows".into());
-    }
-    let unique: std::collections::BTreeSet<_> = all.iter().map(Value::to_string).collect();
-    if unique.len() != 1398 {
-        return Err("xref walk duplicates".into());
-    }
+    verify_xrefs(&all)?;
     fs::create_dir_all(directory).map_err(|e| e.to_string())?;
     merge(&recording, directory)?;
     let ceiling = (maximum * 115).div_ceil(100);
@@ -148,6 +135,24 @@ pub(in crate::runner) fn generate_xrefs(directory: &Path) -> Result<(), String> 
     .map_err(|e| e.to_string())?;
     if stub.finish()?.len() != 2 {
         return Err("replayed xref walk made requests".into());
+    }
+    Ok(())
+}
+
+fn verify_xrefs(all: &[Value]) -> Result<(), String> {
+    let raw: Value = serde_json::from_str(&fixture("portable-cellosaurus-cell-CVCL_0004.json")?)
+        .map_err(|e| e.to_string())?;
+    let expected = raw
+        .pointer("/Cellosaurus/cell-line-list/0/xref-list")
+        .and_then(Value::as_array)
+        .ok_or("native xrefs")?
+        .clone();
+    if all != expected.as_slice() || all.len() != 1398 {
+        return Err("xref walk lost order or rows".into());
+    }
+    let unique: std::collections::BTreeSet<_> = all.iter().map(Value::to_string).collect();
+    if unique.len() != 1398 {
+        return Err("xref walk duplicates".into());
     }
     Ok(())
 }

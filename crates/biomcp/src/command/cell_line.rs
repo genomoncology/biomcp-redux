@@ -7,6 +7,9 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::SearchCellLine(q), QueryBody::CellLinePage(body)) => {
             meta.encode(q, success.then_some(body))
         }
+        (Request::GetCellLine(q), QueryBody::CellLineCard(body)) if !body.candidates.is_empty() => {
+            meta.encode(q, Some(body))
+        }
         (Request::GetCellLine(q), QueryBody::CellLineCard(mut body)) => match q.section() {
             Some(CellLineSection::Names) => meta.encode(q, data(body.sections.names.take())),
             Some(CellLineSection::Identity) => meta.encode(q, data(body.sections.identity.take())),

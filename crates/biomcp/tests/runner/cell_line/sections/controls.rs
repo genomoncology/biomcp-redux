@@ -5,6 +5,7 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
         admission(fault, measure)?;
     }
     disabled(measure)?;
+    ambiguous(measure)?;
     identity(measure)
 }
 fn admission(fault: &str, measure: bool) -> Result<(), String> {
@@ -123,6 +124,48 @@ pub(super) fn ordinary(phase: &str, value: &Value, measure: bool) -> Result<(), 
         .map_err(|e| e.to_string())?;
     if !measure {
         budget(phase, "cli", value)?;
+    }
+    Ok(())
+}
+
+fn ambiguous(measure: bool) -> Result<(), String> {
+    let candidates = fixture("native-ambiguous-reverse.json")?;
+    let release = fixture("portable-cellosaurus-cellosaurus-release.json")?;
+    let stub = Stub::for_source("api.cellosaurus.org", "application/json", move |request| {
+        if request.contains("/release-info?") {
+            Ok(release.clone())
+        } else if request.contains("/search/cell-line?") {
+            Ok(candidates.clone())
+        } else {
+            Err("ambiguous section fetched a selected card".into())
+        }
+    })?;
+    let env = setup(&stub)?;
+    let value = parity(
+        "sections/synthetic/ambiguous-variants",
+        &env,
+        &["get", "cell-line", "DepMap:ACH-000362", "variants"],
+        0,
+        measure,
+    )?;
+    path(&value, "/status", json!("partial"))?;
+    let rows = value
+        .pointer("/result/candidates")
+        .and_then(Value::as_array)
+        .ok_or("candidates")?;
+    let next = value.get("next").and_then(Value::as_array).ok_or("next")?;
+    if rows.len() != 5 || next.len() != 5 || value.pointer("/result/header").is_some() {
+        return Err("ambiguous section lost candidates or chose a card".into());
+    }
+    for (row, action) in rows.iter().zip(next) {
+        path(
+            action,
+            "/args",
+            json!(["get", "cell-line", row.get("accession").ok_or("accession")?]),
+        )?;
+    }
+    if stub.finish()?.len() != 2 {
+        return Err("ambiguous section requested a card".into());
     }
     Ok(())
 }

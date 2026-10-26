@@ -104,6 +104,12 @@ pub struct CellLineNames {
     pub items: Capped<CellLineName>,
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Independently fetched publisher release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original complete-card retrieval seconds, distinct from source release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
 }
 /// Native source cross-references with collection-local totals and offset.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -116,6 +122,12 @@ pub struct CellLineXrefs {
     pub items: Capped<CellLineXref>,
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Independently fetched publisher release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original complete-card retrieval seconds, distinct from source release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
 }
 /// Whole native variation rows with collection-local totals and offset.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -128,6 +140,12 @@ pub struct CellLineVariants {
     pub items: Capped<CellLineVariation>,
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Independently fetched publisher release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original complete-card retrieval seconds, distinct from source release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
 }
 /// Species, diseases and warnings page independently; each total belongs to its own collection.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -144,6 +162,12 @@ pub struct CellLineIdentityPage {
     pub warnings: Capped<CellLineWarning>,
     /// Requested offset applied independently to each collection.
     pub offset: u32,
+    /// Independently fetched publisher release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original complete-card retrieval seconds, distinct from source release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
 }
 /// One exact accession-linked ChEMBL cell identity; no assay request is implied.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

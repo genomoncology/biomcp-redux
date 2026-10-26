@@ -149,3 +149,22 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
         }
     }
 }
+
+pub(super) fn provenance(card: &mut CellLineCard) {
+    if let Some(Section::Data { data, .. }) = &mut card.sections.names {
+        data.release = card.release.clone();
+        data.fetched = card.fetched;
+    }
+    if let Some(Section::Data { data, .. }) = &mut card.sections.identity {
+        data.release = card.release.clone();
+        data.fetched = card.fetched;
+    }
+    if let Some(Section::Data { data, .. }) = &mut card.sections.xrefs {
+        data.release = card.release.clone();
+        data.fetched = card.fetched;
+    }
+    if let Some(Section::Data { data, .. }) = &mut card.sections.variants {
+        data.release = card.release.clone();
+        data.fetched = card.fetched;
+    }
+}

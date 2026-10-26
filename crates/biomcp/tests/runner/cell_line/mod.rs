@@ -111,6 +111,9 @@ fn compared(
     if matches!(phase, "native/search/MOLM13" | "native/card/CVCL_0007") {
         markdown(phase, env, words, &replay, &value, measure)?;
     }
+    if phase.starts_with("sections/") {
+        sections::markdown(phase, env, words, &replay, &value, measure)?;
+    }
     let registry = super::schema::Registry::embedded()?;
     let arguments = words.iter().map(|s| s.to_string()).collect::<Vec<_>>();
     registry.validate(&value, &arguments, exit == 0)?;
