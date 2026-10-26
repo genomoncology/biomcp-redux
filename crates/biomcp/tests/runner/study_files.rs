@@ -55,7 +55,7 @@ fn pages() -> Check {
         if value != mcp { return Err("CLI/MCP files differ".into()); }
     }
     let card=call(&env,&replay,&["get","study","synthetic_0"],0)?;
-    if card.pointer("/result/license_notice").is_none() || seen.len()!=12 { return Err("card notice or walk missing".into()); }
+    if card.pointer("/result/license_notice").is_some() || seen.len()!=12 { return Err("stored card changed or walk missing".into()); }
     Ok(())
 }
 fn failures() -> Check {

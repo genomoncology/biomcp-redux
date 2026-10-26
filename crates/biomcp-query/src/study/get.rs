@@ -91,7 +91,6 @@ fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestErr
         .map_err(|_| bad())?;
     out.body = QueryBody::StudyCard(row.map(|study| StudyCard {
         source_url,
-        license_notice: None,
         study,
         snapshot,
         profiles: None,

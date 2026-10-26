@@ -57,8 +57,8 @@ def main(native, catalog, admission, out):
         notice = next(r['html_url'] for r in entries if r['name'] == 'LICENSE')
         for section, suffix in [('molecular-profiles', 'profiles'), ('sample-lists', 'sample-lists')]:
             recording(replay, f'https://www.cbioportal.org/api/studies/{identity}/{section}?projection=DETAILED', catalog[f'{identity}-{suffix}.body'])
-        operations = [(['get', 'study', identity], {'/result/license_notice': notice}),
-                      (['get', 'study', identity, 'all'], {'/result/license_notice': notice,
+        operations = [(['get', 'study', identity], {'/status': 'complete'}),
+                      (['get', 'study', identity, 'all'], {'/result/files/data/license_notice': notice,
                        '/result/files/data/page/total': total,
                        '/result/files/data/page/returned': 5})]
         for offset in range(0, total, 5):

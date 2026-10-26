@@ -6,9 +6,7 @@ use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{QueryBody, Section, Source, Status, StepKind, StudyFiles, StudyGet, StudySection};
 pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &mut Outcome) {
     let on_card = matches!(out.body, QueryBody::StudyCard(Some(_)));
-    if !matches!(q.section(), None | Some(StudySection::Files | StudySection::All))
-        || q.section().is_none() && !on_card
-    {
+    if !matches!(q.section(), Some(StudySection::Files | StudySection::All)) {
         return;
     }
     let leg = cx.fetch.leg(&SPEC, deadline).fresh(cx.fresh);
@@ -30,10 +28,6 @@ pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &
     }
 }
 fn apply(cx: &Ctx<'_>, q: &StudyGet, out: &mut Outcome, directory: studies::Directory) -> Result<(), RequestError> {
-    if let QueryBody::StudyCard(Some(card)) = &mut out.body {
-        card.license_notice = directory.license_notice.clone();
-        if q.section().is_none() { return Ok(()); }
-    }
     let Some(rows) = directory.rows else {
         if let QueryBody::StudyCard(Some(card)) = &mut out.body {
             card.files = Some(Section::Empty { source: Source::Cbioportal, record: None });

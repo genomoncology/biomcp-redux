@@ -35,9 +35,6 @@ impl ResponseBody for StudyPage {
 pub struct StudyCard {
     /// Exact publisher study page for this checked source identity.
     pub source_url: Text,
-    /// Native per-study LICENSE publisher link; this notice grants no reuse rights.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub license_notice: Option<Text>,
     /// Native card metadata, preserving all source count distinctions.
     pub study: Study,
     /// Catalog revision and acquisition, apart from each live section's time.
