@@ -12,7 +12,7 @@ fn reply(request: &str) -> Result<String, String> {
         return fixture("portable-cellosaurus-cellosaurus-release.json");
     }
     for id in ["CVCL_2119", "CVCL_0004"] {
-        if target == format!("/cell-line/{id}?format=json") {
+        if canonical(target) == canonical(&format!("/cell-line/{id}?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt")) {
             return fixture(&format!("portable-cellosaurus-cell-{id}.json"));
         }
     }
