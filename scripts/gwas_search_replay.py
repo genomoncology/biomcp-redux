@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 import tarfile
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
 
 def write(path, value):
@@ -21,7 +21,7 @@ def archive_rows(path, plan_name='plan.json', prefix=''):
 
 def canonical(url):
     parts = urlsplit(url)
-    query = urlencode(sorted(parse_qsl(parts.query)), quote_via=__import__('urllib.parse', fromlist=['quote']).quote)
+    query = urlencode(sorted(parse_qsl(parts.query)), quote_via=quote)
     return urlunsplit((parts.scheme, parts.netloc, parts.path, query, ''))
 
 
@@ -61,7 +61,11 @@ def case(root, name, url, body, expected_ids=None):
     if expected_ids is not None:
         expect['/result/items/*/id' if rows else '/result/items'] = expected_ids
     record(root, url, body)
-    step = {'run': args, 'mcp': args, 'expect': expect}
+    step = {'run': args, 'mcp': args, 'expect': expect, 'max_bytes': 50000}
+    if name == 'pubmed-second':
+        expect['/result/items/2/alleles/0/rs_id'] = 'rs981782'
+    if name == 'tomlinson':
+        expect['/result/items/0/odds_ratio'] = 1.27
     # Projection ceilings are starting measurements, not claims about shipped output.
     write(root / 'cases' / (name + '.yaml'), {
         'feature': 'gwas-search', 'live_check': 'retained restricted source replies outside Git',
@@ -71,13 +75,17 @@ def case(root, name, url, body, expected_ids=None):
 def main():
     root = Path(sys.argv[1])
     previous, current, original = map(Path, sys.argv[2:5])
+    known = {'variant-positive':[6110,191182970,217418586],
+             'trait-text-positive':[41310323,93928402,41311109], 'trait-id-positive':[41310323,93928402,41311109],
+             'gene-positive':[41310323,93928402,105594966], 'study-positive':[6110,6111,6112],
+             'study-page-one':[6113,6114,11346], 'gene-trait-positive':[41310323,93928402,41311109]}
     selected = {'variant-positive', 'trait-text-positive', 'trait-id-positive', 'gene-positive',
                 'study-positive', 'study-page-one', 'gene-trait-positive', 'variant-negative',
                 'trait-text-negative', 'trait-id-negative', 'gene-negative', 'study-negative',
                 'pubmed-negative'}
     for name, url, body in archive_rows(previous):
         if name in selected:
-            case(root, name, url, body)
+            case(root, name, url, body, known.get(name, []))
     fixed = {'pubmed-second': [6113, 6114, 11346], 'stacey': [6117, 6116], 'broderick': [5949],
              'tomlinson': [6063], 'samani': [11386, 11850, 6056, 11851, 6057, 11852, 11385],
              'children': [41310323, 93928402, 41311109],

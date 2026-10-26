@@ -11,7 +11,11 @@ pub struct GwasGetCommand {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub id: Text,
     /// Study: associations or ancestries. Association: loci.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 1)))]
     pub section: Option<Text>,
     /// Independent bounded relation window.

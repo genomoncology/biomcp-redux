@@ -26,7 +26,12 @@ pub enum GwasGet {
         /// Qualified positive association identity.
         id: GwasAssociationId,
         /// Optional native locus section.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(
+            default,
+            deserialize_with = "crate::query::present",
+            skip_serializing_if = "Option::is_none"
+        )]
+        #[cfg_attr(feature = "schema", schemars(with = "GwasAssociationSection"))]
         section: Option<GwasAssociationSection>,
         /// Checked independent section page.
         #[serde(flatten)]
@@ -37,7 +42,12 @@ pub enum GwasGet {
         /// Exact Catalog accession.
         id: GwasStudyId,
         /// Optional study relation section.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(
+            default,
+            deserialize_with = "crate::query::present",
+            skip_serializing_if = "Option::is_none"
+        )]
+        #[cfg_attr(feature = "schema", schemars(with = "GwasStudySection"))]
         section: Option<GwasStudySection>,
         /// Checked independent section page.
         #[serde(flatten)]
