@@ -191,5 +191,9 @@ pub(crate) static WONDER: Quota = Quota::new(
 );
 
 // Conservative serial published-catalog download policy; not a provider quota.
-pub(crate) static WIKIPATHWAYS: Quota =
-    Quota::new(SourceKey::declare("wikipathways"), Rate::per_second(1), None, 1);
+pub(crate) static WIKIPATHWAYS: Quota = Quota::new(
+    SourceKey::declare("wikipathways"),
+    Rate::per_second(1),
+    None,
+    1,
+);

@@ -8,15 +8,20 @@ type Check = Result<(), String>;
 mod admission;
 const SOURCES: &[(&str, &str, &str)] = &[
     ("reactome", "open", "https://reactome.org/license"),
-    ("wikipathways", "open", "https://www.wikipathways.org/help.html"),
+    (
+        "wikipathways",
+        "open",
+        "https://www.wikipathways.org/help.html",
+    ),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(format!("pathway-registry/{source}-declaration"), move || {
-                declaration(source, usage, url).map_err(Into::into)
-            })
+            Trial::test(
+                format!("pathway-registry/{source}-declaration"),
+                move || declaration(source, usage, url).map_err(Into::into),
+            )
         })
         .chain([
             Trial::test("pathway-registry/policy-before-io", || {
@@ -112,10 +117,8 @@ fn switches() -> Check {
                 .iter()
                 .find(|r| r.get("source") == Some(&json!(name)))
                 .ok_or("missing source")?;
-            let disabled = name == command
-                || name == configured
-                || command == "open"
-                || configured == "open";
+            let disabled =
+                name == command || name == configured || command == "open" || configured == "open";
             if disabled
                 && (row.get("state") != Some(&json!("skipped"))
                     || row.get("reason") != Some(&json!("disabled")))
