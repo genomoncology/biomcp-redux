@@ -96,7 +96,9 @@ pub(super) fn read<'a>(
             Ok(mapped) => {
                 status::append(&mut out.problems, mapped.problems.clone());
                 let source = status::source(Source::PubMed, leg.finish(), None);
-                if !out.sources.iter().any(|s| s.source == Source::PubMed) {
+                if let Some(current) = out.sources.iter_mut().find(|s| s.source == Source::PubMed) {
+                    status::retain_source_state(current, &source);
+                } else {
                     out.sources.push(source.clone());
                 }
                 store.hydrate(id, &missing, &mapped.value, &mapped.problems, Some(&source))?;

@@ -1,6 +1,5 @@
 //! A bundle publisher does not borrow the process-wide reply connection.
 #![expect(
-    clippy::unwrap_used,
     clippy::disallowed_methods,
     reason = "Public transport contract fixture"
 )]
