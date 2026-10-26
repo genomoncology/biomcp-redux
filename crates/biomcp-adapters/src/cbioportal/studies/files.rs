@@ -45,12 +45,16 @@ impl Entry {
             && !self.name.as_str().contains('/')
             && !matches!(self.name.as_str(), "." | "..")
             && self.html_url.as_str()
-                == format!("https://github.com/cBioPortal/datahub/{}/master/{path}", match self.kind {
-                    StudyFileKind::File => "blob",
-                    StudyFileKind::Directory => "tree",
-                })
+                == format!(
+                    "https://github.com/cBioPortal/datahub/{}/master/{path}",
+                    match self.kind {
+                        StudyFileKind::File => "blob",
+                        StudyFileKind::Directory => "tree",
+                    }
+                )
             && self.download_url.as_ref().is_none_or(|url| {
-                url.as_str() == format!("https://raw.githubusercontent.com/cBioPortal/datahub/master/{path}")
+                url.as_str()
+                    == format!("https://raw.githubusercontent.com/cBioPortal/datahub/master/{path}")
             })
     }
     fn mapped(self) -> StudyFile {
@@ -68,18 +72,35 @@ impl Entry {
 /// Read only one exact contents directory. No entry download URL is requested.
 pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
     let url = format!("https://api.github.com/repos/cBioPortal/datahub/contents/public/{id}");
-    let endpoint = SPEC.download(&url)?.fresh(Freshness::Days(1)).bytes(100_000);
+    let endpoint = SPEC
+        .download(&url)?
+        .fresh(Freshness::Days(1))
+        .bytes(100_000);
     let result = leg.json_received_checked::<Entries>(&endpoint, &[], |r| {
-        if r.0.iter().all(|v| v.matches(id)) { Ok(()) } else { Err(BadReply) }
+        if r.0.iter().all(|v| v.matches(id)) {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     });
     let (reply, metadata) = match result {
         Ok(value) => value,
-        Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::NotFound && e.status == Some(404) => {
-            return Ok(Directory { rows: None, license_notice: None, acquired: 0 });
+        Err(RequestError::Source(e))
+            if e.reason == biomcp_types::Reason::NotFound && e.status == Some(404) =>
+        {
+            return Ok(Directory {
+                rows: None,
+                license_notice: None,
+                acquired: 0,
+            });
         }
         Err(error) => return Err(error),
     };
-    let license_notice = reply.0.iter().find(|r| r.name.as_str() == "LICENSE" && r.kind == StudyFileKind::File).map(|r| r.html_url.clone());
+    let license_notice = reply
+        .0
+        .iter()
+        .find(|r| r.name.as_str() == "LICENSE" && r.kind == StudyFileKind::File)
+        .map(|r| r.html_url.clone());
     Ok(Directory {
         rows: Some(reply.0.into_iter().map(Entry::mapped).collect()),
         license_notice,
@@ -87,5 +108,11 @@ pub fn files(leg: &Leg<'_>, id: &StudyId) -> Result<Directory, RequestError> {
     })
 }
 fn bad() -> RequestError {
-    biomcp_fetch::SourceError { source: biomcp_types::Source::Cbioportal, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into()
+    biomcp_fetch::SourceError {
+        source: biomcp_types::Source::Cbioportal,
+        reason: biomcp_types::Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }
