@@ -1,0 +1,55 @@
+//! Fixed pathway retirements never rewrite input or dispatch a provider request.
+use biomcp_types::ErrorMessage;
+use std::ffi::OsString;
+pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+    let mut positional = Vec::new();
+    let mut args = args.iter();
+    while let Some(word) = args.next() {
+        let word = word.to_str()?;
+        if word == "--" {
+            break;
+        }
+        if !word.starts_with('-') {
+            positional.push(word);
+            if let Some(message) = command(&positional) {
+                return Some(message);
+            }
+            continue;
+        }
+        let (flag, inline) = word.split_once('=').map_or((word, None), |(a, b)| (a, Some(b)));
+        if matches!(positional.get(..2), Some(["search", "pathway"])) {
+            match flag {
+                "-q" | "--query" => return Some(ErrorMessage::PathwayText),
+                "--type" => return Some(ErrorMessage::PathwayClass),
+                _ => (),
+            }
+        }
+        if matches!(positional.get(..2), Some(["get", "pathway"])) && flag == "--section" {
+            let section = inline.or_else(|| args.next().and_then(|v| v.to_str()));
+            if section == Some("enrichment") {
+                return Some(ErrorMessage::PathwayEnrich);
+            }
+        } else if inline.is_none() && super::takes_value(flag, &positional)? {
+            args.next();
+        }
+    }
+    None
+}
+fn command(words: &[&str]) -> Option<ErrorMessage> {
+    Some(match words {
+        ["enrich", ..] => ErrorMessage::PathwayEnrich,
+        ["list", "pathway", ..] => ErrorMessage::PathwayHelp,
+        ["pathway", "drugs", ..] => ErrorMessage::PathwayDrugs,
+        ["pathway", "articles", ..] => ErrorMessage::PathwayArticles,
+        ["pathway", "trials", ..] => ErrorMessage::PathwayTrials,
+        ["get", "pathway", id, ..] if kegg(id) => ErrorMessage::PathwayKegg,
+        ["get", "pathway", _, "enrichment", ..] => ErrorMessage::PathwayEnrich,
+        _ => return None,
+    })
+}
+fn kegg(id: &str) -> bool {
+    let id = id.strip_prefix("path:").unwrap_or(id);
+    ["hsa", "map", "ko"].iter().any(|prefix| {
+        id.strip_prefix(prefix).is_some_and(|digits| digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit()))
+    })
+}
