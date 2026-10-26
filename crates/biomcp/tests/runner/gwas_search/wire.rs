@@ -79,13 +79,21 @@ pub(super) fn paging() -> Result<(), String> {
         &["search", "gwas", "--pubmed", "17529967"],
         0,
     )?;
-    if first.pointer("/next/0/args/2") != Some(&json!("association:6110"))
-        || first.pointer("/next/3/kind") != Some(&json!("page"))
+    if first.pointer("/next/0/kind") != Some(&json!("page"))
+        || first
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|steps| {
+                steps.iter().any(|step| {
+                    step.pointer("/args/1") == Some(&json!("gwas"))
+                        && step.pointer("/args/0") == Some(&json!("get"))
+                })
+            })
     {
         return Err(format!("candidate/continuation ordering: {first}"));
     }
     let args = first
-        .pointer("/next/3/args")
+        .pointer("/next/0/args")
         .and_then(Value::as_array)
         .ok_or("continuation")?
         .iter()
@@ -148,7 +156,7 @@ pub(super) fn surfaces() -> Result<(), String> {
     if !out.status.success()
         || !text.contains("6110")
         || !text.contains("GWAS Catalog terms")
-        || !text.contains("get gwas association:6110")
+        || !text.contains("get variant rs2981582")
     {
         return Err(format!("Markdown lost source facts: {text}"));
     }

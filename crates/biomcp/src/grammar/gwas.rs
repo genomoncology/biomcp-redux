@@ -1,5 +1,5 @@
 //! Legacy aliases normalize only the checked gene selector.
-use biomcp_types::{GwasGet, GwasGetCommand, Request};
+use biomcp_types::Request;
 use serde_json::Value;
 pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, ()> {
     match verb {
@@ -14,9 +14,6 @@ pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, ()> {
                 .map(Request::SearchGwas)
                 .map_err(|_| ())
         }
-        "get" => serde_json::from_value::<GwasGetCommand>(value)
-            .map_err(|_| ())
-            .and_then(|q| GwasGet::try_from(q).map(Request::GetGwas).map_err(|_| ())),
         _ => Err(()),
     }
 }

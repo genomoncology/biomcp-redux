@@ -227,6 +227,8 @@ The largest observed source response is not a worst-case catalog guarantee. Defa
 
 The same-question 0.9 comparison is unmeasured because no contained historical binary was executed. Native API bytes measure source transport and the projections measure proposed disclosure; neither substitutes for 0.9 product bytes, warm/cold product latency or a judged clinical quality comparison. There is no defensible numeric claim that these outputs outperform 0.9. The source fields and named legacy capabilities above define the quality floor that implementation and the later contained comparison must check.
 
+The search implementation emits only supported native page, variant and publication actions. Association and study get actions join when the exact GWAS get handlers land; a search never suggests an unsupported command. Native offset continuation retains every selector and source order. It does not claim a pinned whole-search snapshot. Exact warm pages reuse the existing transport cache.
+
 ### Additional command request captures
 
 Job `j14615` sent eight previously uncaptured exact sorted requests once each through the landed bounded capture helper. It retained the existing adapter deadline of 15 seconds and a 3 MiB body bound, admitted requests one second apart, and refused redirects and retries. All eight returned HTTP 200. The extended gene-set request took 14.357 seconds; the deadline remains unchanged.

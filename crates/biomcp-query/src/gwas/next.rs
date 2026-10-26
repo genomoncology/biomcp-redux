@@ -1,6 +1,6 @@
 //! One source-order navigation policy for an association page.
 use crate::Action;
-use biomcp_types::{GwasGet, GwasPageQuery, GwasSearch, Request, StepKind};
+use biomcp_types::{GwasPageQuery, GwasSearch, Request, StepKind};
 use serde::de::DeserializeOwned;
 use serde_json::json;
 type Steps = Vec<(StepKind, Action)>;
@@ -12,18 +12,6 @@ pub(super) fn search(
 ) -> Steps {
     let mut next = Vec::new();
     let rows = page.map(|page| page.items.as_ref()).unwrap_or_default();
-    for row in rows {
-        if let Some(get) = checked::<GwasGet>(
-            json!({"kind":"association", "id":format!("association:{}", row.id)}),
-        ) {
-            push(
-                &mut next,
-                StepKind::Disambiguate,
-                Request::GetGwas(get),
-                fresh,
-            );
-        }
-    }
     if let Some(GwasPageQuery::Search(query)) = page.and_then(|page| page.continuation.as_ref()) {
         push(
             &mut next,
@@ -36,9 +24,6 @@ pub(super) fn search(
     let mut seen = std::collections::BTreeSet::new();
     for row in rows {
         let mut requests = Vec::new();
-        if let Some(get) = checked::<GwasGet>(json!({"kind":"study","id":row.study})) {
-            requests.push(Request::GetGwas(get));
-        }
         for allele in &row.alleles {
             if let Some(get) = checked(json!({"input":allele.rs_id})) {
                 requests.push(Request::GetVariant(get));
