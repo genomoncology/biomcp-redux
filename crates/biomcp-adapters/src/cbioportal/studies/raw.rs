@@ -90,7 +90,7 @@ impl Row for CatalogRow {
         let mut ids = BTreeSet::new();
         rows.iter()
             .map(|r| {
-                if !ids.insert(r.study_id.clone())
+                if !ids.insert(r.study_id.as_str())
                     || r.resource_counts
                         .iter()
                         .any(|v| v.cancer_study_identifier != r.study_id)
