@@ -37,8 +37,8 @@ if previous:
     for result in (old/'protein-section-native/outputs').glob('*.json'):
         case = root/'protein-section-native/cases'/(result.stem+'.yaml')
         if case.is_file(): shutil.move(case, reused/case.name)
-    shutil.copyfile(old/'proof.log', root/'prior-proof.log')
-    shutil.copyfile(old/'revision.txt', root/'prior-revision.txt')
+    for path in [*old.glob('*proof*.log'), *old.glob('*revision*.txt')]:
+        shutil.copyfile(path, root/('prior-'+path.name))
     print('Reuse', len(list(reused.iterdir())), 'completed native cases from', old.name)
 PY_RESUME
 BIOMCP_TEST_FIXTURES="$proof_root" cargo test --locked -p biomcp --test cases -- protein-sections/retained-native-facts-and-costs --nocapture > "$proof_root/proof.log" 2>&1 || { cat "$proof_root/proof.log"; exit 1; }
@@ -56,8 +56,8 @@ if previous:
     old = Path(previous)
     for path in (old/'protein-section-native/outputs').glob('*.json'):
         shutil.copyfile(path, root/'protein-section-native/outputs'/path.name)
-for name in ['proof.log', 'revision.txt', 'prior-proof.log', 'prior-revision.txt']:
-    if (root/name).is_file(): shutil.copyfile(root/name, evidence/name)
+for path in [*root.glob('*proof*.log'), *root.glob('*revision*.txt')]:
+    shutil.copyfile(path, evidence/path.name)
 for kind, folder in [('case', 'cases'), ('reused', 'reused-cases'), ('walk', 'walks'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
     directory = root/'protein-section-native'/folder
     if not directory.is_dir(): continue

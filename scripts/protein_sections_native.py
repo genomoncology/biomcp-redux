@@ -33,8 +33,10 @@ for accession, point, description, start, end in [
             '/status': 'complete', '/page/total': 1,
             '/result/items/0/feature/protein': accession,
             '/result/items/0/feature/description': description,
-            '/result/items/0/feature/span/start': {'min': start - 1, 'max': start - 1},
-            '/result/items/0/feature/span/end': {'min': end, 'max': end},
+            '/result/items/0/feature/span/start/min': start - 1,
+            '/result/items/0/feature/span/start/max': start - 1,
+            '/result/items/0/feature/span/end/min': end,
+            '/result/items/0/feature/span/end/max': end,
             '/result/items/0/feature/kind/label': 'Domain'})
 case('brct-domains', ['protein', 'features', 'P38398', '--type', 'Domain'], {
     '/page/total': 2, '/result/items/*/feature/description': ['BRCT 1', 'BRCT 2'],
@@ -68,7 +70,8 @@ for accession in ['P00533', 'P38398', 'Q9UIF7']:
 case('structures', ['protein', 'structures', 'P00533'], {
     '/result/items/0/id': '1IVO', '/result/items/0/database': 'PDB',
     '/result/items/0/url': 'https://www.rcsb.org/structure/1IVO',
-    '/result/items/0/properties/0': {'key': 'Method', 'value': 'X-ray'}})
+    '/result/items/0/properties/0/key': 'Method',
+    '/result/items/0/properties/0/value': 'X-ray'})
 for accession in ['P00533', 'Q9UIF7', 'P38398-2', 'BRAF']:
     case('card-' + accession, ['get', 'protein', accession], {'/status': 'complete'})
 for accession, remainder in [('P04637', ['P04637-6', 'P04637-7', 'P04637-8', 'P04637-9']),
