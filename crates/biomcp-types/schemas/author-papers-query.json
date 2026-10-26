@@ -9,7 +9,10 @@
       "enum": [
         "details"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        "Native detailed metadata for the same paper window."
+      ]
     },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
