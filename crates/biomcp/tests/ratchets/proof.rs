@@ -233,8 +233,7 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         "crates/biomcp-adapters/src/registry.rs",
         "&crate::directory::SPEC, &crate::single_file::SPEC",
     )?;
-    let declaration =
-        r#"SourceSpec { terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#;
+    let declaration = r#"SourceSpec { terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#;
     for path in ["directory/mod.rs", "single_file.rs"] {
         put(
             tree.path(),
