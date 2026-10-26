@@ -27,6 +27,8 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::oncokb::SPEC,
     &crate::gnomad::SPEC,
     &crate::uniprot::SPEC,
+    &crate::interpro::SPEC,
+    &crate::complex_portal::SPEC,
     &crate::reactome::SPEC,
     &crate::wikipathways::SPEC,
     &crate::civic::SPEC,
