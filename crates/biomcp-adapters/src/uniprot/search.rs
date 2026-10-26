@@ -54,6 +54,13 @@ pub fn search(
         rows.results.iter().all(entry::raw::Entry::human_reviewed)
     })?;
     let page = meta.pagination.ok_or_else(bad)?;
+    let returned = raw.results.len() as u64;
+    if returned > page.total
+        || returned == 0 && page.total > 0
+        || cursor.is_none() && returned < page.total && page.next.is_none()
+    {
+        return Err(bad());
+    }
     let cursor = page
         .next
         .as_deref()
