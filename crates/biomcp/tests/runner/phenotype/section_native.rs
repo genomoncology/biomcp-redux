@@ -290,7 +290,8 @@ fn measurements(key: &str) -> Result<[usize; 2], String> {
         .ok_or_else(|| format!("unmeasured phenotype case {key}"))
 }
 pub(super) fn ceiling(key: &str) -> Result<usize, String> {
-    Ok((measurements(key)?[1] * 115).div_ceil(100))
+    let [_, comparable] = measurements(key)?;
+    Ok((comparable * 115).div_ceil(100))
 }
 fn budget(key: &str, value: &Value) -> Result<usize, String> {
     let [full, comparable] = measurements(key)?;
