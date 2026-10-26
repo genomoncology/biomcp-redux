@@ -87,7 +87,7 @@ fn overall(out: &Outcome, absent: bool) -> Status {
         Status::Complete
     }
 }
-fn problem(out: &mut Outcome, source: Source, record: Option<biodata::Curie>) {
+fn problem(out: &mut Outcome, source: Source, record: Option<biodata::Text>) {
     if out
         .sources
         .iter()
