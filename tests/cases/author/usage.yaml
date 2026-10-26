@@ -115,6 +115,56 @@
       "full_output_bytes": true,
       "max_bytes": 166,
       "max_tokens": 42
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "-q--topic",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "-q--topic",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/query/query": "--topic",
+        "/sources/0/reason": "disabled"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 700,
+      "max_tokens": 175
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "--query=--topic",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "--query=--topic",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/query/query": "--topic",
+        "/sources/0/reason": "disabled"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 700,
+      "max_tokens": 175
     }
   ]
 }

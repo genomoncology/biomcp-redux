@@ -38,6 +38,13 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
                 }
                 continue;
             }
+            if flag.strip_prefix("-q").is_some_and(|v| !v.is_empty())
+                || flag
+                    .strip_prefix("-l")
+                    .is_some_and(|v| !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit()))
+            {
+                continue;
+            }
             // Short query and limit flags retain their ordinary value boundaries.
             if matches!(flag, "-q" | "--query" | "-l") {
                 if inline.is_none() {
