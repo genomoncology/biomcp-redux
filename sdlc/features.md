@@ -119,3 +119,5 @@ vaers-summary: Read explicit supported vaccine aggregate tables without inferrin
 diagnostic-who-search: Search stored WHO product headers by literal marker and manufacturer words. Cases: `tests/cases/diagnostic/who-search.yaml`, `crates/biomcp/tests/runner/diagnostic_who/search.rs`.
 
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools. Cases: `crates/biomcp/tests/runner/research.rs`.
+
+study-types: A public API caller preserves exact study identities, source-scoped count metadata and independent acquisition times through bounded standalone study contracts. Contracts: `biomcp-types/study_contracts` (features: `schema`).
