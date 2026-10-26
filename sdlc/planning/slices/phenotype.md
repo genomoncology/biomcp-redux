@@ -18,7 +18,7 @@ Sources: [NF1 GeneReviews](https://www.ncbi.nlm.nih.gov/books/NBK1109/), [PTEN G
 | P06 | Which HPO term describes gastrointestinal polyps? | Source candidates; no automatic equivalence between generic and hamartomatous polyps. | PTEN |
 | P07 | Which HPO term describes lipoma? | Source term identity and definition. | PTEN |
 | P08 | What term describes developmental delay? | Source candidates and definition; no automatic substitution of intellectual disability. | PTEN; HPO |
-| P09 | What term describes retinal hemangioblastoma? | Source term identity and definition, retaining exact spelling. | VHL |
+| P09 | What term describes retinal hemangioblastoma? | The literal Monarch search is empty; HPO returns candidates, including retinal hemorrhage. No accepted equivalent term is established. | VHL |
 | P10 | Which term describes renal cysts? | Source candidates and exact IDs; no assumed subtype. | VHL |
 | P11 | What does pheochromocytoma mean? | Source definition and term identifier. | VHL |
 | P12 | Which term describes pancreatic cysts? | Exact source term and definition. | VHL |
@@ -130,3 +130,100 @@ These are publisher search-match totals with different matching rules. They are 
 The clinical reviewer accepted the exact reported native identities and the explicit selection boundaries. It specifically rejected equating retinal hemorrhage with retinal hemangioblastoma and warned against interpreting the subtype and multiplicity differences above as synonyms. These counterexamples become acceptance cases, not extra aliases.
 
 The first association request in `j14210` accidentally included an empty `subject_taxon=` selector for a disease subject. It returned HTTP 500, and the recipe stopped before later requests. This is evidence of a malformed investigation request and the stop rule. It is not an accepted source outage measurement or a successful disease association measurement. Successful searches are not repeated to repair that recipe.
+
+### Exact cards and association identity
+
+The authorized continuation `j14227` completed all 34 planned requests without another server error. It captured seventeen exact HPO candidate cards, six requested disease/gene association pages, two reverse term-association pages, three empty/absent witnesses and six release, terms and issue-inventory documents. No successful search was repeated. Across the three native jobs there were 73 delivered requests, including the invalid-selector 500. No product binary or 0.9 binary ran.
+
+All seventeen cards returned the requested exact HP identity. Seizure's exact card from the metadata pass is reused. The clinical reviewer read all eighteen retained cards and accepted the bank with these rules: preserve the complete Global developmental delay definition and its age restriction and comment; preserve Macrocephaly's source measurement definition and distinction from relative macrocephaly; preserve the Pancreatic cysts comment distinguishing pseudocysts; and preserve the pulmonary cyst comments and multiplicity distinctions. HPO's flat synonyms include Neurofibromatosis for Neurofibroma and Epilepsy for Seizure. They are source-published synonyms, not permission to make those clinical equivalences. No term definition or comment is shortened to meet a budget.
+
+| Query scope | Native total | First two exact returned endpoints | Provenance and qualifiers |
+| --- | --- | --- | --- |
+| P18 `MONDO:0008667`, `direct=true` | 60 | `HP:0031207`, `HP:0002894` | Actual subject is von Hippel-Lindau disease; original `OMIM:193300`; HPO disease annotations; ECO:0000304 / ECO:0000501. |
+| P19 `MONDO:0018875`, `direct=true` | 48 | `HP:0002894`, `HP:0003002` | Actual subject is Li-Fraumeni syndrome; original `OMIM:151623`; ECO:0000501. |
+| P20 `MONDO:0019003`, `direct=true` | 48 | `HP:0002315`, `HP:0000787` | Actual subject is MEN2; original `Orphanet:653`; frequency IDs HP:0040282 / HP:0040283 and ECO:0000304 remain on their own rows. |
+| P21 human `HGNC:12687` | 58 | `HP:0006880`, `HP:0002668` | VHL; original `NCBIGene:7428`; source subject taxon NCBITaxon:9606. |
+| P22 human `HGNC:9588` | 85 | `HP:0000337`, `HP:0000160` | PTEN; original `NCBIGene:5728`; source subject taxon NCBITaxon:9606. |
+| P23 human `HGNC:7765` | 129 | `HP:0000006`, `HP:0011343` | NF1; original `NCBIGene:4763`; source subject taxon NCBITaxon:9606; PMID:8317503 belongs only to the second captured row. |
+| Reverse `HP:0001250`, diseases, `direct=true` | 2,561 | `MONDO:0014379`, `MONDO:0012596` | Exact object HP:0001250. HPO disease annotations preserve original Orphanet identities, evidence and frequency IDs. |
+| Reverse `HP:0001250`, human genes, `direct=true` | 1,409 | `HGNC:9910`, `HGNC:29529` | RBMX / TBL1XR1; originals NCBIGene:27316 / NCBIGene:79718. Exact object and human subject taxon are supplied. |
+
+These totals count association records in the stated native request scope. They are not unique gene/disease/patient counts. The `direct=true` request establishes the publisher's graph behavior and exact endpoints; it establishes no direct molecular causation or clinical directness. It also explains why MEN2's direct count differs from the existing disease section's closure-expanded count. That section retains its accepted behavior; this proposal must name its own scope explicitly rather than change the older section.
+
+The gene rows carry `biolink:has_phenotype`, `infores:hpo-annotations` and `hpoa_gene_to_phenotype_edges`. Null evidence or negation remains unavailable, not no evidence or false negation. Native explicit false remains explicit false. The clinical reviewer accepted these source-bound interpretations. No qualifier, publication or claim transfers between neighboring rows or between a subtype and parent.
+
+The continuation also captured two successful zero-result searches for the literal unknown string and an exact HP:9999999 HTTP 404. Failure acceptance must additionally use recorded 429, 500, timeout and broken-body cases. The invalid-selector 500 is not substituted for a representative provider outage.
+
+### Source fields, terms and bundles
+
+| Source/tier | Native public fields proved | Kept behavior and omissions |
+| --- | --- | --- |
+| HPO JAX term API | `id`, `name`, `definition`, `comment`, `descendantCount`, flat `synonyms`, `xrefs`, `publicationReferences`, `translations` with language/name/definition/status. Empty strings, empty arrays and null translation collections occur. | Keep exact identity, complete definition/comment, references and explicit synonym/xref sections. Do not infer ontology release or synonym relationship type. Defer translations because no harvested multilingual question needs them. Descendant count is source metadata, not a fabricated hierarchy. |
+| HPO JAX search | `terms` with term metadata and `totalCount`. | Investigated and retained as comparison evidence. Prefer Monarch's proved native paging and HP namespace for product discovery; do not invent HPO paging from undocumented parameters. |
+| Monarch search | Limit, offset, total, ordered items; native ID/name/category, description, source synonym classifications, score/matched field/match type, facets and optional resolved scope. | Fixed human phenotype namespace; compact headers retain native match facts. Facets and other ontology namespaces are not needed by this bank. Never locally rerank or reinterpret matching. |
+| Monarch entity | Exact ID, description, classified synonyms, native deprecation, source/xrefs, association counts and hierarchy. Many source fields are explicitly null. | Independent source card and named sections. Association counts distinguish direct/expanded scopes. Do not merge with HPO's different descendant count: Seizure has HPO346 and Monarch347 in the captured replies. |
+| Monarch association | Exact and original endpoints, source categories/taxa, predicates, provenance, evidence/publications, null or populated qualifiers, native closures, links, counts and page metadata. | Reuse the existing neutral association model and preserve clinically relevant qualifier presence. Add source taxon to that shared model if it is missing; do not create a second association representation. A human restriction must be sent and verified at the provider. |
+| Monarch similarity | Native ordered disease rows and score; subject/object term sets, best matches, subsumers, component similarity details and metrics. | Only P17 needs this analytic result. Defer implementation until PM rules. No local scoring or automatic direct-support enrichment. |
+
+HPO's [publisher license](https://human-phenotype-ontology.github.io/license.html) was captured successfully and has the same body hash as the prior disease investigation's reviewed grant. The declaration remains `attribution`, with acknowledgement/citation, displayed dates or versions, preserved content and logical relationships, and product acknowledgement. API retrieval time is labeled as retrieval time; absent ontology version is reported as missing metadata. It is never filled from the date of an unrelated GitHub release. HPO source and component disables and the existing `attribution` group apply before network or cache access. No key is required.
+
+Monarch's [licensing page](https://monarch-app.monarchinitiative.org/Licensing/) recommends CC0 or CC BY for project data while leaving per-repository licenses authoritative. Keep the existing `attribution` source declaration and HPO/Orphanet component rules. HPO-published annotations that cite OMIM identities do not become a separately licensed OMIM payload. Separately supplied upstream content requires independent terms review. An explicit disabled mixed component stops the request before I/O unless a captured native exclusion can prove safe narrowing. The restricted group alone does not disable these previously reviewed HPO annotations. No key or restored key name is relevant to either kept source.
+
+HPO release metadata reports `v2026-09-01`, published 2026-09-03, and the preceding `v2026-06-23`. This proves those releases and dates, not a fixed monthly cadence or the version currently served by JAX or Monarch. The newer release lists hp.obo at 10,863,613 bytes, hp.json at 21,915,519, genes_to_phenotype.txt at 20,821,704, phenotype.hpoa at 35,816,037 and phenotype_to_genes.txt at 67,246,520. These are publisher asset sizes; no asset download or local index build occurred. The repository README supplies publisher ontology download pointers. The Monarch release endpoint returned only a mutable `latest` URL, not a pinned version or graph size. Its complete bundle cost and refresh cadence remain unmeasured.
+
+Keep live bounded entity access. Defer HPO ontology/annotation bundles and the whole Monarch graph because the harvested questions already have bounded source routes. This avoids downloading a whole graph to answer one exact term or association. A later offline/bulk question can justify explicit sync through the existing bundle framework. No external bioinformatics tool is downloaded, installed or run.
+
+## Progressive disclosure and measured cost
+
+Term search defaults to five compact headers. Exact HPO cards keep the complete definition, comment and publication references together because source comments prevent incorrect equivalence in this bank. Synonyms and cross-references are explicit five-row sections. Monarch hierarchy is explicit and defaults to five parent/child links, retaining the source relation and native order. Disease/gene association pages default to one complete row because qualifier and closure payloads dominate cost. Every section uses `--section-limit` and `--section-offset`; explicit limits retain their checked values. No field or complete comment is clipped to meet a budget.
+
+The offline formatter in `j14238` constructed proposed compact JSON views from the retained native bodies. These are design measurements, not outputs of an implemented command or accepted product schema. Its files preserve the full views and recipes outside Git. Full bytes include proposed source-use/terms fields. Comparable bytes remove exactly `use`, `terms` and `terms_url` from each source outcome; no other fields are removed. Tokens below are `ceil(comparable UTF-8 bytes / 4)`, a size proxy rather than a tokenizer result. The proposed ceilings use the maximum comparable measurement plus 15 percent. A later outside-in product case must measure the actual generated envelope and typed actions.
+
+| Layer and measured scope | Full bytes | Comparable bytes | Proxy tokens | Proposed comparable byte ceiling |
+| --- | --- | --- | --- | --- |
+| Five-header Monarch searches, P01–P16, including source candidate actions and paging | 384–1,364 | 253–1,233 | 64–309 | 1,418 |
+| Exact HPO cards, eighteen retained identities, complete definition/comment/references | 548–1,553 | 396–1,401 | 99–351 | 1,612 |
+| Exact Monarch Seizure card | 736 | 605 | 152 | 696 |
+| HPO synonyms, first five rows, eighteen cards | 437–582 | 285–430 | 72–108 | 495 |
+| HPO xrefs, first five rows, eighteen cards | 434–463 | 282–311 | 71–78 | 358 |
+| Monarch Seizure hierarchy, complete source payload of one parent and twelve children | 9,627 | 9,496 | 2,374 | 10,921 |
+| One-row native association views across all eight retained pages | 2,942–8,729 | 2,811–8,598 | 703–2,150 | 9,888 |
+| Two-row native association views across all eight retained pages | 8,130–13,863 | 7,999–13,732 | 2,000–3,433 | 15,792 |
+| Investigated similarity, full one-row native match details | 6,950 | 6,819 | 1,705 | Not proposed as a default |
+| Investigated similarity, full five-row native match details | 37,118 | 36,987 | 9,247 | Not proposed as a default |
+
+The hierarchy measurement conservatively retains the full native nodes, including null source fields and details the link view does not need. It is not a measurement of a five-link product page. The association views likewise retain complete native rows with their null fields and closures; their cost is a conservative source-bound design allocation. The implementation must preserve the shared clinically relevant association fields while measuring its actual projection. Synonym/xref pages with further rows need a typed continuation, whose actual cost is included in the implementation case. No claim of complete 1.0 output parity follows from these estimates.
+
+The native HPO search requests took 0.135–0.391 seconds, median 0.142, and returned 602–6,553 bytes. The HP-filtered Monarch searches took 0.135–0.622 seconds, median 0.160, and returned 176–8,178 bytes. The unfiltered initial Monarch search was 6,300 bytes and included other ontology namespaces. The initial similarity request took 3.979 seconds and returned 36,803 raw bytes for five rows. Its details explain why similarity must be an explicit expensive disclosure layer if kept. These are serial uncached HTTP observations on a shared M5, not warm product latency or quiet-machine speed baselines. No warm-cache timing is established. No per-card follow-up requests are hidden inside these request counts.
+
+Every 0.9 same-question byte/token measurement is unmeasured here because verified containment was not established and the binary was not run. The earlier disease investigation's bounded 0.9 outputs do not contain qualified phenotype/gene section comparisons. Static inspection shows 0.9 incurs term resolution, similarity and a direct-support enrichment query; it does not establish this bank's live facts or comparative completeness. A future contained baseline can reuse retained exact requests; it cannot treat a rewritten request as identical to the literal term search.
+
+## Acceptance cases by command and option
+
+| Surface | Positive story and contrasting case |
+| --- | --- |
+| Literal `search phenotype TEXT` | P02/P05 exact label, P01/P06/P08/P10/P14 ambiguous subtype or multiplicity, P09 unmatched term, P24 successful empty. Assert native ordering, returned HP namespace and match metadata. |
+| Search `--source monarch` and default source | Same checked request and source; disabled source before cache/network; unsupported source is usage error rather than fallback. |
+| Search `--limit` / `--offset` | Native P02/P16 first and next pages, terminal empty and exact next args. Add positive native paging capture before types/adapters; this investigation proves the contract and first page, not a new middle-page capture. Zero, overflow and out-of-range inputs fail before I/O. |
+| Exact get and `--source hpo` | All eighteen exact identities; P24 unknown exact term; mismatched requested/returned identity and malformed/null identifier are recorded failures. HP grammar and wrong namespace fail before I/O. |
+| Exact get `--source monarch` | Seizure exact identity; source-specific synonym/deprecation behavior. Add exact obsolete-term capture before implementing obsolete replacement actions; the search label alone is insufficient. |
+| `synonyms` / `xrefs` | P02/P05/P16 source arrays; preserve unclassified versus classified synonyms. Add a positive Monarch xref capture before offering a Monarch xref section if the retained Seizure xref is null. Empty lists remain distinct from unavailable fields. |
+| `hierarchy` | Seizure's captured one parent/twelve children, native order, source relation and exact IDs. First/next/terminal local pages remain bound to the retained entity revision; no invented graph traversal. |
+| `diseases` / `genes` | Reverse Seizure pages and P18–P23 exact endpoints; gene human taxon and original identity; two rows with different provenance must not collapse. Add native next-page and wrong-taxon rejection cases before implementation. |
+| Section `--section-limit` / `--section-offset` | Omitted one-row association default versus explicit two-row limit, five-row text/link defaults, exact page action and terminal empty. Numeric bounds before I/O; no hidden fetch of all pages. |
+| Existing disease section | Reuse P18–P20 source facts without changing its closure-expanded contract. Qualifiers never transfer between subtype and parent or rows. |
+| `--fresh` / source policy | Shared fresh/cache contracts, disabled component before reads, stale source metadata, source failure versus successful empty. Preserve allowed sibling source results without automatic fallback. |
+| CLI / main MCP tool / read-only wrappers | Shared checked request, schema and source facts. Typed next arguments round-trip unchanged; wrappers retain canonical publisher links and omit uncitable rows using the existing wrapper contract. |
+| Error and cost cases | Recorded 429, 500, timeout, malformed/truncated body, wrong identity/taxon, null qualifiers, explicit false negation, missing version, measured output ceilings and comments retained whole. An investigation recipe defect is not relabeled a provider outage. |
+
+The HPO term card has no native deprecation/version field in this capture. Source metadata cannot establish the absence of an obsolete status or a release binding. Required positive paging, obsolete and xref captures are implementation admission work, not claims that the investigation already observed those records. A source-specific section is offered only after its actual public fields are captured.
+
+## Ian's questions
+
+The PM reviews these product choices and escalates only a ruling conflict or material expansion that needs Ian. The investigation asks Ian no clinical or configuration question.
+
+1. **Keep term identity and explicit association retrieval?** Recommend the bounded term search/exact HPO card and reuse of the existing Monarch association model. They answer the bank without first-hit equivalence or patient ranking. No paid service, key, large bundle or external tool is needed.
+2. **Keep source-native similarity as a separate explicit research operation?** P17 supplies a sourced question, but the earlier disease slice retired symptom-to-diagnosis ranking. Recommend deferring it from the first implementation until the PM records its naming and scope. Native score and best-match details cost materially more than term identity; no diagnostic promise or default enrichment is justified.
+3. **Keep the proposed disclosure allocations?** Recommend five term headers and one complete association row by default, with whole term definitions/comments and exact source qualifiers preserved. Actual product envelopes still need measured ceilings and source-specific positive captures before their schemas are accepted.
+
+No release, external publication, paid commitment or licensed upstream data access is requested by this design.
