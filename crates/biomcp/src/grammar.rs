@@ -94,6 +94,19 @@ pub(crate) fn global_arguments() -> Command {
     }
     root
 }
+pub(crate) fn is_housekeeping(args: &[OsString]) -> bool {
+    global_arguments()
+        .allow_external_subcommands(true)
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .ok()
+        .and_then(|matches| matches.subcommand_name().map(str::to_owned))
+        .is_some_and(|name| {
+            housekeeping_commands()
+                .iter()
+                .any(|command| command.get_name() == name)
+        })
+}
+
 fn root() -> Result<Command, ()> {
     let mut root = global_arguments();
     for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
