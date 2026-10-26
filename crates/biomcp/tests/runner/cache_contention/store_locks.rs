@@ -1,6 +1,7 @@
 //! Features pathway-wikipathways and diagnostic-cdx: external locks retain typed failures.
 use super::super::{
-    diagnostic_cdx, launch::Environment, mcp::request, publication::Peer, wikipathways,
+    diagnostic_cdx, launch::Environment, mcp::request, publication::Peer, schema::Registry,
+    wikipathways,
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -17,6 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 
 fn locked(cdx: bool) -> Result<(), String> {
+    let schemas = Registry::embedded()?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = if cdx {
         diagnostic_cdx::seed(&env)?
@@ -31,7 +33,7 @@ fn locked(cdx: bool) -> Result<(), String> {
     let mut peer = Peer::with_globals(&env, &env.globals(Some(&replay), false))?;
     let source = if cdx { "fda-cdx" } else { "wikipathways" };
     let sync = vec!["sync", source];
-    let initial = call(&mut peer, &sync)?;
+    let initial = call(&mut peer, &schemas, &sync)?;
     if initial.pointer("/result/isError") != Some(&json!(false))
         || initial
             .pointer("/result/structuredContent/local_error")
@@ -46,6 +48,7 @@ fn locked(cdx: bool) -> Result<(), String> {
     if !cdx {
         let reader = call(
             &mut peer,
+            &schemas,
             &["search", "pathway", "Atlas", "--source", source],
         )?;
         failure(&reader)?;
@@ -53,11 +56,11 @@ fn locked(cdx: bool) -> Result<(), String> {
             return Err(format!("reader lost its checked provider state: {reader}"));
         }
     }
-    failure(&call(&mut peer, &sync)?)?;
+    failure(&call(&mut peer, &schemas, &sync)?)?;
     let mut args = env.globals(Some(&replay), false);
     args.extend(sync.iter().map(|word| (*word).to_owned()));
     let startup = super::super::configuration::invoke(&env, args.clone(), 5)?;
-    super::super::schema::Registry::embedded()?.validate(&startup, &args, false)?;
+    schemas.validate(&startup, &args, false)?;
     if startup.get("local_error") != Some(&json!("busy"))
         || startup.get("status") != Some(&json!("local"))
     {
@@ -67,7 +70,7 @@ fn locked(cdx: bool) -> Result<(), String> {
     peer.finish()
 }
 
-fn call(peer: &mut Peer, args: &[&str]) -> Result<Value, String> {
+fn call(peer: &mut Peer, schemas: &Registry, args: &[&str]) -> Result<Value, String> {
     peer.send(&request(
         json!(1),
         "tools/call",
@@ -78,7 +81,7 @@ fn call(peer: &mut Peer, args: &[&str]) -> Result<Value, String> {
         .pointer("/result/structuredContent")
         .ok_or("content missing")?;
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
-    super::super::schema::Registry::embedded()?.validate(content, &words, false)?;
+    schemas.validate(content, &words, false)?;
     Ok(reply)
 }
 
