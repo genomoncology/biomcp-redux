@@ -278,7 +278,7 @@ fn discovery(env: &Environment) -> Result<(), String> {
         description.len()
     );
     let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["--help".to_string()])
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".to_string()])
         .output()
         .map_err(|e| e.to_string())?;
     if !output.status.success() {
