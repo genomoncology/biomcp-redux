@@ -198,3 +198,34 @@ fn overload() -> Check {
     drop(held);
     Ok(())
 }
+
+pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Value), String> {
+    let cache = server.environment().root().join("case-cache");
+    let database = std::fs::read_dir(&cache)
+        .map_err(|e| e.to_string())?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .find(|path| {
+            path.extension()
+                .is_some_and(|extension| extension == "sqlite")
+        })
+        .ok_or("missing cache database")?;
+    let connection = rusqlite::Connection::open(&database).map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
+    #[cfg(unix)]
+    let permissions = std::fs::metadata(&cache)
+        .map_err(|e| e.to_string())?
+        .permissions();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&cache, std::fs::Permissions::from_mode(0o555))
+            .map_err(|e| e.to_string())?;
+    }
+    let response = server.request("GET", "/health", "");
+    #[cfg(unix)]
+    std::fs::set_permissions(&cache, permissions).map_err(|e| e.to_string())?;
+    response
+}
