@@ -37,6 +37,77 @@ sys.exit(result.returncode)
 '''
 
 
+def classification_case(change):
+    def request(identity, role, digest, status=200):
+        return {"identity": identity, "source": "pubmed", "role": role,
+                "status": status, "cached": False, "response_digest": digest,
+                "url": "https://example.org/" + role, "shape": {}}
+    discovery = request('search', 'discovery', 'old')
+    discovery['provenance'] = {"discovery": {"namespace": "pmid", "ids": ["old-id"]}}
+    dependent = request('old-id', 'detail', 'detail')
+    dependent['provenance'] = {"input_context": "fixed-checked-request", "inputs": {
+        "namespace": "pmid", "ids": ["old-id"]}}
+    live_discovery = dict(discovery, provenance={"discovery": {
+        "namespace": "pmid", "ids": ["new-id" if change == 'discovery' else "old-id"]}})
+    live_dependent = dict(dependent, identity='new-id', provenance={
+        "input_context": "fixed-checked-request", "inputs": {
+        "namespace": "pmid", "ids": ["new-id"]}})
+    drift = ['old-id: request-plan-changed']
+    if change == 'order':
+        live_dependent = dependent
+    if change in ('429', '500'):
+        live_dependent = dict(dependent, status=int(change))
+        drift = ['old-id: HTTP status Some(200) -> Some(' + change + ')']
+    if change == 'invariant':
+        drift = ['search: field removed: /ids']
+    if change == 'missing':
+        live_dependent.pop('provenance')
+    if change == 'unrelated':
+        live_discovery['provenance']['discovery']['ids'] = ['unrelated-id']
+    if change == 'schema':
+        drift.append('output schema failure')
+    if change in ('rank', 'unused-tail', 'parameter', 'omitted', 'omitted-count'):
+        discovery['provenance']['discovery']['ids'] = ['a', 'b', 'x']
+        live_discovery['provenance']['discovery']['ids'] = ['b', 'a', 'x']
+        dependent['provenance']['inputs']['ids'] = ['a']
+        live_dependent['provenance']['inputs']['ids'] = ['b']
+    if change == 'unused-tail':
+        live_discovery['provenance']['discovery']['ids'] = ['a', 'b', 'y']
+        dependent['provenance']['inputs']['ids'] = ['a', 'b']
+        live_dependent['provenance']['inputs']['ids'] = ['b', 'a']
+    if change == 'parameter':
+        live_dependent['provenance']['input_context'] = 'changed-non-id-parameter'
+    if change == 'omitted':
+        drift.append('more drift details omitted; counts are in command exchanges')
+    if change in ('429-output', '429-schema', '429-other-error', '500-output'):
+        live_dependent = dict(dependent, status=500 if change == '500-output' else 429)
+        drift = ['old-id: HTTP status Some(200) -> Some(' + str(live_dependent['status']) + ')',
+                 'command 1: output status changed: Some(String("complete")) -> Some(String("failed"))']
+        if change == '429-schema':
+            drift.append('output schema failure')
+    before = [discovery, dependent]
+    after = [live_discovery, live_dependent]
+    if change == 'order':
+        after.reverse()
+    witness = [{"ordinal": 1,
+                "baseline": {"requests": before}, "live": {"requests": after}}]
+    if change in ('429-output', '429-schema', '429-other-error', '500-output'):
+        witness[0]['baseline']['output'] = {'status': 'complete'}
+        witness[0]['live']['output'] = {'status': 'failed', 'sources': [
+            {'source': 'pubmed', 'state': 'failed', 'reason': 'rate_limited'}]}
+        if change == '429-other-error':
+            witness[0]['live']['output']['sources'].append(
+                {'source': 'icite', 'state': 'failed', 'reason': 'bad_reply'})
+    if change in ('cut', 'clean-cut'):
+        if change == 'clean-cut':
+            drift = []
+        witness = {"cut": True}
+    result = {"drift": drift}
+    if change == 'omitted-count':
+        result['commands'] = [{'ordinal': 1, 'exchanges': {'drift_omitted': 1}}]
+    return {"case": change, "result": result, "witness": witness}
+
+
 class NightlyCommand(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -115,13 +186,46 @@ class NightlyCommand(unittest.TestCase):
                           "shape": {"fields": {"/id": True}}}],
             "result_ids": [{"field": "id", "value": "new"}], "output": {"id": "new"}}}
         report = {"drift_cases": 1, "error_cases": 0,
-                  "case_sample": [{"case": "changed", "witness": witness},
+                  "case_sample": [{"case": "changed", "witness": witness,
+                                   "result": {"drift": ["x: request-plan-changed"]}},
                                   {"case": "clean", "result": {"drift": []}}]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
         self.assertNotEqual(result.returncode, 0)
         copied = json.loads((self.copied() / 'report.json').read_text())
-        self.assertEqual(copied, report)
+        self.assertEqual(copied['case_sample'][0]['witness'], witness)
+        self.assertEqual(copied['case_sample'][0]['classification'], 'uncertain')
         self.assertEqual(self.scratch(), [])
+
+    def classified(self, row, expected, exit_code):
+        shutil.rmtree(self.store, ignore_errors=True)
+        report = {"drift_cases": int(bool(row["result"]["drift"])), "error_cases": 0,
+                  "checked": 1, "omitted": 0, "case_sample": [row]}
+        result = self.run_command(FAKE_REPORT=json.dumps(report))
+        self.assertEqual(result.returncode == 0, exit_code == 0, result.stdout + result.stderr)
+        saved = json.loads((self.copied() / 'report.json').read_text())
+        self.assertEqual(saved['case_sample'][0]['classification'], expected)
+        self.assertEqual(saved[expected + '_cases'], 1)
+
+    def test_discovery_changes_dependents_but_not_invariants(self):
+        for change, expected, code in [
+                ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
+                ('order', 'healthy', 0), ('schema', 'failure', 1),
+                ('500', 'failure', 1), ('429', 'throttled', 0),
+                ('cut', 'uncertain', 1), ('clean-cut', 'uncertain', 1), ('missing', 'uncertain', 1),
+                ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
+            with self.subTest(change=change):
+                self.classified(classification_case(change), expected, code)
+
+    def test_causality_requires_ordered_selection_complete_diagnostics_and_fixed_parameters(self):
+        for change, expected, code in [
+                ('rank', 'churn', 0), ('unused-tail', 'failure', 1),
+                ('parameter', 'failure', 1), ('omitted', 'uncertain', 1),
+                ('omitted-count', 'uncertain', 1),
+                ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
+                ('429-other-error', 'failure', 1),
+                ('500-output', 'failure', 1)]:
+            with self.subTest(change=change):
+                self.classified(classification_case(change), expected, code)
 
     def test_failed_copy_or_manifest_keeps_scratch(self):
         for failure in ['fail', 'manifest']:

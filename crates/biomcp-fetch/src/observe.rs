@@ -133,6 +133,9 @@ pub struct Observation {
     pub interval_ms: u64,
     /// Wire duration in milliseconds.
     pub elapsed_ms: u64,
+    /// Optional explicit discovery and dependent request context.
+    #[serde(default)]
+    pub provenance: crate::Provenance,
     /// Bounded raw response shape.
     pub shape: Shape,
 }
@@ -188,7 +191,7 @@ impl crate::Leg<'_> {
                 body.len() as u64,
                 Shape::inspect(body, media),
                 elapsed,
-                ("bundle", false, request.1),
+                ("bundle", false, request.1, crate::Provenance::default()),
             );
         }
     }
@@ -229,7 +232,7 @@ impl crate::Leg<'_> {
             body.len() as u64,
             Shape::inspect(header, media),
             elapsed,
-            ("bundle", false, request.1),
+            ("bundle", false, request.1, crate::Provenance::default()),
         );
     }
     pub(crate) fn observed(
@@ -239,7 +242,7 @@ impl crate::Leg<'_> {
         bytes: u64,
         shape: Shape,
         elapsed: std::time::Duration,
-        context: (&str, bool, &str),
+        context: (&str, bool, &str, crate::Provenance),
     ) {
         if let Some(sink) = &self.fetch.config.observations {
             sink.push(&Observation {
@@ -260,6 +263,7 @@ impl crate::Leg<'_> {
                 .unwrap_or(u64::MAX),
                 elapsed_ms: u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX),
                 shape,
+                provenance: context.3,
             });
         }
     }

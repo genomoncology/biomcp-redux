@@ -1,7 +1,9 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
 mod observe;
+mod observe_context;
 pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
+pub use observe_context::{Identities, Provenance};
 mod batch;
 mod bundle;
 mod cache;
@@ -50,6 +52,14 @@ use std::{collections::BTreeMap, fmt, time::Duration};
 pub trait Reply: serde::de::DeserializeOwned {
     /// Refuse provider error envelopes and incomplete answers.
     fn check(&self) -> Result<(), BadReply>;
+    /// Source-given identities used to discover dependent requests, only for explicit reply types.
+    fn discovery(&self) -> Option<Identities> {
+        None
+    }
+    /// Explicit namespace and ID parameter used by this dependent request.
+    fn input_parameter() -> Option<(&'static str, &'static str)> {
+        None
+    }
     /// Refuse a successful-looking body on an error status. Explicit validation-reply types may accept only their checked rejection form.
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
         if (200..300).contains(&status) {

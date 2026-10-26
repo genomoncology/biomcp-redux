@@ -85,6 +85,9 @@ struct Raw {
     data: Vec<Row>,
 }
 impl Reply for Raw {
+    fn input_parameter() -> Option<(&'static str, &'static str)> {
+        Some(("pmid", "pmids"))
+    }
     fn check(&self) -> Result<(), BadReply> {
         let ids: BTreeSet<_> = self.data.iter().map(|r| r.pmid.0).collect();
         if self.data.len() > BATCH_LIMIT || ids.len() != self.data.len() {
