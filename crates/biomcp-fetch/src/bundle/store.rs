@@ -136,7 +136,7 @@ impl Cache {
         lease: i64,
         d: Deadline<'_>,
     ) -> Result<Option<Part>, CacheError> {
-        self.sql(d,|c|{
+        self.write_sql(d,|c|{
             let tx=c.unchecked_transaction().map_err(db_error)?;
             let old=tx.query_row("SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",[name],|r|Ok((r.get::<_,Option<String>>(0)?,r.get::<_,i64>(1)?,r.get::<_,String>(2)?,Part{path:r.get(3)?,bytes:u64::from(r.get::<_,u32>(4)?),etag:r.get(5)?,total:r.get::<_,Option<u32>>(6)?.map(u64::from)}))).optional().map_err(db_error)?;
             if old.as_ref().is_some_and(|(h,until,_,_)|h.is_some()&&*until>now()){return Err(CacheError::Busy);}
@@ -159,7 +159,7 @@ impl Cache {
         p: &Part,
         d: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        self.sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes as i64,p.etag,p.total.map(|n|n as i64)]).map(|n|n==1).map_err(db_error))
+        self.write_sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes as i64,p.etag,p.total.map(|n|n as i64)]).map(|n|n==1).map_err(db_error))
     }
 }
 fn prefix_end(s: &str) -> Option<String> {

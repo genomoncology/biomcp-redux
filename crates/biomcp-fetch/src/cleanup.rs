@@ -10,7 +10,7 @@ impl Fetch {
     /// Remove expired transport replies only when the caller explicitly requests cleanup.
     pub fn clean_expired_replies(&self, deadline: Deadline<'_>) -> Result<u64, CacheError> {
         let cache = self.cache.as_ref().ok_or(CacheError::Database)?;
-        cache.sql(deadline, |c| {
+        cache.write_sql(deadline, |c| {
             c.execute("DELETE FROM reply WHERE fresh_until<=?1", [now()])
                 .map(|n| n as u64)
                 .map_err(db_error)

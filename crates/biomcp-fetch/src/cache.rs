@@ -25,6 +25,7 @@ pub(crate) struct Cache(
     Mutex<Connection>,
     pub(crate) std::path::PathBuf,
     pub(crate) std::path::PathBuf,
+    Mutex<()>,
 );
 
 #[derive(Debug, serde::Serialize)]
@@ -145,6 +146,7 @@ impl Cache {
             Mutex::new(connection),
             path.with_extension("parts"),
             path.to_owned(),
+            Mutex::new(()),
         ))
     }
 
@@ -236,67 +238,37 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let started = std::time::Instant::now();
-        let remaining = deadline.remaining();
-        loop {
-            if deadline.expired() || started.elapsed() >= remaining {
-                return Err(CacheError::Busy);
-            }
-            match self.0.try_lock() {
-                Ok(connection) => {
-                    connection
-                        .busy_timeout(if deadline.virtual_time() {
-                            Duration::ZERO
-                        } else {
-                            deadline.remaining()
-                        })
-                        .map_err(db_error)?;
-                    return operation(&connection);
-                }
-                Err(std::sync::TryLockError::Poisoned(_)) => return Err(CacheError::Database),
-                Err(std::sync::TryLockError::WouldBlock) => {
-                    std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
-                }
-            }
-        }
+        let connection = wait_mutex(&self.0, deadline)?;
+        connection
+            .busy_timeout(if deadline.virtual_time() {
+                Duration::ZERO
+            } else {
+                deadline.remaining()
+            })
+            .map_err(db_error)?;
+        operation(&connection)
     }
 
-    // A publication uses its own connection. Retry a rolled-back transaction
-    // only behind a local SQL owner; never turn external replay contention into
-    // a real-time busy wait. One immediate retry closes the owner-release race.
+    // Ordinary transport mutations take the connection before write admission.
+    pub(crate) fn write_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        self.sql(deadline, |connection| {
+            let _writer = wait_mutex(&self.3, deadline)?;
+            operation(connection)
+        })
+    }
+
+    // Publishers borrow only write admission, never the ordinary connection.
     pub(crate) fn publish_sql<T>(
         &self,
         deadline: Deadline<'_>,
-        mut operation: impl FnMut() -> Result<T, CacheError>,
+        operation: impl FnOnce() -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let started = std::time::Instant::now();
-        let remaining = deadline.remaining();
-        let mut idle_retry = false;
-        loop {
-            if deadline.expired() || started.elapsed() >= remaining {
-                return Err(CacheError::Busy);
-            }
-            match operation() {
-                Err(CacheError::Busy) => {
-                    let owned =
-                        matches!(self.0.try_lock(), Err(std::sync::TryLockError::WouldBlock));
-                    if !owned {
-                        if idle_retry {
-                            return Err(CacheError::Busy);
-                        }
-                        idle_retry = true;
-                    } else {
-                        idle_retry = false;
-                        std::thread::park_timeout(
-                            Duration::from_millis(1)
-                                .min(deadline.remaining())
-                                .min(remaining.saturating_sub(started.elapsed())),
-                        );
-                    }
-                }
-                result => return result,
-            }
-        }
+        let _writer = wait_mutex(&self.3, deadline)?;
+        operation()
     }
 
     pub(crate) fn read(
@@ -340,13 +312,13 @@ impl Cache {
                             }))
                         }
                         _ => {
-                            Self::delete(connection, key)?;
+                            self.delete(connection, key)?;
                             Ok(None)
                         }
                     }
                 }
                 Some(_) => {
-                    Self::delete(connection, key)?;
+                    self.delete(connection, key)?;
                     Ok(None)
                 }
                 None => Ok(None),
@@ -368,19 +340,17 @@ impl Cache {
         if deadline.expired() {
             return Err(CacheError::Busy);
         }
-        let connection = self.0.try_lock().map_err(|error| match error {
-            std::sync::TryLockError::WouldBlock => CacheError::Busy,
-            std::sync::TryLockError::Poisoned(_) => CacheError::Database,
-        })?;
+        let connection = try_mutex(&self.0)?;
         connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
         operation(&connection)
     }
 
     pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline<'_>) -> Result<(), CacheError> {
-        self.try_sql(deadline, |connection| Self::delete(connection, key))
+        self.try_sql(deadline, |connection| self.delete(connection, key))
     }
 
-    fn delete(connection: &Connection, key: &[u8; 32]) -> Result<(), CacheError> {
+    fn delete(&self, connection: &Connection, key: &[u8; 32]) -> Result<(), CacheError> {
+        let _writer = try_mutex(&self.3)?;
         connection
             .execute("DELETE FROM reply WHERE key=?1", [key])
             .map_err(db_error)?;
@@ -395,7 +365,7 @@ impl Cache {
         entry: &Entry,
         deadline: Deadline<'_>,
     ) -> Result<(), CacheError> {
-        self.sql(deadline, |connection| {
+        self.write_sql(deadline, |connection| {
             connection.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
                 ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",
@@ -403,6 +373,34 @@ impl Cache {
             ).map_err(db_error)?;
             Ok(())
         })
+    }
+}
+
+fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheError> {
+    mutex.try_lock().map_err(|error| match error {
+        std::sync::TryLockError::WouldBlock => CacheError::Busy,
+        std::sync::TryLockError::Poisoned(_) => CacheError::Database,
+    })
+}
+
+fn wait_mutex<'a, T>(
+    mutex: &'a Mutex<T>,
+    deadline: Deadline<'_>,
+) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
+    let started = std::time::Instant::now();
+    let remaining = deadline.remaining();
+    loop {
+        if deadline.expired() || started.elapsed() >= remaining {
+            return Err(CacheError::Busy);
+        }
+        match try_mutex(mutex) {
+            Err(CacheError::Busy) => std::thread::park_timeout(
+                Duration::from_millis(1)
+                    .min(deadline.remaining())
+                    .min(remaining.saturating_sub(started.elapsed())),
+            ),
+            result => return result,
+        }
     }
 }
 
