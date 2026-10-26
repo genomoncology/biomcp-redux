@@ -9,7 +9,7 @@ use sha2::{Digest, Sha256};
 pub(super) type Rows = (PhenotypeTermCard, Option<Box<[PhenotypeSynonym]>>, Option<Box<[PhenotypeXref]>>, Option<Box<[PhenotypeHierarchyLink]>>, Option<u64>);
 type Saved = (Rows, Vec<SourceOutcome>);
 fn key(q: &PhenotypeGet) -> Vec<u8> {
-    Sha256::digest(format!("biomcp.phenotype-reply/1\0{}\0{}", q.source(), q.id()).as_bytes()).to_vec()
+    Sha256::digest(format!("biomcp.phenotype-reply/1\0{}\0{}", q.source().as_str(), q.id()).as_bytes()).to_vec()
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let mut out = empty(super::sections::empty(q));
