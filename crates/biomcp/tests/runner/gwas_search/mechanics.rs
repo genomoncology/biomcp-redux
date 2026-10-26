@@ -24,7 +24,6 @@ pub(super) fn admission() -> Result<(), String> {
         let url = url(&p);
         let mut response = body(&url, 0, 6);
         alter(&mut response, fault, &url)?;
-        let replay = seed(&env, &url, response, 200, 0)?;
         let args = [
             "search",
             "gwas",
@@ -37,6 +36,7 @@ pub(super) fn admission() -> Result<(), String> {
             "--trait-id",
             "MONDO_0004989",
         ];
+        let replay = seed(&env, &args, response, 200, 0)?;
         let failed = call(&env, &replay, &args, 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || failed.get("result").is_some()
@@ -93,7 +93,7 @@ pub(super) fn failures() -> Result<(), String> {
         };
         let replay = seed_text(
             &env,
-            &url,
+            &["search", "gwas", "--pubmed", "17529967"],
             text,
             fault.parse().unwrap_or(200),
             if fault == "timeout" { 16000 } else { 0 },
@@ -115,7 +115,13 @@ pub(super) fn failures() -> Result<(), String> {
     }
     let env = Environment::new().map_err(|e| e.to_string())?;
     let url = url(&pairs());
-    let replay = seed(&env, &url, body(&url, 0, 0), 200, 0)?;
+    let replay = seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967"],
+        body(&url, 0, 0),
+        200,
+        0,
+    )?;
     let v = call(
         &env,
         &replay,

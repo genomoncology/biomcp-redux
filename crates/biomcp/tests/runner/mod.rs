@@ -74,6 +74,7 @@ mod oncokb;
 mod oncokb_context;
 mod pathway_commands;
 mod pathway_registry;
+mod pathway_sections;
 mod pdf;
 mod pgx_registry;
 mod pgx_retirements;

@@ -27,8 +27,8 @@
         "/result/pathway/version": "R-HSA-2028269.3",
         "/result/release": "97"
       },
-      "max_bytes": 541,
-      "max_tokens": 136
+      "max_bytes": 699,
+      "max_tokens": 175
     },
     {
       "run": [

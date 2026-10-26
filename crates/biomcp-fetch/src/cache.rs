@@ -12,7 +12,7 @@ use std::{
 };
 
 /// Transport SQLite schema version checked by other owners of the shared database.
-pub const VERSION: u32 = 3;
+pub const VERSION: u32 = 4;
 /// Compatible cache namespace used by callers when naming shared cache files.
 pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
@@ -147,7 +147,9 @@ impl Cache {
         } else {
             None
         };
-        if version.is_some_and(|version| version != 1 && version != 2 && version != VERSION) {
+        if version.is_some_and(|version| {
+            version != 1 && version != 2 && version != 3 && version != VERSION
+        }) {
             return Err(CacheError::Version);
         }
         if version.is_none() {
@@ -177,6 +179,9 @@ impl Cache {
                 .map_err(db_error)?;
         }
         crate::bundle::store::initialize(&tx)?;
+        if matches!(version, Some(1..=3)) {
+            crate::cache_hgnc::backfill(&tx)?;
+        }
         tx.execute(
             "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
             (OWNER, VERSION),
