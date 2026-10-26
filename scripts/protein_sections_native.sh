@@ -35,8 +35,14 @@ if previous:
     reused = root/'protein-section-native/reused-cases'
     reused.mkdir()
     for result in (old/'protein-section-native/outputs').glob('*.json'):
-        case = root/'protein-section-native/cases'/(result.stem+'.yaml')
-        if case.is_file(): shutil.move(case, reused/case.name)
+        if result.stem.startswith('walk-'):
+            case = root/'protein-section-native/walks'/(result.stem[5:]+'.yaml')
+            target = root/'protein-section-native/reused-walks'
+            target.mkdir(exist_ok=True)
+        else:
+            case = root/'protein-section-native/cases'/(result.stem+'.yaml')
+            target = reused
+        if case.is_file(): shutil.move(case, target/case.name)
     for path in [*old.glob('*proof*.log'), *old.glob('*revision*.txt')]:
         shutil.copyfile(path, root/('prior-'+path.name))
     print('Reuse', len(list(reused.iterdir())), 'completed native cases from', old.name)
@@ -58,7 +64,7 @@ if previous:
         shutil.copyfile(path, root/'protein-section-native/outputs'/path.name)
 for path in [*root.glob('*proof*.log'), *root.glob('*revision*.txt')]:
     shutil.copyfile(path, evidence/path.name)
-for kind, folder in [('case', 'cases'), ('reused', 'reused-cases'), ('walk', 'walks'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
+for kind, folder in [('case', 'cases'), ('reused', 'reused-cases'), ('walk', 'walks'), ('reused-walk', 'reused-walks'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
     directory = root/'protein-section-native'/folder
     if not directory.is_dir(): continue
     for path in directory.iterdir():
