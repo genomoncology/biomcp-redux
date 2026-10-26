@@ -16,3 +16,4 @@ The parity ledger compares every accounting row with a checked-in inventory of t
 - Proof: docs-check fails on a planted phantom row, a planted unknown option and a planted missing leaf, and passes on the real tables. upgrade.md shows the deferred rows as deferred. The printed totals equal the inventory's counts.
 - Changes: `scripts/parity.py`, the inventory file and its generator, the affected slice tables, ROADMAP.md's ledger and upgrade.md.
 - Defers: deciding the remaining undecided rows, which 0275 does on top of this ticket.
+- PM ruling 2026-10-26 (m8126 ask 8): a leaf with no row legitimately raises Not yet decided by set difference, so the proof plants a row naming an unknown leaf, a phantom row and a phantom option, each of which fails, plus generated-ledger drift, which fails. Merged per-entity `list X` rows become one canonical `list` row left Not yet decided for 0275 unless an existing ruling settles it.
