@@ -104,7 +104,8 @@ class CapturePlanTests(unittest.TestCase):
         evidence.mkdir()
         payload = evidence / 'payload'
         payload.write_bytes(b'{}')
-        os.setxattr(payload, 'com.biomcp.capture-test', b'outside-in-witness')
+        subprocess.run(['xattr', '-w', 'com.biomcp.capture-test',
+                        'outside-in-witness', str(payload)], check=True)
         (evidence / 'manifest.json').write_text(json.dumps(
             {'payload': hashlib.sha256(b'{}').hexdigest()}))
         archive = self.base / 'metadata.tar.gz'
