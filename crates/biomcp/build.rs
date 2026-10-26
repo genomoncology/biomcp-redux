@@ -36,6 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("phenotype/examples.yaml", 0),
+    ("phenotype/examples.yaml", 1),
     ("pathway/examples.yaml", 0),
     ("pathway/examples.yaml", 1),
     ("pathway/examples.yaml", 2),

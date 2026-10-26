@@ -1,0 +1,41 @@
+{
+  "feature": "phenotype-identity",
+  "story": "Executable phenotype examples use isolated synthetic source replies.",
+  "replay": "phenotype/synthetic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "synthetic"
+      ],
+      "mcp": [
+        "search",
+        "phenotype",
+        "synthetic"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "HP:0000001"
+      },
+      "max_bytes": 5000
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000001"
+      ],
+      "mcp": [
+        "get",
+        "phenotype",
+        "HP:0000001"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/term/definition": "Complete synthetic definition"
+      },
+      "max_bytes": 5000
+    }
+  ]
+}

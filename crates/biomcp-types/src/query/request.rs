@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover literal HP term candidates in publisher order.
+    SearchPhenotype(crate::PhenotypeSearch),
+    /// Read one independent exact HPO or Monarch term card.
+    GetPhenotype(crate::PhenotypeGet),
     /// Discover source-native human pathway headers.
     SearchPathway(crate::PathwaySearch),
     /// Read an exact human pathway card or summary.

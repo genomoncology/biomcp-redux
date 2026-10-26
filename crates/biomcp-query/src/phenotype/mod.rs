@@ -53,6 +53,7 @@ pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
         out.status = overall(&out, page.total == 0);
     }
     problem(&mut out, Source::Monarch, None);
+    recovery(&mut out, Request::SearchPhenotype(q.clone()));
     command.finish(deadline.remaining());
     out
 }
@@ -98,5 +99,22 @@ fn problem(out: &mut Outcome, source: Source, record: Option<biodata::Curie>) {
             field: "record".into(),
             code: biomcp_types::ProblemCode::ValueUnknown,
         });
+    }
+}
+
+fn recovery(out: &mut Outcome, request: Request) {
+    if out.sources.iter().any(|s| {
+        matches!(
+            s.state,
+            biomcp_types::SourceState::Failed | biomcp_types::SourceState::Stale
+        )
+    }) {
+        out.next.push((
+            StepKind::Fresh,
+            Action::Run {
+                request,
+                fresh: true,
+            },
+        ));
     }
 }

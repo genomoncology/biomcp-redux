@@ -5,8 +5,9 @@ mod disease;
 mod drug;
 mod drug_label;
 mod maintenance;
-mod pgx;
 mod pathway;
+mod pgx;
+mod phenotype;
 mod steps;
 mod variant;
 
@@ -111,7 +112,10 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if disease::unsupported(action) || pathway::unsupported(action) {
+    if disease::unsupported(action)
+        || pathway::unsupported(action)
+        || phenotype::unsupported(action)
+    {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
     if let Action::Run {
@@ -222,6 +226,9 @@ fn response(
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
         Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
+        Request::SearchPhenotype(_) | Request::GetPhenotype(_) => {
+            phenotype::encode(meta, request, body)
+        }
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_) => {
             pgx::encode(meta, request, body)
         }
