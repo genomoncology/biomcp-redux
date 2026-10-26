@@ -3,7 +3,9 @@ pub(crate) mod key_file;
 use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
 use serde::Deserialize;
-use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
+use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
+#[cfg(test)]
+mod deferred_keys;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -220,30 +222,33 @@ pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ()> {
     Ok(secrets_from(read_file(globals.config.as_ref())?.as_ref()))
 }
 fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
+    secrets_using(file.and_then(|file| file.keys.clone()), variable)
+}
+fn secrets_using(
+    keys: Option<std::collections::BTreeMap<String, String>>,
+    environment: impl Fn(&str) -> Option<PathBuf> + Send + Sync + 'static,
+) -> Secrets {
     let mut secrets = Secrets::default();
-    let keys = file.and_then(|file| file.keys.clone());
-    let deferred_keys = keys.clone();
-    secrets.defer(SecretName::SemanticScholarApiKey, move || {
-        configured_secret(deferred_keys.as_ref(), SecretName::SemanticScholarApiKey)
-    });
-    for &name in SecretName::ALL
-        .iter()
-        .filter(|&&name| name != SecretName::SemanticScholarApiKey)
-    {
-        if let Some(value) = configured_secret(keys.as_ref(), name) {
-            secrets.insert(name, value);
-        }
+    let keys = Arc::new(keys);
+    let environment = Arc::new(environment);
+    for &name in SecretName::ALL {
+        let keys = keys.clone();
+        let environment = environment.clone();
+        secrets.defer(name, move || {
+            configured_secret(keys.as_ref().as_ref(), name, environment.as_ref())
+        });
     }
     secrets
 }
 fn configured_secret(
     keys: Option<&std::collections::BTreeMap<String, String>>,
     name: SecretName,
+    environment: &impl Fn(&str) -> Option<PathBuf>,
 ) -> Option<Secret> {
     keys.and_then(|keys| keys.get(name.config()))
         .filter(|v| !v.is_empty())
         .cloned()
-        .or_else(|| variable(name.environment()).map(|v| v.to_string_lossy().into_owned()))
+        .or_else(|| environment(name.environment()).map(|v| v.to_string_lossy().into_owned()))
         .map(Secret::new)
 }
 
