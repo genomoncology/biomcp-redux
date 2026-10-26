@@ -1,6 +1,7 @@
 # 0190 — Investigate the protein slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8eeae87f9d8fd514f81c7bb8e7cd27fc3528e7db
 
 Milestone: 4
 

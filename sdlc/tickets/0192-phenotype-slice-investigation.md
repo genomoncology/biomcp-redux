@@ -1,6 +1,7 @@
 # 0192 — Investigate the phenotype slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2c0fa2ca658b70df3d86add8f64c6d458e8510dc
 
 Milestone: 4
 
