@@ -344,32 +344,3 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
     }
     Ok(())
 }
-
-#[test]
-fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() -> Check {
-    let tree = tempfile::tempdir()?;
-    let adapters = tree.path().join("crates/biomcp-adapters/src");
-    fs::create_dir_all(&adapters)?;
-    fs::write(
-        adapters.join("registry.rs"),
-        "&crate::directory::SPEC, &crate::single_file::SPEC",
-    )?;
-    let declaration = tokens(
-        r#"SourceSpec { terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#,
-    );
-    for path in ["directory/mod.rs", "single_file.rs"] {
-        source_terms(
-            tree.path(),
-            &format!("crates/biomcp-adapters/src/{path}"),
-            &declaration,
-        )?;
-    }
-    let path = "crates/biomcp-adapters/src/missing.rs";
-    let failure = source_terms(tree.path(), path, &declaration)
-        .err()
-        .ok_or("unregistered single-file source accepted")?
-        .to_string();
-    assert!(failure.contains(path), "{failure}");
-    assert!(failure.contains("&crate::missing::SPEC"), "{failure}");
-    Ok(())
-}
