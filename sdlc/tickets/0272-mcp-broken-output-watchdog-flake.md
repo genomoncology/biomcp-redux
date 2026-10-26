@@ -1,6 +1,7 @@
 # 0272 — Diagnose the MCP broken-output watchdog failure
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 45308abb7d0fcfb31904df6568393fb637ef5167
 
 Milestone: 1
 

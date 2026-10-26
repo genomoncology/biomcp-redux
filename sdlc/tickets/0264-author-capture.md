@@ -1,6 +1,7 @@
 # 0264 — Capture the Semantic Scholar and ORCID author witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 76b6e7e6774c6cbeea4391c6df44e18852abc351
 
 Milestone: 4
 
