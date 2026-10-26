@@ -46,6 +46,13 @@ fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
 fn unrelated_and_disabled_commands_never_read_keys() {
     for command in [
         vec!["get", "gene", "HGNC:3236"],
+        vec![
+            "get",
+            "author",
+            "orcid:0000-0002-4299-3018",
+            "--disable-sources",
+            "orcid",
+        ],
         vec!["search", "trial", "--condition", "melanoma"],
         vec![
             "get",
@@ -91,7 +98,11 @@ fn unrelated_and_disabled_commands_never_read_keys() {
 
 #[test]
 fn called_sources_read_only_their_own_environment_key_once() {
-    for (name, command) in [
+    let cases = [
+        (
+            SecretName::OrcidAccessToken,
+            vec!["get", "author", "orcid:0000-0002-4299-3018"],
+        ),
         (
             SecretName::NcbiApiKey,
             vec!["get", "variant", "clinvar:13961", "clinvar"],
@@ -124,7 +135,15 @@ fn called_sources_read_only_their_own_environment_key_once() {
                 "melanoma",
             ],
         ),
-    ] {
+    ];
+    assert_eq!(
+        cases
+            .iter()
+            .map(|(name, _)| *name)
+            .collect::<std::collections::BTreeSet<_>>(),
+        SecretName::ALL.iter().copied().collect()
+    );
+    for (name, command) in cases {
         assert_eq!(execute(&command, Some(name)), 1, "{name:?}");
     }
 }
@@ -163,7 +182,7 @@ fn saved_query_pages_never_resolve_credentials() {
                 "diseases",
                 "--source",
                 "nci",
-                "--section-limit",
+                "--limit",
                 "1",
             ],
             "/next",
