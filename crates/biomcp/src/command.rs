@@ -425,14 +425,18 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
         Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
         Bundle::Ddinter => {
             biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
-        snapshot: None, etag: None, last_modified: None,
+                snapshot: None,
+                etag: None,
+                last_modified: None,
                 duplicate_identities: None,
                 rows: info.rows,
                 bytes: info.bytes,
             })
         }
         Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
-        snapshot: None, etag: None, last_modified: None,
+            snapshot: None,
+            etag: None,
+            last_modified: None,
             duplicate_identities: None,
             rows: info.rows,
             bytes: info.bytes,
@@ -446,7 +450,9 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
                     Ok(biomcp_types::SyncResult {
-        snapshot: None, etag: None, last_modified: None,
+                        snapshot: None,
+                        etag: None,
+                        last_modified: None,
                         duplicate_identities: None,
                         rows: complete.rows + withdrawn.rows,
                         bytes: complete.bytes + withdrawn.bytes,

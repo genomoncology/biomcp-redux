@@ -543,7 +543,10 @@ fn resume(
 
 fn provenance(meta: &mut Meta, body: &[u8]) {
     use sha2::{Digest, Sha256};
-    let hex = Sha256::digest(body).iter().map(|b| format!("{b:02x}")).collect::<String>();
+    let hex = Sha256::digest(body)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
     meta.content_revision = Some(format!("sha256:{hex}"));
     meta.retrieved_at = Some(crate::cache::now());
 }

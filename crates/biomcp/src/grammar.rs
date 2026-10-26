@@ -2,7 +2,15 @@
 mod entity;
 mod local;
 
-pub(crate) const BUNDLE_HELP: &[&str] = &["cbioportal-studies","ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx"];
+pub(crate) const BUNDLE_HELP: &[&str] = &[
+    "cbioportal-studies",
+    "ema",
+    "ddinter",
+    "who-pq",
+    "gtr",
+    "who-ivd",
+    "fda-cdx",
+];
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
@@ -172,7 +180,15 @@ fn root() -> Result<Command, ()> {
         root = root.subcommand(command);
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
-        "cbioportal-studies", "hgnc", "clingen", "ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx",
+        "cbioportal-studies",
+        "hgnc",
+        "clingen",
+        "ema",
+        "ddinter",
+        "who-pq",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
     ])));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
@@ -454,9 +470,10 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search" | "get", "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "study") => {
-            entity::request(verb, entity, value)
-        }
+        (
+            "search" | "get",
+            "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "study",
+        ) => entity::request(verb, entity, value),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)
             .map_err(|_| ()),
