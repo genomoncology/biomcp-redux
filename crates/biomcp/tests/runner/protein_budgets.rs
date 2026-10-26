@@ -1,18 +1,22 @@
 //! Owning synthetic protein case phases; CLI counts its trailing newline.
 use serde_json::Value;
 pub(super) fn check(value: &Value, case: &str, surface: &str) -> Result<(), String> {
-    use std::io::Write;
-    let bytes =
-        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    let comparable = super::source_terms::size(value, "")? + usize::from(surface == "cli");
-    writeln!(
-        std::io::stdout(),
-        "PROTEIN_ACCOUNTING {}",
-        serde_json::json!({
-            "case":case,"surface":surface,"bytes":bytes,"comparable":comparable
-        })
+    let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
+        include_str!("../../../../tests/protein-synthetic-budgets.json"),
     )
     .map_err(|e| e.to_string())?;
+    let key = format!("{case} [{surface}]");
+    let measured = measurements
+        .get(&key)
+        .ok_or_else(|| format!("unmeasured protein phase: {key}"))?;
+    let bytes =
+        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
+    let max_bytes = (measured * 115).div_ceil(100);
+    if bytes > max_bytes {
+        return Err(format!(
+            "protein {key}: {bytes} bytes exceeds max_bytes={max_bytes}"
+        ));
+    }
     Ok(())
 }
 

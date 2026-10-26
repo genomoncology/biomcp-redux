@@ -386,7 +386,7 @@
     },
     "ProteinDomainsQuery": {
       "additionalProperties": false,
-      "description": "Native InterPro matches; no position selector exists.",
+      "description": "Page five native InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",

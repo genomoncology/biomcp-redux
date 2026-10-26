@@ -32,7 +32,9 @@
         "P00533",
         "Q9UIF7",
         "P38398-2"
-      ]
+      ],
+      "max_bytes": 2001,
+      "max_tokens": 501
     },
     {
       "run": [
@@ -44,7 +46,9 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/header/protein/accession": "P00533"
-      }
+      },
+      "max_bytes": 1041,
+      "max_tokens": 261
     },
     {
       "run": [
@@ -58,7 +62,9 @@
         "/page/total": 1,
         "/result/items/0/protein/accession": "P15056",
         "/next/0/kind": "disambiguate"
-      }
+      },
+      "max_bytes": 725,
+      "max_tokens": 182
     }
   ]
 }

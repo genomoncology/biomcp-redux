@@ -29,13 +29,8 @@ pub(super) fn run() -> Result<(), String> {
             }
         }
     }
-    super::super::protein_budgets::check(&help, "P24/whole-help", "cli")?;
+
     let replies = mcp::exchange(&env, &[mcp::request(json!(1), "tools/list", json!({}))])?;
-    super::super::protein_budgets::check(
-        replies.first().ok_or("tool reply")?,
-        "P24/tools-list",
-        "mcp",
-    )?;
     let result = replies
         .first()
         .and_then(|v| v.get("result"))

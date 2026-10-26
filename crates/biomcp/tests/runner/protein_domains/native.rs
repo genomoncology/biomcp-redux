@@ -76,10 +76,10 @@ fn measure(name: &str, value: &Value, output: &Path) -> Result<(), String> {
         "/../../tests/protein-domain-budgets.json"
     )))
     .map_err(|e| e.to_string())?;
-    if let Some([full, small]) = budgets.get(name)
-        && (bytes.len() + 1 > (full * 115).div_ceil(100)
-            || comparable > (small * 115).div_ceil(100))
-    {
+    let [full, small] = budgets
+        .get(name)
+        .ok_or_else(|| format!("unmeasured native protein case: {name}"))?;
+    if bytes.len() + 1 > (full * 115).div_ceil(100) || comparable > (small * 115).div_ceil(100) {
         return Err(format!(
             "{name}: native output exceeds its measured fifteen-percent ceiling"
         ));

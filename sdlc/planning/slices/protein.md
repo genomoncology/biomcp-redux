@@ -53,6 +53,41 @@ These are source-derived research questions, not quotations or claims that a nam
 
 P01–P21 reuse the same nine records across all four candidate sources; the ledger records one request per source/accession, not one per question. Source-specific evidence can answer only its own fields. InterPro does not answer complex membership; Complex Portal and STRING do not establish residue coordinates; UniProt does not make an arbitrary transcript-to-isoform mapping. P23/P24 are failure and boundary requirements, so the corresponding native source answer is not applicable rather than fabricated. The test proposal adds authored429/500/timeout/malformed-body cases.
 
+## Question status and product evidence
+
+The accepted source answers above remain unchanged. Clinical review accepted the following product-proof labels. A partial row retains its unproved clause and receives no inferred answer. P23 and P24 are synthetic response and policy controls. Retained native evidence is reused without another request or replay.
+
+| Question | Status | Product evidence and limit |
+| --- | --- | --- |
+| P01 | Answered | `position-P00533-858` preserves the displayed kinase interval. |
+| P02 | Answered | `position-P00533-790` and `active-site` keep the separate source annotations. |
+| P03 | Answered | The native P00533 card retains sequence length and audit version. |
+| P04 | Answered | `isoforms-P00533` retains the native alternative-product identities and statuses. |
+| P05 | Answered | `position-P15056-600` preserves the current displayed source range without historical conversion. |
+| P06 | Partial | `domains-P15056` proves the InterPro entries; product proof does not assert the separate UniProt RBD155–227 and zinc-finger234–280 clauses. |
+| P07 | Answered | Native `search-BRAF` preserves the exact candidate and its get action. |
+| P08 | Answered | The native BRAF complex walk excludes CPX-26353 without an exact participant. |
+| P09 | Answered | Native complex pages retain the predicted flag independently of admission. |
+| P10 | Answered | `brct-domains`, `brct-gap` and endpoint cases preserve two separate source features. |
+| P11 | Answered | `ring` preserves the Zinc finger type and native RING annotation. |
+| P12 | Answered | `members-CPX-715` retains both native participant IDs and the source complex flag. |
+| P13 | Answered | `sequence-P38398-2` retrieves its exact separate sequence identity. |
+| P14 | Partial | `dna-binding` proves102–292; product proof does not assert displayed TP53 length393. |
+| P15 | Answered | The retained TP53 isoform first page and continuation reach every captured alternative. |
+| P16 | Answered | `tp53-family` and `tp53-domain` keep family and domain types separate. |
+| P17 | Answered | `position-P13569-508` preserves the native source interval. |
+| P18 | Answered | `complexes-P13569` proves source-local successful emptiness on the captured request. |
+| P19 | Answered | `sequence-Q9UIF7` and native residue checks preserve S368 and G393 without historical conversion. |
+| P20 | Answered | Native CDKN2A candidates and exact cards keep P42771 and Q8N726 separate. |
+| P21 | Answered | `domains-Q8N726` and the historically named `mutyh-domain-empty` preserve the family and empty domain selection. |
+| P22 | Unanswered | STRING is deferred in the product. The retained source finding answers the source question only. |
+| P23 | Answered | Synthetic card and section failure controls preserve failed versus partial; no native corporate-CA incident or native absence is claimed. |
+| P24 | Answered | Policy controls inspect help and tools/list for the retrieval-only boundary; no analysis-tool execution is offered. |
+| P25 | Partial | `position-P31749-17` proves PH5–108; product proof does not assert the separate kinase150–408 clause. |
+| P26 | Answered | `position-P00533-797` preserves the current displayed source annotation without a resistance prediction. |
+| P27 | Answered | The native Q9UIF7 card and complete retained alternative-product walk preserve the source identity and length. |
+| P28 | Answered | The complete received BRCA1 complex walk preserves exact admissions, IDs, flags and snapshot scope. |
+
 ## Source findings and terms
 
 All36 initial requests returned HTTP200 with no retry or redirect. These are first-observation network calls from M5 under shared load, with unknown upstream/CDN warmth. The first source job reported launch load6.89 on18 cores beside three other jobs, with a1GiB memory and1GiB disk booking. They are not quiet-machine speed baselines or provider throughput guarantees. No warm-call timing is claimed.
@@ -145,7 +180,7 @@ All page commands share `--limit` (default5, proposed maximum25), `--pool` and `
 
 Static audit uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b863665be`, package version0.9.4. The inspected owners are `src/cli/protein/mod.rs`, `dispatch.rs`, `src/entities/protein.rs`, the four source clients, protein templates and the user guide. The executable was not run because a verified network containment recipe for this exact baseline was not established in this lane. Every 0.9 timing/token comparison is therefore **unmeasured**, not estimated from fixture size or current source JSON. No unrestricted baseline call is authorized by this proposal.
 
-| 0.9 surface | Proposed disposition and reason |
+| 0.9 surface | 1.0 disposition and reason |
 | --- | --- |
 | `search protein -q/--query TEXT` and positional query | Keep one positional spelling; raw text passes unchanged to UniProt. The duplicate query spelling receives retirement guidance. |
 | human reviewed default | Keep; source-native query and returned taxon/review state checked. |
@@ -163,7 +198,7 @@ Static audit uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b863665
 | `complexes` | Keep source-attributed headers and exact-member admission. Use `protein complex-members ACCESSION --complex CPX-ID` for bounded participants. |
 | `structures` | Keep UniProt PDB cross-references with truthful provider credit, native properties and paging; no inferred residue mapping. |
 | `all` | Keep explicit opt-in over kept sections with bounded independent pages. No unbounded arrays. |
-| `protein structures ACCESSION --limit --offset` | Keep relation spelling with the existing pool convention; exact source identity and schema apply equally to JSON/Markdown/MCP. |
+| `protein structures ACCESSION --limit --offset` | Keep relation spelling with the existing pool convention; exact source identity and schema apply equally to JSON, Markdown and MCP. |
 | Global `--json`, freshness/cache/policy/settings and MCP transport | Reuse landed global behavior and source registry. This slice adds no parallel environment/key parser or rendering path. |
 
 <!-- parity-accounting -->
@@ -406,3 +441,11 @@ The historical projection archive records the investigation's row projection and
 Job j15006 retains the historical complete synthetic CLI and MCP measurements for the failure, retirement, wrong-identity, repeated-section and disabled-source cases. Its original `disabled/ACCESSION` label covered both the ordinary `all` phase and disabled-source phase; the measured bytes distinguish these recorded phases. Ordinary `all` measured 2,826 CLI bytes and 2,825 MCP bytes for each accession. Disabled optional sources measured 2,020 CLI bytes and 2,019 MCP bytes. Repeated features measured 1,328 CLI bytes and 1,327 MCP bytes. These measurements are reused without provider calls or another replay run.
 
 Every 0.9 timing and output size remains unmeasured because no verified denied-network executable baseline was run. The milestone 5 contained comparison owns those measurements. Current source JSON, offline projections and current envelopes supply no substitute for 0.9 output.
+
+### Synthetic measurement basis
+
+Job j15029 measures the missing authored fixture outputs serially. `tests/protein-synthetic-budgets.json` holds whole CLI bytes for80 owning Rust fixture, variant and command-phase keys. These older transport, cache and continuation cases exercise CLI only; their measured size is not described as MCP execution. Public command parity remains owned by the native and YAML CLI/MCP cases. Existing j15006 failure, retirement and composite measurements remain in their original owning cases.
+
+Every protein YAML step owns its `max_bytes` and `max_tokens`. The step bound uses its measured comparable CLI and, where actually exercised, MCP output before headroom. A walk has one ordinary step ceiling applied to every page. Its retained measurement log labels every page, and the chosen step ceiling covers that same step's largest measured page. It does not claim an independently selected bound for each page. No second YAML argument-budget table or global runner hook is added.
+
+Two native UniProt continuation sizes come directly from the already retained `result-walk-isoforms-P04637.json` and `result-walk-isoforms-Q9UIF7.json` product outputs in the accepted0239 archive. Their whole CLI sizes are1,163 and597 bytes; comparable compact JSON sizes are1,071 and505 bytes. Their own `walk-isoforms-*` keys replace the borrowed first-page bounds. These continuation steps ran on CLI only. Their first pages retain the existing CLI/MCP proof; no continuation MCP execution is inferred. Every domain-native generated case now receives its existing owning map bound, and an unknown native key fails rather than bypassing the bound.

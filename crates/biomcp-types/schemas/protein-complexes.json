@@ -210,7 +210,7 @@
     },
     "ProteinRelationQuery": {
       "additionalProperties": false,
-      "description": "An unfiltered source-owned isoform, complex or structure page.",
+      "description": "Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",

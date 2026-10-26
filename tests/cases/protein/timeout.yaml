@@ -15,7 +15,9 @@
         "/status": "failed",
         "/sources/0/source": "uniprot",
         "/sources/0/terms": "CC BY 4.0"
-      }
+      },
+      "max_bytes": 458,
+      "max_tokens": 115
     }
   ]
 }

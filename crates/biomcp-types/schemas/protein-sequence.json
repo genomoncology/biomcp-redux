@@ -264,7 +264,7 @@
     },
     "ProteinSequenceQuery": {
       "additionalProperties": false,
-      "description": "Direct sequence retrieval accepts only a checked source identity.",
+      "description": "Read one complete native sequence for an exact source accession.\nNo variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "isoform": {
           "$ref": "#/$defs/UniProtIsoform",

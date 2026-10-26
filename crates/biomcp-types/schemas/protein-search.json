@@ -25,7 +25,7 @@
       ]
     }
   ],
-  "description": "Human reviewed UniProt search; unreviewed positives remain unproved.",
+  "description": "Search five reviewed human UniProt headers by literal text or exact gene.\nNo variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.",
   "properties": {
     "gene": {
       "$ref": "#/$defs/GeneSymbol",

@@ -32,7 +32,9 @@
             "--pool"
           ]
         }
-      }
+      },
+      "max_bytes": 1463,
+      "max_tokens": 366
     },
     {
       "run": [
@@ -106,7 +108,9 @@
             "--type"
           ]
         }
-      }
+      },
+      "max_bytes": 1474,
+      "max_tokens": 369
     },
     {
       "run": [
@@ -137,7 +141,9 @@
             "--type"
           ]
         }
-      }
+      },
+      "max_bytes": 1259,
+      "max_tokens": 315
     },
     {
       "run": [
@@ -167,7 +173,9 @@
             "--pool"
           ]
         }
-      }
+      },
+      "max_bytes": 1149,
+      "max_tokens": 288
     },
     {
       "run": [
@@ -197,7 +205,9 @@
             "--pool"
           ]
         }
-      }
+      },
+      "max_bytes": 1154,
+      "max_tokens": 289
     },
     {
       "run": [
@@ -228,7 +238,9 @@
             "--complex"
           ]
         }
-      }
+      },
+      "max_bytes": 1374,
+      "max_tokens": 344
     },
     {
       "run": [
@@ -258,7 +270,9 @@
             "--pool"
           ]
         }
-      }
+      },
+      "max_bytes": 1159,
+      "max_tokens": 290
     },
     {
       "run": [
@@ -285,7 +299,9 @@
             "isoform"
           ]
         }
-      }
+      },
+      "max_bytes": 682,
+      "max_tokens": 171
     }
   ]
 }

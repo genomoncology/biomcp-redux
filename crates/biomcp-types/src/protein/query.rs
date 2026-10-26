@@ -8,7 +8,7 @@ fn limit() -> u32 {
 fn reviewed() -> bool {
     true
 }
-biodata::wire_enum! {
+biodata::wire_enum! { described
     /// Named protein sections; all expands to bounded first pages.
     ProteinSection {
         /// Native UniProt features.

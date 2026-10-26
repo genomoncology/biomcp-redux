@@ -20,7 +20,9 @@
           "disambiguate",
           "disambiguate"
         ]
-      }
+      },
+      "max_bytes": 940,
+      "max_tokens": 235
     },
     {
       "run": [
@@ -30,7 +32,9 @@
       ],
       "expect": {
         "/result/items/0/header/protein/accession": "P00533"
-      }
+      },
+      "max_bytes": 1072,
+      "max_tokens": 268
     },
     {
       "run": [
@@ -41,7 +45,9 @@
       "exit": 1,
       "expect": {
         "/status": "absent"
-      }
+      },
+      "max_bytes": 250,
+      "max_tokens": 63
     }
   ]
 }

@@ -1348,7 +1348,7 @@
           "x-positional": 0
         },
         "section": {
-          "description": "Only requested sections disclose their full content.",
+          "description": "Select native sections or all bounded first pages; function keeps one whole text record.",
           "items": {
             "$ref": "#/$defs/ProteinSection"
           },

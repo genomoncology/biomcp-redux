@@ -57,6 +57,18 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
             .file_stem()
             .and_then(|s| s.to_str())
             .ok_or("walk name")?;
+        let [whole, small] = budgets
+            .get(&format!("walk-{name}"))
+            .ok_or("unmeasured native walk")?;
+        // Retained continuation proof ran on CLI only; the first page owns CLI/MCP parity.
+        let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+        if bytes > (whole * 115).div_ceil(100)
+            || super::super::source_terms::size(&value, "")? > (small * 115).div_ceil(100)
+        {
+            return Err(format!(
+                "{name}: continuation exceeded its own measured CLI ceiling"
+            ));
+        }
         fs::write(
             output.join(format!("walk-{name}.json")),
             serde_json::to_vec(&value).map_err(|e| e.to_string())?,
