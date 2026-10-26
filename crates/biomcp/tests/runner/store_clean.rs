@@ -67,6 +67,7 @@ fn clean() -> Check {
         old_cx.execute_batch("CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);")?;
     }
     Connection::open(&foreign)?.execute_batch("CREATE TABLE foreign_state(value TEXT)")?;
+    let unowned = unowned_legacy(directory)?;
     let result = run(&env, &["store", "clean", "--offline"])?;
     if result.get("result")
         != Some(&json!({"replies":1,"pools":1,"items":1,"snapshots":2,"files":1}))
@@ -86,12 +87,40 @@ fn clean() -> Check {
             return Err(format!("cleanup changed live {table}").into());
         }
     }
+    for (file, table) in unowned {
+        if !file.exists() {
+            return Err("cleanup deleted an undeclared schema".into());
+        }
+        let sentinel: String =
+            Connection::open(file)?
+                .query_row(&format!("SELECT value FROM {table}"), [], |r| r.get(0))?;
+        if sentinel != "keep" {
+            return Err("cleanup changed undeclared schema data".into());
+        }
+    }
     fresh_content(&cx)?;
     if count(&cx, "pool_item")? != 0 || count(&cx, "pool_current")? != 0 {
         return Err("orphan pool rows survived".into());
     }
     Ok(())
 }
+fn unowned_legacy(directory: &std::path::Path) -> Check<Vec<(PathBuf, &'static str)>> {
+    let mut files = Vec::new();
+    for (name, owner, table) in [
+        ("cache-0-4.sqlite", "", "pool"),
+        ("cache-0-3.sqlite", "biomcp-query", "reply"),
+    ] {
+        let path = directory.join(name);
+        let cx = Connection::open(&path)?;
+        cx.execute_batch(&format!("CREATE TABLE meta(owner TEXT,version INTEGER); CREATE TABLE {table}(value TEXT); INSERT INTO {table} VALUES ('keep');"))?;
+        if !owner.is_empty() {
+            cx.execute("INSERT INTO meta VALUES (?1,4)", [owner])?;
+        }
+        files.push((path, table));
+    }
+    Ok(files)
+}
+
 fn fresh_content(cx: &Connection) -> Check {
     let fresh_reply: bool = cx.query_row(
         "SELECT EXISTS(SELECT 1 FROM reply WHERE key=x'02' AND fresh_until=9223372036854775807)",
