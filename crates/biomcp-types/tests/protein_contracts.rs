@@ -129,3 +129,36 @@ fn uncertain_feature_bounds_keep_source_ranges() -> Result<(), Box<dyn std::erro
     );
     Ok(())
 }
+
+#[test]
+fn source_rows_keep_discontinuous_fragments_and_independent_complex_totals()
+-> Result<(), Box<dyn std::error::Error>> {
+    let domain = json!({"id":"IPR000494","name":"Synthetic source match","entry_type":"family","protein":"P00533","protein_length":1210,"taxon":9606,"locations":[{"fragments":[{"span":{"start":{"min":56,"max":56},"end":{"min":167,"max":167}},"dc_status":"N_TERMINAL_DISC"},{"span":{"start":{"min":360,"max":360},"end":{"min":480,"max":480}},"dc_status":"C_TERMINAL_DISC"}]},{"fragments":[{"span":{"start":{"min":700,"max":700},"end":{"min":710,"max":710}}}]}],"member_signatures":[{"database":"pfam","accession":"PF01030","name":"Synthetic member"}],"attribution":{"source":"interpro","record":"IPR000494"}});
+    assert_eq!(roundtrip::<ProteinDomainMatch>(domain.clone())?, domain);
+    let complex = json!({"id":"CPX-715","name":"Synthetic complex","taxon":9606,"predicted":true,"participant_total":93,"matched_participant":"P38398","url":"https://example.org/CPX-715"});
+    assert_eq!(roundtrip::<ProteinComplexHeader>(complex.clone())?, complex);
+    let member = json!({"id":"CHEBI:1","participant_type":"small molecule","name":"Synthetic non-protein member","stoichiometry":"minValue: 1, maxValue: 1"});
+    let v = roundtrip::<ProteinComplexMember>(member.clone())?;
+    assert_eq!(v, member);
+    assert!(v.get("protein").is_none());
+    Ok(())
+}
+
+#[test]
+fn external_products_and_exact_sequences_remain_independent()
+-> Result<(), Box<dyn std::error::Error>> {
+    let external = json!({"ids":["Q8N726-1"],"name":"Synthetic External product","sequence_status":"External","direct_sequence":"not_checked"});
+    assert_eq!(roundtrip::<ProteinIsoform>(external.clone())?, external);
+    let absent = json!({"ids":["P00533-4"],"name":"Synthetic absent direct sequence","sequence_status":"Described","direct_sequence":"not_available"});
+    assert_eq!(roundtrip::<ProteinIsoform>(absent.clone())?, absent);
+    let sequence = json!({"accession":"P38398-2","sequence":"M","length":1,"audit":{"entry_version":2,"sequence_version":1,"last_sequence_update":"2026-01-01"}});
+    assert_eq!(roundtrip::<ProteinSequence>(sequence.clone())?, sequence);
+    for status in ["Displayed", "Described", "External"] {
+        assert_eq!(roundtrip::<ProteinIsoformStatus>(json!(status))?, status);
+    }
+    assert!(serde_json::from_value::<ProteinIsoformStatus>(json!("canonical")).is_err());
+    let old = json!({"accession":"P00533","name":"Synthetic protein","length":1210});
+    assert_eq!(roundtrip::<biodata::Protein>(old.clone())?, old);
+    assert_eq!(roundtrip::<biomcp_types::Protein>(old.clone())?, old);
+    Ok(())
+}
