@@ -1,6 +1,7 @@
 # 0206 — Capture the Reactome search paging, filter spellings and search window witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: be46dc3fd56b98c9e9af0cd0c7b0bed3b4899f82
 
 Milestone: 4
 

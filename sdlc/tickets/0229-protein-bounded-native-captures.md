@@ -1,6 +1,7 @@
 # 0229 — Capture the protein search, paging, isoform get and absence witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f9ef46e256ca75a1bd8b2a51634b995189a2bc96
 
 Milestone: 4
 

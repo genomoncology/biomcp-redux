@@ -1,6 +1,7 @@
 # 0205 — Capture the remaining GWAS selector, order, page and threshold witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6dbdda96e3814d4906f5c30cba3e95bcd22c0cb6
 
 Milestone: 4
 
