@@ -209,21 +209,19 @@ The publisher describes curated releases approximately every two weeks; that is 
 
 ## Measured disclosure costs
 
-Jobs `j14240` and `j14247` measure explicit source-derived JSON projections. The final `projections/` outputs retain section row source identities; the earlier `budgets/` prototypes are retained as superseded cost experiments because they omitted those row links. These are design projections, not shipped product envelopes, schema-validation proof, or native product measurements. The projection uses actual captured fields, one source outcome with all three terms fields, a query echo containing the exact source URL, selected get actions, a 64-character placeholder pool and bounded study pivots. Removing API link boilerplate and unbuilt coordinate strings does not remove the source IDs needed by these questions. An implementation must measure its actual typed query, real opaque pool, all required fields and emitted actions before binding its fixture ceilings.
+The original jobs `j14240` and `j14247` measured source-derived disclosure projections before the command envelopes existed. Those design projections are historical planning inputs, not full response measurements or approved output caps. The superseded prototypes also omitted relation self links. The following table uses the retained schema-validated native product measurements from the search and exact-get jobs below. Full CLI bytes include the final newline. Comparable MCP bytes remove only the publisher `use`, `terms` and `terms_url` fields; they exclude part of the envelope and must not be described as full responses. Estimated tokens are ceil(comparable bytes/4). Every row has the standing fifteen-percent full response ceiling in its owning budget file.
 
-Bytes below are compact UTF-8 without the CLI's final newline. The projections include the current exact registry values; comparable bytes remove only `use`, `terms` and `terms_url`, including for this restricted source. The difference is 123 bytes in these projections. Token figures estimate ceil(bytes/4); no tokenizer was run. Candidate ceilings use the full projection plus 15 percent. They are proposal inputs, not changes to an existing approved product cap.
+| Disclosure and retained case | Full CLI bytes | Comparable MCP bytes | Estimated comparable tokens | Full ceiling | 0.9 comparison |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Default rs2981582 page (`variant-positive`) | 2230 | 2106 | 527 | 2565 | Not measured; contained binary deferred to 0098. |
+| PMID 17529967 first page (`pubmed-first`) | 2254 | 2130 | 533 | 2593 | Same containment limitation. |
+| FGFR2 plus mapped trait (`gene-trait-positive`) | 2341 | 2217 | 555 | 2693 | Same containment limitation. |
+| Exact association 6114 (`association-6114`) | 1130 | 1006 | 252 | 1300 | No historical exact association leaf. |
+| Exact study (`study-GCST000035`) | 1561 | 1437 | 360 | 1796 | No historical exact study leaf. |
+| Study ancestry section (`ancestries`) | 2390 | 2266 | 567 | 2749 | No historical ancestry section. |
+| Association 6110 loci (`loci`) | 795 | 671 | 168 | 915 | No historical locus section. |
 
-| Disclosure and captured case | Full bytes | Comparable bytes | Estimated tokens | Candidate full ceiling |
-| --- | --- | --- | --- | --- |
-| Default three-row rs2981582 page | 2,170 | 2,047 | 543 | 2,496 |
-| Default three-row PMID 17529967 top hits | 2,078 | 1,955 | 520 | 2,390 |
-| Largest observed three-row projection, FGFR2 plus breast trait | 2,837 | 2,714 | 710 | 3,263 |
-| Exact association 6114 card | 1,085 | 962 | 272 | 1,248 |
-| GCST000035 study card | 1,448 | 1,325 | 362 | 1,666 |
-| GCST000035 ancestry section, three source rows with recruitment detail | 2,500 | 2,377 | 625 | 2,875 |
-| Association 6110 locus section, one source row | 639 | 516 | 160 | 735 |
-
-The largest observed source response is not a worst-case catalog guarantee. Default search, study associations and the variant selector use the same measured association-page projection; the exact selector changes query bytes and its final fixture measures them. Explicit study metadata costs one additional request only when selected. Ancestry adds the detailed country arrays and increases this study's answer from 1,448 to a separate 2,500-byte section. The locus layer buys source-reported stable gene IDs without loading unrelated variant annotations. The proposed three-row default exposes several choices while keeping the measured pages below about 710 estimated tokens. Larger page limits and a full-card batch need separate real outputs and ceilings; this design does not declare those measured.
+`tests/gwas-search-budgets.json`, `tests/gwas-get-budgets.json` and `tests/gwas-threshold-budgets.json` own all retained native measurements. Their existing full and comparable ceilings remain unchanged. The locus output includes the shipped query, actions and envelope, which the historical 639-byte disclosure projection did not measure. Its earlier 735-byte candidate was a projection ceiling rather than a full-envelope allocation. The accepted exact-get proof measured and capped the complete 795-byte CLI response. No new native replay or provider call is needed for this accounting.
 
 The same-question 0.9 comparison is unmeasured because no contained historical binary was executed. Native API bytes measure source transport and the projections measure proposed disclosure; neither substitutes for 0.9 product bytes, warm/cold product latency or a judged clinical quality comparison. There is no defensible numeric claim that these outputs outperform 0.9. The source fields and named legacy capabilities above define the quality floor that implementation and the later contained comparison must check.
 
@@ -305,7 +303,7 @@ The static inventory reads 0.9 source revision `4050fdc7dbdf4d713d94cf02a39a147b
 
 The old search maps either gene or trait to one v2 request sorted by p value. A combined gene/trait search fetches two independent 50-row prefixes and intersects them locally. That bounded-prefix result cannot establish completeness for the source intersection. The old p-value filter applies locally to fetched rows. Exact p-value parts are preserved by the old mapper when supplied. New types must retain that precision and cannot replace underflow with a literal probability of zero.
 
-The proposal retains the positional query as the documented `--gene` alias and preserves the `-g` and `-l` aliases; it does not infer a trait from their text. `--trait` remains literal publisher trait text. `--limit` and `--offset` become the checked source/retained page view. `--p-value` retains an explicitly scoped numeric filter as described above. Proposed new flags are `--variant`, `--trait-id`, `--study`, `--pubmed`, `--include-child-traits` and `--extended-geneset`; the latter two default to false and map to the singular native child-trait and extended-gene-set parameters. Every new long option needs its own positive case. No command or option in this proposal is marked ported until its implementation lands.
+The proposal retains the positional query as the documented `--gene` alias and preserves the `-g` and `-l` aliases; it does not infer a trait from their text. `--trait` remains literal publisher trait text. `--limit` and `--offset` become the checked source/retained page view. `--p-value` retains an explicitly scoped numeric filter as described above. Proposed new flags are `--variant`, `--trait-id`, `--study`, `--pubmed`, `--include-child-traits` and `--extended-geneset`; the latter two default to false and map to the singular native child-trait and extended-gene-set parameters. Every new long option needs its own positive case. The landed implementation and the accounting below now name each kept command, option and alias.
 
 All 57 closed public issues were enumerated through GitHub. The GWAS-relevant bodies were read. [Issue 283](https://github.com/genomoncology/biomcp/issues/283) uses a GWAS call to expose Windows cache-write stdout corruption. Keep the shared clean JSON-RPC stream behavior; add GWAS coverage to the shared Windows/MCP proof when this source writes cache. This is not a source-specific new subprocess mechanism. [Issue 78](https://github.com/genomoncology/biomcp/issues/78) includes GWAS disease associations as an enrichment-library use. Source association retrieval is kept; local enrichment analysis, other organisms and installation/execution of another tool are outside the amended entity-access scope. Neither issue authorizes a new analytic command.
 
@@ -371,3 +369,30 @@ Job `j14895` replayed all eleven native responses through CLI and MCP, checked t
 | `associations-1` | 1860 | 1736 | 2139 | 1998 |
 
 The routine collection in `j14903` measured whole-tree generated help at 76,572 bytes after adding the exact get grammar. Its standing measured-size-plus-fifteen-percent formula sets the help fixture ceiling to 88,058 bytes. This is whole-tree command help rather than a source response or a per-command disclosure budget.
+
+
+## Implemented legacy accounting
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search gwas` | Ported or renamed | `--gene`, `--trait`, `--p-value`, `--limit`, `--offset` | — | — | Native mapped-gene and literal mapped-trait selectors replace local prefix intersection. Exact positive thresholds require default native p-value-ascending order. Positional gene, -g and -l aliases remain. |
+<!-- /parity-accounting -->
+
+| Legacy surface | 1.0 spelling or disposition | Owning proof |
+| --- | --- | --- |
+| `search gwas` | `search gwas` | `gwas_search.rs`; retained search case names above. |
+| Positional query | Kept as mapped-gene selector, equivalent to `--gene`. No trait inference. | `checked-native-selectors-and-aliases` |
+| `-g`, `--gene` | Kept unchanged. | Same selector case. |
+| `--trait` | Kept as literal native `efo_trait`, excluding `reported_trait` prose. | `trait-text-positive`; `native-trait-id-is-never-rewritten` |
+| `--p-value` | Kept as inclusive exact positive threshold with native ascending order and qualifying total known only at the end. | `exact-threshold-page-walk`; retained threshold cases. |
+| `-l`, `--limit` | Kept as bounded native page size. | Selector alias and paging cases. |
+| `--offset` | Kept as native row offset and retained continuation window. | `native-offset-and-continuation` |
+| Combined gene/trait prefix intersection | Retired. Native conjunction replaces intersecting two truncated local prefixes. | `gene-trait-positive`; checked native selector case. |
+| `get variant ID gwas` | Kept by variant accounting; `gwas` section uses exact rsID access. | `variant/population/catalog-data.yaml` and `catalog-zero.yaml` |
+| `get variant ID all` selecting GWAS | Kept by variant accounting with shared section paging and source policy. | Variant section tests. |
+| Shared variant-get options | Owned by variant accounting; no duplicate GWAS option count. | `slices/variant.md` |
+| Generic variant `batch` with GWAS section | Shared ownership; no new GWAS batch or hidden fan-out. | Shared batch accounting. |
+| JSON, Markdown, MCP and cache/source/transport flags | Shared envelope and source policy; JSON is default and Markdown uses `--format md`. | `cli-mcp-help-markdown`; warm/fresh and source-policy cases. |
+
+The new selectors `--variant`, `--trait-id`, `--study`, `--pubmed`, `--include-child-traits` and `--extended-geneset` are covered by the named retained positive search rows and the checked synthetic selector case. New exact association/study gets and `loci`, `associations` and `ancestries` sections have their retained cases above. The four release bundles, `sync gwas`, summary-statistics files, interval search, other GWAS sources and a GWAS batch remain deferred or dropped for the reasons in Source and bundle disposition. Issue 78 enrichment remains outside scope. Issue 283 continues to use the shared clean JSON-RPC stream proof and now includes a synthetic GWAS cache-writing call.
