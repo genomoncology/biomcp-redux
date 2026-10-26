@@ -25,10 +25,12 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("gwas-search/checked-native-selectors-and-aliases", || {
             wire::selectors().map_err(Into::into)
         }),
-        Trial::test(
-            "gwas-search/native-offset-continuation-and-warm-reuse",
-            || wire::paging().map_err(Into::into),
-        ),
+        Trial::test("gwas-search/native-offset-and-continuation", || {
+            wire::paging().map_err(Into::into)
+        }),
+        Trial::test("gwas-search/live-warm-cache-and-explicit-fresh", || {
+            wire::warm().map_err(Into::into)
+        }),
         Trial::test("gwas-search/reject-before-cache-admission", || {
             mechanics::admission().map_err(Into::into)
         }),
@@ -42,7 +44,9 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn policy() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let mut args = env.globals(None, true);
+    let replay = env.root().join("empty-replay");
+    fs::create_dir(&replay).map_err(|e| e.to_string())?;
+    let mut args = env.globals(Some(&replay), false);
     args.extend(
         [
             "search",

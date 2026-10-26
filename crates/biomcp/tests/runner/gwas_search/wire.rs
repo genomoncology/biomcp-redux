@@ -120,19 +120,6 @@ pub(super) fn paging() -> Result<(), String> {
     {
         return Err("offset must skip within one native page".into());
     }
-    fs::remove_dir_all(replay.join("gwas")).map_err(|e| e.to_string())?;
-    call(
-        &env,
-        &replay,
-        &["search", "gwas", "--pubmed", "17529967"],
-        0,
-    )?;
-    call(
-        &env,
-        &replay,
-        &["search", "gwas", "--pubmed", "17529967", "--fresh"],
-        4,
-    )?;
     Ok(())
 }
 pub(super) fn surfaces() -> Result<(), String> {
@@ -178,4 +165,42 @@ pub(super) fn surfaces() -> Result<(), String> {
         return Err("GWAS executable help drift".into());
     }
     Ok(())
+}
+
+pub(super) fn warm() -> Result<(), String> {
+    let stub = super::super::network_stub::Stub::for_source(
+        "www.ebi.ac.uk",
+        "application/json",
+        live_body,
+    )?;
+    let env = super::super::variant::source_environment(&stub)?;
+    let args = ["search", "gwas", "--pubmed", "17529967"]
+        .map(str::to_owned)
+        .to_vec();
+    let first = invoke(&env, args.clone(), 0)?;
+    let second = invoke(&env, args.clone(), 0)?;
+    if first != second {
+        return Err("warm page changed source assertions".into());
+    }
+    let mut fresh = args.clone();
+    fresh.push("--fresh".into());
+    invoke(&env, fresh, 0)?;
+    let mut disabled = args;
+    disabled.extend(["--disable-sources".into(), "restricted".into()]);
+    let disabled = invoke(&env, disabled, 4)?;
+    if disabled.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+        return Err("warm source policy was bypassed".into());
+    }
+    let requests = stub.finish()?;
+    if requests.len() != 2 {
+        return Err(format!(
+            "warm/fresh policy made {} requests, expected2",
+            requests.len()
+        ));
+    }
+    Ok(())
+}
+fn live_body(request: &str) -> Result<String, String> {
+    let path = request.split_whitespace().nth(1).ok_or("request path")?;
+    Ok(body(&format!("https://www.ebi.ac.uk{path}"), 0, 6).to_string())
 }
