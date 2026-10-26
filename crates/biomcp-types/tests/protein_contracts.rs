@@ -195,3 +195,30 @@ fn inclusive_conversion_refuses_reversed_or_zero_residues() -> Result<(), Box<dy
     );
     Ok(())
 }
+
+#[test]
+fn feature_provenance_and_sequence_availability_use_closed_native_contracts()
+-> Result<(), Box<dyn std::error::Error>> {
+    let feature = json!({"feature":{"protein":"P00533","span":{"start":{"min":711,"max":711},"end":{"min":979,"max":979}},"kind":{"label":"Domain"}},"attribution":{"source":"uniprot","record":"P00533"},"source_coordinates":"one_based_inclusive"});
+    assert_eq!(roundtrip::<ProteinFeature>(feature.clone())?, feature);
+    for state in ["available", "not_available", "not_checked"] {
+        assert_eq!(
+            roundtrip::<ProteinSequenceAvailability>(json!(state))?,
+            state
+        );
+    }
+    assert!(serde_json::from_value::<ProteinSequenceAvailability>(json!("inferred")).is_err());
+    assert!(serde_json::from_value::<ProteinCoordinateConvention>(json!("zero_based")).is_err());
+    roundtrip::<ProteinRelationQuery>(
+        json!({"accession":"P15056","limit":25,"offset":5,"pool":"retained"}),
+    )?;
+    assert!(
+        serde_json::from_value::<ProteinRelationQuery>(json!({"accession":"P15056","limit":0}))
+            .is_err()
+    );
+    assert!(
+        serde_json::from_value::<ProteinRelationQuery>(json!({"accession":"P15056","limit":26}))
+            .is_err()
+    );
+    Ok(())
+}
