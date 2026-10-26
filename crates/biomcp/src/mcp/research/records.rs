@@ -2,6 +2,7 @@
 use biodata::Text;
 use biomcp_types::ResearchHit;
 use serde_json::Value;
+mod native;
 mod paths;
 fn text<'a>(value: &'a Value, paths: &[&str]) -> Option<&'a str> {
     paths.iter().find_map(|path| {
@@ -25,6 +26,7 @@ fn hit(args: Vec<String>, title: &str, url: &str) -> Option<ResearchHit> {
 pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
     match entity {
         "article" => article(row, row.get("header").unwrap_or(row)),
+        "trial" if text(row, &["/url"]).is_none() => native::search(entity, row, envelope),
         "trial" => {
             let id = text(row, &["/nct_id", "/nci_id"])?;
             hit(
@@ -42,7 +44,7 @@ pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<Rese
                 &format!("https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/{id}"),
             )
         }
-        _ => native(entity, row, envelope),
+        _ => native::search(entity, row, envelope),
     }
 }
 fn article(identity: &Value, card: &Value) -> Option<ResearchHit> {
@@ -98,25 +100,6 @@ fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
         &variant_url(row, envelope)?,
     )
 }
-fn native(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    let id = text(
-        row,
-        &[
-            "/id",
-            "/header/id",
-            "/concept/id",
-            "/product/id",
-            "/protein/accession",
-            "/identity/id",
-        ],
-    )?;
-    let url = text(row, paths::URLS)?;
-    hit(
-        next_args(entity, id, envelope)?,
-        text(row, paths::TITLES).unwrap_or(id),
-        url,
-    )
-}
 pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<ResearchHit> {
     let result = envelope.get("result")?;
     let first = result
@@ -135,11 +118,21 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
         "trial" => {
             let row = first?.get("card")?;
             let native_id = text(row, &["/nct_id", "/id"])?;
-            hit(
-                vec![entity.into(), native_id.into()],
-                text(row, &["/title"]).unwrap_or(native_id),
-                text(row, &["/url"])?,
-            )
+            if text(row, &["/url"]).is_none() {
+                native::project(
+                    entity,
+                    row,
+                    envelope,
+                    vec![entity.into(), native_id.into()],
+                    None,
+                )
+            } else {
+                hit(
+                    vec![entity.into(), native_id.into()],
+                    text(row, &["/title"]).unwrap_or(native_id),
+                    text(row, &["/url"])?,
+                )
+            }
         }
         "variant" => {
             let rows = result.get("candidates")?.as_array()?;
@@ -160,18 +153,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
             let row = first?.pointer("/answer/gene")?;
             search(entity, row, envelope)
         }
-        _ => {
-            let row = first
-                .and_then(|row| row.get("header"))
-                .or_else(|| result.get("header"))
-                .unwrap_or(result);
-            let url = text(row, paths::URLS)?;
-            hit(
-                vec![entity.into()],
-                text(row, paths::TITLES).unwrap_or(id),
-                url,
-            )
-        }
+        _ => native::fetch(entity, result, first, envelope),
     }?;
     found.id = id.into();
     Some(found)
