@@ -50,6 +50,9 @@ pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
         *counts.entry(row.value.id().to_string()).or_insert(0_u32) += 1;
     }
     Ok(SyncResult {
+        snapshot: None,
+        etag: None,
+        last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
         duplicate_identities: Some(counts.values().filter(|&&n| n > 1).count() as u64),

@@ -62,6 +62,26 @@ impl Store<'_> {
             Ok(Pool {info:PoolInfo{id:Text::new(&id).map_err(|_|CacheError::Database)?,size,created:u64::try_from(created).map_err(|_|CacheError::Database)?,expires:u64::try_from(expires).map_err(|_|CacheError::Database)?},key:key.into(),sources:sources.into()})
         })
     }
+    /// Publish arbitrary source snapshot payload and its fixed-lifetime pool metadata together.
+    pub(crate) fn publish_source_pool(
+        &mut self,
+        key: &[u8],
+        payload: &str,
+        size: u32,
+        sources: &[SourceOutcome],
+    ) -> Result<Pool, CacheError> {
+        self.write(|tx| {
+            Self::collect_expired(tx)?;
+            let created = Self::now();
+            let expires = created.saturating_add(86400);
+            let id: String = tx.query_row("SELECT lower(hex(randomblob(16)))", [], |r| r.get(0)).map_err(db)?;
+            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
+            tx.execute("INSERT INTO pool(id,request_key,created,expires,size,outcomes) VALUES (?1,?2,?3,?4,?5,?6)",params![id,key,created,expires,size,outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5)",params![id,key,expires,payload,outcomes]).map_err(db)?;
+            tx.execute("INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",params![key,id]).map_err(db)?;
+            Ok(Pool { info: PoolInfo { id: Text::new(&id).map_err(|_| CacheError::Database)?, size, created: u64::try_from(created).map_err(|_| CacheError::Database)?, expires: u64::try_from(expires).map_err(|_| CacheError::Database)? }, key: key.into(), sources: sources.into() })
+        })
+    }
     pub(crate) fn page(
         &self,
         pool: &str,

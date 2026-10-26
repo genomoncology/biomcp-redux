@@ -109,9 +109,9 @@ fn cards() -> Result<(), String> {
             "application/json",
             move |request| {
                 let expected = if monarch {
-                    "GET /v3/api/entity/HP:0000001 "
+                    "GET /v3/api/entity/HP%3A0000001 "
                 } else {
-                    "GET /api/hp/terms/HP:0000001 "
+                    "GET /api/hp/terms/HP%3A0000001 "
                 };
                 if !request.starts_with(expected) {
                     return Err(format!("wrong exact term URL: {request}"));

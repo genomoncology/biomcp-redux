@@ -120,11 +120,11 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/9"),
+        Request => ("request", "biodata.request/10"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
-        Envelope<SyncResult> => ("sync", "biomcp.sync/3"),
+        Envelope<SyncResult> => ("sync", "biomcp.sync/4"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
         Position1 => ("position1", "biodata.position1/1"),
@@ -176,6 +176,8 @@ fn registry() -> Vec<Contract> {
 }
 fn study_registry() -> Vec<Contract> {
     contracts! {
+        StudySearch => ("study-search", "biomcp.study-search/1"),
+        StudyGet => ("study-get", "biomcp.study-get/1"),
         Envelope<StudyPage> => ("study-page", "biomcp.study_page/1"),
         Envelope<StudyCard> => ("study-card", "biomcp.study_card/1"),
         Envelope<StudyProfiles> => ("study-profiles", "biomcp.study_profiles/1"),
@@ -355,6 +357,8 @@ fn checked_in_schemas_match_types() {
 #[test]
 fn consumed_queries_stay_inside_the_flat_command_grammar() {
     for schema in [
+        generate::<StudySearch>(),
+        generate::<StudyGet>(),
         generate::<GeneGet>(),
         generate::<GeneSearch>(),
         generate::<ArticleSearch>(),

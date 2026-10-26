@@ -73,6 +73,10 @@ pub enum QueryBody {
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.
     PathwayCard(Option<crate::PathwayCard>),
+    /// Source-ordered study catalog metadata.
+    StudyPage(Option<crate::StudyPage>),
+    /// Exact stored study metadata.
+    StudyCard(Option<crate::StudyCard>),
     /// Whole physical FDA companion association rows.
     DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-native CPIC pair page.
@@ -262,6 +266,15 @@ pub struct SyncQuery {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SyncResult {
+    /// Catalog content revision and acquisition time, separate from source headers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub snapshot: Option<crate::StudySnapshot>,
+    /// Native publisher ETag when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub etag: Option<Box<str>>,
+    /// Native publisher Last-Modified when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_modified: Option<Box<str>>,
     /// Imported rows.
     pub rows: u64,
     /// Imported source-file bytes before native file decoding.
@@ -271,7 +284,7 @@ pub struct SyncResult {
     pub duplicate_identities: Option<u64>,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/3";
+    const SCHEMA: &'static str = "biomcp.sync/4";
     type Query = SyncQuery;
 }
 

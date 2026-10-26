@@ -3,7 +3,7 @@ use super::{Stub, invoke, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
-pub(super) fn run(root: &Path) -> Result<(), String> {
+pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
     let plan: Vec<Value> =
         serde_json::from_slice(&fs::read(root.join("plan.json")).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;

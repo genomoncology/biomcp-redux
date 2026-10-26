@@ -35,3 +35,5 @@ pub mod adverse_event_maude;
 pub mod pathway;
 /// Literal phenotype discovery and exact independent source cards.
 pub mod phenotype;
+/// Stored study catalog discovery.
+pub mod study;

@@ -35,7 +35,7 @@ pub struct Record {
 pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> {
     let endpoint = SPEC
         .get("/api/hp/terms")
-        .with_path(format!("/api/hp/terms/{}", query.id()))?
+        .with_segments(&[biomcp_fetch::PathSegment::new(query.id().as_str())?])
         .fresh(Freshness::Days(1));
     let (term, metadata) = leg.json_received_checked::<raw::Term>(&endpoint, &[], |term| {
         if &term.id == query.id() {

@@ -64,7 +64,7 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
     crate::disease_sources::components::monarch(leg)?;
     let endpoint = super::SPEC
         .get("/v3/api/entity")
-        .with_path(format!("/v3/api/entity/{}", q.id()))?
+        .with_segments(&[biomcp_fetch::PathSegment::new(q.id().as_str())?])
         .fresh(Freshness::Days(1));
     let (node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint, &[], |node| {
         if &node.id == q.id() {
