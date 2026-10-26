@@ -50,12 +50,13 @@ pub fn literal(field: &str, value: &str) -> String {
 }
 /// One literal search using the provider's native default start of zero.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearch) -> Result<Page, RequestError> {
-    let query = literal("idsy", q.query().as_str());
+    let accession=q.query().as_str().parse::<CellosaurusAccession>().ok();
+    let query=literal(if accession.is_some(){"ac"}else{"idsy"},q.query().as_str());
     candidates(
         leg,
         &query,
         q.limit(),
-        (q.offset() > 0).then_some(q.offset()),
+        (accession.is_some() || q.offset() > 0).then_some(q.offset()),
     )
 }
 /// One exact cross-reference query; its result never verifies identity.

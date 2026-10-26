@@ -22,6 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "cell-line-identity/research-search-fetch-runtime",
         || research::run(false).map_err(Into::into),
     ));
+    tests.push(Trial::test("cell-line-identity/checked-canonical-accession-search", || native::canonical(false).map_err(Into::into)));
     tests.extend(faults::trials());
     tests
 }
@@ -283,3 +284,5 @@ pub(in crate::runner) fn measure_remaining() -> Result<(), String> {
     help::run(true)?;
     research::run(true)
 }
+
+pub(in crate::runner) fn measure_canonical() -> Result<(),String> { native::canonical(true) }

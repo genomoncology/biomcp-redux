@@ -68,20 +68,18 @@ fn main() -> ExitCode {
 }
 
 fn native_proof() -> Option<ExitCode> {
-    if matches!(
-        env::args().nth(1).as_deref(),
-        Some("--cell-line-measure" | "--cell-line-measure-remaining")
-    ) {
-        let result = if env::args().nth(1).as_deref() == Some("--cell-line-measure-remaining") {
-            runner::cell_line_measure_remaining()
-        } else {
-            runner::cell_line_measure()
-        };
-        return Some(match result {
+    let measure: Option<fn() -> Result<(), String>> = match env::args().nth(1).as_deref() {
+        Some("--cell-line-measure") => Some(runner::cell_line_measure),
+        Some("--cell-line-measure-remaining") => Some(runner::cell_line_measure_remaining),
+        Some("--cell-line-canonical-measure") => Some(runner::cell_line_canonical_measure),
+        _ => None,
+    };
+    if let Some(measure) = measure {
+        return Some(match measure() {
             Ok(()) => ExitCode::SUCCESS,
-            Err(e) => {
+            Err(error) => {
                 use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "{e}");
+                let _ = writeln!(std::io::stderr(), "{error}");
                 ExitCode::FAILURE
             }
         });

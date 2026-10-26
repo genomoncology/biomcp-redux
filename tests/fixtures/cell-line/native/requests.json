@@ -88,5 +88,10 @@
     "target": "/cell-line/CVCL_ZZZZ?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
     "file": "projected-card-CVCL_ZZZZ.json",
     "status": 404
+  },
+  "native-accession-search": {
+    "target": "/search/cell-line?q=ac%3A%22CVCL_0005%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5",
+    "file": "native-accession-search.json",
+    "status": 200
   }
 }

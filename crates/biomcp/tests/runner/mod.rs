@@ -611,3 +611,5 @@ pub(super) fn cell_line_examples(directory: &Path) -> Result<(), String> {
 pub(super) fn cell_line_measure_remaining() -> Result<(), String> {
     cell_line::measure_remaining()
 }
+
+pub(super) fn cell_line_canonical_measure() -> Result<(),String> { cell_line::measure_canonical() }

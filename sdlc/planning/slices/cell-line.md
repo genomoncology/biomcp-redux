@@ -141,7 +141,7 @@ The first implementation uses API requests and the existing checked reply cache.
 
 | Command | Default answer, options and source work | Next actions |
 | --- | --- | --- |
-| `search cell-line QUERY` | Five native headers, `--query` alias, `--limit` 1–25 and `--offset`; one literal escaped `idsy` source query with native `start`/`rows`, no sort or rewrite. Exact accession retrieval uses `get`; search remains literal text. | One disambiguating get per shown CVCL accession; a page action when the window fills; no automatic winner. |
+| `search cell-line QUERY` | Five native headers, `--query` alias, `--limit` 1–25 and `--offset`; one literal escaped `idsy` source query with native `start`/`rows`, no sort or rewrite. A canonical CVCL input uses exact accession query syntax. | One disambiguating get per shown CVCL accession; a page action when the window fills; no automatic winner. |
 | `get cell-line CVCL` | Identity card from one projected Cellosaurus request; `names`, `identity`, `xrefs`, `variants` and `chembl` are closed named sections. `identity` offers the remaining species, diseases and qualified warnings if a default collection is capped. `--section-limit` accepts 1–25 and `--section-offset` accepts a nonnegative offset; they page requested collections independently with source totals retained. | At most five priority actions under architecture 6.10: names, variants, xrefs, ChEMBL, then identity overflow if present; otherwise a supported exact gene/article pivot when available. |
 | `get cell-line SOURCE_ID` | Search the exact qualified external ID, then verify that database and accession on the selected exact card. Multiple candidates stay ambiguous. Neither a sole search result nor a name match bypasses the xref check. | Candidate gets on ambiguity; exact card sections only after identity is verified. |
 | `get cell-line CVCL chembl` | One additional exact `cellosaurus_id` metadata request. The response's ChEMBL IDs are source-local cell identities, not compounds or targets. | `cell-line assay-count CHEMBL_CELL_ID` for each exact returned record within the architecture bound. |
@@ -234,7 +234,7 @@ Yellow retains `data/biomcp-redux/0258-cell-line-identity/projected-cards.tar.gz
 
 The shared request schema advances to version 22. The changed page and card envelopes advance to version 2. Typed next steps retain the existing argument-array wire format, so the step structure has no wire change. Named section steps parse through the shared grammar; the command admission boundary explicitly refuses them until their section implementations exist. It never substitutes the default card for a requested section.
 
-The optional captured exact-accession search is source investigation evidence. It is not claimed as an exact-request command replay: ordinary search treats its input as unchanged literal text. Exact accession retrieval uses `get`.
+A parsed `CellosaurusAccession` search uses the exact native `ac` query with explicit `start=0`, as retained in the 0256 witness. Every other search term keeps its literal `idsy` query unchanged. Exact card retrieval uses `get`.
 
 ## Measured command output budgets
 
