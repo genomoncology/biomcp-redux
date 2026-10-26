@@ -19,14 +19,15 @@ pub(super) fn evidence(rows: Vec<raw::Evidence>) -> Box<[Text]> {
         })
         .collect()
 }
-fn bound(v: raw::Boundary) -> Option<Bound> {
+fn bound(v: raw::Boundary, start: bool) -> Option<Bound> {
     let n = v.value?;
     if n == 0 {
         return None;
     }
     match v.modifier.as_str() {
         "EXACT" => Bound::new(Some(n), Some(n)).ok(),
-        "OUTSIDE" => Bound::new(None, Some(n)).ok(),
+        "OUTSIDE" if start => Bound::new(None, Some(n)).ok(),
+        "OUTSIDE" => Bound::new(Some(n), None).ok(),
         "UNKNOWN" => None,
         _ => None,
     }
@@ -39,8 +40,8 @@ pub(super) fn features(
 ) -> Vec<ProteinFeature> {
     rows.into_iter()
         .filter_map(|r| {
-            let span = bound(r.location.start)
-                .zip(bound(r.location.end))
+            let span = bound(r.location.start, true)
+                .zip(bound(r.location.end, false))
                 .and_then(|(start, end)| UncertainSpan0::from_inclusive(start, end).ok());
             let Some(span) = span else {
                 problems.push(Problem {

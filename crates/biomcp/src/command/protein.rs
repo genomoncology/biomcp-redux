@@ -15,5 +15,5 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
 }
 
 pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
-    matches!(action, biomcp_query::Action::Run { request: Request::GetProtein(q), .. } if !q.sections().is_empty())
+    matches!(action, biomcp_query::Action::Run { request: Request::GetProtein(q), .. } if q.sections().iter().any(|s| matches!(s, biomcp_types::ProteinSection::Domains | biomcp_types::ProteinSection::Complexes)))
 }

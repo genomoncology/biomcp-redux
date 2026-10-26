@@ -177,6 +177,13 @@ impl ProteinGet {
         .try_into()
     }
 
+    /// Select bounded native sections on the same exact input identities.
+    pub fn with_section(&self, section: ProteinSection) -> Self {
+        let mut q = self.clone();
+        q.0.section = vec![section].into();
+        q
+    }
+
     /// Caller identities in their original order.
     pub fn input(&self) -> &[ProteinInput] {
         &self.0.input
