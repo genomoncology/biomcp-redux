@@ -130,15 +130,15 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
         .insert("species".into(), json!("Mus musculus"));
     assert!(serde_json::from_value::<Pathway>(foreign).is_err());
     for accession in ["P01116-1", "P01116-2"] {
-        let member = json!({"reference":{"namespace":"uniprot","value":accession},"name":"KRAS","gene":"HGNC:6407","schema_class":"ReferenceIsoform"});
+        let member = json!({"reference":{"namespace":"uniprot","value":accession},"name":"KRAS","gene":"HGNC:6407","schema_class":"ReferenceIsoform","participants":[{"db_id":5672734,"name":"RAF activating kinases [plasma membrane]","schema_class":"CandidateSet"}]});
         assert_eq!(roundtrip::<PathwayMember>(member.clone()), member);
     }
-    let unknown = json!({"reference":{"namespace":"ChEBI","value":"15377"}});
+    let unknown = json!({"reference":{"namespace":"ChEBI","value":"15377"},"participants":[]});
     assert_eq!(roundtrip::<PathwayMember>(unknown.clone()), unknown);
     for event in [
         json!({"kind":"database","db_id":5673001}),
         json!({"kind":"object","db_id":5668599,"name":"Native reaction","schema_class":"Reaction"}),
-        json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","name":"Native pathway","schema_class":"Pathway"}),
+        json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","version":"12","name":"Native pathway","schema_class":"Pathway"}),
     ] {
         assert_eq!(roundtrip::<PathwayEventRef>(event.clone()), event);
     }
@@ -178,4 +178,13 @@ fn legacy_gene_reference_keeps_its_wire_shape_and_checked_identity() {
         let id: PathwayId = raw.parse().expect("native identity");
         assert_eq!(id.to_string(), raw);
     }
+}
+
+#[test]
+fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
+    // Minimal source-field projection; second summation is synthetic multiplicity control.
+    let pathway = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","summations":[{"db_id":5683030,"text":"Complete retained source text."},{"db_id":5683031,"text":"Second source summation."}],"references":[{"db_id":5672144,"pubmed":"24937142","title":"Native reference"},{"db_id":208231,"pubmed":"17496910"}]});
+    assert_eq!(roundtrip::<Pathway>(pathway.clone()), pathway);
+    let wiki = json!({"id":{"source":"wikipathways","id":"WP382"},"name":"MAPK signaling pathway","species":"Homo sapiens","revision":"2025-08-29","description":"Native catalog excerpt ...","cited_in":""});
+    assert_eq!(roundtrip::<Pathway>(wiki.clone()), wiki);
 }

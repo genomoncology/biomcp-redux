@@ -111,6 +111,7 @@ pub use diagnostic::*;
 
 mod pathway;
 pub use pathway::{
-    Pathway, PathwayEventRef, PathwayId, PathwayIdInvalid, PathwayMember, PathwayRef,
-    PathwaySourceRef, PathwaySpecies, ReactomeId, ReactomeIdInvalid, WikiPathwaysId,
+    Pathway, PathwayEventRef, PathwayId, PathwayIdInvalid, PathwayLiteratureRef, PathwayMember,
+    PathwayParticipant, PathwayRef, PathwaySourceRef, PathwaySpecies, PathwaySummation, ReactomeId,
+    ReactomeIdInvalid, WikiPathwaysId,
 };

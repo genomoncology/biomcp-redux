@@ -1,6 +1,6 @@
 use super::QueryInvalid;
 use biodata::{PathwayId, Text};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 mod get;
 mod relation;
 mod search;
@@ -41,13 +41,15 @@ fn reactome(id: &PathwayId) -> bool {
 // CLI requests carry one checked native spelling; neutral records remain source-tagged.
 mod native_id {
     use super::*;
-    pub fn serialize<S: serde::Serializer>(
+    pub(super) fn serialize<S: serde::Serializer>(
         id: &PathwayId,
         serializer: S,
     ) -> Result<S::Ok, S::Error> {
         serializer.collect_str(id)
     }
-    pub fn deserialize<'de, D: serde::Deserializer<'de>>(d: D) -> Result<PathwayId, D::Error> {
+    pub(super) fn deserialize<'de, D: serde::Deserializer<'de>>(
+        d: D,
+    ) -> Result<PathwayId, D::Error> {
         let v = Text::deserialize(d)?;
         v.as_str().parse().map_err(serde::de::Error::custom)
     }

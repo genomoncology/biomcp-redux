@@ -23,6 +23,15 @@ pub struct Pathway {
     /// Complete native description when present; empty is distinct from absent.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
+    /// Native Reactome summation objects in source order; not concatenated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub summations: Option<Box<[PathwaySummation]>>,
+    /// Native pathway-level literature references, separate from each summation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub references: Option<Box<[PathwayLiteratureRef]>>,
+    /// WikiPathways catalog citedIn cell, including a native empty cell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cited_in: Option<Box<str>>,
     /// Reactome stable identifier version, separate from identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
@@ -56,6 +65,8 @@ pub struct PathwayMember {
     /// Native reference schema class.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub schema_class: Option<Text>,
+    /// Physical source entities that carry this reference; preserve modification context.
+    pub participants: Box<[PathwayParticipant]>,
 }
 /// An event object or unresolved integer reference; never the parent's inferred ID.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -74,6 +85,9 @@ pub enum PathwayEventRef {
         /// Native stable identity when present, never copied from the pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         id: Option<ReactomeId>,
+        /// Native stable identifier version, separate from the event identity.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        version: Option<Text>,
         /// Whole native display name.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         name: Option<Text>,
@@ -81,4 +95,44 @@ pub enum PathwayEventRef {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         schema_class: Option<Text>,
     },
+}
+
+/// One native summation, with its own database identity and whole text.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwaySummation {
+    /// Native summation database identity, not the pathway identity.
+    pub db_id: NonZeroU64,
+    /// Complete native text; no sentence clipping or reference reassignment.
+    pub text: Box<str>,
+}
+/// A native pathway-level literature reference; never inferred from prose.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwayLiteratureRef {
+    /// Native literature database reference.
+    pub db_id: NonZeroU64,
+    /// Native PubMed identifier when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pubmed: Option<crate::Pmid>,
+    /// Native title when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
+    /// Source record URL when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+}
+/// One native physical entity carrying a membership reference.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwayParticipant {
+    /// Native physical entity database identity, distinct from reference identity.
+    pub db_id: NonZeroU64,
+    /// Whole physical entity label, including source-stated modification context.
+    pub name: Text,
+    /// Native physical entity schema class, separate from reference schema class.
+    pub schema_class: Text,
 }
