@@ -1,4 +1,4 @@
-# 0287 — Diagnose the second WikiPathways concurrent reader failure
+# 0287 — Diagnose opaque native concurrency failures in snapshot and bundle stores
 
 Status: OPEN.
 
@@ -16,3 +16,4 @@ A bounded diagnosis names why `wikipathways/concurrent-readers-during-pair-repla
 - Proof: a deterministic case that holds the snapshot store's write lock during a reader reproduces the exit before the fix and passes after it, or the ticket records that no such reproduction exists and the case now retains the local error kind. No source calls and no blind retry loop.
 - Changes: the case's retained evidence, the local error kind in the envelope if missing, and the snapshot store code only if a defect is witnessed.
 - Defers: nothing.
+- PM ruling 2026-10-26 (m8126 ask 13): scope widens to the three opaque native concurrency failures, j14991 WikiPathways writer, j16003 WikiPathways reader and j16035 FDA CDx writer, whose unchanged retries passed. Typed local cache errors are kept at the common output boundary so every envelope names a busy or locked store. Deterministic held-store-lock cases cover the reader and sync envelopes, including the FDA CDx writer. The hard policy for an external lock holder stays. SQLite zero-wait or startup contention is a hypothesis until a case reproduces it.
