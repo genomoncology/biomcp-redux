@@ -66,6 +66,7 @@ fn check() -> Check {
             return Err("unknown client was not a usage error".into());
         }
     }
+    help(&env)?;
     if env.root().join("cache/biomcp").exists() {
         return Err("housekeeping created a cache".into());
     }
@@ -99,6 +100,27 @@ fn check_config(env: &Environment, client: Option<&str>, empty: bool) -> Check {
         || value.as_object().is_none_or(|map| map.len() != 1)
     {
         return Err(format!("invalid MCP configuration: {value}").into());
+    }
+    Ok(())
+}
+
+fn help(env: &Environment) -> Check {
+    for (name, flag) in [("version", "--verbose"), ("mcp-config", "--client")] {
+        let output = run(env, &["help", name], false)?;
+        let value: Value = serde_json::from_str(success(&output)?)?;
+        let commands = value
+            .pointer("/result/commands")
+            .and_then(Value::as_array)
+            .ok_or("missing help")?;
+        if commands.len() != 1
+            || commands
+                .first()
+                .and_then(|c| c.get("arguments"))
+                .and_then(Value::as_array)
+                .is_none_or(|args| !args.iter().any(|arg| arg.get("name") == Some(&json!(flag))))
+        {
+            return Err(format!("missing {name} {flag} help: {value}").into());
+        }
     }
     Ok(())
 }

@@ -390,12 +390,14 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             word => break word,
         }
     };
-    let mut error = if matches!(root, Some("sync" | "key" | "store"))
-        || root.is_some_and(|root| {
-            crate::grammar::QUERIES
-                .iter()
-                .any(|(verb, _, _)| *verb == root)
-        }) {
+    let mut error = if matches!(
+        root,
+        Some("sync" | "key" | "store" | "version" | "mcp-config")
+    ) || root.is_some_and(|root| {
+        crate::grammar::QUERIES
+            .iter()
+            .any(|(verb, _, _)| *verb == root)
+    }) {
         ErrorEnvelope::arguments()
     } else {
         ErrorEnvelope::schema_usage()
