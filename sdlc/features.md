@@ -119,3 +119,5 @@ vaers-summary: Read explicit supported vaccine aggregate tables without inferrin
 diagnostic-who-search: Search stored WHO product headers by literal marker and manufacturer words. Cases: `tests/cases/diagnostic/who-search.yaml`, `crates/biomcp/tests/runner/diagnostic_who/search.rs`.
 
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools. Cases: `crates/biomcp/tests/runner/research.rs`.
+
+store-clean: Publishing removes bounded expired pools and snapshots; explicit cleanup removes expired replies and older incompatible cache files while preserving fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `tests/cases/store/clean.yaml`.

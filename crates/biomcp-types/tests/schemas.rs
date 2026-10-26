@@ -120,6 +120,7 @@ fn registry() -> Vec<Contract> {
         Request => ("request", "biodata.request/8"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
+        Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/3"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),

@@ -91,6 +91,7 @@ mod scholar;
 mod semantic_tables;
 mod source_controls;
 mod source_terms;
+mod store_clean;
 mod supplement_tables;
 mod trial_condition;
 mod trial_documents;

@@ -13,6 +13,9 @@ impl std::fmt::Debug for CacheAccess {
     }
 }
 impl CacheAccess {
+    pub(crate) fn path(&self) -> &std::path::Path {
+        &self.path
+    }
     /// Serialize SQL across schema owners sharing this Fetch, without holding admission during HTTP.
     pub fn admit<T>(
         &self,

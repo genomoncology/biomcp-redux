@@ -55,6 +55,10 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
 fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for (command, description) in [
         (
+            vec!["store", "clean"],
+            "Remove expired replies, pools and snapshots and older incompatible cache files. Return removal counts in one bounded reply. Fresh state and bundles remain.",
+        ),
+        (
             vec!["health"],
             "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
         ),
