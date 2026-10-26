@@ -103,6 +103,8 @@ class CapturePlanTests(unittest.TestCase):
                 result = self.run_capture(plan, out, env=env)
                 self.assertEqual(result.returncode, 1)
                 self.assertEqual(self.server.calls, [])
+                if name == 'missing':
+                    self.assertIn('missing required OS variable: TMPDIR', result.stderr)
 
     def test_manifest_rejects_one_changed_byte_before_continuation(self):
         plan = self.plan(['/one'])

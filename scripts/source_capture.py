@@ -278,7 +278,8 @@ def main():
             raise ValueError('--plan and --out are required')
         return run_capture(args)
     except (ValueError, KeyError, OSError, subprocess.SubprocessError, tarfile.TarError) as error:
-        print('source capture refused: ' + type(error).__name__, file=sys.stderr)
+        detail = str(error) if type(error) is ValueError else type(error).__name__
+        print('source capture refused: ' + detail, file=sys.stderr)
         return 1
 
 
