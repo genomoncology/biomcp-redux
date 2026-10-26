@@ -187,6 +187,8 @@ The recorded CLI and MCP section measurements agree. The existing comparable-bud
 | `pathway events R-HSA-5673001` | 1768 | 442 | 2034 | 509 |
 | `pathway genes R-HSA-5673001 details` | 10569 | 2643 | 12155 | 3040 |
 
+The default Reactome card renders 723 comparable Markdown bytes after adding the executable genes and events links. Its measured ceiling is 832 bytes, which adds fifteen percent and rounds up. The command-shape contract requires both links.
+
 The compact genes default fits its original allocation. The `all` output preserves the complete source summary and both bounded compact section pages. Complete physical contexts appear only in the explicit details view. The first five references retain 29, 9, 16, 16 and 2 physical contexts respectively. The details view does not clip their native names or collapse isoform membership.
 
 The default cards now expose the executable summary, genes and events steps. Their measured comparable byte ceilings include all three actions. The updated card cases enforce these per-record measurements plus 15 percent.
