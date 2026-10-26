@@ -111,5 +111,12 @@ pub use diagnostic::*;
 
 mod phenotype;
 pub use phenotype::*;
+mod pathway;
+pub use pathway::{
+    Pathway, PathwayEventRef, PathwayId, PathwayIdInvalid, PathwayLiteratureRef, PathwayMember,
+    PathwayParticipant, PathwayRef, PathwaySourceRef, PathwaySpecies, PathwaySummation, ReactomeId,
+    ReactomeIdInvalid, WikiPathwaysId,
+};
+
 mod study;
 pub use study::*;

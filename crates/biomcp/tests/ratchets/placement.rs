@@ -8,6 +8,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise neutral phenotype records and checked standalone source and section contracts before adapters exist.",
     ),
     (
+        "crates/biomcp-types/tests/pathway_contracts.rs",
+        "Exercise neutral pathway identities and checked standalone consumer contracts through the public library API before adapters exist.",
+    ),
+    (
         "crates/biomcp-types/tests/study_contracts.rs",
         "Exercise exact study identities, neutral source metadata and bounded standalone consumer contracts through the public library API before adapters exist.",
     ),

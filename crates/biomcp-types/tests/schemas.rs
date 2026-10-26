@@ -160,6 +160,7 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
     };
     contracts.extend(diagnostic_contracts());
+    contracts.extend(pathway_contracts());
     contracts.extend(common_registry());
     contracts.extend(article_registry());
     contracts.extend(research_registry());
@@ -406,5 +407,14 @@ fn flat_value(root: &Value, node: &Value) {
         assert!(
             ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
         );
+    }
+}
+
+fn pathway_contracts() -> Vec<Contract> {
+    contracts! {
+        Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/1"),
+        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/1"),
+        Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/1"),
+        Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/1"),
     }
 }

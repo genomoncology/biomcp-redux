@@ -182,5 +182,14 @@ pub use drug::DrugGetCommand;
 
 mod phenotype;
 pub use phenotype::*;
+pub use query::{
+    PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
+};
+
+pub use response::{
+    PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayPage, PathwayPageInfo,
+    PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
+};
+
 mod study;
 pub use study::*;
