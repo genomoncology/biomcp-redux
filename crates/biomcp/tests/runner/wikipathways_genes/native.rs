@@ -153,7 +153,10 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
             "card" => vec!["get", "pathway", id],
             "members" => vec!["pathway", "genes", id],
             _ => vec!["get", "pathway", id, section],
-        }.into_iter().map(str::to_owned).collect::<Vec<_>>();
+        }
+        .into_iter()
+        .map(str::to_owned)
+        .collect::<Vec<_>>();
         let cli = invoke(env, args.clone(), 0)?;
         let mcp = super::super::mcp::call_with_globals(env, &args, false, &["--offline".into()])?;
         for (surface, value) in [("CLI", cli), ("MCP", mcp)] {

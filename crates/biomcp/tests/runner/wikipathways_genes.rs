@@ -34,9 +34,9 @@ fn catalog(search: bool) -> String {
     let mut row = json!({"id":"WP382","url":"https://www.wikipathways.org/instance/WP382",
         "name":"Synthetic pathway","species":"Homo sapiens","revision":"2025-08-29",
         "authors":"Synthetic author","description":"Native description","citedIn":""});
-    if search {
-        row["datanodes"] = json!("");
-        row["annotations"] = json!("");
+    if search && let Some(fields) = row.as_object_mut() {
+        fields.insert("datanodes".into(), json!(""));
+        fields.insert("annotations".into(), json!(""));
     }
     json!({"pathwayInfo":[row]}).to_string()
 }
@@ -196,12 +196,12 @@ fn failures() -> Check {
         let mut recording = original.clone();
         let exchange = recording.pointer_mut("/exchanges/0").ok_or("exchange")?;
         let body = failed_body(mode);
-        exchange["body"]["value"] = json!(body);
+        *exchange.pointer_mut("/body/value").ok_or("recorded body")? = json!(body);
         if mode == "429" || mode == "500" {
-            exchange["status"] = json!(mode.parse::<u16>().map_err(|e| e.to_string())?);
+            *exchange.get_mut("status").ok_or("recorded status")? = json!(mode.parse::<u16>().map_err(|e| e.to_string())?);
         }
         if mode == "timeout" {
-            exchange["delay_ms"] = json!(10_000);
+            *exchange.get_mut("delay_ms").ok_or("recorded delay")? = json!(10_000);
         }
         fs::write(&path, recording.to_string()).map_err(|e| e.to_string())?;
         let env = Environment::new().map_err(|e| e.to_string())?;
