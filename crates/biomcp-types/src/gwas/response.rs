@@ -193,7 +193,7 @@ impl ResponseBody for GwasAncestries {
 
 /// Search and study-association pages echo their original checked request.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
+#[serde(tag = "operation", content = "query", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum GwasPageQuery {
     /// Native association search.

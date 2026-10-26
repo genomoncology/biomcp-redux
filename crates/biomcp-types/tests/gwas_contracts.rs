@@ -145,11 +145,11 @@ fn native_relation_scopes_have_valid_consumer_envelopes() -> Result<(), Box<dyn 
     let study = json!({"kind":"study","id":"GCST000035"});
     let association = json!({"kind":"association","id":"association:6110"});
     envelope::<GwasPage>(
-        json!({"gene":"FGFR2"}),
+        json!({"operation":"search","query":{"gene":"FGFR2"}}),
         json!({"items":[],"page":{"offset":0,"returned":0,"total":0}}),
     )?;
     envelope::<GwasPage>(
-        json!({"kind":"study","id":"GCST000035","section":"associations"}),
+        json!({"operation":"get","query":{"kind":"study","id":"GCST000035","section":"associations"}}),
         json!({"items":[],"page":{"offset":0,"returned":0,"total":0}}),
     )?;
     envelope::<GwasLoci>(
