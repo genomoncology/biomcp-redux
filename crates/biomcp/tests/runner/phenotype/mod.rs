@@ -189,7 +189,9 @@ fn failures() -> Result<(), String> {
         } else {
             vec!["search", "phenotype", "synthetic"]
         };
-        let result = invoke(&env, &words, 4)?;
+        let directory = env.root().join("failure");
+        let result = record(&env, &words, &directory, 4)?;
+        native::mcp(&directory, &words, &result, 4)?;
         if kind == 5 {
             invoke(&env, &words, 4)?;
         }
