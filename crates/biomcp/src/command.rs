@@ -14,6 +14,7 @@ mod phenotype;
 mod protein;
 mod steps;
 mod sync;
+mod transport;
 mod unsupported;
 mod variant;
 
@@ -93,34 +94,13 @@ fn dispatch_using(
     if let Some(outcome) = unsupported::check(&action) {
         return outcome;
     }
-    let owned;
-    let fetch = match shared.map(|(_, fetch)| fetch) {
-        Some(Ok(fetch)) => {
-            let secrets = match crate::config::secrets(&parsed.globals) {
-                Ok(secrets) => secrets,
-                Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
-            };
-            let fetch = if parsed.globals.offline {
-                fetch.offline()
-            } else {
-                fetch.as_ref().clone()
-            };
-            owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
-            &owned
-        }
-        Some(Err(())) if !parsed.globals.offline => {
-            return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
-        }
-        _ => {
-            owned = match crate::config::fetch(&parsed.globals) {
-                Ok(fetch) => fetch,
-                Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
-            };
-            &owned
-        }
+    let fetch = match transport::fetch(&parsed.globals, shared.map(|(_, fetch)| fetch))? {
+        Ok(fetch) => fetch,
+        Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
     };
-    execute(fetch, action, &parsed.globals, allow_save)
+    execute(&fetch, action, &parsed.globals, allow_save)
 }
+
 pub(crate) fn execute(
     fetch: &biomcp_fetch::Fetch,
     action: Action,
