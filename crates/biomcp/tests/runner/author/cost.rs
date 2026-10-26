@@ -58,6 +58,9 @@ pub(super) fn surfaces(
 fn papers_total(phase: &str, args: &[String], value: &Value) -> Result<(), String> {
     if args.first().is_some_and(|a| a == "author")
         && args.get(1).is_some_and(|a| a == "papers")
+        && args.get(2).is_some_and(|a| {
+            a.starts_with("semantic-scholar:") || a.starts_with("semanticscholar:")
+        })
         && value.get("page").is_some()
     {
         return Err(format!("{phase}: native papers endpoint supplied no total"));
