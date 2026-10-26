@@ -17,3 +17,5 @@ Depends on: 0265
 - Defers: ORCID to 0267, author papers to 0268, and retirements and remaining failure cases to 0269.
 - Added from 0265: register author in the shared request and command dispatch, version the request, step and envelope schemas it changes, and prove executable help and Markdown parity. Entity help caps are measured size plus 15 percent and go to the PM with their measurement. 0267 and 0268 consume this registration.
 - Changes: the Semantic Scholar adapter under `crates/biomcp-adapters/src/semantic_scholar/`, the author query and dispatch code, cases and author.md.
+
+- Added from 0265 (m7478): when executable author registration lands, remove the temporary `AuthorPage` and `AuthorCards` exclusions that f4446de4 added to the research registry contract test, and prove the test then covers the registered author types.
