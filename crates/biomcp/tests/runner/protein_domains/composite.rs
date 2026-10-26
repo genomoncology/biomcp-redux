@@ -1,9 +1,9 @@
 //! Feature protein-domains-complexes: all keeps independent first-page bounds.
 use super::super::mcp;
 use super::*;
-// Accepted native get-all measurement with fifteen percent headroom.
-const CLI_ALL_BYTES: usize = (13168_usize * 115).div_ceil(100);
-const MCP_ALL_BYTES: usize = CLI_ALL_BYTES - 1;
+// Synthetic P00533 and P38398 all measured in j15002, with fifteen percent headroom.
+const CLI_ALL_BYTES: usize = (2826_usize * 115).div_ceil(100);
+const MCP_ALL_BYTES: usize = (2825_usize * 115).div_ceil(100);
 pub(super) fn run() -> Result<(), String> {
     for id in ["P00533", "P38398"] {
         let stub = Stub::for_sources(
@@ -20,14 +20,6 @@ pub(super) fn run() -> Result<(), String> {
         let mcp_env = Environment::new().map_err(|e| e.to_string())?;
         let globals = mcp_env.globals(Some(&directory), false);
         let mcp = mcp::call_with_globals(&mcp_env, &args.map(str::to_owned), false, &globals)?;
-        use std::io::Write;
-        writeln!(
-            std::io::stdout(),
-            "PROTEIN_COMPOSITE_BYTES {id} CLI={} MCP={}",
-            serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len() + 1,
-            serde_json::to_vec(&mcp).map_err(|e| e.to_string())?.len()
-        )
-        .map_err(|e| e.to_string())?;
         for value in [&cli, &mcp] {
             check(value)?;
         }
@@ -54,27 +46,7 @@ pub(super) fn run() -> Result<(), String> {
             return Err("repeated section changed shared grammar behavior".into());
         }
         super::card_failures::bounded(&repeated, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
-        let disabled = call(
-            &env,
-            &[
-                "get",
-                "protein",
-                id,
-                "all",
-                "--section-limit",
-                "1",
-                "--disable-sources",
-                "interpro,complex-portal",
-            ],
-            0,
-        )?;
-        for name in ["domains", "complexes"] {
-            if disabled.pointer(&format!("/result/items/0/sections/{name}/state"))
-                != Some(&json!("skipped"))
-            {
-                return Err("disabled optional all source supplied a cached page".into());
-            }
-        }
+        disabled(&env, &mcp_env, &directory, id)?;
         if stub.finish()?.len() != 3 {
             return Err("all repeated a source request or a disabled source reached HTTP".into());
         }
@@ -161,5 +133,41 @@ fn check(value: &Value) -> Result<(), String> {
         return Err("function text lost a whole source paragraph".into());
     }
     super::card_failures::bounded(value, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
+    Ok(())
+}
+
+fn disabled(
+    env: &Environment,
+    mcp_env: &Environment,
+    replay: &std::path::Path,
+    id: &str,
+) -> Result<(), String> {
+    let args = [
+        "get",
+        "protein",
+        id,
+        "all",
+        "--section-limit",
+        "1",
+        "--disable-sources",
+        "interpro,complex-portal",
+    ];
+    let cli = call(env, &args, 0)?;
+    let mcp = mcp::call_with_globals(
+        mcp_env,
+        &args.map(str::to_owned),
+        false,
+        &mcp_env.globals(Some(replay), false),
+    )?;
+    for value in [&cli, &mcp] {
+        for name in ["domains", "complexes"] {
+            if value.pointer(&format!("/result/items/0/sections/{name}/state"))
+                != Some(&json!("skipped"))
+            {
+                return Err("disabled optional all source supplied a cached page".into());
+            }
+        }
+        super::card_failures::bounded(value, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
+    }
     Ok(())
 }
