@@ -49,7 +49,9 @@ fn page(env: &Environment, number: u32, total: u32, exponent: i64) -> Result<Pat
         *row.get_mut("p_value").ok_or("pvalue")? = json!(0);
     }
     let offset = (number * 3).to_string();
-    let args = ["search", "gwas", "--pubmed", "17529967", "--offset", &offset];
+    let args = [
+        "search", "gwas", "--pubmed", "17529967", "--offset", &offset,
+    ];
     seed(env, &args, value, 200, 0)
 }
 pub(super) fn walk() -> Result<(), String> {
