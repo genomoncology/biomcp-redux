@@ -40,7 +40,7 @@ pub use envelope::{Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};
 pub use page::{PageInfo, PoolInfo};
 pub use section::{Section, SourceRecord};
-pub use source::{SourceNotice, SourceOutcome, SourceState};
+pub use source::{CacheProblem, SourceNotice, SourceOutcome, SourceState};
 pub use status::{ItemStatus, Status};
 pub use step::{Step, StepKind};
 

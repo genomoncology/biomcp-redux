@@ -25,6 +25,7 @@ pub(crate) struct Cache(
     Mutex<Connection>,
     pub(crate) std::path::PathBuf,
     pub(crate) std::path::PathBuf,
+    Mutex<()>,
 );
 
 #[derive(Debug, serde::Serialize)]
@@ -108,6 +109,22 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
     Ok(())
 }
 impl Cache {
+    pub(crate) fn owned_connection(&self) -> Result<Connection, CacheError> {
+        let connection =
+            Connection::open_with_flags(&self.2, rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE)
+                .map_err(db_error)?;
+        let version = connection
+            .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |row| {
+                row.get::<_, u32>(0)
+            })
+            .optional()
+            .map_err(db_error)?;
+        if version != Some(VERSION) {
+            return Err(CacheError::Version);
+        }
+        Ok(connection)
+    }
+
     pub(crate) fn open_with_owners(
         path: &Path,
         owners: &[SchemaOwner],
@@ -117,17 +134,41 @@ impl Cache {
         connection.busy_timeout(OPEN_WAIT).map_err(db_error)?;
         Self::initialize(&mut connection)?;
         // Ownership is validated before changing the file's journal mode.
-        connection
-            .pragma_update(None, "journal_mode", "WAL")
+        let journal: String = connection
+            .pragma_query_value(None, "journal_mode", |row| row.get(0))
             .map_err(db_error)?;
+        if !journal.eq_ignore_ascii_case("wal") {
+            connection
+                .pragma_update(None, "journal_mode", "WAL")
+                .map_err(db_error)?;
+        }
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
             path.to_owned(),
+            Mutex::new(()),
         ))
     }
 
     fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
+        let has_meta: bool = connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?;
+        if has_meta
+            && connection
+                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |row| {
+                    row.get::<_, u32>(0)
+                })
+                .optional()
+                .map_err(|_| CacheError::Version)?
+                == Some(VERSION)
+        {
+            return Ok(());
+        }
         let tx = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
@@ -197,33 +238,32 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        if deadline.virtual_time() {
-            // Replay threads can overlap their SQL. Wait for the in-process
-            // owner, while external SQLite contention still fails immediately.
-            let connection = self.0.lock().map_err(|_| CacheError::Database)?;
-            if deadline.expired() {
-                return Err(CacheError::Busy);
-            }
-            connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
-            return operation(&connection);
-        }
-        loop {
-            if deadline.expired() {
-                return Err(CacheError::Busy);
-            }
-            match self.0.try_lock() {
-                Ok(connection) => {
-                    connection
-                        .busy_timeout(deadline.remaining())
-                        .map_err(db_error)?;
-                    return operation(&connection);
-                }
-                Err(std::sync::TryLockError::Poisoned(_)) => return Err(CacheError::Database),
-                Err(std::sync::TryLockError::WouldBlock) => {
-                    std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
-                }
-            }
-        }
+        let connection = wait_mutex(&self.0, deadline, deadline.local())?;
+        sql_deadline(&connection, deadline)?;
+        operation(&connection)
+    }
+
+    // Ordinary transport mutations take the connection before write admission.
+    pub(crate) fn write_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        let wall_bound = deadline.local();
+        let connection = wait_mutex(&self.0, deadline, wall_bound)?;
+        let _writer = wait_mutex(&self.3, deadline, wall_bound)?;
+        sql_deadline(&connection, deadline)?;
+        operation(&connection)
+    }
+
+    // Publishers borrow only write admission, never the ordinary connection.
+    pub(crate) fn publish_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        operation: impl FnOnce() -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        let _writer = wait_mutex(&self.3, deadline, deadline.local())?;
+        operation()
     }
 
     pub(crate) fn read(
@@ -231,32 +271,81 @@ impl Cache {
         key: &[u8; 32],
         max_body: u64,
         deadline: Deadline<'_>,
+        opportunistic: bool,
     ) -> Result<Option<Entry>, CacheError> {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
-        self.sql(deadline, |connection| {
+        let operation = |connection: &Connection| {
             let entry = connection.query_row(
                 "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range, pagination FROM reply WHERE key=?1",
                 params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?, row.get::<_, Option<String>>(5)?, row.get::<_, Option<String>>(6)?)),
             ).optional().map_err(db_error)?;
             match entry {
-                Some((status, Some(body), fresh_until, fetched_at, content_type, content_range, pagination)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
-                    let pagination = pagination.map(|p| serde_json::from_str::<crate::Pagination>(&p)).transpose();
+                Some((
+                    status,
+                    Some(body),
+                    fresh_until,
+                    fetched_at,
+                    content_type,
+                    content_range,
+                    pagination,
+                )) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
+                    let pagination = pagination
+                        .map(|p| serde_json::from_str::<crate::Pagination>(&p))
+                        .transpose();
                     match pagination {
-                        Ok(pagination) if pagination.as_ref().is_none_or(crate::Pagination::valid) => Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type, content_range, pagination})),
-                        _ => { Self::delete(connection, key)?; Ok(None) }
+                        Ok(pagination)
+                            if pagination.as_ref().is_none_or(crate::Pagination::valid) =>
+                        {
+                            Ok(Some(Entry {
+                                status,
+                                body,
+                                fresh_until,
+                                fetched_at,
+                                content_type,
+                                content_range,
+                                pagination,
+                            }))
+                        }
+                        _ => {
+                            self.delete(connection, key)?;
+                            Ok(None)
+                        }
                     }
                 }
-                Some(_) => { Self::delete(connection, key)?; Ok(None) }
+                Some(_) => {
+                    self.delete(connection, key)?;
+                    Ok(None)
+                }
                 None => Ok(None),
             }
-        })
+        };
+        if opportunistic {
+            self.try_sql(deadline, operation)
+        } else {
+            self.sql(deadline, operation)
+        }
+    }
+
+    // Discretionary reply caching must leave the budget available to the source.
+    fn try_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        if deadline.expired() {
+            return Err(CacheError::Busy);
+        }
+        let connection = try_mutex(&self.0)?;
+        connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
+        operation(&connection)
     }
 
     pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline<'_>) -> Result<(), CacheError> {
-        self.sql(deadline, |connection| Self::delete(connection, key))
+        self.try_sql(deadline, |connection| self.delete(connection, key))
     }
 
-    fn delete(connection: &Connection, key: &[u8; 32]) -> Result<(), CacheError> {
+    fn delete(&self, connection: &Connection, key: &[u8; 32]) -> Result<(), CacheError> {
+        let _writer = try_mutex(&self.3)?;
         connection
             .execute("DELETE FROM reply WHERE key=?1", [key])
             .map_err(db_error)?;
@@ -271,7 +360,7 @@ impl Cache {
         entry: &Entry,
         deadline: Deadline<'_>,
     ) -> Result<(), CacheError> {
-        self.sql(deadline, |connection| {
+        self.write_sql(deadline, |connection| {
             connection.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
                 ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",
@@ -279,6 +368,47 @@ impl Cache {
             ).map_err(db_error)?;
             Ok(())
         })
+    }
+}
+
+pub(crate) fn sql_deadline(
+    connection: &Connection,
+    deadline: Deadline<'_>,
+) -> Result<(), CacheError> {
+    if deadline.expired() {
+        return Err(CacheError::Busy);
+    }
+    connection
+        .busy_timeout(if deadline.virtual_time() {
+            Duration::ZERO
+        } else {
+            deadline.remaining()
+        })
+        .map_err(db_error)
+}
+
+fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheError> {
+    mutex.try_lock().map_err(|error| match error {
+        std::sync::TryLockError::WouldBlock => CacheError::Busy,
+        std::sync::TryLockError::Poisoned(_) => CacheError::Database,
+    })
+}
+
+fn wait_mutex<'a, T>(
+    mutex: &'a Mutex<T>,
+    deadline: Deadline<'_>,
+    wall_bound: crate::LocalDeadline,
+) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
+    loop {
+        if deadline.expired() || wall_bound.expired() {
+            return Err(CacheError::Busy);
+        }
+        match try_mutex(mutex) {
+            Err(CacheError::Busy) => {
+                std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()))
+            }
+            result => return result,
+        }
     }
 }
 

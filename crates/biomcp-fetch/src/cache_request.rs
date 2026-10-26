@@ -19,6 +19,18 @@ enum Checked<T> {
 }
 
 impl Leg<'_> {
+    fn cache_result(&self, result: Result<(), crate::CacheError>) {
+        if let Err(error) = result {
+            let mut report = self
+                .report
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            if !report.cache_problems.contains(&error) {
+                report.cache_problems.push(error);
+            }
+        }
+    }
+
     /// Apply request-bound checks on every read and admit only cacheable decoded replies.
     /// A valid provider rejection can return to the caller without entering the cache.
     pub fn json_checked_admission<T: Reply>(
@@ -116,13 +128,13 @@ impl Leg<'_> {
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
                 // result can override it and the provider body is never stored.
-                cache.write(
+                self.cache_result(cache.write(
                     key,
                     self.spec.source,
                     url,
                     &Entry::new(404, Vec::new(), NEGATIVE_SECONDS, codec.name()),
                     self.budget(),
-                )?;
+                ));
                 Err(error.into())
             }
             Err(RequestError::Source(error)) => {
@@ -167,15 +179,15 @@ impl Leg<'_> {
         entry.content_range = range;
         entry.pagination = pagination;
         if (200..300).contains(&status) && codec.cacheable(&reply) {
-            cache.write(
+            self.cache_result(cache.write(
                 &prepared.identity,
                 self.spec.source,
                 &prepared.url,
                 &entry,
                 self.budget(),
-            )?;
+            ));
         } else if codec.json_absence && status == 404 {
-            cache.remove(&prepared.identity, self.budget())?;
+            self.cache_result(cache.remove(&prepared.identity, self.budget()));
         }
         Ok((
             reply,
@@ -234,12 +246,20 @@ impl Leg<'_> {
         codec: &Decoder<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
         let key = &prepared.identity;
-        let Some(entry) = cache.read(
+        let entry = match cache.read(
             key,
             codec.limit.unwrap_or(self.fetch.config.max_body),
             self.budget(),
-        )?
-        else {
+            self.fetch.config.mode != Mode::Offline,
+        ) {
+            Ok(entry) => entry,
+            Err(crate::CacheError::Busy) => {
+                self.cache_result(Err(crate::CacheError::Busy));
+                None
+            }
+            Err(error) => return Err(error.into()),
+        };
+        let Some(entry) = entry else {
             return Ok(None);
         };
         self.contain_response(prepared, &entry, &entry.body, entry.status)?;
@@ -270,7 +290,7 @@ impl Leg<'_> {
         let Some(reply) = reply else {
             // A type or limit change invalidates this entry. It is a miss and
             // cannot become a stale fallback after the live request fails.
-            cache.remove(key, self.budget())?;
+            self.cache_result(cache.remove(key, self.budget()));
             return Ok(None);
         };
         if self.budget().expired() {

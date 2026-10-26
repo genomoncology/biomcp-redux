@@ -50,7 +50,8 @@ pub use response::{
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
 };
 pub use response::{
-    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, LitVarCandidate, PoolInfo, SourceNotice,
+    ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CacheProblem, LitVarCandidate, PoolInfo,
+    SourceNotice,
 };
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{

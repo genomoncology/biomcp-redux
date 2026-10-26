@@ -174,3 +174,4 @@ author-search: Literal Semantic Scholar author candidates retain provider identi
 author-orcid: Read exact public ORCID names and locally page whole public work groups without identity joins. Cases: `tests/cases/orcid/*.yaml`, `crates/biomcp/tests/runner/orcid.rs`.
 
 author-papers: Exact Semantic Scholar author papers preserve native order, IDs and details. Cases: `tests/cases/author/papers*.yaml`.
+cache-resilience: Checked provider replies and absences survive cache admission failures, and busy reads leave time for the source. Cases: `crates/biomcp/tests/runner/cache_contention.rs`.

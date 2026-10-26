@@ -267,3 +267,89 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
         }
     }
 }
+
+#[test]
+fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() {
+    let directory = tempfile::tempdir().unwrap();
+    let server = support::Server::<()>::new();
+    let bundle = declared(&server);
+    let fetch = Fetch::open(FetchConfig {
+        cache: Some(directory.path().join("cache.sqlite")),
+        sync_budget: Duration::from_secs(5),
+        ..Default::default()
+    })
+    .unwrap();
+    let access = fetch.cache_access().unwrap();
+    std::thread::scope(|scope| {
+        let sync = scope.spawn(|| fetch.sync(&bundle));
+        let request = server.next();
+        let answer = access
+            .admit(fetch.deadline(Duration::from_secs(10)), || {
+                // The request proves claim has finished. Keep the ordinary SQL
+                // connection held while a multi-batch publication completes.
+                let body = format!(
+                    "symbol\tband\tname\n{}",
+                    "BRAF\t9p21.1\tB raf kinase\n".repeat(600)
+                );
+                request.respond(200, "", &body);
+                let answer = scope.spawn(|| {
+                    let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(5)));
+                    let endpoint = bundle.spec.get("/answer").fresh(Freshness::Hours(1));
+                    assert!(leg.json::<support::Answer>(&endpoint, &[]).unwrap().answer);
+                    leg.finish()
+                });
+                server.next().ok();
+                assert_eq!(sync.join().unwrap().unwrap().rows, 600);
+                Ok(answer)
+            })
+            .unwrap();
+        assert!(answer.join().unwrap().failures.is_empty());
+    });
+}
+
+#[test]
+fn replay_external_writer_stays_external_while_an_admission_owner_does_no_sql() {
+    use biomcp_fetch::{CacheError, Mode, RequestError};
+    let directory = tempfile::tempdir().unwrap();
+    let records = directory.path().join("records");
+    let server = support::Server::<()>::new();
+    let bundle = declared(&server);
+    let recorder = Fetch::open(FetchConfig {
+        cache: Some(directory.path().join("record.sqlite")),
+        mode: Mode::Record {
+            dir: records.clone(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    sync_reply(&recorder, &bundle, &server, 200, "", TSV).unwrap();
+    drop(recorder);
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: records },
+        sync_budget: Duration::from_secs(60),
+        ..Default::default()
+    })
+    .unwrap();
+    let access = fetch.cache_access().unwrap();
+    let external = access.connect().unwrap();
+    external.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let (done, result) = std::sync::mpsc::channel();
+    std::thread::scope(|scope| {
+        let worker = access
+            .admit(fetch.deadline(Duration::from_secs(60)), || {
+                let worker = scope.spawn(|| {
+                    done.send(fetch.sync(&bundle)).unwrap();
+                });
+                // This watchdog is shorter than the frozen replay budget. A held
+                // no-SQL owner must not turn an external refusal into that wait.
+                assert!(matches!(
+                    result.recv_timeout(Duration::from_secs(30)).unwrap(),
+                    Err(RequestError::Cache(CacheError::Busy))
+                ));
+                Ok(worker)
+            })
+            .unwrap();
+        external.execute_batch("ROLLBACK").unwrap();
+        worker.join().unwrap();
+    });
+}

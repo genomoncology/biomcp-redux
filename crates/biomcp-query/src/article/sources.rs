@@ -152,7 +152,7 @@ fn pubmed_search<'a>(
         Ok(ids) => {
             outcome.count = Some(ids.count);
             outcome.fetched = Some(ids.ids.len() as u32);
-            outcome.notices = ids.notices;
+            outcome.notices.extend(ids.notices);
             ids.ids
                 .into_iter()
                 .map(|id| ArticleItem {

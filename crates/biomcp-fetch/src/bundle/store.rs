@@ -1,4 +1,4 @@
-use super::{Bundle, BundleInfo, Find, KeyKind, Row, parse::Parsed};
+use super::{Bundle, BundleInfo, Find, KeyKind, Row};
 use crate::{
     CacheError, Deadline,
     cache::{Cache, db_error, now},
@@ -66,7 +66,7 @@ pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     CREATE TRIGGER IF NOT EXISTS bundle_content_update BEFORE UPDATE ON bundle BEGIN DELETE FROM bundle_content WHERE name=OLD.name OR name=NEW.name; END;
     CREATE TRIGGER IF NOT EXISTS bundle_content_delete BEFORE DELETE ON bundle BEGIN DELETE FROM bundle_content WHERE name=OLD.name; END;").map_err(db_error)
 }
-fn kind(k: KeyKind) -> u8 {
+pub(super) fn kind(k: KeyKind) -> u8 {
     match k {
         KeyKind::Id => 0,
         KeyKind::Symbol => 1,
@@ -136,7 +136,7 @@ impl Cache {
         lease: i64,
         d: Deadline<'_>,
     ) -> Result<Option<Part>, CacheError> {
-        self.sql(d,|c|{
+        self.write_sql(d,|c|{
             let tx=c.unchecked_transaction().map_err(db_error)?;
             let old=tx.query_row("SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",[name],|r|Ok((r.get::<_,Option<String>>(0)?,r.get::<_,i64>(1)?,r.get::<_,String>(2)?,Part{path:r.get(3)?,bytes:u64::from(r.get::<_,u32>(4)?),etag:r.get(5)?,total:r.get::<_,Option<u32>>(6)?.map(u64::from)}))).optional().map_err(db_error)?;
             if old.as_ref().is_some_and(|(h,until,_,_)|h.is_some()&&*until>now()){return Err(CacheError::Busy);}
@@ -159,32 +159,7 @@ impl Cache {
         p: &Part,
         d: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        self.sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes as i64,p.etag,p.total.map(|n|n as i64)]).map(|n|n==1).map_err(db_error))
-    }
-    pub(super) fn publish<R: Row>(
-        &self,
-        b: &Bundle<R>,
-        holder: Option<&str>,
-        m: &Meta,
-        rows: Option<&[Parsed]>,
-        d: Deadline<'_>,
-    ) -> Result<bool, CacheError> {
-        self.sql(d,|c|{
-            let tx=c.unchecked_transaction().map_err(db_error)?;
-            if let Some(holder)=holder {let owned:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM bundle_sync WHERE name=?1 AND holder=?2)",params![b.name,holder],|r|r.get(0)).map_err(db_error)?;if !owned{return Ok(false);}}
-            if let Some(rows)=rows {
-                for table in ["bundle_row","bundle_key","bundle_words"]{tx.execute(&format!("DELETE FROM {table} WHERE bundle=?1"),[b.name]).map_err(db_error)?;}
-                for (n,row) in rows.iter().enumerate(){
-                    tx.execute("INSERT INTO bundle_row VALUES(?1,?2,?3)",params![b.name,n as i64,row.row]).map_err(db_error)?;
-                    for (key,value) in &row.keys.exact {tx.execute("INSERT INTO bundle_key VALUES(?1,?2,?3,?4)",params![b.name,kind(*key),value.to_ascii_lowercase(),n as i64]).map_err(db_error)?;}
-                    tx.execute("INSERT INTO bundle_words(bundle,n,words) VALUES(?1,?2,?3)",params![b.name,n as i64,row.keys.words.join(" ")]).map_err(db_error)?;
-                }
-            }
-            tx.execute("INSERT INTO bundle VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(name) DO UPDATE SET bytes=excluded.bytes,rows=excluded.rows,fresh_until=excluded.fresh_until,etag=excluded.etag,modified=excluded.modified",params![b.name,m.bytes as i64,m.rows as i64,m.fresh_until,m.etag,m.modified]).map_err(db_error)?;
-            if let (Some(revision),Some(retrieved_at))=(&m.content_revision,m.retrieved_at) { tx.execute("INSERT INTO bundle_content VALUES(?1,?2,?3)",params![b.name,revision,retrieved_at]).map_err(db_error)?; }
-            if let Some(h)=holder{tx.execute("DELETE FROM bundle_sync WHERE name=?1 AND holder=?2",params![b.name,h]).map_err(db_error)?;}
-            tx.commit().map_err(db_error)?; Ok(true)
-        })
+        self.write_sql(d,|c|c.execute("UPDATE bundle_sync SET holder=NULL,lease_until=0,bytes=?3,etag=?4,total=?5 WHERE name=?1 AND holder=?2",params![name,holder,p.bytes as i64,p.etag,p.total.map(|n|n as i64)]).map(|n|n==1).map_err(db_error))
     }
 }
 fn prefix_end(s: &str) -> Option<String> {
