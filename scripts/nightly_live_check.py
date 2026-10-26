@@ -104,24 +104,34 @@ def dependent_change(removed, added, discoveries):
             inputs = request.get('provenance', {}).get('inputs')
             if not inputs:
                 return 'uncertain'
-            group = (request['source'], request['role'], inputs['namespace'])
+            context = request.get('provenance', {}).get('input_context')
+            if not context:
+                return 'uncertain'
+            group = (request['source'], request['role'], inputs['namespace'], context)
             groups.setdefault(group, [[], []])[side].append(inputs['ids'])
-    for (_, _, namespace), (old_rows, new_rows) in groups.items():
+    for (_, _, namespace, _), (old_rows, new_rows) in groups.items():
         old = {value for row in old_rows for value in row}
         new = {value for row in new_rows for value in row}
-        if {tuple(row) for row in old_rows} == {tuple(row) for row in new_rows}:
+        if old == new or not old_rows or not new_rows:
             return 'failure'
         candidates = discoveries.get(namespace, [])
         if not candidates:
             return 'failure'
-        # A changed input must come from the corresponding received discovery;
-        # changing selection among unchanged discovery IDs remains a defect.
-        if not any(old <= set(left) and new <= set(right)
-                   and old - new <= set(left) - set(right)
-                   and new - old <= set(right) - set(left)
-                   for left, right in candidates):
+        # Transport sorts ID parameters. Require the same contiguous discovery
+        # window, not merely arbitrary subsets of two changed reply bodies.
+        if not any(same_window(old, new, left, right) for left, right in candidates):
             return 'failure'
     return 'churn'
+
+
+def same_window(old, new, left, right):
+    if not old or not new or len(old) != len(new):
+        return False
+    for start in range(len(left) - len(old) + 1):
+        stop = start + len(old)
+        if set(left[start:stop]) == old and set(right[start:stop]) == new:
+            return True
+    return False
 
 
 def command_classification(capture, discoveries):
@@ -153,9 +163,12 @@ def classify_case(row):
         return 'failure'
     if not drift:
         return 'uncertain' if cut(row.get('witness')) else 'healthy'
+    # Omitted diagnostics may hide an invariant or schema failure.
+    if any(item.startswith('more drift details omitted;') for item in drift):
+        return 'uncertain'
     # Schema and equivalent-request invariants always retain their failure status.
     invariant = any(not (': request-plan-' in item or ': HTTP status ' in item
-                         or item.startswith('more drift details omitted;')) for item in drift)
+                         or ': output status changed:' in item) for item in drift)
     if invariant:
         return 'failure'
     witness = row.get('witness')
@@ -168,9 +181,15 @@ def classify_case(row):
     for command in witness:
         before = terminal(command['baseline']['requests'])
         after = terminal(command['live']['requests'])
+        if command.get('exchanges', {}).get('drift_omitted', 0):
+            return 'uncertain'
         for namespace, changes in discovery_changes(before, after).items():
             discoveries.setdefault(namespace, []).extend(changes)
         outcomes.append(command_classification(command, discoveries))
+        output_change = any(item.startswith('command ' + str(command['ordinal'])
+                                            + ': output status changed:') for item in drift)
+        if output_change and outcomes[-1] != 'throttled':
+            return 'failure'
     for outcome in ('failure', 'uncertain', 'throttled', 'churn'):
         if outcome in outcomes:
             return outcome

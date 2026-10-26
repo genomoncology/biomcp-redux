@@ -31,6 +31,9 @@ pub struct Provenance {
     pub discovery: Option<Identities>,
     /// Explicit request ID inputs, excluding other parameters and credentials.
     pub inputs: Option<Identities>,
+    /// Equality witness for the credential-free request except its declared IDs.
+    /// This cannot establish discovery causality without explicit identifiers.
+    pub input_context: Option<String>,
 }
 impl Provenance {
     pub(crate) fn received<T: Reply>(
@@ -76,6 +79,30 @@ impl Provenance {
             }),
             discovery,
             inputs,
+            input_context: T::input_parameter()
+                .and_then(|(_, parameter)| request_context(prepared, parameter)),
         }
     }
+}
+
+fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
+    let mut url = url::Url::parse(&prepared.url).ok()?;
+    let query: Vec<_> = url.query_pairs()
+        .filter(|(name, _)| name != parameter)
+        .map(|(name, value)| (name.into_owned(), value.into_owned()))
+        .collect();
+    url.set_query(None);
+    url.query_pairs_mut().extend_pairs(query);
+    let form = match &prepared.post {
+        None => Vec::new(),
+        Some(post) if post.request_content_type == "application/x-www-form-urlencoded" => {
+            url::form_urlencoded::parse(&prepared.body)
+                .filter(|(name, _)| name != parameter)
+                .map(|(name, value)| (name.into_owned(), value.into_owned()))
+                .collect()
+        }
+        Some(_) => return None,
+    };
+    let bytes = serde_json::to_vec(&(prepared.post.is_some(), url.as_str(), form)).ok()?;
+    Some(Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect())
 }
