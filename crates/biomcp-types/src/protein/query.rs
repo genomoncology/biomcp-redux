@@ -30,9 +30,11 @@ biodata::wire_enum! {
     }
 }
 /// Exact source accession or a checked display gene symbol needing later resolution.
+/// The schema describes the string surface; deserialization checks either identity grammar.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "Text"))]
 pub enum ProteinInput {
     /// Source accession, preserving an explicit isoform suffix.
     Accession(UniProtIsoform),
@@ -43,7 +45,7 @@ pub enum ProteinInput {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("oneOf" = [{"required":["query"]},{"required":["gene"]}])))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("anyOf" = [{"required":["query"]},{"required":["gene"]}])))]
 pub struct ProteinSearch(SearchFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
