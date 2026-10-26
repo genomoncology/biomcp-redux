@@ -96,7 +96,12 @@ pub(super) fn budget(value: &Value, phase: &str, surface: &str, args: &[&str]) -
     };
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + 1;
     use std::io::Write;
-    writeln!(std::io::stdout(), "STUDY_PHASE {}", json!({"phase":phase,"surface":surface,"args":args,"bytes":bytes})).map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "STUDY_PHASE {}",
+        json!({"phase":phase,"surface":surface,"args":args,"bytes":bytes})
+    )
+    .map_err(|e| e.to_string())?;
     if bytes > (measured * 115).div_ceil(100) {
         return Err(format!("study envelope exceeds measured budget: {bytes}"));
     }
@@ -105,13 +110,25 @@ pub(super) fn budget(value: &Value, phase: &str, surface: &str, args: &[&str]) -
 fn missing() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    let v = call(&env, &replay, &["search", "study", "atlas"], 4, "catalog/missing/1")?;
+    let v = call(
+        &env,
+        &replay,
+        &["search", "study", "atlas"],
+        4,
+        "catalog/missing/1",
+    )?;
     if v.pointer("/sources/0/reason") != Some(&json!("syncing"))
         || v.pointer("/next/0/args") != Some(&json!(["sync", "cbioportal-studies"]))
     {
         return Err(format!("missing bundle: {v}"));
     }
-    let card = call(&env, &replay, &["get", "study", "synthetic_0"], 4, "catalog/missing/2")?;
+    let card = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0"],
+        4,
+        "catalog/missing/2",
+    )?;
     if card.get("status") != Some(&json!("failed"))
         || card.get("result").is_some()
         || card.pointer("/sources/0/reason") != Some(&json!("syncing"))
@@ -126,7 +143,13 @@ fn missing() -> Check {
 fn search() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    let receipt = call(&env, &replay, &["sync", "cbioportal-studies"], 0, "catalog/search/1")?;
+    let receipt = call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "catalog/search/1",
+    )?;
     if receipt.pointer("/result/rows") != Some(&json!(12))
         || receipt
             .pointer("/result/snapshot/acquired")
@@ -136,7 +159,13 @@ fn search() -> Check {
         return Err(format!("receipt: {receipt}"));
     }
     fs::remove_dir_all(replay.join("cbioportal")).map_err(|e| e.to_string())?;
-    let first = call(&env, &replay, &["search", "study", "ATLAS"], 0, "catalog/search/2")?;
+    let first = call(
+        &env,
+        &replay,
+        &["search", "study", "ATLAS"],
+        0,
+        "catalog/search/2",
+    )?;
     if first.pointer("/result/items/0/studyId") != Some(&json!("synthetic_0"))
         || first.pointer("/page/returned") != Some(&json!(5))
         || first.pointer("/page/total") != Some(&json!(12))
@@ -180,7 +209,8 @@ fn search() -> Check {
         &replay,
         &["search", "study", "other", "--pool", pool],
         2,
-     "catalog/search/4")?;
+        "catalog/search/4",
+    )?;
     if changed.get("result").is_some() {
         return Err("changed selectors reused a pool".into());
     }
@@ -190,7 +220,13 @@ fn replacement() -> Check {
     for fault in ["conflict", "oversized"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = seed(&env, rows(), 200)?;
-        call(&env, &replay, &["sync", "cbioportal-studies"], 0, "catalog/replacement/1")?;
+        call(
+            &env,
+            &replay,
+            &["sync", "cbioportal-studies"],
+            0,
+            "catalog/replacement/1",
+        )?;
         let mut body = rows();
         if fault == "malformed" {
             body = json!({"unexpected":true});
@@ -202,7 +238,13 @@ fn replacement() -> Check {
         let status = fault.parse().unwrap_or(200);
         seed(&env, body, status)?;
         alter_fault(&replay, fault)?;
-        let failure = call(&env, &replay, &["sync", "cbioportal-studies"], 4, "catalog/replacement/2")?;
+        let failure = call(
+            &env,
+            &replay,
+            &["sync", "cbioportal-studies"],
+            4,
+            "catalog/replacement/2",
+        )?;
         if failure.pointer("/sources/0/state") != Some(&json!("failed"))
             || failure.pointer("/sources/0/use") != Some(&json!("restricted"))
             || failure.pointer("/sources/0/terms").is_none()
@@ -211,7 +253,13 @@ fn replacement() -> Check {
                 "sync fault lost terms or source outcome: {failure}"
             ));
         }
-        let found = call(&env, &replay, &["search", "study", "atlas"], 0, "catalog/replacement/3")?;
+        let found = call(
+            &env,
+            &replay,
+            &["search", "study", "atlas"],
+            0,
+            "catalog/replacement/3",
+        )?;
         if found.pointer("/page/total") != Some(&json!(12)) {
             return Err(format!("failed replacement lost old rows: {found}"));
         }
@@ -221,7 +269,8 @@ fn replacement() -> Check {
                 &replay,
                 &["search", "study", "atlas", "--disable-sources", group],
                 4,
-             "catalog/replacement/4")?;
+                "catalog/replacement/4",
+            )?;
             if skipped.get("result").is_some()
                 || skipped.pointer("/sources/0/reason") != Some(&json!("disabled"))
             {
@@ -232,7 +281,8 @@ fn replacement() -> Check {
                 &replay,
                 &["sync", "cbioportal-studies", "--disable-sources", group],
                 4,
-             "catalog/replacement/5")?;
+                "catalog/replacement/5",
+            )?;
         }
     }
     Ok(())
@@ -240,8 +290,20 @@ fn replacement() -> Check {
 fn lifetimes() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "catalog/lifetimes/1")?;
-    let first = call(&env, &replay, &["search", "study", "atlas"], 0, "catalog/lifetimes/2")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "catalog/lifetimes/1",
+    )?;
+    let first = call(
+        &env,
+        &replay,
+        &["search", "study", "atlas"],
+        0,
+        "catalog/lifetimes/2",
+    )?;
     let id = first
         .pointer("/page/pool/id")
         .and_then(Value::as_str)
@@ -256,14 +318,21 @@ fn lifetimes() -> Check {
         &replay,
         &["search", "study", "atlas", "--pool", id, "--offset", "5"],
         3,
-     "catalog/lifetimes/3")?;
+        "catalog/lifetimes/3",
+    )?;
     if expired.get("result").is_some() || expired.pointer("/next/0/kind") != Some(&json!("restart"))
     {
         return Err(format!("expired snapshot: {expired}"));
     }
     db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0 WHERE name='cbioportal-studies'; INSERT INTO bundle_content SELECT * FROM original_content; COMMIT;")
         .map_err(|e| e.to_string())?;
-    let stale = call(&env, &replay, &["search", "study", "atlas", "--fresh"], 0, "catalog/lifetimes/4")?;
+    let stale = call(
+        &env,
+        &replay,
+        &["search", "study", "atlas", "--fresh"],
+        0,
+        "catalog/lifetimes/4",
+    )?;
     if stale.get("status") != Some(&json!("partial"))
         || stale.pointer("/sources/0/state") != Some(&json!("stale"))
         || !stale
@@ -278,12 +347,30 @@ fn lifetimes() -> Check {
 fn surfaces() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "catalog/surfaces/1")?;
-    let card = call(&env, &replay, &["get", "study", "synthetic_0"], 0, "catalog/surfaces/2")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "catalog/surfaces/1",
+    )?;
+    let card = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0"],
+        0,
+        "catalog/surfaces/2",
+    )?;
     if card.pointer("/result/study/description") != Some(&json!("Literal mixed metadata")) {
         return Err("exact stored study card lost native description".into());
     }
-    let absent = call(&env, &replay, &["get", "study", "SYNTHETIC_0"], 1, "catalog/surfaces/3")?;
+    let absent = call(
+        &env,
+        &replay,
+        &["get", "study", "SYNTHETIC_0"],
+        1,
+        "catalog/surfaces/3",
+    )?;
     if absent.get("status") != Some(&json!("absent")) || absent.get("result").is_some() {
         return Err("study ID case was repaired".into());
     }
@@ -355,8 +442,20 @@ fn alter_fault(replay: &Path, fault: &str) -> Check {
 fn revision() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "catalog/revision/1")?;
-    let first = call(&env, &replay, &["search", "study", "atlas"], 0, "catalog/revision/2")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "catalog/revision/1",
+    )?;
+    let first = call(
+        &env,
+        &replay,
+        &["search", "study", "atlas"],
+        0,
+        "catalog/revision/2",
+    )?;
     let id = first
         .pointer("/page/pool/id")
         .and_then(Value::as_str)
@@ -364,13 +463,20 @@ fn revision() -> Check {
     let mut changed = rows();
     *changed.pointer_mut("/0/name").ok_or("name")? = json!("Changed native title");
     seed(&env, changed, 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "catalog/revision/3")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "catalog/revision/3",
+    )?;
     let after = call(
         &env,
         &replay,
         &["search", "study", "atlas", "--pool", id, "--offset", "5"],
         0,
-     "catalog/revision/4")?;
+        "catalog/revision/4",
+    )?;
     if after.pointer("/result/snapshot/revision") != first.pointer("/result/snapshot/revision") {
         return Err("continuation mixed catalog revisions".into());
     }
@@ -379,7 +485,8 @@ fn revision() -> Check {
         &replay,
         &["search", "study", "Changed native title"],
         0,
-     "catalog/revision/5")?;
+        "catalog/revision/5",
+    )?;
     if fresh.pointer("/result/items/0/studyId") != Some(&json!("synthetic_0"))
         || fresh.pointer("/result/snapshot/revision") == first.pointer("/result/snapshot/revision")
     {

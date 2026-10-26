@@ -111,7 +111,13 @@ fn synthetic_reply(request: &str) -> Result<String, String> {
 fn pages() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "get/pages/1")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "get/pages/1",
+    )?;
     record(&replay, "molecular-profiles", profiles(), 200)?;
     record(&replay, "sample-lists", lists(), 200)?;
     for (section, total, id) in [
@@ -134,7 +140,8 @@ fn pages() -> Check {
                     &offset,
                 ],
                 0,
-             "get/pages/2")?;
+                "get/pages/2",
+            )?;
             let items = value
                 .pointer("/result/items")
                 .and_then(Value::as_array)
@@ -161,7 +168,18 @@ fn pages() -> Check {
         }
     }
     super::study_files::seed_files(&replay)?;
-    let all = call(&env, &replay, &["get", "study", "synthetic_0", "all"], 0, "get/pages/3")?;
+    let all = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0", "all"],
+        0,
+        "get/pages/3",
+    )?;
+    bounded_all(&all)?;
+    navigation(&env, &replay)?;
+    Ok(())
+}
+fn bounded_all(all: &Value) -> Check {
     if all
         .pointer("/result/profiles/data/items")
         .and_then(Value::as_array)
@@ -175,14 +193,19 @@ fn pages() -> Check {
     {
         return Err(format!("all lost independent bounded sections: {all}"));
     }
-    navigation(&env, &replay)?;
     Ok(())
 }
 fn failures() -> Check {
     for section in ["profiles", "sample-lists"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = seed(&env, rows(), 200)?;
-        call(&env, &replay, &["sync", "cbioportal-studies"], 0, "get/failures/1")?;
+        call(
+            &env,
+            &replay,
+            &["sync", "cbioportal-studies"],
+            0,
+            "get/failures/1",
+        )?;
         let route = if section == "profiles" {
             "molecular-profiles"
         } else {
@@ -195,7 +218,13 @@ fn failures() -> Check {
         };
         *body.pointer_mut("/0/studyId").ok_or("scope")? = json!("other_study");
         record(&replay, route, body, 200)?;
-        let value = call(&env, &replay, &["get", "study", "synthetic_0", section], 0, "get/failures/2")?;
+        let value = call(
+            &env,
+            &replay,
+            &["get", "study", "synthetic_0", section],
+            0,
+            "get/failures/2",
+        )?;
         rejected(&env, &replay, section, &value)?;
         if value.get("status") != Some(&json!("partial"))
             || value
@@ -218,7 +247,8 @@ fn failures() -> Check {
                     disabled,
                 ],
                 4,
-             "get/failures/3")?;
+                "get/failures/3",
+            )?;
             if value.get("result").is_some()
                 || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
             {
@@ -245,7 +275,8 @@ fn admission() -> Check {
         &replay,
         &["get", "study", "synthetic_0", "sample-lists"],
         0,
-     "get/admission/1")?;
+        "get/admission/1",
+    )?;
     if value.pointer("/result/items/0/sampleCount").is_some()
         || value.to_string().contains("sampleIds")
     {
@@ -261,7 +292,8 @@ fn admission() -> Check {
         &replay,
         &["get", "study", "synthetic_0", "sample-lists"],
         4,
-     "get/admission/2")?;
+        "get/admission/2",
+    )?;
     if value.get("result").is_some()
         || value.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
     {
@@ -419,7 +451,13 @@ fn follow(env: &Environment, replay: &Path, value: &Value, kind: &str) -> Result
     Ok(cli)
 }
 fn navigation(env: &Environment, replay: &Path) -> Check {
-    let card = call(env, replay, &["get", "study", "synthetic_0"], 0, "get/navigation/1")?;
+    let card = call(
+        env,
+        replay,
+        &["get", "study", "synthetic_0"],
+        0,
+        "get/navigation/1",
+    )?;
     let section = follow(env, replay, &card, "section")?;
     let next = follow(env, replay, &section, "page")?;
     if next.pointer("/page/offset") != Some(&json!(5))
@@ -427,13 +465,31 @@ fn navigation(env: &Environment, replay: &Path) -> Check {
     {
         return Err("emitted section or page lost offset or acquisition".into());
     }
-    call(env, replay, &["get", "study", "synthetic_absent"], 1, "get/navigation/2")?;
+    call(
+        env,
+        replay,
+        &["get", "study", "synthetic_absent"],
+        1,
+        "get/navigation/2",
+    )?;
     fs::remove_dir_all(replay.join("cbioportal")).map_err(|e| e.to_string())?;
-    call(env, replay, &["get", "study", "../escape"], 2, "get/navigation/3")?;
+    call(
+        env,
+        replay,
+        &["get", "study", "../escape"],
+        2,
+        "get/navigation/3",
+    )?;
     Ok(())
 }
 
-fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32, phase: &str) -> Result<Value, String> {
+fn call(
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    exit: i32,
+    phase: &str,
+) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));
     let output = env

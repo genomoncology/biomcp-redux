@@ -56,8 +56,20 @@ pub(super) fn record_raw(replay: &Path, body: &str, status: u16, delay: u64) -> 
 fn pages() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "files/pages/1")?;
-    let cold = call(&env, &replay, &["get", "study", "synthetic_0"], 0, "files/pages/2")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "files/pages/1",
+    )?;
+    let cold = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0"],
+        0,
+        "files/pages/2",
+    )?;
     let has_files = cold
         .get("next")
         .and_then(Value::as_array)
@@ -97,7 +109,13 @@ fn pages() -> Check {
             return Err("last file page offered another page".into());
         }
     }
-    let card = call(&env, &replay, &["get", "study", "synthetic_0"], 0, "files/pages/4")?;
+    let card = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0"],
+        0,
+        "files/pages/4",
+    )?;
     if card != cold || card.pointer("/result/license_notice").is_some() || seen.len() != 12 {
         return Err("stored card changed or walk missing".into());
     }
@@ -142,14 +160,32 @@ fn check_page(
 fn failures() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "files/failures/1")?;
+    call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "files/failures/1",
+    )?;
     reject_scope(&env, &replay)?;
     record(&replay, json!({"message":"Not Found"}), 404, 0)?;
-    let value = call(&env, &replay, &["get", "study", "synthetic_0", "files"], 1, "files/failures/2")?;
+    let value = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0", "files"],
+        1,
+        "files/failures/2",
+    )?;
     if value.get("status") != Some(&json!("absent")) {
         return Err(format!("absent directory failed: {value}"));
     }
-    call(&env, &replay, &["get", "study", "synthetic_0"], 0, "files/failures/3")?;
+    call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0"],
+        0,
+        "files/failures/3",
+    )?;
     for disabled in ["cbioportal", "restricted"] {
         record(&replay, entries(), 200, 0)?;
         let value = call(
@@ -164,7 +200,8 @@ fn failures() -> Check {
                 disabled,
             ],
             4,
-         "files/failures/4")?;
+            "files/failures/4",
+        )?;
         if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err(format!("policy bypass: {value}"));
         }
@@ -176,7 +213,13 @@ fn reject_scope(env: &Environment, replay: &Path) -> Check {
     let mut wrong = entries();
     *wrong.pointer_mut("/0/path").ok_or("synthetic path")? = json!("public/other_study/data_0.txt");
     record(replay, wrong, 200, 0)?;
-    let value = call(env, replay, &["get", "study", "synthetic_0", "files"], 4, "files/reject_scope/1")?;
+    let value = call(
+        env,
+        replay,
+        &["get", "study", "synthetic_0", "files"],
+        4,
+        "files/reject_scope/1",
+    )?;
     if value.get("result").is_some() {
         return Err("wrong directory row was admitted".into());
     }
