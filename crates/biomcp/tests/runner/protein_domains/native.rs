@@ -47,11 +47,11 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
             continue;
         }
         let env = setup(&stub)?;
-        let captured=env.root().join("recorded");
+        let captured = env.root().join("recorded");
         let mut record = args.clone();
         record.extend(["--record", captured.to_str().ok_or("native recording")?]);
         let recorded = call(&env, &record, 0)?;
-        copy_recordings(&captured,&replay)?;
+        copy_recordings(&captured, &replay)?;
         let value = super::super::run_case(&path, &registry)?;
         flags(name, &value)?;
         measure(name, &value, &output)?;
@@ -181,14 +181,17 @@ fn members_from_complex(env: &Environment, value: &Value, output: &Path) -> Resu
     walk(env, members, "members-CPX-12671", output)
 }
 
-fn copy_recordings(from:&Path,to:&Path)->Result<(),String>{
-    for source in fs::read_dir(from).map_err(|e|e.to_string())? {
-        let source=source.map_err(|e|e.to_string())?;
-        if !source.file_type().map_err(|e|e.to_string())?.is_dir(){continue;}
-        let destination=to.join(source.file_name());fs::create_dir_all(&destination).map_err(|e|e.to_string())?;
-        for file in fs::read_dir(source.path()).map_err(|e|e.to_string())? {
-            let file=file.map_err(|e|e.to_string())?;
-            fs::copy(file.path(),destination.join(file.file_name())).map_err(|e|e.to_string())?;
+fn copy_recordings(from: &Path, to: &Path) -> Result<(), String> {
+    for source in fs::read_dir(from).map_err(|e| e.to_string())? {
+        let source = source.map_err(|e| e.to_string())?;
+        if !source.file_type().map_err(|e| e.to_string())?.is_dir() {
+            continue;
+        }
+        let destination = to.join(source.file_name());
+        fs::create_dir_all(&destination).map_err(|e| e.to_string())?;
+        for file in fs::read_dir(source.path()).map_err(|e| e.to_string())? {
+            let file = file.map_err(|e| e.to_string())?;
+            fs::copy(file.path(), destination.join(file.file_name())).map_err(|e| e.to_string())?;
         }
     }
     Ok(())
