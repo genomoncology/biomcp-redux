@@ -65,7 +65,9 @@ class CapturePlanTests(unittest.TestCase):
         self.addCleanup(thread.join)
         self.addCleanup(self.server.server_close)
         self.addCleanup(self.server.shutdown)
-        self.env = dict(os.environ, TMPDIR=str(self.base))
+        self.scratch = self.base / 'tmp'
+        self.scratch.mkdir()
+        self.env = dict(os.environ, TMPDIR=str(self.scratch))
 
     def plan(self, paths):
         url = 'http://127.0.0.1:' + str(self.server.server_port)
@@ -143,6 +145,21 @@ class CapturePlanTests(unittest.TestCase):
                 self.assertEqual(self.server.calls, [])
                 if name == 'missing':
                     self.assertIn('missing required OS variable: TMPDIR', result.stderr)
+
+    def test_preflight_refuses_resolved_temporary_output_before_request(self):
+        plan = self.plan(['/one'])
+        alias = self.base / 'scratch-alias'
+        alias.symlink_to(self.scratch, target_is_directory=True)
+        for out, temporary in [(self.scratch, self.scratch),
+                               (self.scratch / 'capture', self.scratch),
+                               (alias / 'capture', self.scratch),
+                               (self.scratch / 'capture', alias)]:
+            with self.subTest(out=out, temporary=temporary):
+                result = self.run_capture(plan, out, env=dict(self.env, TMPDIR=str(temporary)))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn('durable location outside TMPDIR', result.stderr)
+                self.assertEqual(self.server.calls, [])
+                self.assertFalse(Path(str(out) + '.tar.gz').exists())
 
     def test_manifest_rejects_one_changed_byte_before_continuation(self):
         plan = self.plan(['/one'])
