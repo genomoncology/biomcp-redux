@@ -41,6 +41,8 @@ struct SearchFields {
     pubmed: Option<Pmid>,
     /// Inclusive exact threshold under native ascending order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(with = "threshold")]
+    #[cfg_attr(feature = "schema", schemars(with = "Option<String>"))]
     p_value: Option<ScientificPValue>,
     /// Source child-trait expansion; requires trait_id.
     #[serde(default)]
@@ -134,5 +136,28 @@ impl GwasSearch {
         let mut next = self.clone();
         next.0.offset = offset;
         next
+    }
+}
+
+mod threshold {
+    use biodata::ScientificPValue;
+    use serde::{Deserialize, Deserializer, Serializer, ser::Error as _};
+    pub(super) fn serialize<S: Serializer>(
+        value: &Option<ScientificPValue>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
+        match value {
+            Some(number) => serializer.serialize_str(&number.to_string()),
+            None => Err(S::Error::custom("absent thresholds must be omitted")),
+        }
+    }
+    pub(super) fn deserialize<'de, D: Deserializer<'de>>(
+        deserializer: D,
+    ) -> Result<Option<ScientificPValue>, D::Error> {
+        use serde::de::Error as _;
+        String::deserialize(deserializer)?
+            .parse()
+            .map(Some)
+            .map_err(D::Error::custom)
     }
 }

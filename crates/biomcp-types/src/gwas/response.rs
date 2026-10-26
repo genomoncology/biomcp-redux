@@ -12,11 +12,11 @@ pub struct GwasPage {
     pub page: PageInfo,
     /// Same-selector search continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub continuation: Option<GwasSearch>,
+    pub continuation: Option<GwasPageQuery>,
 }
 impl ResponseBody for GwasPage {
     const SCHEMA: &'static str = "biomcp.gwas_page/1";
-    type Query = GwasSearch;
+    type Query = GwasPageQuery;
 }
 /// Exact association card; no second association representation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -189,4 +189,15 @@ pub struct GwasAncestries {
 impl ResponseBody for GwasAncestries {
     const SCHEMA: &'static str = "biomcp.gwas_ancestries/1";
     type Query = GwasGet;
+}
+
+/// Search and study-association pages echo their original checked request.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum GwasPageQuery {
+    /// Native association search.
+    Search(GwasSearch),
+    /// Exact study associations relation.
+    Get(GwasGet),
 }

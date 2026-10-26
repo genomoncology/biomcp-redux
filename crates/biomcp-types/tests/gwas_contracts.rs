@@ -53,6 +53,16 @@ fn selectors_and_sections_reject_invalid_requests_before_io()
     let search: GwasSearch = serde_json::from_value(json!({"trait":"breast carcinoma"}))?;
     assert_eq!((search.limit(), search.offset()), (3, 0));
     assert_eq!(search.at_offset(3).offset(), 3);
+    let threshold: GwasSearch =
+        serde_json::from_value(json!({"gene":"FGFR2","p_value":"2e-28539"}))?;
+    assert_eq!(
+        threshold.p_value().map(ToString::to_string).as_deref(),
+        Some("2e-28539")
+    );
+    assert_eq!(
+        serde_json::to_value(threshold)?.get("p_value"),
+        Some(&json!("2e-28539"))
+    );
     for request in [
         json!({"kind":"association","id":"association:6110","section":"ancestries"}),
         json!({"kind":"study","id":"GCST000035","section":"loci"}),
@@ -136,6 +146,10 @@ fn native_relation_scopes_have_valid_consumer_envelopes() -> Result<(), Box<dyn 
     let association = json!({"kind":"association","id":"association:6110"});
     envelope::<GwasPage>(
         json!({"gene":"FGFR2"}),
+        json!({"items":[],"page":{"offset":0,"returned":0,"total":0}}),
+    )?;
+    envelope::<GwasPage>(
+        json!({"kind":"study","id":"GCST000035","section":"associations"}),
         json!({"items":[],"page":{"offset":0,"returned":0,"total":0}}),
     )?;
     envelope::<GwasLoci>(
