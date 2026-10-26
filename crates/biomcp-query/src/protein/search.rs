@@ -192,7 +192,13 @@ fn extend(
             Ok(v) => v,
             Err(e) => return Some(e),
         };
-        if page.value.total != saved.page.total
+        if saved
+            .page
+            .items
+            .len()
+            .saturating_add(page.value.items.len()) as u64
+            > saved.page.total
+            || page.value.total != saved.page.total
             || page.value.cursor.as_ref() == Some(&cursor)
             || page.value.items.iter().any(|row| {
                 saved
