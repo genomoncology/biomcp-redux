@@ -1,5 +1,7 @@
 //! Features pathway-wikipathways and diagnostic-cdx: external locks retain typed failures.
-use super::super::{diagnostic_cdx, launch::Environment, mcp::request, publication::Peer, wikipathways};
+use super::super::{
+    diagnostic_cdx, launch::Environment, mcp::request, publication::Peer, wikipathways,
+};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -19,7 +21,12 @@ fn locked(cdx: bool) -> Result<(), String> {
     let replay = if cdx {
         diagnostic_cdx::seed(&env)?
     } else {
-        wikipathways::seed(&env, wikipathways::catalog(true, false), wikipathways::catalog(false, false), 200)?
+        wikipathways::seed(
+            &env,
+            wikipathways::catalog(true, false),
+            wikipathways::catalog(false, false),
+            200,
+        )?
     };
     let mut peer = Peer::with_globals(&env, &env.globals(Some(&replay), false))?;
     let source = if cdx { "fda-cdx" } else { "wikipathways" };
@@ -30,9 +37,13 @@ fn locked(cdx: bool) -> Result<(), String> {
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    db.execute_batch("BEGIN IMMEDIATE").map_err(|e| e.to_string())?;
+    db.execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
     if !cdx {
-        let reader = call(&mut peer, &["search", "pathway", "Atlas", "--source", source])?;
+        let reader = call(
+            &mut peer,
+            &["search", "pathway", "Atlas", "--source", source],
+        )?;
         failure(&reader)?;
         if reader.pointer("/result/structuredContent/sources/0/state") != Some(&json!("ok")) {
             return Err(format!("reader lost its checked provider state: {reader}"));
@@ -44,7 +55,11 @@ fn locked(cdx: bool) -> Result<(), String> {
 }
 
 fn call(peer: &mut Peer, args: &[&str]) -> Result<Value, String> {
-    peer.send(&request(json!(1), "tools/call", json!({"name":"biomcp", "arguments":{"args":args}})))?;
+    peer.send(&request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp", "arguments":{"args":args}}),
+    ))?;
     peer.next()
 }
 
@@ -53,7 +68,9 @@ fn failure(reply: &Value) -> Result<(), String> {
         || reply.pointer("/result/structuredContent/local_error") != Some(&json!("busy"))
         || reply.pointer("/result/structuredContent/status") != Some(&json!("failed"))
     {
-        return Err(format!("held external writer lacks typed local failure: {reply}"));
+        return Err(format!(
+            "held external writer lacks typed local failure: {reply}"
+        ));
     }
     Ok(())
 }

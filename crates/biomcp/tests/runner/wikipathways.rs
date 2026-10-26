@@ -57,7 +57,12 @@ fn recording(root: &Path, url: &str) -> PathBuf {
         .collect::<String>();
     root.join("wikipathways").join(format!("{key}.json"))
 }
-pub(super) fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<PathBuf, String> {
+pub(super) fn seed(
+    env: &Environment,
+    search: Value,
+    get: Value,
+    status: u16,
+) -> Result<PathBuf, String> {
     let root = env.root().join("replay");
     let dir = root.join("wikipathways");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
