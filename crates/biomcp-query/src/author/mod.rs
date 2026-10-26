@@ -26,6 +26,10 @@ fn run(request: Request) -> Action {
     }
 }
 fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
+    retry(out, request);
+    key_recovery(cx, out);
+}
+fn retry(out: &mut Outcome, request: Request) {
     if out
         .sources
         .iter()
@@ -51,6 +55,8 @@ fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
             },
         ));
     }
+}
+fn key_recovery(cx: &crate::Ctx<'_>, out: &mut Outcome) {
     if out
         .sources
         .iter()
@@ -59,6 +65,11 @@ fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
             .fetch
             .has_key(biomcp_fetch::SecretName::SemanticScholarApiKey)
     {
+        key_step(out);
+    }
+}
+fn key_step(out: &mut Outcome) {
+    if !out.next.iter().any(|(kind, _)| *kind == StepKind::Key) {
         out.next
             .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
     }

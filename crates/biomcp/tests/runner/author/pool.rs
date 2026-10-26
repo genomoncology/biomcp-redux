@@ -1,7 +1,11 @@
 use super::*;
 pub(super) fn run() -> Result<(), String> {
-    let path =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/native/author-controls/pool.yaml");
+    check("pool")?;
+    check("stale")
+}
+fn check(name: &str) -> Result<(), String> {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join(format!("../../tests/native/author-controls/{name}.yaml"));
     let case: super::super::Case =
         serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
@@ -11,7 +15,7 @@ pub(super) fn run() -> Result<(), String> {
     let mut pool: Option<String> = None;
     let mut published = None;
     for (index, mut step) in case.steps.into_iter().enumerate() {
-        if index == 6 {
+        if (name == "pool" && index == 6) || (name == "stale" && index == 1) {
             let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
                 .map_err(|e| e.to_string())?;
             db.execute(
@@ -19,6 +23,10 @@ pub(super) fn run() -> Result<(), String> {
                 [pool.as_deref().ok_or("pool")?],
             )
             .map_err(|e| e.to_string())?;
+            if name == "stale" {
+                db.execute("UPDATE reply SET fresh_until=0", [])
+                    .map_err(|e| e.to_string())?;
+            }
         }
         if let Some(pool) = &pool {
             for args in [&mut step.run, &mut step.mcp].into_iter().flatten() {
@@ -31,7 +39,7 @@ pub(super) fn run() -> Result<(), String> {
         }
         let expect = super::super::assertions::prepare(&step)?;
         let value = super::super::run_step(&step, &env, &expect, &registry, Some(&replay))?;
-        if index == 0 {
+        if index == 0 || (name == "stale" && index == 1) {
             pool = value
                 .pointer("/page/pool/id")
                 .and_then(Value::as_str)

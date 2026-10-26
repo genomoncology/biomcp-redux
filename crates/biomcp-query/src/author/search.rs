@@ -1,4 +1,4 @@
-use super::{empty, recovery, run, snapshot};
+use super::{empty, retry, run, snapshot};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::semantic_scholar::{self, author};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
@@ -21,7 +21,15 @@ pub fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
             ));
         }
     }
-    recovery(cx, &mut out, Request::SearchAuthor(q.clone()));
+    let key = out
+        .next
+        .iter()
+        .position(|(kind, _)| *kind == StepKind::Key)
+        .map(|index| out.next.remove(index));
+    retry(&mut out, Request::SearchAuthor(q.clone()));
+    if let Some(key) = key {
+        out.next.push(key);
+    }
     command.finish(deadline.remaining());
     out
 }
@@ -55,6 +63,7 @@ fn execute(
         (
             snapshot::Saved {
                 pages: vec![],
+                key_needed: false,
                 source: biomcp_adapters::registry::outcome(
                     Source::SemanticScholar,
                     SourceState::Ok,
@@ -74,6 +83,14 @@ fn execute(
         let error = result.as_ref().err().copied();
         let source = status::source(Source::SemanticScholar, leg.finish(), error);
         out.sources.push(source.clone());
+        let key_needed = source.reason == Some(Reason::RateLimited)
+            && !cx
+                .fetch
+                .has_key(biomcp_fetch::SecretName::SemanticScholarApiKey);
+        if key_needed {
+            super::key_step(out);
+        }
+        saved.key_needed |= key_needed;
         saved.pages.push(result?);
         status::retain_source_state(&mut saved.source, &source);
     }
@@ -122,6 +139,9 @@ fn present(
     } else {
         Status::Complete
     };
+    if saved.key_needed && saved.source.reason == Some(Reason::RateLimited) {
+        super::key_step(out);
+    }
     out.sources = vec![saved.source];
     out.body = QueryBody::AuthorPage(Some(AuthorPage {
         items,
