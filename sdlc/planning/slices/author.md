@@ -302,3 +302,20 @@ Job j15660 measured the unchanged accepted source captures on M5 with isolated h
 | Author papers help | 1037 | 952 | 1036 | 876 | 2432 |
 
 The same discovery measurement returned 3426 description bytes, 8014 compact tools-list bytes and 8015 raw tools-list bytes. The native paper pages supply no total, and all continuations preserve the requested record and selectors. The source archives cover every exact request used here; the missing-request inventory is empty and the implementation made no provider calls.
+
+
+### ORCID normalized output measurements
+
+The Swanton row measurements come from j15682. The remaining native and control measurements come from j15720. CLI includes its terminating newline. Bare result, actual MCP text, Markdown and full RPC remain separate measurements. Each owning canonical YAML step enforces `full_output_bytes`, `max_bytes` and `max_tokens` with the agreed rounded allowance. Publisher data and derived native expected strings remain outside Git.
+
+The exact Swanton collection has 380 public groups with 453 ordered assertions. Its local page walk covers every native put-code once in its original group. The Butte collection has two groups and two assertions. The native group at offset 42 supplies a checked PMID pivot with native provenance. A native DOI resolver URL that is not a checked bare DOI stays unchanged as an external-ID claim and offers no inferred article pivot.
+
+Current help measurements from j15720 are listed separately below. `list author` includes the executable papers route. Its canonical CLI/MCP owners and the existing Markdown shape own the changed entity ceilings. Other entity and global discovery ceilings remain unchanged. Whole help fits the established ceiling. The MCP description measures 3426 bytes; compact tools/list measures 8014 bytes and the raw frame measures 8015 bytes.
+
+| Help selection | CLI | Bare | MCP text | Markdown | Full RPC |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Search author | 1097 | 1012 | 1096 | 988 | 2536 |
+| Get author | 574 | 492 | 573 | 636 | 1420 |
+| Author papers | 1116 | 1031 | 1115 | 955 | 2590 |
+| List author | 2583 | 2507 | 2582 | 2419 | 5668 |
+| Whole help | 88766 | 88698 | 88765 | 79356 | 187626 |

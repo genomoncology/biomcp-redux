@@ -23,8 +23,8 @@
         "/problems/0/source": "orcid"
       },
       "full_output_bytes": true,
-      "max_bytes": 12000,
-      "max_tokens": 3000
+      "max_bytes": 556,
+      "max_tokens": 140
     },
     {
       "run": [
@@ -44,8 +44,8 @@
         "/sources/0/reason": "offline"
       },
       "full_output_bytes": true,
-      "max_bytes": 12000,
-      "max_tokens": 3000,
+      "max_bytes": 471,
+      "max_tokens": 119,
       "offline": true
     }
   ]

@@ -22,8 +22,8 @@
         "/result/groups/0/assertions/0/translated_title": "Synthetic translation"
       },
       "full_output_bytes": true,
-      "max_bytes": 12000,
-      "max_tokens": 3000
+      "max_bytes": 1617,
+      "max_tokens": 405
     }
   ]
 }

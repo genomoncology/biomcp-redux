@@ -10,8 +10,8 @@
       "exit": 0,
       "is_error": false,
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000,
+      "max_bytes": 654,
+      "max_tokens": 164,
       "run": [
         "get",
         "author",
@@ -30,8 +30,8 @@
       "exit": 0,
       "is_error": false,
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000,
+      "max_bytes": 1577,
+      "max_tokens": 395,
       "run": [
         "author",
         "papers",
@@ -50,8 +50,8 @@
       "exit": 0,
       "is_error": false,
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000,
+      "max_bytes": 1287,
+      "max_tokens": 322,
       "run": [
         "author",
         "papers",
@@ -78,8 +78,8 @@
       "exit": 0,
       "is_error": false,
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000,
+      "max_bytes": 1578,
+      "max_tokens": 395,
       "run": [
         "author",
         "papers",

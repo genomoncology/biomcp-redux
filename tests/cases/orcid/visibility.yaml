@@ -22,8 +22,8 @@
         "/result/items/0/card/header/name": "Synthetic Author"
       },
       "full_output_bytes": true,
-      "max_bytes": 12000,
-      "max_tokens": 3000
+      "max_bytes": 649,
+      "max_tokens": 163
     },
     {
       "run": [
@@ -54,8 +54,8 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 12000,
-      "max_tokens": 3000
+      "max_bytes": 1568,
+      "max_tokens": 393
     }
   ]
 }
