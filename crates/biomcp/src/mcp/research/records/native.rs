@@ -41,7 +41,8 @@ pub(super) fn project(
     card: Option<&Value>,
 ) -> Option<ResearchHit> {
     let id = identity(row)?;
-    let declared = source(row, envelope).zip(paths::kind(entity));
+    let source = source(row, envelope);
+    let declared = source.zip(paths::kind(entity));
     let template = declared.and_then(|(source, kind)| declaration(source, kind));
     let url = text(row, paths::URLS)
         .or_else(|| card.and_then(|v| text(v, &["/report_url", "/source_url"])))
@@ -54,17 +55,32 @@ pub(super) fn project(
     let title = if let Some(title) = text(row, paths::TITLES) {
         title
     } else {
-        fallback = format!("{} {id}", template?.display_name);
+        let label = template
+            .map(|record| record.display_name)
+            .or_else(|| source.map(biomcp_adapters::registry::display_name))?;
+        fallback = format!("{label} {id}");
         &fallback
     };
     hit(args, title, &url)
 }
 pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    let args = paths::IDS
-        .iter()
-        .filter_map(|path| row.pointer(path).and_then(Value::as_str))
-        .find_map(|id| next_args(entity, id, envelope))
-        .or_else(|| next_args(entity, &identity(row)?, envelope))?;
+    let nci = (entity == "trial" && source(row, envelope) == Some(Source::Nci))
+        .then(|| {
+            Some(vec![
+                entity.into(),
+                text(row, &["/nct_id"])?.into(),
+                "--source".into(),
+                "nci".into(),
+            ])
+        })
+        .flatten();
+    let args = nci.or_else(|| {
+        paths::IDS
+            .iter()
+            .filter_map(|path| row.pointer(path).and_then(Value::as_str))
+            .find_map(|id| next_args(entity, id, envelope))
+            .or_else(|| next_args(entity, &identity(row)?, envelope))
+    })?;
     project(entity, row, envelope, args, None)
 }
 

@@ -11,6 +11,7 @@ pub(super) const TITLES: &[&str] = &[
     "/brief_title",
     "/protein/name",
     "/identity/name",
+    "/trade_name",
 ];
 pub(super) const URLS: &[&str] = &[
     "/url",
@@ -36,6 +37,7 @@ pub(super) const IDS: &[&str] = &[
     "/pathway/id",
     "/pathway/id/id",
     "/k_number",
+    "/pma_number",
     "/reference",
     "/nci_id",
     "/nct_id",

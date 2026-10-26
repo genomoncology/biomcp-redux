@@ -86,6 +86,9 @@ fn variants<'a>(root: &'a Value, value: &'a Value) -> Vec<&'a Value> {
             .pointer(reference.trim_start_matches('#'))
             .map_or_else(Vec::new, |v| variants(root, v));
     }
+    if value.get("properties").is_some() {
+        return vec![value];
+    }
     for key in ["oneOf", "anyOf", "allOf"] {
         if let Some(items) = value.get(key).and_then(Value::as_array) {
             return items
@@ -176,12 +179,17 @@ fn enum_strings<'a>(root: &'a Value, node: &'a Value) -> Vec<&'a str> {
     variants(root, node)
         .into_iter()
         .flat_map(|v| {
-            v.get("enum")
-                .and_then(Value::as_array)
-                .map_or_else(Vec::new, |a| a.iter().filter_map(Value::as_str).collect())
+            if let Some(value) = v.get("const").and_then(Value::as_str) {
+                vec![value]
+            } else {
+                v.get("enum")
+                    .and_then(Value::as_array)
+                    .map_or_else(Vec::new, |a| a.iter().filter_map(Value::as_str).collect())
+            }
         })
         .collect()
 }
+
 fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     if row
         .pointer("/properties/identity_status/const")
@@ -193,6 +201,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     let fixed = match name {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
         "StudyPage" | "StudyCard" => Some(Source::Cbioportal),
+        "PgxCard" => Some(Source::Cpic),
         "GwasPage" | "GwasAssociationCard" => Some(Source::Gwas),
         "DrugWhoPage" | "DrugWhoCard" => Some(Source::WhoPq),
         _ => match row
@@ -206,6 +215,21 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     };
     if let Some(source) = fixed {
         return vec![source];
+    }
+    let source_paths: &[&[&str]] = if name == "PathwayCard" {
+        &[&["pathway", "id", "source"]]
+    } else if name == "AdverseEventPage" {
+        return vec![Source::Faers, Source::Maude];
+    } else {
+        &[&["source"]]
+    };
+    if name == "PathwayCard" {
+        return source_paths
+            .iter()
+            .flat_map(|path| at(root, row, path))
+            .flat_map(|v| enum_strings(root, v))
+            .filter_map(|s| s.parse().ok())
+            .collect();
     }
     at(root, root, &["query", "source"])
         .into_iter()
