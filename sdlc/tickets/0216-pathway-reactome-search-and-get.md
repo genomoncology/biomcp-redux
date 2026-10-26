@@ -1,6 +1,7 @@
 # 0216 — Search Reactome pathways and get the Reactome card and summary
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d9d39c67cb84b1e09941efe0597ae88adc004874
 
 Milestone: 4
 
