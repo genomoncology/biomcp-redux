@@ -1,5 +1,5 @@
 //! Feature gene-identity: replay misses stay source failures and repeated server calls use checked cache.
-use super::{configuration::invoke, launch::Environment, mcp};
+use super::{launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -26,7 +26,15 @@ fn missing() -> Result<(), String> {
     std::fs::create_dir(&directory).map_err(|e| e.to_string())?;
     let mut args = env.globals(Some(&directory), false);
     args.extend(["get".into(), "gene".into(), "BRAF".into()]);
-    let reply = invoke(&env, args, 5)?;
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if output.status.code() != Some(5) || !output.stderr.is_empty() {
+        return Err("missing replay command failed".into());
+    }
+    eprintln!("replay CLI miss: {} raw bytes", output.stdout.len());
+    let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if !reply
         .get("sources")
         .and_then(Value::as_array)
