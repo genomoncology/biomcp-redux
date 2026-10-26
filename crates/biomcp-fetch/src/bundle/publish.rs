@@ -26,7 +26,7 @@ impl Cache {
         rows: Option<&[Parsed]>,
         deadline: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        let connection = Connection::open(&self.2).map_err(db_error)?;
+        let connection = self.owned_connection()?;
         connection.execute_batch(STAGING).map_err(db_error)?;
         let result = (|| {
             if let Some(rows) = rows {

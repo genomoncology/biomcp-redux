@@ -108,6 +108,22 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
     Ok(())
 }
 impl Cache {
+    pub(crate) fn owned_connection(&self) -> Result<Connection, CacheError> {
+        let connection =
+            Connection::open_with_flags(&self.2, rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE)
+                .map_err(db_error)?;
+        let version = connection
+            .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |row| {
+                row.get::<_, u32>(0)
+            })
+            .optional()
+            .map_err(db_error)?;
+        if version != Some(VERSION) {
+            return Err(CacheError::Version);
+        }
+        Ok(connection)
+    }
+
     pub(crate) fn open_with_owners(
         path: &Path,
         owners: &[SchemaOwner],
