@@ -3,10 +3,10 @@
 mod adverse_event;
 mod diagnostic;
 mod drug;
+mod gwas;
 mod pathway;
 mod pgx;
 mod study;
-mod gwas;
 pub(crate) use gwas::usage as gwas_usage;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};

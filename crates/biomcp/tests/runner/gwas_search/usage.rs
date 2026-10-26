@@ -2,21 +2,32 @@
 use super::*;
 pub(super) fn run() -> Result<(), String> {
     let stub = super::super::network_stub::Stub::for_source(
-        "www.ebi.ac.uk", "application/json", wire::live_body,
+        "www.ebi.ac.uk",
+        "application/json",
+        wire::live_body,
     )?;
     let env = super::super::variant::source_environment(&stub)?;
     for args in inputs() {
-        let expected = if args[0] == "search" { "search gwas" } else { "get gwas" };
+        let expected = if args[0] == "search" {
+            "search gwas"
+        } else {
+            "get gwas"
+        };
         let value = invoke(&env, args.iter().map(|a| (*a).to_owned()).collect(), 2)?;
-        let message = value.pointer("/error/message").and_then(Value::as_str).ok_or("usage message")?;
+        let message = value
+            .pointer("/error/message")
+            .and_then(Value::as_str)
+            .ok_or("usage message")?;
         if !message.contains(expected) || value.get("sources").is_some() {
             return Err(format!("missing route guidance for {args:?}: {value}"));
         }
-        if serde_json::to_vec(&value).map_err(|e|e.to_string())?.len() > 1800 {
+        if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 1800 {
             return Err("usage response exceeds 1800 bytes".into());
         }
     }
-    if !stub.finish()?.is_empty() { return Err("malformed input made a request".into()); }
+    if !stub.finish()?.is_empty() {
+        return Err("malformed input made a request".into());
+    }
     Ok(())
 }
 fn inputs() -> Vec<Vec<&'static str>> {
@@ -39,8 +50,29 @@ fn inputs() -> Vec<Vec<&'static str>> {
         vec!["get", "gwas", "GCST000035", "loci"],
         vec!["get", "gwas", "association:6114", "associations"],
         vec!["get", "gwas", "association:6114", "ancestries"],
-        vec!["get", "gwas", "GCST000035", "ancestries", "--section-limit", "0"],
-        vec!["get", "gwas", "GCST000035", "ancestries", "--section-limit", "51"],
-        vec!["get", "gwas", "GCST000035", "ancestries", "--section-offset", "-1"],
+        vec![
+            "get",
+            "gwas",
+            "GCST000035",
+            "ancestries",
+            "--section-limit",
+            "0",
+        ],
+        vec![
+            "get",
+            "gwas",
+            "GCST000035",
+            "ancestries",
+            "--section-limit",
+            "51",
+        ],
+        vec![
+            "get",
+            "gwas",
+            "GCST000035",
+            "ancestries",
+            "--section-offset",
+            "-1",
+        ],
     ]
 }

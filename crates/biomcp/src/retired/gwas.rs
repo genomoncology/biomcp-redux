@@ -5,10 +5,16 @@ pub(crate) fn usage(args: &[OsString]) -> Option<ErrorMessage> {
     let mut positional = Vec::new();
     let mut words = args.iter();
     while let Some(word) = words.next().and_then(|word| word.to_str()) {
-        if word == "--" { return None; }
+        if word == "--" {
+            return None;
+        }
         if word.starts_with('-') {
-            let (flag, inline) = word.split_once('=').map_or((word, false), |(flag, _)| (flag, true));
-            if !inline && super::takes_value(flag, &positional)? { words.next(); }
+            let (flag, inline) = word
+                .split_once('=')
+                .map_or((word, false), |(flag, _)| (flag, true));
+            if !inline && super::takes_value(flag, &positional)? {
+                words.next();
+            }
             continue;
         }
         positional.push(word);
