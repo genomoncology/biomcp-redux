@@ -4,6 +4,8 @@ use biomcp_types::Source;
 /// A publisher's native identity namespace within one source.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RecordKind {
+    /// Exact Cellosaurus primary accession.
+    CellLine,
     /// Native pathway stable ID.
     Pathway,
     /// Native study accession.
@@ -39,6 +41,7 @@ pub struct RecordDeclaration {
 /// Exhaustive declared policies for the otherwise URL-less research shapes.
 /// Publisher witnesses are retained by the bounded native record URL proof.
 pub const DECLARATIONS: &[RecordDeclaration] = &[
+    RecordDeclaration { source: Source::Cellosaurus, kind: RecordKind::CellLine, display_name: "Cellosaurus", template: Some("https://www.cellosaurus.org/{id}") },
     RecordDeclaration {
         source: Source::Reactome,
         kind: RecordKind::Pathway,

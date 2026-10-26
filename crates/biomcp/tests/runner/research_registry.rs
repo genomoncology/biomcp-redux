@@ -27,7 +27,7 @@ pub(super) fn check() -> Result<(), String> {
         // CellLineIdentityPage is section metadata, not a research search result.
         if matches!(
             name,
-            "PgxPage" | "CellLinePage" | "CellLineCard" | "CellLineIdentityPage"
+            "PgxPage" | "CellLineIdentityPage"
         ) {
             continue;
         }

@@ -2,8 +2,10 @@ use super::{Contract, generate};
 use biomcp_types::*;
 pub(super) fn registry() -> Vec<Contract> {
     contracts! {
-        Envelope<CellLinePage> => ("cell-line-page", "biomcp.cell_line_page/1"),
-        Envelope<CellLineCard> => ("cell-line-card", "biomcp.cell_line_card/1"),
+        CellLineSearch => ("cell-line-search-query", "biomcp.cell-line-search-query/1"),
+        CellLineGet => ("cell-line-get-query", "biomcp.cell-line-get-query/1"),
+        Envelope<CellLinePage> => ("cell-line-page", "biomcp.cell_line_page/2"),
+        Envelope<CellLineCard> => ("cell-line-card", "biomcp.cell_line_card/2"),
         Envelope<CellLineNames> => ("cell-line-names", "biomcp.cell_line_names/1"),
         Envelope<CellLineIdentityPage> => ("cell-line-identity", "biomcp.cell_line_identity/1"),
         Envelope<CellLineXrefs> => ("cell-line-xrefs", "biomcp.cell_line_xrefs/1"),

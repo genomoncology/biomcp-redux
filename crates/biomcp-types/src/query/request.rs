@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover unchanged literal Cellosaurus candidates.
+    SearchCellLine(crate::CellLineSearch),
+    /// Read an exact accession or verified qualified source identity.
+    GetCellLine(crate::CellLineGet),
     /// Search one native GWAS Catalog association page.
     SearchGwas(crate::GwasSearch),
     /// Read one exact association and its native loci.

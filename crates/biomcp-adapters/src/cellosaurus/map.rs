@@ -1,0 +1,26 @@
+use super::raw;
+use biodata::{CellLineEntryDates, CellLineWarning, Text};
+use biomcp_fetch::{BadReply, InputError, RequestError};
+use biomcp_types::{Capped, CellLineCard, CellLineHeader, CellLineInput, CellLineSection, CellLineSections, Status};
+pub(super) fn capped<T>(rows: Vec<T>, limit: usize) -> Capped<T> {
+    let total = rows.len() as u64;
+    Capped { items: rows.into_iter().take(limit).collect(), total }
+}
+pub(super) fn header(row: raw::Record) -> Result<CellLineHeader, RequestError> {
+    Ok(CellLineHeader { accession: row.accession()?.clone(), name: row.name()?.clone(), category: row.category, species: capped(row.species_list.into_vec(), 3), diseases: capped(row.disease_list.into_vec(), 3) })
+}
+pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
+    let accession = row.accession()?.clone();
+    let name = row.name()?.clone();
+    let warnings = row.comment_list.into_vec().into_iter().filter(|r| matches!(r.category.as_str(), "Problematic cell line" | "Caution")).map(|r| CellLineWarning { scope: r.category, text: r.value }).collect();
+    let version = row.entry_version.map(|v| v.as_str().parse().map_err(|_| BadReply)).transpose()?;
+    Ok(CellLineCard {
+        input: CellLineInput::Accession(accession.clone()), status: Status::Complete,
+        header: Some(CellLineHeader { accession: accession.clone(), name, category: row.category, species: capped(row.species_list.into_vec(), 3), diseases: capped(row.disease_list.into_vec(), 3) }),
+        candidates: Box::default(), dates: Some(CellLineEntryDates { created: row.created, updated: row.last_updated, version }), age: row.age, sex: row.sex, warnings: Some(capped(warnings, 3)),
+        url: Some(Text::new(&format!("https://www.cellosaurus.org/{accession}")).map_err(|_| InputError::Serialization)?),
+        sections: CellLineSections { names: None, identity: None, xrefs: None, variants: None, chembl: None },
+        more: [CellLineSection::Names, CellLineSection::Variants, CellLineSection::Xrefs, CellLineSection::Chembl, CellLineSection::Identity].into(),
+        release: None, fetched: None,
+    })
+}

@@ -3,6 +3,8 @@ use biodata::canonical_enum;
 canonical_enum! {
     /// A source of BioMCP data, identified by its canonical short name.
     Source, SourceUnknown {
+        /// Cellosaurus cell line identity.
+        Cellosaurus => "cellosaurus",
         /// HGNC.
         Hgnc => "hgnc",
         /// MyGene.info.

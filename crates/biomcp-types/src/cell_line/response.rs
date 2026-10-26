@@ -25,6 +25,12 @@ pub struct CellLineHeader {
 pub struct CellLinePage {
     /// Native result order, without reranking or selected identity.
     pub items: Box<[CellLineHeader]>,
+    /// Independently fetched publisher release, never a result total.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original retrieval seconds; not a source release date.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
 }
 /// One requested cell identity with explicit ambiguity and requested section states.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -59,6 +65,12 @@ pub struct CellLineCard {
     pub sections: CellLineSections,
     /// Supported disclosures not requested.
     pub more: Box<[CellLineSection]>,
+    /// Independently fetched publisher release.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original retrieval seconds, distinct from entry and release dates.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
 }
 /// Requested sections carry explicit states; absent members were not requested.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -189,11 +201,11 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell_line_page/1";
+    const SCHEMA: &'static str = "biomcp.cell_line_page/2";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell_line_card/1";
+    const SCHEMA: &'static str = "biomcp.cell_line_card/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
@@ -219,4 +231,14 @@ impl ResponseBody for CellLineChembl {
 impl ResponseBody for CellLineAssayCount {
     const SCHEMA: &'static str = "biomcp.cell_line_assay_count/1";
     type Query = CellLineAssayCountQuery;
+}
+
+/// Publisher release identity, fetched independently from record data.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CellLineRelease {
+    /// Native release version.
+    pub version: Text,
+    /// Native release update date.
+    pub updated: PartialDate,
 }
