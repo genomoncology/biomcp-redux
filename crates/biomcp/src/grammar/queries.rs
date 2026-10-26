@@ -2,6 +2,7 @@
 use biomcp_types::Request;
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::AuthorPapers(_) => "biomcp.author-papers-query/1",
         Request::SearchAuthor(_) => "biomcp.author-search-query/2",
         Request::GetAuthor(_) => "biomcp.author-get-query/2",
         Request::CellLineAssayCount(_) => "biomcp.cell-line-assay-count-query/1",
@@ -59,6 +60,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("author", "papers", "biomcp.author-papers-query/1"),
     ("search", "author", "biomcp.author-search-query/2"),
     ("get", "author", "biomcp.author-get-query/2"),
     (

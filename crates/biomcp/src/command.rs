@@ -123,7 +123,7 @@ fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
-        Action::AuthorPapers(_) => author::deferred(),
+        Action::AuthorPapers(q) => execute(fetch, Action::Run { request: Request::AuthorPapers(q), fresh: false }, globals, allow_save),
         Action::QueryHelp(request) => {
             let path = crate::spell::command_words(&request);
             encode(
@@ -191,7 +191,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
-        Request::SearchAuthor(_) | Request::GetAuthor(_) => author::response(meta, request, body),
+        Request::AuthorPapers(_) | Request::SearchAuthor(_) | Request::GetAuthor(_) => author::response(meta, request, body),
         Request::SearchCellLine(_) | Request::GetCellLine(_) | Request::CellLineAssayCount(_) => {
             cell_line::encode(meta, request, body)
         }
