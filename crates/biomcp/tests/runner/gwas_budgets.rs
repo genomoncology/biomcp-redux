@@ -38,6 +38,20 @@ pub(super) fn invoke(
     }
     let cli_bytes = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len() + 1;
     let mcp_bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    let measured: std::collections::BTreeMap<String, [usize; 2]> =
+        serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/gwas-synthetic-budgets.json"
+        )))
+        .map_err(|e| e.to_string())?;
+    if let Some([cli_limit, mcp_limit]) = measured.get(phase)
+        && (cli_bytes > (cli_limit * 115).div_ceil(100)
+            || mcp_bytes > (mcp_limit * 115).div_ceil(100))
+    {
+        return Err(format!(
+            "GWAS phase {phase} exceeds measured CLI/MCP ceiling"
+        ));
+    }
     writeln!(
         std::io::stdout(),
         "GWAS_OUTPUT {}",
