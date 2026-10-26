@@ -859,10 +859,11 @@ pub enum Find<'a> { Exact(KeyKind, &'a str), Prefix(KeyKind, &'a str), Words(&'a
 Sync rules:
 
 - `biomcp sync` with no name syncs every bundle the enabled sources use. The install guide recommends running it once after install.
-- A query that needs an absent or stale bundle syncs it on first use only when the bundle's last known size is below `auto_sync_max_bytes`, 32 MB by default. A larger bundle answers `syncing` with a `sync` next step. Offline mode never syncs.
+- Explicitly synchronized bundle reads, including EMA, use `Leg::stored_rows` or the complete-set stored reader. They never synchronize, including under fresh or replay settings. Missing bundles return `syncing` with an explicit sync step; stale rows remain readable with a stale marker.
+- The older `Leg::rows` path still synchronizes absent or stale data. HGNC and ClinGen call this path. `auto_sync_max_bytes` remains active in `bundle/download.rs`: it bounds those automatic transfers and rejects a known oversized prior bundle before download. It does not control stored-bundle reads or explicit sync. Offline mode never syncs.
 - A sync takes a lock row in `bundle_sync`. Another process that finds the lock held answers `syncing` with a retry step, and a lock older than the sync budget is taken over.
 - An explicit `biomcp sync` runs under `sync_budget`, separate from the command budget. An automatic sync on first use runs inside the remaining budget of the leg that needs the rows, so a command never outlives its deadline; a first download that does not finish answers `syncing` with a retry step and resumes on the next call. The download writes to a part file in the cache folder and resumes with a range request when the server supports one. A sync that runs out of budget leaves the part file, answers `syncing` with a retry step, and the next sync resumes it.
-- A stale bundle that cannot sync answers from its stale rows with `stale` and a `sync` next step.
+- The older automatic read path may return stale stored rows when its refresh fails. Stored-bundle reads do not attempt that refresh.
 
 ### 4.12 Errors
 
@@ -1913,7 +1914,7 @@ The PM ruled on this design's earlier open questions on 2026-10-23. This file ap
 4. **Links as next steps.** Link commands that equal a search filter are gone. Next steps carry the resolved ID, and retired 0.9 spellings return a usage error that names the new command.
 5. **Several inputs per get.** `get` takes up to twenty inputs and returns items in input order, each with its own status. Sections are a closed enum per entity, with `--section` on collision.
 6. **Statuses and exit codes.** Distinct statuses and codes for absent, usage, expired, failed and local errors. Ambiguous and withdrawn inputs and zero-hit searches are answers that exit 0. A capped pool is complete with `truncated` and `total`. `main` returns `ExitCode`.
-7. **Bundles.** `biomcp sync` at install, auto-sync on first use below a size threshold, a lock row, a separate budget, resumable downloads or a `syncing` outcome, and never offline.
+7. **Bundles.** Explicit `biomcp sync` uses a lock, a separate budget and resumable downloads, and never runs offline. Stored-bundle reads never synchronize. The older `Leg::rows` path retains bounded automatic synchronization as described in section 4.11.
 8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the lander raises it. The subprocess binary is instrumented.
 9. **Wiki tables.** Entity, alias and link tables are deferred to the wiki's own design, and their DDL is gone from this file.
 

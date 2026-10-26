@@ -193,7 +193,7 @@ The OncoKB variant source proof uses an approved demo capture. The product requi
 Sources:
 - [x] ClinicalTrials.gov
 - [x] NCI Clinical Trials Search (keyed)
-- [ ] MyDisease.info for disease resolution
+- [x] MyDisease.info for explicit disease resolution; [ticket 0137](sdlc/tickets/0137-trial-condition-id.md) proves `--condition-id`; implicit name resolution remains dropped
 
 ## Milestone 3: drugs and diseases
 
@@ -293,6 +293,7 @@ The cases enforce measured CLI and MCP byte ceilings. The complete measured enve
 
 ### Pharmacogenomics
 
+- [x] Slice complete; [accepted docs and accounting](sdlc/tickets/0169-pgx-docs-and-accounting.md) and recorded clinical review
 - [x] Investigation; [accepted investigation](sdlc/tickets/0153-pharmacogenomics-slice-investigation.md)
 - [x] Questions accepted by clinical review; [source answers](sdlc/planning/slices/pharmacogenomics.md)
 - [x] Biodata types and schema
@@ -314,6 +315,7 @@ The output budget uses complete measured CLI/MCP envelopes and states why no con
 
 ### Diagnostic
 
+- [x] Slice complete; [accepted docs and accounting](sdlc/tickets/0177-diagnostic-docs-and-accounting.md) and recorded clinical review
 - [x] Investigation; [accepted investigation](sdlc/tickets/0154-diagnostic-slice-investigation.md)
 - [x] Questions accepted by clinical review; [source answers](sdlc/planning/slices/diagnostic.md)
 - [x] Biodata types and schema
@@ -336,6 +338,7 @@ The diagnostic slice preserves exact source identities, complete native rows and
 
 ### Adverse event
 
+- [x] Slice complete; [accepted docs and accounting](sdlc/tickets/0162-adverse-event-docs-and-accounting.md) and recorded clinical review
 - [x] Investigation; [accepted investigation](sdlc/tickets/0152-adverse-event-slice-investigation.md)
 - [x] Questions accepted by clinical review; [source answers](sdlc/planning/slices/adverse-event.md)
 - [x] Biodata types and schema
