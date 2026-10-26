@@ -1,0 +1,47 @@
+{
+  "live_check": "synthetic exact cross-references",
+  "feature": "protein-search",
+  "story": "Exact HGNC cross-references preserve all protein candidates and never repair an alias",
+  "replay": "protein/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "CDKN2A"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/candidates/*/protein/accession": [
+          "P42771",
+          "Q8N726"
+        ],
+        "/next/*/kind": [
+          "disambiguate",
+          "disambiguate"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "EGFR"
+      ],
+      "expect": {
+        "/result/items/0/header/protein/accession": "P00533"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "SYNTHETICALIAS"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent"
+      }
+    }
+  ]
+}

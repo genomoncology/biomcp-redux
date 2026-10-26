@@ -1,6 +1,7 @@
 # 0238 — Get the study card with its profiles and sample-lists sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f489c34458bdae9a8cebae32de5a7f405da99b85
 
 Milestone: 4
 

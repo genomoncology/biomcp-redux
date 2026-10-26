@@ -3,9 +3,7 @@ mod page;
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::cbioportal::{SPEC, studies};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{
-    QueryBody, Reason, Source, SourceState, Status, StepKind, StudyCard, StudyGet, StudySearch,
-};
+use biomcp_types::{QueryBody, Source, SourceState, Status, StepKind, StudySearch};
 fn empty(body: QueryBody) -> Outcome {
     Outcome {
         status: Status::Failed,
@@ -54,42 +52,5 @@ pub fn search(cx: &Ctx<'_>, q: &StudySearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-/// Registered exact study card; live sections belong to their following slice.
-pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
-    let mut out = empty(QueryBody::StudyCard(None));
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(&SPEC, deadline);
-    let result = if q.section().is_some() {
-        Err(failure(Reason::Unsupported))
-    } else {
-        studies::card(&leg, q.id()).and_then(|(row, info)| {
-            let snapshot = studies::snapshot(&info)?;
-            out.status = if row.is_some() {
-                Status::Complete
-            } else {
-                Status::Absent
-            };
-            out.body = QueryBody::StudyCard(row.map(|study| StudyCard {
-                study,
-                snapshot,
-                profiles: None,
-                sample_lists: None,
-                files: None,
-            }));
-            Ok(())
-        })
-    };
-    finish(&mut out, leg, result.err());
-    command.finish(deadline.remaining());
-    out
-}
-fn failure(reason: Reason) -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Cbioportal,
-        reason,
-        status: None,
-        retry_after: None,
-    }
-    .into()
-}
+mod get;
+pub use get::get;

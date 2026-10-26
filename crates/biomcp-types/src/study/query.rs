@@ -152,6 +152,13 @@ impl StudyGet {
     pub fn section_offset(&self) -> u32 {
         self.0.section_offset
     }
+    /// Select a named section and start its bounded first page.
+    pub fn with_section(&self, section: StudySection) -> Self {
+        let mut q = self.clone();
+        q.0.section = Some(section);
+        q.0.section_offset = 0;
+        q
+    }
     /// Continue one named section; card and all have no aggregate offset.
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
         let mut q = self.0.clone();
