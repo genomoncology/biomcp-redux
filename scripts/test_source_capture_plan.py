@@ -10,6 +10,9 @@ import tarfile
 import tempfile
 import threading
 import unittest
+from urllib.parse import parse_qs, urlsplit
+
+from capture_author_witnesses import second_phase
 
 SCRIPT = Path(__file__).with_name('source_capture.py').resolve()
 ROOT = SCRIPT.parent.parent
@@ -27,6 +30,12 @@ class Source(http.server.BaseHTTPRequestHandler):
         if status == 302:
             self.send_header('Location', '/never')
         self.send_header('Content-Type', 'application/json')
+        if self.path == '/sensitive-headers':
+            self.send_header('sEt-CoOkIe', 'session=synthetic\r\n folded-synthetic-cookie')
+            self.send_header('Authorization', 'synthetic-authorization')
+            self.send_header('Proxy-Authorization', 'synthetic-proxy')
+            self.send_header('X-Api-Key', 'synthetic-key')
+            self.send_header('X-Ordinary', 'retained')
         if self.path == '/headers':
             for index in range(12):
                 self.send_header('X-Padding-' + str(index), 'x' * 8192)
@@ -35,6 +44,19 @@ class Source(http.server.BaseHTTPRequestHandler):
             secret = self.headers.get('X-Key', '')
             escaped = ''.join('\\u%04x' % ord(char) for char in secret)
             self.wfile.write(('{' + '"key":"' + escaped + '"}').encode())
+        elif self.path.startswith('/author-pages'):
+            query = parse_qs(urlsplit(self.path).query)
+            offset = int(query['offset'][0])
+            rows = [{'paperId': 'synthetic-' + str(offset + n)} for n in range(5)]
+            if 'mismatch' in query:
+                rows[0]['paperId'] = 'synthetic-changed'
+            page = {'offset': offset, 'data': rows}
+            if offset == 0 and 'no-next' not in query:
+                page['next'] = 5
+            self.wfile.write(json.dumps(page).encode())
+        elif self.path == '/attached':
+            attached = self.headers.get('x-api-key') == 'synthetic-credential'
+            self.wfile.write(json.dumps({'attached': attached}).encode())
         elif self.path == '/reflect':
             self.wfile.write(self.headers.get('X-Key', '').encode())
         elif self.path == '/large':
@@ -99,6 +121,64 @@ class CapturePlanTests(unittest.TestCase):
         expected = set(json.loads((out / 'manifest.json').read_text())) | {'manifest.json'}
         self.assertEqual(set(names), expected)
         self.assertEqual(len(names), len(expected))
+
+    def test_sensitive_response_headers_and_folds_never_enter_evidence(self):
+        out = self.base / 'capture'
+        result = self.run_capture(self.plan(['/sensitive-headers']), out)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        headers = (out / '0000.headers').read_bytes().lower()
+        for forbidden in (b'set-cookie', b'authorization', b'x-api-key', b'synthetic'):
+            self.assertNotIn(forbidden, headers)
+        self.assertIn(b'x-ordinary: retained', headers)
+        with tarfile.open(out.with_suffix('.tar.gz')) as packed:
+            self.assertEqual(packed.extractfile('0000.headers').read().lower(), headers)
+
+    def test_named_key_attachment_matches_actual_curl_receiver_without_value_evidence(self):
+        for keyed in (False, True):
+            plan = self.plan(['/attached'])
+            value = json.loads(plan.read_text())
+            if keyed:
+                value['requests'][0]['key'] = {'env': 'CAPTURE_TEST_KEY', 'header': 'x-api-key'}
+            plan.write_text(json.dumps(value))
+            out = self.base / ('keyed' if keyed else 'keyless')
+            env = dict(self.env, CAPTURE_TEST_KEY='synthetic-credential')
+            result = self.run_capture(plan, out, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            receipt = json.loads((out / '0000.receipt.json').read_text())
+            self.assertEqual(receipt['credential_header_attached'], keyed)
+            self.assertEqual(receipt['credential_header'], 'x-api-key' if keyed else None)
+            self.assertEqual(json.loads((out / '0000.body').read_text())['attached'], keyed)
+            for path in out.iterdir():
+                self.assertNotIn(b'synthetic-credential', path.read_bytes())
+
+    def test_author_details_and_native_continuation_guard_actual_requests(self):
+        for variant, expected_calls in (('positive', 4), ('mismatch', 2), ('no-next', 3)):
+            self.server.calls = []
+            out = self.base / variant
+            out.mkdir()
+            url = 'http://127.0.0.1:' + str(self.server.server_port) + '/author-pages'
+            rows = []
+            for name, offset in [('papers-17611497-0', 0),
+                                 ('papers-17611497-0-details', 0),
+                                 ('papers-33123537-0', 0), ('papers-33123537-5', 5)]:
+                path = url + '?offset=' + str(offset) + '&limit=5'
+                if variant == 'mismatch' and name.endswith('-details'):
+                    path += '&mismatch=1'
+                if variant == 'no-next' and name == 'papers-33123537-0':
+                    path += '&no-next=1'
+                row = {'id': name, 'url': path, 'source': 'semantic-scholar',
+                       'response_format': 'json'}
+                if offset == 5:
+                    row['requires_next_from'] = 'papers-33123537-0'
+                rows.append(row)
+            ledger = []
+            second_phase(rows, {'deadline_seconds': 2, 'max_bytes': 4096,
+                                'spacing_seconds': 0}, out, ledger)
+            self.assertEqual(len(self.server.calls), expected_calls)
+            if variant == 'positive':
+                self.assertTrue(all(r['capability'] == 'proven' for r in ledger))
+            if variant == 'mismatch':
+                self.assertIn('details changed', ledger[-1]['capability'])
 
     @unittest.skipUnless(sys.platform == 'darwin', 'AppleDouble requires macOS tar')
     def test_archive_verification_rejects_hidden_appledouble_members(self):
