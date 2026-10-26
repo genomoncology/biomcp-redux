@@ -2,7 +2,6 @@
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -11,6 +10,9 @@ type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("study-catalog/replacement-binds-pool-revision", || {
+            revision().map_err(Into::into)
+        }),
         Trial::test("study-catalog/expiry-stale-and-zero-network", || {
             lifetimes().map_err(Into::into)
         }),
@@ -34,8 +36,7 @@ fn rows() -> Value {
 fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {
     let dir = env.root().join("replay/cbioportal");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    let hash = Sha256::digest([b"GET\0".as_slice(), URL.as_bytes()].concat());
-    let key = hash.iter().map(|b| format!("{b:02x}")).collect::<String>();
+    let key = "6a22562d8dcf66701258cac4800e9ad4d5275fdfd1ac5eee038c0e4c9d651085";
     let recording = json!({"source":"cbioportal","method":"GET","url":URL,"exchanges":[{"status":status,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]});
     fs::write(dir.join(format!("{key}.json")), recording.to_string()).map_err(|e| e.to_string())?;
     Ok(env.root().join("replay"))
@@ -153,7 +154,15 @@ fn search() -> Check {
     Ok(())
 }
 fn replacement() -> Check {
-    for fault in ["malformed", "conflict", "429", "500"] {
+    for fault in [
+        "malformed",
+        "conflict",
+        "429",
+        "500",
+        "oversized",
+        "partial",
+        "timeout",
+    ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = seed(&env, rows(), 200)?;
         call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
@@ -167,7 +176,16 @@ fn replacement() -> Check {
         }
         let status = fault.parse().unwrap_or(200);
         seed(&env, body, status)?;
-        call(&env, &replay, &["sync", "cbioportal-studies"], 4)?;
+        alter_fault(&replay, fault)?;
+        let failure = call(&env, &replay, &["sync", "cbioportal-studies"], 4)?;
+        if failure.pointer("/sources/0/state") != Some(&json!("failed"))
+            || failure.pointer("/sources/0/use") != Some(&json!("restricted"))
+            || failure.pointer("/sources/0/terms").is_none()
+        {
+            return Err(format!(
+                "sync fault lost terms or source outcome: {failure}"
+            ));
+        }
         let found = call(&env, &replay, &["search", "study", "atlas"], 0)?;
         if found.pointer("/page/total") != Some(&json!(12)) {
             return Err(format!("failed replacement lost old rows: {found}"));
@@ -272,6 +290,70 @@ fn surfaces() -> Check {
     )?;
     if !help.to_string().contains("cancer_type") {
         return Err("study executable help omitted selector".into());
+    }
+    Ok(())
+}
+
+fn alter_fault(replay: &Path, fault: &str) -> Check {
+    let path = fs::read_dir(replay.join("cbioportal"))
+        .map_err(|e| e.to_string())?
+        .next()
+        .ok_or("recording")?
+        .map_err(|e| e.to_string())?
+        .path();
+    let mut value: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    match fault {
+        "oversized" => {
+            *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? =
+                json!(" ".repeat(1024 * 1024 + 1))
+        }
+        "partial" => {
+            *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? =
+                json!("[{\"studyId\":\"synthetic_0\"")
+        }
+        "timeout" => *value.pointer_mut("/exchanges/0/delay_ms").ok_or("delay")? = json!(120001),
+        "429" => {
+            *value
+                .pointer_mut("/exchanges/0/retry_after_ms")
+                .ok_or("retry")? = json!(1000)
+        }
+        _ => {}
+    }
+    fs::write(path, value.to_string()).map_err(|e| e.to_string())
+}
+fn revision() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env, rows(), 200)?;
+    call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
+    let first = call(&env, &replay, &["search", "study", "atlas"], 0)?;
+    let id = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("pool")?;
+    let mut changed = rows();
+    *changed.pointer_mut("/0/name").ok_or("name")? = json!("Changed native title");
+    seed(&env, changed, 200)?;
+    call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
+    let after = call(
+        &env,
+        &replay,
+        &["search", "study", "atlas", "--pool", id, "--offset", "5"],
+        4,
+    )?;
+    if after.get("result").is_some() || after.pointer("/next/0/kind") != Some(&json!("restart")) {
+        return Err("continuation mixed catalog revisions".into());
+    }
+    let fresh = call(
+        &env,
+        &replay,
+        &["search", "study", "Changed native title"],
+        0,
+    )?;
+    if fresh.pointer("/result/items/0/studyId") != Some(&json!("synthetic_0"))
+        || fresh.pointer("/result/snapshot/revision") == first.pointer("/result/snapshot/revision")
+    {
+        return Err("replacement revision or rows did not change".into());
     }
     Ok(())
 }
