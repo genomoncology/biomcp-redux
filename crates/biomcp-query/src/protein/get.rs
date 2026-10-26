@@ -1,10 +1,11 @@
 use super::next;
-use crate::{Ctx, Outcome, status};
+use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::UniProtIsoform;
 use biomcp_adapters::{hgnc, uniprot};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::{
-    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, QueryBody, Source, Status,
+    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, QueryBody, Request, Source,
+    SourceState, Status, StepKind,
 };
 /// Exact accessions resolve independently and remain in caller order.
 pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
@@ -53,6 +54,7 @@ pub fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     }
     out.status = status::status(items.iter().map(|i| i.status));
     out.next = next::cards(&items);
+    recovery(q, &mut out);
     out.body = QueryBody::ProteinCard(ProteinCard {
         items: items.into(),
     });
@@ -139,5 +141,38 @@ fn hydrate(
         } else {
             Status::Failed
         };
+    }
+}
+
+fn recovery(q: &ProteinGet, out: &mut Outcome) {
+    if out.next.len() < 5
+        && out.sources.iter().any(|s| {
+            s.source == Source::Hgnc
+                && matches!(
+                    s.state,
+                    SourceState::Syncing | SourceState::Failed | SourceState::Stale
+                )
+        })
+    {
+        out.next.push((
+            StepKind::Sync,
+            Action::Sync {
+                bundle: Bundle::Hgnc,
+            },
+        ));
+    }
+    if out.next.len() < 5
+        && out
+            .sources
+            .iter()
+            .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
+    {
+        out.next.push((
+            StepKind::Fresh,
+            Action::Run {
+                request: Request::GetProtein(q.clone()),
+                fresh: true,
+            },
+        ));
     }
 }
