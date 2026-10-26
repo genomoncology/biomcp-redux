@@ -72,6 +72,7 @@ mod normalization;
 mod oncokb;
 mod oncokb_context;
 mod pathway_registry;
+mod hpo_registry;
 mod pdf;
 mod pgx_registry;
 mod pgx_retirements;
@@ -565,6 +566,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(diagnostic_cdx::trials());
     trials.extend(pgx_registry::trials());
     trials.extend(pathway_registry::trials());
+    trials.extend(hpo_registry::trials());
     trials.extend(pgx_retirements::trials());
     trials.extend(cpic::trials());
     trials.extend(clinpgx::trials());
