@@ -1,6 +1,7 @@
 # 0276 — Check the parity ledger against the real 0.9.3 inventory and add a deferred outcome
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5bf9711c4d86577772ef39512c11004868bb7fc2
 
 Milestone: 4
 

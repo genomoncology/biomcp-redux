@@ -1,6 +1,7 @@
 # 0280 — Correct docs that disagree with what ships and normalize the roadmap
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 27e7e73a68cf70d8b488d76d07c43cd31050055f
 
 Milestone: 4
 
