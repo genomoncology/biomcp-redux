@@ -10,7 +10,7 @@
         "protein",
         "P00533"
       ],
-      "exit": 1,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/problems/0/source": "uniprot"
@@ -23,7 +23,7 @@
         "P00533"
       ],
       "offline": true,
-      "exit": 1,
+      "exit": 4,
       "expect": {
         "/status": "failed"
       }

@@ -12,7 +12,7 @@
         "--gene",
         "BRAF"
       ],
-      "exit": 1,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "uniprot",

@@ -57,9 +57,12 @@ impl crate::Leg<'_> {
         status: u16,
     ) -> Result<Option<Pagination>, crate::request::Failure> {
         if self.spec.source != biomcp_types::Source::UniProt
-            || !prepared
+            || prepared
                 .url
-                .starts_with("https://rest.uniprot.org/uniprotkb/search?")
+                .split('?')
+                .next()
+                .and_then(|url| url.strip_prefix(self.spec.base))
+                != Some("/uniprotkb/search")
         {
             return Ok(None);
         }
