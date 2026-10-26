@@ -118,7 +118,11 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
     for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
             command: vec!["sync".into(), bundle.into()],
-            description: "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.".into(),
+            description: if bundle == "wikipathways" {
+                "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated."
+            } else {
+                "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle."
+            }.into(),
             arguments: Vec::new(),
             sections: Vec::new(),
             section_rule: None,
