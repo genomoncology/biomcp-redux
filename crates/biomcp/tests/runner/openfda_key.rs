@@ -61,7 +61,7 @@ fn check(source: &str, entity: &str, id: &str, mode: u8) -> Check {
         _ => Some(KEY),
     };
     if let Some(key) = expected {
-        if !line.contains(&format!("api_key={key}")) || request.contains("Authorization:") {
+        if !line.contains(&format!("?api_key={key}&")) || request.contains("Authorization:") {
             return Err("optional openFDA key missing from documented query location".into());
         }
     } else if request.contains("api_key") || request.contains(ENV_KEY) || request.contains(KEY) {

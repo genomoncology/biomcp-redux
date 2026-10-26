@@ -1,5 +1,5 @@
 //! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
-use biomcp_fetch::{KeyUse, SourceSpec, Terms};
+use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
@@ -13,7 +13,7 @@ pub static SPEC: SourceSpec = SourceSpec {
         usage: Use::Open,
     },
     quota: &crate::quotas::OPENFDA,
-    key: KeyUse::None,
+    key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
 };
 mod map;

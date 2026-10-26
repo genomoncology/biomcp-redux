@@ -78,6 +78,7 @@ mod normalization;
 mod oncokb;
 mod oncokb_context;
 mod openfda_key;
+mod openfda_website;
 mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
@@ -311,6 +312,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());
     trials.extend(openfda_key::trials());
+    trials.push(openfda_website::trial());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());

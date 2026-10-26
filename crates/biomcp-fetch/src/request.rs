@@ -403,15 +403,6 @@ impl Leg<'_> {
         if prepared.exact_count {
             request = request.header("Prefer", "count=exact");
         }
-        for (name, value) in &prepared.outgoing {
-            request = request.query(name, value.value());
-        }
-        if prepared.identity_encoding {
-            request = request.header("Accept-Encoding", "identity");
-        }
-        for (name, value) in headers {
-            request = request.header(*name, value);
-        }
         if let KeyUse::Optional(c) | KeyUse::Required(c) = self.spec.key
             && let Some(secret) = self.fetch.secrets.get(c.secret)
         {
@@ -420,6 +411,15 @@ impl Leg<'_> {
                 KeyPlace::Header(name) => request.header(name, secret),
                 KeyPlace::Bearer => request.header("Authorization", format!("Bearer {secret}")),
             };
+        }
+        for (name, value) in &prepared.outgoing {
+            request = request.query(name, value.value());
+        }
+        if prepared.identity_encoding {
+            request = request.header("Accept-Encoding", "identity");
+        }
+        for (name, value) in headers {
+            request = request.header(*name, value);
         }
         if let Some(post) = &prepared.post {
             request = request.header("Content-Type", &post.request_content_type);
