@@ -9,7 +9,7 @@ pub(super) fn registry() -> Vec<Contract> {
         Envelope<PhenotypeSynonyms> => ("phenotype-synonyms", "biomcp.phenotype-synonyms/1"),
         Envelope<PhenotypeXrefs> => ("phenotype-xrefs", "biomcp.phenotype-xrefs/1"),
         Envelope<PhenotypeHierarchy> => ("phenotype-hierarchy", "biomcp.phenotype-hierarchy/1"),
-        Envelope<PhenotypeDiseases> => ("phenotype-diseases", "biomcp.phenotype-diseases/2"),
-        Envelope<PhenotypeGenes> => ("phenotype-genes", "biomcp.phenotype-genes/2"),
+        Envelope<PhenotypeDiseases> => ("phenotype-diseases", "biomcp.phenotype-diseases/3"),
+        Envelope<PhenotypeGenes> => ("phenotype-genes", "biomcp.phenotype-genes/3"),
     }
 }
