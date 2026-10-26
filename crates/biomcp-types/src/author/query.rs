@@ -1,6 +1,7 @@
 use crate::QueryInvalid;
 use biodata::{AuthorId, Text};
 use serde::{Deserialize, Serialize};
+const MAX_INPUTS: usize = 20;
 fn default_limit() -> u32 {
     5
 }
@@ -113,13 +114,13 @@ pub struct AuthorGet(GetFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct GetFields {
     /// One or more exact qualified IDs.
-    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-positional" = 0)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_INPUTS), extend("x-positional" = 0)))]
     ids: Box<[AuthorId]>,
 }
 impl TryFrom<GetFields> for AuthorGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if v.ids.is_empty() {
+        if !(1..=MAX_INPUTS).contains(&v.ids.len()) {
             return Err(QueryInvalid);
         }
         Ok(Self(v))

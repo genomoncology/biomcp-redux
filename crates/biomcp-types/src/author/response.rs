@@ -77,7 +77,7 @@ impl ResponseBody for AuthorPage {
     type Query = AuthorSearch;
 }
 impl ResponseBody for AuthorCards {
-    const SCHEMA: &'static str = "biomcp.author_card/2";
+    const SCHEMA: &'static str = "biomcp.author_card/3";
     type Query = AuthorGet;
 }
 impl ResponseBody for AuthorPapers {

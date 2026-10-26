@@ -10,7 +10,10 @@ pub(super) fn trials() -> Vec<Trial> {
     let absent = !root.is_dir();
     vec![
         Trial::test("author-search/retained-native-pool-contract", || {
-            pool::run().map_err(Into::into)
+            pool::check("pool").map_err(Into::into)
+        }),
+        Trial::test("author-search/stale-source-provenance", || {
+            pool::check("stale").map_err(Into::into)
         }),
         Trial::test(
             "author-search/retained-native-records-and-costs",

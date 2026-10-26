@@ -1,9 +1,5 @@
 use super::*;
-pub(super) fn run() -> Result<(), String> {
-    check("pool")?;
-    check("stale")
-}
-fn check(name: &str) -> Result<(), String> {
+pub(super) fn check(name: &str) -> Result<(), String> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join(format!("../../tests/native/author-controls/{name}.yaml"));
     let case: super::super::Case =

@@ -56,6 +56,13 @@ fn requests_validate_before_io_and_preserve_selection() {
         assert!(serde_json::from_value::<AuthorSearch>(value).is_err());
     }
     assert!(serde_json::from_value::<AuthorGet>(json!({"ids":[]})).is_err());
+    assert!(
+        serde_json::from_value::<AuthorGet>(json!({"ids":vec!["semantic-scholar:123";20]})).is_ok()
+    );
+    assert!(
+        serde_json::from_value::<AuthorGet>(json!({"ids":vec!["semantic-scholar:123";21]}))
+            .is_err()
+    );
     assert!(serde_json::from_value::<AuthorGet>(json!({"ids":["2060978"]})).is_err());
     let ids = json!({"ids":["semantic-scholar:2060978","orcid:0000-0002-4299-3018"]});
     assert_eq!(roundtrip::<AuthorGet>(ids.clone()).unwrap(), ids);
