@@ -378,6 +378,12 @@ fn native() -> Check {
     use std::io::Write;
     let root = super::launch::fixtures().join("cases/wikipathways-native");
     let registry = super::schema::Registry::embedded()?;
+    let budgets: std::collections::BTreeMap<String, [usize; 3]> =
+        serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/wikipathways-budgets.json"
+        )))
+        .map_err(|e| e.to_string())?;
     let outputs = super::launch::fixtures().join("wikipathways-native-outputs");
     fs::create_dir(&outputs).map_err(|e| e.to_string())?;
     let mut files = fs::read_dir(root)
@@ -389,6 +395,16 @@ fn native() -> Check {
         let value = super::run_case(&path, &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::source_terms::size(&value, "")?;
+        let name = path.file_name().and_then(|n| n.to_str()).ok_or("filename")?;
+        let measured = budgets.get(name).ok_or("case budget")?;
+        let observed = [full + 1, comparable + 1, comparable.div_ceil(4)];
+        if observed
+            .iter()
+            .zip(measured)
+            .any(|(actual, baseline)| *actual > (baseline * 115).div_ceil(100))
+        {
+            return Err(format!("{name}: response exceeded its measured fifteen-percent ceiling"));
+        }
         fs::write(
             outputs
                 .join(path.file_stem().ok_or("case name")?)
