@@ -345,3 +345,29 @@ The evidence store holds `data/biomcp-redux/0215-gwas-threshold/product-ff179f83
 | `study-crossing` | 802 | 678 | 923 | 780 |
 | `pubmed-crossing-first` | 2,654 | 2,530 | 3,053 | 2,910 |
 | `study-crossing-first` | 2,657 | 2,533 | 3,056 | 2,913 |
+
+### Exact record and context response costs
+
+The exact get commands use one association or study resource and never enrich a card by fetching its study, a publication or a gene. The locus and ancestry relations retain native row self links. The ancestry command admits one whole unpaged source collection and stores that received collection through the existing snapshot store. Its page actions retain the checked study, section size and snapshot token. The source receives no invented page-size parameter. Study associations reuse the checked native ascending p-value selector and preserve their study in every continuation.
+
+Job `j14840` captured eleven exact keyless requests once each with the existing adapter deadline, a 3 MiB body bound, one second between admissions, zero redirects and zero retries. All returned HTTP 200. Its original transfer wrapper used the source-machine scratch path on the destination; transfer-only continuation `j14846` verified the archive manifest on Yellow without another request. The source archive is `data/biomcp-redux/0218-gwas-get/native.tar.gz`, SHA-256 `d83af0fc0c0f6d456e634860ae693a0b8c1c7053e3b6269af7acc7c820355d72`.
+
+Job `j14895` replayed all eleven native responses through CLI and MCP, checked their schemas and parity, and followed the actual study-association and local ancestry page commands without gaps or repeated row identities. Its product archive is `data/biomcp-redux/0218-gwas-get/product-80ace01568729171889f0415461681ffa014fa6b.tar.gz`, and its SHA-256 is `fd890eb070b182c8cdde73f1273bb650a8f09208487c529998509c8b1f002b68`. The archive manifest was verified on Yellow in that job. Native source bodies and product responses remain outside Git.
+
+`tests/gwas-get-budgets.json` owns each pair of measured full CLI bytes and comparable MCP bytes. The runner applies fifteen-percent ceilings to both full and comparable bytes and estimated tokens. Full CLI bytes include its final newline. Comparable bytes remove only the three publisher terms fields through the shared measurement helper.
+
+| Response | Full CLI bytes | Comparable MCP bytes | Full byte ceiling | Comparable CLI ceiling |
+|---|---:|---:|---:|---:|
+| `association-6114` | 1130 | 1006 | 1300 | 1159 |
+| `association-6063` | 1150 | 1026 | 1323 | 1182 |
+| `association-11386` | 1141 | 1017 | 1313 | 1171 |
+| `loci` | 795 | 671 | 915 | 773 |
+| `study-GCST000035` | 1561 | 1437 | 1796 | 1654 |
+| `study-GCST000037` | 1743 | 1619 | 2005 | 1863 |
+| `study-GCST000113` | 1336 | 1212 | 1537 | 1395 |
+| `study-GCST000057` | 1356 | 1232 | 1560 | 1418 |
+| `ancestries` | 2390 | 2266 | 2749 | 2608 |
+| `associations-0` | 2100 | 1976 | 2415 | 2274 |
+| `associations-1` | 1860 | 1736 | 2139 | 1998 |
+
+The routine collection in `j14903` measured whole-tree generated help at 76,572 bytes after adding the exact get grammar. Its standing measured-size-plus-fifteen-percent formula sets the help fixture ceiling to 88,058 bytes. This is whole-tree command help rather than a source response or a per-command disclosure budget.

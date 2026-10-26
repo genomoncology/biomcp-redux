@@ -1,4 +1,5 @@
 //! Native GWAS Catalog v2 association pages, without clinical interpretation.
+pub mod get;
 mod raw;
 mod search;
 use crate::quotas;

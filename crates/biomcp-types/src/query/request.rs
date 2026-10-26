@@ -7,6 +7,10 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Search one native GWAS Catalog association page.
     SearchGwas(crate::GwasSearch),
+    /// Read one exact association and its native loci.
+    GetGwasAssociation(crate::GwasAssociationGet),
+    /// Read one exact study and its native relations.
+    GetGwasStudy(crate::GwasStudyGet),
     /// Read exact native feature rows with checked residue selectors.
     ProteinFeatures(crate::ProteinFeaturesQuery),
     /// Read native alternative products without constructing sequences.
