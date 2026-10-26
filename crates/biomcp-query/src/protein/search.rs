@@ -11,13 +11,31 @@ use biomcp_types::{
     PageInfo, ProteinPage, ProteinSearch, QueryBody, Request, Source, SourceOutcome, Status,
     StepKind,
 };
-use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-#[derive(Serialize, Deserialize)]
 struct Saved {
     page: uniprot::SearchPage,
     sources: Vec<SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
+}
+impl Saved {
+    fn encode(&self) -> Result<String, CacheError> {
+        serde_json::to_string(&(&self.page, &self.sources, &self.problems))
+            .map_err(|_| CacheError::Database)
+    }
+    fn decode(payload: &str) -> Result<Self, CacheError> {
+        type Wire = (
+            uniprot::SearchPage,
+            Vec<SourceOutcome>,
+            Vec<biomcp_types::Problem>,
+        );
+        let (page, sources, problems): Wire =
+            serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
+        Ok(Self {
+            page,
+            sources,
+            problems,
+        })
+    }
 }
 struct Loaded {
     saved: Saved,
@@ -107,7 +125,7 @@ fn read(
     out.sources = saved.sources.clone();
     out.problems = saved.problems.clone();
     out.local = error.and_then(status::local);
-    let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
+    let payload = saved.encode()?;
     let pool = if prior.as_ref().is_some_and(|(_, old)| old == &payload) {
         prior.map(|(pool, _)| pool).ok_or(CacheError::Database)?
     } else {
@@ -144,7 +162,7 @@ fn load(
             restart(q, out, false);
             return Ok(None);
         };
-        let saved = serde_json::from_str::<Saved>(&payload).map_err(|_| CacheError::Database)?;
+        let saved = Saved::decode(&payload)?;
         return Ok(Some(Loaded {
             saved,
             prior: Some((pool, payload)),

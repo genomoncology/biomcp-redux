@@ -5,6 +5,7 @@ use biodata::{ProteinHeader, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{Problem, ProblemCode, ProteinSearch, Source};
 use serde::{Deserialize, Serialize};
+const PATH: &str = "/uniprotkb/search";
 const FIELDS: &str = "accession,id,protein_name,gene_names,organism_id,reviewed,length";
 /// One admitted native window and its exact source count.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -46,10 +47,7 @@ pub fn search(
     if let Some(cursor) = cursor {
         args.push(("cursor", Arg::Text(cursor.as_str())));
     }
-    let ep = SPEC
-        .get("/uniprotkb/search")
-        .identity_encoding()
-        .fresh(Freshness::Days(1));
+    let ep = SPEC.get(PATH).identity_encoding().fresh(Freshness::Days(1));
     let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |rows| {
         rows.results.iter().all(entry::raw::Entry::human_reviewed)
     })?;
@@ -64,7 +62,11 @@ pub fn search(
     let cursor = page
         .next
         .as_deref()
-        .map(|url| next_cursor(url, &query, q.query().is_some()))
+        .map(|url| {
+            SPEC.next_cursor(url, PATH, &args, "cursor")
+                .map_err(|_| bad())
+                .and_then(|value| Text::new(&value).map_err(|_| bad()))
+        })
         .transpose()?;
     let mut items = Vec::new();
     let mut problems = Vec::new();
@@ -112,36 +114,4 @@ fn bad() -> RequestError {
         retry_after: None,
     }
     .into()
-}
-fn next_cursor(text: &str, query: &str, fields: bool) -> Result<Text, RequestError> {
-    let u = url::Url::parse(text).map_err(|_| bad())?;
-    if u.scheme() != "https"
-        || u.host_str() != Some("rest.uniprot.org")
-        || u.port().is_some()
-        || !u.username().is_empty()
-        || u.password().is_some()
-        || u.fragment().is_some()
-        || u.path() != "/uniprotkb/search"
-    {
-        return Err(bad());
-    }
-    let mut pairs = std::collections::BTreeMap::new();
-    for (key, value) in u.query_pairs() {
-        if pairs.insert(key.into_owned(), value.into_owned()).is_some() {
-            return Err(bad());
-        }
-    }
-    let cursor = pairs
-        .remove("cursor")
-        .and_then(|v| Text::new(&v).ok())
-        .ok_or_else(bad)?;
-    if pairs.remove("query").as_deref() != Some(query)
-        || pairs.remove("format").as_deref() != Some("json")
-        || pairs.remove("size").as_deref() != Some("5")
-        || pairs.remove("fields").as_deref() != fields.then_some(FIELDS)
-        || !pairs.is_empty()
-    {
-        return Err(bad());
-    }
-    Ok(cursor)
 }

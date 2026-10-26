@@ -9,7 +9,6 @@ license.workspace = true
 biomcp-types = { path = "../biomcp-types" }
 rusqlite.workspace = true
 serde_json.workspace = true
-serde.workspace = true
 sha2.workspace = true
 biodata = { path = "../biodata" }
 biomcp-fetch = { path = "../biomcp-fetch" }
