@@ -40,7 +40,11 @@ fn domains() -> Result<(), String> {
     if empty.pointer("/page/total")!=Some(&json!(0)) || empty.pointer("/status")!=Some(&json!("complete")){return Err("empty type selection became a missing source".into());}
     let skipped=call(&env,&["protein","domains","P04637","--disable-sources","interpro"],4)?;
     if skipped.pointer("/sources/0/state")!=Some(&json!("skipped")) || skipped.get("result").is_some(){return Err("disabled source returned a retained collection".into());}
-    stub.finish()?;
+    for _ in 0..2 {
+        let rejected=call(&env,&["protein","domains","P15056"],4)?;
+        if rejected.pointer("/sources/0/reason")!=Some(&json!("bad_reply")) || rejected.get("result").is_some(){return Err("a live response for another protein was admitted".into());}
+    }
+    if stub.finish()?.len()!=3 {return Err("a rejected native protein identity was cached".into());}
     Ok(())
 }
 fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {

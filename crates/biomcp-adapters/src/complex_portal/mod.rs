@@ -95,6 +95,7 @@ fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestEr
         .identity_encoding()
         .fresh(Freshness::Days(1));
     let d = leg.json_checked_cache::<raw::Detail>(&endpoint, &[], |d| d.id == *id)?;
+    if d.id != *id { return Err(bad()); }
     Ok(raw::Complex {
         id: d.id,
         name: d.name,

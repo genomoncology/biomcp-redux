@@ -4,7 +4,7 @@ use biomcp_fetch::RequestError;
 pub(super) fn members(rows: Vec<raw::Member>) -> Result<Vec<ProteinComplexMember>, RequestError> {
     rows.into_iter()
         .map(|r| {
-            let protein = if r.interactor_type.as_str() == "protein" {
+            let protein = if r.interactor_type == "protein" {
                 UniProtIsoform::new(r.identifier.as_str())
                     .ok()
                     .filter(|p| p.as_str() == r.identifier.as_str())
@@ -23,8 +23,8 @@ pub(super) fn members(rows: Vec<raw::Member>) -> Result<Vec<ProteinComplexMember
                 })
                 .collect::<Result<Box<[_]>, RequestError>>()?;
             Ok(ProteinComplexMember {
-                id: r.identifier,
-                participant_type: r.interactor_type,
+                id: text(&r.identifier)?,
+                participant_type: text(&r.interactor_type)?,
                 taxon: r.organism_name.as_deref().and_then(raw::taxon),
                 organism: r.organism_name.as_deref().map(text).transpose()?,
             name: r.name,

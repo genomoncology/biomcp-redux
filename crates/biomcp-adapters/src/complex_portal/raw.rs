@@ -15,7 +15,7 @@ impl Reply for Search {
         if self
             .elements
             .iter()
-            .any(|c| taxon(&c.organism_name) != Some(9606))
+            .any(|c| taxon(&c.organism_name) != Some(9606) || c.interactors.as_ref().is_some_and(|rows| rows.iter().any(|r| !r.valid())))
         {
             return Err(BadReply);
         }
@@ -45,7 +45,7 @@ pub(super) struct Detail {
 }
 impl Reply for Detail {
     fn check(&self) -> Result<(), BadReply> {
-        if taxon(&self.species) == Some(9606) {
+        if taxon(&self.species) == Some(9606) && self.participants.iter().all(Member::valid) {
             Ok(())
         } else {
             Err(BadReply)
@@ -55,8 +55,8 @@ impl Reply for Detail {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Member {
-    pub identifier: Text,
-    pub interactor_type: Text,
+    pub identifier: String,
+    pub interactor_type: String,
     pub organism_name: Option<String>,
     pub name: Option<Text>,
     pub stochiometry: Option<Text>,
@@ -70,4 +70,11 @@ pub(super) struct Xref {
 }
 pub(super) fn taxon(s: &str) -> Option<u32> {
     s.rsplit_once(';')?.1.trim().parse().ok()
+}
+
+impl Member {
+    fn valid(&self) -> bool {
+        Text::new(&self.identifier).is_ok_and(|id| id.as_str() == self.identifier)
+            && self.xrefs.as_ref().or(self.cross_references.as_ref()).into_iter().flatten().all(|x| format!("{}:{}",x.database,x.identifier).parse::<biodata::Curie>().is_ok())
+    }
 }

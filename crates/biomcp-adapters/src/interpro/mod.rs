@@ -53,6 +53,7 @@ pub fn page(
         args.push(("page", Arg::Num(1)));
     }
     let raw = leg.json_checked_cache::<raw::Page>(&endpoint, &args, |p| p.admitted(id))?;
+    if !raw.admitted(id) { return Err(bad()); }
     let expected = [("page", Arg::Num(1)), ("page_size", Arg::Num(size.into()))];
     let cursor = raw
         .next

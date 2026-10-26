@@ -18,10 +18,20 @@ pub(super) fn run()->Result<(),String>{
     if wrong.pointer("/problems/0/record")!=Some(&json!("CPX-715")) || wrong.pointer("/problems/0/field")!=Some(&json!("participants.anchor.P04637")) || wrong.get("result").is_some(){return Err(format!("wrong anchor exposed member rows: {wrong}"));}
     let mismatch=call(&env,&["protein","complex-members","P38398","--complex","CPX-999"],4)?;
     if mismatch.pointer("/sources/0/reason")!=Some(&json!("bad_reply")){return Err("mismatched complex identity admitted".into());}
-    if stub.finish()?.len()!=3{return Err("retained member paging made extra provider requests".into());}Ok(())
+    call(&env,&["protein","complex-members","P38398","--complex","CPX-999"],4)?;
+    for complex in ["CPX-716","CPX-717"] {
+        let rejected=call(&env,&["protein","complex-members","P38398","--complex",complex],4)?;
+        if rejected.get("result").is_some(){return Err("native participant whitespace established a protein join".into());}
+    }
+    if stub.finish()?.len()!=6{return Err("retained member paging made extra provider requests".into());}Ok(())
 }
 fn member(id:String,kind:&str)->Value{json!({"identifier":id,"interactorType":kind,"organismName":if kind=="protein"{"Homo sapiens; 9606"}else{"chemical synthesis; -2"},"name":"Native participant","stochiometry":"minValue: 1, maxValue: 2","xrefs":[{"database":"native","identifier":"identifier"}]})}
 fn reply(request:&str)->Result<String,String>{
+    if request.contains("/complex/CPX-716") || request.contains("/complex/CPX-717") {
+        let id=if request.contains("CPX-716"){ "CPX-716" }else{ "CPX-717" };
+        let row=if id=="CPX-716"{member(" P38398 ".into(),"protein")}else{member("P38398".into()," protein ")};
+        return Ok(json!({"complexAc":id,"name":"Hostile participant identity","species":"Homo sapiens; 9606","predictedComplex":false,"participants":[row]}).to_string());
+    }
     if request.contains("/complex/"){return Ok(json!({"complexAc":"CPX-715","name":"Exact complex","species":"Homo sapiens; 9606","predictedComplex":false,"participants":[member("P38398".into(),"protein"),member("Q99728".into(),"protein")]}).to_string());}
     let mut members=vec![member("P38398".into(),"protein"),member("CHEBI:29105".into(),"small molecule")];
     for n in 1..92 {members.push(member(format!("P{n:05}"),"protein"));}
