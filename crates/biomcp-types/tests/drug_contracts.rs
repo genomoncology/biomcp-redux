@@ -2,7 +2,6 @@
 use biodata::{DrugId, DrugIdentityLevel};
 use biomcp_types::{DrugGet, DrugSearch};
 use serde_json::json;
-
 #[test]
 fn published_ids_roundtrip_without_source_prefixes() {
     for value in [
@@ -38,7 +37,6 @@ fn published_ids_roundtrip_without_source_prefixes() {
         assert!(serde_json::from_value::<DrugId>(json!(value)).is_err());
     }
 }
-
 #[test]
 fn search_defaults_and_required_get_source_are_explicit() {
     let query: DrugSearch = serde_json::from_value(json!({"query":"Gleevec"})).expect("search");
@@ -52,7 +50,6 @@ fn search_defaults_and_required_get_source_are_explicit() {
             .is_err()
     );
 }
-
 #[test]
 fn selected_source_checks_its_native_identifier_grammar() {
     use biomcp_types::DrugSource;
@@ -90,7 +87,6 @@ fn selected_source_checks_its_native_identifier_grammar() {
         assert!(serde_json::from_value::<DrugGet>(json!({"source":source,"input":id})).is_err());
     }
 }
-
 #[test]
 fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
     use biomcp_types::{DrugSection, DrugSource};
@@ -155,19 +151,13 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
     }
     assert!("who".parse::<DrugSource>().is_err());
 }
-
 #[test]
 fn native_text_and_regulator_date_roles_roundtrip_without_interpretation() {
     use biodata::{AuthorizationEvent, DrugLabelSection};
-    let event = json!({"record":"EMEA/H/C/000406",
-"jurisdiction":"native jurisdiction",
-"status":"source status",
-"dates":[{"role":"original authorization",
- "date":"2001-11-07"},
-{"role":"other date",
- "date":"2001-11-06"}],
-"attribution":{"source":"ema",
-"record":"EMEA/H/C/000406"}});
+    let event = json!(
+        {"record":"EMEA/H/C/000406","jurisdiction":"native jurisdiction","status":"source status","dates":[{"role":"original authorization",
+        "date":"2001-11-07"},{"role":"other date","date":"2001-11-06"}],"attribution":{"source":"ema","record":"EMEA/H/C/000406"}}
+    );
     let decoded: AuthorizationEvent = serde_json::from_value(event.clone()).expect("event");
     assert_eq!(serde_json::to_value(decoded).expect("event JSON"), event);
     let label = json!({"label":{"id":"741ff3e3-dc1a-45a6-84e5-2481b27131aa",
@@ -177,15 +167,12 @@ fn native_text_and_regulator_date_roles_roundtrip_without_interpretation() {
     let decoded: DrugLabelSection = serde_json::from_value(label.clone()).expect("label");
     assert_eq!(serde_json::to_value(decoded).expect("label JSON"), label);
 }
-
 #[test]
 fn section_options_use_existing_continuation_names_and_reject_card_paging() {
-    let query = json!({"source":"openfda-label",
-"input":"741ff3e3-dc1a-45a6-84e5-2481b27131aa",
- "section":["label"],
- "label_section":"drug_interactions",
- "section_offset":10,
- "section_limit":20});
+    let query = json!(
+        {"source":"openfda-label","input":"741ff3e3-dc1a-45a6-84e5-2481b27131aa","section":["label"],"label_section":"drug_interactions",
+        "section_offset":10,"section_limit":20}
+    );
     let parsed: DrugGet = serde_json::from_value(query.clone()).expect("label continuation");
     assert_eq!(serde_json::to_value(parsed).expect("query JSON"), query);
     for extra in [
@@ -211,7 +198,6 @@ fn section_options_use_existing_continuation_names_and_reject_card_paging() {
         );
     }
 }
-
 #[test]
 #[cfg(feature = "schema")]
 fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
@@ -263,7 +249,6 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
         assert!(!text.contains(forbidden), "{forbidden}");
     }
 }
-
 #[test]
 fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
     use biomcp_types::DrugCivic;
@@ -275,32 +260,20 @@ fn civic_therapy_streams_keep_independent_totals_and_profile_context() {
         Some(biomcp_types::CivicClaimKind::Evidence)
     );
     assert_eq!(serde_json::to_value(selected).expect("query JSON"), next);
-    let response = json!({
-        "identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"},
-        "civic":{"state":"data","source":"civic","data":{
-            "evidence":{"records":[{
-                "profile":{"record":{"id":"1"},
-    "label":"synthetic profile",
-    "compound":false,
-    "members":[{"record":{"id":"1"},
-    "label":"synthetic allele",
-    "feature":"BRAF",
-    "reference_build":"GRCH38"}]},
-
-                "oncokb_missing":["variant"],
-                "claim":{"record":{"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},
-                "therapies":[{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"}]
-            }],"page":{"returned":1,"total":169,"next":next}},
-            "assertions":{"records":[],"page":{"returned":0,"total":1}}
-        }}
-    });
+    let response = json!(
+        { "identity":{"id":"5","source":"civic","name":"synthetic therapy","identity_level":"unknown"},"civic":{"state":"data",
+        "source":"civic","data":{ "evidence":{"records":[{ "profile":{"record":{"id":"1"},"label":"synthetic profile","compound":false,
+        "members":[{"record":{"id":"1"},"label":"synthetic allele","feature":"BRAF","reference_build":"GRCH38"}]},
+        "oncokb_missing":["variant"],"claim":{"record":{"id":"EID259"},"kind":"PREDICTIVE","status":"ACCEPTED"},"therapies":[{"id":"5",
+        "source":"civic","name":"synthetic therapy","identity_level":"unknown"}] }],"page":{"returned":1,"total":169,"next":next}},
+        "assertions":{"records":[],"page":{"returned":0,"total":1}} }} }
+    );
     let decoded: DrugCivic = serde_json::from_value(response.clone()).expect("independent streams");
     assert_eq!(
         serde_json::to_value(decoded).expect("response JSON"),
         response
     );
 }
-
 #[test]
 fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
     for selectors in [
@@ -319,15 +292,10 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
             .extend(selectors.as_object().expect("selectors").clone());
         assert!(serde_json::from_value::<DrugGet>(query).is_err());
     }
-    let query: DrugGet = serde_json::from_value(json!({"source":"civic",
-"input":"5",
-"section":["civic"],
-"civic_profile":1,
-"civic_kind":"evidence"}))
+    let query: DrugGet = serde_json::from_value(json!({"source":"civic", "input":"5", "section":["civic"], "civic_profile":1, "civic_kind":"evidence"}))
     .expect("selected profile");
     assert_eq!(query.civic_profile(), Some(1));
 }
-
 #[test]
 fn label_candidate_versions_are_native_optional_identity_metadata() {
     let mut value = json!({"id":"211ef2da-2868-4a77-8055-1cb2cd78e24b", "source":"openfda-label", "name":"Synthetic brand", "identity_level":"spl_set"});
@@ -346,24 +314,15 @@ fn label_candidate_versions_are_native_optional_identity_metadata() {
     value["text"] = json!("not an identity field");
     assert!(serde_json::from_value::<biomcp_types::DrugHeader>(value).is_err());
 }
-
 #[test]
 fn native_target_identity_does_not_require_an_invented_gene() {
     use biodata::{DrugNativeReference, DrugNativeTarget, DrugTargetRelation};
-    let value = json!({"drug":{"id":"CHEMBL1",
-"source":"chembl",
-"name":"synthetic drug",
-"identity_level":"unknown"},
-"native_target":{"source":"chembl",
-"id":"CHEMBL999",
-"label":"synthetic target complex",
-"url":"https://example.org/target"},
-"relation":"native action",
-"mechanism":"source mechanism wording",
-"references":[{"ref_type":"native publication",
-"ref_id":"synthetic-1",
-"ref_url":"https://example.org/reference"}],
-"attribution":{"source":"chembl"}});
+    let value = json!(
+        {"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"native_target":{"source":"chembl",
+        "id":"CHEMBL999","label":"synthetic target complex","url":"https://example.org/target"},"relation":"native action",
+        "mechanism":"source mechanism wording","references":[{"ref_type":"native publication","ref_id":"synthetic-1",
+        "ref_url":"https://example.org/reference"}],"attribution":{"source":"chembl"}}
+    );
     let parsed: DrugTargetRelation =
         serde_json::from_value(value.clone()).expect("native target without gene");
     assert!(parsed.target().is_none());
@@ -437,27 +396,16 @@ fn native_target_identity_does_not_require_an_invented_gene() {
         .remove("native_target");
     assert!(serde_json::from_value::<DrugTargetRelation>(missing).is_err());
 }
-
 #[test]
 fn native_indication_ids_keep_their_own_labels_stage_and_references() {
     use biodata::{DrugDiseaseReference, DrugIndicationClaim, DrugStage};
-    let value = json!({"drug":{"id":"CHEMBL1",
-"source":"chembl",
-"name":"synthetic drug",
-"identity_level":"unknown"},
-"indication":"source indication wording",
-"disease_references":[{"namespace":"EFO",
-"id":"EFO:synthetic",
-"label":"native EFO wording"},
-{"namespace":"MeSH",
-"id":"Dsynthetic",
-"label":"different native MeSH wording"}],
-"stage":{"field":"max_phase_for_ind",
-"value":"3.0"},
-"references":[{"ref_type":"native trial",
-"ref_id":"synthetic-trial",
-"ref_url":"https://example.org/trial"}],
-"attribution":{"source":"chembl"}});
+    let value = json!(
+        {"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},
+        "indication":"source indication wording","disease_references":[{"namespace":"EFO","id":"EFO:synthetic",
+        "label":"native EFO wording"},{"namespace":"MeSH","id":"Dsynthetic","label":"different native MeSH wording"}],
+        "stage":{"field":"max_phase_for_ind","value":"3.0"},"references":[{"ref_type":"native trial","ref_id":"synthetic-trial",
+        "ref_url":"https://example.org/trial"}],"attribution":{"source":"chembl"}}
+    );
     let parsed: DrugIndicationClaim =
         serde_json::from_value(value.clone()).expect("native indication");
     assert_eq!(
@@ -485,23 +433,14 @@ fn native_indication_ids_keep_their_own_labels_stage_and_references() {
     assert_eq!(stage.field.as_ref(), " native_field ");
     assert_eq!(stage.value.as_ref(), " 3.0 \n");
 }
-
 #[test]
 fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
     use biodata::DrugInteractionClaim;
-    let value = json!({"anchor":{"id":"DDInter1",
-"source":"ddinter",
-"name":"synthetic anchor",
-"identity_level":"unknown"},
-"partner":{"id":"DDInter2",
-"source":"ddinter",
-"name":"synthetic partner",
-"identity_level":"unknown"},
-"level":"native level",
-"attribution":{"source":"ddinter",
-"record":"B-synthetic"},
-"additional_attributions":[{"source":"ddinter",
-"record":"L-synthetic"}]});
+    let value = json!(
+        {"anchor":{"id":"DDInter1","source":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2",
+        "source":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter",
+        "record":"B-synthetic"},"additional_attributions":[{"source":"ddinter","record":"L-synthetic"}]}
+    );
     let parsed: DrugInteractionClaim =
         serde_json::from_value(value.clone()).expect("both bundle origins");
     assert_eq!(parsed.anchor().id.to_string(), "DDInter1");
@@ -571,7 +510,6 @@ fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
         legacy
     );
 }
-
 #[test]
 #[cfg(feature = "schema")]
 fn changed_native_record_responses_publish_version_three_and_checked_target_schema() {
@@ -583,12 +521,10 @@ fn changed_native_record_responses_publish_version_three_and_checked_target_sche
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())
             .expect("target schema");
-    let base = json!({"drug":{"id":"CHEMBL1",
-"source":"chembl",
-"name":"synthetic drug",
-"identity_level":"unknown"},
-"relation":"source action",
-"attribution":{"source":"chembl"}});
+    let base = json!(
+        {"drug":{"id":"CHEMBL1","source":"chembl","name":"synthetic drug","identity_level":"unknown"},"relation":"source action",
+        "attribution":{"source":"chembl"}}
+    );
     for selectors in [
         json!({}),
         json!({"target":null}),
@@ -617,7 +553,6 @@ fn changed_native_record_responses_publish_version_three_and_checked_target_sche
         assert!(serde_json::from_value::<DrugTargetRelation>(valid).is_ok());
     }
 }
-
 #[test]
 fn chembl_name_selector_is_explicit_and_source_scoped() {
     use biomcp_types::DrugNameSelector;

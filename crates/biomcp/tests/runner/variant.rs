@@ -3,6 +3,7 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod components;
 mod labels;
 mod roundtrip;
 pub(super) fn trials() -> Vec<Trial> {
@@ -26,7 +27,7 @@ pub(super) fn trials() -> Vec<Trial> {
             missing_component().map_err(Into::into)
         }),
         Trial::test("variant/historical-fragment-walk-is-warm", || {
-            component_walk().map_err(Into::into)
+            components::component_walk().map_err(Into::into)
         }),
         Trial::test(
             "variant/component-rights-and-historical-association",
@@ -109,15 +110,11 @@ fn call(
     Ok((value, stub.finish()?))
 }
 fn car_body(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643",
-"genomicAlleles":[{"chromosome":"7",
-"referenceGenome":"GRCh38",
-"referenceSequence":"http://reg.genome.network/refseq/RS000055",
-"hgvs":["NC_000007.14:g.140753336A>T"],
-"coordinates":[{"start":140753335,
-"end":140753336,
-"referenceAllele":"A",
-"allele":"T"}]}]})
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38",
+        "referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],
+        "coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
+    )
     .to_string())
 }
 fn myvariant_body(_: &str) -> Result<String, String> {
@@ -191,13 +188,10 @@ fn candidate_walk() -> Result<(), String> {
     Ok(())
 }
 fn candidates_body(_: &str) -> Result<String, String> {
-    Ok(json!({"total":3,
-"hits":[{"_id":"chr7:g.140453136A>G",
-"dbsnp":{"rsid":"rs113488022"}},
-{"_id":"chr7:g.140453136A>T",
-"dbsnp":{"rsid":"rs113488022"}},
-{"_id":"chr7:g.140453136A>C",
-"dbsnp":{"rsid":"rs113488022"}}]})
+    Ok(json!(
+        {"total":3,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>T",
+        "dbsnp":{"rsid":"rs113488022"}},{"_id":"chr7:g.140453136A>C","dbsnp":{"rsid":"rs113488022"}}]}
+    )
     .to_string())
 }
 
@@ -246,11 +240,10 @@ fn mixed_page() -> Result<(), String> {
     Ok(())
 }
 fn mixed_body(_: &str) -> Result<String, String> {
-    Ok(json!({"total":2,
-"hits":[{"_id":"chr7:g.140453136A>G",
-"dbsnp":{"rsid":"rs1"}},
-{"_id":"chr7:g.140453136A>T",
-"dbsnp":{"rsid":"rs113488022"}}]})
+    Ok(json!(
+        {"total":2,"hits":[{"_id":"chr7:g.140453136A>G","dbsnp":{"rsid":"rs1"}},{"_id":"chr7:g.140453136A>T",
+        "dbsnp":{"rsid":"rs113488022"}}]}
+    )
     .to_string())
 }
 fn validator_order() -> Result<(), String> {
@@ -343,15 +336,13 @@ fn components() -> Result<(), String> {
 fn component_body(request: &str) -> Result<String, String> {
     // Synthetic provider bodies test transport and association, not source truth.
     if request.starts_with("GET /v1/metadata") {
-        return Ok(json!({"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{
-            "cosmic":{"version":"synthetic-68",
-"license_url":"https://example.org/component-terms",
-"upload_date":"2019-01-01T00:00:00Z",
-"note":"synthetic historical snapshot"},
-
-            "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
-            "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms","upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}}
-        }}).to_string());
+        return Ok(json!(
+        {"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{ "cosmic":{"version":"synthetic-68",
+        "license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
+        "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
+        "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms",
+        "upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}} }}
+    ).to_string());
     }
     if request.contains("cadd.phred") || request.contains("dbnsfp.gerp") {
         return Ok(json!({"_id":"chr7:g.140453136A>T",
@@ -363,16 +354,10 @@ fn component_body(request: &str) -> Result<String, String> {
         }).to_string());
     }
     if request.contains("fields=_id%2Ccosmic") {
-        return Ok(json!({"_id":"chr7:g.140453136A>T",
-"cosmic":{"cosmic_id":"COSM999999",
-"ref":"T",
-"alt":"A",
-"chrom":"7",
-"hg19":{"start":140453136,
-"end":140453136},
-"mut_nt":"T>A",
-"mut_freq":0,
-"tumor_site":"synthetic_site"}})
+        return Ok(json!(
+        {"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,
+        "end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}
+    )
         .to_string());
     }
     myvariant_body37(request)
@@ -406,79 +391,6 @@ fn missing_component() -> Result<(), String> {
     }
     Ok(())
 }
-fn component_walk() -> Result<(), String> {
-    let stub = Stub::for_source("myvariant.info", "application/json", component_page_body)?;
-    let environment = source_environment(&stub)?;
-    let mut ids = Vec::new();
-    for offset in [0, 2] {
-        let mut args = vec![
-            "get".into(),
-            "variant".into(),
-            "chr7:g.140453136A>T".into(),
-            "cosmic".into(),
-            "--build".into(),
-            "GRCh37".into(),
-            "--section-limit".into(),
-            "2".into(),
-            "--section-offset".into(),
-            offset.to_string(),
-        ];
-        if offset != 0 {
-            args.push("--offline".into());
-        }
-        let output = environment
-            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        let data = value
-            .pointer("/result/candidates/0/sections/cosmic/data")
-            .ok_or_else(|| format!("source page missing: {value}"))?;
-        if data.get("total") != Some(&json!(4)) {
-            return Err(format!("source total lost: {value}"));
-        }
-        if offset == 0 && data.pointer("/next/section_offset") != Some(&json!(2)) {
-            return Err(format!(
-                "typed section continuation lost its independent offset: {value}"
-            ));
-        }
-        if offset != 0 && data.get("next").is_some() {
-            return Err("extra historical page invented".into());
-        }
-        for row in data
-            .get("records")
-            .and_then(Value::as_array)
-            .ok_or("rows missing")?
-        {
-            ids.push(row.get("cosmic_id").cloned().ok_or("native ID missing")?);
-        }
-    }
-    if ids
-        != [
-            json!("COSM999991"),
-            json!("COSM999992"),
-            json!("COSM999993"),
-            json!("COSM999994"),
-        ]
-        || stub.finish()?.len() != 3
-    {
-        return Err("source walk repeated, dropped, reordered or fetched a warm page".into());
-    }
-    Ok(())
-}
-fn component_page_body(request: &str) -> Result<String, String> {
-    if !request.contains("fields=_id%2Ccosmic") {
-        return component_body(request);
-    }
-    // Explicit synthetic rows keep source order and use no captured source content.
-    Ok(json!({"_id":"chr7:g.140453136A>T",
-"cosmic":[{"cosmic_id":"COSM999991"},
-{"cosmic_id":"COSM999992"},
-{"cosmic_id":"COSM999993"},
-{"cosmic_id":"COSM999994"}]})
-    .to_string())
-}
-
 fn component_groups() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", component_body)?;
     let environment = source_environment(&stub)?;
