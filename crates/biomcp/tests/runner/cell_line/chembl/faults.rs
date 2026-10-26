@@ -5,7 +5,7 @@ pub(super) fn trials() -> Vec<Trial> {
         for fault in ["429", "500", "broken", "html", "timeout"] {
             trials.push(Trial::test(format!("cell-line-chembl/fault/{}/{fault}", surface(assay)), move || failure(assay, fault).map_err(Into::into)));
         }
-        for fault in ["mismatch", "missing", "malformed", "bad-page"] {
+        for fault in ["mismatch", "missing", "malformed", "bad-page", "next"] {
             trials.push(Trial::test(format!("cell-line-chembl/cache/{}/{fault}", surface(assay)), move || admission(assay, fault).map_err(Into::into)));
         }
         trials.push(Trial::test(format!("cell-line-chembl/cache/{}/disabled", surface(assay)), move || disabled(assay).map_err(Into::into)));
@@ -80,6 +80,10 @@ fn bad(assay: bool, fault: &str) -> Result<String, String> {
     let mut value: Value =
         serde_json::from_str(&fixture(if assay { "assays" } else { "CVCL_2119" })?)
             .map_err(|e| e.to_string())?;
+    if fault == "next" {
+        *value.pointer_mut("/page_meta/next").ok_or("native next")? = if assay { Value::Null } else { json!("/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=5") };
+        return Ok(value.to_string());
+    }
     if fault == "bad-page" {
         *value
             .pointer_mut("/page_meta/limit")
