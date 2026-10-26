@@ -108,3 +108,6 @@ mod pgx;
 pub use pgx::*;
 mod diagnostic;
 pub use diagnostic::*;
+
+mod protein;
+pub use protein::*;

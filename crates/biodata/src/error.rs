@@ -2,6 +2,16 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// Invalid amino-acid residue text.
+    ProteinResidueInvalid,
+    /// A protein site ends before its position.
+    ProteinSiteOrder,
+    /// Malformed UniProt accession or isoform suffix.
+    UniProtIsoformInvalid,
+    /// Malformed integrated InterPro accession.
+    InterProIdInvalid,
+    /// Malformed Complex Portal accession.
+    ComplexPortalIdInvalid,
     /// Invalid ClinPGx object accession.
     ClinPgxAccession,
     /// A source-native diagnostic identifier failed its grammar.
@@ -159,6 +169,11 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::ProteinResidueInvalid => "protein.residue.invalid",
+            Self::ProteinSiteOrder => "protein.site.order",
+            Self::UniProtIsoformInvalid => "id.uniprot_isoform.invalid",
+            Self::InterProIdInvalid => "id.interpro.invalid",
+            Self::ComplexPortalIdInvalid => "id.complex_portal.invalid",
             Self::ClinPgxAccession => "id.clinpgx.invalid",
             Self::DiagnosticIdInvalid => "diagnostic.id.invalid",
             Self::DrugIdInvalid => "drug.id.invalid",

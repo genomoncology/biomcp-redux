@@ -1,0 +1,105 @@
+use super::{ComplexPortalId, Position1, QueryInvalid, Text, UniProtIsoform, limit, present};
+use serde::{Deserialize, Serialize};
+macro_rules! relation {
+    ($name:ident, $fields:ident, $wire:literal, { $($(#[$meta:meta])* $field:ident: $ty:ty),* }, $doc:literal) => {
+        #[doc = $doc]
+        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(try_from = $wire)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        #[cfg_attr(feature = "schema", schemars(with = $wire))]
+        pub struct $name($fields);
+        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        struct $fields {
+            /// Exact source protein sequence identity.
+            accession: UniProtIsoform,
+            $($(#[$meta])* $field: $ty,)*
+            /// Five rows by default, at most 25.
+            #[serde(default = "limit")]
+            #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 25)))]
+            limit: u32,
+            /// Native or retained page offset.
+            #[serde(default)]
+            offset: u32,
+            /// Retained collection identity.
+            #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+            #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+            pool: Option<Text>,
+        }
+        impl TryFrom<$fields> for $name {
+            type Error = QueryInvalid;
+            fn try_from(v: $fields) -> Result<Self, QueryInvalid> {
+                if !(1..=25).contains(&v.limit) { return Err(QueryInvalid); }
+                Ok(Self(v))
+            }
+        }
+        impl $name {
+            /// Exact anchor accession.
+            pub fn accession(&self) -> &UniProtIsoform { &self.0.accession }
+            /// Bounded page size.
+            pub fn limit(&self) -> u32 { self.0.limit }
+            /// Page offset.
+            pub fn offset(&self) -> u32 { self.0.offset }
+            /// Retained collection, if selected.
+            pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+        }
+    };
+}
+relation!(ProteinFeaturesQuery, FeatureFields, "FeatureFields", {
+    /// Native one-based residue; zero fails during deserialization.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Position1"))]
+    position: Option<Position1>,
+    /// Exact UniProt native label, without an alias map.
+    #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    feature_type: Option<Text>
+}, "Native UniProt features filtered by exact native label and residue.");
+relation!(ProteinDomainsQuery, DomainFields, "DomainFields", {
+    /// Exact native InterPro type, not a normalized domain label.
+    #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    entry_type: Option<Text>
+}, "Native InterPro matches; no position selector exists.");
+relation!(
+    ProteinRelationQuery,
+    RelationFields,
+    "RelationFields",
+    {},
+    "An unfiltered source-owned isoform, complex or structure page."
+);
+relation!(ProteinComplexMembersQuery, MemberFields, "MemberFields", {
+    /// Exact complex whose native participants contain the anchor.
+    complex: ComplexPortalId
+}, "A bounded participant page of one exact containing complex.");
+impl ProteinFeaturesQuery {
+    /// Exact native residue filter.
+    pub fn position(&self) -> Option<Position1> {
+        self.0.position
+    }
+    /// Native UniProt feature label.
+    pub fn feature_type(&self) -> Option<&Text> {
+        self.0.feature_type.as_ref()
+    }
+}
+impl ProteinDomainsQuery {
+    /// Native InterPro entry type.
+    pub fn entry_type(&self) -> Option<&Text> {
+        self.0.entry_type.as_ref()
+    }
+}
+impl ProteinComplexMembersQuery {
+    /// Exact containing complex.
+    pub fn complex(&self) -> &ComplexPortalId {
+        &self.0.complex
+    }
+}
+/// Direct sequence retrieval accepts only a checked source identity.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinSequenceQuery {
+    /// Exact isoform or base accession; no canonical suffix is synthesized.
+    pub isoform: UniProtIsoform,
+}
