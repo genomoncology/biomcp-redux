@@ -9,7 +9,7 @@ use std::{
 type Check = Result<(), String>;
 const URL: &str = "https://www.cbioportal.org/api/studies?projection=DETAILED";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut cases = vec![
         Trial::test("study-catalog/replacement-binds-pool-revision", || {
             revision().map_err(Into::into)
         }),
@@ -28,12 +28,16 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("study-catalog/missing-bundle-explicit-sync", || {
             missing().map_err(Into::into)
         }),
-    ]
+    ];
+    cases.extend(study_get::trials());
+    cases
 }
-fn rows() -> Value {
+#[path = "study_get.rs"]
+mod study_get;
+pub(super) fn rows() -> Value {
     json!((0..12).map(|n| json!({"studyId":format!("synthetic_{n}"),"name":format!("Synthetic Atlas {n}"),"description":"Literal mixed metadata","cancerTypeId":if n < 8 {"brca"} else {"mixed"},"allSampleCount":n,"referenceGenome":"hg19","sequencedSampleCount":n,"cnaSampleCount":0,"structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],"importDate":"2026-08-20 21:46:46","groups":"","readPermission":true,"publicStudy":true})).collect::<Vec<_>>())
 }
-fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {
+pub(super) fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {
     let dir = env.root().join("replay/cbioportal");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let key = "6a22562d8dcf66701258cac4800e9ad4d5275fdfd1ac5eee038c0e4c9d651085";
@@ -41,7 +45,7 @@ fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> 
     fs::write(dir.join(format!("{key}.json")), recording.to_string()).map_err(|e| e.to_string())?;
     Ok(env.root().join("replay"))
 }
-fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+pub(super) fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
     let value = invoke(env, command, exit)?;
