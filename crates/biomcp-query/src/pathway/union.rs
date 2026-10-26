@@ -45,7 +45,7 @@ fn execute(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
     present(q, saved, pool, out);
     Ok(())
 }
-fn load(cx: &Ctx<'_>, q: &PathwaySearch, store: &Store, identity: &[u8], out: &mut Outcome) -> Result<Option<Saved>, RequestError> {
+fn load(cx: &Ctx<'_>, q: &PathwaySearch, store: &Store<'_>, identity: &[u8], out: &mut Outcome) -> Result<Option<Saved>, RequestError> {
     let Some(pool) = q.pool().filter(|_| !(cx.fresh || q.fresh())) else { return Ok(None); };
     let payload = store.source_snapshot(pool.as_str(), identity, |s| cx.fetch.disabled(s))?;
     let Some(payload) = payload else { expired(q, out); return Ok(None); };
