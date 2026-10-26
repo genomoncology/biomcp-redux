@@ -186,9 +186,9 @@ fn selection() -> Check {
 
 fn empty_selection() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
-    // Empty discovery remains valid when no name filter was supplied.
-    if !invoke(directory.path(), &[])?.status.success() {
-        return Err("unfiltered empty discovery failed".into());
+    // Discovery rejects empty directories before applying any name filter.
+    if invoke(directory.path(), &[])?.status.success() {
+        return Err("empty discovery unexpectedly succeeded".into());
     }
     put(directory.path(), "selected.yaml", "    expect: {'/type': string}")?;
     for args in [
