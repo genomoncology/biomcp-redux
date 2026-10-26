@@ -85,3 +85,49 @@ impl crate::Leg<'_> {
             .transpose()
     }
 }
+
+impl crate::SourceSpec {
+    /// Extract one native cursor only when origin, endpoint and every other selector stay fixed.
+    /// The returned cursor remains opaque; this method never follows the supplied link.
+    pub fn next_cursor(
+        &'static self,
+        text: &str,
+        path: &str,
+        args: &[(&str, crate::Arg<'_>)],
+        cursor: &str,
+    ) -> Result<String, crate::BadReply> {
+        if text.len() > 4096 {
+            return Err(crate::BadReply);
+        }
+        let next = url::Url::parse(text).map_err(|_| crate::BadReply)?;
+        let expected = url::Url::parse(&format!("{}{path}", self.base.trim_end_matches('/')))
+            .map_err(|_| crate::BadReply)?;
+        if next.origin() != expected.origin()
+            || next.path() != expected.path()
+            || !next.username().is_empty()
+            || next.password().is_some()
+            || next.fragment().is_some()
+        {
+            return Err(crate::BadReply);
+        }
+        let mut pairs = std::collections::BTreeMap::new();
+        for (key, value) in next.query_pairs() {
+            if pairs.insert(key.into_owned(), value.into_owned()).is_some() {
+                return Err(crate::BadReply);
+            }
+        }
+        let value = pairs
+            .remove(cursor)
+            .filter(|v| !v.is_empty() && v.trim() == v)
+            .ok_or(crate::BadReply)?;
+        let expected: std::collections::BTreeMap<_, _> = args
+            .iter()
+            .filter(|(key, _)| *key != cursor)
+            .map(|(key, arg)| ((*key).to_owned(), arg.value()))
+            .collect();
+        if pairs != expected {
+            return Err(crate::BadReply);
+        }
+        Ok(value)
+    }
+}

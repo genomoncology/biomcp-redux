@@ -184,7 +184,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
- "url",
  "zip",
 ]
 
@@ -218,7 +217,6 @@ dependencies = [
  "biomcp-fetch",
  "biomcp-types",
  "rusqlite",
- "serde",
  "serde_json",
  "sha2",
  "tempfile",
