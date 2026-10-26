@@ -76,6 +76,15 @@ impl fmt::Display for CacheError {
     }
 }
 impl std::error::Error for CacheError {}
+impl From<CacheError> for biomcp_types::CacheProblem {
+    fn from(error: CacheError) -> Self {
+        match error {
+            CacheError::Busy => Self::Busy,
+            CacheError::Database => Self::Database,
+            CacheError::Version => Self::Version,
+        }
+    }
+}
 
 /// A provider failure or a distinct local cache failure.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

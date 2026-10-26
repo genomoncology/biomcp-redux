@@ -51,7 +51,19 @@ pub(crate) fn retired_study_directory() -> bool {
 }
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
-pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct StartupError(pub(crate) Option<biomcp_fetch::CacheError>);
+impl From<()> for StartupError {
+    fn from((): ()) -> Self {
+        Self(None)
+    }
+}
+impl From<biomcp_fetch::CacheError> for StartupError {
+    fn from(error: biomcp_fetch::CacheError) -> Self {
+        Self(Some(error))
+    }
+}
+pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, StartupError> {
     let home = variable("HOME");
     let file = read_file(globals.config.as_ref())?;
     fetch_using(globals, home, file)
@@ -94,7 +106,7 @@ fn fetch_using(
     globals: &Globals,
     home: Option<PathBuf>,
     file: Option<ConfigFile>,
-) -> Result<Fetch, ()> {
+) -> Result<Fetch, StartupError> {
     let cache = cache_path_using(home);
     let mode = if let Some(dir) = &globals.replay {
         Mode::Replay { dir: dir.clone() }
@@ -118,7 +130,7 @@ fn fetch_using(
             }
         })
         .transpose()
-        .map_err(|_| ())?;
+        .map_err(StartupError::from)?;
     if !matches!(mode, Mode::Replay { .. })
         && replay_cache.is_none()
         && let Some(parent) = cache.as_ref().and_then(|path| path.parent())
@@ -148,7 +160,12 @@ fn fetch_using(
         proxy: file.and_then(|file| file.proxy).map(Secret::new),
         ..FetchConfig::default()
     })
-    .map_err(|_| ())
+    .map_err(|error| {
+        StartupError(match error {
+            biomcp_fetch::FetchError::Cache(error) => Some(error),
+            _ => None,
+        })
+    })
 }
 
 fn disabled_sources(

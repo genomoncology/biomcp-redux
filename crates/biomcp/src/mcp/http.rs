@@ -22,7 +22,7 @@ struct Service {
     address: SocketAddr,
     hosts: Vec<Authority>,
     globals: crate::grammar::Globals,
-    fetch: Result<Arc<biomcp_fetch::Fetch>, ()>,
+    fetch: Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
 }
 pub(crate) fn serve(
     address: &str,

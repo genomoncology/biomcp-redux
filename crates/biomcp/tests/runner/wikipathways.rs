@@ -42,7 +42,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ]
 }
-fn catalog(search: bool, changed: bool) -> Value {
+pub(super) fn catalog(search: bool, changed: bool) -> Value {
     json!({"pathwayInfo":(0..13).map(|n| {
         let mut row = json!({"id":format!("WP{}",n+1),"url":format!("https://www.wikipathways.org/instance/WP{}",n+1),"name":if changed {format!("New Atlas {n}")} else {format!("Literal Atlas {n}")},"species":if n==12 {"Mus musculus"} else {"Homo sapiens"},"revision":"2025-05-22","authors":"Source Author","description":"Native source description...","citedIn":""});
         if search && let Some(map)=row.as_object_mut() { map.insert("datanodes".into(),json!("TP53, unchecked label")); map.insert("annotations".into(),json!("native annotation")); }
@@ -57,7 +57,12 @@ fn recording(root: &Path, url: &str) -> PathBuf {
         .collect::<String>();
     root.join("wikipathways").join(format!("{key}.json"))
 }
-fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<PathBuf, String> {
+pub(super) fn seed(
+    env: &Environment,
+    search: Value,
+    get: Value,
+    status: u16,
+) -> Result<PathBuf, String> {
     let root = env.root().join("replay");
     let dir = root.join("wikipathways");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -167,7 +172,9 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
             4,
         )
         .map_err(|e| format!("catalog fault {label}: {e}"))?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || failed.get("local_error").is_some()
+        {
             return Err(format!("validation classification: {failed}"));
         }
         let retained = call(
@@ -372,7 +379,9 @@ fn partial_download(env: &Environment, replay: &Path) -> Check {
         &["sync", "wikipathways"],
         4,
     )?;
-    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || failed.get("local_error").is_some()
+    {
         return Err(format!("partial download: {failed}"));
     }
     let retained = call(
