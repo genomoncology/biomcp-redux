@@ -29,7 +29,7 @@ pub(super) fn search(
             }
         }
         if let Some(publication) = &row.publication
-            && let Some(get) = serde_json::from_value(json!({"input":[publication]}))
+            && let Ok(get) = serde_json::from_value(json!({"input":[publication]}))
         {
             requests.push(Request::GetArticle(get));
         }
