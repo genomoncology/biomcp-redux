@@ -1,0 +1,16 @@
+# 0206 — Capture the Reactome search paging, filter spellings and search window witnesses
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: none
+
+## Outcome
+
+One bounded keyless pm job captures the Reactome search witnesses that `planning/slices/pathway.md` and the 2026-10-26 pathway rulings require before the pathway types and the search adapter rely on them, and the design records each one as proven, empty or failed. The witnesses are: the real spelling of the source paging parameter, proved by two consecutive windows of `MAPK signaling` that return different native IDs in native order, since `start=5` returned the same IDs as `start=0` and the legacy `pageSize=5` was ignored; the real spelling of the human species filter and of the `Pathway` and `TopLevelPathway` class filter; the real spelling of the forced filter switch that the captured OpenAPI names `Force filters`, with one witness showing whether default filter relaxation is disabled; the largest `rows` window the source honors for `Cell Cycle`, which reported 1,252 native matches; and the exact sentinel `zzzzNoPathway0191` no-entry reply under the same parameters. Raw replies, headers, the ledger and the recipe go to the evidence store, and no product code changes.
+
+- Why: the pathway ruling says the product ticket measures and fixes the Reactome search window and proves the real paging and filter parameter spellings before relying on them, and the 0191 capture disproved the guessed paging contract.
+- Starts from: pathway.md's direct source evidence, harvest query table and technical controls; the 2026-10-26 protein, pathway and study rulings, which win over the design text; the j14201, j14212, j14219 and j14228 receipts and the official OpenAPI document in the 0191 evidence archive; the existing Reactome declaration in `crates/biomcp-adapters/src/reactome/mod.rs`.
+- Rules: the recipe names each exact URL before the job runs, sends each row once in order with one second between admissions, the existing Reactome deadline and an eight-MiB body bound, and makes at most twelve physical requests. Parameter spellings come from the captured OpenAPI document and are tried as written there, with no guessed variant. No retry, redirect, altered query, fallback host or extra page. A 403 or 429 stops the job. No credential, cookie or bundle download, and no request to KEGG or g:Profiler. A failed paging witness means the search returns one native window followed by local snapshot paging with truncation marked against `numberOfMatches`, and never claims a walk past that window. A failed filter witness means species and class stay per-row admission checks only, which they remain in every case. The capture records the measured window size and its bytes and time, and the search ticket fixes the window from that measurement.
+- Proof: the job ledger records every attempt with its exact URL, status, bytes, SHA-256 and timing, and the archive path and hash appear in pathway.md beside each witness's result, and through pm progress. A reviewer checks that each witness's result names the capability it unlocks or the fallback it forces. No live mutable count is pinned as a timeless expectation. Then make landing-gate runs through pm job.

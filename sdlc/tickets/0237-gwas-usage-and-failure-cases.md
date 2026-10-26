@@ -1,0 +1,17 @@
+# 0237 — Prove GWAS usage errors, retirements and failure cases
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: 0215
+Depends on: 0218
+
+## Outcome
+
+Every malformed GWAS request and every 0.9 GWAS behavior that gwas.md retires returns a fixed usage error that names the supported route or the reason, and makes zero requests. The GWAS adapter reports a failed outcome, never an empty one, on a 429, 500, timeout, malformed JSON, missing required array, incorrect page metadata or HTTP 200 error body, and a reply with a wrong returned identity or a duplicate association ID is dropped with a problem and never enters the cache. A successful zero stays distinct from each failure, and no absent catalog entry reads as a negative clinical finding.
+
+- Why: the slice rules require failure, identity and usage cases for every adapter and command, and gwas.md's case plan names each failure the GWAS commands must survive.
+- Starts from: gwas.md's outside-in case plan, legacy surface and failure rows, with the GWAS rulings in `decisions/2026-10-26-protein-pathway-study-rulings.md`; the existing retirement table and usage errors in `crates/biomcp/src/retired.rs`; the adapter and commands from 0234, 0215 and 0218; the source policy and pool rules in `architecture.md`.
+- Rules: `search gwas` with no selector names the selectors and never scans the catalog. `--include-child-traits` without `--trait-id` and `--extended-geneset` without `--gene` are usage errors before I/O. A malformed GCST accession, a non-positive association ID, a bare number without `association:`, a malformed rsID, PMID or trait ID, and an invalid limit, offset, section limit or section offset fail before I/O with no repair. `loci` with a study input, and `associations` or `ancestries` with an association input, fail before I/O. EFO_0000305 is never rewritten to another ID. The 0.9 local prefix intersection has no spelling and no fallback. `get variant ID gwas` keeps its existing behavior. An expired continuation offers restart, a source error offers the existing fresh action, and both keep the original selectors. Source policy runs before cache or network, so `--disable-sources gwas` and a disabled restricted category skip the source with zero requests and no cache or replay read.
+- Proof: outside-in cases first. A case per usage error and section pairing failure asserts its message with zero provider requests. Synthetic 429, 500, timeout, malformed JSON, HTTP 200 error body, missing required array and incorrect page metadata replies for search, the association and study gets, the `associations` section and the ancestry collection, labeled synthetic, assert a failed outcome with source and terms; Q24 asserts a failed source never becomes zero associations. Synthetic replies with a wrong association ID, study accession, rsID or self link, and a page with a duplicate association ID, assert the drop, the problem and no cache admission. Q23 asserts a successful zero distinct from each failure. Cases for an expired continuation, the source disabled and the restricted category disabled assert their actions and zero requests. Warm reuse, explicit fresh and stale partial status are separate cases. Each case has a size ceiling. This ticket adds no filter or exact-ID get and makes no provider call; the filters and exact-ID gets it relies on have known-positive captures through one bounded keyless pm job in 0205, 0234, 0215 and 0218. Source replies stay outside the repo. Then make landing-gate runs through pm job.

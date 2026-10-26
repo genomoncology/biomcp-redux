@@ -1,0 +1,17 @@
+# 0232 — Document the phenotype commands and close the phenotype accounting
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: 0242
+
+## Outcome
+
+Generated help and the MCP tool description cover `search phenotype` and `get phenotype` with their sources, sections and paging options, with examples taken from case run steps. Help states that a term lookup answers terminology, an association answers what its publisher asserts, and neither establishes a diagnosis. The 0.9 parity ledger has a row for every phenotype command, option and section in phenotype.md's legacy accounting, naming the 1.0 spelling, the deferral or the retirement. Every phenotype case asserts a measured `max_bytes` from its CLI and MCP output under the existing headroom rule, and phenotype.md's cost table replaces each offline design measurement with the measured envelope. Each question P01 to P24 keeps its answered, partial or unanswered status, updated only where a case now answers it. The landing commit gives ROADMAP.md's phenotype block the checklist that the diagnostic block carries, with Monarch and HPO as source boxes, and ticks the boxes this work completes.
+
+- Why: the slice delivers docs, cases with ceilings and full 0.9 accounting, as `planning/slices.md` says.
+- Starts from: 0145 and 0169 as the pattern; phenotype.md's acceptance cases, cost table, harvested questions and legacy accounting; the Phenotype rulings in `2026-10-26-protein-pathway-study-rulings.md`; the generated help and MCP description code; ROADMAP.md's phenotype block.
+- Rules: Monarch similarity stays recorded as deferred under the PM ruling that the disease slice already retired symptom-to-diagnosis ranking, and P17 stays unanswered with that reason. Translations, HPO and Monarch bundles, HPO term search, and the Monarch `xrefs` section if 0208 found no positive xref stay recorded as deferred with their reasons. The 0.9 `discover` phenotype suggestion and automatic HPO resolution move to the dropped line, with no symptom intent detector. `list phenotype` is recorded as renamed to `help phenotype`. A measured size over its design ceiling is fixed or raised to the PM before landing. The token budget box ticks when every row has its measured 1.0 size and either a qualified 0.9 figure from 0098 or a stated reason that 0.9 could not be measured.
+- Proof: a help case asserts each phenotype command lists its sources, sections, options and two parsed examples; an MCP `tools/list` case asserts the phenotype tree within the existing description ceiling, and the whole command tree help ceiling moves under the slice rule. A reviewer checks that every accounting row has a ledger row, every design case ID has a case file or an outside-repo case, and every case has a measured `max_bytes`. The landing commit ticks Investigation, Biodata types and schema, Search, Get and sections, Outside-in cases, MCP parity, Docs and 0.9 accounting, and the Monarch and HPO source boxes, each only after its check passes. This ticket adds no filter or exact-ID get and makes no provider call; the phenotype filters and exact-ID gets keep their known-positive captures from one bounded keyless pm job each. No licensed content enters the repo, and replies whose terms bar storage replay from outside the repo. Then make landing-gate runs through pm job.
+- Defers: the contained 0.9 phenotype comparison, which 0098 measures after the adapters land with verified containment.
