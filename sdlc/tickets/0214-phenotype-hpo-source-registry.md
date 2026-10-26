@@ -1,6 +1,7 @@
 # 0214 — Register HPO as a direct source beside its Monarch and MyDisease component
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6084a1895f90527d928ccdba8743e3021532a2f6
 
 Milestone: 4
 
