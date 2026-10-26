@@ -33,7 +33,7 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     let exit = if expected.as_ref().is_none_or(Vec::is_empty) { 1 } else { 0 };
     let value = invoke(&env, &record, exit)?;
     verify(&value, expected.as_deref(), row)?;
-    native::restore_date(&directory, row.get("fetched").and_then(Value::as_u64).ok_or("fetched")?)?;
+    if let Some(fetched) = row.get("fetched").and_then(Value::as_u64) { native::restore_date(&directory, fetched)?; }
     let mut replay = words.clone(); replay.extend(["--replay",directory.to_str().ok_or("record path")?]);
     let result = invoke(&env,&replay,exit)?;
     verify(&result,expected.as_deref(),row)?;

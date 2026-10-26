@@ -47,11 +47,10 @@ def prepare(first, second, output):
                 append(plan, output, row, body, "hierarchy", offset=offset)
             append(plan, output, row, body, "hierarchy", limit=2)
     body = admission["xref-first-0000.body"]
-    receipt = json.loads(admission["xref-first-0000.receipt.json"])
     row = {
         "source": "monarch", "target": "/v3/api/entity/HP%3A0000256",
         "words": ["get", "phenotype", "HP:0000256"],
-        "fetched": receipt.get("fetched", receipt.get("finished", 1792976779)),
+        "fetched": None,
     }
     append(plan, output, row, body, "xrefs")
     (output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")

@@ -3,7 +3,7 @@ use super::{invoke, setup, Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("phenotype-sections/native-classes-and-direct-links", || monarch().map_err(Into::into)), Trial::test("phenotype-sections/empty-unavailable-and-missing-retained-reply", || absent().map_err(Into::into)), Trial::test("phenotype-sections/retained-local-pages-and-executable-card-actions", || pages().map_err(Into::into))]
+    vec![Trial::test("phenotype-sections/refresh-preserves-card-snapshot-and-policy", || retained().map_err(Into::into)), Trial::test("phenotype-sections/native-classes-and-direct-links", || monarch().map_err(Into::into)), Trial::test("phenotype-sections/empty-unavailable-and-missing-retained-reply", || absent().map_err(Into::into)), Trial::test("phenotype-sections/retained-local-pages-and-executable-card-actions", || pages().map_err(Into::into))]
 }
 fn pages() -> Result<(), String> {
     let stub = Stub::for_source("ontology.jax.org", "application/json", |request| {
@@ -65,5 +65,28 @@ fn absent() -> Result<(), String> {
     let lost = invoke(&env,&["get","phenotype","HP:0000001","synonyms","--snapshot","unknown"],3)?;
     if lost.pointer("/next/0/kind")!=Some(&json!("restart")) { return Err(format!("missing snapshot refetched: {lost}")); }
     if stub.finish()?.len()!=1 { return Err("invalid or retained selector made a provider request".into()); }
+    Ok(())
+}
+
+fn retained() -> Result<(), String> {
+    let mut count = 0;
+    let stub = Stub::for_source("ontology.jax.org", "application/json", move |_| {
+        count += 1;
+        Ok(json!({"id":"HP:0000001","name":"Term","synonyms":[if count==1 {"Original"} else {"Refreshed"}]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let card=invoke(&env,&["get","phenotype","HP:0000001"],0)?;
+    let args=step(&card,"section",0)?;
+    let words=args.iter().map(String::as_str).collect::<Vec<_>>();
+    invoke(&env,&["--fresh","get","phenotype","HP:0000001"],0)?;
+    let original=invoke(&env,&words,0)?;
+    if original.pointer("/result/items/0/value")!=Some(&json!("Original")) { return Err("refresh replaced retained source reply".into()); }
+    let mut denied=words.clone(); denied.extend(["--disable-sources","hpo"]);
+    let denied=invoke(&env,&denied,4)?;
+    if denied.get("result").is_some() || denied.pointer("/sources/0/reason")!=Some(&json!("disabled")) { return Err("disabled source restored retained content".into()); }
+    let mut foreign=args; *foreign.get_mut(2).ok_or("identity arg")?="HP:0000002".into();
+    let foreign=foreign.iter().map(String::as_str).collect::<Vec<_>>();
+    invoke(&env,&foreign,3)?;
+    if stub.finish()?.len()!=2 { return Err("retained page made a provider request".into()); }
     Ok(())
 }
