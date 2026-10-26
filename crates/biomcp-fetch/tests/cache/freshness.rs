@@ -320,3 +320,50 @@ fn native_search_headers_survive_record_replay_and_offline_cache() {
     .unwrap());
     assert!(server.requests.try_recv().is_err());
 }
+
+#[test]
+fn endpoint_json_budget_rejects_oversize_live_replay_and_cached_replies() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("budget.sqlite");
+    let recordings = directory.path().join("recordings");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let wide = spec.get("/answer").bytes(256).fresh(Freshness::Hours(1));
+    let narrow = wide.clone().bytes(32);
+    let body = r#"{"answer":true,"padding":"synthetic source body beyond the endpoint budget"}"#;
+    assert!(body.len() > 32);
+    let recorder = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: recordings.clone(),
+        },
+        ..config(&path)
+    })
+    .unwrap();
+    assert!(
+        exchange(&server, 200, body, || get(&recorder, spec, &wide, &[]))
+            .unwrap()
+            .answer
+    );
+    drop(recorder);
+    let offline = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        ..config(&path)
+    })
+    .unwrap();
+    assert!(
+        get(&offline, spec, &narrow, &[]).is_err(),
+        "cached bytes bypassed the smaller endpoint budget"
+    );
+    let live = Fetch::open(config(&path)).unwrap();
+    let failure = exchange(&server, 200, body, || get(&live, spec, &narrow, &[]));
+    assert_eq!(source(failure.unwrap_err()).reason, Reason::BadReply);
+    let replay = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: recordings },
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    assert!(
+        get(&replay, spec, &narrow, &[]).is_err(),
+        "recorded bytes bypassed the endpoint budget"
+    );
+}
