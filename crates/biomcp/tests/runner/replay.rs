@@ -33,7 +33,12 @@ fn missing() -> Result<(), String> {
     if output.status.code() != Some(5) || !output.stderr.is_empty() {
         return Err("missing replay command failed".into());
     }
-    eprintln!("replay CLI miss: {} raw bytes", output.stdout.len());
+    writeln!(
+        std::io::stderr(),
+        "replay CLI miss: {} raw bytes",
+        output.stdout.len()
+    )
+    .map_err(|e| e.to_string())?;
     let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     if !reply
         .get("sources")
@@ -119,7 +124,12 @@ fn repeat_calls(
         if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *content {
             return Err("text differs from structured content".into());
         }
-        eprintln!("replay MCP {id}: {} text bytes", text.len());
+        writeln!(
+            std::io::stderr(),
+            "replay MCP {id}: {} text bytes",
+            text.len()
+        )
+        .map_err(|e| e.to_string())?;
         if id >= 3
             && !content
                 .get("sources")

@@ -1,4 +1,4 @@
-gene-identity: A caller resolves approved symbols, aliases, previous symbols and identifiers without guessing between ambiguous candidates. Cases: `tests/cases/gene/*.yaml`.
+gene-identity: A caller resolves approved symbols, aliases, previous symbols and identifiers without guessing between ambiguous candidates. Cases: `tests/cases/gene/*.yaml`, `crates/biomcp/tests/runner/replay.rs`.
 gene-search: A caller searches genes by words, chromosome band and locus group with totals and bounded pages. Cases: `tests/cases/gene/search*.yaml`, `tests/cases/gene/band.yaml`.
 gene-bundle: A caller synchronizes the HGNC bundle and reads gene identity offline. Cases: `tests/cases/gene/hgnc-sync.yaml`, `tests/cases/gene/offline.yaml`.
 gene-help: A caller discovers gene arguments, section names and executable examples through help. Cases: `tests/cases/gene/help.yaml`.
