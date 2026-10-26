@@ -8,10 +8,14 @@ mod complexes;
 mod failures;
 mod native;
 mod paging;
+mod retirements;
+mod card_failures;
 pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("protein-domain-native");
     let absent = !root.is_dir();
-    vec![
+    let mut trials = card_failures::trials();
+    trials.extend(retirements::trials());
+    trials.extend(vec![
         Trial::test(
             "protein-domains-complexes/card-sections-and-source-policy",
             || cards::run().map_err(Into::into),
@@ -36,7 +40,8 @@ pub(super) fn trials() -> Vec<Trial> {
             "protein-domains-complexes/native-types-and-fragments",
             || domains().map_err(Into::into),
         ),
-    ]
+    ]);
+    trials
 }
 fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {
