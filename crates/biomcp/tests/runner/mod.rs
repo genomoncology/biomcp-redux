@@ -73,6 +73,7 @@ mod normalization;
 mod oncokb;
 mod oncokb_context;
 mod pathway_commands;
+mod pathway_sections;
 mod pathway_registry;
 mod pdf;
 mod pgx_registry;

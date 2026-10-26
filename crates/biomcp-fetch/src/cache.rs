@@ -179,7 +179,7 @@ impl Cache {
                 .map_err(db_error)?;
         }
         crate::bundle::store::initialize(&tx)?;
-        if matches!(version, Some(1 | 2 | 3)) {
+        if matches!(version, Some(1..=3)) {
             crate::cache_hgnc::backfill(&tx)?;
         }
         tx.execute(
