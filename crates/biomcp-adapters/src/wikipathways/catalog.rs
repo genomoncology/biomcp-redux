@@ -63,7 +63,7 @@ pub fn search(leg: &Leg<'_>, text: &str) -> Result<(Vec<PathwayHeader>, BundleIn
         .into_iter()
         .filter(|r| {
             r.part.as_ref() == "search"
-                && r.value.native.species.as_str() == "Homo sapiens"
+                && r.value.native.species.as_ref() == "Homo sapiens"
                 && r.value
                     .native
                     .name
@@ -94,7 +94,7 @@ pub fn card(
     let row = rows.into_iter().find(|r| {
         r.part.as_ref() == "get"
             && r.value.native.id == *id
-            && r.value.native.species.as_str() == "Homo sapiens"
+            && r.value.native.species.as_ref() == "Homo sapiens"
     });
     Ok(row.map(|r| {
         let row = r.value.native;

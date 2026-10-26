@@ -150,10 +150,10 @@ impl PathwaySearch {
     pub fn sources(&self) -> &[PathwaySource] {
         &self.0.source
     }
-    /// Select one source leg without changing literal text or native page size.
-    pub fn for_source(&self, source: PathwaySource) -> Self {
+    /// Select Reactome without weakening the checked gene and top-level restrictions.
+    pub fn reactome_leg(&self) -> Self {
         let mut value = self.clone();
-        value.0.source = vec![source].into();
+        value.0.source = vec![PathwaySource::Reactome].into();
         value.0.pool = None;
         value
     }
