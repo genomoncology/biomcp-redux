@@ -360,3 +360,20 @@ One source declaration owns terms, quota, deadlines and admission limits. Existi
 ## Ian's questions
 
 No new decision is requested from Ian. Existing entity and source rulings apply. The accepted source and retirement rulings apply. Reactome text search follows the capture-limit ruling: native pages use the proven `Start row` and `rows=--limit`, exact admission may shorten each page, continuation advances from the native position and the total retains its source meaning. All 26 paper-derived question answers have clinical acceptance; they make no treatment recommendation. Any new cost, paid source, licensed content or external commitment returns through the coordinator and PM.
+
+## WikiPathways product output measurements
+
+The two retained native catalogs each contain 2,218 rows, including 1,131 rows with the exact species bytes `Homo sapiens`. The search catalog has 2,346,682 bytes and SHA-256 `5638b038a7cd19f6872c57931fc98d6a8cef98fd78619ca2151facbc7c8fa0df`. The get catalog has 1,224,217 bytes and SHA-256 `6c5fc71bd7f036261a47ccaa4a71f450e54e5b3fc0537e6b85a662a74e43040f`. These are observations of retained inputs. Neither counts nor revisions are timeless provider guarantees. Raw species bytes determine human admission before display text normalization; padded labels do not count as human. Display titles retain the shared `Text` outer-whitespace canonicalization.
+
+Twenty-seven native command cases cover sync, the 24 investigation search phrases including the no-match sentinel, and the WP382 default card and summary. Each command has identical CLI and MCP result content and passes the embedded response schema. Full native bodies, case inputs, output JSON and measurement receipts remain outside Git. The complete evidence archive has SHA-256 `7d960a51e5f12450f76283af99c61e7168d4201cc22ac1ca9892b9f65632ee99` and retains the earlier accepted case groups.
+
+| Native command | Full CLI bytes | Full MCP bytes | Comparable CLI bytes | Comparable MCP bytes | Estimated comparable MCP tokens |
+| --- | --- | --- | --- | --- | --- |
+| Sync receipt | 692 | 691 | 601 | 600 | 150 |
+| Search, 24 phrases | 394–1,639 | 393–1,638 | 303–1,548 | 302–1,547 | 76–387 |
+| WP382 default card | 519 | 518 | 428 | 427 | 107 |
+| WP382 summary | 714 | 713 | 623 | 622 | 156 |
+
+CLI bytes include the trailing newline; MCP bytes count compact JSON. Comparable bytes remove exactly source `use`, `terms` and `terms_url` with the shared helper. Estimated tokens are comparable MCP bytes divided by four and rounded up. These are output measurements, not tokenizer measurements or latency comparisons. All observed forms fit the proposed allocations above, including full output. The source catalog description remains whole and explicitly carries its source-truncation label.
+
+`tests/wikipathways-budgets.json` records each case's full CLI bytes, comparable CLI bytes and estimated comparable MCP tokens in that order. The opt-in native runner enforces each measured value plus fifteen percent, rounded up. Full catalog evidence remains outside the ordinary routine suite; ordinary command cases exercise catalog replacement, retained paging, exact species admission and failure boundaries with isolated synthetic inputs. The 0.9 comparison remains unmeasured under the containment rule.
