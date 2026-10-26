@@ -157,7 +157,15 @@
         "chembl",
         "all"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native display names.",
+        " Independent species, diseases and qualified warnings.",
+        " Complete source cross-reference rows.",
+        " Complete native variation rows.",
+        " Exact accession-linked ChEMBL cell metadata.",
+        " Bounded first page of every named section."
+      ]
     },
     "ChemblCellId": {
       "pattern": "^CHEMBL[0-9]+$",
@@ -923,7 +931,7 @@
         },
         "section": {
           "$ref": "#/$defs/CellLineSection",
-          "description": "Omit for the default identity card.",
+          "description": "Omit for the default card; all returns bounded first pages without an assay count.",
           "x-positional": 1
         },
         "section_limit": {
