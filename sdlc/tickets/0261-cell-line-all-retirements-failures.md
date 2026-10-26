@@ -1,6 +1,7 @@
 # 0261 — Add the cell line all section, retire old cell line options and prove cell line failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1a7a09a3737f7a2cc5179f64d307eb4ba0b6137e
 
 Milestone: 4
 
