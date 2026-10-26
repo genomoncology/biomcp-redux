@@ -21,7 +21,7 @@ biodata::wire_enum! {
         Complexes => "complexes",
         /// Native structure cross-reference links.
         Structures => "structures",
-        /// Complete native function text and evidence.
+        /// One whole native function text record with all source paragraphs.
         Function => "function",
         /// Direct exact-identity sequence and audit metadata.
         Sequence => "sequence",
@@ -153,7 +153,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[ProteinSection]>,
-    /// Bounded first-page size for each requested section.
+    /// First-page row limit; function keeps one whole native text record and does not page its paragraphs.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 25)))]
     section_limit: u32,

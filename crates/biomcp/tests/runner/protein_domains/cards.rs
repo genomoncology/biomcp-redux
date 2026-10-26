@@ -86,7 +86,7 @@ fn policy(env: &Environment) -> Result<(), String> {
     Ok(())
 }
 
-fn reply(request: &str) -> Result<String, String> {
+pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.contains("/uniprotkb/") {
         return Ok(json!({"primaryAccession":"P38398","uniProtkbId":"SYNTHETIC_HUMAN","entryType":"UniProtKB reviewed (Swiss-Prot)","organism":{"taxonId":9606},"proteinDescription":{"recommendedName":{"fullName":{"value":"Synthetic protein"}}},"sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"features":[],"comments":[],"uniProtKBCrossReferences":[]}).to_string());
     }

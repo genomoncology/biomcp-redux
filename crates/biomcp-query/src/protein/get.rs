@@ -119,6 +119,17 @@ fn hydrate(
         match uniprot::entry(leg, &id) {
             Ok(mapped) => {
                 failed |= !mapped.problems.is_empty();
+                if mapped.value.is_none() && !mapped.problems.is_empty() {
+                    *error = Some(
+                        biomcp_fetch::SourceError {
+                            source: Source::UniProt,
+                            reason: biomcp_types::Reason::BadReply,
+                            status: Some(200),
+                            retry_after: None,
+                        }
+                        .into(),
+                    );
+                }
                 status::append(&mut out.problems, mapped.problems);
                 if let Some(entry) = mapped.value {
                     item.status = Status::Complete;
@@ -152,6 +163,7 @@ fn hydrate(
                 }
             }
             Err(e) => {
+                super::reply_problem(out, Source::UniProt, &id, e);
                 failed = true;
                 if !q.sections().is_empty() {
                     item.sections = Some(super::sections::failed(
@@ -177,15 +189,20 @@ fn hydrate(
 }
 
 fn recovery(q: &ProteinGet, out: &mut Outcome) {
-    if out.next.len() < 5
-        && out.sources.iter().any(|s| {
-            s.source == Source::Hgnc
-                && matches!(
-                    s.state,
-                    SourceState::Syncing | SourceState::Failed | SourceState::Stale
-                )
-        })
-    {
+    let fresh = out
+        .sources
+        .iter()
+        .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale));
+    let sync = out.sources.iter().any(|s| {
+        s.source == Source::Hgnc
+            && matches!(
+                s.state,
+                SourceState::Syncing | SourceState::Failed | SourceState::Stale
+            )
+    });
+    out.next
+        .truncate(5 - usize::from(fresh) - usize::from(sync));
+    if sync {
         out.next.push((
             StepKind::Sync,
             Action::Sync {
@@ -193,12 +210,7 @@ fn recovery(q: &ProteinGet, out: &mut Outcome) {
             },
         ));
     }
-    if out.next.len() < 5
-        && out
-            .sources
-            .iter()
-            .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
-    {
+    if fresh {
         out.next.push((
             StepKind::Fresh,
             Action::Run {
