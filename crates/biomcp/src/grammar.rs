@@ -52,6 +52,11 @@ pub(crate) struct Parsed {
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::SearchGwas(_) => "biomcp.gwas-search/2",
+        Request::ProteinFeatures(_) => "biomcp.protein-features-query/1",
+        Request::ProteinIsoforms(_) | Request::ProteinStructures(_) => {
+            "biomcp.protein-relation-query/1"
+        }
+        Request::ProteinSequence(_) => "biomcp.protein-sequence-query/1",
         Request::SearchProtein(_) => "biomcp.protein-search/1",
         Request::GetProtein(_) => "biomcp.protein-get/1",
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
@@ -96,6 +101,10 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gwas", "biomcp.gwas-search/2"),
+    ("protein", "features", "biomcp.protein-features-query/1"),
+    ("protein", "isoforms", "biomcp.protein-relation-query/1"),
+    ("protein", "structures", "biomcp.protein-relation-query/1"),
+    ("protein", "sequence", "biomcp.protein-sequence-query/1"),
     ("search", "protein", "biomcp.protein-search/1"),
     ("get", "protein", "biomcp.protein-get/1"),
     ("search", "phenotype", "biomcp.phenotype-search-query/1"),
@@ -497,6 +506,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
         ("search", "gwas") => gwas::request(verb, value),
+        ("protein", _) => entity::request(verb, entity, value),
         ("pathway", "genes" | "events") => entity::request(verb, entity, value),
         (
             "search" | "get",

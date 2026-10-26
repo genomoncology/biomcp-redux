@@ -9,6 +9,10 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             let present = meta.status != Status::Failed;
             meta.encode(q, present.then_some(body))
         }
+        (Request::ProteinFeatures(q), QueryBody::ProteinFeatures(body)) => meta.encode(q, body),
+        (Request::ProteinIsoforms(q), QueryBody::ProteinIsoforms(body)) => meta.encode(q, body),
+        (Request::ProteinStructures(q), QueryBody::ProteinStructures(body)) => meta.encode(q, body),
+        (Request::ProteinSequence(q), QueryBody::ProteinSequence(body)) => meta.encode(q, body),
         (Request::GetProtein(q), QueryBody::ProteinCard(body)) => meta.encode(q, Some(body)),
         _ => super::usage_envelope(biomcp_types::ErrorEnvelope::arguments()),
     }

@@ -69,6 +69,9 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
         Request::SearchGwas(q) => serde_json::to_value(q),
+        Request::ProteinFeatures(q) => serde_json::to_value(q),
+        Request::ProteinIsoforms(q) | Request::ProteinStructures(q) => serde_json::to_value(q),
+        Request::ProteinSequence(q) => serde_json::to_value(q),
         Request::SearchProtein(q) => serde_json::to_value(q),
         Request::GetProtein(q) => serde_json::to_value(q),
         Request::SearchPhenotype(q) => serde_json::to_value(q),
@@ -167,6 +170,10 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
 fn command_verb(request: &Request) -> &'static str {
     match request {
         Request::PathwayGenes(_) | Request::PathwayEvents(_) => "pathway",
+        Request::ProteinFeatures(_)
+        | Request::ProteinIsoforms(_)
+        | Request::ProteinStructures(_)
+        | Request::ProteinSequence(_) => "protein",
         Request::VariantAssertions(_)
         | Request::VariantPopulation(_)
         | Request::VariantRecurrence(_)
@@ -211,6 +218,13 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
+    match request {
+        Request::ProteinFeatures(_) => return "features",
+        Request::ProteinIsoforms(_) => return "isoforms",
+        Request::ProteinStructures(_) => return "structures",
+        Request::ProteinSequence(_) => return "sequence",
+        _ => (),
+    }
     if matches!(request, Request::PathwayGenes(_)) {
         return "genes";
     }

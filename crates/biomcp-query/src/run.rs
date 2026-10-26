@@ -72,6 +72,10 @@ pub struct Outcome {
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
         Request::SearchGwas(q) => crate::gwas::search(cx, q),
+        Request::ProteinFeatures(q) => crate::protein::features(cx, q),
+        Request::ProteinIsoforms(q) => crate::protein::isoforms(cx, q),
+        Request::ProteinStructures(q) => crate::protein::structures(cx, q),
+        Request::ProteinSequence(q) => crate::protein::sequence(cx, q),
         Request::SearchProtein(q) => crate::protein::search(cx, q),
         Request::GetProtein(q) => crate::protein::get(cx, q),
         Request::SearchPhenotype(q) => crate::phenotype::search(cx, q),
