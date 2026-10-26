@@ -68,6 +68,7 @@ mod maude_budget;
 mod maude_policy;
 mod maude_snapshot;
 mod mcp;
+mod mcp_boundaries;
 mod named_search;
 mod nci;
 mod nci_walk;
@@ -319,6 +320,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(source_terms::trials());
 
     trials.extend(http::trials());
+    trials.extend(mcp_boundaries::trials());
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
     trials.extend(variant_assertion_wire::trials());

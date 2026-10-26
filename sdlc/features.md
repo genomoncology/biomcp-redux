@@ -31,11 +31,11 @@ article-named-search: A caller searches sentence resemblance and PubTator entiti
 article-supplements: List source-confirmed files and read bounded spreadsheet and text rows through CLI and MCP. Cases: `tests/cases/article/supplements/*.yaml`, `crates/biomcp/tests/runner/supplement_tables.rs`.
 article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID. Cases: `tests/cases/article/preprint/*.yaml`.
 article-help: A caller discovers article arguments, sections and executable examples through generated help. Cases: `tests/cases/article/help.yaml`, `crates/biomcp/tests/runner/help_examples.rs`.
-mcp-http: A native client sends independent MCP requests over bounded HTTP and checks local storage health. Cases: `crates/biomcp/tests/runner/http.rs`, `crates/biomcp/tests/runner/http_limits.rs`.
+mcp-http: A native client sends independent MCP requests over bounded HTTP and checks local storage health. Cases: `crates/biomcp/tests/runner/http.rs`, `crates/biomcp/tests/runner/http_limits.rs`, `crates/biomcp/tests/runner/mcp_boundaries.rs`.
 article-evidence: Read all source citation contexts and explicit full-text reference paragraphs through checked continuations. Cases: `tests/cases/article/evidence/*.yaml`, `crates/biomcp/tests/runner/evidence.rs`.
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures. Cases: `tests/cases/article/recommendations/*.yaml`.
 
-article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination. Cases: `crates/biomcp/tests/runner/article_save.rs`.
+article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination. Cases: `crates/biomcp/tests/runner/article_save.rs`, `crates/biomcp/tests/runner/mcp_boundaries.rs`.
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP. Cases: `tests/cases/article/pdf/*.yaml`, `crates/biomcp/tests/runner/pdf.rs`.
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. The private settings cases in `crates/biomcp/src/config/deferred_keys_tests.rs` execute parsed commands with observed environment reads and remain in the excluded binary-test collection. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
 
