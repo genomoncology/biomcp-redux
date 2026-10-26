@@ -23,6 +23,7 @@ pub(super) fn surfaces(
     }
     super::super::assertions::check(&output.stdout, step, &expectations)?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    papers_total(phase, args, &value)?;
     let retained = env.root().join("mcp-raw");
     fs::create_dir_all(&retained).map_err(|e| e.to_string())?;
     let mcp = mcp::call_retained(env, args, exit >= 2, globals, Some(&retained))?;
@@ -52,4 +53,17 @@ pub(super) fn surfaces(
     let sizes = json!({"cli":output.stdout.len(),"bare":bare.len(),"mcp-text":text.len(),"markdown":markdown.stdout.len(),"mcp-rpc":rpc.len()});
     writeln!(std::io::stderr(), "AUTHOR_COST {phase} {sizes}").map_err(|e| e.to_string())?;
     Ok(value)
+}
+
+fn papers_total(phase: &str, args: &[String], value: &Value) -> Result<(), String> {
+    if args.first().is_some_and(|a| a == "author")
+        && args.get(1).is_some_and(|a| a == "papers")
+        && args.get(2).is_some_and(|a| {
+            a.starts_with("semantic-scholar:") || a.starts_with("semanticscholar:")
+        })
+        && value.get("page").is_some()
+    {
+        return Err(format!("{phase}: native papers endpoint supplied no total"));
+    }
+    Ok(())
 }

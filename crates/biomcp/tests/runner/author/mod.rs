@@ -9,6 +9,9 @@ pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("author-native");
     let absent = !root.is_dir();
     vec![
+        Trial::test("author-papers/help-and-markdown", || {
+            help().map_err(Into::into)
+        }),
         Trial::test("author-search/retained-native-pool-contract", || {
             pool::check("pool").map_err(Into::into)
         }),
@@ -37,12 +40,21 @@ fn native(root: &Path) -> Result<(), String> {
             env.config(&config).map_err(|e| e.to_string())?;
         }
         let replay = case.replay.map(std::path::PathBuf::from);
+        let mut previous = None;
         for (index, step) in case.steps.into_iter().enumerate() {
-            let args = step
-                .run
-                .clone()
-                .or(step.mcp.clone())
-                .ok_or("native case requires explicit command")?;
+            let args = if let Some(kind) = &step.follow {
+                super::action(
+                    previous
+                        .as_ref()
+                        .ok_or("native follow requires prior page")?,
+                    kind,
+                )?
+            } else {
+                step.run
+                    .clone()
+                    .or(step.mcp.clone())
+                    .ok_or("native case requires command")?
+            };
             let phase = format!(
                 "native/{}/{index}",
                 path.file_stem()
@@ -50,7 +62,7 @@ fn native(root: &Path) -> Result<(), String> {
                     .ok_or("case stem")?
             );
             let globals = env.globals(replay.as_deref(), step.offline);
-            cost::surfaces(&env, &phase, &args, &globals, &step)?;
+            previous = Some(cost::surfaces(&env, &phase, &args, &globals, &step)?);
         }
     }
     discovery()?;
@@ -81,5 +93,18 @@ fn discovery() -> Result<(), String> {
         raw.len()
     )
     .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+fn help() -> Result<(), String> {
+    let path =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/cases/author/papers-help.yaml");
+    let case: super::Case = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    for (index, step) in case.steps.into_iter().enumerate() {
+        let args = step.run.clone().ok_or("help command")?;
+        cost::surfaces(&env, &format!("papers-help/{index}"), &args, &[], &step)?;
+    }
     Ok(())
 }
