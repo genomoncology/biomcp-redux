@@ -17,15 +17,18 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-157118"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-157118"
+          }
         },
         "/result/pathway/name": "Signaling by NOTCH",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-157118.7",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 536,
+      "max_tokens": 135
     }
   ]
 }

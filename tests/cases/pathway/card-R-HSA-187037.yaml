@@ -17,15 +17,38 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-187037"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-187037"
+          }
         },
         "/result/pathway/name": "Signaling by NTRK1 (TRKA)",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-187037.4",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 544,
+      "max_tokens": 136
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-187037",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-187037",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/1/pubmed": "12676795"
+      },
+      "max_bytes": 1982,
+      "max_tokens": 496
     }
   ]
 }

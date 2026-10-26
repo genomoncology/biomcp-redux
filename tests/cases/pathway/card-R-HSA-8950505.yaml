@@ -17,15 +17,38 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-8950505"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-8950505"
+          }
         },
         "/result/pathway/name": "Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-8950505.5",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 615,
+      "max_tokens": 155
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-8950505",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-8950505",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/0/pubmed": "16038020"
+      },
+      "max_bytes": 1464,
+      "max_tokens": 366
     }
   ]
 }

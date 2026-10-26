@@ -17,15 +17,38 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-6803211"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-6803211"
+          }
         },
         "/result/pathway/name": "TP53 Regulates Transcription of Death Receptors and Ligands",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-6803211.2",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 588,
+      "max_tokens": 148
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-6803211",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-6803211",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/0/pubmed": "10777207"
+      },
+      "max_bytes": 3590,
+      "max_tokens": 897
     }
   ]
 }

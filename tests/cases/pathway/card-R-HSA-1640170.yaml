@@ -17,15 +17,18 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-1640170"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-1640170"
+          }
         },
         "/result/pathway/name": "Cell Cycle",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-1640170.5",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 532,
+      "max_tokens": 134
     }
   ]
 }
