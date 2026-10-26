@@ -1,0 +1,31 @@
+{
+  "feature": "pathway-reactome",
+  "story": "The exact Reactome card preserves its reviewed source identity and native release.",
+  "replay": "pathway/native",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-913531"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-913531"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/id": {
+          "source": "reactome",
+          "id": "R-HSA-913531"
+        },
+        "/result/pathway/name": "Interferon Signaling",
+        "/result/pathway/species": "Homo sapiens",
+        "/result/pathway/version": "R-HSA-913531.6",
+        "/result/release": "97"
+      },
+      "max_bytes": 5000
+    }
+  ]
+}

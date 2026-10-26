@@ -2,6 +2,8 @@ use super::{Contract, generate};
 use biomcp_types::*;
 pub(super) fn registry() -> Vec<Contract> {
     contracts! {
+        PhenotypeSearch => ("phenotype-search-query", "biomcp.phenotype-search-query/1"),
+        PhenotypeGet => ("phenotype-get", "biomcp.phenotype-get/1"),
         Envelope<PhenotypePage> => ("phenotype-search", "biomcp.phenotype-search/1"),
         Envelope<PhenotypeTermCard> => ("phenotype-card", "biomcp.phenotype-card/1"),
         Envelope<PhenotypeSynonyms> => ("phenotype-synonyms", "biomcp.phenotype-synonyms/1"),

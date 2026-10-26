@@ -67,7 +67,8 @@ fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, Strin
         c["command"].as_array().is_some_and(|words| {
             words.len() == 2
                 && words.iter().any(|v| {
-                    v == "adverse-event"
+                    v == "protein"
+                        || v == "adverse-event"
                         || v == "pgx"
                         || v == "article"
                         || v == "gene"

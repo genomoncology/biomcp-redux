@@ -1,0 +1,31 @@
+{
+  "feature": "pathway-reactome",
+  "story": "The exact Reactome card preserves its reviewed source identity and native release.",
+  "replay": "pathway/native",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-8950505"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-8950505"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/id": {
+          "source": "reactome",
+          "id": "R-HSA-8950505"
+        },
+        "/result/pathway/name": "Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation",
+        "/result/pathway/species": "Homo sapiens",
+        "/result/pathway/version": "R-HSA-8950505.5",
+        "/result/release": "97"
+      },
+      "max_bytes": 5000
+    }
+  ]
+}

@@ -72,14 +72,17 @@ mod next_navigation;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
+mod pathway_commands;
 mod pathway_registry;
 mod pdf;
 mod pgx_registry;
 mod pgx_retirements;
+mod phenotype;
 mod pmc_tables;
 mod pool_tables;
 mod process;
 pub(super) mod proof;
+mod protein_commands;
 mod protein_registry;
 mod protocol;
 mod publication;
@@ -332,6 +335,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
+    trials.extend(protein_commands::trials());
     trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
@@ -543,6 +547,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_ols::trials())
         .chain(disease_mydisease::trials())
         .chain(disease_monarch::trials())
+        .chain(phenotype::trials())
         .chain(disease_seer::trials())
         .collect()
 }
@@ -552,3 +557,10 @@ pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), S
 }
 
 mod gwas_search;
+pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
+    phenotype::native(path)
+}
+
+pub(super) fn protein_native(path: &Path) -> Result<(), String> {
+    protein_commands::native(path)
+}

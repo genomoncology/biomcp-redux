@@ -71,6 +71,11 @@ pub(super) fn call(
 fn parity() -> Result<(), String> {
     for (query, args, capture) in [
         (
+            "protein --gene BRAF",
+            vec!["search", "protein", "--gene", "BRAF"],
+            "protein/synthetic",
+        ),
+        (
             "AKT1 E17K",
             vec!["search", "article", "AKT1 E17K"],
             "article/search/synthetic-card-step",

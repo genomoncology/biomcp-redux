@@ -1,0 +1,53 @@
+{
+  "$defs": {
+    "PhenotypeSource": {
+      "description": "One independent term publisher.",
+      "enum": [
+        "hpo",
+        "monarch"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Direct HPO term metadata.",
+        " Monarch term search and associations."
+      ]
+    }
+  },
+  "$id": "biomcp.phenotype-search-query/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Literal Monarch HP term search, with no similarity operation.",
+  "properties": {
+    "limit": {
+      "default": 5,
+      "description": "Maximum native headers, default five.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native source row offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source": {
+      "$ref": "#/$defs/PhenotypeSource",
+      "default": "monarch",
+      "description": "Monarch only; HPO search is unsupported."
+    },
+    "text": {
+      "description": "Unchanged literal term search text.",
+      "minLength": 1,
+      "type": "string",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "PhenotypeSearch",
+  "type": "object"
+}

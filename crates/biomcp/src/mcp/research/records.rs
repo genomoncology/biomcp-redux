@@ -23,6 +23,14 @@ fn hit(args: Vec<String>, title: &str, url: &str) -> Option<ResearchHit> {
 }
 pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
     match entity {
+        "protein" => {
+            let id = text(row, &["/protein/accession"])?;
+            hit(
+                vec![entity.into(), id.into()],
+                text(row, &["/protein/name"]).unwrap_or(id),
+                text(row, &["/url"])?,
+            )
+        }
         "article" => article(row, row.get("header").unwrap_or(row)),
         "trial" => {
             let id = text(row, &["/nct_id", "/nci_id"])?;
@@ -117,6 +125,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
         .filter(|v| v.len() == 1)
         .and_then(|v| v.first());
     let mut found = match entity {
+        "protein" => search(entity, first?.get("header")?, envelope),
         "article" => {
             let row = first?;
             article(
