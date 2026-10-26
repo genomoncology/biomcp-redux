@@ -324,7 +324,7 @@ The inspected legacy source is `4050fdc7dbdf4d713d94cf02a39a147b863665be`. No le
 | `get pathway` | `events` | Reactome only, preserve integer/object reference distinction. Unsupported source requests fail before I/O. |
 | `get pathway` | `enrichment` | Drop under entity boundary ruling; fixed message points to external g:Profiler use without calling it. |
 | `get pathway` | `all` | All supported kept sections, bounded individually; never invokes enrichment. |
-| `pathway drugs` | ID; `-l/--limit`; `--offset` | Retire automatic whole-pathway gene fanout. Guide to selecting an exact gene and the existing explicit drug workflow. Accepted by the 2026-10-26 pathway ruling. |
+| `pathway drugs` | ID; `-l/--limit`; `--offset` | Retire automatic whole-pathway gene fanout. Guide to inspecting the exact member genes, then selecting a drug identity and requesting its explicit source sections; reverse gene-to-drug search is unsupported. Accepted by the 2026-10-26 pathway ruling. |
 | `pathway articles` | ID; `-l/--limit`; `--offset` | Retire implicit title-to-keyword search. Guide to explicit `search article <text>`; never claim article linkage from a matching title. Accepted by the 2026-10-26 pathway ruling. |
 | `pathway trials` | ID; `-l/--limit`; `--offset`; `--source ctgov\|nci` | Retire pathway-name condition search and first-successful-gene fallback. Guide to explicit `search trial --gene <gene>`. Accepted by the 2026-10-26 pathway ruling. |
 | `gene pathways` | Gene; `--limit`; `--offset` | Keep landed `get gene <input> pathways`; Full membership paging uses `search pathway --gene GENE --limit N --offset N`. |
@@ -342,7 +342,7 @@ The leaf table owns pathway leaves. The article slice transfers `pathway article
 | --- | --- | --- | --- | --- | --- |
 | `search pathway` | Ported or renamed | `--top-level`, `--limit`, `--offset` | `--query`, `--type` | — | Use positional text or exact gene or native top-level discovery. The native Reactome page controls preserve source offsets; WikiPathways pages retain their catalog revision. |
 | `get pathway` | Ported or renamed | — | — | — | Use exact human Reactome or WikiPathways IDs with summary, genes, events or all as supported by that source. Enrichment retires under the entity boundary ruling. |
-| `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires whole-pathway fanout; select an exact gene and use gene drugs. |
+| `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported. |
 | `pathway articles` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT. |
 | `pathway trials` | Dropped by ruling | — | `--limit`, `--offset`, `--source` | — | The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE. |
 | `list pathway` | Ported or renamed | — | — | — | Use help search pathway and help get pathway. |
