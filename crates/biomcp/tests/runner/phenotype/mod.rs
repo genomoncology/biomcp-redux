@@ -191,7 +191,7 @@ fn failures() -> Result<(), String> {
         };
         let directory = env.root().join("failure");
         let result = record(&env, &words, &directory, 4)?;
-        native::mcp(&directory, &words, &result, 4)?;
+        native::mcp(&directory, &words, &result, 4, None)?;
         if kind == 5 {
             invoke(&env, &words, 4)?;
         }

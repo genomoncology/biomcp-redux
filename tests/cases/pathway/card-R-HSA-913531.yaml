@@ -17,15 +17,38 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-913531"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-913531"
+          }
         },
         "/result/pathway/name": "Interferon Signaling",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-913531.6",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 539,
+      "max_tokens": 135
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-913531",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-913531",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/0/pubmed": "15864272"
+      },
+      "max_bytes": 3347,
+      "max_tokens": 838
     }
   ]
 }

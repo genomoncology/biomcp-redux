@@ -17,15 +17,38 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-5358351"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-5358351"
+          }
         },
         "/result/pathway/name": "Signaling by Hedgehog",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-5358351.5",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 544,
+      "max_tokens": 136
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5358351",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-5358351",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/1/pubmed": "19081070"
+      },
+      "max_bytes": 2521,
+      "max_tokens": 631
     }
   ]
 }
