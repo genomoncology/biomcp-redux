@@ -12,7 +12,7 @@ The questions are derived from the cited publications and public reports. Each a
 | A02 | What else does that paper's first author record list? | PMID 17611497 | The first byline record's own papers in native order, with exact paper identifiers. |
 | A03 | What affiliation and publication counts does that author record state? | PMID 17611497 | Fields on that exact record, with missing fields stated as unavailable. |
 | A04 | Can I open that paper from its author page? | PMID 17611497 | An exact PMID or DOI supplied on a returned paper, without title matching. |
-| A05 | Which source records authored the AKT1 functional study? | PMID 33123537 | The source paper's complete returned byline, retaining separate IDs. |
+| A05 | Which source records authored the AKT1 E17K review? | PMID 33123537 | The source paper's complete returned byline, retaining separate IDs. |
 | A06 | What papers does its first author record contain? | PMID 33123537 | A bounded native author page, with its continuation and no inferred corpus. |
 | A07 | Does the source establish that similarly named records are the same author? | PMID 33123537 | No automatic link from a similar name; source records remain separate. |
 | A08 | Can I follow a paper without a PMID? | PMID 33123537 and its author corpus | Preserve its source paper ID and native DOI when present; never invent a PMID. |
