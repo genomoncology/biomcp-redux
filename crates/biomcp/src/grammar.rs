@@ -434,7 +434,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     match (verb, entity) {
         ("search" | "get", "gwas") => gwas::request(verb, value),
         ("cell-line", "assay-count") => entity::request(verb, entity, value),
-        ("protein", _) => entity::request(verb, entity, value),
+        ("protein", _) | ("author", "papers") => entity::request(verb, entity, value),
         ("pathway", "genes" | "events") => entity::request(verb, entity, value),
         (
             "search" | "get",

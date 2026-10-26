@@ -1,6 +1,7 @@
 //! Provider-record author search and independent exact cards.
 mod get;
 mod papers;
+mod orcid;
 pub use papers::papers;
 mod search;
 mod snapshot;
@@ -32,17 +33,10 @@ fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
     key_recovery(cx, out);
 }
 fn retry(out: &mut Outcome, request: Request) {
-    if out
-        .sources
-        .iter()
-        .any(|s| s.reason == Some(Reason::BadReply))
-    {
-        out.problems.push(Problem {
-            source: Source::SemanticScholar,
-            record: None,
-            field: "author".into(),
-            code: ProblemCode::ValueUnknown,
-        });
+    for source in &out.sources {
+        if source.reason == Some(Reason::BadReply) {
+            out.problems.push(Problem { source: source.source, record: None, field: "author".into(), code: ProblemCode::ValueUnknown });
+        }
     }
     if out
         .sources
@@ -62,7 +56,7 @@ fn key_recovery(cx: &crate::Ctx<'_>, out: &mut Outcome) {
     if out
         .sources
         .iter()
-        .any(|s| s.reason == Some(Reason::RateLimited))
+        .any(|s| s.source == Source::SemanticScholar && s.reason == Some(Reason::RateLimited))
         && !cx
             .fetch
             .has_key(biomcp_fetch::SecretName::SemanticScholarApiKey)

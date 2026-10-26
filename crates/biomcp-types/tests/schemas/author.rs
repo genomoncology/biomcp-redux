@@ -9,6 +9,6 @@ pub(super) fn registry() -> Vec<Contract> {
         Envelope<AuthorCards> => ("author-card", "biomcp.author_card/3"),
         Envelope<AuthorPapers> => ("author-papers", "biomcp.author_papers/1"),
         Envelope<AuthorPaperDetails> => ("author-paper-details", "biomcp.author_paper_details/1"),
-        Envelope<OrcidWorks> => ("orcid-works", "biomcp.orcid_works/1")
+        Envelope<OrcidWorks> => ("orcid-works", "biomcp.orcid_works/2")
     }
 }

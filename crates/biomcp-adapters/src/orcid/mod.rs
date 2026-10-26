@@ -1,5 +1,6 @@
 //! Exact public registry records with checked returned paths before cache admission.
 mod raw;
+mod works;
 use biodata::{AuthorCard, OrcidId, OrcidWorkGroup};
 use biomcp_fetch::{BadReply, Credential, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName, SourceSpec};
 use biomcp_types::Source;
@@ -33,8 +34,8 @@ pub fn card(leg: &Leg<'_>, id: &OrcidId) -> Result<Option<AuthorCard>, RequestEr
 }
 /// Read one whole bounded works reply and preserve groups and assertion order.
 pub fn works(leg: &Leg<'_>, id: &OrcidId) -> Result<Box<[OrcidWorkGroup]>, RequestError> {
-    let (record, _) = leg.json_received_checked::<raw::Works>(&endpoint(id, "works")?, &[], |r| {
-        if r.path == format!("/{id}/works") && r.paths.iter().all(|(path, code)| path == &format!("/{id}/work/{code}")) { Ok(()) } else { Err(BadReply) }
+    let (record, _) = leg.json_received_checked::<works::Works>(&endpoint(id, "works")?, &[], |r| {
+        if r.identity(id) { Ok(()) } else { Err(BadReply) }
     })?;
-    Ok(record.groups)
+    record.groups().map_err(Into::into)
 }
