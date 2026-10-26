@@ -32,6 +32,8 @@ fn cases() -> Vec<(String, &'static str)> {
         ("get pathway hsa04151".into(), KEGG),
         ("get pathway path:hsa04151".into(), KEGG),
         ("get pathway map04151".into(), KEGG),
+        ("get pathway ko04151".into(), KEGG),
+        ("get pathway mmu04151".into(), KEGG),
         ("get pathway R-HSA-5673001 enrichment".into(), ENRICH),
         (
             "get pathway R-HSA-5673001 --section enrichment".into(),

@@ -1,4 +1,5 @@
 //! Feature pathway-failures: synthetic source faults cannot become empty or cached answers.
+mod absence;
 mod fixtures;
 mod wikipathways;
 use super::{configuration::invoke, launch::Environment};
@@ -19,6 +20,7 @@ pub(super) fn trials() -> Vec<Trial> {
     }).collect();
     trials.push(Trial::test("pathway-failures/synthetic-foreign-reactome-identity", || identities().map_err(Into::into)));
     trials.push(Trial::test("pathway-failures/unsupported-pairings-before-io", || pairings().map_err(Into::into)));
+    trials.push(Trial::test("pathway-failures/synthetic-exact-absence-versus-foreign404", || absence::run().map_err(Into::into)));
     trials.extend(wikipathways::trials());
     trials
 }

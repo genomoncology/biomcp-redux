@@ -51,8 +51,9 @@ fn command(words: &[&str]) -> Option<ErrorMessage> {
 }
 fn kegg(id: &str) -> bool {
     let id = id.strip_prefix("path:").unwrap_or(id);
-    ["hsa", "map", "ko"].iter().any(|prefix| {
-        id.strip_prefix(prefix)
-            .is_some_and(|digits| digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit()))
-    })
+    let letters = id.bytes().take_while(u8::is_ascii_lowercase).count();
+    matches!(letters, 2 | 3)
+        && id.get(letters..).is_some_and(|digits| {
+            digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit())
+        })
 }
