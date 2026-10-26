@@ -1,77 +1,92 @@
 use super::{PathwayId, QueryInvalid, Text, default_limit, native_id, reactome, valid_limit};
 use serde::{Deserialize, Serialize};
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+/// Explicit full physical-context disclosure; omission keeps membership compact.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-struct RelationFields {
-    /// Checked human Reactome identity; WikiPathways relations are not yet available.
-    #[serde(with = "native_id")]
-    #[cfg_attr(feature = "schema", schemars(with = "str", regex(pattern = "^R-HSA-[1-9][0-9]*$"), extend("x-positional" = 0)))]
-    id: PathwayId,
-    /// Five complete relation rows by default, at most fifty.
-    #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
-    limit: u32,
-    /// Offset within the retained selected relation.
-    #[serde(default)]
-    offset: u32,
-    /// Immutable relation snapshot.
-    #[serde(
-        default,
-        deserialize_with = "super::super::gene::present",
-        skip_serializing_if = "Option::is_none"
-    )]
-    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
-    pool: Option<Text>,
+enum Details {
+    Details,
 }
+macro_rules! fields {
+    ($name:ident, $($extra:tt)*) => {
+        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        struct $name {
+            /// Checked human Reactome identity; WikiPathways relations are not yet available.
+            #[serde(with = "native_id")]
+            #[cfg_attr(feature = "schema", schemars(with = "str", regex(pattern = "^R-HSA-[1-9][0-9]*$"), extend("x-positional" = 0)))]
+            id: PathwayId,
+            /// Five complete relation rows by default, at most fifty.
+            #[serde(default = "default_limit")]
+            #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+            limit: u32,
+            /// Offset within the retained selected relation.
+            #[serde(default)]
+            offset: u32,
+            /// Immutable relation snapshot.
+            #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
+            #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+            pool: Option<Text>,
+            $($extra)*
+        }
+    };
+}
+fields!(EventFields,);
+fields!(GeneFields,
+    /// Include every physical entity context for these references; never clips source text.
+    #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Details", extend("x-positional" = 1)))]
+    details: Option<Details>,
+);
 macro_rules! relation {
-    ($name:ident, $doc:literal) => {
+    ($name:ident, $fields:ident, $wire:literal, $doc:literal $(, $extra:ident: $default:expr)*) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-        #[serde(try_from = "RelationFields")]
+        #[serde(try_from = $wire)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-        #[cfg_attr(feature = "schema", schemars(with = "RelationFields"))]
-        pub struct $name(RelationFields);
-        impl TryFrom<RelationFields> for $name {
+        #[cfg_attr(feature = "schema", schemars(with = $wire))]
+        pub struct $name($fields);
+        impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
-            fn try_from(v: RelationFields) -> Result<Self, Self::Error> {
-                if !valid_limit(v.limit) || !reactome(&v.id) {
-                    return Err(QueryInvalid);
-                }
+            fn try_from(v: $fields) -> Result<Self, Self::Error> {
+                if !valid_limit(v.limit) || !reactome(&v.id) { return Err(QueryInvalid); }
                 Ok(Self(v))
             }
         }
         impl $name {
+            /// Start an exact source relation with a checked page size.
+            pub fn new(id: PathwayId, limit: u32) -> Result<Self, QueryInvalid> {
+                Self::try_from($fields { id, limit, offset: 0, pool: None, $($extra: $default,)* })
+            }
+            /// Retain the same immutable relation on subsequent pages.
+            pub fn with_pool(mut self, pool: Text) -> Self { self.0.pool = Some(pool); self }
+            /// Restart the same disclosure mode at its first page.
+            pub fn restart(&self) -> Self {
+                let mut value = self.clone(); value.0.offset = 0; value.0.pool = None; value
+            }
             /// Checked source identity owning this relation.
-            pub fn id(&self) -> &PathwayId {
-                &self.0.id
-            }
+            pub fn id(&self) -> &PathwayId { &self.0.id }
             /// Complete relation rows per page.
-            pub fn limit(&self) -> u32 {
-                self.0.limit
-            }
+            pub fn limit(&self) -> u32 { self.0.limit }
             /// Relation offset, independent of other sections.
-            pub fn offset(&self) -> u32 {
-                self.0.offset
-            }
+            pub fn offset(&self) -> u32 { self.0.offset }
             /// Immutable relation snapshot.
-            pub fn pool(&self) -> Option<&Text> {
-                self.0.pool.as_ref()
-            }
-            /// Continue without changing relation identity or page size.
+            pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+            /// Continue without changing relation identity, mode or page size.
             pub fn at_offset(&self, offset: u32) -> Self {
-                let mut v = self.clone();
-                v.0.offset = offset;
-                v
+                let mut v = self.clone(); v.0.offset = offset; v
             }
         }
     };
 }
-relation!(
-    PathwayGenesQuery,
-    "Continue native namespaced pathway membership, without name-based gene extraction."
-);
-relation!(
-    PathwayEventsQuery,
-    "Continue Reactome event objects and unresolved native integer references."
-);
+relation!(PathwayGenesQuery, GeneFields, "GeneFields",
+    "Continue exact pathway membership; details explicitly discloses full physical contexts.", details: None);
+relation!(PathwayEventsQuery, EventFields, "EventFields",
+    "Continue Reactome event objects and unresolved native integer references.");
+impl PathwayGenesQuery {
+    /// Request all physical contexts of each displayed membership reference.
+    pub fn with_details(mut self) -> Self { self.0.details = Some(Details::Details); self }
+    /// Whether full physical contexts were explicitly requested.
+    pub fn details(&self) -> bool { self.0.details.is_some() }
+}
