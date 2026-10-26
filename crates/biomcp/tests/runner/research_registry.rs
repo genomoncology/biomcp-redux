@@ -57,10 +57,9 @@ pub(super) fn check() -> Result<(), String> {
                 row,
                 synthetic_url,
                 matches!(name, "VariantPage" | "VariantCard"),
-            ) {
-                if !declared_fallback(&root, row, id, name) {
-                    gaps.push(format!("{id} {name}: {why}"));
-                }
+            ) && !declared_fallback(&root, row, id, name)
+            {
+                gaps.push(format!("{id} {name}: {why}"));
             }
         }
     }
