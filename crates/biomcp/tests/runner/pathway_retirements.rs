@@ -1,5 +1,5 @@
 //! Feature pathway-retirements: fixed migration guidance precedes parsing and I/O.
-use super::{launch::Environment, mcp};
+use super::launch::Environment;
 use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::json;
