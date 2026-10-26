@@ -78,39 +78,7 @@ fn search() -> Check {
     {
         return Err(format!("literal search: {first}"));
     }
-    let mut current = first.clone();
-    let mut ids = Vec::new();
-    loop {
-        ids.extend(
-            current
-                .pointer("/result/items")
-                .and_then(Value::as_array)
-                .ok_or("items")?
-                .iter()
-                .filter_map(|v| v.get("studyId").and_then(Value::as_str))
-                .map(str::to_owned),
-        );
-        let next = current
-            .get("next")
-            .and_then(Value::as_array)
-            .and_then(|a| a.iter().find(|v| v.get("kind") == Some(&json!("page"))));
-        let Some(next) = next else { break };
-        let args = next
-            .get("args")
-            .and_then(Value::as_array)
-            .ok_or("args")?
-            .iter()
-            .map(|v| v.as_str().ok_or("arg"))
-            .collect::<Result<Vec<_>, _>>()?;
-        current = call(&env, &replay, &args, 0)?;
-    }
-    if ids
-        != (0..12)
-            .map(|n| format!("synthetic_{n}"))
-            .collect::<Vec<_>>()
-    {
-        return Err("page walk changed order or lost rows".into());
-    }
+    page_walk(&env, &replay, &first)?;
     for (args, total) in [
         (vec!["search", "study", "--cancer-type", "brca"], 8),
         (vec!["search", "study", "--cancer-type", "BRCA"], 0),
@@ -356,6 +324,43 @@ fn revision() -> Check {
         || fresh.pointer("/result/snapshot/revision") == first.pointer("/result/snapshot/revision")
     {
         return Err("replacement revision or rows did not change".into());
+    }
+    Ok(())
+}
+
+fn page_walk(env: &Environment, replay: &Path, first: &Value) -> Check {
+    let mut current = first.clone();
+    let mut ids = Vec::new();
+    loop {
+        ids.extend(
+            current
+                .pointer("/result/items")
+                .and_then(Value::as_array)
+                .ok_or("items")?
+                .iter()
+                .filter_map(|v| v.get("studyId").and_then(Value::as_str))
+                .map(str::to_owned),
+        );
+        let next = current
+            .get("next")
+            .and_then(Value::as_array)
+            .and_then(|a| a.iter().find(|v| v.get("kind") == Some(&json!("page"))));
+        let Some(next) = next else { break };
+        let args = next
+            .get("args")
+            .and_then(Value::as_array)
+            .ok_or("args")?
+            .iter()
+            .map(|v| v.as_str().ok_or("arg"))
+            .collect::<Result<Vec<_>, _>>()?;
+        current = call(env, replay, &args, 0)?;
+    }
+    if ids
+        != (0..12)
+            .map(|n| format!("synthetic_{n}"))
+            .collect::<Vec<_>>()
+    {
+        return Err("page walk changed order or lost rows".into());
     }
     Ok(())
 }
