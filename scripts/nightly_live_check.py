@@ -178,7 +178,9 @@ def classify_case(row):
     if not drift:
         return 'uncertain' if cut(row.get('witness')) else 'healthy'
     # Omitted diagnostics may hide an invariant or schema failure.
-    if any(item.startswith('more drift details omitted;') for item in drift):
+    if (any(item.startswith('more drift details omitted;') for item in drift)
+            or any(command.get('exchanges', {}).get('drift_omitted', 0)
+                   for command in result.get('commands', []))):
         return 'uncertain'
     # Schema and equivalent-request invariants always retain their failure status.
     invariant = any(not (': request-plan-' in item or ': HTTP status ' in item
@@ -196,8 +198,6 @@ def classify_case(row):
     for command in witness:
         before = terminal(command['baseline']['requests'])
         after = terminal(command['live']['requests'])
-        if command.get('exchanges', {}).get('drift_omitted', 0):
-            return 'uncertain'
         for namespace, changes in discovery_changes(before, after).items():
             discoveries.setdefault(namespace, []).extend(changes)
         outcomes.append(command_classification(command, discoveries))

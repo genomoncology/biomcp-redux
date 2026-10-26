@@ -66,7 +66,7 @@ def classification_case(change):
         live_discovery['provenance']['discovery']['ids'] = ['unrelated-id']
     if change == 'schema':
         drift.append('output schema failure')
-    if change in ('rank', 'unused-tail', 'parameter', 'omitted'):
+    if change in ('rank', 'unused-tail', 'parameter', 'omitted', 'omitted-count'):
         discovery['provenance']['discovery']['ids'] = ['a', 'b', 'x']
         live_discovery['provenance']['discovery']['ids'] = ['b', 'a', 'x']
         dependent['provenance']['inputs']['ids'] = ['a']
@@ -98,13 +98,14 @@ def classification_case(change):
         if change == '429-other-error':
             witness[0]['live']['output']['sources'].append(
                 {'source': 'icite', 'state': 'failed', 'reason': 'bad_reply'})
-    if change == 'omitted':
-        witness[0]['exchanges'] = {'drift_omitted': 1}
     if change in ('cut', 'clean-cut'):
         if change == 'clean-cut':
             drift = []
         witness = {"cut": True}
-    return {"case": change, "result": {"drift": drift}, "witness": witness}
+    result = {"drift": drift}
+    if change == 'omitted-count':
+        result['commands'] = [{'ordinal': 1, 'exchanges': {'drift_omitted': 1}}]
+    return {"case": change, "result": result, "witness": witness}
 
 
 class NightlyCommand(unittest.TestCase):
@@ -219,6 +220,7 @@ class NightlyCommand(unittest.TestCase):
         for change, expected, code in [
                 ('rank', 'churn', 0), ('unused-tail', 'failure', 1),
                 ('parameter', 'failure', 1), ('omitted', 'uncertain', 1),
+                ('omitted-count', 'uncertain', 1),
                 ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
                 ('429-other-error', 'failure', 1),
                 ('500-output', 'failure', 1)]:
