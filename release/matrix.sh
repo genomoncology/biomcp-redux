@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run through pm job. Docker executes both architectures at the declared floor.
+# Execute both container architectures at the declared platform floor.
 set -eu
 scratch=$(mktemp -d)
 cleanup() {

@@ -4,6 +4,6 @@ These are CC0 source recordings captured on 2026-10-26. The participant and cont
 
 The complete participant reply has 151 physical entities, 1,010 reference occurrences and 332 distinct namespaced references, including 279 distinct UniProt references. The event reply has 69 objects and 12 unresolved integer references. Those counts describe these recorded replies.
 
-The raw Reactome capture archive and corrected control archive remain on Yellow under `data/biomcp-redux/0219-reactome-sections/`. Their hashes and the full HGNC recording reference are recorded in the pathway design's retained relation contract. The capture used no key, retry, redirect or hydration request.
+The raw Reactome capture archive and corrected control archive remain outside Git. Their hashes and the full HGNC recording reference are recorded in the pathway design's retained relation contract. The capture used no key, retry, redirect or hydration request.
 
 Sibling `sections-429`, `sections-500`, `sections-timeout`, `sections-broken` and `sections-object-only` folders are synthetic controls. They alter only the event response needed for their stated behavior. The object-only control makes no claim that the publisher returned that native shape.

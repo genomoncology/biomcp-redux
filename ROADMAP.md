@@ -1,6 +1,6 @@
 # Roadmap
 
-BioMCP 1.0 rebuilds search and get on typed biodata entities. This page lists every entity, every source and the foundations as checklists. A box is ticked only in the commit that lands the work, so the roadmap never claims more than main holds. Tickets and their status live in pm. The architecture is in `sdlc/planning/architecture.md`, and the slice method is in `sdlc/planning/slices.md`.
+BioMCP 1.0 rebuilds search and get on typed biodata entities. This page lists every entity, every source and the foundations as checklists. A box is ticked only in the commit that lands the work, so the roadmap never claims more than main holds. The release plan defines the remaining work. The architecture is in `sdlc/planning/architecture.md`, and the slice method is in `sdlc/planning/slices.md`.
 
 Source tags: **bundle** is a local data file queried like an API. **keyed** runs only with the user's own key. **optional key** works without a key and runs faster or with higher limits with one. **dropped** is not carried into 1.0, with the reason in the slice design. **investigate** waits for the entity's slice to decide.
 
@@ -17,7 +17,7 @@ Each key is read from the config file's `keys` or its environment variable, sent
 - [x] openFDA key (optional)
 - Dropped: UMLS keyed integration; the [disease source ruling](sdlc/planning/slices/disease.md) found no indispensable keyed dependency.
 - [ ] AlphaGenome key (keyed); [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md), after [transport design 0271](sdlc/tickets/0271-alphagenome-grpc-transport-design.md)
-- [ ] ORCID credentials (optional); PM ruling for [ticket 0280](sdlc/tickets/0280-docs-drift-and-roadmap-hygiene.md) defers keyed proof until an `ORCID_ACCESS_TOKEN` is available; public access uses the keyless rate
+- [ ] ORCID credentials (optional); Keyed proof remains deferred until an `ORCID_ACCESS_TOKEN` is available; public access uses the keyless rate
 
 ## Parity with 0.9.3
 
@@ -54,7 +54,7 @@ The ledger uses released 0.9.3 as its fixed historical baseline. The agent compa
 - [x] `biomcp key set`: register API keys once in the config folder, out of environment variables and shell history
 - [x] Corporate networks: added certificate authorities and standard proxy settings
 - [x] Source terms of use, on by default, with sources switched off by name or by group and component fields switched off by group for commercial use
-- [ ] Scheduled live replay that reports source drift; [ticket 0155](sdlc/tickets/0155-nightly-live-check-target.md) assigns the schedule switch to the PM and Jarvis
+- [ ] Scheduled live replay that reports source drift; scheduling is configured separately
 - [ ] Install test of every release artifact on each platform; the [final-candidate rehearsal ruling](sdlc/tickets/0066-installed-platform-rehearsal.md) requires a repeat before publication
 - [ ] One variant and annotation model shared with another biodata consumer, with common public test variants; the [shared-model settlement](sdlc/planning/biodata-variants-and-annotations.md#5-merge-and-wire-style) defers the merge to Ian after both consumers finish
 
@@ -451,11 +451,11 @@ The output budget uses retained complete CLI/MCP envelopes and records why a con
 - [x] MCP parity
 - [x] Docs
 - [x] 0.9 accounting
-- [x] Slice complete (accepted metadata sections and recorded PM deferrals)
+- [x] Slice complete (accepted metadata sections and recorded deferrals)
 
 Sources:
 - [x] cBioPortal studies (bundle)
-- Deferred: gene counts and patient totals have no proved bounded gene-row request; the DataHub archive catalog and per-study use labels retain their PM rulings.
+- Deferred: gene counts and patient totals have no proved bounded gene-row request; the DataHub archive catalog and per-study use labels retain their documented decisions.
 - Dropped: local analysis, plots, whole-study installs, institutional portals, private datasets, whole-database exports and tool installation under the entity boundary ruling.
 
 The measured CLI/MCP envelopes carry per-case ceilings. Every 0.9 timing and output size remains unmeasured until the contained milestone 5 comparison.
