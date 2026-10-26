@@ -4,8 +4,10 @@ import json
 from pathlib import Path
 import sys
 import tarfile
+import source_capture
 
 archives, output = map(Path, sys.argv[1:])
+source_capture.outside_git(output.resolve())
 output.mkdir()
 replay = output / 'replay' / 'semantic-scholar'
 replay.mkdir(parents=True)
