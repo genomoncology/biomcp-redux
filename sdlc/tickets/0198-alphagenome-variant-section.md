@@ -2,11 +2,12 @@
 
 Status: OPEN.
 
-Blocked: 2026-10-26. AlphaGenome's current API terms exclude commercial entities, even for noncommercial work. No capture runs until Ian confirms a separate applicable license.
 
 Milestone: 4
 
 ## Outcome
+
+- Unblocked 2026-10-26 by `2026-10-26-new-sources-follow-open-by-default.md`: AlphaGenome is labeled `restricted`, runs only with the user's `ALPHAGENOME_API_KEY`, and captures may inherit the machine's key by name.
 
 `get variant ID alphagenome` returns AlphaGenome's numeric predictions for that one variant, as the API sends them, only when the user has set their own AlphaGenome key. Without a key it sends nothing and names the key to set.
 
