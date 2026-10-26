@@ -1,6 +1,6 @@
 //! Exact native 510(k) identity is checked before ordinary cache admission.
 mod raw;
-use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, RequestError, SourceSpec, Terms};
+use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec, Terms};
 use biomcp_types::{DiagnosticClearance, DiagnosticGet, Source, Use};
 use std::time::Duration;
 /// One source declaration for policy, quota and dispatch.
