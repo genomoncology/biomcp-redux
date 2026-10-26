@@ -324,6 +324,15 @@ pub(crate) fn environment_probe() -> std::process::ExitCode {
 // Schemas have no null-valued fields or empty arrays, so these traversal states
 // need one direct boundary table. All other assertion proof uses schema commands.
 fn boundaries() -> Check {
+    for expect in ["{'/items/*': []}", "{'/items/*': {equals: []}}", "{'/items/*': {count: 0}}"] {
+        let step: super::Step = serde_saphyr::from_str(&format!("run: []\nexpect: {expect}"))
+            .map_err(|error| error.to_string())?;
+        let result = super::assertions::prepare(&step);
+        let expected = "/items/*: wildcard cannot assert an empty array; assert on the parent array instead, such as {'/items': {equals: [], count: 0}}";
+        if result.as_ref().err().map(String::as_str) != Some(expected) {
+            return Err(format!("{expect}: expected {expected}, actual {result:?}"));
+        }
+    }
     let rows = [
         ("null", "{'': null}", None),
         ("null", "{'/missing': null}", Some("<missing>")),
@@ -347,8 +356,15 @@ fn boundaries() -> Check {
     for (stdout, expect, error) in rows {
         let step: super::Step = serde_saphyr::from_str(&format!("run: []\nexpect: {expect}"))
             .map_err(|error| error.to_string())?;
-        let assertions = super::assertions::prepare(&step)?;
-        let result = super::assertions::check(stdout.as_bytes(), &step, &assertions);
+        // Keep selector failures covered independently of preparation rejection.
+        let result = if matches!(error, Some("empty wildcard selection" | "wildcard requires an array")) {
+            let value = serde_json::from_str(stdout).map_err(|error| error.to_string())?;
+            let pointer = step.expect.keys().next().ok_or("missing pointer")?;
+            super::assertions::select(&value, pointer).map(|_| ())
+        } else {
+            let assertions = super::assertions::prepare(&step)?;
+            super::assertions::check(stdout.as_bytes(), &step, &assertions)
+        };
         match (result, error) {
             (Ok(()), None) => (),
             (Err(actual), Some(expected)) if actual.contains(expected) => (),
