@@ -53,7 +53,7 @@ checked!(
 checked!(
     CellLineSourceId,
     |v: &str| v.parse::<Curie>().is_ok(),
-    "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+    "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
     "An exact database-qualified source ID, preserving the database and native accession independently."
 );
 impl CellLineSourceId {

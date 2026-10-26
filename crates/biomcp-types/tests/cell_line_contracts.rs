@@ -227,3 +227,27 @@ fn standalone_envelopes_validate_all_eight_consumer_schemas() {
         json!({"id":"CHEMBL3706573","assay_count":0}),
     );
 }
+
+#[cfg(feature = "schema")]
+#[test]
+fn qualified_id_schema_matches_control_character_refusals() {
+    let schema = serde_json::to_value(schemars::schema_for!(CellLineSourceId)).unwrap();
+    let input_schema = serde_json::to_value(schemars::schema_for!(CellLineInput)).unwrap();
+    for schema in [schema, input_schema] {
+        let validator = jsonschema::validator_for(&schema).unwrap();
+        for id in [
+            "DepMap:ACH-000362",
+            "HGNC:HGNC:7132",
+            "DepMap:ACH\u{007f}1",
+            "DepMap:ACH\u{0085}1",
+            "DepMap:ACH 1",
+        ] {
+            let value = json!(id);
+            assert_eq!(
+                validator.is_valid(&value),
+                serde_json::from_value::<CellLineSourceId>(value).is_ok(),
+                "{id:?}"
+            );
+        }
+    }
+}

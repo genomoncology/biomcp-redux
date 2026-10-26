@@ -1,0 +1,2156 @@
+{
+  "$defs": {
+    "Capped": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/CellLineXref"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Capped2": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/CellLineWarning"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Capped3": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/CellLineName"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Capped4": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/CellLineVariation"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Capped5": {
+      "additionalProperties": false,
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/CellLineChemblRecord"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "type": "object"
+    },
+    "CellLineCard": {
+      "additionalProperties": false,
+      "description": "One requested cell identity with explicit ambiguity and requested section states.",
+      "properties": {
+        "age": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native age expression when supplied."
+        },
+        "candidates": {
+          "description": "Candidate identities without first-hit selection.",
+          "items": {
+            "$ref": "#/$defs/CellLineHeader"
+          },
+          "type": "array"
+        },
+        "dates": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineEntryDates"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Selected entry dates and version, separate from release metadata."
+        },
+        "header": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Selected verified identity only."
+        },
+        "input": {
+          "$ref": "#/$defs/CellLineInput",
+          "description": "Exact original caller identity."
+        },
+        "more": {
+          "description": "Supported disclosures not requested.",
+          "items": {
+            "$ref": "#/$defs/CellLineSection"
+          },
+          "type": "array"
+        },
+        "sections": {
+          "$ref": "#/$defs/CellLineSections",
+          "description": "Only explicitly requested sections carry a state."
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native sex label when supplied."
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "Resolved, absent, ambiguous or failed input outcome."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher URL for the selected identity."
+        },
+        "warnings": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Capped2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Selected card warnings, up to three whole rows; not a fetch state."
+        }
+      },
+      "required": [
+        "input",
+        "status",
+        "candidates",
+        "sections",
+        "more"
+      ],
+      "type": "object"
+    },
+    "CellLineChembl": {
+      "additionalProperties": false,
+      "description": "Exact accession-linked metadata with its own native collection total.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Requested exact accession."
+        },
+        "items": {
+          "$ref": "#/$defs/Capped5",
+          "description": "Every selected whole metadata row and the native total."
+        },
+        "offset": {
+          "description": "Native metadata page offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "accession",
+        "items",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "CellLineChemblRecord": {
+      "additionalProperties": false,
+      "description": "One exact accession-linked ChEMBL cell identity; no assay request is implied.",
+      "properties": {
+        "cell_id": {
+          "description": "Independent native integer cell record identity.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "cellosaurus_id": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Native exact accession; adapter verifies the join."
+        },
+        "clo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native CLO identifier; omission is source absence."
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native description."
+        },
+        "efo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native EFO identifier; omission is source absence."
+        },
+        "id": {
+          "$ref": "#/$defs/ChemblCellId",
+          "description": "Native cell ChEMBL ID, never a compound or target."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native display name without name-based joining."
+        },
+        "organism": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native organism label."
+        },
+        "taxon": {
+          "description": "Native organism taxon.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "tissue": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native tissue label."
+        }
+      },
+      "required": [
+        "id",
+        "cell_id",
+        "cellosaurus_id"
+      ],
+      "type": "object"
+    },
+    "CellLineEntryDates": {
+      "additionalProperties": false,
+      "description": "Entry dates and entry version are independent of dataset release and retrieval time.",
+      "properties": {
+        "created": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source entry creation date."
+        },
+        "updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source entry update date."
+        },
+        "version": {
+          "description": "Source entry version, never a dataset release.",
+          "format": "uint32",
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "CellLineGene": {
+      "additionalProperties": false,
+      "description": "A native variation gene member with only a source-supplied HGNC identity.",
+      "properties": {
+        "hgnc": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HgncId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Present only if this source member explicitly carries the HGNC identifier."
+        },
+        "reference": {
+          "$ref": "#/$defs/CellLineXref",
+          "description": "Complete original source gene cross-reference."
+        }
+      },
+      "required": [
+        "reference"
+      ],
+      "type": "object"
+    },
+    "CellLineGet": {
+      "additionalProperties": false,
+      "description": "One exact identity and an optional bounded named section.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/CellLineInput",
+          "description": "One exact primary accession or qualified source ID.",
+          "x-positional": 0
+        },
+        "section": {
+          "$ref": "#/$defs/CellLineSection",
+          "description": "Omit for the default identity card.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "description": "Explicit row limit for each requested collection; native variation defaults to three.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Offset within each independently requested collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "CellLineHeader": {
+      "additionalProperties": false,
+      "description": "Compact source identity with independently capped species and diseases.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Exact primary accession."
+        },
+        "category": {
+          "$ref": "#/$defs/Text",
+          "description": "Native category."
+        },
+        "diseases": {
+          "$ref": "#/$defs/Capped",
+          "description": "Up to three complete disease references and their independent total."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Recommended display name."
+        },
+        "species": {
+          "$ref": "#/$defs/Capped",
+          "description": "Up to three complete species references and their native total."
+        }
+      },
+      "required": [
+        "accession",
+        "name",
+        "category",
+        "species",
+        "diseases"
+      ],
+      "type": "object"
+    },
+    "CellLineIdentityPage": {
+      "additionalProperties": false,
+      "description": "Species, diseases and warnings page independently; each total belongs to its own collection.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Selected exact primary accession."
+        },
+        "diseases": {
+          "$ref": "#/$defs/Capped",
+          "description": "Whole disease rows and their independent source total."
+        },
+        "offset": {
+          "description": "Requested offset applied independently to each collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "species": {
+          "$ref": "#/$defs/Capped",
+          "description": "Whole species rows and their source total."
+        },
+        "warnings": {
+          "$ref": "#/$defs/Capped2",
+          "description": "Whole scoped warning rows and their independent source total."
+        }
+      },
+      "required": [
+        "accession",
+        "species",
+        "diseases",
+        "warnings",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "CellLineInput": {
+      "description": "An exact accession or a database-qualified source identity; never a name lookup.",
+      "pattern": "^(CVCL_[A-Z0-9]{4}|[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+)$",
+      "type": "string"
+    },
+    "CellLineName": {
+      "additionalProperties": false,
+      "description": "One native display name entry, never an identity key.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/Text",
+          "description": "Native name type, preserving identifier and synonym labels."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Native name spelling and punctuation."
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "type": "object"
+    },
+    "CellLineNames": {
+      "additionalProperties": false,
+      "description": "Native display names with collection-local totals and offset.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Selected exact primary accession."
+        },
+        "items": {
+          "$ref": "#/$defs/Capped3",
+          "description": "Whole source rows and the total in this collection only."
+        },
+        "offset": {
+          "description": "Offset within this collection, never within another section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "accession",
+        "items",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "CellLineProvenance": {
+      "additionalProperties": false,
+      "description": "One complete native source row; reference, institution and database provenance stay independent.",
+      "properties": {
+        "institution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native institution name if supplied."
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native publication reference if supplied."
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native institution value if supplied."
+        },
+        "xref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineXref"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete native database provenance if supplied."
+        }
+      },
+      "type": "object"
+    },
+    "CellLineReference": {
+      "additionalProperties": false,
+      "description": "One native internal publication reference, without requiring PubMed.",
+      "properties": {
+        "resource_internal_ref": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete native resource reference, for example PubMed=9305600."
+        }
+      },
+      "required": [
+        "resource_internal_ref"
+      ],
+      "type": "object"
+    },
+    "CellLineSection": {
+      "description": "Named disclosure sections; all requests each bounded first page without an assay count.",
+      "enum": [
+        "names",
+        "identity",
+        "xrefs",
+        "variants",
+        "chembl",
+        "all"
+      ],
+      "type": "string"
+    },
+    "CellLineSections": {
+      "additionalProperties": false,
+      "description": "Requested sections carry explicit states; absent members were not requested.",
+      "properties": {
+        "chembl": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section5"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested chembl section state."
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested identity section state."
+        },
+        "names": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested names section state."
+        },
+        "variants": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section4"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested variants section state."
+        },
+        "xrefs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested xrefs section state."
+        }
+      },
+      "type": "object"
+    },
+    "CellLineVariants": {
+      "additionalProperties": false,
+      "description": "Whole native variation rows with collection-local totals and offset.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Selected exact primary accession."
+        },
+        "items": {
+          "$ref": "#/$defs/Capped4",
+          "description": "Whole source rows and the total in this collection only."
+        },
+        "offset": {
+          "description": "Offset within this collection, never within another section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "accession",
+        "items",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "CellLineVariation": {
+      "additionalProperties": false,
+      "description": "One complete native variation row; descriptions do not become normalized alleles.",
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete native mutation description including all coordinate spellings."
+        },
+        "genes": {
+          "description": "Every native gene member, including both fusion members.",
+          "items": {
+            "$ref": "#/$defs/CellLineGene"
+          },
+          "type": "array"
+        },
+        "mutation_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native open mutation label."
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete native variation note."
+        },
+        "provenance": {
+          "description": "Every native provenance row in source order; no PMID is required.",
+          "items": {
+            "$ref": "#/$defs/CellLineProvenance"
+          },
+          "type": "array"
+        },
+        "references": {
+          "description": "Every other variation cross-reference in native order.",
+          "items": {
+            "$ref": "#/$defs/CellLineXref"
+          },
+          "type": "array"
+        },
+        "variation_type": {
+          "$ref": "#/$defs/Text",
+          "description": "Native open variation label."
+        },
+        "zygosity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native zygosity label; absence is not inferred."
+        }
+      },
+      "required": [
+        "variation_type",
+        "description",
+        "genes",
+        "references",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "CellLineWarning": {
+      "additionalProperties": false,
+      "description": "Complete source warning with its native scope; no stock classifier is derived.",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/Text",
+          "description": "Native warning category, such as Problematic cell line."
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete source text including historical and stock qualifications."
+        }
+      },
+      "required": [
+        "scope",
+        "text"
+      ],
+      "type": "object"
+    },
+    "CellLineXref": {
+      "additionalProperties": false,
+      "description": "One complete native cross-reference; database and accession form the source identity.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/Text",
+          "description": "Native accession, including any internal prefix."
+        },
+        "category": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source category when supplied."
+        },
+        "database": {
+          "$ref": "#/$defs/Text",
+          "description": "Native database name; no fixed vocabulary."
+        },
+        "iri": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native IRI when supplied."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native display label when supplied."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source URL when supplied."
+        }
+      },
+      "required": [
+        "database",
+        "accession"
+      ],
+      "type": "object"
+    },
+    "CellLineXrefs": {
+      "additionalProperties": false,
+      "description": "Native source cross-references with collection-local totals and offset.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/CellosaurusAccession",
+          "description": "Selected exact primary accession."
+        },
+        "items": {
+          "$ref": "#/$defs/Capped",
+          "description": "Whole source rows and the total in this collection only."
+        },
+        "offset": {
+          "description": "Offset within this collection, never within another section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "accession",
+        "items",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "CellosaurusAccession": {
+      "pattern": "^CVCL_[A-Z0-9]{4}$",
+      "type": "string"
+    },
+    "ChemblCellId": {
+      "pattern": "^CHEMBL[0-9]+$",
+      "type": "string"
+    },
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized.",
+        " Native collection exceeds the admitted complete source page.",
+        " A source repeats one exact identity with incompatible records."
+      ]
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/CellLineNames",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/CellLineIdentityPage",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section3": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/CellLineXrefs",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section4": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/CellLineVariants",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section5": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/CellLineChembl",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " WikiPathways published pathway catalogs.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " Integrated InterPro entries.",
+        " Complex Portal.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " WHO finished pharmaceutical products.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
+        " NCBI Genetic Testing Registry public reports.",
+        " WHO prequalified in vitro diagnostics.",
+        " FDA companion diagnostic device tables.",
+        " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
+        " Clinical Pharmacogenetics Implementation Consortium.",
+        " ClinPGx pharmacogenomics annotations.",
+        " Public cBioPortal with study-specific reuse terms."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "terms",
+        "terms_url",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "pivot",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.cell_line_card/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/CellLineGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CellLineCard"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.cell_line_card/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}
