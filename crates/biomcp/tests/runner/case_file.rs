@@ -1,5 +1,5 @@
 //! Load one command case and preserve its owning output-budget boundary.
-use super::{Case, launch, load_floors, run_sequence, schema};
+use super::{Case, assertions, launch, load_floors, run_sequence, schema};
 use serde_json::Value;
 use std::{fs, path::Path};
 
