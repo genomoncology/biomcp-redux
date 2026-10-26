@@ -2,8 +2,9 @@
 # Execute both container architectures at the declared platform floor.
 set -eu
 scratch=$(mktemp -d)
+image_name="biomcp-local-$$"
 cleanup() {
-  docker image rm biomcp-local-0058:amd64 biomcp-local-0058:arm64 >/dev/null 2>&1 || true
+  docker image rm "$image_name:amd64" "$image_name:arm64" >/dev/null 2>&1 || true
   rm -rf "$scratch"
 }
 trap cleanup EXIT HUP INT TERM
@@ -20,7 +21,7 @@ BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" \
 for arch in amd64 arm64; do
   case "$arch" in amd64) wheel_arch=x86_64; archive_arch=x86_64;; arm64) wheel_arch=aarch64; archive_arch=arm64;; esac
   image="quay.io/pypa/manylinux_2_28_$wheel_arch"
-  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 "$@" \
     --platform "linux/$arch" -v "$scratch/source:/source:ro" -v "$scratch:/output" \
     -e "BIOMCP_BUILD_REVISION=$revision" -e "BIOMCP_BUILD_ARCH=$arch" \
     "$image" /bin/bash -c '
@@ -38,7 +39,7 @@ for arch in amd64 arm64; do
     '
   # The installation container has only artifacts, a runner and public fixtures.
   # It has no checkout, build tree, host configuration or credential mount.
-  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 --label pm.repo=biomcp-redux --label pm.ticket=0058 \
+  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 "$@" \
     --platform "linux/$arch" -v "$scratch/linux-$arch:/artifacts:ro" \
     -v "$scratch/proof-$arch:/proof:ro" "$image" /bin/bash -c '
       set -euo pipefail
@@ -51,9 +52,9 @@ for arch in amd64 arm64; do
   cp "$scratch/proof-$arch/case-runner" "$scratch/container-$arch/case-runner"
   cp -R "$scratch/proof-$arch/fixtures" "$scratch/container-$arch/fixtures"
   cp release/Dockerfile "$scratch/container-$arch/Dockerfile"
-  docker build --platform "linux/$arch" -t "biomcp-local-0058:$arch" "$scratch/container-$arch"
-  python3 release/container_check.py "biomcp-local-0058:$arch" "$arch" "$scratch/container-$arch" "$version"
-  docker image rm "biomcp-local-0058:$arch"
+  docker build --platform "linux/$arch" -t "$image_name:$arch" "$scratch/container-$arch"
+  python3 release/container_check.py "$image_name:$arch" "$arch" "$scratch/container-$arch" "$version" "$@"
+  docker image rm "$image_name:$arch"
 done
 
 python3 - <<'PYTHON'
