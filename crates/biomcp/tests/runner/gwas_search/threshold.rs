@@ -51,15 +51,20 @@ fn page(env: &Environment, number: u32, total: u32, exponent: i64) -> Result<Pat
     seed(env, &u, value, 200, 0)
 }
 pub(super) fn walk() -> Result<(), String> {
-    for (threshold, exponent, count) in [
-        ("4e-254", -254, 6),
-        ("4e-400", -400, 6),
-        ("3e-254", -254, 0),
+    for (threshold, exponent, count, fresh) in [
+        ("4e-254", -254, 6, false),
+        ("4e-254", -254, 6, true),
+        ("4e-400", -400, 6, false),
+        ("3e-254", -254, 0, false),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = page(&env, 0, 6, exponent)?;
         page(&env, 1, 6, exponent)?;
-        let first = call(&env, &replay, &start(threshold), 0)?;
+        let mut args = start(threshold);
+        if fresh {
+            args.push("--fresh");
+        }
+        let first = call(&env, &replay, &args, 0)?;
         if count == 0 {
             final_count(&first, 0)?;
             continue;
