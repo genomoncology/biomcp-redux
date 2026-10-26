@@ -48,13 +48,13 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::GwasLoci(_)
         | Body::GwasAncestries(_)
         | Body::GwasPage(_)
-        | Body::PathwayEvents(_) => Navigation::NativeOrder,
+        | Body::PathwayEvents(_)
+        | Body::ProteinComplexes(_) => Navigation::NativeOrder,
         Body::PathwayCard(card) => pathway_navigation(card.as_ref()),
         Body::ProteinPage(_) => Navigation::Selectable,
         Body::ProteinFeatures(_)
         | Body::ProteinIsoforms(_)
         | Body::ProteinDomains(_)
-        | Body::ProteinComplexes(_)
         | Body::ProteinComplexMembers(_)
         | Body::ProteinStructures(_)
         | Body::ProteinSequence(_) => Navigation::Bounded,
@@ -234,6 +234,7 @@ fn pathway_navigation(card: Option<&biomcp_types::PathwayCard>) -> Navigation<'_
     }
 }
 fn protein_navigation(card: &biomcp_types::ProteinCard) -> Navigation<'_> {
+    if card.items.iter().any(|item|item.sections.as_ref().is_some_and(|s|s.domains.is_some()||s.complexes.is_some())) {return Navigation::NativeOrder;}
     candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
 }
 
@@ -241,9 +242,10 @@ fn variant_navigation(card: &biomcp_types::VariantCard) -> Navigation<'static> {
     candidate_navigation(card.resolution == biomcp_types::VariantResolution::Candidates)
 }
 
-fn pgx_navigation(value:&biomcp_types::PgxAnnotations)->Navigation<'_>{
+fn pgx_navigation(value: &biomcp_types::PgxAnnotations) -> Navigation<'_> {
     match value {
-        biomcp_types::PgxAnnotations::Clinical{page,..}=>Navigation::Nested(page),
-        biomcp_types::PgxAnnotations::Guideline{..}|biomcp_types::PgxAnnotations::Label{..}=>Navigation::Bounded,
+        biomcp_types::PgxAnnotations::Clinical { page, .. } => Navigation::Nested(page),
+        biomcp_types::PgxAnnotations::Guideline { .. }
+        | biomcp_types::PgxAnnotations::Label { .. } => Navigation::Bounded,
     }
 }

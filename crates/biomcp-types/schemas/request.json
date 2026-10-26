@@ -154,6 +154,10 @@
       "pattern": "^PA[1-9][0-9]*$",
       "type": "string"
     },
+    "ComplexPortalId": {
+      "pattern": "^CPX-[1-9][0-9]*$",
+      "type": "string"
+    },
     "Curie": {
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
       "type": "string"
@@ -814,7 +818,7 @@
       ]
     }
   },
-  "$id": "biodata.request/20",
+  "$id": "biodata.request/21",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -989,6 +993,132 @@
       "required": [
         "command",
         "id"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read native InterPro matches.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Exact source protein sequence identity.",
+          "x-positional": 0
+        },
+        "command": {
+          "const": "protein_domains",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five rows by default, at most 25.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native or retained page offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained collection identity."
+        },
+        "type": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact native InterPro type, not a normalized domain label."
+        }
+      },
+      "required": [
+        "command",
+        "accession"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read exact participant-admitted complex headers.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Exact source protein sequence identity.",
+          "x-positional": 0
+        },
+        "command": {
+          "const": "protein_complexes",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five rows by default, at most 25.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native or retained page offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained collection identity."
+        }
+      },
+      "required": [
+        "command",
+        "accession"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read native participants under an exact protein anchor.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Exact source protein sequence identity.",
+          "x-positional": 0
+        },
+        "command": {
+          "const": "protein_complex_members",
+          "type": "string"
+        },
+        "complex": {
+          "$ref": "#/$defs/ComplexPortalId",
+          "description": "Exact complex whose native participants contain the anchor."
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five rows by default, at most 25.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native or retained page offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained collection identity."
+        }
+      },
+      "required": [
+        "command",
+        "accession",
+        "complex"
       ],
       "type": "object"
     },

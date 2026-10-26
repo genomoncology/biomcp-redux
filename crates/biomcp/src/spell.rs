@@ -376,15 +376,15 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
     positional
 }
 
-fn phenotype_value(q:&biomcp_types::PhenotypeGet)->Result<Value,serde_json::Error>{
-            let mut value = serde_json::to_value(q)?;
-            if let Some(fields) = value.as_object_mut() {
-                if q.source() == q.default_source() {
-                    fields.remove("source");
-                }
-                if q.section_limit() == q.default_section_limit() {
-                    fields.remove("section_limit");
-                }
-            }
-            Ok(value)
+fn phenotype_value(q: &biomcp_types::PhenotypeGet) -> Result<Value, serde_json::Error> {
+    let mut value = serde_json::to_value(q)?;
+    if let Some(fields) = value.as_object_mut() {
+        if q.source() == q.default_source() {
+            fields.remove("source");
+        }
+        if q.section_limit() == q.default_section_limit() {
+            fields.remove("section_limit");
+        }
+    }
+    Ok(value)
 }

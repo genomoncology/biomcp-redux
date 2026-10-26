@@ -52,7 +52,17 @@ fn domains() -> Result<(), String> {
     {
         return Err(format!("native types or fragments changed: {value}"));
     }
-    if value.pointer("/result/items/0/locations").and_then(Value::as_array).map(Vec::len)!=Some(2) || value.pointer("/result/items/0/locations/0/fragments/1/span/start/min")!=Some(&json!(19)) || value.pointer("/result/items/0/locations/1/fragments/0/span/end/min")!=Some(&json!(50)) {return Err("native location groups were flattened or a fragment boundary changed".into());}
+    if value
+        .pointer("/result/items/0/locations")
+        .and_then(Value::as_array)
+        .map(Vec::len)
+        != Some(2)
+        || value.pointer("/result/items/0/locations/0/fragments/1/span/start/min")
+            != Some(&json!(19))
+        || value.pointer("/result/items/0/locations/1/fragments/0/span/end/min") != Some(&json!(50))
+    {
+        return Err("native location groups were flattened or a fragment boundary changed".into());
+    }
     let selected = call(
         &env,
         &["protein", "domains", "P04637", "--type", "domain"],

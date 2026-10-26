@@ -159,6 +159,17 @@
           ],
           "description": "Native display name."
         },
+        "organism": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal supplied organism text, including non-taxonomic source sentinels."
+        },
         "participant_type": {
           "$ref": "#/$defs/Text",
           "description": "Literal native participant type; non-protein members remain source facts."
