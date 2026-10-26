@@ -4,7 +4,7 @@ pub(super) fn stale() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let args = ["search", "gwas", "--pubmed", "17529967"];
     let replay = seed(&env, &args, body(&url(&pairs()), 0, 6), 200, 0)?;
-    call(&env, &replay, &args, 0)?;
+    call("gwas_search/state/stale/1", &env, &replay, &args, 0)?;
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE reply SET fresh_until=0", [])
@@ -12,7 +12,7 @@ pub(super) fn stale() -> Result<(), String> {
     drop(db);
     let mut offline = env.globals(None, true);
     offline.extend(args.map(str::to_owned));
-    let value = invoke(&env, offline, 0)?;
+    let value = gwas_budgets::invoke("gwas_search/state/stale/2", &env, offline, 0)?;
     if value.get("status") != Some(&json!("partial"))
         || value.get("result").is_none()
         || value.pointer("/sources/0/state") != Some(&json!("stale"))
@@ -33,14 +33,14 @@ pub(super) fn expired() -> Result<(), String> {
         "1e-200",
     ];
     let replay = seed(&env, &args, body(&url(&pairs()), 0, 6), 200, 0)?;
-    let first = call(&env, &replay, &args, 0)?;
+    let first = call("gwas_search/state/expired/1", &env, &replay, &args, 0)?;
     let page = super::super::action(&first, "page")?;
     fs::remove_dir_all(replay.join("gwas")).map_err(|e| e.to_string())?;
     for source in ["gwas", "restricted"] {
         let mut command = env.globals(Some(&replay), false);
         command.extend(page.clone());
         command.extend(["--disable-sources".into(), source.into()]);
-        let value = invoke(&env, command, 4)?;
+        let value = gwas_budgets::invoke("gwas_search/state/expired/2", &env, command, 4)?;
         if value.pointer("/sources/0/reason") != Some(&json!("disabled"))
             || value.get("result").is_some()
         {
@@ -55,7 +55,7 @@ pub(super) fn expired() -> Result<(), String> {
     drop(db);
     let mut command = env.globals(Some(&replay), false);
     command.extend(page);
-    let value = invoke(&env, command, 3)?;
+    let value = gwas_budgets::invoke("gwas_search/state/expired/3", &env, command, 3)?;
     let restart = super::super::action(&value, "restart")?;
     if value.pointer("/error/code") != Some(&json!("pool.expired"))
         || !args.iter().all(|arg| restart.contains(&(*arg).to_owned()))
@@ -75,7 +75,7 @@ pub(super) fn literal() -> Result<(), String> {
         },
     )?;
     let env = super::super::variant::source_environment(&stub)?;
-    let value = invoke(
+    let value = gwas_budgets::invoke("gwas_search/state/literal/1", 
         &env,
         ["search", "gwas", "--trait-id", "EFO_0000305"]
             .map(str::to_owned)

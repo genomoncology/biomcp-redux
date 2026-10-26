@@ -1,5 +1,5 @@
 //! Feature gwas-get: exact records and retained independent context pages.
-use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use super::{gwas_budgets, configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -90,10 +90,10 @@ fn associations(path: &str) -> Value {
         "_links":{"self":{"href":format!("https://www.ebi.ac.uk{path}")}}})
 }
 
-fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+fn call(phase: &str, env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));
-    invoke(env, command, exit)
+    gwas_budgets::invoke(phase, env, command, exit)
 }
 fn seed(
     env: &Environment,

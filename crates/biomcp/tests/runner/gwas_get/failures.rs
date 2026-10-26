@@ -51,7 +51,7 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
         fault.parse().unwrap_or(200),
         if fault == "timeout" { 16000 } else { 0 },
     )?;
-    let value = call(&env, &replay, &args, 4)?;
+    let value = call("gwas_get/failures/failure/1", &env, &replay, &args, 4)?;
     failed(&value)?;
     let fresh = super::super::action(&value, "fresh")?;
     if !fresh.contains(&"--fresh".to_owned())
@@ -83,7 +83,7 @@ fn failed(value: &Value) -> Result<(), String> {
 fn uncached(env: &Environment, args: &[&str]) -> Result<(), String> {
     let mut offline = env.globals(None, true);
     offline.extend(args.iter().map(|a| (*a).to_owned()));
-    let value = invoke(env, offline, 4)?;
+    let value = gwas_budgets::invoke("gwas_get/failures/uncached/1", env, offline, 4)?;
     if value.pointer("/sources/0/reason") != Some(&json!("offline")) {
         return Err(format!("rejected reply was cached: {value}"));
     }
@@ -117,7 +117,7 @@ fn admission(fault: &str) -> Result<(), String> {
     };
     *body.pointer_mut(pointer).ok_or("synthetic fault pointer")? = replacement;
     let replay = seed(&env, &args, body.to_string(), 200, 0)?;
-    let value = call(&env, &replay, &args, 4)?;
+    let value = call("gwas_get/failures/admission/1", &env, &replay, &args, 4)?;
     failed(&value)?;
     if value
         .get("problems")

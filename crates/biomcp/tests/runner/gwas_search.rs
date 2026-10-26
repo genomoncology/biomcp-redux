@@ -1,5 +1,5 @@
 //! Feature gwas-search: source selectors cross the real command boundary.
-use super::{configuration::invoke, launch::Environment};
+use super::{gwas_budgets, configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -88,7 +88,7 @@ fn policy() -> Result<(), String> {
         ]
         .map(str::to_owned),
     );
-    let value = invoke(&env, args, 4)?;
+    let value = gwas_budgets::invoke("gwas_search/policy/1", &env, args, 4)?;
     if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err(format!("restricted source was not refused: {value}"));
     }
@@ -160,10 +160,10 @@ fn seed_text(
     }
     Ok(env.root().join("replay"))
 }
-fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+fn call(phase: &str, env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));
-    invoke(env, command, exit)
+    gwas_budgets::invoke(phase, env, command, exit)
 }
 fn pairs() -> Vec<(&'static str, &'static str)> {
     vec![
