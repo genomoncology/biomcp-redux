@@ -1,4 +1,5 @@
-//! Event-driven proof that a real pending provider request leaves ping responsive.
+//! Event-driven proof that pending source work leaves the server responsive.
+//! Cancellation interrupts sockets and cooperative checks; DNS resolution and TCP connect retain their existing deadline bounds.
 use super::{launch::Environment, mcp::request, process::Process};
 use serde_json::{Value, json};
 use std::{
