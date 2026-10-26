@@ -29,6 +29,9 @@ A `*` pointer segment expands an array in order. Further segments must exist wit
 the correct container on every selected branch. Multiple expansions flatten to
 one result array. Zero-result wildcard selections fail before assertions run.
 Wildcards apply only to arrays. Other segments follow JSON Pointer escaping.
+The runner rejects wildcard pointers paired with literal `[]`, `equals: []` or `count: 0`
+when it prepares assertions. Assert on the parent array instead, such as
+`expect: {'/items': {equals: [], count: 0}}`.
 
 The schema cases demonstrate the implemented syntax against real command output.
 

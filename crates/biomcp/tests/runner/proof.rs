@@ -324,7 +324,11 @@ pub(crate) fn environment_probe() -> std::process::ExitCode {
 // Schemas have no null-valued fields or empty arrays, so these traversal states
 // need one direct boundary table. All other assertion proof uses schema commands.
 fn boundaries() -> Check {
-    for expect in ["{'/items/*': []}", "{'/items/*': {equals: []}}", "{'/items/*': {count: 0}}"] {
+    for expect in [
+        "{'/items/*': []}",
+        "{'/items/*': {equals: []}}",
+        "{'/items/*': {count: 0}}",
+    ] {
         let step: super::Step = serde_saphyr::from_str(&format!("run: []\nexpect: {expect}"))
             .map_err(|error| error.to_string())?;
         let result = super::assertions::prepare(&step);
@@ -357,7 +361,10 @@ fn boundaries() -> Check {
         let step: super::Step = serde_saphyr::from_str(&format!("run: []\nexpect: {expect}"))
             .map_err(|error| error.to_string())?;
         // Keep selector failures covered independently of preparation rejection.
-        let result = if matches!(error, Some("empty wildcard selection" | "wildcard requires an array")) {
+        let result = if matches!(
+            error,
+            Some("empty wildcard selection" | "wildcard requires an array")
+        ) {
             let value = serde_json::from_str(stdout).map_err(|error| error.to_string())?;
             let pointer = step.expect.keys().next().ok_or("missing pointer")?;
             super::assertions::select(&value, pointer).map(|_| ())
