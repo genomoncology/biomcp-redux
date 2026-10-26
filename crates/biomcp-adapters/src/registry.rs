@@ -28,6 +28,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::gnomad::SPEC,
     &crate::uniprot::SPEC,
     &crate::reactome::SPEC,
+    &crate::wikipathways::SPEC,
     &crate::civic::SPEC,
     &crate::hotspots::SPEC,
     &crate::clinvar::SPEC,
@@ -70,6 +71,7 @@ pub fn components() -> impl Iterator<Item = &'static Component> {
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
     match name {
+        "open" => Some(Use::Open),
         "noncommercial" => Some(Use::Noncommercial),
         "restricted" => Some(Use::Restricted),
         _ => None,
@@ -209,6 +211,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             vec![("fields", Arg::Text("accession"))],
         ),
         Source::Reactome => ("/data/database/version", vec![]),
+        Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
         Source::PubMed => (

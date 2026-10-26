@@ -237,6 +237,7 @@
         "hgnc",
         "mygene",
         "reactome",
+        "wikipathways",
         "hpa",
         "uniprot",
         "gnomad",

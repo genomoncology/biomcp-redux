@@ -13,6 +13,7 @@ pub mod gnomad;
 pub mod uniprot;
 
 pub mod reactome;
+pub mod wikipathways;
 
 pub mod civic;
 

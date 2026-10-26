@@ -9,6 +9,8 @@ canonical_enum! {
         MyGene => "mygene",
         /// Reactome.
         Reactome => "reactome",
+        /// WikiPathways published pathway catalogs.
+        WikiPathways => "wikipathways",
         /// Human Protein Atlas.
         Hpa => "hpa",
         /// UniProt.
