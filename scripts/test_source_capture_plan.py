@@ -134,6 +134,10 @@ class CapturePlanTests(unittest.TestCase):
                 for path in out.iterdir():
                     self.assertNotIn(b'placeholder-capture-secret', path.read_bytes())
                 self.assertLessEqual(len((out / '0000.body').read_bytes()), 4096)
+                if route in ('/reflect', '/escaped'):
+                    self.assertEqual((out / '0000.body').read_bytes(), b'')
+                    self.assertEqual(json.loads((out / '0000.receipt.json').read_text())
+                                     ['outcome'], 'transport_failure')
         self.assertEqual(self.server.calls, ['/redirect', '/large', '/reflect', '/escaped'])
 
     def test_make_target_runs_one_request(self):
