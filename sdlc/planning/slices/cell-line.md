@@ -47,7 +47,7 @@ The reviewed source tree is the 0.9 implementation in `biomcp`. Runtime output s
 | `search cell-line QUERY`, `--query`/`-q`, `--limit`/`-l`, `--offset` | `search cell-line QUERY`, `--query`/`-q`, `--limit`/`-l`, `--offset` | Preserve the literal source query and native candidate order. Default five headers; checked positive bounds. |
 | Name normalization, removal of punctuation, a second hyphenless search | Retire by PM ruling | Text rewriting can join different lines. One unchanged native field query supplies candidates. |
 | Human-first and identifier/synonym match reranking | Retire by PM ruling | Publish species and source names without introducing an ordering or declaring exact identity from normalized text. |
-| `get cell-line CVCL_…` | `get cell-line CVCL_…` | Resolve the exact accession and verify the returned primary or explicitly supplied secondary accession. |
+| `get cell-line CVCL_…` | `get cell-line CVCL_…` | Resolve the exact primary accession and verify the returned primary accession. Secondary accession resolution remains deferred until a retained native card proves it. |
 | Reverse get from DepMap, Cell Model Passports, ChEMBL and PharmacoDB IDs | `get cell-line SOURCE:ID` | Verify the exact database and accession in the native cross-reference before returning a selected identity. Multiple records remain ambiguous. |
 | `variants` | `get cell-line ID variants` | Preserve every gene member, reference, description and source zygosity; a free-text description is not a normalized allele. |
 | `xrefs` | `get cell-line ID xrefs` | Do not replace unobserved links with synthetic empty arrays for a fixed seven-source list. |
@@ -194,7 +194,7 @@ Complete emitted envelopes replace the investigation's offline payload projectio
 
 | Measured envelope | Owning phase | CLI bytes | MCP text bytes | Markdown bytes |
 | --- | --- | ---: | ---: | ---: |
-| Five native search headers | `native/search/MOLM13` | 1589 | 1588 | 1620 |
+| One native search header | `native/search/MOLM13` | 1589 | 1588 | 1620 |
 | Exact default card with qualified warning | `native/card/CVCL_0007` | 2077 | 2076 | 2199 |
 | Identity overflow page | `sections/bounds/identity/1/1` | 894 | 893 | 982 |
 | Native names page | `sections/native/CVCL_0064/names` | 767 | 766 | 760 |
