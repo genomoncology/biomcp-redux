@@ -8,6 +8,7 @@ mod native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("wikipathways-genes/single-attempt-provider-failures", || single_attempt().map_err(Into::into)),
         Trial::test(
             "wikipathways-genes/native-kinds-and-retained-paging",
             || paging().map_err(Into::into),
@@ -243,4 +244,20 @@ fn failed_body(mode: &str) -> String {
         "oversized" => gpml().replace("</Pathway>", &(" ".repeat(8 * 1024 * 1024) + "</Pathway>")),
         _ => gpml(),
     }
+}
+
+fn single_attempt() -> Check {
+    for status in [429, 500] {
+        let stub = Stub::for_source_status("www.wikipathways.org", "application/json", |request| {
+            if request.contains("findPathwaysByText.json") { Ok(catalog(true)) }
+            else if request.contains("getPathwayInfo.json") { Ok(catalog(false)) }
+            else { Ok("provider rejected GPML".into()) }
+        }, move |request| if request.contains(".gpml") { status } else { 200 })?;
+        let env = super::variant::source_environment(&stub)?;
+        invoke(&env, vec!["sync".into(), "wikipathways".into()], 0)?;
+        invoke(&env, vec!["pathway".into(), "genes".into(), "WP382".into()], 4)?;
+        let count = stub.finish()?.len();
+        if count != 3 { return Err(format!("GPML status {status} retried: {count} total requests")); }
+    }
+    Ok(())
 }
