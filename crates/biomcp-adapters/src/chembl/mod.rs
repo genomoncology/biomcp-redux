@@ -146,4 +146,4 @@ mod map;
 pub use map::{indications as map_indications, targets as map_targets};
 
 mod cell;
-pub use cell::{cells, assay_count, release};
+pub use cell::{assay_count, cells, release};

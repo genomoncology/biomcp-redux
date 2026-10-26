@@ -161,3 +161,5 @@ protein-docs-accounting: Discover every protein command, native section and sele
 cell-line-types: A public API caller validates exact cell identities and standalone requests while preserving native variation members, provenance and independently scoped collections before I/O. Contracts: `biomcp-types/cell_line_contracts` (features: `schema`).
 
 cell-line-identity: A caller searches literal Cellosaurus headers and retrieves exact accession or verified source-qualified cell identities. Cases: `tests/cases/cell-line/*.yaml`, `crates/biomcp/tests/runner/cell_line/*.rs`.
+
+cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance. Cases: `crates/biomcp/tests/runner/cell_line/chembl.rs`, `crates/biomcp/tests/runner/cell_line/chembl/*.rs`.

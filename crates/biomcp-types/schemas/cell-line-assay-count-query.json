@@ -1,0 +1,24 @@
+{
+  "$defs": {
+    "ChemblCellId": {
+      "pattern": "^CHEMBL[0-9]+$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.cell-line-assay-count-query/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A separate assay-count request, never implicit in metadata or all.",
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/ChemblCellId",
+      "description": "Exact ChEMBL cell identity returned by metadata.",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "CellLineAssayCountQuery",
+  "type": "object"
+}

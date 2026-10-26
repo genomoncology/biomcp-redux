@@ -254,6 +254,15 @@
           "$ref": "#/$defs/CellosaurusAccession",
           "description": "Requested exact accession."
         },
+        "fetched": {
+          "description": "Original retrieval seconds; never a source release date.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "$ref": "#/$defs/Capped5",
           "description": "Every selected whole metadata row and the native total."
@@ -263,6 +272,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent ChEMBL release, distinct from retrieval time."
         }
       },
       "required": [

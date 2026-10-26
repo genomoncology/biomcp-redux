@@ -119,7 +119,9 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
         request: Request::GetCellLine(q),
         ..
     } = action
-        && (q.section().is_some_and(|s| s != biomcp_types::CellLineSection::Chembl)
+        && (q
+            .section()
+            .is_some_and(|s| s != biomcp_types::CellLineSection::Chembl)
             || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none()))
     {
         return Some(usage_envelope(ErrorEnvelope::arguments()));

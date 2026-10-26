@@ -159,6 +159,10 @@
       ],
       "type": "string"
     },
+    "ChemblCellId": {
+      "pattern": "^CHEMBL[0-9]+$",
+      "type": "string"
+    },
     "CivicClaimKind": {
       "description": "CIViC native claim collection.",
       "enum": [
@@ -845,10 +849,30 @@
       ]
     }
   },
-  "$id": "biodata.request/22",
+  "$id": "biodata.request/23",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Read the native assay total for one exact ChEMBL cell.",
+      "properties": {
+        "command": {
+          "const": "cell_line_assay_count",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/ChemblCellId",
+          "description": "Exact ChEMBL cell identity returned by metadata.",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Discover unchanged literal Cellosaurus candidates.",
