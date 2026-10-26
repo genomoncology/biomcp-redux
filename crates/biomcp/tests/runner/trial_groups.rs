@@ -22,6 +22,7 @@ pub(super) fn drug_trials() -> Vec<Trial> {
     trials.extend(super::diagnostic_cdx::trials());
     trials.extend(super::pgx_registry::trials());
     trials.extend(super::pathway_registry::trials());
+    trials.extend(super::pathway_commands::trials());
     trials.extend(super::hpo_registry::trials());
     trials.extend(super::protein_registry::trials());
     trials.extend(super::pgx_retirements::trials());
