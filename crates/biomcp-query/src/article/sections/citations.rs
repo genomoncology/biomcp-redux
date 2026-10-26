@@ -35,7 +35,7 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
     } else if let Some((_, error)) = result.failures.iter().find(|(pmid, _)| *pmid == id) {
         Section::unavailable(
             Source::Icite,
-            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            crate::status::reason(*error).unwrap_or(biomcp_types::Reason::Unavailable),
         )
     } else {
         Section::Empty {

@@ -56,7 +56,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             }
             Err(error) => Section::unavailable(
                 Source::Gnomad,
-                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+                crate::status::reason(*error).unwrap_or(biomcp_types::Reason::Unavailable),
             ),
         };
         sections.push((*id, super::SectionValue::Constraint(section)));

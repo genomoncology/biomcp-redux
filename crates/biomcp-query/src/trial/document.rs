@@ -2,7 +2,6 @@
 use crate::{Ctx, Outcome, status};
 use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
-use biomcp_fetch::SourceError;
 use biomcp_types::{QueryBody, Section, Source, Status, TrialDocumentGet, TrialDocumentResult};
 /// A typed source result before the binary writes a caller-owned file.
 #[derive(Debug)]

@@ -52,7 +52,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 }
                 Err(error) => Section::unavailable(
                     Source::UniProt,
-                    crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+                    crate::status::reason(*error).unwrap_or(biomcp_types::Reason::Unavailable),
                 ),
             };
             (*id, SectionValue::Protein(section))
