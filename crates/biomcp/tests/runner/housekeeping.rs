@@ -59,8 +59,9 @@ fn check() -> Check {
         }
         invalid_client(&env, empty)?;
     }
-    env.config(&json!({"format":"md","keys":{"unknown":"never-read"}}))?;
+    env.config(&json!({"format":"md","keys":{"ncbi_api_key":"never-read"}}))?;
     invalid_client(&env, false)?;
+    env.config(&json!({"format":"json"}))?;
     help(&env)?;
     if env.root().join("cache/biomcp").exists() {
         return Err("housekeeping created a cache".into());
