@@ -145,18 +145,20 @@ fn invalid(env: &Environment, replay: &Path) -> Result<(), String> {
         vec!["--gene", "FGFR2", "--offset", "-1"],
         vec!["--gene", "FGFR2", "--include-child-traits"],
         vec!["--pubmed", "17529967", "--extended-geneset"],
-        vec!["--gene", "FGFR2", "--p-value", "1e-5"],
+        vec!["--gene", "FGFR2", "--p-value", "0"],
         vec!["--gene", "FGFR2", "--sort", "p_value"],
+        vec!["--gene", "FGFR2", "--p-value", "1e-5", "--sort", "other"],
     ] {
         let args = [vec!["search", "gwas"], tail].concat();
         let value = call(env, replay, &args, 2)?;
         if args.contains(&"--p-value")
+            && args.last() == Some(&"0")
             && value.pointer("/error/message")
                 != Some(&json!(
-                    "--p-value is not yet supported; threshold filtering is deferred"
+                    "--p-value threshold must be a positive probability in scientific notation"
                 ))
         {
-            return Err(format!("missing deferred threshold explanation: {value}"));
+            return Err(format!("missing positive threshold explanation: {value}"));
         }
         if value.get("sources").is_some() {
             return Err("invalid selector reached source".into());

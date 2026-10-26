@@ -45,6 +45,36 @@
         "/result/items/0/p_value": 4e-254
       },
       "max_bytes": 10000
+    },
+    {
+      "run": [
+        "search",
+        "gwas",
+        "--pubmed",
+        "17529967",
+        "--p-value",
+        "4e-254"
+      ],
+      "mcp": [
+        "search",
+        "gwas",
+        "--pubmed",
+        "17529967",
+        "--p-value",
+        "4e-254"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "count": 3
+        },
+        "/result/qualifying_total": {
+          "equals": null
+        },
+        "/next/0/kind": "page",
+        "/query/query/p_value": "4e-254"
+      },
+      "max_bytes": 10000
     }
   ]
 }

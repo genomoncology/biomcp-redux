@@ -1,6 +1,7 @@
 //! Source-local association search, without clinical interpretation.
 pub(crate) mod map;
 mod next;
+mod threshold;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::gwas;
 use biomcp_types::{
@@ -9,6 +10,9 @@ use biomcp_types::{
 };
 /// One bounded native page; no per-hit metadata calls.
 pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
+    if q.p_value().is_some() {
+        return threshold::search(cx, q);
+    }
     let mut out = Outcome {
         status: Status::Failed,
         body: QueryBody::GwasPage(None),
@@ -45,6 +49,7 @@ pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             items,
             page,
             continuation,
+            qualifying_total: None,
         }));
         out.status = Status::Complete;
     }
