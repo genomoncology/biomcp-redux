@@ -23,6 +23,12 @@ pub(super) fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
     out
 }
 fn execute(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Outcome) -> Result<(), RequestError> {
+    // Reconstructing a mixed admitted offset would require walking prior native pages.
+    // Continue only from retained source positions; fresh restarts begin at zero.
+    if q.offset() > 0 && (q.pool().is_none() || cx.fresh || q.fresh()) {
+        expired(q, out);
+        return Ok(());
+    }
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let identity = key(q)?;
     let loaded = if let Some(pool) = q.pool().filter(|_| !(cx.fresh || q.fresh())) {

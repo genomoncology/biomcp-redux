@@ -78,6 +78,9 @@ fn union() -> Check {
     }
     let args=["search","pathway","MAPK signaling","--source","reactome","--source","wikipathways"];
     // The synthetic catalog has no title match for this phrase; the leg still has an outcome.
+    let mut missing=args.to_vec();missing.extend(["--offset","5"]);
+    let restarted=call(&env,&replay,&missing,3)?;
+    if restarted.pointer("/next/0/kind")!=Some(&json!("restart")) {return Err(format!("missing mixed pool: {restarted}"));}
     let page=call(&env,&replay,&args,0)?;
     if page.pointer("/sources/0/source")!=Some(&json!("reactome")) || page.pointer("/sources/1/source")!=Some(&json!("wikipathways")) {return Err(format!("independent legs: {page}"));}
     let mut body=catalog(true,false);
