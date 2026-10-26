@@ -13,15 +13,21 @@ use std::{
 const WATCHDOG: Duration = Duration::from_secs(30);
 
 pub(super) fn check() -> Result<(), String> {
-    run(0)
+    run(Mode::Reply)
 }
 pub(super) fn oversized() -> Result<(), String> {
-    run(1)
+    run(Mode::Oversized)
 }
 pub(super) fn cancelled() -> Result<(), String> {
-    run(2)
+    run(Mode::Cancel)
 }
-fn run(mode: u8) -> Result<(), String> {
+#[derive(Clone, Copy, PartialEq)]
+enum Mode {
+    Reply,
+    Oversized,
+    Cancel,
+}
+fn run(mode: Mode) -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
     let address = listener.local_addr().map_err(|e| e.to_string())?;
@@ -58,7 +64,7 @@ fn run(mode: u8) -> Result<(), String> {
         }
     });
     let result = prove(&mut stdin, &connected_rx, &reply_rx).and_then(|()| {
-        if mode == 1 {
+        if mode == Mode::Oversized {
             stdin
                 .write_all(&vec![b'x'; 65537])
                 .map_err(|e| e.to_string())?;
@@ -71,7 +77,7 @@ fn run(mode: u8) -> Result<(), String> {
                 return Err(format!("missing oversized frame error: {reply}"));
             }
         }
-        if mode == 2 {
+        if mode == Mode::Cancel {
             cancel_capacity(&mut stdin, &reply_rx)?;
         }
         Ok(())
@@ -90,7 +96,7 @@ fn run(mode: u8) -> Result<(), String> {
     if !status.success() || !stderr.is_empty() {
         return Err("held proxy server failed".into());
     }
-    if mode == 2 {
+    if mode == Mode::Cancel {
         if reply_rx.try_recv().is_ok() {
             return Err("cancelled call replied".into());
         }
@@ -226,19 +232,27 @@ fn cancel_capacity(
             json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":id}}),
         )?;
     }
-    send(
-        stdin,
-        request(
-            json!("free"),
-            "tools/call",
-            json!({"name":"biomcp", "arguments":{"args":["help"]}}),
-        ),
-    )?;
-    let reply = replies
-        .recv_timeout(Duration::from_secs(5))
-        .map_err(|_| "cancel did not stop work")??;
-    if reply.get("id") != Some(&json!("free")) || reply.get("error").is_some() {
-        return Err(format!("cancel did not free capacity: {reply}"));
+    let end = Instant::now() + Duration::from_secs(5);
+    loop {
+        send(
+            stdin,
+            request(
+                json!("free"),
+                "tools/call",
+                json!({"name":"biomcp", "arguments":{"args":["help"]}}),
+            ),
+        )?;
+        let reply = replies
+            .recv_timeout(end.saturating_duration_since(Instant::now()))
+            .map_err(|_| "cancel did not stop work")??;
+        if reply.get("id") != Some(&json!("free")) {
+            return Err(format!("cancelled call replied: {reply}"));
+        }
+        if reply.get("error").is_none() {
+            return Ok(());
+        }
+        if reply.pointer("/error/code") != Some(&json!(-31000)) || Instant::now() >= end {
+            return Err(format!("cancel did not free capacity: {reply}"));
+        }
     }
-    Ok(())
 }
