@@ -4,7 +4,7 @@ use crate::runner::{configuration::invoke, network_stub::Stub, variant::source_e
 use serde_json::Value;
 pub(super) fn run() -> Check {
     for &(route,args) in ROUTES {
-        let stub=Stub::with_headers(&["reactome.org","storage.googleapis.com"], |_| "application/json",move |request| if request.contains(route) { Ok(" ".repeat(8*1024*1024+1)) } else { body(request) },|_,bytes|bytes,|_|200,|_|String::new())?;
+        let stub=Stub::with_headers(&["reactome.org","storage.googleapis.com"], |_| "application/json",move |request| if request.contains(route) { Ok(" ".repeat(8*1024*1024+1) + &body(request)?) } else { body(request) },|_,bytes|bytes,|_|200,|_|String::new())?;
         let env=source_environment(&stub)?;
         let value=invoke(&env,args.iter().map(|s|(*s).to_owned()).collect(),4).map_err(|e|format!("oversized {route}: {e}"))?;
         failed(&value,"bad_reply").map_err(|e|format!("oversized {route}: {e}"))?;
