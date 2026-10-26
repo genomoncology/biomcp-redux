@@ -27,29 +27,7 @@ pub(super) fn check() -> Result<(), String> {
             continue;
         }
         if name == "PathwayCard" {
-            let mut broken = root.clone();
-            if let Some(properties) = broken
-                .pointer_mut("/$defs/PathwayId/oneOf/1/properties")
-                .and_then(Value::as_object_mut)
-            {
-                properties.remove("id");
-            } else {
-                return Err("pathway tagged ID fixture changed".into());
-            }
-            if rows(
-                &broken,
-                broken
-                    .pointer("/properties/result")
-                    .ok_or("broken result")?,
-                name,
-            )
-            .iter()
-            .any(|row| declared_fallback(&broken, row, id, name))
-            {
-                return Err(
-                    "a tagged source identity without its ID passed projection coverage".into(),
-                );
-            }
+            reject_broken_identity(&root, id, name)?;
         }
         let projected = rows(&root, result, name);
         if projected.is_empty() {
@@ -306,4 +284,29 @@ fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
                 identity && !policy.display_name.is_empty()
             })
         })
+}
+
+fn reject_broken_identity(root: &Value, id: &str, name: &str) -> Result<(), String> {
+    let mut broken = root.clone();
+    if let Some(properties) = broken
+        .pointer_mut("/$defs/PathwayId/oneOf/1/properties")
+        .and_then(Value::as_object_mut)
+    {
+        properties.remove("id");
+    } else {
+        return Err("pathway tagged ID fixture changed".into());
+    }
+    if rows(
+        &broken,
+        broken
+            .pointer("/properties/result")
+            .ok_or("broken result")?,
+        name,
+    )
+    .iter()
+    .any(|row| declared_fallback(&broken, row, id, name))
+    {
+        return Err("a tagged source identity without its ID passed projection coverage".into());
+    }
+    Ok(())
 }
