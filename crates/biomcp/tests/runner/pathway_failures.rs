@@ -1,5 +1,6 @@
 //! Feature pathway-failures: synthetic source faults cannot become empty or cached answers.
 mod fixtures;
+mod wikipathways;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -18,6 +19,7 @@ pub(super) fn trials() -> Vec<Trial> {
     }).collect();
     trials.push(Trial::test("pathway-failures/synthetic-foreign-reactome-identity", || identities().map_err(Into::into)));
     trials.push(Trial::test("pathway-failures/unsupported-pairings-before-io", || pairings().map_err(Into::into)));
+    trials.extend(wikipathways::trials());
     trials
 }
 fn call(env: &Environment, root: &Path, args: &[&str], exit: i32) -> Result<Value,String> {
@@ -33,7 +35,7 @@ fn faults(route: &str,args: &[&str]) -> Check {
     for (label,status,body,delay,reason) in [
         ("429",429,"{}",0,"rate_limited"),
         ("500",500,"{}",0,"unavailable"),
-        ("timeout",200,"{}",9000,"deadline"),
+        ("timeout",200,"{}",9000,"deadline_exceeded"),
         ("invalid JSON",200,"{",0,"bad_reply"),
         ("HTML success",200,"<html>source failed</html>",0,"bad_reply"),
         ("oversized",200,"",0,"too_large"),

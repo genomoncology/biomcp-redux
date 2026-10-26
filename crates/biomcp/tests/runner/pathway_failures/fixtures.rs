@@ -12,7 +12,8 @@ pub(super) fn search() -> Value {
     json!({"results":[{"entries":[{"stId":ID,"name":"Synthetic pathway","species":["Homo sapiens"],"exactType":"Pathway"}]}],"rowCount":1,"numberOfMatches":1})
 }
 fn body(request: &str) -> Result<String, String> {
-    Ok(if request.contains("/search/query?") { search() }
+    Ok(if request.contains("/json/") { catalog(request.contains("findPathwaysByText")) }
+    else if request.contains("/search/query?") { search() }
     else if request.contains("/database/version") { json!(97) }
     else if request.contains("/participants/") { json!([]) }
     else if request.contains("/containedEvents") { json!([123]) }
@@ -20,7 +21,7 @@ fn body(request: &str) -> Result<String, String> {
     else { card() }.to_string())
 }
 pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
-    let stub = crate::runner::network_stub::Stub::for_source("reactome.org", "application/json", body)?;
+    let stub = crate::runner::network_stub::Stub::for_sources(&["reactome.org", "www.wikipathways.org"], |_| "application/json", body)?;
     let root = env.root().join("replay");
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Record { dir: root.clone() },
@@ -36,8 +37,9 @@ pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
     reactome::members(&leg, &id).map_err(|e|e.to_string())?;
     reactome::events(&leg, &id).map_err(|e|e.to_string())?;
     reactome::pathways(&leg, &"P15056".parse::<biodata::UniProtAcc>().map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    biomcp_adapters::wikipathways::sync(&fetch).map_err(|e|e.to_string())?;
     drop(fetch);
-    if stub.finish()?.len() != 6 { return Err("synthetic recording changed request count".into()); }
+    if stub.finish()?.len() != 8 { return Err("synthetic recording changed request count".into()); }
     let source = crate::runner::launch::fixtures().join("replies/pathway/native/hgnc");
     fs::create_dir(root.join("hgnc")).map_err(|e|e.to_string())?;
     for entry in fs::read_dir(source).map_err(|e|e.to_string())? {
@@ -47,7 +49,10 @@ pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
     Ok(root)
 }
 pub(super) fn replace(root: &Path, route: &str, body: &str, status: u16, delay: u64) -> Check {
-    for entry in fs::read_dir(root.join("reactome")).map_err(|e|e.to_string())? {
+    replace_source(root,"reactome",route,body,status,delay)
+}
+pub(super) fn replace_source(root: &Path, source: &str, route: &str, body: &str, status: u16, delay: u64) -> Check {
+    for entry in fs::read_dir(root.join(source)).map_err(|e|e.to_string())? {
         let path=entry.map_err(|e|e.to_string())?.path();
         let mut wire: Value=serde_json::from_slice(&fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
         if wire.get("url").and_then(Value::as_str).is_some_and(|v|v.contains(route)) {
@@ -58,4 +63,10 @@ pub(super) fn replace(root: &Path, route: &str, body: &str, status: u16, delay: 
         }
     }
     Err(format!("missing synthetic recorded route {route}"))
+}
+
+pub(super) fn catalog(search: bool) -> Value {
+    let mut row=json!({"id":"WP382","url":"https://www.wikipathways.org/instance/WP382","name":"Synthetic pathway","species":"Homo sapiens","revision":"2025-05-22","authors":"Synthetic Author","description":"Synthetic description","citedIn":""});
+    if search { row["datanodes"]=json!("");row["annotations"]=json!(""); }
+    json!({"pathwayInfo":[row]})
 }
