@@ -250,6 +250,7 @@ impl Cache {
         key: &[u8; 32],
         max_body: u64,
         deadline: Deadline<'_>,
+        opportunistic: bool,
     ) -> Result<Option<Entry>, CacheError> {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
         let operation = |connection: &Connection| {
@@ -297,7 +298,11 @@ impl Cache {
                 None => Ok(None),
             }
         };
-        self.try_sql(deadline, operation)
+        if opportunistic {
+            self.try_sql(deadline, operation)
+        } else {
+            self.sql(deadline, operation)
+        }
     }
 
     // Discretionary reply caching must leave the budget available to the source.

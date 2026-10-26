@@ -250,6 +250,7 @@ impl Leg<'_> {
             key,
             codec.limit.unwrap_or(self.fetch.config.max_body),
             self.budget(),
+            self.fetch.config.mode != Mode::Offline,
         ) {
             Ok(entry) => entry,
             Err(crate::CacheError::Busy) => {
