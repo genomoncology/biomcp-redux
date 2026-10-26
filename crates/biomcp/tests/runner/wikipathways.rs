@@ -11,7 +11,9 @@ const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json"
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("wikipathways/stale-and-expired-stored-reads", || read_policy().map_err(Into::into)),
+        Trial::test("wikipathways/stale-and-expired-stored-reads", || {
+            read_policy().map_err(Into::into)
+        }),
         Trial::test("wikipathways/stored-identity-pages-and-replacement", || {
             run().map_err(Into::into)
         }),
@@ -42,7 +44,10 @@ fn catalog(search: bool, changed: bool) -> Value {
 }
 fn recording(root: &Path, url: &str) -> PathBuf {
     use sha2::{Digest, Sha256};
-    let key = Sha256::digest(format!("GET\0{url}").as_bytes()).iter().map(|b|format!("{b:02x}")).collect::<String>();
+    let key = Sha256::digest(format!("GET\0{url}").as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
     root.join("wikipathways").join(format!("{key}.json"))
 }
 fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<PathBuf, String> {
@@ -112,8 +117,11 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
     for fault in [json!({"unexpected":true}), json!({"pathwayInfo":[]})] {
         let label = fault.to_string();
         seed(env, catalog(true, true), fault, 200)?;
-        let failed = call(env, replay, &["sync", "wikipathways"], 4).map_err(|e|format!("catalog fault {label}: {e}"))?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) { return Err(format!("validation classification: {failed}")); }
+        let failed = call(env, replay, &["sync", "wikipathways"], 4)
+            .map_err(|e| format!("catalog fault {label}: {e}"))?;
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+            return Err(format!("validation classification: {failed}"));
+        }
         let retained = call(
             env,
             replay,
@@ -381,30 +389,81 @@ fn native() -> Check {
 }
 
 fn partial_download(env: &Environment, replay: &Path) -> Check {
-    seed(env,catalog(true,true),catalog(false,true),200)?;
-    let path=recording(replay,GET);
-    let mut value:Value=serde_json::from_slice(&fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-    *value.pointer_mut("/exchanges/0/body/value").ok_or("body")?=json!("{\"pathwayInfo\":[");
-    fs::write(path,value.to_string()).map_err(|e|e.to_string())?;
-    let failed=call(env,replay,&["sync","wikipathways"],4)?;
-    if failed.pointer("/sources/0/reason")!=Some(&json!("bad_reply")){return Err(format!("partial download: {failed}"));}
-    let retained=call(env,replay,&["search","pathway","Literal Atlas","--source","wikipathways"],0)?;
-    if retained.pointer("/result/page/total")!=Some(&json!(12)){return Err("partial download replaced accepted catalogs".into());}
+    seed(env, catalog(true, true), catalog(false, true), 200)?;
+    let path = recording(replay, GET);
+    let mut value: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? = json!("{\"pathwayInfo\":[");
+    fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
+    let failed = call(env, replay, &["sync", "wikipathways"], 4)?;
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+        return Err(format!("partial download: {failed}"));
+    }
+    let retained = call(
+        env,
+        replay,
+        &[
+            "search",
+            "pathway",
+            "Literal Atlas",
+            "--source",
+            "wikipathways",
+        ],
+        0,
+    )?;
+    if retained.pointer("/result/page/total") != Some(&json!(12)) {
+        return Err("partial download replaced accepted catalogs".into());
+    }
     Ok(())
 }
 fn read_policy() -> Check {
-    let env=Environment::new().map_err(|e|e.to_string())?;
-    let replay=seed(&env,catalog(true,false),catalog(false,false),200)?;
-    call(&env,&replay,&["sync","wikipathways"],0)?;
-    let first=call(&env,&replay,&["search","pathway","Atlas","--source","wikipathways"],0)?;
-    let args=first.pointer("/next/5/args").and_then(Value::as_array).ok_or("page")?.iter().map(|v|v.as_str().ok_or("arg")).collect::<Result<Vec<_>,_>>()?;
-    fs::remove_dir_all(replay.join("wikipathways")).map_err(|e|e.to_string())?;
-    let db=rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e|e.to_string())?;
-    db.execute("UPDATE trial_snapshot SET expires=0",[]).map_err(|e|e.to_string())?;
-    let expired=call(&env,&replay,&args,3)?;
-    if expired.pointer("/next/0/kind")!=Some(&json!("restart")){return Err(format!("expired catalog pool: {expired}"));}
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
+    call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    let first = call(
+        &env,
+        &replay,
+        &["search", "pathway", "Atlas", "--source", "wikipathways"],
+        0,
+    )?;
+    let args = first
+        .pointer("/next/5/args")
+        .and_then(Value::as_array)
+        .ok_or("page")?
+        .iter()
+        .map(|v| v.as_str().ok_or("arg"))
+        .collect::<Result<Vec<_>, _>>()?;
+    fs::remove_dir_all(replay.join("wikipathways")).map_err(|e| e.to_string())?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    db.execute("UPDATE trial_snapshot SET expires=0", [])
+        .map_err(|e| e.to_string())?;
+    let expired = call(&env, &replay, &args, 3)?;
+    if expired.pointer("/next/0/kind") != Some(&json!("restart")) {
+        return Err(format!("expired catalog pool: {expired}"));
+    }
     db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0 WHERE name='wikipathways'; INSERT INTO bundle_content SELECT * FROM original_content; COMMIT;").map_err(|e|e.to_string())?;
-    let stale=call(&env,&replay,&["search","pathway","Atlas","--source","wikipathways","--fresh"],0)?;
-    if stale.get("status")!=Some(&json!("partial")) || stale.pointer("/sources/0/state")!=Some(&json!("stale")) || !stale.get("next").and_then(Value::as_array).is_some_and(|a|a.iter().any(|s|s.get("kind")==Some(&json!("sync")))){return Err(format!("stale stored source: {stale}"));}
+    let stale = call(
+        &env,
+        &replay,
+        &[
+            "search",
+            "pathway",
+            "Atlas",
+            "--source",
+            "wikipathways",
+            "--fresh",
+        ],
+        0,
+    )?;
+    if stale.get("status") != Some(&json!("partial"))
+        || stale.pointer("/sources/0/state") != Some(&json!("stale"))
+        || !stale
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|a| a.iter().any(|s| s.get("kind") == Some(&json!("sync"))))
+    {
+        return Err(format!("stale stored source: {stale}"));
+    }
     Ok(())
 }
