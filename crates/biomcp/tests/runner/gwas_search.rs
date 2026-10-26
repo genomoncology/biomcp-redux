@@ -100,7 +100,10 @@ fn seed_text(
 ) -> Result<PathBuf, String> {
     let directory = env.root().join("replay/gwas");
     fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
-    let key = format!("{:x}", Sha256::digest(format!("GET\0{url}").as_bytes()));
+    let key: String = Sha256::digest(format!("GET\0{url}").as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
     let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
     let recording = json!({"source":"gwas","method":"GET","url":url,"exchanges":[exchange.clone(),exchange.clone(),exchange]});
     fs::write(directory.join(format!("{key}.json")), recording.to_string())

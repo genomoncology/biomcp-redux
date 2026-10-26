@@ -5,10 +5,10 @@ pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, ()> {
     match verb {
         "search" => {
             let fields = value.as_object_mut().ok_or(())?;
-            if let Some(query) = fields.remove("query") {
-                if fields.insert("gene".into(), query).is_some() {
-                    return Err(());
-                }
+            if let Some(query) = fields.remove("query")
+                && fields.insert("gene".into(), query).is_some()
+            {
+                return Err(());
             }
             serde_json::from_value(value)
                 .map(Request::SearchGwas)
