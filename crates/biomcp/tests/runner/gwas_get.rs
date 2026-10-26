@@ -6,10 +6,10 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-mod native;
-mod synthetic;
 mod failures;
+mod native;
 mod state;
+mod synthetic;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test("gwas-get/exact-identities-and-no-cache-admission", || {
