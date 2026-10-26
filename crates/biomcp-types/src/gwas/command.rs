@@ -44,6 +44,7 @@ pub struct GwasGetCommand {
     #[schemars(with = "biodata::Text")]
     pub snapshot: Option<biodata::Text>,
 }
+#[cfg(feature = "schema")]
 biodata::wire_enum! {
     described
     /// Native context section grammar.
