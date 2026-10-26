@@ -12,11 +12,88 @@ The current variant slice already owns `get variant ID gwas` and its exact-rsID 
 
 The bank paraphrases retrieval questions anchored to primary papers. It does not claim the authors asked these questions verbatim. The bank preserves the publication's finding separately from later catalog curation. A source-local empty result and an unavailable source are investigator controls. They establish retrieval behavior only.
 
+
+The clinical reviewer checked the six primary sources and accepted the attributed answer bank below. These 22 published examples satisfy the 20–40-example floor. Q23–Q25 are additional technical controls. A publication's numerical contrast must not be relabeled as the Catalog's contrast unless the exact association, allele and study match.
+
+| Case | Published retrieval question | Accepted attributed answer | Primary source |
+| --- | --- | --- | --- |
+| Q01 | Which exact variant labels the first of Easton's five Figure 2 association plots? | rs2981582; the figure reports a per-allele odds-ratio contrast. | [Easton 2007, PMID 17529967](https://pubmed.ncbi.nlm.nih.gov/17529967/), Figure 2a. |
+| Q02 | Which variant labels the second plot? | rs3803662; retain that study's per-allele contrast. | Easton 2007, Figure 2b. |
+| Q03 | Which variant labels the third plot? | rs889312. | Easton 2007, Figure 2c. |
+| Q04 | Which variant labels the fourth plot? | rs13281615. | Easton 2007, Figure 2d. |
+| Q05 | Which variant labels the fifth plot? | rs3817198. | Easton 2007, Figure 2e. |
+| Q06 | Which sample counts describe the paper's first two stages? | 4,398 breast-cancer cases and 4,316 controls. These are paper-stage counts. | Easton 2007, abstract. |
+| Q07 | Which sample counts describe the paper's confirmation stage? | 21,860 cases and 22,578 controls from 22 studies; keep this stage separate from Q06. | Easton 2007, abstract. |
+| Q08 | Does the paper's FGFR2 association establish the causative variant? | No such conclusion follows from association alone. The paper says identifying the causative variant remains difficult. Do not substitute a mapped gene as a causal-gene finding. | [Easton full paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC2714974/), discussion. |
+| Q09 | What exact allele and contrast accompany Stacey's rs13387042 finding? | A-allele homozygotes have an estimated 1.44-fold risk versus noncarriers in the reported context. This is a homozygote comparison, not a per-allele odds ratio. | [Stacey 2007, PMID 17529974](https://pubmed.ncbi.nlm.nih.gov/17529974/), abstract. |
+| Q10 | What exact allele and contrast accompany that paper's rs3803662 finding? | T-allele homozygotes have an estimated 1.64-fold risk versus noncarriers in the reported context. Do not attach this value to another allele or contrast. | Stacey 2007, abstract. |
+| Q11 | Which population and tumor context qualifies Q09–Q10? | European-descent study populations and the reported estrogen-receptor-positive tumor association. This does not generalize every later study's population. | Stacey 2007, abstract. |
+| Q12 | Which two variants does the later 5p12 paper identify? | rs4415084 and rs10941679. | [Stacey 2008, PMID 18438407](https://pubmed.ncbi.nlm.nih.gov/18438407/), abstract. |
+| Q13 | Which sample counts accompany that paper's reported finding? | 6,145 cases and 33,016 controls; retain the paper's preferential estrogen-receptor-positive association context. | Stacey 2008, abstract. |
+| Q14 | Can the abstract's OR 1.27 and p value 2.5×10⁻¹² be assigned to rs4415084? | No. Those abstract values concern rs10941679. Exact variant-to-effect identity is required. | Stacey 2008, abstract. |
+| Q15 | Which SMAD7-region variant does Broderick report for colorectal cancer? | rs4939827, with a combined trend p value of 1.0×10⁻¹² across the reported four sample sets. | [Broderick 2007, PMID 17934461](https://pubmed.ncbi.nlm.nih.gov/17934461/), abstract. |
+| Q16 | Are all 940 discovery individuals in that paper colorectal-cancer cases? | No. The reported familial colorectal-tumor set contains 627 colorectal-cancer cases and 313 advanced adenomas, with 965 controls. Preserve these categories. | Broderick 2007, abstract. |
+| Q17 | Which replication sample counts does that paper report? | 7,473 cases and 5,984 controls. Do not merge them with Q16 as unique people. | Broderick 2007, abstract. |
+| Q18 | Which locus and variant does Tomlinson identify? | rs6983267 at 8q24.21 for colorectal-cancer susceptibility in the reported study. | [Tomlinson 2007, PMID 17618284](https://pubmed.ncbi.nlm.nih.gov/17618284/), abstract. |
+| Q19 | Which significance values belong to the original and overall-replication contexts? | Initial allelic p value 1.72×10⁻⁷; overall replication p value 1.27×10⁻¹⁴. They are distinct results. | Tomlinson 2007, abstract. |
+| Q20 | What are the two genotype contrasts in the reported odds ratios? | Heterozygotes: 1.27 (1.16–1.39); rare homozygotes: 1.47 (1.34–1.62). Neither is automatically the Catalog's per-allele OR. | Tomlinson 2007, abstract. |
+| Q21 | Which 9p21.3 variant anchors Samani's coronary finding? | rs1333049. | [Samani 2007, PMID 17634449](https://pubmed.ncbi.nlm.nih.gov/17634449/), abstract. |
+| Q22 | Which distinct cohorts and phenotypes qualify that finding? | WTCCC: 1,926 coronary-artery-disease cases and 2,938 controls, p=1.80×10⁻¹⁴. German MI Family: 875 myocardial-infarction cases and 1,644 controls, p=3.40×10⁻⁶. Keep CAD and MI labels distinct. | Samani 2007, abstract. |
+| Q23 | What does a successful empty rs113488022 Catalog query establish? | Only zero source records for the exact endpoint, query and capture date; no clinical negative. | Investigator control using the existing variant slice's exact-rsID input. |
+| Q24 | What does a failed GWAS source establish? | Retrieval failed. Do not fabricate zero associations or a risk conclusion. | Synthetic provider-failure control; no deliberate live fault request. |
+| Q25 | If the first rsID page lacks the target publication, is its association absent? | No. The first page is incomplete when source metadata reports further pages. Preserve continuation and search by exact publication/study when needed. | Investigator control using Q01 and source page metadata. |
+
+### Publication and Catalog disagreement
+
+The live Catalog study for PMID 17529967 is `GCST000035`. Its initial sample text says “390 European ancestry cases, 364 European ancestry controls”. Its replication text says “4,364 East Asian ancestry cases, 24,174 European ancestry controls, 3,564 East Asian ancestry controls, 24,391 European ancestry controls”. These native strings differ from Q06–Q07 and include a repeated control label. Catalog metadata differs from the publication; no reconciliation performed. Paper-wide stage counts and one Catalog study record have different scopes, but that possible scope difference does not explain away the unresolved prose. Do not correct, sum or deduplicate it.
+
+The Catalog publication query reports six associations, including rs981782 as well as the Figure 2 variants. Do not discard the sixth record to make the source fit the question bank. A later source page and the source publication are separate attributed evidence. The original paper's effects are not silently substituted for current Catalog effects.
+
 ## Source contracts
 
 The ROADMAP names GWAS Catalog as the GWAS source. The public v2 API is the proposed initial source. The [official API guide](https://www.ebi.ac.uk/gwas/docs/programmatic-access/rest-api/) and [migration guide](https://www.ebi.ac.uk/gwas/docs/news/rest-api-v2-migration-guide/) distinguish curated association data from complete genome-wide summary statistics. V1 is retired. No request falls back to v1.
 
 The source exposes studies, associations, traits, genes, publications and study ancestry metadata. Source filters, their combinations and sort order need captured known-positive checks before implementation enables them. Public documentation does not by itself prove that a particular response carries a field. The implementation must compare returned study, association, rsID and ontology identities with its checked request.
+
+### Measured public-tier behavior
+
+Jobs `j14205` and `j14220` made 35 and 18 bounded GET requests from the M5. Each URL was requested once per plan; the second job completed an observed next page and investigated newly returned identifiers. Both refused redirects and retries, capped each body at 3 MiB and each request at 20 seconds, and stopped on a provider 429 or 5xx. These are source discovery measurements, not product acceptance or speed baselines. The source Date headers place this capture on 2026-10-26 UTC. No credentials or summary-statistics files were used.
+
+| Direct query | Native source result | Requests, response bytes and seconds |
+| --- | --- | --- |
+| PMID 17529967 associations, both three-row pages | Six unique associations for GCST000035, including all five Figure 2 variants and rs981782. | 2; 3,261 + 3,238 bytes; 0.580 + 0.738 s. |
+| PMID 17529974 associations | Two records for GCST000037: rs13387042-A and rs3803662-T. | 1; 2,022 bytes; 0.581 s. |
+| PMID 18438407 associations | Valid zero. This is an unresolved Catalog retrieval gap for Q12–Q14, not absence of the publication or its association. | 1; 179 bytes; 0.415 s. |
+| PMID 17934461 associations | One record: 5949, GCST000113, rs4939827-T, reported colorectal cancer, mapped MONDO_0005575. | 1; 1,122 bytes; 0.744 s. |
+| PMID 17618284 associations | One record: 6063, GCST000053, rs6983267-G. Preserve the effect-label discrepancy below. | 1; 1,148 bytes; 0.455 s. |
+| PMID 17634449 associations | Seven records for GCST000057, including 11386/rs1333049-C. | 1; 6,715 bytes; 0.862 s. |
+| Exact association 6114 | Returned association_id 6114, GCST000035, rs3817198-C, PMID 17529967. | 1; 915 bytes; 0.456 s. |
+| Exact study GCST000035 | Returned accession_id GCST000035 and publication/sample metadata. | 1; 1,237 bytes; 0.523 s. |
+| GCST000035 ancestries | Three source rows; this endpoint supplies an unpaged collection, not a source page object. | 1; 2,210 bytes; 0.555 s. |
+| Exact gene FGFR2 | gene_name FGFR2, Ensembl ENSG00000066468 and Entrez 2263. These source-provided stable IDs support a gene pivot. | 1; 317 bytes; 0.410 s. |
+| MONDO_0004989 associations, without/with child traits | 2,094 / 2,422 source associations. Child expansion is explicit source behavior. | 1 each; 3,178 / 3,174 bytes; 0.647 / 0.908 s. |
+| FGFR2 standard/extended gene set | 212 / 223 source associations. The larger set is not interchangeable with the default. | 1 each; 3,544 / 3,540 bytes; 3.147 / 13.738 s. |
+| FGFR2 and MONDO_0004989 together | 40 source associations in one combined request. This proves a native conjunction rather than intersection of independent prefixes. | 1; 3,967 bytes; 3.127 s. |
+| rs2981582 and PMID 17529967 together | One exact association, 6110/GCST000035, rs2981582-A. | 1; 1,129 bytes; 0.658 s. |
+| rs113488022 | Valid zero at both tested page sizes; the absence is source-local. | 1 per size; 176 bytes each; 0.489 / 0.508 s. |
+
+The first job also probed 22 distinct rsIDs to expose field variability, separate from the accepted question denominator. Source totals range from zero to 353. Its 30 API-response timings have median 0.805 s and range 0.404–13.738 s on that host and load. No warm product call was executed. The extended-gene request approaches the current adapter's 15-second deadline; it does not justify a silent deadline increase.
+
+Two discovery mistakes are retained as negative evidence. The historical trait ID EFO_0000305 returned zero while source records use MONDO_0004989 for breast carcinoma. Do not locally rewrite the former into the latter. A documented-looking `/genes?gene_name=FGFR2` request returned an unrelated page of 38,436 genes. Its HTTP 200 and echoed URL do not prove that the filter applied. The corrected direct `/genes/FGFR2` request supplies checked identity. A guessed OpenAPI path returned 404 and a legacy path returned 410; neither is a source-data failure or an API capability verdict.
+
+### Fields proved by capture
+
+| Public resource | Fields actually captured | Proposed use |
+| --- | --- | --- |
+| Association list and direct record | association_id, accession_id, reported_trait, efo_traits with ID and label, snp_allele with rsID and effect allele, p_value plus mantissa/exponent, odds-ratio fields or beta text, range, risk_frequency including NR, source mapping strings, PMID, author, optional numeric interval bounds and source links. | Compact association header and selected full card. Preserve precision and source text markers; complete mapping/locus context is deeper. |
+| Study | accession_id, integer PMID, disease_trait, mapped traits, initial/replication sample text, discovery/replication ancestry summaries, genotyping technologies, SNP count, flags, summary-statistics availability and license URL. | One study card, with distinct stages and attributed source prose. A publication title was not in this capture; it needs its publication resource before being promised. |
+| Study ancestry collection | stage/type, number_of_individuals, ancestry-group array, country-of-origin and recruitment arrays, per-row source self link. | Bounded retained section pages after one bounded study metadata read. Preserve NR and missing country regions, and verify every self link belongs to the requested study. |
+| Exact gene | gene_name, description, location string, cytogenetic region, biotype, Ensembl-ID array and Entrez-ID array. | Exact source identity bridge to the existing gene entity. Do not perform substring filtering on the unrelated collection response. |
+| Trait list and exact trait | source trait ID, whole label and ontology URI; the collection has a page object. | Preserve generic ontology namespaces, including MONDO. Do not restrict the type to an EFO prefix. |
+
+The source ancestry endpoint is unpaged. Section limits bound the user output, while the transport admission limit bounds the one whole-study response. The source receives no invented size parameter. Subsequent section pages read the retained response; they do not refetch it. The default study card keeps only the source ancestry summaries. Recruitment detail sits behind `ancestries`. The capture establishes three rows for this study, not a global upper bound.
+
+The Catalog's 6063 record labels 1.27 [1.16–1.39] as `or_per_copy_num`, while Tomlinson's paper attributes those same values to heterozygotes. This is an explicit source-label inconsistency. Preserve both source identities and labels without conversion or reconciliation. Stacey's Catalog per-copy effects (1.20 and 1.28) and paper homozygote contrasts are different scopes, rather than an established inconsistency. Samani's Catalog p=3×10⁻¹⁹ and paper cohort-specific p values likewise remain separate analyses unless an exact comparison proves otherwise.
 
 ### Identity and joins
 
@@ -46,9 +123,13 @@ The proposed grammar follows the existing `search`, `get` and entity relation fo
 | `get gwas association:ID` | Exact association identity, all source effect alleles and traits, reported effect and interval, source study and publication IDs. | Study card, exact-rsID variant actions and publication. |
 | `get gwas GCST…` | Exact study accession, publication, reported and mapped traits, sample descriptions, summary-statistics availability and source date where supplied. | `associations` and separately paged `ancestries` when proved by capture. |
 | `get gwas GCST… associations` | One bounded native association page belonging to this study. | Continuation with the original checked study and source query. |
-| `get gwas GCST… ancestries` | One bounded source ancestry/sample metadata page. | Source pagination; never a local patient-level denominator. |
+| `get gwas GCST… ancestries` | One bounded retained ancestry/sample metadata page. | Local continuation over the one bounded source collection; never a patient-level denominator. |
 
 All search filters are explicit. Empty search input is a usage error, rather than a scan of the whole catalog. The command-specific page limit and offset use the existing page/pool contract. A continuation preserves every original selector and sort choice. Reads never refresh a bundle or fan out into summary-statistics files.
+
+Keep `--p-value` as an explicit reviewed capability. The public endpoint has no proved native threshold selector. The recommendation is a filter over one retained source page with separate unfiltered source count, returned count and unknown global qualifying count. Preserve a continuation even when the current page filters to zero. Never relabel a partial scan's count as the complete threshold result. A complete threshold search needs separately approved bounded scanning semantics; an implementation must not recreate the old first-50-row completeness claim.
+
+The API provides no immutable catalog snapshot token in these captures. A pool preserves the source pages already received and all checked selectors. It cannot promise an atomic database snapshot across later live page requests. Preserve received identities, reject duplicate/mismatched pages, and expose source drift instead of claiming a stable whole-catalog walk. No full-data walk is needed to land the initial commands.
 
 The initial page candidate is three associations. The measured native projection, complete envelope and action bytes determine whether that remains useful; no unmeasured hard token ceiling is proposed as an observation. A caller may request a larger bounded page. Study metadata is fetched only by its explicit get or selected section, not once per search hit.
 
