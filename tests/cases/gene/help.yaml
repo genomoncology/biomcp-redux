@@ -27,7 +27,9 @@
           ]
         }
       },
-      "max_bytes": 89714
+      "max_bytes": 91228,
+      "max_tokens": 22807,
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -246,5 +248,5 @@
       }
     }
   ],
-  "verified": "The accepted j14984 whole-tree measurement is 77167 CLI bytes. Pathway schema descriptions, six parsed examples and sync documentation add 845 bytes. The combined expected 78012-byte output uses the standing measured-size-plus-fifteen-percent ceiling; the routine gate checks both transports."
+  "verified": "Job j15876 measured whole help at 90918 CLI bytes. The PM retained the existing whole-help global ceiling; this grammar case uses that same approved bound."
 }
