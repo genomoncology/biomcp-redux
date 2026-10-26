@@ -6,6 +6,10 @@ use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, Reply, RequestError, S
 use biomcp_types::{PathwayRef, Problem, ProblemCode, Source};
 use serde::Deserialize;
 use std::time::Duration;
+mod raw;
+mod map;
+mod discovery;
+pub use discovery::{Page, search, top_level, card, release};
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
     user_agent: None,

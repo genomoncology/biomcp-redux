@@ -101,6 +101,20 @@ impl PathwaySearch {
     pub fn fresh(&self) -> bool {
         self.0.fresh
     }
+    /// Bind continuation to an immutable retained observation.
+    pub fn with_pool(&self, pool: Text) -> Self {
+        let mut value = self.clone();
+        value.0.pool = Some(pool);
+        value.0.fresh = false;
+        value
+    }
+    /// Restart the same selectors without a retained snapshot.
+    pub fn restart(&self) -> Self {
+        let mut value = self.at_offset(0);
+        value.0.pool = None;
+        value.0.fresh = false;
+        value
+    }
     /// Advance the native position without changing selectors.
     pub fn at_offset(&self, offset: u32) -> Self {
         let mut value = self.clone();
