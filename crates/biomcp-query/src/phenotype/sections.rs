@@ -21,10 +21,10 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
                         | PhenotypeSection::Xrefs
                         | PhenotypeSection::Hierarchy
                 ) {
-                    out.next.push((
-                        StepKind::Section,
-                        run(Request::GetPhenotype(q.with_section(*section))),
-                    ));
+                    if let Ok(request) = q.with_section(*section) {
+                        out.next
+                            .push((StepKind::Section, run(Request::GetPhenotype(request))));
+                    }
                 }
             }
             out.body = QueryBody::PhenotypeCard(Some(rows.0));

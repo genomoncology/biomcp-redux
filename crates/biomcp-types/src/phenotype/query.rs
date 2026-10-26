@@ -214,11 +214,11 @@ impl PhenotypeGet {
         q
     }
     /// Select a source-available section without replacing the retained reply.
-    pub fn with_section(&self, section: PhenotypeSection) -> Self {
-        let mut q = self.clone();
-        q.0.section = Some(section);
-        q.0.section_offset = 0;
-        q
+    pub fn with_section(&self, section: PhenotypeSection) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.section = Some(section);
+        fields.section_offset = 0;
+        Self::try_from(fields)
     }
     /// Restart exact source acquisition after retained reply expiry.
     pub fn restart(&self) -> Self {
