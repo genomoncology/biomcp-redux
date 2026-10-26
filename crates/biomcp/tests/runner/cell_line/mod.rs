@@ -309,3 +309,7 @@ pub(crate) fn measure_sections() -> Result<(), String> {
 pub(crate) fn generate_xrefs(directory: &std::path::Path) -> Result<(), String> {
     examples::generate_xrefs(directory)
 }
+
+pub(crate) fn measure_section_release() -> Result<(), String> {
+    sections::measure_release()
+}

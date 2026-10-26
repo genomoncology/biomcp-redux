@@ -6,6 +6,7 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
     }
     disabled(measure)?;
     ambiguous(measure)?;
+    release_failure(measure)?;
     identity(measure)
 }
 fn admission(fault: &str, measure: bool) -> Result<(), String> {
@@ -182,5 +183,47 @@ fn ambiguous(measure: bool) -> Result<(), String> {
     if stub.finish()?.len() != 2 {
         return Err("ambiguous section requested a card".into());
     }
+    Ok(())
+}
+
+pub(super) fn release_failure(measure: bool) -> Result<(), String> {
+    let card = fixture("portable-cellosaurus-cell-CVCL_2119.json")?;
+    let stub = Stub::for_source_status(
+        "api.cellosaurus.org",
+        "application/json",
+        move |request| {
+            Ok(if request.contains("/release-info?") {
+                "{}".into()
+            } else {
+                card.clone()
+            })
+        },
+        |request| {
+            if request.contains("/release-info?") {
+                500
+            } else {
+                200
+            }
+        },
+    )?;
+    let env = setup(&stub)?;
+    let value = parity(
+        "sections/synthetic/release-failure",
+        &env,
+        &["get", "cell-line", "CVCL_2119", "variants"],
+        0,
+        measure,
+    )?;
+    path(&value, "/status", json!("partial"))?;
+    path(&value, "/problems/0/field", json!("release"))?;
+    if value.pointer("/result/release").is_some()
+        || value
+            .pointer("/result/fetched")
+            .and_then(Value::as_u64)
+            .is_none()
+    {
+        return Err("section release failure fabricated release or lost retrieval time".into());
+    }
+    stub.finish()?;
     Ok(())
 }

@@ -69,6 +69,9 @@ fn main() -> ExitCode {
 
 fn native_proof() -> Option<ExitCode> {
     let measure: Option<fn() -> Result<(), String>> = match env::args().nth(1).as_deref() {
+        Some("--cell-line-section-release-measure") => {
+            Some(runner::cell_line::measure_section_release)
+        }
         Some("--cell-line-sections-measure") => Some(runner::cell_line::measure_sections),
         Some("--cell-line-measure") => Some(runner::cell_line::measure),
         Some("--cell-line-measure-remaining") => Some(runner::cell_line::measure_remaining),
