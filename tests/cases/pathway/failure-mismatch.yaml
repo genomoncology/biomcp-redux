@@ -36,7 +36,13 @@
         "/status": "failed"
       },
       "max_bytes": 236,
-      "max_tokens": 59
+      "max_tokens": 59,
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-5673001"
+      ],
+      "is_error": true
     }
   ]
 }
