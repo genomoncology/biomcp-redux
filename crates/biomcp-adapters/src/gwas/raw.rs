@@ -7,7 +7,7 @@ pub(super) struct Response {
     #[serde(rename = "_embedded")]
     pub embedded: Option<Embedded>,
     #[serde(rename = "_links")]
-    links: Links,
+    pub(super) links: Links,
     pub page: Page,
 }
 #[derive(Debug, Deserialize)]
@@ -15,21 +15,21 @@ pub(super) struct Embedded {
     pub associations: Vec<Association>,
 }
 #[derive(Debug, Deserialize)]
-struct Links {
+pub(super) struct Links {
     #[serde(rename = "self")]
-    current: Link,
+    pub(super) current: Link,
 }
 #[derive(Debug, Deserialize)]
-struct Link {
-    href: Text,
+pub(super) struct Link {
+    pub(super) href: Text,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Page {
-    size: u32,
+    pub(super) size: u32,
     pub total_elements: u64,
     total_pages: u64,
-    number: u32,
+    pub(super) number: u32,
 }
 /// A source association retains publisher labels and numbers unchanged.
 #[derive(Debug, Deserialize)]

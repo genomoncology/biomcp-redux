@@ -384,14 +384,7 @@
           "type": "boolean"
         },
         "gene": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/GeneSymbol"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/GeneSymbol",
           "description": "Exact native mapped gene; legacy positional query aliases this field."
         },
         "include_child_traits": {
@@ -427,58 +420,23 @@
           ]
         },
         "pubmed": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Pmid"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/Pmid",
           "description": "Exact source publication identity."
         },
         "study": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/GwasStudyId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/GwasStudyId",
           "description": "Exact source study accession."
         },
         "trait": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Literal native efo_trait label; never reported-trait prose."
+          "$ref": "#/$defs/Text",
+          "description": "Literal native efo_trait label; never searches reported_trait prose."
         },
         "trait_id": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/GwasTraitId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/GwasTraitId",
           "description": "Exact native ontology identity."
         },
         "variant": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/RsId"
-            },
-            {
-              "type": "null"
-            }
-          ],
+          "$ref": "#/$defs/RsId",
           "description": "Exact source rsID."
         }
       },
@@ -1073,7 +1031,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas_page/1",
+  "$id": "biomcp.gwas_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1119,7 +1077,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas_page/1",
+      "const": "biomcp.gwas_page/2",
       "type": "string"
     },
     "sources": {

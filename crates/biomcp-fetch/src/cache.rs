@@ -12,7 +12,7 @@ use std::{
 };
 
 /// Transport SQLite schema version checked by other owners of the shared database.
-pub const VERSION: u32 = 2;
+pub const VERSION: u32 = 3;
 /// Compatible cache namespace used by callers when naming shared cache files.
 pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
@@ -34,6 +34,7 @@ pub(crate) struct Entry {
     pub(crate) body: Vec<u8>,
     pub(crate) content_type: Option<String>,
     pub(crate) content_range: Option<String>,
+    pub(crate) pagination: Option<crate::Pagination>,
     pub(crate) fresh_until: i64,
     pub(crate) fetched_at: i64,
 }
@@ -46,6 +47,7 @@ impl Entry {
             status,
             body,
             content_range: None,
+            pagination: None,
             content_type: (status != 404).then(|| content_type.to_owned()),
             fetched_at,
             fresh_until,
@@ -145,7 +147,7 @@ impl Cache {
         } else {
             None
         };
-        if version.is_some_and(|version| version != 1 && version != VERSION) {
+        if version.is_some_and(|version| version != 1 && version != 2 && version != VERSION) {
             return Err(CacheError::Version);
         }
         if version.is_none() {
@@ -161,13 +163,17 @@ impl Cache {
             "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS reply (
                 key BLOB PRIMARY KEY, source TEXT NOT NULL, url TEXT NOT NULL,
-                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, body BLOB NOT NULL,
+                status INTEGER NOT NULL, content_type TEXT, content_range TEXT, pagination TEXT, body BLOB NOT NULL,
                 fetched_at INTEGER NOT NULL, fresh_until INTEGER NOT NULL);
             CREATE INDEX IF NOT EXISTS reply_fresh ON reply (fresh_until);",
         )
         .map_err(db_error)?;
         if version == Some(1) {
             tx.execute("ALTER TABLE reply ADD COLUMN content_range TEXT", [])
+                .map_err(db_error)?;
+        }
+        if matches!(version, Some(1 | 2)) {
+            tx.execute("ALTER TABLE reply ADD COLUMN pagination TEXT", [])
                 .map_err(db_error)?;
         }
         crate::bundle::store::initialize(&tx)?;
@@ -224,12 +230,16 @@ impl Cache {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
         self.sql(deadline, |connection| {
             let entry = connection.query_row(
-                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range FROM reply WHERE key=?1",
-                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?, row.get::<_, Option<String>>(5)?)),
+                "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range, pagination FROM reply WHERE key=?1",
+                params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?, row.get::<_, Option<String>>(5)?, row.get::<_, Option<String>>(6)?)),
             ).optional().map_err(db_error)?;
             match entry {
-                Some((status, Some(body), fresh_until, fetched_at, content_type, content_range)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
-                    Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type, content_range}))
+                Some((status, Some(body), fresh_until, fetched_at, content_type, content_range, pagination)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
+                    let pagination = pagination.map(|p| serde_json::from_str::<crate::Pagination>(&p)).transpose();
+                    match pagination {
+                        Ok(pagination) if pagination.as_ref().is_none_or(crate::Pagination::valid) => Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type, content_range, pagination})),
+                        _ => { Self::delete(connection, key)?; Ok(None) }
+                    }
                 }
                 Some(_) => { Self::delete(connection, key)?; Ok(None) }
                 None => Ok(None),
@@ -258,9 +268,9 @@ impl Cache {
     ) -> Result<(), CacheError> {
         self.sql(deadline, |connection| {
             connection.execute(
-                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)
-                ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range",
-                params![key, source.to_string(), url, entry.status, entry.content_type, entry.body, entry.fetched_at, entry.fresh_until, entry.content_range],
+                "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
+                ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",
+                params![key, source.to_string(), url, entry.status, entry.content_type, entry.body, entry.fetched_at, entry.fresh_until, entry.content_range, entry.pagination.as_ref().map(serde_json::to_string).transpose().map_err(|_| CacheError::Database)?],
             ).map_err(db_error)?;
             Ok(())
         })

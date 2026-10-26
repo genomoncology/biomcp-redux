@@ -120,7 +120,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/10"),
+        Request => ("request", "biodata.request/12"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -160,7 +160,8 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
     };
     contracts.extend(contracts! {
-        Envelope<GwasPage> => ("gwas-page", "biomcp.gwas_page/1"),
+        GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/1"),
+        Envelope<GwasPage> => ("gwas-page", "biomcp.gwas_page/2"),
         Envelope<GwasAssociationCard> => ("gwas-association", "biomcp.gwas_association/1"),
         Envelope<GwasLoci> => ("gwas-loci", "biomcp.gwas_loci/1"),
         Envelope<GwasStudy> => ("gwas-study", "biomcp.gwas_study/1"),
@@ -186,7 +187,7 @@ fn study_registry() -> Vec<Contract> {
         StudySearch => ("study-search", "biomcp.study-search/1"),
         StudyGet => ("study-get", "biomcp.study-get/1"),
         Envelope<StudyPage> => ("study-page", "biomcp.study_page/1"),
-        Envelope<StudyCard> => ("study-card", "biomcp.study_card/1"),
+        Envelope<StudyCard> => ("study-card", "biomcp.study_card/2"),
         Envelope<StudyProfiles> => ("study-profiles", "biomcp.study_profiles/1"),
         Envelope<StudySampleLists> => ("study-sample-lists", "biomcp.study_sample_lists/1"),
         Envelope<StudyFiles> => ("study-files", "biomcp.study_files/1"),
@@ -435,6 +436,8 @@ fn pathway_contracts() -> Vec<Contract> {
 
 fn protein_contracts() -> Vec<Contract> {
     contracts! {
+        ProteinSearch => ("protein-search", "biomcp.protein-search/1"),
+        ProteinGet => ("protein-get", "biomcp.protein-get/1"),
         Envelope<ProteinPage> => ("protein-page", "biomcp.protein_page/1"),
         Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/1"),
         Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein_features/1"),

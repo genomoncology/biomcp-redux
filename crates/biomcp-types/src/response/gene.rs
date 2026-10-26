@@ -65,6 +65,12 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native GWAS association page, absent after failure.
+    GwasPage(Option<crate::GwasPage>),
+    /// Native reviewed-human protein headers.
+    ProteinPage(crate::ProteinPage),
+    /// Caller-ordered exact protein cards and unselected candidates.
+    ProteinCard(crate::ProteinCard),
     /// Native ordered HP term candidates.
     PhenotypePage(crate::PhenotypePage),
     /// Complete independent publisher term card.
@@ -77,6 +83,10 @@ pub enum QueryBody {
     StudyPage(Option<crate::StudyPage>),
     /// Exact stored study metadata.
     StudyCard(Option<crate::StudyCard>),
+    /// Independently paged native molecular-profile metadata.
+    StudyProfiles(Option<crate::StudyProfiles>),
+    /// Independently paged sample-list metadata without sample members.
+    StudySampleLists(Option<crate::StudySampleLists>),
     /// Whole physical FDA companion association rows.
     DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-native CPIC pair page.

@@ -36,6 +36,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("gwas/examples.yaml", 0),
+    ("gwas/examples.yaml", 1),
+    ("protein/cards.yaml", 0),
+    ("protein/gene-crossrefs.yaml", 1),
+    ("protein/cards.yaml", 2),
+    ("protein/paging.yaml", 0),
     ("phenotype/examples.yaml", 0),
     ("phenotype/examples.yaml", 1),
     ("phenotype/examples.yaml", 2),
