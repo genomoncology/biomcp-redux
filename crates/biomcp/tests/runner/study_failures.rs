@@ -45,6 +45,7 @@ fn failure(surface: &str, fault: &str) -> Check {
     let value = call(&env, &replay, &command, 4)?;
     failed(&value)?;
     let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    bounded_card(&after)?;
     if before != after {
         return Err(format!("{surface}/{fault} changed stored card"));
     }
@@ -101,8 +102,17 @@ fn bundle_identity() -> Check {
         return Err(format!("cross-study bundle identity was not rejected: {value}"));
     }
     let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    bounded_card(&after)?;
     if before != after {
         return Err("cross-study replacement entered stored catalog".into());
     }
+    Ok(())
+}
+
+fn bounded_card(value: &Value) -> Check {
+    use std::io::Write;
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    writeln!(std::io::stdout(), "Study synthetic retained card bytes={bytes}").map_err(|e| e.to_string())?;
+    if bytes > 6000 { return Err("retained synthetic card exceeds its envelope ceiling".into()); }
     Ok(())
 }

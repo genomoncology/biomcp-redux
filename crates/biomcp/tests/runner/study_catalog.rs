@@ -85,6 +85,13 @@ fn missing() -> Check {
     {
         return Err(format!("missing bundle: {v}"));
     }
+    let card = call(&env, &replay, &["get", "study", "synthetic_0"], 4)?;
+    if card.get("status") != Some(&json!("failed"))
+        || card.get("result").is_some()
+        || card.pointer("/sources/0/reason") != Some(&json!("syncing"))
+    {
+        return Err(format!("missing card snapshot became source absence: {card}"));
+    }
     call(&env, &replay, &["search", "study"], 2)?;
     Ok(())
 }
@@ -249,7 +256,7 @@ fn surfaces() -> Check {
         return Err("exact stored study card lost native description".into());
     }
     let absent = call(&env, &replay, &["get", "study", "SYNTHETIC_0"], 1)?;
-    if absent.get("result").is_some() {
+    if absent.get("status") != Some(&json!("absent")) || absent.get("result").is_some() {
         return Err("study ID case was repaired".into());
     }
     let args = vec!["search".into(), "study".into(), "atlas".into()];

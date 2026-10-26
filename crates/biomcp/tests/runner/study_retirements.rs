@@ -36,7 +36,25 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(Trial::test("study-retirements/environment-does-not-read-directory", || {
         directory().map_err(Into::into)
     }));
+    trials.push(Trial::test("study-retirements/argument-boundaries", || {
+        boundaries().map_err(Into::into)
+    }));
     trials
+}
+fn boundaries() -> Check {
+    check("--format json study list", LIST)?;
+    check("--disable-sources cbioportal study list", LIST)?;
+    check("study query --gene=--chart", CALCULATE)?;
+    check("study query --gene --chart", CALCULATE)?;
+    check("study query -- --chart", CALCULATE)?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = super::seed(&env, super::rows(), 200)?;
+    super::call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
+    let value = super::call(&env, &replay, &["search", "study", "--", "--chart"], 0)?;
+    if value.get("status") != Some(&json!("complete")) || value.pointer("/page/total") != Some(&json!(0)) {
+        return Err(format!("literal study text became a chart flag: {value}"));
+    }
+    Ok(())
 }
 fn check(command: &str, message: &str) -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
