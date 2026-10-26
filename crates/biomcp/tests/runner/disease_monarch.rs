@@ -3,6 +3,7 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
+mod evidence;
 mod failures;
 mod native;
 pub(super) use native::run as native;
@@ -30,6 +31,10 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(Trial::test(
         "disease-monarch/source-defaults-and-explicit-limits",
         || defaults().map_err(Into::into),
+    ));
+    trials.push(Trial::test(
+        "disease-monarch/evidence-preserves-unavailable-empty-and-populated",
+        || evidence::run().map_err(Into::into),
     ));
     trials.extend(failures::trials());
     trials

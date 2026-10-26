@@ -190,7 +190,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-association/3",
+  "$id": "biodata.disease-association/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A native source association without clinical interpretation.",
@@ -232,11 +232,14 @@
       "description": "Native association category."
     },
     "evidence": {
-      "description": "Source evidence terms without interpretation.",
+      "description": "Source evidence terms; unavailable evidence stays absent.",
       "items": {
         "$ref": "#/$defs/DiseaseAssociationReference"
       },
-      "type": "array"
+      "type": [
+        "array",
+        "null"
+      ]
     },
     "evidence_count": {
       "description": "Native evidence count, distinct from returned reference count.",
@@ -422,7 +425,6 @@
     "predicate",
     "object",
     "attribution",
-    "evidence",
     "qualifiers",
     "subject_closure",
     "object_closure"

@@ -222,6 +222,13 @@ fn references(
     links: &str,
     field: &str,
 ) -> Result<(), String> {
+    if field == "evidence"
+        && raw.get(ids).is_none_or(Value::is_null)
+        && raw.get(links).is_none_or(Value::is_null)
+        && association.get(field).is_some()
+    {
+        return Err("unavailable native evidence became present".into());
+    }
     let expected = raw
         .get(ids)
         .and_then(Value::as_array)
