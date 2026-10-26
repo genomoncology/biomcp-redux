@@ -161,6 +161,7 @@ def curl_reply(request, plan):
     if 'key' in request:
         key = request['key']
         headers[key['header']] = key.get('prefix', '') + os.environ[key['env']]
+        validate_header(key['header'], headers[key['header']])
     config = ['url = ' + json.dumps(request['url']),
               'request = ' + json.dumps(request.get('method', 'GET'))]
     config.extend('header = ' + json.dumps(name + ': ' + value)

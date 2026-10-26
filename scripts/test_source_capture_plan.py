@@ -18,10 +18,19 @@ class Source(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         self.server.calls.append(self.path)
         status = 429 if self.path == '/stop' else 200
+        if self.path == '/redirect':
+            status = 302
         self.send_response(status)
+        if status == 302:
+            self.send_header('Location', '/never')
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.wfile.write(b'{"rows":[]}')
+        if self.path == '/reflect':
+            self.wfile.write(self.headers.get('X-Key', '').encode())
+        elif self.path == '/large':
+            self.wfile.write(b'x' * 8192)
+        else:
+            self.wfile.write(b'{"rows":[]}')
 
     def log_message(self, *_args):
         pass
@@ -105,6 +114,23 @@ class CapturePlanTests(unittest.TestCase):
         result = subprocess.run(['python3', str(SCRIPT), '--verify', str(archive)],
                                 env=self.env, capture_output=True, text=True)
         self.assertEqual(result.returncode, 1)
+
+    def test_bounds_and_key_reflection_never_leak_or_follow(self):
+        for route in ['/redirect', '/large', '/reflect']:
+            with self.subTest(route=route):
+                plan = self.plan([route, '/never'])
+                value = json.loads(plan.read_text())
+                value['requests'][0]['key'] = {'env': 'CAPTURE_TEST_KEY', 'header': 'X-Key'}
+                plan.write_text(json.dumps(value))
+                out = self.base / route[1:]
+                env = dict(self.env, CAPTURE_TEST_KEY='placeholder-capture-secret')
+                result = self.run_capture(plan, out, env=env)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertNotIn('placeholder-capture-secret', result.stdout + result.stderr)
+                for path in out.iterdir():
+                    self.assertNotIn(b'placeholder-capture-secret', path.read_bytes())
+                self.assertLessEqual(len((out / '0000.body').read_bytes()), 4096)
+        self.assertEqual(self.server.calls, ['/redirect', '/large', '/reflect'])
 
     def test_make_target_runs_one_request(self):
         result = subprocess.run(['make', 'source-capture', 'PLAN=' + str(self.plan(['/make'])),
