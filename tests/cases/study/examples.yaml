@@ -1,0 +1,131 @@
+{
+  "feature": "study-catalog",
+  "story": "Synthetic catalog examples run through CLI and MCP without provider requests.",
+  "replay": "study/synthetic-examples",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "cbioportal-studies"
+      ],
+      "mcp": [
+        "sync",
+        "cbioportal-studies"
+      ],
+      "expect": {
+        "/status": "complete",
+        "": {
+          "max_bytes": 512
+        }
+      },
+      "max_bytes": 321,
+      "max_tokens": 81
+    },
+    {
+      "run": [
+        "sync",
+        "cbioportal-studies",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "cbioportal-studies",
+        "--fresh"
+      ],
+      "expect": {
+        "/status": "complete",
+        "": {
+          "max_bytes": 512
+        }
+      },
+      "max_bytes": 321,
+      "max_tokens": 81
+    },
+    {
+      "run": [
+        "search",
+        "study",
+        "Atlas"
+      ],
+      "mcp": [
+        "search",
+        "study",
+        "Atlas"
+      ],
+      "expect": {
+        "/status": "complete",
+        "": {
+          "max_bytes": 1068
+        }
+      },
+      "max_bytes": 877,
+      "max_tokens": 220
+    },
+    {
+      "run": [
+        "search",
+        "study",
+        "--cancer-type",
+        "mixed",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "study",
+        "--cancer-type",
+        "mixed",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "": {
+          "max_bytes": 1077
+        }
+      },
+      "max_bytes": 886,
+      "max_tokens": 222
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "synthetic_0"
+      ],
+      "mcp": [
+        "get",
+        "study",
+        "synthetic_0"
+      ],
+      "expect": {
+        "/status": "complete",
+        "": {
+          "max_bytes": 1313
+        }
+      },
+      "max_bytes": 1122,
+      "max_tokens": 281
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "synthetic_1"
+      ],
+      "mcp": [
+        "get",
+        "study",
+        "synthetic_1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "": {
+          "max_bytes": 1314
+        }
+      },
+      "max_bytes": 1123,
+      "max_tokens": 281
+    }
+  ]
+}

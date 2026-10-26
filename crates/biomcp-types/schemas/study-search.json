@@ -25,7 +25,7 @@
       ]
     }
   ],
-  "description": "Literal metadata search; text is never parsed as a query language.",
+  "description": "Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
   "properties": {
     "cancer_type": {
       "$ref": "#/$defs/CbioportalCancerTypeId",
