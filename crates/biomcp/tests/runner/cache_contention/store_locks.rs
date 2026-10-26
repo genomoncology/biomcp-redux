@@ -87,11 +87,14 @@ fn call(peer: &mut Peer, schemas: &Registry, args: &[&str]) -> Result<Value, Str
             .pointer("/result/content/0/text")
             .and_then(Value::as_str)
             .ok_or("MCP content text missing")?;
-        println!(
+        use std::io::Write;
+        writeln!(
+            std::io::stdout(),
             "LOCAL_ERROR_MCP_BYTES {} {kind} {}",
             args.join(" "),
             text.len()
-        );
+        )
+        .map_err(|e| e.to_string())?;
     }
     Ok(reply)
 }
