@@ -146,14 +146,7 @@ fn pages() -> Result<(), String> {
     {
         return Err(format!("association navigation changed: {first}"));
     }
-    let args = next
-        .get(1)
-        .and_then(|row| row.get("args"))
-        .and_then(Value::as_array)
-        .ok_or("page args")?
-        .iter()
-        .map(|v| v.as_str().ok_or("word"))
-        .collect::<Result<Vec<_>, _>>()?;
+    let args = arguments(next.get(1).ok_or("native page step")?)?;
     let last = invoke(&env, &args, 0)?;
     if last.pointer("/query/section_limit") != Some(&json!(2))
         || last.pointer("/page/offset") != Some(&json!(2))
@@ -292,13 +285,7 @@ fn cards() -> Result<(), String> {
                         .is_some_and(|args| args.contains(&json!(section)))
                 })
                 .ok_or("missing association action")?;
-            let args = action
-                .get("args")
-                .and_then(Value::as_array)
-                .ok_or("args")?
-                .iter()
-                .map(|v| v.as_str().ok_or("word"))
-                .collect::<Result<Vec<_>, _>>()?;
+            let args = arguments(action)?;
             if args.contains(&"--snapshot") {
                 return Err("association inherited entity snapshot".into());
             }
@@ -355,4 +342,13 @@ fn set(row: &mut Value, field: &str, value: Value) -> Result<(), String> {
         .ok_or("synthetic association object")?
         .insert(field.into(), value);
     Ok(())
+}
+
+fn arguments(step: &Value) -> Result<Vec<&str>, String> {
+    step.get("args")
+        .and_then(Value::as_array)
+        .ok_or("step arguments")?
+        .iter()
+        .map(|value| value.as_str().ok_or("step word".into()))
+        .collect()
 }

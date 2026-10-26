@@ -6,7 +6,9 @@ pub(super) fn association(row: &GwasAssociation, out: &mut Outcome) {
             .push((StepKind::Pivot, action(GwasGet::study(id), false)));
     }
     for allele in &row.alleles {
-        if let Ok(q) = serde_json::from_value(json!({"input":allele.rs_id})) {
+        if allele.rs_id.as_str().parse::<biodata::RsId>().is_ok()
+            && let Ok(q) = serde_json::from_value(json!({"input":allele.rs_id}))
+        {
             out.next.push((
                 StepKind::Pivot,
                 Action::Run {
