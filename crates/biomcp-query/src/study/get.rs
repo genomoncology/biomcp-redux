@@ -23,7 +23,11 @@ pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
         let result = card(&leg, q, &mut out);
         finish(&mut out, leg, result.err());
         if let QueryBody::StudyCard(Some(_)) = out.body {
-            for section in [StudySection::Profiles, StudySection::SampleLists, StudySection::Files] {
+            for section in [
+                StudySection::Profiles,
+                StudySection::SampleLists,
+                StudySection::Files,
+            ] {
                 next(&mut out, cx, StepKind::Section, q.with_section(section));
             }
         }
