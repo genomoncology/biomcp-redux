@@ -23,9 +23,9 @@ pub(super) struct Native {
     pub description: Box<str>,
     #[serde(rename = "citedIn")]
     pub cited_in: Box<str>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     datanodes: Option<Box<str>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     annotations: Option<Box<str>>,
 }
 #[derive(Debug, Deserialize, Serialize)]
