@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "GeneInput": {
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "PathwaySource": {
+      "description": "One explicit pathway source, without fallback or cross-source title joins.",
+      "enum": [
+        "reactome",
+        "wikipathways"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.pathway-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Search exactly one source through text, an exact gene join or top-level discovery.",
+  "properties": {
+    "fresh": {
+      "default": false,
+      "description": "Request a new retained observation.",
+      "type": "boolean"
+    },
+    "gene": {
+      "$ref": "#/$defs/GeneInput",
+      "description": "Human gene input for exact resolution and UniProt mapping; Reactome only."
+    },
+    "limit": {
+      "default": 5,
+      "description": "Five rows by default, one to fifty. Reactome rows equals this limit without refill.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native Reactome Start row or retained WikiPathways catalog offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pool": {
+      "$ref": "#/$defs/Text",
+      "description": "Retained snapshot identity for deterministic continuation."
+    },
+    "query": {
+      "$ref": "#/$defs/Text",
+      "description": "Literal source query; exclusive with gene and top-level discovery.",
+      "x-positional": 0
+    },
+    "source": {
+      "$ref": "#/$defs/PathwaySource",
+      "default": "reactome",
+      "description": "One source; Reactome by default."
+    },
+    "top_level": {
+      "default": false,
+      "description": "Native human Reactome top-level discovery, exclusive with text and gene.",
+      "type": "boolean"
+    }
+  },
+  "title": "PathwaySearch",
+  "type": "object"
+}

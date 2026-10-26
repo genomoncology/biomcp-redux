@@ -70,6 +70,9 @@ impl ResponseBody for PathwayPage {
 pub struct PathwayCard {
     /// Source-native identity, species, versions and requested description.
     pub pathway: Pathway,
+    /// Native Reactome database release, separate from pathway version.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub release: Option<Text>,
     /// Whether the source itself shortened its description, rather than the client.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description_truncated: Option<bool>,
@@ -83,7 +86,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway_card/1";
+    const SCHEMA: &'static str = "biomcp.pathway_card/2";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {

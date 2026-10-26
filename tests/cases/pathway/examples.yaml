@@ -1,0 +1,85 @@
+{
+  "feature": "pathway-reactome",
+  "story": "Generated pathway examples execute through the same checked commands.",
+  "replay": "pathway/native",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pathway",
+        "Signaling by EGFR"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 1578,
+      "max_tokens": 395
+    },
+    {
+      "run": [
+        "search",
+        "pathway",
+        "Hemostasis"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 1563,
+      "max_tokens": 391
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-9652817"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-9652817"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/id": {
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-9652817"
+          }
+        },
+        "/result/pathway/name": "Signaling by MAPK mutants",
+        "/result/pathway/species": "Homo sapiens",
+        "/result/pathway/version": "R-HSA-9652817.2",
+        "/result/release": "97"
+      },
+      "max_bytes": 549,
+      "max_tokens": 137
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-177929"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-177929"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/id": {
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-177929"
+          }
+        },
+        "/result/pathway/name": "Signaling by EGFR",
+        "/result/pathway/species": "Homo sapiens",
+        "/result/pathway/version": "R-HSA-177929.6",
+        "/result/release": "97"
+      },
+      "max_bytes": 535,
+      "max_tokens": 134
+    }
+  ]
+}

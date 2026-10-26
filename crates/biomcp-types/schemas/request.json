@@ -399,6 +399,30 @@
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
+    "PathwaySection": {
+      "description": "Supported source-owned pathway disclosures.",
+      "enum": [
+        "summary",
+        "genes",
+        "events",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Complete native source description.",
+        "Namespaced native participants with exact resolved gene joins.",
+        "Native Reactome event objects and unresolved database references.",
+        "Each source-supported section's bounded first page."
+      ]
+    },
+    "PathwaySource": {
+      "description": "One explicit pathway source, without fallback or cross-source title joins.",
+      "enum": [
+        "reactome",
+        "wikipathways"
+      ],
+      "type": "string"
+    },
     "PgxAnnotationKind": {
       "description": "Independent ClinPGx collection kinds, never merged.",
       "enum": [
@@ -674,10 +698,117 @@
       ]
     }
   },
-  "$id": "biodata.request/9",
+  "$id": "biodata.request/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Discover source-native human pathway headers.",
+      "properties": {
+        "command": {
+          "const": "search_pathway",
+          "type": "string"
+        },
+        "fresh": {
+          "default": false,
+          "description": "Request a new retained observation.",
+          "type": "boolean"
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneInput",
+          "description": "Human gene input for exact resolution and UniProt mapping; Reactome only."
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five rows by default, one to fifty. Reactome rows equals this limit without refill.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native Reactome Start row or retained WikiPathways catalog offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained snapshot identity for deterministic continuation."
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal source query; exclusive with gene and top-level discovery.",
+          "x-positional": 0
+        },
+        "source": {
+          "$ref": "#/$defs/PathwaySource",
+          "default": "reactome",
+          "description": "One source; Reactome by default."
+        },
+        "top_level": {
+          "default": false,
+          "description": "Native human Reactome top-level discovery, exclusive with text and gene.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read an exact human pathway card or summary.",
+      "properties": {
+        "command": {
+          "const": "get_pathway",
+          "type": "string"
+        },
+        "fresh": {
+          "default": false,
+          "description": "Request a new source observation.",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "Exact human Reactome or WikiPathways identity without version suffixes.",
+          "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",
+          "type": "string",
+          "x-positional": 0
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained snapshot, when continuing a source relation."
+        },
+        "section": {
+          "$ref": "#/$defs/PathwaySection",
+          "description": "Omit for the card; WikiPathways genes await the GPML implementation.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Bounded initial section size; each all section has its own first page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Native relation offset for a selected genes or events section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "anyOf": [

@@ -125,6 +125,45 @@ The first paging window is `R-HSA-9652817`, `R-HSA-6802957`, `R-HSA-5683057`, `R
 
 The product contract uses native Reactome paging with literal `Start row`, `rows` equal to `--limit` and `Force filters=true`. Exact human/class admission applies independently to each source page. Rejected rows may shorten the displayed page; the command does not fetch extra rows to fill it. Continuation advances from the native position and preserves the source-reported native total. Each requested page is bounded; this capture does not authorize an automatic whole-source walk. A failed or empty class-filter witness unlocks no weaker admission rule. The evidence archive retains raw replies and the complete recipe outside Git; this change adds no product code or fixtures.
 
+### Exact command search requests
+
+The command implementation reuses the accepted identity cards, human top-level relation, database release and BRAF accession mapping from the investigation archives above. Its additional capture declares 25 exact missing keyless search requests before admission. Each request uses the final repeated accepted class filters, literal `Start row`, `Force filters=true` and `rows=5`. The plan uses the existing eight-second deadline and eight-MiB body bound, one second between requests, no redirect and zero retries. It contains the remaining harvest first pages, the next MAPK and Hemostasis native pages, and the final empty sentinel. It performs no full-window search or new card, mapping, bundle or publication request.
+
+Job `j14564` at `81ea22bf` captured 24 HTTP 200 replies and the final exact structured no-entry HTTP 404. The helper stops on that last provider rejection and exits two; the archive retains every planned request. The reviewed sentinel body echoes only `zzzzNoPathway0191`, names the native search endpoint, states `code:404` and `reason:NOT_FOUND`, and includes `targets:null`. This observation does not admit a generic route 404 or another query's response as empty. Successful replies range from 2,246 to 22,870 bytes and 0.106 to 0.492 seconds on the shared build machine.
+
+The preserved archive is `data/biomcp-redux/0216-reactome-commands/native-search.tar.gz` on Yellow, SHA256 `0bf01b60951965eebf178e99408905446f3fb002a727af19c51e46f7c0c0af47`. Independent verification checked its complete 78-member list and all 77 manifest-listed file hashes. The original source bodies remain unchanged in the archive; the replay fixtures use the same JSON values and the transport's canonical request spelling. The archive's plan, receipts and native bodies bind the observations to their exact URLs rather than a reconstructed source query.
+
+### Product disclosure measurements
+
+Job `j14621` at `cb0a5a3f` executes the retained command cases through CLI, MCP and Markdown. It measures 106 command steps, including invalid selectors, source failures and local continuation pages. Every CLI envelope equals the MCP structured result and parsed MCP text. The measurements use local replay bodies and make no provider request. Comparable JSON removes exactly the registry's `use`, `terms` and `terms_url` fields from each validated source outcome. Tokens use compact UTF-8 bytes divided by four, rounded up. Each case's checked-in `max_bytes` and `max_tokens` is its own observed size plus fifteen percent, rounded up; the table shows the largest member of each command form.
+
+| Command form | Largest comparable CLI bytes | Largest tokens | Largest byte ceiling | Largest token ceiling |
+| --- | --- | --- | --- | --- |
+| Header pages | 1551 | 388 | 1784 | 447 |
+| Default card | 534 | 134 | 615 | 155 |
+| Whole summary | 10524 | 2631 | 12103 | 3026 |
+| Gene relation page | 1540 | 385 | 1771 | 443 |
+| Top-level relation page | 1516 | 379 | 1744 | 436 |
+
+The database's complete source summaries vary in length. Ten observed summaries exceed the design's 900-token allocation while retaining whole native summation objects and source citations. The largest is the ALK pathway `R-HSA-201556`, with 2,631 comparable tokens. These measurements preserve source text and do not replace it with a locally written summary. The source observations include PubMed references on 21 of the 23 question cards; the captured NOTCH and Cell Cycle cards contain no native PMID. Citation cases assert the source's native reference positions, and URL-only references retain `uniformResourceLocator` as their source URL beside optional PubMed identities.
+
+The approved whole-summary budget uses each observed disclosure's measured ceiling. Summation objects and native references remain complete. The following per-record limits are enforced by their caller cases.
+
+| Native summary ID | Measured tokens | Token ceiling | Measured CLI bytes | Byte ceiling |
+| --- | --- | --- | --- | --- |
+| `R-HSA-109581` | 1010 | 1162 | 4041 | 4648 |
+| `R-HSA-1227990` | 1645 | 1892 | 6581 | 7569 |
+| `R-HSA-177929` | 1057 | 1216 | 4226 | 4860 |
+| `R-HSA-195721` | 1554 | 1788 | 6214 | 7147 |
+| `R-HSA-201556` | 2631 | 3026 | 10524 | 12103 |
+| `R-HSA-2028269` | 1449 | 1667 | 5796 | 6666 |
+| `R-HSA-2219528` | 2185 | 2513 | 8739 | 10050 |
+| `R-HSA-5358508` | 1100 | 1265 | 4399 | 5059 |
+| `R-HSA-73894` | 1539 | 1770 | 6157 | 7081 |
+| `R-HSA-5673001` | 1197 | 1377 | 4787 | 5506 |
+
+The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/output-measurements.json`, SHA256 `4b5dd0d6f40fe8ba8d7ac7ccaca904b427ddf15376f8af4d7083ea9fcf810ca8`. Transfer verification checks the complete file hash and every row's CLI/MCP equality result. The text-search zero-total boundary increment runs in `j14641`. HTTP200 with native total zero is a bad reply, while rejection of every row of a positive-total native page preserves that total, its native next offset and all admission problems. The four CLI/MCP/Markdown step measurements are separately preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/boundary-measurements.json`, SHA256 `eeef5fbad5de082dc52d9c8f405f3ad7486946ae5903cbbe857febd12ea2fe70`. The permanent caller cases also exercise a retained pool under a foreign query, disabled-source admission before saved content, exact ordered gene/top-level walks, native search continuation and Markdown command shapes.
+
 ### Public fields and identity joins
 
 Reactome's query endpoint must prove the requested `stId`, `displayName`, `schemaClass`, species, summary and version before their types are accepted. Its participant endpoint describes physical entities, including complexes and modified proteins. A participant display name is not a gene symbol. The implementation must follow the publisher's reference entities and identifier namespaces. It must not extract symbols with regular expressions or treat each physical participant as one gene. Events may contain both objects and integer database references; every such reference needs either a checked hydration or an explicit unresolved record. Event records do not inherit the pathway's stable identifier. Only an event whose captured class is Pathway or TopLevelPathway may generate a `get pathway` action. Reactions and other event kinds retain source references and URLs without pretending to be pathway cards.

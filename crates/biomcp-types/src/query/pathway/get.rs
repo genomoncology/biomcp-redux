@@ -60,6 +60,24 @@ impl TryFrom<GetFields> for PathwayGet {
     }
 }
 impl PathwayGet {
+    /// Construct one exact default card from a checked source identity.
+    pub fn new(id: PathwayId) -> Self {
+        Self(GetFields {
+            id,
+            section: None,
+            section_limit: default_limit(),
+            section_offset: 0,
+            pool: None,
+            fresh: false,
+        })
+    }
+    /// Select a source-supported disclosure.
+    pub fn with_section(&self, section: PathwaySection) -> Result<Self, QueryInvalid> {
+        let mut value = self.0.clone();
+        value.section = Some(section);
+        value.section_offset = 0;
+        Self::try_from(value)
+    }
     /// Checked source identity.
     pub fn id(&self) -> &PathwayId {
         &self.0.id

@@ -5,6 +5,7 @@ mod disease;
 mod drug;
 mod drug_label;
 mod maintenance;
+mod pathway;
 mod pgx;
 mod steps;
 mod sync;
@@ -111,7 +112,7 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if disease::unsupported(action) {
+    if disease::unsupported(action) || pathway::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
     if let Action::Run {
@@ -221,6 +222,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
         Request::SearchStudy(q) => match body {
             QueryBody::StudyPage(body) => meta.encode(q, body),
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
