@@ -32,7 +32,7 @@ pub struct Pathway {
     /// WikiPathways catalog citedIn cell, including a native empty cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cited_in: Option<Box<str>>,
-    /// Reactome stable identifier version, separate from identity.
+    /// Whole native Reactome stIdVersion, separate from stable identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
     /// WikiPathways native revision, separate from identity.
@@ -85,7 +85,7 @@ pub enum PathwayEventRef {
         /// Native stable identity when present, never copied from the pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         id: Option<ReactomeId>,
-        /// Native stable identifier version, separate from the event identity.
+        /// Whole native stIdVersion, separate from the event stable identity.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         version: Option<Text>,
         /// Whole native display name.

@@ -15,7 +15,7 @@ pub struct PathwayHeader {
     pub name: Text,
     /// Explicit native human species.
     pub species: PathwaySpecies,
-    /// Reactome stable identifier version, separate from identity.
+    /// Whole native Reactome stIdVersion, separate from stable identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
     /// WikiPathways revision, separate from identity.

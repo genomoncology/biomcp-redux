@@ -115,7 +115,7 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
 
 #[test]
 fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
-    let base = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"12"});
+    let base = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"R-HSA-5673001.12"});
     assert_eq!(roundtrip::<Pathway>(base.clone()), base);
     let mut empty = base.clone();
     empty
@@ -138,7 +138,7 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     for event in [
         json!({"kind":"database","db_id":5673001}),
         json!({"kind":"object","db_id":5668599,"name":"Native reaction","schema_class":"Reaction"}),
-        json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","version":"12","name":"Native pathway","schema_class":"Pathway"}),
+        json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","version":"R-HSA-5673001.12","name":"Native pathway","schema_class":"Pathway"}),
     ] {
         assert_eq!(roundtrip::<PathwayEventRef>(event.clone()), event);
     }
