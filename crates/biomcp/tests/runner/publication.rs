@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 
-struct Peer {
+pub(super) struct Peer {
     process: Option<Process>,
     input: Option<ChildStdin>,
     replies: Receiver<Result<Value, String>>,
@@ -17,8 +17,13 @@ struct Peer {
 }
 impl Peer {
     fn new(env: &Environment) -> Result<Self, String> {
+        Self::with_globals(env, &[])
+    }
+    pub(super) fn with_globals(env: &Environment, globals: &[String]) -> Result<Self, String> {
+        let mut args = vec!["serve".into()];
+        args.extend_from_slice(globals);
         let mut child = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -48,7 +53,7 @@ impl Peer {
             reader: Some(reader),
         })
     }
-    fn send(&mut self, frame: &Value) -> Result<(), String> {
+    pub(super) fn send(&mut self, frame: &Value) -> Result<(), String> {
         let writer = self.input.as_mut().ok_or("stdin missing")?;
         serde_json::to_writer(&mut *writer, frame).map_err(|e| e.to_string())?;
         writer
@@ -56,12 +61,12 @@ impl Peer {
             .and_then(|()| writer.flush())
             .map_err(|e| e.to_string())
     }
-    fn next(&self) -> Result<Value, String> {
+    pub(super) fn next(&self) -> Result<Value, String> {
         self.replies
             .recv_timeout(Duration::from_secs(30))
             .map_err(|_| "publication watchdog")?
     }
-    fn finish(mut self) -> Result<(), String> {
+    pub(super) fn finish(mut self) -> Result<(), String> {
         drop(self.input.take());
         let (status, _, stderr) = self.process.take().ok_or("process missing")?.finish()?;
         self.reader
