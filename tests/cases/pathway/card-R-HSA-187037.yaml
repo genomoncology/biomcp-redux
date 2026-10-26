@@ -28,6 +28,27 @@
         "/result/release": "97"
       },
       "max_bytes": 5000
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-187037",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-187037",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/*/pubmed": {
+          "includes": "12676795"
+        }
+      },
+      "max_bytes": 100000
     }
   ]
 }

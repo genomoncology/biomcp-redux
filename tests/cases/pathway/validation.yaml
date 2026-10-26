@@ -7,6 +7,29 @@
       "run": [
         "search",
         "pathway",
+        "MAPK signaling",
+        "--pool",
+        "foreign-query"
+      ],
+      "mcp": [
+        "search",
+        "pathway",
+        "MAPK signaling",
+        "--pool",
+        "foreign-query"
+      ],
+      "exit": 3,
+      "is_error": true,
+      "expect": {
+        "/error/code": "pool.expired",
+        "/next/0/kind": "restart"
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "search",
+        "pathway",
         "text",
         "--top-level"
       ],
