@@ -1,0 +1,31 @@
+{
+  "feature": "cell-line-identity",
+  "story": "Short query and limit aliases map to the same checked literal request.",
+  "replay": "cell-line/examples",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "cell-line",
+        "-q",
+        "MOLM13",
+        "-l",
+        "5"
+      ],
+      "mcp": [
+        "search",
+        "cell-line",
+        "-q",
+        "MOLM13",
+        "-l",
+        "5"
+      ],
+      "expect": {
+        "/query/query": "MOLM13",
+        "/query/limit": 5
+      },
+      "max_bytes": 1828,
+      "max_tokens": 457
+    }
+  ]
+}
