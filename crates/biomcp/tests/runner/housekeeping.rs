@@ -44,6 +44,12 @@ fn check() -> Check {
                 return Err(format!("missing {field}: {text}").into());
             }
         }
+        if !text.contains(&format!("Commit: {}\n", env!("BIOMCP_BUILD_COMMIT")))
+            || !text.contains(&format!("Target: {}\n", env!("BIOMCP_BUILD_TARGET")))
+            || !text.contains("Schemas: 1, 2\n")
+        {
+            return Err("verbose build or schema provenance differs from this artifact".into());
+        }
         if !empty && !text.contains(&config.display().to_string()) {
             return Err("config path does not match the settings boundary".into());
         }
@@ -84,7 +90,9 @@ fn check_config(env: &Environment, client: Option<&str>, empty: bool) -> Check {
         .get("command")
         .and_then(Value::as_str)
         .ok_or("missing executable")?;
-    if !Path::new(path).is_absolute()
+    let expected = env.command(env!("CARGO_BIN_EXE_biomcp"), &[]);
+    if Path::new(path).canonicalize()? != Path::new(expected.get_program()).canonicalize()?
+        || !Path::new(path).is_absolute()
         || !Path::new(path).is_file()
         || entry.get("args") != Some(&json!(["serve"]))
         || value.as_object().is_none_or(|map| map.len() != 1)
