@@ -1152,7 +1152,7 @@
     },
     "StudyGet": {
       "additionalProperties": false,
-      "description": "Exact case-sensitive study retrieval or a bounded metadata section.",
+      "description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
       "properties": {
         "id": {
           "$ref": "#/$defs/StudyId",

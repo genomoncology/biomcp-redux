@@ -448,5 +448,15 @@ fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
             String::from_utf8_lossy(&output.stderr)
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    super::budget(&value)?;
+    let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
+    let mcp = crate::runner::mcp::call_with_globals(
+        env,
+        &words,
+        exit > 1,
+        &env.globals(Some(replay), false),
+    )?;
+    super::budget(&mcp)?;
+    Ok(value)
 }

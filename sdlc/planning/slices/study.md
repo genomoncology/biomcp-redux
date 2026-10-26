@@ -1,6 +1,6 @@
 # Study slice investigation
 
-This proposed design starts from main `85e6ba864c3f13ec50432a58670ec2af13e12857`. It follows steps 1–4 of [the slice process](../slices.md). It adds no product code.
+The investigation started from main `85e6ba864c3f13ec50432a58670ec2af13e12857`. It follows steps 1–4 of [the slice process](../slices.md). The implementation and its bounded disclosure evidence are recorded below.
 
 The approved boundary keeps exact study retrieval and counts stated by cBioPortal. Local top-mutated, filter, query, co-occurrence, cohort, survival and comparison calculations retire. A source count never supplies an inferred denominator, prevalence, prognosis or treatment recommendation.
 
@@ -29,12 +29,12 @@ The existing [CohortObservation contract](../biodata-variants-and-annotations.md
 
 ## Proposed command tree and disclosure
 
-This is a proposal for PM review. It does not claim that commands already exist.
+The landed commands expose stored metadata and bounded independent sections. The capture limit ruling defers `counts`, `--gene` and patient totals.
 
 | Command | Default answer | Deeper answer and next steps |
 | --- | --- | --- |
 | `search study TEXT [--cancer-type CODE] [--limit N] [--offset N] [--pool ID]` | One page of five study headers, stable source order; literal case-insensitive text matching on the native ID/name/description | One exact get per candidate, then pool paging; one sync action for absent/stale bundle. No clinical ranking, synonyms, recursive tumor descendants or gene-content heuristic |
-| `get study ID [SECTIONS] [--gene GENE] [--section-limit N] [--offset N] [--pool ID]` | Exact study header, description, source-stated sample/patient counts, citation and terms | Named `profiles`, `sample-lists`, `counts`, and `files` only where captures prove available fields; bounded pages, precise native IDs and source links. `all` remains bounded and never fetches participant-level matrices |
+| `get study ID [SECTION] [--section-limit N] [--section-offset N]` | Exact study header, description, source-stated sample and assay counts, citation and terms | Named `profiles`, `sample-lists`, `files`, and bounded `all`; `counts` and `--gene` are deferred; bounded pages, precise native IDs and source links. `all` remains bounded and never fetches participant-level matrices |
 | `sync cbioportal-studies` | One checked metadata catalog snapshot, its source revision and acquisition status | Atomic replacement; accepted previous snapshot survives parse, identity, quota or transport failures. Reading never triggers implicit sync |
 
 A get uses only an exact study ID selected from discovery or explicitly supplied by the caller. Unsupported aliases return usage guidance or source absence, never a guessed cohort. Exact study IDs remain case-sensitive if the source treats them that way. Search filters narrow only checked fields; a cancer type such as `mixed` must not expand into cohorts inferred from sample diagnoses.
@@ -89,13 +89,13 @@ Drop new analysis engines, plots, local mutation/CNA/expression/SV aggregation, 
 
 Static inventory uses the 0.9 checkout `4050fdc7dbdf4d713d94cf02a39a147b863665be`: `src/cli/study/mod.rs`, `src/cli/types.rs`, `src/cli/list/literature.rs`, `src/entities/study.rs`, `src/sources/cbioportal_study.rs`, and `spec/entity/study.md`. No legacy executable has been run. Network containment and executable baseline costs remain unmeasured.
 
-The following ledger is proposed accounting for PM review, outside the generated closed-accounting markers until the PM accepts the design. A positional study ID is not an option slot. Global output/settings/help flags remain shared; they are outside the historical command-specific denominator.
+The accepted entity boundary and capture limit rulings close the following accounting. The generated ledger counts long option slots; the detailed rows retain aliases, values, chart rendering and the legacy environment variable. A positional study ID is not an option slot. Global output/settings/help flags remain shared; they are outside the historical command-specific denominator.
 
 | 0.9 leaf | Proposed disposition | Every command-specific option and alias | Migration |
 | --- | --- | --- | --- |
 | `study list` | Rename | No command-specific flags | `search study` over the checked source catalog; local installation list is not public-source absence |
 | `study download` | Rename data acquisition | `--list`; positional study ID | `sync cbioportal-studies` acquires metadata only; exact get returns safe source file references. Whole-study analytical installs retire |
-| `study query` | Drop calculations | `--study`/`-s`, `--gene`/`-g`, `--type`/`-t`; mutation/mutations, cna/copy_number/copy-number, expression/expr, sv/fusion/fusions/structural_variants | Exact get and explicit native counts; no recomputed rates, expression summary, CNA distribution or SV table |
+| `study query` | Drop calculations | `--study`/`-s`, `--gene`/`-g`, `--type`/`-t`; mutation/mutations, cna/copy_number/copy-number, expression/expr, sv/fusion/fusions/structural_variants | Exact get preserves native study metadata counts; gene aggregates and patient totals are deferred. No recomputed rates, expression summary, CNA distribution or SV table |
 | `study top-mutated` | Drop calculations | `--study`/`-s`, `--limit`/`-l` | Exact study get; source website for analysis |
 | `study filter` | Drop calculations | `--study`/`-s`, repeatable `--mutated`, `--amplified`, `--deleted`, `--expression-above`, `--expression-below`, `--cancer-type` | No replacement analytical intersection; source retrieval guidance only |
 | `study cohort` | Drop calculations | `--study`/`-s`, `--gene`/`-g` | No mutant/wildtype split; exact source study retrieval |
@@ -106,6 +106,30 @@ The following ledger is proposed accounting for PM review, outside the generated
 The shared ChartArgs flags on query, survival, compare and co-occurrence all retire with their leaf: `--chart`, `--terminal`, `--output`/`-o`, `--title`, `--theme`, `--palette`, `--cols`, `--rows`, `--width`, `--height`, `--scale`, and hidden `--mcp-inline`. All chart kinds, themes, palettes, PNG/SVG, terminal and MCP inline rendering retire. `list study` and catalog discovery are shared help surfaces and must describe the new entity commands. `BIOMCP_STUDY_DIR` no longer selects an analysis directory; migration guidance names source sync rather than silently scanning that directory.
 
 Legacy output sections are all accounted: local availability, downloadable IDs and install result become source metadata/sync guidance; Mutation Frequency / Top Variant Classes / Top Protein Changes / CNA Distribution / Expression Distribution / Structural Variants / Top Mutated Genes / Filter Intersection / Cohort Groups / Survival / Group Comparison / Co-occurrence / Charts retire with the calculation ruling. The old `not_in_local_cohorts` state becomes explicit missing snapshot or source absence, never a zero frequency. Legacy study commands have no general get-section selector grammar to preserve.
+
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `study list` | Ported or renamed | — | — | — | Search the stored public catalog with search study; local installations do not define source absence. |
+| `study download` | Ported or renamed | — | `--list` | — | Sync metadata with sync cbioportal-studies and inspect exact file references with get study ID files; whole-study installs and downloadable archive listing retire. |
+| `study query` | Dropped by ruling | — | `--study`, `--gene`, `--type`, `--chart`, `--terminal`, `--output`, `--title`, `--theme`, `--palette`, `--cols`, `--rows`, `--width`, `--height`, `--scale`, `--mcp-inline` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+| `study top-mutated` | Dropped by ruling | — | `--study`, `--limit` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+| `study filter` | Dropped by ruling | — | `--study`, `--mutated`, `--amplified`, `--deleted`, `--expression-above`, `--expression-below`, `--cancer-type` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+| `study cohort` | Dropped by ruling | — | `--study`, `--gene` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+| `study survival` | Dropped by ruling | — | `--study`, `--gene`, `--endpoint`, `--chart`, `--terminal`, `--output`, `--title`, `--theme`, `--palette`, `--cols`, `--rows`, `--width`, `--height`, `--scale`, `--mcp-inline` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+| `study compare` | Dropped by ruling | — | `--study`, `--gene`, `--type`, `--target`, `--chart`, `--terminal`, `--output`, `--title`, `--theme`, `--palette`, `--cols`, `--rows`, `--width`, `--height`, `--scale`, `--mcp-inline` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+| `study co-occurrence` | Dropped by ruling | — | `--study`, `--genes`, `--chart`, `--terminal`, `--output`, `--title`, `--theme`, `--palette`, `--cols`, `--rows`, `--width`, `--height`, `--scale`, `--mcp-inline` | — | The entity boundary retires local analysis and charts; get study ID preserves native metadata, and the source study page supplies analysis. Gene aggregates and patient totals remain explicitly deferred by the capture limit ruling. |
+<!-- /parity-accounting -->
+
+| Additional accounting surface | 1.0 disposition | Owning proof |
+| --- | --- | --- |
+| `list study` | Fixed `search study` guidance; public catalog discovery uses `help search study`, `help get study` and `help sync cbioportal-studies`. | `study-retirements/fixed-guidance-1`; `study/help.yaml`; MCP command discovery. |
+| `BIOMCP_STUDY_DIR` | Retired without scanning the directory; guidance names metadata sync. | `study-retirements/environment-does-not-read-directory`. |
+| DataHub `study_list.json` | Deferred by the ticket filing ruling: the independent downloadable archive catalog is outside the stored portal metadata catalog. | Source inventory remains in the retained investigation. No download-list parity is claimed. |
+| Per-study use labels | Deferred until a need appears under the Study ruling. Source-wide restricted policy remains; native LICENSE links are notices on files pages and `all`, never cached onto a plain card. | `study-files/complete-walk-and-notice`. |
+| `counts`, `--gene`, patient total | Deferred under the capture limit ruling; the API has no aggregate-row gene selector and BRCA's unfiltered reply costs 4,258,105 bytes. A cohort-changing gene filter is not substituted. | Bounded admission witnesses below; no product count command is claimed. |
+| Analysis engines, plots, local aggregation, institutional portals, private datasets, whole-database exports, tool installation | Dropped under the entity boundary ruling. | `study_retirements.rs`; no tool download or installation. |
 
 ### Closed public issues
 
@@ -147,6 +171,41 @@ S01–S20 are paraphrased research-data follow-ups to the studies and publicatio
 | S20 | Which public study represents the MSK-IMPACT clinical sequencing cohort and what does the portal count? [Zehir et al. Nat Med 2017](https://pubmed.ncbi.nlm.nih.gov/28481359/) | `msk_impact_2017`; native `mixed`, `allSampleCount=10945`, `sequencedSampleCount=10945`. The description says 10,000 clinical cases; that prose is not a patient-count field. [Native answer](https://www.cbioportal.org/api/studies/msk_impact_2017?projection=DETAILED). |
 
 Additional controls supplement this published-question bank: exact absent study returns 404; a fabricated text query has zero metadata matches; source 429/500/timeout/broken-body controls must report failure. They are test controls, not additional published clinical questions. Gene-count and file-reference follow-ups appear with the second capture findings below.
+
+## Question answers through the landed surface
+
+These statuses describe the command's ability to return the already reviewed native answer. They do not change the source answer or infer a clinical conclusion. `scripts/study_get_retained.py` builds the twenty exact card cases and complete profile walks from the verified native archive. The retained proof covers all twenty identities, native codes and counts in S01–S20. S21–S24 and S26 remain source findings whose product access is deferred by the PM's capture limit ruling.
+
+| Question | Command answer | Owning landed assertion |
+| --- | --- | --- |
+| S01 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S02 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S03 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S04 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S05 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S06 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S07 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S08 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S09 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S10 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S11 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S12 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S13 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S14 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S15 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S16 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S17 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S18 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S19 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S20 | Answered | Exact native card in the twenty-card retained proof; `study-get/retained-native` checks identity, native count fields and complete description through CLI and MCP. |
+| S21 | Unanswered by the product; PM deferral | No gene-count section; the retained source finding stays unchanged. |
+| S22 | Unanswered by the product; PM deferral | No gene-count section; the retained source finding stays unchanged. |
+| S23 | Unanswered by the product; PM deferral | No gene-count section; the retained source finding stays unchanged. |
+| S24 | Unanswered by the product; PM deferral | No gene-count section; the retained source finding stays unchanged. |
+| S25 | Answered | Exact MSK profile walk preserves all three native profile IDs and types; no expression profile is invented. |
+| S26 | Partial | Stored card preserves the absent patient field; the separately scoped patient endpoint total is deferred with counts. |
+
+The design case map is implemented by `study_catalog.rs` (search, selectors, sync, revision and settings), `study_get.rs` (exact cards, native profile and list walks, admission and navigation), `study_files.rs` (files and LICENSE notices), `study_failures.rs` (synthetic failures and rejected replacements), `study_retirements.rs` (every retired leaf, option, alias, enumerated value, chart flag and environment setting), and `tests/cases/study/` (generated help and executable examples). The native catalog proof covers the complete 551-study catalog and every five-header window. The native card/section generator and files generator keep their cases outside the repo, each with its own measured full and comparable byte ceilings. Known-positive capture evidence remains unchanged; this accounting adds no provider request.
 
 ## Captured source findings
 
@@ -196,20 +255,39 @@ Native LICENSE links are [BRCA](https://github.com/cBioPortal/datahub/blob/maste
 
 ### Measured disclosure budget
 
-These measurements describe compact UTF-8 JSON projections of the retained native answers, using Python `json.dumps(ensure_ascii=False,separators=(',',':'))`. They are lower bounds for product costs because the final envelope, source terms, problems and executable actions do not exist yet. They are not claimed CLI/MCP measurements or tokenizer counts. Enforce byte ceilings on actual product output after implementation measures those additions; do not adopt these projections as passing runtime caps.
+The table uses the accepted complete product envelopes from the retained CLI/MCP proofs. The earlier offline projections excluded envelopes, terms and actions; they were lower bounds and supplied no passing runtime cap. Every native case keeps its measured ceiling plus fifteen percent in the retained generator. CLI includes its newline; MCP structured content is one byte smaller. Comparable case budgets omit only the existing shared serializer's terms fields and remain separate from full-envelope ceilings. MCP transport frames remain measurement references rather than payload budgets.
 
-| Layer | Retained-case projection maximum | Proposed output target for PM review |
-| --- | --- | --- |
-| One header |210 bytes across S01–S20 |One identity, native tumor code, sample count, citation and build; no long description |
-| Search page, five headers |1,013 bytes across four harvested-case pages |Five headers plus bounded envelope/actions; measure the whole 551-study catalog before accepting a ceiling |
-| Default study card |707 bytes across S01–S20 |Identity, description, publications, sample/sequenced/CNA counts, native import date; no profile or participant matrices |
-| Profile page, five |1,926 bytes across three captured studies |Five native profile summaries; omit repeated embedded study records |
-| Sample-list page, five |1,424 bytes across three captured studies |Five list summaries/counts; omit source sampleIds |
-| File page, five |1,721 bytes across two captured directories |Native path, publisher link, Git SHA and accurately labeled blob bytes |
-| One selected gene count row |281 bytes for TP53 in the two captured aggregates |Keep all native count distinctions, panels and exact gene identity; add explicit unspecified-unit notice |
-| Sync |No product output measured |Summary only; no551-record catalog dump |
+| Layer | Largest measured full CLI bytes | Largest measured MCP structured-content bytes | Full CLI ceiling | Owning measured proof |
+| --- | ---: | ---: | ---: | --- |
+| One header | Included in the measured five-header envelope | Included in the measured five-header envelope | Covered by the search page ceiling | Every consecutive catalog window, including the largest native header |
+| Search page, five headers | 2,654 | 2,653 | 3,053 | Catalog replay; comparable MCP ceiling 3,051 |
+| Default study card | 3,127 | 3,126 | 3,597 | Forty-six retained card/section cases |
+| Profile page, five | 2,890 | 2,889 | 3,324 | Complete BRCA, LUAD and MSK profile walks |
+| Sample-list page, five | 2,088 | 2,087 | 2,402 | Complete BRCA, LUAD and MSK sample-list walks |
+| File page, five | 3,390 | 3,389 | 3,899 | Twenty-one retained files/card/all cases |
+| Bounded `all` | 9,338 | 9,337 | 10,739 | BRCA native bounded first pages; no participant matrices |
+| One selected gene count row | Deferred | Deferred | No fabricated budget | Capture limit ruling defers gene counts and patient totals |
+| Sync | 450 | 449 | 518 | Retained compact catalog sync receipt, including native source terms |
 
-Counts on discarded sample IDs or byte calculations here are technical transfer/output measurements, never reconstructed clinical denominators. No 0.9 output or timing ratio is claimed. The source catalog and metadata projection demonstrate feasibility; final product tokenization, actual byte caps and current shared-envelope overhead belong to the implementation proof at its frozen revision. A native alteration frequency is not available in the captured aggregate, so no budget is assigned to a fabricated rate field.
+The retained sync receipt serializes to 449 compact UTF-8 JSON bytes; the CLI newline adds one. These are technical serialization measurements from the existing verified product receipt, not a new source call or replay. New synthetic examples and help also enforce their measured per-step `max_bytes` through both CLI and MCP. Existing synthetic failure, retirement, navigation and disabled-source cases retain their owning response ceilings. Source cases remain outside Git when publisher terms bar storage.
+
+The synthetic help/example measurements in j14944 preserve the existing full-envelope and comparable-output distinction. Both surfaces passed their ordinary cases before these fixed ceilings were added. The source terms remain present in full responses.
+
+| Case step | Full CLI bytes | MCP bytes | Comparable bytes | Comparable max_bytes | Full max_bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| help 1 | 1203 | 1202 | 1202 | 1383 | 1384 |
+| help 2 | 1471 | 1470 | 1470 | 1691 | 1692 |
+| help 3 | 433 | 432 | 432 | 497 | 498 |
+| examples 1 | 445 | 444 | 279 | 321 | 512 |
+| examples 2 | 445 | 444 | 279 | 321 | 512 |
+| examples 3 | 928 | 927 | 762 | 877 | 1068 |
+| examples 4 | 936 | 935 | 770 | 886 | 1077 |
+| examples 5 | 1141 | 1140 | 975 | 1122 | 1313 |
+| examples 6 | 1142 | 1141 | 976 | 1123 | 1314 |
+
+The existing synthetic study runner responses have fixed schema-scoped full-envelope budgets from j14940: page 1,877 bytes, sync 447, card including bounded all 6,339, files 2,425, usage error 198, sample lists 1,563 and profiles 1,991. Both CLI and MCP are checked against each measured maximum plus fifteen percent. This supplements the narrower native per-case ceilings without rerunning native proofs. Failure and retirement cases retain their more specific existing ceilings.
+
+Every 0.9 timing and output-size row remains **unmeasured**: this lane has no independently verified contained legacy executable, and it installs no external baseline. The milestone 5 comparison owns those measurements. No speedup, token reduction or output-size ratio is claimed. Native source transfer sizes above remain HTTP measurements and are not product command costs. The byte-derived token approximation used by the runner is not a tokenizer benchmark. No local count, frequency or denominator is calculated.
 
 ## Evidence and review limits
 
@@ -223,7 +301,7 @@ Evidence is outside Git on Yellow under `data/biomcp-redux/0194-study-investigat
 
 Each archive retains the fixed recipe, original response bodies, HTTP headers/statuses, request scopes, timestamps, measured elapsed durations, environment and manifest. The clinical reviewer independently checked all S01–S20 native records and accepted those metadata answers; the reviewer separately required native count names and unspecified aggregate units. Clinical review does not accept technical transport or licensing design. A bounded fixed-route source failure witness is the captured exact 404; synthetic 429/500/timeout/malformed-body cases are proposed, not falsely labeled live failures.
 
-Unmeasured limits remain explicit: 0.9 commands were inspected but not executed because no independently verified network containment was established for this lane; actual product CLI/MCP outputs do not exist; no warm command timing, token count, full dataset download, content checksum for LFS objects, gene-frequency value, full terms review for all 551 studies, or private-tier probe was performed. These limits do not authorize substituting a calculated rate or a guessed source field. PM review must accept the scope and resolve the shared-model and per-study terms questions before adapter/type implementation.
+Unmeasured limits remain explicit: 0.9 commands were inspected but not executed because no independently verified network containment was established for this lane; no warm command timing, token count, full dataset download, content checksum for LFS objects, gene-frequency value, full terms review for all 551 studies, or private-tier probe was performed. These limits do not authorize substituting a calculated rate or a guessed source field. The accepted Study and capture limit rulings keep gene counts, patient totals, the DataHub archive catalog and per-study use labels deferred; no shared-model extension is made.
 
 
 Reproducibility supplement: `metadata-annotations.tar.gz`, SHA-256 `eff5b037f893c4e0fba9723f9d1e8d39dd45f8319d3bcc5fad4d508576f6623f`, lives beside the native archives. Its four members preserve the complete closed-issue inventory, the byte-projection recipe, its JSON measurements and a manifest. Every member hash and the exact member set were independently checked on Yellow. The recipe reads the two retained source archives and reproduces the byte table without contacting providers or calculating biological counts.
