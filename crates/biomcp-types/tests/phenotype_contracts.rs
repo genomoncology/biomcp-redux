@@ -66,6 +66,15 @@ fn source_and_section_pairings_validate_before_any_adapter() {
             );
         }
     }
+    let card = PhenotypeGet::new("HP:0001250".parse().unwrap());
+    assert!(
+        card.with_section(biomcp_types::PhenotypeSection::Hierarchy)
+            .is_err()
+    );
+    assert!(
+        card.with_section(biomcp_types::PhenotypeSection::Synonyms)
+            .is_ok()
+    );
     for bad in [
         json!({"text":"x","source":"hpo"}),
         json!({"text":" "}),

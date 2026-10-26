@@ -14,7 +14,3 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         _ => Err(io::Error::other("pathway response mismatch")),
     }
 }
-pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
-    matches!(action, biomcp_query::Action::Run { request: Request::GetPathway(q), .. }
-        if !matches!(q.section(), None | Some(biomcp_types::PathwaySection::Summary | biomcp_types::PathwaySection::All)))
-}

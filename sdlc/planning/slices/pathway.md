@@ -164,7 +164,61 @@ The approved whole-summary budget uses each observed disclosure's measured ceili
 
 The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/output-measurements.json`, SHA256 `4b5dd0d6f40fe8ba8d7ac7ccaca904b427ddf15376f8af4d7083ea9fcf810ca8`. Transfer verification checks the complete file hash and every row's CLI/MCP equality result. The text-search zero-total boundary increment runs in `j14641`. HTTP200 with native total zero is a bad reply, while rejection of every row of a positive-total native page preserves that total, its native next offset and all admission problems. The four CLI/MCP/Markdown step measurements are separately preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/boundary-measurements.json`, SHA256 `eeef5fbad5de082dc52d9c8f405f3ad7486946ae5903cbbe857febd12ea2fe70`. The permanent caller cases also exercise a retained pool under a foreign query, disabled-source admission before saved content, exact ordered gene/top-level walks, native search continuation and Markdown command shapes.
 
-### Public fields and identity joins
+#### Retained Reactome relation contract
+
+The 2026-10-26 bounded capture repeats the exact RAF/MAPK participant and contained-event requests without retries or hydration. It observes 151 physical entities, 1,010 reference occurrences and 332 distinct namespaced references. The 279 distinct UniProt references retain their complete accession and isoform spellings. Membership pages count distinct references in `page.total` with `total_kind=distinct_references`; `reference_occurrences` and `physical_entities` report the other observed counts. The retained snapshot keeps every physical entity context in source order. Default membership rows disclose their physical-context count. The explicit `pathway genes ID details` view discloses all contexts for the requested reference page. Details uses the same retained pool and keeps its mode on page and restart steps. Names never supply an identity. Native therapeutic namespaces and URLs remain visible without a drug action.
+
+The same capture observes 81 contained events: 69 native objects and 12 unresolved integer references. The integer values remain explicit database references. Object IDs, classes and versions belong to each event. An object's publisher detail URL uses its own checked native stable identity. Only native Pathway and TopLevelPathway objects receive pathway get actions. The RAF-activation and TP53 death-receptor controls also contain integers. The approved object-only control is therefore synthetic; it proves parser and action behavior without making a native source-shape claim. No further source request replaces those observations.
+
+The three-request archive is `data/biomcp-redux/0219-reactome-sections/native-1792997476083415000.tar.gz` on Yellow, SHA256 `cc647fb9324183868b64ffa93dd16fee3233bfe136a7f30e3759e6456aa01ff2`. The single corrected control archive is `data/biomcp-redux/0219-reactome-sections/native-1792997839035733000.tar.gz`, SHA256 `5d2c3a2092c4c27c9c35207192ab5231dea108e88a614926135651a333715a9b`. Both were verified before the jobs exited, copied to Yellow and checked against the destination archive hash.
+
+The retained HGNC complete-set recording at `data/biomcp-redux/0102-article-short-pool/zero/hgnc/0887a33cc809657a2a564d65e8cbfcddf45adc3810a8bfb0653e03b418cf2953.json` contains 45,277 Approved rows; its decoded body SHA256 is `12363916be36f8f6f91879b0faade4eeaac973722de7136ec61329b77f2c2f91`. Its native mappings include KRAS HGNC:6407/P01116, MAP2K1 HGNC:6840/Q02750 and MAP2K2 HGNC:6842/P36507. The replay slice retains the 265 source rows covering the relation's 265 base accessions. An exact isoform remains a distinct reference while its validated accession joins through that checked HGNC map. Each displayed page uses one existing indexed AnyExact lookup. Previously retained HGNC rows receive an atomic UniProt-key backfill during cache migration, without another download.
+
+Each complete relation has a source-bound immutable pool with the existing fixed lifetime. Continuations keep the relation kind and pathway identity, refuse foreign or expired tokens before source requests and never renew the pool lifetime. The default `all` reads the source summary plus each relation's bounded first page and performs no enrichment or therapeutic fanout.
+
+The recorded CLI and MCP section measurements agree. The existing comparable-budget normalization removes only the validated registry use label and terms fields. The M5 replay proof starts each command with an isolated case cache and reuses it for the MCP call. These cases enforce measured size plus 15 percent.
+
+| Disclosure | Measured bytes | Measured tokens | Byte ceiling | Token ceiling |
+|---|---:|---:|---:|---:|
+| `get pathway R-HSA-5673001 genes` | 2661 | 666 | 3061 | 766 |
+| `get pathway R-HSA-5673001 events` | 2209 | 553 | 2541 | 636 |
+| `get pathway R-HSA-5673001 all` | 8539 | 2135 | 9820 | 2456 |
+| `pathway genes R-HSA-5673001` | 2220 | 555 | 2553 | 639 |
+| `pathway events R-HSA-5673001` | 1768 | 442 | 2034 | 509 |
+| `pathway genes R-HSA-5673001 details` | 10569 | 2643 | 12155 | 3040 |
+
+The compact genes default fits its original allocation. The `all` output preserves the complete source summary and both bounded compact section pages. Complete physical contexts appear only in the explicit details view. The first five references retain 29, 9, 16, 16 and 2 physical contexts respectively. The details view does not clip their native names or collapse isoform membership.
+
+The default cards now expose the executable summary, genes and events steps. Their measured comparable byte ceilings include all three actions. The updated card cases enforce these per-record measurements plus 15 percent.
+
+| Card | Measured bytes | Byte ceiling | Token ceiling |
+|---|---:|---:|---:|
+| `R-HSA-109581` | 592 | 681 | 171 |
+| `R-HSA-1227990` | 617 | 710 | 179 |
+| `R-HSA-157118` | 601 | 692 | 174 |
+| `R-HSA-1640170` | 599 | 689 | 173 |
+| `R-HSA-177929` | 600 | 690 | 173 |
+| `R-HSA-187037` | 608 | 700 | 175 |
+| `R-HSA-195721` | 599 | 689 | 173 |
+| `R-HSA-201556` | 599 | 689 | 173 |
+| `R-HSA-2028269` | 607 | 699 | 175 |
+| `R-HSA-2219528` | 617 | 710 | 179 |
+| `R-HSA-5358351` | 610 | 702 | 176 |
+| `R-HSA-5358508` | 604 | 695 | 174 |
+| `R-HSA-5673001` | 612 | 704 | 176 |
+| `R-HSA-5674400` | 634 | 730 | 183 |
+| `R-HSA-5685942` | 631 | 726 | 182 |
+| `R-HSA-6802952` | 623 | 717 | 180 |
+| `R-HSA-6803211` | 648 | 746 | 187 |
+| `R-HSA-73894` | 587 | 676 | 170 |
+| `R-HSA-74751` | 612 | 704 | 176 |
+| `R-HSA-8950505` | 671 | 772 | 194 |
+| `R-HSA-913531` | 603 | 694 | 174 |
+| `R-HSA-9612973` | 598 | 688 | 173 |
+| `R-HSA-9652817` | 614 | 707 | 178 |
+| `R-HSA-9755088` | 603 | 694 | 174 |
+
+## Public fields and identity joins
 
 Reactome's query endpoint must prove the requested `stId`, `displayName`, `schemaClass`, species, summary and version before their types are accepted. Its participant endpoint describes physical entities, including complexes and modified proteins. A participant display name is not a gene symbol. The implementation must follow the publisher's reference entities and identifier namespaces. It must not extract symbols with regular expressions or treat each physical participant as one gene. Events may contain both objects and integer database references; every such reference needs either a checked hydration or an explicit unresolved record. Event records do not inherit the pathway's stable identifier. Only an event whose captured class is Pathway or TopLevelPathway may generate a `get pathway` action. Reactions and other event kinds retain source references and URLs without pretending to be pathway cards.
 

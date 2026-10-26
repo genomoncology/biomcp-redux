@@ -62,7 +62,13 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     replay.extend(["--replay", directory.to_str().ok_or("record path")?]);
     let result = invoke(&env, &replay, exit)?;
     verify(&result, expected.as_deref(), row)?;
-    native::mcp(&directory, &words, &result, exit, None)?;
+    native::mcp(
+        &directory,
+        &words,
+        &result,
+        exit,
+        Some(budget(&format!("section-{index:02}"), &result)?),
+    )?;
     let full = serde_json::to_vec(&result)
         .map_err(|e| e.to_string())?
         .len();
@@ -226,7 +232,8 @@ fn measure_card(
     let source = text(row, "source")?;
     let args = ["get", "phenotype", id, "--source", source];
     let card = invoke(env, &args, 0)?;
-    native::mcp(directory, &args, &card, 0, None)?;
+    let key = format!("card-{}-{source}", id.replace(':', "_"));
+    native::mcp(directory, &args, &card, 0, Some(budget(&key, &card)?))?;
     let full = serde_json::to_vec(&card).map_err(|e| e.to_string())?.len();
     let comparable = super::super::source_terms::size(&card, "")?;
     writeln!(
@@ -268,4 +275,32 @@ fn environment(
     )?;
     let env = setup(&stub)?;
     Ok((env, stub))
+}
+
+fn measurements(key: &str) -> Result<[usize; 2], String> {
+    let values: std::collections::BTreeMap<String, [usize; 2]> =
+        serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/phenotype-section-budgets.json"
+        )))
+        .map_err(|e| e.to_string())?;
+    values
+        .get(key)
+        .copied()
+        .ok_or_else(|| format!("unmeasured phenotype case {key}"))
+}
+pub(super) fn ceiling(key: &str) -> Result<usize, String> {
+    let [_, comparable] = measurements(key)?;
+    Ok((comparable * 115).div_ceil(100))
+}
+fn budget(key: &str, value: &Value) -> Result<usize, String> {
+    let [full, comparable] = measurements(key)?;
+    let actual = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + 1;
+    let compact = super::super::source_terms::size(value, "")?;
+    if actual > (full * 115).div_ceil(100) || compact > (comparable * 115).div_ceil(100) {
+        return Err(format!(
+            "{key}: full or comparable response exceeded its measured ceiling"
+        ));
+    }
+    ceiling(key)
 }
