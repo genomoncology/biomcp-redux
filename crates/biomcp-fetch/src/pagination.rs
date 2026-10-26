@@ -20,20 +20,16 @@ impl Pagination {
             if link.len() > 4096 || !link.bytes().all(|b| b.is_ascii() && !b.is_ascii_control()) {
                 return Err(crate::BadReply);
             }
-            for part in link.split(',') {
-                let mut fields = part.trim().split(';');
-                let target = fields.next().ok_or(crate::BadReply)?.trim();
-                if fields.any(|v| v.trim() == "rel=\"next\"") {
+            for part in link.split('<').skip(1) {
+                let (target, parameters) = part.split_once('>').ok_or(crate::BadReply)?;
+                if parameters
+                    .split(';')
+                    .any(|v| v.trim().trim_end_matches(',') == "rel=\"next\"")
+                {
                     if next.is_some() {
                         return Err(crate::BadReply);
                     }
-                    next = Some(
-                        target
-                            .strip_prefix('<')
-                            .and_then(|s| s.strip_suffix('>'))
-                            .ok_or(crate::BadReply)?
-                            .to_owned(),
-                    );
+                    next = Some(target.to_owned());
                 }
             }
         }

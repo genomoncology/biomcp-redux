@@ -296,12 +296,14 @@ fn native_search_headers_survive_record_replay_and_offline_cache() {
         assert_eq!(page.total, 17);
         assert_eq!(
             page.next.as_deref(),
-            Some("https://rest.uniprot.org/uniprotkb/search?cursor=native-cursor")
+            Some(
+                "https://rest.uniprot.org/uniprotkb/search?fields=accession,id&cursor=native-cursor"
+            )
         );
     };
     thread::scope(|scope| {
         let worker = scope.spawn(|| run(&fetch));
-        server.next().respond(200, "X-Total-Results: 17\r\nLink: <https://rest.uniprot.org/uniprotkb/search?cursor=native-cursor>; rel=\"next\"\r\n", r#"{"answer":true}"#);
+        server.next().respond(200, "X-Total-Results: 17\r\nLink: <https://rest.uniprot.org/uniprotkb/search?fields=accession,id&cursor=native-cursor>; rel=\"next\"\r\n", r#"{"answer":true}"#);
         worker.join().unwrap();
     });
     drop(fetch);
