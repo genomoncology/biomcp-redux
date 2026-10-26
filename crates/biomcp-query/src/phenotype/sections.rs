@@ -15,12 +15,7 @@ pub(super) fn apply(out: &mut Outcome, q: &PhenotypeGet, rows: Rows) {
     match q.section() {
         None => {
             for section in &rows.0.sections {
-                if matches!(
-                    section,
-                    PhenotypeSection::Synonyms
-                        | PhenotypeSection::Xrefs
-                        | PhenotypeSection::Hierarchy
-                ) && let Ok(request) = q.with_section(*section)
+                if let Ok(request) = q.with_section(*section)
                 {
                     out.next
                         .push((StepKind::Section, run(Request::GetPhenotype(request))));

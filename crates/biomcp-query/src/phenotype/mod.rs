@@ -1,4 +1,5 @@
 //! Literal source term discovery and independent exact term cards.
+mod associations;
 mod sections;
 mod snapshot;
 use crate::{Action, Ctx, Outcome, status};
@@ -7,7 +8,14 @@ use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, QueryBody, Request, Source, Status,
     StepKind,
 };
-pub use snapshot::get;
+/// Read a native association page or one exact source term reply.
+pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
+    if matches!(q.section(), Some(biomcp_types::PhenotypeSection::Diseases | biomcp_types::PhenotypeSection::Genes)) {
+        associations::get(cx, q)
+    } else {
+        snapshot::get(cx, q)
+    }
+}
 /// Search one native HP page without source substitution or local selection.
 pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);

@@ -79,6 +79,8 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::DiagnosticSupplements(_)
         | Body::AdverseEventPage(_)
         | Body::DiseasePage(_)
+        | Body::PhenotypeDiseases(_)
+        | Body::PhenotypeGenes(_)
         | Body::DiseaseGenes(_)
         | Body::DiseasePhenotypes(_)
         | Body::DrugPage(_)
