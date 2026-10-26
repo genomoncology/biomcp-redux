@@ -141,9 +141,15 @@ pub(crate) static OPENTARGETS: Quota = Quota::new(
     1,
 );
 
-// Conservative serial local policy; no published numeric quota was verified.
-pub(crate) static OPENFDA: Quota =
-    Quota::new(SourceKey::declare("openfda"), Rate::per_second(1), None, 1);
+// https://open.fda.gov/apis/authentication/: both modes allow 240 requests/minute.
+// The provider enforces its daily limits (1,000 keyless; 120,000 keyed) with 429;
+// shared transport retry handling honors Retry-After without inventing daily pacing.
+pub(crate) static OPENFDA: Quota = Quota::new(
+    SourceKey::declare("openfda"),
+    Rate::per_second(4),
+    Some(Rate::per_second(4)),
+    1,
+);
 
 // Conservative serial local policy; no published numeric quota was verified.
 pub(crate) static EMA: Quota = Quota::new(SourceKey::declare("ema"), Rate::per_second(1), None, 1);
