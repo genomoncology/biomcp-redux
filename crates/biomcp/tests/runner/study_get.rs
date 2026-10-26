@@ -1,5 +1,5 @@
 //! Feature study-get: exact stored cards and bounded source metadata without member IDs.
-use super::{call, rows, seed};
+use super::{rows, seed};
 use crate::runner::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -377,4 +377,22 @@ fn navigation(env: &Environment, replay: &Path) -> Check {
     fs::remove_dir_all(replay.join("cbioportal")).map_err(|e| e.to_string())?;
     call(env, replay, &["get", "study", "../escape"], 2)?;
     Ok(())
+}
+
+fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+    let mut command = env.globals(Some(replay), false);
+    command.extend(args.iter().map(|s| (*s).to_owned()));
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &command)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if output.status.code() != Some(exit) || !output.stderr.is_empty() {
+        return Err(format!(
+            "study command {args:?}: expected exit {exit}, actual {:?}; stdout {}; stderr {}",
+            output.status.code(),
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
