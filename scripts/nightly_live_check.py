@@ -150,6 +150,20 @@ def command_classification(capture, discoveries):
     return 'throttled' if 429 in statuses else plan
 
 
+def throttled_output(command):
+    """A status transition needs the checked product's source failure reason too."""
+    before = command['baseline'].get('output', {})
+    after = command['live'].get('output', {})
+    sources = after.get('sources', [])
+    failed = [source for source in sources if source.get('state') in ('failed', 'stale')]
+    throttled = {request['source'] for request in terminal(command['live']['requests']).values()
+                 if request.get('status') == 429}
+    return (before.get('status') in ('complete', 'partial')
+            and after.get('status') in ('partial', 'failed') and bool(failed)
+            and all(source.get('reason') == 'rate_limited'
+                    and source.get('source') in throttled for source in failed))
+
+
 def classify_case(row):
     if not isinstance(row, dict) or not isinstance(row.get('case'), str):
         raise ValueError('invalid case row')
@@ -178,6 +192,7 @@ def classify_case(row):
         return 'uncertain'
     discoveries = {}
     outcomes = []
+    output_changes = {item for item in drift if ': output status changed:' in item}
     for command in witness:
         before = terminal(command['baseline']['requests'])
         after = terminal(command['live']['requests'])
@@ -186,10 +201,15 @@ def classify_case(row):
         for namespace, changes in discovery_changes(before, after).items():
             discoveries.setdefault(namespace, []).extend(changes)
         outcomes.append(command_classification(command, discoveries))
-        output_change = any(item.startswith('command ' + str(command['ordinal'])
-                                            + ': output status changed:') for item in drift)
-        if output_change and outcomes[-1] != 'throttled':
-            return 'failure'
+        matched = {item for item in output_changes
+                   if item.startswith('command ' + str(command['ordinal'])
+                                      + ': output status changed:')}
+        if matched:
+            if outcomes[-1] != 'throttled' or not throttled_output(command):
+                return 'failure'
+            output_changes -= matched
+    if output_changes:
+        return 'uncertain'
     for outcome in ('failure', 'uncertain', 'throttled', 'churn'):
         if outcome in outcomes:
             return outcome

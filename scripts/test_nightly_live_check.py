@@ -79,10 +79,10 @@ def classification_case(change):
         live_dependent['provenance']['input_context'] = 'changed-non-id-parameter'
     if change == 'omitted':
         drift.append('more drift details omitted; counts are in command exchanges')
-    if change in ('429-output', '429-schema', '500-output'):
+    if change in ('429-output', '429-schema', '429-other-error', '500-output'):
         live_dependent = dict(dependent, status=500 if change == '500-output' else 429)
         drift = ['old-id: HTTP status Some(200) -> Some(' + str(live_dependent['status']) + ')',
-                 'command 1: output status changed: Some(String("found")) -> Some(String("unavailable"))']
+                 'command 1: output status changed: Some(String("complete")) -> Some(String("failed"))']
         if change == '429-schema':
             drift.append('output schema failure')
     before = [discovery, dependent]
@@ -91,6 +91,13 @@ def classification_case(change):
         after.reverse()
     witness = [{"ordinal": 1,
                 "baseline": {"requests": before}, "live": {"requests": after}}]
+    if change in ('429-output', '429-schema', '429-other-error', '500-output'):
+        witness[0]['baseline']['output'] = {'status': 'complete'}
+        witness[0]['live']['output'] = {'status': 'failed', 'sources': [
+            {'source': 'pubmed', 'state': 'failed', 'reason': 'rate_limited'}]}
+        if change == '429-other-error':
+            witness[0]['live']['output']['sources'].append(
+                {'source': 'icite', 'state': 'failed', 'reason': 'bad_reply'})
     if change == 'omitted':
         witness[0]['exchanges'] = {'drift_omitted': 1}
     if change in ('cut', 'clean-cut'):
@@ -213,6 +220,7 @@ class NightlyCommand(unittest.TestCase):
                 ('rank', 'churn', 0), ('unused-tail', 'failure', 1),
                 ('parameter', 'failure', 1), ('omitted', 'uncertain', 1),
                 ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
+                ('429-other-error', 'failure', 1),
                 ('500-output', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
