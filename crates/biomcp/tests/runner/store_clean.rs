@@ -67,6 +67,12 @@ fn clean() -> Check {
         old_cx.execute_batch("CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);")?;
     }
     Connection::open(&foreign)?.execute_batch("CREATE TABLE foreign_state(value TEXT)")?;
+    let mut sidecars = Vec::new();
+    for suffix in ["-wal", "-shm"] {
+        let sidecar = PathBuf::from(format!("{}{suffix}", old.display()));
+        std::fs::write(&sidecar, [])?;
+        sidecars.push(sidecar);
+    }
     let unowned = unowned_legacy(directory)?;
     let result = run(&env, &["store", "clean", "--offline"])?;
     if result.get("result")
@@ -97,6 +103,9 @@ fn clean() -> Check {
         if sentinel != "keep" {
             return Err("cleanup changed undeclared schema data".into());
         }
+    }
+    if sidecars.iter().any(|path| path.exists()) {
+        return Err("cleanup left SQLite sidecars".into());
     }
     fresh_content(&cx)?;
     if count(&cx, "pool_item")? != 0 || count(&cx, "pool_current")? != 0 {
