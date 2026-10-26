@@ -30,6 +30,15 @@ pub(super) fn trials() -> Vec<Trial> {
     .collect()
 }
 fn check(source: &str, entity: &str, id: &str, mode: u8) -> Check {
+    let spec = biomcp_adapters::registry::SOURCES
+        .iter()
+        .find(|spec| spec.source.to_string() == source)
+        .ok_or("openFDA source")?;
+    for keyed in [false, true] {
+        if spec.quota.interval(keyed) != std::time::Duration::from_millis(250) {
+            return Err("openFDA must honor its documented 240/minute limit".into());
+        }
+    }
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = Stub::for_source_status(
         "api.fda.gov",
