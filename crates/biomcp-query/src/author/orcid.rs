@@ -91,7 +91,8 @@ fn execute(
         }
         let leg = cx.fetch.leg(&orcid::SPEC, deadline).fresh(cx.fresh);
         let reply = orcid::works(&leg, id);
-        let source = status::source(Source::Orcid, leg.finish(), reply.as_ref().err().copied());
+        let source = status::source(Source::Orcid, leg.finish(), super::source_error(reply.as_ref().err().copied()),
+        );
         out.sources.push(source.clone());
         let groups = reply?;
         let payload =
