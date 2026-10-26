@@ -18,8 +18,8 @@
         },
         "/page/total": 0
       },
-      "max_bytes": 1191,
-      "max_tokens": 298,
+      "max_bytes": 581,
+      "max_tokens": 146,
       "mcp": [
         "search",
         "author",
