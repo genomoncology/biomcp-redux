@@ -104,6 +104,8 @@ fn article_registry() -> Vec<Contract> {
     }
 }
 
+#[path = "schemas/cell_line.rs"]
+mod cell_line;
 #[path = "schemas/phenotype.rs"]
 mod phenotype;
 
@@ -176,6 +178,7 @@ fn registry() -> Vec<Contract> {
     contracts.extend(research_registry());
     contracts.extend(disease::registry());
     contracts.extend(phenotype::registry());
+    contracts.extend(cell_line::registry());
     contracts.extend(study_registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());

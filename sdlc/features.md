@@ -156,4 +156,8 @@ protein-domains-complexes: Read source-native InterPro matches and exact-partici
 
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples. Cases: `tests/cases/pathway/help.yaml`.
 
+<<<<<<< HEAD
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples. Cases: `tests/cases/protein/help.yaml`, `tests/cases/protein/examples.yaml`.
+=======
+cell-line-types: A public API caller validates exact cell identities and standalone requests while preserving native variation members, provenance and independently scoped collections before I/O. Contracts: `biomcp-types/cell_line_contracts` (features: `schema`).
+>>>>>>> f8ff401d578d963c5270bdf67279dcafac2e585e
