@@ -41,6 +41,15 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
+        Body::ProteinPage(_) => Navigation::Selectable,
+        Body::ProteinCard(card) => {
+            if card.items.iter().any(|item| !item.candidates.is_empty()) {
+                Navigation::Selectable
+            } else {
+                Navigation::Bounded
+            }
+        }
+        Body::StudyProfiles(_) | Body::StudySampleLists(_) => Navigation::Bounded,
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
         Body::PhenotypeCard(_) => Navigation::Bounded,
         Body::PathwayCard(_) => Navigation::Bounded,

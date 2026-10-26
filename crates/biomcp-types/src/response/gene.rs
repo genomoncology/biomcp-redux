@@ -81,6 +81,10 @@ pub enum QueryBody {
     StudyPage(Option<crate::StudyPage>),
     /// Exact stored study metadata.
     StudyCard(Option<crate::StudyCard>),
+    /// Independently paged native molecular-profile metadata.
+    StudyProfiles(Option<crate::StudyProfiles>),
+    /// Independently paged sample-list metadata without sample members.
+    StudySampleLists(Option<crate::StudySampleLists>),
     /// Whole physical FDA companion association rows.
     DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-native CPIC pair page.

@@ -240,6 +240,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         },
         Request::GetStudy(q) => match body {
             QueryBody::StudyCard(body) => meta.encode(q, body),
+            QueryBody::StudyProfiles(body) => meta.encode(q, body),
+            QueryBody::StudySampleLists(body) => meta.encode(q, body),
+            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_) => {
