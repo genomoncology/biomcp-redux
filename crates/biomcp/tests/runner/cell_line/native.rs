@@ -186,10 +186,10 @@ fn headers(
 }
 
 pub(super) fn remaining() -> Result<(), String> {
-    let stub=recorded_stub()?;
-    let env=setup(&stub)?;
-    cards(&env,true)?;
-    reverse(&env,true)?;
+    let stub = recorded_stub()?;
+    let env = setup(&stub)?;
+    cards(&env, true)?;
+    reverse(&env, true)?;
     stub.finish()?;
     Ok(())
 }

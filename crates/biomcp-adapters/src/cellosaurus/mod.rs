@@ -51,13 +51,28 @@ pub fn literal(field: &str, value: &str) -> String {
 /// One literal search using the provider's native default start of zero.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearch) -> Result<Page, RequestError> {
     let query = literal("idsy", q.query().as_str());
-    candidates(leg, &query, q.limit(), (q.offset()>0).then_some(q.offset()))
+    candidates(
+        leg,
+        &query,
+        q.limit(),
+        (q.offset() > 0).then_some(q.offset()),
+    )
 }
 /// One exact cross-reference query; its result never verifies identity.
 pub fn reverse(leg: &Leg<'_>, id: &CellLineSourceId) -> Result<Page, RequestError> {
-    candidates(leg, &literal("dr", id.accession()), 5, (native_database(id)==Some("ChEMBL-Cells")).then_some(0))
+    candidates(
+        leg,
+        &literal("dr", id.accession()),
+        5,
+        (native_database(id) == Some("ChEMBL-Cells")).then_some(0),
+    )
 }
-fn candidates(leg: &Leg<'_>, query: &str, limit: u32, offset: Option<u32>) -> Result<Page, RequestError> {
+fn candidates(
+    leg: &Leg<'_>,
+    query: &str,
+    limit: u32,
+    offset: Option<u32>,
+) -> Result<Page, RequestError> {
     let endpoint = SPEC.get("/search/cell-line").fresh(Freshness::Days(1));
     let mut args = vec![
         ("q", Arg::Text(query)),

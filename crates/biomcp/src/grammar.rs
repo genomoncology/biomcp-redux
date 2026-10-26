@@ -301,9 +301,16 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
     }
     if name == "cell-line" && properties(schema)?.contains_key("query") {
         command = command
-            .mut_arg("query", |arg| arg.required(false).required_unless_present("query_option"))
+            .mut_arg("query", |arg| {
+                arg.required(false).required_unless_present("query_option")
+            })
             .mut_arg("limit", |arg| arg.short('l'))
-            .arg(Arg::new("query_option").long("query").short('q').conflicts_with("query"));
+            .arg(
+                Arg::new("query_option")
+                    .long("query")
+                    .short('q')
+                    .conflicts_with("query"),
+            );
     }
     Ok(if name == "gwas" {
         gwas::aliases(command, schema)
@@ -504,9 +511,14 @@ fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Re
         .ok_or(())?;
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let mut value = arguments(matches, &schema)?;
-    if verb == "search" && entity == "cell-line"
-        && let Some(query) = matches.get_one::<String>("query_option") {
-        value.as_object_mut().ok_or(())?.insert("query".into(), query.clone().into());
+    if verb == "search"
+        && entity == "cell-line"
+        && let Some(query) = matches.get_one::<String>("query_option")
+    {
+        value
+            .as_object_mut()
+            .ok_or(())?
+            .insert("query".into(), query.clone().into());
     }
     Ok(value)
 }
