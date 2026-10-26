@@ -93,10 +93,12 @@ impl SecretName {
         Self::OrcidAccessToken,
         Self::OncokbApiKey,
         Self::NciApiKey,
+        Self::OpenfdaApiKey,
     ];
     /// Source name accepted by key registration.
     pub const fn source(self) -> &'static str {
         match self {
+            Self::OpenfdaApiKey => "openfda",
             Self::NcbiApiKey => "ncbi",
             Self::SemanticScholarApiKey => "semantic-scholar",
             Self::OrcidAccessToken => "orcid",
@@ -107,6 +109,7 @@ impl SecretName {
     /// Field within the configuration's keys object.
     pub const fn config(self) -> &'static str {
         match self {
+            Self::OpenfdaApiKey => "openfda_api_key",
             Self::NcbiApiKey => "ncbi_api_key",
             Self::SemanticScholarApiKey => "semantic_scholar_api_key",
             Self::OrcidAccessToken => "orcid_access_token",
@@ -117,6 +120,7 @@ impl SecretName {
     /// Optional environment fallback.
     pub const fn environment(self) -> &'static str {
         match self {
+            Self::OpenfdaApiKey => "OPENFDA_API_KEY",
             Self::NcbiApiKey => "NCBI_API_KEY",
             Self::SemanticScholarApiKey => "S2_API_KEY",
             Self::OrcidAccessToken => "ORCID_ACCESS_TOKEN",

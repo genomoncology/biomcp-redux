@@ -113,6 +113,8 @@ pub struct Credential {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum SecretName {
+    /// openFDA API key.
+    OpenfdaApiKey,
     /// NCBI API key.
     NcbiApiKey,
     /// Semantic Scholar API key.
