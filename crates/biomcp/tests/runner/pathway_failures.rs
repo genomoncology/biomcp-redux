@@ -91,7 +91,7 @@ fn pairings() -> Check {
     env.config(&json!({"proxy":format!("http://{}",socket.local_addr().map_err(|e|e.to_string())?)})).map_err(|e|e.to_string())?;
     for words in ["get pathway R-MMU-5673001", "get pathway WP382 events", "pathway events WP382", "search pathway MAPK --source kegg", "search pathway --gene BRAF --source wikipathways", "search pathway --top-level --source wikipathways"] {
         let value=invoke(&env,words.split_whitespace().map(str::to_owned).collect(),2)?;
-        if value.get("status")!=Some(&json!("usage")) || value.get("sources").is_some() {return Err(format!("unsupported pairing reached source: {value}"));}
+        if value.get("status")!=Some(&json!("usage")) || value.pointer("/error/message")!=Some(&json!("expected a supported command with checked arguments")) || value.get("sources").is_some() {return Err(format!("unsupported pairing reached source: {value}"));}
         if serde_json::to_vec(&value).map_err(|e|e.to_string())?.len()>1000 {return Err("pairing usage exceeds ceiling".into());}
     }
     if socket.accept().is_ok() {return Err("unsupported pairing opened provider connection".into());}
