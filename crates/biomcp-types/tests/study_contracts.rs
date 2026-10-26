@@ -66,3 +66,64 @@ fn literal_search_and_bounded_section_requests_validate_before_io() -> Result<()
     }
     Ok(())
 }
+#[test]
+fn exact_profile_resource_and_file_metadata_keep_their_native_scope() -> Result<(), Box<dyn std::error::Error>> {
+    use biodata::*;
+    let profile = json!({"molecularProfileId":"brca_tcga_pan_can_atlas_2018_armlevel_cna","studyId":"brca_tcga_pan_can_atlas_2018","molecularAlterationType":"GENERIC_ASSAY","genericAssayType":"ARMLEVEL_CNA","datatype":"CATEGORICAL","name":"Synthetic profile","description":"Synthetic description","patientLevel":false,"showProfileInAnalysisTab":true});
+    assert_eq!(roundtrip::<StudyProfile>(profile.clone())?, profile);
+    let mut absent = profile;
+    absent.as_object_mut().ok_or("object")?.remove("genericAssayType");
+    assert_eq!(roundtrip::<StudyProfile>(absent.clone())?, absent);
+    let resource = json!({"resourceId":"IDC_OHIF_CT","displayName":"Synthetic resource","description":"Synthetic resource description","resourceType":"PATIENT","priority":"1","openByDefault":true,"cancerStudyIdentifier":"brca_tcga_pan_can_atlas_2018","sampleCount":7,"patientCount":6});
+    let mut card = study();
+    card["resourceCounts"] = json!([resource]);
+    assert_eq!(roundtrip::<Study>(card.clone())?, card);
+    let file = json!({"name":"LICENSE","path":"public/brca_tcga_pan_can_atlas_2018/LICENSE","htmlUrl":"https://example.invalid/blob","downloadUrl":"https://example.invalid/raw","sha":"db7b143aab711f10d0349d3f7d56ded293a44c63","repositoryBlobSize":446,"kind":"file"});
+    assert_eq!(roundtrip::<StudyFile>(file.clone())?, file);
+    let mut directory = file;
+    directory["kind"] = json!("dir");
+    directory.as_object_mut().ok_or("object")?.remove("downloadUrl");
+    assert_eq!(roundtrip::<StudyFile>(directory.clone())?, directory);
+    for invalid in ["2026-02-29 01:02:03","2026-10-26 24:00:00","2026-10-26T01:00:00Z"] {
+        assert!(invalid.parse::<StudyImportTime>().is_err());
+    }
+    let imported: StudyImportTime = "2026-08-20 21:46:46".parse()?;
+    assert_eq!(imported.to_string(), imported.as_str());
+    let error = "bad/id".parse::<StudyId>().err().ok_or("rejected")?;
+    assert_eq!(error.code(), "study.value.invalid");
+    assert_eq!(error.to_string(), "study.value.invalid");
+    Ok(())
+}
+#[cfg(feature = "schema")]
+fn envelope<T>(query: Value, body: Value) -> Result<Value, Box<dyn std::error::Error>>
+where T: biomcp_types::ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
+T::Query: schemars::JsonSchema + serde::de::DeserializeOwned {
+    let q = serde_json::from_value(query)?;
+    let body = serde_json::from_value::<T>(body)?;
+    let v = serde_json::to_value(biomcp_types::Envelope::new(biomcp_types::Status::Complete,q,Some(body)))?;
+    let schema=schemars::generate::SchemaSettings::draft2020_12().into_generator().into_root_schema_for::<biomcp_types::Envelope<T>>();
+    assert!(jsonschema::draft202012::new(&serde_json::to_value(schema)?)?.is_valid(&v));
+    assert_eq!(v["schema"],T::SCHEMA);
+    Ok(v)
+}
+#[cfg(feature = "schema")]
+#[test]
+fn five_envelopes_keep_catalog_and_live_acquisition_times_independent() -> Result<(), Box<dyn std::error::Error>> {
+    use biomcp_types::*;
+    let snapshot=json!({"revision":"retained-revision","acquired":1793059200});
+    let page=json!({"offset":0,"returned":0,"total":0});
+    envelope::<StudyPage>(json!({"text":"breast"}),json!({"items":[header()],"page":{"offset":0,"returned":1,"total":1},"snapshot":snapshot}))?;
+    let scope=json!({"study_id":"brca_tcga_pan_can_atlas_2018","items":[],"page":page,"acquired":1793145600});
+    for section in ["profiles","sample-lists","files"] {
+        let q=json!({"id":"brca_tcga_pan_can_atlas_2018","section":section});
+        match section {
+            "profiles" => { envelope::<StudyProfiles>(q,scope.clone())?; }
+            "sample-lists" => { envelope::<StudySampleLists>(q,scope.clone())?; }
+            _ => { envelope::<StudyFiles>(q,scope.clone())?; }
+        }
+    }
+    let v=envelope::<StudyCard>(json!({"id":"brca_tcga_pan_can_atlas_2018","section":"all"}),json!({"study":study(),"snapshot":snapshot,"profiles":{"state":"data","source":"cbioportal","data":scope},"sample_lists":{"state":"skipped","source":"cbioportal","reason":"disabled"}}))?;
+    assert_ne!(v["result"]["snapshot"]["acquired"],v["result"]["profiles"]["data"]["acquired"]);
+    assert!(v["result"]["study"].get("patientCount").is_none());
+    Ok(())
+}
