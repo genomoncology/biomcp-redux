@@ -30,10 +30,11 @@ def run(args):
     return subprocess.check_output(args, text=True)
 
 
-def cargo(profile, tests=False):
+def cargo(profile, tests=False, revision=None):
     args = ["cargo", "test" if tests else "build", "--locked", "-p", "biomcp", "--profile", profile, "--message-format=json"]
     args += ["--test", "cases", "--no-run"] if tests else ["--bin", "biomcp"]
-    process = subprocess.Popen(args, stdout=subprocess.PIPE, text=True)
+    environment = {**os.environ, **({"BIOMCP_BUILD_REVISION": revision} if revision else {})}
+    process = subprocess.Popen(args, stdout=subprocess.PIPE, text=True, env=environment)
     found = None
     for line in process.stdout:
         message = json.loads(line)
@@ -172,9 +173,8 @@ def build(args):
     # Pin the macOS deployment target before Cargo sees the build environment.
     if platform.system() == "Darwin":
         os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
-    if args.revision:
-        os.environ["BIOMCP_BUILD_REVISION"] = args.revision
-    artifact = cargo(args.profile)
+    revision = args.revision or run(["git", "rev-parse", "HEAD"]).strip()
+    artifact = cargo(args.profile, revision=revision)
     binary = Path(artifact["executable"])
     metadata = json.loads(run(["cargo", "metadata", "--locked", "--format-version", "1", "--no-deps"]))
     version = next(p["version"] for p in metadata["packages"] if p["name"] == "biomcp")
@@ -183,7 +183,7 @@ def build(args):
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     distribution = json.loads((Path(__file__).resolve().parent.parent / "server.json").read_text())["packages"][0]["identifier"]
-    record = {"distribution": distribution, "version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": args.revision or run(["git", "rev-parse", "HEAD"]).strip()}
+    record = {"distribution": distribution, "version": version, "platform": tag, "profile": args.profile, "cargo_profile": artifact["profile"], "binary_sha256": digest(binary.read_bytes()), "revision": revision}
     candidate = wheel(output, binary, record)
     channels(output, binary, record)
     archive = binary_archive(output, binary, tag)
