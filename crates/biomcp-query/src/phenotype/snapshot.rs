@@ -49,13 +49,7 @@ fn load(cx: &Ctx<'_>, q: &PhenotypeGet, deadline: Deadline<'_>, out: &mut Outcom
         let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
         (saved, token.clone())
     } else {
-        let reply = match q.source() {
-            PhenotypeSource::Hpo => hpo::get(&leg, q).map(|r| (r.card, r.synonyms, r.xrefs, None, u64::try_from(r.metadata.fetched).ok().filter(|n| *n > 0))),
-            PhenotypeSource::Monarch => monarch::phenotype::get(&leg, q).map(|r| (r.card, r.synonyms, r.xrefs, r.hierarchy, u64::try_from(r.metadata.fetched).ok().filter(|n| *n > 0))),
-        };
-        let error = reply.as_ref().err().copied();
-        out.sources.push(status::source(source(q), leg.finish(), error.filter(|e| !matches!(e, RequestError::Source(source) if source.reason == Reason::NotFound))));
-        let saved = (reply?, out.sources.clone());
+        let saved = acquire(q, leg, out)?;
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let token = Store::open(cx.fetch.cache_access()?, deadline)?.save_source_snapshot(&key(q), &payload, &out.sources)?;
         (saved, token)
@@ -63,4 +57,15 @@ fn load(cx: &Ctx<'_>, q: &PhenotypeGet, deadline: Deadline<'_>, out: &mut Outcom
     out.sources = saved.1;
     out.status = overall(out, false);
     Ok(Some((saved.0, token)))
+}
+
+fn acquire(q: &PhenotypeGet, leg: biomcp_fetch::Leg<'_>, out: &mut Outcome) -> Result<Saved, RequestError> {
+    let fetched = |metadata: biomcp_fetch::ReplyMetadata| u64::try_from(metadata.fetched).ok().filter(|n| *n > 0);
+    let reply = match q.source() {
+        PhenotypeSource::Hpo => hpo::get(&leg, q).map(|r| (r.card, r.synonyms, r.xrefs, None, fetched(r.metadata))),
+        PhenotypeSource::Monarch => monarch::phenotype::get(&leg, q).map(|r| (r.card, r.synonyms, r.xrefs, r.hierarchy, fetched(r.metadata))),
+    };
+    let error = reply.as_ref().err().copied();
+    out.sources.push(status::source(source(q), leg.finish(), error.filter(|e| !matches!(e, RequestError::Source(source) if source.reason == Reason::NotFound))));
+    Ok((reply?, out.sources.clone()))
 }

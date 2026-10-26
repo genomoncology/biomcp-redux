@@ -48,6 +48,9 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
             Err(BadReply)
         }
     })?;
+    map(term, metadata, query)
+}
+fn map(term: raw::Term, metadata: ReplyMetadata, query: &PhenotypeGet) -> Result<Record, RequestError> {
     let mut sections = Vec::new();
     if term.synonyms.is_some() {
         sections.push(PhenotypeSection::Synonyms);
