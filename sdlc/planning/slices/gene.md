@@ -52,7 +52,7 @@ The historical inventory in the architecture investigation, section 6.1, counts 
 | `gene drugs` | Not yet decided | — | — | `--limit`, `--offset` | The drug slice owns this capability and its paging options. Reverse target search remains unproved and absent; fixed guidance requests a selected drug identity and explicit source sections. |
 | `gene articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 maps this capability to search article --gene; article search preserves paging. |
 | `gene pathways` | Ported or renamed | `--limit`, `--offset` | — | — | Use get gene INPUT pathways for the bounded card section; search pathway --gene INPUT --limit N --offset N owns full membership paging. |
-| `gene cell-lines` | Not yet decided | — | — | `--group`, `--limit`, `--offset` | Section 1 moves the capability and its options to the cell line slice. |
+| `gene cell-lines` | Dropped by ruling | — | `--group`, `--limit`, `--offset` | — | The cell line slice defers HPA expression until an exact source cell identity join exists; name matching is forbidden. |
 | `gene cspec document` | Not yet decided | — | — | — | Section 1 moves CSpec and its document leaf to the variant slice. |
 <!-- /parity-accounting -->
 

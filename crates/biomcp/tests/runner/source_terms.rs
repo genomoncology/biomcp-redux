@@ -129,6 +129,21 @@ fn subtraction() -> Result<(), String> {
     );
     let mut envelope = json!({"sources":[outcome], "result":{"value":1}});
     let cap = size(&envelope, "")?;
+    let stdout = serde_json::to_vec(&envelope).map_err(|e| e.to_string())?;
+    for (limit, amount) in [("max_bytes", cap), ("max_tokens", cap.div_ceil(4))] {
+        for full in [false, true] {
+            let step: super::Step = serde_json::from_value(json!({
+                "run": [], "full_output_bytes": full, limit: amount,
+            }))
+            .map_err(|e| e.to_string())?;
+            let result = super::assertions::check(&stdout, &step, &Vec::new());
+            if result.is_err() != full {
+                return Err(format!(
+                    "{limit}: complete-output basis did not count policy fields"
+                ));
+            }
+        }
+    }
     envelope
         .get_mut("result")
         .and_then(Value::as_object_mut)

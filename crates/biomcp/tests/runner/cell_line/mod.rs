@@ -315,3 +315,7 @@ pub(crate) fn generate_xrefs(directory: &std::path::Path) -> Result<(), String> 
 pub(crate) fn measure_section_release() -> Result<(), String> {
     sections::measure_release()
 }
+
+pub(crate) fn measure_help() -> Result<(), String> {
+    help::run(true)
+}

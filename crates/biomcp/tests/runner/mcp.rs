@@ -80,6 +80,25 @@ pub(super) fn call_retained(
     globals: &[String],
     directory: Option<&std::path::Path>,
 ) -> Result<Value, String> {
+    call_text_retained(environment, args, is_error, globals, directory).map(|(value, _)| value)
+}
+
+pub(super) fn call_text_with_globals(
+    environment: &Environment,
+    args: &[String],
+    is_error: bool,
+    globals: &[String],
+) -> Result<(Value, String), String> {
+    call_text_retained(environment, args, is_error, globals, None)
+}
+
+fn call_text_retained(
+    environment: &Environment,
+    args: &[String],
+    is_error: bool,
+    globals: &[String],
+    directory: Option<&std::path::Path>,
+) -> Result<(Value, String), String> {
     let replies = exchange_retained(
         environment,
         &[request(
@@ -114,7 +133,7 @@ pub(super) fn call_retained(
     if &parsed != structured {
         return Err("MCP text differs from structuredContent".into());
     }
-    Ok(structured.clone())
+    Ok((structured.clone(), text.to_owned()))
 }
 
 // A persistent server must start each command at its completed replay epoch,

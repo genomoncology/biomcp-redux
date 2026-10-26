@@ -165,6 +165,8 @@ struct Step {
     is_error: bool,
     #[serde(default)]
     exit: i32,
+    #[serde(default)]
+    full_output_bytes: bool,
     max_bytes: Option<usize>,
     max_tokens: Option<usize>,
     #[serde(default)]
@@ -317,14 +319,11 @@ fn run_step(
         .transpose()?;
     let mut answer = cli.clone();
     if let Some(args) = &step.mcp {
-        let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
+        let (result, text) =
+            mcp::call_text_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
         pathway_budgets::help(&result, args, "mcp")?;
-        assertions::check(
-            &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
-            step,
-            expectations,
-        )?;
+        assertions::check(text.as_bytes(), step, expectations)?;
         answer = Some(result.clone());
         if let Some(cli) = cli.as_ref() {
             let mut comparable = result.clone();
