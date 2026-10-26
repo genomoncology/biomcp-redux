@@ -6,11 +6,13 @@ use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
 pub(crate) type Decoded<T> = (T, u16, Vec<u8>, i64, Option<String>);
+#[derive(serde::Serialize)]
 struct Wire {
     fetched: i64,
     status: u16,
     content_type: String,
     content_range: Option<String>,
+    #[serde(skip)] // Raw and decoded body scanning stays separate from metadata.
     body: Vec<u8>,
     retry_after: Option<Duration>,
 }
@@ -475,7 +477,7 @@ impl Leg<'_> {
             body,
             retry_after,
         };
-        self.contain_response(prepared, &wire.content_type, &wire.body, status)
+        self.contain_response(prepared, &wire, &wire.body, status)
             .map_err(Failure::Local)?;
         if recording {
             self.record_wire(prepared, codec, &wire, started)
@@ -493,13 +495,8 @@ impl Leg<'_> {
                     .into(),
             ));
         }
-        self.contain_response(
-            prepared,
-            &exchange.content_type,
-            exchange.body.bytes(),
-            exchange.status,
-        )
-        .map_err(Failure::Local)?;
+        self.contain_response(prepared, &exchange, exchange.body.bytes(), exchange.status)
+            .map_err(Failure::Local)?;
         Ok(Wire {
             fetched: exchange.fetched,
             status: exchange.status,

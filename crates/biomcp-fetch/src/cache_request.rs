@@ -177,12 +177,7 @@ impl Leg<'_> {
         else {
             return Ok(None);
         };
-        self.contain_response(
-            prepared,
-            entry.content_type.as_deref().unwrap_or(""),
-            &entry.body,
-            entry.status,
-        )?;
+        self.contain_response(prepared, &entry, &entry.body, entry.status)?;
         let fresh = entry.fresh_until > now();
         if entry.status == 404 {
             if fresh {
