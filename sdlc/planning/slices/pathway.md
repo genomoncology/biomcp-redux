@@ -289,7 +289,7 @@ The retained native-fact projections are lower bounds. They exclude envelope met
 | --- | ---: | ---: | ---: | --- |
 | Reactome search, largest retained five-header page | 1,641 | 1,640 | 1,552 | `pathway/search-1.yaml` |
 | Reactome default identity card, largest retained card | 759 | 758 | 670 | `pathway/card-R-HSA-8950505.yaml` |
-| WikiPathways default card, WP382 catalog capture | 519 | 518 | 427 | Native catalog archive; updated genes-action budget in `wikipathways-budgets.json` |
+| WikiPathways default card, WP382 with genes action | 587 | 586 | 495 | Native GPML archive and `wikipathways-budgets.json` |
 | Whole Reactome summary, largest retained section | 10,756 | 10,755 | 10,667 | `pathway/card-R-HSA-201556.yaml` |
 | WP382 whole catalog description | 714 | 713 | 622 | Native catalog archive |
 | Reactome first five exact references as a genes section | 2,836 | 2,835 | 2,661 | `pathway-sections/genes.yaml` |
@@ -299,6 +299,10 @@ The retained native-fact projections are lower bounds. They exclude envelope met
 | Reactome direct events page | 1,857 | 1,856 | 1,768 | `pathway_sections/measurements` CLI and MCP phases |
 | Reactome direct genes details, complete physical contexts | 10,744 | 10,743 | 10,569 | `pathway-sections/details.yaml` |
 | WikiPathways sync receipt | 692 | 691 | 600 | Native catalog archive |
+| Reactome largest observed 50-reference genes page | 15,615 | 15,614 | Not separately attributed | `pathway_sections/walk`, offset 250 |
+| Reactome terminal genes page | 11,017 | 11,016 | Not separately attributed | `pathway_sections/walk`, offset 300 |
+| Reactome first 50-event page | 9,829 | 9,828 | Not separately attributed | `pathway_sections/walk`, offset 0 |
+| Reactome terminal events page | 7,311 | 7,310 | Not separately attributed | `pathway_sections/walk`, offset 50 |
 
 Comparable output removes only source `use`, `terms` and `terms_url`. The prior native projections (including search headers, bare identity fields, exact gene mappings and event references) remain lower-bound observations in the source evidence sections. The existing Reactome gene-mapping and top-level cases enforce their measured page budgets. The retained WikiPathways GPML table below separately measures both captured pathways and their genes sections, all responses and direct relation pages. Its full-envelope baselines live in `wikipathways-gpml-budgets.json`.
 
@@ -389,7 +393,9 @@ No new decision is requested from Ian. Existing entity and source rulings apply.
 
 The two retained native catalogs each contain 2,218 rows, including 1,131 rows with the exact species bytes `Homo sapiens`. The search catalog has 2,346,682 bytes and SHA-256 `5638b038a7cd19f6872c57931fc98d6a8cef98fd78619ca2151facbc7c8fa0df`. The get catalog has 1,224,217 bytes and SHA-256 `6c5fc71bd7f036261a47ccaa4a71f450e54e5b3fc0537e6b85a662a74e43040f`. These are observations of retained inputs. Neither counts nor revisions are timeless provider guarantees. Raw species bytes determine human admission before display text normalization; padded labels do not count as human. Display titles retain the shared `Text` outer-whitespace canonicalization.
 
-Twenty-seven native command cases cover sync, the 24 investigation search phrases including the no-match sentinel, and the WP382 default card and summary. Each command has identical CLI and MCP result content and passes the embedded response schema. Full native bodies, case inputs, output JSON and measurement receipts remain outside Git. The complete evidence archive has SHA-256 `7d960a51e5f12450f76283af99c61e7168d4201cc22ac1ca9892b9f65632ee99` and retains the earlier accepted case groups.
+The earlier catalog-only replay used twenty-seven native command cases covering sync, the 24 investigation search phrases including the no-match sentinel, and the WP382 default card and summary. Each command has identical CLI and MCP result content and passes the embedded response schema. Full native bodies, case inputs, output JSON and measurement receipts remain outside Git. The complete evidence archive has SHA-256 `7d960a51e5f12450f76283af99c61e7168d4201cc22ac1ca9892b9f65632ee99` and retains the earlier accepted case groups.
+
+The catalog-only card observation below predates the genes action. Its retained baseline is now 587 CLI bytes and 586 compact JSON bytes, as the separate GPML replay below records. The earlier measurements remain archive observations.
 
 | Native command | Full CLI bytes | Full MCP bytes | Comparable CLI bytes | Comparable MCP bytes | Estimated comparable MCP tokens |
 | --- | --- | --- | --- | --- | --- |
@@ -418,15 +424,15 @@ The captured GPML response uses `application/octet-stream`. Its endpoint explici
 
 Native CLI and MCP walks preserve every captured GraphId in source order and retain `WP382_r140476` and `WP100_r141191` independently of the catalog dates. The exact joins are Entrez 7189 → HGNC:12036, ENSG00000158711 → HGNC:3326 and the native HGNC symbol CACNG3 → HGNC:1407. The complete native output archive is `data/biomcp-redux/0224-wikipathways-genes/replay-1793008875251411000.tar.gz` on Yellow, SHA-256 `f9fa5eb0eb9b80910da3bfc26473b193811e35951fdad5cde8ddb7e950be4ef0`.
 
-| Native command | Comparable JSON bytes | Tokens |
-|---|---:|---:|
-| WP382 card | 495 | 124 |
-| WP382 genes section | 2323 | 581 |
-| WP382 all | 2505 | 627 |
-| WP382 direct genes page | 1982 | 496 |
-| WP100 card | 503 | 126 |
-| WP100 genes section | 2636 | 659 |
-| WP100 all | 2818 | 705 |
-| WP100 direct genes page | 2287 | 572 |
+| Native command | Full CLI bytes | Full MCP bytes | Comparable JSON bytes | Estimated tokens |
+| --- | ---: | ---: | ---: | ---: |
+| WP382 card | 587 | 586 | 495 | 124 |
+| WP382 genes section | 2501 | 2500 | 2323 | 581 |
+| WP382 all | 2683 | 2682 | 2505 | 627 |
+| WP382 direct genes page | 2160 | 2159 | 1982 | 496 |
+| WP100 card | 595 | 594 | 503 | 126 |
+| WP100 genes section | 2814 | 2813 | 2636 | 659 |
+| WP100 all | 2996 | 2995 | 2818 | 705 |
+| WP100 direct genes page | 2465 | 2464 | 2287 | 572 |
 
 CLI and MCP have equal JSON content sizes above; CLI adds its trailing newline. Both genes sections retain their measured ceilings in the case budget file. `tests/wikipathways-gpml-budgets.json` owns the measured full-body, comparable-body and token baselines. Every command's checked ceiling is its matching baseline multiplied by 115 percent and rounded up. The retained-output contract checks all sixteen original surface results against these fixed ceilings without repeating source replay. The existing WikiPathways card budget also includes the newly available genes action.
