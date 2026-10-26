@@ -345,6 +345,10 @@ fn set(row: &mut Value, field: &str, value: Value) -> Result<(), String> {
 }
 
 fn arguments(step: &Value) -> Result<Vec<&str>, String> {
-    step.get("args").and_then(Value::as_array).ok_or("step arguments")?
-        .iter().map(|value| value.as_str().ok_or("step word".into())).collect()
+    step.get("args")
+        .and_then(Value::as_array)
+        .ok_or("step arguments")?
+        .iter()
+        .map(|value| value.as_str().ok_or("step word".into()))
+        .collect()
 }

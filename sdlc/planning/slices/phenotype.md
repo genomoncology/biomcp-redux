@@ -403,13 +403,13 @@ Retained j14227 limit-two first pages and 0208 limit-one next pages supply four 
 
 The unchanged P21 to P23 gene-keyed bodies exercise the existing private row mapper through its declared retained-source contract. They preserve human taxa, original NCBIGene identities and NF1's second-row publication. They add no gene-keyed route. The reverse source commands run through CLI and MCP. Each pair returns identical JSON. The limits below are measured comparable bytes plus fifteen percent, rounded up; token limits divide those ceilings by four and round up.
 
-| HP:0001250 section | Limit / offset | CLI and MCP comparable bytes | Measured tokens | Byte ceiling | Token ceiling |
-| --- | --- | --- | --- | --- | --- |
-| diseases | 1 / 0 | 3180 | 795 | 3657 | 915 |
-| diseases | 1 / 1 | 2955 | 739 | 3399 | 850 |
-| diseases | 2 / 0 | 5408 | 1352 | 6220 | 1555 |
-| genes | 1 / 0 | 2573 | 644 | 2959 | 740 |
-| genes | 1 / 1 | 2729 | 683 | 3139 | 785 |
-| genes | 2 / 0 | 4584 | 1146 | 5272 | 1318 |
+| HP:0001250 section | Limit / offset | CLI and MCP full bytes | Comparable bytes | Measured tokens | Byte ceiling | Token ceiling |
+| --- | --- | --- | --- | --- | --- | --- |
+| diseases | 1 / 0 | 3311 | 3180 | 795 | 3657 | 915 |
+| diseases | 1 / 1 | 3086 | 2955 | 739 | 3399 | 850 |
+| diseases | 2 / 0 | 5539 | 5408 | 1352 | 6220 | 1555 |
+| genes | 1 / 0 | 2704 | 2573 | 644 | 2959 | 740 |
+| genes | 1 / 1 | 2860 | 2729 | 683 | 3139 | 785 |
+| genes | 2 / 0 | 4715 | 4584 | 1146 | 5272 | 1318 |
 
 Job j14910 verified all six native command pairs and their original source identities, evidence, publications, qualifier IDs and labels. The verified product archive is `data/biomcp-redux/0240-phenotype-associations/product-738c589063c7970b04ff8106de1848339e247947.tar.gz`, SHA-256 `a2205d41d2cdbd47d6139d679942345b2ad9f270d5535ebc749db7854781e7b3`. It retains the checked source plan, unchanged bodies, original-date replay recordings, complete product results and measurements. Fixed ceiling and exact native next-step checks reuse those complete results without another command or source request.
