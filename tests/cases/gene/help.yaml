@@ -26,10 +26,7 @@
             ]
           ]
         }
-      },
-      "max_bytes": 91228,
-      "max_tokens": 22807,
-      "full_output_bytes": true
+      }
     },
     {
       "run": [
@@ -247,6 +244,5 @@
         "/result/environment": "ONCOKB_TOKEN"
       }
     }
-  ],
-  "verified": "Job j15876 measured whole help at 90918 CLI bytes. The PM retained the existing whole-help global ceiling; this grammar case uses that same approved bound."
+  ]
 }
