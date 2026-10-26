@@ -109,7 +109,21 @@ pub use pgx::*;
 mod diagnostic;
 pub use diagnostic::*;
 
+<<<<<<< HEAD
 mod gwas;
 pub use gwas::{GwasAssociationId, GwasStudyId, GwasTraitId, GwasValueInvalid, ScientificPValue};
+=======
+mod phenotype;
+pub use phenotype::*;
+mod pathway;
+pub use pathway::{
+    Pathway, PathwayEventRef, PathwayId, PathwayIdInvalid, PathwayLiteratureRef, PathwayMember,
+    PathwayParticipant, PathwayRef, PathwaySourceRef, PathwaySpecies, PathwaySummation, ReactomeId,
+    ReactomeIdInvalid, WikiPathwaysId,
+};
+
+mod protein;
+pub use protein::*;
+>>>>>>> main
 mod study;
 pub use study::*;

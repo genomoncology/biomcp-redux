@@ -1,6 +1,7 @@
 # 0248 — Refuse capture output under the job's TMPDIR
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e7dc6ceb98e1fd052984104fbf8a243ef3189cde
 
 Milestone: 1
 

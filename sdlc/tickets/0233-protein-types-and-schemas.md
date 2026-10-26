@@ -1,6 +1,7 @@
 # 0233 — Add the protein types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4f40c69c25c0f2e427934c11bd57a281e4760459
 
 Milestone: 4
 

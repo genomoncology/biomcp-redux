@@ -190,7 +190,7 @@
       "type": "string"
     }
   },
-  "$id": "biodata.disease-association/2",
+  "$id": "biodata.disease-association/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A native source association without clinical interpretation.",
@@ -403,6 +403,17 @@
         "$ref": "#/$defs/Curie"
       },
       "type": "array"
+    },
+    "subject_taxon": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Curie"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Native subject taxon, only as supplied by the publisher."
     }
   },
   "required": [

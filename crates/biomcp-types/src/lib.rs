@@ -180,7 +180,23 @@ pub use response::DiagnosticCountUnit;
 #[cfg(feature = "schema")]
 pub use drug::DrugGetCommand;
 
+<<<<<<< HEAD
 mod gwas;
 pub use gwas::*;
+=======
+mod phenotype;
+pub use phenotype::*;
+pub use query::{
+    PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
+};
+
+pub use response::{
+    PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayPage, PathwayPageInfo,
+    PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
+};
+
+mod protein;
+pub use protein::*;
+>>>>>>> main
 mod study;
 pub use study::*;

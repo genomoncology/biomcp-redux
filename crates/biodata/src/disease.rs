@@ -9,6 +9,9 @@ pub struct DiseaseAssociation {
     pub requested_id: Curie,
     /// Native returned subject.
     pub subject: Concept,
+    /// Native subject taxon, only as supplied by the publisher.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subject_taxon: Option<Curie>,
     /// Native source predicate.
     pub predicate: Curie,
     /// Native returned object.

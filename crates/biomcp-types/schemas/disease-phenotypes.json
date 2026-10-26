@@ -364,6 +364,17 @@
             "$ref": "#/$defs/Curie"
           },
           "type": "array"
+        },
+        "subject_taxon": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native subject taxon, only as supplied by the publisher."
         }
       },
       "required": [
@@ -1188,7 +1199,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_phenotypes/3",
+  "$id": "biomcp.disease_phenotypes/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1234,7 +1245,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_phenotypes/3",
+      "const": "biomcp.disease_phenotypes/4",
       "type": "string"
     },
     "sources": {

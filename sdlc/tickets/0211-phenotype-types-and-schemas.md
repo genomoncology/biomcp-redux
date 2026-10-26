@@ -1,6 +1,7 @@
 # 0211 — Add the phenotype types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1b03f9b7d9525a7a7d383d9e2245f52943373e7f
 
 Milestone: 4
 

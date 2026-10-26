@@ -1,6 +1,7 @@
 # 0247 — Make the source registry ratchet name the entry it expects
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e1b3889aceb1a481b2382e77177ca13b1aeadfa9
 
 Milestone: 1
 

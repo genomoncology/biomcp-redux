@@ -136,3 +136,6 @@ pub use disease::{
 
 mod diagnostic;
 pub use diagnostic::*;
+
+mod pathway;
+pub use pathway::*;
