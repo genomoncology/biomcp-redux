@@ -11,7 +11,11 @@ pub(super) fn check() -> Result<(), String> {
     .map_err(|e| e.to_string())?;
     let blocked = env.root().join("blocked-cache");
     fs::write(&blocked, b"not a directory").map_err(|e| e.to_string())?;
-    let globals = vec!["--case-cache".into(), blocked.to_string_lossy().into()];
+    let globals = vec![
+        "--offline".into(),
+        "--case-cache".into(),
+        blocked.to_string_lossy().into(),
+    ];
     retirements(&env, &globals)?;
     for text in ["", " "] {
         let args = vec!["search".into(), "author".into(), text.into()];
