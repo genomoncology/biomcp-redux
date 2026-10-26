@@ -114,7 +114,7 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if disease::unsupported(action) || protein::unsupported(action) {
+    if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
     if let Action::Run {
@@ -235,6 +235,9 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
         | Request::GetProtein(_)
         | Request::ProteinFeatures(_)
         | Request::ProteinIsoforms(_)
+        | Request::ProteinDomains(_)
+        | Request::ProteinComplexes(_)
+        | Request::ProteinComplexMembers(_)
         | Request::ProteinStructures(_)
         | Request::ProteinSequence(_) => protein::encode(meta, request, body),
         Request::SearchPathway(_)

@@ -16,7 +16,7 @@ pub(super) fn run() -> Result<(), String> {
             "--type",
             "domain",
             "--pool",
-            pool["id"].as_str().ok_or("pool id")?,
+            pool.get("id").and_then(Value::as_str).ok_or("pool id")?,
         ],
         2,
     )?;
@@ -32,7 +32,7 @@ pub(super) fn run() -> Result<(), String> {
                 .and_then(Value::as_array)
                 .ok_or("domain rows")?
                 .iter()
-                .map(|r| r["id"].clone()),
+                .map(|r| r.get("id").cloned().unwrap_or(Value::Null)),
         );
         if ids.len() == 26 {
             break;

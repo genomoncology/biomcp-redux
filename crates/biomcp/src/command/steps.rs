@@ -53,6 +53,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::ProteinPage(_) => Navigation::Selectable,
         Body::ProteinFeatures(_)
         | Body::ProteinIsoforms(_)
+        | Body::ProteinDomains(_)
+        | Body::ProteinComplexes(_)
+        | Body::ProteinComplexMembers(_)
         | Body::ProteinStructures(_)
         | Body::ProteinSequence(_) => Navigation::Bounded,
         Body::ProteinCard(card) => protein_navigation(card),

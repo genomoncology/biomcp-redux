@@ -44,7 +44,7 @@ fn walk(env:&Environment,members:Value)->Result<(),String>{
                 .and_then(Value::as_array)
                 .ok_or("members")?
                 .iter()
-                .map(|r| r["id"].as_str().unwrap_or("").to_owned()),
+                .map(|r| r.get("id").and_then(Value::as_str).unwrap_or("").to_owned()),
         );
         if value
             .pointer("/page/offset")

@@ -9,6 +9,9 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             let present = meta.status != Status::Failed;
             meta.encode(q, present.then_some(body))
         }
+        (Request::ProteinDomains(q), QueryBody::ProteinDomains(body))=>meta.encode(q,body),
+        (Request::ProteinComplexes(q), QueryBody::ProteinComplexes(body))=>meta.encode(q,body),
+        (Request::ProteinComplexMembers(q), QueryBody::ProteinComplexMembers(body))=>meta.encode(q,body),
         (Request::ProteinFeatures(q), QueryBody::ProteinFeatures(body)) => meta.encode(q, body),
         (Request::ProteinIsoforms(q), QueryBody::ProteinIsoforms(body)) => meta.encode(q, body),
         (Request::ProteinStructures(q), QueryBody::ProteinStructures(body)) => meta.encode(q, body),
@@ -16,8 +19,4 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::GetProtein(q), QueryBody::ProteinCard(body)) => meta.encode(q, Some(body)),
         _ => super::usage_envelope(biomcp_types::ErrorEnvelope::arguments()),
     }
-}
-
-pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
-    matches!(action, biomcp_query::Action::Run { request: Request::GetProtein(q), .. } if q.sections().iter().any(|s| matches!(s, biomcp_types::ProteinSection::Domains | biomcp_types::ProteinSection::Complexes)))
 }

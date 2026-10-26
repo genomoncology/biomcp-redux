@@ -64,17 +64,19 @@ fn copy(original: &Path, target: &Path, kind: &str) -> Result<(), String> {
                 .pointer("/exchanges/0")
                 .cloned()
                 .ok_or("record exchange")?;
+            let fields=exchange.as_object_mut().ok_or("exchange object")?;
             match kind {
                 "429" => {
-                    exchange["status"] = json!(429);
-                    exchange["retry_after_ms"] = json!(0);
+                    fields.insert("status".into(), json!(429));
+                    fields.insert("retry_after_ms".into(), json!(0));
                 }
-                "500" => exchange["status"] = json!(500),
-                "timeout" => exchange["delay_ms"] = json!(9000),
-                "broken" => exchange["body"] = json!({"kind":"text","value":"{"}),
-                _ => exchange["body"] = json!({"kind":"json","value":{"message":"source error"}}),
+                "500" => { fields.insert("status".into(),json!(500)); }
+                "timeout" => { fields.insert("delay_ms".into(),json!(9000)); }
+                "broken" => { fields.insert("body".into(),json!({"kind":"text","value":"{"})); }
+                _ => { fields.insert("body".into(),json!({"kind":"json","value":{"message":"source error"}})); }
             }
-            record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
+
+            record.as_object_mut().ok_or("record object")?.insert("exchanges".into(),json!([exchange.clone(),exchange.clone(),exchange]));
             fs::write(
                 directory.join(path.file_name()),
                 serde_json::to_vec(&record).map_err(|e| e.to_string())?,

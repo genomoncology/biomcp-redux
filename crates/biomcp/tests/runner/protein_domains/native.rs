@@ -133,7 +133,7 @@ fn walk(env: &Environment, mut value: Value, name: &str, output: &Path) -> Resul
 fn flags(name:&str,value:&Value)->Result<(),String>{
     if name!="complexes-P38398"{return Ok(());}
     for row in value.pointer("/result/items").and_then(Value::as_array).ok_or("complex rows")? {
-        let id=row["id"].as_str().ok_or("complex identity")?;
+        let id=row.get("id").and_then(Value::as_str).ok_or("complex identity")?;
         let expected=match id {"CPX-715"|"CPX-845"|"CPX-955"=>false,"CPX-14676"|"CPX-24321"|"CPX-26111"=>true,_=>return Err("unexpected BRCA1 complex".into())};
         if row.get("predicted")!=Some(&json!(expected)){return Err(format!("native predicted flag changed for {id}"));}
     }

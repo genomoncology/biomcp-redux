@@ -4,8 +4,10 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::GetGwasAssociation(_) | Request::GetGwasStudy(_) => "biomcp.gwas-get/1",
         Request::SearchGwas(_) => "biomcp.gwas-search/2",
+        Request::ProteinDomains(_) => "biomcp.protein-domains-query/1",
+        Request::ProteinComplexMembers(_) => "biomcp.protein-complex-members-query/1",
         Request::ProteinFeatures(_) => "biomcp.protein-features-query/1",
-        Request::ProteinIsoforms(_) | Request::ProteinStructures(_) => {
+        Request::ProteinIsoforms(_) | Request::ProteinStructures(_) | Request::ProteinComplexes(_) => {
             "biomcp.protein-relation-query/1"
         }
         Request::ProteinSequence(_) => "biomcp.protein-sequence-query/1",
@@ -56,6 +58,9 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gwas", "biomcp.gwas-search/2"),
     ("protein", "features", "biomcp.protein-features-query/1"),
     ("protein", "isoforms", "biomcp.protein-relation-query/1"),
+    ("protein", "domains", "biomcp.protein-domains-query/1"),
+    ("protein", "complexes", "biomcp.protein-relation-query/1"),
+    ("protein", "complex-members", "biomcp.protein-complex-members-query/1"),
     ("protein", "structures", "biomcp.protein-relation-query/1"),
     ("protein", "sequence", "biomcp.protein-sequence-query/1"),
     ("search", "protein", "biomcp.protein-search/1"),
