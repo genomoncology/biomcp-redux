@@ -115,7 +115,6 @@ fn dispatch_using(
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if disease::unsupported(action)
-        || pathway::unsupported(action)
         || phenotype::unsupported(action)
         || protein::unsupported(action)
     {
@@ -249,6 +248,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             QueryBody::StudyCard(body) => meta.encode(q, body),
             QueryBody::StudyProfiles(body) => meta.encode(q, body),
             QueryBody::StudySampleLists(body) => meta.encode(q, body),
+            QueryBody::StudyFiles(body) => meta.encode(q, body),
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
@@ -538,6 +538,7 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
 fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
     match bundle {
         Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
+        Bundle::WikiPathways => biomcp_types::Source::WikiPathways,
         Bundle::CbioportalStudies => biomcp_types::Source::Cbioportal,
         Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::WhoIvd => biomcp_types::Source::WhoIvd,

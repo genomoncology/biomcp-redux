@@ -784,7 +784,7 @@
       ]
     }
   },
-  "$id": "biodata.request/13",
+  "$id": "biodata.request/16",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -1035,6 +1035,10 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained exact source reply for local section pages."
+        },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",
           "description": "HPO for card, synonyms and xrefs; Monarch for other sections."
@@ -1088,9 +1092,17 @@
           "x-positional": 0
         },
         "source": {
-          "$ref": "#/$defs/PathwaySource",
-          "default": "reactome",
-          "description": "One source; Reactome by default."
+          "default": [
+            "reactome"
+          ],
+          "description": "Sources in caller order; repeated sources take turns without title joins.",
+          "items": {
+            "$ref": "#/$defs/PathwaySource"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "type": "array",
+          "x-comma-separated": true
         },
         "top_level": {
           "default": false,

@@ -218,7 +218,7 @@
     },
     "PathwaySearch": {
       "additionalProperties": false,
-      "description": "Search exactly one source through text, an exact gene join or top-level discovery.",
+      "description": "Search explicit source legs through literal text or Reactome identity discovery.",
       "properties": {
         "fresh": {
           "default": false,
@@ -254,9 +254,17 @@
           "x-positional": 0
         },
         "source": {
-          "$ref": "#/$defs/PathwaySource",
-          "default": "reactome",
-          "description": "One source; Reactome by default."
+          "default": [
+            "reactome"
+          ],
+          "description": "Sources in caller order; repeated sources take turns without title joins.",
+          "items": {
+            "$ref": "#/$defs/PathwaySource"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "type": "array",
+          "x-comma-separated": true
         },
         "top_level": {
           "default": false,
@@ -770,7 +778,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_page/1",
+  "$id": "biomcp.pathway_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -816,7 +824,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_page/1",
+      "const": "biomcp.pathway_page/2",
       "type": "string"
     },
     "sources": {

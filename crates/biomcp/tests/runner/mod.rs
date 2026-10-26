@@ -117,6 +117,7 @@ mod variant_hotspots;
 mod variant_population;
 mod variant_population_release;
 mod variant_search;
+mod wikipathways;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;

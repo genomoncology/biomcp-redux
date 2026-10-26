@@ -21,17 +21,25 @@ fn page(q: &PathwaySearch) -> PathwayPage {
 }
 /// Read a retained native page or request only its next bounded native window.
 pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
+    if q.sources().len() > 1 {
+        return super::union::search(cx, q);
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(QueryBody::PathwayPage(page(q)));
+    let source = if q.source() == biomcp_types::PathwaySource::Wikipathways {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
     if let Err(error) = execute(cx, q, deadline, &mut out) {
-        if out.sources.iter().all(|s| s.source != Source::Reactome) {
+        if out.sources.iter().all(|s| s.source != source) {
             let reason = match error {
                 RequestError::Source(e) => Some(e.reason),
                 _ => None,
             };
             out.sources.push(biomcp_adapters::registry::outcome(
-                Source::Reactome,
+                source,
                 if reason == Some(Reason::Disabled) {
                     SourceState::Skipped
                 } else {
@@ -43,6 +51,7 @@ pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
         out.local = status::local(error);
         out.status = Status::Failed;
     }
+    super::wikipathways::sync_step(&mut out);
     command.finish(deadline.remaining());
     out
 }
@@ -52,9 +61,14 @@ fn execute(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    if cx.fetch.disabled(Source::Reactome) {
+    let source = if q.source() == biomcp_types::PathwaySource::Wikipathways {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
+    if cx.fetch.disabled(source) {
         return Err(SourceError {
-            source: Source::Reactome,
+            source,
             reason: Reason::Disabled,
             status: None,
             retry_after: None,
@@ -98,6 +112,9 @@ fn fetch(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<snapshot::Saved, RequestError> {
+    if q.source() == biomcp_types::PathwaySource::Wikipathways {
+        return super::wikipathways::headers(cx, q, deadline, out);
+    }
     let mut body = page(q);
     let complete = q.top_level() || q.gene().is_some();
     if q.gene().is_some() {
@@ -139,6 +156,7 @@ fn fetch(
     Ok(snapshot::Saved {
         body,
         complete,
+        catalog_revision: None,
         sources: out.sources.clone(),
         problems: out.problems.clone(),
     })

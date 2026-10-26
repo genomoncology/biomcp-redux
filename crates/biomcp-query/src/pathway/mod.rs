@@ -8,6 +8,8 @@ mod relation_snapshot;
 mod relation_steps;
 mod search;
 mod snapshot;
+mod union;
+mod wikipathways;
 use crate::{Action, Outcome};
 use biomcp_types::{QueryBody, Request, Status};
 pub use get::get;

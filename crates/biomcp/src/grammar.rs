@@ -4,6 +4,7 @@ mod gwas;
 mod local;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
+    "wikipathways",
     "cbioportal-studies",
     "ema",
     "ddinter",
@@ -55,7 +56,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::GetProtein(_) => "biomcp.protein-get/1",
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
         Request::GetPhenotype(_) => "biomcp.phenotype-get/1",
-        Request::SearchPathway(_) => "biomcp.pathway-search/1",
+        Request::SearchPathway(_) => "biomcp.pathway-search/2",
         Request::GetPathway(_) => "biomcp.pathway-get/1",
         Request::PathwayGenes(_) => "biomcp.pathway-genes-query/1",
         Request::PathwayEvents(_) => "biomcp.pathway-events-query/1",
@@ -99,7 +100,7 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "protein", "biomcp.protein-get/1"),
     ("search", "phenotype", "biomcp.phenotype-search-query/1"),
     ("get", "phenotype", "biomcp.phenotype-get/1"),
-    ("search", "pathway", "biomcp.pathway-search/1"),
+    ("search", "pathway", "biomcp.pathway-search/2"),
     ("get", "pathway", "biomcp.pathway-get/1"),
     ("pathway", "genes", "biomcp.pathway-genes-query/1"),
     ("pathway", "events", "biomcp.pathway-events-query/1"),
@@ -199,6 +200,7 @@ fn root() -> Result<Command, ()> {
         root = root.subcommand(command);
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
+        "wikipathways",
         "cbioportal-studies",
         "hgnc",
         "clingen",
@@ -265,6 +267,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("wikipathways") => Bundle::WikiPathways,
                 Some("cbioportal-studies") => Bundle::CbioportalStudies,
                 Some("fda-cdx") => Bundle::FdaCdx,
                 Some("gtr") => Bundle::Gtr,
