@@ -90,14 +90,14 @@ fn pages() -> Result<(), String> {
                 return Err(format!("wrong disease scope: {request}"));
             }
             let mut first = row();
-            first["subject"] = json!("MONDO:0014379");
-            first["original_subject"] = json!("Orphanet:1");
-            first["id"] = json!(format!("synthetic-{offset}"));
+            set(&mut first, "subject", json!("MONDO:0014379"))?;
+            set(&mut first, "original_subject", json!("Orphanet:1"))?;
+            set(&mut first, "id", json!(format!("synthetic-{offset}")))?;
             let mut second = first.clone();
-            second["id"] = json!("synthetic-provenance-2");
-            second["negated"] = json!(null);
-            second["publications"] = json!(null);
-            second["frequency_qualifier"] = json!(null);
+            set(&mut second, "id", json!("synthetic-provenance-2"))?;
+            set(&mut second, "negated", json!(null))?;
+            set(&mut second, "publications", json!(null))?;
+            set(&mut second, "frequency_qualifier", json!(null))?;
             let items = if offset == 0 {
                 vec![first, second]
             } else {
@@ -132,13 +132,13 @@ fn pages() -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("next")?;
     if next.len() != 2
-        || next[0]["args"] != json!(["get", "disease", "MONDO:0014379"])
-        || next[1]["kind"] != json!("page")
+        || next.first().and_then(|row| row.get("args")) != Some(&json!(["get", "disease", "MONDO:0014379"]))
+        || next.get(1).and_then(|row| row.get("kind")) != Some(&json!("page"))
     {
         return Err(format!("association navigation changed: {first}"));
     }
-    let args = next[1]["args"]
-        .as_array()
+    let args = next.get(1).and_then(|row| row.get("args"))
+        .and_then(Value::as_array)
         .ok_or("page args")?
         .iter()
         .map(|v| v.as_str().ok_or("word"))
@@ -149,7 +149,7 @@ fn pages() -> Result<(), String> {
         || last
             .get("next")
             .and_then(Value::as_array)
-            .is_some_and(|v| v.iter().any(|s| s["kind"] == "page"))
+            .is_some_and(|v| v.iter().any(|s| s.get("kind") == Some(&json!("page"))))
     {
         return Err(format!("native page selector changed: {last}"));
     }
@@ -169,9 +169,9 @@ fn failures() -> Result<(), String> {
                 }
                 let mut row = row();
                 match kind {
-                    0 => row["object"] = json!("HP:0000001"),
-                    1 => row["subject_taxon"] = json!("NCBITaxon:10090"),
-                    2 => row["subject_taxon"] = json!(null),
+                    0 => set(&mut row, "object", json!("HP:0000001"))?,
+                    1 => set(&mut row, "subject_taxon", json!("NCBITaxon:10090"))?,
+                    2 => set(&mut row, "subject_taxon", json!(null))?,
                     _ => (),
                 }
                 Ok(
@@ -257,7 +257,7 @@ fn cards() -> Result<(), String> {
                 }
                 let mut row = row();
                 if request.contains("subject_category=biolink%3ADisease") {
-                    row["subject"] = json!("MONDO:0014379");
+                    set(&mut row, "subject", json!("MONDO:0014379"))?;
                 }
                 Ok(json!({"limit":limit,"offset":0,"total":3,"items":[row]}).to_string())
             },
@@ -268,18 +268,18 @@ fn cards() -> Result<(), String> {
             words.extend(["--section-limit", "2"]);
         }
         let card = invoke(&env, &words, 0)?;
-        let next = card["next"].as_array().ok_or("association card actions")?;
+        let next = card.get("next").and_then(Value::as_array).ok_or("association card actions")?;
         for section in ["diseases", "genes"] {
             let action = next
                 .iter()
                 .find(|step| {
-                    step["args"]
-                        .as_array()
+                    step.get("args")
+                        .and_then(Value::as_array)
                         .is_some_and(|args| args.contains(&json!(section)))
                 })
                 .ok_or("missing association action")?;
-            let args = action["args"]
-                .as_array()
+            let args = action.get("args")
+                .and_then(Value::as_array)
                 .ok_or("args")?
                 .iter()
                 .map(|v| v.as_str().ok_or("word"))
@@ -332,5 +332,10 @@ fn timeout() -> Result<(), String> {
         return Err(format!("timeout lost source failure: {result}"));
     }
     super::native::mcp(&directory, &words, &result, 4, None)?;
+    Ok(())
+}
+
+fn set(row:&mut Value,field:&str,value:Value)->Result<(),String> {
+    row.as_object_mut().ok_or("synthetic association object")?.insert(field.into(),value);
     Ok(())
 }

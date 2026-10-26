@@ -2,6 +2,7 @@
 use super::{Stub, invoke, native, record, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
+use std::io::Write;
 use std::{collections::BTreeMap, fs, path::Path};
 pub(super) fn run(directory: &Path) -> Result<(), String> {
     let plan: Vec<Value> =
@@ -57,8 +58,8 @@ fn prove(
     row: &Value,
 ) -> Result<(), String> {
     let section = text(row, "section")?;
-    let limit = row["limit"].as_u64().ok_or("limit")?.to_string();
-    let offset = row["offset"].as_u64().ok_or("offset")?.to_string();
+    let limit = row.get("limit").and_then(Value::as_u64).ok_or("limit")?.to_string();
+    let offset = row.get("offset").and_then(Value::as_u64).ok_or("offset")?.to_string();
     let mut words = vec![
         "get",
         "phenotype",
@@ -75,7 +76,7 @@ fn prove(
     }
     let recorded = output.join(format!("record-{index}"));
     record(env, &words, &recorded, 0)?;
-    native::restore_date(&recorded, row["fetched"].as_u64().ok_or("fetched")?)?;
+    native::restore_date(&recorded, row.get("fetched").and_then(Value::as_u64).ok_or("fetched")?)?;
     let mut replay = words.clone();
     replay.extend(["--replay", recorded.to_str().ok_or("recordpath")?]);
     let value = invoke(env, &replay, 0)?;
@@ -86,11 +87,11 @@ fn prove(
     verify(&expected, &value)?;
     let comparable = super::super::source_terms::size(&value, "")?;
     let ceiling = if limit == "1" { 9888 } else { 15792 };
-    eprintln!(
+    writeln!(std::io::stderr(),
         "phenotype-associations {section} limit{limit} offset{offset}: comparable={comparable} tokens={} ceiling={}",
         comparable.div_ceil(4),
         (comparable * 115).div_ceil(100)
-    );
+    ).map_err(|e| e.to_string())?;
     if comparable > ceiling {
         return Err("association section exceeds design ceiling".into());
     }
@@ -109,7 +110,7 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
     {
         return Err("native scope or totals changed".into());
     }
-    let rows = expected["items"].as_array().ok_or("nativeitems")?;
+    let rows = expected.get("items").and_then(Value::as_array).ok_or("nativeitems")?;
     let mapped = value
         .pointer("/result/items")
         .and_then(Value::as_array)
@@ -118,7 +119,7 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
         return Err("source rows dropped or deduplicated".into());
     }
     for (row, mapped) in rows.iter().zip(mapped) {
-        let mapped = &mapped["association"];
+        let mapped = mapped.get("association").ok_or("mapped association")?;
         for (from, to) in [
             ("subject", "subject/id"),
             ("object", "object/id"),
@@ -140,7 +141,7 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
             }
         }
         qualifiers(row, mapped)?;
-        if mapped["requested_id"] != "HP:0001250" {
+        if mapped.get("requested_id") != Some(&json!("HP:0001250")) {
             return Err("requested HP identity changed".into());
         }
         for field in ["has_evidence", "publications"] {
@@ -149,13 +150,13 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
             } else {
                 field
             };
-            let source = row[field].as_array().cloned().unwrap_or_default();
-            let ids = mapped[target]
-                .as_array()
+            let source = row.get(field).and_then(Value::as_array).cloned().unwrap_or_default();
+            let ids = mapped.get(target)
+                .and_then(Value::as_array)
                 .ok_or("referencearray")?
                 .iter()
-                .map(|r| r["id"].clone())
-                .collect::<Vec<_>>();
+                .map(|r| r.get("id").cloned().ok_or("reference ID"))
+                .collect::<Result<Vec<_>,_>>()?;
             if ids != source {
                 return Err(format!("native {field} moved or changed"));
             }
@@ -164,7 +165,7 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
     Ok(())
 }
 fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
-    row[key].as_str().ok_or_else(|| format!("missing {key}"))
+    row.get(key).and_then(Value::as_str).ok_or_else(|| format!("missing {key}"))
 }
 
 fn qualifiers(raw: &Value, mapped: &Value) -> Result<(), String> {
@@ -176,10 +177,10 @@ fn qualifiers(raw: &Value, mapped: &Value) -> Result<(), String> {
         "species_context_qualifier",
         "stage_qualifier",
     ];
-    let rows = mapped["qualifiers"].as_array().ok_or("mapped qualifiers")?;
+    let rows = mapped.get("qualifiers").and_then(Value::as_array).ok_or("mapped qualifiers")?;
     for field in expected {
         let source = raw.get(field).filter(|v| !v.is_null());
-        let selected = rows.iter().find(|r| r["field"] == field);
+        let selected = rows.iter().find(|r| r.get("field").and_then(Value::as_str) == Some(field));
         match (source, selected) {
             (Some(id), Some(row)) if row.get("id") == Some(id) => {
                 let label = raw.get(format!("{field}_label")).filter(|v| !v.is_null());
