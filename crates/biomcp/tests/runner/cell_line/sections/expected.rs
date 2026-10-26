@@ -14,7 +14,8 @@ fn field(value: &Value, key: &str) -> Result<Value, String> {
         .ok_or_else(|| format!("missing native {key}"))
 }
 fn variation(value: &Value) -> Result<Value, String> {
-    let mut result = json!({"variation_type":field(value, "variation-type")?, "genes":[], "references":[], "provenance":[]});
+    let mut result = serde_json::Map::new();
+    result.insert("variation_type".into(), field(value, "variation-type")?);
     for (source, target) in [
         ("mutation-description", "description"),
         ("mutation-type", "mutation_type"),
@@ -22,7 +23,7 @@ fn variation(value: &Value) -> Result<Value, String> {
         ("variation-note", "note"),
     ] {
         if let Some(field) = value.get(source) {
-            result[target] = field.clone();
+            result.insert(target.into(), field.clone());
         }
     }
     let mut genes = Vec::new();
@@ -36,23 +37,26 @@ fn variation(value: &Value) -> Result<Value, String> {
             references.push(reference.clone());
         }
     }
-    result["genes"] = json!(genes);
-    result["references"] = json!(references);
-    result["provenance"] = json!(
-        rows(value, "source-list")
-            .into_iter()
-            .map(|mut source| {
-                if let Some(reference) = source.get_mut("reference")
-                    && let Some(object) = reference.as_object_mut()
-                    && let Some(value) = object.remove("resource-internal-ref")
-                {
-                    object.insert("resource_internal_ref".into(), value);
-                }
-                source
-            })
-            .collect::<Vec<_>>()
+    result.insert("genes".into(), json!(genes));
+    result.insert("references".into(), json!(references));
+    result.insert(
+        "provenance".into(),
+        json!(
+            rows(value, "source-list")
+                .into_iter()
+                .map(|mut source| {
+                    if let Some(reference) = source.get_mut("reference")
+                        && let Some(object) = reference.as_object_mut()
+                        && let Some(value) = object.remove("resource-internal-ref")
+                    {
+                        object.insert("resource_internal_ref".into(), value);
+                    }
+                    source
+                })
+                .collect::<Vec<_>>()
+        ),
     );
-    Ok(result)
+    Ok(Value::Object(result))
 }
 pub(super) fn page(
     source: &Value,
