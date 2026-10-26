@@ -11,7 +11,7 @@ pub(super) struct Saved {
     pub problems: Vec<Problem>,
 }
 impl Saved {
-    pub fn decode(payload: &str) -> Result<Self, RequestError> {
+    pub(super) fn decode(payload: &str) -> Result<Self, RequestError> {
         type Wire = (
             Option<PathwayGenes>,
             Option<PathwayEvents>,
@@ -27,7 +27,7 @@ impl Saved {
             problems,
         })
     }
-    pub fn encode(&self) -> Result<String, RequestError> {
+    fn encode(&self) -> Result<String, RequestError> {
         serde_json::to_string(&(&self.genes, &self.events, &self.sources, &self.problems))
             .map_err(|_| CacheError::Database.into())
     }

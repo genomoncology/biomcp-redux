@@ -183,7 +183,7 @@ fn fetch(
             None => {
                 let mapped = reactome::card(&leg, id, false)?;
                 out.problems.extend(mapped.problems);
-                let card = mapped.value.ok_or_else(|| SourceError {
+                let card = mapped.value.ok_or(SourceError {
                     source: Source::Reactome,
                     reason: Reason::NotFound,
                     status: Some(404),
