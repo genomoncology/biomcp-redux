@@ -38,6 +38,18 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
         },
         reason,
     ));
+    if matches!(
+        source,
+        biomcp_types::Source::Cbioportal | biomcp_types::Source::WikiPathways
+    ) && reason == Some(biomcp_types::Reason::BadReply)
+    {
+        envelope.problems.push(biomcp_types::Problem {
+            source,
+            record: None,
+            field: "catalog".into(),
+            code: biomcp_types::ProblemCode::CollectionIncomplete,
+        });
+    }
     steps::network_steps(&mut envelope.next, &envelope.sources, None);
     encode(
         envelope,

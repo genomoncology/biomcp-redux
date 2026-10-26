@@ -3,7 +3,9 @@
 mod adverse_event;
 mod diagnostic;
 mod drug;
+mod pathway;
 mod pgx;
+mod study;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
@@ -102,6 +104,12 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     if retired_source(args) {
         return Some(ErrorMessage::Pharmgkb);
+    }
+    if let Some(message) = study::message(args) {
+        return Some(message);
+    }
+    if let Some(message) = pathway::message(args) {
+        return Some(message);
     }
     if let Some(message) = adverse_event::message(args) {
         return Some(message);
