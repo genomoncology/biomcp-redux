@@ -316,3 +316,79 @@ The complete native evidence archive is on Yellow at `data/biomcp-redux/0217-phe
 Text and link pages use the existing immutable source snapshot store. The request's `snapshot` selector binds the exact source and HP identifier to the complete admitted reply, its retrieval date and source outcomes. Cards publish only implemented sections backed by a present source field. A page preserves the selector, source, section and explicit limit. A missing or foreign selector offers a restart rather than another provider request. The existing store expiry governs retained replies.
 
 HPO synonym rows have no relationship class. Monarch rows preserve their native class and array order. The captured Monarch cross reference supplies no predicate, so none is inferred. Direct hierarchy links retain only their original identifier, name and parent or child collection. Source-null sections remain unavailable; a source-empty array remains a present collection.
+
+## Section and card action measurements
+
+The retained CLI and MCP run validates forty-nine section witnesses and twenty revised cards. The canonical measured baselines live in `tests/phenotype-section-budgets.json`; both full CLI envelopes and comparable replies use ceilings computed from those baselines plus fifteen percent. The table shows comparable MCP bytes. CLI output adds its newline. These values include whole row text, native references and executable continuation arguments. No provider request ran.
+
+| Case | Source and term | Section or card | Offset / limit | Measured bytes | Ceiling bytes | Ceiling tokens |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| `card-HP_0000107-hpo` | hpo HP:0000107 | card | — | 863 | 993 | 249 |
+| `card-HP_0000256-hpo` | hpo HP:0000256 | card | — | 1868 | 2149 | 538 |
+| `card-HP_0000957-hpo` | hpo HP:0000957 | card | — | 1386 | 1594 | 399 |
+| `card-HP_0000997-hpo` | hpo HP:0000997 | card | — | 1039 | 1195 | 299 |
+| `card-HP_0001067-hpo` | hpo HP:0001067 | card | — | 1037 | 1193 | 299 |
+| `card-HP_0001250-hpo` | hpo HP:0001250 | card | — | 1321 | 1520 | 380 |
+| `card-HP_0001250-monarch` | monarch HP:0001250 | card | — | 1949 | 2242 | 561 |
+| `card-HP_0001263-hpo` | hpo HP:0001263 | card | — | 1596 | 1836 | 459 |
+| `card-HP_0001676-monarch` | monarch HP:0001676 | card | — | 1072 | 1233 | 309 |
+| `card-HP_0001737-hpo` | hpo HP:0001737 | card | — | 1020 | 1173 | 294 |
+| `card-HP_0002108-hpo` | hpo HP:0002108 | card | — | 912 | 1049 | 263 |
+| `card-HP_0002666-hpo` | hpo HP:0002666 | card | — | 1156 | 1330 | 333 |
+| `card-HP_0004390-hpo` | hpo HP:0004390 | card | — | 1211 | 1393 | 349 |
+| `card-HP_0005562-hpo` | hpo HP:0005562 | card | — | 880 | 1012 | 253 |
+| `card-HP_0005948-hpo` | hpo HP:0005948 | card | — | 1202 | 1383 | 346 |
+| `card-HP_0009732-hpo` | hpo HP:0009732 | card | — | 982 | 1130 | 283 |
+| `card-HP_0012032-hpo` | hpo HP:0012032 | card | — | 939 | 1080 | 270 |
+| `card-HP_0030436-hpo` | hpo HP:0030436 | card | — | 1225 | 1409 | 353 |
+| `card-HP_0032445-hpo` | hpo HP:0032445 | card | — | 1586 | 1824 | 456 |
+| `card-HP_0200008-hpo` | hpo HP:0200008 | card | — | 889 | 1023 | 256 |
+| `section-00` | hpo HP:0001250 | synonyms | 0 / 5 | 688 | 792 | 198 |
+| `section-01` | hpo HP:0001250 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-02` | monarch HP:0001250 | synonyms | 0 / 5 | 1573 | 1809 | 453 |
+| `section-03` | monarch HP:0001250 | xrefs | 0 / 5 | 203 | 234 | 59 |
+| `section-04` | monarch HP:0001250 | hierarchy | 0 / 5 | 1773 | 2039 | 510 |
+| `section-05` | monarch HP:0001250 | hierarchy | 5 / 5 | 1772 | 2038 | 510 |
+| `section-06` | monarch HP:0001250 | hierarchy | 10 / 5 | 1221 | 1405 | 352 |
+| `section-07` | monarch HP:0001250 | hierarchy | 0 / 2 | 1253 | 1441 | 361 |
+| `section-08` | hpo HP:0000957 | synonyms | 0 / 5 | 1163 | 1338 | 335 |
+| `section-09` | hpo HP:0000957 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-10` | hpo HP:0001067 | synonyms | 0 / 5 | 708 | 815 | 204 |
+| `section-11` | hpo HP:0001067 | xrefs | 0 / 5 | 422 | 486 | 122 |
+| `section-12` | hpo HP:0009732 | synonyms | 0 / 5 | 303 | 349 | 88 |
+| `section-13` | hpo HP:0009732 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-14` | hpo HP:0000997 | synonyms | 0 / 5 | 303 | 349 | 88 |
+| `section-15` | hpo HP:0000997 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-16` | hpo HP:0000256 | synonyms | 0 / 5 | 1131 | 1301 | 326 |
+| `section-17` | hpo HP:0000256 | xrefs | 0 / 5 | 422 | 486 | 122 |
+| `section-18` | hpo HP:0200008 | synonyms | 0 / 5 | 740 | 851 | 213 |
+| `section-19` | hpo HP:0200008 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-20` | hpo HP:0004390 | synonyms | 0 / 5 | 738 | 849 | 213 |
+| `section-21` | hpo HP:0004390 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-22` | hpo HP:0012032 | synonyms | 0 / 5 | 571 | 657 | 165 |
+| `section-23` | hpo HP:0012032 | xrefs | 0 / 5 | 550 | 633 | 159 |
+| `section-24` | hpo HP:0001263 | synonyms | 0 / 5 | 1199 | 1379 | 345 |
+| `section-25` | hpo HP:0001263 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-26` | hpo HP:0005562 | synonyms | 0 / 5 | 442 | 509 | 128 |
+| `section-27` | hpo HP:0005562 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-28` | hpo HP:0000107 | synonyms | 0 / 5 | 829 | 954 | 239 |
+| `section-29` | hpo HP:0000107 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-30` | hpo HP:0002666 | synonyms | 0 / 5 | 573 | 659 | 165 |
+| `section-31` | hpo HP:0002666 | xrefs | 0 / 5 | 422 | 486 | 122 |
+| `section-32` | hpo HP:0001737 | synonyms | 0 / 5 | 711 | 818 | 205 |
+| `section-33` | hpo HP:0001737 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-34` | hpo HP:0030436 | synonyms | 0 / 5 | 438 | 504 | 126 |
+| `section-35` | hpo HP:0030436 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-36` | hpo HP:0005948 | synonyms | 0 / 5 | 576 | 663 | 166 |
+| `section-37` | hpo HP:0005948 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-38` | hpo HP:0032445 | synonyms | 0 / 5 | 430 | 495 | 124 |
+| `section-39` | hpo HP:0032445 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-40` | hpo HP:0002108 | synonyms | 0 / 5 | 447 | 515 | 129 |
+| `section-41` | hpo HP:0002108 | xrefs | 0 / 5 | 297 | 342 | 86 |
+| `section-42` | monarch HP:0001676 | synonyms | 0 / 5 | 209 | 241 | 61 |
+| `section-43` | monarch HP:0001676 | xrefs | 0 / 5 | 203 | 234 | 59 |
+| `section-44` | monarch HP:0001676 | hierarchy | 0 / 5 | 670 | 771 | 193 |
+| `section-45` | monarch HP:0001676 | hierarchy | 5 / 5 | 670 | 771 | 193 |
+| `section-46` | monarch HP:0001676 | hierarchy | 10 / 5 | 672 | 773 | 194 |
+| `section-47` | monarch HP:0001676 | hierarchy | 0 / 2 | 670 | 771 | 193 |
+| `section-48` | monarch HP:0000256 | xrefs | 0 / 5 | 790 | 909 | 228 |
