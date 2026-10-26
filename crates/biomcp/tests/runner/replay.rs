@@ -1,4 +1,4 @@
-//! Feature gene: replay misses stay source failures and repeated server calls use checked cache.
+//! Feature gene-identity: replay misses stay source failures and repeated server calls use checked cache.
 use super::{configuration::invoke, launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -81,11 +81,16 @@ fn repeat_calls(
     rx: &mpsc::Receiver<Result<String, String>>,
 ) -> Result<(), String> {
     let mut first = None;
-    for (id, gene) in [(1, "BRAF"), (2, "BRAF"), (3, "UNRECORDED")] {
+    for (id, args) in [
+        (1, vec!["get", "gene", "BRAF"]),
+        (2, vec!["get", "gene", "BRAF"]),
+        (3, vec!["get", "gene", "BRAF", "protein"]),
+        (4, vec!["get", "gene", "BRAF", "--fresh"]),
+    ] {
         let frame = mcp::request(
             json!(id),
             "tools/call",
-            json!({"name":"biomcp","arguments":{"args":["get","gene",gene]}}),
+            json!({"name":"biomcp","arguments":{"args":args}}),
         );
         serde_json::to_writer(&mut *input, &frame).map_err(|e| e.to_string())?;
         input.write_all(b"\n").map_err(|e| e.to_string())?;
@@ -95,10 +100,30 @@ fn repeat_calls(
             .map_err(|_| "reply watchdog")??;
         let reply: Value = serde_json::from_str(&line).map_err(|e| e.to_string())?;
         let result = reply.get("result").ok_or("missing result")?;
-        if reply.get("id") != Some(&json!(id)) || result.get("isError") != Some(&json!(id == 3)) {
+        if reply.get("id") != Some(&json!(id)) || result.get("isError") != Some(&json!(id >= 3)) {
             return Err(format!("replay call failed: {reply}"));
         }
         let content = result.get("structuredContent").ok_or("missing content")?;
+        let text = result
+            .pointer("/content/0/text")
+            .and_then(Value::as_str)
+            .ok_or("missing text")?;
+        if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *content {
+            return Err("text differs from structured content".into());
+        }
+        eprintln!("replay MCP {id}: {} text bytes", text.len());
+        if id >= 3
+            && !content
+                .get("sources")
+                .and_then(Value::as_array)
+                .is_some_and(|sources| {
+                    sources
+                        .iter()
+                        .any(|s| s.get("reason") == Some(&json!("replay_miss")))
+                })
+        {
+            return Err("new or exhausted request lost replay_miss".into());
+        }
         if id == 1 {
             first = Some(content.clone());
         }
