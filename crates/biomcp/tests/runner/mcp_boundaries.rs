@@ -25,10 +25,10 @@ fn stub() -> Result<Stub, String> {
     )
 }
 fn refusal(value: &Value) -> Check {
-    assert_eq!(value.get("status"), Some(&json!("error")), "{value}");
+    assert_eq!(value.get("status"), Some(&json!("usage")), "{value}");
     assert_eq!(
         value.pointer("/error/code"),
-        Some(&json!("invalid_arguments")),
+        Some(&json!("usage.arguments")),
         "{value}"
     );
     Ok(())
