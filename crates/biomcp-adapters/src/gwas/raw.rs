@@ -116,10 +116,14 @@ impl Reply for Response {
             return Err(BadReply);
         }
         let mut ids = std::collections::BTreeSet::new();
-        if rows
-            .iter()
-            .any(|r| r.association_id == 0 || !ids.insert(r.association_id))
-        {
+        if rows.iter().any(|r| {
+            r.association_id == 0
+                || !ids.insert(r.association_id)
+                || r.exact_p_value().is_none()
+                    && (r.p_value_mantissa.is_some()
+                        || r.p_value_exponent.is_some()
+                        || f64::from(r.p_value) == 0.0)
+        }) {
             return Err(BadReply);
         }
         Ok(())
