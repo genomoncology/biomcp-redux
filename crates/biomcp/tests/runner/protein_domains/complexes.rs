@@ -129,7 +129,7 @@ fn rejected(env: &Environment) -> Result<(), String> {
 fn member(id: String, kind: &str) -> Value {
     json!({"identifier":id,"interactorType":kind,"organismName":if kind=="protein"{"Homo sapiens; 9606"}else{"chemical synthesis; -2"},"name":"Native participant","stochiometry":"minValue: 1, maxValue: 2","xrefs":[{"database":"native","identifier":"identifier"}]})
 }
-fn reply(request: &str) -> Result<String, String> {
+pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.contains("/complex/CPX-716") || request.contains("/complex/CPX-717") {
         let id = if request.contains("CPX-716") {
             "CPX-716"
