@@ -345,3 +345,43 @@ fn article_access_filter_schema_and_serde_share_the_native_policy() {
         assert!(serde_json::from_value::<ArticleSearch>(value).is_err());
     }
 }
+
+#[test]
+fn curie_runtime_and_published_schema_accept_the_same_checked_ids()
+-> Result<(), Box<dyn std::error::Error>> {
+    let schema: Value = serde_json::from_str(include_str!("../../schemas/statement.json"))?;
+    let curie = schema
+        .pointer("/$defs/Curie")
+        .ok_or("published Curie definition missing")?;
+    let validator = jsonschema::draft202012::new(curie)?;
+    for (value, accepted) in [
+        ("DepMap:ACH-000362", true),
+        ("HGNC:3765", true),
+        ("HGNC:HGNC:7132", true),
+        ("prefix_1.-:α/β", true),
+        ("DepMap:ACH\u{007f}1", false),
+        ("DepMap:ACH\u{0080}1", false),
+        ("DepMap:ACH\u{009f}1", false),
+        ("DepMap:ACH\t1", false),
+        ("DepMap:ACH\u{00a0}1", false),
+        ("DepMap:ACH\n1", false),
+        ("DepMap:ACH1\n", false),
+        ("DepMap:ACH\u{0000}1", false),
+        ("DepMap:", false),
+        (":ACH1", false),
+        ("DepMap ACH1", false),
+        ("préfix:ACH1", false),
+    ] {
+        assert_eq!(
+            value.parse::<Curie>().is_ok(),
+            accepted,
+            "runtime: {value:?}"
+        );
+        assert_eq!(
+            validator.is_valid(&json!(value)),
+            accepted,
+            "schema: {value:?}"
+        );
+    }
+    Ok(())
+}
