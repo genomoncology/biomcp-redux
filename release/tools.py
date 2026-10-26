@@ -27,7 +27,10 @@ def check(root):
 
 def candidate(binary):
     # Reuse the installed gate's isolated environment; tools/list makes no source calls.
-    from smoke import environment
+    if __package__:
+        from .smoke import environment
+    else:
+        from smoke import environment
     frames = [
         {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "bundle-producer", "version": "1"}}},
         {"jsonrpc": "2.0", "method": "notifications/initialized"},
