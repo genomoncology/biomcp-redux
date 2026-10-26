@@ -22,7 +22,6 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections/*/word": [],
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--cancer-type",
@@ -31,7 +30,8 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names."
+        "/result/commands/0/description": "Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
+        "/result/commands/0/sections": []
       }
     },
     {
@@ -89,7 +89,7 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections/*/word": []
+        "/result/commands/0/sections": []
       }
     }
   ]

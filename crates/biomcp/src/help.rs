@@ -258,7 +258,11 @@ pub(crate) fn tree() -> String {
 
 fn study_selectors(command: &HelpCommand, line: &mut String) {
     if command.command.iter().any(|word| word == "study") {
-        for argument in command.arguments.iter().filter(|arg| arg.position.is_none()) {
+        for argument in command
+            .arguments
+            .iter()
+            .filter(|arg| arg.position.is_none())
+        {
             line.push_str(&format!(" [{}]", argument.name));
         }
     }
