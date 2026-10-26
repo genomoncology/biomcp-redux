@@ -98,9 +98,7 @@ fn dispatch_using(
         Some(Ok(fetch)) if !parsed.globals.offline => {
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
-                Err(()) => {
-                    return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
-                }
+                Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
             };
             owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned
@@ -111,9 +109,7 @@ fn dispatch_using(
         _ => {
             owned = match crate::config::fetch(&parsed.globals) {
                 Ok(fetch) => fetch,
-                Err(()) => {
-                    return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
-                }
+                Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
             };
             &owned
         }
