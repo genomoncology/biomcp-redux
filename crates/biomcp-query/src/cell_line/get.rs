@@ -34,7 +34,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
             command.finish(deadline.remaining());
             return metadata;
         }
-        if query.section().is_some() && query.section() != Some(CellLineSection::All) && card.candidates.is_empty() {
+        if query.section().is_some()
+            && query.section() != Some(CellLineSection::All)
+            && card.candidates.is_empty()
+        {
             super::sections::actions(query, &card, &mut out);
         } else {
             actions(&mut out, &card);

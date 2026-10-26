@@ -10,8 +10,6 @@ fn page<T>(rows: &mut Capped<T>, query: &CellLineGet, default: u32) {
         .collect();
 }
 pub(super) fn select(query: &CellLineGet, card: &mut CellLineCard) {
-    let first = query.first_sections();
-    let query = if query.section() == Some(CellLineSection::All) { &first } else { query };
     let section = query.section();
     let all = section == Some(CellLineSection::All);
     if !all && section != Some(CellLineSection::Names) {

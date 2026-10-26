@@ -1,7 +1,7 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
 use std::io::Write;
-mod chembl;
 mod all;
+mod chembl;
 mod examples;
 mod faults;
 mod help;
