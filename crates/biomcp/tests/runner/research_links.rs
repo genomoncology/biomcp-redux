@@ -3,6 +3,7 @@ use super::{Environment, call};
 use serde_json::{Value, json};
 pub(super) fn check() -> Result<(), String> {
     pathway()?;
+    empty_title()?;
     nci()
 }
 fn pathway() -> Result<(), String> {
@@ -78,6 +79,33 @@ fn nci() -> Result<(), String> {
         || fetched.get("title") != fetched.pointer("/metadata/result/items/0/card/brief_title")
     {
         return Err("NCI research URL lost source identity or native title".into());
+    }
+    Ok(())
+}
+
+fn empty_title() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = env.root().join("empty-title");
+    super::super::response_cases::copy_capture("phenotype/synthetic", &replay, |_, record| {
+        if record.get("source").and_then(Value::as_str) == Some("hpo")
+            && let Some(label) = record.pointer_mut("/exchanges/0/body/value/name")
+        {
+            *label = json!("");
+        }
+    })
+    .map_err(|e| e.to_string())?;
+    let globals = env.globals(Some(&replay), false);
+    let fetched = call(
+        &env,
+        "fetch",
+        json!({"id":"phenotype HP:0000001"}),
+        &globals,
+    )?;
+    if fetched.get("title") != Some(&json!("Human Phenotype Ontology HP:0000001"))
+        || fetched.get("url") != Some(&json!("https://hpo.jax.org/browse/term/HP:0000001"))
+        || fetched.pointer("/metadata/result/term/label") != Some(&json!(""))
+    {
+        return Err("empty native label lost its citable card or changed the source label".into());
     }
     Ok(())
 }
