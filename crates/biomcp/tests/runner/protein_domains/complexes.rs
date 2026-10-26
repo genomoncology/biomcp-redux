@@ -23,14 +23,14 @@ pub(super) fn run() -> Result<(), String> {
             "native non-protein facts or bounded page lost: {members}"
         ));
     }
-    walk(&env,members)?;
+    walk(&env, members)?;
     rejected(&env)?;
     if stub.finish()?.len() != 6 {
         return Err("retained member paging made extra provider requests".into());
     }
     Ok(())
 }
-fn walk(env:&Environment,members:Value)->Result<(),String>{
+fn walk(env: &Environment, members: Value) -> Result<(), String> {
     let pool = members
         .pointer("/page/pool")
         .cloned()
@@ -70,7 +70,7 @@ fn walk(env:&Environment,members:Value)->Result<(),String>{
     }
     Ok(())
 }
-fn rejected(env:&Environment)->Result<(),String>{
+fn rejected(env: &Environment) -> Result<(), String> {
     let wrong = call(
         env,
         &[

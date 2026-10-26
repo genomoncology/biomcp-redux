@@ -37,7 +37,7 @@ fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {
         Ok(json!({
         "count":2,"next":null,"previous":null,"results":[
-            {"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,"organism":"9606","entry_protein_locations":[{"fragments":[{"start":2,"end":10,"dc-status":"N_TERMINAL_DISC"},{"start":20,"end":30,"dc-status":"C_TERMINAL_DISC"}]}]}]},
+            {"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,"organism":"9606","entry_protein_locations":[{"fragments":[{"start":2,"end":10,"dc-status":"N_TERMINAL_DISC"},{"start":20,"end":30,"dc-status":"C_TERMINAL_DISC"}]},{"fragments":[{"start":40,"end":50,"dc-status":"CONTINUOUS"}]}]}]},
             {"metadata":{"accession":"IPR010991","name":"Native domain","source_database":"interpro","type":"domain","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,"organism":"9606","entry_protein_locations":[]}]}
         ]}).to_string())
     })?;
@@ -52,6 +52,7 @@ fn domains() -> Result<(), String> {
     {
         return Err(format!("native types or fragments changed: {value}"));
     }
+    if value.pointer("/result/items/0/locations").and_then(Value::as_array).map(Vec::len)!=Some(2) || value.pointer("/result/items/0/locations/0/fragments/1/span/start/min")!=Some(&json!(19)) || value.pointer("/result/items/0/locations/1/fragments/0/span/end/min")!=Some(&json!(50)) {return Err("native location groups were flattened or a fragment boundary changed".into());}
     let selected = call(
         &env,
         &["protein", "domains", "P04637", "--type", "domain"],

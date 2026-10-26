@@ -71,10 +71,12 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
         Request::GetGwasAssociation(q) => serde_json::to_value(q),
         Request::GetGwasStudy(q) => serde_json::to_value(q),
         Request::SearchGwas(q) => serde_json::to_value(q),
-        Request::ProteinDomains(q)=>serde_json::to_value(q),
-        Request::ProteinComplexMembers(q)=>serde_json::to_value(q),
+        Request::ProteinDomains(q) => serde_json::to_value(q),
+        Request::ProteinComplexMembers(q) => serde_json::to_value(q),
         Request::ProteinFeatures(q) => serde_json::to_value(q),
-        Request::ProteinIsoforms(q) | Request::ProteinStructures(q) | Request::ProteinComplexes(q) => serde_json::to_value(q),
+        Request::ProteinIsoforms(q)
+        | Request::ProteinStructures(q)
+        | Request::ProteinComplexes(q) => serde_json::to_value(q),
         Request::ProteinSequence(q) => serde_json::to_value(q),
         Request::SearchProtein(q) => serde_json::to_value(q),
         Request::GetProtein(q) => serde_json::to_value(q),

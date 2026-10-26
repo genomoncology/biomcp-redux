@@ -122,7 +122,7 @@ pub(super) fn read(
         return Ok(());
     }
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let Some((saved, pool)) = load(cx, q, &leg, &mut store, out)? else {
+    let Some((saved, pool)) = load(cx, q, leg, &mut store, out)? else {
         return Ok(());
     };
     if let (Selection::Members(query), Saved::Members(None)) = (q, &saved) {
@@ -173,7 +173,7 @@ pub(super) fn read(
 fn load(
     cx: &Ctx<'_>,
     q: &Selection,
-    leg: &biomcp_fetch::Leg<'_>,
+    leg: biomcp_fetch::Leg<'_>,
     store: &mut Store<'_>,
     out: &mut Outcome,
 ) -> Result<Option<(Saved, biomcp_types::PoolInfo)>, RequestError> {
@@ -202,7 +202,7 @@ fn load(
             restart(q, out, false);
             return Ok(None);
         }
-        let result = Saved::fetch(q, leg);
+        let result = Saved::fetch(q, &leg);
         let error = result.as_ref().err().copied();
         out.sources
             .push(status::source(q.source(), leg.finish(), error));

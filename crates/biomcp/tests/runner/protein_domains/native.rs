@@ -49,12 +49,14 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
         let env = setup(&stub)?;
         let mut record = args.clone();
         record.extend(["--record", replay.to_str().ok_or("native replay")?]);
-        let recorded=call(&env, &record, 0)?;
+        let recorded = call(&env, &record, 0)?;
         let value = super::super::run_case(&path, &registry)?;
-        flags(name,&value)?;
+        flags(name, &value)?;
         measure(name, &value, &output)?;
         if name.starts_with("complexes-") || name.starts_with("domains-") {
-            if name=="complexes-P15056" {members_from_complex(&env,&recorded,&output)?;}
+            if name == "complexes-P15056" {
+                members_from_complex(&env, &recorded, &output)?;
+            }
             walk(&env, recorded, name, &output)?;
         }
         fs::write(root.join(format!("{name}.done")), b"passed").map_err(|e| e.to_string())?;
@@ -66,8 +68,19 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
 fn measure(name: &str, value: &Value, output: &Path) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?;
     let comparable = super::super::source_terms::size(value, "")?;
-    let budgets:BTreeMap<String,[usize;2]>=serde_json::from_str(include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/../../tests/protein-domain-budgets.json"))).map_err(|e|e.to_string())?;
-    if let Some([full,small])=budgets.get(name) && (bytes.len()+1>(full*115).div_ceil(100) || comparable>(small*115).div_ceil(100)) {return Err(format!("{name}: native output exceeds its measured fifteen-percent ceiling"));}
+    let budgets: BTreeMap<String, [usize; 2]> = serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../tests/protein-domain-budgets.json"
+    )))
+    .map_err(|e| e.to_string())?;
+    if let Some([full, small]) = budgets.get(name)
+        && (bytes.len() + 1 > (full * 115).div_ceil(100)
+            || comparable > (small * 115).div_ceil(100))
+    {
+        return Err(format!(
+            "{name}: native output exceeds its measured fifteen-percent ceiling"
+        ));
+    }
 
     fs::write(output.join(format!("{name}.json")), bytes.as_slice()).map_err(|e| e.to_string())?;
     writeln!(
@@ -107,7 +120,7 @@ fn walk(env: &Environment, mut value: Value, name: &str, output: &Path) -> Resul
         if value.pointer("/page/pool") != Some(&pool) {
             return Err("native continuation changed publication identity or lifetime".into());
         }
-        flags(name,&value)?;
+        flags(name, &value)?;
         measure(&format!("{name}-page-{page}"), &value, output)?;
     }
     let unique = ids
@@ -130,21 +143,38 @@ fn walk(env: &Environment, mut value: Value, name: &str, output: &Path) -> Resul
     Ok(())
 }
 
-fn flags(name:&str,value:&Value)->Result<(),String>{
-    if name!="complexes-P38398"{return Ok(());}
-    for row in value.pointer("/result/items").and_then(Value::as_array).ok_or("complex rows")? {
-        let id=row.get("id").and_then(Value::as_str).ok_or("complex identity")?;
-        let expected=match id {"CPX-715"|"CPX-845"|"CPX-955"=>false,"CPX-14676"|"CPX-24321"|"CPX-26111"=>true,_=>return Err("unexpected BRCA1 complex".into())};
-        if row.get("predicted")!=Some(&json!(expected)){return Err(format!("native predicted flag changed for {id}"));}
+fn flags(name: &str, value: &Value) -> Result<(), String> {
+    if name != "complexes-P38398" {
+        return Ok(());
+    }
+    for row in value
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("complex rows")?
+    {
+        let id = row
+            .get("id")
+            .and_then(Value::as_str)
+            .ok_or("complex identity")?;
+        let expected = match id {
+            "CPX-715" | "CPX-845" | "CPX-955" => false,
+            "CPX-14676" | "CPX-24321" | "CPX-26111" => true,
+            _ => return Err("unexpected BRCA1 complex".into()),
+        };
+        if row.get("predicted") != Some(&json!(expected)) {
+            return Err(format!("native predicted flag changed for {id}"));
+        }
     }
     Ok(())
 }
 
-fn members_from_complex(env:&Environment,value:&Value,output:&Path)->Result<(),String>{
-    let action=super::super::action(value,"section")?;
-    let words:Vec<_>=action.iter().map(String::as_str).collect();
-    let members=call(env,&words,0)?;
-    if members.pointer("/page/total")!=Some(&json!(93)){return Err("native CPX-12671 participant total changed".into());}
-    measure("members-CPX-12671",&members,output)?;
-    walk(env,members,"members-CPX-12671",output)
+fn members_from_complex(env: &Environment, value: &Value, output: &Path) -> Result<(), String> {
+    let action = super::super::action(value, "section")?;
+    let words: Vec<_> = action.iter().map(String::as_str).collect();
+    let members = call(env, &words, 0)?;
+    if members.pointer("/page/total") != Some(&json!(93)) {
+        return Err("native CPX-12671 participant total changed".into());
+    }
+    measure("members-CPX-12671", &members, output)?;
+    walk(env, members, "members-CPX-12671", output)
 }
