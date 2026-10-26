@@ -68,7 +68,7 @@ pub(super) fn features(
                         coding: None,
                     },
                     description: r.description.and_then(|v| Text::new(&v).ok()),
-                    id: r.feature_id,
+                    id: r.feature_id.and_then(|v| Text::new(&v).ok()),
                     original: alternative
                         .as_ref()
                         .and_then(|a| a.original_sequence.clone()),

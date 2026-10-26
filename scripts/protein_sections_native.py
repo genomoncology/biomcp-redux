@@ -79,3 +79,11 @@ for accession, remainder in [('P04637', ['P04637-6', 'P04637-7', 'P04637-8', 'P0
     walks = output / 'walks'
     walks.mkdir(exist_ok=True)
     (walks / path.name).write_text(json.dumps(value))
+case('features-default', ['protein', 'features', 'P00533'], {
+    '/page/total': 321, '/page/returned': 5,
+    '/result/items/*/feature/kind/label': ['Signal', 'Chain', 'Topological domain', 'Transmembrane', 'Topological domain']})
+for point, description, start, end in [(1642, 'BRCT 1', 1642, 1736), (1736, 'BRCT 1', 1642, 1736),
+                                       (1756, 'BRCT 2', 1756, 1855), (1855, 'BRCT 2', 1756, 1855)]:
+    case(f'brct-endpoint-{point}', ['protein', 'features', 'P38398', '--type', 'Domain', '--position', str(point)], {
+        '/page/total': 1, '/result/items/0/feature/description': description,
+        '/result/items/0/feature/span/start/min': start - 1, '/result/items/0/feature/span/end/min': end})

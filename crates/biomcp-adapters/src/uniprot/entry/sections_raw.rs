@@ -7,7 +7,7 @@ pub(in crate::uniprot) struct Feature {
     pub kind: Text,
     pub location: Location,
     pub description: Option<String>,
-    pub feature_id: Option<Text>,
+    pub feature_id: Option<String>,
     pub alternative_sequence: Option<Alternative>,
     pub evidences: Option<Vec<Evidence>>,
 }
