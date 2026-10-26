@@ -8,14 +8,14 @@ enum Details {
     Details,
 }
 macro_rules! fields {
-    ($name:ident, $($extra:tt)*) => {
+    ($name:ident, $pattern:literal, $($extra:tt)*) => {
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
         #[serde(deny_unknown_fields)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         struct $name {
-            /// Checked human Reactome identity; WikiPathways relations are not yet available.
+            /// Checked source-owned human pathway identity.
             #[serde(with = "native_id")]
-            #[cfg_attr(feature = "schema", schemars(with = "str", regex(pattern = "^R-HSA-[1-9][0-9]*$"), extend("x-positional" = 0)))]
+            #[cfg_attr(feature = "schema", schemars(with = "str", regex(pattern = $pattern), extend("x-positional" = 0)))]
             id: PathwayId,
             /// Five complete relation rows by default, at most fifty.
             #[serde(default = "default_limit")]
@@ -32,15 +32,15 @@ macro_rules! fields {
         }
     };
 }
-fields!(EventFields,);
-fields!(GeneFields,
+fields!(EventFields, "^R-HSA-[1-9][0-9]*$",);
+fields!(GeneFields, "^(R-HSA-|WP)[1-9][0-9]*$",
     /// Include every physical entity context for these references; never clips source text.
     #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Details", extend("x-positional" = 1)))]
     details: Option<Details>,
 );
 macro_rules! relation {
-    ($name:ident, $fields:ident, $wire:literal, $doc:literal $(, $extra:ident: $default:expr)*) => {
+    ($name:ident, $fields:ident, $wire:literal, $check:ident, $doc:literal $(, $extra:ident: $default:expr)*) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
         #[serde(try_from = $wire)]
@@ -50,7 +50,7 @@ macro_rules! relation {
         impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, Self::Error> {
-                if !valid_limit(v.limit) || !reactome(&v.id) { return Err(QueryInvalid); }
+                if !valid_limit(v.limit) || !$check(&v) { return Err(QueryInvalid); }
                 Ok(Self(v))
             }
         }
@@ -80,22 +80,32 @@ macro_rules! relation {
         }
     };
 }
-relation!(PathwayGenesQuery, GeneFields, "GeneFields",
+relation!(PathwayGenesQuery, GeneFields, "GeneFields", valid_genes,
     "Continue exact pathway membership; details explicitly discloses full physical contexts.", details: None);
 relation!(
     PathwayEventsQuery,
     EventFields,
     "EventFields",
+    valid_events,
     "Continue Reactome event objects and unresolved native integer references."
 );
 impl PathwayGenesQuery {
-    /// Request all physical contexts of each displayed membership reference.
+    /// Request all physical contexts where the native source provides them.
     pub fn with_details(mut self) -> Self {
-        self.0.details = Some(Details::Details);
+        if reactome(&self.0.id) {
+            self.0.details = Some(Details::Details);
+        }
         self
     }
     /// Whether full physical contexts were explicitly requested.
     pub fn details(&self) -> bool {
         self.0.details.is_some()
     }
+}
+
+fn valid_genes(v: &GeneFields) -> bool {
+    reactome(&v.id) || v.details.is_none()
+}
+fn valid_events(v: &EventFields) -> bool {
+    reactome(&v.id)
 }

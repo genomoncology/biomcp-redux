@@ -45,7 +45,8 @@ pub struct Pathway {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwaySourceRef {
     /// Native namespace; never discarded during a gene join.
-    pub namespace: Text,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<Box<str>>,
     /// Complete namespace-local identifier, including native isoform suffixes.
     pub value: Text,
 }
@@ -54,6 +55,9 @@ pub struct PathwaySourceRef {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayMember {
+    /// Native data-node identity; repeated references remain separate nodes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<Text>,
     /// Namespaced native reference.
     pub reference: PathwaySourceRef,
     /// Native label, never interpreted as a gene symbol.

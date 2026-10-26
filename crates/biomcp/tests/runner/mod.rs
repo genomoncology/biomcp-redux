@@ -580,3 +580,5 @@ pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
 pub(super) fn protein_native(path: &Path) -> Result<(), String> {
     protein_commands::native(path)
 }
+
+mod wikipathways_genes;

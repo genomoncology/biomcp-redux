@@ -30,7 +30,8 @@ pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut S
             )),
         ));
     }
-    if !details
+    if matches!(body.header.id, biodata::PathwayId::Reactome(_))
+        && !details
         && !body.items.is_empty()
         && let Some(pool) = &body.page.pool
         && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit)

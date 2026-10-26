@@ -12,7 +12,7 @@
   "description": "Continue Reactome event objects and unresolved native integer references.",
   "properties": {
     "id": {
-      "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+      "description": "Checked source-owned human pathway identity.",
       "pattern": "^R-HSA-[1-9][0-9]*$",
       "type": "string",
       "x-positional": 0

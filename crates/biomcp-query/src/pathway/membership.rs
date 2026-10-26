@@ -43,9 +43,13 @@ pub(super) fn resolve(
         if matched.is_none() {
             problems.push(Problem {
                 source: Source::Reactome,
-                record: format!("{}:{}", row.reference.namespace, row.reference.value)
-                    .parse()
-                    .ok(),
+                record: format!(
+                    "{}:{}",
+                    row.reference.namespace.as_deref().unwrap_or(""),
+                    row.reference.value
+                )
+                .parse()
+                .ok(),
                 field: "genes.gene".into(),
                 code: ProblemCode::ValueUnknown,
             });
@@ -53,7 +57,7 @@ pub(super) fn resolve(
     }
 }
 fn accession(row: &PathwayMember) -> Option<UniProtAcc> {
-    if row.reference.namespace.as_str() != "uniprot" {
+    if row.reference.namespace.as_deref() != Some("uniprot") {
         return None;
     }
     let stated = UniProtIsoform::new(row.reference.value.as_str()).ok()?;

@@ -69,7 +69,7 @@ pub(crate) struct Decoder<'a, T> {
     pub(crate) limit: Option<u64>,
     pub(crate) json_rejections: bool,
     pub(crate) json_absence: bool,
-    octet_stream: bool,
+    octet_stream: Option<&'static str>,
     parse: fn(&[u8]) -> Option<T>,
     range_check: Option<&'a RangeCheck<'a, T>>,
 }
@@ -114,7 +114,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
             check: None,
             cache_if: None,
             range_check: None,
-            octet_stream: false,
+            octet_stream: None,
             limit: None,
             json_rejections: false,
             json_absence: false,
@@ -139,7 +139,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
             check: None,
             cache_if: None,
             range_check: None,
-            octet_stream: false,
+            octet_stream: None,
             limit: None,
             json_rejections: false,
             json_absence: false,
@@ -164,7 +164,7 @@ impl<'a, T: Reply> Decoder<'a, T> {
     pub(crate) fn binary(&self) -> bool {
         matches!(self.codec, Codec::Bytes)
     }
-    pub(crate) fn octet_stream(mut self, accepted: bool) -> Self {
+    pub(crate) fn octet_stream(mut self, accepted: Option<&'static str>) -> Self {
         self.octet_stream = accepted;
         self
     }
@@ -173,11 +173,12 @@ impl<'a, T: Reply> Decoder<'a, T> {
     }
     pub(crate) fn accepts(&self, media: &str) -> bool {
         self.codec.accepts(media)
-            || self.octet_stream
-                && media
+            || self.octet_stream.is_some_and(|accepted| {
+                media
                     .split(';')
                     .next()
-                    .is_some_and(|v| v.trim().eq_ignore_ascii_case("binary/octet-stream"))
+                    .is_some_and(|value| value.trim().eq_ignore_ascii_case(accepted))
+            })
     }
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;
@@ -347,7 +348,7 @@ impl Decoder<'_, Probe> {
             limit: None,
             json_rejections: false,
             json_absence: false,
-            octet_stream: false,
+            octet_stream: None,
             parse: |_| Some(Probe),
         }
     }
@@ -383,7 +384,7 @@ impl<'a> Decoder<'a, Bytes> {
             check: None,
             cache_if: None,
             range_check: None,
-            octet_stream: false,
+            octet_stream: None,
             limit: Some(limit),
             json_rejections: false,
             json_absence: false,

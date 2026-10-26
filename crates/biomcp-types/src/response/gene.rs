@@ -97,6 +97,10 @@ pub enum QueryBody {
     PhenotypeXrefs(Option<crate::PhenotypeXrefs>),
     /// Native source direct parent and child links.
     PhenotypeHierarchy(Option<crate::PhenotypeHierarchy>),
+    /// Exact direct native disease association rows.
+    PhenotypeDiseases(crate::PhenotypeDiseases),
+    /// Exact direct native human gene association rows.
+    PhenotypeGenes(crate::PhenotypeGenes),
     /// Native ordered human pathway headers.
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.

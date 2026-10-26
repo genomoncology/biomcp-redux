@@ -30,7 +30,7 @@ impl SourceSpec {
             method: Method::Get,
             idempotent: true,
             identity_encoding: false,
-            octet_stream: false,
+            octet_stream: None,
             publisher: false,
             byte_limit: None,
             json_rejections: false,
@@ -81,7 +81,7 @@ pub struct Endpoint {
     pub(crate) method: Method,
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
-    pub(crate) octet_stream: bool,
+    pub(crate) octet_stream: Option<&'static str>,
     pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
     pub(crate) json_rejections: bool,
@@ -211,12 +211,22 @@ impl Endpoint {
     }
     /// Accept the reviewed bucket media type while retaining JSON/XML decoding and body limits.
     pub const fn octet_stream(mut self) -> Self {
-        self.octet_stream = true;
+        self.octet_stream = Some("binary/octet-stream");
+        self
+    }
+    /// Admit the reviewed application/octet-stream media type while retaining typed decoding.
+    pub const fn application_octet_stream(mut self) -> Self {
+        self.octet_stream = Some("application/octet-stream");
         self
     }
     /// Request an uncompressed representation from a source with broken compression.
     pub const fn identity_encoding(mut self) -> Self {
         self.identity_encoding = true;
+        self
+    }
+    /// Attempt this endpoint once, without retries for status or transport failures.
+    pub const fn once(mut self) -> Self {
+        self.idempotent = false;
         self
     }
     /// Permit retries for a POST that only reads provider data.

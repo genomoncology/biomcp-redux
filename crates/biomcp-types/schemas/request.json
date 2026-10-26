@@ -814,7 +814,7 @@
       ]
     }
   },
-  "$id": "biodata.request/19",
+  "$id": "biodata.request/20",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -1418,7 +1418,7 @@
         },
         "section": {
           "$ref": "#/$defs/PathwaySection",
-          "description": "Omit for the card; WikiPathways genes await the GPML implementation.",
+          "description": "Omit for the card; WikiPathways has summary and genes sections.",
           "x-positional": 1
         },
         "section_limit": {
@@ -1457,8 +1457,8 @@
           "x-positional": 1
         },
         "id": {
-          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
-          "pattern": "^R-HSA-[1-9][0-9]*$",
+          "description": "Checked source-owned human pathway identity.",
+          "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",
           "type": "string",
           "x-positional": 0
         },
@@ -1497,7 +1497,7 @@
           "type": "string"
         },
         "id": {
-          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+          "description": "Checked source-owned human pathway identity.",
           "pattern": "^R-HSA-[1-9][0-9]*$",
           "type": "string",
           "x-positional": 0
