@@ -15,3 +15,4 @@ The runner tests that 0221, 0234, 0238 and 0245 added build recording identities
 - Keeps: every case's assertions and measured ceilings. No public API, framework, gate or source call.
 - Proof: the same cases pass with the helpers removed, and a search of the runner tree finds no hand-built recording digest. Then make landing-gate runs through pm job.
 - Order: next free lane, before any further runner work on those files.
+- PM ruling 2026-10-26: 0221's file downloads go through the publisher download endpoint, which refuses proxies before any request, so the CONNECT Stub cannot record them. 0221 keeps its existing proven helper for its two synthetic cases as a stated exception, and its retained native replies use `copy_capture`. No product security change and no test hook. This ticket finishes the two other landed runners; protein already conforms.
