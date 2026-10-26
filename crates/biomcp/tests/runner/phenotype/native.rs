@@ -19,7 +19,7 @@ fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
         .and_then(Value::as_str)
         .ok_or_else(|| format!("missing {key}"))
 }
-fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
+fn archived_body(root: &Path, row: &Value) -> Result<(Value, String), String> {
     let bytes = fs::read(root.join(text(row, "body")?)).map_err(|e| e.to_string())?;
     let hash = Sha256::digest(&bytes)
         .iter()
@@ -34,6 +34,11 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
         serde_json::from_slice(&bytes).map_err(|e| e.to_string())?
     };
     let body = String::from_utf8(bytes).map_err(|e| e.to_string())?;
+    Ok((native, body))
+}
+
+fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
+    let (native, body) = archived_body(root, row)?;
     let target = text(row, "target")?.to_string();
     let host = match text(row, "source")? {
         "hpo" => "ontology.jax.org",
