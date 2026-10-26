@@ -50,7 +50,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchGene(_) => "biodata.gene-search/1",
     }
 }
-pub(super) const QUERIES: &[(&str, &str, &str)] = &[
+pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "gwas", "biomcp.gwas-search/2"),
     ("protein", "features", "biomcp.protein-features-query/1"),
     ("protein", "isoforms", "biomcp.protein-relation-query/1"),

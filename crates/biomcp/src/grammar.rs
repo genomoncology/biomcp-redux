@@ -3,7 +3,7 @@ mod entity;
 pub(crate) mod gwas;
 mod local;
 mod queries;
-use queries::QUERIES;
+pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
