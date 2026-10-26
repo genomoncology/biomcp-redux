@@ -50,8 +50,6 @@ impl Selection {
     }
     fn render(&self, entry: uniprot::Entry, out: &mut Outcome) -> usize {
         let (limit, offset, _) = self.window();
-        let window =
-            |n: usize| (offset as usize).min(n)..(offset.saturating_add(limit) as usize).min(n);
         match self {
             Self::Features(q) => {
                 let rows: Vec<_> = entry
@@ -69,21 +67,35 @@ impl Selection {
                     .collect();
                 let total = rows.len();
                 out.body = QueryBody::ProteinFeatures(Some(ProteinFeatures {
-                    items: rows[window(total)].to_vec().into(),
+                    items: rows
+                        .into_iter()
+                        .skip(offset as usize)
+                        .take(limit as usize)
+                        .collect(),
                 }));
                 total
             }
             Self::Isoforms(_) => {
                 let total = entry.isoforms.len();
                 out.body = QueryBody::ProteinIsoforms(Some(ProteinIsoforms {
-                    items: entry.isoforms[window(total)].to_vec().into(),
+                    items: entry
+                        .isoforms
+                        .into_iter()
+                        .skip(offset as usize)
+                        .take(limit as usize)
+                        .collect(),
                 }));
                 total
             }
             Self::Structures(_) => {
                 let total = entry.structures.len();
                 out.body = QueryBody::ProteinStructures(Some(ProteinStructures {
-                    items: entry.structures[window(total)].to_vec().into(),
+                    items: entry
+                        .structures
+                        .into_iter()
+                        .skip(offset as usize)
+                        .take(limit as usize)
+                        .collect(),
                 }));
                 total
             }

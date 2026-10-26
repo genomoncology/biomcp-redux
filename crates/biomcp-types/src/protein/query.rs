@@ -151,6 +151,7 @@ struct GetFields {
     input: Box<[ProteinInput]>,
     /// Only requested sections disclose their full content.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[ProteinSection]>,
     /// Bounded first-page size for each requested section.
     #[serde(default = "limit")]

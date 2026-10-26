@@ -1,7 +1,7 @@
 use super::{ComplexPortalId, Position1, QueryInvalid, Text, UniProtIsoform, limit, present};
 use serde::{Deserialize, Serialize};
 macro_rules! relation {
-    ($name:ident, $fields:ident, $wire:literal, { $($(#[$meta:meta])* $field:ident: $ty:ty),* }, $doc:literal) => {
+    ($name:ident, $fields:ident, $wire:literal, { $($(#[$meta:meta])* $field:ident: $ty:ty),* }, $doc:literal $(, $check:expr)?) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
         #[serde(try_from = $wire)]
@@ -13,6 +13,7 @@ macro_rules! relation {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         struct $fields {
             /// Exact source protein sequence identity.
+            #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
             accession: UniProtIsoform,
             $($(#[$meta])* $field: $ty,)*
             /// Five rows by default, at most 25.
@@ -31,6 +32,7 @@ macro_rules! relation {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, QueryInvalid> {
                 if !(1..=25).contains(&v.limit) { return Err(QueryInvalid); }
+                $(if !($check)(&v) { return Err(QueryInvalid); })?
                 Ok(Self(v))
             }
         }
@@ -63,7 +65,8 @@ relation!(ProteinFeaturesQuery, FeatureFields, "FeatureFields", {
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     feature_type: Option<Text>
-}, "Native UniProt features filtered by exact native label and residue.");
+}, "Native UniProt features filtered by exact native label and residue.",
+|v: &FeatureFields| v.position.is_none() || !v.accession.as_str().contains('-'));
 relation!(ProteinDomainsQuery, DomainFields, "DomainFields", {
     /// Exact native InterPro type, not a normalized domain label.
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
@@ -109,5 +112,6 @@ impl ProteinComplexMembersQuery {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSequenceQuery {
     /// Exact isoform or base accession; no canonical suffix is synthesized.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub isoform: UniProtIsoform,
 }
