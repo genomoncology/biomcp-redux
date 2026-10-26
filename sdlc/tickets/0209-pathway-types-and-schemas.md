@@ -1,6 +1,7 @@
 # 0209 — Add the pathway types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 24d9d5120c3227739bb4404d3ad08934638dda60
 
 Milestone: 4
 

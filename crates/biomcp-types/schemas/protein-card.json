@@ -1,0 +1,2850 @@
+{
+  "$defs": {
+    "AcmgAmp2015Code": {
+      "description": "Checked AcmgAmp2015 codes.",
+      "enum": [
+        "pathogenic",
+        "likely_pathogenic",
+        "uncertain_significance",
+        "likely_benign",
+        "benign"
+      ],
+      "type": "string"
+    },
+    "AminoAcids": {
+      "pattern": "^[ACDEFGHIKLMNPQRSTVWYUOX]+$",
+      "type": "string"
+    },
+    "AmpAscoCap2017LevelCode": {
+      "description": "Checked AmpAscoCap2017Level codes.",
+      "enum": [
+        "level_a",
+        "level_b",
+        "level_c",
+        "level_d"
+      ],
+      "type": "string"
+    },
+    "AmpAscoCap2017TierCode": {
+      "description": "Checked AmpAscoCap2017Tier codes.",
+      "enum": [
+        "tier_i",
+        "tier_ii",
+        "tier_iii",
+        "tier_iv"
+      ],
+      "type": "string"
+    },
+    "Attribution": {
+      "additionalProperties": false,
+      "description": "Provenance for one source record.",
+      "properties": {
+        "evaluated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source evaluation date."
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native assertion record."
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dataset release."
+        },
+        "source": {
+          "$ref": "#/$defs/Text",
+          "description": "Source responsible for the claim."
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record link."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record version."
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
+    "Bound": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "min"
+          ]
+        },
+        {
+          "required": [
+            "max"
+          ]
+        }
+      ],
+      "description": "A bounded source range; equal min and max denote an exact boundary.",
+      "properties": {
+        "max": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "min": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "CivicEvidenceLevelCode": {
+      "description": "Source-defined CIViC evidence levels.",
+      "enum": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e"
+      ],
+      "type": "string"
+    },
+    "ClingenCgcVicc2022Code": {
+      "description": "Checked ClingenCgcVicc2022 codes.",
+      "enum": [
+        "oncogenic",
+        "likely_oncogenic",
+        "uncertain_significance",
+        "likely_benign",
+        "benign"
+      ],
+      "type": "string"
+    },
+    "ClingenLowPenetrance2024Code": {
+      "description": "Checked ClingenLowPenetrance2024 codes.",
+      "enum": [
+        "pathogenic_low_penetrance",
+        "likely_pathogenic_low_penetrance",
+        "established_risk_allele",
+        "likely_risk_allele",
+        "uncertain_risk_allele"
+      ],
+      "type": "string"
+    },
+    "Coding": {
+      "description": "A code in one explicitly named source framework.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "OncoKB oncogenicity vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/OncokbOncogenicityCode"
+            },
+            "system": {
+              "const": "oncokb_oncogenicity",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "OncoKB evidence levels.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/OncokbLevelCode"
+            },
+            "system": {
+              "const": "oncokb_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "CIViC evidence level.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/CivicEvidenceLevelCode"
+            },
+            "system": {
+              "const": "civic_evidence_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "acmg_amp_2015 vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/AcmgAmp2015Code"
+            },
+            "system": {
+              "const": "acmg_amp_2015",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "clingen_low_penetrance_2024 vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ClingenLowPenetrance2024Code"
+            },
+            "system": {
+              "const": "clingen_low_penetrance_2024",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "amp_asco_cap_2017_tier vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/AmpAscoCap2017TierCode"
+            },
+            "system": {
+              "const": "amp_asco_cap_2017_tier",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "amp_asco_cap_2017_level vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/AmpAscoCap2017LevelCode"
+            },
+            "system": {
+              "const": "amp_asco_cap_2017_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "clingen_cgc_vicc_2022 vocabulary.",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ClingenCgcVicc2022Code"
+            },
+            "system": {
+              "const": "clingen_cgc_vicc_2022",
+              "type": "string"
+            }
+          },
+          "required": [
+            "system",
+            "code"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "ComplexPortalId": {
+      "pattern": "^CPX-[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Curie": {
+      "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+$",
+      "type": "string"
+    },
+    "InterProId": {
+      "pattern": "^IPR[0-9]{6}$",
+      "type": "string"
+    },
+    "OncokbLevelCode": {
+      "description": "Source-defined OncoKB vocabulary.",
+      "enum": [
+        "level_1",
+        "level_2",
+        "level_3a",
+        "level_3b",
+        "level_4",
+        "level_r1",
+        "level_r2",
+        "level_dx1",
+        "level_dx2",
+        "level_dx3",
+        "level_px1",
+        "level_px2",
+        "level_px3"
+      ],
+      "type": "string"
+    },
+    "OncokbOncogenicityCode": {
+      "description": "Source-defined OncoKB vocabulary.",
+      "enum": [
+        "oncogenic",
+        "likely_oncogenic",
+        "likely_neutral",
+        "inconclusive",
+        "resistance",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized.",
+        " Native collection exceeds the admitted complete source page.",
+        " A source repeats one exact identity with incompatible records."
+      ]
+    },
+    "Protein": {
+      "additionalProperties": false,
+      "description": "A reviewed human protein listed by the authoritative gene record.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Checked primary accession."
+        },
+        "function": {
+          "description": "Whole source function paragraphs, omitted when absent.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "length": {
+          "description": "Sequence length in amino acids.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Recommended protein name."
+        },
+        "subcellular_locations": {
+          "description": "Source subcellular location names.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "accession",
+        "name",
+        "length"
+      ],
+      "type": "object"
+    },
+    "ProteinAudit": {
+      "additionalProperties": false,
+      "description": "Native source audit metadata, independent from local retrieval metadata.",
+      "properties": {
+        "entry_version": {
+          "description": "Native entry version, never an isoform version.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "first_public": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native first-public date."
+        },
+        "last_annotation_update": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native annotation update date."
+        },
+        "last_sequence_update": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native sequence update date."
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native release when supplied."
+        },
+        "sequence_version": {
+          "description": "Native sequence version when supplied.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ProteinCard": {
+      "additionalProperties": false,
+      "description": "Answers to requested inputs; ambiguous gene inputs retain all candidates.",
+      "properties": {
+        "items": {
+          "description": "One result per input in caller order.",
+          "items": {
+            "$ref": "#/$defs/ProteinCardItem"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ProteinCardItem": {
+      "additionalProperties": false,
+      "description": "One requested identity and its source outcome, without first-hit selection.",
+      "properties": {
+        "audit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProteinAudit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native audit for the selected entry only."
+        },
+        "candidates": {
+          "description": "Competing exact source identities when a gene does not resolve uniquely.",
+          "items": {
+            "$ref": "#/$defs/ProteinHeader"
+          },
+          "type": "array"
+        },
+        "header": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProteinHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact resolved native header; absent for ambiguity or failure."
+        },
+        "input": {
+          "$ref": "#/$defs/ProteinInput",
+          "description": "Original caller identity."
+        },
+        "more": {
+          "description": "Supported sections not requested.",
+          "items": {
+            "$ref": "#/$defs/ProteinSection"
+          },
+          "type": "array"
+        },
+        "sections": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProteinSections"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested bounded sections only."
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "Outcome of this input."
+        }
+      },
+      "required": [
+        "input",
+        "status"
+      ],
+      "type": "object"
+    },
+    "ProteinComplexHeader": {
+      "additionalProperties": false,
+      "description": "Exact source complex header admitted by a native participant identity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ComplexPortalId",
+          "description": "Native complex accession."
+        },
+        "matched_participant": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact native participant identifier supporting admission."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source name."
+        },
+        "participant_total": {
+          "description": "Actual participants in this exact complex, never a complex search total.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "predicted": {
+          "description": "Literal native predictedComplex flag.",
+          "type": "boolean"
+        },
+        "taxon": {
+          "description": "Source taxonomy identifier.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Native complex record URL."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "taxon",
+        "predicted",
+        "participant_total",
+        "matched_participant",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ProteinComplexes": {
+      "additionalProperties": false,
+      "description": "Exact participant-admitted complex headers; search total is not a membership total.",
+      "properties": {
+        "items": {
+          "description": "Whole native rows in source order; totals apply only to this collection.",
+          "items": {
+            "$ref": "#/$defs/ProteinComplexHeader"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "ProteinCoordinateConvention": {
+      "description": "Coordinate convention on the native feature before conversion.",
+      "enum": [
+        "one_based_inclusive"
+      ],
+      "type": "string"
+    },
+    "ProteinDomainFragment": {
+      "additionalProperties": false,
+      "description": "One native match fragment after coordinate conversion.",
+      "properties": {
+        "dc_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal discontinuity status supplied by InterPro."
+        },
+        "span": {
+          "$ref": "#/$defs/UncertainSpan0",
+          "description": "Converted interbase span with uncertainty retained."
+        }
+      },
+      "required": [
+        "span"
+      ],
+      "type": "object"
+    },
+    "ProteinDomainLocation": {
+      "additionalProperties": false,
+      "description": "One native InterPro location group retaining all discontinuous fragments.",
+      "properties": {
+        "fragments": {
+          "description": "All native fragments; never reduced to a min/max hull.",
+          "items": {
+            "$ref": "#/$defs/ProteinDomainFragment"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ProteinDomainMatch": {
+      "additionalProperties": false,
+      "description": "One native integrated InterPro match; not every entry type is a domain.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Source record and release facts."
+        },
+        "entry_type": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal source entry type, including family, site and repeat."
+        },
+        "id": {
+          "$ref": "#/$defs/InterProId",
+          "description": "Integrated entry accession, distinct from member signatures."
+        },
+        "locations": {
+          "description": "Every native location group in source order.",
+          "items": {
+            "$ref": "#/$defs/ProteinDomainLocation"
+          },
+          "type": "array"
+        },
+        "member_signatures": {
+          "description": "Source member signatures remain distinct from integrated entries.",
+          "items": {
+            "$ref": "#/$defs/ProteinMemberSignature"
+          },
+          "type": "array"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Native integrated name."
+        },
+        "protein": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Exact native protein identity."
+        },
+        "protein_length": {
+          "description": "Source protein length when supplied.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "taxon": {
+          "description": "Source taxon when supplied.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "entry_type",
+        "protein",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "ProteinDomains": {
+      "additionalProperties": false,
+      "description": "Native InterPro matches with independent location groups and fragments.",
+      "properties": {
+        "items": {
+          "description": "Whole native rows in source order; totals apply only to this collection.",
+          "items": {
+            "$ref": "#/$defs/ProteinDomainMatch"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "ProteinFeature": {
+      "additionalProperties": false,
+      "description": "UniProt feature with source attribution and coordinate provenance.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Attribution",
+          "description": "Source record and release facts."
+        },
+        "feature": {
+          "$ref": "#/$defs/UniProtFeature",
+          "description": "Shared feature, including native label and residues."
+        },
+        "source_coordinates": {
+          "$ref": "#/$defs/ProteinCoordinateConvention",
+          "description": "Convention before mathematical conversion."
+        }
+      },
+      "required": [
+        "feature",
+        "attribution",
+        "source_coordinates"
+      ],
+      "type": "object"
+    },
+    "ProteinFeatures": {
+      "additionalProperties": false,
+      "description": "Native UniProt feature rows, preserving exact labels and uncertain bounds.",
+      "properties": {
+        "items": {
+          "description": "Whole native rows in source order; totals apply only to this collection.",
+          "items": {
+            "$ref": "#/$defs/ProteinFeature"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "ProteinFunction": {
+      "additionalProperties": false,
+      "description": "One whole source function paragraph and its own evidence.",
+      "properties": {
+        "evidence": {
+          "description": "All evidence references supplied for this text.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "text": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole native source text, without clinical interpretation."
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "ProteinFunctionResult": {
+      "additionalProperties": false,
+      "description": "Whole source function paragraphs and their own evidence.",
+      "properties": {
+        "items": {
+          "description": "Native paragraphs in source order, without inferred interpretation.",
+          "items": {
+            "$ref": "#/$defs/ProteinFunction"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "ProteinGet": {
+      "additionalProperties": false,
+      "description": "One or more protein identities or gene symbols, with explicit named sections.",
+      "properties": {
+        "input": {
+          "description": "Source accessions or gene symbols, preserving caller order.",
+          "items": {
+            "$ref": "#/$defs/ProteinInput"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        },
+        "section": {
+          "description": "Only requested sections disclose their full content.",
+          "items": {
+            "$ref": "#/$defs/ProteinSection"
+          },
+          "type": "array"
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Bounded first-page size for each requested section.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    },
+    "ProteinHeader": {
+      "additionalProperties": false,
+      "description": "Native entry metadata wrapping the same Protein identity used by the gene slice.",
+      "properties": {
+        "entry_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source entry name."
+        },
+        "gene_ids": {
+          "description": "Only identifiers explicitly supplied by the source.",
+          "items": {
+            "$ref": "#/$defs/Curie"
+          },
+          "type": "array"
+        },
+        "gene_names": {
+          "description": "Display names only; never identifier joins.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "protein": {
+          "$ref": "#/$defs/Protein",
+          "description": "Shared gene/protein identity fields; never independently restated."
+        },
+        "reviewed": {
+          "description": "Native reviewed status.",
+          "type": "boolean"
+        },
+        "taxon": {
+          "description": "Native source taxonomy identifier.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Source entry URL."
+        }
+      },
+      "required": [
+        "protein",
+        "entry_id",
+        "taxon",
+        "reviewed",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ProteinInput": {
+      "description": "Exact source accession or a checked display gene symbol needing later resolution.\nThe schema describes the string surface; deserialization checks either identity grammar.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "ProteinIsoform": {
+      "additionalProperties": false,
+      "description": "One source alternative-product row; all stated identifiers stay together.",
+      "properties": {
+        "direct_sequence": {
+          "$ref": "#/$defs/ProteinSequenceAvailability",
+          "description": "Explicit direct-sequence retrieval state, independent of descriptive status."
+        },
+        "ids": {
+          "description": "All source-stated isoform identifiers, including External base identities.",
+          "items": {
+            "$ref": "#/$defs/UniProtIsoform"
+          },
+          "type": "array"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Source isoform name."
+        },
+        "sequence_ids": {
+          "description": "Source VSP sequence identifiers.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "sequence_status": {
+          "$ref": "#/$defs/ProteinIsoformStatus",
+          "description": "Native sequence status; no sequence is inferred from it."
+        },
+        "synonyms": {
+          "description": "Every source synonym.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "sequence_status",
+        "direct_sequence"
+      ],
+      "type": "object"
+    },
+    "ProteinIsoformStatus": {
+      "description": "Native UniProt alternative-product sequence status.",
+      "enum": [
+        "Displayed",
+        "Described",
+        "External"
+      ],
+      "type": "string"
+    },
+    "ProteinIsoforms": {
+      "additionalProperties": false,
+      "description": "Alternative products with every stated identifier and explicit direct sequence state.",
+      "properties": {
+        "items": {
+          "description": "Whole native rows in source order; totals apply only to this collection.",
+          "items": {
+            "$ref": "#/$defs/ProteinIsoform"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "ProteinMemberSignature": {
+      "additionalProperties": false,
+      "description": "A member database signature, not an integrated IPR entry.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/Text",
+          "description": "Native signature accession."
+        },
+        "database": {
+          "$ref": "#/$defs/Text",
+          "description": "Native member database name."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native member signature name."
+        }
+      },
+      "required": [
+        "database",
+        "accession"
+      ],
+      "type": "object"
+    },
+    "ProteinSection": {
+      "description": "Named protein sections; all expands to bounded first pages.",
+      "enum": [
+        "features",
+        "domains",
+        "isoforms",
+        "complexes",
+        "structures",
+        "function",
+        "sequence",
+        "all"
+      ],
+      "type": "string"
+    },
+    "ProteinSections": {
+      "additionalProperties": false,
+      "description": "Independent source section states; all discloses bounded first pages only.",
+      "properties": {
+        "complexes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section4"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested exact participant-admitted header page."
+        },
+        "domains": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested InterPro match page."
+        },
+        "features": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested UniProt feature page."
+        },
+        "function": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section6"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested whole native function text and evidence."
+        },
+        "isoforms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested native alternative-product page."
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section7"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested direct sequence; absent/unavailable states remain explicit."
+        },
+        "structures": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section5"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested structure-link page."
+        }
+      },
+      "type": "object"
+    },
+    "ProteinSequence": {
+      "additionalProperties": false,
+      "description": "A directly returned sequence with exact returned identity and audit facts.",
+      "properties": {
+        "accession": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Exact returned accession; never replaced by the requested base entry."
+        },
+        "audit": {
+          "$ref": "#/$defs/ProteinAudit",
+          "description": "Native audit facts for this record."
+        },
+        "crc64": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native checksum when supplied."
+        },
+        "length": {
+          "description": "Native sequence length.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "md5": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native checksum when supplied."
+        },
+        "sequence": {
+          "$ref": "#/$defs/AminoAcids",
+          "description": "Source residues, never constructed from another entry."
+        }
+      },
+      "required": [
+        "accession",
+        "sequence",
+        "length",
+        "audit"
+      ],
+      "type": "object"
+    },
+    "ProteinSequenceAvailability": {
+      "description": "Direct sequence availability is a retrieval fact, never constructed from another entry.",
+      "enum": [
+        "available",
+        "not_available",
+        "not_checked"
+      ],
+      "type": "string"
+    },
+    "ProteinSequenceResult": {
+      "additionalProperties": false,
+      "description": "One directly returned source sequence, with exact identity and audit metadata.",
+      "properties": {
+        "sequence": {
+          "$ref": "#/$defs/ProteinSequence",
+          "description": "Native sequence record; never constructed from another entry."
+        }
+      },
+      "required": [
+        "sequence"
+      ],
+      "type": "object"
+    },
+    "ProteinStructureProperty": {
+      "additionalProperties": false,
+      "description": "A native cross-reference property pair.",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/Text",
+          "description": "Native property key."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Native property value, without interpreting residue coverage."
+        }
+      },
+      "required": [
+        "key",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ProteinStructureRef": {
+      "additionalProperties": false,
+      "description": "A source structure cross-reference link; no residue coverage claim.",
+      "properties": {
+        "database": {
+          "$ref": "#/$defs/Text",
+          "description": "Native cross-reference database."
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native cross-reference identifier."
+        },
+        "properties": {
+          "description": "All native property pairs, including method, resolution and chains.",
+          "items": {
+            "$ref": "#/$defs/ProteinStructureProperty"
+          },
+          "type": "array"
+        },
+        "url": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher link; no structure file is retrieved."
+        }
+      },
+      "required": [
+        "database",
+        "id",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ProteinStructures": {
+      "additionalProperties": false,
+      "description": "Source structure links and native properties; no residue coverage claim.",
+      "properties": {
+        "items": {
+          "description": "Whole native rows in source order; totals apply only to this collection.",
+          "items": {
+            "$ref": "#/$defs/ProteinStructureRef"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinFeatures",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinDomains",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section3": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinIsoforms",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section4": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinComplexes",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section5": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinStructures",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section6": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinFunctionResult",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section7": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/ProteinSequenceResult",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " WikiPathways published pathway catalogs.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " Integrated InterPro entries.",
+        " Complex Portal.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " WHO finished pharmaceutical products.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
+        " NCBI Genetic Testing Registry public reports.",
+        " WHO prequalified in vitro diagnostics.",
+        " FDA companion diagnostic device tables.",
+        " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
+        " Clinical Pharmacogenetics Implementation Consortium.",
+        " ClinPGx pharmacogenomics annotations.",
+        " Public cBioPortal with study-specific reuse terms."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "terms",
+        "terms_url",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "pivot",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Term": {
+      "additionalProperties": false,
+      "description": "A source label with optional explicitly supported coding.",
+      "properties": {
+        "coding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Coding"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Documented framework coding."
+        },
+        "label": {
+          "$ref": "#/$defs/Text",
+          "description": "Original label."
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "UncertainSpan0": {
+      "additionalProperties": false,
+      "description": "Zero-based interbase span retaining uncertain boundary ranges.",
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/Bound"
+        },
+        "start": {
+          "$ref": "#/$defs/Bound"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "UniProtFeature": {
+      "additionalProperties": false,
+      "description": "Shared native feature contract without source label remapping.",
+      "properties": {
+        "alternative": {
+          "description": "Every stated alternative, without translation.",
+          "items": {
+            "$ref": "#/$defs/AminoAcids"
+          },
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Complete source description."
+        },
+        "evidence": {
+          "description": "All original source evidence references.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native feature identifier."
+        },
+        "kind": {
+          "$ref": "#/$defs/Term",
+          "description": "Source feature label; coding only for documented exact feature types."
+        },
+        "original": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AminoAcids"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source original residues, when supplied."
+        },
+        "protein": {
+          "$ref": "#/$defs/UniProtIsoform",
+          "description": "Exact source sequence identity."
+        },
+        "span": {
+          "$ref": "#/$defs/UncertainSpan0",
+          "description": "Zero-based interbase coordinates retaining uncertain ranges."
+        }
+      },
+      "required": [
+        "protein",
+        "span",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "UniProtIsoform": {
+      "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
+      "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.protein_card/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/ProteinGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ProteinCard"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.protein_card/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

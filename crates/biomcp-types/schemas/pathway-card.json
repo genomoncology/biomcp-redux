@@ -1,0 +1,1538 @@
+{
+  "$defs": {
+    "HgncId": {
+      "pattern": "^HGNC:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PageInfo": {
+      "additionalProperties": false,
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matching identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Pathway": {
+      "additionalProperties": false,
+      "description": "Neutral pathway facts, without display sections or source calls.",
+      "properties": {
+        "cited_in": {
+          "description": "WikiPathways catalog citedIn cell, including a native empty cell.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "description": "Complete native description when present; empty is distinct from absent.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/PathwayId",
+          "description": "Checked source-owned identity."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole native pathway name."
+        },
+        "references": {
+          "description": "Native pathway-level literature references, separate from each summation.",
+          "items": {
+            "$ref": "#/$defs/PathwayLiteratureRef"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WikiPathways native revision, separate from identity."
+        },
+        "species": {
+          "$ref": "#/$defs/PathwaySpecies",
+          "description": "Explicit source-stated human species."
+        },
+        "summations": {
+          "description": "Native Reactome summation objects in source order; not concatenated.",
+          "items": {
+            "$ref": "#/$defs/PathwaySummation"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole native Reactome stIdVersion, separate from stable identity."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "species"
+      ],
+      "type": "object"
+    },
+    "PathwayCard": {
+      "additionalProperties": false,
+      "description": "One checked source pathway with supported disclosures and whole native text.",
+      "properties": {
+        "description_truncated": {
+          "description": "Whether the source itself shortened its description, rather than the client.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "events": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested bounded event page, including unresolved integer references."
+        },
+        "genes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested bounded membership page, including its explicit source state."
+        },
+        "pathway": {
+          "$ref": "#/$defs/Pathway",
+          "description": "Source-native identity, species, versions and requested description."
+        },
+        "sections": {
+          "description": "Source-supported named sections; WikiPathways excludes genes and events.",
+          "items": {
+            "$ref": "#/$defs/PathwaySection"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "pathway",
+        "sections"
+      ],
+      "type": "object"
+    },
+    "PathwayEventRef": {
+      "description": "An event object or unresolved integer reference; never the parent's inferred ID.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Native unresolved integer database reference.",
+          "properties": {
+            "db_id": {
+              "description": "Positive native database reference.",
+              "format": "uint64",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "kind": {
+              "const": "database",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "db_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Native event object; fields are absent only when omitted by the source.",
+          "properties": {
+            "db_id": {
+              "description": "Native object database identity.",
+              "format": "uint64",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ReactomeId"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native stable identity when present, never copied from the pathway."
+            },
+            "kind": {
+              "const": "object",
+              "type": "string"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Whole native display name."
+            },
+            "schema_class": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native class; a reaction is not automatically a pathway."
+            },
+            "version": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Whole native stIdVersion, separate from the event stable identity."
+            }
+          },
+          "required": [
+            "kind",
+            "db_id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "PathwayEvents": {
+      "additionalProperties": false,
+      "description": "Independent source-ordered page of whole native references.",
+      "properties": {
+        "header": {
+          "$ref": "#/$defs/PathwayHeader",
+          "description": "Exact source pathway owning this relation."
+        },
+        "items": {
+          "description": "Whole native references; unresolved identities remain visible.",
+          "items": {
+            "$ref": "#/$defs/PathwayEventRef"
+          },
+          "type": "array"
+        },
+        "page": {
+          "$ref": "#/$defs/PathwayPageInfo",
+          "description": "Relation-specific count provenance and continuation."
+        }
+      },
+      "required": [
+        "header",
+        "items",
+        "page"
+      ],
+      "type": "object"
+    },
+    "PathwayGenes": {
+      "additionalProperties": false,
+      "description": "Independent source-ordered page of whole native references.",
+      "properties": {
+        "header": {
+          "$ref": "#/$defs/PathwayHeader",
+          "description": "Exact source pathway owning this relation."
+        },
+        "items": {
+          "description": "Whole native references; unresolved identities remain visible.",
+          "items": {
+            "$ref": "#/$defs/PathwayMember"
+          },
+          "type": "array"
+        },
+        "page": {
+          "$ref": "#/$defs/PathwayPageInfo",
+          "description": "Relation-specific count provenance and continuation."
+        }
+      },
+      "required": [
+        "header",
+        "items",
+        "page"
+      ],
+      "type": "object"
+    },
+    "PathwayGet": {
+      "additionalProperties": false,
+      "description": "One exact pathway card or source-supported named disclosure.",
+      "properties": {
+        "fresh": {
+          "default": false,
+          "description": "Request a new source observation.",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "Exact human Reactome or WikiPathways identity without version suffixes.",
+          "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",
+          "type": "string",
+          "x-positional": 0
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained snapshot, when continuing a source relation."
+        },
+        "section": {
+          "$ref": "#/$defs/PathwaySection",
+          "description": "Omit for the card; WikiPathways genes await the GPML implementation.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "default": 5,
+          "description": "Bounded initial section size; each all section has its own first page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Native relation offset for a selected genes or events section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "PathwayHeader": {
+      "additionalProperties": false,
+      "description": "Small selectable native pathway identity, without its potentially long description.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/PathwayId",
+          "description": "Checked source-owned identity."
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole native name."
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WikiPathways revision, separate from identity."
+        },
+        "species": {
+          "$ref": "#/$defs/PathwaySpecies",
+          "description": "Explicit native human species."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whole native Reactome stIdVersion, separate from stable identity."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "species"
+      ],
+      "type": "object"
+    },
+    "PathwayId": {
+      "description": "Source-owned pathway identity; equal names never merge sources.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Human Reactome stable identity without a version suffix.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ReactomeId"
+            },
+            "source": {
+              "const": "reactome",
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "WikiPathways identity without a revision suffix.",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/WikiPathwaysId"
+            },
+            "source": {
+              "const": "wikipathways",
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "PathwayLiteratureRef": {
+      "additionalProperties": false,
+      "description": "A native pathway-level literature reference; never inferred from prose.",
+      "properties": {
+        "db_id": {
+          "description": "Native literature database reference.",
+          "format": "uint64",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pubmed": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pmid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native PubMed identifier when supplied."
+        },
+        "title": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native title when supplied."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record URL when supplied."
+        }
+      },
+      "required": [
+        "db_id"
+      ],
+      "type": "object"
+    },
+    "PathwayMember": {
+      "additionalProperties": false,
+      "description": "One source membership reference, without name-based gene inference.",
+      "properties": {
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HgncId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact resolved gene identifier, absent when no checked join exists."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native label, never interpreted as a gene symbol."
+        },
+        "participants": {
+          "description": "Physical source entities that carry this reference; preserve modification context.",
+          "items": {
+            "$ref": "#/$defs/PathwayParticipant"
+          },
+          "type": "array"
+        },
+        "reference": {
+          "$ref": "#/$defs/PathwaySourceRef",
+          "description": "Namespaced native reference."
+        },
+        "schema_class": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native reference schema class."
+        }
+      },
+      "required": [
+        "reference",
+        "participants"
+      ],
+      "type": "object"
+    },
+    "PathwayPageInfo": {
+      "additionalProperties": false,
+      "description": "Native page position and explicit count provenance; a short admitted page can continue.",
+      "properties": {
+        "next_offset": {
+          "description": "Next native position, independent of returned rows; absent only at the end.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "offset": {
+          "description": "Native source or retained relation offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Snapshot identity and lifetime when retained."
+        },
+        "returned": {
+          "description": "Whole admitted rows on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Source-reported or observed relation total, as qualified by total_kind.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_kind": {
+          "$ref": "#/$defs/PathwayTotalKind",
+          "description": "Whether the total comes from the source or this retained collection."
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total",
+        "total_kind"
+      ],
+      "type": "object"
+    },
+    "PathwayParticipant": {
+      "additionalProperties": false,
+      "description": "One native physical entity carrying a membership reference.",
+      "properties": {
+        "db_id": {
+          "description": "Native physical entity database identity, distinct from reference identity.",
+          "format": "uint64",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "$ref": "#/$defs/Text",
+          "description": "Whole physical entity label, including source-stated modification context."
+        },
+        "schema_class": {
+          "$ref": "#/$defs/Text",
+          "description": "Native physical entity schema class, separate from reference schema class."
+        }
+      },
+      "required": [
+        "db_id",
+        "name",
+        "schema_class"
+      ],
+      "type": "object"
+    },
+    "PathwaySection": {
+      "description": "Supported source-owned pathway disclosures.",
+      "enum": [
+        "summary",
+        "genes",
+        "events",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Complete native source description.",
+        "Namespaced native participants with exact resolved gene joins.",
+        "Native Reactome event objects and unresolved database references.",
+        "Each source-supported section's bounded first page."
+      ]
+    },
+    "PathwaySourceRef": {
+      "additionalProperties": false,
+      "description": "An open source namespace paired with its complete native identifier.",
+      "properties": {
+        "namespace": {
+          "$ref": "#/$defs/Text",
+          "description": "Native namespace; never discarded during a gene join."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete namespace-local identifier, including native isoform suffixes."
+        }
+      },
+      "required": [
+        "namespace",
+        "value"
+      ],
+      "type": "object"
+    },
+    "PathwaySpecies": {
+      "description": "Source-stated human species; no species inference from a title.",
+      "enum": [
+        "Homo sapiens"
+      ],
+      "type": "string"
+    },
+    "PathwaySummation": {
+      "additionalProperties": false,
+      "description": "One native summation, with its own database identity and whole text.",
+      "properties": {
+        "db_id": {
+          "description": "Native summation database identity, not the pathway identity.",
+          "format": "uint64",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "text": {
+          "description": "Complete native text; no sentence clipping or reference reassignment.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "db_id",
+        "text"
+      ],
+      "type": "object"
+    },
+    "PathwayTotalKind": {
+      "description": "Meaning of the collection total, independent of admitted rows on a page.",
+      "enum": [
+        "source",
+        "observed"
+      ],
+      "type": "string"
+    },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "PoolInfo": {
+      "additionalProperties": false,
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized.",
+        " Native collection exceeds the admitted complete source page.",
+        " A source repeats one exact identity with incompatible records."
+      ]
+    },
+    "ReactomeId": {
+      "pattern": "^R-HSA-[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Reason": {
+      "description": "Why a source could not supply data.",
+      "enum": [
+        "not_found",
+        "not_open",
+        "not_pdf",
+        "unsupported",
+        "too_large",
+        "rate_limited",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad_reply",
+        "deadline_exceeded",
+        "offline",
+        "no_key",
+        "disabled",
+        "replay_miss",
+        "syncing",
+        "no_join_id"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ]
+    },
+    "Section": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/PathwayGenes",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Section2": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/PathwayEvents",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "cpic",
+        "clinpgx",
+        "cbioportal"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " WikiPathways published pathway catalogs.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " Integrated InterPro entries.",
+        " Complex Portal.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " WHO finished pharmaceutical products.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
+        " NCBI Genetic Testing Registry public reports.",
+        " WHO prequalified in vitro diagnostics.",
+        " FDA companion diagnostic device tables.",
+        " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
+        " Clinical Pharmacogenetics Implementation Consortium.",
+        " ClinPGx pharmacogenomics annotations.",
+        " Public cBioPortal with study-specific reuse terms."
+      ]
+    },
+    "SourceNotice": {
+      "description": "A provider query interpretation notice.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph_truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not_found_words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "words"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "SourceOutcome": {
+      "additionalProperties": false,
+      "description": "One source's outcome, without provider text.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "fetched": {
+          "description": "Retrieved identity depth.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Provider query notices that do not indicate failure.",
+          "items": {
+            "$ref": "#/$defs/SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "terms",
+        "terms_url",
+        "state"
+      ],
+      "type": "object"
+    },
+    "SourceRecord": {
+      "additionalProperties": false,
+      "description": "The source's own entry for an entity.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Text",
+          "description": "Native source identifier."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Link to that entry."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind",
+        "args"
+      ],
+      "type": "object"
+    },
+    "StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "pivot",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "restricted"
+      ],
+      "type": "string"
+    },
+    "WikiPathwaysId": {
+      "pattern": "^WP[1-9][0-9]*$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.pathway_card/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned command response; schema identity comes only from its body type.",
+  "properties": {
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/PathwayGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PathwayCard"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.pathway_card/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

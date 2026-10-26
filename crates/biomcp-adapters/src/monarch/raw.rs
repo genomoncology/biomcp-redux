@@ -23,6 +23,7 @@ impl Reply for Page {
 pub(super) struct Row {
     pub id: Text,
     pub subject: Curie,
+    pub subject_taxon: Option<Curie>,
     pub subject_label: Text,
     pub predicate: Curie,
     pub object: Curie,
