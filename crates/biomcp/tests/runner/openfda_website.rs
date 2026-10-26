@@ -71,6 +71,20 @@ pub(super) fn help_trial() -> Trial {
         {
             return Err("openFDA key help omitted registration or names".into());
         }
+        let help = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !help.status.success() {
+            return Err("whole help failed".into());
+        }
+        use std::io::Write;
+        writeln!(
+            std::io::stderr(),
+            "OPENFDA_CLI_HELP_BYTES {}",
+            help.stdout.len()
+        )
+        .map_err(|e| e.to_string())?;
         Ok(())
     })
 }
