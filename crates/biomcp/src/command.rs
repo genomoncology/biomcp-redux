@@ -115,8 +115,13 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if let Action::Run { request: Request::GetCellLine(q), .. } = action
-        && (q.section().is_some() || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none())) {
+    if let Action::Run {
+        request: Request::GetCellLine(q),
+        ..
+    } = action
+        && (q.section().is_some()
+            || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none()))
+    {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
     if disease::unsupported(action) {

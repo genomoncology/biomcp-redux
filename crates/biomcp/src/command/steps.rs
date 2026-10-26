@@ -75,53 +75,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
             Navigation::BoundedPma
         }
-        Body::StudyPage(_)
-        | Body::DiagnosticCompanion(_)
-        | Body::DiagnosticPage(_)
-        | Body::DiagnosticGenes(_)
-        | Body::DiagnosticSupplements(_)
-        | Body::AdverseEventPage(_)
-        | Body::DiseasePage(_)
-        | Body::PhenotypeDiseases(_)
-        | Body::PhenotypeGenes(_)
-        | Body::DiseaseGenes(_)
-        | Body::DiseasePhenotypes(_)
-        | Body::DrugPage(_)
-        | Body::DrugWhoPage(_)
-        | Body::DrugFdaPage(_)
-        | Body::DrugCivic(_)
-        | Body::VariantPage(_) => Navigation::Selectable,
-        Body::StudyCard(_) | Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
-        Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
-        Body::PgxDiplotype(_) => Navigation::Bounded,
-        Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
-        Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
-        Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
-        Body::AdverseEventFaersCard(_) | Body::AdverseEventDrugs(_) => Navigation::Bounded,
-        Body::AdverseEventReactions(_) => Navigation::Bounded,
-        Body::AdverseEventIdentifiers(_) | Body::VaersSummary(_) => Navigation::Bounded,
-        Body::AdverseEventMaudeCard(_) | Body::AdverseEventDevices(_) => Navigation::Bounded,
-        Body::AdverseEventNarrative(_) | Body::DiseaseCard(_) => Navigation::Bounded,
-        Body::DiseaseSynonyms(_) | Body::DiseaseXrefs(_) => Navigation::Bounded,
-        Body::DiseaseHierarchy(_) | Body::DiseaseSites(_) => Navigation::Bounded,
-        Body::DiseaseIncidence(_) | Body::DiseaseSurvival(_) => Navigation::Bounded,
-        Body::DrugCard(_) | Body::DrugLabel(_) | Body::DrugWhoCard(_) => Navigation::Bounded,
-        Body::DrugRegulatory(_) | Body::DrugApprovals(_) => Navigation::Bounded,
-        Body::DrugInteractions(_) | Body::DrugXrefs(_) => Navigation::Bounded,
-        Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
-        Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
-        Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
-        Body::UnsupportedTrialFilter { .. } | Body::NciDiseaseError => Navigation::Bounded,
-        Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
-        Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
-        Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
-        Body::PdfSaveRefused(_) | Body::ArticleSaveRefused(_) => Navigation::Bounded,
-        Body::ArticleEvidence(_) | Body::ArticleRecommendations(_) => Navigation::Bounded,
-        Body::ArticleSupplement(_) | Body::UnsupportedFilter { .. } => Navigation::Bounded,
-        Body::ArticleText(_) | Body::TextPositionError => Navigation::Bounded,
-        Body::ArticleEdges(_) | Body::TooManyPmids { .. } => Navigation::Bounded,
-        Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
-        Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
+        _ => bounded_navigation(body),
     }
 }
 
@@ -255,5 +209,59 @@ fn pgx_navigation(value: &biomcp_types::PgxAnnotations) -> Navigation<'_> {
         biomcp_types::PgxAnnotations::Clinical { page, .. } => Navigation::Nested(page),
         biomcp_types::PgxAnnotations::Guideline { .. }
         | biomcp_types::PgxAnnotations::Label { .. } => Navigation::Bounded,
+    }
+}
+
+fn bounded_navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
+    use biomcp_types::QueryBody as Body;
+    match body {
+        Body::StudyPage(_)
+        | Body::DiagnosticCompanion(_)
+        | Body::DiagnosticPage(_)
+        | Body::DiagnosticGenes(_)
+        | Body::DiagnosticSupplements(_)
+        | Body::AdverseEventPage(_)
+        | Body::DiseasePage(_)
+        | Body::PhenotypeDiseases(_)
+        | Body::PhenotypeGenes(_)
+        | Body::DiseaseGenes(_)
+        | Body::DiseasePhenotypes(_)
+        | Body::DrugPage(_)
+        | Body::DrugWhoPage(_)
+        | Body::DrugFdaPage(_)
+        | Body::DrugCivic(_)
+        | Body::VariantPage(_) => Navigation::Selectable,
+        Body::StudyCard(_) | Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
+        Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
+        Body::PgxDiplotype(_) => Navigation::Bounded,
+        Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
+        Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
+        Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
+        Body::AdverseEventFaersCard(_) | Body::AdverseEventDrugs(_) => Navigation::Bounded,
+        Body::AdverseEventReactions(_) => Navigation::Bounded,
+        Body::AdverseEventIdentifiers(_) | Body::VaersSummary(_) => Navigation::Bounded,
+        Body::AdverseEventMaudeCard(_) | Body::AdverseEventDevices(_) => Navigation::Bounded,
+        Body::AdverseEventNarrative(_) | Body::DiseaseCard(_) => Navigation::Bounded,
+        Body::DiseaseSynonyms(_) | Body::DiseaseXrefs(_) => Navigation::Bounded,
+        Body::DiseaseHierarchy(_) | Body::DiseaseSites(_) => Navigation::Bounded,
+        Body::DiseaseIncidence(_) | Body::DiseaseSurvival(_) => Navigation::Bounded,
+        Body::DrugCard(_) | Body::DrugLabel(_) | Body::DrugWhoCard(_) => Navigation::Bounded,
+        Body::DrugRegulatory(_) | Body::DrugApprovals(_) => Navigation::Bounded,
+        Body::DrugInteractions(_) | Body::DrugXrefs(_) => Navigation::Bounded,
+        Body::DrugTargets(_) | Body::DrugIndications(_) => Navigation::Bounded,
+        Body::VariantAssertions(_) | Body::VariantNormalization(_) => Navigation::Bounded,
+        Body::NciTrialPage(_) | Body::NciTrialCards(_) => Navigation::Bounded,
+        Body::UnsupportedTrialFilter { .. } | Body::NciDiseaseError => Navigation::Bounded,
+        Body::VariantQueryPolicyError | Body::VariantPopulation(_) => Navigation::Bounded,
+        Body::VariantRecurrence(_) | Body::TrialDocument(_) => Navigation::Bounded,
+        Body::TrialCards(_) | Body::TrialPage(_) | Body::ArticlePdf(_) => Navigation::Bounded,
+        Body::PdfSaveRefused(_) | Body::ArticleSaveRefused(_) => Navigation::Bounded,
+        Body::ArticleEvidence(_) | Body::ArticleRecommendations(_) => Navigation::Bounded,
+        Body::ArticleSupplement(_) | Body::UnsupportedFilter { .. } => Navigation::Bounded,
+        Body::ArticleText(_) | Body::TextPositionError => Navigation::Bounded,
+        Body::ArticleEdges(_) | Body::TooManyPmids { .. } => Navigation::Bounded,
+        Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
+        Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
+        _ => Navigation::Bounded,
     }
 }

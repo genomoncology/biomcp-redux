@@ -138,7 +138,13 @@ fn reverse(env: &Environment, measure: bool) -> Result<(), String> {
     Ok(())
 }
 
-fn headers(value: &Value, name: &str, query: &str, ids: &[&str], offset: u32) -> Result<(),String> {
+fn headers(
+    value: &Value,
+    name: &str,
+    query: &str,
+    ids: &[&str],
+    offset: u32,
+) -> Result<(), String> {
     let items = value
         .pointer("/result/items")
         .and_then(Value::as_array)
@@ -153,7 +159,7 @@ fn headers(value: &Value, name: &str, query: &str, ids: &[&str], offset: u32) ->
     for (row, id) in items.iter().zip(ids) {
         path(row, "/accession", json!(id))?;
         if row.get("name").is_none() || row.get("category").is_none() {
-        return Err("header facts missing".into());
+            return Err("header facts missing".into());
         }
     }
     let steps = value
@@ -166,15 +172,15 @@ fn headers(value: &Value, name: &str, query: &str, ids: &[&str], offset: u32) ->
     }
     if ids.len() == 5 {
         path(
-        steps.last().ok_or("page")?,
-        "/args",
-        json!([
-            "search",
-            "cell-line",
-            query,
-            "--offset",
-            (offset + 5).to_string()
-        ]),
+            steps.last().ok_or("page")?,
+            "/args",
+            json!([
+                "search",
+                "cell-line",
+                query,
+                "--offset",
+                (offset + 5).to_string()
+            ]),
         )?;
     }
     Ok(())

@@ -1,3 +1,4 @@
+use std::io::Write;
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
 mod faults;
 mod help;
@@ -11,7 +12,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "cell-line-identity/native-requests-order-exact-cards-and-costs",
         || native::run(false).map_err(Into::into),
     )];
-    tests.push(Trial::test("cell-line-identity/help-and-markdown-parity", || help::run(false).map_err(Into::into)));
+    tests.push(Trial::test(
+        "cell-line-identity/help-and-markdown-parity",
+        || help::run(false).map_err(Into::into),
+    ));
     tests.extend(faults::trials());
     tests
 }
@@ -80,16 +84,18 @@ fn compared(
     for (surface, actual) in [("cli", &value), ("mcp", &mcp)] {
         let bytes = serde_json::to_vec(actual).map_err(|e| e.to_string())?.len()
             + usize::from(surface == "cli");
-        eprintln!("CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
+        let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
         if !measure {
             budget(phase, surface, actual)?;
         }
     }
-    if matches!(phase, "native/search/MOLM13" | "native/card/CVCL_0007") { markdown(phase, env, words, &replay, &value, measure)?; }
+    if matches!(phase, "native/search/MOLM13" | "native/card/CVCL_0007") {
+        markdown(phase, env, words, &replay, &value, measure)?;
+    }
     let registry = super::schema::Registry::embedded()?;
-    let arguments = words.iter().map(|s|s.to_string()).collect::<Vec<_>>();
-    registry.validate(&value, &arguments, exit==0)?;
-    registry.validate(&mcp, &arguments, exit==0)?;
+    let arguments = words.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+    registry.validate(&value, &arguments, exit == 0)?;
+    registry.validate(&mcp, &arguments, exit == 0)?;
     Ok(value)
 }
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
@@ -105,7 +111,7 @@ fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
 fn budget(phase: &str, surface: &str, value: &Value) -> Result<(), String> {
     let bytes =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    eprintln!("CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
+    let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
     if bytes > ceiling(phase, surface)? {
         return Err(format!(
             "{phase} [{surface}] exceeds measured output budget"
@@ -184,28 +190,66 @@ pub(in crate::runner) fn measure() -> Result<(), String> {
     help::run(true)
 }
 
-fn markdown(phase: &str, env: &Environment, words: &[&str], replay: &[String], value: &Value, measure: bool) -> Result<(),String> {
-    let mut args=words.iter().map(|s|s.to_string()).collect::<Vec<_>>();
+fn markdown(
+    phase: &str,
+    env: &Environment,
+    words: &[&str],
+    replay: &[String],
+    value: &Value,
+    measure: bool,
+) -> Result<(), String> {
+    let mut args = words.iter().map(|s| s.to_string()).collect::<Vec<_>>();
     args.extend_from_slice(replay);
-    args.extend(["--format".into(),"md".into()]);
-    let output=env.command(env!("CARGO_BIN_EXE_biomcp"),&args).output().map_err(|e|e.to_string())?;
-    if !output.status.success(){return Err("native Markdown failed".into());}
-    let text=String::from_utf8(output.stdout).map_err(|e|e.to_string())?;
-    eprintln!("CELL_LINE_MEASURE {phase} [markdown] {}",text.len());
-    if !measure && text.len()>ceiling(phase,"markdown")?{return Err("native Markdown exceeds measured output cap".into());}
-    let unescaped=text.replace("\\_","_");
-    let result=value.get("result").ok_or("result")?;
-    let header=result.get("header").or_else(||result.pointer("/items/0")).ok_or("header")?;
-    for field in ["accession","name"] {
-        if !unescaped.contains(header.get(field).and_then(Value::as_str).ok_or("header fact")?){return Err(format!("Markdown lost {field}"));}
+    args.extend(["--format".into(), "md".into()]);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err("native Markdown failed".into());
     }
-    if let Some(warning)=result.pointer("/warnings/items/0/text").and_then(Value::as_str) {
-        if !unescaped.contains(warning){return Err("Markdown shortened qualified warning".into());}
+    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [markdown] {}", text.len());
+    if !measure && text.len() > ceiling(phase, "markdown")? {
+        return Err("native Markdown exceeds measured output cap".into());
     }
-    let actions=value.get("next").and_then(Value::as_array).ok_or("actions")?;
+    let unescaped = text.replace("\\_", "_");
+    let result = value.get("result").ok_or("result")?;
+    let header = result
+        .get("header")
+        .or_else(|| result.pointer("/items/0"))
+        .ok_or("header")?;
+    for field in ["accession", "name"] {
+        if !unescaped.contains(
+            header
+                .get(field)
+                .and_then(Value::as_str)
+                .ok_or("header fact")?,
+        ) {
+            return Err(format!("Markdown lost {field}"));
+        }
+    }
+    if let Some(warning) = result
+        .pointer("/warnings/items/0/text")
+        .and_then(Value::as_str)
+        && !unescaped.contains(warning) {
+        return Err("Markdown shortened qualified warning".into());
+    }
+    let actions = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("actions")?;
     for action in actions {
-        let args=action.get("args").and_then(Value::as_array).ok_or("args")?.iter().map(|v|v.as_str().ok_or("arg")).collect::<Result<Vec<_>,_>>()?;
-        if !text.contains(&args.join(" ")){return Err("Markdown lost next command".into());}
+        let args = action
+            .get("args")
+            .and_then(Value::as_array)
+            .ok_or("args")?
+            .iter()
+            .map(|v| v.as_str().ok_or("arg"))
+            .collect::<Result<Vec<_>, _>>()?;
+        if !text.contains(&args.join(" ")) {
+            return Err("Markdown lost next command".into());
+        }
     }
     Ok(())
 }

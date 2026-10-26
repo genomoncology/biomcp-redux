@@ -146,6 +146,8 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
         measure,
     )?;
     failed(&failed_value)?;
+    // Ordinary live read must fetch a healthy value instead of reusing a rejected cache entry.
+    invoke(&env, &words, 0)?;
     let repaired = parity(
         &format!("synthetic/no-admission/{fault}/healthy"),
         &env,
@@ -159,7 +161,7 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
         .iter()
         .filter(|(_, r)| r.contains("GET /cell-line/"))
         .count()
-        != 2
+        != 3
     {
         return Err(format!("{fault}: bad identity admitted to cache"));
     }
@@ -277,7 +279,7 @@ fn usage() -> Result<(), String> {
         let value = invoke(&env, &words, 2)?;
         path(&value, "/status", json!("usage"))?;
     }
-    let value=invoke(&env,&["get","cell-line","ArrayExpress:E-MTAB-2770"],2)?;
-    path(&value,"/status",json!("usage"))?;
+    let value = invoke(&env, &["get", "cell-line", "ArrayExpress:E-MTAB-2770"], 2)?;
+    path(&value, "/status", json!("usage"))?;
     Ok(())
 }

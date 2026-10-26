@@ -72,7 +72,8 @@ fn native_proof() -> Option<ExitCode> {
         return Some(match runner::cell_line_measure() {
             Ok(()) => ExitCode::SUCCESS,
             Err(e) => {
-                eprintln!("{e}");
+                use std::io::Write;
+                let _ = writeln!(std::io::stderr(), "{e}");
                 ExitCode::FAILURE
             }
         });
