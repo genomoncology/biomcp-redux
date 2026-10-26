@@ -1,12 +1,13 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
 mod native;
+mod sections;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 pub(super) use native::run as native;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut rows = vec![
         Trial::test("phenotype-identity/generated-help-matches-markdown", || {
             help().map_err(Into::into)
         }),
@@ -30,7 +31,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "phenotype-identity/recorded-timeout-retains-source-and-terms",
             || timeout().map_err(Into::into),
         ),
-    ]
+    ];
+    rows.extend(sections::trials());
+    rows
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
