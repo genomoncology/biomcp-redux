@@ -25,7 +25,11 @@ class Source(http.server.BaseHTTPRequestHandler):
             self.send_header('Location', '/never')
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        if self.path == '/reflect':
+        if self.path == '/escaped':
+            secret = self.headers.get('X-Key', '')
+            escaped = ''.join('\\u%04x' % ord(char) for char in secret)
+            self.wfile.write(('{' + '"key":"' + escaped + '"}').encode())
+        elif self.path == '/reflect':
             self.wfile.write(self.headers.get('X-Key', '').encode())
         elif self.path == '/large':
             self.wfile.write(b'x' * 8192)
@@ -116,7 +120,7 @@ class CapturePlanTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
 
     def test_bounds_and_key_reflection_never_leak_or_follow(self):
-        for route in ['/redirect', '/large', '/reflect']:
+        for route in ['/redirect', '/large', '/reflect', '/escaped']:
             with self.subTest(route=route):
                 plan = self.plan([route, '/never'])
                 value = json.loads(plan.read_text())
@@ -130,7 +134,7 @@ class CapturePlanTests(unittest.TestCase):
                 for path in out.iterdir():
                     self.assertNotIn(b'placeholder-capture-secret', path.read_bytes())
                 self.assertLessEqual(len((out / '0000.body').read_bytes()), 4096)
-        self.assertEqual(self.server.calls, ['/redirect', '/large', '/reflect'])
+        self.assertEqual(self.server.calls, ['/redirect', '/large', '/reflect', '/escaped'])
 
     def test_make_target_runs_one_request(self):
         result = subprocess.run(['make', 'source-capture', 'PLAN=' + str(self.plan(['/make'])),

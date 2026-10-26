@@ -192,13 +192,27 @@ def curl_reply(request, plan):
     return status, headers, body, truncated, transport
 
 
+def reflects_key(headers, body, secrets):
+    if any(secret.encode() in headers + body for secret in secrets):
+        return True
+    # Scan JSON string tokens independently, retaining duplicate/deep fields.
+    for match in re.finditer(rb'"(?:[^"\\]|\\.)*"', body):
+        try:
+            value = json.loads(match.group())
+        except (ValueError, UnicodeError):
+            continue
+        if any(secret in value for secret in secrets):
+            return True
+    return False
+
+
 def capture_one(index, request, plan, secrets, out):
     started = time.monotonic()
     try:
         status, headers, body, truncated, transport = curl_reply(request, plan)
     except subprocess.TimeoutExpired:
         status, headers, body, truncated, transport = 0, b'', b'', False, True
-    if any(secret.encode() in headers + body for secret in secrets):
+    if reflects_key(headers, body, secrets):
         status, headers, body, truncated, transport = 0, b'', b'', False, True
     if request['response_format'] == 'json':
         outcome = classify(request['source'], request['url'], status, body,
