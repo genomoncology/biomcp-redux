@@ -1,6 +1,7 @@
 # 0213 — Sync the cBioPortal study catalog and search studies over it
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 918cad934275ac081d78a76b49552f881d83f5fe
 
 Milestone: 4
 
