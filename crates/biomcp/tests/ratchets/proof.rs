@@ -224,3 +224,31 @@ fn source_outcomes_require_registry_terms() -> Check {
     );
     Ok(())
 }
+
+#[test]
+fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() -> Check {
+    let tree = tree()?;
+    put(
+        tree.path(),
+        "crates/biomcp-adapters/src/registry.rs",
+        "&crate::directory::SPEC, &crate::single_file::SPEC",
+    )?;
+    let declaration = r#"SourceSpec { terms: Terms { name: "Publisher", url: "https://example.org/terms", usage: Open } }"#;
+    for path in ["directory/mod.rs", "single_file.rs"] {
+        put(
+            tree.path(),
+            &format!("crates/biomcp-adapters/src/{path}"),
+            declaration,
+        )?;
+    }
+    check(tree.path())?;
+    let path = "crates/biomcp-adapters/src/missing.rs";
+    put(tree.path(), path, declaration)?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("unregistered single-file source accepted")?
+        .to_string();
+    assert!(failure.contains(path), "{failure}");
+    assert!(failure.contains("&crate::missing::SPEC"), "{failure}");
+    Ok(())
+}

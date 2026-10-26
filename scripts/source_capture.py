@@ -269,6 +269,9 @@ def capture_one(index, request, plan, secrets, out):
 
 def run_capture(args):
     outside_git(args.out)
+    output, temporary = args.out.resolve(), Path(os.environ['TMPDIR']).resolve()
+    if output == temporary or temporary in output.parents:
+        raise ValueError('choose a durable location outside TMPDIR for capture output')
     archive = Path(str(args.out) + '.tar.gz')
     if args.out.exists() or archive.exists():
         raise ValueError('output directory and archive must not exist')

@@ -191,5 +191,7 @@ pub use response::{
     PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
 };
 
+mod protein;
+pub use protein::*;
 mod study;
 pub use study::*;
