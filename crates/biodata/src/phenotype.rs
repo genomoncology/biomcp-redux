@@ -12,27 +12,41 @@ pub struct HpId(#[cfg_attr(feature = "schema", schemars(pattern = "^HP:[0-9]{7}$
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct HpIdInvalid;
 impl fmt::Display for HpIdInvalid {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str("invalid_hp_id") }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("invalid_hp_id")
+    }
 }
 impl std::error::Error for HpIdInvalid {}
 impl FromStr for HpId {
     type Err = HpIdInvalid;
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        if value.len() == 10 && value.strip_prefix("HP:").is_some_and(|s| s.bytes().all(|b| b.is_ascii_digit())) {
+        if value.len() == 10
+            && value
+                .strip_prefix("HP:")
+                .is_some_and(|s| s.bytes().all(|b| b.is_ascii_digit()))
+        {
             Ok(Self(value.into()))
-        } else { Err(HpIdInvalid) }
+        } else {
+            Err(HpIdInvalid)
+        }
     }
 }
 impl TryFrom<String> for HpId {
     type Error = HpIdInvalid;
-    fn try_from(value: String) -> Result<Self, Self::Error> { value.parse() }
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        value.parse()
+    }
 }
 impl fmt::Display for HpId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 impl HpId {
     /// Exact checked identifier.
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 /// One native term search candidate, without a selected identity.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

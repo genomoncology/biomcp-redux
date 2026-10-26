@@ -1,7 +1,9 @@
 mod query;
-pub use query::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeSource};
 use crate::{ComponentLabel, DiseaseAssociationItem, ResponseBody};
-use biodata::{PhenotypeCard, PhenotypeHeader, PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref};
+use biodata::{
+    PhenotypeCard, PhenotypeHeader, PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref,
+};
+pub use query::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeSource};
 use serde::{Deserialize, Serialize};
 /// Independent source identity card and its available sections.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -40,9 +42,45 @@ macro_rules! page {
         }
     };
 }
-page!(PhenotypePage, PhenotypeHeader, PhenotypeSearch, "biomcp.phenotype-search/1", "Native HP search header page, without local ranking.");
-page!(PhenotypeSynonyms, PhenotypeSynonym, PhenotypeGet, "biomcp.phenotype-synonyms/1", "Source synonym rows preserving publisher classes.");
-page!(PhenotypeXrefs, PhenotypeXref, PhenotypeGet, "biomcp.phenotype-xrefs/1", "Source reference rows without equivalence promotion.");
-page!(PhenotypeHierarchy, PhenotypeHierarchyLink, PhenotypeGet, "biomcp.phenotype-hierarchy/1", "Direct source hierarchy links without graph traversal.");
-page!(PhenotypeDiseases, DiseaseAssociationItem, PhenotypeGet, "biomcp.phenotype-diseases/1", "Complete native disease association rows, without clinical inference.");
-page!(PhenotypeGenes, DiseaseAssociationItem, PhenotypeGet, "biomcp.phenotype-genes/1", "Complete native human gene association rows with source taxon.");
+page!(
+    PhenotypePage,
+    PhenotypeHeader,
+    PhenotypeSearch,
+    "biomcp.phenotype-search/1",
+    "Native HP search header page, without local ranking."
+);
+page!(
+    PhenotypeSynonyms,
+    PhenotypeSynonym,
+    PhenotypeGet,
+    "biomcp.phenotype-synonyms/1",
+    "Source synonym rows preserving publisher classes."
+);
+page!(
+    PhenotypeXrefs,
+    PhenotypeXref,
+    PhenotypeGet,
+    "biomcp.phenotype-xrefs/1",
+    "Source reference rows without equivalence promotion."
+);
+page!(
+    PhenotypeHierarchy,
+    PhenotypeHierarchyLink,
+    PhenotypeGet,
+    "biomcp.phenotype-hierarchy/1",
+    "Direct source hierarchy links without graph traversal."
+);
+page!(
+    PhenotypeDiseases,
+    DiseaseAssociationItem,
+    PhenotypeGet,
+    "biomcp.phenotype-diseases/1",
+    "Complete native disease association rows, without clinical inference."
+);
+page!(
+    PhenotypeGenes,
+    DiseaseAssociationItem,
+    PhenotypeGet,
+    "biomcp.phenotype-genes/1",
+    "Complete native human gene association rows with source taxon."
+);
