@@ -108,3 +108,6 @@ mod pgx;
 pub use pgx::*;
 mod diagnostic;
 pub use diagnostic::*;
+
+mod pathway;
+pub use pathway::{Pathway, PathwayEventRef, PathwayId, PathwayIdInvalid, PathwayMember, PathwayRef, PathwaySourceRef, PathwaySpecies, ReactomeId, ReactomeIdInvalid, WikiPathwaysId};

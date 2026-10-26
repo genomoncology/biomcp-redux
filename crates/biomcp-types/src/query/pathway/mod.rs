@@ -1,0 +1,43 @@
+use super::QueryInvalid;
+use biodata::{PathwayId, Text};
+use serde::{Deserialize, Serialize};
+mod search;
+mod get;
+mod relation;
+pub use search::PathwaySearch;
+pub use get::PathwayGet;
+pub use relation::{PathwayEventsQuery, PathwayGenesQuery};
+biodata::wire_enum! {
+    /// One explicit pathway source, without fallback or cross-source title joins.
+    PathwaySource {
+        #[doc = "Human Reactome database records."] Reactome => "reactome",
+        #[doc = "Human WikiPathways metadata catalog."] Wikipathways => "wikipathways"
+    }
+}
+impl Default for PathwaySource {
+    fn default() -> Self { Self::Reactome }
+}
+biodata::wire_enum! {
+    described
+    /// Supported source-owned pathway disclosures.
+    PathwaySection {
+        #[doc = "Complete native source description."] Summary => "summary",
+        #[doc = "Namespaced native participants with exact resolved gene joins."] Genes => "genes",
+        #[doc = "Native Reactome event objects and unresolved database references."] Events => "events",
+        #[doc = "Each source-supported section's bounded first page."] All => "all"
+    }
+}
+fn default_limit() -> u32 { 5 }
+fn valid_limit(limit: u32) -> bool { (1..=50).contains(&limit) }
+fn reactome(id: &PathwayId) -> bool { matches!(id, PathwayId::Reactome(_)) }
+// CLI requests carry one checked native spelling; neutral records remain source-tagged.
+mod native_id {
+    use super::*;
+    pub fn serialize<S: serde::Serializer>(id: &PathwayId, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(id)
+    }
+    pub fn deserialize<'de, D: serde::Deserializer<'de>>(d: D) -> Result<PathwayId, D::Error> {
+        let v = Text::deserialize(d)?;
+        v.as_str().parse().map_err(serde::de::Error::custom)
+    }
+}

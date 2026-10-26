@@ -179,3 +179,7 @@ pub use response::DiagnosticCountUnit;
 
 #[cfg(feature = "schema")]
 pub use drug::DrugGetCommand;
+
+pub use query::{PathwaySearch, PathwayGet, PathwaySource, PathwaySection, PathwayGenesQuery, PathwayEventsQuery};
+
+pub use response::{PathwayHeader, PathwayPage, PathwayCard, PathwayGenes, PathwayEvents, PathwayPageInfo, PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync};

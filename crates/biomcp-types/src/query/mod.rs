@@ -66,3 +66,6 @@ mod diagnostic;
 pub use diagnostic::{
     DiagnosticGet, DiagnosticGetSource, DiagnosticSearch, DiagnosticSearchSource, DiagnosticSection,
 };
+
+mod pathway;
+pub use pathway::{PathwaySearch, PathwayGet, PathwaySource, PathwaySection, PathwayGenesQuery, PathwayEventsQuery};
