@@ -56,6 +56,12 @@ def classification_case(change):
     if change in ('429', '500'):
         live_dependent = dict(dependent, status=int(change))
         drift = ['old-id: HTTP status Some(200) -> Some(' + change + ')']
+    if change == 'invariant':
+        drift = ['search: field removed: /ids']
+    if change == 'missing':
+        live_dependent.pop('provenance')
+    if change == 'unrelated':
+        live_discovery['provenance']['discovery']['ids'] = ['unrelated-id']
     if change == 'schema':
         drift.append('output schema failure')
     before = [discovery, dependent]
@@ -172,7 +178,8 @@ class NightlyCommand(unittest.TestCase):
                 ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
                 ('order', 'healthy', 0), ('schema', 'failure', 1),
                 ('500', 'failure', 1), ('429', 'throttled', 0),
-                ('cut', 'uncertain', 1)]:
+                ('cut', 'uncertain', 1), ('missing', 'uncertain', 1),
+                ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 

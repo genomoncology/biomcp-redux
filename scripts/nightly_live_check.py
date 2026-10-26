@@ -105,8 +105,12 @@ def dependent_change(removed, added, discoveries):
             if not inputs:
                 return 'uncertain'
             group = (request['source'], request['role'], inputs['namespace'])
-            groups.setdefault(group, [set(), set()])[side].update(inputs['ids'])
-    for (_, _, namespace), (old, new) in groups.items():
+            groups.setdefault(group, [[], []])[side].append(inputs['ids'])
+    for (_, _, namespace), (old_rows, new_rows) in groups.items():
+        old = {value for row in old_rows for value in row}
+        new = {value for row in new_rows for value in row}
+        if {tuple(row) for row in old_rows} == {tuple(row) for row in new_rows}:
+            return 'failure'
         candidates = discoveries.get(namespace, [])
         if not candidates:
             return 'failure'
