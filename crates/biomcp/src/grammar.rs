@@ -407,7 +407,7 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search", "gwas") => gwas::request(verb, value),
+        ("search" | "get", "gwas") => gwas::request(verb, value),
         ("protein", _) => entity::request(verb, entity, value),
         ("pathway", "genes" | "events") => entity::request(verb, entity, value),
         (

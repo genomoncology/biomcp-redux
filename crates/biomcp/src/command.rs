@@ -227,6 +227,8 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::GetGwasAssociation(q) => gwas_get(meta, q.into(), body),
+        Request::GetGwasStudy(q) => gwas_get(meta, q.into(), body),
         Request::SearchGwas(q) => match body {
             QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Search(q), body),
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
@@ -556,5 +558,17 @@ fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
         Bundle::Ddinter => biomcp_types::Source::Ddinter,
         Bundle::Hgnc => biomcp_types::Source::Hgnc,
         Bundle::ClinGen => biomcp_types::Source::ClinGen,
+    }
+}
+
+fn gwas_get(meta: ResponseMeta, q: biomcp_types::GwasGet, body: QueryBody) -> io::Result<Outcome> {
+    match body {
+        QueryBody::GwasAssociation(body) => meta.encode(q, body),
+        QueryBody::GwasStudy(body) => meta.encode(q, body),
+        QueryBody::GwasLoci(body) => meta.encode(q, body),
+        QueryBody::GwasAncestries(body) => meta.encode(q, body),
+        QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Get(q), body),
+        QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+        _ => Err(io::Error::other("gwas get response mismatch")),
     }
 }

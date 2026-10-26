@@ -358,6 +358,20 @@
       ],
       "type": "string"
     },
+    "GwasAssociationId": {
+      "pattern": "^association:[1-9][0-9]*$",
+      "type": "string"
+    },
+    "GwasAssociationSection": {
+      "description": "Association-only section.",
+      "enum": [
+        "loci"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Native locus and reported gene context."
+      ]
+    },
     "GwasOrder": {
       "description": "Native source order, echoed without a configurable sort command.",
       "enum": [
@@ -371,6 +385,18 @@
     "GwasStudyId": {
       "pattern": "^GCST[0-9]{6,}$",
       "type": "string"
+    },
+    "GwasStudySection": {
+      "description": "Study-only sections.",
+      "enum": [
+        "associations",
+        "ancestries"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Shared association rows.",
+        "Independent native ancestry rows."
+      ]
     },
     "GwasTraitId": {
       "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
@@ -788,7 +814,7 @@
       ]
     }
   },
-  "$id": "biodata.request/18",
+  "$id": "biodata.request/19",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -865,6 +891,104 @@
       },
       "required": [
         "command"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read one exact association and its native loci.",
+      "properties": {
+        "command": {
+          "const": "get_gwas_association",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/GwasAssociationId",
+          "description": "Qualified source association identity."
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GwasAssociationSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Association-only relation selector."
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Maximum native rows.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Rows to skip in this relation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained ancestry reply for local pages without provider access."
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read one exact study and its native relations.",
+      "properties": {
+        "command": {
+          "const": "get_gwas_study",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/GwasStudyId",
+          "description": "Exact Catalog accession."
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GwasStudySection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Study-only relation selector."
+        },
+        "section_limit": {
+          "default": 3,
+          "description": "Maximum native rows.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Rows to skip in this relation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained ancestry reply for local pages without provider access."
+        }
+      },
+      "required": [
+        "command",
+        "id"
       ],
       "type": "object"
     },

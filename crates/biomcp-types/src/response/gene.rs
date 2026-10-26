@@ -67,6 +67,14 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Native GWAS association page, absent after failure.
     GwasPage(Option<crate::GwasPage>),
+    /// Exact source association card.
+    GwasAssociation(Option<crate::GwasAssociationCard>),
+    /// Exact source study card.
+    GwasStudy(Option<crate::GwasStudy>),
+    /// Source association locus context.
+    GwasLoci(Option<crate::GwasLoci>),
+    /// Local retained study ancestry rows.
+    GwasAncestries(Option<crate::GwasAncestries>),
     /// Exact filtered native features.
     ProteinFeatures(Option<crate::ProteinFeatures>),
     /// Native alternative products.

@@ -1,5 +1,7 @@
 //! Source-local association search, without clinical interpretation.
+mod get;
 pub(crate) mod map;
+pub use get::get;
 mod next;
 mod threshold;
 use crate::{Ctx, Outcome, status};
