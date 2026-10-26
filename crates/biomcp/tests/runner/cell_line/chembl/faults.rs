@@ -3,16 +3,32 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for assay in [false, true] {
         for fault in ["429", "500", "broken", "html", "timeout"] {
-            trials.push(Trial::test(format!("cell-line-chembl/fault/{}/{fault}", surface(assay)), move || failure(assay, fault).map_err(Into::into)));
+            trials.push(Trial::test(
+                format!("cell-line-chembl/fault/{}/{fault}", surface(assay)),
+                move || failure(assay, fault).map_err(Into::into),
+            ));
         }
         for fault in ["mismatch", "missing", "malformed", "bad-page", "next"] {
-            trials.push(Trial::test(format!("cell-line-chembl/cache/{}/{fault}", surface(assay)), move || admission(assay, fault).map_err(Into::into)));
+            trials.push(Trial::test(
+                format!("cell-line-chembl/cache/{}/{fault}", surface(assay)),
+                move || admission(assay, fault).map_err(Into::into),
+            ));
         }
-        trials.push(Trial::test(format!("cell-line-chembl/cache/{}/disabled", surface(assay)), move || disabled(assay).map_err(Into::into)));
-        trials.push(Trial::test(format!("cell-line-chembl/provenance/{}/500", surface(assay)), move || release(assay).map_err(Into::into)));
+        trials.push(Trial::test(
+            format!("cell-line-chembl/cache/{}/disabled", surface(assay)),
+            move || disabled(assay).map_err(Into::into),
+        ));
+        trials.push(Trial::test(
+            format!("cell-line-chembl/provenance/{}/500", surface(assay)),
+            move || release(assay).map_err(Into::into),
+        ));
     }
-    trials.push(Trial::test("cell-line-chembl/synthetic/zero", || zero().map_err(Into::into)));
-    trials.push(Trial::test("cell-line-chembl/synthetic/more", || more().map_err(Into::into)));
+    trials.push(Trial::test("cell-line-chembl/synthetic/zero", || {
+        zero().map_err(Into::into)
+    }));
+    trials.push(Trial::test("cell-line-chembl/synthetic/more", || {
+        more().map_err(Into::into)
+    }));
     trials
 }
 fn failed(value: &Value) -> Result<(), String> {
@@ -81,7 +97,11 @@ fn bad(assay: bool, fault: &str) -> Result<String, String> {
         serde_json::from_str(&fixture(if assay { "assays" } else { "CVCL_2119" })?)
             .map_err(|e| e.to_string())?;
     if fault == "next" {
-        *value.pointer_mut("/page_meta/next").ok_or("native next")? = if assay { Value::Null } else { json!("/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=5") };
+        *value.pointer_mut("/page_meta/next").ok_or("native next")? = if assay {
+            Value::Null
+        } else {
+            json!("/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=5")
+        };
         return Ok(value.to_string());
     }
     if fault == "bad-page" {
@@ -177,7 +197,10 @@ fn disabled(assay: bool) -> Result<(), String> {
     if value.get("result").is_some() {
         return Err("disabled source supplied cached facts".into());
     }
-    budget_phase(&format!("chembl/disabled/{}/warm", surface(assay)), warm_bytes)?;
+    budget_phase(
+        &format!("chembl/disabled/{}/warm", surface(assay)),
+        warm_bytes,
+    )?;
     if stub.finish()?.len() != 2 {
         return Err("disabled source called network".into());
     }
@@ -256,16 +279,18 @@ fn more() -> Result<(), String> {
             let mut value: Value =
                 serde_json::from_str(&fixture("CVCL_2119")?).map_err(|e| e.to_string())?;
             let original = value.pointer("/cell_lines/0").ok_or("native row")?.clone();
-        let mut rows = Vec::new();
-        for index in 0..5 {
-            let mut row = original.clone();
-            *row.get_mut("cell_chembl_id").ok_or("cell ID")? = json!(format!("CHEMBL{}", 3706573 + index));
-            *row.get_mut("cell_id").ok_or("cell record")? = json!(5547 + index);
-            rows.push(row);
-        }
-        *value.get_mut("cell_lines").ok_or("rows")? = json!(rows);
-        *value.pointer_mut("/page_meta/total_count").ok_or("total")? = json!(6);
-        *value.pointer_mut("/page_meta/next").ok_or("native next")? = json!("/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=5");
+            let mut rows = Vec::new();
+            for index in 0..5 {
+                let mut row = original.clone();
+                *row.get_mut("cell_chembl_id").ok_or("cell ID")? =
+                    json!(format!("CHEMBL{}", 3706573 + index));
+                *row.get_mut("cell_id").ok_or("cell record")? = json!(5547 + index);
+                rows.push(row);
+            }
+            *value.get_mut("cell_lines").ok_or("rows")? = json!(rows);
+            *value.pointer_mut("/page_meta/total_count").ok_or("total")? = json!(6);
+            *value.pointer_mut("/page_meta/next").ok_or("native next")? =
+                json!("/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=5");
             Ok(value.to_string())
         },
         |_| 200,

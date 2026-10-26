@@ -13,7 +13,12 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet, accession: &CellosaurusAcce
     command.finish(deadline.remaining());
     out
 }
-pub(super) fn get_at(cx: &Ctx<'_>, query: &CellLineGet, accession: &CellosaurusAccession, deadline: biomcp_fetch::Deadline<'_>) -> Outcome {
+pub(super) fn get_at(
+    cx: &Ctx<'_>,
+    query: &CellLineGet,
+    accession: &CellosaurusAccession,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> Outcome {
     let leg = cx.fetch.leg(&chembl::SPEC, deadline).fresh(cx.fresh);
     let mut body = CellLineChembl {
         accession: accession.clone(),

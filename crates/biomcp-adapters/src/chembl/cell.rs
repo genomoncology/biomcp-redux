@@ -18,13 +18,22 @@ struct PageMeta {
 }
 impl PageMeta {
     fn check(&self, count: usize, limit: u32, offset: u32) -> Result<(), BadReply> {
-        let expected = self.total_count.saturating_sub(u64::from(offset)).min(u64::from(limit));
+        let expected = self
+            .total_count
+            .saturating_sub(u64::from(offset))
+            .min(u64::from(limit));
         let more = u64::from(offset) + u64::from(limit) < self.total_count;
-        if (1..=25).contains(&limit) && self.limit == limit && self.offset == offset
-            && count as u64 == expected && self.next.is_some() == more
-            && (offset != 0 || self.previous.is_none()) {
+        if (1..=25).contains(&limit)
+            && self.limit == limit
+            && self.offset == offset
+            && count as u64 == expected
+            && self.next.is_some() == more
+            && (offset != 0 || self.previous.is_none())
+        {
             Ok(())
-        } else { Err(BadReply) }
+        } else {
+            Err(BadReply)
+        }
     }
 }
 #[derive(Debug, Deserialize)]
