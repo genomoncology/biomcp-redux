@@ -4,6 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("phenotype-associations/recorded-timeout-keeps-source-and-terms", || timeout().map_err(Into::into)),
         Trial::test("phenotype-associations/card-actions-keep-one-row-default-and-explicit-limits", || cards().map_err(Into::into)),
         Trial::test(
             "phenotype-associations/direct-pages-preserve-native-rows",
@@ -261,5 +262,26 @@ fn cards()->Result<(),String> {
         }
         if stub.finish()?.len()!=3 {return Err("card action made extra requests".into());}
     }
+    Ok(())
+}
+
+fn timeout() -> Result<(),String> {
+    let stub=Stub::for_source("api-v3.monarchinitiative.org","application/json", |_| Ok(json!({"limit":1,"offset":0,"total":1,"items":[row()]}).to_string()))?;
+    let env=setup(&stub)?;
+    let words=["get","phenotype","HP:0001250","genes"];
+    let directory=env.root().join("timeout");
+    super::record(&env,&words,&directory,0)?;
+    stub.finish()?;
+    for entry in std::fs::read_dir(directory.join("monarch")).map_err(|e|e.to_string())? {
+        let entry=entry.map_err(|e|e.to_string())?;
+        let mut value:Value=serde_json::from_slice(&std::fs::read(entry.path()).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+        *value.pointer_mut("/exchanges/0/delay_ms").ok_or("recorded delay")?=json!(20000);
+        std::fs::write(entry.path(),serde_json::to_vec(&value).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    }
+    let mut args=words.to_vec();args.extend(["--replay",directory.to_str().ok_or("record path")?]);
+    let result=invoke(&env,&args,4)?;
+    if result.pointer("/sources/0/reason")!=Some(&json!("deadline_exceeded")) || result.get("result").is_some()
+        || result.pointer("/sources/0/terms")!=Some(&json!("Monarch source-specific licensing")) {return Err(format!("timeout lost source failure: {result}"));}
+    super::native::mcp(&directory,&words,&result,4,None)?;
     Ok(())
 }

@@ -123,6 +123,7 @@ impl TryFrom<GetFields> for PhenotypeGet {
         let (source, _) = defaults(v.section);
         if (source == PhenotypeSource::Monarch && v.source == Some(PhenotypeSource::Hpo))
             || v.section_limit.is_some_and(|n| !(1..=50).contains(&n))
+            || (matches!(v.section, Some(PhenotypeSection::Diseases | PhenotypeSection::Genes)) && v.snapshot.is_some())
         {
             return Err(QueryInvalid);
         }

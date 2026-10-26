@@ -224,6 +224,7 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
         json!({"id":"HP:0001250","section":"hierarchy"}),
         json!({"items":[{"id":"HP:0000001","label":"All","relation":"super_classes","attribution":{"source":"synthetic"}}],"components":[]}),
     ).unwrap();
+    let empty = json!({"items":[],"components":[],"direct":true});
     envelope::<PhenotypeDiseases>(
         json!({"id":"HP:0001250","section":"diseases"}),
         empty.clone(),
