@@ -11,13 +11,15 @@ pub(super) fn capped<T>(rows: Vec<T>, limit: usize) -> Capped<T> {
         total,
     }
 }
+// Every header/card request explicitly asks for species and diseases. A missing native
+// collection therefore means source omission, unlike unrequested xrefs or variations.
 pub(super) fn header(row: raw::Record) -> Result<CellLineHeader, RequestError> {
     Ok(CellLineHeader {
         accession: row.accession().map_err(super::bad)?.clone(),
         name: row.name().map_err(super::bad)?.clone(),
         category: row.category,
-        species: capped(row.species_list.into_vec(), 3),
-        diseases: capped(row.disease_list.into_vec(), 3),
+        species: capped(row.species_list.unwrap_or_default().into_vec(), 3),
+        diseases: capped(row.disease_list.unwrap_or_default().into_vec(), 3),
     })
 }
 pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
@@ -25,6 +27,7 @@ pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
     let name = row.name().map_err(super::bad)?.clone();
     let warnings = row
         .comment_list
+        .unwrap_or_default()
         .into_vec()
         .into_iter()
         .filter(|r| matches!(r.category.as_str(), "Problematic cell line" | "Caution"))
@@ -45,8 +48,8 @@ pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
             accession: accession.clone(),
             name,
             category: row.category,
-            species: capped(row.species_list.into_vec(), 3),
-            diseases: capped(row.disease_list.into_vec(), 3),
+            species: capped(row.species_list.unwrap_or_default().into_vec(), 3),
+            diseases: capped(row.disease_list.unwrap_or_default().into_vec(), 3),
         }),
         candidates: Box::default(),
         dates: Some(CellLineEntryDates {

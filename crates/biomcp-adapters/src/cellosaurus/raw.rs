@@ -24,17 +24,14 @@ pub(super) struct Record {
     pub accession_list: Vec<Accession>,
     pub name_list: Vec<Name>,
     pub category: Text,
-    #[serde(default)]
-    pub species_list: Box<[CellLineXref]>,
-    #[serde(default)]
-    pub disease_list: Box<[CellLineXref]>,
+    pub species_list: Option<Box<[CellLineXref]>>,
+    pub disease_list: Option<Box<[CellLineXref]>>,
     pub age: Option<Text>,
     pub sex: Option<Text>,
     pub created: Option<PartialDate>,
     pub last_updated: Option<PartialDate>,
     pub entry_version: Option<Text>,
-    #[serde(default)]
-    pub comment_list: Box<[Comment]>,
+    pub comment_list: Option<Box<[Comment]>>,
     pub xref_list: Option<Box<[Xref]>>,
 }
 // Native xrefs can carry additional publisher fields, unlike the public projection.
