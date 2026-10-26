@@ -36,53 +36,20 @@ fn retired() -> Result<(), String> {
     let stub = stub()?;
     let env = setup(&stub)?;
     let commands = [
-        vec![
-            "cell-line",
-            "drug-response",
-            "CVCL_2119",
-            "--dataset",
-            "GDSC1",
-            "--limit",
-            "5",
-            "--offset",
-            "0",
-        ],
-        vec!["get", "cell-line", "CVCL_2119", "drug_response"],
-        vec!["get", "cell-line", "CVCL_2119", "drug-response"],
-        vec![
-            "get",
-            "cell-line",
-            "CVCL_2119",
-            "--section",
-            "drug_response",
-        ],
-        vec!["get", "cell-line", "CVCL_2119", "--section=drug-response"],
-        vec![
-            "gene",
-            "cell-lines",
-            "FLT3",
-            "--group",
-            "leukemia",
-            "--limit",
-            "5",
-            "--offset",
-            "0",
-        ],
-        vec![
-            "drug",
-            "cell-lines",
-            "imatinib",
-            "--cell-line",
-            "CVCL_2119",
-            "--dataset",
-            "GDSC1",
-        ],
-        vec!["get", "drug", "imatinib", "cell_lines"],
-        vec!["get", "drug", "imatinib", "cell-lines"],
-        vec!["get", "drug", "imatinib", "--section=cell_lines"],
+        "cell-line drug-response CVCL_2119 --dataset GDSC1 --limit 5 --offset 0",
+        "get cell-line CVCL_2119 drug_response",
+        "get cell-line CVCL_2119 drug-response",
+        "get cell-line CVCL_2119 --section drug_response",
+        "get cell-line CVCL_2119 --section=drug-response",
+        "gene cell-lines FLT3 --group leukemia --limit 5 --offset 0",
+        "drug cell-lines imatinib --cell-line CVCL_2119 --dataset GDSC1",
+        "get drug imatinib cell_lines",
+        "get drug imatinib cell-lines",
+        "get drug imatinib --section=cell_lines",
     ];
-    for (index, words) in commands.iter().enumerate() {
-        let value = parity(&format!("all/retired/{index}"), &env, words, 2)?;
+    for (index, command) in commands.iter().enumerate() {
+        let words = command.split_whitespace().collect::<Vec<_>>();
+        let value = parity(&format!("all/retired/{index}"), &env, &words, 2)?;
         path(&value, "/error/code", json!("usage.retired"))?;
         let expected = if index < 5 {
             "PharmacoDB drug response is deferred until it publishes a data reuse grant"

@@ -1,7 +1,7 @@
 //! Feature cell-line-all: bounded independent first pages with visible source outcomes.
 use super::*;
 mod controls;
-const MEASURE: bool = true;
+const MEASURE: bool = false;
 use super::chembl::surface;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![Trial::test("cell-line-all/bounded-first-pages", || {
@@ -113,17 +113,15 @@ fn facts(id: &str, value: &Value) -> Result<(), String> {
         return Err("source dates were conflated".into());
     }
     let actions = value.get("next").and_then(Value::as_array).ok_or("next")?;
-    for section in ["xrefs"] {
-        if !actions.iter().any(|action| {
-            action
-                .get("args")
-                .and_then(Value::as_array)
-                .is_some_and(|args| {
-                    args.contains(&json!(section)) && args.contains(&json!("--section-offset"))
-                })
-        }) {
-            return Err(format!("all lost {section} continuation"));
-        }
+    if !actions.iter().any(|action| {
+        action
+            .get("args")
+            .and_then(Value::as_array)
+            .is_some_and(|args| {
+                args.contains(&json!("xrefs")) && args.contains(&json!("--section-offset"))
+            })
+    }) {
+        return Err("all lost xrefs continuation".into());
     }
     Ok(())
 }
