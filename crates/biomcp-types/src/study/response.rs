@@ -33,6 +33,8 @@ impl ResponseBody for StudyPage {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyCard {
+    /// Exact publisher study page for this checked source identity.
+    pub source_url: Text,
     /// Native card metadata, preserving all source count distinctions.
     pub study: Study,
     /// Catalog revision and acquisition, apart from each live section's time.
@@ -48,7 +50,7 @@ pub struct StudyCard {
     pub files: Option<Section<StudyFiles>>,
 }
 impl ResponseBody for StudyCard {
-    const SCHEMA: &'static str = "biomcp.study_card/1";
+    const SCHEMA: &'static str = "biomcp.study_card/2";
     type Query = StudyGet;
 }
 macro_rules! page {

@@ -1,0 +1,80 @@
+//! Pure reply admission before source cache publication.
+use crate::gwas::{SPEC, raw::Association};
+use biomcp_types::GwasSearch;
+use std::collections::BTreeMap;
+pub(super) fn self_link(url: &str, expected: &BTreeMap<String, String>) -> bool {
+    let prefix = format!("{}/associations?", SPEC.base);
+    let Some(query) = url.strip_prefix(&prefix) else {
+        return false;
+    };
+    let mut actual = BTreeMap::new();
+    for pair in query.split('&') {
+        let Some((key, value)) = pair.split_once('=') else {
+            return false;
+        };
+        let (Some(key), Some(value)) = (decode(key), decode(value)) else {
+            return false;
+        };
+        if actual.insert(key, value).is_some() {
+            return false;
+        }
+    }
+    actual == *expected
+}
+fn decode(text: &str) -> Option<String> {
+    let mut bytes = text.bytes();
+    let mut decoded = Vec::new();
+    while let Some(byte) = bytes.next() {
+        decoded.push(match byte {
+            b'%' => {
+                let a = char::from(bytes.next()?).to_digit(16)?;
+                let b = char::from(bytes.next()?).to_digit(16)?;
+                (a * 16 + b) as u8
+            }
+            b'+' => b' ',
+            b'#' => return None,
+            b => b,
+        });
+    }
+    String::from_utf8(decoded).ok()
+}
+pub(super) fn row(row: &Association, q: &GwasSearch) -> bool {
+    if row
+        .accession_id
+        .as_str()
+        .parse::<biodata::GwasStudyId>()
+        .is_err()
+        || row.exact_p_value().is_none()
+        || q.study()
+            .is_some_and(|id| row.accession_id.as_str() != id.to_string())
+        || q.pubmed()
+            .is_some_and(|id| row.pubmed_id.as_deref() != Some(id.to_string().as_str()))
+        || q.variant().is_some_and(|id| {
+            !row.snp_allele
+                .iter()
+                .any(|a| a.rs_id.as_str() == id.to_string())
+        })
+        || q.trait_id().is_some_and(|id| {
+            !q.include_child_traits()
+                && !row
+                    .efo_traits
+                    .iter()
+                    .any(|t| t.efo_id.as_str() == id.to_string())
+        })
+        || q.trait_label()
+            .is_some_and(|label| !row.efo_traits.iter().any(|t| &t.efo_trait == label))
+    {
+        return false;
+    }
+    row.snp_allele
+        .iter()
+        .all(|a| a.rs_id.as_str().parse::<biodata::RsId>().is_ok())
+        && row
+            .efo_traits
+            .iter()
+            .all(|t| t.efo_id.as_str().parse::<biodata::GwasTraitId>().is_ok())
+        && row
+            .pubmed_id
+            .as_ref()
+            .is_none_or(|id| id.parse::<biodata::Pmid>().is_ok())
+}

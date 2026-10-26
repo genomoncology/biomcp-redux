@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tuniprot_ids\talias_symbol\nHGNC:1787\tCDKN2A\tSynthetic two-product gene\tprotein-coding gene\tgene with protein product\tApproved\tP42771|Q8N726\tSYNTHETICALIAS\nHGNC:3236\tEGFR\tSynthetic single-product gene\tprotein-coding gene\tgene with protein product\tApproved\tP00533\t\n"
+      }
+    }
+  ]
+}

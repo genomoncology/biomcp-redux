@@ -1,0 +1,45 @@
+{
+  "feature": "protein-search",
+  "story": "Protein help exposes the checked identity and paging arguments through CLI and MCP.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "protein"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "protein"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--gene",
+            "--reviewed",
+            "--limit",
+            "--offset",
+            "--pool"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "protein"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "protein"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    }
+  ]
+}

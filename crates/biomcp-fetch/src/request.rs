@@ -5,13 +5,21 @@ use crate::{InputError, declaration::Method, prepared::Prepared};
 use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
-pub(crate) type Decoded<T> = (T, u16, Vec<u8>, i64, Option<String>);
+pub(crate) type Decoded<T> = (
+    T,
+    u16,
+    Vec<u8>,
+    i64,
+    Option<String>,
+    Option<crate::Pagination>,
+);
 #[derive(serde::Serialize)]
 struct Wire {
     fetched: i64,
     status: u16,
     content_type: String,
     content_range: Option<String>,
+    pagination: Option<crate::Pagination>,
     #[serde(skip)] // Raw and decoded body scanning stays separate from metadata.
     body: Vec<u8>,
     retry_after: Option<Duration>,
@@ -248,22 +256,30 @@ impl Leg<'_> {
         }
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
+        if let Some(limit) = ep.byte_limit {
+            if limit == 0 || limit == u64::MAX {
+                return Err(InputError::BodyLimit.into());
+            }
+            codec.limit = Some(codec.limit.map_or(limit, |old| old.min(limit)));
+        }
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
-        let (reply, fetched, content_range) = self.cached(ep, &prepared, &codec, || {
-            self.attempts(&prepared, keyed, &codec)
-        })?;
+        let (reply, fetched, content_range, pagination) =
+            self.cached(ep, &prepared, &codec, || {
+                self.attempts(&prepared, keyed, &codec)
+            })?;
         let metadata = crate::ReplyMetadata {
             identity: prepared.identity,
             fetched,
             content_range,
+            pagination,
         };
         self.report
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .replies
-            .push(metadata);
+            .push(metadata.clone());
         Ok((reply, metadata))
     }
 
@@ -452,6 +468,7 @@ impl Leg<'_> {
             .get("content-range")
             .and_then(|v| v.to_str().ok())
             .map(str::to_owned);
+        let pagination = self.pagination_headers(prepared, &response, status)?;
         let retry_after = response
             .headers()
             .get("retry-after")
@@ -474,6 +491,7 @@ impl Leg<'_> {
             status,
             content_type,
             content_range,
+            pagination,
             body,
             retry_after,
         };
@@ -505,6 +523,7 @@ impl Leg<'_> {
             status: exchange.status,
             content_type: exchange.content_type,
             content_range: exchange.content_range,
+            pagination: exchange.pagination,
             body: body.bytes().to_vec(),
             retry_after: exchange.retry_after_ms.map(Duration::from_millis),
         })
@@ -521,6 +540,7 @@ impl Leg<'_> {
             status: wire.status,
             content_type: wire.content_type.clone(),
             content_range: wire.content_range.clone(),
+            pagination: wire.pagination.clone(),
             body: if codec.binary() {
                 Body::Bytes(wire.body.clone())
             } else {
@@ -566,6 +586,7 @@ impl Leg<'_> {
             response.body,
             response.fetched,
             response.content_range,
+            response.pagination,
         ))
     }
 }

@@ -1,0 +1,76 @@
+{
+  "live_check": "synthetic source continuation",
+  "feature": "protein-search",
+  "story": "Native protein windows keep source order without gaps across one-row, default and full pages",
+  "replay": "protein/pages",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "protein",
+        "EGFR"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 3
+      },
+      "expect": {
+        "/result/items/*/protein/accession": [
+          "P00533",
+          "P15056",
+          "P38398",
+          "P04637",
+          "P13569",
+          "Q9UIF7",
+          "P31749"
+        ],
+        "/page/total": 7
+      }
+    },
+    {
+      "run": [
+        "search",
+        "protein",
+        "EGFR",
+        "--limit",
+        "1"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 8
+      },
+      "expect": {
+        "/result/items/*/protein/accession": [
+          "P00533",
+          "P15056",
+          "P38398",
+          "P04637",
+          "P13569",
+          "Q9UIF7",
+          "P31749"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "protein",
+        "EGFR",
+        "--limit",
+        "25"
+      ],
+      "expect": {
+        "/page/returned": 7,
+        "/result/items/*/protein/accession": [
+          "P00533",
+          "P15056",
+          "P38398",
+          "P04637",
+          "P13569",
+          "Q9UIF7",
+          "P31749"
+        ]
+      }
+    }
+  ]
+}

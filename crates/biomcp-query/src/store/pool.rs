@@ -82,6 +82,37 @@ impl Store<'_> {
             Ok(Pool { info: PoolInfo { id: Text::new(&id).map_err(|_| CacheError::Database)?, size, created: u64::try_from(created).map_err(|_| CacheError::Database)?, expires: u64::try_from(expires).map_err(|_| CacheError::Database)? }, key: key.into(), sources: sources.into() })
         })
     }
+    /// Extend a source window without renewing its published identity or lifetime.
+    pub(crate) fn extend_source_pool(
+        &mut self,
+        mut pool: Pool,
+        payload: &str,
+        size: u32,
+        sources: &[SourceOutcome],
+    ) -> Result<Pool, CacheError> {
+        self.write(|tx| {
+            let outcomes = serde_json::to_string(sources).map_err(|_| CacheError::Database)?;
+            let id = pool.info.id.as_str();
+            let changed = tx.execute(
+                "UPDATE pool SET size=?3,outcomes=?4 WHERE id=?1 AND request_key=?2 AND expires>?5 AND size<=?3",
+                params![id,pool.key,size,outcomes,Self::now()],
+            ).map_err(db)?;
+            if changed == 1 {
+                let snapshot = tx.execute(
+                    "UPDATE trial_snapshot SET payload=?3,outcomes=?4 WHERE id=?1 AND request_key=?2 AND expires>?5",
+                    params![id,pool.key,payload,outcomes,Self::now()],
+                ).map_err(db)?;
+                if snapshot != 1 { return Err(CacheError::Database); }
+            }
+            let (size, outcomes): (u32, String) = tx.query_row(
+                "SELECT size,outcomes FROM pool WHERE id=?1 AND request_key=?2 AND expires>?3",
+                params![id,pool.key,Self::now()], |row| Ok((row.get(0)?,row.get(1)?)),
+            ).map_err(db)?;
+            pool.info.size = size;
+            pool.sources = serde_json::from_str(&outcomes).map_err(|_| CacheError::Database)?;
+            Ok(pool)
+        })
+    }
     pub(crate) fn page(
         &self,
         pool: &str,

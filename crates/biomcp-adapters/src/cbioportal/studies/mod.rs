@@ -77,3 +77,6 @@ pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {
             .ok_or_else(bad)?,
     })
 }
+
+mod sections;
+pub use sections::{Records, profiles, sample_lists};

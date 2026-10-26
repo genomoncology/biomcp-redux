@@ -227,6 +227,58 @@ The largest observed source response is not a worst-case catalog guarantee. Defa
 
 The same-question 0.9 comparison is unmeasured because no contained historical binary was executed. Native API bytes measure source transport and the projections measure proposed disclosure; neither substitutes for 0.9 product bytes, warm/cold product latency or a judged clinical quality comparison. There is no defensible numeric claim that these outputs outperform 0.9. The source fields and named legacy capabilities above define the quality floor that implementation and the later contained comparison must check.
 
+The search implementation emits only supported native page, variant and publication actions. Association and study get actions join when the exact GWAS get handlers land; a search never suggests an unsupported command. Native offset continuation retains every selector and source order. It does not claim a pinned whole-search snapshot. Exact warm pages reuse the existing transport cache.
+
+### Additional command request captures
+
+Job `j14615` sent eight previously uncaptured exact sorted requests once each through the landed bounded capture helper. It retained the existing adapter deadline of 15 seconds and a 3 MiB body bound, admitted requests one second apart, and refused redirects and retries. All eight returned HTTP 200. The extended gene-set request took 14.357 seconds; the deadline remains unchanged.
+
+The archive is `data/biomcp-redux/0234-gwas-search/native-evidence.tar.gz`, SHA-256 `4a10b3ed6d0b0186092d590fe84473482b4b85ed80d39fb125d26750ab92b59a`. The job copied the archive to Yellow and verified its exact manifest and member hashes before removing source-machine scratch. Original replies remain outside Git. The other selectors reuse the sorted requests from `j14351` and the first sorted publication page from `j14229`.
+
+| Exact request witness | Native result |
+| --- | --- |
+| PMID 17529967, page 1, size 3, ascending p value | IDs 6113, 6114 and 11346; six total. The last record retains rs981782. |
+| PMID 17529974, page 0, size 3, ascending p value | IDs 6117 and 6116; two total for GCST000037. |
+| PMID 17934461, page 0, size 3, ascending p value | ID 5949; one total. |
+| PMID 17618284, page 0, size 3, ascending p value | ID 6063; one total with the native effect label preserved. |
+| GCST000057, page 0, size 10, ascending p value | Seven IDs: 11386, 11850, 6056, 11851, 6057, 11852 and 11385. |
+| MONDO_0004989, child traits true, page 0, size 3, ascending p value | 2,422 total, distinct from the 2,094 without children. |
+| FGFR2, extended gene set true, page 0, size 3, ascending p value | 223 total, distinct from the standard 212. |
+| rs2981582 plus PMID 17529967, page 0, size 3, ascending p value | Only association 6110. |
+
+Self links reorder query parameters and use form-encoded spaces. Admission therefore compares the exact endpoint and decoded parameter map, rejects duplicate parameters, and checks source page metadata and returned identities before cache publication. It does not use substring URL matching.
+
+### Measured command response ceilings
+
+Job `j14693` replayed all 22 retained requests through CLI and MCP at the round-trip-safe JSON parser setting. Native source bodies were unchanged. The values below include supported page, variant and publication actions; association and study get actions remain withheld until their handlers land. These outputs do not claim a pinned catalog snapshot.
+
+`tests/gwas-search-budgets.json` owns each measured pair `[full CLI bytes, comparable MCP bytes]`. Full CLI bytes include the final newline; MCP bytes are one less. Comparable bytes remove only `use`, `terms` and `terms_url` from validated source outcomes. The external case generator applies `max_bytes` to comparable CLI bytes and `max_tokens` to comparable MCP bytes; both use the measured size plus 15 percent. The retained native Trial separately guards the full response ceiling, so a full ceiling is not confused with a terms-subtracted case ceiling.
+
+| Witness | Full CLI bytes | Comparable MCP bytes | Full CLI ceiling | Comparable CLI ceiling |
+| --- | --- | --- | --- | --- |
+| `broderick` | 1056 | 932 | 1215 | 1073 |
+| `children` | 2321 | 2197 | 2670 | 2528 |
+| `extended` | 2308 | 2184 | 2655 | 2513 |
+| `gene-negative` | 491 | 367 | 565 | 424 |
+| `gene-positive` | 2289 | 2165 | 2633 | 2491 |
+| `gene-trait-positive` | 2341 | 2217 | 2693 | 2551 |
+| `pubmed-first` | 2254 | 2130 | 2593 | 2451 |
+| `pubmed-negative` | 484 | 360 | 557 | 416 |
+| `pubmed-second` | 2032 | 1908 | 2337 | 2196 |
+| `samani` | 3967 | 3843 | 4563 | 4421 |
+| `stacey` | 1555 | 1431 | 1789 | 1647 |
+| `study-negative` | 488 | 364 | 562 | 420 |
+| `study-page-one` | 2033 | 1909 | 2338 | 2197 |
+| `study-positive` | 2257 | 2133 | 2596 | 2455 |
+| `tomlinson` | 1082 | 958 | 1245 | 1103 |
+| `trait-id-negative` | 489 | 365 | 563 | 421 |
+| `trait-id-positive` | 2298 | 2174 | 2643 | 2502 |
+| `trait-text-negative` | 504 | 380 | 580 | 439 |
+| `trait-text-positive` | 2298 | 2174 | 2643 | 2502 |
+| `variant-negative` | 488 | 364 | 562 | 420 |
+| `variant-positive` | 2230 | 2106 | 2565 | 2424 |
+| `variant-publication` | 1071 | 947 | 1232 | 1091 |
+
 ## Agent questions
 
 1. **What do I ask first?** Ask for associations by the exact variant, trait, study, publication or source-defined gene selector. A literal trait query remains literal. It is never expanded into a diagnosis or inferred disease hierarchy.

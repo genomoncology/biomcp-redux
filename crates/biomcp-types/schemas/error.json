@@ -76,6 +76,7 @@
     "ErrorMessage": {
       "description": "Fixed input-free error and migration guidance.",
       "enum": [
+        "--p-value is not yet supported; threshold filtering is deferred",
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
