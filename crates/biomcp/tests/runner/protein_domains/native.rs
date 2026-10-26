@@ -6,18 +6,20 @@ pub(super) fn run(root:&Path)->Result<(),String>{
         let path=request.lines().next().and_then(|line|line.split_whitespace().nth(1)).ok_or("request path")?;
         requests.get(path).cloned().ok_or_else(||format!("no accepted native request for {path}"))
     })?;
-    let replay=root.join("replay");fs::create_dir(&replay).map_err(|e|e.to_string())?;
-    let output=root.join("outputs");fs::create_dir(&output).map_err(|e|e.to_string())?;
+    let replay=root.join("replay");fs::create_dir_all(&replay).map_err(|e|e.to_string())?;
+    let output=root.join("outputs");fs::create_dir_all(&output).map_err(|e|e.to_string())?;
     let registry=super::super::schema::Registry::embedded()?;
     let mut paths=fs::read_dir(root.join("cases")).map_err(|e|e.to_string())?.map(|p|p.map(|p|p.path()).map_err(|e|e.to_string())).collect::<Result<Vec<_>,_>>()?;paths.sort();
     for path in paths {
         let case:Value=serde_json::from_slice(&fs::read(&path).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
         let args=case.pointer("/steps/0/run").and_then(Value::as_array).ok_or("native command")?.iter().map(|v|v.as_str().ok_or("argument")).collect::<Result<Vec<_>,_>>()?;
+        let name=path.file_stem().and_then(|s|s.to_str()).ok_or("case name")?;
+        if root.join(format!("{name}.done")).is_file(){continue;}
         let env=setup(&stub)?;let mut record=args.clone();record.extend(["--record",replay.to_str().ok_or("native replay")?]);call(&env,&record,0)?;
         let value=super::super::run_case(&path,&registry)?;
-        let name=path.file_stem().and_then(|s|s.to_str()).ok_or("case name")?;
         measure(name,&value,&output)?;
         if name.starts_with("complexes-") || name.starts_with("domains-") {walk(&env,value,name,&output)?;}
+        fs::write(root.join(format!("{name}.done")),b"passed").map_err(|e|e.to_string())?;
     }
     let seen=stub.finish()?;
     fs::write(root.join("request-count.txt"),seen.len().to_string()).map_err(|e|e.to_string())?;

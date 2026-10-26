@@ -5,10 +5,12 @@ use serde_json::{Value, json};
 use std::fs;
 mod complexes;
 mod native;
+mod failures;
+mod paging;
 pub(super) fn trials() -> Vec<Trial> {
     let root=super::launch::fixtures().join("protein-domain-native");
     let absent=!root.is_dir();
-    vec![Trial::test("protein-domains-complexes/retained-native-facts-and-costs",move||native::run(&root).map_err(Into::into)).with_ignored_flag(absent),Trial::test("protein-domains-complexes/exact-members-and-retained-pages", || complexes::run().map_err(Into::into)), Trial::test(
+    vec![Trial::test("protein-domains-complexes/source-failures",||failures::run().map_err(Into::into)),Trial::test("protein-domains-complexes/native-pointer-retained-walk",||paging::run().map_err(Into::into)),Trial::test("protein-domains-complexes/retained-native-facts-and-costs",move||native::run(&root).map_err(Into::into)).with_ignored_flag(absent),Trial::test("protein-domains-complexes/exact-members-and-retained-pages", || complexes::run().map_err(Into::into)), Trial::test(
         "protein-domains-complexes/native-types-and-fragments",
         || domains().map_err(Into::into),
     )]
