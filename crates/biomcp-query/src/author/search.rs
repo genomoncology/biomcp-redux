@@ -75,7 +75,7 @@ fn execute(
         let source = status::source(Source::SemanticScholar, leg.finish(), error);
         out.sources.push(source.clone());
         saved.pages.push(result?);
-        saved.source = source;
+        status::retain_source_state(&mut saved.source, &source);
     }
     let pool = if cached {
         old_pool.ok_or(biomcp_fetch::CacheError::Database)?

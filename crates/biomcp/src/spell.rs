@@ -54,7 +54,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
 fn author_papers(q: &biomcp_types::AuthorPapersQuery) -> Vec<String> {
     let mut args = vec!["author".into(), "papers".into(), q.id().to_string()];
     if let Some(section) = q.section() {
-        args.push(section.to_string());
+        args.push(section.as_str().into());
     }
     args.extend([
         "--limit".into(),

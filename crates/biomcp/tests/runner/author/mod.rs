@@ -4,10 +4,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
 mod cost;
+mod pool;
 pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("author-native");
     let absent = !root.is_dir();
     vec![
+        Trial::test("author-search/retained-native-pool-contract", || {
+            pool::run().map_err(Into::into)
+        }),
         Trial::test(
             "author-search/retained-native-records-and-costs",
             move || native(&root).map_err(Into::into),
