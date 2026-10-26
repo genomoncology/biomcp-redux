@@ -112,7 +112,7 @@ pub fn card(
             },
             release: None,
             description_truncated: summary.then_some(true),
-            sections: vec![PathwaySection::Summary].into(),
+            sections: vec![PathwaySection::Summary, PathwaySection::Genes].into(),
             genes: None,
             events: None,
         }

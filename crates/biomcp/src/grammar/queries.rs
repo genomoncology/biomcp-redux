@@ -2,6 +2,7 @@
 use biomcp_types::Request;
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::GetGwasAssociation(_) | Request::GetGwasStudy(_) => "biomcp.gwas-get/1",
         Request::SearchGwas(_) => "biomcp.gwas-search/2",
         Request::ProteinFeatures(_) => "biomcp.protein-features-query/1",
         Request::ProteinIsoforms(_) | Request::ProteinStructures(_) => {
@@ -13,8 +14,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
         Request::GetPhenotype(_) => "biomcp.phenotype-get/1",
         Request::SearchPathway(_) => "biomcp.pathway-search/2",
-        Request::GetPathway(_) => "biomcp.pathway-get/1",
-        Request::PathwayGenes(_) => "biomcp.pathway-genes-query/1",
+        Request::GetPathway(_) => "biomcp.pathway-get/2",
+        Request::PathwayGenes(_) => "biomcp.pathway-genes-query/2",
         Request::PathwayEvents(_) => "biomcp.pathway-events-query/1",
         Request::SearchStudy(_) => "biomcp.study-search/1",
         Request::GetStudy(_) => "biomcp.study-get/1",
@@ -51,6 +52,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("get", "gwas", "biomcp.gwas-get/1"),
     ("search", "gwas", "biomcp.gwas-search/2"),
     ("protein", "features", "biomcp.protein-features-query/1"),
     ("protein", "isoforms", "biomcp.protein-relation-query/1"),
@@ -61,8 +63,8 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "phenotype", "biomcp.phenotype-search-query/1"),
     ("get", "phenotype", "biomcp.phenotype-get/1"),
     ("search", "pathway", "biomcp.pathway-search/2"),
-    ("get", "pathway", "biomcp.pathway-get/1"),
-    ("pathway", "genes", "biomcp.pathway-genes-query/1"),
+    ("get", "pathway", "biomcp.pathway-get/2"),
+    ("pathway", "genes", "biomcp.pathway-genes-query/2"),
     ("pathway", "events", "biomcp.pathway-events-query/1"),
     ("search", "study", "biomcp.study-search/1"),
     ("get", "study", "biomcp.study-get/1"),

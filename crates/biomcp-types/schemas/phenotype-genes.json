@@ -541,7 +541,7 @@
     },
     "PhenotypeGenes": {
       "additionalProperties": false,
-      "description": "Complete native human gene association rows with source taxon.",
+      "description": "Direct source human gene association rows with native taxon.",
       "properties": {
         "components": {
           "description": "Applicable publisher component terms.",
@@ -550,8 +550,12 @@
           },
           "type": "array"
         },
+        "direct": {
+          "description": "Publisher direct graph scope; this supplies no causal assertion.",
+          "type": "boolean"
+        },
         "fetched": {
-          "description": "Original source retrieval seconds, distinct from ontology release.",
+          "description": "Original source retrieval time, distinct from dataset release.",
           "format": "uint64",
           "minimum": 0,
           "type": [
@@ -560,7 +564,7 @@
           ]
         },
         "items": {
-          "description": "Native ordered rows; empty remains an empty collection.",
+          "description": "Native association rows in source order, without deduplication.",
           "items": {
             "$ref": "#/$defs/DiseaseAssociationItem"
           },
@@ -569,6 +573,7 @@
       },
       "required": [
         "items",
+        "direct",
         "components"
       ],
       "type": "object"
@@ -1117,7 +1122,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.phenotype-genes/1",
+  "$id": "biomcp.phenotype-genes/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1163,7 +1168,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.phenotype-genes/1",
+      "const": "biomcp.phenotype-genes/2",
       "type": "string"
     },
     "sources": {

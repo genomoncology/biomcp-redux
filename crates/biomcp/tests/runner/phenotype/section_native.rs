@@ -208,7 +208,10 @@ fn walk(
             0,
         )?;
         verify(&value, Some(expected), &page)?;
-        if value.pointer("/query/section_limit") != Some(&json!(5))
+        if value.pointer("/page/returned")
+            != Some(&json!(
+                expected.len().saturating_sub(offset as usize).min(5)
+            ))
             || value.pointer("/query/section") != Some(&json!("hierarchy"))
             || value.pointer("/query/source") != Some(&json!("monarch"))
         {

@@ -123,6 +123,25 @@ impl TryFrom<SearchFields> for GwasSearch {
     }
 }
 impl GwasSearch {
+    /// Reuse the native search selector for a checked study section window.
+    pub fn study_page(id: GwasStudyId, page: &super::GwasSectionPage) -> Self {
+        Self(SearchFields {
+            variant: None,
+            r#trait: None,
+            trait_id: None,
+            gene: None,
+            study: Some(id),
+            pubmed: None,
+            p_value: None,
+            include_child_traits: false,
+            extended_geneset: false,
+            order: order(),
+            limit: page.limit(),
+            offset: page.offset(),
+            pool: None,
+        })
+    }
+
     /// Checked variant selector.
     pub fn variant(&self) -> Option<&RsId> {
         self.0.variant.as_ref()

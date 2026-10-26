@@ -182,7 +182,7 @@
       "description": "Continue Reactome event objects and unresolved native integer references.",
       "properties": {
         "id": {
-          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+          "description": "Checked source-owned human pathway identity.",
           "pattern": "^R-HSA-[1-9][0-9]*$",
           "type": "string",
           "x-positional": 0
@@ -366,7 +366,8 @@
       "enum": [
         "source",
         "observed",
-        "distinct_references"
+        "distinct_references",
+        "data_nodes"
       ],
       "type": "string"
     },
@@ -850,7 +851,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_events/1",
+  "$id": "biomcp.pathway_events/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -896,7 +897,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_events/1",
+      "const": "biomcp.pathway_events/2",
       "type": "string"
     },
     "sources": {

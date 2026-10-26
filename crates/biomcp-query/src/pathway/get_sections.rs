@@ -11,7 +11,15 @@ pub(super) fn attach(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) {
+    let source = if matches!(q.id(), biodata::PathwayId::Wikipathways(_)) {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
     for section in [PathwaySection::Genes, PathwaySection::Events] {
+        if source == Source::WikiPathways && section == PathwaySection::Events {
+            continue;
+        }
         if !matches!(q.section(), Some(PathwaySection::All)) && q.section() != Some(section) {
             continue;
         }
@@ -32,7 +40,7 @@ pub(super) fn attach(
                 name: card.pathway.name.clone(),
                 species: card.pathway.species,
                 version: card.pathway.version.clone(),
-                revision: None,
+                revision: card.pathway.revision.clone(),
             }),
         };
         let result = relation::read(cx, selected, deadline);
@@ -44,20 +52,14 @@ pub(super) fn attach(
         match result.body {
             QueryBody::PathwayGenes(body) => {
                 card.genes = Some(body.map_or_else(
-                    || Section::unavailable(Source::Reactome, reason),
-                    |data| Section::Data {
-                        source: Source::Reactome,
-                        data,
-                    },
+                    || Section::unavailable(source, reason),
+                    |data| Section::Data { source, data },
                 ))
             }
             QueryBody::PathwayEvents(body) => {
                 card.events = Some(body.map_or_else(
-                    || Section::unavailable(Source::Reactome, reason),
-                    |data| Section::Data {
-                        source: Source::Reactome,
-                        data,
-                    },
+                    || Section::unavailable(source, reason),
+                    |data| Section::Data { source, data },
                 ))
             }
             QueryBody::PoolError { mismatch } => {

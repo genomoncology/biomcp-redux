@@ -93,16 +93,21 @@ fn read_inner(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    if cx.fetch.disabled(Source::Reactome) {
+    let source = if matches!(q.id, PathwayId::Wikipathways(_)) {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
+    if cx.fetch.disabled(source) {
         let error: RequestError = SourceError {
-            source: Source::Reactome,
+            source,
             reason: Reason::Disabled,
             status: None,
             retry_after: None,
         }
         .into();
         out.sources.push(biomcp_adapters::registry::outcome(
-            Source::Reactome,
+            source,
             biomcp_types::SourceState::Skipped,
             Some(Reason::Disabled),
         ));
@@ -159,7 +164,12 @@ fn present_genes(
             row.participants = None;
         }
     }
-    super::membership::resolve(
+    let resolve = if matches!(q.id, PathwayId::Wikipathways(_)) {
+        super::gpml_membership::resolve
+    } else {
+        super::membership::resolve
+    };
+    resolve(
         cx,
         &mut body.items,
         deadline,
@@ -208,6 +218,9 @@ fn fetch(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<snapshot::Saved, RequestError> {
+    if matches!(q.id, PathwayId::Wikipathways(_)) {
+        return super::gpml_relation::fetch(cx, q, deadline, out);
+    }
     let PathwayId::Reactome(id) = q.id else {
         return Err(biomcp_fetch::InputError::Serialization.into());
     };

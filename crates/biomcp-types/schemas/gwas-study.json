@@ -54,6 +54,10 @@
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Text",
+              "description": "Retained ancestry reply for local pages without provider access."
             }
           },
           "required": [
@@ -99,6 +103,10 @@
               "format": "uint32",
               "minimum": 0,
               "type": "integer"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Text",
+              "description": "Retained ancestry reply for local pages without provider access."
             }
           },
           "required": [

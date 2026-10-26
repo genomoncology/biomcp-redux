@@ -27,7 +27,8 @@ biodata::wire_enum! {
     PathwayTotalKind {
         #[doc = "Native source-reported total before exact page admission."] Source => "source",
         #[doc = "Number of observed members in the retained relation."] Observed => "observed",
-        #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct_references"
+        #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct_references",
+        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data_nodes"
     }
 }
 /// Native page position and explicit count provenance; a short admitted page can continue.
@@ -61,7 +62,7 @@ pub struct PathwayPage {
     pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway_page/2";
+    const SCHEMA: &'static str = "biomcp.pathway_page/3";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.
@@ -77,7 +78,7 @@ pub struct PathwayCard {
     /// Whether the source itself shortened its description, rather than the client.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description_truncated: Option<bool>,
-    /// Source-supported named sections; WikiPathways excludes genes and events.
+    /// Source-supported named sections; WikiPathways excludes events.
     pub sections: Box<[PathwaySection]>,
     /// Requested bounded membership page, including its explicit source state.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -87,7 +88,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway_card/4";
+    const SCHEMA: &'static str = "biomcp.pathway_card/5";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {
@@ -127,14 +128,14 @@ pub struct PathwayGenes {
     pub physical_entities: u64,
 }
 impl ResponseBody for PathwayGenes {
-    const SCHEMA: &'static str = "biomcp.pathway_genes/3";
+    const SCHEMA: &'static str = "biomcp.pathway_genes/4";
     type Query = PathwayGenesQuery;
 }
 relation_page!(
     PathwayEvents,
     PathwayEventRef,
     PathwayEventsQuery,
-    "biomcp.pathway_events/1"
+    "biomcp.pathway_events/2"
 );
 /// Receipt for one independently validated WikiPathways metadata catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

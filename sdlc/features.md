@@ -140,6 +140,10 @@ pathway-wikipathways: Explicitly synchronize both metadata catalogs atomically a
 
 study-files: Read bounded native DataHub file references and study license links without fetching data files. Cases: `crates/biomcp/tests/runner/study_files.rs`.
 phenotype-sections: A caller pages native source synonyms, cross references and direct hierarchy links from one retained term reply. Cases: `crates/biomcp/tests/runner/phenotype/sections.rs`.
+
+pathway-wikipathways-genes: Read exact human pathway GeneProduct data nodes from bounded publisher GPML and page the retained relation without name-based identifier inference. Cases: `tests/cases/pathway/wikipathways-genes-missing.yaml`, `crates/biomcp/tests/runner/wikipathways_genes.rs`.
+phenotype-associations: A caller pages exact direct Monarch disease and human gene association rows without clinical inference or identity repair. Cases: `crates/biomcp/tests/runner/phenotype/associations.rs`.
+gwas-get: Read exact Catalog association and study records and their independent native context sections. Cases: `crates/biomcp/tests/runner/gwas_get.rs`.
 protein-sections: A caller reads native protein features, alternative products, references, complete sequences and qualified function text without transferring coordinates. Cases: `tests/cases/protein/sections/*.yaml`, `crates/biomcp/tests/runner/protein_sections.rs`.
 
 
