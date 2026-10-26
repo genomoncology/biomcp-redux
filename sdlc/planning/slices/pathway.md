@@ -389,3 +389,20 @@ Only direct GeneProduct DataNodes become members. Their native GraphId, label, X
 GPML's complete Version has the exact requested WP identifier, `_r`, and a positive decimal revision. Its source-stated organism must equal `Homo sapiens` before text normalization. The relation header retains that complete native Version as its revision. Catalog revision dates remain separate: the native WP100 catalog date is 2025-11-07 while its GPML Last-Modified is 20251106160209, so date equality would reject the publisher's own retained record. A refresh creates a separate retained relation; an existing pool never changes or renews its source revision.
 
 Entrez Gene and Ensembl Xrefs use the existing exact HGNC xref indexes and verify the returned identifier. Native HGNC numeric accessions use the exact HGNC ID index. The captured HGNC Xref `CACNG3` is a source-stated HGNC symbol and uses only the approved-symbol index with exact returned-symbol equality. No label, alias or inferred version stripping participates. Every unresolved member stays visible with its native reference and a problem. Navigation offers one pivot per distinct resolved gene in source order, then the retained page step. There is no drug, article or trial fanout.
+
+The captured GPML response uses `application/octet-stream`. Its endpoint explicitly selects that exact media spelling through `application_octet_stream()`, followed by ordinary bounded XML decoding, request-bound identity checks and cache admission. Existing `octet_stream()` endpoints retain their separate `binary/octet-stream` permission and unchanged JSON checks.
+
+Native CLI and MCP walks preserve every captured GraphId in source order and retain `WP382_r140476` and `WP100_r141191` independently of the catalog dates. The exact joins are Entrez 7189 → HGNC:12036, ENSG00000158711 → HGNC:3326 and the native HGNC symbol CACNG3 → HGNC:1407. The complete native output archive is `data/biomcp-redux/0224-wikipathways-genes/replay-1793008875251411000.tar.gz` on Yellow, SHA-256 `f9fa5eb0eb9b80910da3bfc26473b193811e35951fdad5cde8ddb7e950be4ef0`.
+
+| Native command | Comparable JSON bytes | Tokens |
+|---|---:|---:|
+| WP382 card | 495 | 124 |
+| WP382 genes section | 2323 | 581 |
+| WP382 all | 2505 | 627 |
+| WP382 direct genes page | 1982 | 496 |
+| WP100 card | 503 | 126 |
+| WP100 genes section | 2636 | 659 |
+| WP100 all | 2818 | 705 |
+| WP100 direct genes page | 2287 | 572 |
+
+CLI and MCP have equal JSON content sizes above; CLI adds its trailing newline. Both genes sections remain within the design allocation. `tests/wikipathways-gpml-budgets.json` owns the measured full-body, comparable-body and token baselines. Every command's checked ceiling is its matching baseline multiplied by 115 percent and rounded up. The retained-output contract checks all sixteen original surface results against these fixed ceilings without repeating source replay. The existing WikiPathways card budget also includes the newly available genes action.

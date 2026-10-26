@@ -163,12 +163,54 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
         let cli = invoke(env, args.clone(), 0)?;
         let mcp = super::super::mcp::call_with_globals(env, &args, false, &["--offline".into()])?;
         for (surface, value) in [("CLI", cli), ("MCP", mcp)] {
+            ceiling(id, section, &value)?;
             super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
             let bytes = super::super::source_terms::size(&value, "")?;
             writeln!(std::io::stdout(), "GPML_MEASURE {}", json!({"id":id,"section":section,"surface":surface,"full_bytes":full,"comparable_bytes":bytes,"tokens":bytes.div_ceil(4)})).map_err(|e| e.to_string())?;
             outputs.push(json!({"id":id,"section":section,"surface":surface,"output":value}));
         }
+    }
+    Ok(())
+}
+
+fn ceiling(id: &str, section: &str, value: &Value) -> Check {
+    let budgets: std::collections::BTreeMap<String, [usize; 3]> = serde_json::from_str(
+        include_str!("../../../../../tests/wikipathways-gpml-budgets.json"),
+    )
+    .map_err(|e| e.to_string())?;
+    let key = format!("{id}/{section}");
+    let baseline = budgets.get(&key).ok_or("native command baseline")?;
+    let full = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+    let bytes = super::super::source_terms::size(value, "")?;
+    if [full, bytes, bytes.div_ceil(4)]
+        .iter()
+        .zip(baseline)
+        .any(|(actual, measured)| *actual > (measured * 115).div_ceil(100))
+    {
+        return Err(format!(
+            "{key} exceeds its measured fifteen-percent ceiling"
+        ));
+    }
+    Ok(())
+}
+pub(super) fn saved() -> Check {
+    let path = super::super::launch::fixtures().join("wikipathways-genes-native/outputs.json");
+    let outputs: Vec<Value> = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    if outputs.len() != 16 {
+        return Err("Retained output did not include every CLI/MCP pair".into());
+    }
+    for output in outputs {
+        let id = output
+            .get("id")
+            .and_then(Value::as_str)
+            .ok_or("retained identity")?;
+        let section = output
+            .get("section")
+            .and_then(Value::as_str)
+            .ok_or("retained section")?;
+        ceiling(id, section, output.get("output").ok_or("retained result")?)?;
     }
     Ok(())
 }

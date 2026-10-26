@@ -399,3 +399,68 @@ fn ordinary_xml_replies_use_default_serde_decoding() {
         assert!(worker.join().unwrap().unwrap().answer);
     });
 }
+
+#[test]
+fn application_octet_stream_permission_keeps_xml_checks_and_bounds() {
+    for (declared, media, body, limit, accepted) in [
+        (
+            false,
+            "application/octet-stream",
+            "<answer>V600E</answer>",
+            100,
+            false,
+        ),
+        (
+            true,
+            "application/octet-stream",
+            "<answer>V600E</answer>",
+            100,
+            true,
+        ),
+        (
+            true,
+            "binary/octet-stream",
+            "<answer>V600E</answer>",
+            100,
+            false,
+        ),
+        (true, "application/xml", "<answer>V600E</answer>", 100, true),
+        (true, "application/octet-stream", "<answer>", 100, false),
+        (
+            true,
+            "application/octet-stream",
+            "<answer>unrelated</answer>",
+            100,
+            false,
+        ),
+        (
+            true,
+            "application/octet-stream",
+            "<answer>V600E</answer>",
+            5,
+            false,
+        ),
+    ] {
+        let server = Server::new();
+        let spec = spec(&server);
+        let fetch = Fetch::open(FetchConfig {
+            max_body: limit,
+            ..FetchConfig::default()
+        })
+        .unwrap();
+        let endpoint = if declared {
+            spec.get("/gpml").application_octet_stream()
+        } else {
+            spec.get("/gpml")
+        };
+        thread::scope(|scope| {
+            let worker = scope.spawn(|| {
+                fetch
+                    .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                    .xml::<Answer>(&endpoint, &[])
+            });
+            respond(server.next(), media, body.as_bytes());
+            assert_eq!(worker.join().unwrap().is_ok(), accepted);
+        });
+    }
+}
