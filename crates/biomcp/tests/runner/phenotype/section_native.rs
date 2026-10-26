@@ -53,6 +53,9 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     };
     let value = invoke(&env, &record, exit)?;
     verify(&value, expected.as_deref(), row)?;
+    if text(row, "section")? == "synonyms" {
+        measure_card(&env, &directory, outputs, row)?;
+    }
     if raw.get("id") == Some(&json!("HP:0001250"))
         && text(row, "section")? == "hierarchy"
         && row.get("offset") == Some(&json!(0))
@@ -222,5 +225,33 @@ fn walk(
     if offset != 10 {
         return Err("native hierarchy walk did not reach its terminal local page".into());
     }
+    Ok(())
+}
+
+fn measure_card(
+    env: &super::super::launch::Environment,
+    directory: &Path,
+    outputs: &Path,
+    row: &Value,
+) -> Result<(), String> {
+    let words = row.get("words").and_then(Value::as_array).ok_or("words")?;
+    let id = words.get(2).and_then(Value::as_str).ok_or("identity")?;
+    let source = text(row, "source")?;
+    let args = ["get", "phenotype", id, "--source", source];
+    let card = invoke(env, &args, 0)?;
+    native::mcp(directory, &args, &card, 0, None)?;
+    let full = serde_json::to_vec(&card).map_err(|e| e.to_string())?.len();
+    let comparable = super::super::source_terms::size(&card, "")?;
+    writeln!(
+        std::io::stdout(),
+        "phenotype card {id} {source}: CLI={} MCP={full} comparable={comparable}",
+        full + 1
+    )
+    .map_err(|e| e.to_string())?;
+    fs::write(
+        outputs.join(format!("card-{}-{source}.json", id.replace(':', "_"))),
+        serde_json::to_vec(&card).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
