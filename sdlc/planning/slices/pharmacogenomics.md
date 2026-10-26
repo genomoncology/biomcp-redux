@@ -489,10 +489,10 @@ Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b86
 The generated accounting counts leaf commands and long command options. It excludes shared formatting, aliases, positional text and section names. `--pgx-testing` remains undecided for implementation because its positive native selector is unproved; its deferred outcome is explicit rather than silently dropped.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset` | `--drug`, `--evidence` | `--pgx-testing` | Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof. |
-| `get pgx` | Ported or renamed | `--limit`, `--offset` | `--full` | — | Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset` | `--drug`, `--evidence` | — | `--pgx-testing` | Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof. |
+| `get pgx` | Ported or renamed | `--limit`, `--offset` | `--full` | — | — | Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire. |
 <!-- /parity-accounting -->
 
 | Accounting surface | Shipped spelling or disposition | Owning cases |

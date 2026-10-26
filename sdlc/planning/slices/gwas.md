@@ -407,9 +407,9 @@ The routine collection in `j14903` measured whole-tree generated help at 76,572 
 ## Implemented legacy accounting
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search gwas` | Ported or renamed | `--gene`, `--trait`, `--p-value`, `--limit`, `--offset` | — | — | Native mapped-gene and literal mapped-trait selectors replace local prefix intersection. Exact positive thresholds require default native p-value-ascending order. Positional gene, -g and -l aliases remain. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search gwas` | Ported or renamed | `--gene`, `--trait`, `--p-value`, `--limit`, `--offset` | — | — | — | Native mapped-gene and literal mapped-trait selectors replace local prefix intersection. Exact positive thresholds require default native p-value-ascending order. Positional gene, -g and -l aliases remain. |
 <!-- /parity-accounting -->
 
 | Legacy surface | 1.0 spelling or disposition | Owning proof |

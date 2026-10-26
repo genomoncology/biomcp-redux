@@ -89,12 +89,12 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 | Global JSON/Markdown, fresh/cache and source-disable options | Shared behavior | No entity-specific duplicate configuration. |
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search author` | Ported or renamed | `--query`, `--source`, `--limit`, `--offset` | — | — | Keep literal positional text and -q/--query, numeric -l/--limit, native order and source alias semanticscholar. Shared --pool retains checked pages. ORCID name search, topic ranking and coauthor aggregation remain unsupported because the accepted sources establish no such scope. |
-| `get author` | Ported or renamed | — | — | — | Keep exact semantic-scholar:ID, alias semanticscholar:ID and checksummed orcid:ID in caller order. Counts describe provider records. No person link or cross-provider merge is computed. |
-| `author papers` | Ported or renamed | `--full`, `--limit`, `--offset` | — | — | Keep provider-qualified papers and numeric -l. Semantic Scholar details and --full select the same native rich page. ORCID pages public groups with native assertion provenance. Shared --pool preserves the retained collection. |
-| `list author` | Dropped by ruling | — | — | — | Retire with fixed help author, help search author and help get author guidance. Generated help owns sources, options, sections and examples. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search author` | Ported or renamed | `--query`, `--source`, `--limit`, `--offset` | — | — | — | Keep literal positional text and -q/--query, numeric -l/--limit, native order and source alias semanticscholar. Shared --pool retains checked pages. ORCID name search, topic ranking and coauthor aggregation remain unsupported because the accepted sources establish no such scope. |
+| `get author` | Ported or renamed | — | — | — | — | Keep exact semantic-scholar:ID, alias semanticscholar:ID and checksummed orcid:ID in caller order. Counts describe provider records. No person link or cross-provider merge is computed. |
+| `author papers` | Ported or renamed | `--full`, `--limit`, `--offset` | — | — | — | Keep provider-qualified papers and numeric -l. Semantic Scholar details and --full select the same native rich page. ORCID pages public groups with native assertion provenance. Shared --pool preserves the retained collection. |
+| `list` | Not yet decided | — | — | — | — | Consolidated entity-valued list leaf. Author retires to generated help; pathway, phenotype and diagnostic rename to generated help. Their existing outcome labels differ; the consolidated outcome awaits a ruling. |
 <!-- /parity-accounting -->
 
 The ledger counts leaf commands and their long option slots. The preceding rows also map every legacy alias, section and global setting. The article slice owns the `article authors` leaf: its separate command retires, while exact native first-author IDs offer article-to-author pivots without enrichment. JSON/Markdown use shared `--format json|md`; freshness, cache and source-disable settings retain shared grammar. Topic-wide ranking and cross-provider merging remain deferred because the APIs do not establish topic coverage or person identity. The new-sources ruling replaces the proposed ORCID public data file, so no such route is planned. All 0.9 sizes and timings remain unmeasured until the milestone 5 contained comparison.
