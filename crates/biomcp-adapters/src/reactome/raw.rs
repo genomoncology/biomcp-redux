@@ -88,6 +88,7 @@ pub(super) struct Literature {
     pub db_id: NonZeroU64,
     pub pub_med_identifier: Option<u32>,
     pub title: Option<String>,
+    #[serde(alias = "uniformResourceLocator")]
     pub url: Option<String>,
 }
 impl Reply for Card {

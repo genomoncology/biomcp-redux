@@ -44,9 +44,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/pathway/references/*/pubmed": {
-          "includes": "23572416"
-        }
+        "/result/pathway/references/0/pubmed": "23572416"
       },
       "max_bytes": 100000
     }
