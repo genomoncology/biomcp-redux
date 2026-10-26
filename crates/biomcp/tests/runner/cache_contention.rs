@@ -1,13 +1,23 @@
 //! A checked provider reply survives a competing cache writer.
-use super::{configuration::root, launch::Environment, mcp::request, publication::Peer};
+use super::{
+    configuration::{cached, invoke, root},
+    launch::{Environment, fixtures},
+    mcp::request,
+    publication::Peer,
+};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "cache/checked-gene-survives-write-contention",
-        || checked_gene().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("cache/checked-gene-survives-write-contention", || {
+            checked_gene().map_err(Into::into)
+        }),
+        Trial::test(
+            "cache/checked-protein-command-survives-write-contention",
+            || checked_protein().map_err(Into::into),
+        ),
+    ]
 }
 
 fn checked_gene() -> Result<(), String> {
@@ -84,6 +94,32 @@ fn recordings(from: &std::path::Path, to: &std::path::Path) -> Result<(), String
             )
             .map_err(|e| e.to_string())?;
         }
+    }
+    Ok(())
+}
+
+fn checked_protein() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let case = env.root().join("case");
+    let args = cached(
+        &["get", "protein", "P00533"],
+        &case,
+        Some(&fixtures().join("replies/protein/synthetic")),
+    );
+    let initial = invoke(&env, args.clone(), 0)?;
+    let db = rusqlite::Connection::open(case.join("replay.sqlite")).map_err(|e| e.to_string())?;
+    db.execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
+    let answer = invoke(&env, args, 0)?;
+    if answer.get("result") != initial.get("result")
+        || answer.get("status") != Some(&json!("complete"))
+        || answer.pointer("/sources/0/state") != Some(&json!("ok"))
+        || answer.pointer("/sources/0/notices/0/kind") != Some(&json!("cache_problem"))
+        || answer.pointer("/sources/0/notices/0/reason") != Some(&json!("busy"))
+    {
+        return Err(format!(
+            "CLI discarded a checked reply under cache contention: {answer}"
+        ));
     }
     Ok(())
 }
