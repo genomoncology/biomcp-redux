@@ -59,7 +59,7 @@ macro_rules! relation {
 relation!(ProteinFeaturesQuery, FeatureFields, "FeatureFields", {
     /// Native one-based residue; zero fails during deserialization.
     #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "Position1"))]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = u32::MAX)))]
     position: Option<Position1>,
     /// Exact UniProt native label, without an alias map.
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]

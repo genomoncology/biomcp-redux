@@ -57,7 +57,7 @@ fn call(
 ) -> Result<Value, String> {
     let mut words = env.globals(replay, false);
     words.extend(args.iter().map(|s| (*s).to_owned()));
-    invoke(env, words, exit)
+    invoke(env, words, exit).map_err(|e| format!("{args:?}: {e}"))
 }
 fn record(env: &Environment, args: &[&str], directory: &Path, exit: i32) -> Result<Value, String> {
     let mut words = args.to_vec();
