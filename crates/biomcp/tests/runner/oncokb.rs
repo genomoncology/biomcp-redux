@@ -8,6 +8,9 @@ const INPUT: &str = "chr7:g.140753336A>T";
 const SECTION: &str = "/result/candidates/0/sections/oncokb";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("variant/oncokb-environment-key-config-precedence", || {
+            environment_key().map_err(Into::into)
+        }),
         Trial::test("variant/oncokb-key-policy-wire", || {
             wire().map_err(Into::into)
         }),
@@ -294,7 +297,7 @@ fn reload() -> Result<(), String> {
             http,
             false,
             json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}),
-            "ONCOKB_API_KEY",
+            "ONCOKB_TOKEN",
         )?;
         let mut args = args();
         args.push("--fresh".into());
@@ -440,4 +443,34 @@ fn echo_reply(request: &str) -> Result<String, String> {
         .ok_or("synthetic annotation object")?
         .insert("geneSummary".into(), json!(KEY));
     Ok(body.to_string())
+}
+
+fn environment_key() -> Result<(), String> {
+    for configured in [false, true] {
+        let stub = Stub::for_source("www.oncokb.org", "application/json", reply)?;
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let ca = env.root().join("ca.pem");
+        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+        let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
+        if configured {
+            config.as_object_mut().ok_or("config object")?
+                .insert("keys".into(), json!({"oncokb_api_key":KEY}));
+        }
+        env.config(&config).map_err(|e| e.to_string())?;
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args())
+            .env("ONCOKB_TOKEN", if configured { "synthetic-environment-shadowed" } else { KEY })
+            .output().map_err(|e| e.to_string())?;
+        let requests = stub.finish()?;
+        if !output.status.success() || !output.stderr.is_empty() || requests.len() != 1
+            || !requests.first().is_some_and(|(_, request)| request.lines()
+                .any(|line| line.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}")))) {
+            return Err("OncoKB environment key or config precedence failed".into());
+        }
+        for marker in [KEY, "synthetic-environment-shadowed"] {
+            if output.stdout.windows(marker.len()).any(|part| part == marker.as_bytes()) {
+                return Err("OncoKB environment credential leaked".into());
+            }
+        }
+    }
+    Ok(())
 }

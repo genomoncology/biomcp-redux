@@ -138,7 +138,7 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
     let variable = if nci {
         "NCI_API_KEY"
     } else {
-        "SEMANTIC_SCHOLAR_API_KEY"
+        "S2_API_KEY"
     };
     let stub = Stub::for_source(
         if nci {

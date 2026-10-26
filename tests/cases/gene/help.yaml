@@ -242,7 +242,7 @@
       ],
       "expect": {
         "/schema": "biomcp.key/2",
-        "/result/environment": "ONCOKB_API_KEY"
+        "/result/environment": "ONCOKB_TOKEN"
       }
     }
   ],

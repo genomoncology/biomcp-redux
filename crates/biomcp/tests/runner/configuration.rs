@@ -315,7 +315,7 @@ fn key_boundaries() -> Check {
     ];
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-        .env("ONCOKB_API_KEY", "synthetic-override")
+        .env("ONCOKB_TOKEN", "synthetic-override")
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
