@@ -319,3 +319,5 @@ Current help measurements from j15720 are listed separately below. `list author`
 | Author papers | 1116 | 1031 | 1115 | 955 | 2590 |
 | List author | 2583 | 2507 | 2582 | 2419 | 5668 |
 | Whole help | 88766 | 88698 | 88765 | 79356 | 187626 |
+
+The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare result bytes, 294 MCP text bytes, 308 Markdown bytes and 846 full RPC bytes in j15767. Its canonical owner enforces 340 raw bytes and 86 estimated tokens. The native person absence remains distinct from this synthetic works status control. Current papers help owns 1284 raw bytes and 321 estimated tokens; its mandatory Markdown shape owns 1099 bytes. List author owns 2971 CLI bytes, 2970 MCP text bytes, 743 estimated tokens and 2782 Markdown bytes.
