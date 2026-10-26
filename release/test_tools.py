@@ -6,6 +6,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
+
+from release.artifacts import channels
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -34,6 +37,21 @@ class DesktopTools(unittest.TestCase):
             manifest.write_text(json.dumps(value))
             result = self.check(root)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    @unittest.skipIf(sys.platform == "win32", "the local executable stub uses a POSIX shebang")
+    def test_bundle_descriptions_come_from_candidate_tools_list(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / "candidate"
+            tools = [{"name": name, "description": "Candidate description for " + name} for name in ("biomcp", "search", "fetch")]
+            frames = [{"jsonrpc": "2.0", "id": 1, "result": {}}, {"jsonrpc": "2.0", "id": 2, "result": {"tools": tools}}]
+            binary.write_text("#!" + sys.executable + "\nimport sys\nsys.stdin.read()\nprint(" + repr("\n".join(json.dumps(frame) for frame in frames)) + ")\n")
+            binary.chmod(0o755)
+            channels(root, binary, {"version": "1.0.0", "platform": "test"})
+            with zipfile.ZipFile(root / "biomcp-test.mcpb") as bundle:
+                manifest = json.loads(bundle.read("manifest.json"))
+                self.assertEqual(manifest["tools"], tools)
+                self.assertEqual(bundle.read(manifest["server"]["entry_point"]), binary.read_bytes())
 
 
 if __name__ == "__main__":
