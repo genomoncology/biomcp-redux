@@ -14,6 +14,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("study-get/identity-failures-and-policy", || {
             failures().map_err(Into::into)
         }),
+        Trial::test("study-get/admission-and-absent-count", || {
+            admission().map_err(Into::into)
+        }),
     ]
 }
 fn profiles() -> Value {
@@ -155,6 +158,47 @@ fn failures() -> Check {
         if value.pointer("/sources/0/use") != Some(&json!("restricted")) {
             return Err(format!("failure lost terms: {value}"));
         }
+    }
+    Ok(())
+}
+
+fn admission() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env, rows(), 200)?;
+    let mut body = lists();
+    let row = body
+        .get_mut(0)
+        .and_then(Value::as_object_mut)
+        .ok_or("row")?;
+    row.remove("sampleCount");
+    row.insert("sampleIds".into(), json!([null,{"ignored":true}]));
+    record(&replay, "sample-lists", body, 200)?;
+    let value = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0", "sample-lists"],
+        0,
+    )?;
+    if value.pointer("/result/items/0/sampleCount").is_some()
+        || value.to_string().contains("sampleIds")
+    {
+        return Err(format!(
+            "missing count inferred or members retained: {value}"
+        ));
+    }
+    let mut body = lists();
+    *body.pointer_mut("/0/description").ok_or("description")? = json!("x".repeat(1_526_432));
+    record(&replay, "sample-lists", body, 200)?;
+    let value = call(
+        &env,
+        &replay,
+        &["get", "study", "synthetic_0", "sample-lists"],
+        4,
+    )?;
+    if value.get("result").is_some()
+        || value.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
+    {
+        return Err(format!("over-bound response returned a cut page: {value}"));
     }
     Ok(())
 }
