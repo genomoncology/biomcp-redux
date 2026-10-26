@@ -156,3 +156,74 @@ fn chembl_absence_and_synthetic_zero_remain_source_local() {
     };
     assert_eq!(serde_json::to_value(skipped).unwrap()["state"], "skipped");
 }
+
+#[test]
+fn section_requests_keep_independent_defaults_and_offsets() {
+    let q: CellLineGet = serde_json::from_value(json!({"id":"CVCL_2119"})).unwrap();
+    assert!(matches!(q.id(), CellLineInput::Accession(_)));
+    assert_eq!(q.section(), None);
+    assert_eq!(q.section_limit(), None);
+    assert_eq!(q.section_offset(), 0);
+    let q: CellLineGet = serde_json::from_value(json!({"id":"ChEMBL-Cells:CHEMBL3706573","section":"all","section_limit":1,"section_offset":25})).unwrap();
+    assert!(matches!(q.id(), CellLineInput::Source(_)));
+    assert_eq!(q.section(), Some(CellLineSection::All));
+    assert_eq!(q.section_limit(), Some(1));
+    assert_eq!(q.section_offset(), 25);
+    for value in [
+        json!({"id":"CVCL_2119","section":null}),
+        json!({"id":"CVCL_2119","section_limit":null}),
+        json!({"id":"CVCL_2119","drug":"x"}),
+    ] {
+        assert!(serde_json::from_value::<CellLineGet>(value).is_err());
+    }
+    let identity = json!({"accession":"CVCL_2119","name":"Source display","category":"Native category","species":[xref("NCBI_TaxID","9606")],"diseases":[xref("NCIt","C8263"),xref("ORDO","Orphanet_514")]});
+    assert_eq!(roundtrip::<CellLineIdentity>(identity.clone()), identity);
+}
+
+#[cfg(feature = "schema")]
+fn check_envelope<T>(query: Value, body: Value)
+where
+    T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
+    T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
+{
+    let envelope = Envelope::<T>::new(
+        Status::Ok,
+        serde_json::from_value(query).unwrap(),
+        Some(serde_json::from_value(body).unwrap()),
+    );
+    let value = serde_json::to_value(envelope).unwrap();
+    let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>)).unwrap();
+    jsonschema::validator_for(&schema)
+        .unwrap()
+        .validate(&value)
+        .unwrap();
+    assert_eq!(value["schema"], T::SCHEMA);
+}
+#[cfg(feature = "schema")]
+#[test]
+fn standalone_envelopes_validate_all_eight_consumer_schemas() {
+    let get = json!({"id":"CVCL_2119"});
+    let empty = json!({"items":[],"total":0});
+    let header = json!({"accession":"CVCL_2119","name":"Native display","category":"Native category","species":empty,"diseases":empty});
+    check_envelope::<CellLinePage>(
+        json!({"query":"native spelling"}),
+        json!({"items":[header.clone()]}),
+    );
+    check_envelope::<CellLineCard>(
+        get.clone(),
+        json!({"input":"CVCL_2119","status":"ok","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names","identity","xrefs","variants","chembl"]}),
+    );
+    let page = json!({"accession":"CVCL_2119","items":empty,"offset":0});
+    check_envelope::<CellLineNames>(get.clone(), page.clone());
+    check_envelope::<CellLineXrefs>(get.clone(), page.clone());
+    check_envelope::<CellLineVariants>(get.clone(), page.clone());
+    check_envelope::<CellLineChembl>(get.clone(), page);
+    check_envelope::<CellLineIdentityPage>(
+        get,
+        json!({"accession":"CVCL_2119","species":empty,"diseases":empty,"warnings":empty,"offset":0}),
+    );
+    check_envelope::<CellLineAssayCount>(
+        json!({"id":"CHEMBL3706573"}),
+        json!({"id":"CHEMBL3706573","assay_count":0}),
+    );
+}

@@ -29,7 +29,7 @@ biodata::wire_enum! {
     feature = "schema",
     schemars(
         with = "str",
-        regex(pattern = "^(CVCL_[A-Z0-9]{4}|[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+)$")
+        extend("pattern" = "^(CVCL_[A-Z0-9]{4}|[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f]+)$")
     )
 )]
 pub enum CellLineInput {
