@@ -1,0 +1,121 @@
+use crate::{QueryInvalid, Text};
+use biodata::{CbioportalCancerTypeId, StudyId};
+use serde::{Deserialize, Serialize};
+fn limit() -> u32 { 5 }
+
+biodata::wire_enum! {
+    described
+    /// Supported bounded study metadata sections; gene counts are deferred.
+    StudySection {
+        /// Five exact native molecular profile references.
+        Profiles => "profiles",
+        /// Five sample-list metadata records, without member sample IDs.
+        SampleLists => "sample-lists",
+        /// Five repository file references; no automatic download.
+        Files => "files",
+        /// Each named section's bounded first page; never a gene aggregate request.
+        All => "all"
+    }
+}
+/// Literal metadata search; text is never parsed as a query language.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "SearchFields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
+pub struct StudySearch(SearchFields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct SearchFields {
+    /// Literal study ID, name or description text, without synonyms or typo repair.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    text: Option<Text>,
+    /// Exact cBioPortal cancer-type code; no OncoTree conversion.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    cancer_type: Option<CbioportalCancerTypeId>,
+    /// Maximum headers per page.
+    #[serde(default = "limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    limit: u32,
+    /// Zero-based offset in the checked snapshot.
+    #[serde(default)]
+    offset: u32,
+    /// Opaque continuation retaining the catalog revision and selectors.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pool: Option<Text>,
+}
+impl TryFrom<SearchFields> for StudySearch {
+    type Error = QueryInvalid;
+    fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+        if (v.text.is_none() && v.cancer_type.is_none()) || !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid);
+        }
+        Ok(Self(v))
+    }
+}
+impl StudySearch {
+    /// Literal caller text.
+    pub fn text(&self) -> Option<&Text> { self.0.text.as_ref() }
+    /// Exact namespace-preserving cancer-type selector.
+    pub fn cancer_type(&self) -> Option<&CbioportalCancerTypeId> { self.0.cancer_type.as_ref() }
+    /// Bounded page size.
+    pub fn limit(&self) -> u32 { self.0.limit }
+    /// Snapshot offset.
+    pub fn offset(&self) -> u32 { self.0.offset }
+    /// Opaque retained snapshot.
+    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    /// Continue without changing selectors or snapshot.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone(); q.0.offset = offset; q
+    }
+}
+/// Exact case-sensitive study retrieval or a bounded metadata section.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "GetFields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
+pub struct StudyGet(GetFields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct GetFields {
+    /// Exact source study ID; no default or repair.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    id: StudyId,
+    /// Omit for the card; all returns bounded first pages only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    section: Option<StudySection>,
+    /// Maximum records in each selected section.
+    #[serde(default = "limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    section_limit: u32,
+    /// Offset within one named section; all requires zero.
+    #[serde(default)]
+    section_offset: u32,
+}
+impl TryFrom<GetFields> for StudyGet {
+    type Error = QueryInvalid;
+    fn try_from(v: GetFields) -> Result<Self, Self::Error> {
+        if !(1..=50).contains(&v.section_limit)
+            || (matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0) {
+            return Err(QueryInvalid);
+        }
+        Ok(Self(v))
+    }
+}
+impl StudyGet {
+    /// Exact checked study ID.
+    pub fn id(&self) -> &StudyId { &self.0.id }
+    /// Selected metadata section.
+    pub fn section(&self) -> Option<StudySection> { self.0.section }
+    /// Bounded section size.
+    pub fn section_limit(&self) -> u32 { self.0.section_limit }
+    /// Offset within the named collection.
+    pub fn section_offset(&self) -> u32 { self.0.section_offset }
+    /// Continue one named section; card and all have no aggregate offset.
+    pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut q = self.0.clone(); q.section_offset = offset; Self::try_from(q)
+    }
+}

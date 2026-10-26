@@ -178,3 +178,6 @@ pub use response::DiagnosticCountUnit;
 
 #[cfg(feature = "schema")]
 pub use drug::DrugGetCommand;
+
+mod study;
+pub use study::*;
