@@ -1,0 +1,97 @@
+"""Build external cases and recordings from the retained GWAS archives, without requests."""
+import hashlib
+import json
+from pathlib import Path
+import sys
+import tarfile
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+
+def write(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+
+def archive_rows(path, plan_name='plan.json', prefix=''):
+    with tarfile.open(path) as archive:
+        plan = json.load(archive.extractfile(prefix + plan_name))
+        for index, request in enumerate(plan['requests']):
+            yield request['id'], request['url'], archive.extractfile(prefix + f'{index:04d}.body').read().decode()
+
+
+def canonical(url):
+    parts = urlsplit(url)
+    query = urlencode(sorted(parse_qsl(parts.query)), quote_via=__import__('urllib.parse', fromlist=['quote']).quote)
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, query, ''))
+
+
+def command(url):
+    flags = {'rs_id': '--variant', 'efo_trait': '--trait', 'efo_id': '--trait-id',
+             'mapped_gene': '--gene', 'accession_id': '--study', 'pubmed_id': '--pubmed'}
+    query = dict(parse_qsl(urlsplit(url).query))
+    args = ['search', 'gwas']
+    for key, flag in flags.items():
+        if key in query:
+            args += [flag, query[key]]
+    for key, flag in [('show_child_trait', '--include-child-traits'), ('extended_geneset', '--extended-geneset')]:
+        if query.get(key) == 'true':
+            args.append(flag)
+    if query['size'] != '3':
+        args += ['--limit', query['size']]
+    if query['page'] != '0':
+        args += ['--offset', str(int(query['page']) * int(query['size']))]
+    return args
+
+
+def record(root, url, text):
+    url = canonical(url)
+    key = hashlib.sha256(('GET\0' + url).encode()).hexdigest()
+    write(root / 'fixtures/replies/native/gwas' / (key + '.json'), {
+        'source': 'gwas', 'method': 'GET', 'url': url, 'exchanges': [{
+            'status': 200, 'content_type': 'application/json', 'delay_ms': 0,
+            'retry_after_ms': None, 'body': {'kind': 'text', 'value': text}}]})
+
+
+def case(root, name, url, body, expected_ids=None):
+    text = json.loads(body)
+    rows = text.get('_embedded', {}).get('associations', [])
+    args = command(url)
+    expect = {'/status': 'complete', '/page/total': text['page']['totalElements'],
+              '/query/query/order': 'p_value,asc', '/result/items': {'count': len(rows)}}
+    if expected_ids is not None:
+        expect['/result/items/*/id' if rows else '/result/items'] = expected_ids
+    record(root, url, body)
+    step = {'run': args, 'mcp': args, 'expect': expect}
+    # Projection ceilings are starting measurements, not claims about shipped output.
+    write(root / 'cases' / (name + '.yaml'), {
+        'feature': 'gwas-search', 'live_check': 'retained restricted source replies outside Git',
+        'story': name, 'replay': 'native', 'steps': [step]})
+
+
+def main():
+    root = Path(sys.argv[1])
+    previous, current, original = map(Path, sys.argv[2:5])
+    selected = {'variant-positive', 'trait-text-positive', 'trait-id-positive', 'gene-positive',
+                'study-positive', 'study-page-one', 'gene-trait-positive', 'variant-negative',
+                'trait-text-negative', 'trait-id-negative', 'gene-negative', 'study-negative',
+                'pubmed-negative'}
+    for name, url, body in archive_rows(previous):
+        if name in selected:
+            case(root, name, url, body)
+    fixed = {'pubmed-second': [6113, 6114, 11346], 'stacey': [6117, 6116], 'broderick': [5949],
+             'tomlinson': [6063], 'samani': [11386, 11850, 6056, 11851, 6057, 11852, 11385],
+             'children': [41310323, 93928402, 41311109],
+             'extended': [41310323, 93928402, 105594966], 'variant-publication': [6110]}
+    for name, url, body in archive_rows(current):
+        case(root, name, url, body, fixed[name])
+    with tarfile.open(original) as archive:
+        prefix = '2292-0193-gwas/metadata/'
+        receipts = json.load(archive.extractfile(prefix + 'receipts.json'))
+        row = next(r for r in receipts if r['name'] == '003')
+        body = archive.extractfile(prefix + '003.body').read().decode()
+        case(root, 'pubmed-first', row['url'], body, [6110, 6111, 6112])
+    print('Prepared 22 external native cases; zero source requests')
+
+
+if __name__ == '__main__':
+    main()
