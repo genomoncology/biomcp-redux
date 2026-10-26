@@ -101,5 +101,9 @@ impl PathwayGenesQuery {
     }
 }
 
-fn valid_genes(v: &GeneFields) -> bool { reactome(&v.id) || v.details.is_none() }
-fn valid_events(v: &EventFields) -> bool { reactome(&v.id) }
+fn valid_genes(v: &GeneFields) -> bool {
+    reactome(&v.id) || v.details.is_none()
+}
+fn valid_events(v: &EventFields) -> bool {
+    reactome(&v.id)
+}

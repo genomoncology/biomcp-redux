@@ -43,9 +43,13 @@ pub(super) fn resolve(
         if matched.is_none() {
             problems.push(Problem {
                 source: Source::Reactome,
-                record: format!("{}:{}", row.reference.namespace.as_deref().unwrap_or(""), row.reference.value)
-                    .parse()
-                    .ok(),
+                record: format!(
+                    "{}:{}",
+                    row.reference.namespace.as_deref().unwrap_or(""),
+                    row.reference.value
+                )
+                .parse()
+                .ok(),
                 field: "genes.gene".into(),
                 code: ProblemCode::ValueUnknown,
             });

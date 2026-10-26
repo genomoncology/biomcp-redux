@@ -13,7 +13,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-genes-query/1",
+  "$id": "biomcp.pathway-genes-query/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Continue exact pathway membership; details explicitly discloses full physical contexts.",
@@ -24,8 +24,8 @@
       "x-positional": 1
     },
     "id": {
-      "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
-      "pattern": "^R-HSA-[1-9][0-9]*$",
+      "description": "Checked source-owned human pathway identity.",
+      "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",
       "type": "string",
       "x-positional": 0
     },

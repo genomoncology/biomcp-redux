@@ -294,7 +294,8 @@
       "enum": [
         "source",
         "observed",
-        "distinct_references"
+        "distinct_references",
+        "data_nodes"
       ],
       "type": "string"
     },
@@ -778,7 +779,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_page/2",
+  "$id": "biomcp.pathway_page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -824,7 +825,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_page/2",
+      "const": "biomcp.pathway_page/3",
       "type": "string"
     },
     "sources": {

@@ -93,7 +93,11 @@ fn read_inner(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let source = if matches!(q.id, PathwayId::Wikipathways(_)) { Source::WikiPathways } else { Source::Reactome };
+    let source = if matches!(q.id, PathwayId::Wikipathways(_)) {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
     if cx.fetch.disabled(source) {
         let error: RequestError = SourceError {
             source,
@@ -160,7 +164,11 @@ fn present_genes(
             row.participants = None;
         }
     }
-    let resolve = if matches!(q.id, PathwayId::Wikipathways(_)) { super::gpml_membership::resolve } else { super::membership::resolve };
+    let resolve = if matches!(q.id, PathwayId::Wikipathways(_)) {
+        super::gpml_membership::resolve
+    } else {
+        super::membership::resolve
+    };
     resolve(
         cx,
         &mut body.items,
@@ -210,7 +218,9 @@ fn fetch(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<snapshot::Saved, RequestError> {
-    if matches!(q.id, PathwayId::Wikipathways(_)) { return super::gpml_relation::fetch(cx, q, deadline, out); }
+    if matches!(q.id, PathwayId::Wikipathways(_)) {
+        return super::gpml_relation::fetch(cx, q, deadline, out);
+    }
     let PathwayId::Reactome(id) = q.id else {
         return Err(biomcp_fetch::InputError::Serialization.into());
     };

@@ -86,8 +86,12 @@ fn exact(row: &PathwayMember, gene: &Gene) -> bool {
 }
 
 fn hgnc_id(value: &str) -> Option<biodata::HgncId> {
-    if let Ok(id) = value.parse() { return Some(id); }
+    if let Ok(id) = value.parse() {
+        return Some(id);
+    }
     let number = value.parse::<u32>().ok()?;
-    if number.to_string() != value { return None; }
+    if number.to_string() != value {
+        return None;
+    }
     biodata::HgncId::new(number).ok()
 }

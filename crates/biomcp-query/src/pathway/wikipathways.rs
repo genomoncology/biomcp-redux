@@ -70,15 +70,19 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         ),
     );
     let error = reply.as_ref().err().copied();
-    out.sources.push(status::source(Source::WikiPathways, leg.finish(), error));
+    out.sources
+        .push(status::source(Source::WikiPathways, leg.finish(), error));
     if let Ok(mut card) = reply {
         let absent = card.is_none();
         if let Some(value) = &mut card {
             super::get_sections::attach(cx, q, value, deadline, &mut out);
             for section in &value.sections {
-                if q.section() != Some(PathwaySection::All) && Some(*section) != q.section()
-                    && let Ok(query) = q.with_section(*section) {
-                    out.next.push((StepKind::Section, run(Request::GetPathway(query))));
+                if q.section() != Some(PathwaySection::All)
+                    && Some(*section) != q.section()
+                    && let Ok(query) = q.with_section(*section)
+                {
+                    out.next
+                        .push((StepKind::Section, run(Request::GetPathway(query))));
                 }
             }
         }

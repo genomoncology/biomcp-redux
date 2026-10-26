@@ -122,7 +122,9 @@ fn pages() -> Result<(), String> {
         || first
             .pointer("/result/items/1/association/negated")
             .is_some()
-        || first.pointer("/result/items/1/association/publications").is_some()
+        || first
+            .pointer("/result/items/1/association/publications")
+            .is_some()
         || first.pointer("/result/items/1/association/qualifiers") != Some(&json!([]))
     {
         return Err(format!("native independent rows collapsed: {first}"));
@@ -133,7 +135,13 @@ fn pages() -> Result<(), String> {
         .ok_or("next")?;
     if next.len() != 2
         || next.first().and_then(|row| row.get("args"))
-            != Some(&json!(["get", "disease", "MONDO:0014379", "--section-limit", "5"]))
+            != Some(&json!([
+                "get",
+                "disease",
+                "MONDO:0014379",
+                "--section-limit",
+                "5"
+            ]))
         || next.get(1).and_then(|row| row.get("kind")) != Some(&json!("page"))
     {
         return Err(format!("association navigation changed: {first}"));

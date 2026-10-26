@@ -110,8 +110,8 @@
           "x-positional": 1
         },
         "id": {
-          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
-          "pattern": "^R-HSA-[1-9][0-9]*$",
+          "description": "Checked source-owned human pathway identity.",
+          "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",
           "type": "string",
           "x-positional": 0
         },
@@ -253,6 +253,17 @@
           ],
           "description": "Native label, never interpreted as a gene symbol."
         },
+        "node_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native data-node identity; repeated references remain separate nodes."
+        },
         "participants": {
           "description": "Complete physical contexts, disclosed only by the explicit details view.",
           "items": {
@@ -388,8 +399,11 @@
       "description": "An open source namespace paired with its complete native identifier.",
       "properties": {
         "namespace": {
-          "$ref": "#/$defs/Text",
-          "description": "Native namespace; never discarded during a gene join."
+          "description": "Native namespace; never discarded during a gene join.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "value": {
           "$ref": "#/$defs/Text",
@@ -397,7 +411,6 @@
         }
       },
       "required": [
-        "namespace",
         "value"
       ],
       "type": "object"
@@ -414,7 +427,8 @@
       "enum": [
         "source",
         "observed",
-        "distinct_references"
+        "distinct_references",
+        "data_nodes"
       ],
       "type": "string"
     },
@@ -898,7 +912,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_genes/3",
+  "$id": "biomcp.pathway_genes/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -944,7 +958,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_genes/3",
+      "const": "biomcp.pathway_genes/4",
       "type": "string"
     },
     "sources": {
