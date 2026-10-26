@@ -148,16 +148,22 @@ fn expired() -> Result<(), String> {
         command.extend(["--disable-sources".into(), source.into()]);
         let value = invoke(&env, command, 4)?;
         if value.pointer("/sources/0/reason") != Some(&json!("disabled"))
-            || value.get("result").is_some() {
-            return Err(format!("disabled source restored ancestry snapshot: {value}"));
+            || value.get("result").is_some()
+        {
+            return Err(format!(
+                "disabled source restored ancestry snapshot: {value}"
+            ));
         }
         bounded(&value)?;
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    let changed = db.execute("UPDATE trial_snapshot SET expires=0", [])
+    let changed = db
+        .execute("UPDATE trial_snapshot SET expires=0", [])
         .map_err(|e| e.to_string())?;
-    if changed != 1 { return Err("expected one retained ancestry snapshot".into()); }
+    if changed != 1 {
+        return Err("expected one retained ancestry snapshot".into());
+    }
     drop(db);
     let mut command = env.globals(Some(&replay), false);
     command.extend(page);
