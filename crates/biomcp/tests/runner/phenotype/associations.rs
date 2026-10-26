@@ -244,9 +244,9 @@ fn disabled() -> Result<(), String> {
 
 fn cards() -> Result<(), String> {
     for explicit in [false, true] {
-        let stub = Stub::for_source(
-            "api-v3.monarchinitiative.org",
-            "application/json",
+        let stub = Stub::for_sources(
+            &["api-v3.monarchinitiative.org"],
+            |_| "application/json",
             move |request| {
                 if request.starts_with("GET /v3/api/entity/") {
                     return Ok(json!({"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature","association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","count":3}]}).to_string());

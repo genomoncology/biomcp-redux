@@ -81,8 +81,13 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
 /// Accept only an identifier the existing gene command understands, without symbol repair.
 pub(crate) fn gene_query(id: &str) -> Option<GeneGet> {
     let checked = match GeneInput::new(id) {
-        Ok(input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_))) => Some(input),
-        _ => id.strip_prefix("NCBIGene:").and_then(|value| value.parse::<biodata::NcbiGeneId>().ok()).map(GeneInput::EntrezId),
+        Ok(input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_))) => {
+            Some(input)
+        }
+        _ => id
+            .strip_prefix("NCBIGene:")
+            .and_then(|value| value.parse::<biodata::NcbiGeneId>().ok())
+            .map(GeneInput::EntrezId),
     };
     checked.and_then(|input| GeneGet::new(vec![input].into()).ok())
 }
