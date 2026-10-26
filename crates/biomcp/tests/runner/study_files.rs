@@ -33,6 +33,7 @@ fn pages() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
     call(&env,&replay,&["sync","cbioportal-studies"],0)?;
+    let cold=call(&env,&replay,&["get","study","synthetic_0"],0)?;
     record(&replay,entries(),200,0)?;
     let mut seen = std::collections::BTreeSet::new();
     for offset in [0,5,10] {
@@ -43,7 +44,7 @@ fn pages() -> Check {
         if value != mcp { return Err("CLI/MCP files differ".into()); }
     }
     let card=call(&env,&replay,&["get","study","synthetic_0"],0)?;
-    if card.pointer("/result/license_notice").is_some() || seen.len()!=12 { return Err("stored card changed or walk missing".into()); }
+    if card != cold || card.pointer("/result/license_notice").is_some() || seen.len()!=12 { return Err("stored card changed or walk missing".into()); }
     Ok(())
 }
 fn check_page(value: &Value, offset: usize, seen: &mut std::collections::BTreeSet<String>) -> Check {
