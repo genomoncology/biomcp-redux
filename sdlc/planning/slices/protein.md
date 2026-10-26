@@ -311,3 +311,12 @@ The comparable column subtracts only the three required publisher-terms fields t
 | Same retained search, second five | 2,047 | 1,956 | 2,250 |
 
 The native first and second windows preserve total399 and remain an incomplete collection. Card output keeps source audit dates and versions separate. It omits section actions and availability disclosures until their handlers are admitted by the section tickets, following the PM's staged-registration ruling. The unreviewed search and native absence fallbacks from the admission results remain unchanged.
+
+
+### UniProt section field rules
+
+The section commands retain the checked entry reply for features, alternative products, PDB references, displayed sequence and function paragraphs. Each feature keeps its own source sequence identity. Exact native inclusive bounds become interbase bounds by subtracting one from the start only. [UniProt's feature-table manual](https://web.expasy.org/docs/userman.html#FT_line) defines uncertain starts and ends; its [position modifier model](https://github.com/ebi-uniprot/uniprot-core/blob/main/core-domain/src/main/java/org/uniprot/core/PositionModifier.java) names EXACT, OUTSIDE, UNKNOWN and UNSURE. An overlap requires the greatest possible start and least possible end to establish containment. Unknown boundaries cannot establish overlap by themselves.
+
+Function paragraphs retain the literal native molecule qualifier when supplied. For example, the retained EGFR reply labels one function paragraph `Isoform 2`; that text never qualifies another paragraph. Alternative-product IDs, synonyms and VSP sequence IDs remain source values. Direct sequence availability stays separate from the product's Displayed, Described or External status. PDB properties may be absent. A cross-reference supplies a publisher link, never inferred residue coverage or a structure download.
+
+An alternative sequence uses the exact FASTA request. The returned accession, reviewed human header and residue alphabet must pass admission before the reply enters the cache. The sequence is complete, and FASTA does not inherit the displayed entry's audit versions or checksum. Historical residue labels remain unchanged.

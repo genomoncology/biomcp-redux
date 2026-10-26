@@ -10,10 +10,16 @@ pub(super) fn features() -> Result<(), String> {
         &["protein", "features", "P00533", "--limit", "1"],
         0,
     )?;
-    let pool = first
-        .pointer("/page/pool/id")
-        .and_then(Value::as_str)
-        .ok_or("feature pool")?;
+    coordinates(&env)?;
+    retained(&env, &first)?;
+    section_context(&env)?;
+    usage(&env)?;
+    if stub.finish()?.len() != 1 {
+        return Err("retained entry sections repeated provider requests".into());
+    }
+    Ok(())
+}
+fn coordinates(env: &Environment) -> Result<(), String> {
     for (position, expected) in [(9, 0), (10, 1), (20, 1), (21, 0)] {
         let value = call(
             &env,
@@ -35,6 +41,55 @@ pub(super) fn features() -> Result<(), String> {
             ));
         }
     }
+    let uncertain = call(
+        &env,
+        None,
+        &[
+            "protein",
+            "features",
+            "P00533",
+            "--type",
+            "Region",
+            "--position",
+            "15",
+        ],
+        0,
+    )?;
+    if uncertain.pointer("/page/total") != Some(&json!(1)) {
+        return Err("uncertain containment was guessed or a proved interval was lost".into());
+    }
+    Ok(())
+}
+fn retained(env: &Environment, first: &Value) -> Result<(), String> {
+    let pool = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("feature pool")?;
+    let mismatch = call(
+        &env,
+        None,
+        &[
+            "protein",
+            "structures",
+            "P00533",
+            "--limit",
+            "1",
+            "--pool",
+            pool,
+        ],
+        2,
+    )?;
+    if mismatch.pointer("/error/code") != Some(&json!("usage.pool_mismatch")) {
+        return Err("section pool accepted another selector".into());
+    }
+    call(
+        &env,
+        None,
+        &[
+            "protein", "features", "P00533", "--limit", "1", "--pool", pool, "--offset", "100",
+        ],
+        3,
+    )?;
     let next = super::super::action(&first, "page")?;
     let words: Vec<_> = next.iter().map(String::as_str).collect();
     let page = call(&env, None, &words, 0)?;
@@ -43,6 +98,9 @@ pub(super) fn features() -> Result<(), String> {
     {
         return Err("feature continuation lost source order or retained identity".into());
     }
+    Ok(())
+}
+fn section_context(env: &Environment) -> Result<(), String> {
     let all = call(&env, None, &["get", "protein", "P00533", "all"], 0)?;
     if all.pointer("/result/items/0/sections/function/data/items/1/molecule")
         != Some(&json!("Isoform 2"))
@@ -54,6 +112,9 @@ pub(super) fn features() -> Result<(), String> {
     {
         return Err("native section facts were dropped or invented".into());
     }
+    Ok(())
+}
+fn usage(env: &Environment) -> Result<(), String> {
     let past = call(
         &env,
         None,
@@ -69,9 +130,6 @@ pub(super) fn features() -> Result<(), String> {
         vec!["protein", "features", "P00533-2", "--position", "10"],
     ] {
         call(&env, None, &args, 2)?;
-    }
-    if stub.finish()?.len() != 1 {
-        return Err("retained entry sections repeated provider requests".into());
     }
     Ok(())
 }
