@@ -12,14 +12,23 @@ pub(super) fn trials() -> Vec<Trial> {
     )]
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
-    let args: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
-    let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
+    let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
+    let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &words);
+    let maximum = limit(args, Path::new(command.get_program()))?;
     if empty {
         for (key, _) in super::launch::ENV_PATHS {
             command.env_remove(key);
         }
     }
-    Ok(command.output()?)
+    let output = command.output()?;
+    if output.stdout.len() > maximum {
+        return Err(format!(
+            "housekeeping output exceeds measured ceiling: {} > {maximum}",
+            output.stdout.len()
+        )
+        .into());
+    }
+    Ok(output)
 }
 fn success(output: &Output) -> Check<&str> {
     if !output.status.success() {
@@ -170,4 +179,33 @@ fn shell_client(env: &Environment, empty: bool) -> Check {
         return Err(format!("wrong shell client configuration: {words:?}").into());
     }
     Ok(())
+}
+
+// Measured envelopes retain fifteen percent headroom. Only encoded path growth
+// raises a configuration budget when an installed executable has a longer path.
+fn limit(args: &[&str], executable: &Path) -> Check<usize> {
+    let (mut bytes, path) = match args {
+        ["version", ..] if args.contains(&"--verbose") => (7023, None),
+        ["version", ..] => (13, None),
+        ["help", "version", ..] => (426, None),
+        ["help", "mcp-config", ..] => (838, None),
+        ["mcp-config", ..] if args.contains(&"unknown") => (221, None),
+        ["mcp-config", ..] if args.contains(&"codex") => (94, Some(true)),
+        ["mcp-config", ..] if args.contains(&"servers") || args.contains(&"vscode") => {
+            (169, Some(false))
+        }
+        ["mcp-config", ..] => (172, Some(false)),
+        _ => return Err("housekeeping command requires a measured output budget".into()),
+    };
+    if let Some(shell) = path {
+        let path = executable.canonicalize()?;
+        let path = path.to_str().ok_or("invalid executable path")?;
+        let encoded = if shell {
+            shlex::try_quote(path)?.len()
+        } else {
+            serde_json::to_vec(path)?.len() - 2
+        };
+        bytes += encoded.saturating_sub(63);
+    }
+    Ok((bytes * 115).div_ceil(100))
 }
