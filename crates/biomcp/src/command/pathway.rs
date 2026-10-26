@@ -13,8 +13,20 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
 }
 pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
     match action {
-        biomcp_query::Action::Run { request: Request::SearchPathway(q), .. } => q.source() != biomcp_types::PathwaySource::Reactome,
-        biomcp_query::Action::Run { request: Request::GetPathway(q), .. } => !matches!(q.id(), biodata::PathwayId::Reactome(_)) || !matches!(q.section(), None | Some(biomcp_types::PathwaySection::Summary)),
+        biomcp_query::Action::Run {
+            request: Request::SearchPathway(q),
+            ..
+        } => q.source() != biomcp_types::PathwaySource::Reactome,
+        biomcp_query::Action::Run {
+            request: Request::GetPathway(q),
+            ..
+        } => {
+            !matches!(q.id(), biodata::PathwayId::Reactome(_))
+                || !matches!(
+                    q.section(),
+                    None | Some(biomcp_types::PathwaySection::Summary)
+                )
+        }
         _ => false,
     }
 }
