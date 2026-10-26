@@ -7,6 +7,7 @@ mod drug_label;
 mod maintenance;
 mod pgx;
 mod steps;
+mod sync;
 mod variant;
 
 use biomcp_query::{Action, Bundle};
@@ -167,7 +168,7 @@ fn execute(
         Action::StoreClean => maintenance::clean(fetch),
         Action::Health => maintenance::health(fetch),
         Action::KeyHelp(source) => key_help(source),
-        Action::Sync { bundle } => sync(fetch, bundle),
+        Action::Sync { bundle } => sync::run(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, globals, allow_save)?;
             response(fetch, request, result, fresh)
@@ -414,90 +415,6 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             .collect();
     }
     encode(error, crate::exit::Status::Usage)
-}
-fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
-    let source = bundle_source(bundle);
-    let result = match bundle {
-        Bundle::CbioportalStudies => biomcp_adapters::cbioportal::sync_studies(fetch),
-        Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
-        Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
-        Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
-        Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
-        Bundle::Ddinter => {
-            biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
-                snapshot: None,
-                etag: None,
-                last_modified: None,
-                duplicate_identities: None,
-                rows: info.rows,
-                bytes: info.bytes,
-            })
-        }
-        Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
-            snapshot: None,
-            etag: None,
-            last_modified: None,
-            duplicate_identities: None,
-            rows: info.rows,
-            bytes: info.bytes,
-        }),
-        Bundle::ClinGen => biomcp_adapters::clingen::sync(fetch),
-        Bundle::Hgnc => {
-            biomcp_adapters::hgnc::sync(fetch, biomcp_adapters::hgnc::HgncBundle::Complete)
-                .and_then(|complete| {
-                    let withdrawn = biomcp_adapters::hgnc::sync(
-                        fetch,
-                        biomcp_adapters::hgnc::HgncBundle::Withdrawn,
-                    )?;
-                    Ok(biomcp_types::SyncResult {
-                        snapshot: None,
-                        etag: None,
-                        last_modified: None,
-                        duplicate_identities: None,
-                        rows: complete.rows + withdrawn.rows,
-                        bytes: complete.bytes + withdrawn.bytes,
-                    })
-                })
-        }
-    };
-    let status = if result.is_ok() {
-        Status::Complete
-    } else {
-        Status::Failed
-    };
-    let local = result
-        .as_ref()
-        .err()
-        .is_some_and(|error| !matches!(error, biomcp_fetch::RequestError::Source(_)));
-    let reason = result.as_ref().err().and_then(|error| match error {
-        biomcp_fetch::RequestError::Source(error) => Some(error.reason),
-        _ => None,
-    });
-    let mut envelope = Envelope::<biomcp_types::SyncResult>::new(
-        status,
-        biomcp_types::SyncQuery { source },
-        result.ok(),
-    );
-    envelope.sources.push(biomcp_adapters::registry::outcome(
-        source,
-        if reason == Some(biomcp_types::Reason::Disabled) {
-            biomcp_types::SourceState::Skipped
-        } else if status == Status::Complete {
-            biomcp_types::SourceState::Ok
-        } else {
-            biomcp_types::SourceState::Failed
-        },
-        reason,
-    ));
-    steps::network_steps(&mut envelope.next, &envelope.sources, None);
-    encode(
-        envelope,
-        if local {
-            crate::exit::Status::Local
-        } else {
-            status.into()
-        },
-    )
 }
 fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
     let name = match source {
