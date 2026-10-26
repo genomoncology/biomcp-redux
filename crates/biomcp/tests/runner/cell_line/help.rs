@@ -144,6 +144,21 @@ fn discovery(env: &Environment) -> Result<(), String> {
             output.stdout.len()
         )
         .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err(format!("discovery command failed: {words:?}"));
+        }
+        if words.first() == Some(&"schema") {
+            let schema: Value =
+                serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+            writeln!(
+                std::io::stderr(),
+                "CELL_LINE_DISCOVERY source-enum={}",
+                serde_json::to_vec(&schema["enum"])
+                    .map_err(|e| e.to_string())?
+                    .len()
+            )
+            .map_err(|e| e.to_string())?;
+        }
     }
     Ok(())
 }

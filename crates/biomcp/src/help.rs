@@ -255,12 +255,7 @@ pub(crate) fn tree() -> String {
         if command.command == ["search", "protein"] {
             line.push_str(" --gene --reviewed");
         }
-        if command.command == ["search", "cell-line"] {
-            line.push_str(" query --query/-q --limit/-l --offset");
-        }
-        if command.command == ["get", "cell-line"] {
-            line.push_str(" CVCL_ID|SOURCE:ID --section-limit --section-offset");
-        }
+        cell_line_selectors(&command, &mut line);
         pgx_selectors(&command, &mut line);
         gwas_selectors(&command, &mut line);
         pathway_selectors(&command, &mut line);
@@ -281,6 +276,15 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn cell_line_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command == ["search", "cell-line"] {
+        line.push_str(" query --query/-q --limit/-l --offset");
+    }
+    if command.command == ["get", "cell-line"] {
+        line.push_str(" CVCL_ID|SOURCE:ID --section-limit --section-offset");
+    }
 }
 
 fn phenotype_selectors(command: &HelpCommand, line: &mut String) {
