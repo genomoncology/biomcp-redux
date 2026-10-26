@@ -256,6 +256,12 @@ impl Leg<'_> {
         }
         prepared.publisher = ep.publisher;
         let mut codec = codec.octet_stream(ep.octet_stream);
+        if let Some(limit) = ep.byte_limit {
+            if limit == 0 || limit == u64::MAX {
+                return Err(InputError::BodyLimit.into());
+            }
+            codec.limit = Some(codec.limit.map_or(limit, |old| old.min(limit)));
+        }
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         codec.json_absence = ep.json_absence && codec.name() == "application/json";
         let keyed = self.keyed();
