@@ -7,7 +7,7 @@ type Check = Result<(), String>;
 const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json";
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("wikipathways/stored-identity-pages-and-replacement", || run().map_err(Into::into)), Trial::test("wikipathways/independent-union-legs-and-round-robin",||union().map_err(Into::into)),Trial::test("wikipathways/concurrent-readers-during-pair-replacement",||concurrent().map_err(Into::into))]
+    vec![Trial::test("wikipathways/stored-identity-pages-and-replacement", || run().map_err(Into::into)), Trial::test("wikipathways/independent-union-legs-and-round-robin",||union().map_err(Into::into)),Trial::test("wikipathways/concurrent-readers-during-pair-replacement",||concurrent().map_err(Into::into)),Trial::test("wikipathways/native-disclosure-measurements",||native().map_err(Into::into)).with_ignored_flag(!super::launch::fixtures().join("cases/wikipathways-native").is_dir())]
 }
 fn catalog(search: bool, changed: bool) -> Value {
     json!({"pathwayInfo":(0..13).map(|n| {
@@ -131,6 +131,19 @@ fn concurrent() -> Check {
         let result=result.map_err(|_|"reader panicked")??;
         let names=result.pointer("/result/items").and_then(Value::as_array).ok_or("items")?.iter().filter_map(|r|r.get("name").and_then(Value::as_str)).collect::<Vec<_>>();
         if names.len()!=5 || !(names.iter().all(|n|n.starts_with("Literal Atlas")) || names.iter().all(|n|n.starts_with("New Atlas"))) {return Err(format!("reader observed partial replacement: {result}"));}
+    }
+    Ok(())
+}
+fn native() -> Check {
+    let root=super::launch::fixtures().join("cases/wikipathways-native");
+    let registry=super::schema::Registry::embedded()?;
+    let mut files=fs::read_dir(root).map_err(|e|e.to_string())?.map(|e|e.map(|e|e.path()).map_err(|e|e.to_string())).collect::<Result<Vec<_>,_>>()?;
+    files.sort();
+    for path in files {
+        let value=super::run_case(&path,&registry)?;
+        let full=serde_json::to_vec(&value).map_err(|e|e.to_string())?.len();
+        let comparable=super::source_terms::size(&value,"")?;
+        println!("WIKIPATHWAYS_MEASURE {}",json!({"case":path.file_name().and_then(|n|n.to_str()).ok_or("filename")?,"full_cli_bytes":full+1,"full_mcp_bytes":full,"comparable_cli_bytes":comparable+1,"comparable_mcp_bytes":comparable,"tokens":comparable.div_ceil(4)}));
     }
     Ok(())
 }
