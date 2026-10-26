@@ -1466,6 +1466,17 @@
           },
           "type": "array"
         },
+        "author": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source author attribution, without local publication inference."
+        },
         "beta": {
           "anyOf": [
             {
@@ -1476,6 +1487,39 @@
             }
           ],
           "description": "Source beta text, including units and direction."
+        },
+        "ci_lower": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source lower effect interval bound."
+        },
+        "ci_upper": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FiniteNumber"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source upper effect interval bound."
+        },
+        "exact_p_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScientificPValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Authoritative exact source probability, including double underflow."
         },
         "id": {
           "description": "Native association identity.",
@@ -1493,6 +1537,20 @@
             }
           ],
           "description": "Source effect interval."
+        },
+        "locations": {
+          "description": "Native mapping location strings; no assumed assembly or coordinate conversion.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
+        },
+        "mapped_genes": {
+          "description": "Original native mapped gene context; reported genes remain in loci.",
+          "items": {
+            "$ref": "#/$defs/Text"
+          },
+          "type": "array"
         },
         "odds_ratio": {
           "anyOf": [
@@ -2529,6 +2587,28 @@
       "required": [
         "source",
         "expression"
+      ],
+      "type": "object"
+    },
+    "ScientificPValue": {
+      "additionalProperties": false,
+      "description": "Exact normalized scientific p value; no floating-point conversion is used.",
+      "properties": {
+        "exponent": {
+          "description": "Source base-ten exponent; values below the double range remain exact.",
+          "format": "int64",
+          "maximum": 0,
+          "type": "integer"
+        },
+        "mantissa": {
+          "description": "Source mantissa spelling, including significant trailing zeros.",
+          "pattern": "^[1-9](\\.[0-9]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mantissa",
+        "exponent"
       ],
       "type": "object"
     },
@@ -5353,7 +5433,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant_card/4",
+  "$id": "biomcp.variant_card/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -5399,7 +5479,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_card/4",
+      "const": "biomcp.variant_card/5",
       "type": "string"
     },
     "sources": {

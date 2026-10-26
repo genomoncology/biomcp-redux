@@ -180,6 +180,8 @@ pub use response::DiagnosticCountUnit;
 #[cfg(feature = "schema")]
 pub use drug::DrugGetCommand;
 
+mod gwas;
+pub use gwas::*;
 mod phenotype;
 pub use phenotype::*;
 pub use query::{
