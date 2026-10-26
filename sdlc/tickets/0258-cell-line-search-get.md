@@ -1,6 +1,7 @@
 # 0258 — Search Cellosaurus cell lines and get the cell line card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 950dd2c4e1cb9cea661521386108d7f219278bb4
 
 Milestone: 4
 
