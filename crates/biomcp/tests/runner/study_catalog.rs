@@ -32,8 +32,11 @@ pub(super) fn trials() -> Vec<Trial> {
     cases.extend(study_get::trials());
     cases.extend(study_files::trials());
     cases.extend(study_retirements::trials());
+    cases.extend(study_failures::trials());
     cases
 }
+#[path = "study_failures.rs"]
+mod study_failures;
 #[path = "study_retirements.rs"]
 mod study_retirements;
 #[path = "study_files.rs"]
@@ -149,15 +152,7 @@ fn search() -> Check {
     Ok(())
 }
 fn replacement() -> Check {
-    for fault in [
-        "malformed",
-        "conflict",
-        "429",
-        "500",
-        "oversized",
-        "partial",
-        "timeout",
-    ] {
+    for fault in ["conflict", "oversized"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = seed(&env, rows(), 200)?;
         call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;

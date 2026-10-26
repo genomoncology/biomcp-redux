@@ -32,12 +32,15 @@ pub(super) fn seed_files(replay: &Path) -> Check {
     record(replay, entries(), 200, 0)
 }
 fn record(replay: &Path, body: Value, status: u16, delay: u64) -> Check {
+    record_raw(replay, &body.to_string(), status, delay)
+}
+pub(super) fn record_raw(replay: &Path, body: &str, status: u16, delay: u64) -> Check {
     let url = "https://api.github.com/repos/cBioPortal/datahub/contents/public/synthetic_0";
     let key = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect::<String>();
-    let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+    let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
     let exchanges = if matches!(status, 429 | 500) {
         vec![exchange; 3]
     } else {
@@ -147,15 +150,6 @@ fn failures() -> Check {
         return Err(format!("absent directory failed: {value}"));
     }
     call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
-    for (status, delay) in [(429, 0), (500, 0), (200, 0), (200, 120001)] {
-        record(&replay, json!({"broken":"body"}), status, delay)?;
-        let value = call(&env, &replay, &["get", "study", "synthetic_0", "files"], 4)?;
-        if value.pointer("/sources/0/use") != Some(&json!("restricted"))
-            || value.get("result").is_some()
-        {
-            return Err(format!("failure became empty data: {value}"));
-        }
-    }
     for disabled in ["cbioportal", "restricted"] {
         record(&replay, entries(), 200, 0)?;
         let value = call(
