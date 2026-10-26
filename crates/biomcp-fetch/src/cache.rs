@@ -239,13 +239,7 @@ impl Cache {
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
         let connection = wait_mutex(&self.0, deadline)?;
-        connection
-            .busy_timeout(if deadline.virtual_time() {
-                Duration::ZERO
-            } else {
-                deadline.remaining()
-            })
-            .map_err(db_error)?;
+        sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
 
@@ -257,6 +251,7 @@ impl Cache {
     ) -> Result<T, CacheError> {
         self.sql(deadline, |connection| {
             let _writer = wait_mutex(&self.3, deadline)?;
+            sql_deadline(connection, deadline)?;
             operation(connection)
         })
     }
@@ -374,6 +369,22 @@ impl Cache {
             Ok(())
         })
     }
+}
+
+pub(crate) fn sql_deadline(
+    connection: &Connection,
+    deadline: Deadline<'_>,
+) -> Result<(), CacheError> {
+    if deadline.expired() {
+        return Err(CacheError::Busy);
+    }
+    connection
+        .busy_timeout(if deadline.virtual_time() {
+            Duration::ZERO
+        } else {
+            deadline.remaining()
+        })
+        .map_err(db_error)
 }
 
 fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheError> {

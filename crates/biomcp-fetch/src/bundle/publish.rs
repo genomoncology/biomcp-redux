@@ -6,10 +6,9 @@ use super::{
 };
 use crate::{
     CacheError, Deadline,
-    cache::{Cache, db_error},
+    cache::{Cache, db_error, sql_deadline},
 };
 use rusqlite::{Connection, params};
-use std::time::Duration;
 
 const BATCH_ROWS: usize = 256;
 const TABLES: [&str; 3] = ["bundle_row", "bundle_key", "bundle_words"];
@@ -30,7 +29,7 @@ impl Cache {
         connection.execute_batch(STAGING).map_err(db_error)?;
         if let Some(rows) = rows {
             for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
-                ready(&connection, deadline)?;
+                sql_deadline(&connection, deadline)?;
                 let tx = connection.unchecked_transaction().map_err(db_error)?;
                 insert(&tx, bundle.name, batch * BATCH_ROWS, chunk)?;
                 tx.commit().map_err(db_error)?;
@@ -38,7 +37,7 @@ impl Cache {
         }
         // A busy attempt rolls back before retry; staged rows remain private.
         self.publish_sql(deadline, || {
-            ready(&connection, deadline)?;
+            sql_deadline(&connection, deadline)?;
             let tx = connection.unchecked_transaction().map_err(db_error)?;
             if let Some(holder) = holder {
                 let owned: bool = tx
@@ -72,19 +71,6 @@ impl Cache {
             Ok(true)
         })
     }
-}
-
-fn ready(connection: &Connection, deadline: Deadline<'_>) -> Result<(), CacheError> {
-    if deadline.expired() {
-        return Err(CacheError::Busy);
-    }
-    connection
-        .busy_timeout(if deadline.virtual_time() {
-            Duration::ZERO
-        } else {
-            deadline.remaining()
-        })
-        .map_err(db_error)
 }
 
 fn insert(
