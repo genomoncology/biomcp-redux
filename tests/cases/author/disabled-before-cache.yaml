@@ -13,8 +13,8 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 8000,
-      "max_tokens": 2000,
+      "max_bytes": 781,
+      "max_tokens": 196,
       "full_output_bytes": true
     },
     {
@@ -40,8 +40,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 427,
+      "max_tokens": 107
     }
   ]
 }

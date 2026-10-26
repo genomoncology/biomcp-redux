@@ -48,3 +48,13 @@ for template in templates.glob('*.yaml'):
     case = json.loads(template.read_text())
     case['replay'] = str(replay.parent)
     (cases / template.name).write_text(json.dumps(case, indent=2) + '\n')
+
+# One bounded formatter/discovery measurement uses the existing canonical help owners.
+for name, source, indices in [
+    ('author-help', 'tests/cases/author/help.yaml', [0, 1, 2]),
+    ('whole-help', 'tests/cases/gene/help.yaml', [0]),
+]:
+    case = json.loads((Path(__file__).resolve().parent.parent / source).read_text())
+    case['steps'] = [case['steps'][index] for index in indices]
+    case.pop('replay', None)
+    (cases / (name + '.yaml')).write_text(json.dumps(case, indent=2) + '\n')

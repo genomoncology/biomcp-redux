@@ -50,5 +50,33 @@ fn native(root: &Path) -> Result<(), String> {
             cost::surfaces(&env, &phase, &args, &globals, &step)?;
         }
     }
+    discovery()?;
+    Ok(())
+}
+
+fn discovery() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let retained = env.root().join("discovery");
+    fs::create_dir_all(&retained).map_err(|e| e.to_string())?;
+    let frames = mcp::exchange_retained(
+        &env,
+        &[mcp::request(json!(1), "tools/list", json!({}))],
+        &[],
+        Some(&retained),
+    )?;
+    let frame = frames.first().ok_or("tools/list frame")?;
+    let description = frame
+        .pointer("/result/tools/0/description")
+        .and_then(Value::as_str)
+        .ok_or("description")?;
+    let raw = fs::read(retained.join("mcp.stdout")).map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stderr(),
+        "AUTHOR_DISCOVERY description={} tools-list-compact={} tools-list-raw={}",
+        description.len(),
+        serde_json::to_vec(frame).map_err(|e| e.to_string())?.len(),
+        raw.len()
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
