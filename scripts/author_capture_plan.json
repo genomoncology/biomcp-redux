@@ -1,0 +1,256 @@
+{
+  "deadline_seconds": 25,
+  "max_bytes": 8388608,
+  "spacing_seconds": 1,
+  "max_requests": 20,
+  "rights": {
+    "semantic-scholar": "noncommercial",
+    "orcid": "noncommercial"
+  },
+  "risk": "Exact author request forms lack retained current source evidence",
+  "stop": "Stop each source at first failed or empty required witness; no retry, redirect, fallback, extra page or replacement absent probe",
+  "phase1": [
+    {
+      "id": "byline-17611497",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/paper/PMID:17611497?fields=paperId%2CexternalIds%2Cauthors.authorId%2Cauthors.name",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "byline-33123537",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/paper/PMID:33123537?fields=paperId%2CexternalIds%2Cauthors.authorId%2Cauthors.name",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "byline-34096690",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/paper/PMID:34096690?fields=paperId%2CexternalIds%2Cauthors.authorId%2Cauthors.name",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "byline-32955176",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/paper/PMID:32955176?fields=paperId%2CexternalIds%2Cauthors.authorId%2Cauthors.name",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    }
+  ],
+  "phase2": [
+    {
+      "id": "search-0",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/search?query=Louis%20Williams&fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl&offset=0&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "search-5",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/search?query=Louis%20Williams&fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl&offset=5&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "card-17611497",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_17611497}?fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "card-34096690",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_34096690}?fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "papers-17611497-0",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_17611497}/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue&offset=0&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "papers-34096690-0",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_34096690}/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue&offset=0&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "papers-34096690-0-details",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_34096690}/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue%2Cabstract%2CpublicationDate%2CcitationCount%2CreferenceCount%2CinfluentialCitationCount%2CisOpenAccess%2CopenAccessPdf%2CfieldsOfStudy%2CpublicationTypes%2Cauthors.authorId%2Cauthors.name&offset=0&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "papers-32955176-0",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_32955176}/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue&offset=0&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "papers-32955176-5",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_32955176}/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue&offset=5&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "papers-33123537-0",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/{first_33123537}/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue&offset=0&limit=5",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "absent-author",
+      "source": "semantic-scholar",
+      "url": "https://api.semanticscholar.org/graph/v1/author/999999999999999999?fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "key": {
+        "env": "S2_API_KEY",
+        "header": "x-api-key"
+      }
+    },
+    {
+      "id": "0000-0002-4299-3018-person",
+      "source": "orcid",
+      "url": "https://pub.orcid.org/v3.0/0000-0002-4299-3018/person",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    {
+      "id": "0000-0002-4299-3018-works",
+      "source": "orcid",
+      "url": "https://pub.orcid.org/v3.0/0000-0002-4299-3018/works",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    {
+      "id": "0000-0002-7433-2740-person",
+      "source": "orcid",
+      "url": "https://pub.orcid.org/v3.0/0000-0002-7433-2740/person",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    {
+      "id": "0000-0002-7433-2740-works",
+      "source": "orcid",
+      "url": "https://pub.orcid.org/v3.0/0000-0002-7433-2740/works",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    {
+      "id": "absent-orcid",
+      "source": "orcid",
+      "url": "https://pub.orcid.org/v3.0/0000-0000-0000-0001/person",
+      "response_format": "json",
+      "headers": {
+        "Accept": "application/json"
+      }
+    }
+  ]
+}
