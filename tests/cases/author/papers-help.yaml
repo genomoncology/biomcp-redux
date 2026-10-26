@@ -19,7 +19,23 @@
         "/result/commands/0/command": [
           "author",
           "papers"
-        ]
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/sections/*/word": [
+          "details"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "section",
+            "--full",
+            "--limit",
+            "--offset",
+            "--pool"
+          ]
+        }
       },
       "full_output_bytes": true,
       "max_bytes": 1284,
