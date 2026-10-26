@@ -82,10 +82,10 @@ pub(crate) fn housekeeping_commands() -> [Command; 2] {
                 .action(ArgAction::SetTrue),
         ),
         Command::new("mcp-config")
-            .about("Print stdio JSON with this executable’s absolute path. Formats name their top-level object; json aliases mcp-servers. No source requests or key reads.")
+            .about("Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object; json aliases mcp-servers. The codex client prints its shell registration command. No source requests or key reads.")
             .arg(
                 Arg::new("client")
-                    .help("Choose mcpServers or servers JSON; default mcp-servers.")
+                    .help("Choose mcpServers or servers JSON, or the codex shell command; default mcp-servers.")
                     .long("client")
                     .value_parser(clap::value_parser!(crate::housekeeping::Client))
                     .default_value("mcp-servers"),

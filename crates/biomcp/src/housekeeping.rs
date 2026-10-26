@@ -11,25 +11,33 @@ pub(crate) enum Client {
     #[value(name = "mcp-servers", alias = "json")]
     McpServers,
     Servers,
+    Codex,
 }
 impl Command {
     pub(crate) fn render(&self, globals: &crate::grammar::Globals) -> io::Result<Vec<u8>> {
         let text = match self {
             Self::Version { verbose } => version(*verbose, globals),
-            Self::McpConfig { client } => {
-                let key = match client {
-                    Client::McpServers => "mcpServers",
-                    Client::Servers => "servers",
-                };
-                let command = crate::config::executable()?;
-                let value = serde_json::json!({key: {"biomcp": {
-                    "command": command, "args": ["serve"]
-                }}});
-                format!("{}\n", serde_json::to_string_pretty(&value)?)
-            }
+            Self::McpConfig { client } => mcp_config(*client)?,
         };
         Ok(text.into_bytes())
     }
+}
+fn mcp_config(client: Client) -> io::Result<String> {
+    let command = crate::config::executable()?;
+    let key = match client {
+        Client::McpServers => "mcpServers",
+        Client::Servers => "servers",
+        Client::Codex => {
+            let path = command
+                .to_str()
+                .ok_or_else(|| io::Error::other("executable path is not Unicode"))?;
+            return shlex::try_join(["codex", "mcp", "add", "biomcp", "--", path, "serve"])
+                .map(|text| format!("{text}\n"))
+                .map_err(io::Error::other);
+        }
+    };
+    let value = serde_json::json!({key: {"biomcp": {"command": command, "args": ["serve"]}}});
+    Ok(format!("{}\n", serde_json::to_string_pretty(&value)?))
 }
 fn version(verbose: bool, globals: &crate::grammar::Globals) -> String {
     let mut text = format!("biomcp {}\n", env!("CARGO_PKG_VERSION"));
