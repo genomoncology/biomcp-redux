@@ -69,6 +69,12 @@ pub enum QueryBody {
     AuthorPage(Option<crate::AuthorPage>),
     /// Exact provider author cards and per-input outcomes.
     AuthorCards(crate::AuthorCards),
+    /// Compact indexed papers.
+    AuthorPapers(Option<crate::AuthorPapers>),
+    /// Detailed indexed papers.
+    AuthorPaperDetails(Option<crate::AuthorPaperDetails>),
+    /// Public ORCID groups.
+    OrcidWorks(Option<crate::OrcidWorks>),
     /// Exact accession-linked native metadata.
     CellLineChembl(crate::CellLineChembl),
     /// Native assay total without assay listings.

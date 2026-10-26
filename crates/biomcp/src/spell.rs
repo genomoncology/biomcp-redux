@@ -15,7 +15,7 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
-        Action::AuthorPapers(q) => Ok(author_papers(q)),
+        Action::AuthorPapers(q) => request_args(&Request::AuthorPapers(q.clone())),
         Action::QueryHelp(request) => Ok(std::iter::once("help".into())
             .chain(command_words(request))
             .collect()),
@@ -51,22 +51,6 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         }
     }
 }
-fn author_papers(q: &biomcp_types::AuthorPapersQuery) -> Vec<String> {
-    let mut args = vec!["author".into(), "papers".into(), q.id().to_string()];
-    if let Some(section) = q.section() {
-        args.push(section.as_str().into());
-    }
-    args.extend([
-        "--limit".into(),
-        q.limit().to_string(),
-        "--offset".into(),
-        q.offset().to_string(),
-    ]);
-    if let Some(pool) = q.pool() {
-        args.extend(["--pool".into(), pool.to_string()]);
-    }
-    args
-}
 fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     let schema: Value = serde_json::from_str(
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
@@ -85,6 +69,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::AuthorPapers(q) => serde_json::to_value(q),
         Request::SearchAuthor(q) => serde_json::to_value(q),
         Request::GetAuthor(q) => serde_json::to_value(q),
         Request::CellLineAssayCount(q) => serde_json::to_value(q),
@@ -199,6 +184,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::VariantPopulation(_)
         | Request::VariantRecurrence(_)
         | Request::VariantNormalize(_) => "variant",
+        Request::AuthorPapers(_) => "author",
         Request::TrialDocument(_) => "trial",
         Request::ArticlePdf(_)
         | Request::ArticleEvidence(_)
@@ -246,6 +232,7 @@ fn command_verb(request: &Request) -> &'static str {
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
     match request {
+        Request::AuthorPapers(_) => "papers",
         Request::CellLineAssayCount(_) => "assay-count",
         Request::ProteinFeatures(_) => "features",
         Request::ProteinIsoforms(_) => "isoforms",

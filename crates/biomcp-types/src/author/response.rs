@@ -60,11 +60,20 @@ papers!(
     AuthorPaperDetail,
     "Detailed metadata for the same native indexed-paper window."
 );
+biodata::wire_enum! {
+    /// Scope of one received ORCID collection.
+    OrcidWorksScope {
+        /// ORCID sends the whole public works list in one bounded reply; pages are local.
+        WholePublicWorksReply => "whole_public_works_reply"
+    }
+}
 /// Locally paged groups from one complete public ORCID works reply.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidWorks {
+    /// The whole source reply supplies every local page.
+    pub collection_scope: OrcidWorksScope,
     /// Requested exact ORCID record.
     pub author: biodata::OrcidId,
     /// Whole groups in native order, with every public assertion.
@@ -89,6 +98,6 @@ impl ResponseBody for AuthorPaperDetails {
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for OrcidWorks {
-    const SCHEMA: &'static str = "biomcp.orcid_works/1";
+    const SCHEMA: &'static str = "biomcp.orcid_works/2";
     type Query = AuthorPapersQuery;
 }

@@ -23,6 +23,7 @@ pub fn display_name(source: Source) -> &'static str {
         Source::LitVar => "LitVar",
         Source::LitSense => "LitSense",
         Source::SemanticScholar => "Semantic Scholar",
+        Source::Orcid => "ORCID",
         Source::PmcOa => "PMC Open Access",
         Source::Icite => "NIH iCite",
         Source::PubTator => "PubTator",

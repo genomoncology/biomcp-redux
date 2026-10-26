@@ -1,0 +1,29 @@
+{
+  "feature": "author-search",
+  "story": "Paper help exposes exact provider paging",
+  "live_check": "synthetic control",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "author",
+        "papers"
+      ],
+      "mcp": [
+        "help",
+        "author",
+        "papers"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "author",
+          "papers"
+        ]
+      },
+      "full_output_bytes": true,
+      "max_bytes": 4000,
+      "max_tokens": 1000
+    }
+  ]
+}

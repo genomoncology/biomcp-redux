@@ -1,0 +1,29 @@
+{
+  "feature": "author-orcid",
+  "story": "broken body",
+  "live_check": "synthetic control",
+  "replay": "orcid/broken-body",
+  "steps": [
+    {
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "bad_reply"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 12000,
+      "max_tokens": 3000
+    }
+  ]
+}

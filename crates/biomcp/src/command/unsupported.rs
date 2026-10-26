@@ -1,12 +1,9 @@
-use super::{Outcome, author, disease, encode, usage_envelope};
+use super::{Outcome, disease, encode, usage_envelope};
 use biomcp_query::Action;
 use biomcp_types::{ErrorEnvelope, Request};
 use std::io;
 
 pub(super) fn check(action: &Action) -> Option<io::Result<Outcome>> {
-    if author::unsupported(action) {
-        return Some(author::deferred());
-    }
     if let Action::Run {
         request: Request::GetCellLine(q),
         ..
