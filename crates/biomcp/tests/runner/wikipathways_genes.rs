@@ -1,11 +1,12 @@
 //! Feature pathway-wikipathways-genes: native data-node membership without identifier guesses.
-use super::{configuration::invoke, launch::Environment, network_stub::Stub};
+use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 type Check = Result<(), String>;
 mod joins;
 mod native;
+use super::configuration::invoke;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -94,7 +95,8 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     let env = super::variant::source_environment(&stub)?;
     let replay = env.root().join("replay");
     let record = replay.to_str().ok_or("record path")?;
-    invoke(
+    crate::runner::pathway_budgets::invoke(
+        "runner/wikipathways_genes/seed/1",
         &env,
         ["sync", "wikipathways", "--record", record]
             .map(str::to_owned)
@@ -103,7 +105,8 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     )?;
     let genes_record = env.root().join("genes-record");
     let genes_path = genes_record.to_str().ok_or("genes recording path")?;
-    let first = invoke(
+    let first = crate::runner::pathway_budgets::invoke(
+        "runner/wikipathways_genes/seed/2",
         &env,
         ["get", "pathway", "WP382", "genes", "--record", genes_path]
             .map(str::to_owned)
@@ -171,7 +174,12 @@ fn paging() -> Check {
         let mut args: Vec<String> =
             serde_json::from_value(step["args"].clone()).map_err(|e| e.to_string())?;
         args.push("--offline".into());
-        next = invoke(&env, args, 0)?;
+        next = crate::runner::pathway_budgets::invoke(
+            "runner/wikipathways_genes/paging/1",
+            &env,
+            args,
+            0,
+        )?;
     }
     if seen != (0..12).map(|n| format!("n{n}")).collect::<Vec<_>>() {
         return Err(format!("Retained walk changed: {seen:?}"));
@@ -231,12 +239,22 @@ fn failures() -> Check {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let mut sync = vec!["sync".into(), "wikipathways".into()];
         sync.extend(env.globals(Some(&replay), false));
-        invoke(&env, sync, 0)?;
+        crate::runner::pathway_budgets::invoke(
+            "runner/wikipathways_genes/failures/1",
+            &env,
+            sync,
+            0,
+        )?;
         for offline in [false, true] {
             let mut args = vec!["pathway".into(), "genes".into(), "WP382".into()];
             args.extend(env.globals(Some(&replay), offline));
-            let value =
-                invoke(&env, args, 4).map_err(|e| format!("{mode} offline={offline}: {e}"))?;
+            let value = crate::runner::pathway_budgets::invoke(
+                "runner/wikipathways_genes/failures/2",
+                &env,
+                args,
+                4,
+            )
+            .map_err(|e| format!("{mode} offline={offline}: {e}"))?;
             if value.get("status") != Some(&json!("failed"))
                 || value.get("result").is_some()
                 || value.pointer("/sources/0/source") != Some(&json!("wikipathways"))
@@ -296,8 +314,14 @@ fn single_attempt() -> Check {
             },
         )?;
         let env = super::variant::source_environment(&stub)?;
-        invoke(&env, vec!["sync".into(), "wikipathways".into()], 0)?;
-        invoke(
+        crate::runner::pathway_budgets::invoke(
+            "runner/wikipathways_genes/single_attempt/1",
+            &env,
+            vec!["sync".into(), "wikipathways".into()],
+            0,
+        )?;
+        crate::runner::pathway_budgets::invoke(
+            "runner/wikipathways_genes/single_attempt/2",
             &env,
             vec!["pathway".into(), "genes".into(), "WP382".into()],
             4,

@@ -1,6 +1,6 @@
 //! Oversized source bodies exercise the real bounded reader, not replay-file limits.
 use super::{Check, ROUTES, failed, fixtures};
-use crate::runner::{configuration::invoke, network_stub::Stub, variant::source_environment};
+use crate::runner::{network_stub::Stub, variant::source_environment};
 use serde_json::Value;
 pub(super) fn run() -> Check {
     for &(route, args) in ROUTES {
@@ -19,8 +19,13 @@ pub(super) fn run() -> Check {
             |_| String::new(),
         )?;
         let env = source_environment(&stub)?;
-        let value = invoke(&env, args.iter().map(|s| (*s).to_owned()).collect(), 4)
-            .map_err(|e| format!("oversized {route}: {e}"))?;
+        let value = crate::runner::pathway_budgets::invoke(
+            "pathway_failures/oversized/run/1",
+            &env,
+            args.iter().map(|s| (*s).to_owned()).collect(),
+            4,
+        )
+        .map_err(|e| format!("oversized {route}: {e}"))?;
         failed(&value, "bad_reply").map_err(|e| format!("oversized {route}: {e}"))?;
         let requests = stub.finish()?;
         if !requests.iter().any(|(_, request)| request.contains(route)) {

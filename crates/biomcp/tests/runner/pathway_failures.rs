@@ -3,7 +3,7 @@ mod absence;
 mod fixtures;
 mod oversized;
 mod wikipathways;
-use super::{configuration::invoke, launch::Environment};
+use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -49,10 +49,16 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(wikipathways::trials());
     trials
 }
-fn call(env: &Environment, root: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+fn call(
+    phase: &str,
+    env: &Environment,
+    root: &Path,
+    args: &[&str],
+    exit: i32,
+) -> Result<Value, String> {
     let mut words = env.globals(Some(root), false);
     words.extend(args.iter().map(|s| (*s).to_owned()));
-    let value = invoke(env, words, exit)?;
+    let value = crate::runner::pathway_budgets::invoke(phase, env, words, exit)?;
     if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 4000 {
         return Err("source outcome exceeds size ceiling".into());
     }
@@ -76,7 +82,8 @@ fn faults(route: &str, args: &[&str]) -> Check {
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         fixtures::replace(&root, route, body, status, delay)?;
-        let value = call(&env, &root, args, 4).map_err(|e| format!("{route} {label}: {e}"))?;
+        let value = call("pathway_failures/faults/1", &env, &root, args, 4)
+            .map_err(|e| format!("{route} {label}: {e}"))?;
         failed(&value, reason).map_err(|e| format!("{route} {label}: {e}"))?;
         uncached(&env, route)?;
     }
@@ -131,7 +138,13 @@ fn identities() -> Check {
         *card.get_mut(field).ok_or("field")? = json!(foreign);
         fixtures::replace(&root, "/data/query/", &card.to_string(), 200, 0)?;
         let env = Environment::new().map_err(|e| e.to_string())?;
-        let value = call(&env, &root, &["get", "pathway", fixtures::ID], 0)?;
+        let value = call(
+            "pathway_failures/identities/1",
+            &env,
+            &root,
+            &["get", "pathway", fixtures::ID],
+            0,
+        )?;
         if value.get("result").is_some_and(|v| !v.is_null())
             || !value
                 .get("problems")
@@ -167,7 +180,8 @@ fn pairings() -> Check {
         "search pathway --gene BRAF --source wikipathways",
         "search pathway --top-level --source wikipathways",
     ] {
-        let value = invoke(
+        let value = crate::runner::pathway_budgets::invoke(
+            "runner/pathway_failures/pairings/1",
             &env,
             words.split_whitespace().map(str::to_owned).collect(),
             2,
@@ -202,7 +216,7 @@ fn limits() -> Check {
             let env = Environment::new().map_err(|e| e.to_string())?;
             let mut words = args.to_vec();
             words.extend([option, "5"]);
-            let value = call(&env, &root, &words, 0)?;
+            let value = call("pathway_failures/limits/1", &env, &root, &words, 0)?;
             if value.pointer("/result/page/returned") != Some(&json!(1)) {
                 return Err(format!("kept limit spelling changed page: {value}"));
             }

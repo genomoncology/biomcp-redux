@@ -72,6 +72,7 @@ mod next_navigation;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
+mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
 mod pathway_registry;
@@ -261,6 +262,15 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
             )
             .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?,
         );
+        if path
+            .components()
+            .any(|c| matches!(c.as_os_str().to_str(), Some("pathway" | "pathway-sections")))
+        {
+            if let Some(value) = &previous {
+                use std::io::Write;
+                writeln!(std::io::stdout(), "PATHWAY_YAML {}", serde_json::json!({"path":path.file_name().and_then(|s|s.to_str()),"index":index,"full":serde_json::to_vec(value).map_err(|e|e.to_string())?.len(),"comparable":source_terms::size(value, "")?})).map_err(|e|e.to_string())?;
+            }
+        }
     }
     previous.ok_or_else(|| "case requires at least one step".into())
 }

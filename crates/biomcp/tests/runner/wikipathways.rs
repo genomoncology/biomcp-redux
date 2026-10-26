@@ -1,5 +1,5 @@
 //! Feature pathway-wikipathways: explicit atomic catalog replacement and stored-only reads.
-use super::{configuration::invoke, launch::Environment};
+use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -66,15 +66,27 @@ fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<Pat
     }
     Ok(root)
 }
-fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+fn call(
+    phase: &str,
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    exit: i32,
+) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
-    invoke(env, command, exit)
+    crate::runner::pathway_budgets::invoke(phase, env, command, exit)
 }
 fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
-    let receipt = call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    let receipt = call(
+        "wikipathways/run/1",
+        &env,
+        &replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     if receipt.pointer("/result/search/total_rows") != Some(&json!(13))
         || receipt.pointer("/result/get/human_rows") != Some(&json!(12))
     {
@@ -82,6 +94,7 @@ fn run() -> Check {
     }
     fs::remove_dir_all(replay.join("wikipathways")).map_err(|e| e.to_string())?;
     let first = call(
+        "wikipathways/run/2",
         &env,
         &replay,
         &["search", "pathway", "atlas", "--source", "wikipathways"],
@@ -99,32 +112,63 @@ fn run() -> Check {
         .iter()
         .map(|v| v.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
-    let second = call(&env, &replay, &pool, 0)?;
+    let second = call("wikipathways/run/3", &env, &replay, &pool, 0)?;
     if second.pointer("/result/items/0/id/id") != Some(&json!("WP6")) {
         return Err("page order".into());
     }
-    let card = call(&env, &replay, &["get", "pathway", "WP1", "summary"], 0)?;
+    let card = call(
+        "wikipathways/run/4",
+        &env,
+        &replay,
+        &["get", "pathway", "WP1", "summary"],
+        0,
+    )?;
     if card.pointer("/result/description_truncated") != Some(&json!(true))
         || card.pointer("/result/pathway/description")
             != Some(&json!("Native source description..."))
     {
         return Err(format!("source summary: {card}"));
     }
-    call(&env, &replay, &["get", "pathway", "WP13"], 1)?;
-    call(&env, &replay, &["get", "pathway", "WP99999"], 1)?;
-    call(&env, &replay, &["get", "pathway", "WP1", "events"], 2)?;
+    call(
+        "wikipathways/run/5",
+        &env,
+        &replay,
+        &["get", "pathway", "WP13"],
+        1,
+    )?;
+    call(
+        "wikipathways/run/6",
+        &env,
+        &replay,
+        &["get", "pathway", "WP99999"],
+        1,
+    )?;
+    call(
+        "wikipathways/run/7",
+        &env,
+        &replay,
+        &["get", "pathway", "WP1", "events"],
+        2,
+    )?;
     replacement(&env, &replay, &pool)
 }
 fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
     for fault in [json!({"unexpected":true}), json!({"pathwayInfo":[]})] {
         let label = fault.to_string();
         seed(env, catalog(true, true), fault, 200)?;
-        let failed = call(env, replay, &["sync", "wikipathways"], 4)
-            .map_err(|e| format!("catalog fault {label}: {e}"))?;
+        let failed = call(
+            "wikipathways/replacement/1",
+            env,
+            replay,
+            &["sync", "wikipathways"],
+            4,
+        )
+        .map_err(|e| format!("catalog fault {label}: {e}"))?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
             return Err(format!("validation classification: {failed}"));
         }
         let retained = call(
+            "wikipathways/replacement/2",
             env,
             replay,
             &[
@@ -142,14 +186,27 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
     }
     partial_download(env, replay)?;
     seed(env, catalog(true, true), catalog(false, true), 500)?;
-    call(env, replay, &["sync", "wikipathways"], 4)?;
+    call(
+        "wikipathways/replacement/3",
+        env,
+        replay,
+        &["sync", "wikipathways"],
+        4,
+    )?;
     seed(env, catalog(true, true), catalog(false, true), 200)?;
-    call(env, replay, &["sync", "wikipathways"], 0)?;
-    let retained = call(env, replay, pool, 0)?;
+    call(
+        "wikipathways/replacement/4",
+        env,
+        replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
+    let retained = call("wikipathways/replacement/5", env, replay, pool, 0)?;
     if retained.pointer("/result/items/0/name") != Some(&json!("Literal Atlas 5")) {
         return Err("pool changed with catalog replacement".into());
     }
     let disabled = call(
+        "wikipathways/replacement/6",
         env,
         replay,
         &["get", "pathway", "WP1", "--disable-sources", "wikipathways"],
@@ -164,7 +221,13 @@ fn union() -> Check {
     use super::launch::fixtures;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
-    call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    call(
+        "wikipathways/union/1",
+        &env,
+        &replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     let source = fixtures().join("replies/pathway/native/reactome");
     fs::create_dir_all(replay.join("reactome")).map_err(|e| e.to_string())?;
     for path in fs::read_dir(source).map_err(|e| e.to_string())? {
@@ -191,11 +254,11 @@ fn union() -> Check {
     // The synthetic catalog has no title match for this phrase; the leg still has an outcome.
     let mut missing = args.to_vec();
     missing.extend(["--offset", "5"]);
-    let restarted = call(&env, &replay, &missing, 3)?;
+    let restarted = call("wikipathways/union/2", &env, &replay, &missing, 3)?;
     if restarted.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err(format!("missing mixed pool: {restarted}"));
     }
-    let page = call(&env, &replay, &args, 0)?;
+    let page = call("wikipathways/union/3", &env, &replay, &args, 0)?;
     if page.pointer("/sources/0/source") != Some(&json!("reactome"))
         || page.pointer("/sources/1/source") != Some(&json!("wikipathways"))
     {
@@ -213,8 +276,14 @@ fn matching_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
         *row.get_mut("name").ok_or("name")? = json!("MAPK signaling");
     }
     seed(env, body, catalog(false, false), 200)?;
-    call(env, replay, &["sync", "wikipathways"], 0)?;
-    let first = call(env, replay, args, 0)?;
+    call(
+        "wikipathways/matching_union/1",
+        env,
+        replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
+    let first = call("wikipathways/matching_union/2", env, replay, args, 0)?;
     let sources = first
         .pointer("/result/items")
         .and_then(Value::as_array)
@@ -236,7 +305,7 @@ fn matching_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
     short_union(env, replay, args)?;
     let mut failed = args.to_vec();
     failed.extend(["--disable-sources", "reactome"]);
-    let partial = call(env, replay, &failed, 0)?;
+    let partial = call("wikipathways/matching_union/3", env, replay, &failed, 0)?;
     if partial.get("status") != Some(&json!("partial"))
         || partial.pointer("/sources/0/reason") != Some(&json!("disabled"))
         || partial.pointer("/result/items/0/id/source") != Some(&json!("wikipathways"))
@@ -261,7 +330,7 @@ fn short_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
     }
     let mut mixed = args.to_vec();
     mixed.push("--fresh");
-    let short = call(env, replay, &mixed, 0)?;
+    let short = call("wikipathways/short_union/1", env, replay, &mixed, 0)?;
     if short.pointer("/result/page/returned") != Some(&json!(4))
         || short.pointer("/result/page/next_offset") != Some(&json!(4))
     {
@@ -277,7 +346,7 @@ fn short_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
         .iter()
         .map(|v| v.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
-    let resumed = call(env, replay, &next, 0)?;
+    let resumed = call("wikipathways/short_union/2", env, replay, &next, 0)?;
     if resumed.pointer("/result/items/0/id/source") != Some(&json!("reactome"))
         || resumed.pointer("/result/items/1/id/id") != Some(&json!("WP3"))
     {
@@ -293,7 +362,13 @@ fn concurrent() -> Check {
     };
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
-    call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    call(
+        "wikipathways/concurrent/1",
+        &env,
+        &replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     seed(&env, catalog(true, true), catalog(false, true), 200)?;
     let path = recording(&replay, GET);
     let mut reply: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
@@ -326,6 +401,7 @@ fn concurrent() -> Check {
     let results = std::thread::scope(|scope| {
         let one = scope.spawn(|| {
             call(
+                "wikipathways/concurrent/2",
                 &env,
                 &replay,
                 &["search", "pathway", "Atlas", "--source", "wikipathways"],
@@ -334,6 +410,7 @@ fn concurrent() -> Check {
         });
         let two = scope.spawn(|| {
             call(
+                "wikipathways/concurrent/3",
                 &env,
                 &replay,
                 &["search", "pathway", "Atlas", "--source", "wikipathways"],
@@ -427,11 +504,18 @@ fn partial_download(env: &Environment, replay: &Path) -> Check {
         .map_err(|e| e.to_string())?;
     *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? = json!("{\"pathwayInfo\":[");
     fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
-    let failed = call(env, replay, &["sync", "wikipathways"], 4)?;
+    let failed = call(
+        "wikipathways/partial_download/1",
+        env,
+        replay,
+        &["sync", "wikipathways"],
+        4,
+    )?;
     if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
         return Err(format!("partial download: {failed}"));
     }
     let retained = call(
+        "wikipathways/partial_download/2",
         env,
         replay,
         &[
@@ -451,8 +535,15 @@ fn partial_download(env: &Environment, replay: &Path) -> Check {
 fn read_policy() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
-    call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    call(
+        "wikipathways/read_policy/1",
+        &env,
+        &replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     let first = call(
+        "wikipathways/read_policy/2",
         &env,
         &replay,
         &["search", "pathway", "Atlas", "--source", "wikipathways"],
@@ -470,12 +561,13 @@ fn read_policy() -> Check {
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE trial_snapshot SET expires=0", [])
         .map_err(|e| e.to_string())?;
-    let expired = call(&env, &replay, &args, 3)?;
+    let expired = call("wikipathways/read_policy/3", &env, &replay, &args, 3)?;
     if expired.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err(format!("expired catalog pool: {expired}"));
     }
     db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0 WHERE name='wikipathways'; INSERT INTO bundle_content SELECT * FROM original_content; COMMIT;").map_err(|e|e.to_string())?;
     let stale = call(
+        "wikipathways/read_policy/4",
         &env,
         &replay,
         &[
@@ -513,7 +605,13 @@ fn exact_species() -> Check {
             .ok_or("species")? = json!("Homo sapiens ");
     }
     let replay = seed(&env, search, get, 200)?;
-    let receipt = call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    let receipt = call(
+        "wikipathways/exact_species/1",
+        &env,
+        &replay,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     if receipt.pointer("/result/search/human_rows") != Some(&json!(10))
         || receipt.pointer("/result/get/human_rows") != Some(&json!(10))
     {
@@ -522,6 +620,7 @@ fn exact_species() -> Check {
         ));
     }
     let found = call(
+        "wikipathways/exact_species/2",
         &env,
         &replay,
         &["search", "pathway", "Atlas", "--source", "wikipathways"],
@@ -533,7 +632,13 @@ fn exact_species() -> Check {
         return Err(format!("padded source species admitted: {found}"));
     }
     for id in ["WP1", "WP2"] {
-        call(&env, &replay, &["get", "pathway", id], 1)?;
+        call(
+            "wikipathways/exact_species/3",
+            &env,
+            &replay,
+            &["get", "pathway", id],
+            1,
+        )?;
     }
     Ok(())
 }
