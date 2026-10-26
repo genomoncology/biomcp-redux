@@ -57,9 +57,9 @@ pub(super) fn surfaces(
 
 fn help_markdown(phase: &str, bytes: &[u8], value: &Value) -> Result<(), String> {
     let ceiling = match phase {
-        "native/author-help/0" => 1137,
-        "native/author-help/1" => 708,
-        "native/author-help/2" => 1748,
+        "native/author-search-help/0" => 1137,
+        "native/author-get-help/0" => 708,
+        "native/author-list-help/0" => 1748,
         _ => return Ok(()),
     };
     if bytes.len() > ceiling {
