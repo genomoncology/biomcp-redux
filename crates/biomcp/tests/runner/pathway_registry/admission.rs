@@ -135,7 +135,7 @@ pub(super) fn run() -> Check {
     )?;
     assert_routes(&original, "", false)?;
     drop(original);
-    for switch in ["reactome", "clinpathway", "open"] {
+    for switch in ["reactome", "wikipathways", "open"] {
         for mode in [
             Mode::Live { fresh: false },
             Mode::Replay {
@@ -148,7 +148,7 @@ pub(super) fn run() -> Check {
     }
     std::fs::remove_dir_all(&record).map_err(|e| e.to_string())?;
     std::fs::create_dir(&record).map_err(|e| e.to_string())?;
-    for switch in ["reactome", "clinpathway", "open"] {
+    for switch in ["reactome", "wikipathways", "open"] {
         let fetch = policy(
             Mode::Replay {
                 dir: record.clone(),

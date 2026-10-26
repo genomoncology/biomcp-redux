@@ -8,15 +8,20 @@ type Check = Result<(), String>;
 mod admission;
 const SOURCES: &[(&str, &str, &str)] = &[
     ("reactome", "open", "https://reactome.org/license"),
-    ("wikipathways", "open", "https://www.wikipathways.org/help.html"),
+    (
+        "wikipathways",
+        "open",
+        "https://www.wikipathways.org/help.html",
+    ),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     SOURCES
         .iter()
         .map(|&(source, usage, url)| {
-            Trial::test(format!("pathway-registry/{source}-declaration"), move || {
-                declaration(source, usage, url).map_err(Into::into)
-            })
+            Trial::test(
+                format!("pathway-registry/{source}-declaration"),
+                move || declaration(source, usage, url).map_err(Into::into),
+            )
         })
         .chain([
             Trial::test("pathway-registry/policy-before-io", || {
@@ -85,24 +90,27 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
 }
 fn switches() -> Check {
     for (configured, command) in [
-        ("reactome", "reactome"),
-        ("clinpathway", "clinpathway"),
-        ("open", "open"),
-        ("clinpathway", "cpic"),
+        ("", "reactome"),
+        ("", "wikipathways"),
+        ("", "open"),
+        ("reactome", ""),
+        ("wikipathways", ""),
+        ("open", ""),
+        ("wikipathways", "cpic"),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        env.config(&json!({"disable_sources":[configured]}))
+        let configured_sources: Vec<&str> = if configured.is_empty() {
+            vec![]
+        } else {
+            vec![configured]
+        };
+        env.config(&json!({"disable_sources": configured_sources}))
             .map_err(|e| e.to_string())?;
-        let health = invoke(
-            &env,
-            vec![
-                "health".into(),
-                "--offline".into(),
-                "--disable-sources".into(),
-                command.into(),
-            ],
-            0,
-        )?;
+        let mut args = vec!["health".into(), "--offline".into()];
+        if !command.is_empty() {
+            args.extend(["--disable-sources".into(), command.into()]);
+        }
+        let health = invoke(&env, args, 0)?;
         let rows = health
             .pointer("/result/sources")
             .and_then(Value::as_array)
@@ -112,7 +120,8 @@ fn switches() -> Check {
                 .iter()
                 .find(|r| r.get("source") == Some(&json!(name)))
                 .ok_or("missing source")?;
-            let disabled = name == command || name == configured || configured == "open";
+            let disabled =
+                name == command || name == configured || command == "open" || configured == "open";
             if disabled
                 && (row.get("state") != Some(&json!("skipped"))
                     || row.get("reason") != Some(&json!("disabled")))
