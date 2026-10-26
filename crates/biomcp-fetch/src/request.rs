@@ -485,7 +485,7 @@ impl Leg<'_> {
         }
         Ok(wire)
     }
-    fn replayed_wire(&self, prepared: &Prepared, exchange: Exchange) -> Result<Wire, Failure> {
+    fn replayed_wire(&self, prepared: &Prepared, mut exchange: Exchange) -> Result<Wire, Failure> {
         if !self
             .budget()
             .advance(Duration::from_millis(exchange.delay_ms))
@@ -495,14 +495,17 @@ impl Leg<'_> {
                     .into(),
             ));
         }
-        self.contain_response(prepared, &exchange, exchange.body.bytes(), exchange.status)
+        // Sidecars become non-serializable Bytes on read. Scan their raw body
+        // separately while deriving metadata from every remaining exchange field.
+        let body = std::mem::replace(&mut exchange.body, Body::Text(String::new()));
+        self.contain_response(prepared, &exchange, body.bytes(), exchange.status)
             .map_err(Failure::Local)?;
         Ok(Wire {
             fetched: exchange.fetched,
             status: exchange.status,
             content_type: exchange.content_type,
             content_range: exchange.content_range,
-            body: exchange.body.bytes().to_vec(),
+            body: body.bytes().to_vec(),
             retry_after: exchange.retry_after_ms.map(Duration::from_millis),
         })
     }
