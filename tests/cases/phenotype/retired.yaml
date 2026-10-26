@@ -18,8 +18,8 @@
         "/error/code": "usage.retired",
         "/error/message": "use: help phenotype"
       },
-      "max_bytes": 400,
-      "max_tokens": 150
+      "max_bytes": 127,
+      "max_tokens": 32
     },
     {
       "run": [
@@ -39,8 +39,8 @@
         "/error/code": "usage.retired",
         "/error/message": "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch"
       },
-      "max_bytes": 400,
-      "max_tokens": 150
+      "max_bytes": 227,
+      "max_tokens": 57
     },
     {
       "run": [
@@ -60,8 +60,8 @@
         "/error/code": "usage.retired",
         "/error/message": "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch"
       },
-      "max_bytes": 400,
-      "max_tokens": 150
+      "max_bytes": 227,
+      "max_tokens": 57
     },
     {
       "run": [
@@ -83,8 +83,8 @@
         "/error/code": "usage.retired",
         "/error/message": "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch"
       },
-      "max_bytes": 400,
-      "max_tokens": 150
+      "max_bytes": 227,
+      "max_tokens": 57
     },
     {
       "run": [
@@ -108,8 +108,8 @@
         "/error/code": "usage.retired",
         "/error/message": "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch"
       },
-      "max_bytes": 400,
-      "max_tokens": 150
+      "max_bytes": 209,
+      "max_tokens": 53
     },
     {
       "run": [
@@ -133,8 +133,8 @@
         "/error/code": "usage.retired",
         "/error/message": "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch"
       },
-      "max_bytes": 400,
-      "max_tokens": 150
+      "max_bytes": 227,
+      "max_tokens": 57
     }
   ]
 }

@@ -236,6 +236,7 @@ pub(crate) fn tree() -> String {
         pathway_selectors(&command, &mut line);
         diagnostic_selectors(&command, &mut line);
         study_selectors(&command, &mut line);
+        phenotype_selectors(&command, &mut line);
         if !command.sections.is_empty() {
             line.push_str(" :");
             line.push_str(
@@ -250,6 +251,23 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn phenotype_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.get(1).is_some_and(|v| v == "phenotype") {
+        for argument in command.arguments.iter().filter(|a| a.position.is_none()) {
+            line.push_str(&format!(" {}", argument.name));
+            if argument.name == "--source" {
+                line.push_str(" ");
+                line.push_str(&argument.choices.join("|"));
+            }
+        }
+        if command.command[0] == "get" {
+            line.push_str(
+                "; terms are terminology, associations publisher assertions; neither diagnoses",
+            );
+        }
+    }
 }
 
 fn pathway_selectors(command: &HelpCommand, line: &mut String) {

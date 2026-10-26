@@ -291,7 +291,6 @@ The rows below close every surface in the accounting table above. Shared aliases
 | `search disease` | Ported or renamed | `--source`, `--limit`, `--offset` | `--query`, `--inheritance`, `--phenotype`, `--onset`, `--no-fallback` | — | Literal OLS text and explicit ontology selection replace rewritten MyDisease discovery; unsupported clinical filters and fallback remain retired. |
 | `get disease` | Ported or renamed | — | `--name` | — | Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts. |
 | `disease drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated. |
-| `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop symptom-to-disease ranking; selected disease phenotype facts remain explicit Monarch sections. |
 <!-- /parity-accounting -->
 
 ### Executed harvested-case map

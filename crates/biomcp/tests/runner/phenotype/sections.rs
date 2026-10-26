@@ -29,10 +29,15 @@ fn pages() -> Result<(), String> {
         Ok(json!({"id":"HP:0000001","name":"Synthetic term","synonyms":["First","Second","Third","Fourth","Fifth","Sixth"],"xrefs":[]}).to_string())
     })?;
     let env = setup(&stub)?;
-    let card = invoke(&env, &["get", "phenotype", "HP:0000001"], 0)?;
+    let card = invoke(
+        "sections/pages/invoke1",
+        &env,
+        &["get", "phenotype", "HP:0000001"],
+        0,
+    )?;
     let words = step(&card, "section", 0)?;
     let words = words.iter().map(String::as_str).collect::<Vec<_>>();
-    let page = invoke(&env, &words, 0)?;
+    let page = invoke("sections/pages/invoke2", &env, &words, 0)?;
     if page.pointer("/page/returned") != Some(&json!(5))
         || page.pointer("/page/total") != Some(&json!(6))
         || page.pointer("/result/items/0/value") != Some(&json!("First"))
@@ -42,7 +47,7 @@ fn pages() -> Result<(), String> {
     }
     let words = step(&page, "page", 0)?;
     let words = words.iter().map(String::as_str).collect::<Vec<_>>();
-    let terminal = invoke(&env, &words, 0)?;
+    let terminal = invoke("sections/pages/invoke3", &env, &words, 0)?;
     if terminal.pointer("/page/offset") != Some(&json!(5))
         || terminal.pointer("/result/items/0/value") != Some(&json!("Sixth"))
         || terminal.get("next").is_some()
@@ -50,13 +55,14 @@ fn pages() -> Result<(), String> {
         return Err(format!("local terminal changed: {terminal}"));
     }
     let explicit = invoke(
+        "sections/pages/invoke4",
         &env,
         &["get", "phenotype", "HP:0000001", "--section-limit", "2"],
         0,
     )?;
     let explicit = step(&explicit, "section", 0)?;
     let explicit = explicit.iter().map(String::as_str).collect::<Vec<_>>();
-    let limited = invoke(&env, &explicit, 0)?;
+    let limited = invoke("sections/pages/invoke5", &env, &explicit, 0)?;
     if limited.pointer("/query/section_limit") != Some(&json!(2))
         || limited.pointer("/page/returned") != Some(&json!(2))
     {
@@ -96,6 +102,7 @@ fn monarch() -> Result<(), String> {
         ("hierarchy", json!(["super_classes", "sub_classes"])),
     ] {
         let result = invoke(
+            &format!("sections/monarch/invoke1@section={section}"),
             &env,
             &[
                 "get",
@@ -116,7 +123,12 @@ fn monarch() -> Result<(), String> {
         if section == "synonyms" {
             let words = step(&result, "page", 0)?;
             let words = words.iter().map(String::as_str).collect::<Vec<_>>();
-            let next = invoke(&env, &words, 0)?;
+            let next = invoke(
+                &format!("sections/monarch/invoke2@section={section}"),
+                &env,
+                &words,
+                0,
+            )?;
             if next.pointer("/result/items/0/relationship") != Some(&json!("broad"))
                 || next.pointer("/result/items/1/relationship") != Some(&json!("related"))
             {
@@ -125,6 +137,7 @@ fn monarch() -> Result<(), String> {
         }
     }
     let result = invoke(
+        "sections/monarch/invoke3",
         &env,
         &[
             "get",
@@ -154,8 +167,18 @@ fn absent() -> Result<(), String> {
         )
     })?;
     let env = setup(&stub)?;
-    let empty = invoke(&env, &["get", "phenotype", "HP:0000001", "synonyms"], 1)?;
-    let missing = invoke(&env, &["get", "phenotype", "HP:0000001", "xrefs"], 1)?;
+    let empty = invoke(
+        "sections/absent/invoke1",
+        &env,
+        &["get", "phenotype", "HP:0000001", "synonyms"],
+        1,
+    )?;
+    let missing = invoke(
+        "sections/absent/invoke2",
+        &env,
+        &["get", "phenotype", "HP:0000001", "xrefs"],
+        1,
+    )?;
     if empty.pointer("/result/items") != Some(&json!([]))
         || empty.pointer("/page/total") != Some(&json!(0))
         || missing.get("result").is_some()
@@ -164,6 +187,7 @@ fn absent() -> Result<(), String> {
         return Err("empty and unavailable sections collapsed".into());
     }
     invoke(
+        "sections/absent/invoke3",
         &env,
         &[
             "get",
@@ -176,6 +200,7 @@ fn absent() -> Result<(), String> {
         2,
     )?;
     let lost = invoke(
+        "sections/absent/invoke4",
         &env,
         &[
             "get",
@@ -207,17 +232,27 @@ fn retained() -> Result<(), String> {
         },
     )?;
     let env = setup(&stub)?;
-    let card = invoke(&env, &["get", "phenotype", "HP:0000001"], 0)?;
+    let card = invoke(
+        "sections/retained/invoke1",
+        &env,
+        &["get", "phenotype", "HP:0000001"],
+        0,
+    )?;
     let args = step(&card, "section", 0)?;
     let words = args.iter().map(String::as_str).collect::<Vec<_>>();
-    invoke(&env, &["--fresh", "get", "phenotype", "HP:0000001"], 0)?;
-    let original = invoke(&env, &words, 0)?;
+    invoke(
+        "sections/retained/invoke2",
+        &env,
+        &["--fresh", "get", "phenotype", "HP:0000001"],
+        0,
+    )?;
+    let original = invoke("sections/retained/invoke3", &env, &words, 0)?;
     if original.pointer("/result/items/0/value") != Some(&json!("Original")) {
         return Err("refresh replaced retained source reply".into());
     }
     let mut denied = words.clone();
     denied.extend(["--disable-sources", "hpo"]);
-    let denied = invoke(&env, &denied, 4)?;
+    let denied = invoke("sections/retained/invoke4", &env, &denied, 4)?;
     if denied.get("result").is_some()
         || denied.pointer("/sources/0/reason") != Some(&json!("disabled"))
     {
@@ -226,7 +261,7 @@ fn retained() -> Result<(), String> {
     let mut foreign = args;
     *foreign.get_mut(2).ok_or("identity arg")? = "HP:0000002".into();
     let foreign = foreign.iter().map(String::as_str).collect::<Vec<_>>();
-    invoke(&env, &foreign, 3)?;
+    invoke("sections/retained/invoke5", &env, &foreign, 3)?;
     if stub.finish()?.len() != 2 {
         return Err("retained page made a provider request".into());
     }

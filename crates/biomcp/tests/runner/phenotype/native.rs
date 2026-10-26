@@ -1,5 +1,5 @@
 //! Explicit proof reuses unchanged archived publisher bodies outside Git.
-use super::{Stub, invoke, setup};
+use super::{Stub, raw_invoke, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
@@ -73,7 +73,7 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     } else {
         0
     };
-    let delivered = invoke(&env, &recording, exit)?;
+    let delivered = raw_invoke(&env, &recording, exit)?;
     verify(row, &native, &delivered)?;
     restore_date(
         &directory,
@@ -83,7 +83,7 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     )?;
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("record path")?]);
-    let local = invoke(&env, &replay, exit)?;
+    let local = raw_invoke(&env, &replay, exit)?;
     verify(row, &native, &local)?;
     mcp(
         &directory,
@@ -226,8 +226,7 @@ pub(super) fn mcp(
     budget: Option<usize>,
 ) -> Result<(), String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
-    let bytes = super::super::source_terms::size(local, "")?;
-    let ceiling = budget.unwrap_or_else(|| (bytes * 115).div_ceil(100));
+    let ceiling = budget.ok_or("phenotype parity requires a fixed measured ceiling")?;
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,"steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":local}},"max_bytes":ceiling,"max_tokens":ceiling.div_ceil(4)}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     super::super::run_case(file.path(), &super::super::schema::Registry::embedded()?)?;
     Ok(())
