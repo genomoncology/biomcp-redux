@@ -54,3 +54,27 @@ pub fn complex_members(
 ) -> Outcome {
     source_relations::run(cx, source_relations::Selection::Members(q.clone()))
 }
+
+fn reply_problem(
+    out: &mut Outcome,
+    source: biomcp_types::Source,
+    id: &biodata::UniProtIsoform,
+    error: biomcp_fetch::RequestError,
+) {
+    if matches!(error, biomcp_fetch::RequestError::Source(e) if matches!(e.reason, biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey))
+    {
+        return;
+    }
+    status_problem(out, source, id);
+}
+fn status_problem(out: &mut Outcome, source: biomcp_types::Source, id: &biodata::UniProtIsoform) {
+    crate::status::append(
+        &mut out.problems,
+        [biomcp_types::Problem {
+            source,
+            record: biodata::Text::new(id.as_str()).ok(),
+            field: "reply".into(),
+            code: biomcp_types::ProblemCode::ValueUnknown,
+        }],
+    );
+}

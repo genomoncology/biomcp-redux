@@ -65,22 +65,16 @@ pub(super) fn run() -> Result<(), String> {
                 "function",
             ] {
                 let section = sections.get(name).ok_or("kept section missing")?;
-                if section
-                    .pointer("/data/items")
-                    .and_then(Value::as_array)
-                    .is_some_and(|a| a.len() != 1)
+                if name != "function"
+                    && section
+                        .pointer("/data/items")
+                        .and_then(Value::as_array)
+                        .is_some_and(|a| a.len() != 1)
                 {
                     return Err(format!("{name} exceeded the common section limit"));
                 }
             }
-            for name in [
-                "domains",
-                "complexes",
-                "features",
-                "isoforms",
-                "structures",
-                "function",
-            ] {
+            for name in ["domains", "complexes", "features", "isoforms", "structures"] {
                 if sections
                     .get(name)
                     .and_then(|s| s.pointer("/data/items"))
@@ -90,6 +84,15 @@ pub(super) fn run() -> Result<(), String> {
                 {
                     return Err(format!("{name} did not return exactly its first row"));
                 }
+            }
+            if sections
+                .get("function")
+                .and_then(|s| s.pointer("/data/items"))
+                .and_then(Value::as_array)
+                .map(Vec::len)
+                != Some(2)
+            {
+                return Err("function text lost a whole source paragraph".into());
             }
             super::card_failures::bounded(value, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
         }

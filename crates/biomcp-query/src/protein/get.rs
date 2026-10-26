@@ -152,6 +152,7 @@ fn hydrate(
                 }
             }
             Err(e) => {
+                super::reply_problem(out, Source::UniProt, &id, e);
                 failed = true;
                 if !q.sections().is_empty() {
                     item.sections = Some(super::sections::failed(
