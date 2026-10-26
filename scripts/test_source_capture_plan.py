@@ -27,6 +27,12 @@ class Source(http.server.BaseHTTPRequestHandler):
         if status == 302:
             self.send_header('Location', '/never')
         self.send_header('Content-Type', 'application/json')
+        if self.path == '/sensitive-headers':
+            self.send_header('sEt-CoOkIe', 'session=synthetic\r\n folded-synthetic-cookie')
+            self.send_header('Authorization', 'synthetic-authorization')
+            self.send_header('Proxy-Authorization', 'synthetic-proxy')
+            self.send_header('X-Api-Key', 'synthetic-key')
+            self.send_header('X-Ordinary', 'retained')
         if self.path == '/headers':
             for index in range(12):
                 self.send_header('X-Padding-' + str(index), 'x' * 8192)
@@ -99,6 +105,17 @@ class CapturePlanTests(unittest.TestCase):
         expected = set(json.loads((out / 'manifest.json').read_text())) | {'manifest.json'}
         self.assertEqual(set(names), expected)
         self.assertEqual(len(names), len(expected))
+
+    def test_sensitive_response_headers_and_folds_never_enter_evidence(self):
+        out = self.base / 'capture'
+        result = self.run_capture(self.plan(['/sensitive-headers']), out)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        headers = (out / '0000.headers').read_bytes().lower()
+        for forbidden in (b'set-cookie', b'authorization', b'x-api-key', b'synthetic'):
+            self.assertNotIn(forbidden, headers)
+        self.assertIn(b'x-ordinary: retained', headers)
+        with tarfile.open(out.with_suffix('.tar.gz')) as packed:
+            self.assertEqual(packed.extractfile('0000.headers').read().lower(), headers)
 
     @unittest.skipUnless(sys.platform == 'darwin', 'AppleDouble requires macOS tar')
     def test_archive_verification_rejects_hidden_appledouble_members(self):

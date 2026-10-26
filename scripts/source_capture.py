@@ -242,6 +242,17 @@ def reflects_key(headers, body, secrets):
     return False
 
 
+
+def sanitize_headers(headers):
+    sensitive_names = {b'authorization', b'proxy-authorization', b'x-api-key', b'set-cookie'}
+    kept, sensitive = [], False
+    for line in headers.splitlines():
+        if not line.startswith((b' ', b'\t')):
+            sensitive = line.split(b':', 1)[0].lower() in sensitive_names
+        if not sensitive:
+            kept.append(line)
+    return b'\r\n'.join(kept)
+
 def capture_one(index, request, plan, secrets, out):
     started = time.monotonic()
     try:
@@ -260,6 +271,7 @@ def capture_one(index, request, plan, secrets, out):
                'url': request['url'], 'status': status, 'outcome': outcome,
                'elapsed_seconds': round(time.monotonic() - started, 3),
                'body_bytes': len(body), 'body_sha256': digest(body)}
+    headers = sanitize_headers(headers)
     prefix = f'{index:04d}'
     (out / (prefix + '.body')).write_bytes(body)
     (out / (prefix + '.headers')).write_bytes(headers)
