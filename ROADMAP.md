@@ -56,14 +56,14 @@ The ledger uses released 0.9.3 as its fixed historical baseline. The agent compa
 - [x] Source terms of use, on by default, with sources switched off by name or by group and component fields switched off by group for commercial use
 - [ ] Scheduled live replay that reports source drift; scheduling is configured separately
 - [ ] Install test of every release artifact on each platform; the [final-candidate rehearsal ruling](sdlc/tickets/0066-installed-platform-rehearsal.md) requires a repeat before publication
-- [ ] One variant and annotation model shared with another biodata consumer, with common public test variants; the [shared-model settlement](sdlc/planning/biodata-variants-and-annotations.md#5-merge-and-wire-style) defers the merge to Ian after both consumers finish
+- [ ] One variant and annotation model shared with another biodata consumer, with common public test variants; the [shared-model settlement](sdlc/planning/biodata-variants-and-annotations.md#5-merge-and-wire-style) defers the merge until both consumers finish and the shared model receives approval
 
 ## Every entity's checklist
 
 Each entity below repeats these steps.
 
 1. Investigation: real examples, source checks, 0.9 probe
-2. Questions answered by Ian
+2. Design questions resolved
 3. Biodata types and schema
 4. Search
 5. Get and sections
@@ -78,7 +78,7 @@ Each entity below repeats these steps.
 ### Gene
 
 - [x] Investigation
-- [x] Questions answered by Ian
+- [x] Design questions resolved
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -106,7 +106,7 @@ Sources:
 ### Article
 
 - [x] Investigation
-- [x] Questions answered by Ian
+- [x] Design questions resolved
 - [x] Plain PubMed search types and schema
 - [x] Plain PubMed search with stable stored pages
 - [x] PubMed author, journal, date and publication-type filters and date order
@@ -150,7 +150,7 @@ Live source checks:
 ### Variant
 
 - [x] Investigation
-- [x] Questions answered by Ian
+- [x] Design questions resolved
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -181,7 +181,7 @@ The OncoKB variant source proof uses an approved demo capture. The product requi
 ### Trial
 
 - [x] Investigation
-- [x] Questions answered by Ian
+- [x] Design questions resolved
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -201,7 +201,7 @@ Sources:
 ### Drug
 
 - [x] Investigation
-- [x] Questions answered by Ian
+- [x] Design questions resolved
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -466,4 +466,4 @@ The measured CLI/MCP envelopes carry per-case ceilings. Every 0.9 timing and out
 - [ ] Docs rewritten; milestone 5 owns the full rewrite under [ticket 0280’s deferral](sdlc/tickets/0280-docs-drift-and-roadmap-hygiene.md)
 - [ ] Release rehearsal on every platform; the [release plan](sdlc/planning/release.md) requires final-candidate installed proof
 - [ ] Agent comparison on outside judged question sets, for every slice; the [comparison requirement](sdlc/planning/slices.md) uses the latest released baseline named above
-- [ ] The current BioMCP repo's history replaced with this repo's; the [repository transition ruling](sdlc/decisions/2026-10-23-a-clean-repo-whose-history-replaces-biomcp.md) requires Ian’s release approval
+- [ ] The current BioMCP repo's history replaced with this repo's; the [repository transition ruling](sdlc/decisions/2026-10-23-a-clean-repo-whose-history-replaces-biomcp.md) requires explicit approval for the release and history replacement
