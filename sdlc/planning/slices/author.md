@@ -65,7 +65,15 @@ No coauthor aggregation, topic scoring, affiliation filtering or cross-provider 
 
 Semantic Scholar author APIs use an optional `S2_API_KEY`. Existing article source terms and source-group membership apply. Publisher text in rich papers stays outside Git unless its license permits inclusion. No capture is evidence of a right to redistribute the corpus.
 
-The author APIs supply live records. A whole Semantic Scholar dataset or annual ORCID public-data file is not justified by these exact-record questions. No bundle is proposed without a measured size and a named benefit.
+The investigation has not called either author API. Current source terms require a product ruling before new calls. The coordinator paused both candidate API captures while routing that ruling.
+
+ORCID's Public API terms section 1 covers Anonymous API and Public API alike. Section 2 restricts service use in revenue-generating products or services. An optional token changes quota, not those rights. The Member API is a separate membership route; this investigation has no membership authorization. Historical repository fixtures can establish an old reply shape but cannot establish current access rights or current facts.
+
+[The annual Public Data File policy](https://info.orcid.org/public-data-file-use-policy/) grants CC0 for the released snapshot with no access or reuse conditions. It excludes rights in linked articles and does not waive individuals' rights. [The bulk-data guide](https://info.orcid.org/documentation/integration-guide/working-with-bulk-data/) lists a 2025 XML summary archive and eleven activity archives, organized by identifier suffix. A snapshot could preserve exact ORCID identity and claimed works while disclosing its release date. Its cost and individual-record extraction remain unmeasured; no archive download or conversion tool is authorized by this investigation.
+
+[The current Semantic Scholar API agreement](https://api.semanticscholar.org/license/), section 2(a), limits its default grant to internal use for model training/evaluation and dataset transformation for noncommercial research or education. Section 2(b) offers an expanded license through the provider. The existing adapter labels the source noncommercial. That label alone does not establish eligibility for a new author API investigation. The proposed capture purpose would be bounded internal evaluation of entity retrieval, without publishing source bodies, reselling the API, model training or user-facing commercial delivery. The PM must determine whether an existing expanded permission covers it or choose an eligible route. No key is proof of expanded rights.
+
+No whole Semantic Scholar dataset is proposed. ORCID snapshot metadata can be investigated separately from the restricted API service.
 
 ## Proposed command and disclosure shape
 
