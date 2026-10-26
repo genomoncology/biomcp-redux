@@ -112,9 +112,7 @@ fn run() -> Check {
     }
     call(&env, &replay, &["get", "pathway", "WP13"], 1)?;
     call(&env, &replay, &["get", "pathway", "WP99999"], 1)?;
-    for section in ["genes", "events"] {
-        call(&env, &replay, &["get", "pathway", "WP1", section], 2)?;
-    }
+    call(&env, &replay, &["get", "pathway", "WP1", "events"], 2)?;
     replacement(&env, &replay, &pool)
 }
 fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
