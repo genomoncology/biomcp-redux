@@ -148,8 +148,12 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
 }
 
 fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
-    for section in ["genes", "all"] {
-        let args = ["get", "pathway", id, section].map(str::to_owned).to_vec();
+    for section in ["card", "genes", "all", "members"] {
+        let args = match section {
+            "card" => vec!["get", "pathway", id],
+            "members" => vec!["pathway", "genes", id],
+            _ => vec!["get", "pathway", id, section],
+        }.into_iter().map(str::to_owned).collect::<Vec<_>>();
         let cli = invoke(env, args.clone(), 0)?;
         let mcp = super::super::mcp::call_with_globals(env, &args, false, &["--offline".into()])?;
         for (surface, value) in [("CLI", cli), ("MCP", mcp)] {
