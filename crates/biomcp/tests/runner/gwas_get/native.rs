@@ -33,16 +33,7 @@ pub(super) fn run() -> Result<(), String> {
     let recordings = env.root().join("recordings");
     let output = root.join("outputs");
     fs::create_dir_all(&output).map_err(|e| e.to_string())?;
-    for input in &inputs {
-        let args = words(&input["args"])?;
-        let mut command = args.clone();
-        command.extend([
-            "--fresh".into(),
-            "--record".into(),
-            recordings.to_string_lossy().into(),
-        ]);
-        invoke(&env, command, 0)?;
-    }
+    for input in &inputs { record(&env, &recordings, input)?; }
     if stub.finish()?.len() != inputs.len() {
         return Err("native seed request count differs".into());
     }
@@ -151,6 +142,21 @@ fn walks(root: &Path, recordings: &Path) -> Result<(), String> {
         fs::write(&path,json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[{
             "run":args,"mcp":args,"walk":{"items":"/result/items","max_pages":3},"expect":expected}]}).to_string()).map_err(|e|e.to_string())?;
         super::super::run_case(&path, &super::super::schema::Registry::embedded()?)?;
+    }
+    Ok(())
+}
+
+fn record(env: &Environment, recordings: &Path, input: &Value) -> Result<(), String> {
+    let args=words(&input["args"])?;
+    let name=input["name"].as_str().ok_or("case name")?;
+    let original=env.root().join(format!("record-{name}"));
+    let mut command=args.clone();
+    command.extend(["--fresh".into(),"--record".into(),original.to_string_lossy().into()]);
+    invoke(env,command,0).map_err(|error|format!("native seed {args:?}: {error}"))?;
+    fs::create_dir_all(recordings.join("gwas")).map_err(|e|e.to_string())?;
+    for file in fs::read_dir(original.join("gwas")).map_err(|e|e.to_string())? {
+        let file=file.map_err(|e|e.to_string())?;
+        fs::copy(file.path(),recordings.join("gwas").join(file.file_name())).map_err(|e|e.to_string())?;
     }
     Ok(())
 }
