@@ -211,6 +211,10 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained exact source reply for local section pages."
+        },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",
           "description": "HPO for card, synonyms and xrefs; Monarch for other sections."

@@ -777,7 +777,7 @@
       ]
     }
   },
-  "$id": "biodata.request/13",
+  "$id": "biodata.request/14",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -1027,6 +1027,10 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained exact source reply for local section pages."
         },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",

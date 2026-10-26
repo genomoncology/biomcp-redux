@@ -51,7 +51,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         .into_iter()
         .map(|node| {
             Ok(PhenotypeHeader {
-                attribution: attribution(&node.id)?,
+                attribution,
                 id: node.id,
                 label: node.name,
                 match_score: node.score,
@@ -89,7 +89,7 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         hierarchy,
         card: PhenotypeTermCard {
             term: PhenotypeCard::Monarch {
-                attribution: attribution(&node.id)?,
+                attribution,
                 requested_id: q.id().clone(),
                 returned_id: node.id,
                 label: node.name,
