@@ -182,3 +182,5 @@ pub use drug::DrugGetCommand;
 
 mod phenotype;
 pub use phenotype::*;
+mod study;
+pub use study::*;

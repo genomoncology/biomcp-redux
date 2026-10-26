@@ -4,16 +4,21 @@ use biomcp_adapters::registry;
 use serde_json::{Value, json};
 pub(super) fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = crate::runner::network_stub::Stub::for_source(
-        "api-v3.monarchinitiative.org",
-        "application/json",
+    let stub = crate::runner::network_stub::Stub::for_sources(
+        &["api-v3.monarchinitiative.org", "ontology.jax.org"],
+        |_| "application/json",
         |_| Ok("{}".into()),
     )?;
     let cert = env.root().join("private-ca.pem");
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     let disabled = registry::SOURCES
         .iter()
-        .filter(|s| s.source != biomcp_types::Source::Monarch)
+        .filter(|s| {
+            !matches!(
+                s.source,
+                biomcp_types::Source::Monarch | biomcp_types::Source::Hpo
+            )
+        })
         .map(|s| s.source.to_string())
         .collect::<Vec<_>>()
         .join(",");
@@ -49,7 +54,7 @@ pub(super) fn run() -> Check {
             }
         }
     }
-    if stub.finish()?.len() != 2 {
+    if stub.finish()?.len() != 5 {
         return Err("a prohibited Monarch health query ran".into());
     }
     Ok(())

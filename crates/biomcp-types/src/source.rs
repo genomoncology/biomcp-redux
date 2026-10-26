@@ -9,10 +9,16 @@ canonical_enum! {
         MyGene => "mygene",
         /// Reactome.
         Reactome => "reactome",
+        /// WikiPathways published pathway catalogs.
+        WikiPathways => "wikipathways",
         /// Human Protein Atlas.
         Hpa => "hpa",
         /// UniProt.
         UniProt => "uniprot",
+        /// Integrated InterPro entries.
+        InterPro => "interpro",
+        /// Complex Portal.
+        ComplexPortal => "complex-portal",
         /// gnomAD.
         Gnomad => "gnomad",
         /// ClinVar component source policy.

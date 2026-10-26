@@ -2,6 +2,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
+    /// A source-native study identity or timestamp failed its grammar.
+    StudyValueInvalid,
     /// Invalid ClinPGx object accession.
     ClinPgxAccession,
     /// A source-native diagnostic identifier failed its grammar.
@@ -159,6 +161,7 @@ impl Error {
     /// Return the stable machine-readable code.
     pub fn code(self) -> &'static str {
         match self {
+            Self::StudyValueInvalid => "study.value.invalid",
             Self::ClinPgxAccession => "id.clinpgx.invalid",
             Self::DiagnosticIdInvalid => "diagnostic.id.invalid",
             Self::DrugIdInvalid => "drug.id.invalid",

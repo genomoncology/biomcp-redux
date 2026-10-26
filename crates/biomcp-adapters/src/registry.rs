@@ -27,7 +27,10 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::oncokb::SPEC,
     &crate::gnomad::SPEC,
     &crate::uniprot::SPEC,
+    &crate::interpro::SPEC,
+    &crate::complex_portal::SPEC,
     &crate::reactome::SPEC,
+    &crate::wikipathways::SPEC,
     &crate::civic::SPEC,
     &crate::hotspots::SPEC,
     &crate::clinvar::SPEC,
@@ -54,6 +57,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::ols::SPEC,
     &crate::mydisease::SPEC,
     &crate::monarch::SPEC,
+    &crate::hpo::SPEC,
     &crate::seer::SPEC,
     &crate::faers::SPEC,
     &crate::maude::SPEC,
@@ -70,6 +74,7 @@ pub fn components() -> impl Iterator<Item = &'static Component> {
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
     match name {
+        "open" => Some(Use::Open),
         "noncommercial" => Some(Use::Noncommercial),
         "restricted" => Some(Use::Restricted),
         _ => None,
@@ -177,6 +182,9 @@ pub fn probe(
 type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
+    if let Some(probe) = protein_probe(source) {
+        return Some(probe);
+    }
     Some(match source {
         Source::Gwas => (
             "/associations",
@@ -204,11 +212,8 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
-        Source::UniProt => (
-            "/uniprotkb/P15056.json",
-            vec![("fields", Arg::Text("accession"))],
-        ),
         Source::Reactome => ("/data/database/version", vec![]),
+        Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
         Source::PubMed => (
@@ -254,6 +259,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
 fn disease_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
+        Source::Hpo => ("/api/hp/terms/HP:0001250", vec![]),
         Source::Ols => ("/api/ontologies", vec![("size", Arg::Num(1))]),
         Source::Monarch => (
             "/v3/api/association",
@@ -339,4 +345,27 @@ pub fn restore_outcome(mut saved: biomcp_types::SourceOutcome) -> biomcp_types::
     saved.terms = current.terms;
     saved.terms_url = current.terms_url;
     saved
+}
+
+fn protein_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::UniProt => (
+            "/uniprotkb/P15056.json",
+            vec![("fields", Arg::Text("accession"))],
+        ),
+        Source::InterPro => (
+            "/entry/interpro/protein/uniprot/P00533/",
+            vec![("page_size", Arg::Num(5))],
+        ),
+        Source::ComplexPortal => (
+            "/search/P15056",
+            vec![
+                ("first", Arg::Num(0)),
+                ("number", Arg::Num(5)),
+                ("filters", Arg::Text("species_f:(\"Homo sapiens\")")),
+            ],
+        ),
+        _ => return None,
+    })
 }

@@ -111,3 +111,5 @@ pub use diagnostic::*;
 
 mod phenotype;
 pub use phenotype::*;
+mod study;
+pub use study::*;
