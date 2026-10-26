@@ -23,6 +23,12 @@ pub(super) fn surfaces(
     }
     super::super::assertions::check(&output.stdout, step, &expectations)?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if args.first().is_some_and(|a| a == "author")
+        && args.get(1).is_some_and(|a| a == "papers")
+        && value.get("page").is_some()
+    {
+        return Err(format!("{phase}: native papers endpoint supplied no total"));
+    }
     let retained = env.root().join("mcp-raw");
     fs::create_dir_all(&retained).map_err(|e| e.to_string())?;
     let mcp = mcp::call_retained(env, args, exit >= 2, globals, Some(&retained))?;
