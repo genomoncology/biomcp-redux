@@ -1,6 +1,7 @@
 # 0267 — Get the ORCID author card and its public works
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8f7434c8b0dfbf64620d3cafadf412b7a5e0f3b0
 
 Milestone: 4
 

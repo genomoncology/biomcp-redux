@@ -1,6 +1,7 @@
 # 0268 — Page Semantic Scholar author papers with the details section
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e6bafc7ca87c6d96c73da18d93011f777e24d0c5
 
 Milestone: 4
 

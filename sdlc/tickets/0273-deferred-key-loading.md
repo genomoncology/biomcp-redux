@@ -1,6 +1,7 @@
 # 0273 — Read every source key only when its source is called
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fbef530757fadad8b73d74b89829a920a9d0c428
 
 Milestone: 4
 
