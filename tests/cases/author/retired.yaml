@@ -321,6 +321,58 @@
       "full_output_bytes": true,
       "max_bytes": 234,
       "max_tokens": 59
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "-qLouis",
+        "--topic",
+        "topic"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "-qLouis",
+        "--topic",
+        "topic"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 234,
+      "max_tokens": 59
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "name",
+        "-l5",
+        "--source",
+        "orcid"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "name",
+        "-l5",
+        "--source",
+        "orcid"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "ORCID name search is not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 194,
+      "max_tokens": 49
     }
   ]
 }
