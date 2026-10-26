@@ -35,7 +35,14 @@ fn refusal(value: &Value) -> Check {
 }
 fn http() -> Check {
     let source = stub()?;
-    let server = Server::keys(json!({"proxy":format!("http://{}", source.address)}), None)?;
+    let env = Environment::new()?;
+    let certificate = env.root().join("source.pem");
+    fs::write(&certificate, &source.certificate)?;
+    let server = Server::keys(
+        json!({"proxy":format!("http://{}", source.address),
+        "ca_bundle":certificate}),
+        None,
+    )?;
     let directory = server.environment().root().join("cache/biomcp");
     fs::create_dir_all(&directory)?;
     let old = directory.join("cache-1-4.sqlite");
@@ -78,20 +85,28 @@ fn http() -> Check {
 fn stdio() -> Check {
     let source = stub()?;
     let env = Environment::new()?;
-    env.config(&json!({"proxy":format!("http://{}", source.address)}))?;
+    let certificate = env.root().join("source.pem");
+    fs::write(&certificate, &source.certificate)?;
+    env.config(&json!({"proxy":format!("http://{}", source.address),
+        "ca_bundle":certificate}))?;
     let path = env.root().join("owned.md");
     fs::write(&path, b"caller content")?;
-    let args = vec![
-        "article".into(),
-        "text".into(),
-        "PPR1295425".into(),
-        "--save".into(),
-        path.to_string_lossy().into(),
-        "--replace".into(),
-    ];
-    let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
-    refusal(&value)?;
-    assert_eq!(fs::read(&path)?, b"caller content");
+    for words in [
+        vec!["article", "text", "PPR1295425"],
+        vec!["article", "supplement", "28944238", "MGG3-5-553-s002.xlsx"],
+        vec!["article", "pdf", "28944238"],
+        vec!["trial", "document", "NCT04303780", "SAP_001.pdf"],
+    ] {
+        let mut args: Vec<String> = words.into_iter().map(str::to_owned).collect();
+        args.extend([
+            "--save".into(),
+            path.to_string_lossy().into(),
+            "--replace".into(),
+        ]);
+        let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
+        refusal(&value)?;
+        assert_eq!(fs::read(&path)?, b"caller content");
+    }
     assert!(
         source.finish()?.is_empty(),
         "refused stdio replacement contacted a provider"
