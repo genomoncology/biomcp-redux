@@ -22,7 +22,7 @@ pub(super) fn features() -> Result<(), String> {
 fn coordinates(env: &Environment) -> Result<(), String> {
     for (position, expected) in [(9, 0), (10, 1), (20, 1), (21, 0)] {
         let value = call(
-            &env,
+            env,
             None,
             &[
                 "protein",
@@ -42,7 +42,7 @@ fn coordinates(env: &Environment) -> Result<(), String> {
         }
     }
     let uncertain = call(
-        &env,
+        env,
         None,
         &[
             "protein",
@@ -66,7 +66,7 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
         .and_then(Value::as_str)
         .ok_or("feature pool")?;
     let mismatch = call(
-        &env,
+        env,
         None,
         &[
             "protein",
@@ -83,16 +83,16 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
         return Err("section pool accepted another selector".into());
     }
     call(
-        &env,
+        env,
         None,
         &[
             "protein", "features", "P00533", "--limit", "1", "--pool", pool, "--offset", "100",
         ],
         3,
     )?;
-    let next = super::super::action(&first, "page")?;
+    let next = super::super::action(first, "page")?;
     let words: Vec<_> = next.iter().map(String::as_str).collect();
-    let page = call(&env, None, &words, 0)?;
+    let page = call(env, None, &words, 0)?;
     if page.pointer("/result/items/0/feature/kind/label") != Some(&json!("Region"))
         || page.pointer("/page/pool/id").and_then(Value::as_str) != Some(pool)
     {
@@ -101,7 +101,7 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
     Ok(())
 }
 fn section_context(env: &Environment) -> Result<(), String> {
-    let all = call(&env, None, &["get", "protein", "P00533", "all"], 0)?;
+    let all = call(env, None, &["get", "protein", "P00533", "all"], 0)?;
     if all.pointer("/result/items/0/sections/function/data/items/1/molecule")
         != Some(&json!("Isoform 2"))
         || all.pointer("/result/items/0/sections/isoforms/data/items/0/ids/0")
@@ -116,7 +116,7 @@ fn section_context(env: &Environment) -> Result<(), String> {
 }
 fn usage(env: &Environment) -> Result<(), String> {
     let past = call(
-        &env,
+        env,
         None,
         &["protein", "features", "P00533", "--position", "31"],
         4,
@@ -129,7 +129,7 @@ fn usage(env: &Environment) -> Result<(), String> {
         vec!["protein", "features", "P00533", "--position", "0"],
         vec!["protein", "features", "P00533-2", "--position", "10"],
     ] {
-        call(&env, None, &args, 2)?;
+        call(env, None, &args, 2)?;
     }
     Ok(())
 }

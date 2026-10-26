@@ -219,11 +219,11 @@ fn command_verb(request: &Request) -> &'static str {
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
     match request {
-        Request::ProteinFeatures(_) => return "features",
-        Request::ProteinIsoforms(_) => return "isoforms",
-        Request::ProteinStructures(_) => return "structures",
-        Request::ProteinSequence(_) => return "sequence",
-        _ => (),
+        Request::ProteinFeatures(_) => "features",
+        Request::ProteinIsoforms(_) => "isoforms",
+        Request::ProteinStructures(_) => "structures",
+        Request::ProteinSequence(_) => "sequence",
+        _ => base_entity(request),
     }
     if matches!(request, Request::PathwayGenes(_)) {
         return "genes";
@@ -231,6 +231,8 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
     if matches!(request, Request::PathwayEvents(_)) {
         return "events";
     }
+}
+fn base_entity(request: &Request) -> &'static str {
     if matches!(request, Request::SearchGwas(_)) {
         return "gwas";
     }
