@@ -242,11 +242,22 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
             rusqlite::params![format!("{}/genes", server.base), prior.to_str().unwrap()],
         )
         .unwrap();
+        let snapshot = || {
+            db.query_row(
+                "SELECT json_array(name,holder,lease_until,url,part,bytes,etag,total) FROM bundle_sync",
+                [],
+                |row| row.get::<_, String>(0),
+            )
+            .unwrap()
+        };
+        let before = snapshot();
         let result = f.sync(&b);
         assert!(
             matches!(result, Err(biomcp_fetch::RequestError::Cache(_))),
             "{scenario}: {result:?}"
         );
+        assert_eq!(snapshot(), before, "{scenario}: recovery row changed");
+        assert!(server.requests.try_recv().is_err(), "{scenario}");
         assert_eq!(
             std::fs::read_to_string(&sentinel).unwrap(),
             "keep this file"
