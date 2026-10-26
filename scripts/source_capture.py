@@ -136,9 +136,17 @@ def verify_directory(directory):
 
 def verify_archive(archive):
     with tarfile.open(archive) as packed:
-        for member in packed.getmembers():
+        members = packed.getmembers()
+        names = [member.name for member in members]
+        for member in members:
             if not member.isfile() or '/' in member.name or member.name in ('.', '..'):
                 raise ValueError('archive contains an unsafe member')
+        if len(names) != len(set(names)) or 'manifest.json' not in names:
+            raise ValueError('archive contains duplicate members or lacks its manifest')
+        with packed.extractfile('manifest.json') as stream:
+            expected = json.load(stream)
+        if not isinstance(expected, dict) or set(names) != set(expected) | {'manifest.json'}:
+            raise ValueError('archive members differ from evidence manifest')
     with tempfile.TemporaryDirectory(prefix='source-capture-verify-') as scratch:
         subprocess.run(['tar', '-xzf', str(archive), '-C', scratch], check=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -279,7 +287,8 @@ def run_capture(args):
             break
     members = sorted(path.name for path in args.out.iterdir())
     subprocess.run(['tar', '-czf', str(archive), '-C', str(args.out), *members],
-                   check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                   check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                   env=dict(os.environ, COPYFILE_DISABLE='1'))
     verify_archive(archive)
     if args.cleanup:
         shutil.rmtree(args.out)
