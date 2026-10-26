@@ -385,11 +385,7 @@ fn check_context_counts(value: &Value) -> Check {
 }
 fn measurements() -> Check {
     for (args, max_bytes, max_tokens) in [
-        (
-            vec!["get", "pathway", "R-HSA-5673001", "genes"],
-            3061,
-            766,
-        ),
+        (vec!["get", "pathway", "R-HSA-5673001", "genes"], 3061, 766),
         (vec!["get", "pathway", "R-HSA-5673001", "events"], 2541, 636),
         (vec!["get", "pathway", "R-HSA-5673001", "all"], 9820, 2456),
         (vec!["pathway", "genes", "R-HSA-5673001"], 2553, 639),
