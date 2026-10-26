@@ -27,7 +27,7 @@ pub(super) fn members(rows: Vec<raw::Member>) -> Result<Vec<ProteinComplexMember
                 participant_type: text(&r.interactor_type)?,
                 taxon: r.organism_name.as_deref().and_then(raw::taxon),
                 organism: r.organism_name.as_deref().map(text).transpose()?,
-            name: r.name,
+                name: r.name,
                 stoichiometry: r.stochiometry,
                 xrefs,
                 protein,

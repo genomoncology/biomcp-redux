@@ -4,16 +4,34 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 mod complexes;
-mod native;
 mod failures;
+mod native;
 mod paging;
 pub(super) fn trials() -> Vec<Trial> {
-    let root=super::launch::fixtures().join("protein-domain-native");
-    let absent=!root.is_dir();
-    vec![Trial::test("protein-domains-complexes/source-failures",||failures::run().map_err(Into::into)),Trial::test("protein-domains-complexes/native-pointer-retained-walk",||paging::run().map_err(Into::into)),Trial::test("protein-domains-complexes/retained-native-facts-and-costs",move||native::run(&root).map_err(Into::into)).with_ignored_flag(absent),Trial::test("protein-domains-complexes/exact-members-and-retained-pages", || complexes::run().map_err(Into::into)), Trial::test(
-        "protein-domains-complexes/native-types-and-fragments",
-        || domains().map_err(Into::into),
-    )]
+    let root = super::launch::fixtures().join("protein-domain-native");
+    let absent = !root.is_dir();
+    vec![
+        Trial::test("protein-domains-complexes/source-failures", || {
+            failures::run().map_err(Into::into)
+        }),
+        Trial::test(
+            "protein-domains-complexes/native-pointer-retained-walk",
+            || paging::run().map_err(Into::into),
+        ),
+        Trial::test(
+            "protein-domains-complexes/retained-native-facts-and-costs",
+            move || native::run(&root).map_err(Into::into),
+        )
+        .with_ignored_flag(absent),
+        Trial::test(
+            "protein-domains-complexes/exact-members-and-retained-pages",
+            || complexes::run().map_err(Into::into),
+        ),
+        Trial::test(
+            "protein-domains-complexes/native-types-and-fragments",
+            || domains().map_err(Into::into),
+        ),
+    ]
 }
 fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {
@@ -34,17 +52,56 @@ fn domains() -> Result<(), String> {
     {
         return Err(format!("native types or fragments changed: {value}"));
     }
-    let selected=call(&env,&["protein","domains","P04637","--type","domain"],0)?;
-    if selected.pointer("/page/total")!=Some(&json!(1)) || selected.pointer("/result/native_total")!=Some(&json!(2)) || selected.pointer("/result/items/0/id")!=Some(&json!("IPR010991")){return Err("type selection changed the native count or classified a family as a domain".into());}
-    let empty=call(&env,&["protein","domains","P04637","--type","repeat"],0)?;
-    if empty.pointer("/page/total")!=Some(&json!(0)) || empty.pointer("/status")!=Some(&json!("complete")){return Err("empty type selection became a missing source".into());}
-    let skipped=call(&env,&["protein","domains","P04637","--disable-sources","interpro"],4)?;
-    if skipped.pointer("/sources/0/state")!=Some(&json!("skipped")) || skipped.get("result").is_some(){return Err("disabled source returned a retained collection".into());}
-    for _ in 0..2 {
-        let rejected=call(&env,&["protein","domains","P15056"],4)?;
-        if rejected.pointer("/sources/0/reason")!=Some(&json!("bad_reply")) || rejected.get("result").is_some(){return Err("a live response for another protein was admitted".into());}
+    let selected = call(
+        &env,
+        &["protein", "domains", "P04637", "--type", "domain"],
+        0,
+    )?;
+    if selected.pointer("/page/total") != Some(&json!(1))
+        || selected.pointer("/result/native_total") != Some(&json!(2))
+        || selected.pointer("/result/items/0/id") != Some(&json!("IPR010991"))
+    {
+        return Err(
+            "type selection changed the native count or classified a family as a domain".into(),
+        );
     }
-    if stub.finish()?.len()!=3 {return Err("a rejected native protein identity was cached".into());}
+    let empty = call(
+        &env,
+        &["protein", "domains", "P04637", "--type", "repeat"],
+        0,
+    )?;
+    if empty.pointer("/page/total") != Some(&json!(0))
+        || empty.pointer("/status") != Some(&json!("complete"))
+    {
+        return Err("empty type selection became a missing source".into());
+    }
+    let skipped = call(
+        &env,
+        &[
+            "protein",
+            "domains",
+            "P04637",
+            "--disable-sources",
+            "interpro",
+        ],
+        4,
+    )?;
+    if skipped.pointer("/sources/0/state") != Some(&json!("skipped"))
+        || skipped.get("result").is_some()
+    {
+        return Err("disabled source returned a retained collection".into());
+    }
+    for _ in 0..2 {
+        let rejected = call(&env, &["protein", "domains", "P15056"], 4)?;
+        if rejected.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || rejected.get("result").is_some()
+        {
+            return Err("a live response for another protein was admitted".into());
+        }
+    }
+    if stub.finish()?.len() != 3 {
+        return Err("a rejected native protein identity was cached".into());
+    }
     Ok(())
 }
 fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
@@ -54,8 +111,10 @@ fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
 }
 
 fn setup(stub: &Stub) -> Result<Environment, String> {
-    let env=Environment::new().map_err(|e|e.to_string())?;
-    let ca=env.root().join("source-ca.pem");fs::write(&ca,&stub.certificate).map_err(|e|e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca})).map_err(|e|e.to_string())?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let ca = env.root().join("source-ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
+        .map_err(|e| e.to_string())?;
     Ok(env)
 }

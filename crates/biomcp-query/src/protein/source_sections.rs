@@ -31,30 +31,63 @@ pub(super) fn supplement(
             continue;
         };
         let id = header.protein.accession.clone();
-        let mut selections=Vec::new();
-        if wants(q,ProteinSection::Domains) && let Ok(query)=ProteinDomainsQuery::new(id.clone(),q.section_limit()){selections.push(Selection::Domains(query));}
-        if wants(q,ProteinSection::Complexes) && let Ok(query)=ProteinRelationQuery::new(id,q.section_limit()){selections.push(Selection::Complexes(query));}
-        for selection in selections {apply(item,out,page(cx,&selection,deadline));}
-    }
-}
-fn apply(item:&mut ProteinCardItem,out:&mut Outcome,result:Outcome){
-    let reason=reason(&result);
-    if let Some(sections)=&mut item.sections {
-        match result.body {
-            QueryBody::ProteinDomains(data)=>sections.domains=Some(match data {
-                Some(data) if data.items.is_empty()=>Section::Empty{source:Source::InterPro,record:None},
-                Some(data)=>Section::Data{source:Source::InterPro,data},
-                None=>Section::unavailable(Source::InterPro,reason),
-            }),
-            QueryBody::ProteinComplexes(data)=>sections.complexes=Some(match data {
-                Some(data) if data.items.is_empty()=>Section::Empty{source:Source::ComplexPortal,record:None},
-                Some(data)=>Section::Data{source:Source::ComplexPortal,data},
-                None=>Section::unavailable(Source::ComplexPortal,reason),
-            }),
-            _=>{}
+        let mut selections = Vec::new();
+        if wants(q, ProteinSection::Domains)
+            && let Ok(query) = ProteinDomainsQuery::new(id.clone(), q.section_limit())
+        {
+            selections.push(Selection::Domains(query));
+        }
+        if wants(q, ProteinSection::Complexes)
+            && let Ok(query) = ProteinRelationQuery::new(id, q.section_limit())
+        {
+            selections.push(Selection::Complexes(query));
+        }
+        for selection in selections {
+            apply(item, out, page(cx, &selection, deadline));
         }
     }
-    merge(item,out,result.sources,result.next,result.problems,result.status);
+}
+fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
+    let reason = reason(&result);
+    if let Some(sections) = &mut item.sections {
+        match result.body {
+            QueryBody::ProteinDomains(data) => {
+                sections.domains = Some(match data {
+                    Some(data) if data.items.is_empty() => Section::Empty {
+                        source: Source::InterPro,
+                        record: None,
+                    },
+                    Some(data) => Section::Data {
+                        source: Source::InterPro,
+                        data,
+                    },
+                    None => Section::unavailable(Source::InterPro, reason),
+                })
+            }
+            QueryBody::ProteinComplexes(data) => {
+                sections.complexes = Some(match data {
+                    Some(data) if data.items.is_empty() => Section::Empty {
+                        source: Source::ComplexPortal,
+                        record: None,
+                    },
+                    Some(data) => Section::Data {
+                        source: Source::ComplexPortal,
+                        data,
+                    },
+                    None => Section::unavailable(Source::ComplexPortal, reason),
+                })
+            }
+            _ => {}
+        }
+    }
+    merge(
+        item,
+        out,
+        result.sources,
+        result.next,
+        result.problems,
+        result.status,
+    );
 }
 
 fn page(cx: &Ctx<'_>, selection: &Selection, deadline: Deadline<'_>) -> Outcome {

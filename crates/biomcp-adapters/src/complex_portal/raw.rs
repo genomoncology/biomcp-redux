@@ -12,11 +12,12 @@ impl Reply for Search {
         if self.elements.len() as u64 > self.total_number_of_results || self.elements.len() > 25 {
             return Err(BadReply);
         }
-        if self
-            .elements
-            .iter()
-            .any(|c| taxon(&c.organism_name) != Some(9606) || c.interactors.as_ref().is_some_and(|rows| rows.iter().any(|r| !r.valid())))
-        {
+        if self.elements.iter().any(|c| {
+            taxon(&c.organism_name) != Some(9606)
+                || c.interactors
+                    .as_ref()
+                    .is_some_and(|rows| rows.iter().any(|r| !r.valid()))
+        }) {
             return Err(BadReply);
         }
         Ok(())
@@ -75,6 +76,16 @@ pub(super) fn taxon(s: &str) -> Option<u32> {
 impl Member {
     fn valid(&self) -> bool {
         Text::new(&self.identifier).is_ok_and(|id| id.as_str() == self.identifier)
-            && self.xrefs.as_ref().or(self.cross_references.as_ref()).into_iter().flatten().all(|x| format!("{}:{}",x.database,x.identifier).parse::<biodata::Curie>().is_ok())
+            && self
+                .xrefs
+                .as_ref()
+                .or(self.cross_references.as_ref())
+                .into_iter()
+                .flatten()
+                .all(|x| {
+                    format!("{}:{}", x.database, x.identifier)
+                        .parse::<biodata::Curie>()
+                        .is_ok()
+                })
     }
 }

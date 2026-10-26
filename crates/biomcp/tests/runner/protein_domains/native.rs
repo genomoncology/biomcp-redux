@@ -49,12 +49,13 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
         let env = setup(&stub)?;
         let mut record = args.clone();
         record.extend(["--record", replay.to_str().ok_or("native replay")?]);
-        call(&env, &record, 0)?;
+        let recorded=call(&env, &record, 0)?;
         let value = super::super::run_case(&path, &registry)?;
         flags(name,&value)?;
         measure(name, &value, &output)?;
         if name.starts_with("complexes-") || name.starts_with("domains-") {
-            walk(&env, value, name, &output)?;
+            if name=="complexes-P15056" {members_from_complex(&env,&recorded,&output)?;}
+            walk(&env, recorded, name, &output)?;
         }
         fs::write(root.join(format!("{name}.done")), b"passed").map_err(|e| e.to_string())?;
     }
@@ -137,4 +138,13 @@ fn flags(name:&str,value:&Value)->Result<(),String>{
         if row.get("predicted")!=Some(&json!(expected)){return Err(format!("native predicted flag changed for {id}"));}
     }
     Ok(())
+}
+
+fn members_from_complex(env:&Environment,value:&Value,output:&Path)->Result<(),String>{
+    let action=super::super::action(value,"section")?;
+    let words:Vec<_>=action.iter().map(String::as_str).collect();
+    let members=call(env,&words,0)?;
+    if members.pointer("/page/total")!=Some(&json!(93)){return Err("native CPX-12671 participant total changed".into());}
+    measure("members-CPX-12671",&members,output)?;
+    walk(env,members,"members-CPX-12671",output)
 }

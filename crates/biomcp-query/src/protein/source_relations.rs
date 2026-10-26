@@ -122,7 +122,9 @@ pub(super) fn read(
         return Ok(());
     }
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let Some((saved,pool))=load(cx,q,&leg,&mut store,out)? else {return Ok(());};
+    let Some((saved, pool)) = load(cx, q, &leg, &mut store, out)? else {
+        return Ok(());
+    };
     if let (Selection::Members(query), Saved::Members(None)) = (q, &saved) {
         out.problems.push(biomcp_types::Problem {
             source: q.source(),
@@ -168,8 +170,14 @@ pub(super) fn read(
     Ok(())
 }
 
-fn load(cx:&Ctx<'_>,q:&Selection,leg:&biomcp_fetch::Leg<'_>,store:&mut Store<'_>,out:&mut Outcome)->Result<Option<(Saved,biomcp_types::PoolInfo)>,RequestError>{
-    let (_,_,selected)=q.window();
+fn load(
+    cx: &Ctx<'_>,
+    q: &Selection,
+    leg: &biomcp_fetch::Leg<'_>,
+    store: &mut Store<'_>,
+    out: &mut Outcome,
+) -> Result<Option<(Saved, biomcp_types::PoolInfo)>, RequestError> {
+    let (_, _, selected) = q.window();
     let key = q.key()?;
     let pool = if cx.fresh {
         None
