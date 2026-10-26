@@ -54,7 +54,17 @@ fn check() -> Check {
         if !empty && !text.contains(&config.display().to_string()) {
             return Err("config path does not match the settings boundary".into());
         }
-        for client in [None, Some("mcp-servers"), Some("servers"), Some("json")] {
+        for client in [
+            None,
+            Some("mcp-servers"),
+            Some("servers"),
+            Some("json"),
+            Some("claude-desktop"),
+            Some("claude-code"),
+            Some("cursor"),
+            Some("cline"),
+            Some("vscode"),
+        ] {
             check_config(&env, client, empty)?;
         }
         shell_client(&env, empty)?;
@@ -76,7 +86,7 @@ fn check_config(env: &Environment, client: Option<&str>, empty: bool) -> Check {
     }
     let output = run(env, &args, empty)?;
     let value: Value = serde_json::from_str(success(&output)?)?;
-    let key = if client == Some("servers") {
+    let key = if matches!(client, Some("servers" | "vscode")) {
         "servers"
     } else {
         "mcpServers"

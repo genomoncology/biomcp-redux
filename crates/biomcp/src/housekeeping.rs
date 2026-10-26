@@ -8,8 +8,9 @@ pub(crate) enum Command {
 }
 #[derive(Clone, Copy, Debug, clap::ValueEnum)]
 pub(crate) enum Client {
-    #[value(name = "mcp-servers", alias = "json")]
+    #[value(name = "mcp-servers", aliases = ["json", "claude-desktop", "claude-code", "cursor", "cline"])]
     McpServers,
+    #[value(alias = "vscode")]
     Servers,
     Codex,
 }
@@ -86,7 +87,12 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
                         .possible_values()
                         .into_iter()
                         .flatten()
-                        .map(|value| value.get_name().to_owned())
+                        .flat_map(|value| {
+                            value
+                                .get_name_and_aliases()
+                                .map(str::to_owned)
+                                .collect::<Vec<_>>()
+                        })
                         .collect(),
                 })
                 .collect(),
