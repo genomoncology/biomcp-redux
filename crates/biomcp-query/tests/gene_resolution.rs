@@ -164,3 +164,43 @@ fn clingen_local_failure_survives_later_source_deadline() {
         outcome.local
     );
 }
+
+#[test]
+fn concurrent_replay_annotations_and_bundle_publication_keep_checked_sections() {
+    use biomcp_query::{Ctx, run};
+    use biomcp_types::{GeneGet, GeneSectionWord, Request, Status};
+    let query = Request::GetGene(
+        GeneGet::with_sections(
+            ["MLH1", "MSH2", "MSH6", "PMS2", "EPCAM"]
+                .into_iter()
+                .map(|id| id.parse().unwrap())
+                .collect(),
+            vec![GeneSectionWord::ClinGen].into(),
+        )
+        .unwrap(),
+    );
+    // Feature: cache-resilience. The public query fans out annotation admission
+    // and bundle publication on the same Fetch; each iteration owns its cache.
+    for attempt in 0..16 {
+        let fetch = replay(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/clingen"),
+        );
+        let outcome = run(
+            &Ctx {
+                ncbi_email: None,
+                fetch: &fetch,
+                budget: Duration::from_secs(20),
+                fresh: false,
+            },
+            &query,
+        );
+        assert_eq!(
+            outcome.status,
+            Status::Complete,
+            "concurrent replay attempt {attempt}: local={:?}; sources={:?}",
+            outcome.local,
+            outcome.sources
+        );
+        assert!(outcome.local.is_none());
+    }
+}
