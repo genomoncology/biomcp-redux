@@ -1,4 +1,6 @@
 //! Research wrappers map the existing CLI result without provider calls.
+#[path = "research_links.rs"]
+mod links;
 #[path = "research_registry.rs"]
 mod registry;
 use super::{
@@ -11,6 +13,9 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("mcp/research-registry-record-links", || {
+            links::check().map_err(Into::into)
+        }),
         Trial::test("mcp/research-registry-projection-paths", || {
             registry::check().map_err(Into::into)
         }),

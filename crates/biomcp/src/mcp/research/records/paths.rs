@@ -25,6 +25,7 @@ pub(super) const VARIANT_IDS: &[&str] = &["/record/id"];
 
 pub(super) const IDS: &[&str] = &[
     "/id",
+    "/id/id",
     "/header/id",
     "/concept/id",
     "/product/id",
@@ -33,6 +34,7 @@ pub(super) const IDS: &[&str] = &[
     "/studyId",
     "/study/header/studyId",
     "/pathway/id",
+    "/pathway/id/id",
     "/k_number",
     "/reference",
     "/nci_id",

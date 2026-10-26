@@ -31,6 +31,14 @@ pub(super) fn check() -> Result<(), String> {
             gaps.push(format!("{id} {name}: missing record path"));
         }
         for row in projected {
+            // Unresolved or absent source identities have no selected card to fetch.
+            if matches!(
+                row.pointer("/properties/identity_status/const")
+                    .and_then(Value::as_str),
+                Some("missing_card" | "conflict")
+            ) {
+                continue;
+            }
             let synthetic_url = matches!(
                 name,
                 "GenePage"
@@ -175,6 +183,13 @@ fn enum_strings<'a>(root: &'a Value, node: &'a Value) -> Vec<&'a str> {
         .collect()
 }
 fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
+    if row
+        .pointer("/properties/identity_status/const")
+        .and_then(Value::as_str)
+        == Some("who_ivd")
+    {
+        return vec![Source::WhoIvd];
+    }
     let fixed = match name {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
         "StudyPage" | "StudyCard" => Some(Source::Cbioportal),

@@ -5,17 +5,26 @@ use biomcp_types::{ResearchHit, Source};
 use serde_json::Value;
 
 fn source(row: &Value, envelope: &Value) -> Option<Source> {
-    text(row, &["/source", "/attribution/source", "/term/source"])
-        .or_else(|| text(envelope, &["/query/source"]))
-        .or_else(|| {
-            let sources = envelope.get("sources")?.as_array()?;
-            (sources.len() == 1)
-                .then(|| sources.first())
-                .flatten()
-                .and_then(|s| text(s, &["/source"]))
-        })?
-        .parse()
-        .ok()
+    text(
+        row,
+        &[
+            "/source",
+            "/id/source",
+            "/pathway/id/source",
+            "/attribution/source",
+            "/term/source",
+        ],
+    )
+    .or_else(|| text(envelope, &["/query/source"]))
+    .or_else(|| {
+        let sources = envelope.get("sources")?.as_array()?;
+        (sources.len() == 1)
+            .then(|| sources.first())
+            .flatten()
+            .and_then(|s| text(s, &["/source"]))
+    })?
+    .parse()
+    .ok()
 }
 fn identity(row: &Value) -> Option<String> {
     text(row, paths::IDS).map(str::to_owned).or_else(|| {
@@ -51,14 +60,14 @@ pub(super) fn project(
     hit(args, title, &url)
 }
 pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    project(
-        entity,
-        row,
-        envelope,
-        next_args(entity, &identity(row)?, envelope)?,
-        None,
-    )
+    let args = paths::IDS
+        .iter()
+        .filter_map(|path| row.pointer(path).and_then(Value::as_str))
+        .find_map(|id| next_args(entity, id, envelope))
+        .or_else(|| next_args(entity, &identity(row)?, envelope))?;
+    project(entity, row, envelope, args, None)
 }
+
 pub(super) fn fetch(
     entity: &str,
     result: &Value,
