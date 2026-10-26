@@ -162,7 +162,7 @@ The approved whole-summary budget uses each observed disclosure's measured ceili
 | `R-HSA-73894` | 1539 | 1770 | 6157 | 7081 |
 | `R-HSA-5673001` | 1197 | 1377 | 4787 | 5506 |
 
-The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/output-measurements.json`, SHA256 `4b5dd0d6f40fe8ba8d7ac7ccaca904b427ddf15376f8af4d7083ea9fcf810ca8`. Transfer verification checks the complete file hash and every row's CLI/MCP equality result. The permanent caller cases also exercise a retained pool under a foreign query, disabled-source admission before saved content, exact ordered gene/top-level walks, native search continuation and Markdown command shapes.
+The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/output-measurements.json`, SHA256 `4b5dd0d6f40fe8ba8d7ac7ccaca904b427ddf15376f8af4d7083ea9fcf810ca8`. Transfer verification checks the complete file hash and every row's CLI/MCP equality result. The text-search zero-total boundary increment runs in `j14641`. HTTP200 with native total zero is a bad reply, while rejection of every row of a positive-total native page preserves that total, its native next offset and all admission problems. The four CLI/MCP/Markdown step measurements are separately preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/boundary-measurements.json`, SHA256 `eeef5fbad5de082dc52d9c8f405f3ad7486946ae5903cbbe857febd12ea2fe70`. The permanent caller cases also exercise a retained pool under a foreign query, disabled-source admission before saved content, exact ordered gene/top-level walks, native search continuation and Markdown command shapes.
 
 ### Public fields and identity joins
 

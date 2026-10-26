@@ -36,7 +36,8 @@
         "/status": "failed",
         "/sources/0/reason": "offline"
       },
-      "max_bytes": 2000
+      "max_bytes": 266,
+      "max_tokens": 67
     }
   ]
 }

@@ -28,8 +28,8 @@
           "count": 5
         }
       },
-      "max_bytes": 1328,
-      "max_tokens": 333
+      "max_bytes": 1071,
+      "max_tokens": 268
     },
     {
       "run": [
