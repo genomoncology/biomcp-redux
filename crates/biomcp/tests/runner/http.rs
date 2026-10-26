@@ -231,6 +231,20 @@ impl Server {
 }
 fn lifecycle() -> Check {
     let server = Server::start()?;
+    let cache = server.environment().root().join("case-cache");
+    let database = std::fs::read_dir(&cache)
+        .map_err(|e| e.to_string())?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .find(|path| {
+            path.extension()
+                .is_some_and(|extension| extension == "sqlite")
+        })
+        .ok_or("missing cache database")?;
+    let connection = rusqlite::Connection::open(&database).map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
     let (status, health) = server.request("GET", "/health", "")?;
     if status != 200 || health.get("version") != Some(&json!(env!("CARGO_PKG_VERSION"))) {
         return Err(format!("local health: {status} {health}"));

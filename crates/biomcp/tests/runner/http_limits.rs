@@ -183,11 +183,14 @@ fn overload() -> Check {
     excess
         .set_read_timeout(Some(Duration::from_millis(800)))
         .map_err(|e| e.to_string())?;
-    let mut byte = [0];
-    match excess.read(&mut byte) {
-        Ok(0) => (),
-        Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => (),
-        result => return Err(format!("excess connection queued or admitted: {result:?}")),
+    let mut response = String::new();
+    excess
+        .read_to_string(&mut response)
+        .map_err(|e| e.to_string())?;
+    if !response.starts_with("HTTP/1.1 503 ") {
+        return Err(format!(
+            "excess connection did not receive 503: {response:?}"
+        ));
     }
     drop(held);
     Ok(())
