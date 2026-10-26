@@ -26,7 +26,7 @@ pub(super) fn run() -> Result<(), String> {
         ] {
             let ids = ids.clone();
             let links = links.clone();
-            let stub = Stub::for_source(
+            let stub = Stub::for_source_status(
                 "api-v3.monarchinitiative.org",
                 "application/json",
                 move |_| {
@@ -48,6 +48,7 @@ pub(super) fn run() -> Result<(), String> {
                     }
                     Ok(json!({"limit":1,"offset":0,"total":1,"items":[row]}).to_string())
                 },
+                |_| 200,
             )?;
             let env = setup(&stub)?;
             let result = invoke(
