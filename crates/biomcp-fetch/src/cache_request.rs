@@ -8,7 +8,13 @@ use biomcp_types::Reason;
 
 const NEGATIVE_SECONDS: u64 = 600;
 enum Checked<T> {
-    Positive(T, bool, i64, Option<crate::ContentRange>),
+    Positive(
+        T,
+        bool,
+        i64,
+        Option<crate::ContentRange>,
+        Option<crate::Pagination>,
+    ),
     Absent,
 }
 
@@ -48,7 +54,15 @@ impl Leg<'_> {
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
         live: impl FnOnce() -> Result<crate::request::Decoded<T>, RequestError>,
-    ) -> Result<(T, i64, Option<crate::ContentRange>), RequestError> {
+    ) -> Result<
+        (
+            T,
+            i64,
+            Option<crate::ContentRange>,
+            Option<crate::Pagination>,
+        ),
+        RequestError,
+    > {
         let (url, key) = (prepared.url.as_str(), &prepared.identity);
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
@@ -57,22 +71,23 @@ impl Leg<'_> {
             return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
-            return live().map(|(reply, _, _, fetched, range)| {
+            return live().map(|(reply, _, _, fetched, range, pagination)| {
                 (
                     reply,
                     fetched,
                     range.as_deref().and_then(crate::ContentRange::parse),
+                    pagination,
                 )
             });
         };
         let mut stale = None;
         if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
             match self.checked_cached(cache, prepared, codec)? {
-                Some(Checked::Positive(reply, true, fetched, range)) => {
-                    return Ok((reply, fetched, range));
+                Some(Checked::Positive(reply, true, fetched, range, pagination)) => {
+                    return Ok((reply, fetched, range, pagination));
                 }
-                Some(Checked::Positive(reply, false, fetched, range)) => {
-                    stale = Some((reply, fetched, range))
+                Some(Checked::Positive(reply, false, fetched, range, pagination)) => {
+                    stale = Some((reply, fetched, range, pagination))
                 }
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
@@ -81,10 +96,11 @@ impl Leg<'_> {
             }
         }
         match live() {
-            Ok((reply, status, body, fetched, range)) => {
+            Ok((reply, status, body, fetched, range, pagination)) => {
                 let mut entry = Entry::new(status, body, seconds, codec.name());
                 entry.fetched_at = fetched;
                 entry.content_range = range;
+                entry.pagination = pagination;
                 if (200..300).contains(&status) && codec.cacheable(&reply) {
                     cache.write(key, self.spec.source, url, &entry, self.budget())?;
                 } else if codec.json_absence && status == 404 {
@@ -97,6 +113,7 @@ impl Leg<'_> {
                         .content_range
                         .as_deref()
                         .and_then(crate::ContentRange::parse),
+                    entry.pagination,
                 ))
             }
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
@@ -136,7 +153,15 @@ impl Leg<'_> {
         endpoint: &Endpoint,
         prepared: &crate::prepared::Prepared,
         codec: &Decoder<T>,
-    ) -> Result<(T, i64, Option<crate::ContentRange>), RequestError> {
+    ) -> Result<
+        (
+            T,
+            i64,
+            Option<crate::ContentRange>,
+            Option<crate::Pagination>,
+        ),
+        RequestError,
+    > {
         if let Some(cache) = self
             .fetch
             .cache
@@ -144,14 +169,14 @@ impl Leg<'_> {
             .filter(|_| endpoint.fresh.seconds().is_some())
         {
             match self.checked_cached(cache, prepared, codec)? {
-                Some(Checked::Positive(reply, fresh, fetched, range)) => {
+                Some(Checked::Positive(reply, fresh, fetched, range, pagination)) => {
                     if !fresh {
                         self.report
                             .lock()
                             .unwrap_or_else(std::sync::PoisonError::into_inner)
                             .stale = true;
                     }
-                    return Ok((reply, fetched, range));
+                    return Ok((reply, fetched, range, pagination));
                 }
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
@@ -228,6 +253,7 @@ impl Leg<'_> {
                 .content_range
                 .as_deref()
                 .and_then(crate::ContentRange::parse),
+            entry.pagination,
         )))
     }
 }

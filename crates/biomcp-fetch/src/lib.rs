@@ -372,7 +372,7 @@ impl Leg<'_> {
 }
 
 /// Provenance of one checked response, independent of other replies in its leg.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ReplyMetadata {
     /// Credential-free request identity.
     pub identity: [u8; 32],
@@ -380,8 +380,12 @@ pub struct ReplyMetadata {
     pub fetched: i64,
     /// Native exact count and selected bounds, when supplied by the provider.
     pub content_range: Option<ContentRange>,
+    /// Bounded native count and next link, only on UniProt search replies.
+    pub pagination: Option<Pagination>,
 }
 
+mod pagination;
+pub use pagination::Pagination;
 mod counted;
 pub use counted::ContentRange;
 

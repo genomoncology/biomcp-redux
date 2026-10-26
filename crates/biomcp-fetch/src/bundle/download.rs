@@ -332,6 +332,7 @@ impl Leg<'_> {
                 status: 200,
                 content_type: b.format.media().into(),
                 content_range: None,
+                pagination: None,
                 delay_ms: crate::record::millis(t.started.elapsed())
                     .map_err(RequestError::Recording)?,
                 retry_after_ms: None,
