@@ -50,7 +50,7 @@ pub(super) struct Xref {
 pub(super) struct Variation {
     pub variation_type: Text,
     pub mutation_type: Option<Text>,
-    pub mutation_description: Text,
+    pub mutation_description: Option<Text>,
     pub variation_note: Option<Text>,
     pub zygosity_type: Option<Text>,
     pub xref_list: Option<Box<[Xref]>>,

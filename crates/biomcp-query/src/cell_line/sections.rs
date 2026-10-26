@@ -81,6 +81,18 @@ pub(super) fn actions(query: &CellLineGet, card: &CellLineCard, out: &mut Outcom
             } else {
                 5
             });
+    if query.section() != Some(CellLineSection::Identity)
+        && let Some(total) = total
+    {
+        let remaining = total.saturating_sub(u64::from(query.section_offset()));
+        out.page = Some(PageInfo {
+            offset: query.section_offset(),
+            returned: remaining.min(u64::from(limit)) as u32,
+            total,
+            pool: None,
+            truncated: None,
+        });
+    }
     if let Some(offset) = query.section_offset().checked_add(limit)
         && total.is_some_and(|total| u64::from(offset) < total)
     {

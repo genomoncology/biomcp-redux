@@ -15,8 +15,9 @@ fn xref(value: &Value) -> Value {
     value
 }
 fn variation(value: &Value) -> Value {
-    let mut result = json!({"variation_type":value["variation-type"], "description":value["mutation-description"], "genes":[], "references":[], "provenance":[]});
+    let mut result = json!({"variation_type":value["variation-type"], "genes":[], "references":[], "provenance":[]});
     for (source, target) in [
+        ("mutation-description", "description"),
         ("mutation-type", "mutation_type"),
         ("zygosity-type", "zygosity"),
         ("variation-note", "note"),

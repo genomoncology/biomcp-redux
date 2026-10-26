@@ -129,7 +129,8 @@ pub struct CellLineVariation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mutation_type: Option<Text>,
     /// Complete native mutation description including all coordinate spellings.
-    pub description: Text,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<Text>,
     /// Complete native variation note.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<Text>,
