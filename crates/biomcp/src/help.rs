@@ -59,12 +59,13 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     extra_commands(&mut commands, &examples);
     Ok(commands)
 }
+const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.";
 const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.";
 
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
-    if entity == "author" {
-        description.push_str(" Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking is unavailable.");
+    if entity == "author" || verb == "author" {
+        description.push_str(AUTHOR_BOUNDARY);
     }
     if entity == "cell-line" || verb == "cell-line" {
         description.push(' ');
@@ -212,15 +213,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec![
-        "help CMD;schema ID".into(),
-        CELL_LINE_BOUNDARY.into(),
-        "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
-        "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
-        "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
-        "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
-        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
-    ];
+    let mut lines = tree_intro();
     for command in commands {
         if command.command.first().is_none_or(|verb| {
             !matches!(
@@ -233,6 +226,7 @@ pub(crate) fn tree() -> String {
                     | "sync"
                     | "pathway"
                     | "cell-line"
+                    | "author"
             )
         }) {
             continue;
@@ -265,6 +259,7 @@ pub(crate) fn tree() -> String {
         if command.command == ["search", "protein"] {
             line.push_str(" --gene --reviewed");
         }
+        author_selectors(&command, &mut line);
         cell_line_selectors(&command, &mut line);
         pgx_selectors(&command, &mut line);
         gwas_selectors(&command, &mut line);
@@ -286,6 +281,33 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn tree_intro() -> Vec<String> {
+    vec![
+        "help CMD;schema ID".into(),
+        CELL_LINE_BOUNDARY.into(),
+        "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid (ORCID_ACCESS_TOKEN)".into(),
+        "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
+        "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
+        "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
+        "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
+        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
+    ]
+}
+
+fn author_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command == ["get", "author"] {
+        line.push_str(" semantic-scholar:ID|orcid:ID (semanticscholar:ID alias)");
+    }
+    if command.command == ["author", "papers"] {
+        line.push_str(" details|--full --limit/-l --offset --pool");
+    }
+    if command.command == ["search", "author"] {
+        line.push_str(
+            " --source semantic-scholar|semanticscholar --query/-q --limit/-l --offset --pool",
+        );
+    }
 }
 
 fn cell_line_selectors(command: &HelpCommand, line: &mut String) {
