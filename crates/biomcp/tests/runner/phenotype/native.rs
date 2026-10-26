@@ -19,7 +19,7 @@ fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
         .and_then(Value::as_str)
         .ok_or_else(|| format!("missing {key}"))
 }
-fn archived_body(root: &Path, row: &Value) -> Result<(Value, String), String> {
+pub(super) fn archived_body(root: &Path, row: &Value) -> Result<(Value, String), String> {
     let bytes = fs::read(root.join(text(row, "body")?)).map_err(|e| e.to_string())?;
     let hash = Sha256::digest(&bytes)
         .iter()
@@ -233,7 +233,7 @@ pub(super) fn mcp(
     Ok(())
 }
 
-fn restore_date(directory: &Path, fetched: u64) -> Result<(), String> {
+pub(super) fn restore_date(directory: &Path, fetched: u64) -> Result<(), String> {
     for source in ["hpo", "monarch"] {
         let path = directory.join(source);
         if !path.exists() {
@@ -309,8 +309,22 @@ fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
     if result.pointer("/result/sections") != Some(&json!(expected)) {
         return Err("native available sections changed".into());
     }
-    if result.get("next").is_some() {
-        return Err("card advertised a section handler before it exists".into());
+    let handlers = expected
+        .into_iter()
+        .filter(|section| matches!(*section, "synonyms" | "xrefs" | "hierarchy"))
+        .collect::<Vec<_>>();
+    let next = result
+        .get("next")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or_default();
+    if next.len() != handlers.len()
+        || next.iter().zip(handlers).any(|(step, section)| {
+            step.get("kind") != Some(&json!("section"))
+                || step.pointer("/args/3") != Some(&json!(section))
+        })
+    {
+        return Err("card section steps do not match the implemented source fields".into());
     }
     Ok(())
 }
