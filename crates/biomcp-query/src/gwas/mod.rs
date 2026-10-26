@@ -10,7 +10,9 @@ use biomcp_types::{
 };
 /// One bounded native page; no per-hit metadata calls.
 pub fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
-    if q.p_value().is_some() { return threshold::search(cx, q); }
+    if q.p_value().is_some() {
+        return threshold::search(cx, q);
+    }
     let mut out = Outcome {
         status: Status::Failed,
         body: QueryBody::GwasPage(None),

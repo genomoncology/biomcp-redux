@@ -168,11 +168,21 @@ impl GwasSearch {
         self.0.offset
     }
     /// Retained threshold walk identity.
-    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    pub fn pool(&self) -> Option<&Text> {
+        self.0.pool.as_ref()
+    }
     /// Restart the exact selectors at the beginning.
-    pub fn restart(&self) -> Self { let mut q = self.at_offset(0); q.0.pool = None; q }
+    pub fn restart(&self) -> Self {
+        let mut q = self.at_offset(0);
+        q.0.pool = None;
+        q
+    }
     /// Continue a retained threshold walk.
-    pub fn in_pool(&self, pool: Text, offset: u32) -> Self { let mut q = self.at_offset(offset); q.0.pool = Some(pool); q }
+    pub fn in_pool(&self, pool: Text, offset: u32) -> Self {
+        let mut q = self.at_offset(offset);
+        q.0.pool = Some(pool);
+        q
+    }
     /// Continue without changing source selectors.
     pub fn at_offset(&self, offset: u32) -> Self {
         let mut next = self.clone();
