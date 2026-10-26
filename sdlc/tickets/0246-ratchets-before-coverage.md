@@ -1,6 +1,7 @@
 # 0246 — Run the ratchets before coverage
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4faf58941ca8042e984b326594dee56a852bfcc0
 
 Milestone: 1
 
