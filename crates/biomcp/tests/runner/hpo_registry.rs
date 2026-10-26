@@ -66,10 +66,10 @@ fn declaration() -> Check {
         let mut outcome = registry::outcome(Source::Hpo, state, Some(Reason::Disabled));
         outcome.count = Some(0);
         let value = serde_json::to_value(outcome).map_err(|e| e.to_string())?;
-        if value["use"] != row["usage"]
-            || value["terms"] != row["terms"]
-            || value["terms_url"] != row["terms_url"]
-            || !value["fetched"].is_null()
+        if value.get("use") != row.get("usage")
+            || value.get("terms") != row.get("terms")
+            || value.get("terms_url") != row.get("terms_url")
+            || value.get("fetched").is_some_and(|v| !v.is_null())
         {
             return Err(format!("lost source metadata: {value}"));
         }
