@@ -57,6 +57,7 @@ fn check() -> Check {
         for client in [None, Some("mcp-servers"), Some("servers"), Some("json")] {
             check_config(&env, client, empty)?;
         }
+        shell_client(&env, empty)?;
         invalid_client(&env, empty)?;
     }
     env.config(&json!({"format":"md","keys":{"ncbi_api_key":"never-read"}}))?;
@@ -133,6 +134,30 @@ fn invalid_client(env: &Environment, empty: bool) -> Check {
     let value: Value = serde_json::from_slice(&output.stdout)?;
     if value.pointer("/next/0/args") != Some(&json!(["mcp-config", "--client", "mcp-servers"])) {
         return Err("invalid client omitted the supported replacement command".into());
+    }
+    Ok(())
+}
+
+fn shell_client(env: &Environment, empty: bool) -> Check {
+    let output = run(
+        env,
+        &["mcp-config", "--client", "codex", "--offline"],
+        empty,
+    )?;
+    let words = shlex::split(success(&output)?).ok_or("invalid shell command")?;
+    let expected = env.command(env!("CARGO_BIN_EXE_biomcp"), &[]);
+    let path = Path::new(expected.get_program()).canonicalize()?;
+    let expected = [
+        "codex",
+        "mcp",
+        "add",
+        "biomcp",
+        "--",
+        path.to_str().ok_or("invalid executable path")?,
+        "serve",
+    ];
+    if words != expected {
+        return Err(format!("wrong shell client configuration: {words:?}").into());
     }
     Ok(())
 }
