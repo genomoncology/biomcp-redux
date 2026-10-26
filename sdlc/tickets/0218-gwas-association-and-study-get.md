@@ -1,6 +1,7 @@
 # 0218 — Get a GWAS association with loci and a study with associations and ancestries
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e1294e11915ce19e1c1d22190e5d7356a858d895
 
 Milestone: 4
 
