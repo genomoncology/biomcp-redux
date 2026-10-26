@@ -258,13 +258,16 @@ fn gwas_walk(input: &str, requests: usize) -> Result<(), String> {
         {
             return Err(format!("source catalog bounds lost: {value}"));
         }
-        for row in data["associations"]
-            .as_array()
+        for row in data
+            .get("associations")
+            .and_then(Value::as_array)
             .ok_or("associations absent")?
         {
             if row.get("beta") != Some(&json!("0.036833 kg decrease"))
                 || row.pointer("/alleles/0/allele") != Some(&json!("T"))
                 || row.pointer("/ontology_traits/0/id") != Some(&json!("EFO_0004344"))
+                || row.pointer("/exact_p_value/exponent") != Some(&json!(-28539))
+                || row.pointer("/exact_p_value/mantissa") != Some(&json!("2"))
             {
                 return Err(format!("source association effect/trait changed: {row}"));
             }
@@ -320,7 +323,7 @@ fn gwas_page(request: &str) -> Result<String, String> {
     // Synthetic response-only associations exercise the source v2 schema and native page order.
     let second = request.contains("&page=1&");
     let ids = if second { vec![103] } else { vec![101, 102] };
-    let rows:Vec<_>=ids.into_iter().map(|id|json!({"association_id":id,"accession_id":"GCST90996374","reported_trait":["Synthetic trait"],"efo_traits":[{"efo_id":"EFO_0004344","efo_trait":"Synthetic ontology label"}],"snp_allele":[{"rs_id":"rs113488022","effect_allele":"T"}],"p_value":4e-10,"beta":"0.036833 kg decrease","risk_frequency":"NR","range":"[0.025-0.048]","pubmed_id":"40210729"})).collect();
+    let rows:Vec<_>=ids.into_iter().map(|id|json!({"association_id":id,"accession_id":"GCST90996374","reported_trait":["Synthetic trait"],"efo_traits":[{"efo_id":"EFO_0004344","efo_trait":"Synthetic ontology label"}],"snp_allele":[{"rs_id":"rs113488022","effect_allele":"T"}],"p_value":0.0,"pvalue_mantissa":2,"pvalue_exponent":-28539,"beta":"0.036833 kg decrease","risk_frequency":"NR","range":"[0.025-0.048]","pubmed_id":"40210729"})).collect();
     let number = if second { 1 } else { 0 };
     Ok(json!({"_embedded":{"associations":rows},"_links":{"self":{"href":format!("https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page={number}&size=2")}},"page":{"size":2,"totalElements":3,"totalPages":2,"number":number}}).to_string())
 }

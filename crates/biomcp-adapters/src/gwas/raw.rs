@@ -46,6 +46,24 @@ pub struct Association {
     pub snp_allele: Vec<EffectAllele>,
     /// Reported association p value.
     pub p_value: FiniteNumber,
+    /// Source exact mantissa, independent of rounded p_value.
+    #[serde(rename = "pvalue_mantissa")]
+    pub p_value_mantissa: Option<u64>,
+    /// Source exponent, including values below the double range.
+    #[serde(rename = "pvalue_exponent")]
+    pub p_value_exponent: Option<i64>,
+    /// Source author attribution.
+    #[serde(rename = "first_author")]
+    pub author: Option<String>,
+    /// Source gene mapping strings.
+    #[serde(rename = "mapped_genes")]
+    pub mapped_gene: Option<Vec<Text>>,
+    /// Native mapping locations.
+    pub locations: Option<Vec<Text>>,
+    /// Source interval lower bound.
+    pub ci_lower: Option<FiniteNumber>,
+    /// Source interval upper bound.
+    pub ci_upper: Option<FiniteNumber>,
     /// Reported effect beta, preserving units and prose.
     pub beta: Option<String>,
     /// Reported odds ratio where provided.
@@ -98,10 +116,14 @@ impl Reply for Response {
             return Err(BadReply);
         }
         let mut ids = std::collections::BTreeSet::new();
-        if rows
-            .iter()
-            .any(|r| r.association_id == 0 || !ids.insert(r.association_id))
-        {
+        if rows.iter().any(|r| {
+            r.association_id == 0
+                || !ids.insert(r.association_id)
+                || r.exact_p_value().is_none()
+                    && (r.p_value_mantissa.is_some()
+                        || r.p_value_exponent.is_some()
+                        || f64::from(r.p_value) == 0.0)
+        }) {
             return Err(BadReply);
         }
         Ok(())
@@ -117,5 +139,15 @@ impl Response {
                     .iter()
                     .all(|a| a.snp_allele.iter().any(|s| s.rs_id.as_str() == id))
             })
+    }
+}
+
+impl Association {
+    /// Decode exact native parts without converting the probability to a double.
+    pub fn exact_p_value(&self) -> Option<biodata::ScientificPValue> {
+        let mantissa = self.p_value_mantissa?;
+        format!("{mantissa}e{}", self.p_value_exponent?)
+            .parse()
+            .ok()
     }
 }
