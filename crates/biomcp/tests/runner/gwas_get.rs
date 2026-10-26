@@ -16,6 +16,7 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("gwas-get/ancestry-walk-ownership-and-source-policy", || {
             synthetic::ancestry().map_err(Into::into)
         }),
+        Trial::test("gwas-get/loci-and-native-study-page-actions", || synthetic::contexts().map_err(Into::into)),
         Trial::test("gwas-get/source-failures-and-usage", || {
             synthetic::failures().map_err(Into::into)
         }),
@@ -41,21 +42,30 @@ fn study() -> Value {
         "efo_traits":[],"discovery_ancestry":[],"replication_ancestry":[],"genotyping_technologies":[],
         "initial_sample_size":"Native prose repeated repeated","replication_sample_size":"Native scope differs"})
 }
-fn ancestry() -> Value {
+fn ancestry_body() -> Value {
     json!({"_embedded":{"ancestries":(0..3).map(|n|json!({"type":"replication","number_of_individuals":10+n,
         "ancestral_groups":[{"ancestral_group":"Synthetic group"}],"country_of_origin":[{"country_name":"NR"}],
         "country_of_recruitment":[],"_links":{"self":{"href":format!("{BASE}/studies/GCST000035/ancestries/{n}")}}})).collect::<Vec<_>>()}})
 }
 fn source(request: &str) -> Result<String, String> {
-    Ok(if request.contains("/ancestries") {
-        ancestry()
-    } else if request.contains("/studies/") {
-        study()
-    } else {
-        card()
-    }
-    .to_string())
+    let path=request.lines().next().and_then(|l|l.split_whitespace().nth(1)).ok_or("target")?;
+    Ok(if request.contains("/ancestries") { ancestry_body() }
+        else if request.contains("/loci") { loci() }
+        else if request.contains("/associations?") { associations(path) }
+        else if request.contains("/studies/") { study() } else { card() }.to_string())
 }
+fn loci() -> Value {
+    json!({"_embedded":{"loci":[{"description":"Synthetic locus","strongest_risk_alleles":[{"risk_allele_name":"rs3817198-C"}],
+        "author_reported_genes":[{"gene_name":"Synthetic gene","ensembl_gene_ids":["ENSG00000066468"],"entrez_gene_ids":["2263"]}],
+        "_links":{"self":{"href":format!("{BASE}/associations/6114/loci/1")}}}]}})
+}
+fn associations(path: &str) -> Value {
+    let page=if path.contains("page=1") {1} else {0};
+    let rows=(page*3..page*3+3).map(|n| {let mut row=card();row["association_id"]=json!(6110+n);row}).collect::<Vec<_>>();
+    json!({"_embedded":{"associations":rows},"page":{"size":3,"number":page,"totalElements":6,"totalPages":2},
+        "_links":{"self":{"href":format!("https://www.ebi.ac.uk{path}")}}})
+}
+
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));

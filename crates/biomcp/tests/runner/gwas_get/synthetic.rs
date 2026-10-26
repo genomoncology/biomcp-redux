@@ -60,7 +60,7 @@ pub(super) fn ancestry() -> Result<(), String> {
         "1",
     ];
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let replay = seed(&env, &args, ancestry().to_string(), 200, 0)?;
+    let replay = seed(&env, &args, ancestry_body().to_string(), 200, 0)?;
     let mut value = call(&env, &replay, &args, 0)?;
     fs::remove_dir_all(&replay).map_err(|e| e.to_string())?;
     let mut counts = vec![
@@ -101,7 +101,7 @@ pub(super) fn ancestry() -> Result<(), String> {
         return Err("cached disabled ancestry".into());
     }
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let mut rows = ancestry();
+    let mut rows = ancestry_body();
     *rows
         .pointer_mut("/_embedded/ancestries/1/_links/self/href")
         .ok_or("row link")? = json!(format!("{BASE}/studies/GCST000037/ancestries/1"));
@@ -149,5 +149,23 @@ pub(super) fn failures() -> Result<(), String> {
         command.extend(args.iter().map(|s| (*s).to_owned()));
         invoke(&env, command, 2)?;
     }
+    Ok(())
+}
+
+pub(super) fn contexts() -> Result<(), String> {
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",source)?;
+    let live=super::super::variant::source_environment(&stub)?;
+    let value=invoke(&live,vec!["get".into(),"gwas".into(),"association:6114".into(),"loci".into()],0)?;
+    for id in ["ENSG00000066468","2263"] {
+        if !value.get("next").and_then(Value::as_array).is_some_and(|s|s.iter().any(|s|s.pointer("/args/2")==Some(&json!(id)))) {return Err(format!("missing exact gene {id}: {value}"))}
+    }
+    if stub.finish()?.len()!=1 {return Err("loci performed a gene request".into())}
+    let stub=Stub::for_source("www.ebi.ac.uk","application/json",source)?;
+    let live=super::super::variant::source_environment(&stub)?;
+    let first=invoke(&live,["get","gwas","GCST000035","associations"].map(str::to_owned).into(),0)?;
+    let next=super::super::action(&first,"page")?;
+    let last=invoke(&live,next,0)?;
+    if first.pointer("/result/items/0/id")!=Some(&json!(6110)) || last.pointer("/result/items/0/id")!=Some(&json!(6113)) || last.pointer("/query/query/id")!=Some(&json!("GCST000035")) || last.pointer("/page/total")!=Some(&json!(6)) {return Err(format!("study source walk: {first} {last}"))}
+    if stub.finish()?.len()!=2 {return Err("study walk request count".into())}
     Ok(())
 }

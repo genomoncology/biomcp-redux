@@ -1,0 +1,64 @@
+{
+  "$defs": {
+    "GwasCommandSection": {
+      "description": "Native context section grammar.",
+      "enum": [
+        "loci",
+        "associations",
+        "ancestries"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native association loci.",
+        " Native study association pages.",
+        " Native study ancestry rows."
+      ]
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.gwas-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Get command grammar selects an association or study by its checked native identifier.",
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/Text",
+      "description": "Qualified association ID or exact GCST study accession.",
+      "x-positional": 0
+    },
+    "section": {
+      "$ref": "#/$defs/GwasCommandSection",
+      "description": "Association loci or study associations and ancestries.",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "description": "Maximum native relation rows.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "description": "Native relation row offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "snapshot": {
+      "$ref": "#/$defs/Text",
+      "description": "Retained ancestry reply for a local page."
+    }
+  },
+  "required": [
+    "id",
+    "section",
+    "section_limit",
+    "section_offset",
+    "snapshot"
+  ],
+  "title": "GwasGetCommand",
+  "type": "object"
+}

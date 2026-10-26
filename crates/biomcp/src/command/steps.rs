@@ -43,11 +43,8 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
-        Body::GwasAssociation(_)
-        | Body::GwasStudy(_)
-        | Body::GwasLoci(_)
-        | Body::GwasAncestries(_) => Navigation::NativeOrder,
-        Body::GwasPage(_) | Body::PathwayEvents(_) => Navigation::NativeOrder,
+        Body::GwasAssociation(_) | Body::GwasStudy(_) | Body::GwasLoci(_) | Body::GwasAncestries(_)
+        | Body::GwasPage(_) | Body::PathwayEvents(_) => Navigation::NativeOrder,
         Body::PathwayCard(Some(card)) if card.events.is_some() && card.genes.is_none() => {
             Navigation::NativeOrder
         }
@@ -59,9 +56,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::ProteinCard(card) => {
             candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
         }
-        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
-            Navigation::Bounded
-        }
+        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => Navigation::Bounded,
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
         Body::PhenotypeCard(_)
         | Body::PhenotypeSynonyms(_)
