@@ -54,6 +54,7 @@ fn faults(route: &str,args: &[&str]) -> Check {
     Ok(())
 }
 fn failed(value: &Value,reason: &str) -> Check {
+    if serde_json::to_vec(value).map_err(|e|e.to_string())?.len()>4000 {return Err("source failure exceeds size ceiling".into());}
     let source=value.get("sources").and_then(Value::as_array).and_then(|v|v.iter().find(|s|s.get("source")==Some(&json!("reactome")))).ok_or("missing failed source")?;
     if value.get("status")!=Some(&json!("failed")) || source.get("state")!=Some(&json!("failed"))
         || source.get("reason")!=Some(&json!(reason)) || source.get("terms")!=Some(&json!("CC0 1.0 database data"))
