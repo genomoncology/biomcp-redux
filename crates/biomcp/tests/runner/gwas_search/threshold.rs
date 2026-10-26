@@ -6,7 +6,13 @@ fn start<'a>(threshold: &'a str) -> Vec<&'a str> {
 fn follow(env: &Environment, replay: &Path, value: &Value, exit: i32) -> Result<Value, String> {
     let args = value.pointer("/next/0/args").and_then(Value::as_array).ok_or("continuation")?
         .iter().map(|arg| arg.as_str().ok_or("arg")).collect::<Result<Vec<_>,_>>()?;
-    call(env, replay, &args, exit)
+    let cli = call(env, replay, &args, exit)?;
+    if exit == 0 {
+        let owned = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
+        let mcp = super::super::mcp::call_with_globals(env, &owned, false, &env.globals(Some(replay), false))?;
+        if cli != mcp { return Err("threshold continuation CLI/MCP mismatch".into()); }
+    }
+    Ok(cli)
 }
 fn page(env: &Environment, number: u32, total: u32, exponent: i64) -> Result<PathBuf, String> {
     let mut p = pairs();
@@ -101,7 +107,7 @@ pub(super) fn native(directory: &Path) -> Result<(), String> {
         let comparable = super::super::source_terms::size(&value, "")?;
         let name = path.file_stem().and_then(|v| v.to_str()).ok_or("case name")?;
         fs::write(outputs.join(format!("{name}.json")), &bytes).map_err(|e| e.to_string())?;
-        writeln!(std::io::stdout(), "GWAS threshold {name}: CLI={}, MCP={}, comparable={}, estimated_tokens={}", bytes.len()+1, bytes.len(), comparable, comparable.div_ceil(4)).map_err(|e| e.to_string())?;
+        writeln!(std::io::stdout(), "GWAS threshold {name}: CLI={}, JSON={}, comparable={}, estimated_tokens={}", bytes.len()+1, bytes.len(), comparable, comparable.div_ceil(4)).map_err(|e| e.to_string())?;
     }
     Ok(())
 }

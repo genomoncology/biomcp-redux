@@ -5,7 +5,7 @@ trap 'rm -rf "$native_root"' EXIT
 scp yellow:/home/ian/workspace/data/biomcp-redux/0205-gwas-captures/j14351-native-evidence.tar.gz "$native_root/previous.tar.gz"
 scp yellow:/home/ian/workspace/data/biomcp-redux/0234-gwas-search/native-evidence.tar.gz "$native_root/current.tar.gz"
 scp yellow:/home/ian/workspace/data/biomcp-redux/0193-gwas-investigation/2292-gwas-source-and-cost-evidence.tar.gz "$native_root/original.tar.gz"
-python3 scripts/gwas_threshold_replay.py "$native_root" "$native_root/previous.tar.gz" "$native_root/current.tar.gz" "$native_root/original.tar.gz"
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/gwas_threshold_replay.py "$native_root" "$native_root/previous.tar.gz" "$native_root/current.tar.gz" "$native_root/original.tar.gz"
 if [ "$#" -eq 1 ]; then
     mkdir "$native_root/selected"
     cp "$native_root/fixtures/gwas-threshold-cases/$1.yaml" "$native_root/selected/"
