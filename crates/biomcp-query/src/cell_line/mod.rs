@@ -1,6 +1,7 @@
 //! Literal source discovery and exact cell identity; no name-based joins.
 mod chembl;
 mod get;
+mod all;
 pub use chembl::assay_count;
 mod provenance;
 mod sections;

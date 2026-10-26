@@ -1,6 +1,7 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
 mod adverse_event;
+mod cell_line;
 mod diagnostic;
 mod drug;
 mod gwas;
@@ -131,6 +132,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         return Some(message);
     }
     let words = words(args)?;
+    if let Some(message) = cell_line::message(&words) {
+        return Some(message);
+    }
     if let Some(message) = protein::message(&words) {
         return Some(message);
     }
@@ -174,6 +178,8 @@ fn command(positional: &[&str]) -> Option<ErrorMessage> {
             "car" | "mutalyzer" | "variantvalidator" | "all",
             ..,
         ] => Some(ErrorMessage::VariantNormalize),
+        ["gene", "cell-lines", ..] => Some(ErrorMessage::CellLineExpression),
+        ["cell-line", "drug-response", ..] => Some(ErrorMessage::CellLineDrugResponse),
         ["gene", word] => find(GENE, word),
         ["batch", "trial", ..] => Some(ErrorMessage::TrialBatch),
         ["variant", "trials", ..] => Some(ErrorMessage::VariantTrials),

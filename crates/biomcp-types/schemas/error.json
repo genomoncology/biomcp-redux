@@ -185,6 +185,8 @@
         "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
         "use: help search disease; help get disease",
         "use: search trial --condition <text>; NCI requires an NCIt identifier",
+        "PharmacoDB drug response is deferred until it publishes a data reuse grant",
+        "gene cell-lines is deferred until an exact HPA cell identity join exists",
         "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
         "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.",

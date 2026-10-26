@@ -1,7 +1,7 @@
 //! Feature cell-line-chembl: exact source metadata and separately requested assay totals.
 use super::*;
 mod faults;
-mod surface;
+pub(super) mod surface;
 use surface::{compared, invoke_measured, measure_bytes, measure_mcp, parity};
 const MEASURE: bool = false;
 pub(super) fn trials() -> Vec<Trial> {

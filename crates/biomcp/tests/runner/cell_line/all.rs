@@ -1,7 +1,12 @@
 //! Feature cell-line-all: bounded independent first pages with visible source outcomes.
 use super::*;
+mod controls;
+const MEASURE: bool = true;
+use super::chembl::surface;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("cell-line-all/bounded-first-pages", || native().map_err(Into::into))]
+    let mut trials = vec![Trial::test("cell-line-all/bounded-first-pages", || native().map_err(Into::into))];
+    trials.extend(controls::trials());
+    trials
 }
 fn reply(request: &str) -> Result<String, String> {
     let target = request.split_whitespace().nth(1).ok_or("target")?;
@@ -25,14 +30,42 @@ fn native() -> Result<(), String> {
     let stub = stub()?;
     let env = setup(&stub)?;
     for id in ["CVCL_2119", "CVCL_0004"] {
-        let value = invoke(&env, &["get", "cell-line", id, "all"], 0)?;
+        let args = ["get", "cell-line", id, "all"];
+        let phase = format!("all/native/{id}");
+        let value = parity(&phase, &env, &args, 0)?;
         for section in ["names", "identity", "xrefs", "variants", "chembl"] {
             path(&value, &format!("/result/sections/{section}/state"), json!("data"))?;
         }
+        let native: Value = serde_json::from_str(&fixture(&format!("portable-cellosaurus-cell-{id}.json"))?).map_err(|e|e.to_string())?;
+        let row = native.pointer("/Cellosaurus/cell-line-list/0").ok_or("native row")?;
+        for section in ["names", "identity", "xrefs", "variants"] {
+            let page = json!({"result": value.pointer(&format!("/result/sections/{section}/data")).ok_or("section data")?});
+            sections::expected::page(row, section, &page, 0, if section == "variants" {3} else {5})?;
+        }
+        path(&value, "/result/release/version", json!("57.0"))?;
+        path(&value, "/result/sections/chembl/data/release/version", json!("ChEMBL_37"))?;
+        path(&value, "/result/sections/chembl/data/release/updated", json!("2026-05-01"))?;
+        if value.pointer("/result/release/updated") == value.pointer("/result/sections/chembl/data/release/updated") {
+            return Err("source dates were conflated".into());
+        }
+        let actions = value.get("next").and_then(Value::as_array).ok_or("next")?;
+        for section in ["xrefs"] {
+            if !actions.iter().any(|action| action.get("args").and_then(Value::as_array).is_some_and(|args|args.contains(&json!(section)) && args.contains(&json!("--section-offset")))) {
+                return Err(format!("all lost {section} continuation"));
+            }
+        }
+        sections::markdown(&phase, &env, &args, &["--replay".into(), env.root().join("recordings").join(&phase).to_str().ok_or("path")?.into()], &value, MEASURE)?;
     }
     let requests = stub.finish()?;
     if requests.len() != 6 || requests.iter().any(|(_,r)| r.contains("/assay.json")) {
         return Err(format!("all fanout changed: {}", requests.len()));
     }
     Ok(())
+}
+
+fn parity(phase: &str, env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
+    let value = surface::parity(phase, env, args, exit, MEASURE)?;
+    let raw = fs::read(env.root().join("mcp-raw").join(phase).join("mcp.stdout")).map_err(|e|e.to_string())?;
+    surface::measure_bytes(phase, "mcp-rpc", raw.len(), MEASURE)?;
+    Ok(value)
 }

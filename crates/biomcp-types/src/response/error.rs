@@ -143,6 +143,8 @@ singleton! {
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
         DiseaseHelp => "use: help search disease; help get disease",
         DiseaseTrials => "use: search trial --condition <text>; NCI requires an NCIt identifier",
+        CellLineDrugResponse => "PharmacoDB drug response is deferred until it publishes a data reuse grant",
+        CellLineExpression => "gene cell-lines is deferred until an exact HPA cell identity join exists",
         DrugCellLines => "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         CvxUnavailable => "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
         CvxSync => "cvx sync is retired: the cancer-care drug slice has no vaccine alias bridge.",

@@ -151,6 +151,13 @@ impl CellLineGet {
         query.0.section_offset = offset;
         query
     }
+    /// Composite disclosure always starts each collection at its own default first page.
+    pub fn first_sections(&self) -> Self {
+        let mut query = self.clone();
+        query.0.section_limit = None;
+        query.0.section_offset = 0;
+        query
+    }
     /// Caller identity without normalization.
     pub fn id(&self) -> &CellLineInput {
         &self.0.id
