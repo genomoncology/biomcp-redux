@@ -129,7 +129,19 @@ fn hydrate(
                             .filter(|name| !super::sections::wants(q, *name))
                             .collect();
                         if !q.sections().is_empty() {
-                            item.sections = Some(super::sections::first(q, &entry));
+                            let mut sections = super::sections::first(q, &entry);
+                            if let Some(e) = super::sections::alternative_sequence(
+                                q,
+                                &entry,
+                                leg,
+                                &mut sections,
+                                out,
+                            ) {
+                                failed = true;
+                                *error = Some(e);
+                                out.local = out.local.or(status::local(e));
+                            }
+                            item.sections = Some(sections);
                         }
                         item.header = Some(entry.header);
                         item.audit = Some(entry.audit);

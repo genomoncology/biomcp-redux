@@ -20,15 +20,17 @@ pub(super) fn evidence(rows: Vec<raw::Evidence>) -> Box<[Text]> {
         .collect()
 }
 fn bound(v: raw::Boundary, start: bool) -> Option<Bound> {
+    if matches!(v.modifier, raw::Modifier::Unknown | raw::Modifier::Unsure) {
+        return Bound::new(Some(1), None).ok();
+    }
     let n = v.value?;
     if n == 0 {
         return None;
     }
-    match v.modifier.as_str() {
-        "EXACT" => Bound::new(Some(n), Some(n)).ok(),
-        "OUTSIDE" if start => Bound::new(None, Some(n)).ok(),
-        "OUTSIDE" => Bound::new(Some(n), None).ok(),
-        "UNKNOWN" => None,
+    match v.modifier {
+        raw::Modifier::Exact => Bound::new(Some(n), Some(n)).ok(),
+        raw::Modifier::Outside if start => Bound::new(None, Some(n)).ok(),
+        raw::Modifier::Outside => Bound::new(Some(n), None).ok(),
         _ => None,
     }
 }
@@ -67,9 +69,9 @@ pub(super) fn features(
                         .as_ref()
                         .and_then(|a| a.original_sequence.clone()),
                     alternative: alternative
-                        .map(|a| a.alternative_sequences.into())
+                        .map(|a| a.alternative_sequences.unwrap_or_default().into())
                         .unwrap_or_default(),
-                    evidence: evidence(r.evidences),
+                    evidence: evidence(r.evidences.unwrap_or_default()),
                 },
                 attribution: Attribution {
                     source: Text::new("uniprot").ok()?,
@@ -92,20 +94,32 @@ pub(super) fn comments(rows: Vec<raw::Comment>) -> (Vec<ProteinIsoform>, Vec<Pro
     let mut function = Vec::new();
     for row in rows {
         if row.comment_type == "ALTERNATIVE PRODUCTS" {
-            isoforms.extend(row.isoforms.into_iter().map(|r| ProteinIsoform {
-                ids: r.isoform_ids.into(),
-                name: r.name.value,
-                synonyms: r.synonyms.into_iter().map(|v| v.value).collect(),
-                sequence_status: r.isoform_sequence_status,
-                sequence_ids: r.sequence_ids.into(),
-                direct_sequence: ProteinSequenceAvailability::NotChecked,
+            isoforms.extend(row.isoforms.unwrap_or_default().into_iter().map(|r| {
+                ProteinIsoform {
+                    ids: r.isoform_ids.unwrap_or_default().into(),
+                    name: r.name.value,
+                    synonyms: r
+                        .synonyms
+                        .unwrap_or_default()
+                        .into_iter()
+                        .map(|v| v.value)
+                        .collect(),
+                    sequence_status: r.isoform_sequence_status,
+                    sequence_ids: r.sequence_ids.unwrap_or_default().into(),
+                    direct_sequence: ProteinSequenceAvailability::NotChecked,
+                }
             }));
         } else if row.comment_type == "FUNCTION" {
-            function.extend(row.texts.into_iter().map(|p| ProteinFunction {
-                molecule: row.molecule.clone(),
-                text: p.value,
-                evidence: evidence(p.evidences),
-            }));
+            function.extend(
+                row.texts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|p| ProteinFunction {
+                        molecule: row.molecule.clone(),
+                        text: p.value,
+                        evidence: evidence(p.evidences.unwrap_or_default()),
+                    }),
+            );
         }
     }
     (isoforms, function)
@@ -118,7 +132,7 @@ pub(super) fn structures(rows: Vec<raw::CrossReference>) -> Vec<ProteinStructure
                 url: Text::new(&format!("https://www.rcsb.org/structure/{}", r.id)).ok()?,
                 database: r.database,
                 id: r.id,
-                properties: r.properties.into(),
+                properties: r.properties.unwrap_or_default().into(),
             })
         })
         .collect()

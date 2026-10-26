@@ -82,3 +82,42 @@ pub(super) fn failed(q: &ProteinGet, reason: Reason) -> ProteinSections {
         complexes: None,
     }
 }
+
+pub(super) fn alternative_sequence(
+    q: &ProteinGet,
+    entry: &Entry,
+    leg: &biomcp_fetch::Leg<'_>,
+    sections: &mut ProteinSections,
+    out: &mut crate::Outcome,
+) -> Option<biomcp_fetch::RequestError> {
+    if !wants(q, ProteinSection::Sequence) || !entry.header.protein.accession.as_str().contains('-')
+    {
+        return None;
+    }
+    let id = &entry.header.protein.accession;
+    match biomcp_adapters::uniprot::sequence(leg, id) {
+        Ok(sequence) => {
+            sections.sequence = Some(Section::Data {
+                source: Source::UniProt,
+                data: ProteinSequenceResult { sequence },
+            });
+            None
+        }
+        Err(error) => {
+            let reason = match error {
+                biomcp_fetch::RequestError::Source(e) => e.reason,
+                _ => Reason::Unavailable,
+            };
+            sections.sequence = Some(Section::unavailable(Source::UniProt, reason));
+            if reason == Reason::BadReply {
+                out.problems.push(biomcp_types::Problem {
+                    source: Source::UniProt,
+                    record: biodata::Text::new(id.as_str()).ok(),
+                    field: "sequence.identity_or_residues".into(),
+                    code: biomcp_types::ProblemCode::ValueUnknown,
+                });
+            }
+            Some(error)
+        }
+    }
+}

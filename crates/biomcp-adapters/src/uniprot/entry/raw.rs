@@ -12,12 +12,9 @@ pub(in crate::uniprot) struct Entry {
     pub sequence: Sequence,
     pub genes: Option<Vec<Gene>>,
     pub entry_audit: Option<Audit>,
-    #[serde(default)]
-    pub features: Vec<super::sections_raw::Feature>,
-    #[serde(default)]
-    pub comments: Vec<super::sections_raw::Comment>,
-    #[serde(default)]
-    pub uni_prot_kb_cross_references: Vec<super::sections_raw::CrossReference>,
+    pub features: Option<Vec<super::sections_raw::Feature>>,
+    pub comments: Option<Vec<super::sections_raw::Comment>>,
+    pub uni_prot_kb_cross_references: Option<Vec<super::sections_raw::CrossReference>>,
 }
 impl Entry {
     pub(in crate::uniprot) fn admitted(&self, id: &UniProtIsoform) -> bool {
