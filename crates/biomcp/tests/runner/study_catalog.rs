@@ -75,38 +75,17 @@ pub(super) fn call(
             "study header page exceeds retained-catalog measurement plus fifteen percent".into(),
         );
     }
-    budget(&value, phase, "cli", args)?;
+    budget(&value, phase, "cli")?;
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
     let mcp =
         super::mcp::call_with_globals(env, &words, exit > 1, &env.globals(Some(replay), false))?;
-    budget(&mcp, phase, "mcp", args)?;
+    budget(&mcp, phase, "mcp")?;
     Ok(value)
 }
-pub(super) fn budget(value: &Value, phase: &str, surface: &str, args: &[&str]) -> Check {
-    // j14940 synthetic CLI maxima; MCP payloads use the same envelope without a newline.
-    let measured = match value["schema"].as_str() {
-        Some("biomcp.study_page/1") => 1877_usize,
-        Some("biomcp.sync/4") => 447,
-        Some("biomcp.study_card/2") => 6339,
-        Some("biomcp.study_files/1") => 2425,
-        Some("biomcp.error/1") => 198,
-        Some("biomcp.study_sample_lists/1") => 1563,
-        Some("biomcp.study_profiles/1") => 1991,
-        _ => return Err("study response has no measured envelope budget".into()),
-    };
-    let bytes =
-        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    use std::io::Write;
-    writeln!(
-        std::io::stdout(),
-        "STUDY_PHASE {}",
-        json!({"phase":phase,"surface":surface,"args":args,"bytes":bytes})
-    )
-    .map_err(|e| e.to_string())?;
-    if bytes > (measured * 115).div_ceil(100) {
-        return Err(format!("study envelope exceeds measured budget: {bytes}"));
-    }
-    Ok(())
+#[path = "study_budgets.rs"]
+mod budgets;
+pub(super) fn budget(value: &Value, phase: &str, surface: &str) -> Check {
+    budgets::check(value, phase, surface)
 }
 fn missing() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;

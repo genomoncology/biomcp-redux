@@ -505,7 +505,7 @@ fn call(
         ));
     }
     let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    super::budget(&value, phase, "cli", args)?;
+    super::budget(&value, phase, "cli")?;
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
     let mcp = crate::runner::mcp::call_with_globals(
         env,
@@ -513,6 +513,6 @@ fn call(
         exit > 1,
         &env.globals(Some(replay), false),
     )?;
-    super::budget(&mcp, phase, "mcp", args)?;
+    super::budget(&mcp, phase, "mcp")?;
     Ok(value)
 }

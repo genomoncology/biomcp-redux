@@ -285,7 +285,7 @@ The synthetic help/example measurements in j14944 preserve the existing full-env
 | examples 5 | 1141 | 1140 | 975 | 1122 | 1313 |
 | examples 6 | 1142 | 1141 | 976 | 1123 | 1314 |
 
-The existing synthetic study runner responses have fixed schema-scoped full-envelope budgets from j14940: page 1,877 bytes, sync 447, card including bounded all 6,339, files 2,425, usage error 198, sample lists 1,563 and profiles 1,991. Both CLI and MCP are checked against each measured maximum plus fifteen percent. This supplements the narrower native per-case ceilings without rerunning native proofs. Failure and retirement cases retain their more specific existing ceilings.
+The existing synthetic study runner responses have fixed command-phase full-envelope budgets in `study_budgets.rs`, attributed in j14953. Each call site names its phase, and each surface uses its own measured maximum plus fifteen percent. A page walk keeps its largest measured page. Unknown phases fail rather than borrowing a schema-wide allowance. This supplements the native per-case ceilings without rerunning native proofs. Failure and retirement cases retain their more specific existing ceilings.
 
 Every 0.9 timing and output-size row remains **unmeasured**: this lane has no independently verified contained legacy executable, and it installs no external baseline. The milestone 5 comparison owns those measurements. No speedup, token reduction or output-size ratio is claimed. Native source transfer sizes above remain HTTP measurements and are not product command costs. The byte-derived token approximation used by the runner is not a tokenizer benchmark. No local count, frequency or denominator is calculated.
 
