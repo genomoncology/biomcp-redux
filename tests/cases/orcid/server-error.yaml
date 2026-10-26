@@ -20,7 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "orcid",
-        "/sources/0/reason": "server"
+        "/sources/0/reason": "unavailable"
       },
       "full_output_bytes": true,
       "max_bytes": 12000,

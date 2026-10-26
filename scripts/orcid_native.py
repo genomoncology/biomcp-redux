@@ -38,7 +38,7 @@ def prepare(records, cases, replay):
                 base = prefix + f'/external_ids/{j}'
                 for native, normalized in [('type', 'kind'), ('value', 'value'), ('relationship', 'relationship')]:
                     expect[base + '/' + normalized] = external['external-id-' + native]
-        expect['/result/groups/0/assertions/' + str(len(group['work-summary']))] = None
+        expect['/result/groups/0/assertions'] = {'count': len(group['work-summary'])}
         pivots = []
         for assertion in group['work-summary']:
             for external in assertion['external-ids']['external-id']:
@@ -58,9 +58,9 @@ def prepare(records, cases, replay):
             for i, group in enumerate(works[offset:offset + 25]):
                 for j, assertion in enumerate(group['work-summary']):
                     expect[f'/result/groups/{i}/assertions/{j}/put_code'] = assertion['put-code']
-            expect['/result/groups/' + str(min(25, total - offset))] = None
+            expect['/result/groups'] = {'count': min(25, total - offset)}
             for i, group in enumerate(works[offset:offset + 25]):
-                expect[f'/result/groups/{i}/assertions/' + str(len(group['work-summary']))] = None
+                expect[f'/result/groups/{i}/assertions'] = {'count': len(group['work-summary'])}
             owner = step(['author', 'papers', 'orcid:' + identifier, '--limit', '25'], expect)
             if offset:
                 owner.pop('run'); owner.pop('mcp')

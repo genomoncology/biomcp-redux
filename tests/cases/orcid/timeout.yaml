@@ -20,7 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "orcid",
-        "/sources/0/reason": "timeout"
+        "/sources/0/reason": "deadline_exceeded"
       },
       "full_output_bytes": true,
       "max_bytes": 12000,

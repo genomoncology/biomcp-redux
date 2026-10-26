@@ -43,13 +43,15 @@
         "/result/collection_scope": "whole_public_works_reply",
         "/result/observed_groups": 1,
         "/result/groups/0/assertions/1/put_code": 2,
-        "/result/groups/0/assertions/2": null,
         "/result/groups/0/assertions/0/external_ids/1/relationship": "part-of",
         "/next/0/args": [
           "get",
           "article",
           "123"
-        ]
+        ],
+        "/result/groups/0/assertions": {
+          "count": 2
+        }
       },
       "full_output_bytes": true,
       "max_bytes": 12000,
