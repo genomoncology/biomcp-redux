@@ -231,18 +231,12 @@ fn secrets_using(
     let mut secrets = Secrets::default();
     let keys = Arc::new(keys);
     let environment = Arc::new(environment);
-    let deferred_keys = keys.clone();
-    let deferred_environment = environment.clone();
-    secrets.defer(SecretName::SemanticScholarApiKey, move || {
-        configured_secret(deferred_keys.as_ref().as_ref(), SecretName::SemanticScholarApiKey, deferred_environment.as_ref())
-    });
-    for &name in SecretName::ALL
-        .iter()
-        .filter(|&&name| name != SecretName::SemanticScholarApiKey)
-    {
-        if let Some(value) = configured_secret(keys.as_ref().as_ref(), name, environment.as_ref()) {
-            secrets.insert(name, value);
-        }
+    for &name in SecretName::ALL {
+        let keys = keys.clone();
+        let environment = environment.clone();
+        secrets.defer(name, move || {
+            configured_secret(keys.as_ref().as_ref(), name, environment.as_ref())
+        });
     }
     secrets
 }
