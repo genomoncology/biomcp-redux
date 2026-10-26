@@ -64,11 +64,11 @@ fn failed(value: &Value) -> Check {
     bounded(value)
 }
 fn bounded(value: &Value) -> Check {
-    // Failed source envelopes contain no provider text; measured below in the focused run.
+    // Largest synthetic failure: 502 bytes in j14854; catalog rejection: 401 in j14863.
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     use std::io::Write;
     writeln!(std::io::stdout(), "Study synthetic failure bytes={bytes}").map_err(|e| e.to_string())?;
-    if bytes > 1100 {
+    if bytes > (502_usize * 115).div_ceil(100) {
         return Err("synthetic failure exceeds its envelope ceiling".into());
     }
     Ok(())
@@ -99,7 +99,7 @@ fn bundle_identity() -> Check {
     if value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
         || value.get("problems").and_then(Value::as_array).is_none_or(Vec::is_empty)
     {
-        return Err(format!("cross-study bundle identity was not rejected: {value}"));
+        return Err(format!("cross-study bundle rejection lost its reason or problem: {value}"));
     }
     let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
     bounded_card(&after)?;
@@ -113,6 +113,7 @@ fn bounded_card(value: &Value) -> Check {
     use std::io::Write;
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     writeln!(std::io::stdout(), "Study synthetic retained card bytes={bytes}").map_err(|e| e.to_string())?;
-    if bytes > 6000 { return Err("retained synthetic card exceeds its envelope ceiling".into()); }
+    // Retained synthetic card: 1120 bytes in j14863, with fifteen percent headroom.
+    if bytes > (1120_usize * 115).div_ceil(100) { return Err("retained synthetic card exceeds its envelope ceiling".into()); }
     Ok(())
 }
