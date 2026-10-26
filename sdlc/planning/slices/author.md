@@ -267,3 +267,5 @@ The retained native replay measures the whole emitted envelope, including shared
 | Exact absent card | 376 | 77 | 375 | 399 | 1016 |
 
 The approved help ceilings for CLI/MCP text/Markdown are search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
+
+The final help metadata includes the twenty-input bound. The measured get-help surfaces are CLI 574, bare help 492, MCP text 573, Markdown 636 and full RPC 1420 bytes. List-author measures 1566/1490/1565/1541/3510 bytes on those same surfaces. Search help remains 1097/1012/1096/988/2536 bytes. Whole help measures 87594/87526/87593/78299/185140 bytes. The MCP description measures 3426 bytes and tools-list measures 8014 compact bytes or 8015 with its terminating newline. All fit the existing approved ceilings; the measurement does not reset their headroom.
