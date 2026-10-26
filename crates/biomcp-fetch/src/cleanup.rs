@@ -72,14 +72,17 @@ fn owned_file(path: &Path, owners: &[SchemaOwner]) -> Result<bool, CacheError> {
         Ok(s) => s,
         Err(_) => return Ok(false),
     };
-    let names = statement
+    let declared = statement
         .query_map([], |r| r.get::<_, String>(0))
+        .map_err(db_error)?
+        .collect::<Result<Vec<_>, _>>()
         .map_err(db_error)?;
-    for name in names {
-        let name = name.map_err(db_error)?;
-        if name != "biomcp-fetch" && !owners.iter().any(|o| o.name == name) {
-            return Ok(false);
-        }
+    if declared.is_empty()
+        || declared
+            .iter()
+            .any(|name| name != "biomcp-fetch" && !owners.iter().any(|o| o.name == name))
+    {
+        return Ok(false);
     }
     let mut tables = connection
         .prepare("SELECT name FROM sqlite_master WHERE type='table'")
@@ -89,7 +92,12 @@ fn owned_file(path: &Path, owners: &[SchemaOwner]) -> Result<bool, CacheError> {
         .map_err(db_error)?;
     for name in names {
         let name = name.map_err(db_error)?;
-        if !transport_table(&name) && !owners.iter().any(|o| o.tables.contains(&name.as_str())) {
+        let transport =
+            declared.iter().any(|owner| owner == "biomcp-fetch") && transport_table(&name);
+        let query = owners.iter().any(|owner| {
+            declared.iter().any(|name| name == owner.name) && owner.tables.contains(&name.as_str())
+        });
+        if name != "meta" && !transport && !query {
             return Ok(false);
         }
     }
@@ -98,8 +106,7 @@ fn owned_file(path: &Path, owners: &[SchemaOwner]) -> Result<bool, CacheError> {
 fn transport_table(name: &str) -> bool {
     matches!(
         name,
-        "meta"
-            | "reply"
+        "reply"
             | "bundle"
             | "bundle_sync"
             | "bundle_row"
