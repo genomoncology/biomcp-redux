@@ -99,30 +99,7 @@ fn monarch() -> Result<(), String> {
         if result.pointer("/query/section_limit") != Some(&json!(2)) {
             return Err("explicit limit changed".into());
         }
-        let field = if section == "synonyms" {
-            "relationship"
-        } else {
-            "relation"
-        };
-        let items = result
-            .pointer("/result/items")
-            .and_then(Value::as_array)
-            .ok_or("rows")?;
-        let values = items
-            .iter()
-            .map(|v| v.get(field).cloned().unwrap_or(Value::Null))
-            .collect::<Vec<_>>();
-        if values
-            != expected
-                .as_array()
-                .ok_or("expected")?
-                .iter()
-                .take(2)
-                .cloned()
-                .collect::<Vec<_>>()
-        {
-            return Err(format!("native classes or links changed: {result}"));
-        }
+        classes(&result, section, &expected)?;
         if section == "synonyms" {
             let words = step(&result, "page", 0)?;
             let words = words.iter().map(String::as_str).collect::<Vec<_>>();
@@ -235,6 +212,34 @@ fn retained() -> Result<(), String> {
     invoke(&env, &foreign, 3)?;
     if stub.finish()?.len() != 2 {
         return Err("retained page made a provider request".into());
+    }
+    Ok(())
+}
+
+fn classes(result: &Value, section: &str, expected: &Value) -> Result<(), String> {
+    let field = if section == "synonyms" {
+        "relationship"
+    } else {
+        "relation"
+    };
+    let items = result
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("rows")?;
+    let values = items
+        .iter()
+        .map(|v| v.get(field).cloned().unwrap_or(Value::Null))
+        .collect::<Vec<_>>();
+    if values
+        != expected
+            .as_array()
+            .ok_or("expected")?
+            .iter()
+            .take(2)
+            .cloned()
+            .collect::<Vec<_>>()
+    {
+        return Err(format!("native classes or links changed: {result}"));
     }
     Ok(())
 }
