@@ -19,6 +19,7 @@ pub(super) fn xref(row: raw::Xref) -> CellLineXref {
         url: row.url,
         category: row.category,
         iri: row.iri,
+        discontinued: row.discontinued,
     }
 }
 fn variation(row: raw::Variation) -> CellLineVariation {

@@ -7,15 +7,14 @@ fn rows(value: &Value, key: &str) -> Vec<Value> {
         .cloned()
         .unwrap_or_default()
 }
-fn xref(value: &Value) -> Value {
-    let mut value = value.clone();
-    if let Some(object) = value.as_object_mut() {
-        object.remove("discontinued");
-    }
+fn field(value: &Value, key: &str) -> Result<Value, String> {
     value
+        .get(key)
+        .cloned()
+        .ok_or_else(|| format!("missing native {key}"))
 }
-fn variation(value: &Value) -> Value {
-    let mut result = json!({"variation_type":value["variation-type"], "genes":[], "references":[], "provenance":[]});
+fn variation(value: &Value) -> Result<Value, String> {
+    let mut result = json!({"variation_type":field(value, "variation-type")?, "genes":[], "references":[], "provenance":[]});
     for (source, target) in [
         ("mutation-description", "description"),
         ("mutation-type", "mutation_type"),
@@ -30,9 +29,11 @@ fn variation(value: &Value) -> Value {
     let mut references = Vec::new();
     for reference in rows(value, "xref-list") {
         if reference.get("database") == Some(&json!("HGNC")) {
-            genes.push(json!({"reference":xref(&reference), "hgnc":reference["accession"]}));
+            genes.push(
+                json!({"reference":reference.clone(), "hgnc":field(&reference, "accession")?}),
+            );
         } else {
-            references.push(xref(&reference));
+            references.push(reference.clone());
         }
     }
     result["genes"] = json!(genes);
@@ -51,7 +52,7 @@ fn variation(value: &Value) -> Value {
             })
             .collect::<Vec<_>>()
     );
-    result
+    Ok(result)
 }
 pub(super) fn page(
     source: &Value,
@@ -73,20 +74,20 @@ pub(super) fn page(
                     Some("Caution" | "Problematic cell line")
                 )
             })
-            .map(|r| json!({"scope":r["category"],"text":r["value"]}))
-            .collect();
+            .map(|r| Ok(json!({"scope":field(&r, "category")?,"text":field(&r, "value")?})))
+            .collect::<Result<Vec<_>, String>>()?;
         return collection(value, "warnings", warnings, offset, limit);
     }
     let items = match section {
         "names" => rows(source, "name-list")
             .into_iter()
-            .map(|r| json!({"kind":r["type"],"value":r["value"]}))
-            .collect(),
-        "xrefs" => rows(source, "xref-list").iter().map(xref).collect(),
+            .map(|r| Ok(json!({"kind":field(&r, "type")?,"value":field(&r, "value")?})))
+            .collect::<Result<Vec<_>, String>>()?,
+        "xrefs" => rows(source, "xref-list"),
         "variants" => rows(source, "sequence-variation-list")
             .iter()
             .map(variation)
-            .collect(),
+            .collect::<Result<Vec<_>, String>>()?,
         _ => return Err("unknown section".into()),
     };
     collection(value, "items", items, offset, limit)

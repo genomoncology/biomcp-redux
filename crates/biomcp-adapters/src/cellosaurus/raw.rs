@@ -44,6 +44,7 @@ pub(super) struct Xref {
     pub url: Option<Text>,
     pub category: Option<Text>,
     pub iri: Option<Text>,
+    pub discontinued: Option<Text>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "kebab-case")]

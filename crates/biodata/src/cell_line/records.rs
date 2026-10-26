@@ -23,6 +23,9 @@ pub struct CellLineXref {
     /// Native IRI when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub iri: Option<Text>,
+    /// Native discontinuation qualifier, including values such as probable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub discontinued: Option<Text>,
 }
 /// Entry dates and entry version are independent of dataset release and retrieval time.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

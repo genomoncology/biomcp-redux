@@ -126,14 +126,11 @@ pub(in crate::runner) fn generate_xrefs(directory: &Path) -> Result<(), String> 
     }
     let raw: Value = serde_json::from_str(&fixture("portable-cellosaurus-cell-CVCL_0004.json")?)
         .map_err(|e| e.to_string())?;
-    let mut expected = raw
+    let expected = raw
         .pointer("/Cellosaurus/cell-line-list/0/xref-list")
         .and_then(Value::as_array)
         .ok_or("native xrefs")?
         .clone();
-    for row in &mut expected {
-        row.as_object_mut().ok_or("xref")?.remove("discontinued");
-    }
     if all != expected || all.len() != 1398 {
         return Err("xref walk lost order or rows".into());
     }

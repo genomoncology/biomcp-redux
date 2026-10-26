@@ -1,10 +1,12 @@
 //! Feature cell-line-sections: callers retrieve whole native rows independently.
 use super::*;
+mod controls;
 mod expected;
 pub(super) fn run(measure: bool) -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;
-    cache()?;
+    cache(measure)?;
+    controls::run(measure)?;
     for id in [
         "CVCL_2119",
         "CVCL_0064",
@@ -44,11 +46,12 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
     stub.finish()?;
     Ok(())
 }
-fn cache() -> Result<(), String> {
+fn cache(measure: bool) -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;
     for section in ["names", "identity", "xrefs", "variants"] {
         let value = invoke(&env, &["get", "cell-line", "CVCL_2119", section], 0)?;
+        controls::ordinary(&format!("sections/cache/{section}"), &value, measure)?;
         path(&value, "/status", json!("complete"))?;
     }
     let requests = stub.finish()?;
