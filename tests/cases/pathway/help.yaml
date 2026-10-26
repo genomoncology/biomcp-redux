@@ -1,5 +1,5 @@
 {
-  "feature": "generated-help",
+  "feature": "pathway-help",
   "story": "Every pathway command documents its sources, selectors, sections, paging and two parsed case examples.",
   "steps": [
     {

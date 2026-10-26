@@ -1,5 +1,5 @@
 {
-  "feature": "generated-help",
+  "feature": "gwas-help",
   "story": "GWAS help exposes every selector, section, page option and two parsed case examples.",
   "steps": [
     {
