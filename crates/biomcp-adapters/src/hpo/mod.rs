@@ -33,26 +33,52 @@ pub struct Record {
 }
 /// Read exactly one HPO identity without fallback or local term selection.
 pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> {
-    let endpoint = SPEC.get("/api/hp/terms").with_path(format!("/api/hp/terms/{}",query.id()))?.fresh(Freshness::Days(1));
+    let endpoint = SPEC
+        .get("/api/hp/terms")
+        .with_path(format!("/api/hp/terms/{}", query.id()))?
+        .fresh(Freshness::Days(1));
     let (term, metadata) = leg.json_received_checked::<raw::Term>(&endpoint, &[], |term| {
-        if &term.id == query.id() { Ok(()) } else { Err(BadReply) }
+        if &term.id == query.id() {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
     })?;
     let mut sections = Vec::new();
-    if term.synonyms.is_some() { sections.push(PhenotypeSection::Synonyms); }
-    if term.xrefs.is_some() { sections.push(PhenotypeSection::Xrefs); }
+    if term.synonyms.is_some() {
+        sections.push(PhenotypeSection::Synonyms);
+    }
+    if term.xrefs.is_some() {
+        sections.push(PhenotypeSection::Xrefs);
+    }
     let attribution = attribution(&term.id)?;
-    Ok(Record { card: PhenotypeTermCard {
-        term: PhenotypeCard::Hpo {
-            requested_id: query.id().clone(), returned_id: term.id, label: term.name,
-            definition: term.definition, comment: term.comment,
-            publication_references: term.publications, hpo_descendant_count: term.descendants,
-            attribution,
-        }, sections: sections.into(), components: Box::default(),
-    }, metadata })
+    Ok(Record {
+        card: PhenotypeTermCard {
+            term: PhenotypeCard::Hpo {
+                requested_id: query.id().clone(),
+                returned_id: term.id,
+                label: term.name,
+                definition: term.definition,
+                comment: term.comment,
+                publication_references: term.publications,
+                hpo_descendant_count: term.descendants,
+                attribution,
+            },
+            sections: sections.into(),
+            components: Box::default(),
+        },
+        metadata,
+    })
 }
 fn attribution(id: &biodata::HpId) -> Result<Attribution, RequestError> {
     let text = |s: &str| Text::new(s).map_err(|_| InputError::Serialization);
-    Ok(Attribution { source: text("hpo")?, record: Some(text(id.as_str())?),
+    Ok(Attribution {
+        source: text("hpo")?,
+        record: Some(text(id.as_str())?),
         url: Some(text(&format!("https://hpo.jax.org/browse/term/{id}"))?),
-        version: None, release: None, submitter: None, evaluated: None })
+        version: None,
+        release: None,
+        submitter: None,
+        evaluated: None,
+    })
 }

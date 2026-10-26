@@ -26,7 +26,12 @@ pub(super) struct Hierarchy {
 impl Reply for Node {
     fn check(&self) -> Result<(), BadReply> {
         if self.category.as_ref() != "biolink:PhenotypicFeature"
-            || self.namespace.as_deref().is_some_and(|v| v != "HP") { Err(BadReply) } else { Ok(()) }
+            || self.namespace.as_deref().is_some_and(|v| v != "HP")
+        {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
     }
 }
 #[derive(Debug, Deserialize)]
@@ -39,8 +44,14 @@ pub(super) struct Page {
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
         if self.items.len() > self.limit as usize
-            || (!self.items.is_empty() && u64::from(self.offset) + self.items.len() as u64 > self.total) { return Err(BadReply); }
-        for node in &self.items { node.check()?; }
+            || (!self.items.is_empty()
+                && u64::from(self.offset) + self.items.len() as u64 > self.total)
+        {
+            return Err(BadReply);
+        }
+        for node in &self.items {
+            node.check()?;
+        }
         Ok(())
     }
 }

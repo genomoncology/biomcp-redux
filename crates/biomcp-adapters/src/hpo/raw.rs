@@ -15,5 +15,7 @@ pub(super) struct Term {
     pub xrefs: Option<Box<[Curie]>>,
 }
 impl Reply for Term {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
