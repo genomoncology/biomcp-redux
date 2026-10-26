@@ -38,13 +38,20 @@ page!(
     "biomcp.protein_features/1",
     "Native UniProt feature rows, preserving exact labels and uncertain bounds."
 );
-page!(
-    ProteinDomains,
-    ProteinDomainMatch,
-    ProteinDomainsQuery,
-    "biomcp.protein_domains/1",
-    "Native InterPro matches with independent location groups and fragments."
-);
+/// Whole native rows with the independent unfiltered source count.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinDomains {
+    /// Bounded retained rows in source order.
+    pub items: Box<[ProteinDomainMatch]>,
+    /// Native source total before type selection or exact participant admission.
+    pub native_total: u64,
+}
+impl ResponseBody for ProteinDomains {
+    const SCHEMA: &'static str = "biomcp.protein_domains/2";
+    type Query = ProteinDomainsQuery;
+}
 page!(
     ProteinIsoforms,
     ProteinIsoform,
@@ -52,13 +59,20 @@ page!(
     "biomcp.protein_isoforms/1",
     "Alternative products with every stated identifier and explicit direct sequence state."
 );
-page!(
-    ProteinComplexes,
-    ProteinComplexHeader,
-    ProteinRelationQuery,
-    "biomcp.protein_complexes/1",
-    "Exact participant-admitted complex headers; search total is not a membership total."
-);
+/// Whole native rows with the independent unfiltered source count.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinComplexes {
+    /// Bounded retained rows in source order.
+    pub items: Box<[ProteinComplexHeader]>,
+    /// Native source total before type selection or exact participant admission.
+    pub native_total: u64,
+}
+impl ResponseBody for ProteinComplexes {
+    const SCHEMA: &'static str = "biomcp.protein_complexes/2";
+    type Query = ProteinRelationQuery;
+}
 page!(
     ProteinComplexMembers,
     ProteinComplexMember,

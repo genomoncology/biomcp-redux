@@ -5,7 +5,9 @@ use biomcp_types::{
     ProteinFeatures, ProteinFunctionResult, ProteinGet, ProteinIsoforms, ProteinSection,
     ProteinSections, ProteinSequenceResult, ProteinStructures, Reason, Section, Source,
 };
-pub(super) const NAMES: [ProteinSection; 5] = [
+pub(super) const NAMES: [ProteinSection; 7] = [
+    ProteinSection::Domains,
+    ProteinSection::Complexes,
     ProteinSection::Features,
     ProteinSection::Isoforms,
     ProteinSection::Structures,
