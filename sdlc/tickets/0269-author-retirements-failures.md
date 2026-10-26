@@ -1,6 +1,7 @@
 # 0269 — Retire old author options and prove author failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 64943488862777f7cc64c244f138cc81a6a87171
 
 Milestone: 4
 
