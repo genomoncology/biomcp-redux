@@ -470,6 +470,20 @@ fn discovery_description(text: &str) -> Check {
     if text.len() > 2993 {
         return Err("command description exceeds budget".into());
     }
+    for word in [
+        "protein features --position --type",
+        "domains --type",
+        "complex-members --complex",
+        "isoforms",
+        "structures",
+        "sequence",
+        "--reviewed",
+        "no variant effect/structure/interaction/clinical inference or tools",
+    ] {
+        if !text.contains(word) {
+            return Err(format!("protein discovery misses {word}"));
+        }
+    }
     for &word in DISCOVERY_WORDS {
         if !text.contains(word) {
             return Err(format!("description misses {word}"));

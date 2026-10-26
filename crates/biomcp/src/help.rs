@@ -193,7 +193,9 @@ pub(crate) fn tree() -> String {
     };
     let mut lines = vec![
         "help CMD;schema ID".into(),
-        "Pages --limit --offset; sections --section-limit --section-offset".into(),
+        "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
+        "Human source facts;no variant effect/structure/interaction/clinical inference or tools".into(),
+        "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
         "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
         "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
     ];
@@ -230,6 +232,9 @@ pub(crate) fn tree() -> String {
                     line.push_str(&format!(" {}", argument.choices.join("|")));
                 }
             }
+        }
+        if command.command == ["search", "protein"] {
+            line.push_str(" --gene --reviewed");
         }
         pgx_selectors(&command, &mut line);
         gwas_selectors(&command, &mut line);

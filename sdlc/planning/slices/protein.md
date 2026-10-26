@@ -237,28 +237,28 @@ The first follow-up attempt stopped after delivering only the BRAF request becau
 
 Clinical review accepted the corrected P01–P28 bank and meaning contracts. P23/P24 are controls rather than published-research examples. The reviewer confirmed the historical MUTYH citation against the [publisher abstract](https://academic.oup.com/carcin/article-abstract/26/11/2010/2476061), corrected EGFR790 to Kobayashi2005 and restricted PMID14578343 to BRCT research context. Source facts do not imply classification, efficacy, binding or coordinate translation.
 
-## Historical offline disclosure projection
+## Measured implementation envelopes
 
-The offline projection uses all captured native rows, with page size5 and a representative envelope including source terms. It preserves raw row fields rather than pretending to be the generated future schema. It measures compact UTF-8 JSON and defines token units as `ceil(bytes/4)`; the stdout column adds one newline. It executes no product and performs no provider requests. Thus these are measured source-row projections, not measurements of shipped CLI/MCP output or a semantic tokenizer. Every implementation ticket must measure its actual complete envelopes and next actions through the existing runner, then set the accepted ceilings against that output.
+The historical j14236 investigation projected source rows before the response schema and actions existed. It added a design reserve and headroom. Those projections are superseded for command admission by the complete CLI and MCP measurements below. The retained projection archive remains historical evidence and supplies no current case bound. No provider call was repeated for this accounting.
 
-The projected responses omit typed next actions. The proposed ceiling adds a1,000-byte explicit reserve for those actions and request fields, then15% headroom. This reserve is a design allowance, not a measured fact. Search has only one- and two-header native results; its proposed five-header ceiling is a conservative6,500 bytes and cannot be described as a measured full five-hit page. A positive five-hit search capture remains an implementation admission requirement.
+| Command shape | Owning measured case | Whole CLI bytes | Whole MCP bytes | Comparable bytes | Comparable byte ceiling |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Complex members | `members-CPX-12671-page-5` | 1,681 | 1,680 | 1,588 | 1,827 |
+| Complexes | `complexes-P15056` | 3,274 | 3,273 | 3,181 | 3,659 |
+| Domains | `domains-P15056` | 3,845 | 3,844 | 3,734 | 4,295 |
+| Features | `features-default` | 2,490 | 2,489 | 2,398 | 2,758 |
+| Get function | `get-P00533-function` | 4,743 | 4,742 | 4,651 | 5,349 |
+| Card | `external-P42771` | 1,224 | 1,223 | 1,132 | 1,302 |
+| Isoforms | `isoforms-P04637` | 1,339 | 1,338 | 1,247 | 1,435 |
+| Search first five | Native EGFR first page, j14669 | 2,117 | 2,116 | 2,026 | 2,330 |
+| Search second five | Native retained EGFR second page, j14669 | 2,047 | 2,046 | 1,956 | 2,250 |
+| Sequence | `sequence-P38398` | 2,382 | 2,381 | 2,290 | 2,634 |
+| Structures | `structures` | 1,536 | 1,535 | 1,444 | 1,661 |
+| Get all | `get-all` | 13,168 | 13,167 | 12,874 | 14,806 |
 
-| Layer / command | Captured projected pages | Largest stdout bytes / token units | Proposed full stdout ceiling / token units |
-| --- | --- | --- | --- |
-| complex-members | 157 | 2,237 /559 | 3,723 /931 |
-| complexes | 15 | 2,110 /528 | 3,577 /894 |
-| domains | 19 | 4,790 /1,198 | 6,659 /1,665 |
-| features | 623 | 7,878 /1,970 | 10,210 /2,553 |
-| function | 9 | 9,590 /2,398 | 12,179 /3,045 |
-| get | 9 | 897 /224 | 2,182 /546 |
-| isoforms | 14 | 1,261 /315 | 2,601 /650 |
-| search | 2 | 1,191 /298 | 6,500 /1,625 |
-| sequence | 9 | 2,242 /561 | 3,729 /932 |
-| structures | 198 | 1,120 /280 | 2,438 /610 |
+These native measurements retain the source windows and releases described below. Search preserves total399 and does not claim a complete collection. The case maps own individual bounds, including smaller pages and selectors; the table compares shapes and never selects another case's bound. Publisher terms remain in full bytes. Comparable bytes remove only the registry's three required terms fields. The ordinary runner owns comparable `max_bytes` and approximate `max_tokens`; the native helpers also check whole envelopes. The CLI includes a newline and MCP counts compact JSON. Approximate tokens use the existing four-byte convention. Section pages remain independent, and function keeps every source paragraph in one whole text record.
 
-The sequence maximum is the complete1863-residue BRCA1 sequence with metadata; no sequence truncation is proposed. Function text and evidence-rich feature rows remain deeper options because their measured pages are costly. The default card is below900 bytes in this projection, while raw UniProt replies span55KB–875KB. The section pages are independent: `all` adds each requested section's bounded first page and does not claim to fit the default card ceiling. Its composite ceiling must be derived from actual complete implementation output before admission. No arbitrary shared help or discovery ceiling is raised here.
-
-0.9 default/section output tokens, comparable output after registry terms removal, product cold/warm latency and complete future `all` envelopes remain unmeasured. This proposal never compares source JSON bytes with0.9 rendered output. A PM-approved implementation must verify ceilings on the actual public schema and all emitted actions.
+All 0.9 output sizes and timings remain unmeasured because a verified denied-network executable baseline has not run. The milestone 5 contained comparison owns them. Source JSON sizes and offline projections are never used as 0.9 output measurements.
 
 ## Bounded admission capture recipe
 
@@ -401,7 +401,7 @@ Every shipped protein command reads source facts. No command infers a variant ef
 
 Case paths in the first column's owning-case directory refer to `crates/biomcp/tests/runner`. External native cases remain outside Git under their retained archive recipes. Native absence and a known-positive unreviewed result remain unproved. Synthetic controls do not change that evidence boundary. Bulk human proteome, InterPro match, ComplexTab and whole-human STRING bundles remain deferred because no harvested question needs them.
 
-The old projection table above records the investigation's row projection and design reserve. It supplies no current case bound. The implemented section and relation tables report complete envelopes, including actions, queries, outcomes and publisher terms. The maps `tests/protein-section-budgets.json` and `tests/protein-domain-budgets.json` own native per-case measurements. The owning fixture, command phase and surface select a measurement before fifteen percent headroom is applied. CLI includes its final newline; MCP JSON omits it. No schema-wide, native-family or loop-wide maximum replaces an owning case measurement. Approximate tokens use the existing four-byte convention.
+The historical projection archive records the investigation's row projection and design reserve. It supplies no current case bound. The implemented section and relation tables report complete envelopes, including actions, queries, outcomes and publisher terms. The maps `tests/protein-section-budgets.json` and `tests/protein-domain-budgets.json` own native per-case measurements. The owning fixture, command phase and surface select a measurement before fifteen percent headroom is applied. CLI includes its final newline; MCP JSON omits it. No schema-wide, native-family or loop-wide maximum replaces an owning case measurement. Approximate tokens use the existing four-byte convention.
 
 Job j15006 retains the historical complete synthetic CLI and MCP measurements for the failure, retirement, wrong-identity, repeated-section and disabled-source cases. Its original `disabled/ACCESSION` label covered both the ordinary `all` phase and disabled-source phase; the measured bytes distinguish these recorded phases. Ordinary `all` measured 2,826 CLI bytes and 2,825 MCP bytes for each accession. Disabled optional sources measured 2,020 CLI bytes and 2,019 MCP bytes. Repeated features measured 1,328 CLI bytes and 1,327 MCP bytes. These measurements are reused without provider calls or another replay run.
 
