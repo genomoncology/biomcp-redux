@@ -185,10 +185,14 @@ fn absent() -> Result<(), String> {
 
 fn retained() -> Result<(), String> {
     let mut count = 0;
-    let stub = Stub::for_source("ontology.jax.org", "application/json", move |_| {
-        count += 1;
-        Ok(json!({"id":"HP:0000001","name":"Term","synonyms":[if count==1 {"Original"} else {"Refreshed"}]}).to_string())
-    })?;
+    let stub = Stub::for_sources(
+        &["ontology.jax.org"],
+        |_| "application/json",
+        move |_| {
+            count += 1;
+            Ok(json!({"id":"HP:0000001","name":"Term","synonyms":[if count==1 {"Original"} else {"Refreshed"}]}).to_string())
+        },
+    )?;
     let env = setup(&stub)?;
     let card = invoke(&env, &["get", "phenotype", "HP:0000001"], 0)?;
     let args = step(&card, "section", 0)?;

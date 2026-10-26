@@ -28,12 +28,17 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
         "api-v3.monarchinitiative.org"
     };
     let target = text(row, "target")?.to_string();
-    let stub = Stub::for_source(host, "application/json", move |request| {
-        if request.split_whitespace().nth(1) != Some(&target) {
-            return Err(format!("uncaptured entity request: {request}"));
-        }
-        Ok(body.clone())
-    })?;
+    let stub = Stub::for_source_status(
+        host,
+        "application/json",
+        move |request| {
+            if request.split_whitespace().nth(1) != Some(&target) {
+                return Err(format!("uncaptured entity request: {request}"));
+            }
+            Ok(body.clone())
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     let words = row
         .get("words")
