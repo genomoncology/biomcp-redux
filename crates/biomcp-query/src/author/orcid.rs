@@ -101,6 +101,17 @@ fn execute(
             store.publish_source_pool(&expected, &payload, size, std::slice::from_ref(&source))?;
         (groups, source, pool)
     };
+    present(q, id, out, groups, source, pool);
+    Ok(())
+}
+fn present(
+    q: &AuthorPapersQuery,
+    id: &OrcidId,
+    out: &mut Outcome,
+    groups: Box<[OrcidWorkGroup]>,
+    source: SourceOutcome,
+    pool: crate::store::Pool,
+) {
     let total = groups.len() as u64;
     let rows: Box<[_]> = groups
         .into_iter()
@@ -137,7 +148,6 @@ fn execute(
         groups: rows,
         observed_groups: total,
     }));
-    Ok(())
 }
 fn pivots(out: &mut Outcome, rows: &[OrcidWorkGroup]) {
     for id in rows
