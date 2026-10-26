@@ -119,7 +119,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
         request: Request::GetCellLine(q),
         ..
     } = action
-        && (q.section().is_some()
+        && (q.section().is_some_and(|s| s != biomcp_types::CellLineSection::Chembl)
             || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none()))
     {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
@@ -234,7 +234,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
-        Request::SearchCellLine(_) | Request::GetCellLine(_) => {
+        Request::SearchCellLine(_) | Request::GetCellLine(_) | Request::CellLineAssayCount(_) => {
             cell_line::encode(meta, request, body)
         }
         Request::GetGwasAssociation(q) => gwas_get(meta, q.into(), body),

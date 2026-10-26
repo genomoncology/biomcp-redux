@@ -145,6 +145,12 @@ impl CellLineGet {
         self.0.section = Some(section);
         self
     }
+    /// Preserve identity and section on metadata continuation.
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.section_offset = offset;
+        q
+    }
     /// Caller identity without normalization.
     pub fn id(&self) -> &CellLineInput {
         &self.0.id

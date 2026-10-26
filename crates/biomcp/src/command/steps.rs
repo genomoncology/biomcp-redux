@@ -44,6 +44,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::QueryBody as Body;
     match body {
         Body::CellLinePage(_) => Navigation::NativeOrder,
+        Body::CellLineChembl(_) | Body::CellLineAssayCount(_) => Navigation::BoundedPma,
         Body::CellLineCard(_) => Navigation::BoundedPma,
         Body::GwasAssociation(_)
         | Body::GwasStudy(_)

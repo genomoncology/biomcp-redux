@@ -1,6 +1,10 @@
 use super::*;
 use biomcp_types::{CellLineCard, CellLineInput, CellLineSection, CellLineSections};
 pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
+    if query.section() == Some(CellLineSection::Chembl)
+        && let CellLineInput::Accession(accession) = query.id() {
+        return super::chembl::get(cx, query, accession);
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
@@ -14,6 +18,12 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     if reply.is_ok() {
         out.status = card.status;
         actions(&mut out, &card);
+        if query.section() == Some(CellLineSection::Chembl)
+            && let Some(header) = &card.header {
+            let mut metadata = super::chembl::get(cx, query, &header.accession);
+            metadata.sources.splice(0..0, out.sources);
+            return metadata;
+        }
         out.body = QueryBody::CellLineCard(card);
         super::provenance::attach(cx, deadline, &mut out);
     }
