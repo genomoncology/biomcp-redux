@@ -1,6 +1,6 @@
 # Author investigation
 
-This investigation proposes an author surface through steps 1 to 4 of the slice method. It treats an author identifier as one source's record. A shared name, affiliation, paper or research topic never establishes that two records represent one person. Bibliographic questions below ask what a source asserts and make no clinical judgment.
+This investigation records the accepted author surface and its implemented command evidence. It treats an author identifier as one source's record. A shared name, affiliation, paper or research topic never establishes that two records represent one person. Bibliographic questions below ask what a source asserts and make no clinical judgment.
 
 ## Questions and accepted answer boundaries
 
@@ -35,6 +35,37 @@ The questions are derived from the cited publications and public reports. Each a
 
 Technical controls cover an empty candidate query, missing exact record, optional key omitted, source disabled, source 429, malformed body, mismatched identity, and repeated work assertions. A source failure never becomes an empty answer.
 
+## Current question coverage
+
+Status describes the current command answer to each accepted retrieval boundary. Complete retained native bylines remain proven capture provenance even where the command exposes only the first author. An answered retrieval makes no clinical or person-identity claim. Partial and unanswered questions remain open within their stated source boundaries.
+
+| Case | Status | Proof and limitation |
+| --- | --- | --- |
+| A01 | Partial | `tests/native/author/card-17611497.yaml` step 0 and `tests/cases/author/papers-article-pivot.yaml` steps 0–1 prove exact first-record access. Archive A `0000.body` retains the complete 24-ID byline; no command exposes that complete byline. |
+| A02 | Answered | `tests/native/author-papers/papers-17611497.yaml` step 0 owns the native ordered paper page. |
+| A03 | Answered | `tests/native/author/card-17611497.yaml` step 0 owns exact counts; `tests/cases/author/ordered-cards.yaml` step 0 distinguishes record-scoped counts and unavailable metadata. |
+| A04 | Answered | `tests/native/author-papers/papers-17611497.yaml` step 0 retains source paper IDs; `tests/cases/author/papers.yaml` step 0 owns the checked-ID article pivot. |
+| A05 | Partial | `tests/native/author/card-33123537.yaml` step 0 and `tests/cases/author/papers-article-pivot.yaml` steps 0–1 prove first-record access. Archive B `0000.body` retains seven byline IDs; no command exposes the complete byline. |
+| A06 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 0–2 own native page order and its exact warm continuation. |
+| A07 | Answered | `tests/cases/author/ordered-cards.yaml` step 0 keeps repeated names separate; `tests/cases/author/retired.yaml` supplies fixed merge refusal. |
+| A08 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 1–2 retain a paper without PMID and its native DOI; `tests/cases/author/papers.yaml` owns typed article pivots. |
+| A09 | Partial | `tests/native/author/card-34096690.yaml` step 0 and `tests/cases/author/papers-article-pivot.yaml` steps 0–1 prove first-record access. Archive B `0001.body` retains 26 byline IDs; no command exposes the complete byline. |
+| A10 | Answered | `tests/native/author-papers/papers-34096690.yaml` step 0 owns this exact record’s native ordered page. |
+| A11 | Answered | `tests/native/author/card-34096690.yaml` step 0 owns provider-record citation counts; `tests/cases/author/help.yaml` step 1 states the identity and ranking boundary. |
+| A12 | Answered | `tests/native/author-papers/papers-34096690-details.yaml` steps 0–1 own native details and full; `tests/cases/author/papers-details.yaml` compares identical synthetic details/full pages. |
+| A13 | Unanswered | Archive B `0002.body` is the exact PMID 32955176 paper 404. It supplies no byline or author ID, so no positive author case exists for this question. |
+| A14 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 0–1 own bounded native continuation using explicitly accepted record 2118426986. The unavailable PMID 32955176 identity stays unresolved; the endpoint supplies no total. |
+| A15 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 1–2 own exact selector-preserving and warm continuation on the accepted 2118426986 record. `tests/cases/author/papers-disabled-pool.yaml` owns actual retained-pool controls. |
+| A16 | Answered | `tests/cases/author/ordered-cards.yaml` step 0 and `tests/cases/author/help.yaml` step 1 preserve qualified provider records without person resolution. |
+| A17 | Answered | Outside-repo generated `orcid-0000-0002-4299-3018.yaml` steps 1–18, owned by `tests/native/orcid/orcid-0000-0002-4299-3018.yaml`, retain all 380 groups and 453 assertions; j15682. |
+| A18 | Answered | The same generated Swanton case step 0 owns the exact lowercase-public person name; j15682. |
+| A19 | Answered | Outside-repo generated `orcid-native-identifiers.yaml` step 0, owned by `tests/native/orcid/orcid-native-identifiers.yaml`, retains exact native PMID/DOI claims and pivot provenance; j15720. |
+| A20 | Answered | Generated Swanton case step 2 and complete walk steps 3–18 preserve group/assertion boundaries and exact ordered put-codes; j15682. `scripts/orcid_native.py` derives the outside-repo expectations. |
+| A21 | Answered | `tests/native/author/search-0.yaml` step 0 and `tests/native/author/search-5.yaml` step 0 own the two native candidate windows without choosing a person. |
+| A22 | Answered | Outside-repo generated `orcid-0000-0002-7433-2740.yaml` steps 0–3, owned by `tests/native/orcid/orcid-0000-0002-7433-2740.yaml`, retain the exact public name, two groups and two assertions; j15720. |
+| A23 | Unanswered | `tests/cases/author/retired.yaml` step 1 proves fixed topic-rank refusal. Both APIs leave topic-wide ranking deferred; refusal is not a ranking answer. |
+| A24 | Answered | `tests/cases/orcid/visibility.yaml` steps 0–1 and `tests/cases/orcid/person-public.yaml` step 0 own public-visibility controls; generated native Swanton/Butte step 0 proves accepted lowercase public names; j15682 and j15720. |
+
 ## Prior behavior and public issues
 
 The closed public issue inventory was read on 2026-10-26: all 57 closed issues were retrieved, and full title/body matching for author, ORCID, Semantic Scholar and S2_API_KEY found 289 and 225. Issue 290 also applies through shared source-group controls.
@@ -43,7 +74,7 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 - [225](https://github.com/genomoncology/biomcp/issues/225): retain anonymous Semantic Scholar with optional `S2_API_KEY`; omit the header when absent. A rate limit remains a source failure with a key-help action where appropriate.
 - [290](https://github.com/genomoncology/biomcp/issues/290): ORCID API terms restrict commercial use. It belongs in the shared noncommercial group; disabling a source also prevents cached delivery.
 
-| Legacy command or option | Proposed disposition | Reason |
+| Legacy command or option | 1.0 disposition | Reason |
 | --- | --- | --- |
 | `search author -q/--query TEXT` | Keep query capability as `search author TEXT` | Native Semantic Scholar candidates, unchanged text; no disambiguation guess. |
 | `--source semanticscholar` | Keep as an alias of canonical `--source semantic-scholar` | Accepted compatibility preserves existing calls; do not silently query ORCID name search. |
@@ -57,6 +88,17 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 | `list author` | Retire with fixed guidance to `help author`, `help search author` and `help get author` | Typed help retains provider identity, sources, limits and sections. |
 | Global JSON/Markdown, fresh/cache and source-disable options | Shared behavior | No entity-specific duplicate configuration. |
 
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search author` | Ported or renamed | `--query`, `--source`, `--limit`, `--offset` | — | — | Keep literal positional text and -q/--query, numeric -l/--limit, native order and source alias semanticscholar. Shared --pool retains checked pages. ORCID name search, topic ranking and coauthor aggregation remain unsupported because the accepted sources establish no such scope. |
+| `get author` | Ported or renamed | — | — | — | Keep exact semantic-scholar:ID, alias semanticscholar:ID and checksummed orcid:ID in caller order. Counts describe provider records. No person link or cross-provider merge is computed. |
+| `author papers` | Ported or renamed | `--full`, `--limit`, `--offset` | — | — | Keep provider-qualified papers and numeric -l. Semantic Scholar details and --full select the same native rich page. ORCID pages public groups with native assertion provenance. Shared --pool preserves the retained collection. |
+| `list author` | Dropped by ruling | — | — | — | Retire with fixed help author, help search author and help get author guidance. Generated help owns sources, options, sections and examples. |
+<!-- /parity-accounting -->
+
+The ledger counts leaf commands and their long option slots. The preceding rows also map every legacy alias, section and global setting. The article slice owns the `article authors` leaf: its separate command retires, while exact native first-author IDs offer article-to-author pivots without enrichment. JSON/Markdown use shared `--format json|md`; freshness, cache and source-disable settings retain shared grammar. Topic-wide ranking and cross-provider merging remain deferred because the APIs do not establish topic coverage or person identity. The new-sources ruling replaces the proposed ORCID public data file, so no such route is planned. All 0.9 sizes and timings remain unmeasured until the milestone 5 contained comparison.
+
 No coauthor aggregation, topic scoring, affiliation filtering or cross-provider merging shipped in the legacy author surface. They are not retained merely because an earlier design proposed them. Its rich paper page did ship and therefore needs equivalent named access.
 
 ## Source boundaries
@@ -69,7 +111,7 @@ Semantic Scholar author APIs use an optional `S2_API_KEY`. Existing article sour
 
 Exact public ORCID person and works API requests are the selected route. The annual Public Data File, bulk downloads, hosted queries, OAuth exchanges and account creation are outside this slice. Historical fixtures establish historical reply shapes only. They do not establish current source facts.
 
-## Proposed command and disclosure shape
+## Accepted command and disclosure shape
 
 `search author TEXT [--source semantic-scholar] [--limit N] [--offset N] [--pool ID]` returns source candidates. `semantic-scholar` is canonical; `--source semanticscholar` and `semanticscholar:` IDs remain accepted aliases. Each header keeps the qualified ID, full source name, source-provided affiliations, and native paper/citation counts when available. Names never become IDs.
 
@@ -112,13 +154,13 @@ Native source reply measurements and exact identity/paging proofs appear below. 
 
 | Command or layer | Measurement required before implementation | Current budget claim |
 | --- | --- | --- |
-| `search author` default page | Exact candidate order, source total, full names/affiliations, request count, compact JSON bytes/tokens, empty and failure outcomes | Unmeasured. No numeric ceiling accepted. |
-| `get author` Semantic Scholar card | Matching returned author ID, optional field/multiplicity inventory, cold/warm timings and bytes/tokens | Unmeasured. No numeric ceiling accepted. |
-| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Public API identity and visibility proved below. Normalized card size remains unmeasured. |
+| `search author` default page | Exact candidate order, source total, full names/affiliations, request count, compact JSON bytes/tokens, empty and failure outcomes | Measured normalized envelopes below; owning canonical CLI/MCP steps enforce rounded fifteen-percent headroom. |
+| `get author` Semantic Scholar card | Matching returned author ID, optional field/multiplicity inventory, cold/warm timings and bytes/tokens | Measured normalized envelopes below; owning canonical CLI/MCP steps enforce rounded fifteen-percent headroom. |
+| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Measured normalized public cards: Swanton 563 CLI / 562 MCP-text bytes; Butte 568 / 567 in j15682 and j15720. |
 | `author papers` compact | Native order, page size/next, unavailable native total, every native identifier and exact article pivot | Retained native measurements below; each owning case holds its measured ceiling. |
 | `author papers details` | Same page as compact, optional abstract and access fields, native bylines and counts, source terms | Retained native measurements below; each owning case holds its measured ceiling. |
-| ORCID groups and assertions | Group cardinality, representative selection without silent loss, external-ID relationship, bounded assertion drill-down | Native groups and assertion provenance proved below. Representative selection and normalized output remain unmeasured; no type is accepted here. |
-| Whole help, entity help and MCP listing | Exact command spelling, examples and tool-description growth on approved implementation | Existing caps remain unchanged; this design requests no cap increase. |
+| ORCID groups and assertions | Group cardinality, representative selection without silent loss, external-ID relationship, bounded assertion drill-down | Measured exact public groups and every ordered assertion below; canonical native steps retain independent page ceilings. No representative replaces an assertion. |
+| Whole help, entity help and MCP listing | Exact command spelling, examples and tool-description growth on approved implementation | Changed help surfaces are measured below. Entity caps use the standing measured-size ruling; global discovery caps require the PM if exceeded. |
 | Same-question 0.9 comparison | Verified network containment, exact request graph and replay of eligible captures | Unmeasured; no legacy binary was executed. |
 
 ## Bounded source captures
@@ -235,13 +277,13 @@ Source IDs and their aliases should have one checked type and one parser. Every 
 
 Ian resolved source eligibility through the open-by-default ruling. Both sources retain their noncommercial use category. Exact capture results must establish which capabilities can proceed.
 
-The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. Types, output ceilings and question answers wait for exact public API captures. No capability retirement or new source cost is accepted by this proposal.
+The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. The retained exact public API captures now support the implemented types, measured output ceilings and current question coverage recorded below. The explicit retirement contract below records the accepted capability rulings. No new source cost is introduced.
 
 ## Semantic Scholar execution contract
 
 `search author TEXT` preserves the original nonempty query, including surrounding and repeated whitespace. The source controls candidate order, offsets and continuation. A qualified author ID names a provider record. A shared display name does not link records. The search's retained pool keeps its published identity and expiry while later native pages extend its observed window. Restored pages retain the original source provenance. A changed selector rejects the pool; an expired pool offers a restart. Source disable checks precede pool and raw-cache access.
 
-`get author ID...` accepts one through twenty checked inputs and preserves one result slot for each input in input order. Each slot carries the qualified input, its independent status and its checked card when available. A native missing record is absent. A transport or decode error is failed. The adapter rejects a returned author ID that differs from the request before cache admission. Optional counts carry the `provider_record` scope. Missing metadata is unavailable; an empty source affiliation collection remains distinct from an unavailable collection. Cards offer typed `author papers` pivots. That deferred command returns its explicit deferred response until its owning implementation lands.
+`get author ID...` accepts one through twenty checked inputs and preserves one result slot for each input in input order. Each slot carries the qualified input, its independent status and its checked card when available. A native missing record is absent. A transport or decode error is failed. The adapter rejects a returned author ID that differs from the request before cache admission. Optional counts carry the `provider_record` scope. Missing metadata is unavailable; an empty source affiliation collection remains distinct from an unavailable collection. Cards offer typed executable `author papers` pivots.
 
 The response schemas are `biomcp.author_page/2` and `biomcp.author_card/3`. The shared request schema is `biodata.request/26`. `Step` still carries checked action arguments in its existing wire shape; generic `Envelope` has no independent versioned schema identity. The changed author response identities carry the wrapper and count-scope changes.
 
@@ -266,9 +308,9 @@ The retained native replay measures the whole emitted envelope, including shared
 | First card from PMID 34096690 | 705 | 306 | 704 | 746 | 1726 |
 | Exact absent card | 376 | 77 | 375 | 399 | 1016 |
 
-The approved help ceilings for CLI/MCP text/Markdown are search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
+At that earlier stage, the approved help ceilings for CLI/MCP text/Markdown were search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
 
-The final help metadata includes the twenty-input bound. The measured get-help surfaces are CLI 574, bare help 492, MCP text 573, Markdown 636 and full RPC 1420 bytes. List-author measures 1566/1490/1565/1541/3510 bytes on those same surfaces. Search help remains 1097/1012/1096/988/2536 bytes. Whole help measures 87594/87526/87593/78299/185140 bytes. The MCP description measures 3426 bytes and tools-list measures 8014 compact bytes or 8015 with its terminating newline. All fit the existing approved ceilings; the measurement does not reset their headroom.
+The then-current help metadata includes the twenty-input bound. The measured get-help surfaces are CLI 574, bare help 492, MCP text 573, Markdown 636 and full RPC 1420 bytes. List-author measures 1566/1490/1565/1541/3510 bytes on those same surfaces. Search help remains 1097/1012/1096/988/2536 bytes. Whole help measures 87594/87526/87593/78299/185140 bytes. The MCP description measures 3426 bytes and tools-list measures 8014 compact bytes or 8015 with its terminating newline. All fit the existing approved ceilings; the measurement does not reset their headroom.
 
 
 ## ORCID execution contract
@@ -310,7 +352,7 @@ The Swanton row measurements come from j15682. The remaining native and control 
 
 The exact Swanton collection has 380 public groups with 453 ordered assertions. Its local page walk covers every native put-code once in its original group. The Butte collection has two groups and two assertions. The native group at offset 42 supplies a checked PMID pivot with native provenance. A native DOI resolver URL that is not a checked bare DOI stays unchanged as an external-ID claim and offers no inferred article pivot.
 
-Current help measurements from j15720 are listed separately below. `list author` includes the executable papers route. Its canonical CLI/MCP owners and the existing Markdown shape own the changed entity ceilings. Other entity and global discovery ceilings remain unchanged. Whole help fits the established ceiling. The MCP description measures 3426 bytes; compact tools/list measures 8014 bytes and the raw frame measures 8015 bytes.
+Historical help measurements from j15720 are listed separately below. The then-listed author surface included the executable papers route; 0269 retired `list author` in favor of `help author`. Its canonical CLI/MCP owners and the existing Markdown shape own the changed entity ceilings. Other entity and global discovery ceilings remain unchanged. Whole help fits the established ceiling. The MCP description measures 3426 bytes; compact tools/list measures 8014 bytes and the raw frame measures 8015 bytes.
 
 | Help selection | CLI | Bare | MCP text | Markdown | Full RPC |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -320,7 +362,7 @@ Current help measurements from j15720 are listed separately below. `list author`
 | List author | 2583 | 2507 | 2582 | 2419 | 5668 |
 | Whole help | 88766 | 88698 | 88765 | 79356 | 187626 |
 
-The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare result bytes, 294 MCP text bytes, 308 Markdown bytes and 846 full RPC bytes in j15767. Its canonical owner enforces 340 raw bytes and 86 estimated tokens. The native person absence remains distinct from this synthetic works status control. Current papers help owns 1284 raw bytes and 321 estimated tokens; its mandatory Markdown shape owns 1099 bytes. List author owns 2971 CLI bytes, 2970 MCP text bytes, 743 estimated tokens and 2782 Markdown bytes.
+The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare result bytes, 294 MCP text bytes, 308 Markdown bytes and 846 full RPC bytes in j15767. Its canonical owner enforces 340 raw bytes and 86 estimated tokens. The native person absence remains distinct from this synthetic works status control. At that stage, papers help owned 1284 raw bytes and 321 estimated tokens; its mandatory Markdown shape owned 1099 bytes. The former list-author inventory owned 2971 CLI bytes, 2970 MCP text bytes, 743 estimated tokens and 2782 Markdown bytes. Current help owners use the generated-help measurements below.
 
 
 ## Retirement and source-failure contract
@@ -341,3 +383,53 @@ The warm Semantic Scholar snapshot owners cover candidate search and indexed pap
 
 
 Job j15838 measured the warm disabled search at 342 CLI bytes for its default query and 384 for its actual pool continuation. The indexed-paper equivalents measured 373 and 415. Both selectors produced the same sizes. The source continuation pages measured 683 search bytes and 589 paper bytes. Literal deferred-option text supplied through either query alias measured 335 CLI bytes. Each owning canonical step applies the rounded fifteen-percent allowance to the larger actual CLI/MCP-text measurement. The pool continuation owner measures the real returned identifier, rather than the shorter placeholder used in the static case.
+
+## Retained ORCID envelope measurements
+
+These existing native measurements separate each canonical case and page phase. They reuse j15682's completed Swanton walk and j15720's successful Butte and absence outputs. The earlier j15682 Butte decoding failure proves no positive works result; its successful person output is replaced here by the same person's completed j15720 measurement. No provider request or native walk was repeated for this accounting. Each canonical step in `tests/native/orcid/` owns its strict raw CLI/MCP byte and estimated-token ceiling.
+
+| Canonical case / step | Job | CLI | Bare result | MCP text | Markdown | Full RPC |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `orcid-0000-0002-4299-3018/0` | j15682 | 563 | 193 | 562 | 582 | 1420 |
+| `orcid-0000-0002-4299-3018/1` | j15682 | 4366 | 3487 | 4365 | 4875 | 9478 |
+| `orcid-0000-0002-4299-3018/2` | j15682 | 1990 | 1310 | 1989 | 2179 | 4436 |
+| `orcid-0000-0002-4299-3018/3` | j15682 | 18933 | 18036 | 18932 | 21487 | 40224 |
+| `orcid-0000-0002-4299-3018/4` | j15682 | 18709 | 17768 | 18708 | 19603 | 40104 |
+| `orcid-0000-0002-4299-3018/5` | j15682 | 23569 | 22664 | 23568 | 22440 | 50734 |
+| `orcid-0000-0002-4299-3018/6` | j15682 | 21683 | 20734 | 21682 | 21611 | 46576 |
+| `orcid-0000-0002-4299-3018/7` | j15682 | 18504 | 17574 | 18503 | 19530 | 39638 |
+| `orcid-0000-0002-4299-3018/8` | j15682 | 18072 | 17166 | 18071 | 18973 | 38752 |
+| `orcid-0000-0002-4299-3018/9` | j15682 | 19150 | 18224 | 19149 | 19656 | 41098 |
+| `orcid-0000-0002-4299-3018/10` | j15682 | 24258 | 23341 | 24257 | 25002 | 51740 |
+| `orcid-0000-0002-4299-3018/11` | j15682 | 24948 | 24016 | 24947 | 25478 | 53254 |
+| `orcid-0000-0002-4299-3018/12` | j15682 | 25314 | 24391 | 25313 | 25908 | 53962 |
+| `orcid-0000-0002-4299-3018/13` | j15682 | 25325 | 24385 | 25324 | 25759 | 54056 |
+| `orcid-0000-0002-4299-3018/14` | j15682 | 22848 | 21906 | 22847 | 23755 | 48692 |
+| `orcid-0000-0002-4299-3018/15` | j15682 | 27025 | 26089 | 27024 | 27776 | 57608 |
+| `orcid-0000-0002-4299-3018/16` | j15682 | 31094 | 30197 | 31093 | 31989 | 66192 |
+| `orcid-0000-0002-4299-3018/17` | j15682 | 31445 | 30539 | 31444 | 32570 | 67020 |
+| `orcid-0000-0002-4299-3018/18` | j15682 | 6903 | 6068 | 6902 | 7289 | 14896 |
+| `orcid-0000-0002-7433-2740/0` | j15720 | 568 | 198 | 567 | 587 | 1430 |
+| `orcid-0000-0002-7433-2740/1` | j15720 | 1371 | 921 | 1370 | 1570 | 3140 |
+| `orcid-0000-0002-7433-2740/2` | j15720 | 1119 | 516 | 1118 | 1232 | 2608 |
+| `orcid-0000-0002-7433-2740/3` | j15720 | 1372 | 921 | 1371 | 1571 | 3142 |
+| `orcid-absent/0` | j15720 | 354 | 67 | 353 | 377 | 972 |
+| `orcid-native-identifiers/0` | j15720 | 1751 | 1015 | 1750 | 1689 | 3980 |
+
+## Generated author help
+
+The build selects two successful canonical run steps for each author command. The shared executable-example contract parses those steps and executes them through CLI and MCP with their owning synthetic replies. Search and exact get have no named sections. Papers exposes the named `details` section and the shipped `--full` alias for Semantic Scholar metadata; ORCID keeps its distinct public work-group scope. Qualified IDs, both source names, source and ID aliases, native paging, provider-record count scope, optional key registration and the noncommercial disable group remain visible in generated help.
+
+Job j15876 measured the changed help surfaces without provider access. CLI includes its newline; MCP text and full RPC are distinct. Each canonical help step owns raw output bytes. Markdown owns its independent shape ceiling. The standing measured-cap decision applies rounded fifteen-percent headroom; global cap and large allocation changes require the PM ruling before landing.
+
+| Help command | CLI | Bare result | MCP text | Markdown | Full RPC |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `help search author` | 1699 | 1614 | 1698 | 1599 | 3756 |
+| `help get author` | 1221 | 1139 | 1220 | 1292 | 2732 |
+| `help author papers` | 2019 | 1934 | 2018 | 1882 | 4422 |
+| `help author` | 4735 | 4659 | 4734 | 4613 | 10032 |
+| Whole help | 90918 | 90850 | 90917 | 81550 | 191990 |
+
+The historical `list author` measurement tables above describe the former route inventory. `list author` now returns fixed retirement guidance; `help author` owns the current aggregate route help. Every canonical author, ORCID, author-papers and outside-repo native step retains `full_output_bytes: true` and its own measured `max_bytes` and estimated-token ceiling. Native source bodies and derived expected strings stay outside Git. Existing native measurement jobs supply data-envelope evidence; this documentation work does not repeat those walks. Product cold/warm timing and every 0.9 output size and timing remain unmeasured until the contained milestone 5 comparison.
+
+Job j15878 measured the complete current MCP discovery description at 3840 bytes, compact tools/list at 8430 bytes and its emitted frame at 8431 bytes. The PM approved the description ceiling at its rounded fifteen-percent allowance on 2026-10-26 and approved the get, papers and aggregate help allocations from j15876 because those actuals exceed their starting caps by more than fifty percent. Search help follows the standing measured-entity ruling. Whole help and tools/list keep their existing global limits. Whole help has little remaining space; the PM requires a measured ruling for any further growth before the milestone 5 documentation rewrite. No existing help or discovery content was removed to fit.

@@ -26,8 +26,7 @@
             ]
           ]
         }
-      },
-      "max_bytes": 89714
+      }
     },
     {
       "run": [
@@ -245,6 +244,5 @@
         "/result/environment": "ONCOKB_TOKEN"
       }
     }
-  ],
-  "verified": "The accepted j14984 whole-tree measurement is 77167 CLI bytes. Pathway schema descriptions, six parsed examples and sync documentation add 845 bytes. The combined expected 78012-byte output uses the standing measured-size-plus-fifteen-percent ceiling; the routine gate checks both transports."
+  ]
 }
