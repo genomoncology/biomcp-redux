@@ -200,7 +200,11 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
         let b = declared(&server);
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("cache.sqlite");
-        let f = cached(&path);
+        let f = Fetch::open(FetchConfig {
+            cache: Some(path.clone()),
+            sync_budget: Duration::from_secs(1),
+            ..Default::default()
+        }).unwrap();
         let parts = path.with_extension("parts");
         std::fs::create_dir_all(parts.join("nested")).unwrap();
         let sentinel = dir.path().join("sentinel");
@@ -225,7 +229,7 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
             "INSERT INTO bundle_sync VALUES('genes',NULL,0,?1,?2,0,NULL,NULL)",
             rusqlite::params![format!("{}/genes", server.base), prior.to_str().unwrap()],
         ).unwrap();
-        let result = f.leg(b.spec, f.deadline(Duration::from_secs(1))).sync(&b);
+        let result = f.sync(&b);
         assert!(matches!(result, Err(biomcp_fetch::RequestError::Cache(_))), "{scenario}: {result:?}");
         assert_eq!(std::fs::read_to_string(&sentinel).unwrap(), "keep this file");
         if scenario != "missing" {
