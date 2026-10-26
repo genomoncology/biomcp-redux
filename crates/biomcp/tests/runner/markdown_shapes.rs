@@ -17,6 +17,43 @@ pub(super) struct Shape {
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
+        args: &["search", "pathway", "Signaling by EGFR"],
+        replies: "pathway/native",
+        required: &["Signaling by EGFR", "biomcp get pathway R-HSA-177929"],
+        max_bytes: 1561,
+    },
+    Shape {
+        args: &["get", "pathway", "R-HSA-5673001"],
+        replies: "pathway/native",
+        required: &[
+            "RAF/MAP kinase cascade",
+            "biomcp get pathway R-HSA-5673001 summary",
+        ],
+        max_bytes: 832,
+    },
+    Shape {
+        args: &["get", "pathway", "R-HSA-5673001", "summary"],
+        replies: "pathway/native",
+        required: &["The RAS-RAF-MEK-ERK pathway", "24937142"],
+        max_bytes: 5441,
+    },
+    Shape {
+        args: &["search", "phenotype", "synthetic"],
+        replies: "phenotype/synthetic",
+        required: &["Synthetic term", "biomcp get phenotype HP:0000001"],
+        max_bytes: 5000,
+    },
+    Shape {
+        args: &["get", "phenotype", "HP:0000001"],
+        replies: "phenotype/synthetic",
+        required: &[
+            "Synthetic term",
+            "Complete synthetic definition",
+            "Complete synthetic comment",
+        ],
+        max_bytes: 5000,
+    },
+    Shape {
         args: &["get", "gene", "BRAF"],
         replies: "gene/main",
         required: &[

@@ -120,7 +120,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/9"),
+        Request => ("request", "biodata.request/11"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -186,7 +186,7 @@ fn study_registry() -> Vec<Contract> {
         StudySearch => ("study-search", "biomcp.study-search/1"),
         StudyGet => ("study-get", "biomcp.study-get/1"),
         Envelope<StudyPage> => ("study-page", "biomcp.study_page/1"),
-        Envelope<StudyCard> => ("study-card", "biomcp.study_card/1"),
+        Envelope<StudyCard> => ("study-card", "biomcp.study_card/2"),
         Envelope<StudyProfiles> => ("study-profiles", "biomcp.study_profiles/1"),
         Envelope<StudySampleLists> => ("study-sample-lists", "biomcp.study_sample_lists/1"),
         Envelope<StudyFiles> => ("study-files", "biomcp.study_files/1"),
@@ -424,8 +424,10 @@ fn flat_value(root: &Value, node: &Value) {
 
 fn pathway_contracts() -> Vec<Contract> {
     contracts! {
+        PathwaySearch => ("pathway-search", "biomcp.pathway-search/1"),
+        PathwayGet => ("pathway-get", "biomcp.pathway-get/1"),
         Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/1"),
-        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/1"),
+        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/2"),
         Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/1"),
         Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/1"),
     }
@@ -433,6 +435,8 @@ fn pathway_contracts() -> Vec<Contract> {
 
 fn protein_contracts() -> Vec<Contract> {
     contracts! {
+        ProteinSearch => ("protein-search", "biomcp.protein-search/1"),
+        ProteinGet => ("protein-get", "biomcp.protein-get/1"),
         Envelope<ProteinPage> => ("protein-page", "biomcp.protein_page/1"),
         Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/1"),
         Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein_features/1"),

@@ -121,3 +121,5 @@ pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError>
         .collect::<Result<Vec<_>, RequestError>>()
         .map(Into::into)
 }
+/// HP-native discovery and independent exact term cards.
+pub mod phenotype;

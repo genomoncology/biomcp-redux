@@ -10,6 +10,7 @@ biomcp-types = { path = "../biomcp-types" }
 biodata = { path = "../biodata" }
 biomcp-fetch = { path = "../biomcp-fetch" }
 serde.workspace = true
+url.workspace = true
 quick-xml.workspace = true
 calamine.workspace = true
 csv.workspace = true

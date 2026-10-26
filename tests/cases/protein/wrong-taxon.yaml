@@ -1,0 +1,55 @@
+{
+  "live_check": "synthetic identity boundary",
+  "feature": "protein-search",
+  "story": "Rejected exact protein identity never enters cache, while the next valid reply does",
+  "replay": "protein/wrong-taxon",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/problems/0/source": "uniprot"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/status": "failed"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "P00533"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "P00533"
+      }
+    }
+  ]
+}

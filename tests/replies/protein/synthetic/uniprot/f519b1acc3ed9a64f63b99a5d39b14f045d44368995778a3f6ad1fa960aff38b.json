@@ -1,0 +1,53 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/search?format=json&query=%28gene_exact%3ABRAF%29+AND+%28organism_id%3A9606%29+AND+%28reviewed%3Atrue%29&size=5",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "results": [
+            {
+              "primaryAccession": "P15056",
+              "uniProtkbId": "P15056_SYNTHETIC",
+              "entryType": "UniProtKB reviewed (Swiss-Prot)",
+              "organism": {
+                "taxonId": 9606
+              },
+              "proteinDescription": {
+                "recommendedName": {
+                  "fullName": {
+                    "value": "Synthetic protein fixture"
+                  }
+                }
+              },
+              "sequence": {
+                "length": 766
+              },
+              "genes": [
+                {
+                  "geneName": {
+                    "value": "BRAF"
+                  }
+                }
+              ],
+              "entryAudit": {
+                "entryVersion": 1,
+                "sequenceVersion": 2
+              }
+            }
+          ]
+        }
+      },
+      "pagination": {
+        "total": 1,
+        "next": null
+      }
+    }
+  ]
+}

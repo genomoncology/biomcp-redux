@@ -169,6 +169,17 @@
           "$ref": "#/$defs/Pathway",
           "description": "Source-native identity, species, versions and requested description."
         },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native Reactome database release, separate from pathway version."
+        },
         "sections": {
           "description": "Source-supported named sections; WikiPathways excludes genes and events.",
           "items": {
@@ -1467,7 +1478,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_card/1",
+  "$id": "biomcp.pathway_card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1513,7 +1524,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_card/1",
+      "const": "biomcp.pathway_card/2",
       "type": "string"
     },
     "sources": {

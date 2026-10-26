@@ -74,6 +74,7 @@ fn native_proof() -> Option<ExitCode> {
         "--seer-native-proof" => runner::seer_native,
         "--trial-condition-native-proof" => runner::trial_condition_native,
         "--monarch-native-proof" => runner::monarch_native,
+        "--phenotype-native-proof" => runner::phenotype_native,
 
         "--mydisease-native-proof" => runner::mydisease_native,
         "--disease-native-proof" => runner::disease_native,
