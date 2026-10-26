@@ -55,7 +55,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         items.push(PathwayMember {
             reference: PathwaySourceRef {
                 namespace: node.namespace.map(Into::into),
-                value: node.value.map(Into::into),
+                value: node.value.ok_or_else(invalid)?.parse().map_err(|_| invalid())?,
             },
             node_id: node.id.map(|s| s.parse().map_err(|_| invalid())).transpose()?,
             name: node.label.map(|s| s.parse().map_err(|_| invalid())).transpose()?,
