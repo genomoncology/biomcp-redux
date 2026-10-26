@@ -20,7 +20,7 @@ pub(super) struct Wrapped {
     pub value: Text,
 }
 impl Person {
-    pub fn card(self, id: &OrcidId) -> Result<Option<AuthorCard>, BadReply> {
+    pub(super) fn card(self, id: &OrcidId) -> Result<Option<AuthorCard>, BadReply> {
         let Some(name) = self
             .name
             .filter(|n| n.visibility.as_deref() == Some("public"))

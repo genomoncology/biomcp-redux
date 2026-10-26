@@ -18,6 +18,8 @@ def prepare(records, cases, replay):
             '/status': 'complete', '/result/items/0/card/header/name': display,
             '/result/items/0/card/header/id': 'orcid:' + identifier})]
         works = records[identifier + '-works'][1]['group']
+        if sum(len(g['work-summary']) for g in works) != (453 if total == 380 else 2):
+            raise ValueError('native assertion count differs')
         steps.append(step(['author', 'papers', 'orcid:' + identifier], {
             '/status': 'complete', '/result/observed_groups': total,
             '/result/collection_scope': 'whole_public_works_reply',
@@ -36,6 +38,17 @@ def prepare(records, cases, replay):
                 base = prefix + f'/external_ids/{j}'
                 for native, normalized in [('type', 'kind'), ('value', 'value'), ('relationship', 'relationship')]:
                     expect[base + '/' + normalized] = external['external-id-' + native]
+        expect['/result/groups/0/assertions/' + str(len(group['work-summary']))] = None
+        pivots = []
+        for assertion in group['work-summary']:
+            for external in assertion['external-ids']['external-id']:
+                if external['external-id-relationship'] == 'self' and external['external-id-type'] in ['pmid', 'doi']:
+                    args = ['get', 'article', external['external-id-value']]
+                    if args not in pivots:
+                        pivots.append(args)
+        start = 1 if index + 1 < total else 0
+        for i, args in enumerate(pivots[:5 - start], start):
+            expect[f'/next/{i}/args'] = args
         steps.append(step(['author', 'papers', 'orcid:' + identifier, '--limit', '1', '--offset', str(index)], expect))
         # A complete bounded local page walk retains one collection. Its exact native
         # put-code sequence proves stable group boundaries, no gaps and no duplicates.
@@ -45,6 +58,9 @@ def prepare(records, cases, replay):
             for i, group in enumerate(works[offset:offset + 25]):
                 for j, assertion in enumerate(group['work-summary']):
                     expect[f'/result/groups/{i}/assertions/{j}/put_code'] = assertion['put-code']
+            expect['/result/groups/' + str(min(25, total - offset))] = None
+            for i, group in enumerate(works[offset:offset + 25]):
+                expect[f'/result/groups/{i}/assertions/' + str(len(group['work-summary']))] = None
             owner = step(['author', 'papers', 'orcid:' + identifier, '--limit', '25'], expect)
             if offset:
                 owner.pop('run'); owner.pop('mcp')

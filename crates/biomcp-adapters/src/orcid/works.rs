@@ -149,7 +149,7 @@ impl Assertion {
     }
 }
 impl Works {
-    pub fn identity(&self, id: &OrcidId) -> bool {
+    pub(super) fn identity(&self, id: &OrcidId) -> bool {
         self.path == format!("/{id}/works")
             && self
                 .group
@@ -157,7 +157,7 @@ impl Works {
                 .flat_map(|g| &g.work_summary)
                 .all(|s| s.path == format!("/{id}/work/{}", s.put_code))
     }
-    pub fn groups(self) -> Result<Box<[OrcidWorkGroup]>, BadReply> {
+    pub(super) fn groups(self) -> Result<Box<[OrcidWorkGroup]>, BadReply> {
         self.group
             .into_iter()
             .filter_map(|g| {
