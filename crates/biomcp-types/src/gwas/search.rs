@@ -88,6 +88,10 @@ struct SearchFields {
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
+    /// Retained threshold walk identity; requires a threshold.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pool: Option<Text>,
     /// Native association offset.
     #[serde(default)]
     offset: u32,
@@ -106,6 +110,7 @@ impl TryFrom<SearchFields> for GwasSearch {
             && f.pubmed.is_none()
             || f.include_child_traits && f.trait_id.is_none()
             || f.extended_geneset && f.gene.is_none()
+            || f.pool.is_some() && f.p_value.is_none()
             || !(1..=50).contains(&f.limit)
         {
             return Err(QueryInvalid);
@@ -162,6 +167,12 @@ impl GwasSearch {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
+    /// Retained threshold walk identity.
+    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    /// Restart the exact selectors at the beginning.
+    pub fn restart(&self) -> Self { let mut q = self.at_offset(0); q.0.pool = None; q }
+    /// Continue a retained threshold walk.
+    pub fn in_pool(&self, pool: Text, offset: u32) -> Self { let mut q = self.at_offset(offset); q.0.pool = Some(pool); q }
     /// Continue without changing source selectors.
     pub fn at_offset(&self, offset: u32) -> Self {
         let mut next = self.clone();

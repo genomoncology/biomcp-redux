@@ -1,0 +1,135 @@
+//! An exact threshold walk retains received identities without scanning ahead.
+use super::{map, next};
+use crate::{Action, Ctx, Outcome, status, store::{Pool, Store}};
+use biomcp_adapters::gwas;
+use biomcp_fetch::{CacheError, Deadline, RequestError};
+use biomcp_types::{GwasAssociation, GwasPage, GwasPageQuery, GwasSearch, PageInfo, QueryBody, Reason, Request, Source, SourceOutcome, Status, StepKind};
+use sha2::{Digest, Sha256};
+
+#[derive(Default)]
+struct Saved {
+    rows: Vec<GwasAssociation>,
+    total: Option<u64>,
+    done: bool,
+    sources: Vec<SourceOutcome>,
+}
+impl Saved {
+    fn encode(&self) -> Result<String, CacheError> {
+        serde_json::to_string(&(&self.rows, self.total, self.done, &self.sources)).map_err(|_| CacheError::Database)
+    }
+    fn decode(payload: &str) -> Result<Self, CacheError> {
+        let (rows, total, done, sources) = serde_json::from_str(payload).map_err(|_| CacheError::Database)?;
+        Ok(Self { rows, total, done, sources })
+    }
+}
+pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let mut out = Outcome { status: Status::Failed, body: QueryBody::GwasPage(None), page: None, sources: vec![], problems: vec![], next: vec![], local: None };
+    if let Err(error) = read(cx, q, deadline, &mut out) {
+        out.local = status::local(error);
+        out.body = QueryBody::GwasPage(None);
+        out.page = None;
+        if out.sources.is_empty() {
+            out.sources.push(status::source(Source::Gwas, Default::default(), Some(error)));
+        }
+        if out.sources.iter().any(|s| s.reason == Some(Reason::BadReply)) {
+            out.problems.push(biomcp_types::Problem { source: Source::Gwas, record: None, field: "association_page".into(), code: biomcp_types::ProblemCode::ValueUnknown });
+        }
+        out.next = next::search(q, None, biomcp_types::SourceState::Failed, cx.fresh);
+    }
+    command.finish(deadline.remaining());
+    out
+}
+fn key(q: &GwasSearch) -> Vec<u8> {
+    Sha256::digest(format!("biomcp.gwas_threshold/1\0{}", serde_json::to_string(&q.restart()).unwrap_or_default())).to_vec()
+}
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError { source: Source::Gwas, reason: Reason::BadReply, status: Some(200), retry_after: None }.into()
+}
+fn restart(q: &GwasSearch, out: &mut Outcome, mismatch: bool) {
+    out.body = QueryBody::PoolError { mismatch };
+    out.next.push((StepKind::Restart, Action::Run { request: Request::SearchGwas(q.restart()), fresh: false }));
+}
+fn read(cx: &Ctx<'_>, q: &GwasSearch, deadline: Deadline<'_>, out: &mut Outcome) -> Result<(), RequestError> {
+    let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
+    if cx.fetch.disabled(Source::Gwas) {
+        let error = biomcp_fetch::SourceError { source: Source::Gwas, reason: Reason::Disabled, status: None, retry_after: None }.into();
+        out.sources.push(status::source(Source::Gwas, leg.finish(), Some(error)));
+        return Err(error);
+    }
+    if q.pool().is_none() && q.offset() != 0 || q.pool().is_some() && cx.fresh {
+        restart(q, out, false);
+        return Ok(());
+    }
+    let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
+    let prior = if cx.fresh { None } else { store.find(&key(q), q.pool().map(biodata::Text::as_str))? };
+    let Some(mut saved) = load(cx, q, &store, prior.as_ref(), out)? else { return Ok(()); };
+    if q.offset() as usize > saved.rows.len() {
+        restart(q, out, false);
+        return Ok(());
+    }
+    let needed = q.offset().saturating_add(q.limit()) as usize;
+    if !saved.done && saved.rows.len() < needed {
+        let result = gwas::search(&leg, &q.at_offset(saved.rows.len() as u32));
+        let error = result.as_ref().err().copied();
+        let incoming = status::source(Source::Gwas, leg.finish(), error);
+        out.sources = vec![incoming.clone()];
+        let page = result?;
+        append(q, &mut saved, page)?;
+        saved.sources = vec![incoming];
+    } else {
+        out.sources = saved.sources.clone();
+    }
+    let payload = saved.encode()?;
+    let size = saved.rows.len() as u32;
+    let pool = match prior {
+        Some(pool) => store.extend_source_pool(pool, &payload, size, &saved.sources)?,
+        None => store.publish_source_pool(&key(q), &payload, size, &saved.sources)?,
+    };
+    render(cx, q, saved, pool, out);
+    Ok(())
+}
+fn load(cx: &Ctx<'_>, q: &GwasSearch, store: &Store<'_>, prior: Option<&Pool>, out: &mut Outcome) -> Result<Option<Saved>, RequestError> {
+    let Some(pool) = prior else {
+        if q.pool().is_some() { restart(q, out, false); return Ok(None); }
+        return Ok(Some(Saved::default()));
+    };
+    if pool.key != key(q) { restart(q, out, true); return Ok(None); }
+    let Some(payload) = store.source_snapshot(pool.info.id.as_str(), &key(q), |s| cx.fetch.disabled(s))? else {
+        restart(q, out, false);
+        return Ok(None);
+    };
+    Ok(Some(Saved::decode(&payload)?))
+}
+fn append(q: &GwasSearch, saved: &mut Saved, page: gwas::Page) -> Result<(), RequestError> {
+    if saved.total.is_some_and(|total| total != page.total) { return Err(bad()); }
+    let threshold = q.p_value().ok_or_else(bad)?;
+    let before = saved.rows.len();
+    saved.total = Some(page.total);
+    for row in page.rows {
+        let exact = row.exact_p_value().ok_or_else(bad)?;
+        if saved.rows.iter().any(|old| old.id == row.association_id)
+            || saved.rows.last().and_then(|old| old.exact_p_value.as_ref()).is_some_and(|last| last > &exact) {
+            return Err(bad());
+        }
+        if exact > *threshold { saved.done = true; break; }
+        saved.rows.push(map::association(row));
+    }
+    if saved.rows.len() as u64 > page.total { return Err(bad()); }
+    saved.done |= saved.rows.len() as u64 == page.total;
+    if !saved.done && saved.rows.len() == before { return Err(bad()); }
+    Ok(())
+}
+fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Pool, out: &mut Outcome) {
+    let items: Box<[_]> = saved.rows.iter().skip(q.offset() as usize).take(q.limit() as usize).cloned().collect();
+    let returned = items.len() as u32;
+    let offset = q.offset().saturating_add(returned);
+    let continuation = (!saved.done || (offset as usize) < saved.rows.len()).then(|| GwasPageQuery::Search(q.in_pool(pool.info.id.clone(), offset)));
+    let page = PageInfo { offset: q.offset(), returned, total: saved.total.unwrap_or(0), pool: Some(pool.info), truncated: Some(!saved.done) };
+    let body = GwasPage { items, page: page.clone(), continuation, qualifying_total: saved.done.then_some(saved.rows.len() as u64) };
+    out.next = next::search(q, Some(&body), biomcp_types::SourceState::Ok, cx.fresh);
+    out.page = Some(page);
+    out.body = QueryBody::GwasPage(Some(body));
+    out.status = if out.sources.iter().any(|s| s.state == biomcp_types::SourceState::Stale) { Status::Partial } else { Status::Complete };
+}

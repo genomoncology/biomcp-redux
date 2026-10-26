@@ -7,15 +7,6 @@ mod identity;
 
 /// Read the checked native page under ascending source p value.
 pub fn search(leg: &Leg<'_>, q: &GwasSearch) -> Result<Page, RequestError> {
-    if q.p_value().is_some() {
-        return Err(biomcp_fetch::SourceError {
-            source: biomcp_types::Source::Gwas,
-            reason: biomcp_types::Reason::Unsupported,
-            status: None,
-            retry_after: None,
-        }
-        .into());
-    }
     let values = selectors(q);
     let params: Vec<_> = values
         .iter()
