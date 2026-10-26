@@ -223,36 +223,69 @@ fn qualifiers(raw: &Value, mapped: &Value) -> Result<(), String> {
     Ok(())
 }
 
-fn ceiling(row:&Value)->Result<usize,String> {
-    match (text(row,"section")?,row.get("limit").and_then(Value::as_u64),row.get("offset").and_then(Value::as_u64)) {
-        ("diseases",Some(2),Some(0))=>Ok(6220),
-        ("genes",Some(2),Some(0))=>Ok(5272),
-        ("diseases",Some(1),Some(1))=>Ok(3399),
-        ("genes",Some(1),Some(1))=>Ok(3139),
-        ("diseases",Some(1),Some(0))=>Ok(3657),
-        ("genes",Some(1),Some(0))=>Ok(2959),
-        _=>Err("unmeasured association case".into()),
+fn ceiling(row: &Value) -> Result<usize, String> {
+    match (
+        text(row, "section")?,
+        row.get("limit").and_then(Value::as_u64),
+        row.get("offset").and_then(Value::as_u64),
+    ) {
+        ("diseases", Some(2), Some(0)) => Ok(6220),
+        ("genes", Some(2), Some(0)) => Ok(5272),
+        ("diseases", Some(1), Some(1)) => Ok(3399),
+        ("genes", Some(1), Some(1)) => Ok(3139),
+        ("diseases", Some(1), Some(0)) => Ok(3657),
+        ("genes", Some(1), Some(0)) => Ok(2959),
+        _ => Err("unmeasured association case".into()),
     }
 }
-fn retained(directory:&Path,output:&Path,index:usize,row:&Value)->Result<(),String> {
-    let read=|p:&Path|->Result<Value,String>{serde_json::from_slice(&fs::read(p).map_err(|e|e.to_string())?).map_err(|e|e.to_string())};
-    let value=read(&output.join(format!("{index}-cli-mcp.json")))?;
-    verify(&read(&directory.join(text(row,"body")?))?,&value)?;
-    let offset=row.get("offset").and_then(Value::as_u64).ok_or("offset")?;
-    let limit=row.get("limit").and_then(Value::as_u64).ok_or("limit")?;
-    let section=text(row,"section")?;
-    let mut expected=vec!["get".to_owned(),"phenotype".into(),"HP:0001250".into(),section.into()];
-    if limit!=1 {expected.extend(["--section-limit".into(),limit.to_string()]);}
-    expected.extend(["--section-offset".into(),(offset+limit).to_string()]);
-    let page=value.get("next").and_then(Value::as_array).ok_or("next page")?.iter().find(|s|s.get("kind")==Some(&json!("page"))).ok_or("native page step")?;
-    if page.get("args")!=Some(&json!(expected)) {return Err(format!("native next arguments changed: {page}"));}
-    let total=if section=="diseases" {2561} else {1409};
-    let id=match (section,offset) {("diseases",0)=>"MONDO:0014379",("diseases",1)=>"MONDO:0012596",("genes",0)=>"HGNC:9910",("genes",1)=>"HGNC:29529",_=>return Err("unmeasured identity".into())};
-    if value.pointer("/page/total")!=Some(&json!(total)) || value.pointer("/result/items/0/association/subject/id")!=Some(&json!(id)) {return Err("retained association identity or total changed".into());}
-    let bytes=super::super::source_terms::size(&value,"")?;
-    let cap=ceiling(row)?;
-    if bytes>cap || bytes.div_ceil(4)>cap.div_ceil(4) {return Err("measured association cap exceeded".into());}
-    let full=serde_json::to_vec(&value).map_err(|e|e.to_string())?.len();
+fn retained(directory: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
+    let read = |p: &Path| -> Result<Value, String> {
+        serde_json::from_slice(&fs::read(p).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+    };
+    let value = read(&output.join(format!("{index}-cli-mcp.json")))?;
+    verify(&read(&directory.join(text(row, "body")?))?, &value)?;
+    let offset = row.get("offset").and_then(Value::as_u64).ok_or("offset")?;
+    let limit = row.get("limit").and_then(Value::as_u64).ok_or("limit")?;
+    let section = text(row, "section")?;
+    let mut expected = vec![
+        "get".to_owned(),
+        "phenotype".into(),
+        "HP:0001250".into(),
+        section.into(),
+    ];
+    if limit != 1 {
+        expected.extend(["--section-limit".into(), limit.to_string()]);
+    }
+    expected.extend(["--section-offset".into(), (offset + limit).to_string()]);
+    let page = value
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("next page")?
+        .iter()
+        .find(|s| s.get("kind") == Some(&json!("page")))
+        .ok_or("native page step")?;
+    if page.get("args") != Some(&json!(expected)) {
+        return Err(format!("native next arguments changed: {page}"));
+    }
+    let total = if section == "diseases" { 2561 } else { 1409 };
+    let id = match (section, offset) {
+        ("diseases", 0) => "MONDO:0014379",
+        ("diseases", 1) => "MONDO:0012596",
+        ("genes", 0) => "HGNC:9910",
+        ("genes", 1) => "HGNC:29529",
+        _ => return Err("unmeasured identity".into()),
+    };
+    if value.pointer("/page/total") != Some(&json!(total))
+        || value.pointer("/result/items/0/association/subject/id") != Some(&json!(id))
+    {
+        return Err("retained association identity or total changed".into());
+    }
+    let bytes = super::super::source_terms::size(&value, "")?;
+    let cap = ceiling(row)?;
+    if bytes > cap || bytes.div_ceil(4) > cap.div_ceil(4) {
+        return Err("measured association cap exceeded".into());
+    }
+    let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     writeln!(std::io::stderr(),"retained {section} limit{limit} offset{offset}: full={full} comparable={bytes} tokens={} cap={cap} token_cap={}",bytes.div_ceil(4),cap.div_ceil(4)).map_err(|e|e.to_string())?;
     Ok(())
 }

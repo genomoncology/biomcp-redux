@@ -122,7 +122,9 @@ fn pages() -> Result<(), String> {
         || first
             .pointer("/result/items/1/association/negated")
             .is_some()
-        || first.pointer("/result/items/1/association/publications").is_some()
+        || first
+            .pointer("/result/items/1/association/publications")
+            .is_some()
         || first.pointer("/result/items/1/association/qualifiers") != Some(&json!([]))
     {
         return Err(format!("native independent rows collapsed: {first}"));
@@ -133,19 +135,18 @@ fn pages() -> Result<(), String> {
         .ok_or("next")?;
     if next.len() != 2
         || next.first().and_then(|row| row.get("args"))
-            != Some(&json!(["get", "disease", "MONDO:0014379", "--section-limit", "5"]))
+            != Some(&json!([
+                "get",
+                "disease",
+                "MONDO:0014379",
+                "--section-limit",
+                "5"
+            ]))
         || next.get(1).and_then(|row| row.get("kind")) != Some(&json!("page"))
     {
         return Err(format!("association navigation changed: {first}"));
     }
-    let args = next
-        .get(1)
-        .and_then(|row| row.get("args"))
-        .and_then(Value::as_array)
-        .ok_or("page args")?
-        .iter()
-        .map(|v| v.as_str().ok_or("word"))
-        .collect::<Result<Vec<_>, _>>()?;
+    let args = arguments(next.get(1).ok_or("native page step")?)?;
     let last = invoke(&env, &args, 0)?;
     if last.pointer("/query/section_limit") != Some(&json!(2))
         || last.pointer("/page/offset") != Some(&json!(2))
@@ -284,13 +285,7 @@ fn cards() -> Result<(), String> {
                         .is_some_and(|args| args.contains(&json!(section)))
                 })
                 .ok_or("missing association action")?;
-            let args = action
-                .get("args")
-                .and_then(Value::as_array)
-                .ok_or("args")?
-                .iter()
-                .map(|v| v.as_str().ok_or("word"))
-                .collect::<Result<Vec<_>, _>>()?;
+            let args = arguments(action)?;
             if args.contains(&"--snapshot") {
                 return Err("association inherited entity snapshot".into());
             }
@@ -347,4 +342,9 @@ fn set(row: &mut Value, field: &str, value: Value) -> Result<(), String> {
         .ok_or("synthetic association object")?
         .insert(field.into(), value);
     Ok(())
+}
+
+fn arguments(step: &Value) -> Result<Vec<&str>, String> {
+    step.get("args").and_then(Value::as_array).ok_or("step arguments")?
+        .iter().map(|value| value.as_str().ok_or("step word".into())).collect()
 }
