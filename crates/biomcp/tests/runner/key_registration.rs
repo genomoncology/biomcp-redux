@@ -64,7 +64,7 @@ pub(super) fn invoke(
 fn presence(env: &Environment, expected: &str, fallback: bool) -> Check {
     let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &["key".into(), "list".into()]);
     if fallback {
-        command.env("SEMANTIC_SCHOLAR_API_KEY", SECOND);
+        command.env("S2_API_KEY", SECOND);
     }
     let output = command.output().map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
