@@ -39,7 +39,7 @@ The landed commands expose stored metadata and bounded independent sections. The
 
 A get uses only an exact study ID selected from discovery or explicitly supplied by the caller. Unsupported aliases return usage guidance or source absence, never a guessed cohort. Exact study IDs remain case-sensitive if the source treats them that way. Search filters narrow only checked fields; a cancer type such as `mixed` must not expand into cohorts inferred from sample diagnoses.
 
-The metadata bundle contains catalog metadata, not downloaded study matrices. The implementation must decide snapshot coherence before types land: catalog headers and optional remote section metadata may have different acquisition times, which must remain visible. A continuation binds its snapshot and filters; changing selectors with a continuation fails locally. Missing or expired pools offer restart without provider requests.
+The metadata bundle contains catalog metadata. Catalog search continuations bind the immutable catalog revision and selectors; changing a selector fails locally, and missing or expired pools offer a restart without provider requests. Profiles, sample lists and files use ordinary checked received-reply caches with independent acquisition times and section offsets. Their pages retain those acquisition times. They do not claim one shared snapshot across independently acquired sections.
 
 Source policy applies before any cache, bundle or transport access. Existing `cbioportal` use remains `restricted` pending study-specific reuse proof; it stays on by default and honors explicit source/group disables. A bundle may not relabel the same restricted data as open merely because it is downloaded.
 
