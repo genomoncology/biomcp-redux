@@ -162,4 +162,6 @@ cell-line-types: A public API caller validates exact cell identities and standal
 
 cell-line-identity: A caller searches literal Cellosaurus headers and retrieves exact accession or verified source-qualified cell identities. Cases: `tests/cases/cell-line/*.yaml`, `crates/biomcp/tests/runner/cell_line/*.rs`.
 
+cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance. Cases: `crates/biomcp/tests/runner/cell_line/chembl.rs`, `crates/biomcp/tests/runner/cell_line/chembl/*.rs`.
+
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference. Cases: `crates/biomcp/tests/runner/cell_line/sections.rs`.

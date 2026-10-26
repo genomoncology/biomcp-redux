@@ -71,6 +71,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::CellLineAssayCount(q) => crate::cell_line::assay_count(cx, q),
         Request::SearchCellLine(q) => crate::cell_line::search(cx, q),
         Request::GetCellLine(q) => crate::cell_line::get(cx, q),
         Request::GetGwasAssociation(q) => crate::gwas::get(cx, &q.clone().into()),

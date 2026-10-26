@@ -207,6 +207,13 @@ pub struct CellLineChemblRecord {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineChembl {
+    /// Independent ChEMBL release, distinct from retrieval time.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original retrieval seconds; never a source release date.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
+
     /// Requested exact accession.
     pub accession: CellosaurusAccession,
     /// Every selected whole metadata row and the native total.
@@ -219,6 +226,13 @@ pub struct CellLineChembl {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineAssayCount {
+    /// Independent ChEMBL release, distinct from retrieval time.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release: Option<CellLineRelease>,
+    /// Original retrieval seconds; never a source release date.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fetched: Option<u64>,
+
     /// Exact requested ChEMBL cell ID.
     pub id: ChemblCellId,
     /// Native assay page total_count, including a reported zero.
@@ -249,11 +263,11 @@ impl ResponseBody for CellLineVariants {
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {
-    const SCHEMA: &'static str = "biomcp.cell_line_chembl/1";
+    const SCHEMA: &'static str = "biomcp.cell_line_chembl/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineAssayCount {
-    const SCHEMA: &'static str = "biomcp.cell_line_assay_count/1";
+    const SCHEMA: &'static str = "biomcp.cell_line_assay_count/2";
     type Query = CellLineAssayCountQuery;
 }
 

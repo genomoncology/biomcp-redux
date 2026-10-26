@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Read the native assay total for one exact ChEMBL cell.
+    CellLineAssayCount(crate::CellLineAssayCountQuery),
     /// Discover unchanged literal Cellosaurus candidates.
     SearchCellLine(crate::CellLineSearch),
     /// Read an exact accession or verified qualified source identity.

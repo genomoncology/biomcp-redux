@@ -144,3 +144,6 @@ fn page(meta: &PageMeta, count: usize, limit: u32, offset: u32) -> Result<(), Ba
 }
 mod map;
 pub use map::{indications as map_indications, targets as map_targets};
+
+mod cell;
+pub use cell::{assay_count, cells, release};

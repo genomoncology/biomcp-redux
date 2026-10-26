@@ -338,6 +338,99 @@ The focused discovery check in `j15137` measured whole-tree CLI help at 84,770 b
 
 The restored checked canonical-accession branch was measured independently in `j15149`: `native/search/accession-CVCL_0005` returned 1,358 CLI bytes including newline and 1,357 MCP bytes. Its separate ceilings are 1,562 and 1,561 bytes (391 estimated tokens each), with the same 15 percent headroom. It uses the unchanged exact 0256 `ac` witness; no provider call or completed literal-search measurement was repeated.
 
+## ChEMBL request and provenance contracts
+
+An explicit `chembl` disclosure returns the standalone metadata envelope. A primary CVCL accession sends only the exact ChEMBL metadata request and its independent status request. A qualified source identity first follows the existing Cellosaurus verification route. The same command deadline covers verification and ChEMBL retrieval. The metadata request sends `cellosaurus_id`, the checked section limit and section offset. Each native row must carry the exact requested CVCL accession and a valid native ChEMBL cell ID before cache admission. Native names, descriptions, integer cell IDs, organism labels, taxon, tissue and underscore-spelled CLO/EFO identifiers survive unchanged. Native nulls remain absent.
+
+Cell-specific native page metadata preserves `next` and `previous` for admission checks without changing drug endpoint behavior. The native limit, offset, total and received row count must agree. A next link must agree with the remaining native window, and an initial page cannot carry a previous link. Contradictions fail before cache admission. A declared remaining page produces a partial metadata outcome and a typed continuation command. It never establishes that the current response contains every matching record.
+
+The assay-count command sends exactly `cell_chembl_id`, `limit=1` and `offset=0`. Every received assay row must carry the requested cell ID before cache admission. Only the native assay total enters the result. A native total of zero remains a successful zero. Metadata and `all` never issue this request. No assay listing, activity download, drug sensitivity estimate or biological interpretation enters the response.
+
+The separate cached `/status.json` read supplies `chembl_db_version` and `chembl_release_date`. Its failure preserves useful metadata or the assay count, retains the original labelled retrieval timestamp, marks the source failed and adds a `release` problem. Disabled ChEMBL reads bypass both cache and network. Publisher policy remains the existing ChEMBL attribution category and CC BY-SA 3.0 terms.
+
+The shared request schema advances to version 23 for the assay-count request. ChEMBL metadata and assay-count envelopes advance to version 2 for independent optional release and retrieval provenance. The existing response record fields retain their native source meaning.
+
+The native ChEMBL fixtures contain unchanged bodies from the verified 0196 portable ChEMBL archive for CVCL_2119, CVCL_0004, CVCL_9999, the exact assay-count request and status. The CVCL_0064 body comes from the verified 0256 native archive. Both outer archive hashes and all outer and native manifest member hashes were checked before copying these six bodies. The protected originals remain unchanged. Paging contradictions, malformed identities, zero assays and source faults are explicitly synthetic controls. No provider request or retry was added.
+
+## Measured ChEMBL output budgets
+
+Each row owns one fixture or synthetic variant, phase and actual output surface. CLI bytes include the emitted newline. MCP bytes measure the emitted tool text that is checked against structured content. The full RPC framing is measured separately. Markdown bytes measure actual UTF-8 stdout. These complete envelopes include provenance, source terms and typed next commands. The earlier native projections are payload design samples and supply no full-envelope ceiling. The established source-term-subtracted comparable basis removes exactly the registry's three policy fields; one ChEMBL outcome contributes 107 bytes. Help has no term subtraction. The executable cell-line YAML examples retain their existing canonical limits and own no ChEMBL phase.
+
+Native and help measurements come from `j15181`; completed metadata source-fault measurements come from `j15185`; the remaining source-fault, cache, provenance and synthetic-zero measurements come from `j15189`. The contradictory paging controls and complete five-row synthetic continuation come from `j15195`. The actual-byte helper verifies the same emitted surfaces in the routine suite. Each exact Rust phase resolves through `tests/cell-line-command-budgets.json`. Unlisted phases fail. No source or fault group supplies a shared maximum, and no argv table duplicates these limits.
+
+| Owning phase | Surface | Observed bytes | Ceiling bytes | Estimated token ceiling |
+| --- | --- | ---: | ---: | ---: |
+| `chembl/admission/assays/bad-page/failed` | cli | 438 | 504 | 126 |
+| `chembl/admission/assays/bad-page/healthy` | cli | 376 | 433 | 109 |
+| `chembl/admission/assays/malformed/failed` | cli | 438 | 504 | 126 |
+| `chembl/admission/assays/malformed/healthy` | cli | 376 | 433 | 109 |
+| `chembl/admission/assays/mismatch/failed` | cli | 438 | 504 | 126 |
+| `chembl/admission/assays/mismatch/healthy` | cli | 376 | 433 | 109 |
+| `chembl/admission/assays/missing/failed` | cli | 438 | 504 | 126 |
+| `chembl/admission/assays/missing/healthy` | cli | 376 | 433 | 109 |
+| `chembl/admission/assays/next/failed` | cli | 438 | 504 | 126 |
+| `chembl/admission/assays/next/healthy` | cli | 376 | 433 | 109 |
+| `chembl/admission/metadata/bad-page/failed` | cli | 464 | 534 | 134 |
+| `chembl/admission/metadata/bad-page/healthy` | cli | 719 | 827 | 207 |
+| `chembl/admission/metadata/malformed/failed` | cli | 464 | 534 | 134 |
+| `chembl/admission/metadata/malformed/healthy` | cli | 719 | 827 | 207 |
+| `chembl/admission/metadata/mismatch/failed` | cli | 464 | 534 | 134 |
+| `chembl/admission/metadata/mismatch/healthy` | cli | 719 | 827 | 207 |
+| `chembl/admission/metadata/missing/failed` | cli | 464 | 534 | 134 |
+| `chembl/admission/metadata/missing/healthy` | cli | 719 | 827 | 207 |
+| `chembl/admission/metadata/next/failed` | cli | 464 | 534 | 134 |
+| `chembl/admission/metadata/next/healthy` | cli | 719 | 827 | 207 |
+| `chembl/disabled/assays/prime` | cli | 376 | 433 | 109 |
+| `chembl/disabled/assays/warm` | cli | 351 | 404 | 101 |
+| `chembl/disabled/metadata/prime` | cli | 719 | 827 | 207 |
+| `chembl/disabled/metadata/warm` | cli | 380 | 437 | 110 |
+| `chembl/fault/assays/429` | cli | 441 | 508 | 127 |
+| `chembl/fault/assays/429` | mcp | 440 | 506 | 127 |
+| `chembl/fault/assays/500` | cli | 440 | 506 | 127 |
+| `chembl/fault/assays/500` | mcp | 439 | 505 | 127 |
+| `chembl/fault/assays/broken` | cli | 438 | 504 | 126 |
+| `chembl/fault/assays/broken` | mcp | 437 | 503 | 126 |
+| `chembl/fault/assays/html` | cli | 438 | 504 | 126 |
+| `chembl/fault/assays/html` | mcp | 437 | 503 | 126 |
+| `chembl/fault/assays/timeout` | cli | 446 | 513 | 129 |
+| `chembl/fault/assays/timeout` | mcp | 445 | 512 | 128 |
+| `chembl/fault/metadata/429` | cli | 467 | 538 | 135 |
+| `chembl/fault/metadata/429` | mcp | 466 | 536 | 134 |
+| `chembl/fault/metadata/500` | cli | 466 | 536 | 134 |
+| `chembl/fault/metadata/500` | mcp | 465 | 535 | 134 |
+| `chembl/fault/metadata/broken` | cli | 464 | 534 | 134 |
+| `chembl/fault/metadata/broken` | mcp | 463 | 533 | 134 |
+| `chembl/fault/metadata/html` | cli | 464 | 534 | 134 |
+| `chembl/fault/metadata/html` | mcp | 463 | 533 | 134 |
+| `chembl/fault/metadata/timeout` | cli | 472 | 543 | 136 |
+| `chembl/fault/metadata/timeout` | mcp | 471 | 542 | 136 |
+| `chembl/help/assay-count` | cli | 415 | 478 | 120 |
+| `chembl/help/assay-count` | markdown | 461 | 531 | 133 |
+| `chembl/help/assay-count` | mcp | 414 | 477 | 120 |
+| `chembl/native/assays` | cli | 376 | 433 | 109 |
+| `chembl/native/assays` | markdown | 388 | 447 | 112 |
+| `chembl/native/assays` | mcp | 375 | 432 | 108 |
+| `chembl/native/metadata/CVCL_0004` | cli | 746 | 858 | 215 |
+| `chembl/native/metadata/CVCL_0004` | markdown | 848 | 976 | 244 |
+| `chembl/native/metadata/CVCL_0004` | mcp | 745 | 857 | 215 |
+| `chembl/native/metadata/CVCL_0064` | cli | 752 | 865 | 217 |
+| `chembl/native/metadata/CVCL_0064` | markdown | 854 | 983 | 246 |
+| `chembl/native/metadata/CVCL_0064` | mcp | 751 | 864 | 216 |
+| `chembl/native/metadata/CVCL_2119` | cli | 719 | 827 | 207 |
+| `chembl/native/metadata/CVCL_2119` | markdown | 807 | 929 | 233 |
+| `chembl/native/metadata/CVCL_2119` | mcp | 718 | 826 | 207 |
+| `chembl/native/metadata/CVCL_9999` | cli | 429 | 494 | 124 |
+| `chembl/native/metadata/CVCL_9999` | markdown | 466 | 536 | 134 |
+| `chembl/native/metadata/CVCL_9999` | mcp | 428 | 493 | 124 |
+| `chembl/release/assays/500` | cli | 506 | 582 | 146 |
+| `chembl/release/assays/500` | mcp | 505 | 581 | 146 |
+| `chembl/release/metadata/500` | cli | 837 | 963 | 241 |
+| `chembl/release/metadata/500` | mcp | 836 | 962 | 241 |
+| `chembl/synthetic/assay-zero` | cli | 373 | 429 | 108 |
+| `chembl/synthetic/assay-zero` | mcp | 372 | 428 | 107 |
+| `chembl/synthetic/more` | cli | 1855 | 2134 | 534 |
+| `chembl/synthetic/more` | mcp | 1854 | 2133 | 534 |
+
 ## Complete-card field contracts
 
 Named Cellosaurus sections reuse the retained `ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt` request. The first cold section reads one checked complete reply; independently requested pages share that request and cache identity. The default card retains its separate smaller projection. Unrequested collections remain distinct from source omission.

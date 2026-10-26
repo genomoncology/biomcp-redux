@@ -68,6 +68,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::CellLineAssayCount(q) => serde_json::to_value(q),
         Request::SearchCellLine(q) => serde_json::to_value(q),
         Request::GetCellLine(q) => serde_json::to_value(q),
         Request::GetGwasAssociation(q) => serde_json::to_value(q),
@@ -166,6 +167,7 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
 }
 fn command_verb(request: &Request) -> &'static str {
     match request {
+        Request::CellLineAssayCount(_) => "cell-line",
         Request::PathwayGenes(_) | Request::PathwayEvents(_) => "pathway",
         Request::ProteinFeatures(_)
         | Request::ProteinIsoforms(_)
@@ -223,6 +225,7 @@ fn command_verb(request: &Request) -> &'static str {
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
     match request {
+        Request::CellLineAssayCount(_) => "assay-count",
         Request::ProteinFeatures(_) => "features",
         Request::ProteinIsoforms(_) => "isoforms",
         Request::ProteinDomains(_) => "domains",

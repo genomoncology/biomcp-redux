@@ -1,5 +1,6 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
 use std::io::Write;
+mod chembl;
 mod examples;
 mod faults;
 mod help;
@@ -32,6 +33,7 @@ pub(super) fn trials() -> Vec<Trial> {
         || sections::run(false).map_err(Into::into),
     ));
     tests.extend(faults::trials());
+    tests.extend(chembl::trials());
     tests
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {

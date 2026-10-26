@@ -1,6 +1,11 @@
 use super::*;
 use biomcp_types::{CellLineCard, CellLineInput, CellLineSection, CellLineSections};
 pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
+    if query.section() == Some(CellLineSection::Chembl)
+        && let CellLineInput::Accession(accession) = query.id()
+    {
+        return super::chembl::get(cx, query, accession);
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
@@ -13,6 +18,22 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     out.local = error.and_then(status::local);
     if reply.is_ok() {
         out.status = card.status;
+        if query.section() == Some(CellLineSection::Chembl)
+            && let Some(header) = &card.header
+        {
+            let mut metadata = super::chembl::get_at(cx, query, &header.accession, deadline);
+            metadata.sources.splice(0..0, out.sources);
+            if metadata.status != Status::Failed
+                && metadata
+                    .sources
+                    .iter()
+                    .any(|source| source.state == biomcp_types::SourceState::Stale)
+            {
+                metadata.status = Status::Partial;
+            }
+            command.finish(deadline.remaining());
+            return metadata;
+        }
         if query.section().is_some() && card.candidates.is_empty() {
             super::sections::actions(query, &card, &mut out);
         } else {
