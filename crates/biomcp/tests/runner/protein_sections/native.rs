@@ -7,6 +7,12 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
         .map(|e| e.map(|e| e.path()).map_err(|e| e.to_string()))
         .collect::<Result<Vec<_>, _>>()?;
     paths.sort();
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> =
+        serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/protein-section-budgets.json"
+        )))
+        .map_err(|e| e.to_string())?;
     let output = directory
         .parent()
         .ok_or("native directory")?
@@ -21,6 +27,14 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
         facts(name, &value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::super::source_terms::size(&value, "")?;
+        let [measured_full, measured_comparable] = budgets.get(name).ok_or("native case budget")?;
+        if full + 1 > (measured_full * 115).div_ceil(100)
+            || comparable > (measured_comparable * 115).div_ceil(100)
+        {
+            return Err(format!(
+                "{name}: native full or comparable response exceeded its measured fifteen-percent ceiling"
+            ));
+        }
         fs::write(
             output.join(format!("{name}.json")),
             serde_json::to_vec(&value).map_err(|e| e.to_string())?,

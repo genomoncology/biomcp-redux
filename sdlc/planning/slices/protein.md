@@ -320,3 +320,25 @@ The section commands retain the checked entry reply for features, alternative pr
 Function paragraphs retain the literal native molecule qualifier when supplied. For example, the retained EGFR reply labels one function paragraph `Isoform 2`; that text never qualifies another paragraph. Alternative-product IDs, synonyms and VSP sequence IDs remain source values. Direct sequence availability stays separate from the product's Displayed, Described or External status. PDB properties may be absent. A cross-reference supplies a publisher link, never inferred residue coverage or a structure download.
 
 An alternative sequence uses the exact FASTA request. The returned accession, reviewed human header and residue alphabet must pass admission before the reply enters the cache. The sequence is complete, and FASTA does not inherit the displayed entry's audit versions or checksum. Historical residue labels remain unchanged.
+
+### Implemented UniProt section measurements
+
+The retained native CLI and MCP proof covers every section command and the complete `all` disclosure. It reuses the accepted source archives without provider requests. Both isoform continuations preserve source order and make every captured TP53 and MUTYH alternative reachable. Native EGFR function paragraphs preserve the presence and absence of the molecule qualifier independently. Sequence proof checks complete residues and the native MUTYH positions without historical-label conversion.
+
+The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-sections/biomcp-redux-0239-native.mXeaPJ.tar.gz`, SHA-256 `47b39aa4ef15ddc8453e8addf2bed30b29c7f370ab67eb3d36ab89fd1b9a7513`. The archive passed exact member and content-hash verification on the build host and Yellow. The retained phase logs and revisions identify reused successful measurements.
+
+`tests/protein-section-budgets.json` owns each case's measured whole CLI bytes and comparable bytes. The native runner enforces measured plus 15% against both, and generated command cases use the same comparable ceiling. A CLI newline accounts for its one-byte difference from MCP. The table shows the largest observed case in each command shape.
+
+| Shape | Largest case key | Whole CLI bytes | Whole MCP bytes | Comparable bytes | Comparable ceiling |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Card | `card-P38398-2` | 1,129 | 1,128 | 1,037 | 1,193 |
+| Features | `features-default` | 2,490 | 2,489 | 2,398 | 2,758 |
+| Isoforms | `isoforms-P04637` | 1,339 | 1,338 | 1,247 | 1,435 |
+| Structures | `structures` | 1,536 | 1,535 | 1,444 | 1,661 |
+| Sequence | `sequence-P38398` | 2,382 | 2,381 | 2,290 | 2,634 |
+| Get features | `get-P38398-features` | 3,086 | 3,085 | 2,994 | 3,444 |
+| Get isoforms | `get-P38398-isoforms` | 1,808 | 1,807 | 1,716 | 1,974 |
+| Get structures | `get-P00533-structures` | 2,103 | 2,102 | 2,011 | 2,313 |
+| Get sequence | `get-P38398-sequence` | 3,246 | 3,245 | 3,154 | 3,628 |
+| Get function | `get-P00533-function` | 4,743 | 4,742 | 4,651 | 5,349 |
+| Get all | `get-P00533-all` | 9,766 | 9,765 | 9,674 | 11,126 |

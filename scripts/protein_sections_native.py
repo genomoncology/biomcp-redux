@@ -78,7 +78,9 @@ for accession, remainder in [('P04637', ['P04637-6', 'P04637-7', 'P04637-8', 'P0
                              ('Q9UIF7', ['Q9UIF7-6'])]:
     path = cases / ('isoforms-' + accession + '.yaml')
     value = json.loads(path.read_text())
-    value['steps'].append({'follow': 'page', 'expect': {'/result/items/*/ids/0': remainder}})
+    follow = {'follow': 'page', 'expect': {'/result/items/*/ids/0': remainder}}
+    if 'max_bytes' in value['steps'][0]: follow['max_bytes'] = value['steps'][0]['max_bytes']
+    value['steps'].append(follow)
     walks = output / 'walks'
     walks.mkdir(exist_ok=True)
     (walks / path.name).write_text(json.dumps(value))

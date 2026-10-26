@@ -5,12 +5,15 @@ import sys
 from protein_native_replay import prepare
 archives, output = map(Path, sys.argv[1:])
 replay = prepare(archives, output)
+budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/protein-section-budgets.json').read_text())
+def card_ceiling(name):
+    return (budgets['card-' + name][1] * 115 + 99) // 100
 
 def case(name, steps):
     ceilings = {
-        'P00533': [768], 'Q9UIF7': [741], 'P38398-2': [789],
+        'P00533': [card_ceiling('P00533')], 'Q9UIF7': [card_ceiling('Q9UIF7')], 'P38398-2': [card_ceiling('P38398-2')],
         'CDKN2A': [1267], 'search-BRAF': [749], 'search-CDKN2A': [1076],
-        'text-pages': [2330, 2250], 'gene-crossrefs': [796, 970],
+        'text-pages': [2330, 2250], 'gene-crossrefs': [card_ceiling('BRAF'), 970],
     }
     if len(steps) != len(ceilings[name]):
         raise ValueError('every native step needs its measured ceiling')
