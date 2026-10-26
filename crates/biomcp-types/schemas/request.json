@@ -1445,11 +1445,11 @@
         },
         "snapshot": {
           "$ref": "#/$defs/Text",
-          "description": "Retained exact source reply for local section pages."
+          "description": "Retained exact source reply for local text and link pages; unsupported for diseases and genes."
         },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",
-          "description": "HPO for card, synonyms and xrefs; Monarch for other sections."
+          "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch."
         }
       },
       "required": [

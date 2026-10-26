@@ -269,7 +269,7 @@
     },
     "PhenotypeSearch": {
       "additionalProperties": false,
-      "description": "Literal Monarch HP term search, with no similarity operation.",
+      "description": "Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.",
       "properties": {
         "limit": {
           "default": 5,
