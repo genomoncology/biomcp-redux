@@ -1,6 +1,7 @@
 # 0207 — Capture the study gene-filtered aggregate, catalog page and field witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 65a6a51f810c714375b814a9a54d9ef2c7afc219
 
 Milestone: 4
 
