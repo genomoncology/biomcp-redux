@@ -238,13 +238,7 @@ pub(super) fn check_environment(
     if output.status != json_output.status || !output.stderr.is_empty() {
         return Err("Markdown changed command status or emitted diagnostics".into());
     }
-    let mut tool_args: Vec<String> = shape.args.iter().map(|arg| (*arg).to_owned()).collect();
-    tool_args.extend(["--format".into(), "md".into()]);
-    let tool =
-        super::mcp::call_with_globals(env, &tool_args, !json_output.status.success(), globals)?;
-    if tool != value {
-        return Err("MCP changed JSON under Markdown configuration".into());
-    }
+    check_tool(shape, env, globals, &value, json_output.status.success())?;
     command.extend(["--format".into(), "json".into()]);
     let explicit = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &command)
@@ -252,6 +246,53 @@ pub(super) fn check_environment(
         .map_err(|e| e.to_string())?;
     if explicit.stdout != json_output.stdout {
         return Err("explicit JSON changed under Markdown configuration".into());
+    }
+    Ok(())
+}
+
+fn check_tool(
+    shape: &Shape,
+    env: &Environment,
+    globals: &[String],
+    value: &Value,
+    success: bool,
+) -> Result<(), String> {
+    let mut args: Vec<String> = shape.args.iter().map(|arg| (*arg).to_owned()).collect();
+    let destination = if let Some(save) = args.iter().position(|arg| arg == "--save") {
+        let path = args.get_mut(save + 1).ok_or("save destination")?;
+        *path = format!("stdio-{path}");
+        let path = path.clone();
+        args.retain(|arg| arg != "--replace");
+        Some(path)
+    } else {
+        None
+    };
+    args.extend(["--format".into(), "md".into()]);
+    let mut tool = super::mcp::call_with_globals(env, &args, !success, globals)?;
+    if let Some(path) = destination {
+        let absolute = env
+            .root()
+            .join(&path)
+            .canonicalize()
+            .map_err(|e| e.to_string())?;
+        if tool.pointer("/query/save") != Some(&json!(path))
+            || tool.pointer("/query/replace") != Some(&json!(false))
+            || tool.pointer("/result/file/data/path") != Some(&json!(absolute.to_string_lossy()))
+        {
+            return Err("stdio save changed its explicit new destination".into());
+        }
+        // Preserve receipt parity after checking the deliberate destination difference.
+        for pointer in ["/query/save", "/query/replace", "/result/file/data/path"] {
+            *tool
+                .pointer_mut(pointer)
+                .ok_or("stdio save receipt field")? = value
+                .pointer(pointer)
+                .ok_or("CLI save receipt field")?
+                .clone();
+        }
+    }
+    if &tool != value {
+        return Err("MCP changed JSON under Markdown configuration".into());
     }
     Ok(())
 }
