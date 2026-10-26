@@ -33,7 +33,7 @@ These questions are reformulated from published records and papers. They are ret
 
 ## Investigation boundary
 
-The investigation captures Cellosaurus, ChEMBL and PharmacoDB directly before proposing shared types. Legacy execution remains unmeasured until network containment is independently verified. Raw replies and licensed bodies stay outside Git. No product implementation belongs in this change.
+The investigation captured Cellosaurus and ChEMBL directly, plus one bounded HPA identity-contract reply, before proposing shared types. PharmacoDB data capture and implementation remain deferred under the PM source-eligibility ruling. Legacy execution remains unmeasured until network containment is independently verified. Raw replies and licensed bodies stay outside Git. No product implementation belongs in this change.
 
 
 ## Legacy accounting
