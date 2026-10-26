@@ -132,12 +132,15 @@ fn pages() -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("next")?;
     if next.len() != 2
-        || next.first().and_then(|row| row.get("args")) != Some(&json!(["get", "disease", "MONDO:0014379"]))
+        || next.first().and_then(|row| row.get("args"))
+            != Some(&json!(["get", "disease", "MONDO:0014379"]))
         || next.get(1).and_then(|row| row.get("kind")) != Some(&json!("page"))
     {
         return Err(format!("association navigation changed: {first}"));
     }
-    let args = next.get(1).and_then(|row| row.get("args"))
+    let args = next
+        .get(1)
+        .and_then(|row| row.get("args"))
         .and_then(Value::as_array)
         .ok_or("page args")?
         .iter()
@@ -268,7 +271,10 @@ fn cards() -> Result<(), String> {
             words.extend(["--section-limit", "2"]);
         }
         let card = invoke(&env, &words, 0)?;
-        let next = card.get("next").and_then(Value::as_array).ok_or("association card actions")?;
+        let next = card
+            .get("next")
+            .and_then(Value::as_array)
+            .ok_or("association card actions")?;
         for section in ["diseases", "genes"] {
             let action = next
                 .iter()
@@ -278,7 +284,8 @@ fn cards() -> Result<(), String> {
                         .is_some_and(|args| args.contains(&json!(section)))
                 })
                 .ok_or("missing association action")?;
-            let args = action.get("args")
+            let args = action
+                .get("args")
                 .and_then(Value::as_array)
                 .ok_or("args")?
                 .iter()
@@ -335,7 +342,9 @@ fn timeout() -> Result<(), String> {
     Ok(())
 }
 
-fn set(row:&mut Value,field:&str,value:Value)->Result<(),String> {
-    row.as_object_mut().ok_or("synthetic association object")?.insert(field.into(),value);
+fn set(row: &mut Value, field: &str, value: Value) -> Result<(), String> {
+    row.as_object_mut()
+        .ok_or("synthetic association object")?
+        .insert(field.into(), value);
     Ok(())
 }
