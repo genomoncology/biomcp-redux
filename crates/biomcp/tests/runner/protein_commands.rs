@@ -144,7 +144,7 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
             serde_json::json!([
                 {"run":["search","protein","EGFR"], "exit":0,
                  "expect":{"/status":"partial", "/problems/0/code":"value_unknown"}},
-                {"run":["search","protein","EGFR","--fresh","--offline"], "exit":4,
+                {"run":["search","protein","EGFR","--fresh"], "offline":true,"exit":4,
                  "expect":{"/status":"failed"}}
             ]),
         )?;
