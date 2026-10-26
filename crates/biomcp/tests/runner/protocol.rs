@@ -457,7 +457,8 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // Keep discovery compact; detailed options live in generated command help.
-    if text.len() > 2311 {
+    // j14984 measured the composed GWAS/study discovery at 2750 bytes.
+    if text.len() > 3163 {
         return Err("command description exceeds budget".into());
     }
     for &word in DISCOVERY_WORDS {

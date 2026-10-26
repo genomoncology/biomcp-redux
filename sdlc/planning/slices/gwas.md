@@ -429,3 +429,22 @@ The routine collection in `j14903` measured whole-tree generated help at 76,572 
 | JSON, Markdown, MCP and cache/source/transport flags | Shared envelope and source policy; JSON is default and Markdown uses `--format md`. | `cli-mcp-help-markdown`; warm/fresh and source-policy cases. |
 
 The new selectors `--variant`, `--trait-id`, `--study`, `--pubmed`, `--include-child-traits` and `--extended-geneset` are covered by the named retained positive search rows and the checked synthetic selector case. New exact association/study gets and `loci`, `associations` and `ancestries` sections have their retained cases above. The four release bundles, `sync gwas`, summary-statistics files, interval search, other GWAS sources and a GWAS batch remain deferred or dropped for the reasons in Source and bundle disposition. Issue 78 enrichment remains outside scope. Issue 283 continues to use the shared clean JSON-RPC stream proof and now includes a synthetic GWAS cache-writing call.
+
+
+## Implemented synthetic and help response costs
+
+The bounded synthetic collection in `j14978` and its two expiry-case continuation checks in `j14981` measured the CLI and MCP command phases. `tests/gwas-synthetic-budgets.json` owns all 107 named phase pairs. Each call site names its phase; loops retain their largest measured page. The shared checker requires a known phase and applies fifteen-percent ceilings independently to complete CLI and MCP envelopes. MCP checks reuse the checked reply without another provider request. Existing CLI tests continue to own explicit-fresh request counts. Native output measurements and ceilings remain unchanged.
+
+Job `j14984` measured the YAML examples and help through both surfaces after composing accepted study help. These are synthetic replies, not publication evidence. Full CLI bytes include the newline. The case runner's `max_bytes` applies to comparable bytes after validating and removing the three publisher terms fields. This differs from the full-envelope phase checker above. Each YAML step now applies the standing measured-size-plus-fifteen-percent rule. The historical binary remains unmeasured under the containment deferral to 0098 for all synthetic comparisons.
+
+| Case step | Full CLI bytes | Full MCP bytes | Comparable CLI bytes | Comparable MCP bytes | Case byte ceiling |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `examples` publication | 1712 | 1711 | 1589 | 1588 | 1828 |
+| `examples` variant | 1718 | 1717 | 1595 | 1594 | 1835 |
+| `examples` threshold | 2091 | 2090 | 1968 | 1967 | 2264 |
+| `get-examples` association | 863 | 862 | 740 | 739 | 851 |
+| `get-examples` study | 845 | 844 | 722 | 721 | 831 |
+| `help` search | 2360 | 2359 | 2360 | 2359 | 2714 |
+| `help` get | 1406 | 1405 | 1406 | 1405 | 1617 |
+
+The same job measured whole-tree CLI help at 77,167 bytes, the MCP command description at 2,750 bytes and the source-schema enum at 659 bytes. Their owning checks use measured-size-plus-fifteen-percent ceilings. Whole-tree help and discovery are shared command infrastructure; they are not GWAS source-response budgets. The source enum size and its existing ceiling are unchanged.
