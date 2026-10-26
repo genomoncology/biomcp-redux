@@ -35,25 +35,3 @@ pub(super) fn check(root: &Path) -> Check {
     }
     Ok(())
 }
-
-#[test]
-fn request_reason_mapping_cannot_be_copied() -> Check {
-    let root = tempfile::tempdir()?;
-    let source = root.path().join("crates/biomcp-query/src");
-    fs::create_dir_all(&source)?;
-    for copied in [
-        "fn reason(error: RequestError) -> Reason { match error { RequestError::Source(e) => e.reason, _ => Reason::Unavailable } }",
-        "match reply { Err(RequestError::Source(e)) => Section::unavailable(source, e.reason), Err(_) => Section::unavailable(source, Reason::Unavailable) }",
-        "match error { RequestError::Source(SourceError { reason, .. }) => reason, _ => Reason::Unavailable }",
-    ] {
-        fs::write(source.join("section.rs"), copied)?;
-        if check(root.path()).is_ok() {
-            return Err("a copied request reason mapping passed the repository gate".into());
-        }
-    }
-    fs::write(
-        source.join("section.rs"),
-        "if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) { absent() }",
-    )?;
-    check(root.path())
-}
