@@ -65,6 +65,17 @@
           ],
           "description": "First author in source order."
         },
+        "first_author_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SemanticScholarAuthorId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact Semantic Scholar ID for the displayed native first author, when supplied."
+        },
         "journal": {
           "anyOf": [
             {
@@ -718,6 +729,10 @@
         " Identity lacks the identifier required to join this source."
       ]
     },
+    "SemanticScholarAuthorId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
     "SemanticScholarId": {
       "pattern": "^[a-f0-9]{40}$",
       "type": "string"
@@ -1068,7 +1083,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article_recommendations/2",
+  "$id": "biomcp.article_recommendations/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1114,7 +1129,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_recommendations/2",
+      "const": "biomcp.article_recommendations/3",
       "type": "string"
     },
     "sources": {
