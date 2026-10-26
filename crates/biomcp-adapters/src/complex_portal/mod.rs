@@ -16,60 +16,107 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::COMPLEX_PORTAL,
     deadline: Duration::from_secs(8),
 };
-mod raw;
 mod map;
-use biodata::{ComplexPortalId,ProteinComplexHeader,ProteinComplexMember,UniProtIsoform};
-use biomcp_fetch::{Arg,Freshness,Leg,RequestError};
-use serde::{Serialize,Deserialize};
+mod raw;
+use biodata::{ComplexPortalId, ProteinComplexHeader, ProteinComplexMember, UniProtIsoform};
+use biomcp_fetch::{Arg, Freshness, Leg, RequestError};
+use serde::{Deserialize, Serialize};
 /// An admitted complex and its whole native participant list.
-#[derive(Clone,Debug,Serialize,Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Complex {
     /// Exact native header.
-    pub header:ProteinComplexHeader,
+    pub header: ProteinComplexHeader,
     /// Source participants, including non-proteins.
-    pub members:Vec<ProteinComplexMember>,
+    pub members: Vec<ProteinComplexMember>,
 }
 /// A complete admitted collection with an independent source search count.
-#[derive(Clone,Debug,Serialize,Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Collection {
     /// Exact-participant admissions in native order.
-    pub items:Vec<Complex>,
+    pub items: Vec<Complex>,
     /// Native text-search total, never an admitted membership count.
-    pub native_total:u64,
+    pub native_total: u64,
 }
-const HUMAN:&str="species_f:(\"Homo sapiens\")";
+const HUMAN: &str = "species_f:(\"Homo sapiens\")";
 /// Scan the exact accession query without admitting description matches.
-pub fn search(leg:&Leg<'_>,anchor:&UniProtIsoform)->Result<Collection,RequestError>{
-    let endpoint=SPEC.get("").with_path(format!("/search/{anchor}"))?.identity_encoding().fresh(Freshness::Days(1));
-    let mut offset=0;
-    let mut items=Vec::new();
-    let mut total=None;
+pub fn search(leg: &Leg<'_>, anchor: &UniProtIsoform) -> Result<Collection, RequestError> {
+    let endpoint = SPEC
+        .get("")
+        .with_path(format!("/search/{anchor}"))?
+        .identity_encoding()
+        .fresh(Freshness::Days(1));
+    let mut offset = 0;
+    let mut items = Vec::new();
+    let mut total = None;
     loop {
-        let mut args=vec![("number",Arg::Num(25)),("filters",Arg::Text(HUMAN))];
-        if offset>0 {args.push(("first",Arg::Num(offset)));}
-        let page=leg.json::<raw::Search>(&endpoint,&args)?;
-        if total.is_some_and(|n|n!=page.total_number_of_results) {return Err(bad());}
-        total=Some(page.total_number_of_results);
-        let returned=page.elements.len() as u64;
-        if offset+returned>page.total_number_of_results || returned==0 && offset<page.total_number_of_results {return Err(bad());}
+        let mut args = vec![("number", Arg::Num(25)), ("filters", Arg::Text(HUMAN))];
+        if offset > 0 {
+            args.push(("first", Arg::Num(offset)));
+        }
+        let page = leg.json::<raw::Search>(&endpoint, &args)?;
+        if total.is_some_and(|n| n != page.total_number_of_results) {
+            return Err(bad());
+        }
+        total = Some(page.total_number_of_results);
+        let returned = page.elements.len() as u64;
+        if offset + returned > page.total_number_of_results
+            || returned == 0 && offset < page.total_number_of_results
+        {
+            return Err(bad());
+        }
         for row in page.elements {
             if row.interactors.is_none() {
-                let detail=detail(leg,&row.id)?;
-                if let Some(complex)=map::complex(detail,anchor)? {items.push(complex);}
-            } else if let Some(complex)=map::complex(row,anchor)? {items.push(complex);}
+                let detail = detail(leg, &row.id)?;
+                if let Some(complex) = map::complex(detail, anchor)? {
+                    items.push(complex);
+                }
+            } else if let Some(complex) = map::complex(row, anchor)? {
+                items.push(complex);
+            }
         }
-        offset+=returned;
-        if offset==page.total_number_of_results {break;}
+        offset += returned;
+        if offset == page.total_number_of_results {
+            break;
+        }
     }
-    let mut ids=std::collections::BTreeSet::new();
-    if items.iter().any(|c|!ids.insert(c.header.id.to_string())) {return Err(bad());}
-    Ok(Collection{items,native_total:total.ok_or_else(bad)?})
+    let mut ids = std::collections::BTreeSet::new();
+    if items.iter().any(|c| !ids.insert(c.header.id.to_string())) {
+        return Err(bad());
+    }
+    Ok(Collection {
+        items,
+        native_total: total.ok_or_else(bad)?,
+    })
 }
-fn detail(leg:&Leg<'_>,id:&ComplexPortalId)->Result<raw::Complex,RequestError>{
-    let endpoint=SPEC.get("").with_path(format!("/complex/{id}"))?.identity_encoding().fresh(Freshness::Days(1));
-    let d=leg.json_checked_cache::<raw::Detail>(&endpoint,&[],|d|d.id==*id)?;
-    Ok(raw::Complex{id:d.id,name:d.name,organism_name:d.species,predicted_complex:d.predicted_complex,interactors:Some(d.participants)})
+fn detail(leg: &Leg<'_>, id: &ComplexPortalId) -> Result<raw::Complex, RequestError> {
+    let endpoint = SPEC
+        .get("")
+        .with_path(format!("/complex/{id}"))?
+        .identity_encoding()
+        .fresh(Freshness::Days(1));
+    let d = leg.json_checked_cache::<raw::Detail>(&endpoint, &[], |d| d.id == *id)?;
+    Ok(raw::Complex {
+        id: d.id,
+        name: d.name,
+        organism_name: d.species,
+        predicted_complex: d.predicted_complex,
+        interactors: Some(d.participants),
+    })
 }
 /// Read one exact complex and require an actual protein participant as anchor.
-pub fn members(leg:&Leg<'_>,id:&ComplexPortalId,anchor:&UniProtIsoform)->Result<Option<Complex>,RequestError>{map::complex(detail(leg,id)?,anchor)}
-fn bad()->RequestError {biomcp_fetch::SourceError{source:Source::ComplexPortal,reason:biomcp_types::Reason::BadReply,status:Some(200),retry_after:None}.into()}
+pub fn members(
+    leg: &Leg<'_>,
+    id: &ComplexPortalId,
+    anchor: &UniProtIsoform,
+) -> Result<Option<Complex>, RequestError> {
+    map::complex(detail(leg, id)?, anchor)
+}
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::ComplexPortal,
+        reason: biomcp_types::Reason::BadReply,
+        status: Some(200),
+        retry_after: None,
+    }
+    .into()
+}

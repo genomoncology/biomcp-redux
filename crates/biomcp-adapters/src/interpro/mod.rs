@@ -16,11 +16,11 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::INTERPRO,
     deadline: Duration::from_secs(8),
 };
-mod raw;
 mod map;
+mod raw;
 use biodata::{ProteinDomainMatch, Text, UniProtIsoform};
 use biomcp_fetch::{Arg, Freshness, Leg, RequestError};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 /// One checked native page with its complete native count and opaque continuation.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Page {
@@ -32,16 +32,52 @@ pub struct Page {
     pub cursor: Option<Text>,
 }
 /// Fetch a native accession page; type selection remains over the retained complete collection.
-pub fn page(leg:&Leg<'_>,id:&UniProtIsoform,cursor:Option<&Text>,size:u32)->Result<Page,RequestError>{
-    if ![5,25].contains(&size) {return Err(bad());}
-    let path=format!("/entry/interpro/protein/uniprot/{id}/");
-    let endpoint=SPEC.get("").with_path(path.clone())?.identity_encoding().fresh(Freshness::Days(1));
-    let mut args=vec![("page_size",Arg::Num(size.into()))];
-    if let Some(cursor)=cursor { args.push(("cursor",Arg::Text(cursor.as_str())));args.push(("page",Arg::Num(1))); }
-    let raw=leg.json_checked_cache::<raw::Page>(&endpoint,&args,|p| p.admitted(id))?;
-    let expected=[("page",Arg::Num(1)),("page_size",Arg::Num(size.into()))];
-    let cursor=raw.next.as_deref().map(|next| SPEC.next_cursor(next,&path,&expected,"cursor").map_err(|_|bad()).and_then(|s|Text::new(&s).map_err(|_|bad()))).transpose()?;
-    if raw.results.is_empty() && cursor.is_some() {return Err(bad());}
-    Ok(Page{items:map::rows(raw.results,id)?,total:raw.count,cursor})
+pub fn page(
+    leg: &Leg<'_>,
+    id: &UniProtIsoform,
+    cursor: Option<&Text>,
+    size: u32,
+) -> Result<Page, RequestError> {
+    if ![5, 25].contains(&size) {
+        return Err(bad());
+    }
+    let path = format!("/entry/interpro/protein/uniprot/{id}/");
+    let endpoint = SPEC
+        .get("")
+        .with_path(path.clone())?
+        .identity_encoding()
+        .fresh(Freshness::Days(1));
+    let mut args = vec![("page_size", Arg::Num(size.into()))];
+    if let Some(cursor) = cursor {
+        args.push(("cursor", Arg::Text(cursor.as_str())));
+        args.push(("page", Arg::Num(1)));
+    }
+    let raw = leg.json_checked_cache::<raw::Page>(&endpoint, &args, |p| p.admitted(id))?;
+    let expected = [("page", Arg::Num(1)), ("page_size", Arg::Num(size.into()))];
+    let cursor = raw
+        .next
+        .as_deref()
+        .map(|next| {
+            SPEC.next_cursor(next, &path, &expected, "cursor")
+                .map_err(|_| bad())
+                .and_then(|s| Text::new(&s).map_err(|_| bad()))
+        })
+        .transpose()?;
+    if raw.results.is_empty() && cursor.is_some() {
+        return Err(bad());
+    }
+    Ok(Page {
+        items: map::rows(raw.results, id)?,
+        total: raw.count,
+        cursor,
+    })
 }
-fn bad()->RequestError {biomcp_fetch::SourceError{source:Source::InterPro,reason:biomcp_types::Reason::BadReply,status:Some(200),retry_after:None}.into()}
+fn bad() -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::InterPro,
+        reason: biomcp_types::Reason::BadReply,
+        status: Some(200),
+        retry_after: None,
+    }
+    .into()
+}
