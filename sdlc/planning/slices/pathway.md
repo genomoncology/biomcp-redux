@@ -363,22 +363,21 @@ The legacy private history also records useful failure classes: 0016 truthful so
 
 ## Outside-in case matrix
 
-| Contract | Required cases |
-| --- | --- |
-| Plain search and source choice | Known-positive exact native row for each source; literal multiword query; each requested source only; retained native order; source conflict validation; empty query; actual captured no-match |
-| Gene selector | Exact HGNC and UniProt join; several accessions; missing exact map; no symbol extraction; incompatible text/top-level selectors; disabled source before lookup |
-| Top-level | Native human positive and terminal page; non-human rejection; text conflict |
-| Paging options | Reactome default, one and maximum limit use equal native `rows`; proven `Start row` controls native offset; exact admission may shorten a page without refill; next offset advances over rejected native rows; native total stays unchanged; invalid limits; offset zero and last page; no duplicates/gaps; pool mismatch; expired/missing pool restart; WikiPathways retains its snapshot after new sync |
-| Get identity | Reactome and WP positive; wrong returned ID; malformed/non-human ID; unknown genuine ID; missing species; wrong species; wrong-entity fixed guidance |
-| Summary | Whole native text; absent summary distinct from source failure; citations remain native references |
-| Genes | Exact namespaced references; duplicates and one-to-many protein/gene mappings; unresolved ID preserved without action; mixed physical-entity kinds; actual relation count; source-specific availability |
-| Events | Native object plus integer references; no guessed stable IDs; absent public field; unsupported WikiPathways request before I/O |
-| All and section paging | Supported sections only; each page bounded; source state per requested section; no hidden enrichment leg; genuine continuation arguments round-trip through CLI/MCP |
-| Faults | Recorded 429, 500, timeout, invalid JSON, HTML success body, oversized body, foreign identity; no failure converted to empty |
-| Terms and policy | Exact use/name/URL; disabled-before-cache/network; open/restricted groups; no credential discovery; source terms comparable helper removes all three metadata fields |
-| Retirement | Every legacy spelling/option above; fixed exact message; zero provider requests; no invalid parser fallback |
-| Costs | Default, maximum, terminal and largest observed section; CLI newline and compact JSON bases explicit; full and comparable output; entity help, whole help, MCP description and executable examples |
-
+| Contract | Required cases | Case owners |
+| --- | --- | --- |
+| Plain search and source choice | Known-positive exact native row for each source; literal multiword query; each requested source only; retained native order; source conflict validation; empty query; actual captured no-match | `pathway/search-0.yaml` to `search-2.yaml`, `pathway/validation.yaml`, native catalog archive and `wikipathways.rs`. |
+| Gene selector | Exact HGNC and UniProt join; several accessions; missing exact map; no symbol extraction; incompatible text/top-level selectors; disabled source before lookup | `pathway/gene.yaml`, `pathway_registry/admission.rs` and `pathway_failures.rs`. |
+| Top-level | Native human positive and terminal page; non-human rejection; text conflict | `pathway/top-level.yaml`, `pathway/validation.yaml` and `pathway_failures.rs`. |
+| Paging options | Reactome default, one and maximum limit use equal native `rows`; proven `Start row` controls native offset; exact admission may shorten a page without refill; next offset advances over rejected native rows; native total stays unchanged; invalid limits; offset zero and last page; no duplicates/gaps; pool mismatch; expired/missing pool restart; WikiPathways retains its snapshot after new sync | `pathway/native-page.yaml`, `pathway_commands.rs`, `pathway_sections.rs` and `wikipathways.rs`. |
+| Get identity | Reactome and WP positive; wrong returned ID; malformed/non-human ID; unknown genuine ID; missing species; wrong species; wrong-entity fixed guidance | `pathway/cards.yaml`, every `pathway/card-R-HSA-*.yaml`, `pathway/failure-mismatch.yaml`, `pathway_failures.rs`, `wikipathways.rs` and native catalog archive. |
+| Summary | Whole native text; absent summary distinct from source failure; citations remain native references | `pathway/summary.yaml`, summary steps in `pathway/card-R-HSA-*.yaml`, `pathway-sections/all.yaml` and native WP382 summary. |
+| Genes | Exact namespaced references; duplicates and one-to-many protein/gene mappings; unresolved ID preserved without action; mixed physical-entity kinds; actual relation count; source-specific availability | `pathway-sections/genes.yaml`, `pathway-sections/details.yaml`, `pathway_sections.rs`, `wikipathways_genes.rs`, its `joins.rs` and retained native output contract. |
+| Events | Native object plus integer references; no guessed stable IDs; absent public field; unsupported WikiPathways request before I/O | `pathway-sections/events.yaml`, `pathway-sections/synthetic-object-only.yaml`, `pathway-sections/validation.yaml` and `pathway_sections.rs`. |
+| All and section paging | Supported sections only; each page bounded; source state per requested section; no hidden enrichment leg; genuine continuation arguments round-trip through CLI/MCP | `pathway-sections/all.yaml`, `pathway_sections.rs` and retained native WP382/WP100 all outputs. |
+| Faults | Recorded 429, 500, timeout, invalid JSON, HTML success body, oversized body, foreign identity; no failure converted to empty | `pathway/failure-*.yaml`, `pathway-sections/failure-*.yaml`, `pathway_failures.rs`, its `oversized.rs` and `wikipathways_genes.rs`. |
+| Terms and policy | Exact use/name/URL; disabled-before-cache/network; open/restricted groups; no credential discovery; source terms comparable helper removes all three metadata fields | `pathway_registry.rs`, its `admission.rs`, `wikipathways.rs`, `pathway_failures.rs` and shared `source_terms.rs`. |
+| Retirement | Every legacy spelling/option above; fixed exact message; zero provider requests; no invalid parser fallback | `pathway_retirements.rs` covers every retired command, alias and option with a local zero-request listener. |
+| Costs | Default, maximum, terminal and largest observed section; CLI newline and compact JSON bases explicit; full and comparable output; entity help, whole help, MCP description and executable examples | `pathway-command-budgets.json`, both native budget files, all pathway YAML ceilings, `pathway/help.yaml`, `gene/help.yaml`, `protocol.rs` and generated help example execution. |
 Captured success cases carry their observation date, request and exact expected identifiers. Authored failures are labeled synthetic. A fixture projection preserves every union variant and fields that determine identity, absence, multiplicity and collection scope. Native bodies stay in the evidence archive. Tests use isolated configuration and deny network on replay.
 
 ## Structural risks
