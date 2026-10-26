@@ -122,4 +122,4 @@ mcp-research: Search citable source headers and fetch the same CLI record throug
 
 store-clean: Publishing removes bounded expired pools and snapshots; explicit cleanup removes expired replies and older incompatible cache files while preserving fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `tests/cases/store/clean.yaml`.
 
-protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist.
+protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist. Contracts: `biomcp-types/protein_contracts` (features: `schema`).
