@@ -198,9 +198,10 @@ fn empty_selection() -> Check {
         vec!["selected.yaml", "--exact", "--skip", "selected.yaml"],
         vec!["selected.yaml", "--exact", "--ignored"],
     ] {
+        let filter = args.first().ok_or("missing name filter")?;
         let output = invoke(directory.path(), &args)?;
         let stderr = String::from_utf8_lossy(&output.stderr);
-        if output.status.success() || !stderr.contains(args[0]) {
+        if output.status.success() || !stderr.contains(filter) {
             return Err(format!(
                 "empty selection {args:?} must fail and name its filter; actual {:?}: {stderr}",
                 output.status.code()
