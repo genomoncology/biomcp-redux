@@ -12,6 +12,46 @@
         "kind": "json",
         "value": {}
       }
+    },
+    {
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
+    },
+    {
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
+    },
+    {
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
+    },
+    {
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
     }
   ]
 }

@@ -327,6 +327,10 @@
           "$ref": "#/$defs/OrcidId",
           "description": "Requested exact ORCID record."
         },
+        "collection_scope": {
+          "$ref": "#/$defs/OrcidWorksScope",
+          "description": "The whole source reply supplies every local page."
+        },
         "groups": {
           "description": "Whole groups in native order, with every public assertion.",
           "items": {
@@ -342,11 +346,19 @@
         }
       },
       "required": [
+        "collection_scope",
         "author",
         "groups",
         "observed_groups"
       ],
       "type": "object"
+    },
+    "OrcidWorksScope": {
+      "description": "Scope of one received ORCID collection.",
+      "enum": [
+        "whole_public_works_reply"
+      ],
+      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -549,6 +561,7 @@
         "litvar",
         "litsense",
         "semantic-scholar",
+        "orcid",
         "pmc-oa",
         "icite",
         "pubtator",
@@ -620,6 +633,7 @@
         " NCBI LitVar2.",
         " NCBI LitSense2.",
         " Semantic Scholar.",
+        " ORCID public registry.",
         " PMC Open Access bucket.",
         " NIH iCite.",
         " PubTator.",
@@ -874,7 +888,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.orcid_works/1",
+  "$id": "biomcp.orcid_works/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -920,7 +934,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.orcid_works/1",
+      "const": "biomcp.orcid_works/2",
       "type": "string"
     },
     "sources": {

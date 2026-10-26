@@ -1,0 +1,99 @@
+{
+  "feature": "author-orcid",
+  "story": "Retained exact public ORCID names and grouped works",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 100000,
+      "max_tokens": 25000,
+      "run": [
+        "get",
+        "author",
+        "orcid:0000-0002-7433-2740"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "orcid:0000-0002-7433-2740"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 100000,
+      "max_tokens": 25000,
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-7433-2740"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-7433-2740"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 100000,
+      "max_tokens": 25000,
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-7433-2740",
+        "--limit",
+        "1",
+        "--offset",
+        "0"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-7433-2740",
+        "--limit",
+        "1",
+        "--offset",
+        "0"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 100000,
+      "max_tokens": 25000,
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-7433-2740",
+        "--limit",
+        "25"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-7433-2740",
+        "--limit",
+        "25"
+      ]
+    }
+  ]
+}

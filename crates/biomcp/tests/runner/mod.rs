@@ -5,6 +5,7 @@ mod article_save;
 mod assertions;
 mod author;
 mod execution;
+mod orcid;
 use execution::run_step;
 pub(super) mod cell_line;
 mod clinpgx;
@@ -511,6 +512,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(phenotype::trials())
         .chain(cell_line::trials())
         .chain(author::trials())
+        .chain(orcid::trials())
         .chain(disease_seer::trials())
         .collect()
 }
