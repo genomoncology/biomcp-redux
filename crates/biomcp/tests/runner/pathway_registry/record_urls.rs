@@ -3,6 +3,13 @@ use biomcp_adapters::registry::{SOURCES, records};
 use biomcp_types::Source;
 
 pub(super) fn run() -> Result<(), String> {
+    if SOURCES
+        .iter()
+        .any(|spec| biomcp_adapters::registry::display_name(spec.source).is_empty())
+        || biomcp_adapters::registry::display_name(Source::Hpo) != "Human Phenotype Ontology"
+    {
+        return Err("registered source lacks its publisher display name".into());
+    }
     for (index, row) in records::DECLARATIONS.iter().enumerate() {
         if !SOURCES.iter().any(|spec| spec.source == row.source)
             || row.display_name.is_empty()
