@@ -69,7 +69,6 @@ struct SearchFields {
     gene: Option<GeneSymbol>,
     /// Reviewed human scope stays enabled; unreviewed search is deferred.
     #[serde(default = "reviewed")]
-    #[cfg_attr(feature = "schema", schemars(extend("const" = true)))]
     reviewed: bool,
     /// Five rows by default; no more than 25.
     #[serde(default = "limit")]
