@@ -5,8 +5,8 @@ mod disease;
 mod drug;
 mod drug_label;
 mod maintenance;
-mod pgx;
 mod pathway;
+mod pgx;
 mod steps;
 mod variant;
 
