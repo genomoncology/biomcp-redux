@@ -296,6 +296,14 @@ fn timeout() -> Result<(), String> {
 
 fn help() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    use std::io::Write;
+    let whole = invoke(&env, &["help"], 0)?;
+    writeln!(
+        std::io::stderr(),
+        "phenotype whole-help comparable={}",
+        super::source_terms::size(&whole, "")?
+    )
+    .map_err(|e| e.to_string())?;
     for verb in ["search", "get"] {
         let result = invoke(&env, &["help", verb, "phenotype"], 0)?;
         let words = ["help", verb, "phenotype", "--format", "md"].map(String::from);
@@ -307,6 +315,13 @@ fn help() -> Result<(), String> {
             return Err("phenotype Markdown help failed".into());
         }
         let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+        writeln!(
+            std::io::stderr(),
+            "phenotype {verb} help comparable={} markdown={}",
+            super::source_terms::size(&result, "")?,
+            markdown.len()
+        )
+        .map_err(|e| e.to_string())?;
         for argument in result
             .pointer("/result/commands/0/arguments")
             .and_then(Value::as_array)
