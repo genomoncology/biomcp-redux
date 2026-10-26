@@ -234,7 +234,13 @@ fn pathway_navigation(card: Option<&biomcp_types::PathwayCard>) -> Navigation<'_
     }
 }
 fn protein_navigation(card: &biomcp_types::ProteinCard) -> Navigation<'_> {
-    if card.items.iter().any(|item|item.sections.as_ref().is_some_and(|s|s.domains.is_some()||s.complexes.is_some())) {return Navigation::NativeOrder;}
+    if card.items.iter().any(|item| {
+        item.sections
+            .as_ref()
+            .is_some_and(|s| s.domains.is_some() || s.complexes.is_some())
+    }) {
+        return Navigation::NativeOrder;
+    }
     candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
 }
 

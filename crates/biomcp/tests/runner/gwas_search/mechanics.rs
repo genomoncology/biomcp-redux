@@ -40,7 +40,10 @@ pub(super) fn admission() -> Result<(), String> {
         let failed = call(&env, &replay, &args, 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || failed.get("result").is_some()
-            || failed.get("problems").and_then(Value::as_array).is_none_or(Vec::is_empty)
+            || failed
+                .get("problems")
+                .and_then(Value::as_array)
+                .is_none_or(Vec::is_empty)
         {
             return Err(format!("admitted {fault}: {failed}"));
         }

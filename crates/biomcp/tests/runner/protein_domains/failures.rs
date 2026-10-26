@@ -25,9 +25,9 @@ pub(super) fn run() -> Result<(), String> {
         )?;
         stub.finish()?;
         for (kind, reason) in [
-            ("429", "rate_limit"),
-            ("500", "server"),
-            ("timeout", "deadline"),
+            ("429", "rate_limited"),
+            ("500", "unavailable"),
+            ("timeout", "deadline_exceeded"),
             ("broken", "bad_reply"),
             ("error", "bad_reply"),
         ] {
