@@ -1,6 +1,7 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
 mod association_native;
 mod associations;
+mod faults;
 mod native;
 mod section_failures;
 mod section_native;
@@ -43,6 +44,7 @@ pub(super) fn trials() -> Vec<Trial> {
             || timeout().map_err(Into::into),
         ),
     ];
+    rows.extend(faults::trials());
     rows.extend(sections::trials());
     rows.extend(associations::trials());
     let directory = super::launch::fixtures().join("phenotype-association-native");
