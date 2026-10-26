@@ -13,6 +13,12 @@ use std::{
 const WATCHDOG: Duration = Duration::from_secs(30);
 
 pub(super) fn check() -> Result<(), String> {
+    run(false)
+}
+pub(super) fn oversized() -> Result<(), String> {
+    run(true)
+}
+fn run(oversized: bool) -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
     let address = listener.local_addr().map_err(|e| e.to_string())?;
@@ -48,7 +54,22 @@ pub(super) fn check() -> Result<(), String> {
             }
         }
     });
-    let result = prove(&mut stdin, &connected_rx, &reply_rx);
+    let result = prove(&mut stdin, &connected_rx, &reply_rx).and_then(|()| {
+        if oversized {
+            stdin
+                .write_all(&vec![b'x'; 65537])
+                .map_err(|e| e.to_string())?;
+            stdin.write_all(b"\n").map_err(|e| e.to_string())?;
+            stdin.flush().map_err(|e| e.to_string())?;
+            let reply = reply_rx
+                .recv_timeout(WATCHDOG)
+                .map_err(|_| "oversized reply watchdog")??;
+            if reply.pointer("/error/code") != Some(&json!(-32600)) {
+                return Err(format!("missing oversized frame error: {reply}"));
+            }
+        }
+        Ok(())
+    });
     let _ = release_tx.send(());
     let proxy_result = proxy.join().map_err(|_| "proxy panicked")?;
     if result.is_err() || proxy_result.is_err() {

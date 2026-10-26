@@ -23,6 +23,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("mcp/offline-observations-reuse", || {
             offline_observations().map_err(Into::into)
         }),
+        Trial::test("mcp/oversized-frame-drains-active-call", || {
+            super::held_proxy::oversized().map_err(Into::into)
+        }),
         Trial::test("mcp/bounded-framing", || framing().map_err(Into::into)),
         Trial::test("mcp/broken-output-with-open-input", || {
             broken_output().map_err(Into::into)
