@@ -25,6 +25,9 @@ pub(super) fn compared(phase: &str, env: &Environment, words: &[&str], exit: i32
     let args = words.iter().map(|s| s.to_string()).collect::<Vec<_>>();
     let mcp = super::super::super::mcp::call_retained(env, &args, exit >= 2, &replay, Some(&retained))?;
     if value != mcp { return Err(format!("{phase}: CLI/MCP mismatch")); }
+    let compact = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+    let comparable = super::super::super::source_terms::size(&value, "")?;
+    let _ = writeln!(std::io::stderr(), "CHEMBL_COMPARABLE_BYTES {phase} [cli] {}", bytes - (compact - comparable));
     measure_bytes(phase, "cli", bytes, measure)?;
     measure_mcp(phase, &retained, measure)?;
     let registry = super::super::super::schema::Registry::embedded()?;
@@ -41,6 +44,8 @@ pub(super) fn measure_mcp(phase: &str, directory: &std::path::Path, measure: boo
     let bytes = fs::read(directory.join("mcp.stdout")).map_err(|e| e.to_string())?;
     let reply: Value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
     let text = reply.pointer("/result/content/0/text").and_then(Value::as_str).ok_or("MCP text")?;
+    let comparable = super::super::super::source_terms::raw_size(text.as_bytes())?;
+    let _ = writeln!(std::io::stderr(), "CHEMBL_COMPARABLE_BYTES {phase} [mcp] {comparable}");
     let _ = writeln!(std::io::stderr(), "CHEMBL_MCP_RPC_BYTES {phase} {}", bytes.len());
     measure_bytes(phase, "mcp", text.len(), measure)
 }

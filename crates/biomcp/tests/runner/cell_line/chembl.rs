@@ -3,7 +3,7 @@ use super::*;
 mod faults;
 mod surface;
 use surface::{parity, compared, invoke_measured, measure_bytes, measure_mcp};
-const MEASURE: bool = true;
+const MEASURE: bool = false;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         Trial::test(
@@ -159,6 +159,7 @@ fn markdown(phase: &str, env: &Environment, words: &[&str], value: &Value) -> Re
 
 fn help() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    discovery(&env)?;
     let args = ["help", "cell-line", "assay-count"];
     let (value, bytes) = invoke_measured(&env, &args, 0)?;
     let directory = env.root().join("help-mcp");
@@ -245,5 +246,16 @@ fn native_facts(value: &Value, id: &str) -> Result<(), String> {
             }
         }
     }
+    Ok(())
+}
+
+fn discovery(env: &Environment) -> Result<(), String> {
+    let replies = super::super::mcp::exchange(env, &[super::super::mcp::request(json!(1), "tools/list", json!({}))])?;
+    let description = replies.first().and_then(|r| r.pointer("/result/tools/0/description")).and_then(Value::as_str).ok_or("description")?;
+    if !description.contains("cell-line assay-count") { return Err("MCP discovery lost assay-count".into()); }
+    let _ = writeln!(std::io::stderr(), "CHEMBL_DISCOVERY_DESCRIPTION_BYTES {}", description.len());
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &["--help".to_string()]).output().map_err(|e| e.to_string())?;
+    if !output.status.success() { return Err("whole CLI help failed".into()); }
+    let _ = writeln!(std::io::stderr(), "CHEMBL_DISCOVERY_CLI_HELP_BYTES {}", output.stdout.len());
     Ok(())
 }
