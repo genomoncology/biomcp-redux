@@ -213,15 +213,7 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec![
-        "help CMD;schema ID".into(),
-        CELL_LINE_BOUNDARY.into(),
-        "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
-        "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
-        "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
-        "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
-        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
-    ];
+    let mut lines = tree_intro();
     for command in commands {
         if command.command.first().is_none_or(|verb| {
             !matches!(
@@ -289,6 +281,19 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn tree_intro() -> Vec<String> {
+    vec![
+        "help CMD;schema ID".into(),
+        CELL_LINE_BOUNDARY.into(),
+        "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid (ORCID_ACCESS_TOKEN)".into(),
+        "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
+        "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
+        "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
+        "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
+        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
+    ]
 }
 
 fn author_selectors(command: &HelpCommand, line: &mut String) {
