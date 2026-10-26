@@ -27,6 +27,8 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	python3 release/tools.py
+	python3 -m unittest release.test_tools
 	python3 scripts/check_docs.py
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py

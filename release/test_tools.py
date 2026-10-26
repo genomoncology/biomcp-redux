@@ -1,0 +1,71 @@
+"""Exercise the ordinary gate's desktop tool comparison from source only."""
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+import zipfile
+
+from release.artifacts import channels
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class DesktopTools(unittest.TestCase):
+    def check(self, root):
+        return subprocess.run([sys.executable, str(ROOT / "release/tools.py"), "--root", str(root)], capture_output=True, text=True, check=False)
+
+    def test_manifest_matches_server_and_rejects_an_added_tool(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("manifest.json", "crates/biomcp/src/mcp/protocol.rs", "crates/biomcp/src/mcp/research.rs"):
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, target)
+            result = self.check(root)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            source = root / "crates/biomcp/src/mcp/research.rs"
+            source.write_text(source.read_text().replace('[("search",', '[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",', 1))
+            result = self.check(root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("desktop manifest tools differ", result.stderr)
+            manifest = root / "manifest.json"
+            value = json.loads(manifest.read_text())
+            value["tools"].append({"name": "fourth", "description": "A fake fourth tool"})
+            manifest.write_text(json.dumps(value))
+            result = self.check(root)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            original = source.read_text()
+            mutations = [
+                ('[("fourth", "query", "A \\"quoted\\" tool", "fake/1"), ("search",', "desktop manifest tools differ"),
+                ('[(name(), "query", "A computed tool", "fake/1"), ("search",', "unrecognized server tool declarations"),
+            ]
+            value["tools"] = [tool for tool in value["tools"] if tool["name"] != "fourth"]
+            manifest.write_text(json.dumps(value))
+            for replacement, error in mutations:
+                with self.subTest(replacement=replacement):
+                    source.write_text(original.replace('[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",', replacement, 1))
+                    result = self.check(root)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(error, result.stderr)
+
+    @unittest.skipIf(sys.platform == "win32", "the local executable stub uses a POSIX shebang")
+    def test_bundle_descriptions_come_from_candidate_tools_list(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / "candidate"
+            tools = [{"name": name, "description": "Candidate description for " + name} for name in ("biomcp", "search", "fetch")]
+            frames = [{"jsonrpc": "2.0", "id": 1, "result": {}}, {"jsonrpc": "2.0", "id": 2, "result": {"tools": tools}}]
+            binary.write_text("#!" + sys.executable + "\nimport sys\nsys.stdin.read()\nprint(" + repr("\n".join(json.dumps(frame) for frame in frames)) + ")\n")
+            binary.chmod(0o755)
+            channels(root, binary, {"version": "1.0.0", "platform": "test"})
+            with zipfile.ZipFile(root / "biomcp-test.mcpb") as bundle:
+                manifest = json.loads(bundle.read("manifest.json"))
+                self.assertEqual(manifest["tools"], tools)
+                self.assertEqual(bundle.read(manifest["server"]["entry_point"]), binary.read_bytes())
+
+
+if __name__ == "__main__":
+    unittest.main()

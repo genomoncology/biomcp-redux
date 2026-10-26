@@ -16,6 +16,11 @@ import subprocess
 import tarfile
 import zipfile
 
+if __package__:
+    from .tools import candidate, check
+else:
+    from tools import candidate, check
+
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -119,7 +124,11 @@ def inspect(path):
 
 def channels(output, binary, provenance):
     source = Path(__file__).resolve().parent.parent
+    check(source)
     manifest = json.loads((source / "manifest.json").read_text())
+    manifest["tools"] = candidate(binary)
+    if sorted(tool["name"] for tool in manifest["tools"]) != sorted(tool["name"] for tool in json.loads((source / "manifest.json").read_text())["tools"]):
+        raise ValueError("desktop manifest tools differ from candidate server")
     manifest["version"] = provenance["version"]
     manifest["compatibility"] = {"platforms": [{"Darwin": "darwin", "Windows": "win32", "Linux": "linux"}[platform.system()]]}
     entry = "server/biomcp" + (".exe" if platform.system() == "Windows" else "")

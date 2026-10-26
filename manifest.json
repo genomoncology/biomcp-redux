@@ -3,13 +3,34 @@
   "name": "biomcp",
   "display_name": "BioMCP",
   "description": "Read-only cancer care evidence search and retrieval.",
-  "author": {"name": "GenomOncology", "url": "https://genomoncology.com"},
+  "author": {
+    "name": "GenomOncology",
+    "url": "https://genomoncology.com"
+  },
   "homepage": "https://biomcp.org",
   "license": "MIT",
   "server": {
     "type": "binary",
     "entry_point": "server/biomcp",
-    "mcp_config": {"command": "${__dirname}/server/biomcp", "args": ["serve"]}
+    "mcp_config": {
+      "command": "${__dirname}/server/biomcp",
+      "args": [
+        "serve"
+      ]
+    }
   },
-  "tools": [{"name": "biomcp", "description": "Run one read-only BioMCP command."}]
+  "tools": [
+    {
+      "name": "biomcp",
+      "description": "Run one read-only BioMCP command."
+    },
+    {
+      "name": "search",
+      "description": "Search BioMCP source headers. Prefix a CLI entity and its arguments, or supply article query text."
+    },
+    {
+      "name": "fetch",
+      "description": "Fetch a search result using its exact id. Returns the CLI record as Markdown with source metadata."
+    }
+  ]
 }
