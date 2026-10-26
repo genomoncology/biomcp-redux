@@ -1,8 +1,9 @@
 //! Feature protein-domains-complexes: P24 offers retrieval without analysis execution.
 use super::super::mcp;
 use super::*;
-const CLI_HELP_BYTES: usize = 400000;
-const MCP_TOOLS_BYTES: usize = 400000;
+// Complete discovery envelopes measured in j15006, with fifteen percent headroom.
+const CLI_HELP_BYTES: usize = 91228;
+const MCP_TOOLS_BYTES: usize = 7916;
 pub(super) fn run() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let help = invoke(&env, vec!["help".into()], 0)?;
@@ -46,10 +47,12 @@ pub(super) fn run() -> Result<(), String> {
             return Err("MCP offers an analysis tool".into());
         }
     }
-    super::card_failures::measure("P24/help", "CLI", &help)?;
-    super::card_failures::measure("P24/tools", "MCP", replies.first().ok_or("tool reply")?)?;
+
     if serde_json::to_vec(&help).map_err(|e| e.to_string())?.len() + 1 > CLI_HELP_BYTES
-        || serde_json::to_vec(result).map_err(|e| e.to_string())?.len() > MCP_TOOLS_BYTES
+        || serde_json::to_vec(replies.first().ok_or("tool reply")?)
+            .map_err(|e| e.to_string())?
+            .len()
+            > MCP_TOOLS_BYTES
     {
         return Err("help or MCP discovery exceeded its named ceiling".into());
     }

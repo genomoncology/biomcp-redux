@@ -1,8 +1,6 @@
 //! Feature protein-domains-complexes: synthetic returned identities are dropped before caching.
 use super::super::mcp;
 use super::*;
-const CLI_IDENTITY_BYTES: usize = 5000;
-const MCP_IDENTITY_BYTES: usize = 4999;
 pub(super) fn trials() -> Vec<Trial> {
     ["accession", "isoform", "ipr", "cpx"]
         .into_iter()
@@ -62,7 +60,7 @@ fn run(kind: &'static str) -> Result<(), String> {
     };
     for _ in 0..2 {
         let value = call(&env, &args, 4)?;
-        super::card_failures::measure(&format!("identity/{kind}"), "CLI", &value)?;
+
         rejected(&value, kind)?;
     }
     let value = mcp::call_with_globals(
@@ -71,7 +69,7 @@ fn run(kind: &'static str) -> Result<(), String> {
         true,
         &[],
     )?;
-    super::card_failures::measure(&format!("identity/{kind}"), "MCP", &value)?;
+
     rejected(&value, kind)?;
     if stub.finish()?.len() != 3 {
         return Err("wrong returned identity entered cache".into());
@@ -92,5 +90,17 @@ fn rejected(value: &Value, kind: &str) -> Result<(), String> {
             "wrong {kind} identity was not dropped with a problem: {value}"
         ));
     }
-    super::card_failures::bounded(value, CLI_IDENTITY_BYTES, MCP_IDENTITY_BYTES)
+    let (cli_ceiling, mcp_ceiling) = identity_ceilings(kind)?;
+    super::card_failures::bounded(value, cli_ceiling, mcp_ceiling)
+}
+
+// Complete synthetic envelopes measured in j15006, with fifteen percent headroom.
+fn identity_ceilings(kind: &str) -> Result<(usize, usize), String> {
+    Ok(match kind {
+        "accession" => (566, 565),
+        "isoform" => (511, 510),
+        "ipr" => (525, 524),
+        "cpx" => (585, 584),
+        _ => return Err("missing measured protein case ceiling".into()),
+    })
 }

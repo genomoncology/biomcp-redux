@@ -1,8 +1,6 @@
 //! Feature protein-domains-complexes: synthetic identity and optional failures remain explicit.
 use super::super::mcp;
 use super::*;
-const CLI_CARD_FAILURE_BYTES: usize = 6000;
-const MCP_CARD_FAILURE_BYTES: usize = 5999;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     for source in ["uniprot", "interpro", "complex-portal"] {
@@ -52,8 +50,8 @@ fn failure(source: &str, fault: &str) -> Result<(), String> {
     words.extend(args.clone());
     let cli = invoke(&env, words, if source == "uniprot" { 4 } else { 0 })?;
     let mcp = mcp::call_with_globals(&env, &args, source == "uniprot", &globals)?;
-    measure(&format!("card/{source}/{fault}"), "CLI", &cli)?;
-    measure(&format!("card/{source}/{fault}"), "MCP", &mcp)?;
+
+    let (cli_ceiling, mcp_ceiling) = card_ceilings(source, fault)?;
     for value in [&cli, &mcp] {
         let expected = if source == "uniprot" {
             "failed"
@@ -87,7 +85,7 @@ fn failure(source: &str, fault: &str) -> Result<(), String> {
         {
             return Err(format!("{source}/{fault} hid the source failure: {value}"));
         }
-        bounded(value, CLI_CARD_FAILURE_BYTES, MCP_CARD_FAILURE_BYTES)?;
+        bounded(value, cli_ceiling, mcp_ceiling)?;
     }
     Ok(())
 }
@@ -146,14 +144,24 @@ fn copy(
     Ok(())
 }
 
-pub(super) fn measure(name: &str, surface: &str, value: &Value) -> Result<(), String> {
-    use std::io::Write;
-    let bytes =
-        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "CLI");
-    writeln!(
-        std::io::stdout(),
-        "PROTEIN_MEASURE {}",
-        json!({"case":name,"surface":surface,"bytes":bytes})
-    )
-    .map_err(|e| e.to_string())
+// Complete synthetic envelopes measured in j15006, with fifteen percent headroom.
+fn card_ceilings(source: &str, fault: &str) -> Result<(usize, usize), String> {
+    Ok(match (source, fault) {
+        ("uniprot", "429") => (701, 700),
+        ("uniprot", "500") => (699, 697),
+        ("uniprot", "timeout") => (712, 711),
+        ("uniprot", "broken") => (694, 693),
+        ("uniprot", "error") => (694, 693),
+        ("interpro", "429") => (1494, 1493),
+        ("interpro", "500") => (1492, 1491),
+        ("interpro", "timeout") => (1506, 1505),
+        ("interpro", "broken") => (1487, 1486),
+        ("interpro", "error") => (1487, 1486),
+        ("complex-portal", "429") => (1497, 1495),
+        ("complex-portal", "500") => (1494, 1493),
+        ("complex-portal", "timeout") => (1508, 1507),
+        ("complex-portal", "broken") => (1490, 1489),
+        ("complex-portal", "error") => (1490, 1489),
+        _ => return Err("missing measured protein case ceiling".into()),
+    })
 }

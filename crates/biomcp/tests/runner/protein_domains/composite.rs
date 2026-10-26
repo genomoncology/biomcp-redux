@@ -4,6 +4,11 @@ use super::*;
 // Synthetic P00533 and P38398 all measured in j15002, with fifteen percent headroom.
 const CLI_ALL_BYTES: usize = (2826_usize * 115).div_ceil(100);
 const MCP_ALL_BYTES: usize = (2825_usize * 115).div_ceil(100);
+// Repeated and disabled envelopes measured in j15006, with fifteen percent headroom.
+const CLI_REPEATED_BYTES: usize = 1528;
+const MCP_REPEATED_BYTES: usize = 1527;
+const CLI_DISABLED_BYTES: usize = 2323;
+const MCP_DISABLED_BYTES: usize = 2322;
 pub(super) fn run() -> Result<(), String> {
     for id in ["P00533", "P38398"] {
         let stub = Stub::for_sources(
@@ -20,8 +25,7 @@ pub(super) fn run() -> Result<(), String> {
         let mcp_env = Environment::new().map_err(|e| e.to_string())?;
         let globals = mcp_env.globals(Some(&directory), false);
         let mcp = mcp::call_with_globals(&mcp_env, &args.map(str::to_owned), false, &globals)?;
-        super::card_failures::measure(&format!("disabled/{id}"), "CLI", &cli)?;
-        super::card_failures::measure(&format!("disabled/{id}"), "MCP", &mcp)?;
+
         for value in [&cli, &mcp] {
             check(value)?;
         }
@@ -47,7 +51,7 @@ pub(super) fn run() -> Result<(), String> {
         {
             return Err("repeated section changed shared grammar behavior".into());
         }
-        super::card_failures::measure(&format!("repeated/{id}"), "CLI", &repeated)?;
+
         let repeated_mcp = mcp::call_with_globals(
             &mcp_env,
             &[
@@ -63,9 +67,9 @@ pub(super) fn run() -> Result<(), String> {
             false,
             &globals,
         )?;
-        super::card_failures::measure(&format!("repeated/{id}"), "MCP", &repeated_mcp)?;
-        super::card_failures::bounded(&repeated, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
-        super::card_failures::bounded(&repeated_mcp, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
+
+        super::card_failures::bounded(&repeated, CLI_REPEATED_BYTES, MCP_REPEATED_BYTES)?;
+        super::card_failures::bounded(&repeated_mcp, CLI_REPEATED_BYTES, MCP_REPEATED_BYTES)?;
         disabled(&env, &mcp_env, &directory, id)?;
         if stub.finish()?.len() != 3 {
             return Err("all repeated a source request or a disabled source reached HTTP".into());
@@ -179,8 +183,7 @@ fn disabled(
         false,
         &mcp_env.globals(Some(replay), false),
     )?;
-    super::card_failures::measure(&format!("disabled/{id}"), "CLI", &cli)?;
-    super::card_failures::measure(&format!("disabled/{id}"), "MCP", &mcp)?;
+
     for value in [&cli, &mcp] {
         for name in ["domains", "complexes"] {
             if value.pointer(&format!("/result/items/0/sections/{name}/state"))
@@ -189,7 +192,7 @@ fn disabled(
                 return Err("disabled optional all source supplied a cached page".into());
             }
         }
-        super::card_failures::bounded(value, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
+        super::card_failures::bounded(value, CLI_DISABLED_BYTES, MCP_DISABLED_BYTES)?;
     }
     Ok(())
 }
