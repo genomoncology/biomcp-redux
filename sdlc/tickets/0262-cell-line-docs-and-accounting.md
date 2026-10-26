@@ -18,3 +18,4 @@ Generated help and the MCP tool description cover `search cell-line`, `get cell-
 - Changes: generated help and MCP description sources, the parity ledger, cases, `cell-line.md` and `ROADMAP.md`.
 
 - PM ruling 2026-10-26 (m7478): help caps at cdee7c67 measured size plus 15 percent: `search cell-line` 1,012 bytes CLI, 1,011 MCP and 984 Markdown; `cell-line assay-count` 727 CLI, 726 MCP and 785 Markdown. `get cell-line` caps stay 1,168, 1,167 and 1,081. Global caps stay unchanged, and a measurement over a global cap returns to the PM.
+- PM ruling 2026-10-26 (m7478 ask 3): the full compact MCP `tools/list` reply cap, checked without the trailing newline, rises from 7,916 to 9,137 bytes, the 7,945 bytes measured at cdee7c67 plus 15 percent, keeping the required cell line guidance. The description cap stays 3,563 and the whole help cap stays 91,228.
