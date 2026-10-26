@@ -1,6 +1,7 @@
 # 0196 — Investigate the cell line slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a3ee6aa83ca57fc539389104488cfa4525c2c534
 
 Milestone: 4
 

@@ -83,7 +83,8 @@ pub use response::{
 pub use response::{Health, HttpHealth, SourceHealth};
 pub use response::{
     Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
-    OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, SyncQuery, SyncResult,
+    OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean, SyncQuery,
+    SyncResult,
 };
 pub use response::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
