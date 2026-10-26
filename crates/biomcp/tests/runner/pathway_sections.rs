@@ -3,6 +3,7 @@ use super::{
     launch::{Environment, fixtures},
     mcp,
 };
+use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io::Write};
@@ -42,7 +43,7 @@ fn call(
 ) -> Result<Value, String> {
     let mut full = args.to_vec();
     full.extend(globals(env, offline));
-    crate::runner::pathway_budgets::invoke(phase, env, full, exit)
+    budgets::invoke(phase, env, full, exit)
 }
 fn continuation(value: &Value) -> Result<Option<Vec<String>>, String> {
     value
@@ -85,7 +86,7 @@ fn walk(genes: bool) -> Check {
             break;
         };
         if offset == 0 {
-            let forwarded = crate::runner::pathway_budgets::mcp(
+            let forwarded = budgets::mcp(
                 "runner/pathway_sections/walk/1",
                 &env,
                 &next,
@@ -361,7 +362,7 @@ fn disclosure_modes() -> Check {
     if !next.iter().any(|s| s == "details") {
         return Err("details mode disappeared from continuation".into());
     }
-    let page = crate::runner::pathway_budgets::mcp(
+    let page = budgets::mcp(
         "runner/pathway_sections/disclosure_modes/1",
         &env,
         &next,
@@ -416,7 +417,7 @@ fn measurements() -> Check {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let args: Vec<String> = args.into_iter().map(str::to_owned).collect();
         let cli = call("pathway_sections/measurements/1", &env, &args, false, 0)?;
-        let mcp = crate::runner::pathway_budgets::mcp(
+        let mcp = budgets::mcp(
             "runner/pathway_sections/measurements/1",
             &env,
             &args,

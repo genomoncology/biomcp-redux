@@ -7,8 +7,9 @@ pub(super) fn invoke(
     args: Vec<String>,
     exit: i32,
 ) -> Result<Value, String> {
+    let phase = phase_key(phase, &args);
     let value = super::configuration::invoke(env, args, exit)?;
-    check(&value, phase, "cli")?;
+    check(&value, &phase, "cli")?;
     Ok(value)
 }
 pub(super) fn mcp(
@@ -19,7 +20,7 @@ pub(super) fn mcp(
     globals: &[String],
 ) -> Result<Value, String> {
     let value = super::mcp::call_with_globals(env, args, error, globals)?;
-    check(&value, phase, "mcp")?;
+    check(&value, &phase_key(phase, args), "mcp")?;
     Ok(value)
 }
 fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
@@ -33,4 +34,19 @@ fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+fn phase_key(phase: &str, args: &[String]) -> String {
+    let mut words = Vec::new();
+    let mut args = args.iter();
+    while let Some(word) = args.next() {
+        match word.as_str() {
+            "--pool" | "--replay" | "--case-cache" => {
+                args.next();
+            }
+            "--offline" => {}
+            _ => words.push(word.as_str()),
+        }
+    }
+    format!("{phase}: {}", words.join(" "))
 }

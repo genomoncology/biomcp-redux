@@ -1,5 +1,6 @@
 //! Feature pathway-reactome: retain a runtime pool token while changing caller selectors.
 use super::launch::{Environment, fixtures};
+use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -18,7 +19,7 @@ fn call(
 ) -> Result<Value, String> {
     let mut command = args.to_vec();
     command.extend_from_slice(globals);
-    crate::runner::pathway_budgets::invoke(phase, env, command, exit)
+    budgets::invoke(phase, env, command, exit)
 }
 fn bindings() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;

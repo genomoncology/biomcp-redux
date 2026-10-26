@@ -1,4 +1,5 @@
 //! Feature pathway-failures: synthetic source faults cannot become empty or cached answers.
+use crate::runner::pathway_budgets as budgets;
 mod absence;
 mod fixtures;
 mod oversized;
@@ -58,7 +59,7 @@ fn call(
 ) -> Result<Value, String> {
     let mut words = env.globals(Some(root), false);
     words.extend(args.iter().map(|s| (*s).to_owned()));
-    let value = crate::runner::pathway_budgets::invoke(phase, env, words, exit)?;
+    let value = budgets::invoke(phase, env, words, exit)?;
     if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 4000 {
         return Err("source outcome exceeds size ceiling".into());
     }
@@ -180,7 +181,7 @@ fn pairings() -> Check {
         "search pathway --gene BRAF --source wikipathways",
         "search pathway --top-level --source wikipathways",
     ] {
-        let value = crate::runner::pathway_budgets::invoke(
+        let value = budgets::invoke(
             "runner/pathway_failures/pairings/1",
             &env,
             words.split_whitespace().map(str::to_owned).collect(),

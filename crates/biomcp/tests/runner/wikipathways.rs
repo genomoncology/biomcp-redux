@@ -1,5 +1,6 @@
 //! Feature pathway-wikipathways: explicit atomic catalog replacement and stored-only reads.
 use super::launch::Environment;
+use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -75,7 +76,7 @@ fn call(
 ) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
-    crate::runner::pathway_budgets::invoke(phase, env, command, exit)
+    budgets::invoke(phase, env, command, exit)
 }
 fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
