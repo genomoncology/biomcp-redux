@@ -11,7 +11,9 @@ pub(super) fn response(
         (Request::AuthorPapers(q), QueryBody::AuthorPapers(body)) => meta.encode(q, body),
         (Request::AuthorPapers(q), QueryBody::AuthorPaperDetails(body)) => meta.encode(q, body),
         (Request::AuthorPapers(q), QueryBody::OrcidWorks(body)) => meta.encode(q, body),
-        (Request::AuthorPapers(_), QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
+        (Request::AuthorPapers(_), QueryBody::PoolError { mismatch }) => {
+            super::pool_error(mismatch, meta.next)
+        }
         (Request::SearchAuthor(q), QueryBody::AuthorPage(body)) => meta.encode(q, body),
         (Request::SearchAuthor(_), QueryBody::PoolError { mismatch }) => {
             super::pool_error(mismatch, meta.next)
