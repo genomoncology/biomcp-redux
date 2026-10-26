@@ -47,11 +47,11 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 | --- | --- | --- |
 | `search author -q/--query TEXT` | Keep query capability as `search author TEXT` | Native Semantic Scholar candidates, unchanged text; no disambiguation guess. |
 | `--source semanticscholar` | Keep as an alias of canonical `--source semantic-scholar` | Accepted compatibility preserves existing calls; do not silently query ORCID name search. |
-| Search `-l/--limit`, `--offset` | Keep long flags and add shared `--pool` | Native bounded page in source order, with stable local continuation. |
+| Search `-l/--limit`, `--offset` | Keep both limit spellings and add shared `--pool` | Native bounded page in source order, with stable local continuation. |
 | `get author semanticscholar:ID` | Keep as an alias of canonical `semantic-scholar:ID` | One exact provider record; the existing ID spelling remains accepted. |
 | `get author orcid:ID` | Keep | Exact public ORCID person record, checksum validated before request. |
 | `author papers ID` | Keep | Provider-qualified corpus, with explicit source provenance. |
-| Papers `-l/--limit`, `--offset` | Keep long flags and shared pool | Semantic Scholar pages natively; ORCID work summaries may require one bounded whole reply. |
+| Papers `-l/--limit`, `--offset` | Keep both limit spellings and shared pool | Semantic Scholar pages natively; ORCID work summaries may require one bounded whole reply. |
 | Papers `--full` | Keep as an alias of the named `details` section | Accepted spelling preserves existing rich metadata; heavy abstracts and bylines stay below compact defaults. |
 | `article authors ID` | Article slice already retires the separate command | Author slice must ensure article bylines carry provider-qualified pivots where source supplies them; no new hidden enrichment call. |
 | `list author` | Retire with fixed guidance to `help author`, `help search author` and `help get author` | Typed help retains provider identity, sources, limits and sections. |
@@ -325,8 +325,10 @@ The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare resul
 
 ## Retirement and source-failure contract
 
-`list author` returns `usage.retired` and names `help author`, `help search author` and `help get author`. `help author` retains the complete author route list, including papers. Topic ranking, coauthor aggregation and cross-provider merging return fixed unsupported guidance to `search author TEXT` or `search article`. An ORCID name search returns its own fixed unsupported guidance. Neither route rewrites query text, chooses a candidate or joins records by name. The existing article-owned `article authors` retirement remains unchanged. Legacy `-q` and `--query` author searches remain supported.
+`list author` returns `usage.retired` and names `help author`, `help search author` and `help get author`. `help author` retains the complete author route list, including papers. Topic ranking, coauthor aggregation and cross-provider merging return fixed unsupported guidance to `search author TEXT` or `search article`. An ORCID name search returns its own fixed unsupported guidance. Neither route rewrites query text, chooses a candidate or joins records by name. The existing article-owned `article authors` retirement remains unchanged. Legacy `-q` and `--query` author searches remain supported. Numeric `-l` remains an alias of `--limit` for search and papers.
 
 Synthetic controls distinguish a successful empty candidate page, an absent exact record and a failed source. Both sources retain source identity and publisher terms on HTTP 429, HTTP 500, deadline, broken JSON and HTTP 200 error-body failures. An anonymous Semantic Scholar 429 retains the key-help action. The existing source failure handling required no adapter change for these controls.
+
+Job j15809 measured the fixed retirement envelopes at 144 CLI bytes for help guidance, 203 for deferred author work and 168 for ORCID name search. Exact synthetic absence measured 346 CLI bytes. Their owning canonical cases use these raw measurements plus fifteen percent, rounded up. The collection remained incomplete because the newly exposed aliases and help route still needed their implementation fixes.
 
 The zero-I/O command owner reads the canonical retired spelling table. CLI and MCP run against a local proxy listener and an unusable cache path. Disabled author search, exact cards and papers check each source name and the noncommercial group before cache and network. Existing settings-boundary tests separately observe deferred credential reads because subprocess output cannot expose whether a credential was resolved. Warm-cache canonical cases reject disabled delivery for both selectors. Publisher bodies remain outside Git; the added replies are synthetic controls.
