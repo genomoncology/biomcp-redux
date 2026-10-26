@@ -67,5 +67,3 @@ mod diagnostic;
 pub use diagnostic::{
     DiagnosticGet, DiagnosticGetSource, DiagnosticSearch, DiagnosticSearchSource, DiagnosticSection,
 };
-
-pub(crate) use gene::present;
