@@ -126,7 +126,7 @@ Sources:
 - [x] PubMed search and page summaries (optional key)
 - [x] PubTator3 export for annotations and named entity/word search
 - [x] Europe PMC
-- [x] Semantic Scholar graph, summaries and recommendations (optional key; successful live search and access-filter capture remain unchecked below)
+- [x] Semantic Scholar graph, summaries and recommendations (optional key)
 - [x] PMC Open Access full-text records and JATS
 - Replaced NCBI ID converter: PubMed checked DOI/PMC joins preserve the capability
 - [x] NCBI EFetch for PubMed cards (optional key)
@@ -137,10 +137,10 @@ Sources:
 - Replaced OpenCitations: iCite supplies the PubMed graph and Semantic Scholar supplies contexts
 - Replaced Figshare: PMC Open Access metadata and confirmed JATS links supply supplements
 
-Live source checks retained as open proof boundaries:
+Live source checks:
 
-- [ ] Successful Semantic Scholar search and native open-access filter capture
-- [ ] Positive Semantic Scholar TLDR for 17611497
+- [x] Successful Semantic Scholar search and native open-access filter capture
+- [x] Positive Semantic Scholar TLDR for 17611497
 - [ ] Successful LitSense2 AKT1 search
 
 
