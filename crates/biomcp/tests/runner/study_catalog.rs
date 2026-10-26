@@ -30,8 +30,11 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     cases.extend(study_get::trials());
+    cases.extend(study_files::trials());
     cases
 }
+#[path = "study_files.rs"]
+mod study_files;
 #[path = "study_get.rs"]
 mod study_get;
 pub(super) fn rows() -> Value {

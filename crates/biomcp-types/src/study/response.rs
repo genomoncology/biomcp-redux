@@ -81,4 +81,24 @@ page!(
     StudySampleList,
     "biomcp.study_sample_lists/1"
 );
-page!(StudyFiles, StudyFile, "biomcp.study_files/1");
+/// One native repository directory page; blob sizes do not describe data content.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct StudyFiles {
+    /// Exact study directory scope.
+    pub study_id: StudyId,
+    /// Source-ordered repository file references.
+    pub items: Box<[StudyFile]>,
+    /// Bounds within the complete received directory.
+    pub page: PageInfo,
+    /// Directory acquisition wall time in Unix seconds.
+    pub acquired: u64,
+    /// Native LICENSE publisher link, independent of the current file page.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license_notice: Option<Text>,
+}
+impl ResponseBody for StudyFiles {
+    const SCHEMA: &'static str = "biomcp.study_files/1";
+    type Query = StudyGet;
+}
