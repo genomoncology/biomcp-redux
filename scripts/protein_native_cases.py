@@ -26,7 +26,7 @@ def record(url, body, headers):
         link = headers.get('link', '')
         next_url = link.split('>', 1)[0].removeprefix('<') if 'rel="next"' in link else None
         exchange['pagination'] = {'total': int(headers['x-total-results']), 'next': next_url}
-    name = hashlib.sha256(canonical.encode()).hexdigest() + '.json'
+    name = hashlib.sha256(b'GET\0' + canonical.encode()).hexdigest() + '.json'
     (replay / name).write_text(json.dumps({'source': 'uniprot', 'method': 'GET',
                                           'url': canonical, 'exchanges': [exchange]}))
 
@@ -61,6 +61,15 @@ for accession, length in [('P00533', 1210), ('Q9UIF7', 546), ('P38398-2', 63)]:
     case(accession, [{'run': args, 'mcp': args, 'max_bytes': 2182, 'expect': {
         '/status': 'complete', '/result/items/0/header/protein/accession': accession,
         '/result/items/0/header/protein/length': length}}])
+p00533 = output / 'P00533.yaml'
+card = json.loads(p00533.read_text())
+card['steps'][0]['expect'].update({
+    '/result/items/0/audit/entry_version': 301,
+    '/result/items/0/audit/sequence_version': 2,
+    '/result/items/0/audit/first_public': '1986-07-21',
+    '/result/items/0/audit/last_annotation_update': '2026-09-02',
+    '/result/items/0/audit/last_sequence_update': '1997-11-01'})
+p00533.write_text(json.dumps(card))
 case('CDKN2A', [{'run': ['get', 'protein', 'P42771', 'Q8N726'], 'expect': {
     '/result/items/*/header/protein/accession': ['P42771', 'Q8N726'],
     '/result/items/*/header/protein/length': [156, 132]}}])
