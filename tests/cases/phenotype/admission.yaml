@@ -1,0 +1,67 @@
+{
+  "feature": "phenotype-identity",
+  "story": "Literal phenotype commands reach source admission and invalid source sections fail before I/O.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "literal, unchanged"
+      ],
+      "mcp": [
+        "search",
+        "phenotype",
+        "literal, unchanged"
+      ],
+      "offline": true,
+      "exit": 1,
+      "expect": {
+        "/schema": "biomcp.phenotype-search/1"
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0001250"
+      ],
+      "mcp": [
+        "get",
+        "phenotype",
+        "HP:0001250"
+      ],
+      "offline": true,
+      "exit": 1,
+      "expect": {
+        "/schema": "biomcp.phenotype-card/1"
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0001250",
+        "hierarchy",
+        "--source",
+        "hpo"
+      ],
+      "mcp": [
+        "get",
+        "phenotype",
+        "HP:0001250",
+        "hierarchy",
+        "--source",
+        "hpo"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage"
+      },
+      "max_bytes": 1000
+    }
+  ]
+}
