@@ -90,7 +90,7 @@ const CASES: &[(&str, &str)] = &[
 fn boundaries() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     for args in [
-        vec!["get", "protein", "P00533", "unknown"],
+        vec!["get", "protein", "P00533", "--section=unknown"],
         vec!["get", "protein", "P00533", "--section", "unknown"],
     ] {
         let mut words = vec!["--offline".into()];

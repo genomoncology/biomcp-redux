@@ -1,8 +1,9 @@
 //! Feature protein-domains-complexes: all keeps independent first-page bounds.
 use super::super::mcp;
 use super::*;
-const CLI_ALL_BYTES: usize = 18000;
-const MCP_ALL_BYTES: usize = 17999;
+// Accepted native get-all measurement with fifteen percent headroom.
+const CLI_ALL_BYTES: usize = (13168_usize * 115).div_ceil(100);
+const MCP_ALL_BYTES: usize = CLI_ALL_BYTES - 1;
 pub(super) fn run() -> Result<(), String> {
     for id in ["P00533", "P38398"] {
         let stub = Stub::for_sources(

@@ -65,9 +65,6 @@ fn reply_problem(
     {
         return;
     }
-    status_problem(out, source, id);
-}
-fn status_problem(out: &mut Outcome, source: biomcp_types::Source, id: &biodata::UniProtIsoform) {
     crate::status::append(
         &mut out.problems,
         [biomcp_types::Problem {

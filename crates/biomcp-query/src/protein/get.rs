@@ -119,6 +119,17 @@ fn hydrate(
         match uniprot::entry(leg, &id) {
             Ok(mapped) => {
                 failed |= !mapped.problems.is_empty();
+                if mapped.value.is_none() && !mapped.problems.is_empty() {
+                    *error = Some(
+                        biomcp_fetch::SourceError {
+                            source: Source::UniProt,
+                            reason: biomcp_types::Reason::BadReply,
+                            status: Some(200),
+                            retry_after: None,
+                        }
+                        .into(),
+                    );
+                }
                 status::append(&mut out.problems, mapped.problems);
                 if let Some(entry) = mapped.value {
                     item.status = Status::Complete;
@@ -178,6 +189,13 @@ fn hydrate(
 }
 
 fn recovery(q: &ProteinGet, out: &mut Outcome) {
+    if out
+        .sources
+        .iter()
+        .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
+    {
+        out.next.truncate(4);
+    }
     if out.next.len() < 5
         && out.sources.iter().any(|s| {
             s.source == Source::Hgnc
