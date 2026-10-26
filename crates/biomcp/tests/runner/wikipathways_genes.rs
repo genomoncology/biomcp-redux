@@ -5,9 +5,11 @@ use serde_json::{Value, json};
 use std::fs;
 type Check = Result<(), String>;
 mod native;
+mod joins;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("wikipathways-genes/exact-xrefs-and-distinct-gene-pivots", || joins::run().map_err(Into::into)),
         Trial::test(
             "wikipathways-genes/single-attempt-provider-failures",
             || single_attempt().map_err(Into::into),
