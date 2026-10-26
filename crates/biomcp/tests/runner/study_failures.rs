@@ -95,7 +95,9 @@ fn bundle_identity() -> Check {
     catalog_recording(&env, &replay, &wrong.to_string(), 200, 0)?;
     let value = call(&env, &replay, &["sync", "cbioportal-studies"], 4)?;
     failed(&value)?;
-    if value.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || value.get("problems").and_then(Value::as_array).is_none_or(Vec::is_empty)
+    {
         return Err(format!("cross-study bundle identity was not rejected: {value}"));
     }
     let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
