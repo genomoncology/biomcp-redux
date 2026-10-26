@@ -18,7 +18,8 @@
       "expect": {
         "/schema": "biomcp.phenotype-search/1"
       },
-      "max_bytes": 4000
+      "max_bytes": 4000,
+      "is_error": true
     },
     {
       "run": [
@@ -36,7 +37,8 @@
       "expect": {
         "/schema": "biomcp.phenotype-card/1"
       },
-      "max_bytes": 4000
+      "max_bytes": 4000,
+      "is_error": true
     },
     {
       "run": [
