@@ -13,6 +13,9 @@ use std::time::Duration;
 
 const BATCH_ROWS: usize = 256;
 const TABLES: [&str; 3] = ["bundle_row", "bundle_key", "bundle_words"];
+const STAGING: &str = "CREATE TEMP TABLE stage_row(bundle TEXT,n INTEGER,row TEXT);
+CREATE TEMP TABLE stage_key(bundle TEXT,kind INTEGER,key TEXT,n INTEGER);
+CREATE TEMP TABLE stage_words(bundle TEXT,n INTEGER,words TEXT);";
 
 impl Cache {
     pub(super) fn publish<R: Row>(
@@ -24,21 +27,13 @@ impl Cache {
         deadline: Deadline<'_>,
     ) -> Result<bool, CacheError> {
         let connection = Connection::open(&self.2).map_err(db_error)?;
-        let stage = tempfile::Builder::new()
-            .prefix("bundle-stage-")
-            .tempfile()
-            .map_err(|_| CacheError::Database)?;
-        let name = stage
-            .path()
-            .file_name()
-            .and_then(|n| n.to_str())
-            .ok_or(CacheError::Database)?;
+        connection.execute_batch(STAGING).map_err(db_error)?;
         let result = (|| {
             if let Some(rows) = rows {
                 for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
                     ready(&connection, deadline)?;
                     let tx = connection.unchecked_transaction().map_err(db_error)?;
-                    insert(&tx, name, batch * BATCH_ROWS, chunk)?;
+                    insert(&tx, bundle.name, batch * BATCH_ROWS, chunk)?;
                     tx.commit().map_err(db_error)?;
                 }
             }
@@ -63,9 +58,10 @@ impl Cache {
                         [bundle.name],
                     )
                     .map_err(db_error)?;
+                    let stage = table.replacen("bundle_", "stage_", 1);
                     tx.execute(
-                        &format!("UPDATE {table} SET bundle=?1 WHERE bundle=?2"),
-                        params![bundle.name, name],
+                        &format!("INSERT INTO {table} SELECT * FROM temp.{stage}"),
+                        [],
                     )
                     .map_err(db_error)?;
                 }
@@ -74,12 +70,7 @@ impl Cache {
             tx.commit().map_err(db_error)?;
             Ok(true)
         })();
-        // A failed or fenced import must not expose or retain its staged rows.
-        // Cleanup never waits behind another writer after the request expires.
-        connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
-        for table in TABLES {
-            let _ = connection.execute(&format!("DELETE FROM {table} WHERE bundle=?1"), [name]);
-        }
+        // TEMP rows belong to this connection and vanish on every return path.
         result
     }
 }
@@ -107,21 +98,21 @@ fn insert(
         let index = (start + index) as i64;
         connection
             .execute(
-                "INSERT INTO bundle_row VALUES(?1,?2,?3)",
+                "INSERT INTO temp.stage_row VALUES(?1,?2,?3)",
                 params![name, index, row.row],
             )
             .map_err(db_error)?;
         for (key, value) in &row.keys.exact {
             connection
                 .execute(
-                    "INSERT INTO bundle_key VALUES(?1,?2,?3,?4)",
+                    "INSERT INTO temp.stage_key VALUES(?1,?2,?3,?4)",
                     params![name, kind(*key), value.to_ascii_lowercase(), index],
                 )
                 .map_err(db_error)?;
         }
         connection
             .execute(
-                "INSERT INTO bundle_words(bundle,n,words) VALUES(?1,?2,?3)",
+                "INSERT INTO temp.stage_words(bundle,n,words) VALUES(?1,?2,?3)",
                 params![name, index, row.keys.words.join(" ")],
             )
             .map_err(db_error)?;

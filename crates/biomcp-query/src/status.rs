@@ -72,6 +72,11 @@ pub(crate) fn append(
 
 /// Preserve a failed or stale source leg when later metadata from it succeeds.
 pub(crate) fn retain_source_state(target: &mut SourceOutcome, incoming: &SourceOutcome) {
+    for notice in &incoming.notices {
+        if !target.notices.contains(notice) {
+            target.notices.push(notice.clone());
+        }
+    }
     if target.state != SourceState::Failed
         && (target.state != SourceState::Stale || incoming.state == SourceState::Failed)
     {

@@ -252,14 +252,6 @@ impl Cache {
         deadline: Deadline<'_>,
     ) -> Result<Option<Entry>, CacheError> {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
-        if deadline.expired() {
-            return Err(CacheError::Busy);
-        }
-        let connection = self.0.try_lock().map_err(|error| match error {
-            std::sync::TryLockError::WouldBlock => CacheError::Busy,
-            std::sync::TryLockError::Poisoned(_) => CacheError::Database,
-        })?;
-        connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
         let operation = |connection: &Connection| {
             let entry = connection.query_row(
                 "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range, pagination FROM reply WHERE key=?1",
@@ -305,11 +297,28 @@ impl Cache {
                 None => Ok(None),
             }
         };
+        self.try_sql(deadline, operation)
+    }
+
+    // Discretionary reply caching must leave the budget available to the source.
+    fn try_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        if deadline.expired() {
+            return Err(CacheError::Busy);
+        }
+        let connection = self.0.try_lock().map_err(|error| match error {
+            std::sync::TryLockError::WouldBlock => CacheError::Busy,
+            std::sync::TryLockError::Poisoned(_) => CacheError::Database,
+        })?;
+        connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
         operation(&connection)
     }
 
     pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline<'_>) -> Result<(), CacheError> {
-        self.sql(deadline, |connection| Self::delete(connection, key))
+        self.try_sql(deadline, |connection| Self::delete(connection, key))
     }
 
     fn delete(connection: &Connection, key: &[u8; 32]) -> Result<(), CacheError> {
@@ -327,7 +336,7 @@ impl Cache {
         entry: &Entry,
         deadline: Deadline<'_>,
     ) -> Result<(), CacheError> {
-        self.sql(deadline, |connection| {
+        self.try_sql(deadline, |connection| {
             connection.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
                 ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",

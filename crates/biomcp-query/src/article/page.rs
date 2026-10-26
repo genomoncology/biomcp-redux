@@ -108,7 +108,7 @@ pub(super) fn read<'a>(
                     source.term = original.term.clone();
                     source.count = original.count;
                     source.fetched = original.fetched;
-                    source.notices = original.notices.clone();
+                    source.notices.extend(original.notices.clone());
                 }
                 out.sources.retain(|s| s.source != Source::PubMed);
                 out.sources.push(source);
