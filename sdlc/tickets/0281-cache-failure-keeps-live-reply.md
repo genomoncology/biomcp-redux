@@ -1,6 +1,7 @@
 # 0281 — Keep a checked live reply when the cache is busy or fails
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 635b289d35e63e7c6f2e3bbfd659fd4906d41b83
 
 Milestone: 4
 
