@@ -2,6 +2,7 @@
 use biomcp_types::Request;
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::GetGwasAssociation(_) | Request::GetGwasStudy(_) => "biomcp.gwas-get/1",
         Request::SearchGwas(_) => "biomcp.gwas-search/2",
         Request::ProteinFeatures(_) => "biomcp.protein-features-query/1",
         Request::ProteinIsoforms(_) | Request::ProteinStructures(_) => {
@@ -51,6 +52,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("get", "gwas", "biomcp.gwas-get/1"),
     ("search", "gwas", "biomcp.gwas-search/2"),
     ("protein", "features", "biomcp.protein-features-query/1"),
     ("protein", "isoforms", "biomcp.protein-relation-query/1"),

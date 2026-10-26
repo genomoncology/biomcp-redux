@@ -67,6 +67,14 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Native GWAS association page, absent after failure.
     GwasPage(Option<crate::GwasPage>),
+    /// Exact source association card.
+    GwasAssociation(Option<crate::GwasAssociationCard>),
+    /// Exact source study card.
+    GwasStudy(Option<crate::GwasStudy>),
+    /// Source association locus context.
+    GwasLoci(Option<crate::GwasLoci>),
+    /// Local retained study ancestry rows.
+    GwasAncestries(Option<crate::GwasAncestries>),
     /// Exact filtered native features.
     ProteinFeatures(Option<crate::ProteinFeatures>),
     /// Native alternative products.
@@ -89,6 +97,10 @@ pub enum QueryBody {
     PhenotypeXrefs(Option<crate::PhenotypeXrefs>),
     /// Native source direct parent and child links.
     PhenotypeHierarchy(Option<crate::PhenotypeHierarchy>),
+    /// Exact direct native disease association rows.
+    PhenotypeDiseases(crate::PhenotypeDiseases),
+    /// Exact direct native human gene association rows.
+    PhenotypeGenes(crate::PhenotypeGenes),
     /// Native ordered human pathway headers.
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.

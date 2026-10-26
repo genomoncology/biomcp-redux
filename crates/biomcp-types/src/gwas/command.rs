@@ -23,3 +23,41 @@ impl schemars::JsonSchema for GwasSearchCommand {
         schema
     }
 }
+
+/// Get command grammar selects an association or study by its checked native identifier.
+#[cfg(feature = "schema")]
+#[derive(Debug, schemars::JsonSchema)]
+pub struct GwasGetCommand {
+    /// Qualified association ID or exact GCST study accession.
+    #[schemars(extend("x-positional" = 0))]
+    pub id: biodata::Text,
+    /// Association loci or study associations and ancestries.
+    #[schemars(with = "GwasCommandSection", extend("x-positional" = 1))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section: Option<GwasCommandSection>,
+    /// Maximum native relation rows.
+    #[schemars(with = "u32", range(min = 1, max = 50))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section_limit: Option<u32>,
+    /// Native relation row offset.
+    #[schemars(with = "u32")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section_offset: Option<u32>,
+    /// Retained ancestry reply for a local page.
+    #[schemars(with = "biodata::Text")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub snapshot: Option<biodata::Text>,
+}
+#[cfg(feature = "schema")]
+biodata::wire_enum! {
+    described
+    /// Native context section grammar.
+    GwasCommandSection {
+        /// Native association loci.
+        Loci => "loci",
+        /// Native study association pages.
+        Associations => "associations",
+        /// Native study ancestry rows.
+        Ancestries => "ancestries"
+    }
+}

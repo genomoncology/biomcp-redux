@@ -92,6 +92,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise checked values and schema contracts through the public library API.",
     ),
     (
+        "crates/biomcp-adapters/src/monarch/native_contracts.rs",
+        "Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command.",
+    ),
+    (
         "crates/biomcp-adapters/tests/batch_bounds.rs",
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
     ),

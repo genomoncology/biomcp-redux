@@ -26,7 +26,7 @@ fn key(q: &PhenotypeGet) -> Vec<u8> {
     .to_vec()
 }
 /// Read one independent source card or a local section from its retained reply.
-pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
+pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let mut out = empty(super::sections::empty(q));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

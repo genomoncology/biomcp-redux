@@ -69,20 +69,25 @@ fn gene_steps(out: &mut Outcome, items: &[biomcp_types::DiseaseAssociationItem])
             continue;
         };
         let id = id.to_string();
-        let checked = match GeneInput::new(&id) {
-            Ok(
-                input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_)),
-            ) => Some(input),
-            _ => id
-                .strip_prefix("NCBIGene:")
-                .and_then(|value| value.parse::<biodata::NcbiGeneId>().ok())
-                .map(GeneInput::EntrezId),
-        };
-        if let Some(query) = checked.and_then(|input| GeneGet::new(vec![input].into()).ok()) {
+        if let Some(query) = gene_query(&id) {
             let step = (StepKind::Disambiguate, run(Request::GetGene(query)));
             if !out.next.contains(&step) {
                 out.next.push(step);
             }
         }
     }
+}
+
+/// Accept only an identifier the existing gene command understands, without symbol repair.
+pub(crate) fn gene_query(id: &str) -> Option<GeneGet> {
+    let checked = match GeneInput::new(id) {
+        Ok(input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_))) => {
+            Some(input)
+        }
+        _ => id
+            .strip_prefix("NCBIGene:")
+            .and_then(|value| value.parse::<biodata::NcbiGeneId>().ok())
+            .map(GeneInput::EntrezId),
+    };
+    checked.and_then(|input| GeneGet::new(vec![input].into()).ok())
 }

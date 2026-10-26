@@ -1,4 +1,6 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
+mod association_native;
+mod associations;
 mod native;
 mod section_failures;
 mod section_native;
@@ -42,6 +44,16 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ];
     rows.extend(sections::trials());
+    rows.extend(associations::trials());
+    let directory = super::launch::fixtures().join("phenotype-association-native");
+    let absent = !directory.is_dir();
+    rows.push(
+        Trial::test(
+            "phenotype-associations/retained-reverse-pages-and-costs",
+            move || association_native::run(&directory).map_err(Into::into),
+        )
+        .with_ignored_flag(absent),
+    );
     rows.push(Trial::test(
         "phenotype-sections/recorded-failures-retain-source-and-terms",
         || section_failures::run().map_err(Into::into),

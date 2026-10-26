@@ -43,18 +43,19 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
-        Body::GwasPage(_) | Body::PathwayEvents(_) => Navigation::NativeOrder,
-        Body::PathwayCard(Some(card)) if card.events.is_some() && card.genes.is_none() => {
-            Navigation::NativeOrder
-        }
+        Body::GwasAssociation(_)
+        | Body::GwasStudy(_)
+        | Body::GwasLoci(_)
+        | Body::GwasAncestries(_)
+        | Body::GwasPage(_)
+        | Body::PathwayEvents(_) => Navigation::NativeOrder,
+        Body::PathwayCard(card) => pathway_navigation(card.as_ref()),
         Body::ProteinPage(_) => Navigation::Selectable,
         Body::ProteinFeatures(_)
         | Body::ProteinIsoforms(_)
         | Body::ProteinStructures(_)
         | Body::ProteinSequence(_) => Navigation::Bounded,
-        Body::ProteinCard(card) => {
-            candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
-        }
+        Body::ProteinCard(card) => protein_navigation(card),
         Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
             Navigation::Bounded
         }
@@ -63,11 +64,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::PhenotypeSynonyms(_)
         | Body::PhenotypeXrefs(_)
         | Body::PhenotypeHierarchy(_) => Navigation::Bounded,
-        Body::PathwayCard(_) | Body::PathwayGenes(_) => Navigation::Bounded,
+        Body::PathwayGenes(_) => Navigation::Bounded,
         Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
-        Body::VariantCard(card) => {
-            candidate_navigation(card.resolution == biomcp_types::VariantResolution::Candidates)
-        }
+        Body::VariantCard(card) => variant_navigation(card),
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
             Navigation::BoundedPma
         }
@@ -78,6 +77,8 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::DiagnosticSupplements(_)
         | Body::AdverseEventPage(_)
         | Body::DiseasePage(_)
+        | Body::PhenotypeDiseases(_)
+        | Body::PhenotypeGenes(_)
         | Body::DiseaseGenes(_)
         | Body::DiseasePhenotypes(_)
         | Body::DrugPage(_)
@@ -223,4 +224,19 @@ fn append_network_steps(
             );
         }
     }
+}
+
+fn pathway_navigation(card: Option<&biomcp_types::PathwayCard>) -> Navigation<'_> {
+    if card.is_some_and(|card| card.events.is_some() && card.genes.is_none()) {
+        Navigation::NativeOrder
+    } else {
+        Navigation::Bounded
+    }
+}
+fn protein_navigation(card: &biomcp_types::ProteinCard) -> Navigation<'_> {
+    candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
+}
+
+fn variant_navigation(card: &biomcp_types::VariantCard) -> Navigation<'static> {
+    candidate_navigation(card.resolution == biomcp_types::VariantResolution::Candidates)
 }
