@@ -159,6 +159,7 @@ fn continuations_keep_checked_selectors_and_explicit_limits() {
     assert_eq!(next.source(), PhenotypeSource::Monarch);
 }
 
+#[cfg(feature = "schema")]
 fn envelope<T>(query: serde_json::Value, body: serde_json::Value)
 where
     T: biomcp_types::ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
@@ -186,6 +187,7 @@ where
     );
 }
 
+#[cfg(feature = "schema")]
 #[test]
 fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     use biomcp_types::*;
