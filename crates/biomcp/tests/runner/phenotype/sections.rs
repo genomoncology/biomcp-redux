@@ -3,7 +3,7 @@ use super::{invoke, setup, Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("phenotype-sections/retained-local-pages-and-executable-card-actions", || pages().map_err(Into::into))]
+    vec![Trial::test("phenotype-sections/native-classes-and-direct-links", || monarch().map_err(Into::into)), Trial::test("phenotype-sections/empty-unavailable-and-missing-retained-reply", || absent().map_err(Into::into)), Trial::test("phenotype-sections/retained-local-pages-and-executable-card-actions", || pages().map_err(Into::into))]
 }
 fn pages() -> Result<(), String> {
     let stub = Stub::for_source("ontology.jax.org", "application/json", |request| {
@@ -25,4 +25,45 @@ fn pages() -> Result<(), String> {
 }
 fn step(value: &Value, kind: &str, index: usize) -> Result<Vec<String>, String> {
     value.get("next").and_then(Value::as_array).ok_or("missing next")?.iter().filter(|row| row.get("kind").and_then(Value::as_str) == Some(kind)).nth(index).and_then(|row| row.get("args")).and_then(Value::as_array).ok_or_else(|| format!("missing {kind} step: {value}"))?.iter().map(|word| word.as_str().map(String::from).ok_or("step word".into())).collect()
+}
+fn monarch() -> Result<(), String> {
+    let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| Ok(json!({
+        "id":"HP:0000001","name":"Synthetic term","category":"biolink:PhenotypicFeature",
+        "synonym":["Unclassified"],"exact_synonym":["Exact"],"broad_synonym":["Broad"],"narrow_synonym":[],"related_synonym":["Related"],"xref":["UMLS:C0000001"],
+        "node_hierarchy":{"super_classes":[{"id":"HP:0000002","name":"Parent"}],"sub_classes":[{"id":"HP:0000003","name":"Child"}]}
+    }).to_string()))?;
+    let env = setup(&stub)?;
+    for (section, expected) in [
+        ("synonyms", json!([null,"exact","broad","related"])),
+        ("hierarchy", json!(["super_classes","sub_classes"])),
+    ] {
+        let result = invoke(&env, &["get","phenotype","HP:0000001",section,"--source","monarch","--section-limit","2"], 0)?;
+        if result.pointer("/query/section_limit") != Some(&json!(2)) { return Err("explicit limit changed".into()); }
+        let field = if section == "synonyms" { "relationship" } else { "relation" };
+        let items = result.pointer("/result/items").and_then(Value::as_array).ok_or("rows")?;
+        let values = items.iter().map(|v| v.get(field).cloned().unwrap_or(Value::Null)).collect::<Vec<_>>();
+        if values != expected.as_array().ok_or("expected")?.iter().take(2).cloned().collect::<Vec<_>>() { return Err(format!("native classes or links changed: {result}")); }
+        if section == "synonyms" {
+            let words = step(&result,"page",0)?;
+            let words = words.iter().map(String::as_str).collect::<Vec<_>>();
+            let next = invoke(&env,&words,0)?;
+            if next.pointer("/result/items/0/relationship") != Some(&json!("broad")) || next.pointer("/result/items/1/relationship") != Some(&json!("related")) { return Err("native class walk changed".into()); }
+        }
+    }
+    let result = invoke(&env,&["get","phenotype","HP:0000001","xrefs","--source","monarch"],0)?;
+    if result.pointer("/result/items/0/id") != Some(&json!("UMLS:C0000001")) || result.pointer("/result/items/0/predicate").is_some() { return Err("xref invented predicate".into()); }
+    if stub.finish()?.len()!=1 { return Err("source sections bypassed checked entity cache".into()); }
+    Ok(())
+}
+fn absent() -> Result<(), String> {
+    let stub = Stub::for_source("ontology.jax.org", "application/json", |_| Ok(json!({"id":"HP:0000001","name":"Synthetic term","synonyms":[],"xrefs":null}).to_string()))?;
+    let env = setup(&stub)?;
+    let empty = invoke(&env,&["get","phenotype","HP:0000001","synonyms"],1)?;
+    let missing = invoke(&env,&["get","phenotype","HP:0000001","xrefs"],1)?;
+    if empty.pointer("/result/items")!=Some(&json!([])) || empty.pointer("/page/total")!=Some(&json!(0)) || missing.get("result").is_some() || missing.get("page").is_some() { return Err("empty and unavailable sections collapsed".into()); }
+    invoke(&env,&["get","phenotype","HP:0000001","hierarchy","--source","hpo"],2)?;
+    let lost = invoke(&env,&["get","phenotype","HP:0000001","synonyms","--snapshot","unknown"],3)?;
+    if lost.pointer("/next/0/kind")!=Some(&json!("restart")) { return Err(format!("missing snapshot refetched: {lost}")); }
+    if stub.finish()?.len()!=1 { return Err("invalid or retained selector made a provider request".into()); }
+    Ok(())
 }

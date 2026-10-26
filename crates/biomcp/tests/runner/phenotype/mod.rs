@@ -1,13 +1,17 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
 mod native;
 mod sections;
+mod section_native;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 pub(super) use native::run as native;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
+    let directory = super::launch::fixtures().join("phenotype-section-native");
+    let absent = !directory.is_dir();
     let mut rows = vec![
+        Trial::test("phenotype-sections/retained-native-witnesses-and-costs", move || section_native::run(&directory).map_err(Into::into)).with_ignored_flag(absent),
         Trial::test("phenotype-identity/generated-help-matches-markdown", || {
             help().map_err(Into::into)
         }),
