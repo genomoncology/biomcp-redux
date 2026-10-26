@@ -54,7 +54,7 @@ The plan covers three crates:
 5. **Integer width.** u32 in the working crates; u64 in the standalone crate.
 6. **Wire contract.** This crate checks both directions and versions every schema. The projecting crate mostly serializes and has no schema. The standalone crate writes documents and schemas by hand and versions nothing.
 7. **Enum tagging.** Internally tagged here; externally tagged in the projecting crate's HGVS form.
-8. **Annotation shape.** Each crate has its own record per source with free-text labels. None has a shared statement type.
+8. **Annotation shape.** BioMCP now has shared `Statement` and `PopulationFrequency` values alongside source records with free-text labels. The other crates keep their own records per source without a shared statement type.
 9. **Source identity.** An enum here; text in both others.
 10. **Error code style.** Dotted in the working crates; flat snake in the standalone crate.
 
