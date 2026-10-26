@@ -95,11 +95,11 @@ macro_rules! associations {
 }
 associations!(
     PhenotypeDiseases,
-    "biomcp.phenotype-diseases/2",
+    "biomcp.phenotype-diseases/3",
     "Direct source disease association rows without clinical inference."
 );
 associations!(
     PhenotypeGenes,
-    "biomcp.phenotype-genes/2",
+    "biomcp.phenotype-genes/3",
     "Direct source human gene association rows with native taxon."
 );

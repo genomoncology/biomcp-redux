@@ -74,7 +74,10 @@ fn exact() -> Result<(), String> {
             return Err(format!("{pointer} changed: {result}"));
         }
     }
-    if result.pointer("/result/items/0/association/evidence").is_some() {
+    if result
+        .pointer("/result/items/0/association/evidence")
+        .is_some()
+    {
         return Err("null source evidence became an empty list".into());
     }
     if stub.finish()?.len() != 1 {

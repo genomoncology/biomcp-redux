@@ -269,3 +269,20 @@ fn source_scoped_defaults_preserve_explicit_limits_and_reject_null_or_zero() {
         }
     }
 }
+
+#[test]
+fn association_evidence_keeps_unavailable_empty_and_populated_distinct() {
+    let base = json!({"requested_id":"MONDO:0019003","subject":{"id":"MONDO:0019003","label":"Synthetic"},"object":{"id":"HP:0000001","label":"Synthetic feature"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},"qualifiers":[],"subject_closure":[],"object_closure":[]});
+    assert_eq!(roundtrip::<DiseaseAssociation>(base.clone()).unwrap(), base);
+    let mut unavailable = base.clone();
+    unavailable["evidence"] = json!(null);
+    assert_eq!(roundtrip::<DiseaseAssociation>(unavailable).unwrap(), base);
+    for evidence in [
+        json!([]),
+        json!([{"id":"ECO:0000501","label":"Synthetic evidence"}]),
+    ] {
+        let mut row = base.clone();
+        row["evidence"] = evidence;
+        assert_eq!(roundtrip::<DiseaseAssociation>(row.clone()).unwrap(), row);
+    }
+}

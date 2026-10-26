@@ -37,8 +37,9 @@ pub struct DiseaseAssociation {
     /// Native providing collection.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provided_by: Option<Text>,
-    /// Source evidence terms without interpretation.
-    pub evidence: Box<[DiseaseAssociationReference]>,
+    /// Source evidence terms; unavailable evidence stays absent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence: Option<Box<[DiseaseAssociationReference]>>,
     /// Native qualifiers, including frequency or onset if supplied.
     pub qualifiers: Box<[DiseaseAssociationQualifier]>,
     /// Native publication references, without inferred links or labels.
