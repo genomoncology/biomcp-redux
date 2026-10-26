@@ -1,0 +1,60 @@
+{
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_0007"
+          }
+        ],
+        "age": "37Y",
+        "category": "Cancer cell line",
+        "comment-list": [
+          {
+            "category": "Problematic cell line",
+            "value": "Partially contaminated. Some ATCC stocks were cross-contaminated by K-562 initially (PubMed=7759961). The problem was corrected and subsequent stocks have been confirmed to carry only U-937."
+          }
+        ],
+        "created": "2012-04-04",
+        "disease-list": [
+          {
+            "accession": "C8263",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C8263",
+            "label": "Adult acute monocytic leukemia",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C8263"
+          },
+          {
+            "accession": "Orphanet_514",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_514",
+            "label": "Acute monoblastic/monocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_514"
+          }
+        ],
+        "entry-version": "51",
+        "last-updated": "2026-06-25",
+        "name-list": [
+          {
+            "type": "identifier",
+            "value": "U-937"
+          }
+        ],
+        "sex": "Male",
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      }
+    ]
+  }
+}

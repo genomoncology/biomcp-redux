@@ -1,0 +1,79 @@
+{
+  "method": "GET",
+  "source": "cellosaurus",
+  "url": "https://api.cellosaurus.org/cell-line/CVCL_2119?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+  "exchanges": [
+    {
+      "fetched": 1793021013,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 4,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_2119"
+          }
+        ],
+        "age": "20Y",
+        "category": "Cancer cell line",
+        "created": "2012-04-04",
+        "disease-list": [
+          {
+            "accession": "C8263",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C8263",
+            "label": "Adult acute monocytic leukemia",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C8263"
+          },
+          {
+            "accession": "C3247",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3247",
+            "label": "Myelodysplastic syndrome",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3247"
+          },
+          {
+            "accession": "Orphanet_514",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_514",
+            "label": "Acute monoblastic/monocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_514"
+          }
+        ],
+        "entry-version": "48",
+        "last-updated": "2026-06-25",
+        "name-list": [
+          {
+            "type": "identifier",
+            "value": "MOLM-13"
+          }
+        ],
+        "sex": "Male",
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      }
+    ]
+  }
+}
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_A794"
+          }
+        ],
+        "age": "36Y",
+        "category": "Cancer cell line",
+        "created": "2012-06-06",
+        "disease-list": [
+          {
+            "accession": "C7961",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C7961",
+            "label": "Adult acute myeloid leukemia with maturation",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C7961"
+          },
+          {
+            "accession": "Orphanet_98834",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_98834",
+            "label": "Acute myeloblastic leukemia with maturation",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_98834"
+          }
+        ],
+        "entry-version": "36",
+        "last-updated": "2026-06-25",
+        "name-list": [
+          {
+            "type": "identifier",
+            "value": "HL-60(TB)"
+          }
+        ],
+        "sex": "Female",
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      }
+    ]
+  }
+}

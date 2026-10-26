@@ -4,6 +4,7 @@ use biomcp_types::Source;
 /// Source label used beside the unchanged native ID when a native title is absent.
 pub fn display_name(source: Source) -> &'static str {
     match source {
+        Source::Cellosaurus => "Cellosaurus",
         Source::Hgnc => "HGNC",
         Source::MyGene => "MyGene.info",
         Source::Reactome => "Reactome",

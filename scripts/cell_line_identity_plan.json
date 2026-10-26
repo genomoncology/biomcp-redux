@@ -1,0 +1,37 @@
+{
+  "deadline_seconds": 25,
+  "max_bytes": 8388608,
+  "spacing_seconds": 0.5,
+  "requests": [
+    {
+      "id": "card-CVCL_0005",
+      "source": "cellosaurus",
+      "url": "https://api.cellosaurus.org/cell-line/CVCL_0005?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+      "response_format": "json"
+    },
+    {
+      "id": "card-CVCL_0002",
+      "source": "cellosaurus",
+      "url": "https://api.cellosaurus.org/cell-line/CVCL_0002?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+      "response_format": "json"
+    },
+    {
+      "id": "card-CVCL_A794",
+      "source": "cellosaurus",
+      "url": "https://api.cellosaurus.org/cell-line/CVCL_A794?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+      "response_format": "json"
+    },
+    {
+      "id": "card-CVCL_0007",
+      "source": "cellosaurus",
+      "url": "https://api.cellosaurus.org/cell-line/CVCL_0007?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+      "response_format": "json"
+    },
+    {
+      "id": "card-CVCL_ZZZZ",
+      "source": "cellosaurus",
+      "url": "https://api.cellosaurus.org/cell-line/CVCL_ZZZZ?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+      "response_format": "json"
+    }
+  ]
+}

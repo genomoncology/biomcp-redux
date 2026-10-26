@@ -124,3 +124,6 @@ pub mod who_pq;
 
 /// Explicit CDC WONDER vaccine report summaries.
 pub mod vaers;
+
+/// Literal Cellosaurus discovery and exact cell identity.
+pub mod cellosaurus;

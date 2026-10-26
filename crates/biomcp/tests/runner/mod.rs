@@ -3,6 +3,7 @@ mod adverse_event_registry;
 mod adverse_event_retirements;
 mod article_save;
 mod assertions;
+pub(super) mod cell_line;
 mod clinpgx;
 mod clinvar_key;
 mod configuration;
@@ -577,6 +578,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_mydisease::trials())
         .chain(disease_monarch::trials())
         .chain(phenotype::trials())
+        .chain(cell_line::trials())
         .chain(disease_seer::trials())
         .collect()
 }
@@ -584,7 +586,6 @@ fn disease_trials() -> Vec<Trial> {
 pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
     faers_search::record_examples(directory)
 }
-
 mod gwas_budgets;
 mod gwas_get;
 mod gwas_search;
@@ -595,5 +596,4 @@ pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
 pub(super) fn protein_native(path: &Path) -> Result<(), String> {
     protein_commands::native(path)
 }
-
 mod wikipathways_genes;

@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native source-ordered cell line headers.
+    CellLinePage(crate::CellLinePage),
+    /// Exact cell identity or unselected candidates.
+    CellLineCard(crate::CellLineCard),
     /// Native GWAS association page, absent after failure.
     GwasPage(Option<crate::GwasPage>),
     /// Exact source association card.

@@ -25,6 +25,8 @@ pub(super) const URLS: &[&str] = &[
 pub(super) const VARIANT_IDS: &[&str] = &["/record/id"];
 
 pub(super) const IDS: &[&str] = &[
+    "/accession",
+    "/header/accession",
     "/id",
     "/id/id",
     "/header/id",
@@ -48,6 +50,7 @@ pub(super) const IDS: &[&str] = &[
 use biomcp_adapters::registry::records::RecordKind;
 pub(super) fn kind(entity: &str) -> Option<RecordKind> {
     Some(match entity {
+        "cell-line" => RecordKind::CellLine,
         "pathway" => RecordKind::Pathway,
         "study" => RecordKind::Study,
         "gwas" => RecordKind::Association,

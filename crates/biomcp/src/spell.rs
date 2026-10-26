@@ -68,6 +68,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchCellLine(q) => serde_json::to_value(q),
+        Request::GetCellLine(q) => serde_json::to_value(q),
         Request::GetGwasAssociation(q) => serde_json::to_value(q),
         Request::GetGwasStudy(q) => serde_json::to_value(q),
         Request::SearchGwas(q) => serde_json::to_value(q),
@@ -184,7 +186,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetGwasAssociation(_)
+        Request::GetCellLine(_)
+        | Request::GetGwasAssociation(_)
         | Request::GetGwasStudy(_)
         | Request::GetProtein(_)
         | Request::GetPhenotype(_)
@@ -201,7 +204,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchGwas(_)
+        Request::SearchCellLine(_)
+        | Request::SearchGwas(_)
         | Request::SearchProtein(_)
         | Request::SearchPhenotype(_)
         | Request::SearchPathway(_)
@@ -232,6 +236,12 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
     }
 }
 fn base_entity(request: &Request) -> &'static str {
+    if matches!(
+        request,
+        Request::SearchCellLine(_) | Request::GetCellLine(_)
+    ) {
+        return "cell-line";
+    }
     if matches!(
         request,
         Request::SearchGwas(_) | Request::GetGwasAssociation(_) | Request::GetGwasStudy(_)

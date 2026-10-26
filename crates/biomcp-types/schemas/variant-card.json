@@ -3793,7 +3793,8 @@
         "fda-510k",
         "cpic",
         "clinpgx",
-        "cbioportal"
+        "cbioportal",
+        "cellosaurus"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -3863,7 +3864,8 @@
         " FDA native 510(k) clearance records.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
-        " Public cBioPortal with study-specific reuse terms."
+        " Public cBioPortal with study-specific reuse terms.",
+        " Cellosaurus cell line identity."
       ]
     },
     "SourceNotice": {

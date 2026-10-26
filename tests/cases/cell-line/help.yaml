@@ -1,0 +1,61 @@
+{
+  "feature": "cell-line-identity",
+  "story": "Literal cell line search and exact identity help expose checked arguments.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "cell-line"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "cell-line"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "query",
+            "--limit",
+            "--offset"
+          ]
+        },
+        "/result/commands/0/examples": {
+          "count": 2
+        }
+      },
+      "max_bytes": 874,
+      "max_tokens": 219
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "cell-line"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "cell-line"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "section",
+            "--section-limit",
+            "--section-offset"
+          ]
+        }
+      },
+      "max_bytes": 1168,
+      "max_tokens": 292
+    }
+  ]
+}

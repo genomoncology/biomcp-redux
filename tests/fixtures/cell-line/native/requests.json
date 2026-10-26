@@ -1,0 +1,97 @@
+{
+  "portable-cellosaurus-cell-CVCL_2119": {
+    "target": "/cell-line/CVCL_2119?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_2119.json",
+    "status": 200
+  },
+  "portable-cellosaurus-search-molm13": {
+    "target": "/search/cell-line?q=idsy%3A%22MOLM13%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=5",
+    "file": "portable-cellosaurus-search-molm13.json",
+    "status": 200
+  },
+  "portable-cellosaurus-search-mv4": {
+    "target": "/search/cell-line?q=idsy%3A%22MV4%3B11%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=5",
+    "file": "portable-cellosaurus-search-mv4.json",
+    "status": 200
+  },
+  "portable-cellosaurus-search-nb4": {
+    "target": "/search/cell-line?q=idsy%3A%22NB4%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=5",
+    "file": "portable-cellosaurus-search-nb4.json",
+    "status": 200
+  },
+  "portable-cellosaurus-search-kg1": {
+    "target": "/search/cell-line?q=idsy%3A%22KG1%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=5",
+    "file": "portable-cellosaurus-search-kg1.json",
+    "status": 200
+  },
+  "portable-cellosaurus-search-reverse": {
+    "target": "/search/cell-line?q=dr%3A%22ACH-000362%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=5",
+    "file": "portable-cellosaurus-search-reverse.json",
+    "status": 200
+  },
+  "portable-cellosaurus-search-empty": {
+    "target": "/search/cell-line?q=idsy%3A%22zzzx0196nomatch%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=5",
+    "file": "portable-cellosaurus-search-empty.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cellosaurus-release": {
+    "target": "/release-info?format=json",
+    "file": "portable-cellosaurus-cellosaurus-release.json",
+    "status": 200
+  },
+  "portable-paging-cellosaurus-nb4-start5": {
+    "target": "/search/cell-line?q=idsy%3A%22NB4%22&start=5&rows=5&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca",
+    "file": "portable-paging-cellosaurus-nb4-start5.json",
+    "status": 200
+  },
+  "native-chembl-reverse": {
+    "target": "/search/cell-line?q=dr%3A%22CHEMBL3706573%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5",
+    "file": "native-chembl-reverse.json",
+    "status": 200
+  },
+  "native-ambiguous-reverse": {
+    "target": "/search/cell-line?q=dr%3A%22E-MTAB-2770%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5",
+    "file": "native-ambiguous-reverse.json",
+    "status": 200
+  },
+  "native-projected-molm13": {
+    "target": "/cell-line/CVCL_2119?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "native-projected-molm13.json",
+    "status": 200
+  },
+  "native-projected-k562": {
+    "target": "/cell-line/CVCL_0004?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "native-projected-k562.json",
+    "status": 200
+  },
+  "projected-card-CVCL_0005": {
+    "target": "/cell-line/CVCL_0005?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "projected-card-CVCL_0005.json",
+    "status": 200
+  },
+  "projected-card-CVCL_0002": {
+    "target": "/cell-line/CVCL_0002?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "projected-card-CVCL_0002.json",
+    "status": 200
+  },
+  "projected-card-CVCL_A794": {
+    "target": "/cell-line/CVCL_A794?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "projected-card-CVCL_A794.json",
+    "status": 200
+  },
+  "projected-card-CVCL_0007": {
+    "target": "/cell-line/CVCL_0007?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "projected-card-CVCL_0007.json",
+    "status": 200
+  },
+  "projected-card-CVCL_ZZZZ": {
+    "target": "/cell-line/CVCL_ZZZZ?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt",
+    "file": "projected-card-CVCL_ZZZZ.json",
+    "status": 404
+  },
+  "native-accession-search": {
+    "target": "/search/cell-line?q=ac%3A%22CVCL_0005%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5",
+    "file": "native-accession-search.json",
+    "status": 200
+  }
+}

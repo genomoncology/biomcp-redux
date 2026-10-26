@@ -210,3 +210,11 @@ pub(crate) static COMPLEX_PORTAL: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative local policy; no published numeric provider rate.
+pub(crate) static CELLOSAURUS: Quota = Quota::new(
+    SourceKey::declare("cellosaurus"),
+    Rate::per_second(2),
+    None,
+    1,
+);

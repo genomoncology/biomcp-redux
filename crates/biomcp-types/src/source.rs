@@ -137,6 +137,8 @@ canonical_enum! {
         ClinPgx => "clinpgx",
         /// Public cBioPortal with study-specific reuse terms.
         Cbioportal => "cbioportal",
+        /// Cellosaurus cell line identity.
+        Cellosaurus => "cellosaurus",
     }
 }
 

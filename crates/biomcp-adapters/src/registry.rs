@@ -12,6 +12,7 @@ use biomcp_types::{Source, Use};
 use std::collections::BTreeSet;
 /// Every implemented source, independent of quota-provider identities.
 pub const SOURCES: &[&SourceSpec] = &[
+    &crate::cellosaurus::SPEC,
     &crate::cpic::SPEC,
     &crate::clinpgx::SPEC,
     &crate::gtr::SPEC,
@@ -190,6 +191,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         return Some(probe);
     }
     Some(match source {
+        Source::Cellosaurus => ("/release-info", vec![("format", Arg::Text("json"))]),
         Source::Gwas => (
             "/associations",
             vec![("rs_id", Arg::Text("rs113488022")), ("size", Arg::Num(1))],

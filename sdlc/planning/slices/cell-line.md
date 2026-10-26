@@ -219,3 +219,121 @@ Yellow retains `/home/ian/workspace/data/biomcp-redux/0256-cell-line-captures/22
 | Secondary-accession card | Not called: all nine retained 0196 cards list primary accessions only. No source-supplied secondary target exists among these inputs. | Secondary resolution stays deferred. Get accepts primary accessions only until a retained secondary card proves that route. No guessed secondary ID or discovery request was added. |
 
 The projection uses the retained OpenAPI's comma-separated `fields` form and documented `ac,id,ox,di,ca,sx,ag,problematic,caution,dt` tags. Source requests and response ceilings remain separate. The approved source rights remain Cellosaurus CC BY 4.0 and ChEMBL CC BY-SA 3.0, with attribution and publisher terms preserved. PharmacoDB, DepMap downloads and HPA were not called. The PM's cell-line ruling above the proposal remains authoritative, including the bounded `all` section and its single ChEMBL metadata request.
+
+## Identity request contracts
+
+The default card asks for the documented `ac,id,ox,di,ca,sx,ag,problematic,caution,dt` projection. A reverse get uses the separately retained `ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt` request because its native cross-references must verify the exact requested database and accession before cache admission. These different field projections retain different transport and cache identities. Omitted cross-references and variations in a default card never establish their source absence.
+
+A literal native search and DepMap reverse search omit `start` at the provider's default zero and send it for a positive offset. The distinct qualified ChEMBL reverse command uses the retained explicit `start=0` request. It always sends the checked `rows` and never sends a sort selector. Qualified reverse search uses the unchanged accession in the source's `dr` expression. Only DepMap, Cell Model Passports, ChEMBL cell and PharmacoDB identity qualifiers map to reviewed native database spellings; this mapping grants no PharmacoDB data-source access. ArrayExpress reverse input remains unsupported despite its useful retained ambiguity witness. Secondary accessions remain deferred.
+
+The additional bounded projected-card capture ran as `j15093` at `bb461bfb88d0bf6f59b8d8ced41b782374af0825`. Its fixed plan is `scripts/cell_line_identity_plan.json`. It requested CVCL_0005, CVCL_0002, CVCL_A794, CVCL_0007 and CVCL_ZZZZ once each, in that order. Every positive reply had to carry the requested primary accession; the U-937 reply had to preserve the complete stock-qualified warning before the final request was admitted. The four positive replies were HTTP 200; the last reply was the expected native HTTP 404 JSON absence. The helper preserved that negative result rather than calling it a successful card. Each request had a 25-second deadline and 8 MiB limit with half-second spacing, no credentials, retries, redirects, fallback or additional query. The original source captures remain unchanged.
+
+Yellow retains `data/biomcp-redux/0258-cell-line-identity/projected-cards.tar.gz`, SHA-256 `8b2c4cbc1ff921f9043817c016b32315decab94448b76a7a28e5f6e8d8ea138b`, with the OWNER and exact job recipe beside it. All 17 archive members and the archive hash were verified on Yellow and against the M5 copy before the owned M5 staging was deleted. The unchanged open-source bodies used by command tests live in the native fixtures; they contain no curation-team answers.
+
+`CellLinePage` and `CellLineCard` carry independent optional release version/update data and an explicit original `fetched` timestamp. The latter labels retrieval time and never supplies a source release. An independent cached `/release-info?format=json` read supplies the publisher release. Its failure retains the useful record, marks a partial command and source failure, and adds a `release` problem. Search totals remain unknown even when release metadata carries dataset counts.
+
+The shared request schema advances to version 22. The changed page and card envelopes advance to version 2. Typed next steps retain the existing argument-array wire format, so the step structure has no wire change. Named section steps parse through the shared grammar; the command admission boundary explicitly refuses them until their section implementations exist. It never substitutes the default card for a requested section.
+
+A parsed `CellosaurusAccession` search uses the exact native `ac` query with explicit `start=0`, as retained in the 0256 witness. Every other search term keeps its literal `idsy` query unchanged. Exact card retrieval uses `get`.
+
+## Measured command output budgets
+
+These are complete compact product envelopes. CLI includes its newline; MCP measures the actual structured result separately. Markdown measures the actual UTF-8 document. Each listed fixture, phase and surface owns its observed size and a ceiling of its own measurement plus 15 percent. Token ceilings are byte ceilings divided by four and rounded up, not tokenizer counts. Ordinary unlisted Rust phases fail; executable YAML steps own their canonical `max_bytes` and `max_tokens`. Retained native search measurements come from `j15131`; the remaining card, reverse, fault, help and research measurements come from `j15136`. `j15127` measured the four executable examples independently and produced their unchanged replay files.
+
+| Owning phase | Surface | Observed bytes | Ceiling bytes | Estimated token ceiling |
+| --- | --- | ---: | ---: | ---: |
+| `help/get` | cli | 1015 | 1168 | 292 |
+| `help/get` | markdown | 940 | 1081 | 271 |
+| `help/get` | mcp | 1014 | 1167 | 292 |
+| `help/search` | cli | 760 | 874 | 219 |
+| `help/search` | markdown | 735 | 846 | 212 |
+| `help/search` | mcp | 759 | 873 | 219 |
+| `native/card/CVCL_0002` | cli | 1873 | 2154 | 539 |
+| `native/card/CVCL_0002` | mcp | 1872 | 2153 | 539 |
+| `native/card/CVCL_0004` | cli | 1863 | 2143 | 536 |
+| `native/card/CVCL_0004` | mcp | 1862 | 2142 | 536 |
+| `native/card/CVCL_0005` | cli | 1848 | 2126 | 532 |
+| `native/card/CVCL_0005` | mcp | 1847 | 2125 | 532 |
+| `native/card/CVCL_0007` | cli | 2077 | 2389 | 598 |
+| `native/card/CVCL_0007` | markdown | 2199 | 2529 | 633 |
+| `native/card/CVCL_0007` | mcp | 2076 | 2388 | 597 |
+| `native/card/CVCL_2119` | cli | 2080 | 2392 | 598 |
+| `native/card/CVCL_2119` | mcp | 2079 | 2391 | 598 |
+| `native/card/CVCL_A794` | cli | 1877 | 2159 | 540 |
+| `native/card/CVCL_A794` | mcp | 1876 | 2158 | 540 |
+| `native/card/CVCL_ZZZZ` | cli | 438 | 504 | 126 |
+| `native/card/CVCL_ZZZZ` | mcp | 437 | 503 | 126 |
+| `native/reverse/ChEMBL:CHEMBL3706573` | cli | 2102 | 2418 | 605 |
+| `native/reverse/ChEMBL:CHEMBL3706573` | mcp | 2101 | 2417 | 605 |
+| `native/reverse/DepMap:ACH-000362` | cli | 2096 | 2411 | 603 |
+| `native/reverse/DepMap:ACH-000362` | mcp | 2095 | 2410 | 603 |
+| `native/search/KG1` | cli | 2724 | 3133 | 784 |
+| `native/search/KG1` | mcp | 2723 | 3132 | 783 |
+| `native/search/MOLM13` | cli | 1589 | 1828 | 457 |
+| `native/search/MOLM13` | markdown | 1620 | 1863 | 466 |
+| `native/search/MOLM13` | mcp | 1588 | 1827 | 457 |
+| `native/search/MV4-semicolon` | cli | 1358 | 1562 | 391 |
+| `native/search/MV4-semicolon` | mcp | 1357 | 1561 | 391 |
+| `native/search/NB4-first` | cli | 5327 | 6127 | 1532 |
+| `native/search/NB4-first` | mcp | 5326 | 6125 | 1532 |
+| `native/search/NB4-second` | cli | 5336 | 6137 | 1535 |
+| `native/search/NB4-second` | mcp | 5335 | 6136 | 1534 |
+| `native/search/empty` | cli | 382 | 440 | 110 |
+| `native/search/empty` | mcp | 381 | 439 | 110 |
+| `research/fetch/CVCL_2119` | mcp | 4461 | 5131 | 1283 |
+| `research/search/MOLM13` | mcp | 1828 | 2103 | 526 |
+| `synthetic/card/429` | cli | 468 | 539 | 135 |
+| `synthetic/card/429` | mcp | 467 | 538 | 135 |
+| `synthetic/card/500` | cli | 467 | 538 | 135 |
+| `synthetic/card/500` | mcp | 466 | 536 | 134 |
+| `synthetic/card/broken` | cli | 465 | 535 | 134 |
+| `synthetic/card/broken` | mcp | 464 | 534 | 134 |
+| `synthetic/card/html` | cli | 465 | 535 | 134 |
+| `synthetic/card/html` | mcp | 464 | 534 | 134 |
+| `synthetic/card/release500` | cli | 2199 | 2529 | 633 |
+| `synthetic/card/release500` | mcp | 2198 | 2528 | 632 |
+| `synthetic/card/timeout` | cli | 473 | 544 | 136 |
+| `synthetic/card/timeout` | mcp | 472 | 543 | 136 |
+| `synthetic/disabled/prime-card` | cli | 2080 | 2392 | 598 |
+| `synthetic/disabled/prime-card` | mcp | 2079 | 2391 | 598 |
+| `synthetic/disabled/warm-card` | cli | 390 | 449 | 113 |
+| `synthetic/disabled/warm-card` | mcp | 389 | 448 | 112 |
+| `synthetic/no-admission/accession/failed` | cli | 465 | 535 | 134 |
+| `synthetic/no-admission/accession/failed` | mcp | 464 | 534 | 134 |
+| `synthetic/no-admission/accession/healthy` | cli | 2080 | 2392 | 598 |
+| `synthetic/no-admission/accession/healthy` | mcp | 2079 | 2391 | 598 |
+| `synthetic/no-admission/bad-version/failed` | cli | 465 | 535 | 134 |
+| `synthetic/no-admission/bad-version/failed` | mcp | 464 | 534 | 134 |
+| `synthetic/no-admission/bad-version/healthy` | cli | 2080 | 2392 | 598 |
+| `synthetic/no-admission/bad-version/healthy` | mcp | 2079 | 2391 | 598 |
+| `synthetic/no-admission/xref/failed` | cli | 489 | 563 | 141 |
+| `synthetic/no-admission/xref/failed` | mcp | 488 | 562 | 141 |
+| `synthetic/no-admission/xref/healthy` | cli | 2096 | 2411 | 603 |
+| `synthetic/no-admission/xref/healthy` | mcp | 2095 | 2410 | 603 |
+| `synthetic/no-admission/zero-version/failed` | cli | 465 | 535 | 134 |
+| `synthetic/no-admission/zero-version/failed` | mcp | 464 | 534 | 134 |
+| `synthetic/no-admission/zero-version/healthy` | cli | 2080 | 2392 | 598 |
+| `synthetic/no-admission/zero-version/healthy` | mcp | 2079 | 2391 | 598 |
+| `synthetic/reverse/ambiguous-DepMap` | cli | 4732 | 5442 | 1361 |
+| `synthetic/reverse/ambiguous-DepMap` | mcp | 4731 | 5441 | 1361 |
+| `synthetic/search/429` | cli | 381 | 439 | 110 |
+| `synthetic/search/429` | mcp | 380 | 437 | 110 |
+| `synthetic/search/500` | cli | 380 | 437 | 110 |
+| `synthetic/search/500` | mcp | 379 | 436 | 109 |
+| `synthetic/search/broken` | cli | 378 | 435 | 109 |
+| `synthetic/search/broken` | mcp | 377 | 434 | 109 |
+| `synthetic/search/html` | cli | 378 | 435 | 109 |
+| `synthetic/search/html` | mcp | 377 | 434 | 109 |
+| `synthetic/search/timeout` | cli | 386 | 444 | 111 |
+| `synthetic/search/timeout` | mcp | 385 | 443 | 111 |
+
+| Executable YAML step | CLI bytes | MCP bytes | Canonical byte ceiling | Estimated token ceiling |
+| --- | ---: | ---: | ---: | ---: |
+| `cell-line/examples.yaml` step 1 | 1589 | 1588 | 1828 | 457 |
+| `cell-line/examples.yaml` step 2 | 1358 | 1357 | 1562 | 391 |
+| `cell-line/examples.yaml` step 3 | 2080 | 2079 | 2392 | 598 |
+| `cell-line/examples.yaml` step 4 | 1863 | 1862 | 2143 | 536 |
+
+The focused discovery check in `j15137` measured whole-tree CLI help at 84,770 bytes including its newline. The compact MCP tools/list RPC reply was 7,713 bytes and its main-tool description was 3,129 bytes; all remain within existing shared limits. The source enum array was 673 compact bytes and the printed schema was 3,670 bytes, within their existing limits. Entity search help was 760 CLI bytes, 759 MCP bytes and 672 bytes for the bare Help result; get help was 1,015, 1,014 and 930 respectively. Help has no source-term subtraction. The owning table above uses the complete envelopes, with separate actual Markdown measurements. The preserved-recording example replay passed with the explicit `--query` alias; no recording was repeated.
+
+The restored checked canonical-accession branch was measured independently in `j15149`: `native/search/accession-CVCL_0005` returned 1,358 CLI bytes including newline and 1,357 MCP bytes. Its separate ceilings are 1,562 and 1,561 bytes (391 estimated tokens each), with the same 15 percent headroom. It uses the unchanged exact 0256 `ac` witness; no provider call or completed literal-search measurement was repeated.

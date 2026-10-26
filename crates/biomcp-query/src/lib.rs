@@ -43,3 +43,6 @@ pub mod protein;
 
 /// Checked native GWAS association search.
 pub mod gwas;
+
+/// Literal Cellosaurus discovery and exact cell identity.
+pub mod cell_line;

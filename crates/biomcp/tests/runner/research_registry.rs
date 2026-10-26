@@ -23,12 +23,8 @@ pub(super) fn check() -> Result<(), String> {
             continue;
         }
         // Pair-level guideline links do not identify a fetchable CPIC pair record.
-        // Cell line Page/Card are standalone contracts until 0258 registers commands.
         // CellLineIdentityPage is section metadata, not a research search result.
-        if matches!(
-            name,
-            "PgxPage" | "CellLinePage" | "CellLineCard" | "CellLineIdentityPage"
-        ) {
+        if matches!(name, "PgxPage" | "CellLineIdentityPage") {
             continue;
         }
         if name == "PathwayCard" {
@@ -225,6 +221,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
         "StudyPage" | "StudyCard" => Some(Source::Cbioportal),
         "PgxCard" => Some(Source::Cpic),
+        "CellLinePage" | "CellLineCard" => Some(Source::Cellosaurus),
         "GwasPage" | "GwasAssociationCard" => Some(Source::Gwas),
         "DrugWhoPage" | "DrugWhoCard" => Some(Source::WhoPq),
         _ => match row
@@ -265,7 +262,9 @@ fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
         .strip_prefix("biomcp.")
         .and_then(|v| v.split(['_', '-']).next())
         .unwrap_or_default();
-    let entity = if entity == "adverse" {
+    let entity = if id.starts_with("biomcp.cell_line_") {
+        "cell-line"
+    } else if entity == "adverse" {
         "adverse-event"
     } else if entity == "nci" {
         "trial"

@@ -69,6 +69,12 @@ impl TryFrom<SearchFields> for CellLineSearch {
     }
 }
 impl CellLineSearch {
+    /// Preserve the literal query and page size on continuation.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
+    }
     /// Literal checked search text.
     pub fn query(&self) -> &Text {
         &self.0.query
@@ -125,6 +131,20 @@ impl TryFrom<GetFields> for CellLineGet {
     }
 }
 impl CellLineGet {
+    /// Exact primary accession with default disclosure.
+    pub fn accession(id: CellosaurusAccession) -> Self {
+        Self(GetFields {
+            id: CellLineInput::Accession(id),
+            section: None,
+            section_limit: None,
+            section_offset: 0,
+        })
+    }
+    /// Select a named disclosure without changing identity.
+    pub fn with_section(mut self, section: CellLineSection) -> Self {
+        self.0.section = Some(section);
+        self
+    }
     /// Caller identity without normalization.
     pub fn id(&self) -> &CellLineInput {
         &self.0.id
