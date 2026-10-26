@@ -33,9 +33,15 @@ pub(super) fn loci(rows: &[GwasLocus], out: &mut Outcome) {
     for gene in rows.iter().flat_map(|r| &r.author_reported_genes) {
         for id in gene.ensembl_ids.iter().chain(&gene.entrez_ids) {
             let input = if id.as_str().bytes().all(|b| b.is_ascii_digit()) {
-                id.as_str().parse::<biodata::NcbiGeneId>().ok().map(|id| id.to_string())
+                id.as_str()
+                    .parse::<biodata::NcbiGeneId>()
+                    .ok()
+                    .map(|id| id.to_string())
             } else {
-                id.as_str().parse::<biodata::EnsemblGeneId>().ok().map(|id| id.to_string())
+                id.as_str()
+                    .parse::<biodata::EnsemblGeneId>()
+                    .ok()
+                    .map(|id| id.to_string())
             };
             let Some(input) = input else { continue };
             if seen.insert(input.clone())

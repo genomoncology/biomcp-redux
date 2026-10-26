@@ -43,8 +43,12 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
-        Body::GwasAssociation(_) | Body::GwasStudy(_) | Body::GwasLoci(_) | Body::GwasAncestries(_)
-        | Body::GwasPage(_) | Body::PathwayEvents(_) => Navigation::NativeOrder,
+        Body::GwasAssociation(_)
+        | Body::GwasStudy(_)
+        | Body::GwasLoci(_)
+        | Body::GwasAncestries(_)
+        | Body::GwasPage(_)
+        | Body::PathwayEvents(_) => Navigation::NativeOrder,
         Body::PathwayCard(card) => pathway_navigation(card.as_ref()),
         Body::ProteinPage(_) => Navigation::Selectable,
         Body::ProteinFeatures(_)
@@ -52,7 +56,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::ProteinStructures(_)
         | Body::ProteinSequence(_) => Navigation::Bounded,
         Body::ProteinCard(card) => protein_navigation(card),
-        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => Navigation::Bounded,
+        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
+            Navigation::Bounded
+        }
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
         Body::PhenotypeCard(_)
         | Body::PhenotypeSynonyms(_)
@@ -223,7 +229,9 @@ fn append_network_steps(
 fn pathway_navigation(card: Option<&biomcp_types::PathwayCard>) -> Navigation<'_> {
     if card.is_some_and(|card| card.events.is_some() && card.genes.is_none()) {
         Navigation::NativeOrder
-    } else { Navigation::Bounded }
+    } else {
+        Navigation::Bounded
+    }
 }
 fn protein_navigation(card: &biomcp_types::ProteinCard) -> Navigation<'_> {
     candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))

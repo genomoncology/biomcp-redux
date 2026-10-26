@@ -53,11 +53,7 @@
     }
   },
   "required": [
-    "id",
-    "section",
-    "section_limit",
-    "section_offset",
-    "snapshot"
+    "id"
   ],
   "title": "GwasGetCommand",
   "type": "object"

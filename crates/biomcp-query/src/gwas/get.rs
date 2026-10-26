@@ -51,8 +51,17 @@ pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
     {
         out.next.push((StepKind::Fresh, action(q.restart(), true)));
     }
-    if matches!(q, GwasGet::Study { section: Some(GwasStudySection::Ancestries), .. })
-        && out.sources.iter().any(|s| s.reason == Some(Reason::TooLarge)) {
+    if matches!(
+        q,
+        GwasGet::Study {
+            section: Some(GwasStudySection::Ancestries),
+            ..
+        }
+    ) && out
+        .sources
+        .iter()
+        .any(|s| s.reason == Some(Reason::TooLarge))
+    {
         problem(&mut out, "ancestries", ProblemCode::CollectionIncomplete);
     }
     command.finish(deadline.remaining());
@@ -196,38 +205,44 @@ fn page<T: Clone>(q: &GwasGet, rows: &[T], out: &mut Outcome) -> (Box<[T]>, Opti
     (items, continuation)
 }
 
-fn associations(q: &GwasGet, id: &biodata::GwasStudyId, window: &GwasSectionPage, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), RequestError> {
-            let selector = GwasSearch::study_page(id.clone(), window);
-            let rows = gwas::search(leg, &selector)?;
-            let items: Box<[_]> = rows
-                .rows
-                .into_iter()
-                .skip((window.offset() % window.limit()) as usize)
-                .map(map::association)
-                .collect();
-            let returned = items.len() as u32;
-            let continuation = (returned > 0
-                && u64::from(window.offset()) + u64::from(returned) < rows.total)
-                .then(|| {
-                    GwasPageQuery::Get(
-                        q.with_page(window.at_offset(window.offset().saturating_add(returned))),
-                    )
-                });
-            out.page = Some(PageInfo {
-                offset: window.offset(),
-                returned,
-                total: rows.total,
-                pool: None,
-                truncated: None,
-            });
-            if let Some(GwasPageQuery::Get(q)) = &continuation {
-                out.next.push((StepKind::Page, action(q.clone(), false)));
-            }
-            out.body = QueryBody::GwasPage(Some(GwasPage {
-                items,
-                page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?,
-                qualifying_total: None,
-                continuation,
-            }));
+fn associations(
+    q: &GwasGet,
+    id: &biodata::GwasStudyId,
+    window: &GwasSectionPage,
+    leg: &Leg<'_>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let selector = GwasSearch::study_page(id.clone(), window);
+    let rows = gwas::search(leg, &selector)?;
+    let items: Box<[_]> = rows
+        .rows
+        .into_iter()
+        .skip((window.offset() % window.limit()) as usize)
+        .map(map::association)
+        .collect();
+    let returned = items.len() as u32;
+    let continuation = (returned > 0
+        && u64::from(window.offset()) + u64::from(returned) < rows.total)
+        .then(|| {
+            GwasPageQuery::Get(
+                q.with_page(window.at_offset(window.offset().saturating_add(returned))),
+            )
+        });
+    out.page = Some(PageInfo {
+        offset: window.offset(),
+        returned,
+        total: rows.total,
+        pool: None,
+        truncated: None,
+    });
+    if let Some(GwasPageQuery::Get(q)) = &continuation {
+        out.next.push((StepKind::Page, action(q.clone(), false)));
+    }
+    out.body = QueryBody::GwasPage(Some(GwasPage {
+        items,
+        page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?,
+        qualifying_total: None,
+        continuation,
+    }));
     Ok(())
 }

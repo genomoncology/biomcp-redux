@@ -46,7 +46,9 @@ pub(super) fn run() -> Result<(), String> {
     if stub.finish()?.len() != inputs.len() {
         return Err("native seed request count differs".into());
     }
-    for input in &inputs { measure(&root, &recordings, &output, input)?; }
+    for input in &inputs {
+        measure(&root, &recordings, &output, input)?;
+    }
     walks(&root, &recordings)?;
 
     Ok(())
@@ -73,64 +75,82 @@ fn target(url: &str) -> String {
 }
 
 fn measure(root: &Path, recordings: &Path, output: &Path, input: &Value) -> Result<(), String> {
-        let args = words(&input["args"])?;
-        let name = input["name"].as_str().ok_or("case name")?;
-        let path = root.join(format!("{name}.yaml"));
-        let mut step = json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":20000,"max_tokens":5000});
-        let budgets: Value = serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../tests/gwas-get-budgets.json"
-        )))
-        .map_err(|e| e.to_string())?;
-        if let Some(comparable) = budgets
-            .get(name)
-            .and_then(|v| v.get(1))
-            .and_then(Value::as_u64)
-        {
-            *step.get_mut("max_bytes").ok_or("byte ceiling")? = json!(((comparable + 1) * 115).div_ceil(100));
-            *step.get_mut("max_tokens").ok_or("token ceiling")? = json!(((comparable + 1) * 115).div_ceil(400));
-        }
-        fs::write(
-            &path,
-            json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[step]})
-                .to_string(),
-        )
-        .map_err(|e| e.to_string())?;
-        let value = super::super::run_case(&path, &super::super::schema::Registry::embedded()?)?;
-        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
-        let comparable = super::super::source_terms::size(&value, "")?;
-        if let Some(measured) = budgets
-            .get(name)
-            .and_then(|v| v.get(0))
-            .and_then(Value::as_u64)
-            && full as u64 > (measured * 115).div_ceil(100)
-        {
-            return Err(format!("{name} full ceiling"));
-        }
-        fs::write(output.join(format!("{name}.json")), value.to_string())
-            .map_err(|e| e.to_string())?;
-        writeln!(
-            std::io::stdout(),
-            "GWAS get {name}: CLI={full}, MCP={}, comparable={comparable}, tokens={}",
-            full - 1,
-            comparable.div_ceil(4)
-        )
-        .map_err(|e| e.to_string())?;
+    let args = words(&input["args"])?;
+    let name = input["name"].as_str().ok_or("case name")?;
+    let path = root.join(format!("{name}.yaml"));
+    let mut step =
+        json!({"run":args,"mcp":args,"expect":input["expect"],"max_bytes":20000,"max_tokens":5000});
+    let budgets: Value = serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../tests/gwas-get-budgets.json"
+    )))
+    .map_err(|e| e.to_string())?;
+    if let Some(comparable) = budgets
+        .get(name)
+        .and_then(|v| v.get(1))
+        .and_then(Value::as_u64)
+    {
+        *step.get_mut("max_bytes").ok_or("byte ceiling")? =
+            json!(((comparable + 1) * 115).div_ceil(100));
+        *step.get_mut("max_tokens").ok_or("token ceiling")? =
+            json!(((comparable + 1) * 115).div_ceil(400));
+    }
+    fs::write(
+        &path,
+        json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[step]}).to_string(),
+    )
+    .map_err(|e| e.to_string())?;
+    let value = super::super::run_case(&path, &super::super::schema::Registry::embedded()?)?;
+    let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+    let comparable = super::super::source_terms::size(&value, "")?;
+    if let Some(measured) = budgets
+        .get(name)
+        .and_then(|v| v.get(0))
+        .and_then(Value::as_u64)
+        && full as u64 > (measured * 115).div_ceil(100)
+    {
+        return Err(format!("{name} full ceiling"));
+    }
+    fs::write(output.join(format!("{name}.json")), value.to_string()).map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "GWAS get {name}: CLI={full}, MCP={}, comparable={comparable}, tokens={}",
+        full - 1,
+        comparable.div_ceil(4)
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 
 fn walks(root: &Path, recordings: &Path) -> Result<(), String> {
     for (name, args, count, identity) in [
-        ("study-walk", vec!["get", "gwas", "GCST000035", "associations"], 6, "/result/items/*/id"),
-        ("ancestry-walk", vec!["get", "gwas", "GCST000035", "ancestries", "--section-limit", "1"], 3, "/result/items/*/source_url"),
+        (
+            "study-walk",
+            vec!["get", "gwas", "GCST000035", "associations"],
+            6,
+            "/result/items/*/id",
+        ),
+        (
+            "ancestry-walk",
+            vec![
+                "get",
+                "gwas",
+                "GCST000035",
+                "ancestries",
+                "--section-limit",
+                "1",
+            ],
+            3,
+            "/result/items/*/source_url",
+        ),
     ] {
-        let path=root.join(format!("{name}.yaml"));
-        let mut expected=serde_json::Map::new();
-        expected.insert("/result/items".into(),json!({"count":count}));
-        expected.insert(identity.into(),json!({"unique":true}));
+        let path = root.join(format!("{name}.yaml"));
+        let mut expected = serde_json::Map::new();
+        expected.insert("/result/items".into(), json!({"count":count}));
+        expected.insert(identity.into(), json!({"unique":true}));
         fs::write(&path,json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[{
             "run":args,"mcp":args,"walk":{"items":"/result/items","max_pages":3},"expect":expected}]}).to_string()).map_err(|e|e.to_string())?;
-        super::super::run_case(&path,&super::super::schema::Registry::embedded()?)?;
+        super::super::run_case(&path, &super::super::schema::Registry::embedded()?)?;
     }
     Ok(())
 }
