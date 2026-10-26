@@ -68,9 +68,16 @@ pub(super) fn run() -> Check {
 fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &[String]) -> Check {
     let mut ids = Vec::new();
     let mut joins = Vec::new();
+    let (revision, data_nodes) = match id {
+        "WP382" => ("WP382_r140476", 263),
+        "WP100" => ("WP100_r141191", 69),
+        _ => return Err(format!("Unexpected retained pathway {id}")),
+    };
     loop {
         if value.pointer("/result/page/total") != Some(&json!(count))
             || value.pointer("/result/page/total_kind") != Some(&json!("data_nodes"))
+            || value.pointer("/result/header/revision") != Some(&json!(revision))
+            || value.pointer("/result/physical_entities") != Some(&json!(data_nodes))
         {
             return Err(format!("Native count provenance changed: {value}"));
         }
@@ -112,15 +119,16 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
         return Err(format!("Native walk lost or reordered source nodes: {}", ids.len()));
     }
     if id == "WP382" {
-        for (namespace, native) in [
-            ("Entrez Gene", "7189"),
-            ("Ensembl", "ENSG00000158711"),
-            ("HGNC", "CACNG3"),
+        for (namespace, native, hgnc) in [
+            ("Entrez Gene", "7189", "HGNC:12036"),
+            ("Ensembl", "ENSG00000158711", "HGNC:3326"),
+            ("HGNC", "CACNG3", "HGNC:1407"),
         ] {
-            if !joins.iter().any(|(reference, _)| {
+            if !joins.iter().any(|(reference, gene)| {
                 reference["namespace"] == namespace && reference["value"] == native
+                    && gene == &json!(hgnc)
             }) {
-                return Err(format!("Missing exact native join {namespace}:{native}"));
+                return Err(format!("Missing exact native join {namespace}:{native} to {hgnc}"));
             }
         }
     }

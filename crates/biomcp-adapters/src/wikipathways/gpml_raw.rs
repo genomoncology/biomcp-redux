@@ -86,7 +86,8 @@ impl Reply for Document {
         let mut ids = BTreeSet::new();
         for node in &self.nodes {
             if let Some(id) = &node.id {
-                if biodata::Text::new(id).is_err() || !ids.insert(id) {
+                let checked = biodata::Text::new(id).map_err(|_| BadReply)?;
+                if checked.as_str() != id || !ids.insert(id) {
                     return Err(BadReply);
                 }
             }

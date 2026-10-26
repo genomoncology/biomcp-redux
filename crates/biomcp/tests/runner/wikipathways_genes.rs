@@ -194,6 +194,7 @@ fn failures() -> Check {
         "entity",
         "namespace",
         "duplicate",
+        "padded-id-collision",
         "node-bound",
         "oversized",
         "429",
@@ -247,6 +248,7 @@ fn failed_body(mode: &str) -> String {
             ),
             "namespace" => gpml().replace("<Xref", "<Xref xmlns=\"urn:foreign\""),
             "duplicate" => gpml().replace("GraphId=\"n1\"", "GraphId=\"n0\""),
+            "padded-id-collision" => gpml().replace("GraphId=\"n1\"", "GraphId=\" n0 \""),
             "node-bound" => {
                 gpml().replace("</Pathway>", &("<Unknown/>".repeat(100_001) + "</Pathway>"))
             }
