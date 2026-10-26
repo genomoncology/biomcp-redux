@@ -124,3 +124,46 @@ impl GwasGet {
     /// Restart the same relation without a retained reply.
     pub fn restart(&self) -> Self { self.with_page(GwasSectionPage(PageFields { section_limit: self.page().limit(), section_offset: 0, snapshot: None })) }
 }
+
+/// Exact association request fields for the shared tagged request union.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasAssociationGet {
+    /// Qualified source association identity.
+    pub id: GwasAssociationId,
+    /// Association-only relation selector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section: Option<GwasAssociationSection>,
+    /// Independent checked relation window.
+    #[serde(flatten)]
+    pub page: GwasSectionPage,
+}
+/// Exact study request fields for the shared tagged request union.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasStudyGet {
+    /// Exact Catalog accession.
+    pub id: GwasStudyId,
+    /// Study-only relation selector.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section: Option<GwasStudySection>,
+    /// Independent checked relation window.
+    #[serde(flatten)]
+    pub page: GwasSectionPage,
+}
+impl From<GwasAssociationGet> for GwasGet {
+    fn from(q: GwasAssociationGet) -> Self { Self::Association { id: q.id, section: q.section, page: q.page } }
+}
+impl From<GwasStudyGet> for GwasGet {
+    fn from(q: GwasStudyGet) -> Self { Self::Study { id: q.id, section: q.section, page: q.page } }
+}
+impl From<GwasGet> for crate::Request {
+    fn from(q: GwasGet) -> Self {
+        match q {
+            GwasGet::Association { id, section, page } => Self::GetGwasAssociation(GwasAssociationGet { id, section, page }),
+            GwasGet::Study { id, section, page } => Self::GetGwasStudy(GwasStudyGet { id, section, page }),
+        }
+    }
+}

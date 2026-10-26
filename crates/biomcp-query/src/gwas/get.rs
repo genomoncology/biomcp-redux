@@ -85,7 +85,7 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
     if out.status != Status::Partial { out.status = Status::Complete; }
     Ok(())
 }
-fn action(q: GwasGet, fresh: bool) -> Action { Action::Run { request: Request::GetGwas(q), fresh } }
+fn action(q: GwasGet, fresh: bool) -> Action { Action::Run { request: q.into(), fresh } }
 fn problem(out: &mut Outcome, field: &str, code: ProblemCode) {
     out.problems.push(Problem { source: Source::Gwas, record: None, field: field.into(), code });
 }

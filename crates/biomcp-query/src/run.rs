@@ -71,7 +71,8 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
-        Request::GetGwas(q) => crate::gwas::get(cx, q),
+        Request::GetGwasAssociation(q) => crate::gwas::get(cx, &q.clone().into()),
+        Request::GetGwasStudy(q) => crate::gwas::get(cx, &q.clone().into()),
         Request::SearchGwas(q) => crate::gwas::search(cx, q),
         Request::ProteinFeatures(q) => crate::protein::features(cx, q),
         Request::ProteinIsoforms(q) => crate::protein::isoforms(cx, q),
