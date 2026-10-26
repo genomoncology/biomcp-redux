@@ -2,6 +2,7 @@
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
 use quick_xml::{Reader, events::{BytesStart, Event}};
 use serde::Deserialize;
+use std::collections::BTreeSet;
 
 pub(super) const MAX_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_NODES: usize = 100_000;
@@ -22,6 +23,8 @@ pub(super) struct Node {
     pub label: Option<String>,
     pub namespace: Option<String>,
     pub value: Option<String>,
+    #[serde(skip)]
+    xref_seen: bool,
 }
 fn attribute(tag: &BytesStart<'_>, key: &[u8]) -> Result<Option<String>, BadReply> {
     let mut found = None;
@@ -64,6 +67,18 @@ impl Document {
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
         if self.nodes.len() > MAX_NODES { return Err(BadReply); }
+        let mut ids = BTreeSet::new();
+        for node in &self.nodes {
+            if let Some(id) = &node.id {
+                if biodata::Text::new(id).is_err() || !ids.insert(id) { return Err(BadReply); }
+            }
+            if node.kind.as_deref() == Some("GeneProduct") {
+                let value = node.value.as_deref().ok_or(BadReply)?;
+                let checked = biodata::Text::new(value).map_err(|_| BadReply)?;
+                if checked.as_str() != value { return Err(BadReply); }
+                if let Some(label) = &node.label { biodata::Text::new(label).map_err(|_| BadReply)?; }
+            }
+        }
         Ok(())
     }
 }
@@ -114,10 +129,11 @@ fn read_child(tag: &BytesStart<'_>, depth: usize, node: &mut Option<Node>) -> Re
     if depth == 1 && tag.name().as_ref() == b"DataNode" {
         *node = Some(Node {
             kind: attribute(tag, b"Type")?, id: attribute(tag, b"GraphId")?,
-            label: attribute(tag, b"TextLabel")?, namespace: None, value: None,
+            label: attribute(tag, b"TextLabel")?, namespace: None, value: None, xref_seen: false,
         });
     } else if depth == 2 && tag.name().as_ref() == b"Xref" && let Some(node) = node {
-        if node.namespace.is_some() || node.value.is_some() { return Err(BadReply); }
+        if node.xref_seen { return Err(BadReply); }
+        node.xref_seen = true;
         node.namespace = attribute(tag, b"Database")?;
         node.value = attribute(tag, b"ID")?;
     }
