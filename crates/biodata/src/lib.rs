@@ -115,3 +115,6 @@ pub use pathway::{
     PathwayParticipant, PathwayRef, PathwaySourceRef, PathwaySpecies, PathwaySummation, ReactomeId,
     ReactomeIdInvalid, WikiPathwaysId,
 };
+
+mod study;
+pub use study::*;

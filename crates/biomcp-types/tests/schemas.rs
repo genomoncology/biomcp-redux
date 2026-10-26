@@ -162,12 +162,23 @@ fn registry() -> Vec<Contract> {
     contracts.extend(article_registry());
     contracts.extend(research_registry());
     contracts.extend(disease::registry());
+    contracts.extend(study_registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
     contracts.extend(trial_contracts());
     contracts.extend(drug_contracts());
     contracts
 }
+fn study_registry() -> Vec<Contract> {
+    contracts! {
+        Envelope<StudyPage> => ("study-page", "biomcp.study_page/1"),
+        Envelope<StudyCard> => ("study-card", "biomcp.study_card/1"),
+        Envelope<StudyProfiles> => ("study-profiles", "biomcp.study_profiles/1"),
+        Envelope<StudySampleLists> => ("study-sample-lists", "biomcp.study_sample_lists/1"),
+        Envelope<StudyFiles> => ("study-files", "biomcp.study_files/1"),
+    }
+}
+
 fn adverse_event_contracts() -> Vec<Contract> {
     contracts! {
         PgxSearch => ("pgx-search", "biomcp.pgx-search/2"),

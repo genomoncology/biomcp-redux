@@ -188,3 +188,6 @@ pub use response::{
     PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayPage, PathwayPageInfo,
     PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
 };
+
+mod study;
+pub use study::*;
