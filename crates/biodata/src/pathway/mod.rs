@@ -59,6 +59,9 @@ pub struct PathwayMember {
     /// Native label, never interpreted as a gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,
+    /// Native reference URL, including therapeutic references without a drug action.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_url: Option<Text>,
     /// Exact resolved gene identifier, absent when no checked join exists.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gene: Option<HgncId>,

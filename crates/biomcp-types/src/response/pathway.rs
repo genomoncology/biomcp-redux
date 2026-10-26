@@ -26,7 +26,8 @@ biodata::wire_enum! {
     /// Meaning of the collection total, independent of admitted rows on a page.
     PathwayTotalKind {
         #[doc = "Native source-reported total before exact page admission."] Source => "source",
-        #[doc = "Number of observed members in the retained relation."] Observed => "observed"
+        #[doc = "Number of observed members in the retained relation."] Observed => "observed",
+        #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct_references"
     }
 }
 /// Native page position and explicit count provenance; a short admitted page can continue.
@@ -86,7 +87,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway_card/2";
+    const SCHEMA: &'static str = "biomcp.pathway_card/3";
     type Query = PathwayGet;
 }
 macro_rules! relation_page {
@@ -109,12 +110,26 @@ macro_rules! relation_page {
         }
     };
 }
-relation_page!(
-    PathwayGenes,
-    PathwayMember,
-    PathwayGenesQuery,
-    "biomcp.pathway_genes/1"
-);
+/// Independent source-ordered distinct membership references and their observed counts.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwayGenes {
+    /// Exact source pathway owning this relation.
+    pub header: PathwayHeader,
+    /// Distinct namespaced source references in first occurrence order.
+    pub items: Box<[PathwayMember]>,
+    /// Distinct-reference total and continuation.
+    pub page: PathwayPageInfo,
+    /// All reference occurrences across physical entities before distinct-reference grouping.
+    pub reference_occurrences: u64,
+    /// All native physical entities, never described as gene counts.
+    pub physical_entities: u64,
+}
+impl ResponseBody for PathwayGenes {
+    const SCHEMA: &'static str = "biomcp.pathway_genes/2";
+    type Query = PathwayGenesQuery;
+}
 relation_page!(
     PathwayEvents,
     PathwayEventRef,

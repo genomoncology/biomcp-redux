@@ -9,6 +9,9 @@ use std::time::Duration;
 mod discovery;
 mod map;
 mod raw;
+mod relation_raw;
+mod relations;
+pub use relations::{Members, members, events};
 pub use discovery::{Page, card, release, search, top_level};
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {

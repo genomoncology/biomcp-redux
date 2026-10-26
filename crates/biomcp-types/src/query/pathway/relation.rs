@@ -42,6 +42,22 @@ macro_rules! relation {
             }
         }
         impl $name {
+            /// Start an exact source relation with a checked page size.
+            pub fn new(id: PathwayId, limit: u32) -> Result<Self, QueryInvalid> {
+                Self::try_from(RelationFields { id, limit, offset: 0, pool: None })
+            }
+            /// Retain the same immutable relation on subsequent pages.
+            pub fn with_pool(mut self, pool: Text) -> Self {
+                self.0.pool = Some(pool);
+                self
+            }
+            /// Restart this exact relation at its first page.
+            pub fn restart(&self) -> Self {
+                let mut value = self.clone();
+                value.0.offset = 0;
+                value.0.pool = None;
+                value
+            }
             /// Checked source identity owning this relation.
             pub fn id(&self) -> &PathwayId {
                 &self.0.id

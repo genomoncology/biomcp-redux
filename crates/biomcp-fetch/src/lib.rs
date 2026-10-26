@@ -5,6 +5,7 @@ pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
 mod batch;
 mod bundle;
 mod cache;
+mod cache_hgnc;
 mod cache_access;
 mod cleanup;
 pub use cache_access::CacheAccess;

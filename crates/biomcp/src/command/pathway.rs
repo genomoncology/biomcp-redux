@@ -25,10 +25,6 @@ pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
             ..
         } => {
             !matches!(q.id(), biodata::PathwayId::Reactome(_))
-                || !matches!(
-                    q.section(),
-                    None | Some(biomcp_types::PathwaySection::Summary)
-                )
         }
         _ => false,
     }
