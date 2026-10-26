@@ -6,6 +6,7 @@ mod drug;
 mod drug_label;
 mod pgx;
 mod steps;
+mod store;
 mod variant;
 
 use biomcp_query::{Action, Bundle};
@@ -163,6 +164,7 @@ fn execute(
                 crate::exit::Status::Success,
             )
         }
+        Action::StoreClean => store::clean(fetch),
         Action::Health => health(fetch),
         Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
@@ -367,7 +369,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             word => break word,
         }
     };
-    let mut error = if matches!(root, Some("sync" | "key"))
+    let mut error = if matches!(root, Some("sync" | "key" | "store"))
         || root.is_some_and(|root| {
             crate::grammar::QUERIES
                 .iter()

@@ -18,6 +18,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::QueryHelp(request) => Ok(std::iter::once("help".into())
             .chain(command_words(request))
             .collect()),
+        Action::StoreClean => Ok(vec!["store".into(), "clean".into()]),
         Action::Health => Ok(vec!["health".into()]),
         Action::KeyHelp(source) => Ok(vec!["help".into(), "key".into(), source.to_string()]),
         Action::Sync { bundle } => Ok(vec![

@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
+mod local;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx"];
 
@@ -170,9 +171,14 @@ fn root() -> Result<Command, ()> {
         "hgnc", "clingen", "ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx",
     ])));
     root = root.subcommand(Command::new("health"));
+    root = root.subcommand(
+        Command::new("store")
+            .subcommand_required(true)
+            .subcommand(Command::new("clean")),
+    );
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(help_command());
-    Ok(root.subcommand(serve_command()))
+    Ok(root.subcommand(local::serve_command()))
 }
 fn help_command() -> Command {
     let mut help = Command::new("help")
@@ -190,6 +196,11 @@ fn help_command() -> Command {
                     .value_parser(crate::keys::names()),
             ),
         );
+    help = help.subcommand(
+        Command::new("store")
+            .subcommand_required(true)
+            .subcommand(Command::new("clean")),
+    );
     let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
     for (verb, entity, _) in QUERIES
         .iter()
@@ -205,21 +216,6 @@ fn help_command() -> Command {
         help = help.subcommand(command);
     }
     help
-}
-fn serve_command() -> Command {
-    Command::new("serve")
-        .arg(
-            Arg::new("http")
-                .long("http")
-                .num_args(0..=1)
-                .default_missing_value("127.0.0.1:8080"),
-        )
-        .arg(
-            Arg::new("allow-host")
-                .long("allow-host")
-                .action(ArgAction::Append)
-                .requires("http"),
-        )
 }
 
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -258,7 +254,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         });
     }
     let help = help_path(verb, matches)?;
-    let action = if verb == "health" {
+    let action = if verb == "store" {
+        Action::StoreClean
+    } else if verb == "health" {
         Action::Health
     } else if verb == "help" {
         let source = matches
