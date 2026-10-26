@@ -144,6 +144,14 @@ fn invalid(env: &Environment, replay: &Path) -> Result<(), String> {
     ] {
         let args = [vec!["search", "gwas"], tail].concat();
         let value = call(env, replay, &args, 2)?;
+        if args.contains(&"--p-value")
+            && value.pointer("/error/message")
+                != Some(&json!(
+                    "--p-value is not yet supported; threshold filtering is deferred"
+                ))
+        {
+            return Err(format!("missing deferred threshold explanation: {value}"));
+        }
         if value.get("sources").is_some() {
             return Err("invalid selector reached source".into());
         }

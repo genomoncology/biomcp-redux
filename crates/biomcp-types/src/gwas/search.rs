@@ -30,7 +30,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "RsId"))]
     variant: Option<RsId>,
-    /// Literal native efo_trait label; never reported-trait prose.
+    /// Literal native efo_trait label; never searches reported_trait prose.
     #[serde(
         default,
         deserialize_with = "crate::query::present",

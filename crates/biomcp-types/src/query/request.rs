@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Search one native GWAS Catalog association page.
+    SearchGwas(crate::GwasSearch),
     /// Discover reviewed human UniProt candidates without selecting one.
     SearchProtein(crate::ProteinSearch),
     /// Read exact protein cards or all HGNC-listed protein candidates.

@@ -65,6 +65,8 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native GWAS association page, absent after failure.
+    GwasPage(Option<crate::GwasPage>),
     /// Native reviewed-human protein headers.
     ProteinPage(crate::ProteinPage),
     /// Caller-ordered exact protein cards and unselected candidates.

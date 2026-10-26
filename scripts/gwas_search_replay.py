@@ -63,9 +63,19 @@ def case(root, name, url, body, expected_ids=None):
     record(root, url, body)
     step = {'run': args, 'mcp': args, 'expect': expect, 'max_bytes': 50000}
     if name == 'pubmed-second':
-        expect['/result/items/2/alleles/0/rs_id'] = 'rs981782'
+        expect.update({'/result/items/2/alleles/0/rs_id':'rs981782',
+                       '/result/items/0/traits':['Breast cancer'],
+                       '/result/items/0/ontology_traits':[{'id':'MONDO_0004989','label':'breast carcinoma'}],
+                       '/result/items/0/alleles':[{'rs_id':'rs13281615','allele':'C'}],
+                       '/result/items/0/exact_p_value':{'equals':{'mantissa':'5','exponent':-12}},
+                       '/result/items/0/beta':'-', '/result/items/0/interval':'[1.05-1.11]',
+                       '/result/items/0/risk_frequency':'0.40'})
     if name == 'tomlinson':
-        expect['/result/items/0/odds_ratio'] = 1.27
+        expect.update({'/result/items/0/odds_ratio':1.27, '/result/items/0/traits':['Colorectal cancer'],
+                       '/result/items/0/alleles':[{'rs_id':'rs6983267','allele':'G'}],
+                       '/result/items/0/exact_p_value':{'equals':{'mantissa':'1','exponent':-14}},
+                       '/result/items/0/beta':'-', '/result/items/0/interval':'[1.16-1.39]',
+                       '/result/items/0/risk_frequency':'0.49'})
     # Projection ceilings are starting measurements, not claims about shipped output.
     write(root / 'fixtures/gwas-native-cases' / (name + '.yaml'), {
         'feature': 'gwas-search', 'live_check': 'retained restricted source replies outside Git',

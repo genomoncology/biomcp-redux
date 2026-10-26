@@ -1,7 +1,6 @@
 //! One source-order navigation policy for an association page.
 use crate::Action;
 use biomcp_types::{GwasPageQuery, GwasSearch, Request, StepKind};
-use serde::de::DeserializeOwned;
 use serde_json::json;
 type Steps = Vec<(StepKind, Action)>;
 pub(super) fn search(
@@ -25,12 +24,12 @@ pub(super) fn search(
     for row in rows {
         let mut requests = Vec::new();
         for allele in &row.alleles {
-            if let Some(get) = checked(json!({"input":allele.rs_id})) {
+            if let Ok(get) = serde_json::from_value(json!({"input":allele.rs_id})) {
                 requests.push(Request::GetVariant(get));
             }
         }
         if let Some(publication) = &row.publication
-            && let Some(get) = checked(json!({"input":[publication]}))
+            && let Some(get) = serde_json::from_value(json!({"input":[publication]}))
         {
             requests.push(Request::GetArticle(get));
         }
@@ -53,9 +52,6 @@ pub(super) fn search(
         );
     }
     next
-}
-fn checked<T: DeserializeOwned>(value: serde_json::Value) -> Option<T> {
-    serde_json::from_value(value).ok()
 }
 fn push(next: &mut Steps, kind: StepKind, request: Request, fresh: bool) {
     next.push((kind, Action::Run { request, fresh }));
