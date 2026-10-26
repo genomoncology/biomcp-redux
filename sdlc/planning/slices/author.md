@@ -96,9 +96,9 @@ Each search candidate gets a `disambiguate` action before the page action. Autho
 
 ## Measurement scope and decision boundary
 
-The [accepted author rulings](../../decisions/2026-10-26-protein-pathway-study-rulings.md#author) accept this metadata-only boundary. [Ian's later ruling](../../decisions/2026-10-26-new-sources-follow-open-by-default.md) lifts the capture pause for both sources. This proposal therefore ends at an explicit measurement boundary. It does not claim API acceptance, current positive or empty results, source timing, measured output ceilings, or implementable accepted types. Existing article code and its replays stay intact. No author API call, bulk download, conversion tool, OAuth exchange or account creation ran in this investigation.
+The [accepted author rulings](../../decisions/2026-10-26-protein-pathway-study-rulings.md#author) accept this metadata-only boundary. [Ian's later ruling](../../decisions/2026-10-26-new-sources-follow-open-by-default.md) lifts the capture pause for both sources. The bounded API capture below establishes exact source replies. It does not establish accepted types, command output ceilings or warm-cache behavior. Existing article code and its replays stay intact. No bulk download, conversion tool, OAuth exchange or account creation ran.
 
-All 24 questions above are harvested questions with acceptance criteria. They are not 24 verified source answers. A01–A16 and A21/A23 require exact Semantic Scholar captures. A17–A20/A22/A24 require exact public ORCID API captures. A24 additionally has the historical recorded lower-case reply and public bug report. Unsuccessful documentation retrieval is not a source failure witness for a proposed command.
+All 24 questions above are harvested questions with acceptance criteria. They are not 24 verified source answers. A01 has a current exact byline capture. The other Semantic Scholar capabilities remain deferred after its recorded 429. Exact public ORCID person and works captures support A17–A20/A22 and the lowercase-public visibility case A24; they do not establish normalized command answers. A24 additionally has the historical recorded lower-case reply and public bug report. Unsuccessful documentation retrieval is not a source failure witness for a proposed command.
 
 | Evidence | Observation and limitation |
 | --- | --- |
@@ -119,7 +119,40 @@ All 24 questions above are harvested questions with acceptance criteria. They ar
 | Whole help, entity help and MCP listing | Exact command spelling, examples and tool-description growth on approved implementation | Existing caps remain unchanged; this design requests no cap increase. |
 | Same-question 0.9 comparison | Verified network containment, exact request graph and replay of eligible captures | Unmeasured; no legacy binary was executed. |
 
-Before type acceptance, the eligible capture set must cover each source field's absence, multiplicity and collection scope. The eventual owning cases assert measured whole replies plus the agreed allowance, excluding only the shared source-term comparison fields according to the existing policy. No fixture may replace current source evidence with invented positive data. Licensed source bodies and unpublished question sets remain outside Git.
+## Bounded source captures
+
+The approved recipe is `scripts/author_capture_plan.json`; `scripts/capture_author_witnesses.py` executes it through the existing source-capture credential mechanism. The default paper and search page requests use five rows at offset zero, with offset five allowed only when the preceding reply returns that native continuation. Compact papers request `paperId,externalIds,title,year,venue`. Details add abstract, publication date, citation/reference/influential counts, open-access metadata, fields, publication types and author IDs/names. Cards and search request `authorId,name,affiliations,paperCount,citationCount,hIndex,url`. These selectors define the proposed product requests for the downstream tickets.
+
+Job j15202 ran revision `c4c266b69277cd963f4d4d55921d98da802fd465` on the build machine. It made seven physical requests from the approved maximum of twenty. Each attempted row ran once, without retries, redirects, fallback hosts or altered selectors. The bounds were 25 seconds and 8 MiB per body, with at least one second between Semantic Scholar requests and half a second between ORCID requests. The machine supplied `S2_API_KEY` and no `ORCID_ACCESS_TOKEN`; the archive records those presence booleans only. Semantic Scholar returned 429 on the second byline and stopped. The independent fixed ORCID plan continued anonymously. A passing capture job proves evidence retention; it does not turn the Semantic Scholar failure into a successful capability.
+
+Evidence archive A is Yellow `data/biomcp-redux/0264-author-captures/2290-author-captures.tar.gz`, SHA-256 `a19cbcc9b3f082adb1c027a545b1c85a36508cb6f61366d92effcca354269753`. Its `ledger.json` names every attempted exact URL, status, body digest/bytes, elapsed time, returned author IDs and native paging fields. The numbered `.body`, `.headers` and `.receipt.json` files preserve each request's source reply. The archive includes the fixed recipe, runner, source helper, revision, credential-presence booleans and `deferred.json`. The nested `phase2-inventory.tar.gz` was created and verified before phase two; it contains the five exact ORCID URLs. No Semantic Scholar dependent URL was instantiated because phase one did not supply all required IDs. Every one of the 34 outer members and both nested inventory members was verified independently against its manifest. The cross-machine archive SHA matched before the job deleted its own experiment folder and archive. Original evidence, other experiments and job logs remain intact.
+
+| Planned witness | Result | Capability and evidence in archive A |
+| --- | --- | --- |
+| PMID 17611497 byline | Proven, HTTP 200 | A01 exact byline: 24 returned author IDs, first `2060978`; `0000.body`, SHA-256 `47c460ab4001d4c40463da395d7c7412070a4ccf4e4056a0cfb8c6b167b06a6a`. |
+| PMID 33123537 byline | Failed, HTTP 429 | Exact current A05 request failed; `0001.body`, SHA-256 `65ab993d12c5c2cc9b68e6da2bb79b326930283e520363ffcdc145f88cd5a148`. Earlier 0061 native bylines remain historical evidence and do not replace this exact request. |
+| PMID 34096690 byline | Failed prerequisite; not sent | A09 current exact byline remains deferred after the source stop. |
+| PMID 32955176 byline | Failed prerequisite; not sent | A13 current exact byline remains deferred after the source stop. |
+| Louis Williams search, offset 0 | Failed prerequisite; not sent | A21 candidate order, native total and page remain deferred. |
+| Louis Williams search, offset 5 | Failed prerequisite; not sent | A21 continuation and nonoverlap remain deferred; no native next was obtained. |
+| First PMID 17611497 author card | Failed prerequisite; not sent | A03 card fields/count scope remain deferred. |
+| First PMID 34096690 author card | Failed prerequisite; not sent | A11 card fields/count scope remain deferred; required ID missing. |
+| First PMID 17611497 compact papers, offset 0 | Failed prerequisite; not sent | A02/A04 papers and exact article pivots remain deferred. |
+| First PMID 34096690 compact papers, offset 0 | Failed prerequisite; not sent | A10 compact papers remain deferred. |
+| Same PMID 34096690 papers, details | Failed prerequisite; not sent | A12 same-page details and optional fields remain deferred. |
+| First PMID 32955176 compact papers, offset 0 | Failed prerequisite; not sent | A14 native paging remains deferred. |
+| Same PMID 32955176 compact papers, offset 5 | Failed prerequisite; not sent | A15 continuation remains deferred; required ID and native next missing. |
+| First PMID 33123537 compact papers, offset 0 | Failed prerequisite; not sent | A06/A08 papers and native identifiers remain deferred. |
+| Author `999999999999999999` exact card | Failed prerequisite; not sent | Semantic Scholar absence remains unproved; absent-versus-failed cases must be labeled synthetic. |
+| ORCID `0000-0002-4299-3018` person | Proven, HTTP 200 | A18 exact `/0000-0002-4299-3018/person`, lowercase `public` name visibility; `0002.body`, SHA-256 `e9a8fda15f08a696c94386638ff4cdc3e5dad23902a3b9ddf6c6c44968f146dc`. |
+| ORCID `0000-0002-4299-3018` works | Proven, HTTP 200 | A17/A19/A20: 380 groups, 453 assertions, up to two summaries per group; `0003.body`, SHA-256 `7fb1493eda38b38eb1e5fc341e725cbf50e761330f3ab828ce7b2224ec171553`. |
+| ORCID `0000-0002-7433-2740` person | Proven, HTTP 200 | Exact `/0000-0002-7433-2740/person`, lowercase `public` name visibility; `0004.body`, SHA-256 `4ad727a35bb96431616d1c81a5de18cb74e0ea53c8747aa30dca825612ff0bcb`. |
+| ORCID `0000-0002-7433-2740` works | Proven, HTTP 200 | A22: two groups and two assertions; `0005.body`, SHA-256 `242b829be3b7ee63ba65113af20ea21fab45298ba019a152568279b29b925710`. |
+| ORCID `0000-0000-0000-0001` person | Empty, HTTP 404 | Exact checksum-valid absence witness; `0006.body`, SHA-256 `0670f59cceb60cd03fa9d4b9feaaa6627a5da264cc1001919da66fa06688da2b`. |
+
+The Semantic Scholar byline body was 1,350 bytes; its failed second byline was 174 bytes. The two ORCID person replies were 3,513 and 964 bytes. The two ORCID works replies were 886,277 and 2,568 bytes. The ORCID absence reply was 219 bytes. Ledger timing records cover only source requests and do not establish command latency. ORCID works replies have whole-record scope and no native total or continuation fields; group and assertion counts above are observed reply cardinalities, not a global publication total. Person replies include fields outside the proposed card; those fields remain outside the product card. No raw person reply, paper body or publisher abstract enters Git.
+
+Before type acceptance, the capture set must cover each source field's absence, multiplicity and collection scope. The eventual owning cases assert measured whole replies plus the agreed allowance, excluding only the shared source-term comparison fields according to the existing policy. No fixture may replace current source evidence with invented positive data. Licensed source bodies and unpublished question sets remain outside Git.
 
 ## Command and option case list
 
