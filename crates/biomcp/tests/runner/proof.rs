@@ -138,6 +138,7 @@ fn negatives() -> Check {
 }
 
 fn selection() -> Check {
+    empty_selection()?;
     #[cfg(unix)]
     literal_backslash_names()?;
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
@@ -179,6 +180,44 @@ fn selection() -> Check {
         || stdout.contains("right/same.yaml")
     {
         return Err(format!("--cases with filtered --list: {stdout}"));
+    }
+    Ok(())
+}
+
+fn empty_selection() -> Check {
+    let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
+    // Empty discovery remains valid when no name filter was supplied.
+    if !invoke(directory.path(), &[])?.status.success() {
+        return Err("unfiltered empty discovery failed".into());
+    }
+    put(directory.path(), "selected.yaml", "    expect: {'/type': string}")?;
+    for args in [
+        vec!["absent"],
+        vec!["absent", "--exact"],
+        vec!["absent", "--list"],
+        vec!["selected.yaml", "--exact", "--skip", "selected.yaml"],
+        vec!["selected.yaml", "--exact", "--ignored"],
+    ] {
+        let output = invoke(directory.path(), &args)?;
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        if output.status.success() || !stderr.contains(args[0]) {
+            return Err(format!(
+                "empty selection {args:?} must fail and name its filter; actual {:?}: {stderr}",
+                output.status.code()
+            ));
+        }
+    }
+    for (args, expected) in [
+        (vec![], "1 passed"),
+        (vec!["selected.yaml", "--exact"], "1 passed"),
+        (vec!["selected.yaml", "--exact", "--bench"], "1 ignored"),
+        (vec!["--skip", "selected.yaml"], "0 passed"),
+    ] {
+        let output = invoke(directory.path(), &args)?;
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if !output.status.success() || !stdout.contains(expected) {
+            return Err(format!("selection {args:?}: expected {expected}; actual {stdout}"));
+        }
     }
     Ok(())
 }
