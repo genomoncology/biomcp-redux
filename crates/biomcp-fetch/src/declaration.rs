@@ -117,6 +117,8 @@ pub enum SecretName {
     NcbiApiKey,
     /// Semantic Scholar API key.
     SemanticScholarApiKey,
+    /// ORCID public access token.
+    OrcidAccessToken,
     /// OncoKB API key.
     OncokbApiKey,
     /// NCI Clinical Trials Search API key.

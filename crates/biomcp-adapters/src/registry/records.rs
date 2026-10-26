@@ -44,6 +44,12 @@ pub struct RecordDeclaration {
 /// Publisher witnesses are retained by the bounded native record URL proof.
 pub const DECLARATIONS: &[RecordDeclaration] = &[
     RecordDeclaration {
+        source: Source::Orcid,
+        kind: RecordKind::Author,
+        display_name: "ORCID record",
+        template: Some("https://orcid.org/{id}"),
+    },
+    RecordDeclaration {
         source: Source::SemanticScholar,
         kind: RecordKind::Author,
         display_name: "Semantic Scholar author",
