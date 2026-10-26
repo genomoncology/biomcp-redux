@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 /// Checked native catalog row, retaining card fields for later exact reads.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CatalogRow {
+pub(super) struct CatalogRow {
     study_id: StudyId,
     name: Text,
     cancer_type_id: CbioportalCancerTypeId,
