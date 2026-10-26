@@ -27,7 +27,7 @@ fn inputs() -> Vec<Vec<&'static str>> {
         vec!["search", "gwas", "--study", "GCSTwrong"],
         vec!["search", "gwas", "--variant", "RS2981582"],
         vec!["search", "gwas", "--pubmed", "0"],
-        vec!["search", "gwas", "--trait-id", "EFO:0000305"],
+        vec!["search", "gwas", "--trait-id", "EFO/0000305"],
         vec!["search", "gwas", "--gene", "FGFR2", "--limit", "0"],
         vec!["search", "gwas", "--gene", "FGFR2", "--limit", "51"],
         vec!["search", "gwas", "--gene", "FGFR2", "--offset", "-1"],
