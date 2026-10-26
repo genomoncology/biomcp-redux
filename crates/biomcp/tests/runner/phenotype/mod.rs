@@ -147,6 +147,14 @@ fn failures() -> Result<(), String> {
                         .ok_or("node")?
                         .insert("id".into(), json!("MONDO:0000001"));
                 }
+                if kind >= 5 {
+                    if kind == 6 {
+                        term.as_object_mut()
+                            .ok_or("node")?
+                            .insert("id".into(), json!(null));
+                    }
+                    return Ok(term.to_string());
+                }
                 let mut page = json!({"limit":5,"offset":0,"total":1,"items":[term]});
                 if kind == 1 {
                     page.as_object_mut()
@@ -170,7 +178,7 @@ fn failures() -> Result<(), String> {
         } else {
             vec!["search", "phenotype", "synthetic"]
         };
-        let result = invoke(&env, &words, 1)?;
+        let result = invoke(&env, &words, 4)?;
         if result.get("status") != Some(&json!("failed")) {
             return Err(format!("source failure became absence: {result}"));
         }

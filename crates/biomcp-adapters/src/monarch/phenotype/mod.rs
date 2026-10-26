@@ -122,7 +122,7 @@ fn sections(node: &raw::Node) -> Vec<PhenotypeSection> {
             .as_deref()
             .unwrap_or_default()
             .iter()
-            .any(|count| count.key.as_str() == key)
+            .any(|count| count.key.to_string() == key)
         {
             out.push(section);
         }

@@ -28,7 +28,11 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     if hash != text(row, "sha256")? {
         return Err("retained body hash changed".into());
     }
-    let native: Value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+    let native: Value = if row.get("status") == Some(&json!(404)) {
+        Value::Null
+    } else {
+        serde_json::from_slice(&bytes).map_err(|e| e.to_string())?
+    };
     let body = String::from_utf8(bytes).map_err(|e| e.to_string())?;
     let target = text(row, "target")?.to_string();
     let host = match text(row, "source")? {
