@@ -35,11 +35,13 @@ pub struct GwasGetCommand {
     #[schemars(with = "CommandSection", extend("x-positional" = 1))]
     pub section: Option<CommandSection>,
     /// Maximum native relation rows.
-    #[schemars(range(min = 1, max = 50))]
+    #[schemars(with = "u32", range(min = 1, max = 50))]
     pub section_limit: Option<u32>,
     /// Native relation row offset.
+    #[schemars(with = "u32")]
     pub section_offset: Option<u32>,
     /// Retained ancestry reply for a local page.
+    #[schemars(with = "biodata::Text")]
     pub snapshot: Option<biodata::Text>,
 }
 /// Native context section grammar.

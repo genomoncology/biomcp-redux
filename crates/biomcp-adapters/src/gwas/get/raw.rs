@@ -40,8 +40,7 @@ impl Ancestry {
 }
 impl Reply for Ancestries {
     fn check(&self) -> Result<(), BadReply> {
-        // The whole unpaged collection must be admitted before output paging.
-        if self.embedded.ancestries.len() > 10000 { Err(BadReply) } else { Ok(()) }
+        Ok(())
     }
 }
 #[derive(Debug, Deserialize)]

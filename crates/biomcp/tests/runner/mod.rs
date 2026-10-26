@@ -568,6 +568,7 @@ pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), S
 }
 
 mod gwas_search;
+mod gwas_get;
 pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
     phenotype::native(path)
 }
