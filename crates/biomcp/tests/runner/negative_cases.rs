@@ -54,7 +54,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "nested-wildcard-missing",
-            "  - run: [schema, biodata.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': []}",
+            "  - run: [schema, biodata.problem/1]\n    expect: {'/properties/record/anyOf/*/$ref': [null]}",
             "actual <missing>",
         ),
         (
@@ -129,7 +129,7 @@ pub(super) fn cases() -> Vec<(&'static str, &'static str, &'static str)> {
         ),
         (
             "wildcard-type",
-            "    expect: {'/type/*': []}",
+            "    expect: {'/type/*': [null]}",
             "wildcard requires an array",
         ),
         (

@@ -22,6 +22,7 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
         .iter()
         .map(|(pointer, value)| {
             validate_pointer(pointer)?;
+            reject_empty_wildcard(pointer, value)?;
             let Some(options) = value.as_object() else {
                 return Ok((pointer.as_str(), value, vec![Assertion::Equals(value)]));
             };
@@ -73,6 +74,20 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
             Ok((pointer.as_str(), value, assertions))
         })
         .collect()
+}
+
+fn reject_empty_wildcard(pointer: &str, value: &Value) -> Result<(), String> {
+    let empty_array = |value: &Value| value.as_array().is_some_and(Vec::is_empty);
+    if pointer.split('/').skip(1).any(|token| token == "*")
+        && (empty_array(value)
+            || value.get("equals").is_some_and(empty_array)
+            || value.get("count").and_then(Value::as_u64) == Some(0))
+    {
+        return Err(format!(
+            "{pointer}: wildcard cannot assert an empty array; assert on the parent array instead, such as {{'/items': {{equals: [], count: 0}}}}"
+        ));
+    }
+    Ok(())
 }
 
 fn integer(pointer: &str, operator: &str, value: &Value) -> Result<u64, String> {

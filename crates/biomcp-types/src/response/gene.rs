@@ -75,6 +75,12 @@ pub enum QueryBody {
     GwasLoci(Option<crate::GwasLoci>),
     /// Local retained study ancestry rows.
     GwasAncestries(Option<crate::GwasAncestries>),
+    /// Native InterPro match page.
+    ProteinDomains(Option<crate::ProteinDomains>),
+    /// Exact participant-admitted complex page.
+    ProteinComplexes(Option<crate::ProteinComplexes>),
+    /// Native members of one exact containing complex.
+    ProteinComplexMembers(Option<crate::ProteinComplexMembers>),
     /// Exact filtered native features.
     ProteinFeatures(Option<crate::ProteinFeatures>),
     /// Native alternative products.

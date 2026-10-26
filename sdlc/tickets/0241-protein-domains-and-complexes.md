@@ -1,6 +1,7 @@
 # 0241 — Add InterPro domains, Complex Portal complexes and complex members
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 280934c51589624a522f90d04752daff06b66c17
 
 Milestone: 4
 

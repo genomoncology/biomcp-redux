@@ -151,3 +151,5 @@ study-retirements: Legacy study calculations, charts and local directories retur
 study-failures: Synthetic catalog and study section faults fail explicitly and preserve accepted stored metadata. Cases: `crates/biomcp/tests/runner/study_failures.rs`.
 protein-sections: A caller reads native protein features, alternative products, references, complete sequences and qualified function text without transferring coordinates. Cases: `tests/cases/protein/sections/*.yaml`, `crates/biomcp/tests/runner/protein_sections.rs`.
 
+
+protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership. Cases: `crates/biomcp/tests/runner/protein_domains.rs`.
