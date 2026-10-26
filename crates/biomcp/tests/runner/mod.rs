@@ -86,8 +86,10 @@ mod pmc_tables;
 mod pool_tables;
 mod process;
 pub(super) mod proof;
+mod protein_budgets;
 mod protein_commands;
 mod protein_domains;
+mod protein_measure;
 mod protein_registry;
 mod protein_sections;
 mod protocol;
@@ -360,6 +362,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
+    trials.extend(protein_measure::trials());
     trials.extend(pathway_retirements::trials());
     trials.extend(pathway_failures::trials());
     trials.extend(protein_sections::trials());

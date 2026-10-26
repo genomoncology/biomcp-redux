@@ -3,6 +3,7 @@ pub(super) fn run() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", reply)?;
     let env = setup(&stub)?;
     let first = call(&env, &["protein", "complexes", "P38398"], 0)?;
+    super::super::protein_budgets::check(&first, "synthetic-complex/headers", "cli")?;
     if first.pointer("/result/native_total") != Some(&json!(3))
         || first.pointer("/page/total") != Some(&json!(2))
         || first.pointer("/result/items/0/predicted") != Some(&json!(true))
@@ -14,6 +15,7 @@ pub(super) fn run() -> Result<(), String> {
     let step = super::super::action(&first, "section")?;
     let words: Vec<_> = step.iter().map(String::as_str).collect();
     let members = call(&env, &words, 0)?;
+    super::super::protein_budgets::check(&members, "synthetic-complex/members-first", "cli")?;
     if members.pointer("/page/total") != Some(&json!(93))
         || members.pointer("/page/returned") != Some(&json!(5))
         || members.pointer("/result/items/1/protein").is_some()
@@ -61,6 +63,17 @@ fn walk(env: &Environment, members: Value) -> Result<(), String> {
         let action = super::super::action(&value, "page")?;
         let words: Vec<_> = action.iter().map(String::as_str).collect();
         value = call(env, &words, 0)?;
+        super::super::protein_budgets::check(
+            &value,
+            &format!(
+                "synthetic-complex/member-offset-{}",
+                value
+                    .pointer("/page/offset")
+                    .and_then(Value::as_u64)
+                    .ok_or("offset")?
+            ),
+            "cli",
+        )?;
         if value.pointer("/page/pool") != Some(&pool) {
             return Err("member continuation renewed the retained snapshot".into());
         }
@@ -82,6 +95,7 @@ fn rejected(env: &Environment) -> Result<(), String> {
         ],
         4,
     )?;
+    super::super::protein_budgets::check(&wrong, "synthetic-complex/wrong-anchor", "cli")?;
     if wrong.pointer("/problems/0/record") != Some(&json!("CPX-715"))
         || wrong.pointer("/problems/0/field") != Some(&json!("participants.anchor.P04637"))
         || wrong.get("result").is_some()
@@ -99,6 +113,7 @@ fn rejected(env: &Environment) -> Result<(), String> {
         ],
         4,
     )?;
+    super::super::protein_budgets::check(&mismatch, "synthetic-complex/wrong-complex", "cli")?;
     if mismatch.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
         return Err("mismatched complex identity admitted".into());
     }
@@ -118,6 +133,11 @@ fn rejected(env: &Environment) -> Result<(), String> {
             env,
             &["protein", "complex-members", "P38398", "--complex", complex],
             4,
+        )?;
+        super::super::protein_budgets::check(
+            &rejected,
+            &format!("synthetic-complex/participant-whitespace-{complex}"),
+            "cli",
         )?;
         if rejected.get("result").is_some() {
             return Err("native participant whitespace established a protein join".into());

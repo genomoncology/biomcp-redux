@@ -81,6 +81,7 @@ fn failures() -> Result<(), String> {
             &["get", "protein", "P00533", "structures"],
             4,
         )?;
+        super::protein_budgets::check(&value, &format!("section-failure/{fixture}"), "cli")?;
         if value.pointer("/status") != Some(&json!("failed"))
             || value.pointer("/result/items/0/sections/structures/state")
                 != Some(&json!("unavailable"))

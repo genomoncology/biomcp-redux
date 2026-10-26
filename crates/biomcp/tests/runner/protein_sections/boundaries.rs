@@ -20,6 +20,7 @@ pub(super) fn features() -> Result<(), String> {
         &["protein", "features", "P00533", "--limit", "1"],
         0,
     )?;
+    super::super::protein_budgets::check(&first, "section-boundary/first", "cli")?;
     coordinates(&env)?;
     retained(&env, &first)?;
     section_context(&env)?;
@@ -45,6 +46,11 @@ fn coordinates(env: &Environment) -> Result<(), String> {
             ],
             0,
         )?;
+        super::super::protein_budgets::check(
+            &value,
+            &format!("section-boundary/position-{position}"),
+            "cli",
+        )?;
         if value.pointer("/page/total") != Some(&json!(expected)) {
             return Err(format!(
                 "inclusive native coordinate or sequence identity changed: {value}"
@@ -65,6 +71,7 @@ fn coordinates(env: &Environment) -> Result<(), String> {
         ],
         0,
     )?;
+    super::super::protein_budgets::check(&uncertain, "section-boundary/uncertain", "cli")?;
     if uncertain.pointer("/page/total") != Some(&json!(1)) {
         return Err("uncertain containment was guessed or a proved interval was lost".into());
     }
@@ -89,6 +96,7 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
         ],
         2,
     )?;
+    super::super::protein_budgets::check(&mismatch, "section-boundary/mismatched-pool", "cli")?;
     if mismatch.pointer("/error/code") != Some(&json!("usage.pool_mismatch")) {
         return Err("section pool accepted another selector".into());
     }
@@ -103,6 +111,7 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
     let next = super::super::action(first, "page")?;
     let words: Vec<_> = next.iter().map(String::as_str).collect();
     let page = call(env, None, &words, 0)?;
+    super::super::protein_budgets::check(&page, "section-boundary/next", "cli")?;
     if page.pointer("/result/items/0/feature/kind/label") != Some(&json!("Region"))
         || page.pointer("/page/pool/id").and_then(Value::as_str) != Some(pool)
     {
@@ -112,6 +121,7 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
 }
 fn section_context(env: &Environment) -> Result<(), String> {
     let all = call(env, None, &["get", "protein", "P00533", "all"], 0)?;
+    super::super::protein_budgets::check(&all, "section-boundary/all", "cli")?;
     if all.pointer("/result/items/0/sections/structures/data/items/0/id") != Some(&json!("1ABC"))
         || all.pointer("/result/items/0/sections/function/data/items/1/molecule")
             != Some(&json!("Isoform 2"))
@@ -132,6 +142,7 @@ fn usage(env: &Environment) -> Result<(), String> {
         &["protein", "features", "P00533", "--position", "31"],
         4,
     )?;
+    super::super::protein_budgets::check(&past, "section-boundary/past-length", "cli")?;
     if past.pointer("/problems/0/field") != Some(&json!("position")) || past.get("result").is_some()
     {
         return Err("out-of-range position was admitted".into());
@@ -154,6 +165,7 @@ pub(super) fn sequence() -> Result<(), String> {
     let env = setup(&stub)?;
     let directory = env.root().join("sequence-recording");
     let value = record(&env, &["protein", "sequence", "P38398-2"], &directory, 0)?;
+    super::super::protein_budgets::check(&value, "sequence-admission/valid", "cli")?;
     if value.pointer("/result/sequence/length") != Some(&json!(6))
         || value.pointer("/result/sequence/audit") != Some(&json!({}))
     {
@@ -164,7 +176,7 @@ pub(super) fn sequence() -> Result<(), String> {
         ">sp|P38398|SYNTHETIC_HUMAN Synthetic OX=9606 GN=SYN\nACDEFG\n",
         ">sp|P38398-2|SYNTHETIC_HUMAN Synthetic OX=9606 GN=SYN\nACD!\n",
     ] {
-        super::super::response_cases::checked_steps(
+        let value = super::super::response_cases::checked_steps(
             directory.to_str().ok_or("capture directory")?,
             |_, recording| {
                 if let Some(exchange) = recording.pointer_mut("/exchanges/0/body") {
@@ -177,6 +189,15 @@ pub(super) fn sequence() -> Result<(), String> {
             "expect":{"/sources/0/reason":"offline"}}]),
         )
         .map_err(|e| e.to_string())?;
+        super::super::protein_budgets::check(
+            &value,
+            if replacement.contains("ACD!") {
+                "sequence-admission/invalid-alphabet/offline"
+            } else {
+                "sequence-admission/wrong-accession/offline"
+            },
+            "cli",
+        )?;
     }
     Ok(())
 }
