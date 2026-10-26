@@ -381,10 +381,10 @@ Assay totals count assays. They imply no activity, sensitivity or treatment resp
 - [x] Search
 - [x] Get and sections
 - [x] Outside-in cases
-- [ ] Token budget
-- [ ] MCP parity
-- [ ] Docs
-- [ ] 0.9 accounting
+- [x] Token budget
+- [x] MCP parity
+- [x] Docs
+- [x] 0.9 accounting
 
 Sources:
 - [x] Semantic Scholar (optional key)
