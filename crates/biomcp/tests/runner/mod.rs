@@ -310,8 +310,10 @@ fn run_step(
             expectations,
         )?;
         answer = Some(result.clone());
-        if cli.as_ref().is_some_and(|cli| cli != &result) {
-            return Err("CLI/MCP parity: unequal results".into());
+        if let Some(cli) = cli.as_ref()
+            && let Some(diff) = assertions::difference(cli, &result, "")
+        {
+            return Err(format!("CLI/MCP parity: unequal results at {diff}"));
         }
     }
     answer.ok_or_else(|| "step requires run or mcp".into())
