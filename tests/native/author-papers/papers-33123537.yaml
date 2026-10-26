@@ -26,8 +26,8 @@
         "/next/5/kind": "page"
       },
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000
+      "max_bytes": 2831,
+      "max_tokens": 708
     },
     {
       "expect": {
@@ -42,8 +42,8 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000,
+      "max_bytes": 2847,
+      "max_tokens": 712,
       "follow": "page"
     },
     {
@@ -59,8 +59,8 @@
         ]
       },
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000,
+      "max_bytes": 2798,
+      "max_tokens": 700,
       "run": [
         "author",
         "papers",

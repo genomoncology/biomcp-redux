@@ -28,8 +28,8 @@
         "/next/5/kind": "page"
       },
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000
+      "max_bytes": 26526,
+      "max_tokens": 6632
     },
     {
       "run": [
@@ -57,8 +57,8 @@
         "/next/5/kind": "page"
       },
       "full_output_bytes": true,
-      "max_bytes": 100000,
-      "max_tokens": 25000
+      "max_bytes": 26526,
+      "max_tokens": 6632
     }
   ]
 }
