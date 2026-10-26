@@ -227,6 +227,25 @@ The largest observed source response is not a worst-case catalog guarantee. Defa
 
 The same-question 0.9 comparison is unmeasured because no contained historical binary was executed. Native API bytes measure source transport and the projections measure proposed disclosure; neither substitutes for 0.9 product bytes, warm/cold product latency or a judged clinical quality comparison. There is no defensible numeric claim that these outputs outperform 0.9. The source fields and named legacy capabilities above define the quality floor that implementation and the later contained comparison must check.
 
+### Additional command request captures
+
+Job `j14615` sent eight previously uncaptured exact sorted requests once each through the landed bounded capture helper. It retained the existing adapter deadline of 15 seconds and a 3 MiB body bound, admitted requests one second apart, and refused redirects and retries. All eight returned HTTP 200. The extended gene-set request took 14.357 seconds; the deadline remains unchanged.
+
+The archive is `data/biomcp-redux/0234-gwas-search/native-evidence.tar.gz`, SHA-256 `4a10b3ed6d0b0186092d590fe84473482b4b85ed80d39fb125d26750ab92b59a`. The job copied the archive to Yellow and verified its exact manifest and member hashes before removing source-machine scratch. Original replies remain outside Git. The other selectors reuse the sorted requests from `j14351` and the first sorted publication page from `j14229`.
+
+| Exact request witness | Native result |
+| --- | --- |
+| PMID 17529967, page 1, size 3, ascending p value | IDs 6113, 6114 and 11346; six total. The last record retains rs981782. |
+| PMID 17529974, page 0, size 3, ascending p value | IDs 6117 and 6116; two total for GCST000037. |
+| PMID 17934461, page 0, size 3, ascending p value | ID 5949; one total. |
+| PMID 17618284, page 0, size 3, ascending p value | ID 6063; one total with the native effect label preserved. |
+| GCST000057, page 0, size 10, ascending p value | Seven IDs: 11386, 11850, 6056, 11851, 6057, 11852 and 11385. |
+| MONDO_0004989, child traits true, page 0, size 3, ascending p value | 2,422 total, distinct from the 2,094 without children. |
+| FGFR2, extended gene set true, page 0, size 3, ascending p value | 223 total, distinct from the standard 212. |
+| rs2981582 plus PMID 17529967, page 0, size 3, ascending p value | Only association 6110. |
+
+Self links reorder query parameters and use form-encoded spaces. Admission therefore compares the exact endpoint and decoded parameter map, rejects duplicate parameters, and checks source page metadata and returned identities before cache publication. It does not use substring URL matching.
+
 ## Agent questions
 
 1. **What do I ask first?** Ask for associations by the exact variant, trait, study, publication or source-defined gene selector. A literal trait query remains literal. It is never expanded into a diagnosis or inferred disease hierarchy.

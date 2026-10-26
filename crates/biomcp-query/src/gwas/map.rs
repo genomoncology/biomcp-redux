@@ -41,4 +41,3 @@ pub(crate) fn association(row: gwas::Association) -> GwasAssociation {
 fn optional_text(value: Option<String>) -> Option<biodata::Text> {
     value.and_then(|v| v.parse().ok())
 }
-
