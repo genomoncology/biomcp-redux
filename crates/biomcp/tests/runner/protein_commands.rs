@@ -4,10 +4,14 @@ use libtest_mimic::Trial;
 use serde_json::Value;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "protein-search/pool-binding-and-lifetime",
-        || pools().map_err(Into::into),
-    )]
+    vec![
+        Trial::test("protein-search/pool-binding-and-lifetime", || {
+            pools().map_err(Into::into)
+        }),
+        Trial::test("protein-search/native-continuation-admission", || {
+            links().map_err(|e| e.to_string().into())
+        }),
+    ]
 }
 fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
     let replay = super::launch::fixtures().join("replies/protein/synthetic");
@@ -77,6 +81,38 @@ fn pools() -> Check {
     )?;
     if expired.pointer("/error/code").and_then(Value::as_str) != Some("pool.expired") {
         return Err("expired protein pool refetched instead of restarting".into());
+    }
+    Ok(())
+}
+
+fn links() -> Result<(), Box<dyn std::error::Error>> {
+    for (before, after) in [
+        ("rest.uniprot.org", "example.invalid"),
+        ("%28EGFR%29", "%28OTHER%29"),
+        ("size=5", "size=6"),
+        (
+            "cursor=native-second",
+            "cursor=native-second&unexpected=field",
+        ),
+        ("uniprotkb/search", "other/search"),
+    ] {
+        super::response_cases::case(
+            "protein/pages",
+            &["search", "protein", "EGFR"],
+            |_, record| {
+                if record
+                    .get("url")
+                    .and_then(Value::as_str)
+                    .is_some_and(|u| !u.contains("cursor="))
+                    && let Some(next) = record.pointer_mut("/exchanges/0/pagination/next")
+                    && let Some(text) = next.as_str()
+                {
+                    *next = serde_json::json!(text.replace(before, after));
+                }
+            },
+            serde_json::json!({"/status":"failed", "/sources/0/reason":"bad_reply"}),
+            4,
+        )?;
     }
     Ok(())
 }
