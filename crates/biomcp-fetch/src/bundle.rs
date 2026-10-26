@@ -284,3 +284,9 @@ pub fn decode_bundle_document<T: serde::de::DeserializeOwned>(
 ) -> Result<T, crate::BadReply> {
     serde_json::from_slice(body).map_err(|_| crate::BadReply)
 }
+
+/// Compute a catalog receipt hash from the complete checked native bytes.
+pub fn bundle_sha256(body: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(body).iter().map(|b| format!("{b:02x}")).collect()
+}
