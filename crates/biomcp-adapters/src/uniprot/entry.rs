@@ -6,6 +6,8 @@ use biomcp_fetch::{Freshness, Leg, RequestError};
 use serde::{Deserialize, Serialize};
 pub(super) mod map;
 pub(super) mod raw;
+mod sections_raw;
+mod sections_map;
 /// A source-native card without sequence, references or other sections.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Entry {
@@ -13,6 +15,16 @@ pub struct Entry {
     pub header: ProteinHeader,
     /// Independent native entry and sequence audit.
     pub audit: ProteinAudit,
+    /// Native source features, without coordinate transfer.
+    pub features: Vec<biodata::ProteinFeature>,
+    /// Native alternative product rows.
+    pub isoforms: Vec<biodata::ProteinIsoform>,
+    /// Native PDB links and properties.
+    pub structures: Vec<biodata::ProteinStructureRef>,
+    /// Complete source paragraphs with their own evidence.
+    pub function: Vec<biodata::ProteinFunction>,
+    /// Direct displayed sequence, when supplied by the entry.
+    pub sequence: Option<biodata::ProteinSequence>,
 }
 /// Fetch exactly the requested accession, preserving an explicit isoform suffix.
 pub fn entry(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Mapped<Option<Entry>>, RequestError> {

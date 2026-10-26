@@ -3,6 +3,8 @@ mod entry;
 mod map;
 mod raw;
 mod search;
+mod sequence;
+pub use sequence::sequence;
 use crate::{Mapped, quotas};
 use biodata::UniProtAcc;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
