@@ -61,7 +61,7 @@ fn loci() -> Value {
 }
 fn associations(path: &str) -> Value {
     let page=if path.contains("page=1") {1} else {0};
-    let rows=(page*3..page*3+3).map(|n| {let mut row=card();row["association_id"]=json!(6110+n);row}).collect::<Vec<_>>();
+    let rows=(page*3..page*3+3).map(|n| {let mut row=card();if let Some(id)=row.get_mut("association_id") { *id=json!(6110+n); }row}).collect::<Vec<_>>();
     json!({"_embedded":{"associations":rows},"page":{"size":3,"number":page,"totalElements":6,"totalPages":2},
         "_links":{"self":{"href":format!("https://www.ebi.ac.uk{path}")}}})
 }

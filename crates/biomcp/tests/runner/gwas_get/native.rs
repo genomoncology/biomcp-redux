@@ -47,6 +47,7 @@ pub(super) fn run() -> Result<(), String> {
         return Err("native seed request count differs".into());
     }
     for input in &inputs { measure(&root, &recordings, &output, input)?; }
+    walks(&root, &recordings)?;
 
     Ok(())
 }
@@ -86,8 +87,8 @@ fn measure(root: &Path, recordings: &Path, output: &Path, input: &Value) -> Resu
             .and_then(|v| v.get(1))
             .and_then(Value::as_u64)
         {
-            step["max_bytes"] = json!(((comparable + 1) * 115).div_ceil(100));
-            step["max_tokens"] = json!(((comparable + 1) * 115).div_ceil(400));
+            *step.get_mut("max_bytes").ok_or("byte ceiling")? = json!(((comparable + 1) * 115).div_ceil(100));
+            *step.get_mut("max_tokens").ok_or("token ceiling")? = json!(((comparable + 1) * 115).div_ceil(400));
         }
         fs::write(
             &path,
@@ -115,5 +116,21 @@ fn measure(root: &Path, recordings: &Path, output: &Path, input: &Value) -> Resu
             comparable.div_ceil(4)
         )
         .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+fn walks(root: &Path, recordings: &Path) -> Result<(), String> {
+    for (name, args, count, identity) in [
+        ("study-walk", vec!["get", "gwas", "GCST000035", "associations"], 6, "/result/items/*/id"),
+        ("ancestry-walk", vec!["get", "gwas", "GCST000035", "ancestries", "--section-limit", "1"], 3, "/result/items/*/source_url"),
+    ] {
+        let path=root.join(format!("{name}.yaml"));
+        let mut expected=serde_json::Map::new();
+        expected.insert("/result/items".into(),json!({"count":count}));
+        expected.insert(identity.into(),json!({"unique":true}));
+        fs::write(&path,json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[{
+            "run":args,"mcp":args,"walk":{"items":"/result/items","max_pages":3},"expect":expected}]}).to_string()).map_err(|e|e.to_string())?;
+        super::super::run_case(&path,&super::super::schema::Registry::embedded()?)?;
+    }
     Ok(())
 }
