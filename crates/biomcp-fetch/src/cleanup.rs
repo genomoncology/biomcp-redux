@@ -19,8 +19,12 @@ impl Fetch {
 }
 impl crate::CacheAccess {
     /// Remove older cache namespaces containing only declared owners and their known tables.
-    /// Future namespaces, symlinks and databases with foreign tables are preserved.
-    pub fn clean_incompatible_files(&self, owners: &[SchemaOwner]) -> Result<u64, CacheError> {
+    /// Retained query layouts, future namespaces, symlinks and foreign tables are preserved.
+    pub fn clean_incompatible_files(
+        &self,
+        owners: &[SchemaOwner],
+        retained_query_namespaces: &[u32],
+    ) -> Result<u64, CacheError> {
         let active = self.path();
         let Some(current) = active
             .file_name()
@@ -42,6 +46,7 @@ impl crate::CacheAccess {
             };
             if !kind.is_file()
                 || version == current
+                || version.0 == current.0 && retained_query_namespaces.contains(&version.1)
                 || version.0 > current.0
                 || version.1 > current.1
             {

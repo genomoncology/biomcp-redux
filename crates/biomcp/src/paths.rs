@@ -24,7 +24,7 @@ pub(crate) fn cache(
     }?;
     let folder = root.join("biomcp");
     // Reuse the last owned pre-migration layout without renaming live SQLite files.
-    for generation in [biomcp_query::store::CACHE_NAMESPACE_VERSION, 4] {
+    for generation in biomcp_query::store::CACHE_NAMESPACES {
         let path = folder.join(format!(
             "cache-{}-{generation}.sqlite",
             biomcp_fetch::CACHE_NAMESPACE_VERSION

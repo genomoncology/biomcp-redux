@@ -18,6 +18,8 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 pub const VERSION: u32 = 5;
 /// Stable shared-file generation, independent of the query schema version.
 pub const CACHE_NAMESPACE_VERSION: u32 = 5;
+/// Supported file generations retained until a separate transfer verifies their contents.
+pub const CACHE_NAMESPACES: &[u32] = &[CACHE_NAMESPACE_VERSION, 4];
 /// Query-owned metadata checked by transport before any journal or schema mutation.
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
