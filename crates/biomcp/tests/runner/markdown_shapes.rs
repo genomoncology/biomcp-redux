@@ -17,6 +17,31 @@ pub(super) struct Shape {
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
+        args: &["help", "search", "author"],
+        replies: "",
+        required: &[
+            "query",
+            "offset",
+            "limit",
+            "pool",
+            "source",
+            "Topic-wide author ranking is unavailable.",
+        ],
+        max_bytes: 1137,
+    },
+    Shape {
+        args: &["help", "get", "author"],
+        replies: "",
+        required: &["id", "provider records", "Counts cover"],
+        max_bytes: 708,
+    },
+    Shape {
+        args: &["list", "author"],
+        replies: "",
+        required: &["query", "offset", "limit", "pool", "source", "id"],
+        max_bytes: 1748,
+    },
+    Shape {
         args: &["search", "pathway", "Signaling by EGFR"],
         replies: "pathway/native",
         required: &["Signaling by EGFR", "biomcp get pathway R-HSA-177929"],
