@@ -1,5 +1,4 @@
 """Exercise the source capture command against an offline HTTP source."""
-import hashlib
 import http.server
 import json
 import os
@@ -100,6 +99,12 @@ class CapturePlanTests(unittest.TestCase):
         result = self.run_capture(plan, self.base / 'second', '--continue-from', str(first))
         self.assertEqual(result.returncode, 1)
         self.assertEqual(self.server.calls, ['/one'])
+        archive = self.base / 'changed.tar.gz'
+        subprocess.run(['tar', '-czf', str(archive), '-C', str(first),
+                        *sorted(p.name for p in first.iterdir())], check=True)
+        result = subprocess.run(['python3', str(SCRIPT), '--verify', str(archive)],
+                                env=self.env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
 
     def test_make_target_runs_one_request(self):
         result = subprocess.run(['make', 'source-capture', 'PLAN=' + str(self.plan(['/make'])),
