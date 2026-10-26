@@ -1,6 +1,7 @@
 # 0263 — Align the Curie schema pattern with its runtime check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d061660fa914c586f067f05b3ce1081f1bf9b33e
 
 Milestone: 1
 
