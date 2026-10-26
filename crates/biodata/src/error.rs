@@ -1,261 +1,178 @@
-/// A rejected value, without retaining the input text.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[non_exhaustive]
-pub enum Error {
-    /// Invalid amino-acid residue text.
-    ProteinResidueInvalid,
-    /// A protein site ends before its position.
-    ProteinSiteOrder,
-    /// Malformed UniProt accession or isoform suffix.
-    UniProtIsoformInvalid,
-    /// Malformed integrated InterPro accession.
-    InterProIdInvalid,
-    /// Malformed Complex Portal accession.
-    ComplexPortalIdInvalid,
-    /// Invalid ClinPGx object accession.
-    ClinPgxAccession,
-    /// A source-native diagnostic identifier failed its grammar.
-    DiagnosticIdInvalid,
-    /// A published native drug identifier was invalid.
-    DrugIdInvalid,
-    /// Neither a source gene nor native target identifies the relation.
-    DrugTargetAbsent,
-    /// Interaction provenance repeats a primary or further attribution.
-    DrugAttributionDuplicate,
-    /// The source identity level is outside the closed vocabulary.
-    DrugIdentityLevelUnknown,
-    /// A shared numeric value violates its bounds.
-    PopulationCountExceedsNumber,
-    /// A shared numeric value violates its bounds.
-    PopulationFrequencyRange,
-    /// A shared numeric value violates its bounds.
-    NumberNonFinite,
-
-    /// A subject reference lacks its source identity or notation.
-    VariantRefInvalid,
-    /// A concept identifier lacks a checked prefix or local part.
-    CurieInvalid,
-    /// The shared grammar refused the value.
-    AccessionDigitsWidth,
-    /// The shared grammar refused the value.
-    AccessionVersionMissing,
-    /// The shared grammar refused the value.
-    AccessionVersionLeadingZero,
-    /// The shared grammar refused the value.
-    AccessionVersionOverflow,
-    /// The shared grammar refused the value.
-    AccessionLrgInvalid,
-    /// The shared grammar refused the value.
-    SequenceRna,
-    /// The shared grammar refused the value.
-    ExpressionSyntaxUnknown,
-
-    /// The common value refused this input.
-    IntervalBuildAbsent,
-    /// The common value refused this input.
-    IntervalBuildMismatch,
-    /// The common value refused this input.
-    IntervalChromosomeMismatch,
-    /// The common value refused this input.
-    AccessionVersionPresent,
-    /// The common value refused this input.
-    ManeStatusUnknown,
-    /// The common value refused this input.
-    GeneRefLabelEmpty,
-    /// The common value refused this input.
-    HgvsTextEmpty,
-    /// The common value refused this input.
-    HgvsReferenceMissing,
-    /// The common value refused this input.
-    HgvsReferenceInvalid,
-    /// The common value refused this input.
-    HgvsInnerReferenceInvalid,
-    /// The common value refused this input.
-    HgvsSyntaxUnknown,
-    /// The common value refused this input.
-    HgvsBodyEmpty,
-    /// The common value refused this input.
-    HgvsBodyUnprintable,
-    /// The common value refused this input.
-    RsIdInvalid,
-    /// The common value refused this input.
-    CaIdInvalid,
-    /// The common value refused this input.
-    PaIdInvalid,
-    /// The common value refused this input.
-    VcvIdInvalid,
-    /// The common value refused this input.
-    RcvIdInvalid,
-    /// The common value refused this input.
-    ScvIdInvalid,
-    /// The common value refused this input.
-    ClinVarVariationIdInvalid,
-    /// The common value refused this input.
-    ClinVarAlleleIdInvalid,
-    /// The common value refused this input.
-    CosmicIdInvalid,
-    /// The common value refused this input.
-    VrsIdInvalid,
-
-    /// A published variant identifier was invalid.
-    VariantIdInvalid,
-    /// The source notation did not match its declared form.
-    NotationInvalid,
-    /// A versioned sequence accession was invalid.
-    AccessionInvalid,
-    /// A canonical primary chromosome was invalid.
-    ChromosomeInvalid,
-    /// A DNA base or sequence was invalid.
-    SequenceInvalid,
-    /// Allele reference length differs from its span.
-    AlleleReferenceLength,
-    /// An allele has neither reference nor alternate bases.
-    AlleleEmpty,
-    /// Input is not a published variant identifier.
-    VariantInputInvalid,
-    /// A trial identifier failed its namespace syntax.
-    TrialIdInvalid,
-    /// An article identifier failed its namespace syntax.
-    ArticleIdInvalid,
-    /// The checked NcbiGeneIdInvalid value was rejected.
-    NcbiGeneIdInvalid,
-    /// The checked GeneSymbolInvalid value was rejected.
-    GeneSymbolInvalid,
-    /// The checked OmimIdInvalid value was rejected.
-    OmimIdInvalid,
-    /// The checked UniProtAccInvalid value was rejected.
-    UniProtAccInvalid,
-    /// The checked CytobandInvalid value was rejected.
-    CytobandInvalid,
-    /// The checked EnsemblGeneIdInvalid value was rejected.
-    EnsemblGeneIdInvalid,
-    /// The GeneStatusUnknown boundary rejected a value.
-    GeneStatusUnknown,
-    /// The LocusGroupUnknown boundary rejected a value.
-    LocusGroupUnknown,
-    /// The MatchKindUnknown boundary rejected a value.
-    MatchKindUnknown,
-    /// The SummarySourceUnknown boundary rejected a value.
-    SummarySourceUnknown,
-    /// The HgncStatusUnknown boundary rejected a value.
-    HgncStatusUnknown,
-    /// The LocusTypeUnknown boundary rejected a value.
-    LocusTypeUnknown,
-    /// The BuildUnknown boundary rejected a value.
-    BuildUnknown,
-    /// The StrandUnknown boundary rejected a value.
-    StrandUnknown,
-    /// The ContigInvalid boundary rejected a value.
-    ContigInvalid,
-    /// An HGNC identifier was not canonical positive u32 text.
-    HgncIdInvalid,
-    /// A date had invalid precision or calendar components.
-    DateInvalid,
-    /// A one-based position was zero.
-    PositionZero,
-    /// A span ended before its start.
-    SpanOrder,
-    /// Text contained no non-whitespace characters.
-    TextEmpty,
-    /// A source name was not recognized.
-    SourceUnknown,
-    /// A reason name was not recognized.
-    ReasonUnknown,
-    /// A problem code was not recognized.
-    ProblemCodeUnknown,
+// Keep the public variants and their stable codes in one declaration.
+macro_rules! errors {
+    ($( $(#[$doc:meta])* $variant:ident => $code:literal ),+ $(,)?) => {
+        /// A rejected value, without retaining the input text.
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        #[non_exhaustive]
+        pub enum Error { $( $(#[$doc])* $variant, )+ }
+        impl Error {
+            /// Return the stable machine-readable code.
+            pub fn code(self) -> &'static str {
+                match self { $(Self::$variant => $code,)+ }
+            }
+        }
+    };
 }
 
-impl Error {
-    /// Return the stable machine-readable code.
-    pub fn code(self) -> &'static str {
-        match self {
-            Self::ProteinResidueInvalid => "protein.residue.invalid",
-            Self::ProteinSiteOrder => "protein.site.order",
-            Self::UniProtIsoformInvalid => "id.uniprot_isoform.invalid",
-            Self::InterProIdInvalid => "id.interpro.invalid",
-            Self::ComplexPortalIdInvalid => "id.complex_portal.invalid",
-            Self::ClinPgxAccession => "id.clinpgx.invalid",
-            Self::DiagnosticIdInvalid => "diagnostic.id.invalid",
-            Self::DrugIdInvalid => "drug.id.invalid",
-            Self::DrugIdentityLevelUnknown => "drug.identity_level.unknown",
-            Self::PopulationCountExceedsNumber => "population.count.exceeds_number",
-            Self::PopulationFrequencyRange => "population.frequency.range",
-            Self::NumberNonFinite => "number.value.non_finite",
-
-            Self::VariantRefInvalid => "variant.reference.invalid",
-            Self::CurieInvalid => "concept.curie.invalid",
-            Self::AccessionDigitsWidth => "accession.digits.width",
-            Self::AccessionVersionMissing => "accession.version.missing",
-            Self::AccessionVersionLeadingZero => "accession.version.leading_zero",
-            Self::AccessionVersionOverflow => "accession.version.overflow",
-            Self::AccessionLrgInvalid => "accession.lrg.invalid",
-            Self::SequenceRna => "sequence.base.rna",
-            Self::ExpressionSyntaxUnknown => "expression.syntax.unknown",
-
-            Self::IntervalBuildAbsent => "coord.interval.build_absent",
-            Self::IntervalBuildMismatch => "coord.interval.build_mismatch",
-            Self::IntervalChromosomeMismatch => "coord.interval.chromosome_mismatch",
-            Self::AccessionVersionPresent => "accession.version.present",
-            Self::ManeStatusUnknown => "gene.mane.status_unknown",
-            Self::DrugTargetAbsent => "drug.target_absent",
-            Self::DrugAttributionDuplicate => "drug.attribution_duplicate",
-            Self::GeneRefLabelEmpty => "gene.ref.label_empty",
-            Self::HgvsTextEmpty => "hgvs.text.empty",
-            Self::HgvsReferenceMissing => "hgvs.reference.missing",
-            Self::HgvsReferenceInvalid => "hgvs.reference.invalid",
-            Self::HgvsInnerReferenceInvalid => "hgvs.inner_reference.invalid",
-            Self::HgvsSyntaxUnknown => "hgvs.syntax.unknown",
-            Self::HgvsBodyEmpty => "hgvs.body.empty",
-            Self::HgvsBodyUnprintable => "hgvs.body.unprintable",
-            Self::RsIdInvalid => "id.rs.invalid",
-            Self::CaIdInvalid => "id.ca.invalid",
-            Self::PaIdInvalid => "id.pa.invalid",
-            Self::VcvIdInvalid => "id.vcv.invalid",
-            Self::RcvIdInvalid => "id.rcv.invalid",
-            Self::ScvIdInvalid => "id.scv.invalid",
-            Self::ClinVarVariationIdInvalid => "id.clinvar_variation.invalid",
-            Self::ClinVarAlleleIdInvalid => "id.clinvar_allele.invalid",
-            Self::CosmicIdInvalid => "id.cosmic.invalid",
-            Self::VrsIdInvalid => "id.vrs.invalid",
-
-            Self::VariantIdInvalid => "id.variant.unknown",
-            Self::NotationInvalid => "expression.value.invalid",
-            Self::AccessionInvalid => "accession.prefix.unknown",
-            Self::ChromosomeInvalid => "coord.chromosome.invalid",
-            Self::SequenceInvalid => "sequence.base.invalid",
-            Self::AlleleReferenceLength => "allele.reference.length",
-            Self::AlleleEmpty => "allele.state.empty",
-            Self::VariantInputInvalid => "variant.input.invalid",
-            Self::TrialIdInvalid => "id.trial.invalid",
-            Self::ArticleIdInvalid => "id.article.invalid",
-            Self::LocusTypeUnknown => "gene.locus_type.unknown",
-            Self::BuildUnknown => "coord.build.unknown",
-            Self::StrandUnknown => "coord.strand.unknown",
-            Self::ContigInvalid => "coord.contig.invalid",
-
-            Self::GeneStatusUnknown => "gene.status.unknown",
-            Self::LocusGroupUnknown => "gene.locus_group.unknown",
-            Self::MatchKindUnknown => "gene.match_kind.unknown",
-            Self::SummarySourceUnknown => "gene.summary_source.unknown",
-            Self::HgncStatusUnknown => "gene.hgnc_status.unknown",
-
-            Self::NcbiGeneIdInvalid => "id.ncbi_gene.invalid",
-            Self::GeneSymbolInvalid => "gene.symbol.invalid",
-            Self::OmimIdInvalid => "id.omim.invalid",
-            Self::UniProtAccInvalid => "id.uniprot.invalid",
-            Self::CytobandInvalid => "cytoband.invalid",
-            Self::EnsemblGeneIdInvalid => "id.ensembl_gene.invalid",
-
-            Self::HgncIdInvalid => "id.hgnc.invalid",
-            Self::DateInvalid => "date.invalid",
-            Self::PositionZero => "coord.position.zero",
-            Self::SpanOrder => "coord.span.order",
-            Self::TextEmpty => "text.empty",
-            Self::SourceUnknown => "source.unknown",
-            Self::ReasonUnknown => "reason.unknown",
-            Self::ProblemCodeUnknown => "problem_code.unknown",
-        }
-    }
+errors! {
+    /// Invalid amino-acid residue text.
+    ProteinResidueInvalid => "protein.residue.invalid",
+    /// A protein site ends before its position.
+    ProteinSiteOrder => "protein.site.order",
+    /// Malformed UniProt accession or isoform suffix.
+    UniProtIsoformInvalid => "id.uniprot_isoform.invalid",
+    /// Malformed integrated InterPro accession.
+    InterProIdInvalid => "id.interpro.invalid",
+    /// Malformed Complex Portal accession.
+    ComplexPortalIdInvalid => "id.complex_portal.invalid",
+    /// Invalid ClinPGx object accession.
+    ClinPgxAccession => "id.clinpgx.invalid",
+    /// A source-native diagnostic identifier failed its grammar.
+    DiagnosticIdInvalid => "diagnostic.id.invalid",
+    /// A published native drug identifier was invalid.
+    DrugIdInvalid => "drug.id.invalid",
+    /// Neither a source gene nor native target identifies the relation.
+    DrugTargetAbsent => "drug.target_absent",
+    /// Interaction provenance repeats a primary or further attribution.
+    DrugAttributionDuplicate => "drug.attribution_duplicate",
+    /// The source identity level is outside the closed vocabulary.
+    DrugIdentityLevelUnknown => "drug.identity_level.unknown",
+    /// A shared numeric value violates its bounds.
+    PopulationCountExceedsNumber => "population.count.exceeds_number",
+    /// A shared numeric value violates its bounds.
+    PopulationFrequencyRange => "population.frequency.range",
+    /// A shared numeric value violates its bounds.
+    NumberNonFinite => "number.value.non_finite",
+    /// A subject reference lacks its source identity or notation.
+    VariantRefInvalid => "variant.reference.invalid",
+    /// A concept identifier lacks a checked prefix or local part.
+    CurieInvalid => "concept.curie.invalid",
+    /// The shared grammar refused the value.
+    AccessionDigitsWidth => "accession.digits.width",
+    /// The shared grammar refused the value.
+    AccessionVersionMissing => "accession.version.missing",
+    /// The shared grammar refused the value.
+    AccessionVersionLeadingZero => "accession.version.leading_zero",
+    /// The shared grammar refused the value.
+    AccessionVersionOverflow => "accession.version.overflow",
+    /// The shared grammar refused the value.
+    AccessionLrgInvalid => "accession.lrg.invalid",
+    /// The shared grammar refused the value.
+    SequenceRna => "sequence.base.rna",
+    /// The shared grammar refused the value.
+    ExpressionSyntaxUnknown => "expression.syntax.unknown",
+    /// The common value refused this input.
+    IntervalBuildAbsent => "coord.interval.build_absent",
+    /// The common value refused this input.
+    IntervalBuildMismatch => "coord.interval.build_mismatch",
+    /// The common value refused this input.
+    IntervalChromosomeMismatch => "coord.interval.chromosome_mismatch",
+    /// The common value refused this input.
+    AccessionVersionPresent => "accession.version.present",
+    /// The common value refused this input.
+    ManeStatusUnknown => "gene.mane.status_unknown",
+    /// The common value refused this input.
+    GeneRefLabelEmpty => "gene.ref.label_empty",
+    /// The common value refused this input.
+    HgvsTextEmpty => "hgvs.text.empty",
+    /// The common value refused this input.
+    HgvsReferenceMissing => "hgvs.reference.missing",
+    /// The common value refused this input.
+    HgvsReferenceInvalid => "hgvs.reference.invalid",
+    /// The common value refused this input.
+    HgvsInnerReferenceInvalid => "hgvs.inner_reference.invalid",
+    /// The common value refused this input.
+    HgvsSyntaxUnknown => "hgvs.syntax.unknown",
+    /// The common value refused this input.
+    HgvsBodyEmpty => "hgvs.body.empty",
+    /// The common value refused this input.
+    HgvsBodyUnprintable => "hgvs.body.unprintable",
+    /// The common value refused this input.
+    RsIdInvalid => "id.rs.invalid",
+    /// The common value refused this input.
+    CaIdInvalid => "id.ca.invalid",
+    /// The common value refused this input.
+    PaIdInvalid => "id.pa.invalid",
+    /// The common value refused this input.
+    VcvIdInvalid => "id.vcv.invalid",
+    /// The common value refused this input.
+    RcvIdInvalid => "id.rcv.invalid",
+    /// The common value refused this input.
+    ScvIdInvalid => "id.scv.invalid",
+    /// The common value refused this input.
+    ClinVarVariationIdInvalid => "id.clinvar_variation.invalid",
+    /// The common value refused this input.
+    ClinVarAlleleIdInvalid => "id.clinvar_allele.invalid",
+    /// The common value refused this input.
+    CosmicIdInvalid => "id.cosmic.invalid",
+    /// The common value refused this input.
+    VrsIdInvalid => "id.vrs.invalid",
+    /// A published variant identifier was invalid.
+    VariantIdInvalid => "id.variant.unknown",
+    /// The source notation did not match its declared form.
+    NotationInvalid => "expression.value.invalid",
+    /// A versioned sequence accession was invalid.
+    AccessionInvalid => "accession.prefix.unknown",
+    /// A canonical primary chromosome was invalid.
+    ChromosomeInvalid => "coord.chromosome.invalid",
+    /// A DNA base or sequence was invalid.
+    SequenceInvalid => "sequence.base.invalid",
+    /// Allele reference length differs from its span.
+    AlleleReferenceLength => "allele.reference.length",
+    /// An allele has neither reference nor alternate bases.
+    AlleleEmpty => "allele.state.empty",
+    /// Input is not a published variant identifier.
+    VariantInputInvalid => "variant.input.invalid",
+    /// A trial identifier failed its namespace syntax.
+    TrialIdInvalid => "id.trial.invalid",
+    /// An article identifier failed its namespace syntax.
+    ArticleIdInvalid => "id.article.invalid",
+    /// The checked NcbiGeneIdInvalid value was rejected.
+    NcbiGeneIdInvalid => "id.ncbi_gene.invalid",
+    /// The checked GeneSymbolInvalid value was rejected.
+    GeneSymbolInvalid => "gene.symbol.invalid",
+    /// The checked OmimIdInvalid value was rejected.
+    OmimIdInvalid => "id.omim.invalid",
+    /// The checked UniProtAccInvalid value was rejected.
+    UniProtAccInvalid => "id.uniprot.invalid",
+    /// The checked CytobandInvalid value was rejected.
+    CytobandInvalid => "cytoband.invalid",
+    /// The checked EnsemblGeneIdInvalid value was rejected.
+    EnsemblGeneIdInvalid => "id.ensembl_gene.invalid",
+    /// The GeneStatusUnknown boundary rejected a value.
+    GeneStatusUnknown => "gene.status.unknown",
+    /// The LocusGroupUnknown boundary rejected a value.
+    LocusGroupUnknown => "gene.locus_group.unknown",
+    /// The MatchKindUnknown boundary rejected a value.
+    MatchKindUnknown => "gene.match_kind.unknown",
+    /// The SummarySourceUnknown boundary rejected a value.
+    SummarySourceUnknown => "gene.summary_source.unknown",
+    /// The HgncStatusUnknown boundary rejected a value.
+    HgncStatusUnknown => "gene.hgnc_status.unknown",
+    /// The LocusTypeUnknown boundary rejected a value.
+    LocusTypeUnknown => "gene.locus_type.unknown",
+    /// The BuildUnknown boundary rejected a value.
+    BuildUnknown => "coord.build.unknown",
+    /// The StrandUnknown boundary rejected a value.
+    StrandUnknown => "coord.strand.unknown",
+    /// The ContigInvalid boundary rejected a value.
+    ContigInvalid => "coord.contig.invalid",
+    /// An HGNC identifier was not canonical positive u32 text.
+    HgncIdInvalid => "id.hgnc.invalid",
+    /// A date had invalid precision or calendar components.
+    DateInvalid => "date.invalid",
+    /// A one-based position was zero.
+    PositionZero => "coord.position.zero",
+    /// A span ended before its start.
+    SpanOrder => "coord.span.order",
+    /// Text contained no non-whitespace characters.
+    TextEmpty => "text.empty",
+    /// A source name was not recognized.
+    SourceUnknown => "source.unknown",
+    /// A reason name was not recognized.
+    ReasonUnknown => "reason.unknown",
+    /// A problem code was not recognized.
+    ProblemCodeUnknown => "problem_code.unknown",
 }
 
 impl std::fmt::Display for Error {
