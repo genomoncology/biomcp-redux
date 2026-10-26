@@ -27,6 +27,7 @@ mod record;
 mod request;
 mod retry;
 mod secret;
+mod wire_request;
 pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;

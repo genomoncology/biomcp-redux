@@ -14,7 +14,7 @@ Each key is read from the config file's `keys` or its environment variable, sent
 - [x] `oncokb_api_key` (keyed): OncoKB variant
 - [x] `semantic_scholar_api_key` (optional): Semantic Scholar
 - [x] NCI Clinical Trials Search key (keyed)
-- [ ] openFDA key (optional); [ticket 0277](sdlc/tickets/0277-openfda-optional-key.md)
+- [x] openFDA key (optional)
 - Dropped: UMLS keyed integration; the [disease source ruling](sdlc/planning/slices/disease.md) found no indispensable keyed dependency.
 - [ ] AlphaGenome key (keyed); [ticket 0198](sdlc/tickets/0198-alphagenome-variant-section.md), after [transport design 0271](sdlc/tickets/0271-alphagenome-grpc-transport-design.md)
 - [ ] ORCID credentials (optional); PM ruling for [ticket 0280](sdlc/tickets/0280-docs-drift-and-roadmap-hygiene.md) defers keyed proof until an `ORCID_ACCESS_TOKEN` is available; public access uses the keyless rate

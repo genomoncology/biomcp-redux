@@ -95,6 +95,10 @@ fn unrelated_and_disabled_commands_never_read_keys() {
 fn called_sources_read_only_their_own_environment_key_once() {
     let cases = [
         (
+            SecretName::OpenfdaApiKey,
+            vec!["get", "diagnostic", "K173492", "--source", "fda-510k"],
+        ),
+        (
             SecretName::NcbiApiKey,
             vec!["search", "article", "EGFR", "--source", "pubmed"],
         ),
@@ -255,4 +259,36 @@ fn disabled_author_sources_never_read_credentials() {
             }
         }
     }
+}
+
+#[test]
+fn disabled_openfda_sources_never_read_credentials() {
+    for (source, entity, id) in [
+        (
+            "openfda-label",
+            "drug",
+            "00000000-0000-0000-0000-000000000001",
+        ),
+        ("drugsfda", "drug", "NDA021335"),
+        ("faers", "adverse-event", "10000001"),
+        ("maude", "adverse-event", "10000001"),
+        ("fda-pma", "diagnostic", "P150013"),
+        ("fda-510k", "diagnostic", "K173492"),
+    ] {
+        let command = [
+            "get",
+            entity,
+            id,
+            "--source",
+            source,
+            "--disable-sources",
+            source,
+        ];
+        assert_eq!(execute(&command, None), 0);
+        assert_eq!(
+            execute(command.get(..5).unwrap(), Some(SecretName::OpenfdaApiKey)),
+            1
+        );
+    }
+    assert_eq!(execute(&["sync", "fda-cdx"], None), 0);
 }
