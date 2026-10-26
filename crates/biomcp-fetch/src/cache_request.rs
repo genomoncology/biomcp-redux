@@ -48,6 +48,16 @@ impl Leg<'_> {
             .map(|(reply, _)| reply)
     }
 
+    /// Preserve per-reply metadata while withholding request-mismatched rows from cache.
+    pub fn json_received_checked_cache<T: Reply>(
+        &self,
+        endpoint: &Endpoint,
+        params: &[(&str, crate::Arg<'_>)],
+        cache_if: impl Fn(&T) -> bool,
+    ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.parameters(endpoint, params, Decoder::json().cache_if(&cache_if))
+    }
+
     pub(crate) fn cached<T: Reply>(
         &self,
         endpoint: &Endpoint,
@@ -96,26 +106,13 @@ impl Leg<'_> {
             }
         }
         match live() {
-            Ok((reply, status, body, fetched, range, pagination)) => {
-                let mut entry = Entry::new(status, body, seconds, codec.name());
-                entry.fetched_at = fetched;
-                entry.content_range = range;
-                entry.pagination = pagination;
-                if (200..300).contains(&status) && codec.cacheable(&reply) {
-                    cache.write(key, self.spec.source, url, &entry, self.budget())?;
-                } else if codec.json_absence && status == 404 {
-                    cache.remove(key, self.budget())?;
-                }
-                Ok((
-                    reply,
-                    fetched,
-                    entry
-                        .content_range
-                        .as_deref()
-                        .and_then(crate::ContentRange::parse),
-                    entry.pagination,
-                ))
-            }
+            Ok((reply, status, body, fetched, range, pagination)) => self.admit_live(
+                cache,
+                prepared,
+                codec,
+                seconds,
+                (reply, status, body, fetched, range, pagination),
+            ),
             Err(RequestError::Source(error)) if error.reason == Reason::NotFound => {
                 // A current absence replaces a formerly positive entry; no stale
                 // result can override it and the provider body is never stored.
@@ -146,6 +143,49 @@ impl Leg<'_> {
             }
             Err(error) => Err(error),
         }
+    }
+
+    fn admit_live<T: Reply>(
+        &self,
+        cache: &Cache,
+        prepared: &crate::prepared::Prepared,
+        codec: &Decoder<T>,
+        seconds: u64,
+        decoded: crate::request::Decoded<T>,
+    ) -> Result<
+        (
+            T,
+            i64,
+            Option<crate::ContentRange>,
+            Option<crate::Pagination>,
+        ),
+        RequestError,
+    > {
+        let (reply, status, body, fetched, range, pagination) = decoded;
+        let mut entry = Entry::new(status, body, seconds, codec.name());
+        entry.fetched_at = fetched;
+        entry.content_range = range;
+        entry.pagination = pagination;
+        if (200..300).contains(&status) && codec.cacheable(&reply) {
+            cache.write(
+                &prepared.identity,
+                self.spec.source,
+                &prepared.url,
+                &entry,
+                self.budget(),
+            )?;
+        } else if codec.json_absence && status == 404 {
+            cache.remove(&prepared.identity, self.budget())?;
+        }
+        Ok((
+            reply,
+            fetched,
+            entry
+                .content_range
+                .as_deref()
+                .and_then(crate::ContentRange::parse),
+            entry.pagination,
+        ))
     }
 
     fn offline<T: Reply>(

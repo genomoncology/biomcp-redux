@@ -259,3 +259,62 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         .unwrap();
     assert_eq!(leg.finish().replies[0].fetched, 1234567890);
 }
+
+#[test]
+fn native_search_headers_survive_record_replay_and_offline_cache() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("native.sqlite");
+    let recordings = directory.path().join("recordings");
+    let server = Server::new();
+    let original = spec(&server, KeyUse::None);
+    let spec = Box::leak(Box::new(SourceSpec {
+        user_agent: None,
+        source: biomcp_types::Source::UniProt,
+        base: original.base,
+        key: KeyUse::None,
+        quota: original.quota,
+        deadline: original.deadline,
+        terms: biomcp_fetch::Terms {
+            name: "Synthetic",
+            url: "https://example.test/terms",
+            usage: biomcp_types::Use::Open,
+        },
+    }));
+    let endpoint = spec.get("/uniprotkb/search").fresh(Freshness::Hours(1));
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: recordings.clone(),
+        },
+        ..config(&path)
+    })
+    .unwrap();
+    let run = |fetch: &Fetch| {
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+        let (reply, meta) = leg.json_received::<Answer>(&endpoint, &[]).unwrap();
+        assert!(reply.answer);
+        let page = meta.pagination.unwrap();
+        assert_eq!(page.total, 17);
+        assert_eq!(
+            page.next.as_deref(),
+            Some("https://rest.uniprot.org/uniprotkb/search?cursor=native-cursor")
+        );
+    };
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| run(&fetch));
+        server.next().respond(200, "X-Total-Results: 17\r\nLink: <https://rest.uniprot.org/uniprotkb/search?cursor=native-cursor>; rel=\"next\"\r\n", r#"{"answer":true}"#);
+        worker.join().unwrap();
+    });
+    drop(fetch);
+    run(&Fetch::open(config(&path)).unwrap());
+    run(&Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        ..config(&path)
+    })
+    .unwrap());
+    run(&Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: recordings },
+        ..FetchConfig::default()
+    })
+    .unwrap());
+    assert!(server.requests.try_recv().is_err());
+}

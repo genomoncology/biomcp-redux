@@ -50,7 +50,9 @@ pub fn search(
         .get("/uniprotkb/search")
         .identity_encoding()
         .fresh(Freshness::Days(1));
-    let (raw, meta) = leg.json_received_checked::<Rows>(&ep, &args, |_| Ok(()))?;
+    let (raw, meta) = leg.json_received_checked_cache::<Rows>(&ep, &args, |rows| {
+        rows.results.iter().all(entry::raw::Entry::human_reviewed)
+    })?;
     let page = meta.pagination.ok_or_else(bad)?;
     let cursor = page
         .next
