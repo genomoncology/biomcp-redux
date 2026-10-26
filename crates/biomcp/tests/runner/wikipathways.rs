@@ -135,6 +135,7 @@ fn concurrent() -> Check {
     Ok(())
 }
 fn native() -> Check {
+    use std::io::Write;
     let root=super::launch::fixtures().join("cases/wikipathways-native");
     let registry=super::schema::Registry::embedded()?;
     let mut files=fs::read_dir(root).map_err(|e|e.to_string())?.map(|e|e.map(|e|e.path()).map_err(|e|e.to_string())).collect::<Result<Vec<_>,_>>()?;
@@ -143,7 +144,7 @@ fn native() -> Check {
         let value=super::run_case(&path,&registry)?;
         let full=serde_json::to_vec(&value).map_err(|e|e.to_string())?.len();
         let comparable=super::source_terms::size(&value,"")?;
-        println!("WIKIPATHWAYS_MEASURE {}",json!({"case":path.file_name().and_then(|n|n.to_str()).ok_or("filename")?,"full_cli_bytes":full+1,"full_mcp_bytes":full,"comparable_cli_bytes":comparable+1,"comparable_mcp_bytes":comparable,"tokens":comparable.div_ceil(4)}));
+        writeln!(std::io::stdout(),"WIKIPATHWAYS_MEASURE {}",json!({"case":path.file_name().and_then(|n|n.to_str()).ok_or("filename")?,"full_cli_bytes":full+1,"full_mcp_bytes":full,"comparable_cli_bytes":comparable+1,"comparable_mcp_bytes":comparable,"tokens":comparable.div_ceil(4)})).map_err(|e|e.to_string())?;
     }
     Ok(())
 }
