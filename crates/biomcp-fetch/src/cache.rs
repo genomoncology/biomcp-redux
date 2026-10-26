@@ -117,9 +117,14 @@ impl Cache {
         connection.busy_timeout(OPEN_WAIT).map_err(db_error)?;
         Self::initialize(&mut connection)?;
         // Ownership is validated before changing the file's journal mode.
-        connection
-            .pragma_update(None, "journal_mode", "WAL")
+        let journal: String = connection
+            .pragma_query_value(None, "journal_mode", |row| row.get(0))
             .map_err(db_error)?;
+        if !journal.eq_ignore_ascii_case("wal") {
+            connection
+                .pragma_update(None, "journal_mode", "WAL")
+                .map_err(db_error)?;
+        }
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
@@ -128,6 +133,24 @@ impl Cache {
     }
 
     fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
+        let has_meta: bool = connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?;
+        if has_meta
+            && connection
+                .query_row("SELECT version FROM meta WHERE owner=?1", [OWNER], |row| {
+                    row.get::<_, u32>(0)
+                })
+                .optional()
+                .map_err(|_| CacheError::Version)?
+                == Some(VERSION)
+        {
+            return Ok(());
+        }
         let tx = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
@@ -197,24 +220,20 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        if deadline.virtual_time() {
-            // Replay threads can overlap their SQL. Wait for the in-process
-            // owner, while external SQLite contention still fails immediately.
-            let connection = self.0.lock().map_err(|_| CacheError::Database)?;
-            if deadline.expired() {
-                return Err(CacheError::Busy);
-            }
-            connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
-            return operation(&connection);
-        }
+        let started = std::time::Instant::now();
+        let remaining = deadline.remaining();
         loop {
-            if deadline.expired() {
+            if deadline.expired() || started.elapsed() >= remaining {
                 return Err(CacheError::Busy);
             }
             match self.0.try_lock() {
                 Ok(connection) => {
                     connection
-                        .busy_timeout(deadline.remaining())
+                        .busy_timeout(if deadline.virtual_time() {
+                            Duration::ZERO
+                        } else {
+                            deadline.remaining()
+                        })
                         .map_err(db_error)?;
                     return operation(&connection);
                 }
@@ -233,23 +252,60 @@ impl Cache {
         deadline: Deadline<'_>,
     ) -> Result<Option<Entry>, CacheError> {
         let limit = i64::try_from(max_body).unwrap_or(i64::MAX);
-        self.sql(deadline, |connection| {
+        if deadline.expired() {
+            return Err(CacheError::Busy);
+        }
+        let connection = self.0.try_lock().map_err(|error| match error {
+            std::sync::TryLockError::WouldBlock => CacheError::Busy,
+            std::sync::TryLockError::Poisoned(_) => CacheError::Database,
+        })?;
+        connection.busy_timeout(Duration::ZERO).map_err(db_error)?;
+        let operation = |connection: &Connection| {
             let entry = connection.query_row(
                 "SELECT status, CASE WHEN length(body)<=?2 THEN body ELSE NULL END, fresh_until, fetched_at, content_type, content_range, pagination FROM reply WHERE key=?1",
                 params![key, limit], |row| Ok((row.get::<_, u16>(0)?, row.get::<_, Option<Vec<u8>>>(1)?, row.get::<_, i64>(2)?, row.get::<_, i64>(3)?, row.get::<_, Option<String>>(4)?, row.get::<_, Option<String>>(5)?, row.get::<_, Option<String>>(6)?)),
             ).optional().map_err(db_error)?;
             match entry {
-                Some((status, Some(body), fresh_until, fetched_at, content_type, content_range, pagination)) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
-                    let pagination = pagination.map(|p| serde_json::from_str::<crate::Pagination>(&p)).transpose();
+                Some((
+                    status,
+                    Some(body),
+                    fresh_until,
+                    fetched_at,
+                    content_type,
+                    content_range,
+                    pagination,
+                )) if (200..300).contains(&status) || status == 404 && body.is_empty() => {
+                    let pagination = pagination
+                        .map(|p| serde_json::from_str::<crate::Pagination>(&p))
+                        .transpose();
                     match pagination {
-                        Ok(pagination) if pagination.as_ref().is_none_or(crate::Pagination::valid) => Ok(Some(Entry {status, body, fresh_until, fetched_at, content_type, content_range, pagination})),
-                        _ => { Self::delete(connection, key)?; Ok(None) }
+                        Ok(pagination)
+                            if pagination.as_ref().is_none_or(crate::Pagination::valid) =>
+                        {
+                            Ok(Some(Entry {
+                                status,
+                                body,
+                                fresh_until,
+                                fetched_at,
+                                content_type,
+                                content_range,
+                                pagination,
+                            }))
+                        }
+                        _ => {
+                            Self::delete(connection, key)?;
+                            Ok(None)
+                        }
                     }
                 }
-                Some(_) => { Self::delete(connection, key)?; Ok(None) }
+                Some(_) => {
+                    Self::delete(connection, key)?;
+                    Ok(None)
+                }
                 None => Ok(None),
             }
-        })
+        };
+        operation(&connection)
     }
 
     pub(crate) fn remove(&self, key: &[u8; 32], deadline: Deadline<'_>) -> Result<(), CacheError> {

@@ -343,6 +343,8 @@ pub struct LegReport {
     pub stale: bool,
     /// Original typed provider failures that caused stale replies to be served.
     pub failures: Vec<SourceError>,
+    /// Cache failures that did not invalidate the checked provider answer.
+    pub cache_problems: Vec<CacheError>,
 }
 impl Leg<'_> {
     /// Inspect the same source policy without opening another transport leg.

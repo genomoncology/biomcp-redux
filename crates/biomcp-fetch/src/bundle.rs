@@ -2,6 +2,7 @@
 mod download;
 mod native;
 mod parse;
+mod publish;
 mod set;
 pub use set::{BundlePart, BundleSet, SetRow};
 pub(crate) mod store;

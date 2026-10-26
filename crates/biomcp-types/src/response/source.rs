@@ -53,6 +53,11 @@ pub struct SourceOutcome {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
+    /// A checked provider answer survived a local cache failure.
+    CacheProblem {
+        /// Bounded local failure without paths or database diagnostics.
+        reason: CacheProblem,
+    },
     /// The source still has graph pages after the bounded fetch window.
     GraphTruncated {
         /// Default-source command offering another graph view.
@@ -63,4 +68,16 @@ pub enum SourceNotice {
         /// Whole source words.
         words: Box<[crate::Text]>,
     },
+}
+
+biodata::wire_enum! {
+/// A local cache failure that leaves the provider outcome intact.
+CacheProblem {
+    /// The cache connection or file was busy.
+    Busy => "busy",
+    /// The cache could not store or remove a reply.
+    Database => "database",
+    /// Cache ownership or schema validation failed.
+    Version => "version",
+}
 }

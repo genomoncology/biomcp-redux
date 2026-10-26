@@ -25,7 +25,7 @@ pub(crate) fn source(
         Some(RequestError::Source(error)) => Some(error.reason),
         _ => report.failures.first().map(|failure| failure.reason),
     };
-    biomcp_adapters::registry::outcome(
+    let mut outcome = biomcp_adapters::registry::outcome(
         source,
         if matches!(
             reason,
@@ -42,7 +42,19 @@ pub(crate) fn source(
             SourceState::Ok
         },
         reason,
-    )
+    );
+    outcome
+        .notices
+        .extend(report.cache_problems.into_iter().map(|error| {
+            biomcp_types::SourceNotice::CacheProblem {
+                reason: match error {
+                    biomcp_fetch::CacheError::Busy => biomcp_types::CacheProblem::Busy,
+                    biomcp_fetch::CacheError::Database => biomcp_types::CacheProblem::Database,
+                    biomcp_fetch::CacheError::Version => biomcp_types::CacheProblem::Version,
+                },
+            }
+        }));
+    outcome
 }
 pub(crate) fn local(error: RequestError) -> Option<RequestError> {
     (!matches!(error, RequestError::Source(_))).then_some(error)
