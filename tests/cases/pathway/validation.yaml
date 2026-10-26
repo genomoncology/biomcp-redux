@@ -101,35 +101,6 @@
     },
     {
       "run": [
-        "get",
-        "pathway",
-        "R-HSA-5673001",
-        "genes"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      },
-      "max_bytes": 166,
-      "max_tokens": 42
-    },
-    {
-      "run": [
-        "search",
-        "pathway",
-        "text",
-        "--source",
-        "wikipathways"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      },
-      "max_bytes": 166,
-      "max_tokens": 42
-    },
-    {
-      "run": [
         "search",
         "pathway",
         "zzzzNoPathway0191"

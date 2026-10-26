@@ -49,6 +49,10 @@ fn search_selectors_and_page_bounds_are_checked_before_io() {
     ] {
         let checked: PathwaySearch = serde_json::from_value(query).expect("valid selector");
         assert_eq!(checked.at_offset(10).offset(), 10);
+        assert_eq!(
+            checked.reactome_leg().source(),
+            biomcp_types::PathwaySource::Reactome
+        );
         assert!((1..=50).contains(&checked.limit()));
     }
     for query in [
@@ -119,6 +123,21 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
         roundtrip::<PathwayEventsQuery>(q.clone()).expect("public round-trip"),
         q
     );
+    let details: PathwayGenesQuery =
+        serde_json::from_value(json!({"id":"R-HSA-5673001","details":"details"}))
+            .expect("explicit full-context disclosure");
+    assert!(details.at_offset(5).details());
+    assert!(details.restart().details());
+    assert!(
+        serde_json::from_value::<PathwayEventsQuery>(
+            json!({"id":"R-HSA-5673001","details":"details"})
+        )
+        .is_err()
+    );
+    assert!(
+        serde_json::from_value::<PathwayGenesQuery>(json!({"id":"R-HSA-5673001","details":null}))
+            .is_err()
+    );
     for q in [
         json!({"id":"WP382"}),
         json!({"id":"R-HSA-5673001","limit":51}),
@@ -152,13 +171,14 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
         .insert("species".into(), json!("Mus musculus"));
     assert!(serde_json::from_value::<Pathway>(foreign).is_err());
     for accession in ["P01116-1", "P01116-2"] {
-        let member = json!({"reference":{"namespace":"uniprot","value":accession},"name":format!("UniProt:{accession} KRAS"),"gene":"HGNC:6407","schema_class":"ReferenceIsoform","participants":[{"db_id":5672718,"name":"p21 RAS:GTP:activated RAF homo/heterodimer complexes [plasma membrane]","schema_class":"Complex"}]});
+        let member = json!({"reference":{"namespace":"uniprot","value":accession},"name":format!("UniProt:{accession} KRAS"),"gene":"HGNC:6407","schema_class":"ReferenceIsoform","physical_context_count":1,"participants":[{"db_id":5672718,"name":"p21 RAS:GTP:activated RAF homo/heterodimer complexes [plasma membrane]","schema_class":"Complex"}]});
         assert_eq!(
             roundtrip::<PathwayMember>(member.clone()).expect("public round-trip"),
             member
         );
     }
-    let unknown = json!({"reference":{"namespace":"chebi","value":"15377"},"participants":[]});
+    let unknown =
+        json!({"reference":{"namespace":"chebi","value":"15377"},"physical_context_count":0});
     assert_eq!(
         roundtrip::<PathwayMember>(unknown.clone()).expect("public round-trip"),
         unknown

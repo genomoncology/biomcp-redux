@@ -55,15 +55,20 @@ fn page(env: &Environment, number: u32, total: u32, exponent: i64) -> Result<Pat
     seed(env, &args, value, 200, 0)
 }
 pub(super) fn walk() -> Result<(), String> {
-    for (threshold, exponent, count) in [
-        ("4e-254", -254, 6),
-        ("4e-400", -400, 6),
-        ("3e-254", -254, 0),
+    for (threshold, exponent, count, fresh) in [
+        ("4e-254", -254, 6, false),
+        ("4e-254", -254, 6, true),
+        ("4e-400", -400, 6, false),
+        ("3e-254", -254, 0, false),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = page(&env, 0, 6, exponent)?;
         page(&env, 1, 6, exponent)?;
-        let first = call(&env, &replay, &start(threshold), 0)?;
+        let mut args = start(threshold);
+        if fresh {
+            args.push("--fresh");
+        }
+        let first = call(&env, &replay, &args, 0)?;
         if count == 0 {
             final_count(&first, 0)?;
             continue;
@@ -189,14 +194,20 @@ pub(super) fn native(directory: &Path) -> Result<(), String> {
         .map(|entry| entry.map(|entry| entry.path()).map_err(|e| e.to_string()))
         .collect::<Result<Vec<_>, _>>()?;
     paths.sort();
-    if paths.len() != 8 {
-        return Err("expected eight threshold native cases".into());
+    if paths.len() != 10 {
+        return Err("expected ten threshold native cases".into());
     }
     let outputs = directory
         .parent()
         .ok_or("fixture root")?
         .join("gwas-native-outputs");
     fs::create_dir(&outputs).map_err(|e| e.to_string())?;
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> =
+        serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/gwas-threshold-budgets.json"
+        )))
+        .map_err(|e| e.to_string())?;
     for path in paths {
         let value = super::super::run_case(&path, &registry)?;
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?;
@@ -205,6 +216,14 @@ pub(super) fn native(directory: &Path) -> Result<(), String> {
             .file_stem()
             .and_then(|v| v.to_str())
             .ok_or("case name")?;
+        let [full, comparable_limit] = budgets.get(name).ok_or("case budget")?;
+        if bytes.len() + 1 > (full * 115).div_ceil(100)
+            || comparable > (comparable_limit * 115).div_ceil(100)
+        {
+            return Err(format!(
+                "{name} exceeded its measured fifteen-percent output ceiling"
+            ));
+        }
         fs::write(outputs.join(format!("{name}.json")), &bytes).map_err(|e| e.to_string())?;
         writeln!(
             std::io::stdout(),

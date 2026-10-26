@@ -151,13 +151,14 @@ fn invalid(env: &Environment, replay: &Path) -> Result<(), String> {
     ] {
         let args = [vec!["search", "gwas"], tail].concat();
         let value = call(env, replay, &args, 2)?;
-        if args.last() == Some(&"0")
+        if args.contains(&"--p-value")
+            && args.last() == Some(&"0")
             && value.pointer("/error/message")
                 != Some(&json!(
                     "--p-value threshold must be a positive probability in scientific notation"
                 ))
         {
-            return Err(format!("missing deferred threshold explanation: {value}"));
+            return Err(format!("missing positive threshold explanation: {value}"));
         }
         if value.get("sources").is_some() {
             return Err("invalid selector reached source".into());

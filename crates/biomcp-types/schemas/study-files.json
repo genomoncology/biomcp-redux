@@ -570,28 +570,39 @@
     },
     "StudyFiles": {
       "additionalProperties": false,
-      "description": "One independently acquired, bounded native metadata collection.",
+      "description": "One native repository directory page; blob sizes do not describe data content.",
       "properties": {
         "acquired": {
-          "description": "Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.",
+          "description": "Directory acquisition wall time in Unix seconds.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "items": {
-          "description": "Complete ordered metadata records, never member sample IDs.",
+          "description": "Source-ordered repository file references.",
           "items": {
             "$ref": "#/$defs/StudyFile"
           },
           "type": "array"
         },
+        "license_notice": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native LICENSE publisher link, independent of the current file page."
+        },
         "page": {
           "$ref": "#/$defs/PageInfo",
-          "description": "Bounds and source-stated total for this collection."
+          "description": "Bounds within the complete received directory."
         },
         "study_id": {
           "$ref": "#/$defs/StudyId",
-          "description": "Exact study scope of this collection."
+          "description": "Exact study directory scope."
         }
       },
       "required": [

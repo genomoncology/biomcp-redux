@@ -265,6 +265,17 @@
               ],
               "description": "Native class; a reaction is not automatically a pathway."
             },
+            "source_url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Publisher record URL for the event's own stable identity, never the parent pathway."
+            },
             "version": {
               "anyOf": [
                 {
@@ -314,14 +325,14 @@
     },
     "PathwayGenes": {
       "additionalProperties": false,
-      "description": "Independent source-ordered page of whole native references.",
+      "description": "Independent source-ordered distinct membership references and their observed counts.",
       "properties": {
         "header": {
           "$ref": "#/$defs/PathwayHeader",
           "description": "Exact source pathway owning this relation."
         },
         "items": {
-          "description": "Whole native references; unresolved identities remain visible.",
+          "description": "Distinct namespaced source references in first occurrence order.",
           "items": {
             "$ref": "#/$defs/PathwayMember"
           },
@@ -329,13 +340,27 @@
         },
         "page": {
           "$ref": "#/$defs/PathwayPageInfo",
-          "description": "Relation-specific count provenance and continuation."
+          "description": "Distinct-reference total and continuation."
+        },
+        "physical_entities": {
+          "description": "All native physical entities, never described as gene counts.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reference_occurrences": {
+          "description": "All reference occurrences across physical entities before distinct-reference grouping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
         "header",
         "items",
-        "page"
+        "page",
+        "reference_occurrences",
+        "physical_entities"
       ],
       "type": "object"
     },
@@ -547,11 +572,20 @@
           "description": "Native label, never interpreted as a gene symbol."
         },
         "participants": {
-          "description": "Physical source entities that carry this reference; preserve modification context.",
+          "description": "Complete physical contexts, disclosed only by the explicit details view.",
           "items": {
             "$ref": "#/$defs/PathwayParticipant"
           },
-          "type": "array"
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "physical_context_count": {
+          "description": "Number of source physical entity contexts carrying this exact reference.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         },
         "reference": {
           "$ref": "#/$defs/PathwaySourceRef",
@@ -567,11 +601,22 @@
             }
           ],
           "description": "Native reference schema class."
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native reference URL, including therapeutic references without a drug action."
         }
       },
       "required": [
         "reference",
-        "participants"
+        "physical_context_count"
       ],
       "type": "object"
     },
@@ -723,7 +768,8 @@
       "description": "Meaning of the collection total, independent of admitted rows on a page.",
       "enum": [
         "source",
-        "observed"
+        "observed",
+        "distinct_references"
       ],
       "type": "string"
     },
@@ -1478,7 +1524,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_card/2",
+  "$id": "biomcp.pathway_card/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1524,7 +1570,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_card/2",
+      "const": "biomcp.pathway_card/4",
       "type": "string"
     },
     "sources": {

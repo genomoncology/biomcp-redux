@@ -1,4 +1,5 @@
 //! Stored cards and independently acquired bounded metadata sections.
+mod files;
 use super::{empty, finish};
 use crate::{Action, Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
@@ -14,6 +15,7 @@ pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     let mut out = empty(match q.section() {
         Some(StudySection::Profiles) => QueryBody::StudyProfiles(None),
         Some(StudySection::SampleLists) => QueryBody::StudySampleLists(None),
+        Some(StudySection::Files) => QueryBody::StudyFiles(None),
         _ => QueryBody::StudyCard(None),
     });
     if matches!(q.section(), None | Some(StudySection::All)) {
@@ -21,7 +23,11 @@ pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
         let result = card(&leg, q, &mut out);
         finish(&mut out, leg, result.err());
         if let QueryBody::StudyCard(Some(_)) = out.body {
-            for section in [StudySection::Profiles, StudySection::SampleLists] {
+            for section in [
+                StudySection::Profiles,
+                StudySection::SampleLists,
+                StudySection::Files,
+            ] {
                 next(&mut out, cx, StepKind::Section, q.with_section(section));
             }
         }
@@ -32,22 +38,7 @@ pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
         return out;
     }
     sections(cx, q, deadline, &mut out);
-    if q.section() == Some(StudySection::Files) {
-        let leg = cx.fetch.leg(&SPEC, deadline);
-        finish(
-            &mut out,
-            leg,
-            Some(
-                biomcp_fetch::SourceError {
-                    source: Source::Cbioportal,
-                    reason: biomcp_types::Reason::Unsupported,
-                    status: None,
-                    retry_after: None,
-                }
-                .into(),
-            ),
-        );
-    }
+    files::section(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
     out
 }

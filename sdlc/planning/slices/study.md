@@ -407,3 +407,36 @@ The original capture archive does not record per-request acquisition timestamps.
 The first twenty-two native measurements are preserved in `data/biomcp-redux/0238-study-get/j14671-partial.tar.gz` on Yellow, SHA-256 `84f699ec854f2db0e3072d745e6f9558ad18715a0e19c2dc8481d2a38ab40843`. The continuation archive is `data/biomcp-redux/0238-study-get/ccc94f2d5da52b01c2dc510c9c059392e2295eda.tar.gz` on Yellow. Its SHA-256 is `45795b4c1a68e9df0f8a8f473844b39168114294d0c2fe50f0b35c37c84c1191`. Each archive has fifty-six exact members and fifty-five verified manifest hashes, including the original capture archive, external cases, replay records and measured output. The original input's forty-one members and forty manifest hashes are verified before case generation. No provider request ran.
 
 The complete replay with the explicit full-response guard passed all forty-six CLI/MCP cases in j14686. Its durable archive is `data/biomcp-redux/0238-study-get/45ca299c1b6e090e437ec6e3e8ef815cd3651bb8.tar.gz` on Yellow, SHA-256 `5448657b7c0ad0ea82857286b0ef6ba6fd501f4ef477a16ec9df3f5bbd48fb0a`. Its fifty-six exact members and fifty-five manifest hashes were verified at the durable destination before scratch cleanup. All original source bodies remained outside Git, and the replay made no provider requests.
+
+
+## Native file reference disclosure
+
+The files section reads one exact GitHub contents directory under the existing restricted cBioPortal declaration. It returns native references in source order and pages them locally. `repositoryBlobSize` preserves GitHub's `size`; it states repository blob bytes and makes no claim about LFS content size. No listed data file, LICENSE body or archive is downloaded. A native LICENSE entry supplies its publisher link as `license_notice` on every files page and on `all` through `files.data`. A plain card reads only the stored catalog and never attaches a notice from a warm directory cache. A missing directory leaves the stored card intact and produces an empty files section in `all`.
+
+The bounded directory capture contains 58 BRCA and 18 MSK entries with native LICENSE links. Its nine-member archive is `native.tar.gz` in the `0221-study-files` evidence folder, SHA-256 `5cf07928dcea5ebd755e05864fcb0821e9be3f061b22360381569a7442106677`. The original absent-directory reply remains in the retained study admission archive. The replay recipe checks exact archive digests and every manifest member before preparing external cases. Raw replies stay outside Git.
+
+The original five-entry projection was 1,721 bytes. Full native outputs retain publisher and download references, blob identity, source terms, continuation commands and the LICENSE notice. The following measurements distinguish complete CLI bytes, including its newline, from the comparable envelope budget. MCP has one fewer full byte. `OUTPUT_CEILINGS` in `scripts/study_files_retained.py` derives each byte and token ceiling from its measured output with fifteen percent headroom. The retained native cases enforce both full and comparable ceilings through the ordinary case runner.
+
+| Case | Native view | Full CLI bytes | Comparable bytes | Full ceiling | Comparable ceiling | Token ceiling |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 000 | BRCA card | 2,430 | 2,264 | 2,795 | 2,604 | 651 |
+| 001 | BRCA all | 9,338 | 8,677 | 10,739 | 9,979 | 2,496 |
+| 002 | BRCA files offset 0 | 2,709 | 2,543 | 3,116 | 2,925 | 732 |
+| 003 | BRCA files offset 5 | 2,983 | 2,817 | 3,431 | 3,240 | 811 |
+| 004 | BRCA files offset 10 | 3,074 | 2,908 | 3,536 | 3,345 | 837 |
+| 005 | BRCA files offset 15 | 3,390 | 3,224 | 3,899 | 3,708 | 927 |
+| 006 | BRCA files offset 20 | 3,094 | 2,928 | 3,559 | 3,368 | 842 |
+| 007 | BRCA files offset 25 | 3,026 | 2,860 | 3,480 | 3,289 | 823 |
+| 008 | BRCA files offset 30 | 2,962 | 2,796 | 3,407 | 3,216 | 804 |
+| 009 | BRCA files offset 35 | 3,078 | 2,912 | 3,540 | 3,349 | 838 |
+| 010 | BRCA files offset 40 | 3,338 | 3,172 | 3,839 | 3,648 | 912 |
+| 011 | BRCA files offset 45 | 3,194 | 3,028 | 3,674 | 3,483 | 871 |
+| 012 | BRCA files offset 50 | 2,930 | 2,764 | 3,370 | 3,179 | 795 |
+| 013 | BRCA files offset 55 | 1,832 | 1,666 | 2,107 | 1,916 | 480 |
+| 014 | MSK card | 1,316 | 1,150 | 1,514 | 1,323 | 332 |
+| 015 | MSK all | 6,543 | 5,882 | 7,525 | 6,765 | 1,692 |
+| 016 | MSK files offset 0 | 2,490 | 2,324 | 2,864 | 2,673 | 669 |
+| 017 | MSK files offset 5 | 2,636 | 2,470 | 3,032 | 2,841 | 711 |
+| 018 | MSK files offset 10 | 2,735 | 2,569 | 3,146 | 2,955 | 740 |
+| 019 | MSK files offset 15 | 1,739 | 1,573 | 2,000 | 1,809 | 454 |
+| 020 | Absent directory | 363 | 197 | 418 | 227 | 58 |

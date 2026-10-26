@@ -1,0 +1,80 @@
+use super::relation::{self, Selection};
+use crate::{Ctx, Outcome, status};
+use biomcp_fetch::Deadline;
+use biomcp_types::{
+    PathwayCard, PathwayGet, PathwayHeader, PathwaySection, QueryBody, Reason, Section, Source,
+};
+pub(super) fn attach(
+    cx: &Ctx<'_>,
+    q: &PathwayGet,
+    card: &mut PathwayCard,
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) {
+    for section in [PathwaySection::Genes, PathwaySection::Events] {
+        if !matches!(q.section(), Some(PathwaySection::All)) && q.section() != Some(section) {
+            continue;
+        }
+        let selected = Selection {
+            id: q.id(),
+            genes: section == PathwaySection::Genes,
+            details: false,
+            limit: q.section_limit(),
+            offset: q.section_offset(),
+            pool: if q.section() == Some(PathwaySection::All) {
+                None
+            } else {
+                q.pool()
+            },
+            fresh: cx.fresh || q.fresh(),
+            header: Some(PathwayHeader {
+                id: card.pathway.id.clone(),
+                name: card.pathway.name.clone(),
+                species: card.pathway.species,
+                version: card.pathway.version.clone(),
+                revision: None,
+            }),
+        };
+        let result = relation::read(cx, selected, deadline);
+        let reason = result
+            .sources
+            .iter()
+            .find_map(|s| s.reason)
+            .unwrap_or(Reason::BadReply);
+        match result.body {
+            QueryBody::PathwayGenes(body) => {
+                card.genes = Some(body.map_or_else(
+                    || Section::unavailable(Source::Reactome, reason),
+                    |data| Section::Data {
+                        source: Source::Reactome,
+                        data,
+                    },
+                ))
+            }
+            QueryBody::PathwayEvents(body) => {
+                card.events = Some(body.map_or_else(
+                    || Section::unavailable(Source::Reactome, reason),
+                    |data| Section::Data {
+                        source: Source::Reactome,
+                        data,
+                    },
+                ))
+            }
+            QueryBody::PoolError { mismatch } => {
+                out.body = QueryBody::PoolError { mismatch };
+                out.next.clear();
+            }
+            _ => {}
+        }
+        for incoming in result.sources {
+            if let Some(existing) = out.sources.iter_mut().find(|s| s.source == incoming.source) {
+                status::retain_source_state(existing, &incoming);
+            } else {
+                out.sources.push(incoming);
+            }
+        }
+        out.problems.extend(result.problems);
+        out.next.extend(result.next);
+        out.local = out.local.or(result.local);
+    }
+}

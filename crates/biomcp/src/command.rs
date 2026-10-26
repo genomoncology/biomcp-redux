@@ -115,7 +115,6 @@ fn dispatch_using(
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if disease::unsupported(action)
-        || pathway::unsupported(action)
         || phenotype::unsupported(action)
         || protein::unsupported(action)
     {

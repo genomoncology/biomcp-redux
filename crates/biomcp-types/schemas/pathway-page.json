@@ -293,7 +293,8 @@
       "description": "Meaning of the collection total, independent of admitted rows on a page.",
       "enum": [
         "source",
-        "observed"
+        "observed",
+        "distinct_references"
       ],
       "type": "string"
     },

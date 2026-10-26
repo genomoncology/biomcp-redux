@@ -151,6 +151,7 @@ fn pages() -> Check {
             }
         }
     }
+    super::study_files::seed(&replay)?;
     let all = call(&env, &replay, &["get", "study", "synthetic_0", "all"], 0)?;
     if all
         .pointer("/result/profiles/data/items")
