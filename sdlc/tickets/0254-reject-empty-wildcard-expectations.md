@@ -1,6 +1,7 @@
 # 0254 — Reject empty wildcard expectations when the case runner prepares assertions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 40e612f35f151fb3570edec24f1fbafe5473b967
 
 Milestone: 1
 
