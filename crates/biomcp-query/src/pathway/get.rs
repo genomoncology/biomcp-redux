@@ -28,7 +28,8 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
                 }
             }
             for section in &value.sections {
-                if Some(*section) != q.section()
+                if *section == PathwaySection::Summary
+                    && Some(*section) != q.section()
                     && let Ok(query) = q.with_section(*section)
                 {
                     out.next.push((

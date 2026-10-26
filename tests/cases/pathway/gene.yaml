@@ -22,7 +22,14 @@
           "count": 5
         },
         "/result/page/total": 16,
-        "/result/page/next_offset": 5
+        "/result/page/next_offset": 5,
+        "/result/items/*/id/id": [
+          "R-HSA-1295596",
+          "R-HSA-170968",
+          "R-HSA-170984",
+          "R-HSA-187706",
+          "R-HSA-5673000"
+        ]
       },
       "max_bytes": 10000
     },
@@ -35,7 +42,14 @@
         "/result/items": {
           "count": 5
         },
-        "/result/page/total": 16
+        "/result/page/total": 16,
+        "/result/items/*/id/id": [
+          "R-HSA-5674135",
+          "R-HSA-5674499",
+          "R-HSA-5675221",
+          "R-HSA-6802946",
+          "R-HSA-6802948"
+        ]
       },
       "max_bytes": 10000
     },
@@ -48,7 +62,14 @@
         "/result/items": {
           "count": 5
         },
-        "/result/page/total": 16
+        "/result/page/total": 16,
+        "/result/items/*/id/id": [
+          "R-HSA-6802952",
+          "R-HSA-6802955",
+          "R-HSA-9649948",
+          "R-HSA-9656223",
+          "R-HSA-9726840"
+        ]
       },
       "max_bytes": 10000
     },
@@ -64,7 +85,10 @@
         "/result/page/total": 16,
         "/next/*/kind": {
           "excludes": "page"
-        }
+        },
+        "/result/items/*/id/id": [
+          "R-HSA-9726842"
+        ]
       },
       "max_bytes": 10000
     }

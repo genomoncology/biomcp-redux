@@ -20,7 +20,14 @@
           "count": 5
         },
         "/result/page/total": 29,
-        "/result/page/next_offset": 5
+        "/result/page/next_offset": 5,
+        "/result/items/*/id/id": [
+          "R-HSA-9612973",
+          "R-HSA-1640170",
+          "R-HSA-1500931",
+          "R-HSA-8953897",
+          "R-HSA-4839726"
+        ]
       },
       "max_bytes": 10000
     },
@@ -33,7 +40,14 @@
         "/result/items": {
           "count": 5
         },
-        "/result/page/total": 29
+        "/result/page/total": 29,
+        "/result/items/*/id/id": [
+          "R-HSA-9909396",
+          "R-HSA-1266738",
+          "R-HSA-8963743",
+          "R-HSA-1643685",
+          "R-HSA-73894"
+        ]
       },
       "max_bytes": 10000
     },
@@ -46,7 +60,14 @@
         "/result/items": {
           "count": 5
         },
-        "/result/page/total": 29
+        "/result/page/total": 29,
+        "/result/items/*/id/id": [
+          "R-HSA-69306",
+          "R-HSA-9748784",
+          "R-HSA-1474244",
+          "R-HSA-74160",
+          "R-HSA-109582"
+        ]
       },
       "max_bytes": 10000
     },
@@ -59,7 +80,14 @@
         "/result/items": {
           "count": 5
         },
-        "/result/page/total": 29
+        "/result/page/total": 29,
+        "/result/items/*/id/id": [
+          "R-HSA-168256",
+          "R-HSA-1430728",
+          "R-HSA-392499",
+          "R-HSA-8953854",
+          "R-HSA-397014"
+        ]
       },
       "max_bytes": 10000
     },
@@ -72,7 +100,14 @@
         "/result/items": {
           "count": 5
         },
-        "/result/page/total": 29
+        "/result/page/total": 29,
+        "/result/items/*/id/id": [
+          "R-HSA-112316",
+          "R-HSA-1852241",
+          "R-HSA-5357801",
+          "R-HSA-9609507",
+          "R-HSA-1474165"
+        ]
       },
       "max_bytes": 10000
     },
@@ -88,7 +123,13 @@
         "/result/page/total": 29,
         "/next/*/kind": {
           "excludes": "page"
-        }
+        },
+        "/result/items/*/id/id": [
+          "R-HSA-9709957",
+          "R-HSA-162582",
+          "R-HSA-382551",
+          "R-HSA-5653656"
+        ]
       },
       "max_bytes": 10000
     }
