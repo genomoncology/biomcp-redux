@@ -3,6 +3,7 @@ mod adverse_event_registry;
 mod adverse_event_retirements;
 mod article_save;
 mod assertions;
+mod author;
 pub(super) mod cell_line;
 mod clinpgx;
 mod clinvar_key;
@@ -578,6 +579,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_monarch::trials())
         .chain(phenotype::trials())
         .chain(cell_line::trials())
+        .chain(author::trials())
         .chain(disease_seer::trials())
         .collect()
 }

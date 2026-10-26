@@ -56,7 +56,7 @@ pub(super) fn project(
         .map(str::to_owned)
         .or_else(|| {
             let (source, kind) = declared?;
-            record_url(source, kind, &id)
+            record_url(source, kind, id)
         })?;
     let fallback;
     let title = if let Some(title) = text(row, paths::TITLES) {

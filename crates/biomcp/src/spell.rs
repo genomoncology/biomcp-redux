@@ -267,6 +267,9 @@ fn base_entity(request: &Request) -> &'static str {
     ) {
         return "gwas";
     }
+    other_entity(request)
+}
+fn other_entity(request: &Request) -> &'static str {
     if matches!(request, Request::SearchProtein(_) | Request::GetProtein(_)) {
         "protein"
     } else if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {
