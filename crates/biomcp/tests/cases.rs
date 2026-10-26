@@ -87,6 +87,7 @@ fn native_proof() -> Option<ExitCode> {
     }
     let mode = env::args().nth(1)?;
     let run = match mode.as_str() {
+        "--cell-line-xrefs" => runner::cell_line::generate_xrefs,
         "--cell-line-examples" => runner::cell_line::generate_examples,
         "--faers-search-synthetic-examples" => runner::faers_search_examples,
         "--seer-native-proof" => runner::seer_native,

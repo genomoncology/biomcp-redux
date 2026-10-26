@@ -205,7 +205,7 @@ impl ResponseBody for CellLinePage {
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell_line_card/2";
+    const SCHEMA: &'static str = "biomcp.cell_line_card/3";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
@@ -221,7 +221,7 @@ impl ResponseBody for CellLineXrefs {
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell_line_variants/1";
+    const SCHEMA: &'static str = "biomcp.cell_line_variants/2";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {

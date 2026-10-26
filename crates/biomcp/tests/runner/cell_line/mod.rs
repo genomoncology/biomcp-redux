@@ -300,3 +300,7 @@ pub(crate) fn measure_canonical() -> Result<(), String> {
 pub(crate) fn measure_sections() -> Result<(), String> {
     sections::run(true)
 }
+
+pub(crate) fn generate_xrefs(directory: &std::path::Path) -> Result<(), String> {
+    examples::generate_xrefs(directory)
+}
