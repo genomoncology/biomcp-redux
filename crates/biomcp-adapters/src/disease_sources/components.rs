@@ -17,7 +17,7 @@ const NCIT: Terms = Terms {
     url: "https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/ThesaurusTermsofUse.pdf",
     usage: Use::Attribution,
 };
-const HPO: Terms = Terms {
+pub(crate) const HPO: Terms = Terms {
     name: "HPO project custom license: attribution, version and integrity",
     url: "https://human-phenotype-ontology.github.io/license.html",
     usage: Use::Attribution,

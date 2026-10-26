@@ -1,6 +1,7 @@
 # 0208 — Capture the phenotype middle page, obsolete card, Monarch xref, association next page and wrong taxon witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1dda1cda8588ee2f8538910b721a6d893aec1470
 
 Milestone: 4
 

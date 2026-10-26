@@ -68,14 +68,7 @@ fn declarations() -> Check {
             return Err(format!("wrong declaration: {row}"));
         }
     }
-    for name in [
-        "hpo",
-        "oncotree",
-        "medlineplus",
-        "umls",
-        "disgenet",
-        "reporter",
-    ] {
+    for name in ["oncotree", "medlineplus", "umls", "disgenet", "reporter"] {
         if rows.iter().any(|r| r["source"] == name) {
             return Err(format!("dropped route declared: {name}"));
         }
@@ -188,6 +181,11 @@ fn component_labels() -> Check {
     Ok(())
 }
 const PROBES: &[(&str, &str, &str)] = &[
+    (
+        "hpo",
+        "ontology.jax.org",
+        "GET /api/hp/terms/HP:0001250 HTTP/1.1",
+    ),
     (
         "ols",
         "www.ebi.ac.uk",
