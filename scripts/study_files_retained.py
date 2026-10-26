@@ -7,6 +7,23 @@ from pathlib import Path
 import tarfile
 
 
+# Full CLI and comparable envelope bytes from the exact retained native proof.
+# Ceilings preserve each measured output with fifteen percent headroom.
+MEASURED_SIZES = [(2430, 2264), (9338, 8677), (2709, 2543), (2983, 2817), (3074, 2908), (3390, 3224), (3094, 2928), (3026, 2860), (2962, 2796), (3078, 2912), (3338, 3172), (3194, 3028), (2930, 2764), (1832, 1666), (1316, 1150), (6543, 5882), (2490, 2324), (2636, 2470), (2735, 2569), (1739, 1573), (363, 197)]
+OUTPUT_CEILINGS = [((full * 115 + 99) // 100, (comparable * 115 + 99) // 100,
+                    (((comparable + 3) // 4) * 115 + 99) // 100)
+                   for full, comparable in MEASURED_SIZES]
+
+
+def budgets(case, index):
+    full, comparable, tokens = OUTPUT_CEILINGS[index]
+    operation = case['steps'][-1]
+    operation['max_bytes'] = comparable
+    operation['max_tokens'] = tokens
+    operation.setdefault('expect', {})[''] = {'max_bytes': full}
+    return case
+
+
 def archive(path):
     options = {"fileobj": path} if hasattr(path, "read") else {"name": path}
     with tarfile.open(**options) as packed:
@@ -80,7 +97,7 @@ def main(native, catalog, admission, out):
             value = {'story': 'Retained exact DataHub directory facts and license notice', 'feature': 'study-files',
                      'replay': str(replay.parent), 'steps': [{'run': ['sync', 'cbioportal-studies']},
                      {'run': args, 'mcp': args, 'expect': expected}]}
-            (cases / f'{count:03d}.yaml').write_text(compact(value))
+            (cases / f'{count:03d}.yaml').write_text(compact(budgets(value, count)))
             count += 1
     absent = archive(io.BytesIO(archive(admission)['absent-files-capture.tar.gz']))
     receipt = json.loads(absent['0000.receipt.json'])
@@ -91,7 +108,7 @@ def main(native, catalog, admission, out):
              'feature': 'study-files', 'replay': str(replay.parent),
              'steps': [{'run': args, 'mcp': args, 'exit': 1,
                         'expect': {'/status': 'absent', '/sources/0/use': 'restricted'}}]}
-    (cases / f'{count:03d}.yaml').write_text(compact(value))
+    (cases / f'{count:03d}.yaml').write_text(compact(budgets(value, count)))
     count += 1
     print(f'Prepared {count} native CLI/MCP file-reference cases; no provider request')
 

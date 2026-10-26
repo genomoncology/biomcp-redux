@@ -207,6 +207,20 @@ fn retained(directory: &Path) -> Check {
         let value = crate::runner::run_case(&path, &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = crate::runner::source_terms::size(&value, "")?;
+        let case: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        let ceiling = case
+            .get("steps")
+            .and_then(Value::as_array)
+            .and_then(|steps| steps.last())
+            .and_then(|step| step.get("expect"))
+            .and_then(|expect| expect.get(""))
+            .and_then(|expect| expect.get("max_bytes"))
+            .and_then(Value::as_u64)
+            .ok_or("full native envelope ceiling")?;
+        if full as u64 + 1 > ceiling {
+            return Err("native file envelope exceeds its measured ceiling".into());
+        }
         writeln!(
             std::io::stdout(),
             "Study files native {} CLI={} MCP={} comparable={} estimated_tokens={}",
