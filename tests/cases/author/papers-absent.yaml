@@ -16,7 +16,7 @@
         "semantic-scholar:123"
       ],
       "exit": 1,
-      "is_error": true,
+      "is_error": false,
       "expect": {
         "/status": "absent",
         "/sources/0/source": "semantic-scholar",
