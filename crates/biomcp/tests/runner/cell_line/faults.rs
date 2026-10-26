@@ -112,7 +112,7 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
     let bad = valid.to_string();
     let release = fixture("portable-cellosaurus-cellosaurus-release.json")?;
     let reverse = fixture("portable-cellosaurus-search-reverse.json")?;
-    let mut served = false;
+    let mut served = 0;
     let stub = Stub::for_source_status(
         "api.cellosaurus.org",
         "application/json",
@@ -123,8 +123,8 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
             if request.contains("/search/cell-line?") {
                 return Ok(reverse.clone());
             }
-            if !served {
-                served = true;
+            served += 1;
+            if served <= 2 {
                 Ok(bad.clone())
             } else {
                 Ok(healthy.clone())
@@ -138,6 +138,8 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
     } else {
         words("card")
     };
+    // The first ordinary read must exercise cache admission before recording bypasses it.
+    failed(&invoke(&env, &words, 4)?)?;
     let failed_value = parity(
         &format!("synthetic/no-admission/{fault}/failed"),
         &env,
@@ -161,7 +163,7 @@ fn no_admission(fault: &'static str, measure: bool) -> Result<(), String> {
         .iter()
         .filter(|(_, r)| r.contains("GET /cell-line/"))
         .count()
-        != 3
+        != 4
     {
         return Err(format!("{fault}: bad identity admitted to cache"));
     }
