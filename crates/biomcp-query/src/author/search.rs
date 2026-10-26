@@ -49,9 +49,23 @@ fn execute(
     if matches!(out.body, QueryBody::PoolError { .. }) {
         return Ok(());
     }
-    let saved = if let Some(saved) = saved {
-        saved
+    let (mut saved, old_pool) = if let Some((saved, pool)) = saved {
+        (saved, Some(pool))
     } else {
+        (
+            snapshot::Saved {
+                pages: vec![],
+                source: biomcp_adapters::registry::outcome(
+                    Source::SemanticScholar,
+                    SourceState::Ok,
+                    None,
+                ),
+            },
+            None,
+        )
+    };
+    let cached = saved.pages.iter().any(|p| p.offset == q.offset());
+    if !cached {
         let leg = cx
             .fetch
             .leg(&semantic_scholar::SPEC, deadline)
@@ -60,13 +74,19 @@ fn execute(
         let error = result.as_ref().err().copied();
         let source = status::source(Source::SemanticScholar, leg.finish(), error);
         out.sources.push(source.clone());
-        snapshot::Saved {
-            page: result?,
-            source,
-        }
+        saved.pages.push(result?);
+        saved.source = source;
+    }
+    let pool = if cached {
+        old_pool.ok_or(biomcp_fetch::CacheError::Database)?
+    } else {
+        snapshot::save(cx, q, deadline, &saved, old_pool)?
     };
-    let pool = snapshot::save(cx, q, deadline, &saved)?;
-    let page = saved.page;
+    let page = saved
+        .pages
+        .into_iter()
+        .find(|p| p.offset == q.offset())
+        .ok_or(biomcp_fetch::CacheError::Database)?;
     let items: Box<[_]> = page.data.into_iter().map(|r| r.header()).collect();
     for row in &items {
         out.next.push((
@@ -77,14 +97,16 @@ fn execute(
     if let Some(offset) = page.next {
         out.next.push((
             StepKind::Page,
-            run(Request::SearchAuthor(q.at_offset(offset).with_pool(pool))),
+            run(Request::SearchAuthor(
+                q.at_offset(offset).with_pool(pool.info.id.clone()),
+            )),
         ));
     }
     out.page = page.total.map(|total| PageInfo {
         offset: q.offset(),
         returned: items.len() as u32,
         total,
-        pool: None,
+        pool: Some(pool.info),
         truncated: None,
     });
     out.status = if saved.source.state == SourceState::Stale {
