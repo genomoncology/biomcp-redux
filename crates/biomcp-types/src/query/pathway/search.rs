@@ -2,8 +2,8 @@ use super::{PathwaySource, QueryInvalid, default_limit, valid_limit};
 use crate::GeneInput;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
-/// Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No
-/// enrichment is calculated.
+#[doc = " Search Reactome (default) or WikiPathways human pathways. Membership names a source and \
+    release; it implies no therapy, response or actionability. No enrichment is calculated."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

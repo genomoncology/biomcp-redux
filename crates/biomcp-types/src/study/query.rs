@@ -19,8 +19,8 @@ biodata::wire_enum! {
         All => "all"
     }
 }
-/// Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source
-/// counts keep their native names.
+#[doc = " Literal stored metadata search; text is never parsed as a query language. No frequency, \
+    denominator, survival or comparison is calculated. Source counts keep their native names."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -100,8 +100,8 @@ impl StudySearch {
         q
     }
 }
-/// Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their
-/// native names.
+#[doc = " Exact case-sensitive study card or bounded metadata section. No frequency, denominator, \
+    survival or comparison is calculated. Source counts keep their native names."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
