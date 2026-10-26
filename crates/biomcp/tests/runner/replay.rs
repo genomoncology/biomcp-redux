@@ -34,9 +34,13 @@ fn missing() -> Result<(), String> {
         return Err("missing replay command failed".into());
     }
     // Measured raw CLI output: 394 bytes, with fifteen percent headroom.
-    if output.stdout.len() > 454 { return Err("replay CLI output exceeded its budget".into()); }
+    if output.stdout.len() > 454 {
+        return Err("replay CLI output exceeded its budget".into());
+    }
     let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if !replay_miss(&reply) { return Err("recording miss lost its source reason".into()); }
+    if !replay_miss(&reply) {
+        return Err("recording miss lost its source reason".into());
+    }
     Ok(())
 }
 fn repeated() -> Result<(), String> {
@@ -111,8 +115,12 @@ fn repeat_calls(
         if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *content {
             return Err("text differs from structured content".into());
         }
-        if text.len() > limit { return Err("replay MCP text exceeded its budget".into()); }
-        if id >= 3 && !replay_miss(content) { return Err("new or exhausted request lost replay_miss".into()); }
+        if text.len() > limit {
+            return Err("replay MCP text exceeded its budget".into());
+        }
+        if id >= 3 && !replay_miss(content) {
+            return Err("new or exhausted request lost replay_miss".into());
+        }
         if id == 1 {
             first = Some(content.clone());
         }
@@ -124,6 +132,12 @@ fn repeat_calls(
 }
 
 fn replay_miss(reply: &Value) -> bool {
-    reply.get("sources").and_then(Value::as_array).is_some_and(|sources| {
-        sources.iter().any(|source| source.get("reason") == Some(&json!("replay_miss")))
-    })
+    reply
+        .get("sources")
+        .and_then(Value::as_array)
+        .is_some_and(|sources| {
+            sources
+                .iter()
+                .any(|source| source.get("reason") == Some(&json!("replay_miss")))
+        })
+}
