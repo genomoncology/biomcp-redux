@@ -7,6 +7,7 @@ mod disease;
 mod drug;
 mod drug_label;
 mod maintenance;
+mod mcp_policy;
 mod pathway;
 mod pgx;
 mod phenotype;
@@ -69,6 +70,9 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
+    if shared.is_some() && !mcp_policy::allows(&action, &parsed.globals, !allow_save) {
+        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
+    }
     if let Some(path) = parsed.help {
         return encode(
             Envelope::new(
