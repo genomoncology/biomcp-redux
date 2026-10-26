@@ -1,6 +1,7 @@
 # 0195 — Investigate the author slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c2697373cb068e1537bf471169487f022cc8fbdf
 
 Milestone: 4
 

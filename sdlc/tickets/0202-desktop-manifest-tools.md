@@ -1,6 +1,7 @@
 # 0202 — Derive the desktop manifest tool list from the shipped tools
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 325982569bbdb6b11c4f21d3d2d087ee0f75d68a
 
 Milestone: 1
 

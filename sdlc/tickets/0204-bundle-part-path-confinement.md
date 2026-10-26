@@ -1,6 +1,7 @@
 # 0204 — Confine bundle recovery to its own part files
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2539af89881276f4cd44ed615977671a30d48f2f
 
 Milestone: 1
 

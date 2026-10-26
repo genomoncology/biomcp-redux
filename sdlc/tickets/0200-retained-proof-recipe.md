@@ -1,6 +1,7 @@
 # 0200 — Commit the source capture and evidence recipe as one checked script
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f91affc59f1e73afc952a0a0373f5af1f9d00872
 
 Milestone: 1
 
