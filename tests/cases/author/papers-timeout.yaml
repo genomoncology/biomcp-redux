@@ -20,7 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
-        "/sources/0/terms/name": "Semantic Scholar API License Agreement"
+        "/sources/0/use": "noncommercial"
       },
       "max_bytes": 10000,
       "max_tokens": 2500,
