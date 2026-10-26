@@ -6,6 +6,7 @@ use biodata::{
 use biomcp_fetch::{Freshness, Leg, RequestError, SourceError};
 use biomcp_types::{Problem, ProblemCode, Reason, Source};
 /// Complete source-reference membership with explicit occurrence and physical-entity counts.
+#[derive(Debug)]
 pub struct Members {
     /// Distinct namespaced reference rows in first occurrence order.
     pub items: Vec<PathwayMember>,
@@ -15,7 +16,13 @@ pub struct Members {
     pub physical_entities: u64,
 }
 fn bad_reply() -> RequestError {
-    SourceError { source: Source::Reactome, reason: Reason::BadReply, status: Some(200), retry_after: None }.into()
+    SourceError {
+        source: Source::Reactome,
+        reason: Reason::BadReply,
+        status: Some(200),
+        retry_after: None,
+    }
+    .into()
 }
 fn text(value: &str) -> Result<Text, RequestError> {
     Text::new(value).map_err(|_| bad_reply())
@@ -96,8 +103,14 @@ pub fn events(
     let rows = leg.json_checked_cache::<raw::Events>(&endpoint, &[], |rows| {
         rows.0.iter().all(|row| match row {
             raw::Event::Database(_) => true,
-            raw::Event::Object(v) => v.species_name.as_deref().is_none_or(|s| s == "Homo sapiens")
-                && v.st_id.as_deref().is_none_or(|id| id.parse::<ReactomeId>().is_ok()),
+            raw::Event::Object(v) => {
+                v.species_name
+                    .as_deref()
+                    .is_none_or(|s| s == "Homo sapiens")
+                    && v.st_id
+                        .as_deref()
+                        .is_none_or(|id| id.parse::<ReactomeId>().is_ok())
+            }
         })
     })?;
     let mut mapped = Mapped {
@@ -122,7 +135,10 @@ pub fn events(
                 };
                 mapped.value.push(PathwayEventRef::Object {
                     db_id: v.db_id,
-                    source_url: native_id.as_ref().map(|id| text(&format!("https://reactome.org/content/detail/{id}"))).transpose()?,
+                    source_url: native_id
+                        .as_ref()
+                        .map(|id| text(&format!("https://reactome.org/content/detail/{id}")))
+                        .transpose()?,
                     id: native_id,
                     version: v.st_id_version.as_deref().map(text).transpose()?,
                     name: v.display_name.as_deref().map(text).transpose()?,

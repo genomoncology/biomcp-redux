@@ -265,6 +265,17 @@
               ],
               "description": "Native class; a reaction is not automatically a pathway."
             },
+            "source_url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Publisher record URL for the event's own stable identity, never the parent pathway."
+            },
             "version": {
               "anyOf": [
                 {

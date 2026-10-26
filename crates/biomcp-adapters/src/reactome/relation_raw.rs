@@ -57,10 +57,15 @@ pub(super) struct Object {
 }
 impl Reply for Events {
     fn check(&self) -> Result<(), BadReply> {
-        self.0.iter().all(|row| match row {
-            Event::Database(_) => true,
-            Event::Object(v) => [&v.st_id_version, &v.display_name, &v.schema_class]
-                .iter().all(|s| s.as_deref().is_none_or(|s| biodata::Text::new(s).is_ok())),
-        }).then_some(()).ok_or(BadReply)
+        self.0
+            .iter()
+            .all(|row| match row {
+                Event::Database(_) => true,
+                Event::Object(v) => [&v.st_id_version, &v.display_name, &v.schema_class]
+                    .iter()
+                    .all(|s| s.as_deref().is_none_or(|s| biodata::Text::new(s).is_ok())),
+            })
+            .then_some(())
+            .ok_or(BadReply)
     }
 }
