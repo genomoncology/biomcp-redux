@@ -78,8 +78,9 @@ fn one_association_record_preserves_arrays_unknown_frequency_and_effects()
     let card: biomcp_types::GwasAssociationCard =
         serde_json::from_value(json!({"association":value.clone()}))?;
     assert_eq!(card.association, row);
-    let page: biomcp_types::GwasPage =
-        serde_json::from_value(json!({"items":[value],"page":{"limit":3,"offset":0,"total":1}}))?;
+    let page: biomcp_types::GwasPage = serde_json::from_value(
+        json!({"items":[value],"page":{"returned":1,"offset":0,"total":1}}),
+    )?;
     assert_eq!(page.items.first(), Some(&row));
     Ok(())
 }

@@ -55,6 +55,9 @@ pub struct GwasLocus {
     pub strongest_risk_alleles: Box<[Text]>,
     /// Reported source genes; never inferred from names.
     pub author_reported_genes: Box<[GwasReportedGene]>,
+    /// Native locus self link.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_url: Option<Text>,
 }
 /// One bounded locus section for an association.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -102,6 +105,27 @@ pub struct GwasStudy {
     /// Source SNP count; missing differs from zero.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub snp_count: Option<u64>,
+    /// Native platform description.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub platforms: Option<Text>,
+    /// Native array manufacturer labels.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub array_manufacturers: Option<Box<[Text]>>,
+    /// Native gene-environment interaction flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gxe: Option<bool>,
+    /// Native gene-gene interaction flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gxg: Option<bool>,
+    /// Native imputation flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub imputed: Option<bool>,
+    /// Native pooled study flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pooled: Option<bool>,
+    /// Native user-requested study flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user_requested: Option<bool>,
     /// Source availability flag; grants no download or reuse permission.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub summary_statistics_available: Option<bool>,
