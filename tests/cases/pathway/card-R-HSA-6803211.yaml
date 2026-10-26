@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-6803211"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-6803211"
+          }
         },
         "/result/pathway/name": "TP53 Regulates Transcription of Death Receptors and Ligands",
         "/result/pathway/species": "Homo sapiens",

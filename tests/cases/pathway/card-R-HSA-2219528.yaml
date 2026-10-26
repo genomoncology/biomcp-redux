@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-2219528"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-2219528"
+          }
         },
         "/result/pathway/name": "PI3K/AKT Signaling in Cancer",
         "/result/pathway/species": "Homo sapiens",

@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-187037"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-187037"
+          }
         },
         "/result/pathway/name": "Signaling by NTRK1 (TRKA)",
         "/result/pathway/species": "Homo sapiens",

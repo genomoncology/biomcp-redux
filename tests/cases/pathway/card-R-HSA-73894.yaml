@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-73894"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-73894"
+          }
         },
         "/result/pathway/name": "DNA Repair",
         "/result/pathway/species": "Homo sapiens",

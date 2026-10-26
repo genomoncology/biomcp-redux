@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-195721"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-195721"
+          }
         },
         "/result/pathway/name": "Signaling by WNT",
         "/result/pathway/species": "Homo sapiens",

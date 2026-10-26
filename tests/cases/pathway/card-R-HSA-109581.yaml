@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-109581"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-109581"
+          }
         },
         "/result/pathway/name": "Apoptosis",
         "/result/pathway/species": "Homo sapiens",

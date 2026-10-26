@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-2028269"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-2028269"
+          }
         },
         "/result/pathway/name": "Signaling by Hippo",
         "/result/pathway/species": "Homo sapiens",

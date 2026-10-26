@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-8950505"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-8950505"
+          }
         },
         "/result/pathway/name": "Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation",
         "/result/pathway/species": "Homo sapiens",

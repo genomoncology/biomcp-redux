@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-5673001"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-5673001"
+          }
         },
         "/result/pathway/name": "RAF/MAP kinase cascade",
         "/result/pathway/species": "Homo sapiens",

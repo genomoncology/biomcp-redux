@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-9755088"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-9755088"
+          }
         },
         "/result/pathway/name": "Ribavirin ADME",
         "/result/pathway/species": "Homo sapiens",

@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-157118"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-157118"
+          }
         },
         "/result/pathway/name": "Signaling by NOTCH",
         "/result/pathway/species": "Homo sapiens",

@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-5674400"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-5674400"
+          }
         },
         "/result/pathway/name": "Constitutive Signaling by AKT1 E17K in Cancer",
         "/result/pathway/species": "Homo sapiens",

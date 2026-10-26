@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-5685942"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-5685942"
+          }
         },
         "/result/pathway/name": "HDR through Homologous Recombination (HRR)",
         "/result/pathway/species": "Homo sapiens",

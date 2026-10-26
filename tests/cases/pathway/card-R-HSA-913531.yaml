@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-913531"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-913531"
+          }
         },
         "/result/pathway/name": "Interferon Signaling",
         "/result/pathway/species": "Homo sapiens",

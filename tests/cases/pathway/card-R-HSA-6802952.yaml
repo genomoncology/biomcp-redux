@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-6802952"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-6802952"
+          }
         },
         "/result/pathway/name": "Signaling by BRAF and RAF1 fusions",
         "/result/pathway/species": "Homo sapiens",

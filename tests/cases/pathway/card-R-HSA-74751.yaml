@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-74751"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-74751"
+          }
         },
         "/result/pathway/name": "Insulin receptor signalling cascade",
         "/result/pathway/species": "Homo sapiens",

@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-1640170"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-1640170"
+          }
         },
         "/result/pathway/name": "Cell Cycle",
         "/result/pathway/species": "Homo sapiens",

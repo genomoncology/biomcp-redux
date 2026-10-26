@@ -17,8 +17,10 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-177929"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-177929"
+          }
         },
         "/result/pathway/name": "Signaling by EGFR",
         "/result/pathway/species": "Homo sapiens",
