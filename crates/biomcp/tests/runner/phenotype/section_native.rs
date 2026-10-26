@@ -1,5 +1,5 @@
 //! Native term replies stay outside Git and are admitted only by exact hash.
-use super::{Stub, invoke, native, setup};
+use super::{Stub, native, raw_invoke, setup};
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
 pub(super) fn run(root: &Path) -> Result<(), String> {
@@ -38,7 +38,7 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     } else {
         0
     };
-    let value = invoke(&env, &record, exit)?;
+    let value = raw_invoke(&env, &record, exit)?;
     verify(&value, expected.as_deref(), row)?;
     if text(row, "section")? == "synonyms" {
         measure_card(&env, &directory, outputs, row)?;
@@ -60,7 +60,7 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     }
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("record path")?]);
-    let result = invoke(&env, &replay, exit)?;
+    let result = raw_invoke(&env, &replay, exit)?;
     verify(&result, expected.as_deref(), row)?;
     native::mcp(
         &directory,
@@ -202,7 +202,7 @@ fn walk(
         page.as_object_mut()
             .ok_or("row")?
             .insert("offset".into(), json!(offset));
-        value = invoke(
+        value = raw_invoke(
             env,
             &words.iter().map(String::as_str).collect::<Vec<_>>(),
             0,
@@ -234,7 +234,7 @@ fn measure_card(
     let id = words.get(2).and_then(Value::as_str).ok_or("identity")?;
     let source = text(row, "source")?;
     let args = ["get", "phenotype", id, "--source", source];
-    let card = invoke(env, &args, 0)?;
+    let card = raw_invoke(env, &args, 0)?;
     let key = format!("card-{}-{source}", id.replace(':', "_"));
     native::mcp(directory, &args, &card, 0, Some(budget(&key, &card)?))?;
     let full = serde_json::to_vec(&card).map_err(|e| e.to_string())?.len();

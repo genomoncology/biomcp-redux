@@ -1,4 +1,5 @@
 //! Feature phenotype-associations: exact direct native rows and safe identity pivots.
+use super::budgets;
 use super::{Stub, invoke, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -44,6 +45,7 @@ fn exact() -> Result<(), String> {
     )?;
     let env = setup(&stub)?;
     let result = invoke(
+        "associations/exact/invoke1",
         &env,
         &[
             "get",
@@ -123,7 +125,7 @@ fn pages() -> Result<(), String> {
         "--section-limit",
         "2",
     ];
-    let first = invoke(&env, &words, 0)?;
+    let first = invoke("associations/pages/invoke1", &env, &words, 0)?;
     if first.pointer("/page/returned") != Some(&json!(2))
         || first
             .pointer("/result/items/1/association/negated")
@@ -153,7 +155,7 @@ fn pages() -> Result<(), String> {
         return Err(format!("association navigation changed: {first}"));
     }
     let args = arguments(next.get(1).ok_or("native page step")?)?;
-    let last = invoke(&env, &args, 0)?;
+    let last = invoke("associations/pages/invoke2", &env, &args, 0)?;
     if last.pointer("/query/section_limit") != Some(&json!(2))
         || last.pointer("/page/offset") != Some(&json!(2))
         || last
@@ -198,8 +200,20 @@ fn failures() -> Result<(), String> {
         let env = setup(&stub)?;
         let words = ["get", "phenotype", "HP:0001250", "genes"];
         let dir = env.root().join("failures");
-        let result = super::record(&env, &words, &dir, 4)?;
-        super::native::mcp(&dir, &words, &result, 4, None)?;
+        let result = super::record(
+            &format!("associations/failures/record1@kind={kind}"),
+            &env,
+            &words,
+            &dir,
+            4,
+        )?;
+        budgets::mcp(
+            &format!("associations/failures/mcp1@kind={kind}"),
+            &dir,
+            &words,
+            &result,
+            4,
+        )?;
         if result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
             || result.get("result").is_some()
         {
@@ -213,7 +227,12 @@ fn failures() -> Result<(), String> {
             {
                 return Err("bad reply lost its problem".into());
             }
-            invoke(&env, &words, 4)?;
+            invoke(
+                &format!("associations/failures/invoke1@kind={kind}"),
+                &env,
+                &words,
+                4,
+            )?;
             if stub.finish()?.len() != 2 {
                 return Err("bad reply entered cache".into());
             }
@@ -230,22 +249,32 @@ fn disabled() -> Result<(), String> {
     let env = setup(&stub)?;
     let words = ["get", "phenotype", "HP:0001250", "genes"];
     let directory = env.root().join("disabled");
-    super::record(&env, &words, &directory, 0)?;
+    super::record("associations/disabled/record1", &env, &words, &directory, 0)?;
     for name in ["monarch", "hpo", "orphanet"] {
         let mut args = words.to_vec();
         args.extend(["--disable-sources", name]);
-        let denied = invoke(&env, &args, 4)?;
+        let denied = invoke(
+            &format!("associations/disabled/invoke1@component={name}"),
+            &env,
+            &args,
+            4,
+        )?;
         if denied.pointer("/sources/0/reason") != Some(&json!("disabled"))
             || denied.get("result").is_some()
         {
             return Err("disabled cached association escaped".into());
         }
         args.extend(["--replay", directory.to_str().ok_or("recording path")?]);
-        invoke(&env, &args, 4)?;
+        invoke(
+            &format!("associations/disabled/invoke2@component={name}"),
+            &env,
+            &args,
+            4,
+        )?;
     }
     let mut allowed = words.to_vec();
     allowed.extend(["--disable-sources", "restricted"]);
-    invoke(&env, &allowed, 0)?;
+    invoke("associations/disabled/invoke3", &env, &allowed, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("disabled source or warm cache made another request".into());
     }
@@ -277,7 +306,12 @@ fn cards() -> Result<(), String> {
         if explicit {
             words.extend(["--section-limit", "2"]);
         }
-        let card = invoke(&env, &words, 0)?;
+        let card = invoke(
+            &format!("associations/cards/invoke1@explicit={explicit}"),
+            &env,
+            &words,
+            0,
+        )?;
         let next = card
             .get("next")
             .and_then(Value::as_array)
@@ -295,7 +329,12 @@ fn cards() -> Result<(), String> {
             if args.contains(&"--snapshot") {
                 return Err("association inherited entity snapshot".into());
             }
-            let page = invoke(&env, &args, 0)?;
+            let page = invoke(
+                &format!("associations/cards/invoke2@explicit={explicit},section={section}"),
+                &env,
+                &args,
+                0,
+            )?;
             if page.pointer("/page/returned") != Some(&json!(1)) {
                 return Err("association row omitted".into());
             }
@@ -314,7 +353,7 @@ fn timeout() -> Result<(), String> {
     let env = setup(&stub)?;
     let words = ["get", "phenotype", "HP:0001250", "genes"];
     let directory = env.root().join("timeout");
-    super::record(&env, &words, &directory, 0)?;
+    super::record("associations/timeout/record1", &env, &words, &directory, 0)?;
     stub.finish()?;
     for entry in std::fs::read_dir(directory.join("monarch")).map_err(|e| e.to_string())? {
         let entry = entry.map_err(|e| e.to_string())?;
@@ -332,14 +371,14 @@ fn timeout() -> Result<(), String> {
     }
     let mut args = words.to_vec();
     args.extend(["--replay", directory.to_str().ok_or("record path")?]);
-    let result = invoke(&env, &args, 4)?;
+    let result = invoke("associations/timeout/invoke1", &env, &args, 4)?;
     if result.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
         || result.get("result").is_some()
         || result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
     {
         return Err(format!("timeout lost source failure: {result}"));
     }
-    super::native::mcp(&directory, &words, &result, 4, None)?;
+    budgets::mcp("associations/timeout/mcp1", &directory, &words, &result, 4)?;
     Ok(())
 }
 
