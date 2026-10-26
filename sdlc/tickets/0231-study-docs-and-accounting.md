@@ -1,6 +1,7 @@
 # 0231 — Document the study commands and close the study accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d13636349125d3f1ad67a2c0d173596a9e740676
 
 Milestone: 4
 

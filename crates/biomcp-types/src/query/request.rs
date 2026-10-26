@@ -11,6 +11,12 @@ pub enum Request {
     GetGwasAssociation(crate::GwasAssociationGet),
     /// Read one exact study and its native relations.
     GetGwasStudy(crate::GwasStudyGet),
+    /// Read native InterPro matches.
+    ProteinDomains(crate::ProteinDomainsQuery),
+    /// Read exact participant-admitted complex headers.
+    ProteinComplexes(crate::ProteinRelationQuery),
+    /// Read native participants under an exact protein anchor.
+    ProteinComplexMembers(crate::ProteinComplexMembersQuery),
     /// Read exact native feature rows with checked residue selectors.
     ProteinFeatures(crate::ProteinFeaturesQuery),
     /// Read native alternative products without constructing sequences.

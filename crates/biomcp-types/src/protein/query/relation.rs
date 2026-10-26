@@ -115,3 +115,41 @@ pub struct ProteinSequenceQuery {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub isoform: UniProtIsoform,
 }
+
+impl ProteinDomainsQuery {
+    /// Build one bounded first page of native accession matches.
+    pub fn new(accession: UniProtIsoform, limit: u32) -> Result<Self, QueryInvalid> {
+        DomainFields {
+            accession,
+            entry_type: None,
+            limit,
+            offset: 0,
+            pool: None,
+        }
+        .try_into()
+    }
+}
+impl ProteinRelationQuery {
+    /// Build a bounded unfiltered accession relation page.
+    pub fn new(accession: UniProtIsoform, limit: u32) -> Result<Self, QueryInvalid> {
+        RelationFields {
+            accession,
+            limit,
+            offset: 0,
+            pool: None,
+        }
+        .try_into()
+    }
+}
+impl ProteinComplexMembersQuery {
+    /// Build the first five participants of one exact containing complex.
+    pub fn new(accession: UniProtIsoform, complex: ComplexPortalId) -> Self {
+        Self(MemberFields {
+            accession,
+            complex,
+            limit: limit(),
+            offset: 0,
+            pool: None,
+        })
+    }
+}

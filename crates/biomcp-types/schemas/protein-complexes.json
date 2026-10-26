@@ -186,18 +186,25 @@
     },
     "ProteinComplexes": {
       "additionalProperties": false,
-      "description": "Exact participant-admitted complex headers; search total is not a membership total.",
+      "description": "Whole native rows with the independent unfiltered source count.",
       "properties": {
         "items": {
-          "description": "Whole native rows in source order; totals apply only to this collection.",
+          "description": "Bounded retained rows in source order.",
           "items": {
             "$ref": "#/$defs/ProteinComplexHeader"
           },
           "type": "array"
+        },
+        "native_total": {
+          "description": "Native source total before type selection or exact participant admission.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
-        "items"
+        "items",
+        "native_total"
       ],
       "type": "object"
     },
@@ -627,7 +634,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein_complexes/1",
+  "$id": "biomcp.protein_complexes/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -673,7 +680,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein_complexes/1",
+      "const": "biomcp.protein_complexes/2",
       "type": "string"
     },
     "sources": {

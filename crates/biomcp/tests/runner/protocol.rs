@@ -367,8 +367,8 @@ fn discovery() -> Check {
 }
 
 const DISCOVERY_WORDS: &[&str] = &[
-    "search study --cancer-type --limit --offset --pool",
-    "get study --section-limit --section-offset sections: profiles|sample-lists|files|all",
+    "search study --cancer-type --pool",
+    "get study :profiles|sample-lists|files|all",
     "sync cbioportal-studies",
     "protein",
     "civic",
@@ -389,7 +389,7 @@ const DISCOVERY_WORDS: &[&str] = &[
     "article citation-evidence",
     "article recommendations",
     "search disease",
-    "get disease sections: synonyms|xrefs|hierarchy|genes|phenotypes|incidence|survival",
+    "get disease :synonyms|xrefs|hierarchy|genes|phenotypes|incidence|survival",
     "--ontology",
     "search trial",
     "get trial",
@@ -402,15 +402,15 @@ const DISCOVERY_WORDS: &[&str] = &[
     "variant recurrence",
     "search adverse-event",
     "get adverse-event",
-    "sections: drugs|reactions|unii|rxcui|product-ndc|package-ndc|spl-id|spl-set-id|application-number|devices|narrative",
-    "[--source faers|maude]",
-    "[--reaction]",
-    "[--serious]",
-    "[--received-from]",
-    "[--received-to]",
-    "[--drug-index]",
-    "[--section-limit]",
-    "[--section-offset]",
+    ":drugs|reactions|unii|rxcui|product-ndc|package-ndc|spl-id|spl-set-id|application-number|devices|narrative",
+    "--source faers|maude",
+    "--reaction",
+    "--serious",
+    "--received-from",
+    "--received-to",
+    "--drug-index",
+    "--section-limit",
+    "--section-offset",
     "search diagnostic --source gtr|fda-cdx|who-ivd",
     "--marker",
     "--manufacturer",
@@ -446,9 +446,9 @@ const DISCOVERY_WORDS: &[&str] = &[
     "predict",
     "conservation",
     "cosmic",
-    "search gwas --extended-geneset --gene --include-child-traits --limit --offset --p-value --pool --pubmed query --study --trait --trait-id --variant",
-    "get gwas id section --section-limit --section-offset --snapshot",
-    "default p-value-ascending; --p-value requires this order",
+    "search gwas --extended-geneset --gene --include-child-traits --p-value --pool --pubmed query --study --trait --trait-id --variant",
+    "get gwas id section --snapshot :loci|associations|ancestries",
+    "--p-value requires default p-value-ascending",
     "no personal risk, causal variant/gene or clinical statistic interpretation",
     "hotspots",
 ];
@@ -457,8 +457,7 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // Keep discovery compact; detailed options live in generated command help.
-    // j14984 measured the composed GWAS/study discovery at 2750 bytes.
-    if text.len() > 3163 {
+    if text.len() > 2311 {
         return Err("command description exceeds budget".into());
     }
     for &word in DISCOVERY_WORDS {
