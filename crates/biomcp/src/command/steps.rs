@@ -45,13 +45,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     match body {
         Body::GwasPage(_) => Navigation::NativeGwas,
         Body::ProteinPage(_) => Navigation::Selectable,
-        Body::ProteinCard(card) => {
-            if card.items.iter().any(|item| !item.candidates.is_empty()) {
-                Navigation::Selectable
-            } else {
-                Navigation::Bounded
-            }
-        }
+        Body::ProteinCard(card) => candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty())),
         Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
             Navigation::Bounded
         }
@@ -64,13 +58,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
             Navigation::Bounded
         }
         Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
-        Body::VariantCard(card) => {
-            if card.resolution == biomcp_types::VariantResolution::Candidates {
-                Navigation::Selectable
-            } else {
-                Navigation::Bounded
-            }
-        }
+        Body::VariantCard(card) => candidate_navigation(card.resolution == biomcp_types::VariantResolution::Candidates),
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
             Navigation::BoundedPma
         }
@@ -123,6 +111,10 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
         Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
     }
+}
+
+fn candidate_navigation(candidates: bool) -> Navigation<'static> {
+    if candidates { Navigation::Selectable } else { Navigation::Bounded }
 }
 
 fn source_steps(

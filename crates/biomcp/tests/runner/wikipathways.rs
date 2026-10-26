@@ -108,8 +108,8 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
         seed(env, catalog(true, true), fault, 200)?;
         call(env, replay, &["sync", "wikipathways"], 4)?;
         let retained = call(
-            &env,
-            &replay,
+            env,
+            replay,
             &[
                 "search",
                 "pathway",
