@@ -65,7 +65,7 @@ fn key(row: &PathwayMember) -> Option<(KeyKind, String)> {
         "Ensembl" if value.parse::<biodata::EnsemblGeneId>().is_ok() => {
             Some((KeyKind::Xref, format!("ensembl:{value}")))
         }
-        "HGNC" if value.parse::<biodata::HgncId>().is_ok() => Some((KeyKind::Id, value.into())),
+        "HGNC" if hgnc_id(value).is_some() => Some((KeyKind::Id, hgnc_id(value)?.to_string())),
         "HGNC" if value.parse::<biodata::GeneSymbol>().is_ok() => {
             Some((KeyKind::Symbol, value.into()))
         }
@@ -80,7 +80,14 @@ fn exact(row: &PathwayMember, gene: &Gene) -> bool {
             .ensembl_id
             .as_ref()
             .is_some_and(|id| id.as_str() == value),
-        Some("HGNC") => gene.hgnc_id.to_string() == value || gene.symbol.as_str() == value,
+        Some("HGNC") => hgnc_id(value) == Some(gene.hgnc_id) || gene.symbol.as_str() == value,
         _ => false,
     }
+}
+
+fn hgnc_id(value: &str) -> Option<biodata::HgncId> {
+    if let Ok(id) = value.parse() { return Some(id); }
+    let number = value.parse::<u32>().ok()?;
+    if number.to_string() != value { return None; }
+    biodata::HgncId::new(number).ok()
 }

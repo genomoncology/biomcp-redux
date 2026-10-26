@@ -130,9 +130,9 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
 fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
     for section in ["genes", "all"] {
         let args = ["get", "pathway", id, section].map(str::to_owned).to_vec();
-        let cli = invoke(&env, args.clone(), 0)?;
+        let cli = invoke(env, args.clone(), 0)?;
         let mcp =
-            super::super::mcp::call_with_globals(&env, &args, false, &["--offline".into()])?;
+            super::super::mcp::call_with_globals(env, &args, false, &["--offline".into()])?;
         for (surface, value) in [("CLI", cli), ("MCP", mcp)] {
             super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
