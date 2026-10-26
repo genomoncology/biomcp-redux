@@ -198,15 +198,22 @@ fn concurrent() -> Check {
             )
         })
         .collect();
-    frames.push(request(json!("gwas"), "tools/call", json!({"name":"biomcp",
-        "arguments":{"args":["search","gwas","--pubmed","17529967"]}})));
+    frames.push(request(
+        json!("gwas"),
+        "tools/call",
+        json!({"name":"biomcp",
+        "arguments":{"args":["search","gwas","--pubmed","17529967"]}}),
+    ));
     let env = environment()?;
     let replay = super::launch::fixtures().join("replies/gwas/synthetic");
-    let replies = super::mcp::exchange_with_globals(&env, &frames, &env.globals(Some(&replay), false))?;
+    let replies =
+        super::mcp::exchange_with_globals(&env, &frames, &env.globals(Some(&replay), false))?;
     if replies.len() != ids.len() + 1 {
         return Err("EOF failed to drain accepted calls".into());
     }
-    if reply(&replies, &json!("gwas"))?.pointer("/result/structuredContent/result/items/0/id") != Some(&json!(6110)) {
+    if reply(&replies, &json!("gwas"))?.pointer("/result/structuredContent/result/items/0/id")
+        != Some(&json!(6110))
+    {
         return Err("concurrent GWAS cache-writing call failed".into());
     }
     if !env.root().join("case-cache/replay.sqlite").is_file() {

@@ -106,7 +106,8 @@ pub(super) fn ancestry() -> Result<(), String> {
         .pointer_mut("/_embedded/ancestries/1/_links/self/href")
         .ok_or("row link")? = json!(format!("{BASE}/studies/GCST000037/ancestries/1"));
     let replay = seed(&env, &args, rows.to_string(), 200, 0)?;
-    let value = call("gwas_get/synthetic/ancestry/4", 
+    let value = call(
+        "gwas_get/synthetic/ancestry/4",
         &env,
         &replay,
         &["get", "gwas", "GCST000035", "ancestries"],
@@ -122,7 +123,8 @@ pub(super) fn ancestry() -> Result<(), String> {
 pub(super) fn contexts() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", source)?;
     let live = super::super::variant::source_environment(&stub)?;
-    let value = gwas_budgets::invoke("gwas_get/synthetic/contexts/1", 
+    let value = gwas_budgets::invoke(
+        "gwas_get/synthetic/contexts/1",
         &live,
         vec![
             "get".into(),
@@ -146,7 +148,8 @@ pub(super) fn contexts() -> Result<(), String> {
     }
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", source)?;
     let live = super::super::variant::source_environment(&stub)?;
-    let first = gwas_budgets::invoke("gwas_get/synthetic/contexts/2", 
+    let first = gwas_budgets::invoke(
+        "gwas_get/synthetic/contexts/2",
         &live,
         ["get", "gwas", "GCST000035", "associations"]
             .map(str::to_owned)

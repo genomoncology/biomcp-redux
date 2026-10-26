@@ -1,5 +1,5 @@
 //! Feature gwas-search: source selectors cross the real command boundary.
-use super::{gwas_budgets, configuration::invoke, launch::Environment};
+use super::{configuration::invoke, gwas_budgets, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -160,7 +160,13 @@ fn seed_text(
     }
     Ok(env.root().join("replay"))
 }
-fn call(phase: &str, env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+fn call(
+    phase: &str,
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    exit: i32,
+) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).to_owned()));
     gwas_budgets::invoke(phase, env, command, exit)

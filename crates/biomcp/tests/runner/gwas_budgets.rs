@@ -22,20 +22,27 @@ pub(super) fn invoke(
                 globals.push(words.next().ok_or("missing process option value")?);
             }
             "--offline" => globals.push(word),
-            "--fresh" => {},
+            "--fresh" => {}
             _ => mcp_args.push(word),
         }
     }
-    if !globals.iter().any(|arg| arg == "--replay" || arg == "--offline") {
+    if !globals
+        .iter()
+        .any(|arg| arg == "--replay" || arg == "--offline")
+    {
         globals.push("--offline".into());
     }
-    let value = mcp::call_with_globals(env, &mcp_args, !matches!(exit, 0 | 3), &globals)?;
+    let value = mcp::call_with_globals(env, &mcp_args, !matches!(exit, 0 | 1), &globals)?;
     if cli.get("status") != value.get("status") || cli.get("schema") != value.get("schema") {
         return Err(format!("GWAS phase {phase} MCP command differs: {value}"));
     }
     let cli_bytes = serde_json::to_vec(&cli).map_err(|e| e.to_string())?.len() + 1;
     let mcp_bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
-    writeln!(std::io::stdout(), "GWAS_OUTPUT {}", serde_json::json!({"phase":phase,"cli":cli_bytes,"mcp":mcp_bytes}))
-        .map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "GWAS_OUTPUT {}",
+        serde_json::json!({"phase":phase,"cli":cli_bytes,"mcp":mcp_bytes})
+    )
+    .map_err(|e| e.to_string())?;
     Ok(cli)
 }

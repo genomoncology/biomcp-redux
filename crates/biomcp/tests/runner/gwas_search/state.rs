@@ -75,7 +75,8 @@ pub(super) fn literal() -> Result<(), String> {
         },
     )?;
     let env = super::super::variant::source_environment(&stub)?;
-    let value = gwas_budgets::invoke("gwas_search/state/literal/1", 
+    let value = gwas_budgets::invoke(
+        "gwas_search/state/literal/1",
         &env,
         ["search", "gwas", "--trait-id", "EFO_0000305"]
             .map(str::to_owned)

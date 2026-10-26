@@ -39,7 +39,7 @@
   "$id": "biomcp.gwas-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Checked association search selectors with native conjunction semantics.",
+  "description": "Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.",
   "properties": {
     "extended_geneset": {
       "default": false,
@@ -71,7 +71,7 @@
       "type": "integer"
     },
     "p_value": {
-      "description": "Inclusive positive probability in scientific notation, such as 1e-5. The qualifying total stays unknown until the ordered walk reaches its end.",
+      "description": "Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end.",
       "type": "string"
     },
     "pool": {

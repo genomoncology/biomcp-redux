@@ -51,7 +51,13 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
         fault.parse().unwrap_or(200),
         if fault == "timeout" { 16000 } else { 0 },
     )?;
-    let value = call(&format!("gwas_get/failures/failure/{surface}/{fault}"), &env, &replay, &args, 4)?;
+    let value = call(
+        &format!("gwas_get/failures/failure/{surface}/{fault}"),
+        &env,
+        &replay,
+        &args,
+        4,
+    )?;
     failed(&value)?;
     let fresh = super::super::action(&value, "fresh")?;
     if !fresh.contains(&"--fresh".to_owned())
@@ -117,7 +123,13 @@ fn admission(fault: &str) -> Result<(), String> {
     };
     *body.pointer_mut(pointer).ok_or("synthetic fault pointer")? = replacement;
     let replay = seed(&env, &args, body.to_string(), 200, 0)?;
-    let value = call(&format!("gwas_get/failures/admission/{fault}"), &env, &replay, &args, 4)?;
+    let value = call(
+        &format!("gwas_get/failures/admission/{fault}"),
+        &env,
+        &replay,
+        &args,
+        4,
+    )?;
     failed(&value)?;
     if value
         .get("problems")

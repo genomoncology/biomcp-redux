@@ -113,7 +113,13 @@ fn crossing() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = page(&env, 0, 6, -400)?;
     page(&env, 1, 6, -399)?;
-    let first = call("gwas_search/threshold/crossing/1", &env, &replay, &start("4e-400"), 0)?;
+    let first = call(
+        "gwas_search/threshold/crossing/1",
+        &env,
+        &replay,
+        &start("4e-400"),
+        0,
+    )?;
     let second = follow(&env, &replay, &first, 0)?;
     final_count(&second, 3)?;
     if second.pointer("/result/items") != Some(&json!([]))
@@ -168,7 +174,13 @@ pub(super) fn failures() -> Result<(), String> {
             fault.parse().unwrap_or(200),
             if fault == "timeout" { 16000 } else { 0 },
         )?;
-        let first = call("gwas_search/threshold/failures/1", &env, &replay, &start("1e-200"), 0)?;
+        let first = call(
+            "gwas_search/threshold/failures/1",
+            &env,
+            &replay,
+            &start("1e-200"),
+            0,
+        )?;
         let second = follow(&env, &replay, &first, 4)?;
         if second.get("result").is_some()
             || second.get("page").is_some()

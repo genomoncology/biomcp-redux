@@ -89,7 +89,8 @@ pub(super) fn paging() -> Result<(), String> {
         200,
         0,
     )?;
-    let first = call("gwas_search/wire/paging/1", 
+    let first = call(
+        "gwas_search/wire/paging/1",
         &env,
         &replay,
         &["search", "gwas", "--pubmed", "17529967"],
@@ -121,7 +122,8 @@ pub(super) fn paging() -> Result<(), String> {
     {
         return Err(format!("native page: {second}"));
     }
-    let between = call("gwas_search/wire/paging/3", 
+    let between = call(
+        "gwas_search/wire/paging/3",
         &env,
         &replay,
         &["search", "gwas", "--pubmed", "17529967", "--offset", "1"],
@@ -169,7 +171,8 @@ pub(super) fn surfaces() -> Result<(), String> {
     {
         return Err(format!("Markdown lost source facts: {text}"));
     }
-    let help = gwas_budgets::invoke("gwas_search/wire/surfaces/1", 
+    let help = gwas_budgets::invoke(
+        "gwas_search/wire/surfaces/1",
         &env,
         ["help", "search", "gwas"].map(str::to_owned).to_vec(),
         0,
