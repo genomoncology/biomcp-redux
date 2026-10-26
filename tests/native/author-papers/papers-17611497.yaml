@@ -23,7 +23,10 @@
           "974847e8429f0bf20d193ac66c9ba81900ae338b",
           "d48c8db15868df338dc48b4c0bf5130f5e0f200b"
         ],
-        "/next/5/kind": "page"
+        "/next/5/kind": "page",
+        "/query/id": "semantic-scholar:2060978",
+        "/query/limit": 5,
+        "/query/offset": 0
       },
       "full_output_bytes": true,
       "max_bytes": 2764,

@@ -25,7 +25,11 @@
           "3eb22b1e8a2cbf19508f11ca60fac83a594577f5",
           "4311d203c6c4138f10c4cd9a78d8fa6079f66358"
         ],
-        "/next/5/kind": "page"
+        "/next/5/kind": "page",
+        "/query/id": "semantic-scholar:9845886",
+        "/query/limit": 5,
+        "/query/offset": 0,
+        "/query/section": "details"
       },
       "full_output_bytes": true,
       "max_bytes": 24198,
@@ -54,7 +58,11 @@
           "3eb22b1e8a2cbf19508f11ca60fac83a594577f5",
           "4311d203c6c4138f10c4cd9a78d8fa6079f66358"
         ],
-        "/next/5/kind": "page"
+        "/next/5/kind": "page",
+        "/query/id": "semantic-scholar:9845886",
+        "/query/limit": 5,
+        "/query/offset": 0,
+        "/query/section": "details"
       },
       "full_output_bytes": true,
       "max_bytes": 24198,
