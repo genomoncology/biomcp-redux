@@ -11,6 +11,10 @@ pub(super) fn trials() -> Vec<Trial> {
     ));
     for source in ["cellosaurus", "chembl"] {
         trials.push(Trial::test(
+            format!("cell-line-all/policy/{source}"),
+            move || policy(source).map_err(Into::into),
+        ));
+        trials.push(Trial::test(
             format!("cell-line-all/verification/{source}"),
             move || verification(source).map_err(Into::into),
         ));
@@ -182,9 +186,9 @@ fn fault_case(source: &str, fault: &str) -> Result<(), String> {
 }
 fn assertions(source: &str, fault: &str, exit: i32, value: &Value) -> Result<(), String> {
     let index = usize::from(source == "chembl");
-    path(&value, &format!("/sources/{index}/source"), json!(source))?;
+    path(value, &format!("/sources/{index}/source"), json!(source))?;
     path(
-        &value,
+        value,
         &format!("/sources/{index}/state"),
         json!(if fault == "disabled" {
             "skipped"
@@ -201,8 +205,8 @@ fn assertions(source: &str, fault: &str, exit: i32, value: &Value) -> Result<(),
     } else {
         "partial"
     };
-    path(&value, "/status", json!(status))?;
-    path(&value, "/result/status", json!(status))?;
+    path(value, "/status", json!(status))?;
+    path(value, "/result/status", json!(status))?;
     if value
         .pointer(&format!("/sources/{index}/terms_url"))
         .and_then(Value::as_str)
@@ -224,7 +228,7 @@ fn assertions(source: &str, fault: &str, exit: i32, value: &Value) -> Result<(),
 
     if source == "chembl" && fault != "release" {
         path(
-            &value,
+            value,
             "/result/sections/chembl/state",
             json!(if fault == "empty" {
                 "empty"
@@ -347,6 +351,35 @@ fn verification(source: &'static str) -> Result<(), String> {
         || requests.iter().any(|(_, r)| r.contains("/verify"))
     {
         return Err("HTML verification was retried or followed".into());
+    }
+    Ok(())
+}
+
+fn policy(source: &str) -> Result<(), String> {
+    let stub = stub()?;
+    let env = setup(&stub)?;
+    let words = ["get", "cell-line", "CVCL_2119", "all"];
+    let (_, bytes) = surface::invoke_measured(&env, &words, 0)?;
+    surface::measure_bytes(&format!("all/policy/{source}/prime"), "cli", bytes, MEASURE)?;
+    let mut disabled = words.to_vec();
+    disabled.extend(["--disable-sources", source]);
+    let (value, bytes) =
+        surface::invoke_measured(&env, &disabled, if source == "cellosaurus" { 4 } else { 0 })?;
+    surface::measure_bytes(&format!("all/policy/{source}/warm"), "cli", bytes, MEASURE)?;
+    path(
+        &value,
+        &format!("/sources/{}/state", usize::from(source == "chembl")),
+        json!("skipped"),
+    )?;
+    if source == "cellosaurus" {
+        if value.pointer("/result/header").is_some() {
+            return Err("disabled Cellosaurus returned cached identity".into());
+        }
+    } else {
+        path(&value, "/result/sections/chembl/state", json!("skipped"))?;
+    }
+    if stub.finish()?.len() != 4 {
+        return Err("disabled source reached the network instead of checked cache policy".into());
     }
     Ok(())
 }

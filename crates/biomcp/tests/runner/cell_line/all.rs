@@ -92,14 +92,18 @@ fn facts(id: &str, value: &Value) -> Result<(), String> {
             if section == "variants" { 3 } else { 5 },
         )?;
     }
-    path(&value, "/result/release/version", json!("57.0"))?;
+    chembl::native_facts(
+        &json!({"result":value.pointer("/result/sections/chembl/data").ok_or("chembl data")?}),
+        id,
+    )?;
+    path(value, "/result/release/version", json!("57.0"))?;
     path(
-        &value,
+        value,
         "/result/sections/chembl/data/release/version",
         json!("ChEMBL_37"),
     )?;
     path(
-        &value,
+        value,
         "/result/sections/chembl/data/release/updated",
         json!("2026-05-01"),
     )?;

@@ -332,7 +332,7 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
 }
 
 fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
-    if flag == "--section" && matches!(positional.get(..2), Some(["get", "cell-line"])) {
+    if flag == "--section" && matches!(positional.get(..2), Some(["get", "cell-line" | "drug"])) {
         return Some(true);
     }
     if flag == "-l" && matches!(positional.get(..2), Some(["search", "phenotype"])) {

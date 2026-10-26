@@ -503,3 +503,13 @@ The focused measurements in `j15205` and `j15207` retain separate actual CLI, MC
 | `sections/synthetic/release-failure` | 2312 / 2659 / 665 | 2311 / 2658 / 665 | 2280 / 2622 / 656 |
 
 The K-562 executable YAML walk owns its whole 1,398-row cross-reference sequence and exact ordered database/accession floors. `j15207` measured every 25-row page independently in CLI and MCP. The largest pages were 5,102 CLI bytes and 5,101 MCP bytes. The canonical walk ceiling is 5,868 bytes and 1,467 estimated tokens. First, middle and terminal pages retain the same complete source rows and native total. Every variation row stays whole; growth past its owning measured ceiling fails the case instead of clipping the row.
+
+## Bounded composite disclosure and retirements
+
+`get cell-line CVCL_2119 all` and `get cell-line CVCL_0004 all` retain every named section's default first page. The complete checked Cellosaurus reply supplies names, identity, cross-references and variants. One exact-accession ChEMBL metadata request supplies the independent ChEMBL section. The original command deadline covers both sources and their separate release reads. No assay request follows implicitly. Source failure and policy skip remain visible in their section states and source outcomes. A ChEMBL failure keeps the Cellosaurus card partial and offers a fresh command.
+
+Composite paging controls return fixed usage guidance before provider access. Each explicit section limit is a composite control because named sections have different defaults. A nonzero section offset is also refused. The named section command owns paging. Deferred PharmacoDB spellings and the HPA expression command return fixed reasons before provider access. The prior drug cell-line retirement remains unchanged. The explicit query aliases continue to submit unchanged Cellosaurus queries.
+
+The outside-in composite cases reuse the protected native fixtures and the existing independent source fault matrices. Additional composites label synthetic failures and distinguish successful empty, failed, skipped and unavailable states. The ordinary-cache policy cases reject disabled sources before retained replies or requests. A local HTML verification page proves that neither source follows or retries a verification route. No live provider request, licensed fixture or analysis tool is involved.
+
+The `all/` keys in `tests/cell-line-command-budgets.json` own measured output sizes and derive each ceiling independently through the existing measured-size helper. CLI bytes include the emitted newline. MCP text bytes and the complete RPC reply have distinct entries. Markdown has its own measured entry for each native composite. No group maximum or shared budget replaces a fixture and phase measurement.

@@ -220,7 +220,7 @@ fn help() -> Result<(), String> {
     Ok(())
 }
 
-fn native_facts(value: &Value, id: &str) -> Result<(), String> {
+pub(super) fn native_facts(value: &Value, id: &str) -> Result<(), String> {
     let native: Value = serde_json::from_str(&fixture(id)?).map_err(|e| e.to_string())?;
     let rows = native
         .get("cell_lines")
