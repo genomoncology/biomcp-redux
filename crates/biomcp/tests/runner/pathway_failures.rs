@@ -21,6 +21,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(Trial::test("pathway-failures/synthetic-foreign-reactome-identity", || identities().map_err(Into::into)));
     trials.push(Trial::test("pathway-failures/unsupported-pairings-before-io", || pairings().map_err(Into::into)));
     trials.push(Trial::test("pathway-failures/synthetic-exact-absence-versus-foreign404", || absence::run().map_err(Into::into)));
+    trials.push(Trial::test("pathway-failures/kept-limit-aliases", || limits().map_err(Into::into)));
     trials.extend(wikipathways::trials());
     trials
 }
@@ -94,5 +95,20 @@ fn pairings() -> Check {
         if serde_json::to_vec(&value).map_err(|e|e.to_string())?.len()>1000 {return Err("pairing usage exceeds ceiling".into());}
     }
     if socket.accept().is_ok() {return Err("unsupported pairing opened provider connection".into());}
+    Ok(())
+}
+
+fn limits() -> Check {
+    let template=Environment::new().map_err(|e|e.to_string())?;
+    let root=fixtures::seed(&template)?;
+    for args in [&["search","pathway","Synthetic"][..],&["pathway","events",fixtures::ID][..]] {
+        for option in ["--limit", "-l"] {
+            let env=Environment::new().map_err(|e|e.to_string())?;
+            let mut words=args.to_vec();
+            words.extend([option,"5"]);
+            let value=call(&env,&root,&words,0)?;
+            if value.pointer("/result/page/returned")!=Some(&json!(1)) {return Err(format!("kept limit spelling changed page: {value}"));}
+        }
+    }
     Ok(())
 }

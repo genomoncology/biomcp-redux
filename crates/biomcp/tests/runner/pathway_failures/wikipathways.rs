@@ -3,7 +3,8 @@ use super::{Check, Environment, call, fixtures};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("pathway-failures/synthetic-wikipathways-human-scope-absence", || identities().map_err(Into::into)),
+    vec![Trial::test("pathway-failures/synthetic-wikipathways-rejected-identity", || rejected_identity().map_err(Into::into)),
+    Trial::test("pathway-failures/synthetic-wikipathways-human-scope-absence", || identities().map_err(Into::into)),
     Trial::test("pathway-failures/synthetic-wikipathways-sync", || failures().map_err(Into::into)),
     Trial::test("pathway-failures/synthetic-partial-independent-legs", || partial().map_err(Into::into))]
 }
@@ -72,6 +73,28 @@ fn identities() -> Check {
     let found=call(&env,&root,&["search","pathway","Synthetic","--source","wikipathways"],0)?;
     if found.pointer("/result/page/total")!=Some(&json!(0)) || found.pointer("/result/items")!=Some(&json!([])) {
         return Err(format!("foreign species entered a result pool: {found}"));
+    }
+    Ok(())
+}
+
+fn rejected_identity() -> Check {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let root=fixtures::seed(&env)?;
+    call(&env,&root,&["sync","wikipathways"],0)?;
+    let prior=call(&env,&root,&["get","pathway","WP382"],0)?;
+    for id in ["WP999", "bad-id"] {
+        let mut catalog=fixtures::catalog(false);
+        catalog["pathwayInfo"][0]["id"]=json!(id);
+        fixtures::replace_source(&root,"wikipathways","getPathwayInfo",&catalog.to_string(),200,0)?;
+        let rejected=call(&env,&root,&["sync","wikipathways"],4)?;
+        if rejected.pointer("/sources/0/reason")!=Some(&json!("bad_reply"))
+            || !rejected.get("problems").and_then(Value::as_array).is_some_and(|v|v.iter().any(|p|p.get("source")==Some(&json!("wikipathways")) && p.get("field")==Some(&json!("catalog")) && p.get("code")==Some(&json!("collection.incomplete")))) {
+            return Err(format!("rejected identity lost its failed receipt/catalog problem: {rejected}"));
+        }
+        let retained=call(&env,&root,&["get","pathway","WP382"],0)?;
+        if retained.get("result")!=prior.get("result") {return Err("rejected identity changed the old catalog pair".into());}
+        let absent=call(&env,&root,&["get","pathway","WP999"],1)?;
+        if absent.get("result").is_some_and(|v|!v.is_null()) {return Err("rejected identity entered get catalog".into());}
     }
     Ok(())
 }
