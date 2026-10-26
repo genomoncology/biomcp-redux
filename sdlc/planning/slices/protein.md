@@ -239,3 +239,24 @@ The projected responses omit typed next actions. The proposed ceiling adds a1,00
 The sequence maximum is the complete1863-residue BRCA1 sequence with metadata; no sequence truncation is proposed. Function text and evidence-rich feature rows remain deeper options because their measured pages are costly. The default card is below900 bytes in this projection, while raw UniProt replies span55KB–875KB. The section pages are independent: `all` adds each requested section's bounded first page and does not claim to fit the default card ceiling. Its composite ceiling must be derived from actual complete implementation output before admission. No arbitrary shared help or discovery ceiling is raised here.
 
 0.9 default/section output tokens, comparable output after registry terms removal, product cold/warm latency and complete future `all` envelopes remain unmeasured. This proposal never compares source JSON bytes with0.9 rendered output. A PM-approved implementation must verify ceilings on the actual public schema and all emitted actions.
+
+## Bounded admission capture recipe
+
+The admission follow-up uses the landed source-capture helper, with no product code changes. It permits at most twelve physical requests, one second between requests, a thirty second deadline and a four MiB body bound. Each row runs once. There are no retries, redirects, query changes or extra pages. A 401,403,429 or5xx stops that source. No keys, cookies, STRING, bundles or analysis tools are used.
+
+The literal EGFR text comes from P01, and CDKN2A comes from P20. The search fields retain accession, entry identity, protein/gene names, taxon, reviewed status and length. The original j14202 ledger identifies P00533 as the largest InterPro collection, with fifteen entries. P00000 is the well-formed absent-accession control; the response must establish absence rather than this recipe assuming it. The exact first requests are:
+
+| Witness | Exact URL |
+| --- | --- |
+| reviewed | `https://rest.uniprot.org/uniprotkb/search?query=%28EGFR%29+AND+%28organism_id%3A9606%29+AND+%28reviewed%3Atrue%29&format=json&size=5&fields=accession%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Creviewed%2Clength` |
+| unreviewed | `https://rest.uniprot.org/uniprotkb/search?query=%28CDKN2A%29+AND+%28organism_id%3A9606%29&format=json&size=5&fields=accession%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Creviewed%2Clength` |
+| interpro-largest | `https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P00533/?page_size=5` |
+| interpro-domain | `https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P04637/?page_size=5&type=domain` |
+| complex | `https://www.ebi.ac.uk/intact/complex-ws/search/P15056?first=0&number=5&filters=species_f%3A%28%22Homo+sapiens%22%29` |
+| isoform | `https://rest.uniprot.org/uniprotkb/P38398-2.json` |
+| uniprot-absent | `https://rest.uniprot.org/uniprotkb/P00000.json` |
+| interpro-absent | `https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P00000/?page_size=5` |
+
+UniProt gets exactly one second page through the first reply's `Link` with `rel="next"`. InterPro gets exactly one second page through its returned `next` URL. Complex Portal gets exactly one second page with `first=5`, preserving its query, human filter and `number=5`, only when the first total exceeds five. [InterPro documents page size and type selection](https://interpro-documentation.readthedocs.io/en/latest/api.html). [Complex Portal documents first/number offsets](https://www.ebi.ac.uk/intact/complex-ws/search/). No continuation is inferred for a failed or empty first reply.
+
+Each missing witness retains the ticket's fallback: search ceilings return to the PM without a five-hit page; widened search remains unsupported without an unreviewed positive; an unproved source page returns only its first native window with an incomplete label when more exists; an unproved InterPro type selector filters a complete retained collection locally; an unproved isoform entry get accepts only base accessions and names isoforms/sequence guidance; absent-versus-failed cases remain explicitly synthetic without native absence replies. These captures establish source behavior, not biological answers.
