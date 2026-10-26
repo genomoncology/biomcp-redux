@@ -1,6 +1,7 @@
 # 0244 — Document the protein commands and close the protein accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: bd14708b403ce871127cb2d1c0123e51bdc3fb88
 
 Milestone: 4
 

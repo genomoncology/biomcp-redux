@@ -1,6 +1,7 @@
 # 0257 — Add the cell line types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: badc6f664674030d7cb32e6f442f9482f234ab21
 
 Milestone: 4
 
