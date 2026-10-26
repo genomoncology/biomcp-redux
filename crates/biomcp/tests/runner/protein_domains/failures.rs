@@ -1,5 +1,7 @@
 use super::*;
 use std::path::Path;
+const CLI_FAILURE_BYTES: usize = 2200;
+const MCP_FAILURE_BYTES: usize = 2199;
 pub(super) fn run() -> Result<(), String> {
     for command in ["domains", "complexes"] {
         let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |request| {
@@ -37,6 +39,11 @@ pub(super) fn run() -> Result<(), String> {
             let mut words = env.globals(Some(&replay), false);
             words.extend(["protein", command, "P38398"].map(str::to_owned));
             let value = invoke(&env, words, 4)?;
+            super::card_failures::bounded(&value, CLI_FAILURE_BYTES, MCP_FAILURE_BYTES)?;
+            let args = ["protein", command, "P38398"].map(str::to_owned);
+            let mcp = super::super::mcp::call_with_globals(&env, &args, true, &env.globals(Some(&replay), false))?;
+            if value != mcp { return Err("synthetic relation CLI/MCP failures differ".into()); }
+            super::card_failures::bounded(&mcp, CLI_FAILURE_BYTES, MCP_FAILURE_BYTES)?;
             if value.pointer("/status") != Some(&json!("failed"))
                 || value.pointer("/sources/0/reason") != Some(&json!(reason))
                 || value.pointer("/sources/0/terms") != Some(&json!("CC0"))

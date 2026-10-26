@@ -8,7 +8,7 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test(format!("protein-search/retired-spelling-{n}"), move || {
             check(command, message).map_err(Into::into)
         })
-    }).collect()
+    }).chain([Trial::test("protein-search/unsupported-section-and-shared-repeat-grammar", || boundaries().map_err(Into::into))]).collect()
 }
 fn check(command: &str, message: &str) -> Result<(), String> {
     let stub = Stub::for_sources(&["rest.uniprot.org", "www.ebi.ac.uk"], |_| "application/json", |_| Err("retired command reached source".into()))?;
@@ -36,3 +36,14 @@ const CASES: &[(&str, &str)] = &[
     ("protein interactions P00533", "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes"),
     ("protein associations P00533", "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein products; use: get protein <ACCESSION> complexes"),
 ];
+
+fn boundaries() -> Result<(), String> {
+    let env = Environment::new().map_err(|e|e.to_string())?;
+    for args in [vec!["get", "protein", "P00533", "unknown"], vec!["get", "protein", "P00533", "--section", "unknown"]] {
+        let mut words = vec!["--offline".into()]; words.extend(args.iter().map(|s|(*s).to_owned()));
+        let value = invoke(&env, words, 2)?;
+        if value.pointer("/error/code") != Some(&json!("usage.arguments")) { return Err("unsupported section was accepted".into()); }
+        super::card_failures::bounded(&value, CLI_USAGE_BYTES, MCP_USAGE_BYTES)?;
+    }
+    Ok(())
+}
