@@ -97,6 +97,7 @@ mod supplement_tables;
 mod trial_condition;
 mod trial_documents;
 mod trial_get;
+mod trial_group;
 mod trial_sites;
 mod trial_tables;
 mod trial_wider;
@@ -327,7 +328,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(gene_tables::trials());
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
-    trials.extend(trial_trials());
+    trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
         pmc_tables::check().map_err(|e| e.to_string().into())
@@ -526,22 +527,6 @@ pub(super) fn seer_native(path: &Path) -> Result<(), String> {
 
 pub(super) fn trial_condition_native(path: &Path) -> Result<(), String> {
     trial_condition::native(path)
-}
-
-fn trial_trials() -> Vec<Trial> {
-    [
-        trial_tables::trials(),
-        trial_wider::trials(),
-        trial_get::trials(),
-        nci::trials(),
-        nci_walk::trials(),
-        trial_condition::trials(),
-        trial_documents::trials(),
-        trial_sites::trials(),
-    ]
-    .into_iter()
-    .flatten()
-    .collect()
 }
 
 fn drug_trials() -> Vec<Trial> {
