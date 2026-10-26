@@ -1,6 +1,6 @@
 {
   "feature": "pathway-reactome",
-  "story": "Invalid selectors fail beforeI/O and genuine source absence never triggers a replacement search.",
+  "story": "Invalid selectors fail before I/O and genuine source absence never triggers a replacement search.",
   "replay": "pathway/native",
   "steps": [
     {
