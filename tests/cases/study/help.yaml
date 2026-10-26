@@ -31,8 +31,13 @@
           ]
         },
         "/result/commands/0/description": "Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
-        "/result/commands/0/sections": []
-      }
+        "/result/commands/0/sections": [],
+        "": {
+          "max_bytes": 1384
+        }
+      },
+      "max_bytes": 1383,
+      "max_tokens": 347
     },
     {
       "run": [
@@ -66,8 +71,13 @@
             "--section-offset"
           ]
         },
-        "/result/commands/0/description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names."
-      }
+        "/result/commands/0/description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
+        "": {
+          "max_bytes": 1692
+        }
+      },
+      "max_bytes": 1691,
+      "max_tokens": 424
     },
     {
       "run": [
@@ -89,8 +99,13 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/sections": []
-      }
+        "/result/commands/0/sections": [],
+        "": {
+          "max_bytes": 498
+        }
+      },
+      "max_bytes": 497,
+      "max_tokens": 125
     }
   ]
 }

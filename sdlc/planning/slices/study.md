@@ -271,6 +271,22 @@ The table uses the accepted complete product envelopes from the retained CLI/MCP
 
 The retained sync receipt serializes to 449 compact UTF-8 JSON bytes; the CLI newline adds one. These are technical serialization measurements from the existing verified product receipt, not a new source call or replay. New synthetic examples and help also enforce their measured per-step `max_bytes` through both CLI and MCP. Existing synthetic failure, retirement, navigation and disabled-source cases retain their owning response ceilings. Source cases remain outside Git when publisher terms bar storage.
 
+The synthetic help/example measurements in j14944 preserve the existing full-envelope and comparable-output distinction. Both surfaces passed their ordinary cases before these fixed ceilings were added. The source terms remain present in full responses.
+
+| Case step | Full CLI bytes | MCP bytes | Comparable bytes | Comparable max_bytes | Full max_bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| help 1 | 1203 | 1202 | 1202 | 1383 | 1384 |
+| help 2 | 1471 | 1470 | 1470 | 1691 | 1692 |
+| help 3 | 433 | 432 | 432 | 497 | 498 |
+| examples 1 | 445 | 444 | 279 | 321 | 512 |
+| examples 2 | 445 | 444 | 279 | 321 | 512 |
+| examples 3 | 928 | 927 | 762 | 877 | 1068 |
+| examples 4 | 936 | 935 | 770 | 886 | 1077 |
+| examples 5 | 1141 | 1140 | 975 | 1122 | 1313 |
+| examples 6 | 1142 | 1141 | 976 | 1123 | 1314 |
+
+The existing synthetic study runner responses have fixed schema-scoped full-envelope budgets from j14940: page 1,877 bytes, sync 447, card including bounded all 6,339, files 2,425, usage error 198, sample lists 1,563 and profiles 1,991. Both CLI and MCP are checked against each measured maximum plus fifteen percent. This supplements the narrower native per-case ceilings without rerunning native proofs. Failure and retirement cases retain their more specific existing ceilings.
+
 Every 0.9 timing and output-size row remains **unmeasured**: this lane has no independently verified contained legacy executable, and it installs no external baseline. The milestone 5 comparison owns those measurements. No speedup, token reduction or output-size ratio is claimed. Native source transfer sizes above remain HTTP measurements and are not product command costs. The byte-derived token approximation used by the runner is not a tokenizer benchmark. No local count, frequency or denominator is calculated.
 
 ## Evidence and review limits

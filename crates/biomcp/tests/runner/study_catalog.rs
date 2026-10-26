@@ -76,7 +76,8 @@ pub(super) fn call(
     }
     budget(&value)?;
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
-    let mcp = super::mcp::call_with_globals(env, &words, exit > 1, &env.globals(Some(replay), false))?;
+    let mcp =
+        super::mcp::call_with_globals(env, &words, exit > 1, &env.globals(Some(replay), false))?;
     budget(&mcp)?;
     Ok(value)
 }

@@ -13,8 +13,13 @@
         "cbioportal-studies"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "": {
+          "max_bytes": 512
+        }
+      },
+      "max_bytes": 321,
+      "max_tokens": 81
     },
     {
       "run": [
@@ -28,8 +33,13 @@
         "--fresh"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "": {
+          "max_bytes": 512
+        }
+      },
+      "max_bytes": 321,
+      "max_tokens": 81
     },
     {
       "run": [
@@ -43,8 +53,13 @@
         "Atlas"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "": {
+          "max_bytes": 1068
+        }
+      },
+      "max_bytes": 877,
+      "max_tokens": 220
     },
     {
       "run": [
@@ -64,8 +79,13 @@
         "1"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "": {
+          "max_bytes": 1077
+        }
+      },
+      "max_bytes": 886,
+      "max_tokens": 222
     },
     {
       "run": [
@@ -79,8 +99,13 @@
         "synthetic_0"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "": {
+          "max_bytes": 1313
+        }
+      },
+      "max_bytes": 1122,
+      "max_tokens": 281
     },
     {
       "run": [
@@ -94,8 +119,13 @@
         "synthetic_1"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "": {
+          "max_bytes": 1314
+        }
+      },
+      "max_bytes": 1123,
+      "max_tokens": 281
     }
   ]
 }

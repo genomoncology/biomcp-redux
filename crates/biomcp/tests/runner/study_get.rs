@@ -452,7 +452,10 @@ fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
     super::budget(&value)?;
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
     let mcp = crate::runner::mcp::call_with_globals(
-        env, &words, exit > 1, &env.globals(Some(replay), false),
+        env,
+        &words,
+        exit > 1,
+        &env.globals(Some(replay), false),
     )?;
     super::budget(&mcp)?;
     Ok(value)
