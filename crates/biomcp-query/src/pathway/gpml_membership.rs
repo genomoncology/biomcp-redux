@@ -17,7 +17,7 @@ pub(super) fn resolve(
         let keys: Vec<_> = rows
             .iter()
             .filter_map(key)
-            .filter(|(k, _)| *k == kind)
+            .filter(|(k, _)| std::mem::discriminant(k) == std::mem::discriminant(&kind))
             .map(|(_, v)| v)
             .collect();
         if keys.is_empty() {
@@ -79,7 +79,7 @@ fn exact(row: &PathwayMember, gene: &Gene) -> bool {
         Some("Ensembl") => gene
             .ensembl_id
             .as_ref()
-            .is_some_and(|id| id.as_str() == value),
+            .is_some_and(|id| id.to_string() == value),
         Some("HGNC") => hgnc_id(value) == Some(gene.hgnc_id) || gene.symbol.as_str() == value,
         _ => false,
     }
