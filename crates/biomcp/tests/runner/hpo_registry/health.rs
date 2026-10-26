@@ -9,7 +9,7 @@ pub(super) fn run() -> Check {
     let body = if let Some(path) = std::env::var_os("HPO_HEALTH_CAPTURE") {
         let bytes = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
         let value: Value = serde_json::from_str(&bytes).map_err(|e| e.to_string())?;
-        if value["id"] != "HP:0001250" {
+        if value.get("id") != Some(&json!("HP:0001250")) {
             return Err("wrong retained term".into());
         }
         bytes
