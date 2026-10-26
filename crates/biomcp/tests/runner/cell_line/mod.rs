@@ -1,5 +1,5 @@
-use std::io::Write;
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
+use std::io::Write;
 mod faults;
 mod help;
 mod native;

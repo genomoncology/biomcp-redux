@@ -274,8 +274,8 @@ fn disabled(measure: bool) -> Result<(), String> {
 }
 fn usage() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    for suffix in [["--limit", "0"], ["--limit", "26"], ["--offset", "-1"]] {
-        let words = ["search", "cell-line", "MOLM13", suffix[0], suffix[1]];
+    for [option, value] in [["--limit", "0"], ["--limit", "26"], ["--offset", "-1"]] {
+        let words = ["search", "cell-line", "MOLM13", option, value];
         let value = invoke(&env, &words, 2)?;
         path(&value, "/status", json!("usage"))?;
     }
