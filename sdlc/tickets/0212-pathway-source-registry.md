@@ -1,6 +1,7 @@
 # 0212 — Register WikiPathways as an open bundle source beside Reactome
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8c27b579d145a8921d2aa6b0fb6b34c557ecf19b
 
 Milestone: 4
 
