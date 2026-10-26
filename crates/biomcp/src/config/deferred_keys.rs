@@ -166,7 +166,7 @@ fn saved_query_pages_never_resolve_credentials() {
                 "--section-limit",
                 "1",
             ],
-            "/result/items/0/more",
+            "/next",
         ),
         (
             "author/synthetic",
