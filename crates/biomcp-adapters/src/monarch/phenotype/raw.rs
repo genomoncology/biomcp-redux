@@ -15,6 +15,10 @@ pub(super) struct Node {
     pub has_descendant_count: Option<u64>,
     pub association_counts: Option<Box<[PhenotypeAssociationCount]>>,
     pub synonym: Option<Box<[Box<str>]>>,
+    pub exact_synonym: Option<Box<[Box<str>]>>,
+    pub broad_synonym: Option<Box<[Box<str>]>>,
+    pub narrow_synonym: Option<Box<[Box<str>]>>,
+    pub related_synonym: Option<Box<[Box<str>]>>,
     pub xref: Option<Box<[biodata::Curie]>>,
     pub node_hierarchy: Option<Hierarchy>,
 }

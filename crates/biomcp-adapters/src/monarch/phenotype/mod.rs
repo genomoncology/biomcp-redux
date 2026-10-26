@@ -94,7 +94,12 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
 }
 fn sections(node: &raw::Node) -> Vec<PhenotypeSection> {
     let mut out = Vec::new();
-    if node.synonym.is_some() {
+    if node.synonym.is_some()
+        || node.exact_synonym.is_some()
+        || node.broad_synonym.is_some()
+        || node.narrow_synonym.is_some()
+        || node.related_synonym.is_some()
+    {
         out.push(PhenotypeSection::Synonyms);
     }
     if node.xref.is_some() {

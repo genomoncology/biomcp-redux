@@ -1,4 +1,4 @@
-use super::{empty, overall, problem, run};
+use super::{empty, overall, problem};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{hpo, monarch};
 use biomcp_fetch::{InputError, RequestError};
@@ -33,7 +33,7 @@ pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     ));
     out.local = error.and_then(status::local);
     match reply {
-        Ok(card) => apply(&mut out, q, card),
+        Ok(card) => apply(&mut out, card),
         _ if absent => out.status = Status::Absent,
         _ => (),
     }
@@ -41,13 +41,7 @@ pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn apply(out: &mut Outcome, q: &PhenotypeGet, card: PhenotypeTermCard) {
-    for section in card.sections.iter().take(3) {
-        out.next.push((
-            StepKind::Section,
-            run(Request::GetPhenotype(q.clone().with_section(*section))),
-        ));
-    }
+fn apply(out: &mut Outcome, card: PhenotypeTermCard) {
     out.body = QueryBody::PhenotypeCard(Some(card));
     out.status = overall(out, false);
 }

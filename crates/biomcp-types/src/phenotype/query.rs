@@ -172,23 +172,6 @@ impl PhenotypeGet {
             section_offset: 0,
         })
     }
-    /// Select an offered section and its source-specific default page size.
-    pub fn with_section(mut self, section: PhenotypeSection) -> Self {
-        self.0.section = Some(section);
-        self.0.section_limit = Some(
-            if matches!(
-                section,
-                PhenotypeSection::Diseases | PhenotypeSection::Genes
-            ) {
-                1
-            } else {
-                5
-            },
-        );
-        self.0.section_offset = 0;
-        self
-    }
-
     /// Checked term identity.
     pub fn id(&self) -> &HpId {
         &self.0.id
