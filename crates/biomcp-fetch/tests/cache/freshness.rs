@@ -74,7 +74,7 @@ fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
 }
 
 #[test]
-fn local_write_busy_respects_deadline_and_never_uses_stale_fallback() {
+fn local_write_busy_keeps_the_checked_live_reply_and_deadline() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("cache.sqlite");
     let server = Server::new();
@@ -89,12 +89,13 @@ fn local_write_busy_respects_deadline_and_never_uses_stale_fallback() {
     let connection = Connection::open(&path).unwrap();
     connection.execute_batch("BEGIN IMMEDIATE").unwrap();
     let deadline = fetch.deadline(Duration::from_millis(500));
-    let (error, report) = exchange(&server, 200, r#"{"answer":true}"#, || {
+    let (reply, report) = exchange(&server, 200, r#"{"answer":true}"#, || {
         let leg = fetch.leg(spec, deadline);
-        let error = leg.json::<Answer>(&endpoint, &[]).unwrap_err();
-        (error, leg.finish())
+        let reply = leg.json::<Answer>(&endpoint, &[]).unwrap();
+        (reply, leg.finish())
     });
-    assert_eq!(error, RequestError::Cache(CacheError::Busy));
+    assert!(reply.answer);
+    assert_eq!(report.cache_problems, [CacheError::Busy]);
     assert!(deadline.remaining() < Duration::from_millis(20));
     assert!(!report.stale);
     assert!(report.failures.is_empty());

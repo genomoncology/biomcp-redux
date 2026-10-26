@@ -82,3 +82,6 @@ mod credentials;
 mod freshness;
 #[path = "cache/storage.rs"]
 mod storage;
+
+#[path = "cache/contention.rs"]
+mod contention;
