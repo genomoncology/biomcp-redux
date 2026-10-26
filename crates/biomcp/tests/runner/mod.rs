@@ -559,3 +559,7 @@ pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), S
 pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
     phenotype::native(path)
 }
+
+pub(super) fn protein_native(path: &Path) -> Result<(), String> {
+    protein_commands::native(path)
+}

@@ -151,3 +151,65 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+
+/// Measure the ordinary CLI and MCP responses against the accepted external replay.
+pub(super) fn native(root: &std::path::Path) -> Result<(), String> {
+    use std::io::Write;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let globals = env.globals(Some(&root.join("replay")), false);
+    for words in [
+        vec!["get", "protein", "P00533"],
+        vec!["get", "protein", "Q9UIF7"],
+        vec!["get", "protein", "P38398-2"],
+        vec!["get", "protein", "P42771", "Q8N726"],
+        vec!["get", "protein", "BRAF"],
+        vec!["get", "protein", "CDKN2A"],
+        vec!["search", "protein", "--gene", "BRAF"],
+        vec!["search", "protein", "--gene", "CDKN2A"],
+        vec!["search", "protein", "EGFR"],
+    ] {
+        let args: Vec<String> = words.iter().map(|s| (*s).into()).collect();
+        let mut command = globals.clone();
+        command.extend(args.clone());
+        let cli = invoke(&env, command.clone(), 0)?;
+        let mcp = super::mcp::call_with_globals(&env, &args, false, &globals)?;
+        for key in ["status", "result", "query", "page"] {
+            if cli.get(key) != mcp.get(key) {
+                return Err(format!("protein CLI/MCP {key} differs for {words:?}"));
+            }
+        }
+        for (kind, value) in [("CLI", &cli), ("MCP", &mcp)] {
+            let comparable = super::source_terms::size(value, "")?;
+            writeln!(
+                std::io::stderr(),
+                "protein {kind} {words:?}: full={} comparable={comparable} ceiling={}",
+                serde_json::to_vec(value).map_err(|e| e.to_string())?.len(),
+                (comparable * 115).div_ceil(100)
+            )
+            .map_err(|e| e.to_string())?;
+        }
+        command.extend(["--format".into(), "md".into()]);
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &command)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+        let identities = cli
+            .pointer("/result/items")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(|item| {
+                item.pointer("/header/protein/accession")
+                    .or_else(|| item.pointer("/protein/accession"))
+                    .and_then(Value::as_str)
+            });
+        if !output.status.success()
+            || markdown.trim().is_empty()
+            || identities.into_iter().any(|id| !markdown.contains(id))
+        {
+            return Err(format!("protein Markdown failed for {words:?}"));
+        }
+    }
+    Ok(())
+}
