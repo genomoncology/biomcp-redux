@@ -307,6 +307,7 @@ fn run_step(
             let value = serde_json::from_slice::<Value>(&output.stdout)
                 .map_err(|error| error.to_string())?;
             registry.validate(&value, args, output.status.success())?;
+            pathway_budgets::help(&value, args, "cli")?;
             assertions::check(&output.stdout, step, expectations)?;
             Ok(value)
         })
@@ -315,6 +316,7 @@ fn run_step(
     if let Some(args) = &step.mcp {
         let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
+        pathway_budgets::help(&result, args, "mcp")?;
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,

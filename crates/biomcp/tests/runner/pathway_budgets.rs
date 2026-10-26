@@ -57,3 +57,24 @@ fn phase_key(phase: &str, args: &[String]) -> String {
     }
     format!("{phase}: {}", words.join(" "))
 }
+
+// The routine gate retains actual help measurements beside the fixed case ceilings.
+pub(super) fn help(value: &Value, args: &[String], surface: &str) -> Result<(), String> {
+    if args.first().is_some_and(|word| word == "help")
+        && (args.len() == 1
+            || args
+                .iter()
+                .any(|word| matches!(word.as_str(), "pathway" | "wikipathways")))
+    {
+        use std::io::Write;
+        let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len()
+            + usize::from(surface == "cli");
+        writeln!(
+            std::io::stdout(),
+            "PATHWAY_HELP_MEASURE {} {surface} {bytes}",
+            args.join(" ")
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
