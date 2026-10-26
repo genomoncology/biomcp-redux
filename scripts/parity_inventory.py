@@ -67,6 +67,17 @@ def generate(binary):
         walk(())
     # ChartArgs is flattened only in these released leaf payloads. Its short-help
     # omissions and hidden MCP switch must retain their original option slots.
+    for command in (
+        "study query",
+        "study survival",
+        "study compare",
+        "study co-occurrence",
+    ):
+        source = "src/cli/types.rs:270-271; src/cli/study/mod.rs:53,134,158,175"
+        leaves[command]["options"] = sorted(
+            set(leaves[command]["options"]) | {"--mcp-inline"}
+        )
+        leaves[command]["hidden_options"] = {"--mcp-inline": source}
     return {
         "release": "0.9.3",
         "revision": REVISION,
