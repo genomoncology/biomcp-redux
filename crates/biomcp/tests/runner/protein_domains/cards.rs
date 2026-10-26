@@ -12,14 +12,19 @@ pub(super) fn run()->Result<(),String>{
     if complexes.pointer("/result/items/0/sections/complexes/data/native_total")!=Some(&json!(3)){return Err("complex section lost its independent native count".into());}
     let all=call(&env,&["get","protein","P38398","all"],0)?;
     if all.pointer("/result/items/0/sections/domains/state")!=Some(&json!("data")) || all.pointer("/result/items/0/sections/complexes/state")!=Some(&json!("data")){return Err("all omitted an available source section".into());}
-    let skipped=call(&env,&["get","protein","P38398","domains","--disable-sources","interpro"],0)?;
-    if skipped.pointer("/result/items/0/sections/domains/state")!=Some(&json!("skipped")){return Err("disabled source supplied a cached section".into());}
-    let restricted=call(&env,&["get","protein","P38398","--disable-sources","interpro,complex-portal"],0)?;
-    let actions=restricted.get("next").and_then(Value::as_array).ok_or("restricted actions")?;
-    if actions.iter().any(|s|s.get("args").and_then(Value::as_array).is_some_and(|args|args.contains(&json!("domains"))||args.contains(&json!("complexes")))){return Err("disabled source card action remained available".into());}
+    policy(&env)?;
     if stub.finish()?.len()!=3{return Err("plain cards or retained sections made extra source requests".into());}
     Ok(())
 }
+fn policy(env:&Environment)->Result<(),String>{
+    let skipped=call(env,&["get","protein","P38398","domains","--disable-sources","interpro"],0)?;
+    if skipped.pointer("/result/items/0/sections/domains/state")!=Some(&json!("skipped")){return Err("disabled source supplied a cached section".into());}
+    let restricted=call(env,&["get","protein","P38398","--disable-sources","interpro,complex-portal"],0)?;
+    let actions=restricted.get("next").and_then(Value::as_array).ok_or("restricted actions")?;
+    if actions.iter().any(|s|s.get("args").and_then(Value::as_array).is_some_and(|args|args.contains(&json!("domains"))||args.contains(&json!("complexes")))){return Err("disabled source card action remained available".into());}
+    Ok(())
+}
+
 fn reply(request:&str)->Result<String,String>{
     if request.contains("/uniprotkb/") {return Ok(json!({"primaryAccession":"P38398","uniProtkbId":"SYNTHETIC_HUMAN","entryType":"UniProtKB reviewed (Swiss-Prot)","organism":{"taxonId":9606},"proteinDescription":{"recommendedName":{"fullName":{"value":"Synthetic protein"}}},"sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"features":[],"comments":[],"uniProtKBCrossReferences":[]}).to_string());}
     if request.contains("/interpro/") {return Ok(json!({"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro","type":"family","member_databases":{}},"proteins":[{"accession":"p38398","protein_length":30,"organism":"9606","entry_protein_locations":[]}]}]}).to_string());}
