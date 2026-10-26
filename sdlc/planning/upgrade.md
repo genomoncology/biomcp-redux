@@ -47,6 +47,7 @@ The generated table below lists decided leaf commands and their dropped options 
 | `gene trials` | Ported or renamed | — | [The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page.](slices/gene.md) |
 | `gene articles` | Ported or renamed | — | [Section 1 maps this capability to search article --gene; article search preserves paging.](slices/gene.md) |
 | `gene pathways` | Ported or renamed | — | [Section 1 maps the command to the pathways section and moves old paging to the pathway slice.](slices/gene.md) |
+| `search gwas` | Ported or renamed | — | [Native mapped-gene and literal mapped-trait selectors replace local prefix intersection. Exact positive thresholds require default native p-value-ascending order. Positional gene, -g and -l aliases remain.](slices/gwas.md) |
 | `search pgx` | Ported or renamed | `--drug`, `--evidence` | [Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof.](slices/pharmacogenomics.md) |
 | `get pgx` | Ported or renamed | `--full` | [Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire.](slices/pharmacogenomics.md) |
 | `study list` | Ported or renamed | — | [Search the stored public catalog with search study; local installations do not define source absence.](slices/study.md) |

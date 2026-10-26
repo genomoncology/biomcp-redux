@@ -18,7 +18,7 @@ fn follow(env: &Environment, replay: &Path, value: &Value, exit: i32) -> Result<
         .iter()
         .map(|arg| arg.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
-    let cli = call(env, replay, &args, exit)?;
+    let cli = call("gwas_search/threshold/follow/1", env, replay, &args, exit)?;
     if exit == 0 {
         let owned = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
         let mcp = super::super::mcp::call_with_globals(
@@ -68,7 +68,7 @@ pub(super) fn walk() -> Result<(), String> {
         if fresh {
             args.push("--fresh");
         }
-        let first = call(&env, &replay, &args, 0)?;
+        let first = call("gwas_search/threshold/walk/1", &env, &replay, &args, 0)?;
         if count == 0 {
             final_count(&first, 0)?;
             continue;
@@ -113,7 +113,13 @@ fn crossing() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = page(&env, 0, 6, -400)?;
     page(&env, 1, 6, -399)?;
-    let first = call(&env, &replay, &start("4e-400"), 0)?;
+    let first = call(
+        "gwas_search/threshold/crossing/1",
+        &env,
+        &replay,
+        &start("4e-400"),
+        0,
+    )?;
     let second = follow(&env, &replay, &first, 0)?;
     final_count(&second, 3)?;
     if second.pointer("/result/items") != Some(&json!([]))
@@ -168,7 +174,13 @@ pub(super) fn failures() -> Result<(), String> {
             fault.parse().unwrap_or(200),
             if fault == "timeout" { 16000 } else { 0 },
         )?;
-        let first = call(&env, &replay, &start("1e-200"), 0)?;
+        let first = call(
+            "gwas_search/threshold/failures/1",
+            &env,
+            &replay,
+            &start("1e-200"),
+            0,
+        )?;
         let second = follow(&env, &replay, &first, 4)?;
         if second.get("result").is_some()
             || second.get("page").is_some()

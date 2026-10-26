@@ -16,6 +16,7 @@ steps:
         # Historical enum comparison: 302 bytes / 76 estimated tokens.
         # Drug source comparison: 422 bytes / 106 estimated tokens.
         # Ten disease identities approved by the slice: 503 bytes / 126 tokens.
+        # j14984 measured the unchanged source enum at 659 bytes.
         # The slice policy permits this source list alone measured size plus 15%.
         max_bytes: 758
         max_tokens: 190

@@ -44,6 +44,8 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("study/examples.yaml", 5),
     ("gwas/examples.yaml", 0),
     ("gwas/examples.yaml", 1),
+    ("gwas/get-examples.yaml", 0),
+    ("gwas/get-examples.yaml", 1),
     ("protein/cards.yaml", 0),
     ("protein/gene-crossrefs.yaml", 1),
     ("protein/cards.yaml", 2),
