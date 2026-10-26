@@ -26,13 +26,22 @@ fn lists() -> Value {
     json!((0..13).map(|n| json!({"sampleListId":format!("native_list_{n}"),"studyId":"synthetic_0","category":"all_cases_in_study","name":"Synthetic list","description":"Native list description","sampleCount":n})).collect::<Vec<_>>())
 }
 fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
+    recording(replay, section, body, status, 0)
+}
+fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64) -> Check {
     let url =
         format!("https://www.cbioportal.org/api/studies/synthetic_0/{section}?projection=DETAILED");
     let key = Sha256::digest(url.as_bytes())
         .iter()
         .map(|v| format!("{v:02x}"))
         .collect::<String>();
-    let value = json!({"source":"cbioportal","method":"GET","url":url,"exchanges":[{"status":status,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]});
+    let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+    let exchanges = if matches!(status, 429 | 500) {
+        vec![exchange; 3]
+    } else {
+        vec![exchange]
+    };
+    let value = json!({"source":"cbioportal","method":"GET","url":url,"exchanges":exchanges});
     fs::write(
         replay.join("cbioportal").join(format!("{key}.json")),
         value.to_string(),
@@ -153,10 +162,16 @@ fn failures() -> Check {
                 return Err(format!("policy bypass: {value}"));
             }
         }
-        record(&replay, route, json!({"broken":"body"}), 200)?;
-        let value = call(&env, &replay, &["get", "study", "synthetic_0", section], 4)?;
-        if value.pointer("/sources/0/use") != Some(&json!("restricted")) {
-            return Err(format!("failure lost terms: {value}"));
+        for (status, delay) in [(429, 0), (500, 0), (200, 0), (200, 120001)] {
+            recording(&replay, route, json!({"broken":"body"}), status, delay)?;
+            let value = call(&env, &replay, &["get", "study", "synthetic_0", section], 4)?;
+            if value.pointer("/sources/0/use") != Some(&json!("restricted"))
+                || value.get("result").is_some()
+            {
+                return Err(format!(
+                    "failure lost source terms or became empty page: {value}"
+                ));
+            }
         }
     }
     Ok(())
