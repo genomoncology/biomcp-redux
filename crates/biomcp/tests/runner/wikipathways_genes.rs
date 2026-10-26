@@ -2,11 +2,14 @@
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use std::fs;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test("wikipathways-genes/native-kinds-and-retained-paging", || {
         paging().map_err(Into::into)
+    }), Trial::test("wikipathways-genes/failed-bodies-never-enter-retained-membership", || {
+        failures().map_err(Into::into)
     })]
 }
 fn catalog(search: bool) -> String {
@@ -73,5 +76,51 @@ fn paging() -> Check {
         next = invoke(&env, args, 0)?;
     }
     if seen != (0..12).map(|n| format!("n{n}")).collect::<Vec<_>>() { return Err(format!("Retained walk changed: {seen:?}")); }
+    Ok(())
+}
+
+fn failures() -> Check {
+    let (owner, replay, _) = seed()?;
+    let _keep_owner = owner;
+    let path = fs::read_dir(replay.join("wikipathways")).map_err(|e| e.to_string())?
+        .filter_map(Result::ok).map(|e| e.path()).find(|path| {
+            fs::read(path).ok().and_then(|b| serde_json::from_slice::<Value>(&b).ok())
+                .and_then(|v| v.get("url").and_then(Value::as_str).map(|s| s.ends_with(".gpml"))).unwrap_or(false)
+        }).ok_or("GPML recording")?;
+    let original: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    for mode in ["wrong-wp", "wrong-species", "padded-species", "bad-revision", "broken", "entity", "namespace", "duplicate", "node-bound", "oversized", "429", "500", "timeout"] {
+        let mut recording = original.clone();
+        let exchange = recording.pointer_mut("/exchanges/0").ok_or("exchange")?;
+        let body = match mode {
+            "wrong-wp" => gpml().replace("WP382_r140476", "WP100_r140476"),
+            "wrong-species" => gpml().replace("Homo sapiens", "Mus musculus"),
+            "padded-species" => gpml().replace("Homo sapiens", " Homo sapiens "),
+            "bad-revision" => gpml().replace("WP382_r140476", "WP382_r0"),
+            "broken" => "<Pathway>".into(),
+            "entity" => format!("<!DOCTYPE Pathway [<!ENTITY x SYSTEM \"file:///etc/passwd\">]>{}", gpml()),
+            "namespace" => gpml().replace("<Xref", "<Xref xmlns=\"urn:foreign\""),
+            "duplicate" => gpml().replace("GraphId=\"n1\"", "GraphId=\"n0\""),
+            "node-bound" => gpml().replace("</Pathway>", &("<Unknown/>".repeat(100_001) + "</Pathway>")),
+            "oversized" => gpml().replace("</Pathway>", &(" ".repeat(8 * 1024 * 1024) + "</Pathway>")),
+            _ => gpml(),
+        };
+        exchange["body"]["value"] = json!(body);
+        if mode == "429" || mode == "500" { exchange["status"] = json!(mode.parse::<u16>().map_err(|e| e.to_string())?); }
+        if mode == "timeout" { exchange["delay_ms"] = json!(10_000); }
+        fs::write(&path, recording.to_string()).map_err(|e| e.to_string())?;
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let mut sync = vec!["sync".into(), "wikipathways".into()];
+        sync.extend(env.globals(Some(&replay), false)); invoke(&env, sync, 0)?;
+        for offline in [false, true] {
+            let mut args = vec!["pathway".into(), "genes".into(), "WP382".into()];
+            args.extend(env.globals(Some(&replay), offline));
+            let value = invoke(&env, args, 4).map_err(|e| format!("{mode} offline={offline}: {e}"))?;
+            if value.get("status") != Some(&json!("failed")) || value.get("result").is_some()
+                || value.pointer("/sources/0/source") != Some(&json!("wikipathways"))
+                || value.pointer("/sources/0/terms") != Some(&json!("CC0 1.0 waiver")) {
+                return Err(format!("{mode} was admitted or lost its source terms: {value}"));
+            }
+        }
+    }
     Ok(())
 }
