@@ -22,7 +22,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "cell-line-identity/research-search-fetch-runtime",
         || research::run(false).map_err(Into::into),
     ));
-    tests.push(Trial::test("cell-line-identity/checked-canonical-accession-search", || native::canonical(false).map_err(Into::into)));
+    tests.push(Trial::test(
+        "cell-line-identity/checked-canonical-accession-search",
+        || native::canonical(false).map_err(Into::into),
+    ));
     tests.extend(faults::trials());
     tests
 }
@@ -198,7 +201,7 @@ fn path(value: &Value, path: &str, expected: Value) -> Result<(), String> {
     Ok(())
 }
 
-pub(in crate::runner) fn measure() -> Result<(), String> {
+pub(crate) fn measure() -> Result<(), String> {
     native::run(true)?;
     faults::run(true)?;
     help::run(true)?;
@@ -274,15 +277,17 @@ fn markdown(
     Ok(())
 }
 
-pub(in crate::runner) fn examples(directory: &std::path::Path) -> Result<(), String> {
+pub(crate) fn generate_examples(directory: &std::path::Path) -> Result<(), String> {
     examples::generate(directory)
 }
 
-pub(in crate::runner) fn measure_remaining() -> Result<(), String> {
+pub(crate) fn measure_remaining() -> Result<(), String> {
     native::remaining()?;
     faults::run(true)?;
     help::run(true)?;
     research::run(true)
 }
 
-pub(in crate::runner) fn measure_canonical() -> Result<(),String> { native::canonical(true) }
+pub(crate) fn measure_canonical() -> Result<(), String> {
+    native::canonical(true)
+}

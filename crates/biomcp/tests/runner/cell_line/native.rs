@@ -195,12 +195,24 @@ pub(super) fn remaining() -> Result<(), String> {
 }
 
 pub(super) fn canonical(measure: bool) -> Result<(), String> {
-    let stub=recorded_stub()?;
-    let env=setup(&stub)?;
-    let value=parity("native/search/accession-CVCL_0005",&env,&["search","cell-line","CVCL_0005"],0,measure)?;
-    path(&value,"/result/items/0/accession",json!("CVCL_0005"))?;
-    path(&value,"/result/items/0/name",json!("NB4"))?;
-    let requests=stub.finish()?;
-    if requests.len()!=2 || !requests.iter().any(|(_,r)|r.contains("q=ac%3A%22CVCL_0005%22")&&r.contains("start=0")){return Err("canonical accession did not use its checked native query".into());}
+    let stub = recorded_stub()?;
+    let env = setup(&stub)?;
+    let value = parity(
+        "native/search/accession-CVCL_0005",
+        &env,
+        &["search", "cell-line", "CVCL_0005"],
+        0,
+        measure,
+    )?;
+    path(&value, "/result/items/0/accession", json!("CVCL_0005"))?;
+    path(&value, "/result/items/0/name", json!("NB4"))?;
+    let requests = stub.finish()?;
+    if requests.len() != 2
+        || !requests
+            .iter()
+            .any(|(_, r)| r.contains("q=ac%3A%22CVCL_0005%22") && r.contains("start=0"))
+    {
+        return Err("canonical accession did not use its checked native query".into());
+    }
     Ok(())
 }

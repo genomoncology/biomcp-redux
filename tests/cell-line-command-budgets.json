@@ -35,6 +35,8 @@
   "native/search/NB4-first [mcp]": 5326,
   "native/search/NB4-second [cli]": 5336,
   "native/search/NB4-second [mcp]": 5335,
+  "native/search/accession-CVCL_0005 [cli]": 1358,
+  "native/search/accession-CVCL_0005 [mcp]": 1357,
   "native/search/empty [cli]": 382,
   "native/search/empty [mcp]": 381,
   "research/fetch/CVCL_2119 [mcp]": 4461,

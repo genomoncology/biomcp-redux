@@ -48,10 +48,13 @@ pub fn literal(field: &str, value: &str) -> String {
         value.replace('\\', "\\\\").replace('"', "\\\"")
     )
 }
-/// One literal search using the provider's native default start of zero.
+/// Search one checked accession or unchanged literal name with its native window.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearch) -> Result<Page, RequestError> {
-    let accession=q.query().as_str().parse::<CellosaurusAccession>().ok();
-    let query=literal(if accession.is_some(){"ac"}else{"idsy"},q.query().as_str());
+    let accession = q.query().as_str().parse::<CellosaurusAccession>().ok();
+    let query = literal(
+        if accession.is_some() { "ac" } else { "idsy" },
+        q.query().as_str(),
+    );
     candidates(
         leg,
         &query,

@@ -600,16 +600,4 @@ pub(super) fn protein_native(path: &Path) -> Result<(), String> {
 
 mod wikipathways_genes;
 
-pub(super) fn cell_line_measure() -> Result<(), String> {
-    cell_line::measure()
-}
-
-pub(super) fn cell_line_examples(directory: &Path) -> Result<(), String> {
-    cell_line::examples(directory)
-}
-
-pub(super) fn cell_line_measure_remaining() -> Result<(), String> {
-    cell_line::measure_remaining()
-}
-
-pub(super) fn cell_line_canonical_measure() -> Result<(),String> { cell_line::measure_canonical() }
+pub(super) use cell_line::{measure as cell_line_measure, measure_remaining as cell_line_measure_remaining, measure_canonical as cell_line_canonical_measure, generate_examples as cell_line_examples};
