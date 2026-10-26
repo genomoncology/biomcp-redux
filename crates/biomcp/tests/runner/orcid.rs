@@ -11,7 +11,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn oversized() -> Result<(), String> {
     let stub = Stub::for_source("pub.orcid.org", "application/json", |_| {
-        Ok(" ".repeat(8 * 1024 * 1024 + 1))
+        Ok(json!({"path":"/0000-0002-4299-3018/works","group":[],"ignored-padding":"x".repeat(8 * 1024 * 1024 + 1)}).to_string())
     })?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");

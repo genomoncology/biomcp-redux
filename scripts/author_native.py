@@ -6,7 +6,10 @@ import sys
 import tarfile
 import source_capture
 
-archives, output = map(Path, sys.argv[1:])
+archives, output = map(Path, sys.argv[1:3])
+kind = sys.argv[3] if len(sys.argv) > 3 else 'all'
+if kind not in ['all', 'orcid', 'author-papers']:
+    raise ValueError('unknown native case kind')
 source_capture.outside_git(output.resolve())
 output.mkdir()
 replay = output / 'replay' / 'semantic-scholar'
@@ -50,6 +53,8 @@ for name, expected in accepted.items():
 
 templates = Path(__file__).resolve().parent.parent / 'tests/native/author'
 for template in [*templates.glob('*.yaml'), *templates.with_name('author-papers').glob('*.yaml')]:
+    if kind != 'all' and template.parent.name != kind:
+        continue
     case = json.loads(template.read_text())
     case['replay'] = str(replay.parent)
     (cases / template.name).write_text(json.dumps(case, indent=2) + '\n')
@@ -61,6 +66,8 @@ for name, source, indices in [
     ('author-list-help', 'tests/cases/author/help.yaml', [2]),
     ('whole-help', 'tests/cases/gene/help.yaml', [0]),
 ]:
+    if kind != 'all':
+        continue
     case = json.loads((Path(__file__).resolve().parent.parent / source).read_text())
     case['steps'] = [case['steps'][index] for index in indices]
     case.pop('replay', None)
@@ -69,4 +76,5 @@ for name, source, indices in [
 # ORCID assertions are licensed source records. Build the native owning cases here,
 # so names and native assertion values remain in protected staging outside Git.
 import orcid_native
-orcid_native.prepare(records, cases, replay.parent)
+if kind in ['all', 'orcid']:
+    orcid_native.prepare(records, cases, replay.parent)
