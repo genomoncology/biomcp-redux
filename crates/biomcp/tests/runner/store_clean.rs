@@ -68,7 +68,9 @@ fn clean() -> Check {
     }
     Connection::open(&foreign)?.execute_batch("CREATE TABLE foreign_state(value TEXT)")?;
     let result = run(&env, &["store", "clean", "--offline"])?;
-    if result["result"] != json!({"replies":1,"pools":1,"items":1,"snapshots":2,"files":1}) {
+    if result.get("result")
+        != Some(&json!({"replies":1,"pools":1,"items":1,"snapshots":2,"files":1}))
+    {
         return Err(format!("wrong cleanup counts: {result}").into());
     }
     if old.exists() || !foreign.exists() || !future.exists() || !path.exists() {
