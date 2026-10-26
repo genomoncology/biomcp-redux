@@ -129,7 +129,8 @@ phenotype-types: A public API caller preserves native phenotype fields and valid
 pathway-types: A public API caller validates source-owned pathway identities and selectors, preserves native references and distinguishes source totals from observed relation counts before adapters exist. Contracts: `biomcp-types/pathway_contracts` (features: `schema`).
 protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist. Contracts: `biomcp-types/protein_contracts` (features: `schema`).
 
-gwas-search: Search source-native association selectors in native p-value order without local prefix intersection. Cases: `crates/biomcp/tests/runner/gwas_search.rs`.
+study-get: Exact stored study cards expose bounded independent profile and sample-list metadata without participant identifiers. Cases: `crates/biomcp/tests/runner/study_get.rs`.
+gwas-search: Search source-native association selectors in native p-value order without local prefix intersection. Cases: `tests/cases/gwas/examples.yaml`, `crates/biomcp/tests/runner/gwas_search.rs`.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities. Cases: `tests/cases/protein/*.yaml`, `crates/biomcp/tests/runner/protein_commands.rs`.
 
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging. Cases: `tests/cases/phenotype/*.yaml`.

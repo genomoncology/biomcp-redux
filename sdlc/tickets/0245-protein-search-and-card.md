@@ -1,6 +1,7 @@
 # 0245 — Search UniProt proteins and get the protein card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 155df709f16ccccd28ed2ab8ab10a4e138a232a8
 
 Milestone: 4
 

@@ -1,6 +1,7 @@
 # 0234 — Search GWAS associations by every selector with native order and paging
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b4de5aab5382c8c95208eb9fa9363f2469f84bb8
 
 Milestone: 4
 
