@@ -6,6 +6,8 @@ mod drug;
 mod pathway;
 mod pgx;
 mod study;
+mod gwas;
+pub(crate) use gwas::usage as gwas_usage;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
