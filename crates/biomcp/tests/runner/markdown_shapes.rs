@@ -42,6 +42,12 @@ const SHAPES: &[Shape] = &[
         max_bytes: 1748,
     },
     Shape {
+        args: &["help", "author", "papers"],
+        replies: "",
+        required: &["id", "details", "full", "limit", "offset", "pool"],
+        max_bytes: 1008,
+    },
+    Shape {
         args: &["search", "pathway", "Signaling by EGFR"],
         replies: "pathway/native",
         required: &["Signaling by EGFR", "biomcp get pathway R-HSA-177929"],
