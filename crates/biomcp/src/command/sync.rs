@@ -38,7 +38,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
         },
         reason,
     ));
-    if source == biomcp_types::Source::Cbioportal
+    if matches!(source, biomcp_types::Source::Cbioportal | biomcp_types::Source::WikiPathways)
         && reason == Some(biomcp_types::Reason::BadReply)
     {
         envelope.problems.push(biomcp_types::Problem {
