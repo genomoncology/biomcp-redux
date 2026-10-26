@@ -57,3 +57,13 @@ Added 2026-10-26 on the 0195 proposal.
 - Rich paper metadata is the named `details` section of `author papers`. The 0.9 `--full` flag keeps working as its alias, as with the 0.9 key names.
 - The canonical source spelling is `semantic-scholar`; `semanticscholar:` IDs and `--source semanticscholar` keep working as aliases.
 - Defer topic-wide author ranking and cross-provider merging.
+
+## Cell line
+
+Added 2026-10-26 on the 0196 proposal.
+
+- Cellosaurus and ChEMBL through their APIs only; no bundles. PharmacoDB is deferred until it publishes an affirmative data reuse grant, with its 0.9 drug-response routes. The HPA gene-to-cell expression capability stays deferred until an exact cell identity join exists.
+- Accept native-order search with `start` and `rows`, five headers, a next offset only when the window fills, and no total claim. Name normalization, the second hyphenless search and human-first reranking retire.
+- Accept the sections `names`, `identity`, `xrefs`, `variants` and `chembl`, and the separate `cell-line assay-count CHEMBL_CELL_ID` command. Defaults: five names, five xrefs, three variation rows.
+- Keep `all`, unlike the proposal. Protein and pathway keep `all`, and the entities stay consistent: `all` returns each named section's bounded first page, including the one `chembl` request, and never the assay count.
+- Accept the payload targets as starting points; each product ticket sets final ceilings from measured output plus 15%.
