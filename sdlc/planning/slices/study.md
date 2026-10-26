@@ -377,13 +377,13 @@ The evidence archive is `data/biomcp-redux/0207-study-bounded-captures/2293-stud
 
 The retained catalog replay at `d2231c0c7cdac895fc450c8445bd46b3e59049dc` checked all 551 records and every one of the 547 consecutive five-header windows in source order through CLI and MCP. The complete `pan_can_atlas` walk returned 32 distinct identities without gaps or duplicates. The external case runner checked S01–S20 exact study identities and native cancer-type codes. Additional native title-word walks retained each study. No provider request ran in this replay.
 
-| Output | Largest measured UTF-8 bytes | Ceiling at measured size plus 15 percent |
+| Output | Largest measured UTF-8 bytes | Enforced payload ceiling or frame reference at measured size plus 15 percent |
 | --- | ---: | ---: |
 | Complete CLI five-header response, including newline | 2,654 | 3,053 |
-| MCP response text | 2,653 | 3,051 |
-| Whole MCP frame | 5,893 | 6,777 |
+| MCP structured content and equivalent response text | 2,653 | 3,051, enforced payload ceiling |
+| Whole MCP transport frame | 5,893 | 6,777, measurement reference |
 | Compact MCP command discovery description | 2,009 | 2,311 |
 
-Whole executable help measured 61,078 bytes and fits its existing ceiling. The five-header measurements include the envelope, source terms, retained pool metadata and next actions. They replace projected page sizes for the implemented catalog search. Larger requested limits retain their explicit row bound.
+The case runner enforces the serialized MCP structured content budget and verifies equivalent response text. The whole transport frame is a measured reference rather than an enforced case ceiling; all 547 measured frames fit that reference. Whole executable help measured 61,078 bytes and fits its existing ceiling. The five-header measurements include the envelope, source terms, retained pool metadata and next actions. They replace projected page sizes for the implemented catalog search. Larger requested limits retain their explicit row bound.
 
 The durable archive is `data/biomcp-redux/0213-study-catalog/d2231c0c7cdac895fc450c8445bd46b3e59049dc.tar.gz` on Yellow, SHA-256 `d06e4a1605e6bbd55e3c4e71efb7403ccbf48a7c82817d5545954d978b2c6f02`. Its five exact members preserve the input archive, sync receipt, all window measurements, executable recipe and manifest. Its four manifest hashes and the nested input archive's 41 exact members and 40 hashes were verified at the durable destination. The first native job passed external cases and then stopped on the recipe's noncanonical macOS temporary path; the bounded continuation used its canonical path and ran only the unreached measurement and transfer. The raw catalog remains outside Git. No 0.9 timing or output comparison is claimed.
