@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 
 REVISION = "5641de7d7b79b53872f8599dbb4dba22e611dcaf"
-GLOBALS = {"--help", "--version", "--json", "--no-cache", "--disable-sources"}
+GLOBALS = {"--help", "--json", "--no-cache", "--disable-sources"}
 # Clap omits aliases from Commands; serve is a separately declared MCP alias.
 ALIASES = {("serve",)}
 
