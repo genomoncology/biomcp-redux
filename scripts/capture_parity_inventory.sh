@@ -3,7 +3,8 @@
 set -eu
 public_repo=${1:?public repository path required}
 source_revision=5641de7d7b79b53872f8599dbb4dba22e611dcaf
-staging=$(mktemp -d "${TMPDIR:-/tmp}/biomcp-parity-0276.XXXXXX")
+# Retention must survive pm removing its job-owned TMPDIR.
+staging=$(mktemp -d /tmp/biomcp-parity-0276.XXXXXX)
 printf 'Retained inventory staging (ticket 0276 owns cleanup): %s\n' "$staging" >&2
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT HUP INT TERM
