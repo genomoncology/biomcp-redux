@@ -46,8 +46,8 @@ def prepare(records, cases, replay):
                     args = ['get', 'article', external['external-id-value']]
                     if args not in pivots:
                         pivots.append(args)
-        start = 1 if index + 1 < total else 0
-        for i, args in enumerate(pivots[:5 - start], start):
+        reserved = 1 if index + 1 < total else 0
+        for i, args in enumerate(pivots[:5 - reserved]):
             expect[f'/next/{i}/args'] = args
         steps.append(step(['author', 'papers', 'orcid:' + identifier, '--limit', '1', '--offset', str(index)], expect))
         # A complete bounded local page walk retains one collection. Its exact native
