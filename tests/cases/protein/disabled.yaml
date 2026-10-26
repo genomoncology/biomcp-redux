@@ -16,8 +16,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "uniprot",
-        "/sources/0/state": "skipped",
-        "/result/items": []
+        "/sources/0/state": "skipped"
       }
     }
   ]

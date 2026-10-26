@@ -1,0 +1,45 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/Q9UIF7.json",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "primaryAccession": "Q9UIF7",
+          "uniProtkbId": "Q9UIF7_SYNTHETIC",
+          "entryType": "UniProtKB reviewed (Swiss-Prot)",
+          "organism": {
+            "taxonId": 9606
+          },
+          "proteinDescription": {
+            "recommendedName": {
+              "fullName": {
+                "value": "Synthetic protein fixture"
+              }
+            }
+          },
+          "sequence": {
+            "length": 546
+          },
+          "genes": [
+            {
+              "geneName": {
+                "value": "BRAF"
+              }
+            }
+          ],
+          "entryAudit": {
+            "entryVersion": 1,
+            "sequenceVersion": 2
+          }
+        }
+      }
+    }
+  ]
+}
