@@ -3,8 +3,6 @@ use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{
     PathwayPage, PathwaySearch, Problem, QueryBody, Request, SourceOutcome, StepKind,
 };
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize)]
 pub(super) struct Saved {
     pub body: PathwayPage,
     pub complete: bool,
@@ -26,9 +24,10 @@ pub(super) fn load(
     };
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let payload = store.source_snapshot(id.as_str(), &key(q)?, |s| cx.fetch.disabled(s))?;
-    let saved: Option<Saved> = payload
-        .map(|p| serde_json::from_str(&p).map_err(|_| CacheError::Database))
-        .transpose()?;
+    type Wire = (PathwayPage, bool, Vec<SourceOutcome>, Vec<Problem>);
+    let saved = payload.map(|p| {
+        serde_json::from_str::<Wire>(&p).map(|(body, complete, sources, problems)| Saved { body, complete, sources, problems }).map_err(|_| CacheError::Database)
+    }).transpose()?;
     if let Some(saved) = saved {
         if saved.complete || q.offset() == saved.body.page.offset {
             return Ok(Some(saved));
@@ -50,7 +49,7 @@ pub(super) fn save(
     deadline: Deadline<'_>,
     saved: &Saved,
 ) -> Result<biodata::Text, RequestError> {
-    let payload = serde_json::to_string(saved).map_err(|_| CacheError::Database)?;
+    let payload = serde_json::to_string(&(&saved.body, saved.complete, &saved.sources, &saved.problems)).map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     Ok(store.save_source_snapshot(&key(q)?, &payload, &saved.sources)?)
 }
