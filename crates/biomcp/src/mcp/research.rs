@@ -74,7 +74,7 @@ fn search_args(input: &str) -> Vec<String> {
 pub(super) fn execute(
     call: &Call,
     globals: &crate::grammar::Globals,
-    fetch: &Result<Arc<biomcp_fetch::Fetch>, ()>,
+    fetch: &Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     http: bool,
 ) -> io::Result<crate::command::Outcome> {
     let mut outcome = if http {

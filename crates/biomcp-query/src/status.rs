@@ -46,11 +46,7 @@ pub(crate) fn source(
         .notices
         .extend(report.cache_problems.into_iter().map(|error| {
             biomcp_types::SourceNotice::CacheProblem {
-                reason: match error {
-                    biomcp_fetch::CacheError::Busy => biomcp_types::CacheProblem::Busy,
-                    biomcp_fetch::CacheError::Database => biomcp_types::CacheProblem::Database,
-                    biomcp_fetch::CacheError::Version => biomcp_types::CacheProblem::Version,
-                },
+                reason: error.into(),
             }
         }));
     outcome
