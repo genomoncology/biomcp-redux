@@ -40,9 +40,8 @@ pub(crate) static CLINGEN: Quota =
 pub(crate) static HPA: Quota = Quota::new(SourceKey::declare("hpa"), Rate::per_second(1), None, 1);
 
 // Conservative public ORCID policy, independent of optional token.
-pub(crate) static ORCID: Quota = Quota::new(
-    SourceKey::declare("orcid"), Rate::per_second(1), None, 1,
-);
+pub(crate) static ORCID: Quota =
+    Quota::new(SourceKey::declare("orcid"), Rate::per_second(1), None, 1);
 
 // NCBI E-utilities documented shared unkeyed and keyed rates.
 pub(crate) static NCBI: Quota = Quota::new(

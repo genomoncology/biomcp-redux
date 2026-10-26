@@ -35,11 +35,11 @@ pub mod icite;
 
 /// Exact variant publication lookup.
 pub mod litvar;
+/// Exact public ORCID person and whole works records.
+pub mod orcid;
 /// Semantic Scholar graph metadata under one shared optional-key quota.
 pub mod pdf;
 pub mod semantic_scholar;
-/// Exact public ORCID person and whole works records.
-pub mod orcid;
 mod xml_element;
 
 pub mod registry;

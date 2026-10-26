@@ -26,15 +26,28 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
         let mut state = match &reply {
             Ok(Some(_)) => Status::Complete,
             Ok(None) => Status::Absent,
-            Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::NotFound => Status::Absent,
-            Err(e) => { out.local = out.local.or(status::local(*e)); Status::Failed }
+            Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::NotFound => {
+                Status::Absent
+            }
+            Err(e) => {
+                out.local = out.local.or(status::local(*e));
+                Status::Failed
+            }
         };
         let outcome = status::source(source, leg.finish(), reply.as_ref().err().copied());
-        if outcome.state == SourceState::Stale && state == Status::Complete { state = Status::Partial; }
+        if outcome.state == SourceState::Stale && state == Status::Complete {
+            state = Status::Partial;
+        }
         if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source) {
             status::retain_source_state(existing, &outcome);
-        } else { out.sources.push(outcome); }
-        items.push(AuthorCardItem { input: input.clone(), status: state, card: reply.ok().flatten() });
+        } else {
+            out.sources.push(outcome);
+        }
+        items.push(AuthorCardItem {
+            input: input.clone(),
+            status: state,
+            card: reply.ok().flatten(),
+        });
     }
     out.status = status::status(items.iter().map(|i| i.status));
     recovery(cx, &mut out, Request::GetAuthor(q.clone()));

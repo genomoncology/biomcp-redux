@@ -1,7 +1,7 @@
 //! Provider-record author search and independent exact cards.
 mod get;
-mod papers;
 mod orcid;
+mod papers;
 pub use papers::papers;
 mod search;
 mod snapshot;
@@ -35,7 +35,12 @@ fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
 fn retry(out: &mut Outcome, request: Request) {
     for source in &out.sources {
         if source.reason == Some(Reason::BadReply) {
-            out.problems.push(Problem { source: source.source, record: None, field: "author".into(), code: ProblemCode::ValueUnknown });
+            out.problems.push(Problem {
+                source: source.source,
+                record: None,
+                field: "author".into(),
+                code: ProblemCode::ValueUnknown,
+            });
         }
     }
     if out
