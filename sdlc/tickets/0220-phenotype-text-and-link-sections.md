@@ -1,6 +1,7 @@
 # 0220 — Add the phenotype synonyms, xrefs and hierarchy sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7a88e70c4dd248d40059cc9e8afd53c9368a6ea6
 
 Milestone: 4
 

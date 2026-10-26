@@ -1,6 +1,7 @@
 # 0219 — Add the Reactome genes and events sections and their continuation commands
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f6bd88a48315dde6ab3f1c17deed0cc99498df86
 
 Milestone: 4
 

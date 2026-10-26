@@ -1,6 +1,7 @@
 # 0221 — Add the study files section with per-study license notices
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cc601237c02a4c164ac8ffa19b646eb290ca59e0
 
 Milestone: 4
 

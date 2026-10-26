@@ -1,6 +1,7 @@
 # 0068 — Run the first public live diagnostic from landed main
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1b677b46eb85f4ea98ae5bc79dbe87fb673b7a1d
 
 Milestone: 1
 

@@ -1,6 +1,7 @@
 # 0222 — Sync the WikiPathways metadata catalogs and search and get WikiPathways records
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8dcd3f3ca118b0aa076089d847bcc5791c5a677d
 
 Milestone: 4
 

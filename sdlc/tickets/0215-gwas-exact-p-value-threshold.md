@@ -1,6 +1,7 @@
 # 0215 — Return exact GWAS p-value threshold results in native p-value order
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a471b46675ca7b5cf271faa4b5a313150f770bec
 
 Milestone: 4
 
