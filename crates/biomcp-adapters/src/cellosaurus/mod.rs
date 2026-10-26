@@ -1,12 +1,14 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
 mod map;
 mod raw;
+mod sections;
 use biodata::{CellLineSourceId, CellosaurusAccession};
 use biomcp_fetch::{
     Arg, BadReply, Freshness, InputError, KeyUse, Leg, PathSegment, ReplyMetadata, RequestError,
     SourceSpec, Terms,
 };
 use biomcp_types::{CellLineCard, CellLineHeader, CellLineSearch, Source, Use};
+pub use sections::complete;
 use std::time::Duration;
 /// Publisher access and attribution policy, shared by admission and health.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -108,12 +110,20 @@ pub fn get(
     accession: &CellosaurusAccession,
     source: Option<&CellLineSourceId>,
 ) -> Result<Card, RequestError> {
+    fetch_card(leg, accession, source, false)
+}
+fn fetch_card(
+    leg: &Leg<'_>,
+    accession: &CellosaurusAccession,
+    source: Option<&CellLineSourceId>,
+    complete: bool,
+) -> Result<Card, RequestError> {
     let endpoint = SPEC
         .get("/cell-line")
         .with_segments(&[PathSegment::new(accession.as_str())?])
         .fresh(Freshness::Days(1))
         .json_absence();
-    let fields = if source.is_some() {
+    let fields = if source.is_some() || complete {
         VERIFY_FIELDS
     } else {
         CARD_FIELDS
@@ -154,9 +164,18 @@ pub fn get(
     )?;
     let card = match reply {
         raw::Response::Missing { .. } => None,
-        raw::Response::Records { data } => {
-            data.rows.into_iter().next().map(map::card).transpose()?
-        }
+        raw::Response::Records { data } => data
+            .rows
+            .into_iter()
+            .next()
+            .map(|row| {
+                if complete {
+                    sections::card(row)
+                } else {
+                    map::card(row)
+                }
+            })
+            .transpose()?,
     };
     Ok(Card { card, metadata })
 }

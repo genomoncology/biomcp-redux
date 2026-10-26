@@ -430,3 +430,11 @@ Native and help measurements come from `j15181`; completed metadata source-fault
 | `chembl/synthetic/assay-zero` | mcp | 372 | 428 | 107 |
 | `chembl/synthetic/more` | cli | 1855 | 2134 | 534 |
 | `chembl/synthetic/more` | mcp | 1854 | 2133 | 534 |
+
+## Complete-card field contracts
+
+Named Cellosaurus sections reuse the retained `ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt` request. The first cold section reads one checked complete reply; independently requested pages share that request and cache identity. The default card retains its separate smaller projection. Unrequested collections remain distinct from source omission.
+
+The complete native xref inventory contains `database`, `accession`, `label`, `url`, `category`, `iri` and `discontinued`. The last field is native text, including `true` and `probable`; it is not converted to a boolean. Native names contain `type` and `value`. Variations contain `variation-type`, optional `mutation-type`, optional `mutation-description`, optional `variation-note`, optional `zygosity-type`, `xref-list` and `source-list`. Provenance contains independently optional `reference`, `institution`, `value` and `xref`; publication references contain `resource-internal-ref`. Every retained member maps without clipping. HL-60 deletion rows omit `mutation-description`, so the public description is optional. The card envelope advances to version 3 and standalone variants to version 2 for that omission contract. The four standalone section pages retain independent source release and original complete-card retrieval time.
+
+Complete-card ambiguity retains the card's bounded candidate identities and exact gets. Gene pivots use only source HGNC members, and article pivots use exact `PubMed=` identities. Native disease accession strings receive no invented namespace. Requested offsets apply independently to species, diseases and warnings, and variation totals count whole source rows.

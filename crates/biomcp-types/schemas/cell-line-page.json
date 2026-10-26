@@ -166,6 +166,17 @@
           "$ref": "#/$defs/Text",
           "description": "Native database name; no fixed vocabulary."
         },
+        "discontinued": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native discontinuation qualifier, including values such as probable."
+        },
         "iri": {
           "anyOf": [
             {
