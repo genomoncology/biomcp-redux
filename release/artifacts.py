@@ -172,6 +172,8 @@ def build(args):
     # Pin the macOS deployment target before Cargo sees the build environment.
     if platform.system() == "Darwin":
         os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
+    if args.revision:
+        os.environ["BIOMCP_BUILD_REVISION"] = args.revision
     artifact = cargo(args.profile)
     binary = Path(artifact["executable"])
     metadata = json.loads(run(["cargo", "metadata", "--locked", "--format-version", "1", "--no-deps"]))
