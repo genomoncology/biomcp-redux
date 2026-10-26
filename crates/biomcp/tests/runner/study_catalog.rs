@@ -44,7 +44,19 @@ fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> 
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
-    invoke(env, command, exit)
+    let value = invoke(env, command, exit)?;
+    if value.get("schema") == Some(&json!("biomcp.study_page/1"))
+        && value
+            .pointer("/query/limit")
+            .and_then(Value::as_u64)
+            .is_some_and(|n| n <= 5)
+        && serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1 > 3053
+    {
+        return Err(
+            "study header page exceeds retained-catalog measurement plus fifteen percent".into(),
+        );
+    }
+    Ok(value)
 }
 fn missing() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -233,6 +245,9 @@ fn surfaces() -> Check {
     let args = vec!["search".into(), "study".into(), "atlas".into()];
     let mcp =
         super::mcp::call_with_globals(&env, &args, false, &env.globals(Some(&replay), false))?;
+    if serde_json::to_vec(&mcp).map_err(|e| e.to_string())?.len() > 3051 {
+        return Err("MCP study page exceeds its measured ceiling".into());
+    }
     if mcp.pointer("/result/items/0/studyId") != Some(&json!("synthetic_0")) {
         return Err("MCP study argument mapping".into());
     }

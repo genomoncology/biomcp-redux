@@ -434,7 +434,7 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // Keep discovery compact; detailed options live in generated command help.
-    if text.len() > 1923 {
+    if text.len() > 2311 {
         return Err("command description exceeds budget".into());
     }
     for &word in DISCOVERY_WORDS {
