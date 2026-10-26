@@ -35,33 +35,68 @@ fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
 }
 fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64) -> Check {
     let stub = crate::runner::network_stub::Stub::for_source(
-        "www.cbioportal.org", "application/json", synthetic_reply,
+        "www.cbioportal.org",
+        "application/json",
+        synthetic_reply,
     )?;
     let env = crate::runner::variant::source_environment(&stub)?;
-    crate::runner::configuration::invoke(&env, vec!["sync".into(), "cbioportal-studies".into()], 0)?;
+    crate::runner::configuration::invoke(
+        &env,
+        vec!["sync".into(), "cbioportal-studies".into()],
+        0,
+    )?;
     let directory = env.root().join("recorded");
-    let selected = if section == "molecular-profiles" { "profiles" } else { section };
-    crate::runner::configuration::invoke(&env,
-        ["get", "study", "synthetic_0", selected, "--record", directory.to_str().ok_or("recording path")?]
-        .map(str::to_owned).to_vec(), 0)?;
+    let selected = if section == "molecular-profiles" {
+        "profiles"
+    } else {
+        section
+    };
+    crate::runner::configuration::invoke(
+        &env,
+        [
+            "get",
+            "study",
+            "synthetic_0",
+            selected,
+            "--record",
+            directory.to_str().ok_or("recording path")?,
+        ]
+        .map(str::to_owned)
+        .to_vec(),
+        0,
+    )?;
     if stub.finish()?.len() != 2 {
         return Err("synthetic study recording changed request count".into());
     }
     for file in fs::read_dir(directory.join("cbioportal")).map_err(|e| e.to_string())? {
         let file = file.map_err(|e| e.to_string())?;
-        let mut value: Value = serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
-            .map_err(|e| e.to_string())?;
+        let mut value: Value =
+            serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
         let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
-        let exchanges = if matches!(status, 429 | 500) { vec![exchange;3] } else { vec![exchange] };
+        let exchanges = if matches!(status, 429 | 500) {
+            vec![exchange; 3]
+        } else {
+            vec![exchange]
+        };
         *value.get_mut("exchanges").ok_or("recorded exchanges")? = json!(exchanges);
-        fs::write(replay.join("cbioportal").join(file.file_name()), value.to_string()).map_err(|e| e.to_string())?;
+        fs::write(
+            replay.join("cbioportal").join(file.file_name()),
+            value.to_string(),
+        )
+        .map_err(|e| e.to_string())?;
     }
     Ok(())
 }
 fn synthetic_reply(request: &str) -> Result<String, String> {
-    Ok(if request.contains("/molecular-profiles?") { profiles() }
-       else if request.contains("/sample-lists?") { lists() }
-       else { rows() }.to_string())
+    Ok(if request.contains("/molecular-profiles?") {
+        profiles()
+    } else if request.contains("/sample-lists?") {
+        lists()
+    } else {
+        rows()
+    }
+    .to_string())
 }
 
 fn pages() -> Check {

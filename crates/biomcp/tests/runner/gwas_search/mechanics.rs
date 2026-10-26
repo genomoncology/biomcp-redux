@@ -115,7 +115,13 @@ pub(super) fn failures() -> Result<(), String> {
     }
     let env = Environment::new().map_err(|e| e.to_string())?;
     let url = url(&pairs());
-    let replay = seed(&env, &["search", "gwas", "--pubmed", "17529967"], body(&url, 0, 0), 200, 0)?;
+    let replay = seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967"],
+        body(&url, 0, 0),
+        200,
+        0,
+    )?;
     let v = call(
         &env,
         &replay,

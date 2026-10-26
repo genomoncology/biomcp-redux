@@ -102,7 +102,9 @@ fn seed_text(
     delay: u64,
 ) -> Result<PathBuf, String> {
     let stub = super::network_stub::Stub::for_source(
-        "www.ebi.ac.uk", "application/json", wire::live_body,
+        "www.ebi.ac.uk",
+        "application/json",
+        wire::live_body,
     )?;
     let recording_env = super::variant::source_environment(&stub)?;
     let temporary = recording_env.root().join("recorded");
@@ -116,11 +118,14 @@ fn seed_text(
     fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
     for file in fs::read_dir(temporary.join("gwas")).map_err(|e| e.to_string())? {
         let file = file.map_err(|e| e.to_string())?;
-        let mut recording: Value = serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
-            .map_err(|e| e.to_string())?;
+        let mut recording: Value =
+            serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
         let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
-        *recording.get_mut("exchanges").ok_or("recorded exchanges")? = json!([exchange.clone(),exchange.clone(),exchange]);
-        fs::write(directory.join(file.file_name()), recording.to_string()).map_err(|e| e.to_string())?;
+        *recording.get_mut("exchanges").ok_or("recorded exchanges")? =
+            json!([exchange.clone(), exchange.clone(), exchange]);
+        fs::write(directory.join(file.file_name()), recording.to_string())
+            .map_err(|e| e.to_string())?;
     }
     Ok(env.root().join("replay"))
 }

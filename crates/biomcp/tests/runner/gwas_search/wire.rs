@@ -71,12 +71,24 @@ pub(super) fn selectors() -> Result<(), String> {
 pub(super) fn paging() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let first_url = url(&pairs());
-    let replay = seed(&env, &["search", "gwas", "--pubmed", "17529967"], body(&first_url, 0, 6), 200, 0)?;
+    let replay = seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967"],
+        body(&first_url, 0, 6),
+        200,
+        0,
+    )?;
     let mut p = pairs();
     p.retain(|(k, _)| *k != "page");
     p.push(("page", "1"));
     let second_url = url(&p);
-    seed(&env, &["search", "gwas", "--pubmed", "17529967", "--offset", "3"], body(&second_url, 1, 6), 200, 0)?;
+    seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967", "--offset", "3"],
+        body(&second_url, 1, 6),
+        200,
+        0,
+    )?;
     let first = call(
         &env,
         &replay,
@@ -125,7 +137,13 @@ pub(super) fn paging() -> Result<(), String> {
 pub(super) fn surfaces() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let url = url(&pairs());
-    let replay = seed(&env, &["search", "gwas", "--pubmed", "17529967"], body(&url, 0, 6), 200, 0)?;
+    let replay = seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967"],
+        body(&url, 0, 6),
+        200,
+        0,
+    )?;
     let args = ["search", "gwas", "--pubmed", "17529967"].map(str::to_owned);
     let value = super::super::mcp::call_with_globals(
         &env,
