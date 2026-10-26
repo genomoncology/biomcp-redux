@@ -146,3 +146,36 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
         serde_json::from_value::<PathwayEventRef>(json!({"kind":"database","db_id":0})).is_err()
     );
 }
+
+#[test]
+fn native_short_page_keeps_total_scope_and_next_position() {
+    let page = json!({"items":[{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"}],"page":{"offset":0,"returned":1,"total":917,"total_kind":"source","next_offset":5}});
+    assert_eq!(roundtrip::<biomcp_types::PathwayPage>(page.clone()), page);
+    let page = json!({"header":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},"items":[{"kind":"database","db_id":5668599}],"page":{"offset":5,"returned":1,"total":81,"total_kind":"observed","next_offset":10}});
+    assert_eq!(roundtrip::<biomcp_types::PathwayEvents>(page.clone()), page);
+}
+
+#[test]
+fn wiki_metadata_sync_receipts_keep_each_catalog_scope() {
+    let receipt = json!({"search":{"sha256":"search-digest","bytes":2346682,"revision":"search-revision","human_rows":1131,"total_rows":2218},"get":{"sha256":"get-digest","bytes":1224217,"revision":"get-revision","human_rows":1131,"total_rows":2218}});
+    assert_eq!(
+        roundtrip::<biomcp_types::WikiPathwaysSync>(receipt.clone()),
+        receipt
+    );
+}
+
+#[test]
+fn legacy_gene_reference_keeps_its_wire_shape_and_checked_identity() {
+    let reference = json!({"id":"R-HSA-5673001","name":"RAF/MAP kinase cascade"});
+    assert_eq!(
+        roundtrip::<biomcp_types::PathwayRef>(reference.clone()),
+        reference
+    );
+    let id: biomcp_types::ReactomeId = "R-HSA-5673001".parse().expect("human identity");
+    let same: biodata::ReactomeId = id;
+    assert_eq!(same.to_string(), "R-HSA-5673001");
+    for raw in ["R-HSA-5673001", "WP382"] {
+        let id: PathwayId = raw.parse().expect("native identity");
+        assert_eq!(id.to_string(), raw);
+    }
+}
