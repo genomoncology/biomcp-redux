@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover source-native human pathway headers.
+    SearchPathway(crate::PathwaySearch),
+    /// Read an exact human pathway card or summary.
+    GetPathway(crate::PathwayGet),
     /// Discover source-native CPIC gene pairs.
     SearchPgx(crate::PgxSearch),
     /// Read an explicit CPIC gene card or source section.

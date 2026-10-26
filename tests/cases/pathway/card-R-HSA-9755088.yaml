@@ -1,0 +1,31 @@
+{
+  "feature": "pathway-reactome",
+  "story": "The exact Reactome card preserves its reviewed source identity and native release.",
+  "replay": "pathway/native",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-9755088"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-9755088"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/id": {
+          "source": "reactome",
+          "id": "R-HSA-9755088"
+        },
+        "/result/pathway/name": "Ribavirin ADME",
+        "/result/pathway/species": "Homo sapiens",
+        "/result/pathway/version": "R-HSA-9755088.3",
+        "/result/release": "97"
+      },
+      "max_bytes": 5000
+    }
+  ]
+}

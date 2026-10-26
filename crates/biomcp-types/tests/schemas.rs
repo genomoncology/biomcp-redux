@@ -120,7 +120,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/8"),
+        Request => ("request", "biodata.request/9"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -413,8 +413,10 @@ fn flat_value(root: &Value, node: &Value) {
 
 fn pathway_contracts() -> Vec<Contract> {
     contracts! {
+        PathwaySearch => ("pathway-search", "biomcp.pathway-search/1"),
+        PathwayGet => ("pathway-get", "biomcp.pathway-get/1"),
         Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/1"),
-        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/1"),
+        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/2"),
         Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/1"),
         Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/1"),
     }

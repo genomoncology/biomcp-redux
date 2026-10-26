@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native ordered human pathway headers.
+    PathwayPage(crate::PathwayPage),
+    /// Checked exact pathway card or summary.
+    PathwayCard(Option<crate::PathwayCard>),
     /// Whole physical FDA companion association rows.
     DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-native CPIC pair page.

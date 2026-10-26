@@ -41,6 +41,8 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
+        Body::PathwayPage(_) => Navigation::Selectable,
+        Body::PathwayCard(_) => Navigation::Bounded,
         Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
         Body::VariantCard(card) => {
             if card.resolution == biomcp_types::VariantResolution::Candidates {
