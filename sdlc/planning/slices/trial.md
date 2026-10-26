@@ -311,14 +311,14 @@ NCI additionally exposes its native disease concepts and complete source summary
 Case ceilings enforce measured compact output plus headroom under the accepted budget rule. Comparable released outputs remain the upper bound unless added required provenance has an approved exception. Existing cases retain their source and baseline qualifications. No matching released NCI card or section comparator was established. Complete source walkers compare every omitted record or character to its original capture. Generated help has no comparable 0.9 schema-help baseline; its case ceilings use measured output plus headroom. The MCP discovery case keeps its existing ceiling.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search trial` | Ported or renamed | `--condition`, `--intervention`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
-| `get trial` | Ported or renamed | `--source`, `--offset`, `--limit` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
-| `batch trial` | Ported or renamed | `--sections`, `--source` | `--mode`, `--pdf` | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
-| `variant trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
-| `disease trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
-| `drug trials` | Ported or renamed | `--limit`, `--offset`, `--source` | `--no-alias-expand` | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search trial` | Ported or renamed | `--condition`, `--intervention`, `--facility`, `--phase`, `--study-type`, `--age`, `--sex`, `--status`, `--mutation`, `--criteria`, `--biomarker`, `--sponsor`, `--sponsor-type`, `--date-from`, `--date-to`, `--lat`, `--lon`, `--distance`, `--has-results`, `--count-only`, `--source`, `--offset`, `--next-page`, `--limit` | `--no-alias-expand`, `--prior-therapies`, `--progression-on`, `--line-of-therapy` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `get trial` | Ported or renamed | `--source`, `--offset`, `--limit` | — | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `batch trial` | Ported or renamed | `--sections`, `--source` | `--mode`, `--pdf` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `variant trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `disease trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
+| `drug trials` | Ported or renamed | `--limit`, `--offset`, `--source` | `--no-alias-expand` | — | — | The accepted trial rulings map literal discovery, source selection, bounded sections, saves and explicit retirements. |
 <!-- /parity-accounting -->
 
 

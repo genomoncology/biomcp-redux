@@ -342,15 +342,15 @@ The inspected legacy source is `4050fdc7dbdf4d713d94cf02a39a147b863665be`. No le
 The leaf table owns pathway leaves. The article slice transfers `pathway articles` here; the gene slice retains `gene pathways` and maps its old paging options to the explicit pathway search. Section names, positional inputs, short aliases and global output flags stay outside option-slot counts. The complete accounting table above owns each of those surfaces, including `search all` without a new parent command.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search pathway` | Ported or renamed | `--top-level`, `--limit`, `--offset` | `--query`, `--type` | — | Use positional text or exact gene or native top-level discovery. The native Reactome page controls preserve source offsets; WikiPathways pages retain their catalog revision. |
-| `get pathway` | Ported or renamed | — | — | — | Use exact human Reactome or WikiPathways IDs with summary, genes, events or all as supported by that source. Enrichment retires under the entity boundary ruling. |
-| `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported. |
-| `pathway articles` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT. |
-| `pathway trials` | Dropped by ruling | — | `--limit`, `--offset`, `--source` | — | The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE. |
-| `list pathway` | Ported or renamed | — | — | — | Use help search pathway and help get pathway. |
-| `enrich` | Dropped by ruling | — | `--limit` | — | The entity boundary ruling excludes g:Profiler, enrichment calculation and execution of analysis tools. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search pathway` | Ported or renamed | `--top-level`, `--limit`, `--offset` | `--query`, `--type` | — | — | Use positional text or exact gene or native top-level discovery. The native Reactome page controls preserve source offsets; WikiPathways pages retain their catalog revision. |
+| `get pathway` | Ported or renamed | — | — | — | — | Use exact human Reactome or WikiPathways IDs with summary, genes, events or all as supported by that source. Enrichment retires under the entity boundary ruling. |
+| `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported. |
+| `pathway articles` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT. |
+| `pathway trials` | Dropped by ruling | — | `--limit`, `--offset`, `--source` | — | — | The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE. |
+| `list pathway` | Ported or renamed | — | — | — | — | Use help search pathway and help get pathway. |
+| `enrich` | Dropped by ruling | — | `--limit` | — | — | The entity boundary ruling excludes g:Profiler, enrichment calculation and execution of analysis tools. |
 <!-- /parity-accounting -->
 
 KEGG, g:Profiler, `enrich`, `enrichment`, `pathway drugs`, `pathway articles` and `pathway trials` remain dropped. The full GPML archive and bundle-wide gene index remain deferred; exact publisher-linked per-pathway GPML supplies the shipped membership command.

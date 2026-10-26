@@ -503,16 +503,16 @@ The following table accounts for every drug-owned leaf and option from static re
 The generated accounting counts command-specific long-option slots once. Section words, aliases, positional inputs and global transport flags remain outside its denominator. `--query` maps to literal TEXT, `--name` maps to candidate search, and `--region` maps to explicit source selection through fixed retirement guidance. `--raw` maps to the exact native label heading and complete continuation. Unsupported reverse filters stay undecided; a migration error is not proof that the old capability was ported.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search drug` | Ported or renamed | `--query`, `--limit`, `--offset`, `--region` | `--mechanism`, `--interactions`, `--product-type` | `--target`, `--indication`, `--type`, `--atc`, `--pharm-class` | Use literal TEXT and explicit --source with bounded native pages. Semantic mechanism expansion, partner search and WHO product types retire. Reverse filters need native known-positive selector cases before enabling. |
-| `get drug` | Ported or renamed | `--name`, `--region`, `--raw` | — | — | Select a native identity through search, then get ID --source SOURCE. Native label headings and continuation replace raw rendering; source selection replaces implicit regional fan-out. |
-| `drug interactions` | Ported or renamed | `--limit`, `--offset` | — | — | Use get drug ID interactions --source ddinter with --section-limit and --section-offset. Stored pairs retain source level and provenance without a safety conclusion. |
-| `drug cell-lines` | Dropped by ruling | — | `--cell-line`, `--dataset`, `--limit`, `--offset` | — | Cell-line screening is outside the cancer-care drug slice; no replacement call runs. |
-| `ema sync` | Ported or renamed | — | — | — | Use sync ema for one complete validated medicines replacement; reads use stored rows only. |
-| `who sync` | Ported or renamed | — | — | — | Use `biomcp sync who-pq` for the complete finished-product export. |
-| `ddinter sync` | Ported or renamed | — | — | — | Use sync ddinter for one atomic eight-file replacement, preserving the last usable set on failure. |
-| `cvx sync` | Dropped by ruling | — | — | — | No proved CVX-to-WONDER mapping; vaccine identity lookup and sync retire with guidance to explicit VAERS report summaries. No CVX download runs. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search drug` | Ported or renamed | `--query`, `--limit`, `--offset`, `--region` | `--mechanism`, `--interactions`, `--product-type` | — | `--target`, `--indication`, `--type`, `--atc`, `--pharm-class` | Use literal TEXT and explicit --source with bounded native pages. Semantic mechanism expansion, partner search and WHO product types retire. Reverse filters need native known-positive selector cases before enabling. |
+| `get drug` | Ported or renamed | `--name`, `--region`, `--raw` | — | — | — | Select a native identity through search, then get ID --source SOURCE. Native label headings and continuation replace raw rendering; source selection replaces implicit regional fan-out. |
+| `drug interactions` | Ported or renamed | `--limit`, `--offset` | — | — | — | Use get drug ID interactions --source ddinter with --section-limit and --section-offset. Stored pairs retain source level and provenance without a safety conclusion. |
+| `drug cell-lines` | Dropped by ruling | — | `--cell-line`, `--dataset`, `--limit`, `--offset` | — | — | Cell-line screening is outside the cancer-care drug slice; no replacement call runs. |
+| `ema sync` | Ported or renamed | — | — | — | — | Use sync ema for one complete validated medicines replacement; reads use stored rows only. |
+| `who sync` | Ported or renamed | — | — | — | — | Use `biomcp sync who-pq` for the complete finished-product export. |
+| `ddinter sync` | Ported or renamed | — | — | — | — | Use sync ddinter for one atomic eight-file replacement, preserving the last usable set on failure. |
+| `cvx sync` | Dropped by ruling | — | — | — | — | No proved CVX-to-WONDER mapping; vaccine identity lookup and sync retire with guidance to explicit VAERS report summaries. No CVX download runs. |
 <!-- /parity-accounting -->
 
 `gene drugs` remains one undecided row in gene.md, including its `--limit` and `--offset`: reverse target search has no approved positive selector proof. O01 stays with trial accounting (`drug trials`, its three ported options and retired alias expansion). O02 stays with adverse-event accounting, including date aliases, report filters, counts and paging. O03 stays with disease and pathway owners, including each convenience command's paging. O04 stays with shared batch accounting, including sections and entity-specific options. These references add no duplicate leaf or drug test.

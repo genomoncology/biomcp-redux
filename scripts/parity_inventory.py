@@ -53,7 +53,7 @@ def generate(binary):
                 elif line.startswith("  "):
                     # Only option declarations, never prose examples or defaults.
                     declaration = re.match(
-                        r"  (?:-[A-Za-z], )?(--[a-z][a-z0-9-]*)\b", line
+                        r"\s+(?:-[A-Za-z],\s+)?(--[a-z][a-z0-9-]*)\b", line
                     )
                     if declaration and declaration[1] not in GLOBALS:
                         options.add(declaration[1])

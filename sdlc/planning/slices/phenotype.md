@@ -139,10 +139,10 @@ The inspected 0.9 source revision is `4050fdc7dbdf4d713d94cf02a39a147b863665be`.
 The counted ledger preserves the earlier disease ruling on the old ranking leaf. Its reused spelling now serves literal term search, which is separately accounted above. The old similarity option slots remain dropped rather than being relabeled as the new term-search contract.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop symptom-to-disease ranking and automatic HPO resolution; literal Monarch term discovery and explicit source associations have independent contracts. Similarity stays deferred. |
-| `list phenotype` | Ported or renamed | — | — | — | Rename to generated help phenotype; expose source choices, sections, paging and executable examples. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | — | Drop symptom-to-disease ranking and automatic HPO resolution; literal Monarch term discovery and explicit source associations have independent contracts. Similarity stays deferred. |
+| `list phenotype` | Ported or renamed | — | — | — | — | Rename to generated help phenotype; expose source choices, sections, paging and executable examples. |
 <!-- /parity-accounting -->
 
 The complete closed public-issue inventory returned 57 issues. No issue title or body contained phenotype, Monarch or HPO. The investigation must preserve the inventory and filter as external evidence; this means zero entity-specific closed issues were found, not that general transport, cache or MCP issues cease to apply.
