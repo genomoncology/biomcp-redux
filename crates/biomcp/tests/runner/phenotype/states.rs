@@ -8,6 +8,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "phenotype-identity/P24-synthetic-empty-absent-failure-states",
         || states().map_err(Into::into),
     )];
+    rows.push(Trial::test(
+        "phenotype-identity/synthetic-short-limit-keeps-native-page",
+        || short_limit().map_err(Into::into),
+    ));
     for source in ["hpo", "monarch"] {
         rows.push(Trial::test(
             format!("phenotype-identity/synthetic-disabled-{source}-fresh-before-cache"),
@@ -121,6 +125,31 @@ fn disabled(source: &str) -> Result<(), String> {
     let cold_result: Value = invoke(&cold, &args, 4)?;
     if cold_result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("cold disabled source touched cache".into());
+    }
+    Ok(())
+}
+
+fn short_limit() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "api-v3.monarchinitiative.org",
+        "application/json",
+        |request| {
+            if !request.contains("&limit=3&offset=0 ") {
+                return Err(format!("short limit changed native request: {request}"));
+            }
+            Ok(json!({"limit":3,"offset":0,"total":0,"items":[]}).to_string())
+        },
+    )?;
+    let env = setup(&stub)?;
+    let args = ["search", "phenotype", "synthetic", "-l", "3"];
+    let directory = env.root().join("alias");
+    let result = record(&env, &args, &directory, 1)?;
+    if result.pointer("/query/limit") != Some(&json!(3)) {
+        return Err(format!("short limit lost: {result}"));
+    }
+    native::mcp(&directory, &args, &result, 1, Some(STATE_BYTES))?;
+    if stub.finish()?.len() != 1 {
+        return Err("short limit request count".into());
     }
     Ok(())
 }
