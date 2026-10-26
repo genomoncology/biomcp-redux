@@ -3,7 +3,6 @@ use super::budgets;
 use super::{Environment, Stub, invoke, record, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-const STATE_BYTES: usize = 6000;
 pub(super) fn trials() -> Vec<Trial> {
     let mut rows = vec![Trial::test(
         "phenotype-identity/P24-synthetic-empty-absent-failure-states",
@@ -65,7 +64,6 @@ fn states() -> Result<(), String> {
             &args,
             &result,
             if kind == "failure" { 4 } else { 1 },
-            Some(STATE_BYTES),
         )?;
         if kind == "empty" {
             if result.pointer("/page/total") != Some(&json!(0))
@@ -123,14 +121,7 @@ fn disabled(source: &str) -> Result<(), String> {
     {
         return Err(format!("disabled fresh leaked cache: {result}"));
     }
-    budgets::mcp(
-        "states/disabled/mcp1",
-        &directory,
-        &args,
-        &result,
-        4,
-        Some(STATE_BYTES),
-    )?;
+    budgets::mcp("states/disabled/mcp1", &directory, &args, &result, 4)?;
     if stub.finish()?.len() != 1 {
         return Err("disabled fresh reached source".into());
     }
@@ -161,14 +152,7 @@ fn short_limit() -> Result<(), String> {
     if result.pointer("/query/limit") != Some(&json!(3)) {
         return Err(format!("short limit lost: {result}"));
     }
-    budgets::mcp(
-        "states/short_limit/mcp1",
-        &directory,
-        &args,
-        &result,
-        1,
-        Some(STATE_BYTES),
-    )?;
+    budgets::mcp("states/short_limit/mcp1", &directory, &args, &result, 1)?;
     if stub.finish()?.len() != 1 {
         return Err("short limit request count".into());
     }

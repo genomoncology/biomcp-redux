@@ -79,22 +79,38 @@ Typed next actions follow architecture 6.10. Each selected term header gets one 
 
 The inspected 0.9 source revision is `4050fdc7dbdf4d713d94cf02a39a147b863665be`. Its `src/cli/phenotype/mod.rs`, `dispatch.rs`, `src/entities/disease/search.rs`, `src/sources/hpo.rs`, `src/sources/monarch.rs` and user guide establish the following static inventory. Static inspection proves behavior ownership and request construction, not live output quality or token cost.
 
-| 0.9 command, option or section | Proposed disposition | Reason and acceptance case |
+| 0.9 command, option or section | 1.0 disposition | Reason and acceptance case |
 | --- | --- | --- |
-| `search phenotype TERMS` with space/comma HP ID sets | Separate term identity from source-native similarity; similarity needs ruling. | P16/P17. Do not silently turn one entity query into a patient diagnosis. |
-| One symptom phrase or comma-separated phrases | Literal term discovery returns all native candidates, with explicit selection. | P01–P16; ambiguous/unknown phrase must never silently become the first candidate. No hand-built vocabulary or phrase rewriting. |
-| Automatic HPO resolution before similarity | Replace with explicit source candidate selection. | Preserve original literal query and exact selected HP identifiers. No hidden phrase loss or expansion. |
-| `-l`, `--limit` | Keep bounded pages; changed source operation has its own proved limits. | Positive first/middle/terminal page and invalid zero/out-of-range cases. Old accepted range 1–50 applies to similarity, not an invented term-search ceiling. |
-| `--offset` | Keep for native term/association paging. Similarity offset remains limited to a captured provider window if kept. | P01/P16/P17; no fabricated continuation beyond the provider window. |
-| Fixed first 50 similarity rows, local disease deduplication and slicing | Keep explicit window metadata only in an approved similarity operation. | No total beyond what the publisher supplies; raw-row count differs from distinct disease count. |
-| `resolved_query` phrase, HPO ID and label | Keep input identity on the explicit operation. | P01/P16/P17. Distinguish a selected candidate from an inferred clinical synonym. |
-| Native semantic score and ordering | Retain only in explicit approved similarity. | No probability, causal claim, local rerank or score blend. |
-| Per-term direct-support states supported/not_supported/indeterminate/unavailable | Do not attach these automatically to every similarity row. Keep explicit association inspection; seek ruling before any retained enrichment. | Native exact positive assertion is different from similarity; an absent/incomplete lookup proves no clinical absence. |
-| Automatic first fully supported disease next step | Replace with typed candidate pivots and clear source semantics. | No recommendation disguised as selection. PM decides any retained convenience. |
-| `list phenotype` | Rename to generated `help phenotype`, with exact usage recovery. | Source choices, disclosure and examples come from the shared command schema. |
-| `discover` phenotype suggestion | Use explicit entity term discovery; no symptom intent detector. | Shared retirement rules govern discovery. |
-| `get phenotype` and sections | New surface; 0.9 has none. | Exact term definitions, synonyms, xrefs and explicit source associations answer this bank. |
-| CLI JSON/Markdown and MCP invocation | Preserve through the shared checked request and envelope. | Assert matching source facts and typed next arguments. Shared global flags keep their existing contracts. |
+| `search phenotype TERMS` with space/comma HP ID sets | Deferred similarity; retire the old ID-set spelling. | The PM retained the disease ranking retirement. P17 remains unanswered; `retired.yaml` checks fixed recovery to literal term search and explicit associations. |
+| One symptom phrase or comma-separated phrases | `search phenotype TEXT --source monarch` sends literal text. | P01–P16; `native.rs` checks exact candidate order and IDs. No candidate becomes an equivalent term by rank. |
+| Automatic HPO resolution before similarity | Dropped. | Explicit candidate selection replaces hidden resolution. No symptom intent detector; `retired.yaml` checks ID sets and unsupported HPO search. |
+| `-l`, `--limit` | Literal term search retains bounded `--limit`; the old similarity allocation retires. | `examples.yaml` proves the explicit limit; `states.rs` proves a short native page; `admission.yaml` proves invalid bounds. |
+| `--offset` | Literal term search retains native `--offset`. | Native P02/P16 middle and terminal rows; no similarity window is advertised. |
+| Fixed first 50 similarity rows, local disease deduplication and slicing | Deferred with similarity. | No local disease ranking, deduplication or fabricated total. P17. |
+| `resolved_query` phrase, HPO ID and label | Dropped automatic resolution; retain literal `/query/text` and exact result IDs. | `mod.rs::search` and native P01–P16 preserve input and publisher candidates independently. |
+| Native semantic score and ordering | Deferred similarity; term search retains its independent native match fields. | `native.rs` checks `score`, `matched_field`, `match_type` and order without reinterpretation. |
+| Per-term supported/not_supported/indeterminate/unavailable enrichment | Dropped automatic similarity enrichment. | Explicit `get phenotype HP:ID diseases` and `genes` preserve only the publisher's assertion. P17, P21–P24. |
+| Automatic first fully supported disease next step | Dropped. | Exact candidate pivots retain source order; none selects a diagnosis. `mod.rs::search` and `associations.rs`. |
+| `list phenotype` | Renamed to `help phenotype`. | `retired.yaml` checks exact recovery; `help.yaml` checks source choices, paging, sections and two case-derived examples per command. |
+| `discover` phenotype suggestion | Dropped. | Use explicit `search phenotype TEXT`; automatic HPO resolution and symptom intent detection stay absent. Shared discovery retirement retains its existing owning cases. |
+| `get phenotype` card | New: exact independent HPO or Monarch card. | `examples.yaml`, complete native P01–P16 cards; no automatic source fallback. |
+| `synonyms`, `xrefs` | New: HPO or Monarch text/link sections. | `sections.rs` and retained `section_native.rs` preserve source classes, field presence and executable local pages. Positive Monarch xrefs were captured in 0208, so this section is kept. |
+| `hierarchy` | New: Monarch direct parent and child links. | Retained Seizure pages and `sections.rs`; no locally inferred graph traversal. |
+| `diseases`, `genes` | New: direct Monarch association pages with checked original endpoints. | `associations.rs`, six retained reverse pages; human taxon is checked before admission. Existing disease phenotype sections retain closure scope. |
+| `--section-limit`, `--section-offset`, `--snapshot` | New bounded section controls. | Text/link pages retain snapshots; association pages reject snapshots and retain native offsets. `admission.yaml`, `sections.rs`, `associations.rs`. |
+| CLI JSON/Markdown and MCP invocation | Retained through the shared request and envelope. | `help.yaml`, `mod.rs::help`, executable example ownership and measured named CLI/MCP phases. Shared global flags retain their owning cases. |
+| HPO term search | Deferred. | No proved native paging contract; `retired.yaml` preserves explicit Monarch recovery. |
+| Translations | Deferred. | No harvested multilingual question requires them. |
+| HPO ontology/annotation bundles and Monarch graph bundles | Deferred. | Bounded entity access answers the accepted questions; no whole-bundle download is justified. |
+
+The counted ledger preserves the earlier disease ruling on the old ranking leaf. Its reused spelling now serves literal term search, which is separately accounted above. The old similarity option slots remain dropped rather than being relabeled as the new term-search contract.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop symptom-to-disease ranking and automatic HPO resolution; literal Monarch term discovery and explicit source associations have independent contracts. Similarity stays deferred. |
+| `list phenotype` | Ported or renamed | — | — | — | Rename to generated help phenotype; expose source choices, sections, paging and executable examples. |
+<!-- /parity-accounting -->
 
 The complete closed public-issue inventory returned 57 issues. No issue title or body contained phenotype, Monarch or HPO. The investigation must preserve the inventory and filter as external evidence; this means zero entity-specific closed issues were found, not that general transport, cache or MCP issues cease to apply.
 
@@ -177,22 +193,21 @@ Keep live bounded entity access. Defer HPO ontology/annotation bundles and the w
 
 Term search defaults to five compact headers. Exact HPO cards keep the complete definition, comment and publication references together because source comments prevent incorrect equivalence in this bank. Synonyms and cross-references are explicit five-row sections. Monarch hierarchy is explicit and defaults to five parent/child links, retaining the source relation and native order. Disease/gene association pages default to one complete row because qualifier and closure payloads dominate cost. Every section uses `--section-limit` and `--section-offset`; explicit limits retain their checked values. No field or complete comment is clipped to meet a budget.
 
-The offline formatter in `j14238` constructed proposed compact JSON views from the retained native bodies. These are design measurements, not outputs of an implemented command or accepted product schema. Its files preserve the full views and recipes outside Git. Full bytes include proposed source-use/terms fields. Comparable bytes remove exactly `use`, `terms` and `terms_url` from each source outcome; no other fields are removed. Tokens below are `ceil(comparable UTF-8 bytes / 4)`, a size proxy rather than a tokenizer result. The proposed ceilings use the maximum comparable measurement plus 15 percent. A later outside-in product case must measure the actual generated envelope and typed actions.
+The formatter in `j14238` measured proposed projections before the command envelope and typed actions existed. Those projections are not acceptance ceilings. The table now uses retained implemented CLI/MCP envelope measurements from the term, section and association proofs below. Comparable bytes remove exactly `use`, `terms` and `terms_url` from validated source outcomes. Bytes divided by four and rounded up are a token proxy, not tokenizer output. Fixed case ceilings add fifteen percent to the matching measured baseline.
 
-| Layer and measured scope | Full bytes | Comparable bytes | Proxy tokens | Proposed comparable byte ceiling |
-| --- | --- | --- | --- | --- |
-| Five-header Monarch searches, P01–P16, including source candidate actions and paging | 384–1,364 | 253–1,233 | 64–309 | 1,418 |
-| Exact HPO cards, eighteen retained identities, complete definition/comment/references | 548–1,553 | 396–1,401 | 99–351 | 1,612 |
-| Exact Monarch Seizure card | 736 | 605 | 152 | 696 |
-| HPO synonyms, first five rows, eighteen cards | 437–582 | 285–430 | 72–108 | 495 |
-| HPO xrefs, first five rows, eighteen cards | 434–463 | 282–311 | 71–78 | 358 |
-| Monarch Seizure hierarchy, complete source payload of one parent and twelve children | 9,627 | 9,496 | 2,374 | 10,921 |
-| One-row native association views across all eight retained pages | 2,942–8,729 | 2,811–8,598 | 703–2,150 | 9,888 |
-| Two-row native association views across all eight retained pages | 8,130–13,863 | 7,999–13,732 | 2,000–3,433 | 15,792 |
-| Investigated similarity, full one-row native match details | 6,950 | 6,819 | 1,705 | Not proposed as a default |
-| Investigated similarity, full five-row native match details | 37,118 | 36,987 | 9,247 | Not proposed as a default |
+| Implemented layer and retained scope | Full bytes, largest retained envelope | Comparable bytes | Proxy tokens | Comparable ceiling | 0.9 comparison |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Monarch term search, P01–P16, five-header default including actions | 2,203 | 2,072 | 518 | 2,383 | Unmeasured: contained comparison belongs to 0098. |
+| Exact HPO cards, eighteen retained identities with whole text and section actions | 2,032 | 1,868 | 467 | 2,149 | Unavailable: 0.9 has no phenotype get command. |
+| Exact Monarch Seizure card with section actions | 2,081 | 1,949 | 488 | 2,242 | Unavailable: 0.9 has no phenotype get command. |
+| HPO synonyms, first five rows | 1,327 | 1,163 | 291 | 1,338 | Unavailable: no 0.9 section. |
+| HPO xrefs, first five rows | 586 | 422 | 106 | 486 | Unavailable: no 0.9 section. |
+| Monarch Seizure hierarchy, first five links | 1,905 | 1,773 | 444 | 2,039 | Unavailable: no 0.9 section. |
+| HP:0001250 direct disease/gene associations, one-row pages | 3,311 | 3,180 | 795 | 3,657 | Unavailable: no 0.9 reverse-association section. |
+| HP:0001250 direct disease/gene associations, two-row pages | 5,539 | 5,408 | 1,352 | 6,220 | Unavailable: no 0.9 reverse-association section. |
+| Similarity | Deferred | — | — | — | Unmeasured: old ranking is retired; retained native replies are investigation evidence only. |
 
-The hierarchy measurement conservatively retains the full native nodes, including null source fields and details the link view does not need. It is not a measurement of a five-link product page. The association views likewise retain complete native rows with their null fields and closures; their cost is a conservative source-bound design allocation. The implementation must preserve the shared clinically relevant association fields while measuring its actual projection. Synonym/xref pages with further rows need a typed continuation, whose actual cost is included in the implementation case. No claim of complete 1.0 output parity follows from these estimates.
+These retained native measurements describe their original product revisions and exact scopes. They are not new command executions at the accounting revision. Association outputs predate the null/empty evidence-presence fix. The current synthetic phase measurements below include that fix and the complete present envelopes. Neither the complete native hierarchy payload nor the earlier source-row projection supplies the current product allocation. Original native archives and their measurements remain unchanged.
 
 The native HPO search requests took 0.135–0.391 seconds, median 0.142, and returned 602–6,553 bytes. The HP-filtered Monarch searches took 0.135–0.622 seconds, median 0.160, and returned 176–8,178 bytes. The unfiltered initial Monarch search was 6,300 bytes and included other ontology namespaces. The initial similarity request took 3.979 seconds and returned 36,803 raw bytes for five rows. Its details explain why similarity must be an explicit expensive disclosure layer if kept. These are serial uncached HTTP observations on a shared M5, not warm product latency or quiet-machine speed baselines. No warm-cache timing is established. No per-card follow-up requests are hidden inside these request counts.
 
@@ -253,7 +268,7 @@ All eight helper archives passed their own verification. The first outer packagi
 
 The archived closed-issue search is complete at 57 returned of 57 total, `incomplete_results=false`; the entity/source filter has no matches. The issue response body has SHA-256 `6a425c084987cbf99b48924b318c63b669ffb580987a951a06e9dbd4c651c8f6`. It preserves the full public inventory rather than a selected issue summary.
 
-This is a proposed design for PM review. Product code, generated schema, source registry and roadmap boxes are unchanged. The remaining product choices are named above. Remaining source limitations are explicit: no warm product timing or contained 0.9 execution; no pinned API ontology version; no native terminal empty search page or wrong-taxon returned-row rejection witness; no obsolete replacement field; and no whole-graph bundle download/size measurement. The existing captured fields can guide types, but final type acceptance must check actual absence, multiplicity and scope against the preserved bodies. These limits do not justify inventing a source fact or another automatic live pass.
+The implemented scope follows the PM phenotype ruling. The explicit deferrals and retirements above remain part of that scope. Remaining source limitations are explicit: no warm product timing or contained 0.9 execution; no pinned API ontology version; no native terminal empty search page or wrong-taxon returned-row rejection witness; no obsolete replacement field; and no whole-graph bundle download/size measurement. The existing captured fields can guide types, but final type acceptance must check actual absence, multiplicity and scope against the preserved bodies. These limits do not justify inventing a source fact or another automatic live pass.
 
 ## Implemented term command measurements
 

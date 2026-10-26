@@ -27,7 +27,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -55,7 +55,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -83,7 +83,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -105,7 +105,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -127,7 +127,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -149,7 +149,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -175,7 +175,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -201,7 +201,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -227,7 +227,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -253,7 +253,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -279,7 +279,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -307,7 +307,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -335,7 +335,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -363,7 +363,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -391,7 +391,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     },
     {
@@ -419,7 +419,7 @@
         "/error/code": "usage.arguments",
         "/error/message": "expected a supported command with checked arguments"
       },
-      "max_bytes": 400,
+      "max_bytes": 166,
       "max_tokens": 150
     }
   ]

@@ -1,16 +1,26 @@
 //! Named full-envelope phenotype phases; CLI includes its newline.
 use serde_json::Value;
-use std::{io::Write, path::Path};
+use std::path::Path;
 pub(in crate::runner) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     let bytes =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    let comparable = super::super::source_terms::size(value, "")?;
-    writeln!(
-        std::io::stdout(),
-        "PHENOTYPE_MEASURE {}",
-        serde_json::json!({"phase":phase,"surface":surface,"bytes":bytes,"comparable":comparable})
-    )
-    .map_err(|e| e.to_string())?;
+    if phase.starts_with("case/help ") {
+        use std::io::Write;
+        writeln!(
+            std::io::stdout(),
+            "PHENOTYPE_HELP_MEASURE {}",
+            serde_json::json!({"phase":phase,"surface":surface,"bytes":bytes})
+        )
+        .map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+    let max_bytes = ceiling(phase, surface)?;
+    let key = format!("{phase} [{surface}]");
+    if bytes > max_bytes {
+        return Err(format!(
+            "phenotype {key}: {bytes} exceeds max_bytes={max_bytes}"
+        ));
+    }
     Ok(())
 }
 pub(super) fn mcp(
@@ -19,10 +29,9 @@ pub(super) fn mcp(
     words: &[&str],
     value: &Value,
     exit: i32,
-    _old: Option<usize>,
 ) -> Result<(), String> {
     check(value, phase, "mcp")?;
-    super::native::mcp(directory, words, value, exit, Some(100000))
+    super::native::mcp(directory, words, value, exit, Some(ceiling(phase, "mcp")?))
 }
 
 pub(in crate::runner) fn case(value: &Value, args: &[String], surface: &str) -> Result<(), String> {
@@ -42,4 +51,15 @@ pub(in crate::runner) fn case(value: &Value, args: &[String], surface: &str) -> 
         check(value, &format!("case/{}", words.join(" ")), surface)?;
     }
     Ok(())
+}
+
+fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
+    let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
+        include_str!("../../../../../tests/phenotype-command-budgets.json"),
+    )
+    .map_err(|e| e.to_string())?;
+    measurements
+        .get(&format!("{phase} [{surface}]"))
+        .map(|n| (n * 115).div_ceil(100))
+        .ok_or("missing phenotype phase".into())
 }

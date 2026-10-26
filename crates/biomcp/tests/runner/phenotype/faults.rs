@@ -4,7 +4,6 @@ use super::{Environment, Stub, invoke, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
-const FAILURE_BYTES: usize = 6000;
 pub(super) fn trials() -> Vec<Trial> {
     let mut rows = Vec::new();
     for surface in [
@@ -85,14 +84,7 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
     replay.extend(["--replay", directory.to_str().ok_or("replay path")?]);
     let result = invoke("faults/failure/invoke1", &env, &replay, 4)?;
     failed(&result, source(surface))?;
-    budgets::mcp(
-        "faults/failure/mcp1",
-        &directory,
-        &words,
-        &result,
-        4,
-        Some(FAILURE_BYTES),
-    )
+    budgets::mcp("faults/failure/mcp1", &directory, &words, &result, 4)
 }
 fn failed(value: &Value, source: &str) -> Result<(), String> {
     if value.get("status") != Some(&json!("failed"))
@@ -197,14 +189,7 @@ fn identity(fault: &str) -> Result<(), String> {
         result = super::record("faults/identity/record1", &env, &words, &directory, 4)?;
         failed(&result, source(surface))?;
         if n == 0 {
-            budgets::mcp(
-                "faults/identity/mcp1",
-                &directory,
-                &words,
-                &result,
-                4,
-                Some(FAILURE_BYTES),
-            )?;
+            budgets::mcp("faults/identity/mcp1", &directory, &words, &result, 4)?;
         }
     }
     if result

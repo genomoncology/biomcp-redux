@@ -47,14 +47,7 @@ pub(super) fn run() -> Result<(), String> {
                 "section failure lost source or became absence: {result}"
             ));
         }
-        budgets::mcp(
-            "section_failures/run/mcp1",
-            &directory,
-            &words,
-            &result,
-            4,
-            None,
-        )?;
+        budgets::mcp("section_failures/run/mcp1", &directory, &words, &result, 4)?;
     }
     Ok(())
 }

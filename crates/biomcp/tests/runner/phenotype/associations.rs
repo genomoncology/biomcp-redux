@@ -201,7 +201,7 @@ fn failures() -> Result<(), String> {
         let words = ["get", "phenotype", "HP:0001250", "genes"];
         let dir = env.root().join("failures");
         let result = super::record("associations/failures/record1", &env, &words, &dir, 4)?;
-        budgets::mcp("associations/failures/mcp1", &dir, &words, &result, 4, None)?;
+        budgets::mcp("associations/failures/mcp1", &dir, &words, &result, 4)?;
         if result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
             || result.get("result").is_some()
         {
@@ -341,14 +341,7 @@ fn timeout() -> Result<(), String> {
     {
         return Err(format!("timeout lost source failure: {result}"));
     }
-    budgets::mcp(
-        "associations/timeout/mcp1",
-        &directory,
-        &words,
-        &result,
-        4,
-        None,
-    )?;
+    budgets::mcp("associations/timeout/mcp1", &directory, &words, &result, 4)?;
     Ok(())
 }
 

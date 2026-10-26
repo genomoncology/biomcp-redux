@@ -236,7 +236,7 @@ fn failures() -> Result<(), String> {
         };
         let directory = env.root().join("failure");
         let result = record("mod/failures/record1", &env, &words, &directory, 4)?;
-        budgets::mcp("mod/failures/mcp1", &directory, &words, &result, 4, None)?;
+        budgets::mcp("mod/failures/mcp1", &directory, &words, &result, 4)?;
         if kind == 5 {
             invoke("mod/failures/invoke1", &env, &words, 4)?;
         }
