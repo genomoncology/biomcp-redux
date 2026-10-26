@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 fn default_limit() -> u32 {
     5
 }
-biodata::wire_enum! {
+biodata::wire_enum! { described
     /// Named disclosure sections; all requests each bounded first page without an assay count.
     CellLineSection {
         /// Native display names.
@@ -101,7 +101,7 @@ struct GetFields {
     /// One exact primary accession or qualified source ID.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: CellLineInput,
-    /// Omit for the default identity card.
+    /// Omit for the default card; all returns bounded first pages without an assay count.
     #[serde(
         default,
         deserialize_with = "crate::query::present",
