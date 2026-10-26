@@ -48,3 +48,12 @@ Added 2026-10-26 on the 0193 proposal.
 - `--p-value` is exact, not page-scoped. It requires the default p-value-ascending order. Rows arrive in that order, so the command returns rows until the first row above the threshold and stops; it continues to the next source page only while every row so far qualifies. It reports a qualifying total only when it reached the end. Any other sort with `--p-value` is a usage error.
 - Combined selectors use the source's own conjunction, as the FGFR2 plus trait capture proved. The 0.9 local intersection of two 50-row prefixes retires.
 - Keep the restricted source category and the existing adapter deadline.
+
+## Author
+
+Added 2026-10-26 on the 0195 proposal.
+
+- Accept the metadata-only boundary. Types, output ceilings and question answers wait for captures on a source route Ian rules eligible; no Semantic Scholar or ORCID API capture runs before that ruling.
+- Rich paper metadata is the named `details` section of `author papers`. The 0.9 `--full` flag keeps working as its alias, as with the 0.9 key names.
+- The canonical source spelling is `semantic-scholar`; `semanticscholar:` IDs and `--source semanticscholar` keep working as aliases.
+- Defer topic-wide author ranking and cross-provider merging.
