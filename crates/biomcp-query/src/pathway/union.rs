@@ -42,9 +42,9 @@ fn execute(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
     let mut saved = match loaded {
         Some(saved) if replay || saved.0.page.next_offset == Some(q.offset()) => saved,
         Some(_) => { expired(q, out); return Ok(()); },
-        None => initial(cx, q, deadline),
+        None => initial(cx, q, deadline, out),
     };
-    if !replay { advance(cx, q, deadline, &mut saved); }
+    if !replay { advance(cx, q, deadline, &mut saved, out); }
     let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
     let pool = if replay { q.pool().cloned().ok_or(CacheError::Database)? } else { store.save_source_snapshot(&identity, &payload, &saved.3)? };
     out.sources = saved.3;
@@ -64,13 +64,14 @@ fn expired(q: &PathwaySearch, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch: false };
     out.next.push((StepKind::Restart, run(Request::SearchPathway(q.restart()))));
 }
-fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>) -> Saved {
+fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Outcome) -> Saved {
     let mut saved = (page(q), vec![], 0, vec![], vec![]);
     for source in q.sources() {
         let leg = cx.fetch.leg(if *source == PathwaySource::Reactome { &reactome::SPEC } else { &wikipathways::SPEC }, deadline);
         if *source == PathwaySource::Wikipathways {
             let reply = wikipathways::search(&leg, q.query().map_or("", |v|v.as_str()));
             let error = reply.as_ref().err().copied();
+            out.local = out.local.or_else(|| error.and_then(status::local));
             saved.3.push(status::source(Source::WikiPathways, leg.finish(), error));
             let state = match reply {
                 Ok((rows, info)) => { let total = rows.len() as u64; (rows, None, total, info.content_revision.and_then(|s|s.parse().ok())) },
@@ -86,13 +87,14 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>) -> Saved {
     }
     saved
 }
-fn refill(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, saved: &mut Saved) {
+fn refill(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, saved: &mut Saved, out: &mut Outcome) {
     for (index, state) in saved.1.iter_mut().enumerate() {
         if !state.0.is_empty() { continue; }
         let Some(offset) = state.1 else { continue; };
         let leg = cx.fetch.leg(&reactome::SPEC, deadline).fresh(cx.fresh || q.fresh());
         let reply = reactome::search(&leg, &q.for_source(PathwaySource::Reactome).at_offset(offset));
         let error = reply.as_ref().err().copied();
+        out.local = out.local.or_else(|| error.and_then(status::local));
         if let Some(source) = saved.3.get_mut(index) { *source = status::source(Source::Reactome, leg.finish(), error); }
         match reply {
             Ok(reply) => {
@@ -106,12 +108,15 @@ fn refill(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, saved: &mut S
         }
     }
 }
-fn advance(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, saved: &mut Saved) {
-    refill(cx, q, deadline, saved);
+fn advance(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, saved: &mut Saved, out: &mut Outcome) {
+    refill(cx, q, deadline, saved, out);
     let mut items = Vec::new();
     let mut misses = 0;
     while items.len() < q.limit() as usize && misses < saved.1.len() {
         let index = saved.2 % saved.1.len();
+        // A shortened native page stops at its source turn, without refilling or
+        // moving later catalog rows ahead of unrequested source rows.
+        if saved.1.get(index).is_some_and(|s| s.0.is_empty() && s.1.is_some()) { break; }
         saved.2 = (index + 1) % saved.1.len();
         if let Some(state) = saved.1.get_mut(index) && !state.0.is_empty() {
             items.push(state.0.remove(0));
