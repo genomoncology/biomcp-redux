@@ -28,7 +28,13 @@ fn execute(words: &[&str], allowed: Option<SecretName>) -> usize {
 }
 
 fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
-    let args = words.iter().map(OsString::from).collect::<Vec<_>>();
+    let config = tempfile::NamedTempFile::new().unwrap();
+    fs::write(config.path(), b"{}").unwrap();
+    let mut args = words.iter().map(OsString::from).collect::<Vec<_>>();
+    args.extend([
+        OsString::from("--config"),
+        config.path().as_os_str().to_owned(),
+    ]);
     let parsed = crate::grammar::parse(&args).unwrap();
     let fetch = super::restrict(fetch.clone(), &parsed.globals).unwrap();
     crate::command::execute(&fetch, parsed.action.unwrap(), &parsed.globals, false)
@@ -206,13 +212,10 @@ fn saved_query_pages_never_resolve_credentials() {
         };
         let saved = run(&forbidden, &page);
         assert_eq!(saved["status"], "complete", "{saved}");
-        assert!(
-            saved["sources"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|source| source["cached"].as_bool().unwrap_or(false))
-                || saved["result"].is_object()
-        );
+        if recording == "trial/nci/get" {
+            assert!(saved.pointer("/result/items/0/card").is_some());
+        } else {
+            assert_eq!(saved.pointer(pointer), first.pointer(pointer));
+        }
     }
 }
