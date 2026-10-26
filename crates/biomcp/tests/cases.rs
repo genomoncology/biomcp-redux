@@ -68,8 +68,9 @@ fn main() -> ExitCode {
 }
 
 fn native_proof() -> Option<ExitCode> {
-    if env::args().nth(1).as_deref() == Some("--cell-line-measure") {
-        return Some(match runner::cell_line_measure() {
+    if matches!(env::args().nth(1).as_deref(), Some("--cell-line-measure" | "--cell-line-measure-remaining")) {
+        let result=if env::args().nth(1).as_deref()==Some("--cell-line-measure-remaining"){runner::cell_line_measure_remaining()}else{runner::cell_line_measure()};
+        return Some(match result {
             Ok(()) => ExitCode::SUCCESS,
             Err(e) => {
                 use std::io::Write;

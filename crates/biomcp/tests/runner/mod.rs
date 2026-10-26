@@ -607,3 +607,5 @@ pub(super) fn cell_line_measure() -> Result<(), String> {
 pub(super) fn cell_line_examples(directory: &Path) -> Result<(), String> {
     cell_line::examples(directory)
 }
+
+pub(super) fn cell_line_measure_remaining() -> Result<(),String> { cell_line::measure_remaining() }

@@ -276,3 +276,10 @@ fn markdown(
 pub(in crate::runner) fn examples(directory: &std::path::Path) -> Result<(), String> {
     examples::generate(directory)
 }
+
+pub(in crate::runner) fn measure_remaining() -> Result<(), String> {
+    native::remaining()?;
+    faults::run(true)?;
+    help::run(true)?;
+    research::run(true)
+}

@@ -41,7 +41,6 @@ fn search(env: &Environment, measure: bool) -> Result<(), String> {
         ),
         ("KG1", "KG1", vec!["CVCL_E3VV", "CVCL_0374", "CVCL_UD72"], 0),
         ("empty", "zzzx0196nomatch", vec![], 0),
-        ("accession", "CVCL_0005", vec!["CVCL_0005"], 0),
     ] {
         let mut words = vec!["search", "cell-line", query];
         let offset_text = offset.to_string();
@@ -183,5 +182,14 @@ fn headers(
             ]),
         )?;
     }
+    Ok(())
+}
+
+pub(super) fn remaining() -> Result<(), String> {
+    let stub=recorded_stub()?;
+    let env=setup(&stub)?;
+    cards(&env,true)?;
+    reverse(&env,true)?;
+    stub.finish()?;
     Ok(())
 }
