@@ -8,10 +8,5 @@ pub(crate) fn find(name: &str) -> Option<&'static str> {
 }
 
 pub(crate) fn versions() -> Vec<&'static str> {
-    SCHEMAS
-        .iter()
-        .filter_map(|(id, _)| id.rsplit_once('/').map(|(_, version)| version))
-        .collect::<std::collections::BTreeSet<_>>()
-        .into_iter()
-        .collect()
+    SCHEMAS.iter().map(|(id, _)| *id).collect()
 }

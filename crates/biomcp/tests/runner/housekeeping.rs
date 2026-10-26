@@ -46,7 +46,8 @@ fn check() -> Check {
         }
         if !text.contains(&format!("Commit: {}\n", env!("BIOMCP_BUILD_COMMIT")))
             || !text.contains(&format!("Target: {}\n", env!("BIOMCP_BUILD_TARGET")))
-            || !text.contains("Schemas: 1, 2\n")
+            || !text.contains("biomcp.help/2")
+            || !text.contains("biomcp.error/1")
         {
             return Err("verbose build or schema provenance differs from this artifact".into());
         }
