@@ -1,12 +1,15 @@
-use crate::{Text, UniProtAcc};
+use super::{ProteinCoordinateConvention, ProteinIsoformStatus, ProteinSequenceAvailability};
+use crate::{
+    AminoAcids, Attribution, Curie, Term, Text, UncertainSpan0, UniProtAcc, UniProtIsoform,
+};
 use serde::{Deserialize, Serialize};
 /// A reviewed human protein listed by the authoritative gene record.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct Protein {
+pub struct Protein<A = UniProtAcc> {
     /// Checked primary accession.
-    pub accession: UniProtAcc,
+    pub accession: A,
     /// Recommended protein name.
     pub name: Text,
     /// Sequence length in amino acids.
@@ -25,7 +28,7 @@ pub struct Protein {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinHeader {
     /// Shared gene/protein identity fields; never independently restated.
-    pub protein: Protein,
+    pub protein: Protein<UniProtIsoform>,
     /// Native source entry name.
     pub entry_id: Text,
     /// Display names only; never identifier joins.

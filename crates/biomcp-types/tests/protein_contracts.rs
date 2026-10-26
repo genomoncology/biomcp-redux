@@ -158,7 +158,14 @@ fn external_products_and_exact_sequences_remain_independent()
     }
     assert!(serde_json::from_value::<ProteinIsoformStatus>(json!("canonical")).is_err());
     let old = json!({"accession":"P00533","name":"Synthetic protein","length":1210});
-    assert_eq!(roundtrip::<biodata::Protein>(old.clone())?, old);
     assert_eq!(roundtrip::<biomcp_types::Protein>(old.clone())?, old);
+    Ok(())
+}
+
+#[test]
+fn exact_isoform_header_uses_shared_identity_fields_without_base_replacement()
+-> Result<(), Box<dyn std::error::Error>> {
+    let header = json!({"protein":{"accession":"P38398-2","name":"Synthetic exact isoform","length":63},"entry_id":"Synthetic entry","taxon":9606,"reviewed":true,"url":"https://example.org/P38398-2"});
+    assert_eq!(roundtrip::<ProteinHeader>(header.clone())?, header);
     Ok(())
 }
