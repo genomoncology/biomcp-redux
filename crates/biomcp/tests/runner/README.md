@@ -3,6 +3,7 @@
 The case target discovers YAML files as named tests. `--cases DIR` selects an
 external case directory. Cargo filters and `--list` retain those relative names.
 Each case shares one isolated environment across its steps.
+An explicit name filter that selects no tests exits nonzero and names the filter on stderr.
 
 `expect` maps JSON pointers to assertions. Scalars and arrays mean equality.
 Objects contain operators combined with AND; use `equals` for a literal object.

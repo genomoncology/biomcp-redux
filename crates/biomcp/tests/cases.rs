@@ -58,7 +58,21 @@ fn main() -> ExitCode {
         };
     }
     match trials() {
-        Ok((arguments, trials)) => libtest_mimic::run(&arguments, trials).exit_code(),
+        Ok((arguments, trials)) => {
+            // libtest-mimic 0.8.2 exposes its own exact/skip/ignored selector.
+            // Selected ignored tests remain selected; --list has no result counts.
+            if let Some(filter) = &arguments.filter
+                && trials.iter().all(|trial| arguments.is_filtered_out(trial))
+            {
+                use std::io::Write;
+                let _ = writeln!(
+                    std::io::stderr(),
+                    "cases: filter {filter:?} selected no tests"
+                );
+                return ExitCode::FAILURE;
+            }
+            libtest_mimic::run(&arguments, trials).exit_code()
+        }
         Err(error) => {
             use std::io::Write;
             let _ = writeln!(std::io::stderr(), "cases: {error}");

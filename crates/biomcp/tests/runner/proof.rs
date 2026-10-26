@@ -190,7 +190,11 @@ fn empty_selection() -> Check {
     if invoke(directory.path(), &[])?.status.success() {
         return Err("empty discovery unexpectedly succeeded".into());
     }
-    put(directory.path(), "selected.yaml", "    expect: {'/type': string}")?;
+    put(
+        directory.path(),
+        "selected.yaml",
+        "    expect: {'/type': string}",
+    )?;
     for args in [
         vec!["absent"],
         vec!["absent", "--exact"],
@@ -217,7 +221,9 @@ fn empty_selection() -> Check {
         let output = invoke(directory.path(), &args)?;
         let stdout = String::from_utf8_lossy(&output.stdout);
         if !output.status.success() || !stdout.contains(expected) {
-            return Err(format!("selection {args:?}: expected {expected}; actual {stdout}"));
+            return Err(format!(
+                "selection {args:?}: expected {expected}; actual {stdout}"
+            ));
         }
     }
     Ok(())
