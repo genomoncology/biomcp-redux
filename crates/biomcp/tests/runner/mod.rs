@@ -1,5 +1,3 @@
-mod case_file;
-use case_file::{run_case, run_phenotype_native_case};
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
@@ -155,8 +153,6 @@ struct Case {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Step {
-    #[serde(skip)]
-    phenotype_native_budget: bool,
     run: Option<Vec<String>>,
     follow: Option<String>,
     walk: Option<Walk>,
@@ -225,6 +221,52 @@ fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<
     Ok(())
 }
 
+fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
+    let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
+    let mut case: Case = serde_saphyr::from_str(&text).map_err(|error| error.to_string())?;
+    if case.story.trim().is_empty() || case.steps.is_empty() {
+        return Err("case requires a story and at least one step".into());
+    }
+    load_floors(&mut case, path)?;
+    let expectations = case
+        .steps
+        .iter()
+        .enumerate()
+        .map(|(index, step)| {
+            if step.run.is_none() && step.mcp.is_none() && step.follow.is_none() {
+                return Err("step requires run or mcp".into());
+            }
+            assertions::prepare(step)
+                .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let environment = launch::Environment::new().map_err(|error| error.to_string())?;
+    if let Some(config) = &case.config {
+        environment
+            .config(config)
+            .map_err(|error| error.to_string())?;
+    }
+    let replay = case
+        .replay
+        .as_ref()
+        .map(|name| launch::fixtures().join("replies").join(name));
+    let mut previous = None;
+    for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
+        previous = Some(
+            run_sequence(
+                step,
+                &environment,
+                expectations,
+                registry,
+                replay.as_deref(),
+                previous.as_ref(),
+            )
+            .map_err(|error| format!("{}; step {}: {error}", case.story, index + 1))?,
+        );
+    }
+    previous.ok_or_else(|| "case requires at least one step".into())
+}
+
 fn run_step(
     step: &Step,
     environment: &launch::Environment,
@@ -267,9 +309,6 @@ fn run_step(
                 .map_err(|error| error.to_string())?;
             registry.validate(&value, args, output.status.success())?;
             pathway_budgets::help(&value, args, "cli")?;
-            if !step.phenotype_native_budget {
-                phenotype::budgets::case(&value, args, "cli")?;
-            }
             assertions::check(&output.stdout, step, expectations)?;
             Ok(value)
         })
@@ -279,9 +318,6 @@ fn run_step(
         let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
         pathway_budgets::help(&result, args, "mcp")?;
-        if !step.phenotype_native_budget {
-            phenotype::budgets::case(&result, args, "mcp")?;
-        }
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,

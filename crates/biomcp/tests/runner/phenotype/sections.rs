@@ -102,7 +102,7 @@ fn monarch() -> Result<(), String> {
         ("hierarchy", json!(["super_classes", "sub_classes"])),
     ] {
         let result = invoke(
-            "sections/monarch/invoke1",
+            &format!("sections/monarch/invoke1@section={section}"),
             &env,
             &[
                 "get",
@@ -123,7 +123,12 @@ fn monarch() -> Result<(), String> {
         if section == "synonyms" {
             let words = step(&result, "page", 0)?;
             let words = words.iter().map(String::as_str).collect::<Vec<_>>();
-            let next = invoke("sections/monarch/invoke2", &env, &words, 0)?;
+            let next = invoke(
+                &format!("sections/monarch/invoke2@section={section}"),
+                &env,
+                &words,
+                0,
+            )?;
             if next.pointer("/result/items/0/relationship") != Some(&json!("broad"))
                 || next.pointer("/result/items/1/relationship") != Some(&json!("related"))
             {

@@ -464,7 +464,7 @@ Job j14910 verified all six native command pairs and their original source ident
 
 ## Accounting case ownership and current envelope limits
 
-The synthetic attribution uses every ordinary phenotype case and leaves both opt-in native collections ignored. `tests/phenotype-command-budgets.json` records full-envelope measurements by named command phase and actual surface. CLI measurements include the newline; MCP measurements count compact structured JSON. Each check multiplies its fixed baseline by 115 percent and rounds up. Loops share their phase's largest observed output. The YAML `max_bytes` checks separately retain the existing validated source-terms subtraction and include the CLI newline. The runtime never grants headroom from the output it is checking.
+The synthetic attribution uses every ordinary phenotype case and leaves both opt-in native collections ignored. `tests/phenotype-command-budgets.json` records full-envelope measurements by named command phase and actual surface. CLI measurements include the newline; MCP measurements count compact structured JSON. Markdown help has separate verb-specific measured limits. Each check multiplies its fixed baseline by 115 percent and rounds up. Each loop variant names its source, fault, kind, attempt, section or explicit-limit choice in the fixed key. Ordinary YAML steps keep their own measured limits and do not share an argv budget table. The YAML `max_bytes` checks separately retain the existing validated source-terms subtraction and include the CLI newline. The runtime never grants headroom from the output it is checking.
 
 | Owning case | Behavior and measured phases |
 | --- | --- |

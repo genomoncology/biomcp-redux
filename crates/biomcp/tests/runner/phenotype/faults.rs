@@ -75,6 +75,7 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
     };
     let (env, directory) = seed(
         surface,
+        fault,
         body,
         fault.parse().unwrap_or(200),
         if fault == "timeout" { 20000 } else { 0 },
@@ -82,9 +83,20 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
     let words = args(surface);
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("replay path")?]);
-    let result = invoke("faults/failure/invoke1", &env, &replay, 4)?;
+    let result = invoke(
+        &format!("faults/failure/invoke1@surface={surface},fault={fault}"),
+        &env,
+        &replay,
+        4,
+    )?;
     failed(&result, source(surface))?;
-    budgets::mcp("faults/failure/mcp1", &directory, &words, &result, 4)
+    budgets::mcp(
+        &format!("faults/failure/mcp1@surface={surface},fault={fault}"),
+        &directory,
+        &words,
+        &result,
+        4,
+    )
 }
 fn failed(value: &Value, source: &str) -> Result<(), String> {
     if value.get("status") != Some(&json!("failed"))
@@ -108,6 +120,7 @@ fn failed(value: &Value, source: &str) -> Result<(), String> {
 }
 fn seed(
     surface: &str,
+    fault: &str,
     body: String,
     status: u16,
     delay: u64,
@@ -127,7 +140,12 @@ fn seed(
     // A rejected synthetic seed still records the checked request without provider I/O.
     let mut words = args(surface);
     words.extend(["--record", directory.to_str().ok_or("record path")?]);
-    invoke("faults/seed/invoke1", &env, &words, 4)?;
+    invoke(
+        &format!("faults/seed/invoke1@surface={surface},fault={fault}"),
+        &env,
+        &words,
+        4,
+    )?;
     if stub.finish()?.len() != 1 {
         return Err("seed request count".into());
     }
@@ -186,10 +204,22 @@ fn identity(fault: &str) -> Result<(), String> {
     let mut result = Value::Null;
     for n in 0..2 {
         let directory = env.root().join(format!("identity-{n}"));
-        result = super::record("faults/identity/record1", &env, &words, &directory, 4)?;
+        result = super::record(
+            &format!("faults/identity/record1@fault={fault},attempt={n}"),
+            &env,
+            &words,
+            &directory,
+            4,
+        )?;
         failed(&result, source(surface))?;
         if n == 0 {
-            budgets::mcp("faults/identity/mcp1", &directory, &words, &result, 4)?;
+            budgets::mcp(
+                &format!("faults/identity/mcp1@fault={fault},attempt={n}"),
+                &directory,
+                &words,
+                &result,
+                4,
+            )?;
         }
     }
     if result

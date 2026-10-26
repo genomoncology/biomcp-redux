@@ -167,7 +167,7 @@ fn cards() -> Result<(), String> {
         let env = setup(&stub)?;
         let source = if monarch { "monarch" } else { "hpo" };
         let result = invoke(
-            "mod/cards/invoke1",
+            &format!("mod/cards/invoke1@source={source}"),
             &env,
             &["get", "phenotype", "HP:0000001", "--source", source],
             0,
@@ -235,10 +235,27 @@ fn failures() -> Result<(), String> {
             vec!["search", "phenotype", "synthetic"]
         };
         let directory = env.root().join("failure");
-        let result = record("mod/failures/record1", &env, &words, &directory, 4)?;
-        budgets::mcp("mod/failures/mcp1", &directory, &words, &result, 4)?;
+        let result = record(
+            &format!("mod/failures/record1@kind={kind}"),
+            &env,
+            &words,
+            &directory,
+            4,
+        )?;
+        budgets::mcp(
+            &format!("mod/failures/mcp1@kind={kind}"),
+            &directory,
+            &words,
+            &result,
+            4,
+        )?;
         if kind == 5 {
-            invoke("mod/failures/invoke1", &env, &words, 4)?;
+            invoke(
+                &format!("mod/failures/invoke1@kind={kind}"),
+                &env,
+                &words,
+                4,
+            )?;
         }
         if result.get("status") != Some(&json!("failed")) {
             return Err(format!("source failure became absence: {result}"));
@@ -286,14 +303,24 @@ fn disabled() -> Result<(), String> {
     for component in ["monarch", "hpo", "orphanet"] {
         let mut args = words.to_vec();
         args.extend(["--disable-sources", component]);
-        let result = invoke("mod/disabled/invoke1", &env, &args, 4)?;
+        let result = invoke(
+            &format!("mod/disabled/invoke1@component={component}"),
+            &env,
+            &args,
+            4,
+        )?;
         if result.pointer("/sources/0/state") != Some(&json!("skipped"))
             || result.get("result").is_some()
         {
             return Err("disabled source leaked cached headers".into());
         }
         args.extend(["--replay", directory.to_str().ok_or("record path")?]);
-        let result = invoke("mod/disabled/invoke2", &env, &args, 4)?;
+        let result = invoke(
+            &format!("mod/disabled/invoke2@component={component}"),
+            &env,
+            &args,
+            4,
+        )?;
         if result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err("disabled replay leaked".into());
         }
@@ -351,7 +378,12 @@ fn help() -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     for verb in ["search", "get"] {
-        let result = invoke("mod/help/invoke2", &env, &["help", verb, "phenotype"], 0)?;
+        let result = invoke(
+            &format!("mod/help/invoke2@verb={verb}"),
+            &env,
+            &["help", verb, "phenotype"],
+            0,
+        )?;
         let words = ["help", verb, "phenotype", "--format", "md"].map(String::from);
         let output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &words)
@@ -361,6 +393,11 @@ fn help() -> Result<(), String> {
             return Err("phenotype Markdown help failed".into());
         }
         let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+        budgets::bytes(
+            markdown.len(),
+            &format!("mod/help/markdown@verb={verb}"),
+            "markdown",
+        )?;
         writeln!(
             std::io::stderr(),
             "phenotype {verb} help comparable={} markdown={}",

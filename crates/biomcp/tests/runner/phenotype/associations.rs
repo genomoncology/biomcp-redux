@@ -200,8 +200,20 @@ fn failures() -> Result<(), String> {
         let env = setup(&stub)?;
         let words = ["get", "phenotype", "HP:0001250", "genes"];
         let dir = env.root().join("failures");
-        let result = super::record("associations/failures/record1", &env, &words, &dir, 4)?;
-        budgets::mcp("associations/failures/mcp1", &dir, &words, &result, 4)?;
+        let result = super::record(
+            &format!("associations/failures/record1@kind={kind}"),
+            &env,
+            &words,
+            &dir,
+            4,
+        )?;
+        budgets::mcp(
+            &format!("associations/failures/mcp1@kind={kind}"),
+            &dir,
+            &words,
+            &result,
+            4,
+        )?;
         if result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
             || result.get("result").is_some()
         {
@@ -215,7 +227,12 @@ fn failures() -> Result<(), String> {
             {
                 return Err("bad reply lost its problem".into());
             }
-            invoke("associations/failures/invoke1", &env, &words, 4)?;
+            invoke(
+                &format!("associations/failures/invoke1@kind={kind}"),
+                &env,
+                &words,
+                4,
+            )?;
             if stub.finish()?.len() != 2 {
                 return Err("bad reply entered cache".into());
             }
@@ -236,14 +253,24 @@ fn disabled() -> Result<(), String> {
     for name in ["monarch", "hpo", "orphanet"] {
         let mut args = words.to_vec();
         args.extend(["--disable-sources", name]);
-        let denied = invoke("associations/disabled/invoke1", &env, &args, 4)?;
+        let denied = invoke(
+            &format!("associations/disabled/invoke1@component={name}"),
+            &env,
+            &args,
+            4,
+        )?;
         if denied.pointer("/sources/0/reason") != Some(&json!("disabled"))
             || denied.get("result").is_some()
         {
             return Err("disabled cached association escaped".into());
         }
         args.extend(["--replay", directory.to_str().ok_or("recording path")?]);
-        invoke("associations/disabled/invoke2", &env, &args, 4)?;
+        invoke(
+            &format!("associations/disabled/invoke2@component={name}"),
+            &env,
+            &args,
+            4,
+        )?;
     }
     let mut allowed = words.to_vec();
     allowed.extend(["--disable-sources", "restricted"]);
@@ -279,7 +306,12 @@ fn cards() -> Result<(), String> {
         if explicit {
             words.extend(["--section-limit", "2"]);
         }
-        let card = invoke("associations/cards/invoke1", &env, &words, 0)?;
+        let card = invoke(
+            &format!("associations/cards/invoke1@explicit={explicit}"),
+            &env,
+            &words,
+            0,
+        )?;
         let next = card
             .get("next")
             .and_then(Value::as_array)
@@ -297,7 +329,12 @@ fn cards() -> Result<(), String> {
             if args.contains(&"--snapshot") {
                 return Err("association inherited entity snapshot".into());
             }
-            let page = invoke("associations/cards/invoke2", &env, &args, 0)?;
+            let page = invoke(
+                &format!("associations/cards/invoke2@explicit={explicit},section={section}"),
+                &env,
+                &args,
+                0,
+            )?;
             if page.pointer("/page/returned") != Some(&json!(1)) {
                 return Err("association row omitted".into());
             }

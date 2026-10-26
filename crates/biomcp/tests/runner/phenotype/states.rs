@@ -52,14 +52,14 @@ fn states() -> Result<(), String> {
         };
         let directory = env.root().join("state");
         let result = record(
-            "states/states/record1",
+            &format!("states/states/record1@kind={kind}"),
             &env,
             &args,
             &directory,
             if kind == "failure" { 4 } else { 1 },
         )?;
         budgets::mcp(
-            "states/states/mcp1",
+            &format!("states/states/mcp1@kind={kind}"),
             &directory,
             &args,
             &result,
@@ -111,23 +111,45 @@ fn disabled(source: &str) -> Result<(), String> {
     let env = setup(&stub)?;
     let words = ["get", "phenotype", "HP:0000001", "--source", source];
     let directory = env.root().join("warm");
-    record("states/disabled/record1", &env, &words, &directory, 0)?;
+    record(
+        &format!("states/disabled/record1@source={source}"),
+        &env,
+        &words,
+        &directory,
+        0,
+    )?;
     let mut args = words.to_vec();
     args.extend(["--fresh", "--disable-sources", source]);
-    let result = invoke("states/disabled/invoke1", &env, &args, 4)?;
+    let result = invoke(
+        &format!("states/disabled/invoke1@source={source}"),
+        &env,
+        &args,
+        4,
+    )?;
     if result.pointer("/sources/0/state") != Some(&json!("skipped"))
         || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
         || result.get("result").is_some()
     {
         return Err(format!("disabled fresh leaked cache: {result}"));
     }
-    budgets::mcp("states/disabled/mcp1", &directory, &args, &result, 4)?;
+    budgets::mcp(
+        &format!("states/disabled/mcp1@source={source}"),
+        &directory,
+        &args,
+        &result,
+        4,
+    )?;
     if stub.finish()?.len() != 1 {
         return Err("disabled fresh reached source".into());
     }
     // A new isolated environment also skips without requiring any populated cache.
     let cold = Environment::new().map_err(|e| e.to_string())?;
-    let cold_result: Value = invoke("states/disabled/invoke2", &cold, &args, 4)?;
+    let cold_result: Value = invoke(
+        &format!("states/disabled/invoke2@source={source}"),
+        &cold,
+        &args,
+        4,
+    )?;
     if cold_result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("cold disabled source touched cache".into());
     }

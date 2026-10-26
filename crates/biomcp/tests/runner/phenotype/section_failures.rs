@@ -25,7 +25,7 @@ pub(super) fn run() -> Result<(), String> {
         let words = ["get", "phenotype", "HP:0000001", "synonyms"];
         let directory = env.root().join("section-failure");
         record(
-            "section_failures/run/record1",
+            &format!("section_failures/run/record1@kind={kind}"),
             &env,
             &words,
             &directory,
@@ -37,7 +37,12 @@ pub(super) fn run() -> Result<(), String> {
         }
         let mut args = words.to_vec();
         args.extend(["--replay", directory.to_str().ok_or("replay path")?]);
-        let result = invoke("section_failures/run/invoke1", &env, &args, 4)?;
+        let result = invoke(
+            &format!("section_failures/run/invoke1@kind={kind}"),
+            &env,
+            &args,
+            4,
+        )?;
         if result.get("status") != Some(&json!("failed"))
             || result.get("result").is_some()
             || result.pointer("/sources/0/terms").is_none()
@@ -47,7 +52,13 @@ pub(super) fn run() -> Result<(), String> {
                 "section failure lost source or became absence: {result}"
             ));
         }
-        budgets::mcp("section_failures/run/mcp1", &directory, &words, &result, 4)?;
+        budgets::mcp(
+            &format!("section_failures/run/mcp1@kind={kind}"),
+            &directory,
+            &words,
+            &result,
+            4,
+        )?;
     }
     Ok(())
 }
