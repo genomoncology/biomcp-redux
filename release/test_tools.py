@@ -37,6 +37,19 @@ class DesktopTools(unittest.TestCase):
             manifest.write_text(json.dumps(value))
             result = self.check(root)
             self.assertEqual(result.returncode, 0, result.stderr)
+            original = source.read_text()
+            mutations = [
+                ('[("fourth", "query", "A \\"quoted\\" tool", "fake/1"), ("search",', "desktop manifest tools differ"),
+                ('[(name(), "query", "A computed tool", "fake/1"), ("search",', "unrecognized server tool declarations"),
+            ]
+            value["tools"] = [tool for tool in value["tools"] if tool["name"] != "fourth"]
+            manifest.write_text(json.dumps(value))
+            for replacement, error in mutations:
+                with self.subTest(replacement=replacement):
+                    source.write_text(original.replace('[("fourth", "query", "A fake fourth tool", "fake/1"), ("search",', replacement, 1))
+                    result = self.check(root)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(error, result.stderr)
 
     @unittest.skipIf(sys.platform == "win32", "the local executable stub uses a POSIX shebang")
     def test_bundle_descriptions_come_from_candidate_tools_list(self):
