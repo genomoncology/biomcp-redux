@@ -155,6 +155,10 @@
     428,
     427
   ],
+  "gwas_get/state/expired/3": [
+    245,
+    244
+  ],
   "gwas_get/state/stale/1": [
     1612,
     1611
@@ -350,6 +354,10 @@
   "gwas_search/state/expired/2": [
     746,
     745
+  ],
+  "gwas_search/state/expired/3": [
+    220,
+    219
   ],
   "gwas_search/state/literal/1": [
     513,

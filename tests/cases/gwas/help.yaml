@@ -40,7 +40,9 @@
           ]
         },
         "/result/commands/0/description": "Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic."
-      }
+      },
+      "max_bytes": 2714,
+      "max_tokens": 679
     },
     {
       "run": [
@@ -77,7 +79,9 @@
           "associations",
           "ancestries"
         ]
-      }
+      },
+      "max_bytes": 1617,
+      "max_tokens": 404
     }
   ]
 }

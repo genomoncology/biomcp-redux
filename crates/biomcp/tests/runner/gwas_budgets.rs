@@ -1,7 +1,6 @@
 //! Named full-envelope command phases; native replay budgets remain independently owned.
 use super::{configuration, launch::Environment, mcp};
 use serde_json::Value;
-use std::io::Write;
 
 pub(super) fn invoke(
     phase: &str,
@@ -44,19 +43,13 @@ pub(super) fn invoke(
             "/../../tests/gwas-synthetic-budgets.json"
         )))
         .map_err(|e| e.to_string())?;
-    if let Some([cli_limit, mcp_limit]) = measured.get(phase)
-        && (cli_bytes > (cli_limit * 115).div_ceil(100)
-            || mcp_bytes > (mcp_limit * 115).div_ceil(100))
-    {
+    let [cli_limit, mcp_limit] = measured
+        .get(phase)
+        .ok_or_else(|| format!("GWAS phase lacks measurement: {phase}"))?;
+    if cli_bytes > (cli_limit * 115).div_ceil(100) || mcp_bytes > (mcp_limit * 115).div_ceil(100) {
         return Err(format!(
             "GWAS phase {phase} exceeds measured CLI/MCP ceiling"
         ));
     }
-    writeln!(
-        std::io::stdout(),
-        "GWAS_OUTPUT {}",
-        serde_json::json!({"phase":phase,"cli":cli_bytes,"mcp":mcp_bytes})
-    )
-    .map_err(|e| e.to_string())?;
     Ok(cli)
 }

@@ -18,7 +18,9 @@
       "expect": {
         "/status": "complete",
         "/result/association/id": 6114
-      }
+      },
+      "max_bytes": 851,
+      "max_tokens": 213
     },
     {
       "run": [
@@ -34,7 +36,9 @@
       "expect": {
         "/status": "complete",
         "/result/id": "GCST000035"
-      }
+      },
+      "max_bytes": 831,
+      "max_tokens": 208
     }
   ]
 }
