@@ -8,7 +8,12 @@ pub(super) fn run() -> Result<(), String> {
         path(&value, "/status", json!("complete"))?;
     }
     let requests = stub.finish()?;
-    if requests.iter().filter(|(_, r)| r.contains("/cell-line/CVCL_2119?")).count() != 1 {
+    if requests
+        .iter()
+        .filter(|(_, r)| r.contains("/cell-line/CVCL_2119?"))
+        .count()
+        != 1
+    {
         return Err("independent section pages did not reuse the checked complete card".into());
     }
     Ok(())

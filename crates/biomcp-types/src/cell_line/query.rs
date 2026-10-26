@@ -145,6 +145,12 @@ impl CellLineGet {
         self.0.section = Some(section);
         self
     }
+    /// Continue the same independently requested section.
+    pub fn at_section_offset(&self, offset: u32) -> Self {
+        let mut query = self.clone();
+        query.0.section_offset = offset;
+        query
+    }
     /// Caller identity without normalization.
     pub fn id(&self) -> &CellLineInput {
         &self.0.id

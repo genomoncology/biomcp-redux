@@ -1,6 +1,7 @@
 //! Literal source discovery and exact cell identity; no name-based joins.
 mod get;
 mod provenance;
+mod sections;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::cellosaurus;
 use biomcp_types::{
