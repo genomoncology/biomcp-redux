@@ -25,7 +25,7 @@ const SHAPES: &[Shape] = &[
             "limit",
             "pool",
             "source",
-            "Topic-wide author ranking is unavailable.",
+            "Topic-wide author ranking and cross-provider merging are unavailable.",
         ],
         max_bytes: 1839,
     },
