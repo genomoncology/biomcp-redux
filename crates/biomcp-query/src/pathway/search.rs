@@ -145,6 +145,7 @@ fn fetch(
     Ok(snapshot::Saved {
         body,
         complete,
+        catalog_revision: None,
         sources: out.sources.clone(),
         problems: out.problems.clone(),
     })

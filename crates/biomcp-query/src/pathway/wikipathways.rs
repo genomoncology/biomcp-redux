@@ -15,9 +15,9 @@ pub(super) fn headers(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, o
     let reply = wikipathways::search(&leg, q.query().map_or("", |v| v.as_str()));
     let error = reply.as_ref().err().copied();
     out.sources.push(status::source(Source::WikiPathways, leg.finish(), error));
-    let (items, _) = reply?;
+    let (items, info) = reply?;
     let total = items.len() as u64;
-    Ok(snapshot::Saved { body: PathwayPage { items: items.into(), page: PathwayPageInfo { offset: 0, returned: total as u32, total, total_kind: PathwayTotalKind::Observed, next_offset: None, pool: None } }, complete: true, sources: out.sources.clone(), problems: vec![] })
+    Ok(snapshot::Saved { body: PathwayPage { items: items.into(), page: PathwayPageInfo { offset: 0, returned: total as u32, total, total_kind: PathwayTotalKind::Observed, next_offset: None, pool: None } }, complete: true, catalog_revision: info.content_revision.and_then(|s|s.parse().ok()), sources: out.sources.clone(), problems: vec![] })
 }
 /// Exact stored human WikiPathways metadata, without an implicit refresh.
 pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
