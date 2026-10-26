@@ -189,8 +189,8 @@ pub(crate) fn tree() -> String {
     };
     let mut lines = vec![
         "help CMD;schema ID".into(),
-        "Paging where offered: --limit --offset; sections --section-limit --section-offset".into(),
-        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; default p-value-ascending; --p-value requires this order".into(),
+        "Pages --limit --offset; sections --section-limit --section-offset".into(),
+        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
     ];
     for command in commands {
         if command.command.first().is_none_or(|verb| {

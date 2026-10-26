@@ -448,7 +448,7 @@ const DISCOVERY_WORDS: &[&str] = &[
     "cosmic",
     "search gwas --extended-geneset --gene --include-child-traits --p-value --pool --pubmed query --study --trait --trait-id --variant",
     "get gwas id section --snapshot :loci|associations|ancestries",
-    "default p-value-ascending; --p-value requires this order",
+    "--p-value requires default p-value-ascending",
     "no personal risk, causal variant/gene or clinical statistic interpretation",
     "hotspots",
 ];
