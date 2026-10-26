@@ -3,7 +3,6 @@ use super::{rows, seed};
 use crate::runner::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 use std::{fs, io::Write, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
@@ -35,25 +34,36 @@ fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
     recording(replay, section, body, status, 0)
 }
 fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64) -> Check {
-    let url =
-        format!("https://www.cbioportal.org/api/studies/synthetic_0/{section}?projection=DETAILED");
-    let key = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
-        .iter()
-        .map(|v| format!("{v:02x}"))
-        .collect::<String>();
-    let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
-    let exchanges = if matches!(status, 429 | 500) {
-        vec![exchange; 3]
-    } else {
-        vec![exchange]
-    };
-    let value = json!({"source":"cbioportal","method":"GET","url":url,"exchanges":exchanges});
-    fs::write(
-        replay.join("cbioportal").join(format!("{key}.json")),
-        value.to_string(),
-    )
-    .map_err(|e| e.to_string())
+    let stub = crate::runner::network_stub::Stub::for_source(
+        "www.cbioportal.org", "application/json", synthetic_reply,
+    )?;
+    let env = crate::runner::variant::source_environment(&stub)?;
+    crate::runner::configuration::invoke(&env, vec!["sync".into(), "cbioportal-studies".into()], 0)?;
+    let directory = env.root().join("recorded");
+    let selected = if section == "molecular-profiles" { "profiles" } else { section };
+    crate::runner::configuration::invoke(&env,
+        ["get", "study", "synthetic_0", selected, "--record", directory.to_str().ok_or("recording path")?]
+        .map(str::to_owned).to_vec(), 0)?;
+    if stub.finish()?.len() != 2 {
+        return Err("synthetic study recording changed request count".into());
+    }
+    for file in fs::read_dir(directory.join("cbioportal")).map_err(|e| e.to_string())? {
+        let file = file.map_err(|e| e.to_string())?;
+        let mut value: Value = serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+        let exchanges = if matches!(status, 429 | 500) { vec![exchange;3] } else { vec![exchange] };
+        *value.get_mut("exchanges").ok_or("recorded exchanges")? = json!(exchanges);
+        fs::write(replay.join("cbioportal").join(file.file_name()), value.to_string()).map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
+fn synthetic_reply(request: &str) -> Result<String, String> {
+    Ok(if request.contains("/molecular-profiles?") { profiles() }
+       else if request.contains("/sample-lists?") { lists() }
+       else { rows() }.to_string())
+}
+
 fn pages() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
