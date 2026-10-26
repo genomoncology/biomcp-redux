@@ -1,6 +1,7 @@
 # 0240 — Add the phenotype diseases and genes association sections from Monarch
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2c83415508f53280d9c9afc7f9e94b7380d864fa
 
 Milestone: 4
 

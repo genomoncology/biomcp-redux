@@ -1,6 +1,7 @@
 # 0224 — Add WikiPathways genes from the exact per-pathway GPML
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 61f0dd284db0d06e436b4faa63df6299354031fc
 
 Milestone: 4
 

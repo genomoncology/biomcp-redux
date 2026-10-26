@@ -1,6 +1,7 @@
 # 0237 — Prove GWAS usage errors, retirements and failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9463374033ceef7a06d460c867ae73ceb555d4ef
 
 Milestone: 4
 
