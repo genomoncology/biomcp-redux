@@ -1,6 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
-mod gwas;
+pub(crate) mod gwas;
 mod local;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
@@ -51,7 +51,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
-        Request::SearchGwas(_) => "biomcp.gwas-search/1",
+        Request::SearchGwas(_) => "biomcp.gwas-search/2",
         Request::SearchProtein(_) => "biomcp.protein-search/1",
         Request::GetProtein(_) => "biomcp.protein-get/1",
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
@@ -95,7 +95,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
-    ("search", "gwas", "biomcp.gwas-search/1"),
+    ("search", "gwas", "biomcp.gwas-search/2"),
     ("search", "protein", "biomcp.protein-search/1"),
     ("get", "protein", "biomcp.protein-get/1"),
     ("search", "phenotype", "biomcp.phenotype-search-query/1"),

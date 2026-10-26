@@ -41,7 +41,7 @@ singleton! {
 
 singleton! {
     /// Fixed input-free error and migration guidance.
-    pub ErrorMessage { GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred", SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+    pub ErrorMessage { GwasThreshold => "--p-value threshold must be a positive probability in scientific notation", SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         AdverseFrom => "renamed; use: --received-from",
@@ -284,6 +284,12 @@ impl ErrorEnvelope {
                 message: ErrorMessage::Arguments,
             },
         }
+    }
+    /// Explain the exact positive threshold boundary before source access.
+    pub fn gwas_threshold() -> Self {
+        let mut error = Self::arguments();
+        error.error.message = ErrorMessage::GwasThreshold;
+        error
     }
     /// Explain explicit NCI identity and keyword modes.
     pub fn nci_disease() -> Self {

@@ -70,10 +70,10 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
     pubmed: Option<Pmid>,
-    /// Inclusive exact threshold under native ascending order.
+    /// Inclusive positive probability in scientific notation, such as 1e-5. The qualifying total stays unknown until the ordered walk reaches its end.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[serde(with = "threshold")]
-    #[cfg_attr(feature = "schema", schemars(with = "Option<String>"))]
+    #[cfg_attr(feature = "schema", schemars(with = "String"))]
     p_value: Option<ScientificPValue>,
     /// Source child-trait expansion; requires trait_id.
     #[serde(default)]
@@ -89,7 +89,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
     /// Retained threshold walk identity; requires a threshold.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
     /// Native association offset.

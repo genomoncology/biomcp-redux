@@ -69,7 +69,7 @@ const TRIAL_SEARCH: &[(&str, ErrorMessage)] = &[
     ("--offset", ErrorMessage::TrialPage),
     ("--no-alias-expand", ErrorMessage::TrialNoExpansion),
 ];
-const GWAS_SEARCH: &[(&str, ErrorMessage)] = &[("--p-value", ErrorMessage::GwasThreshold)];
+const GWAS_SEARCH: &[(&str, ErrorMessage)] = &[];
 const ARTICLE_GET: &[(&str, ErrorMessage)] = &[
     ("--pdf", ErrorMessage::ArticlePdf),
     ("--outline", ErrorMessage::Fulltext),

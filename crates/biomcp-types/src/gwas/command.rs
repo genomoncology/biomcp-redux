@@ -1,5 +1,5 @@
 //! CLI grammar derived from the standalone checked association search.
-/// Search command grammar omits the fixed source order and deferred threshold.
+/// Search command grammar omits the fixed source order.
 #[cfg(feature = "schema")]
 #[derive(Debug)]
 pub struct GwasSearchCommand;
@@ -12,7 +12,6 @@ impl schemars::JsonSchema for GwasSearchCommand {
         let mut schema = super::GwasSearch::json_schema(generator);
         if let Some(fields) = schema.get_mut("properties").and_then(|v| v.as_object_mut()) {
             fields.remove("order");
-            fields.remove("p_value");
             if let Some(gene) = fields.get("gene").cloned() {
                 let mut query = gene;
                 if let Some(object) = query.as_object_mut() {
