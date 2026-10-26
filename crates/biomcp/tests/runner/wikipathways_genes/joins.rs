@@ -1,5 +1,6 @@
 //! Exact xref namespaces resolve through approved identifiers, without aliases or labels.
-use super::{Check, Stub, Value, invoke, json};
+use super::{Check, Stub, Value, json};
+use crate::runner::pathway_budgets as budgets;
 const HGNC: &str = "hgnc_id\tsymbol\tname\tlocus_group\tstatus\tentrez_id\tensembl_gene_id\talias_symbol\nHGNC:1\tSYNTHONE\tSynthetic one\tprotein-coding gene\tApproved\t101\tENSG00000000001\tALIASONE\nHGNC:2\tSYNTHTWO\tSynthetic two\tprotein-coding gene\tApproved\t102\tENSG00000000002\t\n";
 fn body() -> String {
     let mut xml = String::from(
@@ -26,9 +27,15 @@ pub(super) fn run() -> Check {
     let stub = peer()?;
     let env = super::super::variant::source_environment(&stub)?;
     for source in ["wikipathways", "hgnc"] {
-        invoke(&env, vec!["sync".into(), source.into()], 0)?;
+        budgets::invoke(
+            "wikipathways_genes/joins/run/1",
+            &env,
+            vec!["sync".into(), source.into()],
+            0,
+        )?;
     }
-    let value = invoke(
+    let value = budgets::invoke(
+        "wikipathways_genes/joins/run/2",
         &env,
         vec!["pathway".into(), "genes".into(), "WP382".into()],
         0,
@@ -67,7 +74,7 @@ pub(super) fn run() -> Check {
         serde_json::from_value(last.get("args").ok_or("page args")?.clone())
             .map_err(|e| e.to_string())?;
     args.push("--offline".into());
-    let page = invoke(&env, args, 0)?;
+    let page = budgets::invoke("wikipathways_genes/joins/run/3", &env, args, 0)?;
     if page
         .pointer("/result/items")
         .and_then(Value::as_array)

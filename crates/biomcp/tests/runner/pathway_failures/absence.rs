@@ -10,13 +10,25 @@ pub(super) fn run() -> Check {
     for body in [json!({"message":"Not found"}), foreign] {
         fixtures::replace(&root, "/search/query", &body.to_string(), 404, 0)?;
         let env = Environment::new().map_err(|e| e.to_string())?;
-        let value = call(&env, &root, &["search", "pathway", "Synthetic"], 4)?;
+        let value = call(
+            "pathway_failures/absence/run/1",
+            &env,
+            &root,
+            &["search", "pathway", "Synthetic"],
+            4,
+        )?;
         failed(&value, "bad_reply")?;
         uncached(&env, "/search/query")?;
     }
     fixtures::replace(&root, "/search/query", &empty.to_string(), 404, 0)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let value = call(&env, &root, &["search", "pathway", "Synthetic"], 1)?;
+    let value = call(
+        "pathway_failures/absence/run/2",
+        &env,
+        &root,
+        &["search", "pathway", "Synthetic"],
+        1,
+    )?;
     if value.get("status") != Some(&json!("absent"))
         || value.pointer("/result/page/total") != Some(&json!(0))
     {

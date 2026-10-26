@@ -1,0 +1,17 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST000035",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"accession_id\": \"GCST000035\", \"pubmed_id\": 17529967, \"disease_trait\": \"Synthetic trait\", \"efo_traits\": [], \"discovery_ancestry\": [], \"replication_ancestry\": [], \"genotyping_technologies\": [], \"initial_sample_size\": \"Synthetic sample text\", \"replication_sample_size\": \"Synthetic replication text\"}"
+      }
+    }
+  ]
+}

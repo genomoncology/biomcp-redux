@@ -1,0 +1,81 @@
+{
+  "feature": "pathway-reactome",
+  "story": "Published relation examples retain exact source references and bounded source-ordered event rows.",
+  "replay": "pathway/sections",
+  "steps": [
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "R-HSA-5673001"
+      ],
+      "mcp": [
+        "pathway",
+        "genes",
+        "R-HSA-5673001"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/reference/value": "P15056"
+      },
+      "max_bytes": 2555
+    },
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "R-HSA-5673001",
+        "details"
+      ],
+      "mcp": [
+        "pathway",
+        "genes",
+        "R-HSA-5673001",
+        "details"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/physical_context_count": 29
+      },
+      "max_bytes": 12156
+    },
+    {
+      "run": [
+        "pathway",
+        "events",
+        "R-HSA-5673001"
+      ],
+      "mcp": [
+        "pathway",
+        "events",
+        "R-HSA-5673001"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/limit": 5
+      },
+      "max_bytes": 2035
+    },
+    {
+      "run": [
+        "pathway",
+        "events",
+        "R-HSA-5673001",
+        "--limit",
+        "50"
+      ],
+      "mcp": [
+        "pathway",
+        "events",
+        "R-HSA-5673001",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/limit": 50
+      },
+      "max_bytes": 11203
+    }
+  ]
+}

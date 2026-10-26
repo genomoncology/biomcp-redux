@@ -72,6 +72,7 @@ mod next_navigation;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
+mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
 mod pathway_registry;
@@ -307,6 +308,7 @@ fn run_step(
             let value = serde_json::from_slice::<Value>(&output.stdout)
                 .map_err(|error| error.to_string())?;
             registry.validate(&value, args, output.status.success())?;
+            pathway_budgets::help(&value, args, "cli")?;
             assertions::check(&output.stdout, step, expectations)?;
             Ok(value)
         })
@@ -315,16 +317,25 @@ fn run_step(
     if let Some(args) = &step.mcp {
         let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
+        pathway_budgets::help(&result, args, "mcp")?;
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,
             expectations,
         )?;
         answer = Some(result.clone());
-        if let Some(cli) = cli.as_ref()
-            && let Some(diff) = assertions::difference(cli, &result, "")
-        {
-            return Err(format!("CLI/MCP parity: unequal results at {diff}"));
+        if let Some(cli) = cli.as_ref() {
+            let mut comparable = result.clone();
+            // Repeated explicit syncs may acquire the same source in different seconds.
+            if args.first().is_some_and(|verb| verb == "sync")
+                && let Some(acquired) = cli.pointer("/result/snapshot/acquired")
+                && let Some(value) = comparable.pointer_mut("/result/snapshot/acquired")
+            {
+                *value = acquired.clone();
+            }
+            if let Some(diff) = assertions::difference(cli, &comparable, "") {
+                return Err(format!("CLI/MCP parity: unequal results at {diff}"));
+            }
         }
     }
     answer.ok_or_else(|| "step requires run or mcp".into())
@@ -573,6 +584,7 @@ pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), S
     faers_search::record_examples(directory)
 }
 
+mod gwas_budgets;
 mod gwas_get;
 mod gwas_search;
 pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {

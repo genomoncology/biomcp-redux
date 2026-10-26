@@ -54,7 +54,7 @@ The investigation listed 16 article-family command spellings and 88 arguments, o
 
 ### Leaf-command parity accounting
 
-The historical denominator counts leaves and command-specific long option spellings; short aliases share their option's slot. Long aliases such as `--since` are distinct historical spellings. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` remains undecided until the pathway slice chooses its inputs.
+The historical denominator counts leaves and command-specific long option spellings; short aliases share their option's slot. Long aliases such as `--since` are distinct historical spellings. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` is accounted by the pathway slice under its retirement ruling.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
@@ -71,7 +71,6 @@ The historical denominator counts leaves and command-specific long option spelli
 | `article recommendations` | Ported or renamed | `--negative`, `--limit` | — | — | Section 5 preserves native positive and negative seed recommendations. |
 | `variant articles` | Ported or renamed | `--limit`, `--offset` | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | — | The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice. |
 | `disease articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 moves the capability to search article --disease. |
-| `pathway articles` | Not yet decided | — | — | `--limit`, `--offset` | Section 5 moves pathway identifiers and paging to the pathway slice; the retired spelling names that move. |
 <!-- /parity-accounting -->
 
 ### Speed and size

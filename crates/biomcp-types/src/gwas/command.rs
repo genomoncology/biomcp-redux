@@ -1,5 +1,5 @@
 //! CLI grammar derived from the standalone checked association search.
-/// Search command grammar omits the fixed source order.
+/// Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 #[cfg(feature = "schema")]
 #[derive(Debug)]
 pub struct GwasSearchCommand;
@@ -12,6 +12,9 @@ impl schemars::JsonSchema for GwasSearchCommand {
         let mut schema = super::GwasSearch::json_schema(generator);
         if let Some(fields) = schema.get_mut("properties").and_then(|v| v.as_object_mut()) {
             fields.remove("order");
+            if let Some(value) = fields.get_mut("p_value").and_then(|v| v.as_object_mut()) {
+                value.insert("description".into(), "Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end.".into());
+            }
             if let Some(gene) = fields.get("gene").cloned() {
                 let mut query = gene;
                 if let Some(object) = query.as_object_mut() {
@@ -24,7 +27,7 @@ impl schemars::JsonSchema for GwasSearchCommand {
     }
 }
 
-/// Get command grammar selects an association or study by its checked native identifier.
+/// Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 #[cfg(feature = "schema")]
 #[derive(Debug, schemars::JsonSchema)]
 pub struct GwasGetCommand {

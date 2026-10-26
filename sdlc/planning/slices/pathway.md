@@ -17,34 +17,34 @@ The source capture asks 24 literal pathway queries. These are adapted research p
 <!-- question-bank -->
 These 26 paper-derived retrieval questions are paraphrases, not quotations. Each accepted answer is a source identity, source reference or membership observation. Release97 qualifies the Reactome observations. Empty and failure controls follow separately.
 
-| # | Research question | Published anchor | Accepted source-bound answer |
-| --- | --- | --- | --- |
-| 1 | Which human MAPK-mutant pathway carries the source citation for the cervical cancer study? | [PMID24390348](https://pubmed.ncbi.nlm.nih.gov/24390348/); [native card](https://reactome.org/content/detail/R-HSA-9652817) | `R-HSA-9652817` — Signaling by MAPK mutants; `Homo sapiens`; `R-HSA-9652817.2`. Native card references PMID24390348. |
-| 2 | Which pathway record contains the BRAF fusion context discussed in pilocytic astrocytoma research? | [PMID18974108](https://pubmed.ncbi.nlm.nih.gov/18974108/); [native card](https://reactome.org/content/detail/R-HSA-6802952) | `R-HSA-6802952` — Signaling by BRAF and RAF1 fusions; `Homo sapiens`; `R-HSA-6802952.3`. Native card references PMID18974108. |
-| 3 | What is the exact human pathway record for EGFR signaling? | [PMID15142631](https://pubmed.ncbi.nlm.nih.gov/15142631/); [native card](https://reactome.org/content/detail/R-HSA-177929) | `R-HSA-177929` — Signaling by EGFR; `Homo sapiens`; `R-HSA-177929.6`. Native card references PMID15142631. |
-| 4 | Which human Hippo signaling record can support retrieval of the pathway studied in tumor signaling research? | [PMID20951342](https://pubmed.ncbi.nlm.nih.gov/20951342/); [native card](https://reactome.org/content/detail/R-HSA-2028269) | `R-HSA-2028269` — Signaling by Hippo; `Homo sapiens`; `R-HSA-2028269.3`. Native card references PMID20951342. |
-| 5 | Which ALK signaling pathway cites the NPM-ALK lymphoma fusion study? | [PMID8122112](https://pubmed.ncbi.nlm.nih.gov/8122112/); [native card](https://reactome.org/content/detail/R-HSA-201556) | `R-HSA-201556` — Signaling by ALK; `Homo sapiens`; `R-HSA-201556.5`. Native card references PMID8122112. |
-| 6 | Which NTRK1 signaling record cites the Trk receptor signaling review? | [PMID12676795](https://pubmed.ncbi.nlm.nih.gov/12676795/); [native card](https://reactome.org/content/detail/R-HSA-187037) | `R-HSA-187037` — Signaling by NTRK1 (TRKA); `Homo sapiens`; `R-HSA-187037.4`. Native card references PMID12676795. |
-| 7 | Which human DNA repair record cites DNA repair dysregulation research? | [PMID23175119](https://pubmed.ncbi.nlm.nih.gov/23175119/); [native card](https://reactome.org/content/detail/R-HSA-73894) | `R-HSA-73894` — DNA Repair; `Homo sapiens`; `R-HSA-73894.5`. Native card references PMID23175119. |
-| 8 | Which source record describes homology-directed repair through homologous recombination? | [PMID20965415](https://pubmed.ncbi.nlm.nih.gov/20965415/); [native card](https://reactome.org/content/detail/R-HSA-5685942) | `R-HSA-5685942` — HDR through Homologous Recombination (HRR); `Homo sapiens`; `R-HSA-5685942.4`. Native card references PMID20965415. |
-| 9 | Which mismatch repair pathway cites the research review on defects in Lynch syndrome? | [PMID23572416](https://pubmed.ncbi.nlm.nih.gov/23572416/); [native card](https://reactome.org/content/detail/R-HSA-5358508) | `R-HSA-5358508` — Mismatch Repair; `Homo sapiens`; `R-HSA-5358508.3`. Native card references PMID23572416. |
-| 10 | Which TP53 pathway records transcription of death receptors and ligands? | [PMID10777207](https://pubmed.ncbi.nlm.nih.gov/10777207/); [native card](https://reactome.org/content/detail/R-HSA-6803211) | `R-HSA-6803211` — TP53 Regulates Transcription of Death Receptors and Ligands; `Homo sapiens`; `R-HSA-6803211.2`. Native card references PMID10777207. |
-| 11 | Which human apoptosis record cites the apoptosis-and-disease review? | [PMID15218528](https://pubmed.ncbi.nlm.nih.gov/15218528/); [native card](https://reactome.org/content/detail/R-HSA-109581) | `R-HSA-109581` — Apoptosis; `Homo sapiens`; `R-HSA-109581.6`. Native card references PMID15218528. |
-| 12 | Which exact human Cell Cycle record provides pathway context for the TCGA signaling study? | [PMID29625050](https://pubmed.ncbi.nlm.nih.gov/29625050/); [native card](https://reactome.org/content/detail/R-HSA-1640170) | `R-HSA-1640170` — Cell Cycle; `Homo sapiens`; `R-HSA-1640170.5`. Paper supplies the retrieval topic; the source card supplies identity. |
-| 13 | Which WNT pathway carries the source references for beta-catenin signaling and disease? | [PMID19619488](https://pubmed.ncbi.nlm.nih.gov/19619488/); [native card](https://reactome.org/content/detail/R-HSA-195721) | `R-HSA-195721` — Signaling by WNT; `Homo sapiens`; `R-HSA-195721.7`. Native card references PMID19619488. |
-| 14 | Which exact human NOTCH signaling record provides source context for the TCGA signaling study? | [PMID29625050](https://pubmed.ncbi.nlm.nih.gov/29625050/); [native card](https://reactome.org/content/detail/R-HSA-157118) | `R-HSA-157118` — Signaling by NOTCH; `Homo sapiens`; `R-HSA-157118.7`. Paper supplies the retrieval topic; the source card supplies identity. |
-| 15 | Which Hedgehog signaling pathway cites the development-and-cancer review? | [PMID19081070](https://pubmed.ncbi.nlm.nih.gov/19081070/); [native card](https://reactome.org/content/detail/R-HSA-5358351) | `R-HSA-5358351` — Signaling by Hedgehog; `Homo sapiens`; `R-HSA-5358351.5`. Native card references PMID19081070. |
-| 16 | Which pathway specifically records gene and protein expression after IL-12 stimulation? | [PMID16038020](https://pubmed.ncbi.nlm.nih.gov/16038020/); [native card](https://reactome.org/content/detail/R-HSA-8950505) | `R-HSA-8950505` — Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation; `Homo sapiens`; `R-HSA-8950505.5`. Native card references PMID16038020. |
-| 17 | Which human autophagy record cites the autophagosome biogenesis review? | [PMID24296784](https://pubmed.ncbi.nlm.nih.gov/24296784/); [native card](https://reactome.org/content/detail/R-HSA-9612973) | `R-HSA-9612973` — Autophagy; `Homo sapiens`; `R-HSA-9612973.4`. Native card references PMID24296784. |
-| 18 | Which insulin receptor pathway cites the insulin signaling review? | [PMID11282018](https://pubmed.ncbi.nlm.nih.gov/11282018/); [native card](https://reactome.org/content/detail/R-HSA-74751) | `R-HSA-74751` — Insulin receptor signalling cascade; `Homo sapiens`; `R-HSA-74751.5`. Native card references PMID11282018. |
-| 19 | Which interferon signaling pathway cites the type-I/type-II signaling review? | [PMID15864272](https://pubmed.ncbi.nlm.nih.gov/15864272/); [native card](https://reactome.org/content/detail/R-HSA-913531) | `R-HSA-913531` — Interferon Signaling; `Homo sapiens`; `R-HSA-913531.6`. Native card references PMID15864272. |
-| 20 | Which exact Reactome record corresponds to the Reactome2024 paper example for AKT1 E17K? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-5674400` — Constitutive Signaling by AKT1 E17K in Cancer; `Homo sapiens`; `R-HSA-5674400.3`. This identifies the published example without inferring a treatment effect. |
-| 21 | Which exact Reactome record corresponds to the Reactome2024 paper example for PI3K/AKT signaling in cancer? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-2219528` — PI3K/AKT Signaling in Cancer; `Homo sapiens`; `R-HSA-2219528.4`. This identifies the published example without inferring a treatment effect. |
-| 22 | Which exact Reactome record corresponds to the Reactome2024 paper example for ERBB2 signaling in cancer? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-1227990` — Signaling by ERBB2 in Cancer; `Homo sapiens`; `R-HSA-1227990.6`. This identifies the published example without inferring a treatment effect. |
-| 23 | Which exact Reactome record corresponds to the Reactome2024 paper example for ribavirin disposition? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-9755088` — Ribavirin ADME; `Homo sapiens`; `R-HSA-9755088.3`. This identifies the published example without inferring a treatment effect. |
-| 24 | Which exact BRAF reference appears among RAF/MAPK physical participants? | [PMID12068308](https://pubmed.ncbi.nlm.nih.gov/12068308/); captured RAF/MAPK participants | `uniprot:P15056`, `ReferenceGeneProduct`, native label `UniProt:P15056 BRAF`. This is source-stated membership, not actionability. |
-| 25 | Which KRAS isoforms does the source preserve in RAF/MAPK participants? | [PMID17496910](https://pubmed.ncbi.nlm.nih.gov/17496910/); captured RAF/MAPK participants | `uniprot:P01116-1` and `uniprot:P01116-2`, both `ReferenceIsoform`; preserve both and require an exact approved gene join. |
-| 26 | Which MAP2K1 and MAP2K2 identifiers can support the next gene lookup? | [PMID22177953](https://pubmed.ncbi.nlm.nih.gov/22177953/); captured RAF/MAPK participants | `uniprot:Q02750` and `uniprot:P36507`; retain namespace and resolve through the existing checked HGNC map rather than extracting symbols. |
+| # | Research question | Published anchor | Accepted source-bound answer | Answer status and case |
+| --- | --- | --- | --- | --- |
+| 1 | Which human MAPK-mutant pathway carries the source citation for the cervical cancer study? | [PMID24390348](https://pubmed.ncbi.nlm.nih.gov/24390348/); [native card](https://reactome.org/content/detail/R-HSA-9652817) | `R-HSA-9652817` — Signaling by MAPK mutants; `Homo sapiens`; `R-HSA-9652817.2`. Native card references PMID24390348. | Answered; `pathway/card-R-HSA-9652817.yaml`. |
+| 2 | Which pathway record contains the BRAF fusion context discussed in pilocytic astrocytoma research? | [PMID18974108](https://pubmed.ncbi.nlm.nih.gov/18974108/); [native card](https://reactome.org/content/detail/R-HSA-6802952) | `R-HSA-6802952` — Signaling by BRAF and RAF1 fusions; `Homo sapiens`; `R-HSA-6802952.3`. Native card references PMID18974108. | Answered; `pathway/card-R-HSA-6802952.yaml`. |
+| 3 | What is the exact human pathway record for EGFR signaling? | [PMID15142631](https://pubmed.ncbi.nlm.nih.gov/15142631/); [native card](https://reactome.org/content/detail/R-HSA-177929) | `R-HSA-177929` — Signaling by EGFR; `Homo sapiens`; `R-HSA-177929.6`. Native card references PMID15142631. | Answered; `pathway/card-R-HSA-177929.yaml`. |
+| 4 | Which human Hippo signaling record can support retrieval of the pathway studied in tumor signaling research? | [PMID20951342](https://pubmed.ncbi.nlm.nih.gov/20951342/); [native card](https://reactome.org/content/detail/R-HSA-2028269) | `R-HSA-2028269` — Signaling by Hippo; `Homo sapiens`; `R-HSA-2028269.3`. Native card references PMID20951342. | Answered; `pathway/card-R-HSA-2028269.yaml`. |
+| 5 | Which ALK signaling pathway cites the NPM-ALK lymphoma fusion study? | [PMID8122112](https://pubmed.ncbi.nlm.nih.gov/8122112/); [native card](https://reactome.org/content/detail/R-HSA-201556) | `R-HSA-201556` — Signaling by ALK; `Homo sapiens`; `R-HSA-201556.5`. Native card references PMID8122112. | Answered; `pathway/card-R-HSA-201556.yaml`. |
+| 6 | Which NTRK1 signaling record cites the Trk receptor signaling review? | [PMID12676795](https://pubmed.ncbi.nlm.nih.gov/12676795/); [native card](https://reactome.org/content/detail/R-HSA-187037) | `R-HSA-187037` — Signaling by NTRK1 (TRKA); `Homo sapiens`; `R-HSA-187037.4`. Native card references PMID12676795. | Answered; `pathway/card-R-HSA-187037.yaml`. |
+| 7 | Which human DNA repair record cites DNA repair dysregulation research? | [PMID23175119](https://pubmed.ncbi.nlm.nih.gov/23175119/); [native card](https://reactome.org/content/detail/R-HSA-73894) | `R-HSA-73894` — DNA Repair; `Homo sapiens`; `R-HSA-73894.5`. Native card references PMID23175119. | Answered; `pathway/card-R-HSA-73894.yaml`. |
+| 8 | Which source record describes homology-directed repair through homologous recombination? | [PMID20965415](https://pubmed.ncbi.nlm.nih.gov/20965415/); [native card](https://reactome.org/content/detail/R-HSA-5685942) | `R-HSA-5685942` — HDR through Homologous Recombination (HRR); `Homo sapiens`; `R-HSA-5685942.4`. Native card references PMID20965415. | Answered; `pathway/card-R-HSA-5685942.yaml`. |
+| 9 | Which mismatch repair pathway cites the research review on defects in Lynch syndrome? | [PMID23572416](https://pubmed.ncbi.nlm.nih.gov/23572416/); [native card](https://reactome.org/content/detail/R-HSA-5358508) | `R-HSA-5358508` — Mismatch Repair; `Homo sapiens`; `R-HSA-5358508.3`. Native card references PMID23572416. | Answered; `pathway/card-R-HSA-5358508.yaml`. |
+| 10 | Which TP53 pathway records transcription of death receptors and ligands? | [PMID10777207](https://pubmed.ncbi.nlm.nih.gov/10777207/); [native card](https://reactome.org/content/detail/R-HSA-6803211) | `R-HSA-6803211` — TP53 Regulates Transcription of Death Receptors and Ligands; `Homo sapiens`; `R-HSA-6803211.2`. Native card references PMID10777207. | Answered; `pathway/card-R-HSA-6803211.yaml`. |
+| 11 | Which human apoptosis record cites the apoptosis-and-disease review? | [PMID15218528](https://pubmed.ncbi.nlm.nih.gov/15218528/); [native card](https://reactome.org/content/detail/R-HSA-109581) | `R-HSA-109581` — Apoptosis; `Homo sapiens`; `R-HSA-109581.6`. Native card references PMID15218528. | Answered; `pathway/card-R-HSA-109581.yaml`. |
+| 12 | Which exact human Cell Cycle record provides pathway context for the TCGA signaling study? | [PMID29625050](https://pubmed.ncbi.nlm.nih.gov/29625050/); [native card](https://reactome.org/content/detail/R-HSA-1640170) | `R-HSA-1640170` — Cell Cycle; `Homo sapiens`; `R-HSA-1640170.5`. Paper supplies the retrieval topic; the source card supplies identity. | Answered; `pathway/card-R-HSA-1640170.yaml`. |
+| 13 | Which WNT pathway carries the source references for beta-catenin signaling and disease? | [PMID19619488](https://pubmed.ncbi.nlm.nih.gov/19619488/); [native card](https://reactome.org/content/detail/R-HSA-195721) | `R-HSA-195721` — Signaling by WNT; `Homo sapiens`; `R-HSA-195721.7`. Native card references PMID19619488. | Answered; `pathway/card-R-HSA-195721.yaml`. |
+| 14 | Which exact human NOTCH signaling record provides source context for the TCGA signaling study? | [PMID29625050](https://pubmed.ncbi.nlm.nih.gov/29625050/); [native card](https://reactome.org/content/detail/R-HSA-157118) | `R-HSA-157118` — Signaling by NOTCH; `Homo sapiens`; `R-HSA-157118.7`. Paper supplies the retrieval topic; the source card supplies identity. | Answered; `pathway/card-R-HSA-157118.yaml`. |
+| 15 | Which Hedgehog signaling pathway cites the development-and-cancer review? | [PMID19081070](https://pubmed.ncbi.nlm.nih.gov/19081070/); [native card](https://reactome.org/content/detail/R-HSA-5358351) | `R-HSA-5358351` — Signaling by Hedgehog; `Homo sapiens`; `R-HSA-5358351.5`. Native card references PMID19081070. | Answered; `pathway/card-R-HSA-5358351.yaml`. |
+| 16 | Which pathway specifically records gene and protein expression after IL-12 stimulation? | [PMID16038020](https://pubmed.ncbi.nlm.nih.gov/16038020/); [native card](https://reactome.org/content/detail/R-HSA-8950505) | `R-HSA-8950505` — Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation; `Homo sapiens`; `R-HSA-8950505.5`. Native card references PMID16038020. | Answered; `pathway/card-R-HSA-8950505.yaml`. |
+| 17 | Which human autophagy record cites the autophagosome biogenesis review? | [PMID24296784](https://pubmed.ncbi.nlm.nih.gov/24296784/); [native card](https://reactome.org/content/detail/R-HSA-9612973) | `R-HSA-9612973` — Autophagy; `Homo sapiens`; `R-HSA-9612973.4`. Native card references PMID24296784. | Answered; `pathway/card-R-HSA-9612973.yaml`. |
+| 18 | Which insulin receptor pathway cites the insulin signaling review? | [PMID11282018](https://pubmed.ncbi.nlm.nih.gov/11282018/); [native card](https://reactome.org/content/detail/R-HSA-74751) | `R-HSA-74751` — Insulin receptor signalling cascade; `Homo sapiens`; `R-HSA-74751.5`. Native card references PMID11282018. | Answered; `pathway/card-R-HSA-74751.yaml`. |
+| 19 | Which interferon signaling pathway cites the type-I/type-II signaling review? | [PMID15864272](https://pubmed.ncbi.nlm.nih.gov/15864272/); [native card](https://reactome.org/content/detail/R-HSA-913531) | `R-HSA-913531` — Interferon Signaling; `Homo sapiens`; `R-HSA-913531.6`. Native card references PMID15864272. | Answered; `pathway/card-R-HSA-913531.yaml`. |
+| 20 | Which exact Reactome record corresponds to the Reactome2024 paper example for AKT1 E17K? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-5674400` — Constitutive Signaling by AKT1 E17K in Cancer; `Homo sapiens`; `R-HSA-5674400.3`. This identifies the published example without inferring a treatment effect. | Answered; `pathway/card-R-HSA-5674400.yaml`. |
+| 21 | Which exact Reactome record corresponds to the Reactome2024 paper example for PI3K/AKT signaling in cancer? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-2219528` — PI3K/AKT Signaling in Cancer; `Homo sapiens`; `R-HSA-2219528.4`. This identifies the published example without inferring a treatment effect. | Answered; `pathway/card-R-HSA-2219528.yaml`. |
+| 22 | Which exact Reactome record corresponds to the Reactome2024 paper example for ERBB2 signaling in cancer? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-1227990` — Signaling by ERBB2 in Cancer; `Homo sapiens`; `R-HSA-1227990.6`. This identifies the published example without inferring a treatment effect. | Answered; `pathway/card-R-HSA-1227990.yaml`. |
+| 23 | Which exact Reactome record corresponds to the Reactome2024 paper example for ribavirin disposition? | [Reactome2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC10767911/) | `R-HSA-9755088` — Ribavirin ADME; `Homo sapiens`; `R-HSA-9755088.3`. This identifies the published example without inferring a treatment effect. | Answered; `pathway/card-R-HSA-9755088.yaml`. |
+| 24 | Which exact BRAF reference appears among RAF/MAPK physical participants? | [PMID12068308](https://pubmed.ncbi.nlm.nih.gov/12068308/); captured RAF/MAPK participants | `uniprot:P15056`, `ReferenceGeneProduct`, native label `UniProt:P15056 BRAF`. This is source-stated membership, not actionability. | Answered; `pathway-sections/native-reference-walk`. |
+| 25 | Which KRAS isoforms does the source preserve in RAF/MAPK participants? | [PMID17496910](https://pubmed.ncbi.nlm.nih.gov/17496910/); captured RAF/MAPK participants | `uniprot:P01116-1` and `uniprot:P01116-2`, both `ReferenceIsoform`; preserve both and require an exact approved gene join. | Answered; `pathway-sections/native-reference-walk`. |
+| 26 | Which MAP2K1 and MAP2K2 identifiers can support the next gene lookup? | [PMID22177953](https://pubmed.ncbi.nlm.nih.gov/22177953/); captured RAF/MAPK participants | `uniprot:Q02750` and `uniprot:P36507`; retain namespace and resolve through the existing checked HGNC map rather than extracting symbols. | Answered; `pathway-sections/native-reference-walk`. |
 
 Technical controls: the exact sentinel query `zzzzNoPathway0191` returns the retained Reactome structured no-entry 404 and no literal WikiPathways title match. An unknown Reactome ID returns its genuine 404; that is not a zero-member valid pathway. The Reactome2024 paper’s older fibrin-clot example `R-HSA-140877` also returns404 at release 97, so this design preserves that historical-ID failure without silently searching for a replacement.
 <!-- /question-bank -->
@@ -283,22 +283,32 @@ Next actions follow architecture 6.10: selectable headers receive get actions in
 ### Measured disclosure costs
 
 <!-- disclosure-costs -->
-The projection recipe serializes only captured native facts as compact UTF-8 JSON. It does not execute product code and does not include the future envelope, source terms or actions. These are measured disclosure payloads and proposed allocation targets, not product acceptance ceilings.
+The retained native-fact projections are lower bounds. They exclude envelope metadata and actions. The following measurements replace the proposed allocations with product output. Job j14975 measured the local CLI and MCP cases at `da2e537d`; the native WikiPathways measurements below remain the accepted archive observations without replay. Each case owns its fixed measured baseline and enforces the shared headroom rule. A CLI measurement includes its trailing newline; compact JSON excludes that newline.
 
-| Command or section | Measured native-fact projection bytes | Estimated tokens (bytes/4) | Proposed total default allocation |
-| --- | --- | --- | --- |
-| Search, five headers |397–594 across 23 queries |100–149 |700 tokens including envelope and actions |
-| Reactome default identity card |149 |38 |450 tokens including envelope and sections/actions |
-| WikiPathways default identity card, WP382 |87 |22 |450 tokens including envelope and sections/actions |
-| Whole Reactome summary section |1,999 |500 |900 tokens including card and section state |
-| WP382 catalog description |202 |51 |650 tokens; label source truncation, not whole explanation |
-| Five distinct exact UniProt references |633 |159 |850 tokens including source context and eventual resolved actions |
-| Five native event references |501 |126 |850 tokens including source context and page actions |
-| All, Reactome card + summary + first gene/event pages |3,282 by sum of measured components |821 |1,800 tokens including envelope and actions |
-| Exact gene's first five pathway mappings |use same header projection and actual native membership labels |not a separately measured product output |700 tokens, subject to actual measured fixture |
-| WikiPathways sync |metadata receipt only; product output unmeasured |unmeasured |300 tokens; counts/hash/revision, no full catalog |
+| Command or section | Full CLI bytes | Compact JSON bytes | Comparable JSON bytes | Measured case owner |
+| --- | ---: | ---: | ---: | --- |
+| Reactome search, largest retained five-header page | 1,641 | 1,640 | 1,552 | `pathway/search-1.yaml` |
+| Reactome default identity card, largest retained card | 759 | 758 | 670 | `pathway/card-R-HSA-8950505.yaml` |
+| WikiPathways default card, WP382 with genes action | 587 | 586 | 495 | Native GPML archive and `wikipathways-budgets.json` |
+| Whole Reactome summary, largest retained section | 10,756 | 10,755 | 10,667 | `pathway/card-R-HSA-201556.yaml` |
+| WP382 whole catalog description | 714 | 713 | 622 | Native catalog archive |
+| Reactome first five exact references as a genes section | 2,836 | 2,835 | 2,661 | `pathway-sections/genes.yaml` |
+| Reactome first five event references as an events section | 2,298 | 2,297 | 2,209 | `pathway-sections/events.yaml` |
+| Reactome all, card and bounded first section pages | 8,714 | 8,713 | 8,539 | `pathway-sections/all.yaml` |
+| Reactome direct genes page | 2,395 | 2,394 | 2,220 | `pathway_sections/measurements` CLI and MCP phases |
+| Reactome direct events page | 1,857 | 1,856 | 1,768 | `pathway_sections/measurements` CLI and MCP phases |
+| Reactome direct genes details, complete physical contexts | 10,744 | 10,743 | 10,569 | `pathway-sections/details.yaml` |
+| WikiPathways sync receipt | 692 | 691 | 600 | Native catalog archive |
+| Reactome largest observed 50-reference genes page | 15,615 | 15,614 | Not separately attributed | `pathway_sections/walk`, offset 250 |
+| Reactome terminal genes page | 11,017 | 11,016 | Not separately attributed | `pathway_sections/walk`, offset 300 |
+| Reactome first 50-event page | 9,829 | 9,828 | Not separately attributed | `pathway_sections/walk`, offset 0 |
+| Reactome terminal events page | 7,311 | 7,310 | Not separately attributed | `pathway_sections/walk`, offset 50 |
 
-No density claim uses the 244,106-byte compact physical-participant reply as a gene wall. Source fields remain whole at their requested layer. A long name, long summary, unresolved reference or maximum-page case can exceed these first proposals; the PM must compare actual product measurements and decide a bounded larger allocation or a deeper paged disclosure. It cannot silently truncate a native string. 0.9 default, section, helper, JSON and Markdown costs remain unmeasured under the containment rule. The proposal therefore makes no measured claim that it is cheaper than 0.9. Implementation proof must report that comparison or explicitly preserve the unmeasured qualification.
+Comparable output removes only source `use`, `terms` and `terms_url`. The prior native projections (including search headers, bare identity fields, exact gene mappings and event references) remain lower-bound observations in the source evidence sections. The existing Reactome gene-mapping and top-level cases enforce their measured page budgets. The retained WikiPathways GPML table below separately measures both captured pathways and their genes sections, all responses and direct relation pages. Its full-envelope baselines live in `wikipathways-gpml-budgets.json`.
+
+`tests/pathway-command-budgets.json` owns the measured full-envelope baselines for each named Rust command phase and exercised surface. Stable selectors distinguish commands; runtime pool tokens and temporary cache paths do not create separate budgets. Loops retain their largest observed page. YAML cases own their measured comparable `max_bytes`; a CLI newline is included in those ceilings. Transport and concurrent-process cases retain their existing CLI ownership; a compact JSON size alone does not claim an additional MCP execution. No provider call or native archive replay supplies these new attribution measurements.
+
+The 0.9 default, section, helper, JSON and Markdown costs remain **unmeasured** under the containment ruling. Milestone 5 owns the contained comparison. No 0.9 saving or latency comparison is inferred from these 1.0 measurements.
 <!-- /disclosure-costs -->
 
 Bytes divided by four are a planning estimate of tokens and are labeled as such. They are not a tokenizer measurement. Whole observed raw source bodies are not proposed default outputs. Before adapters land, actual CLI and MCP output must be retained and measured at the released revision, with full output and the shared source-terms comparable formula reported separately. The product cases enforce measured bytes plus 15 percent for new budgets. An existing entity-help or MCP description cap increase requires a PM ruling. Whole-tree help and source enum allowances follow their standing measured rules.
@@ -314,18 +324,36 @@ The inspected legacy source is `4050fdc7dbdf4d713d94cf02a39a147b863665be`. No le
 | `search pathway` | `--top-level` | Keep native human Reactome top-level discovery, with explicit query conflict validation. |
 | `search pathway` | `-l/--limit`, `--offset` | Keep bounded Reactome native pages with `rows=--limit`, native-offset continuation and exact admission that may shorten a page. WikiPathways uses revision-bound catalog pages. |
 | `get pathway` | ID and default card | Keep Reactome and captured human WikiPathways identity. KEGG IDs return fixed retirement without a request. |
-| `get pathway` | `genes` | Keep exact source identifier relations after captures prove them. Remove participant-name regex extraction. |
+| `get pathway` | `genes` | Keep captured exact source identifier relations with `get pathway ID genes` and `pathway genes ID`; `details` exposes whole physical contexts. Remove participant-name regex extraction. |
 | `get pathway` | `events` | Reactome only, preserve integer/object reference distinction. Unsupported source requests fail before I/O. |
 | `get pathway` | `enrichment` | Drop under entity boundary ruling; fixed message points to external g:Profiler use without calling it. |
 | `get pathway` | `all` | All supported kept sections, bounded individually; never invokes enrichment. |
-| `pathway drugs` | ID; `-l/--limit`; `--offset` | Retire automatic whole-pathway gene fanout. Guide to selecting an exact gene and the existing explicit drug workflow. Requires PM confirmation because this is a shipped behavior. |
-| `pathway articles` | ID; `-l/--limit`; `--offset` | Retire implicit title-to-keyword search. Guide to explicit `search article <text>`; never claim article linkage from a matching title. Requires PM confirmation. |
-| `pathway trials` | ID; `-l/--limit`; `--offset`; `--source ctgov\|nci` | Retire pathway-name condition search and first-successful-gene fallback. Guide to explicit `search trial --gene <gene>`. Requires PM confirmation. |
-| `gene pathways` | Gene; `--limit`; `--offset` | Keep landed `get gene <input> pathways`; full membership paging belongs to proposed `search pathway --gene`. |
+| `pathway drugs` | ID; `-l/--limit`; `--offset` | Retire automatic whole-pathway gene fanout. Guide to inspecting the exact member genes, then selecting a drug identity and requesting its explicit source sections; reverse gene-to-drug search is unsupported. Accepted by the 2026-10-26 pathway ruling. |
+| `pathway articles` | ID; `-l/--limit`; `--offset` | Retire implicit title-to-keyword search. Guide to explicit `search article <text>`; never claim article linkage from a matching title. Accepted by the 2026-10-26 pathway ruling. |
+| `pathway trials` | ID; `-l/--limit`; `--offset`; `--source ctgov\|nci` | Retire pathway-name condition search and first-successful-gene fallback. Guide to explicit `search trial --gene <gene>`. Accepted by the 2026-10-26 pathway ruling. |
+| `gene pathways` | Gene; `--limit`; `--offset` | Keep landed `get gene <input> pathways`; Full membership paging uses `search pathway --gene GENE --limit N --offset N`. |
 | `list pathway` | No entity-specific options | Replace with shared `help search pathway` and `help get pathway`; fixed guidance, no network. |
-| `search all` pathway section | Parent query and shared global paging/output flags; no pathway-specific flags | Account for the legacy nested pathway section separately from standalone search. Keep source-scoped outcomes if a future parent search includes pathways; this proposal does not introduce a search-all command. Forbid an implicit enrichment or KEGG leg. |
+| `search all` pathway section | Parent query and shared global paging/output flags; no pathway-specific flags | Account for the legacy nested pathway section separately from standalone search. Accounted without a new parent search; standalone pathway search retains source-scoped outcomes. Forbid an implicit enrichment or KEGG leg. |
 | `enrich` | Comma-separated genes; `-l/--limit` | Drop whole command under Ian's entity boundary ruling. Fixed retirement message; no provider and no local calculation. |
 | global output flags | JSON, Markdown, CLI/MCP transport | Preserve shared versioned envelope and identical request interpretation. Do not create a separate pathway MCP tool. |
+
+### Leaf-command parity accounting
+
+The leaf table owns pathway leaves. The article slice transfers `pathway articles` here; the gene slice retains `gene pathways` and maps its old paging options to the explicit pathway search. Section names, positional inputs, short aliases and global output flags stay outside option-slot counts. The complete accounting table above owns each of those surfaces, including `search all` without a new parent command.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search pathway` | Ported or renamed | `--top-level`, `--limit`, `--offset` | `--query`, `--type` | — | Use positional text or exact gene or native top-level discovery. The native Reactome page controls preserve source offsets; WikiPathways pages retain their catalog revision. |
+| `get pathway` | Ported or renamed | — | — | — | Use exact human Reactome or WikiPathways IDs with summary, genes, events or all as supported by that source. Enrichment retires under the entity boundary ruling. |
+| `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported. |
+| `pathway articles` | Dropped by ruling | — | `--limit`, `--offset` | — | The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT. |
+| `pathway trials` | Dropped by ruling | — | `--limit`, `--offset`, `--source` | — | The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE. |
+| `list pathway` | Ported or renamed | — | — | — | Use help search pathway and help get pathway. |
+| `enrich` | Dropped by ruling | — | `--limit` | — | The entity boundary ruling excludes g:Profiler, enrichment calculation and execution of analysis tools. |
+<!-- /parity-accounting -->
+
+KEGG, g:Profiler, `enrich`, `enrichment`, `pathway drugs`, `pathway articles` and `pathway trials` remain dropped. The full GPML archive and bundle-wide gene index remain deferred; exact publisher-linked per-pathway GPML supplies the shipped membership command.
 
 ### Closed public issues
 
@@ -335,22 +363,21 @@ The legacy private history also records useful failure classes: 0016 truthful so
 
 ## Outside-in case matrix
 
-| Contract | Required cases |
-| --- | --- |
-| Plain search and source choice | Known-positive exact native row for each source; literal multiword query; each requested source only; retained native order; source conflict validation; empty query; actual captured no-match |
-| Gene selector | Exact HGNC and UniProt join; several accessions; missing exact map; no symbol extraction; incompatible text/top-level selectors; disabled source before lookup |
-| Top-level | Native human positive and terminal page; non-human rejection; text conflict |
-| Paging options | Reactome default, one and maximum limit use equal native `rows`; proven `Start row` controls native offset; exact admission may shorten a page without refill; next offset advances over rejected native rows; native total stays unchanged; invalid limits; offset zero and last page; no duplicates/gaps; pool mismatch; expired/missing pool restart; WikiPathways retains its snapshot after new sync |
-| Get identity | Reactome and WP positive; wrong returned ID; malformed/non-human ID; unknown genuine ID; missing species; wrong species; wrong-entity fixed guidance |
-| Summary | Whole native text; absent summary distinct from source failure; citations remain native references |
-| Genes | Exact namespaced references; duplicates and one-to-many protein/gene mappings; unresolved ID preserved without action; mixed physical-entity kinds; actual relation count; source-specific availability |
-| Events | Native object plus integer references; no guessed stable IDs; absent public field; unsupported WikiPathways request before I/O |
-| All and section paging | Supported sections only; each page bounded; source state per requested section; no hidden enrichment leg; genuine continuation arguments round-trip through CLI/MCP |
-| Faults | Recorded 429, 500, timeout, invalid JSON, HTML success body, oversized body, foreign identity; no failure converted to empty |
-| Terms and policy | Exact use/name/URL; disabled-before-cache/network; open/restricted groups; no credential discovery; source terms comparable helper removes all three metadata fields |
-| Retirement | Every legacy spelling/option above; fixed exact message; zero provider requests; no invalid parser fallback |
-| Costs | Default, maximum, terminal and largest observed section; CLI newline and compact JSON bases explicit; full and comparable output; entity help, whole help, MCP description and executable examples |
-
+| Contract | Required cases | Case owners |
+| --- | --- | --- |
+| Plain search and source choice | Known-positive exact native row for each source; literal multiword query; each requested source only; retained native order; source conflict validation; empty query; actual captured no-match | `pathway/search-0.yaml` to `search-2.yaml`, `pathway/validation.yaml`, native catalog archive and `wikipathways.rs`. |
+| Gene selector | Exact HGNC and UniProt join; several accessions; missing exact map; no symbol extraction; incompatible text/top-level selectors; disabled source before lookup | `pathway/gene.yaml`, `pathway_registry/admission.rs` and `pathway_failures.rs`. |
+| Top-level | Native human positive and terminal page; non-human rejection; text conflict | `pathway/top-level.yaml`, `pathway/validation.yaml` and `pathway_failures.rs`. |
+| Paging options | Reactome default, one and maximum limit use equal native `rows`; proven `Start row` controls native offset; exact admission may shorten a page without refill; next offset advances over rejected native rows; native total stays unchanged; invalid limits; offset zero and last page; no duplicates/gaps; pool mismatch; expired/missing pool restart; WikiPathways retains its snapshot after new sync | `pathway/native-page.yaml`, `pathway_commands.rs`, `pathway_sections.rs` and `wikipathways.rs`. |
+| Get identity | Reactome and WP positive; wrong returned ID; malformed/non-human ID; unknown genuine ID; missing species; wrong species; wrong-entity fixed guidance | `pathway/cards.yaml`, every `pathway/card-R-HSA-*.yaml`, `pathway/failure-mismatch.yaml`, `pathway_failures.rs`, `wikipathways.rs` and native catalog archive. |
+| Summary | Whole native text; absent summary distinct from source failure; citations remain native references | `pathway/summary.yaml`, summary steps in `pathway/card-R-HSA-*.yaml`, `pathway-sections/all.yaml` and native WP382 summary. |
+| Genes | Exact namespaced references; duplicates and one-to-many protein/gene mappings; unresolved ID preserved without action; mixed physical-entity kinds; actual relation count; source-specific availability | `pathway-sections/genes.yaml`, `pathway-sections/details.yaml`, `pathway_sections.rs`, `wikipathways_genes.rs`, its `joins.rs` and retained native output contract. |
+| Events | Native object plus integer references; no guessed stable IDs; absent public field; unsupported WikiPathways request before I/O | `pathway-sections/events.yaml`, `pathway-sections/synthetic-object-only.yaml`, `pathway-sections/validation.yaml` and `pathway_sections.rs`. |
+| All and section paging | Supported sections only; each page bounded; source state per requested section; no hidden enrichment leg; genuine continuation arguments round-trip through CLI/MCP | `pathway-sections/all.yaml`, `pathway_sections.rs` and retained native WP382/WP100 all outputs. |
+| Faults | Recorded 429, 500, timeout, invalid JSON, HTML success body, oversized body, foreign identity; no failure converted to empty | `pathway/failure-*.yaml`, `pathway-sections/failure-*.yaml`, `pathway_failures.rs`, its `oversized.rs` and `wikipathways_genes.rs`. |
+| Terms and policy | Exact use/name/URL; disabled-before-cache/network; open/restricted groups; no credential discovery; source terms comparable helper removes all three metadata fields | `pathway_registry.rs`, its `admission.rs`, `wikipathways.rs`, `pathway_failures.rs` and shared `source_terms.rs`. |
+| Retirement | Every legacy spelling/option above; fixed exact message; zero provider requests; no invalid parser fallback | `pathway_retirements.rs` covers every retired command, alias and option with a local zero-request listener. |
+| Costs | Default, maximum, terminal and largest observed section; CLI newline and compact JSON bases explicit; full and comparable output; entity help, whole help, MCP description and executable examples | `pathway-command-budgets.json`, both native budget files, all pathway YAML ceilings, `pathway/help.yaml`, `gene/help.yaml`, `protocol.rs` and generated help example execution. |
 Captured success cases carry their observation date, request and exact expected identifiers. Authored failures are labeled synthetic. A fixture projection preserves every union variant and fields that determine identity, absence, multiplicity and collection scope. Native bodies stay in the evidence archive. Tests use isolated configuration and deny network on replay.
 
 ## Structural risks
@@ -365,7 +392,9 @@ No new decision is requested from Ian. Existing entity and source rulings apply.
 
 The two retained native catalogs each contain 2,218 rows, including 1,131 rows with the exact species bytes `Homo sapiens`. The search catalog has 2,346,682 bytes and SHA-256 `5638b038a7cd19f6872c57931fc98d6a8cef98fd78619ca2151facbc7c8fa0df`. The get catalog has 1,224,217 bytes and SHA-256 `6c5fc71bd7f036261a47ccaa4a71f450e54e5b3fc0537e6b85a662a74e43040f`. These are observations of retained inputs. Neither counts nor revisions are timeless provider guarantees. Raw species bytes determine human admission before display text normalization; padded labels do not count as human. Display titles retain the shared `Text` outer-whitespace canonicalization.
 
-Twenty-seven native command cases cover sync, the 24 investigation search phrases including the no-match sentinel, and the WP382 default card and summary. Each command has identical CLI and MCP result content and passes the embedded response schema. Full native bodies, case inputs, output JSON and measurement receipts remain outside Git. The complete evidence archive has SHA-256 `7d960a51e5f12450f76283af99c61e7168d4201cc22ac1ca9892b9f65632ee99` and retains the earlier accepted case groups.
+The earlier catalog-only replay used twenty-seven native command cases covering sync, the 24 investigation search phrases including the no-match sentinel, and the WP382 default card and summary. Each command has identical CLI and MCP result content and passes the embedded response schema. Full native bodies, case inputs, output JSON and measurement receipts remain outside Git. The complete evidence archive has SHA-256 `7d960a51e5f12450f76283af99c61e7168d4201cc22ac1ca9892b9f65632ee99` and retains the earlier accepted case groups.
+
+The catalog-only card observation below predates the genes action. Its retained baseline is now 587 CLI bytes and 586 compact JSON bytes, as the separate GPML replay below records. The earlier measurements remain archive observations.
 
 | Native command | Full CLI bytes | Full MCP bytes | Comparable CLI bytes | Comparable MCP bytes | Estimated comparable MCP tokens |
 | --- | --- | --- | --- | --- | --- |
@@ -374,7 +403,7 @@ Twenty-seven native command cases cover sync, the 24 investigation search phrase
 | WP382 default card | 519 | 518 | 428 | 427 | 107 |
 | WP382 summary | 714 | 713 | 623 | 622 | 156 |
 
-CLI bytes include the trailing newline; MCP bytes count compact JSON. Comparable bytes remove exactly source `use`, `terms` and `terms_url` with the shared helper. Estimated tokens are comparable MCP bytes divided by four and rounded up. These are output measurements, not tokenizer measurements or latency comparisons. All observed forms fit the proposed allocations above, including full output. The source catalog description remains whole and explicitly carries its source-truncation label.
+CLI bytes include the trailing newline; MCP bytes count compact JSON. Comparable bytes remove exactly source `use`, `terms` and `terms_url` with the shared helper. Estimated tokens are comparable MCP bytes divided by four and rounded up. These are output measurements, not tokenizer measurements or latency comparisons. The native forms retain their measured ceilings in the case budget files. The source catalog description remains whole and explicitly carries its source-truncation label.
 
 `tests/wikipathways-budgets.json` records each case's full CLI bytes, comparable CLI bytes and estimated comparable MCP tokens in that order. The opt-in native runner enforces each measured value plus fifteen percent, rounded up. Full catalog evidence remains outside the ordinary routine suite; ordinary command cases exercise catalog replacement, retained paging, exact species admission and failure boundaries with isolated synthetic inputs. The 0.9 comparison remains unmeasured under the containment rule.
 
@@ -394,15 +423,15 @@ The captured GPML response uses `application/octet-stream`. Its endpoint explici
 
 Native CLI and MCP walks preserve every captured GraphId in source order and retain `WP382_r140476` and `WP100_r141191` independently of the catalog dates. The exact joins are Entrez 7189 → HGNC:12036, ENSG00000158711 → HGNC:3326 and the native HGNC symbol CACNG3 → HGNC:1407. The complete native output archive is `data/biomcp-redux/0224-wikipathways-genes/replay-1793008875251411000.tar.gz` on Yellow, SHA-256 `f9fa5eb0eb9b80910da3bfc26473b193811e35951fdad5cde8ddb7e950be4ef0`.
 
-| Native command | Comparable JSON bytes | Tokens |
-|---|---:|---:|
-| WP382 card | 495 | 124 |
-| WP382 genes section | 2323 | 581 |
-| WP382 all | 2505 | 627 |
-| WP382 direct genes page | 1982 | 496 |
-| WP100 card | 503 | 126 |
-| WP100 genes section | 2636 | 659 |
-| WP100 all | 2818 | 705 |
-| WP100 direct genes page | 2287 | 572 |
+| Native command | Full CLI bytes | Full MCP bytes | Comparable JSON bytes | Estimated tokens |
+| --- | ---: | ---: | ---: | ---: |
+| WP382 card | 587 | 586 | 495 | 124 |
+| WP382 genes section | 2501 | 2500 | 2323 | 581 |
+| WP382 all | 2683 | 2682 | 2505 | 627 |
+| WP382 direct genes page | 2160 | 2159 | 1982 | 496 |
+| WP100 card | 595 | 594 | 503 | 126 |
+| WP100 genes section | 2814 | 2813 | 2636 | 659 |
+| WP100 all | 2996 | 2995 | 2818 | 705 |
+| WP100 direct genes page | 2465 | 2464 | 2287 | 572 |
 
-CLI and MCP have equal JSON content sizes above; CLI adds its trailing newline. Both genes sections remain within the design allocation. `tests/wikipathways-gpml-budgets.json` owns the measured full-body, comparable-body and token baselines. Every command's checked ceiling is its matching baseline multiplied by 115 percent and rounded up. The retained-output contract checks all sixteen original surface results against these fixed ceilings without repeating source replay. The existing WikiPathways card budget also includes the newly available genes action.
+CLI and MCP have equal JSON content sizes above; CLI adds its trailing newline. Both genes sections retain their measured ceilings in the case budget file. `tests/wikipathways-gpml-budgets.json` owns the measured full-body, comparable-body and token baselines. Every command's checked ceiling is its matching baseline multiplied by 115 percent and rounded up. The retained-output contract checks all sixteen original surface results against these fixed ceilings without repeating source replay. The existing WikiPathways card budget also includes the newly available genes action.

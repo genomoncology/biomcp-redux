@@ -37,7 +37,13 @@ pub(super) fn admission() -> Result<(), String> {
             "MONDO_0004989",
         ];
         let replay = seed(&env, &args, response, 200, 0)?;
-        let failed = call(&env, &replay, &args, 4)?;
+        let failed = call(
+            &format!("gwas_search/mechanics/admission/{fault}"),
+            &env,
+            &replay,
+            &args,
+            4,
+        )?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || failed.get("result").is_some()
             || failed
@@ -49,7 +55,12 @@ pub(super) fn admission() -> Result<(), String> {
         }
         let mut offline = env.globals(None, true);
         offline.extend(args.map(str::to_owned));
-        let rejected = invoke(&env, offline, 4)?;
+        let rejected = gwas_budgets::invoke(
+            &format!("gwas_search/mechanics/uncached/{fault}"),
+            &env,
+            offline,
+            4,
+        )?;
         if rejected.pointer("/sources/0/reason") != Some(&json!("offline")) {
             return Err(format!("cached {fault}: {rejected}"));
         }
@@ -120,6 +131,7 @@ pub(super) fn failures() -> Result<(), String> {
             if fault == "timeout" { 16000 } else { 0 },
         )?;
         let v = call(
+            &format!("gwas_search/mechanics/failure/{fault}"),
             &env,
             &replay,
             &["search", "gwas", "--pubmed", "17529967"],
@@ -147,6 +159,7 @@ pub(super) fn failures() -> Result<(), String> {
         0,
     )?;
     let v = call(
+        "gwas_search/mechanics/failures/2",
         &env,
         &replay,
         &["search", "gwas", "--pubmed", "17529967"],
@@ -174,7 +187,7 @@ fn invalid(env: &Environment, replay: &Path) -> Result<(), String> {
         vec!["--gene", "FGFR2", "--p-value", "1e-5", "--sort", "other"],
     ] {
         let args = [vec!["search", "gwas"], tail].concat();
-        let value = call(env, replay, &args, 2)?;
+        let value = call("gwas_search/mechanics/invalid/1", env, replay, &args, 2)?;
         if args.contains(&"--p-value")
             && args.last() == Some(&"0")
             && value.pointer("/error/message")

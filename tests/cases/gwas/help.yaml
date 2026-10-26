@@ -1,0 +1,87 @@
+{
+  "feature": "gwas-search",
+  "story": "GWAS help exposes every selector, section, page option and two parsed case examples.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "gwas"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "gwas"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "search",
+          "gwas"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "query",
+            "--gene",
+            "--variant",
+            "--trait",
+            "--trait-id",
+            "--study",
+            "--pubmed",
+            "--include-child-traits",
+            "--extended-geneset",
+            "--p-value",
+            "--limit",
+            "--offset",
+            "--pool"
+          ]
+        },
+        "/result/commands/0/description": "Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic."
+      },
+      "max_bytes": 2714,
+      "max_tokens": 679
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "gwas"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "gwas"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "get",
+          "gwas"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "section",
+            "--section-limit",
+            "--section-offset",
+            "--snapshot"
+          ]
+        },
+        "/result/commands/0/description": "Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.",
+        "/result/commands/0/sections/*/word": [
+          "loci",
+          "associations",
+          "ancestries"
+        ]
+      },
+      "max_bytes": 1617,
+      "max_tokens": 404
+    }
+  ]
+}

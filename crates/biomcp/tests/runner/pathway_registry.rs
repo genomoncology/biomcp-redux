@@ -1,5 +1,6 @@
 //! Feature source-controls: public pathway declarations before runtime dispatch exists.
-use super::{configuration::invoke, launch::Environment};
+use super::launch::Environment;
+use crate::runner::pathway_budgets as budgets;
 use biomcp_adapters::registry;
 use biomcp_types::{Reason, SourceState};
 use libtest_mimic::Trial;
@@ -39,7 +40,12 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn declaration(name: &str, usage: &str, url: &str) -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let health = invoke(&env, vec!["health".into(), "--offline".into()], 0)?;
+    let health = budgets::invoke(
+        "runner/pathway_registry/declaration/1",
+        &env,
+        vec!["health".into(), "--offline".into()],
+        0,
+    )?;
     let row = health
         .pointer("/result/sources")
         .and_then(Value::as_array)
@@ -114,7 +120,7 @@ fn switches() -> Check {
         if !command.is_empty() {
             args.extend(["--disable-sources".into(), command.into()]);
         }
-        let health = invoke(&env, args, 0)?;
+        let health = budgets::invoke("runner/pathway_registry/switches/1", &env, args, 0)?;
         let rows = health
             .pointer("/result/sources")
             .and_then(Value::as_array)

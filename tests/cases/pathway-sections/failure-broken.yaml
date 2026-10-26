@@ -21,7 +21,8 @@
         "/sources/0/source": "reactome",
         "/sources/0/state": "failed",
         "/sources/0/terms": "CC0 1.0 database data"
-      }
+      },
+      "max_bytes": 206
     }
   ]
 }

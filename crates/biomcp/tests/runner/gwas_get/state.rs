@@ -36,7 +36,7 @@ fn empty() -> Result<(), String> {
         };
         let args = ["get", "gwas", id, section];
         let replay = seed(&env, &args, body.to_string(), 200, 0)?;
-        let value = call(&env, &replay, &args, 0)?;
+        let value = call("gwas_get/state/empty/1", &env, &replay, &args, 0)?;
         if value.get("status") != Some(&json!("complete"))
             || value.pointer("/page/total") != Some(&json!(0))
             || value.pointer("/result/items") != Some(&json!([]))
@@ -58,19 +58,19 @@ fn warm() -> Result<(), String> {
     ] {
         let args = [vec!["get", "gwas"], tail].concat();
         let args = args.iter().map(|a| (*a).to_owned()).collect::<Vec<_>>();
-        let first = invoke(&env, args.clone(), 0)?;
-        let second = invoke(&env, args.clone(), 0)?;
+        let first = gwas_budgets::invoke("gwas_get/state/warm/1", &env, args.clone(), 0)?;
+        let second = gwas_budgets::invoke("gwas_get/state/warm/2", &env, args.clone(), 0)?;
         if first != second {
             return Err("warm result changed".into());
         }
         bounded(&first)?;
         let mut fresh = args.clone();
         fresh.push("--fresh".into());
-        invoke(&env, fresh, 0)?;
+        gwas_budgets::invoke("gwas_get/state/warm/3", &env, fresh, 0)?;
         for selector in ["gwas", "restricted"] {
             let mut disabled = args.clone();
             disabled.extend(["--disable-sources".into(), selector.into()]);
-            let value = invoke(&env, disabled, 4)?;
+            let value = gwas_budgets::invoke("gwas_get/state/warm/4", &env, disabled, 4)?;
             if value.get("result").is_some()
                 || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
             {
@@ -106,7 +106,7 @@ fn stale() -> Result<(), String> {
             )
         };
         let replay = seed(&env, &args, body.to_string(), 200, 0)?;
-        call(&env, &replay, &args, 0)?;
+        call("gwas_get/state/stale/1", &env, &replay, &args, 0)?;
         let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
             .map_err(|e| e.to_string())?;
         db.execute("UPDATE reply SET fresh_until=0", [])
@@ -114,7 +114,7 @@ fn stale() -> Result<(), String> {
         drop(db);
         let mut offline = env.globals(None, true);
         offline.extend(args.iter().map(|a| (*a).to_owned()));
-        let value = invoke(&env, offline, 0)?;
+        let value = gwas_budgets::invoke("gwas_get/state/stale/2", &env, offline, 0)?;
         if value.get("status") != Some(&json!("partial"))
             || value.get("result").is_none()
             || value.pointer("/sources/0/state") != Some(&json!("stale"))
@@ -139,14 +139,14 @@ fn expired() -> Result<(), String> {
         "1",
     ];
     let replay = seed(&env, &args, ancestry_body().to_string(), 200, 0)?;
-    let value = call(&env, &replay, &args, 0)?;
+    let value = call("gwas_get/state/expired/1", &env, &replay, &args, 0)?;
     let page = super::super::action(&value, "page")?;
     fs::remove_dir_all(replay.join("gwas")).map_err(|e| e.to_string())?;
     for source in ["gwas", "restricted"] {
         let mut command = env.globals(Some(&replay), false);
         command.extend(page.clone());
         command.extend(["--disable-sources".into(), source.into()]);
-        let value = invoke(&env, command, 4)?;
+        let value = gwas_budgets::invoke("gwas_get/state/expired/2", &env, command, 4)?;
         if value.pointer("/sources/0/reason") != Some(&json!("disabled"))
             || value.get("result").is_some()
         {
@@ -167,7 +167,7 @@ fn expired() -> Result<(), String> {
     drop(db);
     let mut command = env.globals(Some(&replay), false);
     command.extend(page);
-    let value = invoke(&env, command, 3)?;
+    let value = gwas_budgets::invoke("gwas_get/state/expired/3", &env, command, 3)?;
     let restart = super::super::action(&value, "restart")?;
     if value.pointer("/error/code") != Some(&json!("pool.expired"))
         || !args.iter().all(|arg| restart.contains(&(*arg).to_owned()))

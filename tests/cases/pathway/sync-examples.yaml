@@ -1,0 +1,41 @@
+{
+  "feature": "pathway-wikipathways",
+  "story": "Two published sync examples replace the synthetic metadata pair through CLI and MCP.",
+  "replay": "pathway/examples-sync",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "wikipathways"
+      ],
+      "mcp": [
+        "sync",
+        "wikipathways"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/search/total_rows": 13,
+        "/result/get/human_rows": 12
+      },
+      "max_bytes": 676
+    },
+    {
+      "run": [
+        "sync",
+        "wikipathways",
+        "--fresh"
+      ],
+      "mcp": [
+        "sync",
+        "wikipathways",
+        "--fresh"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/search/total_rows": 13,
+        "/result/get/human_rows": 12
+      },
+      "max_bytes": 676
+    }
+  ]
+}
