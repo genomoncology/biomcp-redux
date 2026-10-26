@@ -13,6 +13,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             positional.push(word);
             match positional.as_slice() {
                 ["list", "author", ..] => return Some(ErrorMessage::AuthorHelp),
+                ["get", "author", _, "coauthors", ..] => return Some(ErrorMessage::AuthorDeferred),
                 ["author", "rank" | "ranking" | "coauthors" | "merge", ..] => {
                     return Some(ErrorMessage::AuthorDeferred);
                 }

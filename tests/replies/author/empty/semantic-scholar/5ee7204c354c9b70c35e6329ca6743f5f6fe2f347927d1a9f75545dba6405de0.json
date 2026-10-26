@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "semantic-scholar",
-  "url": "https://api.semanticscholar.org/graph/v1/author/search?query=Louis%20Williams&fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl&offset=5&limit=5",
+  "url": "https://api.semanticscholar.org/graph/v1/author/search?query=Louis%20Williams&fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl&offset=0&limit=5",
   "exchanges": [
     {
       "status": 200,

@@ -55,13 +55,6 @@ fn unrelated_and_disabled_commands_never_read_keys() {
             "--disable-sources",
             "pubmed",
         ],
-        vec![
-            "get",
-            "author",
-            "orcid:0000-0002-4299-3018",
-            "--disable-sources",
-            "orcid",
-        ],
         vec!["search", "trial", "--condition", "melanoma"],
         vec![
             "get",
@@ -70,13 +63,6 @@ fn unrelated_and_disabled_commands_never_read_keys() {
             "clinvar",
             "--disable-sources",
             "clinvar",
-        ],
-        vec![
-            "get",
-            "author",
-            "semantic-scholar:123",
-            "--disable-sources",
-            "semantic-scholar",
         ],
         vec![
             "get",

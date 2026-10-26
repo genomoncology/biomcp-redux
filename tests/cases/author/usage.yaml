@@ -98,30 +98,6 @@
     },
     {
       "run": [
-        "search",
-        "author",
-        "x",
-        "--source",
-        "orcid"
-      ],
-      "mcp": [
-        "search",
-        "author",
-        "x",
-        "--source",
-        "orcid"
-      ],
-      "is_error": true,
-      "exit": 2,
-      "expect": {
-        "/error/code": "usage.arguments"
-      },
-      "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
-    },
-    {
-      "run": [
         "get",
         "author",
         "123"

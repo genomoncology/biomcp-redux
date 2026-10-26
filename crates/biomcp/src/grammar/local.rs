@@ -45,7 +45,7 @@ pub(super) fn help_command() -> Command {
     {
         let command = verbs
             .remove(verb)
-            .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
+            .unwrap_or_else(|| Command::new(verb).subcommand_required(verb != "author"));
         verbs.insert(verb, command.subcommand(Command::new(entity)));
     }
     for command in verbs.into_values() {
