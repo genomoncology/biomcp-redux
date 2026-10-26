@@ -3,10 +3,10 @@ use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, PoolInfo, QueryBody, Reason, Request, Status, StepKind, StudyGet, StudyPage,
-    StudySearch, StudySnapshot,
+    PageInfo, QueryBody, Reason, Request, Status, StepKind, StudyGet, StudyPage, StudySearch,
+    StudySnapshot,
 };
-type Retained = (Vec<StudyHeader>, StudySnapshot, u64);
+type Retained = (Vec<StudyHeader>, StudySnapshot);
 pub(super) fn search(
     cx: &Ctx<'_>,
     q: &StudySearch,
@@ -25,43 +25,38 @@ pub(super) fn search(
     ))
     .map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let (id, retained) = if let Some(id) = q.pool() {
-        let payload = store.source_snapshot(id.as_str(), &key, |s| cx.fetch.disabled(s))?;
-        let Some(payload) = payload else {
-            out.next.push((
-                StepKind::Restart,
-                Action::Run {
-                    request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
-                    fresh: cx.fresh,
-                },
-            ));
-            return Err(failure(Reason::Rejected));
-        };
-        (
-            id.clone(),
-            serde_json::from_str::<Retained>(&payload).map_err(|_| CacheError::Database)?,
-        )
+    let existing = store.find(&key, q.pool().map(|p| p.as_str()))?;
+    let pool = if let Some(pool) = existing.filter(|pool| pool.key == key) {
+        pool
+    } else if q.pool().is_some() {
+        out.next.push((
+            StepKind::Restart,
+            Action::Run {
+                request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
+                fresh: cx.fresh,
+            },
+        ));
+        return Err(failure(Reason::Rejected));
     } else {
-        let retained = (
-            rows,
-            snapshot,
-            u64::try_from(Store::now()).map_err(|_| CacheError::Database)?,
-        );
-        let payload = serde_json::to_string(&retained).map_err(|_| CacheError::Database)?;
-        let id = store.save_source_snapshot(&key, &payload, &[])?;
-        (id, retained)
+        let size = u32::try_from(rows.len()).map_err(|_| CacheError::Database)?;
+        let payload = serde_json::to_string(&(rows, snapshot)).map_err(|_| CacheError::Database)?;
+        store.publish_source_pool(&key, &payload, size, &[])?
     };
-    render(cx, q, id, retained, out)
+    let payload = store
+        .source_snapshot(pool.info.id.as_str(), &key, |s| cx.fetch.disabled(s))?
+        .ok_or_else(|| failure(Reason::Rejected))?;
+    let retained = serde_json::from_str::<Retained>(&payload).map_err(|_| CacheError::Database)?;
+    render(cx, q, pool.info, retained, out)
 }
 fn render(
     cx: &Ctx<'_>,
     q: &StudySearch,
-    id: biodata::Text,
+    pool: biomcp_types::PoolInfo,
     retained: Retained,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let (rows, snapshot, created) = retained;
-    let query = q.with_pool(Some(id.clone()));
+    let (rows, snapshot) = retained;
+    let query = q.with_pool(Some(pool.id.clone()));
     let total = rows.len() as u64;
     let items: Box<[_]> = rows
         .into_iter()
@@ -73,12 +68,7 @@ fn render(
         offset: q.offset(),
         returned,
         total,
-        pool: Some(PoolInfo {
-            id,
-            size: u32::try_from(total).map_err(|_| CacheError::Database)?,
-            created: created,
-            expires: created.saturating_add(86400),
-        }),
+        pool: Some(pool),
         truncated: None,
     };
     for row in &items {
