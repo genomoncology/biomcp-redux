@@ -238,7 +238,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let connection = wait_mutex(&self.0, deadline, deadline.local())?;
+        let connection = wait_mutex(&self.0, deadline, &deadline.local())?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
@@ -250,8 +250,8 @@ impl Cache {
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
         let wall_bound = deadline.local();
-        let connection = wait_mutex(&self.0, deadline, wall_bound)?;
-        let _writer = wait_mutex(&self.3, deadline, wall_bound)?;
+        let connection = wait_mutex(&self.0, deadline, &wall_bound)?;
+        let _writer = wait_mutex(&self.3, deadline, &wall_bound)?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
@@ -262,7 +262,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce() -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let _writer = wait_mutex(&self.3, deadline, deadline.local())?;
+        let _writer = wait_mutex(&self.3, deadline, &deadline.local())?;
         operation()
     }
 
@@ -397,7 +397,7 @@ fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheE
 fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,
     deadline: Deadline<'_>,
-    wall_bound: crate::LocalDeadline,
+    wall_bound: &crate::LocalDeadline,
 ) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
     loop {
         if deadline.expired() || wall_bound.expired() {

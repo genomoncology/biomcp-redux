@@ -29,6 +29,7 @@ struct Call {
     id: Value,
     modern: bool,
     cancelled: bool,
+    cancellation: Option<biomcp_fetch::Cancellation>,
     worker: thread::JoinHandle<()>,
 }
 
@@ -59,7 +60,6 @@ pub(crate) fn serve(
         let event = receiver
             .recv()
             .map_err(|_| io::Error::other("MCP input stopped"))?;
-        let oversized = matches!(&event, Event::Input(Frame::Oversized));
         let reply = match event {
             Event::Input(Frame::Eof) => {
                 eof = true;
@@ -81,9 +81,6 @@ pub(crate) fn serve(
             bytes.push(b'\n');
             output.write_all(&bytes)?;
             output.flush()?;
-        }
-        if oversized {
-            return Ok(());
         }
     }
     // The input thread may still be in a blocking stdin read after output breaks.
@@ -122,16 +119,15 @@ impl Server {
                     && let Some(call) = self.active.get_mut(&id.to_string())
                 {
                     call.cancelled = true;
+                    if let Some(cancellation) = &call.cancellation {
+                        cancellation.cancel();
+                    }
                 }
                 Ok(None)
             }
         }
     }
 
-    #[expect(
-        clippy::disallowed_methods,
-        reason = "Bounded tool workers own command execution"
-    )]
     fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
         let Some(call) = research::parse(params) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
@@ -143,14 +139,40 @@ impl Server {
         if self.active.len() >= MAX_ACTIVE_CALLS {
             return Ok(Some(protocol::error(id, -31000, "Tool capacity exceeded")));
         }
+        let globals = self.globals.clone();
+        let (fetch, cancellation) = match &self.fetch {
+            Ok(fetch) => {
+                let Ok((fetch, cancellation)) = fetch.cancellable() else {
+                    return Ok(Some(protocol::error(id, -32603, "Internal error")));
+                };
+                (Ok(std::sync::Arc::new(fetch)), Some(cancellation))
+            }
+            Err(()) => (Err(()), None),
+        };
+        self.start_call(key, id, modern, cancellation, move || {
+            research::execute(&call, &globals, &fetch, false)
+        })?;
+        Ok(None)
+    }
+
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Bounded tool workers own command execution"
+    )]
+    fn start_call(
+        &mut self,
+        key: String,
+        id: Value,
+        modern: bool,
+        cancellation: Option<biomcp_fetch::Cancellation>,
+        work: impl FnOnce() -> io::Result<crate::command::Outcome> + Send + 'static,
+    ) -> io::Result<()> {
         let sender = self.sender.clone();
         let worker_key = key.clone();
-        let globals = self.globals.clone();
-        let fetch = self.fetch.clone();
         let worker = thread::Builder::new()
             .name("mcp-tool".into())
             .spawn(move || {
-                let outcome = worker::execute(|| research::execute(&call, &globals, &fetch, false));
+                let outcome = worker::execute(work);
                 let _ = sender.send(Event::Completed(worker_key, outcome));
             })?;
         self.active.insert(
@@ -159,10 +181,11 @@ impl Server {
                 id,
                 modern,
                 cancelled: false,
+                cancellation,
                 worker,
             },
         );
-        Ok(None)
+        Ok(())
     }
 
     fn complete(
@@ -176,8 +199,12 @@ impl Server {
         call.worker
             .join()
             .map_err(|_| io::Error::other("MCP worker stopped"))?;
-        let outcome = outcome?;
-        Ok((!call.cancelled)
-            .then(|| protocol::result(call.id, protocol::outcome(&outcome), call.modern)))
+        if call.cancelled {
+            return Ok(None);
+        }
+        Ok(Some(match outcome {
+            Ok(outcome) => protocol::result(call.id, protocol::outcome(&outcome), call.modern),
+            Err(_) => protocol::error(call.id, -32603, "Internal error"),
+        }))
     }
 }

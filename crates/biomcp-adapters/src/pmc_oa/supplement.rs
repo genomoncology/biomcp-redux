@@ -95,7 +95,7 @@ pub fn download(leg: &Leg<'_>, file: &Supplement) -> Result<Download, RequestErr
     let parsed = std::cell::RefCell::new(None);
     let bytes = leg.bytes_checked(&ep, &params, |bytes| {
         let end = local_end.earlier(leg.local_deadline());
-        let sheets = crate::sheet::read(bytes, file.file.kind, end)?;
+        let sheets = crate::sheet::read(bytes, file.file.kind, end.clone())?;
         *parsed.borrow_mut() = Some((sheets, end));
         Ok(())
     })?;

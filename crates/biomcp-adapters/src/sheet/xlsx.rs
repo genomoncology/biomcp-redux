@@ -5,7 +5,7 @@ use calamine::Reader;
 use std::io::{Cursor, Read, Seek, SeekFrom};
 struct Guarded<'a> {
     cursor: Cursor<&'a [u8]>,
-    end: LocalDeadline,
+    end: &'a LocalDeadline,
 }
 impl Read for Guarded<'_> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
@@ -19,7 +19,7 @@ impl Seek for Guarded<'_> {
         self.cursor.seek(pos)
     }
 }
-pub(super) fn read(bytes: &[u8], end: LocalDeadline) -> Result<Vec<Sheet>, Reason> {
+pub(super) fn read(bytes: &[u8], end: &LocalDeadline) -> Result<Vec<Sheet>, Reason> {
     super::preflight::xml(bytes, end)?;
     let mut workbook = calamine::Xlsx::new(Guarded {
         cursor: Cursor::new(bytes),

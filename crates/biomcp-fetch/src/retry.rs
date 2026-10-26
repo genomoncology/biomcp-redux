@@ -56,7 +56,7 @@ pub(crate) fn wait(delay: Duration, deadline: Deadline<'_>) -> bool {
         if remaining.is_zero() {
             return true;
         }
-        std::thread::park_timeout(remaining.min(deadline.remaining()));
+        std::thread::park_timeout(deadline.wait_slice(remaining.min(deadline.remaining())));
     }
 }
 

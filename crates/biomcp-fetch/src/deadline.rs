@@ -13,6 +13,7 @@ pub struct Deadline<'a> {
     end: Instant,
     frozen: Option<Instant>,
     clock: Option<&'a VirtualClock>,
+    cancelled: Option<&'a std::sync::Arc<std::sync::atomic::AtomicBool>>,
 }
 
 #[derive(Debug)]
@@ -59,16 +60,21 @@ impl<'a> Deadline<'a> {
             end: now.checked_add(budget).unwrap_or(now),
             frozen: None,
             clock,
+            cancelled: None,
         }
     }
     pub(crate) fn matches(&self, clock: Option<&VirtualClock>) -> bool {
         self.clock.map(std::ptr::from_ref) == clock.map(std::ptr::from_ref)
     }
-    pub(crate) fn bind<'b>(&self, clock: Option<&'b VirtualClock>) -> Deadline<'b> {
+    pub(crate) fn bind<'b>(&self, clock: Option<&'b VirtualClock>) -> Deadline<'b>
+    where
+        'a: 'b,
+    {
         Deadline {
             end: self.end,
             frozen: None,
             clock,
+            cancelled: self.cancelled,
         }
     }
     pub(crate) fn fork(&self) -> Option<VirtualClock> {
@@ -81,7 +87,10 @@ impl<'a> Deadline<'a> {
     /// Bind this remaining budget to wall time for cooperative local decoding.
     pub fn local(self) -> LocalDeadline {
         let now = Instant::now();
-        LocalDeadline(now.checked_add(self.remaining()).unwrap_or(now))
+        LocalDeadline {
+            end: now.checked_add(self.remaining()).unwrap_or(now),
+            cancelled: self.cancelled.cloned(),
+        }
     }
     /// Report whether this budget advances in replay time.
     pub fn virtual_time(&self) -> bool {
@@ -95,7 +104,27 @@ impl<'a> Deadline<'a> {
     /// Return the budget still available on this clock.
     /// Replay progress belongs to the source leg; inspect it with `Leg::remaining`.
     pub fn remaining(&self) -> Duration {
+        if self
+            .cancelled
+            .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Acquire))
+        {
+            return Duration::ZERO;
+        }
         self.end.saturating_duration_since(self.now())
+    }
+    pub(crate) fn with_cancellation(
+        mut self,
+        cancelled: Option<&'a std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    ) -> Self {
+        self.cancelled = cancelled;
+        self
+    }
+    pub(crate) fn wait_slice(&self, duration: Duration) -> Duration {
+        if self.cancelled.is_some() {
+            duration.min(Duration::from_millis(20))
+        } else {
+            duration
+        }
     }
     /// Whether the budget has been exhausted.
     pub fn expired(&self) -> bool {
@@ -109,6 +138,7 @@ impl<'a> Deadline<'a> {
                 .min(self.now().checked_add(cap).unwrap_or(self.now())),
             frozen: self.frozen,
             clock: self.clock,
+            cancelled: self.cancelled,
         }
     }
     /// Move a command's replay origin past one completed stage, retaining its absolute end.
@@ -130,6 +160,13 @@ impl<'a> CommandDeadline<'a> {
         deadline.frozen = clock.map(VirtualClock::now);
         Self(deadline)
     }
+    pub(crate) fn with_cancellation(
+        mut self,
+        cancelled: Option<&'a std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    ) -> Self {
+        self.0 = self.0.with_cancellation(cancelled);
+        self
+    }
     /// Start the command's stages from the same absolute origin.
     pub fn deadline(&self) -> Deadline<'a> {
         self.0
@@ -149,15 +186,24 @@ impl<'a> CommandDeadline<'a> {
 }
 
 /// Wall-clock bound for cooperative local parsing, including replay commands.
-#[derive(Clone, Copy, Debug)]
-pub struct LocalDeadline(Instant);
+#[derive(Clone, Debug)]
+pub struct LocalDeadline {
+    end: Instant,
+    cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+}
 impl LocalDeadline {
     /// Retain the stricter bound as a source budget advances in real or replay time.
-    pub fn earlier(self, other: Self) -> Self {
-        Self(self.0.min(other.0))
+    pub fn earlier(&self, other: Self) -> Self {
+        Self {
+            end: self.end.min(other.end),
+            cancelled: self.cancelled.clone().or(other.cancelled),
+        }
     }
     /// Whether the parsing budget has been exhausted.
-    pub fn expired(self) -> bool {
-        Instant::now() >= self.0
+    pub fn expired(&self) -> bool {
+        self.cancelled
+            .as_ref()
+            .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Acquire))
+            || Instant::now() >= self.end
     }
 }

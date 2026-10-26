@@ -185,6 +185,12 @@ pub(crate) struct Agents {
     https: ureq::Agent,
 }
 impl Agents {
+    pub(crate) fn shutdown(&self) {
+        self.direct.clone().shutdown();
+        self.publisher.clone().shutdown();
+        self.http.clone().shutdown();
+        self.https.clone().shutdown();
+    }
     pub(crate) fn new(network: &Network, explicit: Option<&Secret>) -> Result<Self, FetchError> {
         let tls = Arc::new(crate::tls::configuration(network.roots.0.clone())?);
         let explicit = proxy(explicit)?;

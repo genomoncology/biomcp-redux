@@ -95,10 +95,15 @@ fn dispatch_using(
     }
     let owned;
     let fetch = match shared.map(|(_, fetch)| fetch) {
-        Some(Ok(fetch)) if !parsed.globals.offline => {
+        Some(Ok(fetch)) => {
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
                 Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
+            };
+            let fetch = if parsed.globals.offline {
+                fetch.offline()
+            } else {
+                fetch.as_ref().clone()
             };
             owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned

@@ -141,5 +141,11 @@ fn db(error: rusqlite::Error) -> CacheError {
 
 /// Validate and open the owned query store without making a source request.
 pub fn health(fetch: &biomcp_fetch::Fetch, budget: std::time::Duration) -> Result<(), CacheError> {
-    Store::open(fetch.cache_access()?, fetch.deadline(budget)).map(|_| ())
+    let access = fetch.cache_access()?;
+    let connection = access.connect_read_only()?;
+    let deadline = fetch.deadline(budget);
+    connection.busy_timeout(deadline.remaining()).map_err(db)?;
+    access.admit(deadline, || {
+        biomcp_fetch::check_owners(&connection, &[OWNER])
+    })
 }
