@@ -14,6 +14,7 @@ replay.mkdir(parents=True)
 cases = output / 'cases'
 cases.mkdir()
 accepted = {
+    '2290-author-captures-redacted.tar.gz': '0a873520c1dacb33c93a22f00868ebae58401f21ad0b768026ac8c52b75c3964',
     '2290-author-dependents.tar.gz': 'd8521464f4f2525a13450efe352abcaa97170a8d3232fde02e9b299202f86eb3',
     '0266-author-card-xowlaemk.tar.gz': 'c077d787ebf31f8308c90a22a9c1085d8fff3ea8c50626afae9d5984f73a4d2a',
 }
@@ -31,22 +32,24 @@ for name, expected in accepted.items():
                 raise ValueError('archive member differs: ' + member)
         ledger = json.load(archive.extractfile('ledger.json'))
         for row in ledger:
-            if not row['id'].startswith(('search-', 'card-', 'absent-author')):
+            if row['source'] != 'orcid' and not row['id'].startswith(('search-', 'card-', 'absent-author', 'papers-')):
                 continue
             raw = archive.extractfile(f"{row['index']:04d}.body").read()
             if hashlib.sha256(raw).hexdigest() != row['body_sha256']:
                 raise ValueError('native body differs')
             # Text encoding preserves every native JSON body byte, including whitespace.
-            record = {'method': 'GET', 'source': 'semantic-scholar', 'url': row['url'],
+            record = {'method': 'GET', 'source': row['source'], 'url': row['url'],
                       'exchanges': [{'status': row['status'], 'content_type': 'application/json',
                                      'delay_ms': 0, 'retry_after_ms': None,
                                      'body': {'kind': 'text', 'value': raw.decode()}}]}
             key = hashlib.sha256(b'GET\0' + row['url'].encode()).hexdigest()
-            (replay / (key + '.json')).write_text(json.dumps(record) + '\n')
+            destination = replay.parent / row['source']
+            destination.mkdir(exist_ok=True)
+            (destination / (key + '.json')).write_text(json.dumps(record) + '\n')
             records[row['id']] = (row, json.loads(raw))
 
 templates = Path(__file__).resolve().parent.parent / 'tests/native/author'
-for template in templates.glob('*.yaml'):
+for template in [*templates.glob('*.yaml'), *templates.with_name('author-papers').glob('*.yaml')]:
     case = json.loads(template.read_text())
     case['replay'] = str(replay.parent)
     (cases / template.name).write_text(json.dumps(case, indent=2) + '\n')
@@ -62,3 +65,8 @@ for name, source, indices in [
     case['steps'] = [case['steps'][index] for index in indices]
     case.pop('replay', None)
     (cases / (name + '.yaml')).write_text(json.dumps(case, indent=2) + '\n')
+
+# ORCID assertions are licensed source records. Build the native owning cases here,
+# so names and native assertion values remain in protected staging outside Git.
+import orcid_native
+orcid_native.prepare(records, cases, replay.parent)
