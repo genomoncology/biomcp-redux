@@ -27,8 +27,6 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::oncokb::SPEC,
     &crate::gnomad::SPEC,
     &crate::uniprot::SPEC,
-    &crate::interpro::SPEC,
-    &crate::complex_portal::SPEC,
     &crate::reactome::SPEC,
     &crate::wikipathways::SPEC,
     &crate::civic::SPEC,
@@ -212,18 +210,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::UniProt => (
             "/uniprotkb/P15056.json",
             vec![("fields", Arg::Text("accession"))],
-        ),
-        Source::InterPro => (
-            "/entry/interpro/protein/uniprot/P00533/",
-            vec![("page_size", Arg::Num(5))],
-        ),
-        Source::ComplexPortal => (
-            "/search/P15056",
-            vec![
-                ("first", Arg::Num(0)),
-                ("number", Arg::Num(5)),
-                ("filters", Arg::Text("species_f:(\"Homo sapiens\")")),
-            ],
         ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::WikiPathways => ("/help.html", vec![]),

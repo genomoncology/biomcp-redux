@@ -9,9 +9,7 @@ mod quotas;
 mod raw;
 pub use mapped::Mapped;
 
-pub mod complex_portal;
 pub mod gnomad;
-pub mod interpro;
 pub mod uniprot;
 
 /// Direct HPO publisher policy.

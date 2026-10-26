@@ -15,10 +15,6 @@ canonical_enum! {
         Hpa => "hpa",
         /// UniProt.
         UniProt => "uniprot",
-        /// Integrated InterPro entries.
-        InterPro => "interpro",
-        /// Complex Portal.
-        ComplexPortal => "complex-portal",
         /// gnomAD.
         Gnomad => "gnomad",
         /// ClinVar component source policy.
