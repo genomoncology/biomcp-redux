@@ -23,7 +23,7 @@ pub(super) fn mcp(
     check(&value, &phase_key(phase, args), "mcp")?;
     Ok(value)
 }
-fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
+pub(super) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
         include_str!("../../../../tests/pathway-command-budgets.json"),
     )

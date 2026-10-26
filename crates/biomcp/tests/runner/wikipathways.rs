@@ -428,6 +428,12 @@ fn concurrent() -> Check {
             String::from_utf8_lossy(&finished.stderr)
         ));
     }
+    let receipt = serde_json::from_slice(&finished.stdout).map_err(|e| e.to_string())?;
+    budgets::check(
+        &receipt,
+        "wikipathways/concurrent/1: sync wikipathways",
+        "cli",
+    )?;
     for result in results {
         let result = result.map_err(|_| "reader panicked")??;
         check_reader(&result)?;
