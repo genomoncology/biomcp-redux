@@ -49,6 +49,15 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
         )
         .map_err(|e| e.to_string())?;
     }
+    walks(directory, &output, &budgets)
+}
+
+fn walks(
+    directory: &Path,
+    output: &Path,
+    budgets: &std::collections::BTreeMap<String, [usize; 2]>,
+) -> Result<(), String> {
+    let registry = super::super::schema::Registry::embedded()?;
     let walks = directory.parent().ok_or("native directory")?.join("walks");
     for path in fs::read_dir(walks).map_err(|e| e.to_string())? {
         let path = path.map_err(|e| e.to_string())?.path();

@@ -146,7 +146,7 @@ Complex search and exact detail have different shapes. Header admission uses an 
 
 Gene pivots use the landed gene entity's exact HGNC/UniProt cross-references. A gene with two proteins returns candidates, never a first-hit guess. Protein search passes text unchanged to UniProt; an explicit `--gene` uses its exact gene field under taxon9606. Default human/reviewed scope stays explicit. Gene names in returned protein records do not manufacture HGNC IDs. Variant-to-protein residue work needs the source's explicit protein/transcript identifier and sequence identity. Gene plus protein-change spelling alone does not join coordinate systems. `ProteinSite` remains a site, not an allele. No genome build, MANE status or clinical significance is inferred from a protein record.
 
-## Proposed command tree and progressive disclosure
+## Command tree and progressive disclosure
 
 | Command | Default header or page | Drill-down and exact next steps |
 | --- | --- | --- |
@@ -156,12 +156,12 @@ Gene pivots use the landed gene entity's exact HGNC/UniProt cross-references. A 
 | `protein domains ACCESSION [--type TYPE]` | Five InterPro matches with native types and location fragments | Source-reported next page or a locally retained page; no flattening or selecting the first overlapping fragment. |
 | `protein isoforms ACCESSION` | Five native alternative-product rows | Exact get or sequence actions only when the captured endpoint proves that identity can be retrieved. External alternatives retain their own base accession. |
 | `protein complexes ACCESSION` | Five admitted complex headers | Member action per displayed complex, then page; admission requires exact native protein participant and human scope. |
-| `protein complex-members ACCESSION --complex CPX-ID` | Five native members of one proven containing complex | Page through all participant types; protein pivots only for source-supplied supported exact protein IDs. The anchor accession must be an actual participant. This route is a PM choice below. |
+| `protein complex-members ACCESSION --complex CPX-ID` | Five native members of one proven containing complex | Page through all participant types; protein pivots only for source-supplied supported exact protein IDs. The anchor accession must be an actual participant. This route follows the approved exact-anchor contract. |
 | `protein associations ACCESSION` (deferred option) | Five query-incident STRING edges after explicit ID mapping | Preserve source order and all source confidence channels; no inferred partner accession, reranking, enrichment or neighbor-neighbor edges. |
 | `protein structures ACCESSION` | Five UniProt structural cross-reference rows | Link to publisher PDB record; never fetch/install a structural analysis tool. |
 | `protein sequence ISOFORM` | One exact native sequence with returned accession and audit metadata | Deep disclosure only; named isoform must match the source response. Default get omits it. |
 
-All page commands share `--limit` (default5, proposed maximum25), `--pool` and `--offset`; emitted arguments use the existing continuation grammar. `get` uses existing `--section-limit`, source selection, freshness and policy behavior. Default search reviewed-only can be widened with `--include-unreviewed`; `--reviewed` is an explicit default spelling with a conflict check. The existing generic global options retain one owner. No `--all-species` is proposed under human-health entity scope. No source retry rewrites the input.
+Collection page commands share `--limit`, `--pool` and `--offset` under their query schema bounds; emitted arguments use the existing continuation grammar. `get` uses existing `--section-limit`, source policy controls, freshness and policy behavior. Default search stays reviewed human and cannot yet be widened because no positive unreviewed capture exists; `--reviewed` is an explicit default spelling with a conflict check. The existing generic global options retain one owner. The `--all-species` spelling is dropped under human-health entity scope. No source retry rewrites the input.
 
 ### Delight questions
 
@@ -446,6 +446,24 @@ Every 0.9 timing and output size remains unmeasured because no verified denied-n
 
 Job j15029 measures the missing authored fixture outputs serially. `tests/protein-synthetic-budgets.json` holds whole CLI bytes for80 owning Rust fixture, variant and command-phase keys. These older transport, cache and continuation cases exercise CLI only; their measured size is not described as MCP execution. Public command parity remains owned by the native and YAML CLI/MCP cases. Existing j15006 failure, retirement and composite measurements remain in their original owning cases.
 
-Every protein YAML step owns its `max_bytes` and `max_tokens`. The step bound uses its measured comparable CLI and, where actually exercised, MCP output before headroom. A walk has one ordinary step ceiling applied to every page. Its retained measurement log labels every page, and the chosen step ceiling covers that same step's largest measured page. It does not claim an independently selected bound for each page. No second YAML argument-budget table or global runner hook is added.
+Every protein YAML step owns its `max_bytes` and `max_tokens`. The step bound uses its measured comparable CLI and, where actually exercised, MCP output before headroom. A walk has one ordinary step ceiling applied to every page. Its retained measurement log labels every page, and the chosen step ceiling covers that same step's largest measured page. It does not claim an independently selected bound for each page. No second YAML argument-budget table or global runner hook is added. The canonical `paging.yaml` step0 walk uses its own first page's1,853 comparable CLI bytes as the largest observed page; step1 uses its own second page's798 comparable CLI bytes. The log retains every page label and the original walk IDs and counts remain asserted.
 
 Two native UniProt continuation sizes come directly from the already retained `result-walk-isoforms-P04637.json` and `result-walk-isoforms-Q9UIF7.json` product outputs in the accepted0239 archive. Their whole CLI sizes are1,163 and597 bytes; comparable compact JSON sizes are1,071 and505 bytes. Their own `walk-isoforms-*` keys replace the borrowed first-page bounds. These continuation steps ran on CLI only. Their first pages retain the existing CLI/MCP proof; no continuation MCP execution is inferred. Every domain-native generated case now receives its existing owning map bound, and an unknown native key fails rather than bypassing the bound.
+
+### Generated discovery measurements
+
+The same bounded job j15029 measures each unchanged protein help command through both CLI and MCP. A corrective check j15040 measures the changed get help after the section enum starts emitting its existing descriptions. The complete generated schema registry is regenerated in both checks. Get help is1,918 CLI bytes and1,917 MCP bytes; whole help is83,196 CLI bytes and83,195 MCP bytes. The correction changes no command result or native baseline. The source description is3,098 bytes and explicitly names the protein relations, selectors, human source scope and inference/tool boundary.
+
+| Help command | Whole CLI bytes | Whole MCP bytes |
+| --- | ---: | ---: |
+| `help search protein` | 1,272 | 1,271 |
+| `help get protein` | 1,918 | 1,917 |
+| `help protein features` | 1,281 | 1,280 |
+| `help protein domains` | 1,094 | 1,093 |
+| `help protein isoforms` | 999 | 998 |
+| `help protein complexes` | 1,003 | 1,002 |
+| `help protein complex-members` | 1,194 | 1,193 |
+| `help protein structures` | 1,007 | 1,006 |
+| `help protein sequence` | 593 | 592 |
+
+Each help step owns its measured byte and approximate-token ceiling with the existing headroom. The temporary measurement collector is removed. Whole-help ceilings remain unchanged because the measured combined output fits. The source tools description uses the PM's measured cap ruling in its existing discovery check.

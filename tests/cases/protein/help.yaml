@@ -59,7 +59,7 @@
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "input",
-            "section",
+            "--section",
             "--section-limit"
           ]
         },
@@ -76,7 +76,9 @@
           ]
         },
         "/result/commands/0/section_rule": "Select native sections or all bounded first pages; function keeps one whole text record."
-      }
+      },
+      "max_bytes": 2206,
+      "max_tokens": 552
     },
     {
       "run": [
