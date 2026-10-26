@@ -92,6 +92,16 @@ fn union() -> Check {
     let first=call(&env,&replay,&args,0)?;
     let sources=first.pointer("/result/items").and_then(Value::as_array).ok_or("items")?.iter().map(|r|r.pointer("/id/source").and_then(Value::as_str)).collect::<Vec<_>>();
     if sources!=vec![Some("reactome"),Some("wikipathways"),Some("reactome"),Some("wikipathways"),Some("reactome")] {return Err(format!("round robin order: {first}"));}
+    for path in fs::read_dir(fixtures().join("replies/pathway/mixed/reactome")).map_err(|e|e.to_string())? {
+        let path=path.map_err(|e|e.to_string())?.path();
+        fs::copy(&path,replay.join("reactome").join(path.file_name().ok_or("filename")?)).map_err(|e|e.to_string())?;
+    }
+    let mut mixed=args.to_vec();mixed.push("--fresh");
+    let short=call(&env,&replay,&mixed,0)?;
+    if short.pointer("/result/page/returned")!=Some(&json!(4)) || short.pointer("/result/page/next_offset")!=Some(&json!(4)) {return Err(format!("native admission turn: {short}"));}
+    let next=short.get("next").and_then(Value::as_array).and_then(|a|a.iter().find(|s|s.get("kind")==Some(&json!("page")))).and_then(|s|s.get("args")).and_then(Value::as_array).ok_or("short continuation")?.iter().map(|v|v.as_str().ok_or("arg")).collect::<Result<Vec<_>,_>>()?;
+    let resumed=call(&env,&replay,&next,0)?;
+    if resumed.pointer("/result/items/0/id/source")!=Some(&json!("reactome")) || resumed.pointer("/result/items/1/id/id")!=Some(&json!("WP3")){return Err(format!("short page changed source turn: {resumed}"));}
     let mut failed=args.to_vec();failed.extend(["--disable-sources","reactome"]);
     let partial=call(&env,&replay,&failed,0)?;
     if partial.get("status")!=Some(&json!("partial")) || partial.pointer("/sources/0/reason")!=Some(&json!("disabled")) || partial.pointer("/result/items/0/id/source")!=Some(&json!("wikipathways")){return Err(format!("failed leg beside successful leg: {partial}"));}
