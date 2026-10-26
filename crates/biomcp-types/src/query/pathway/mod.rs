@@ -8,15 +8,12 @@ pub use get::PathwayGet;
 pub use relation::{PathwayEventsQuery, PathwayGenesQuery};
 pub use search::PathwaySearch;
 biodata::wire_enum! {
+    #[derive(Default)]
     /// One explicit pathway source, without fallback or cross-source title joins.
     PathwaySource {
+        #[default]
         #[doc = "Human Reactome database records."] Reactome => "reactome",
         #[doc = "Human WikiPathways metadata catalog."] Wikipathways => "wikipathways"
-    }
-}
-impl Default for PathwaySource {
-    fn default() -> Self {
-        Self::Reactome
     }
 }
 biodata::wire_enum! {

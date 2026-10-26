@@ -75,6 +75,12 @@ pub struct PathwayCard {
     pub description_truncated: Option<bool>,
     /// Source-supported named sections; WikiPathways excludes genes and events.
     pub sections: Box<[PathwaySection]>,
+    /// Requested bounded membership page, including its explicit source state.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub genes: Option<crate::Section<PathwayGenes>>,
+    /// Requested bounded event page, including unresolved integer references.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
     const SCHEMA: &'static str = "biomcp.pathway_card/1";
