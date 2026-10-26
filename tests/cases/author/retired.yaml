@@ -298,6 +298,29 @@
       "full_output_bytes": true,
       "max_bytes": 400,
       "max_tokens": 100
+    },
+    {
+      "run": [
+        "get",
+        "author",
+        "semantic-scholar:123",
+        "coauthors"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "semantic-scholar:123",
+        "coauthors"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 400,
+      "max_tokens": 100
     }
   ]
 }
