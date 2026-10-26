@@ -10,6 +10,25 @@ import time
 import source_capture as capture
 
 
+SENSITIVE_HEADERS = {b'authorization', b'proxy-authorization', b'x-api-key', b'set-cookie'}
+ORIGINAL_REPLY = capture.curl_reply
+
+
+def sanitize_headers(headers):
+    kept, sensitive = [], False
+    for line in headers.splitlines():
+        if not line.startswith((b' ', b'\t')):
+            sensitive = line.split(b':', 1)[0].lower() in SENSITIVE_HEADERS
+        if not sensitive:
+            kept.append(line)
+    return b'\r\n'.join(kept)
+
+
+def sanitized_reply(request, plan):
+    status, headers, body, truncated, transport = ORIGINAL_REPLY(request, plan)
+    return status, sanitize_headers(headers), body, truncated, transport
+
+
 def pack(folder, archive):
     capture.manifest(folder)
     with tarfile.open(archive, 'w:gz') as target:
@@ -175,6 +194,7 @@ print('Every archive and inventory member verified independently')
 
 def main():
     capture.require_environment()
+    capture.curl_reply = sanitized_reply
     recipe = json.loads(Path('scripts/author_capture_plan.json').read_text())
     assert len(recipe['phase1'] + recipe['phase2']) == recipe['max_requests'] == 20
     folder = initialize()
