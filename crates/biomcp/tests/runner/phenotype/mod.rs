@@ -1,5 +1,6 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
 mod native;
+mod associations;
 mod section_failures;
 mod section_native;
 mod sections;
@@ -42,6 +43,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ];
     rows.extend(sections::trials());
+    rows.extend(associations::trials());
     rows.push(Trial::test(
         "phenotype-sections/recorded-failures-retain-source-and-terms",
         || section_failures::run().map_err(Into::into),
