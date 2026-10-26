@@ -32,7 +32,7 @@ fn active(env: &Environment) -> PathBuf {
     env.root().join(format!(
         "cache/biomcp/cache-{}-{}.sqlite",
         biomcp_fetch::CACHE_NAMESPACE_VERSION,
-        biomcp_query::store::VERSION
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
     ))
 }
 fn seed(cx: &Connection) -> Check {

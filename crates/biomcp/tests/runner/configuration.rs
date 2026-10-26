@@ -393,7 +393,7 @@ fn article_owners() -> Check {
         let file = parent.join(format!(
             "cache-{}-{}.sqlite",
             biomcp_fetch::CACHE_NAMESPACE_VERSION,
-            biomcp_query::store::VERSION
+            biomcp_query::store::CACHE_NAMESPACE_VERSION
         ));
         let case = env.root().join("case");
         let replay = if owned {
@@ -492,7 +492,7 @@ pub(super) fn article_processes() -> Check {
     let file = parent.join(format!(
         "cache-{}-{}.sqlite",
         biomcp_fetch::CACHE_NAMESPACE_VERSION,
-        biomcp_query::store::VERSION
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
     ));
     // Replay and ordinary caches have the same owned schema. Copy only after
     // the seed process closes; it has checkpointed the WAL and released locks.

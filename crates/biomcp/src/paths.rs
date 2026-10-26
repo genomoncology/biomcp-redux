@@ -17,22 +17,25 @@ pub(crate) fn cache(
     home: Option<PathBuf>,
     localappdata: Option<PathBuf>,
 ) -> Option<PathBuf> {
-    if cfg!(windows) {
-        localappdata.map(|root| {
-            root.join(format!(
-                "biomcp/cache-{}-{}.sqlite",
-                biomcp_fetch::CACHE_NAMESPACE_VERSION,
-                biomcp_query::store::VERSION
-            ))
-        })
+    let root = if cfg!(windows) {
+        localappdata
     } else {
         xdg.or_else(|| home.map(|root| root.join(".cache")))
-            .map(|root| {
-                root.join(format!(
-                    "biomcp/cache-{}-{}.sqlite",
-                    biomcp_fetch::CACHE_NAMESPACE_VERSION,
-                    biomcp_query::store::VERSION
-                ))
-            })
+    }?;
+    let folder = root.join("biomcp");
+    // Reuse the last owned pre-migration layout without renaming live SQLite files.
+    for generation in [biomcp_query::store::CACHE_NAMESPACE_VERSION, 4] {
+        let path = folder.join(format!(
+            "cache-{}-{generation}.sqlite",
+            biomcp_fetch::CACHE_NAMESPACE_VERSION
+        ));
+        if path.exists() {
+            return Some(path);
+        }
     }
+    Some(folder.join(format!(
+        "cache-{}-{}.sqlite",
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
+    )))
 }

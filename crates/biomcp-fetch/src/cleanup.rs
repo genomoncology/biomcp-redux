@@ -48,7 +48,7 @@ impl crate::CacheAccess {
                 continue;
             }
             if owned_file(&entry.path(), owners)? {
-                fs::remove_file(entry.path()).map_err(|_| CacheError::Database)?;
+                remove_database(&entry.path())?;
                 removed += 1;
             }
         }
@@ -119,4 +119,18 @@ fn transport_table(name: &str) -> bool {
             | "bundle_words_docsize"
             | "bundle_words_config"
     )
+}
+
+fn remove_database(path: &Path) -> Result<(), CacheError> {
+    fs::remove_file(path).map_err(|_| CacheError::Database)?;
+    for suffix in ["-wal", "-shm"] {
+        let mut sidecar = path.as_os_str().to_os_string();
+        sidecar.push(suffix);
+        match fs::remove_file(sidecar) {
+            Ok(()) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(_) => return Err(CacheError::Database),
+        }
+    }
+    Ok(())
 }
