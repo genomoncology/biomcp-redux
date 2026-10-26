@@ -55,7 +55,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::StudyProfiles(_) | Body::StudySampleLists(_) => Navigation::Bounded,
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
         Body::PhenotypeCard(_) => Navigation::Bounded,
-        Body::PathwayCard(_) => Navigation::Bounded,
+        Body::PathwayCard(_) | Body::PathwayGenes(_) | Body::PathwayEvents(_) => {
+            Navigation::Bounded
+        }
         Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
         Body::VariantCard(card) => {
             if card.resolution == biomcp_types::VariantResolution::Candidates {

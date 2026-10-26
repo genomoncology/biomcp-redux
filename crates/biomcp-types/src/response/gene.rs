@@ -79,6 +79,10 @@ pub enum QueryBody {
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.
     PathwayCard(Option<crate::PathwayCard>),
+    /// Retained native membership references.
+    PathwayGenes(Option<crate::PathwayGenes>),
+    /// Retained native contained events.
+    PathwayEvents(Option<crate::PathwayEvents>),
     /// Source-ordered study catalog metadata.
     StudyPage(Option<crate::StudyPage>),
     /// Exact stored study metadata.

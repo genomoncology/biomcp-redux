@@ -57,6 +57,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
         Request::GetPhenotype(_) => "biomcp.phenotype-get/1",
         Request::SearchPathway(_) => "biomcp.pathway-search/1",
         Request::GetPathway(_) => "biomcp.pathway-get/1",
+        Request::PathwayGenes(_) => "biomcp.pathway-genes-query/1",
+        Request::PathwayEvents(_) => "biomcp.pathway-events-query/1",
         Request::SearchStudy(_) => "biomcp.study-search/1",
         Request::GetStudy(_) => "biomcp.study-get/1",
         Request::SearchPgx(_) => "biomcp.pgx-search/2",
@@ -99,6 +101,8 @@ pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("get", "phenotype", "biomcp.phenotype-get/1"),
     ("search", "pathway", "biomcp.pathway-search/1"),
     ("get", "pathway", "biomcp.pathway-get/1"),
+    ("pathway", "genes", "biomcp.pathway-genes-query/1"),
+    ("pathway", "events", "biomcp.pathway-events-query/1"),
     ("search", "study", "biomcp.study-search/1"),
     ("get", "study", "biomcp.study-get/1"),
     ("search", "pgx", "biomcp.pgx-search/2"),
@@ -490,6 +494,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
         ("search", "gwas") => gwas::request(verb, value),
+        ("pathway", "genes" | "events") => entity::request(verb, entity, value),
         (
             "search" | "get",
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
