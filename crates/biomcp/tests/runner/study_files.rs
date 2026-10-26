@@ -28,6 +28,9 @@ fn entries() -> Value {
         json!({"name":name,"path":format!("public/synthetic_0/{name}"),"html_url":format!("https://github.com/cBioPortal/datahub/blob/master/public/synthetic_0/{name}"),"download_url":format!("https://raw.githubusercontent.com/cBioPortal/datahub/master/public/synthetic_0/{name}"),"sha":"0123456789012345678901234567890123456789","size":131,"type":"file"})
     }).collect::<Vec<_>>())
 }
+pub(super) fn seed(replay: &Path) -> Check {
+    record(replay, entries(), 200, 0)
+}
 fn record(replay: &Path, body: Value, status: u16, delay: u64) -> Check {
     let url = "https://api.github.com/repos/cBioPortal/datahub/contents/public/synthetic_0";
     let key = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
