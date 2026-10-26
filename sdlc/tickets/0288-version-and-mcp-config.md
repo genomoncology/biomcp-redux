@@ -10,8 +10,8 @@ Milestone: 5
 
 - Why: architecture.md's housekeeping grammar names `version` and `mcp-config`, 0.9.3 shipped both, and the 0275 accounting ports them instead of dropping them.
 - Starts from: architecture.md's command grammar at its housekeeping line, the 0.9.3 `version` and `mcp-config` help and options, `paths.rs` for config and cache paths, and the generated schema registry.
-- Rules: client formats name each client by its config file shape, not by vendor, except where a format has no neutral name, which comes to the PM. Output never includes key values.
+- Rules: client formats keep their 0.9 names. Output never includes key values.
 - Proof: cases assert `version` and `version --verbose` fields, `mcp-config` output parses as JSON with the absolute binary path and `serve` arguments, an unknown `--client` is a usage error, and both run with an empty environment and offline.
 - Changes: the grammar, two small commands, help, the MCP tool description if it lists housekeeping, and the cross-cutting accounting rows.
 - Defers: nothing.
-- PM ruling 2026-10-26 (m8126 ask 16): `mcp-config` emits two neutral JSON shapes, `mcp-servers` (the default, with `json` as an alias) and `servers`. The 0.9 absolute-path option stays accepted as a no-op because output always uses the absolute path. The 0.9 vendor-named shell command format retires with a usage error that names `mcp-config --client mcp-servers`.
+- PM ruling 2026-10-26 (m8126 ask 16): `mcp-config` emits two neutral JSON shapes, `mcp-servers` (the default, with `json` as an alias) and `servers`. The 0.9 absolute-path option stays accepted as a no-op because output always uses the absolute path. Amended after m8340: public products may be named, so the 0.9 shell command format is kept under its 0.9 client name for parity, printing the add command with the absolute binary path.

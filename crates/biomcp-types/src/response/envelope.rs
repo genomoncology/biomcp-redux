@@ -21,6 +21,9 @@ pub struct Envelope<T: ResponseBody> {
     schema: &'static str,
     /// Overall outcome.
     pub status: Status,
+    /// Bounded local cache failure, independent of provider outcomes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub local_error: Option<super::CacheProblem>,
     /// Parsed query.
     pub query: T::Query,
     /// Answer when available.
@@ -45,6 +48,7 @@ impl<T: ResponseBody> Envelope<T> {
         Self {
             schema: T::SCHEMA,
             status,
+            local_error: None,
             query,
             result,
             page: None,
