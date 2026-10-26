@@ -416,7 +416,7 @@ fn pathway_contracts() -> Vec<Contract> {
         PathwaySearch => ("pathway-search", "biomcp.pathway-search/1"),
         PathwayGet => ("pathway-get", "biomcp.pathway-get/1"),
         Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/1"),
-        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/1"),
+        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/2"),
         Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/1"),
         Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/1"),
     }

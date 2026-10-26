@@ -127,4 +127,4 @@ phenotype-types: A public API caller preserves native phenotype fields and valid
 pathway-types: A public API caller validates source-owned pathway identities and selectors, preserves native references and distinguishes source totals from observed relation counts before adapters exist. Contracts: `biomcp-types/pathway_contracts` (features: `schema`).
 protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist. Contracts: `biomcp-types/protein_contracts` (features: `schema`).
 
-pathway-reactome: Discover native human pathway headers and exact Reactome cards without inferred membership or replacement identities. Cases: `tests/cases/pathway/help.yaml`.
+pathway-reactome: Discover native human pathway headers and exact Reactome cards without inferred membership or replacement identities. Cases: `tests/cases/pathway/help.yaml`, `tests/cases/pathway/cards.yaml`.

@@ -20,7 +20,7 @@
           "pathway"
         ],
         "/result/commands/0/arguments/*/name": {
-          "includes": [
+          "includes_all_of": [
             "--gene",
             "--top-level",
             "--limit",
