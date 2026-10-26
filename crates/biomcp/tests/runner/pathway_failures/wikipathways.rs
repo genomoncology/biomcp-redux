@@ -3,7 +3,8 @@ use super::{Check, Environment, call, fixtures};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("pathway-failures/synthetic-wikipathways-sync", || failures().map_err(Into::into)),
+    vec![Trial::test("pathway-failures/synthetic-wikipathways-human-scope-absence", || identities().map_err(Into::into)),
+    Trial::test("pathway-failures/synthetic-wikipathways-sync", || failures().map_err(Into::into)),
     Trial::test("pathway-failures/synthetic-partial-independent-legs", || partial().map_err(Into::into))]
 }
 fn failures() -> Check {
@@ -44,6 +45,33 @@ fn partial() -> Check {
         || !sources.iter().any(|v|v.get("source")==Some(&json!("reactome"))&&v.get("state")==Some(&json!("failed")))
         || !sources.iter().any(|v|v.get("source")==Some(&json!("wikipathways"))&&v.get("state")==Some(&json!("ok"))) {
         return Err(format!("independent successful/failed legs lost their outcome: {value}"));
+    }
+    Ok(())
+}
+fn identities() -> Check {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let root=fixtures::seed(&env)?;
+    let mut search=fixtures::catalog(true);
+    let mut get=fixtures::catalog(false);
+    for catalog in [&mut search,&mut get] {
+        catalog["pathwayInfo"][0]["species"]=json!("Mus musculus");
+    }
+    fixtures::replace_source(&root,"wikipathways","findPathwaysByText",&search.to_string(),200,0)?;
+    fixtures::replace_source(&root,"wikipathways","getPathwayInfo",&get.to_string(),200,0)?;
+    let synced=call(&env,&root,&["sync","wikipathways"],0)?;
+    if synced.pointer("/result/get/human_rows")!=Some(&json!(0)) || synced.pointer("/result/get/total_rows")!=Some(&json!(1)) {
+        return Err(format!("catalog discarded native nonhuman row or admitted it as human: {synced}"));
+    }
+    for words in [&["get","pathway","WP382"][..], &["get","pathway","WP99999"][..]] {
+        let absent=call(&env,&root,words,1)?;
+        if absent.get("status")!=Some(&json!("empty")) || absent.get("result").is_some_and(|v|!v.is_null())
+            || absent.get("problems").and_then(Value::as_array).is_some_and(|v|!v.is_empty()) {
+            return Err(format!("human-scope absence gained a card or identity conflict: {absent}"));
+        }
+    }
+    let found=call(&env,&root,&["search","pathway","Synthetic","--source","wikipathways"],0)?;
+    if found.pointer("/result/page/total")!=Some(&json!(0)) || found.pointer("/result/items")!=Some(&json!([])) {
+        return Err(format!("foreign species entered a result pool: {found}"));
     }
     Ok(())
 }

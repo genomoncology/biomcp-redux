@@ -25,6 +25,7 @@ pub(super) fn seed(env: &Environment) -> Result<std::path::PathBuf, String> {
     let root = env.root().join("replay");
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Record { dir: root.clone() },
+        cache: Some(env.root().join("synthetic-source.sqlite")),
         network: Network::new(None, Some(Secret::new(format!("http://{}",stub.address))), "", Certificates::from_pem(stub.certificate.as_bytes()).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?,
         ..Default::default()
     }).map_err(|e|e.to_string())?;
