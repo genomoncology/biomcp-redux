@@ -86,3 +86,22 @@ pub(super) fn failures() -> Result<(), String> {
     }
     Ok(())
 }
+pub(super) fn native(directory: &Path) -> Result<(), String> {
+    use std::io::Write;
+    let registry = super::super::schema::Registry::embedded()?;
+    let mut paths = fs::read_dir(directory).map_err(|e| e.to_string())?
+        .map(|entry| entry.map(|entry| entry.path()).map_err(|e| e.to_string())).collect::<Result<Vec<_>,_>>()?;
+    paths.sort();
+    if paths.len() != 8 { return Err("expected eight threshold native cases".into()); }
+    let outputs = directory.parent().ok_or("fixture root")?.join("gwas-native-outputs");
+    fs::create_dir(&outputs).map_err(|e| e.to_string())?;
+    for path in paths {
+        let value = super::super::run_case(&path, &registry)?;
+        let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?;
+        let comparable = super::super::source_terms::size(&value, "")?;
+        let name = path.file_stem().and_then(|v| v.to_str()).ok_or("case name")?;
+        fs::write(outputs.join(format!("{name}.json")), &bytes).map_err(|e| e.to_string())?;
+        writeln!(std::io::stdout(), "GWAS threshold {name}: CLI={}, MCP={}, comparable={}, estimated_tokens={}", bytes.len()+1, bytes.len(), comparable, comparable.div_ceil(4)).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
