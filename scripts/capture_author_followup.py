@@ -1,5 +1,6 @@
 """Run the one approved remaining-author follow-up after recipe review."""
 from datetime import datetime, timezone
+import argparse
 import hashlib
 import io
 import json
@@ -40,7 +41,22 @@ def reused_evidence(recipe):
                 first_author_id=first, all_orcid_requests_reused=True)
 
 
+def prelaunch(folder, args):
+    raw = args.prelaunch_snapshot.read_bytes()
+    if capture.digest(raw) != args.prelaunch_sha256:
+        raise ValueError('prelaunch snapshot hash differs')
+    evidence = folder / 'prelaunch'
+    evidence.mkdir()
+    (evidence / 'owned-job-snapshot.json').write_bytes(raw)
+    author.pack(evidence, folder / 'prelaunch-snapshot.tar.gz')
+    shutil.rmtree(evidence)
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--prelaunch-snapshot', type=Path, required=True)
+    parser.add_argument('--prelaunch-sha256', required=True)
+    args = parser.parse_args()
     capture.require_environment()
     if not os.environ.get('S2_API_KEY'):
         raise ValueError('follow-up requires the named Semantic Scholar key')
@@ -58,6 +74,9 @@ def main():
     capture.write_json(folder / 'credential-presence.json', {
         'S2_API_KEY': True, 'ORCID_ACCESS_TOKEN': bool(os.environ.get('ORCID_ACCESS_TOKEN'))})
     window = dict(recipe['concurrency'], capture_started_at_utc=now())
+    capture.write_json(folder / 'concurrency-window.json', window)
+    prelaunch(folder, args)
+    window['prelaunch_snapshot_sha256'] = args.prelaunch_sha256
     capture.write_json(folder / 'concurrency-window.json', window)
     ledger = []
     ids = author.bylines(recipe, folder, ledger)

@@ -157,12 +157,13 @@ with tarfile.open(p) as t:
  assert len(names)==len(set(names)) and set(names)==set(m)|{'manifest.json'}
  for n,h in m.items():
   assert hashlib.sha256(t.extractfile(n).read()).hexdigest()==h,n
- raw=t.extractfile('phase2-inventory.tar.gz').read()
-with tarfile.open(fileobj=io.BytesIO(raw)) as t:
- m=json.load(t.extractfile('manifest.json')); names=t.getnames()
- assert len(names)==len(set(names)) and set(names)==set(m)|{'manifest.json'}
- for n,h in m.items():
-  assert hashlib.sha256(t.extractfile(n).read()).hexdigest()==h,n
+ nested=[t.extractfile(n).read() for n in ('phase2-inventory.tar.gz','prelaunch-snapshot.tar.gz') if n in names]
+for raw in nested:
+ with tarfile.open(fileobj=io.BytesIO(raw)) as t:
+  m=json.load(t.extractfile('manifest.json')); names=t.getnames()
+  assert len(names)==len(set(names)) and set(names)==set(m)|{'manifest.json'}
+  for n,h in m.items():
+   assert hashlib.sha256(t.extractfile(n).read()).hexdigest()==h,n
 print('Every archive and inventory member verified independently')
 '''
     subprocess.run(['ssh', 'yellow', 'python3', '-', remote, checksum],
