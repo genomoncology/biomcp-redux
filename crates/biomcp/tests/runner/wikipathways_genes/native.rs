@@ -4,9 +4,9 @@ use std::{fs, io::Write};
 
 pub(super) fn run() -> Check {
     let input = super::super::launch::fixtures().join("wikipathways-genes-native");
-    let expected: std::collections::BTreeMap<String, Vec<String>> = serde_json::from_slice(
-        &fs::read(input.join("nodes.json")).map_err(|e| e.to_string())?,
-    ).map_err(|e| e.to_string())?;
+    let expected: std::collections::BTreeMap<String, Vec<String>> =
+        serde_json::from_slice(&fs::read(input.join("nodes.json")).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
     let search = fs::read_to_string(input.join("search.json")).map_err(|e| e.to_string())?;
     let get = fs::read_to_string(input.join("get.json")).map_err(|e| e.to_string())?;
     let hgnc = fs::read_to_string(input.join("hgnc.tsv")).map_err(|e| e.to_string())?;
@@ -52,7 +52,13 @@ pub(super) fn run() -> Check {
                 .to_vec(),
             0,
         )?;
-        walk(&env, first, count, id, expected.get(id).ok_or("native source nodes")?)?;
+        walk(
+            &env,
+            first,
+            count,
+            id,
+            expected.get(id).ok_or("native source nodes")?,
+        )?;
         measure(&env, id, &mut outputs)?;
     }
     if stub.finish()?.len() != 5 {
@@ -116,7 +122,10 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
         value = invoke(env, args, 0)?;
     }
     if ids.len() != count || ids != expected {
-        return Err(format!("Native walk lost or reordered source nodes: {}", ids.len()));
+        return Err(format!(
+            "Native walk lost or reordered source nodes: {}",
+            ids.len()
+        ));
     }
     if id == "WP382" {
         for (namespace, native, hgnc) in [
@@ -125,10 +134,13 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
             ("HGNC", "CACNG3", "HGNC:1407"),
         ] {
             if !joins.iter().any(|(reference, gene)| {
-                reference["namespace"] == namespace && reference["value"] == native
+                reference["namespace"] == namespace
+                    && reference["value"] == native
                     && gene == &json!(hgnc)
             }) {
-                return Err(format!("Missing exact native join {namespace}:{native} to {hgnc}"));
+                return Err(format!(
+                    "Missing exact native join {namespace}:{native} to {hgnc}"
+                ));
             }
         }
     }
@@ -139,8 +151,7 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
     for section in ["genes", "all"] {
         let args = ["get", "pathway", id, section].map(str::to_owned).to_vec();
         let cli = invoke(env, args.clone(), 0)?;
-        let mcp =
-            super::super::mcp::call_with_globals(env, &args, false, &["--offline".into()])?;
+        let mcp = super::super::mcp::call_with_globals(env, &args, false, &["--offline".into()])?;
         for (surface, value) in [("CLI", cli), ("MCP", mcp)] {
             super::super::schema::Registry::embedded()?.validate(&value, &args, true)?;
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
@@ -148,6 +159,6 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
             writeln!(std::io::stdout(), "GPML_MEASURE {}", json!({"id":id,"section":section,"surface":surface,"full_bytes":full,"comparable_bytes":bytes,"tokens":bytes.div_ceil(4)})).map_err(|e| e.to_string())?;
             outputs.push(json!({"id":id,"section":section,"surface":surface,"output":value}));
         }
-        }
+    }
     Ok(())
 }

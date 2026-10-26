@@ -79,28 +79,16 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     let record = replay.to_str().ok_or("record path")?;
     invoke(
         &env,
-        [
-            "sync",
-            "wikipathways",
-            "--record",
-            record,
-        ]
-        .map(str::to_owned)
-        .to_vec(),
+        ["sync", "wikipathways", "--record", record]
+            .map(str::to_owned)
+            .to_vec(),
         0,
     )?;
     let first = invoke(
         &env,
-        [
-            "get",
-            "pathway",
-            "WP382",
-            "genes",
-            "--record",
-            record,
-        ]
-        .map(str::to_owned)
-        .to_vec(),
+        ["get", "pathway", "WP382", "genes", "--record", record]
+            .map(str::to_owned)
+            .to_vec(),
         0,
     )?;
     let requests = stub.finish()?;
@@ -237,24 +225,22 @@ fn failures() -> Check {
 
 fn failed_body(mode: &str) -> String {
     match mode {
-            "wrong-wp" => gpml().replace("WP382_r140476", "WP100_r140476"),
-            "wrong-species" => gpml().replace("Homo sapiens", "Mus musculus"),
-            "padded-species" => gpml().replace("Homo sapiens", " Homo sapiens "),
-            "bad-revision" => gpml().replace("WP382_r140476", "WP382_r0"),
-            "broken" => "<Pathway>".into(),
-            "entity" => format!(
-                "<!DOCTYPE Pathway [<!ENTITY x SYSTEM \"file:///etc/passwd\">]>{}",
-                gpml()
-            ),
-            "namespace" => gpml().replace("<Xref", "<Xref xmlns=\"urn:foreign\""),
-            "duplicate" => gpml().replace("GraphId=\"n1\"", "GraphId=\"n0\""),
-            "padded-id-collision" => gpml().replace("GraphId=\"n1\"", "GraphId=\" n0 \""),
-            "node-bound" => {
-                gpml().replace("</Pathway>", &("<Unknown/>".repeat(100_001) + "</Pathway>"))
-            }
-            "oversized" => {
-                gpml().replace("</Pathway>", &(" ".repeat(8 * 1024 * 1024) + "</Pathway>"))
-            }
-            _ => gpml(),
+        "wrong-wp" => gpml().replace("WP382_r140476", "WP100_r140476"),
+        "wrong-species" => gpml().replace("Homo sapiens", "Mus musculus"),
+        "padded-species" => gpml().replace("Homo sapiens", " Homo sapiens "),
+        "bad-revision" => gpml().replace("WP382_r140476", "WP382_r0"),
+        "broken" => "<Pathway>".into(),
+        "entity" => format!(
+            "<!DOCTYPE Pathway [<!ENTITY x SYSTEM \"file:///etc/passwd\">]>{}",
+            gpml()
+        ),
+        "namespace" => gpml().replace("<Xref", "<Xref xmlns=\"urn:foreign\""),
+        "duplicate" => gpml().replace("GraphId=\"n1\"", "GraphId=\"n0\""),
+        "padded-id-collision" => gpml().replace("GraphId=\"n1\"", "GraphId=\" n0 \""),
+        "node-bound" => {
+            gpml().replace("</Pathway>", &("<Unknown/>".repeat(100_001) + "</Pathway>"))
+        }
+        "oversized" => gpml().replace("</Pathway>", &(" ".repeat(8 * 1024 * 1024) + "</Pathway>")),
+        _ => gpml(),
     }
 }
