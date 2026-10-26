@@ -1,6 +1,9 @@
 //! Retained UniProt windows bind literal selectors and hide native cursors.
 use super::next;
-use crate::{Action, Ctx, Outcome, status, store::Store};
+use crate::{
+    Action, Ctx, Outcome, status,
+    store::{Pool, Store},
+};
 use biodata::Text;
 use biomcp_adapters::uniprot;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
@@ -18,7 +21,7 @@ struct Saved {
 }
 struct Loaded {
     saved: Saved,
-    prior: Option<(Text, String)>,
+    prior: Option<(Pool, String)>,
 }
 /// Walk the retained collection; an invalid pool never silently refetches.
 pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
@@ -106,12 +109,16 @@ fn read(
     out.local = error.and_then(status::local);
     let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
     let pool = if prior.as_ref().is_some_and(|(_, old)| old == &payload) {
-        prior.map(|(id, _)| id).ok_or(CacheError::Database)?
+        prior.map(|(pool, _)| pool).ok_or(CacheError::Database)?
     } else {
-        store.publish_source_pool(&key(q), &payload, &out.sources)?
+        store.publish_source_pool(
+            &key(q),
+            &payload,
+            saved.page.items.len() as u32,
+            &out.sources,
+        )?
     };
-    let info = store.source_snapshot_info(pool.clone(), saved.page.items.len() as u32)?;
-    render(q, saved, pool, info, out);
+    render(q, saved, pool.info.id.clone(), pool.info, out);
     Ok(())
 }
 fn load(
@@ -121,27 +128,18 @@ fn load(
     cx: &Ctx<'_>,
     out: &mut Outcome,
 ) -> Result<Option<Loaded>, RequestError> {
-    let id = if let Some(id) = q.pool() {
-        Some(id.clone())
-    } else if !cx.fresh {
-        store.current_source_pool(&key(q))?
-    } else {
+    let pool = if cx.fresh {
         None
+    } else {
+        store.find(&key(q), q.pool().map(Text::as_str))?
     };
-    if let Some(id) = id {
-        match store.source_snapshot_matches(id.as_str(), &key(q))? {
-            Some(true) => {}
-            Some(false) => {
-                restart(q, out, true);
-                return Ok(None);
-            }
-            None => {
-                restart(q, out, false);
-                return Ok(None);
-            }
+    if let Some(pool) = pool {
+        if pool.key != key(q) {
+            restart(q, out, true);
+            return Ok(None);
         }
         let Some(payload) =
-            store.source_snapshot(id.as_str(), &key(q), |s| cx.fetch.disabled(s))?
+            store.source_snapshot(pool.info.id.as_str(), &key(q), |s| cx.fetch.disabled(s))?
         else {
             restart(q, out, false);
             return Ok(None);
@@ -149,8 +147,12 @@ fn load(
         let saved = serde_json::from_str::<Saved>(&payload).map_err(|_| CacheError::Database)?;
         return Ok(Some(Loaded {
             saved,
-            prior: Some((id, payload)),
+            prior: Some((pool, payload)),
         }));
+    }
+    if q.pool().is_some() {
+        restart(q, out, false);
+        return Ok(None);
     }
     let mapped = uniprot::search(leg, q, None)?;
     Ok(Some(Loaded {
