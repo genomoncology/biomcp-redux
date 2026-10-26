@@ -93,7 +93,7 @@ def main(archive, out):
         (cases / f'{n:03d}.yaml').write_text(compact({
             'story': 'Retained exact study metadata and complete DETAILED section walks',
             'feature': 'study-get', 'replay': str(replay),
-            'steps': [step(['sync', 'cbioportal-studies']), operation]}))
+            'steps': [{'run': ['sync', 'cbioportal-studies']}, operation]}))
     print(f'Prepared {len(steps)} CLI/MCP steps outside Git; zero provider requests')
 
 
