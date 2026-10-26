@@ -1,6 +1,6 @@
 //! Exact threshold behavior through the command and its emitted continuation.
 use super::*;
-fn start<'a>(threshold: &'a str) -> Vec<&'a str> {
+fn start(threshold: &str) -> Vec<&str> {
     vec![
         "search",
         "gwas",

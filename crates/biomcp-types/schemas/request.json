@@ -784,7 +784,7 @@
       ]
     }
   },
-  "$id": "biodata.request/16",
+  "$id": "biodata.request/17",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -831,11 +831,12 @@
           "description": "Source order; threshold requests use this same native order."
         },
         "p_value": {
-          "description": "Inclusive exact threshold under native ascending order.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "description": "Inclusive positive probability in scientific notation, such as 1e-5. The qualifying total stays unknown until the ordered walk reaches its end.",
+          "type": "string"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained threshold walk identity; requires a threshold."
         },
         "pubmed": {
           "$ref": "#/$defs/Pmid",
