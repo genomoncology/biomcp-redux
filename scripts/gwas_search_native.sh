@@ -35,6 +35,6 @@ PYARCHIVE
     verify_dir=$(ssh yellow 'mktemp -d /tmp/0234-product-verify.XXXXXX')
     scp scripts/source_capture.py scripts/capture_outcome.py "yellow:$verify_dir/"
     ssh yellow "TMPDIR=/tmp python3 $verify_dir/source_capture.py --verify $evidence_path"
-    ssh yellow "python3 -c 'import shutil; shutil.rmtree("$verify_dir")'"
+    ssh yellow "python3 -c 'import shutil, sys; shutil.rmtree(sys.argv[1])' $verify_dir"
     shasum -a 256 "$native_root/product.tar.gz"
 fi
