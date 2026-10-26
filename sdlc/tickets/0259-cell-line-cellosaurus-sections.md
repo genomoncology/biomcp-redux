@@ -1,0 +1,18 @@
+# 0259 — Add the cell line names, identity, xrefs and variants sections
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: 0258
+
+## Outcome
+
+`get cell-line CVCL_2119 names` returns five native name entries with their identifier or synonym type in source order, the native total and the section offset. `identity` returns the species, disease and qualified warning entries past the card's cap of three. `xrefs` returns five complete cross-reference entries with database, accession and the optional label, URL, category and IRI in native order, with the native total. `variants` returns three complete variation rows with every gene member, mutation type, description, note, zygosity, cross-references and provenance rows, and the total counts variation rows. `--section-limit` and `--section-offset` page each requested section independently. The card from 0258 gains its steps for these sections, and a variation gene with a source HGNC identity and an exact PubMed reference give `get gene` and `get article` pivots within the next-step bound.
+
+- Why: Questions C03 to C05, C07, C10 and C12 ask which names, source identities and curated variations Cellosaurus records for a line, and K-562's 1,398 cross-references show why they sit behind named pages.
+- Starts from: cell-line.md's direct source findings on variation rows, response layers, case map and measured budget, with the cell line rulings; the j14318 cards and 0256's projected card; 0258's adapter, card and dispatch registration; 0257's types.
+- Rules: the sections read the retained Cellosaurus card reply and send no new request. No free-text description, fusion or coordinate becomes a normalized allele, and no zygosity is inferred or reconciled with a publication. No cross-reference database gets a synthetic empty entry. No section claims a link the source did not state. A disease reference gets a pivot only where the existing disease grammar accepts that exact identifier.
+- Proof: outside-in cases first, watched to fail. Cases reuse the j14318 and 0256 captures where the request matches exactly, and one bounded keyless pm job captures once, with zero retries, any exact request a case needs that those archives lack. C03 asserts MOLM-13's FLT3 internal tandem duplication with its HGNC identity, heterozygous zygosity and references; C04 asserts MV4-11's FLT3 row with unspecified zygosity kept as the source states it; C05 asserts the KMT2A-MLLT3 fusion with both gene identities in one row; C07 asserts every OCI-AML-3 variation, including NRAS with database provenance and no PubMed reference; the U-937 cases assert the TP53 splice-donor note and the WT1 coordinate spellings unchanged; C10 and C11 assert SJNB-4 and HL-60 names with punctuation kept; C12 asserts MOLM-13's cross-references; the K-562 xrefs case walks first, middle and terminal pages with no gap or duplicate and the native total 1,398; SJNB-4 asserts a 13-row total. Paging cases cover a one-row page, the full collection, an offset past the end and the limit bounds. A variation row larger than its ceiling fails the case and is never shortened. The job measures each section in CLI and MCP output, starting from the design ceilings of 250 bytes for names, 1,522 for xrefs and 2,821 for variants, and each case gets a ceiling at measured size plus 15 percent, recorded in cell-line.md. No licensed content enters the repo. Then make landing-gate runs through pm job.
+- Defers: nothing.
+- Changes: the Cellosaurus adapter mapping, the cell line section code, cases and `cell-line.md`.
