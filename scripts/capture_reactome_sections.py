@@ -1,7 +1,7 @@
 """Capture the three approved section witnesses once and retain them on Yellow."""
 import hashlib
 import json
-import os
+import sys
 from pathlib import Path
 import subprocess
 import tempfile
@@ -15,6 +15,10 @@ def main():
         ('events', 'pathway/R-HSA-5673001/containedEvents'),
         ('object-events', 'pathway/R-HSA-5673000/containedEvents'),
     ]
+    if sys.argv[1:] == ['--object-only-control']:
+        requests = [('object-only-control', 'pathway/R-HSA-6803211/containedEvents')]
+    elif sys.argv[1:]:
+        raise ValueError('only --object-only-control is accepted; no retry or fallback')
     plan = {'deadline_seconds': 8, 'max_bytes': 8 * 1024 * 1024,
             'spacing_seconds': 1, 'requests': [
                 {'id': name, 'source': 'reactome', 'url': base + path,
