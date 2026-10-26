@@ -16,10 +16,15 @@ pub(super) fn check(root: &Path) -> Check {
             let Some((binding, after)) = tail.split_once(')') else {
                 continue;
             };
-            if after.starts_with(&format!("=>{binding}.reason"))
-                || after.starts_with(&format!("=>Some({binding}.reason)"))
-                || binding.starts_with("SourceError{") && after.starts_with("=>reason")
-            {
+            let arm = after
+                .strip_prefix("=>")
+                .or_else(|| after.strip_prefix(")=>"));
+            if arm.is_some_and(|arm| {
+                arm.split("=>")
+                    .next()
+                    .is_some_and(|body| body.contains(&format!("{binding}.reason")))
+                    || binding.starts_with("SourceError{") && arm.starts_with("reason")
+            }) {
                 return Err(format!(
                     "{}: map request reasons through status::reason",
                     path.display()
