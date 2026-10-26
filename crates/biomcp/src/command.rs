@@ -233,7 +233,8 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             _ => Err(io::Error::other("gwas response mismatch")),
         },
         Request::SearchProtein(_) | Request::GetProtein(_) => protein::encode(meta, request, body),
-        Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
+        Request::SearchPathway(_) | Request::GetPathway(_)
+        | Request::PathwayGenes(_) | Request::PathwayEvents(_) => pathway::encode(meta, request, body),
         Request::SearchPhenotype(_) | Request::GetPhenotype(_) => {
             phenotype::encode(meta, request, body)
         }
