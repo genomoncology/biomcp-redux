@@ -45,7 +45,7 @@ const SHAPES: &[Shape] = &[
         args: &["help", "author", "papers"],
         replies: "",
         required: &["id", "details", "full", "limit", "offset", "pool"],
-        max_bytes: 1008,
+        max_bytes: 1099,
     },
     Shape {
         args: &["search", "pathway", "Signaling by EGFR"],
