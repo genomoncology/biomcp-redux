@@ -188,6 +188,35 @@ The recorded CLI and MCP section measurements agree. The comparable budget remov
 
 The genes page and `all` exceed the original allocation because a source reference retains all of its physical entity contexts. The first five references preserve 29, 9, 16, 16 and 2 physical entities respectively. The budget does not clip their native names or collapse isoform membership.
 
+The default cards now expose the executable summary, genes and events steps. Their measured comparable byte ceilings include all three actions. The updated card cases enforce these per-record measurements plus 15 percent.
+
+| Card | Measured bytes | Byte ceiling | Token ceiling |
+|---|---:|---:|---:|
+| `R-HSA-109581` | 592 | 681 | 171 |
+| `R-HSA-1227990` | 617 | 710 | 179 |
+| `R-HSA-157118` | 601 | 692 | 174 |
+| `R-HSA-1640170` | 599 | 689 | 173 |
+| `R-HSA-177929` | 600 | 690 | 173 |
+| `R-HSA-187037` | 608 | 700 | 175 |
+| `R-HSA-195721` | 599 | 689 | 173 |
+| `R-HSA-201556` | 599 | 689 | 173 |
+| `R-HSA-2028269` | 607 | 699 | 175 |
+| `R-HSA-2219528` | 617 | 710 | 179 |
+| `R-HSA-5358351` | 610 | 702 | 176 |
+| `R-HSA-5358508` | 604 | 695 | 174 |
+| `R-HSA-5673001` | 612 | 704 | 176 |
+| `R-HSA-5674400` | 634 | 730 | 183 |
+| `R-HSA-5685942` | 631 | 726 | 182 |
+| `R-HSA-6802952` | 623 | 717 | 180 |
+| `R-HSA-6803211` | 648 | 746 | 187 |
+| `R-HSA-73894` | 587 | 676 | 170 |
+| `R-HSA-74751` | 612 | 704 | 176 |
+| `R-HSA-8950505` | 671 | 772 | 194 |
+| `R-HSA-913531` | 603 | 694 | 174 |
+| `R-HSA-9612973` | 598 | 688 | 173 |
+| `R-HSA-9652817` | 614 | 707 | 178 |
+| `R-HSA-9755088` | 603 | 694 | 174 |
+
 ## Public fields and identity joins
 
 Reactome's query endpoint must prove the requested `stId`, `displayName`, `schemaClass`, species, summary and version before their types are accepted. Its participant endpoint describes physical entities, including complexes and modified proteins. A participant display name is not a gene symbol. The implementation must follow the publisher's reference entities and identifier namespaces. It must not extract symbols with regular expressions or treat each physical participant as one gene. Events may contain both objects and integer database references; every such reference needs either a checked hydration or an explicit unresolved record. Event records do not inherit the pathway's stable identifier. Only an event whose captured class is Pathway or TopLevelPathway may generate a `get pathway` action. Reactions and other event kinds retain source references and URLs without pretending to be pathway cards.

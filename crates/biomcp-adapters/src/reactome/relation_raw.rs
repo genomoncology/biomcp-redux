@@ -25,12 +25,15 @@ impl Reply for Participants {
         self.0
             .iter()
             .all(|p| {
-                !p.display_name.trim().is_empty()
-                    && !p.schema_class.trim().is_empty()
+                biodata::Text::new(&p.display_name).is_ok()
+                    && biodata::Text::new(&p.schema_class).is_ok()
                     && p.ref_entities.iter().all(|r| {
                         r.st_id.split_once(':').is_some_and(|(namespace, id)| {
-                            !namespace.is_empty() && id == r.identifier && !id.trim().is_empty()
-                        }) && !r.schema_class.trim().is_empty()
+                            biodata::Text::new(namespace).is_ok() && id == r.identifier
+                            && biodata::Text::new(id).is_ok()
+                        }) && biodata::Text::new(&r.schema_class).is_ok()
+                        && [&r.display_name, &r.url].iter().all(|v| v.as_deref()
+                            .is_none_or(|v| biodata::Text::new(v).is_ok()))
                     })
             })
             .then_some(())

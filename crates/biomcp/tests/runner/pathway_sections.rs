@@ -61,6 +61,7 @@ fn walk(genes: bool) -> Check {
     let mut joins = BTreeSet::new();
     loop {
         let value = call(&env, &args, offset > 0, 0)?;
+        check_steps(&value, genes)?;
         let rows = value
             .pointer("/result/items")
             .and_then(Value::as_array)
@@ -141,6 +142,57 @@ fn observe(
         }
     }
     Ok((objects, integers))
+}
+fn check_steps(value: &Value, genes: bool) -> Check {
+    let rows = value.pointer("/result/items").and_then(Value::as_array).ok_or("rows")?;
+    let steps = value.get("next").and_then(Value::as_array).ok_or("steps")?;
+    if genes { check_gene_steps(value, rows, steps) } else { check_event_steps(value, rows, steps) }
+}
+fn unresolved(value: &Value, row: &Value) -> Check {
+    let namespace = row.pointer("/reference/namespace").and_then(Value::as_str).ok_or("namespace")?;
+    let id = row.pointer("/reference/value").and_then(Value::as_str).ok_or("reference")?;
+    let reference = format!("{namespace}:{id}");
+    let problems = value.get("problems").and_then(Value::as_array).ok_or("problems")?;
+    if !problems.iter().any(|p| p.get("record").and_then(Value::as_str) == Some(reference.as_str())) {
+        return Err("unresolved reference omitted its problem".into());
+    }
+    Ok(())
+}
+fn check_gene_steps(value: &Value, rows: &[Value], steps: &[Value]) -> Check {
+    let mut expected = Vec::new();
+    for row in rows {
+        if let Some(id) = row.get("gene").and_then(Value::as_str) {
+            if !expected.contains(&id) { expected.push(id); }
+        } else { unresolved(value, row)?; }
+        if row.get("schema_class") == Some(&json!("ReferenceTherapeutic"))
+            && (row.get("source_url").is_none() || row.get("gene").is_some()) {
+            return Err("therapeutic reference lost URL or became a gene".into());
+        }
+    }
+    let actual: Vec<_> = steps.iter().filter(|s| s.get("kind") == Some(&json!("pivot")))
+        .map(|s| s.pointer("/args/2").and_then(Value::as_str).ok_or("gene pivot"))
+        .collect::<Result<_,_>>()?;
+    if actual != expected { return Err("gene pivots changed source order or multiplicity".into()); }
+    if continuation(value)?.is_some() && steps.get(expected.len()).and_then(|s| s.get("kind")) != Some(&json!("page")) {
+        return Err("gene page step precedes or interrupts pivots".into());
+    }
+    Ok(())
+}
+fn check_event_steps(value: &Value, rows: &[Value], steps: &[Value]) -> Check {
+    if continuation(value)?.is_some() && steps.first().and_then(|s| s.get("kind")) != Some(&json!("page")) {
+        return Err("event continuation does not precede selections".into());
+    }
+    for step in steps.iter().filter(|s| s.get("kind") == Some(&json!("disambiguate"))) {
+        let id = step.pointer("/args/2").ok_or("event get identity")?;
+        if !rows.iter().any(|r| r.get("id") == Some(id) && r.get("schema_class").and_then(Value::as_str)
+            .is_some_and(|class| matches!(class, "Pathway" | "TopLevelPathway"))) {
+            return Err("non-pathway event generated a pathway get".into());
+        }
+    }
+    if steps.iter().filter(|s| s.get("kind") != Some(&json!("page"))).count() > 3 {
+        return Err("events exposed too many selections".into());
+    }
+    Ok(())
 }
 fn bindings() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
