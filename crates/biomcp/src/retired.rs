@@ -1,6 +1,7 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
 mod adverse_event;
+mod cell_line;
 mod diagnostic;
 mod drug;
 mod gwas;
@@ -20,7 +21,6 @@ const GENE: &[(&str, ErrorMessage)] = &[
     ("trials", ErrorMessage::Trials),
     ("articles", ErrorMessage::Articles),
     ("drugs", ErrorMessage::Drugs),
-    ("cell-lines", ErrorMessage::CellLines),
     ("cspec", ErrorMessage::Variant),
 ];
 const SEARCH: &[(&str, ErrorMessage)] = &[
@@ -131,6 +131,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         return Some(message);
     }
     let words = words(args)?;
+    if let Some(message) = cell_line::message(&words) {
+        return Some(message);
+    }
     if let Some(message) = protein::message(&words) {
         return Some(message);
     }
@@ -160,6 +163,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     }
 }
 fn command(positional: &[&str]) -> Option<ErrorMessage> {
+    if let Some(message) = cell_line::command(positional) {
+        return Some(message);
+    }
     if let Some(message) = drug::command(positional) {
         return Some(message);
     }
@@ -326,6 +332,9 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
 }
 
 fn takes_value(flag: &str, positional: &[&str]) -> Option<bool> {
+    if flag == "--section" && matches!(positional.get(..2), Some(["get", "cell-line" | "drug"])) {
+        return Some(true);
+    }
     if flag == "-l" && matches!(positional.get(..2), Some(["search", "phenotype"])) {
         return Some(true);
     }

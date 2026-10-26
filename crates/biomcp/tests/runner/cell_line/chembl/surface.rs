@@ -1,6 +1,6 @@
 //! Measure the bytes the command and MCP actually emit.
 use super::*;
-pub(super) fn invoke_measured(
+pub(in crate::runner::cell_line) fn invoke_measured(
     env: &Environment,
     words: &[&str],
     exit: i32,
@@ -23,7 +23,7 @@ pub(super) fn invoke_measured(
     let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     Ok((value, output.stdout.len()))
 }
-pub(super) fn parity(
+pub(in crate::runner::cell_line) fn parity(
     phase: &str,
     env: &Environment,
     words: &[&str],
@@ -37,7 +37,7 @@ pub(super) fn parity(
     let (value, bytes) = invoke_measured(env, &args, exit)?;
     compared(phase, env, words, exit, measure, &recording, (value, bytes))
 }
-pub(super) fn compared(
+pub(in crate::runner::cell_line) fn compared(
     phase: &str,
     env: &Environment,
     words: &[&str],
@@ -73,7 +73,7 @@ pub(super) fn compared(
     registry.validate(&mcp, &args, exit == 0)?;
     Ok(value)
 }
-pub(super) fn measure_bytes(
+pub(in crate::runner::cell_line) fn measure_bytes(
     phase: &str,
     surface: &str,
     bytes: usize,
@@ -88,7 +88,7 @@ pub(super) fn measure_bytes(
     }
     Ok(())
 }
-pub(super) fn measure_mcp(
+pub(in crate::runner::cell_line) fn measure_mcp(
     phase: &str,
     directory: &std::path::Path,
     measure: bool,

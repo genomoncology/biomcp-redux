@@ -58,7 +58,7 @@ fn variation(value: &Value) -> Result<Value, String> {
     );
     Ok(Value::Object(result))
 }
-pub(super) fn page(
+pub(in crate::runner::cell_line) fn page(
     source: &Value,
     section: &str,
     value: &Value,

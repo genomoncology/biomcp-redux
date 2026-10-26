@@ -11,16 +11,17 @@ fn page<T>(rows: &mut Capped<T>, query: &CellLineGet, default: u32) {
 }
 pub(super) fn select(query: &CellLineGet, card: &mut CellLineCard) {
     let section = query.section();
-    if section != Some(CellLineSection::Names) {
+    let all = section == Some(CellLineSection::All);
+    if !all && section != Some(CellLineSection::Names) {
         card.sections.names = None;
     }
-    if section != Some(CellLineSection::Identity) {
+    if !all && section != Some(CellLineSection::Identity) {
         card.sections.identity = None;
     }
-    if section != Some(CellLineSection::Xrefs) {
+    if !all && section != Some(CellLineSection::Xrefs) {
         card.sections.xrefs = None;
     }
-    if section != Some(CellLineSection::Variants) {
+    if !all && section != Some(CellLineSection::Variants) {
         card.sections.variants = None;
     }
     if let Some(Section::Data { data, .. }) = &mut card.sections.names {
@@ -45,7 +46,7 @@ pub(super) fn select(query: &CellLineGet, card: &mut CellLineCard) {
         .more
         .iter()
         .copied()
-        .filter(|s| Some(*s) != section)
+        .filter(|s| !all && Some(*s) != section)
         .collect();
 }
 pub(super) fn actions(query: &CellLineGet, card: &CellLineCard, out: &mut Outcome) {

@@ -155,7 +155,7 @@
         "/error": {
           "equals": {
             "code": "usage.retired",
-            "message": "moved to the cell line entity"
+            "message": "gene cell-lines is deferred until an exact HPA cell identity join exists"
           }
         }
       },
