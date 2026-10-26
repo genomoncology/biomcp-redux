@@ -2,7 +2,7 @@ use super::{Entry, raw};
 use crate::Mapped;
 use biodata::{Protein, ProteinHeader, Text, UniProtIsoform};
 use biomcp_types::{Problem, ProblemCode, Source};
-pub(super) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<Option<Entry>> {
+pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<Option<Entry>> {
     if !raw.admitted(id) {
         return Mapped {
             value: None,
@@ -36,7 +36,7 @@ pub(super) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<Option<Entry
         problems: Vec::new(),
     }
 }
-pub(super) fn header(
+pub(in crate::uniprot) fn header(
     accession: UniProtIsoform,
     entry_id: Text,
     name: Text,

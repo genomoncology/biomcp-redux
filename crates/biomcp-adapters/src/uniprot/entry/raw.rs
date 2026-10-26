@@ -3,7 +3,7 @@ use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Entry {
+pub(in crate::uniprot) struct Entry {
     pub primary_accession: UniProtIsoform,
     pub uni_protkb_id: Text,
     pub entry_type: Text,
@@ -16,10 +16,10 @@ pub(super) struct Entry {
     pub entry_audit: Audit,
 }
 impl Entry {
-    pub(super) fn admitted(&self, id: &UniProtIsoform) -> bool {
+    pub(in crate::uniprot) fn admitted(&self, id: &UniProtIsoform) -> bool {
         self.primary_accession == *id && self.human_reviewed()
     }
-    pub(super) fn human_reviewed(&self) -> bool {
+    pub(in crate::uniprot) fn human_reviewed(&self) -> bool {
         self.organism.taxon_id == 9606
             && self.entry_type.as_str() == "UniProtKB reviewed (Swiss-Prot)"
     }
@@ -35,30 +35,30 @@ impl Reply for Entry {
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Organism {
+pub(in crate::uniprot) struct Organism {
     pub taxon_id: u32,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Description {
+pub(in crate::uniprot) struct Description {
     pub recommended_name: Name,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Name {
+pub(in crate::uniprot) struct Name {
     pub full_name: Value,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Value {
+pub(in crate::uniprot) struct Value {
     pub value: Text,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Sequence {
+pub(in crate::uniprot) struct Sequence {
     pub length: u32,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Gene {
+pub(in crate::uniprot) struct Gene {
     pub gene_name: Option<Value>,
     #[serde(default)]
     pub synonyms: Vec<Value>,
@@ -69,7 +69,7 @@ pub(super) struct Gene {
 }
 #[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Audit {
+pub(in crate::uniprot) struct Audit {
     pub entry_version: Option<u32>,
     pub sequence_version: Option<u32>,
     pub first_public_date: Option<PartialDate>,
