@@ -45,7 +45,7 @@ pub fn card(leg: &Leg<'_>, id: &OrcidId) -> Result<Option<AuthorCard>, RequestEr
                 Err(BadReply)
             }
         })?;
-    record.card(id).map_err(|_| BadReply.into())
+    record.card(id).map_err(|_| bad_reply())
 }
 /// Read one whole bounded works reply and preserve groups and assertion order.
 pub fn works(leg: &Leg<'_>, id: &OrcidId) -> Result<Box<[OrcidWorkGroup]>, RequestError> {
@@ -57,5 +57,15 @@ pub fn works(leg: &Leg<'_>, id: &OrcidId) -> Result<Box<[OrcidWorkGroup]>, Reque
                 Err(BadReply)
             }
         })?;
-    record.groups().map_err(Into::into)
+    record.groups().map_err(|_| bad_reply())
+}
+
+fn bad_reply() -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::Orcid,
+        reason: biomcp_types::Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
 }
