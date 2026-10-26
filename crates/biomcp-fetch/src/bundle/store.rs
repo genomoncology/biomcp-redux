@@ -4,8 +4,8 @@ use crate::{
     cache::{Cache, db_error, now},
 };
 use rusqlite::{Connection, OptionalExtension, params};
-pub(super) const PART_PREFIX: &str = ".tmp";
-pub(super) const PART_RANDOM: usize = 6;
+const PART_PREFIX: &str = ".tmp";
+const PART_RANDOM: usize = 6;
 const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
@@ -46,6 +46,13 @@ impl Part {
         }
         Ok(())
     }
+}
+pub(super) fn create_part(folder: &std::path::Path) -> Result<tempfile::NamedTempFile, CacheError> {
+    tempfile::Builder::new()
+        .prefix(PART_PREFIX)
+        .rand_bytes(PART_RANDOM)
+        .tempfile_in(folder)
+        .map_err(|_| CacheError::Database)
 }
 pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     c.execute_batch("CREATE TABLE IF NOT EXISTS bundle(name TEXT PRIMARY KEY,bytes INTEGER NOT NULL,rows INTEGER NOT NULL,fresh_until INTEGER NOT NULL,etag TEXT,modified TEXT);
