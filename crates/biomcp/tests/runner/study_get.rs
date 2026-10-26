@@ -245,6 +245,16 @@ fn retained(directory: &Path) -> Check {
         }
         reject_members(directory, &value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+        let case: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        let ceiling = case
+            .pointer("/steps/1/expect//max_bytes")
+            .and_then(Value::as_u64)
+            .and_then(|v| usize::try_from(v).ok())
+            .ok_or("full response ceiling")?;
+        if full + 1 > ceiling {
+            return Err("full CLI/MCP response exceeds its measured ceiling".into());
+        }
         let comparable = crate::runner::source_terms::size(&value, "")?;
         writeln!(
             std::io::stdout(),
