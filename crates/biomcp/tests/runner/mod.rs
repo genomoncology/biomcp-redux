@@ -153,6 +153,8 @@ struct Case {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Step {
+    #[serde(skip)]
+    phenotype_native_budget: bool,
     run: Option<Vec<String>>,
     follow: Option<String>,
     walk: Option<Walk>,
@@ -222,12 +224,28 @@ fn collect(root: &Path, paths: &mut Vec<std::path::PathBuf>) -> std::io::Result<
 }
 
 fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
+    run_budgeted_case(path, registry, false)
+}
+
+// Only generated phenotype parity cases have an independently checked fixed ceiling.
+fn run_phenotype_native_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
+    run_budgeted_case(path, registry, true)
+}
+
+fn run_budgeted_case(
+    path: &Path,
+    registry: &schema::Registry,
+    phenotype_native_budget: bool,
+) -> Result<Value, String> {
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
     let mut case: Case = serde_saphyr::from_str(&text).map_err(|error| error.to_string())?;
     if case.story.trim().is_empty() || case.steps.is_empty() {
         return Err("case requires a story and at least one step".into());
     }
     load_floors(&mut case, path)?;
+    for step in &mut case.steps {
+        step.phenotype_native_budget = phenotype_native_budget;
+    }
     let expectations = case
         .steps
         .iter()
@@ -309,7 +327,9 @@ fn run_step(
                 .map_err(|error| error.to_string())?;
             registry.validate(&value, args, output.status.success())?;
             pathway_budgets::help(&value, args, "cli")?;
-            phenotype::budgets::case(&value, args, "cli")?;
+            if !step.phenotype_native_budget {
+                phenotype::budgets::case(&value, args, "cli")?;
+            }
             assertions::check(&output.stdout, step, expectations)?;
             Ok(value)
         })
@@ -319,7 +339,9 @@ fn run_step(
         let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
         pathway_budgets::help(&result, args, "mcp")?;
-        phenotype::budgets::case(&result, args, "mcp")?;
+        if !step.phenotype_native_budget {
+            phenotype::budgets::case(&result, args, "mcp")?;
+        }
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,
