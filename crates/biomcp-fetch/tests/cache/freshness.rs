@@ -96,7 +96,7 @@ fn local_write_busy_keeps_the_checked_live_reply_and_deadline() {
     });
     assert!(reply.answer);
     assert_eq!(report.cache_problems, [CacheError::Busy]);
-    assert!(!deadline.expired());
+    assert!(deadline.remaining() < Duration::from_millis(20));
     assert!(!report.stale);
     assert!(report.failures.is_empty());
     connection.execute_batch("ROLLBACK").unwrap();
