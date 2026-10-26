@@ -1,0 +1,794 @@
+{
+  "release": "0.9.3",
+  "revision": "5641de7d7b79b53872f8599dbb4dba22e611dcaf",
+  "leaves": {
+    "article authors": {
+      "options": []
+    },
+    "article batch": {
+      "options": []
+    },
+    "article citation-evidence": {
+      "options": [
+        "--fulltext"
+      ]
+    },
+    "article citations": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "article entities": {
+      "options": [
+        "--full",
+        "--limit"
+      ]
+    },
+    "article recommendations": {
+      "options": [
+        "--limit",
+        "--negative"
+      ]
+    },
+    "article references": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "article supplement-search": {
+      "options": [
+        "--asset"
+      ]
+    },
+    "author papers": {
+      "options": [
+        "--full",
+        "--limit",
+        "--offset"
+      ]
+    },
+    "batch": {
+      "options": [
+        "--mode",
+        "--pdf",
+        "--sections",
+        "--source"
+      ]
+    },
+    "cache clean": {
+      "options": [
+        "--dry-run",
+        "--max-age",
+        "--max-size"
+      ]
+    },
+    "cache clear": {
+      "options": [
+        "--yes"
+      ]
+    },
+    "cache path": {
+      "options": []
+    },
+    "cache stats": {
+      "options": []
+    },
+    "cell-line drug-response": {
+      "options": [
+        "--dataset",
+        "--limit",
+        "--offset"
+      ]
+    },
+    "chart bar": {
+      "options": []
+    },
+    "chart box": {
+      "options": []
+    },
+    "chart density": {
+      "options": []
+    },
+    "chart heatmap": {
+      "options": []
+    },
+    "chart histogram": {
+      "options": []
+    },
+    "chart pie": {
+      "options": []
+    },
+    "chart ridgeline": {
+      "options": []
+    },
+    "chart scatter": {
+      "options": []
+    },
+    "chart stacked-bar": {
+      "options": []
+    },
+    "chart survival": {
+      "options": []
+    },
+    "chart violin": {
+      "options": []
+    },
+    "chart waterfall": {
+      "options": []
+    },
+    "cvx sync": {
+      "options": []
+    },
+    "ddinter sync": {
+      "options": []
+    },
+    "discover": {
+      "options": [
+        "--full",
+        "--limit",
+        "--offset",
+        "--search"
+      ]
+    },
+    "disease articles": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "disease drugs": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "disease trials": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--source"
+      ]
+    },
+    "drug adverse-events": {
+      "options": [
+        "--age-max",
+        "--age-min",
+        "--count",
+        "--date-from",
+        "--date-to",
+        "--limit",
+        "--offset",
+        "--outcome",
+        "--reaction",
+        "--reporter",
+        "--serious",
+        "--sex",
+        "--suspect-only",
+        "--type"
+      ]
+    },
+    "drug cell-lines": {
+      "options": [
+        "--cell-line",
+        "--dataset",
+        "--limit",
+        "--offset"
+      ]
+    },
+    "drug interactions": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "drug trials": {
+      "options": [
+        "--limit",
+        "--no-alias-expand",
+        "--offset",
+        "--source"
+      ]
+    },
+    "ema sync": {
+      "options": []
+    },
+    "enrich": {
+      "options": [
+        "--limit"
+      ]
+    },
+    "gencc sync": {
+      "options": []
+    },
+    "gene articles": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "gene cell-lines": {
+      "options": [
+        "--group",
+        "--limit",
+        "--offset"
+      ]
+    },
+    "gene cspec document": {
+      "options": []
+    },
+    "gene definition": {
+      "options": []
+    },
+    "gene drugs": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "gene pathways": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "gene trials": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--source"
+      ]
+    },
+    "get adverse-event": {
+      "options": []
+    },
+    "get article": {
+      "options": [
+        "--asset-limit",
+        "--asset-offset",
+        "--asset-view",
+        "--lines",
+        "--out",
+        "--outline",
+        "--output",
+        "--pdf"
+      ]
+    },
+    "get author": {
+      "options": []
+    },
+    "get cell-line": {
+      "options": []
+    },
+    "get diagnostic": {
+      "options": []
+    },
+    "get disease": {
+      "options": [
+        "--name"
+      ]
+    },
+    "get drug": {
+      "options": [
+        "--name",
+        "--raw",
+        "--region"
+      ]
+    },
+    "get gene": {
+      "options": []
+    },
+    "get pathway": {
+      "options": []
+    },
+    "get pgx": {
+      "options": [
+        "--full",
+        "--limit",
+        "--offset"
+      ]
+    },
+    "get protein": {
+      "options": []
+    },
+    "get trial": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--source"
+      ]
+    },
+    "get variant": {
+      "options": [
+        "--assembly"
+      ]
+    },
+    "gtr sync": {
+      "options": []
+    },
+    "health": {
+      "options": [
+        "--api",
+        "--apis-only",
+        "--fail-on-error"
+      ]
+    },
+    "list": {
+      "options": []
+    },
+    "mcp tools": {
+      "options": []
+    },
+    "mcp-config": {
+      "options": [
+        "--absolute-path",
+        "--client"
+      ]
+    },
+    "pathway articles": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "pathway drugs": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "pathway trials": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--source"
+      ]
+    },
+    "protein structures": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "search adverse-event": {
+      "options": [
+        "--age-max",
+        "--age-min",
+        "--classification",
+        "--count",
+        "--date-from",
+        "--date-to",
+        "--device",
+        "--drug",
+        "--limit",
+        "--manufacturer",
+        "--offset",
+        "--outcome",
+        "--product-code",
+        "--reaction",
+        "--reporter",
+        "--serious",
+        "--sex",
+        "--source",
+        "--suspect-only",
+        "--type"
+      ]
+    },
+    "search all": {
+      "options": [
+        "--counts-only",
+        "--debug-plan",
+        "--disease",
+        "--drug",
+        "--gene",
+        "--keyword",
+        "--limit",
+        "--since",
+        "--variant"
+      ]
+    },
+    "search article": {
+      "options": [
+        "--author",
+        "--date-from",
+        "--date-to",
+        "--debug-plan",
+        "--disease",
+        "--drug",
+        "--exclude-retracted",
+        "--full",
+        "--gene",
+        "--include-retracted",
+        "--journal",
+        "--keyword",
+        "--limit",
+        "--max-per-source",
+        "--no-preprints",
+        "--offset",
+        "--open-access",
+        "--ranking-mode",
+        "--session",
+        "--sort",
+        "--source",
+        "--type",
+        "--weight-citations",
+        "--weight-lexical",
+        "--weight-position",
+        "--weight-semantic",
+        "--year-max",
+        "--year-min"
+      ]
+    },
+    "search author": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--query",
+        "--source"
+      ]
+    },
+    "search cell-line": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--query"
+      ]
+    },
+    "search diagnostic": {
+      "options": [
+        "--disease",
+        "--full",
+        "--gene",
+        "--limit",
+        "--manufacturer",
+        "--offset",
+        "--source",
+        "--type"
+      ]
+    },
+    "search disease": {
+      "options": [
+        "--inheritance",
+        "--limit",
+        "--no-fallback",
+        "--offset",
+        "--onset",
+        "--phenotype",
+        "--query",
+        "--source"
+      ]
+    },
+    "search drug": {
+      "options": [
+        "--atc",
+        "--indication",
+        "--interactions",
+        "--limit",
+        "--mechanism",
+        "--offset",
+        "--pharm-class",
+        "--product-type",
+        "--query",
+        "--region",
+        "--target",
+        "--type"
+      ]
+    },
+    "search gene": {
+      "options": [
+        "--chromosome",
+        "--go",
+        "--limit",
+        "--offset",
+        "--pathway",
+        "--query",
+        "--region",
+        "--type"
+      ]
+    },
+    "search gwas": {
+      "options": [
+        "--gene",
+        "--limit",
+        "--offset",
+        "--p-value",
+        "--trait"
+      ]
+    },
+    "search pathway": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--query",
+        "--top-level",
+        "--type"
+      ]
+    },
+    "search pgx": {
+      "options": [
+        "--cpic-level",
+        "--drug",
+        "--evidence",
+        "--gene",
+        "--limit",
+        "--offset",
+        "--pgx-testing"
+      ]
+    },
+    "search phenotype": {
+      "options": [
+        "--limit",
+        "--offset"
+      ]
+    },
+    "search protein": {
+      "options": [
+        "--all-species",
+        "--disease",
+        "--existence",
+        "--include-unreviewed",
+        "--limit",
+        "--next-page",
+        "--offset",
+        "--query",
+        "--reviewed"
+      ]
+    },
+    "search trial": {
+      "options": [
+        "--age",
+        "--biomarker",
+        "--condition",
+        "--count-only",
+        "--criteria",
+        "--date-from",
+        "--date-to",
+        "--distance",
+        "--facility",
+        "--has-results",
+        "--intervention",
+        "--lat",
+        "--limit",
+        "--line-of-therapy",
+        "--lon",
+        "--mutation",
+        "--next-page",
+        "--no-alias-expand",
+        "--offset",
+        "--phase",
+        "--prior-therapies",
+        "--progression-on",
+        "--sex",
+        "--source",
+        "--sponsor",
+        "--sponsor-type",
+        "--status",
+        "--study-type"
+      ]
+    },
+    "search variant": {
+      "options": [
+        "--condition",
+        "--consequence",
+        "--gene",
+        "--gerp-min",
+        "--has",
+        "--hgvsp",
+        "--impact",
+        "--limit",
+        "--lof",
+        "--max-frequency",
+        "--min-cadd",
+        "--missing",
+        "--offset",
+        "--population",
+        "--revel-min",
+        "--review-status",
+        "--significance",
+        "--therapy",
+        "--tumor-site"
+      ]
+    },
+    "serve-http": {
+      "options": [
+        "--allowed-hosts",
+        "--host",
+        "--port",
+        "--unsafe-allow-any-host"
+      ]
+    },
+    "skill install": {
+      "options": [
+        "--force"
+      ]
+    },
+    "skill list": {
+      "options": []
+    },
+    "skill render": {
+      "options": []
+    },
+    "skill status": {
+      "options": []
+    },
+    "study co-occurrence": {
+      "options": [
+        "--chart",
+        "--cols",
+        "--genes",
+        "--height",
+        "--mcp-inline",
+        "--output",
+        "--palette",
+        "--rows",
+        "--scale",
+        "--study",
+        "--terminal",
+        "--theme",
+        "--title",
+        "--width"
+      ],
+      "hidden_options": {
+        "--mcp-inline": "src/cli/types.rs:270-271; src/cli/study/mod.rs:53,134,158,175"
+      }
+    },
+    "study cohort": {
+      "options": [
+        "--gene",
+        "--study"
+      ]
+    },
+    "study compare": {
+      "options": [
+        "--chart",
+        "--cols",
+        "--gene",
+        "--height",
+        "--mcp-inline",
+        "--output",
+        "--palette",
+        "--rows",
+        "--scale",
+        "--study",
+        "--target",
+        "--terminal",
+        "--theme",
+        "--title",
+        "--type",
+        "--width"
+      ],
+      "hidden_options": {
+        "--mcp-inline": "src/cli/types.rs:270-271; src/cli/study/mod.rs:53,134,158,175"
+      }
+    },
+    "study download": {
+      "options": [
+        "--list"
+      ]
+    },
+    "study filter": {
+      "options": [
+        "--amplified",
+        "--cancer-type",
+        "--deleted",
+        "--expression-above",
+        "--expression-below",
+        "--mutated",
+        "--study"
+      ]
+    },
+    "study list": {
+      "options": []
+    },
+    "study query": {
+      "options": [
+        "--chart",
+        "--cols",
+        "--gene",
+        "--height",
+        "--mcp-inline",
+        "--output",
+        "--palette",
+        "--rows",
+        "--scale",
+        "--study",
+        "--terminal",
+        "--theme",
+        "--title",
+        "--type",
+        "--width"
+      ],
+      "hidden_options": {
+        "--mcp-inline": "src/cli/types.rs:270-271; src/cli/study/mod.rs:53,134,158,175"
+      }
+    },
+    "study survival": {
+      "options": [
+        "--chart",
+        "--cols",
+        "--endpoint",
+        "--gene",
+        "--height",
+        "--mcp-inline",
+        "--output",
+        "--palette",
+        "--rows",
+        "--scale",
+        "--study",
+        "--terminal",
+        "--theme",
+        "--title",
+        "--width"
+      ],
+      "hidden_options": {
+        "--mcp-inline": "src/cli/types.rs:270-271; src/cli/study/mod.rs:53,134,158,175"
+      }
+    },
+    "study top-mutated": {
+      "options": [
+        "--limit",
+        "--study"
+      ]
+    },
+    "uninstall": {
+      "options": []
+    },
+    "update": {
+      "options": [
+        "--check"
+      ]
+    },
+    "variant articles": {
+      "options": [
+        "--confirmed-only",
+        "--debug-plan",
+        "--input",
+        "--limit",
+        "--offset",
+        "--strategy",
+        "--verify-identity"
+      ]
+    },
+    "variant erepo": {
+      "options": [
+        "--assertion",
+        "--detail",
+        "--gene",
+        "--input",
+        "--limit",
+        "--offset",
+        "--version"
+      ]
+    },
+    "variant normalize": {
+      "options": [
+        "--input"
+      ]
+    },
+    "variant oncokb": {
+      "options": []
+    },
+    "variant structure": {
+      "options": []
+    },
+    "variant trials": {
+      "options": [
+        "--limit",
+        "--offset",
+        "--source"
+      ]
+    },
+    "version": {
+      "options": [
+        "--verbose"
+      ]
+    },
+    "who sync": {
+      "options": []
+    },
+    "who-ivd sync": {
+      "options": []
+    }
+  }
+}
