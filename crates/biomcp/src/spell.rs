@@ -188,7 +188,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetGwasAssociation(_) | Request::GetGwasStudy(_)
+        Request::GetGwasAssociation(_)
+        | Request::GetGwasStudy(_)
         | Request::GetProtein(_)
         | Request::GetPhenotype(_)
         | Request::GetPathway(_)
@@ -230,10 +231,12 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
         Request::PathwayEvents(_) => "events",
         _ => base_entity(request),
     }
-
 }
 fn base_entity(request: &Request) -> &'static str {
-    if matches!(request, Request::SearchGwas(_) | Request::GetGwasAssociation(_) | Request::GetGwasStudy(_)) {
+    if matches!(
+        request,
+        Request::SearchGwas(_) | Request::GetGwasAssociation(_) | Request::GetGwasStudy(_)
+    ) {
         return "gwas";
     }
     if matches!(request, Request::SearchProtein(_) | Request::GetProtein(_)) {

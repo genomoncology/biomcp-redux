@@ -4,39 +4,74 @@ use crate::store::Store;
 use biomcp_fetch::{CacheError, SourceError};
 use sha2::{Digest, Sha256};
 type Saved = (Vec<GwasAncestry>, Vec<SourceOutcome>, Vec<Problem>);
-pub(super) fn read(cx: &Ctx<'_>, q: &GwasGet, deadline: Deadline<'_>, out: &mut Outcome) -> Result<(), RequestError> {
-    let GwasGet::Study { id, page: window, .. } = q else { return Ok(()) };
+pub(super) fn read(
+    cx: &Ctx<'_>,
+    q: &GwasGet,
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let GwasGet::Study {
+        id, page: window, ..
+    } = q
+    else {
+        return Ok(());
+    };
     let key = Sha256::digest(format!("biomcp.gwas-ancestries/1\0{id}"));
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::Gwas) {
-        let error = RequestError::Source(SourceError { source: Source::Gwas, reason: Reason::Disabled, status: None, retry_after: None });
-        out.sources.push(status::source(Source::Gwas, leg.finish(), Some(error)));
+        let error = RequestError::Source(SourceError {
+            source: Source::Gwas,
+            reason: Reason::Disabled,
+            status: None,
+            retry_after: None,
+        });
+        out.sources
+            .push(status::source(Source::Gwas, leg.finish(), Some(error)));
         return Err(error);
     }
     let (saved, token) = if let Some(token) = window.snapshot() {
         let store = Store::open(cx.fetch.cache_access()?, deadline)?;
-        let Some(payload) = store.source_snapshot(token.as_str(), &key, |s| cx.fetch.disabled(s))? else {
+        let Some(payload) =
+            store.source_snapshot(token.as_str(), &key, |s| cx.fetch.disabled(s))?
+        else {
             out.body = QueryBody::PoolError { mismatch: false };
-            out.next.push((StepKind::Restart, action(q.restart(), false)));
+            out.next
+                .push((StepKind::Restart, action(q.restart(), false)));
             return Ok(());
         };
         let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
         (saved, token.clone())
     } else {
         let rows = gwas::get::ancestries(&leg, id);
-        out.sources.push(status::source(Source::Gwas, leg.finish(), rows.as_ref().err().copied()));
+        out.sources.push(status::source(
+            Source::Gwas,
+            leg.finish(),
+            rows.as_ref().err().copied(),
+        ));
         let rows = rows?;
         rejected(out, rows.rejected);
         let saved = (rows.items, out.sources.clone(), out.problems.clone());
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
-        let token = Store::open(cx.fetch.cache_access()?, deadline)?.save_source_snapshot(&key, &payload, &out.sources)?;
+        let token = Store::open(cx.fetch.cache_access()?, deadline)?.save_source_snapshot(
+            &key,
+            &payload,
+            &out.sources,
+        )?;
         (saved, token)
     };
     out.sources = saved.1;
     out.problems = saved.2;
-    out.status = if out.problems.is_empty() { Status::Complete } else { Status::Partial };
+    out.status = if out.problems.is_empty() {
+        Status::Complete
+    } else {
+        Status::Partial
+    };
     let q = q.with_page(window.with_snapshot(token));
     let (items, continuation) = page(&q, &saved.0, out);
-    out.body = QueryBody::GwasAncestries(Some(GwasAncestries { study: id.clone(), items, continuation }));
+    out.body = QueryBody::GwasAncestries(Some(GwasAncestries {
+        study: id.clone(),
+        items,
+        continuation,
+    }));
     Ok(())
 }

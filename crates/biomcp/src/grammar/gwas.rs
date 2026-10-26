@@ -17,9 +17,15 @@ pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, ()> {
         "get" => {
             let fields = value.as_object_mut().ok_or(())?;
             let id = fields.get("id").and_then(Value::as_str).ok_or(())?;
-            let kind = if id.starts_with("association:") { "association" } else { "study" };
+            let kind = if id.starts_with("association:") {
+                "association"
+            } else {
+                "study"
+            };
             fields.insert("kind".into(), kind.into());
-            serde_json::from_value::<biomcp_types::GwasGet>(value).map(Request::from).map_err(|_| ())
+            serde_json::from_value::<biomcp_types::GwasGet>(value)
+                .map(Request::from)
+                .map_err(|_| ())
         }
         _ => Err(()),
     }

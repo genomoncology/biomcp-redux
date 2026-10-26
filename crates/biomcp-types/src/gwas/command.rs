@@ -32,8 +32,8 @@ pub struct GwasGetCommand {
     #[schemars(extend("x-positional" = 0))]
     pub id: biodata::Text,
     /// Association loci or study associations and ancestries.
-    #[schemars(with = "CommandSection", extend("x-positional" = 1))]
-    pub section: Option<CommandSection>,
+    #[schemars(with = "GwasCommandSection", extend("x-positional" = 1))]
+    pub section: Option<GwasCommandSection>,
     /// Maximum native relation rows.
     #[schemars(with = "u32", range(min = 1, max = 50))]
     pub section_limit: Option<u32>,
@@ -44,15 +44,15 @@ pub struct GwasGetCommand {
     #[schemars(with = "biodata::Text")]
     pub snapshot: Option<biodata::Text>,
 }
-/// Native context section grammar.
-#[cfg(feature = "schema")]
-#[derive(Debug, schemars::JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum CommandSection {
-    /// Native association loci.
-    Loci,
-    /// Native study association pages.
-    Associations,
-    /// Native study ancestry rows.
-    Ancestries
+biodata::wire_enum! {
+    described
+    /// Native context section grammar.
+    GwasCommandSection {
+        /// Native association loci.
+        Loci => "loci",
+        /// Native study association pages.
+        Associations => "associations",
+        /// Native study ancestry rows.
+        Ancestries => "ancestries"
+    }
 }

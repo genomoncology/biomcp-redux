@@ -1,6 +1,6 @@
 //! Source-local association search, without clinical interpretation.
-pub(crate) mod map;
 mod get;
+pub(crate) mod map;
 pub use get::get;
 mod next;
 mod threshold;
