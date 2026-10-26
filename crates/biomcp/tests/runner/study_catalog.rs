@@ -223,7 +223,7 @@ fn lifetimes() -> Check {
         .ok_or("pool")?;
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    db.execute("UPDATE trial_snapshot SET expires=0 WHERE id=?1", [id])
+    db.execute("UPDATE pool SET expires=0 WHERE id=?1", [id])
         .map_err(|e| e.to_string())?;
     fs::remove_dir_all(replay.join("cbioportal")).map_err(|e| e.to_string())?;
     let expired = call(
@@ -305,8 +305,12 @@ fn alter_fault(replay: &Path, fault: &str) -> Check {
         .map_err(|e| e.to_string())?;
     match fault {
         "oversized" => {
-            *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? =
-                json!(" ".repeat(1024 * 1024 + 1))
+            *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? = json!({
+                let mut valid = rows();
+                *valid.pointer_mut("/0/description").ok_or("description")? =
+                    json!("x".repeat(1024 * 1024));
+                valid.to_string()
+            })
         }
         "partial" => {
             *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? =
