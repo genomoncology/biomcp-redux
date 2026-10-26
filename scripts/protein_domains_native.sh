@@ -26,7 +26,7 @@ if [ ! -d "$proof_root/protein-domain-native" ]; then
     python3 scripts/protein_domains_native.py "$proof_root/archives" "$proof_root/protein-domain-native"
 fi
 if [ -f "$proof_root/proof.log" ]; then
-    prior_log=$(mktemp "$proof_root/prior-proof.XXXXXX.log")
+    prior_log=$(mktemp "$proof_root/prior-proof.XXXXXX")
     cp "$proof_root/proof.log" "$prior_log"
 fi
 git rev-parse HEAD >> "$proof_root/revisions.txt"
@@ -45,7 +45,7 @@ for folder,prefix in [('cases','case'),('outputs','result')]:
         shutil.copyfile(path,evidence/(prefix+'-'+path.name))
 for source in (root/'protein-domain-native/replay').iterdir():
     for path in source.iterdir(): shutil.copyfile(path,evidence/('replay-'+source.name+'-'+path.name))
-for path in [*root.glob('*proof*.log'),root/'revisions.txt']: shutil.copyfile(path,evidence/path.name)
+for path in [root/'proof.log',*root.glob('prior-proof.*'),root/'revisions.txt']: shutil.copyfile(path,evidence/path.name)
 source_capture.manifest(evidence)
 archive=root/'native-proof.tar.gz'
 with tarfile.open(archive,'w:gz') as packed:
