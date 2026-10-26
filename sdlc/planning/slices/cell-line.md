@@ -333,3 +333,5 @@ These are complete compact product envelopes. CLI includes its newline; MCP meas
 | `cell-line/examples.yaml` step 2 | 1358 | 1357 | 1562 | 391 |
 | `cell-line/examples.yaml` step 3 | 2080 | 2079 | 2392 | 598 |
 | `cell-line/examples.yaml` step 4 | 1863 | 1862 | 2143 | 536 |
+
+The focused discovery check in `j15137` measured whole-tree CLI help at 84,770 bytes including its newline. The compact MCP tools/list RPC reply was 7,713 bytes and its main-tool description was 3,129 bytes; all remain within existing shared limits. The source enum array was 673 compact bytes and the printed schema was 3,670 bytes, within their existing limits. Entity search help was 760 CLI bytes, 759 MCP bytes and 672 bytes for the bare Help result; get help was 1,015, 1,014 and 930 respectively. Help has no source-term subtraction. The owning table above uses the complete envelopes, with separate actual Markdown measurements. The preserved-recording example replay passed with the explicit `--query` alias; no recording was repeated.
