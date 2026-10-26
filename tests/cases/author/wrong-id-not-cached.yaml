@@ -16,7 +16,7 @@
         "semantic-scholar:789"
       ],
       "is_error": true,
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/result/items/0/status": "failed",
@@ -39,7 +39,7 @@
         "semantic-scholar:789"
       ],
       "is_error": true,
-      "exit": 3,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/result/items/0/status": "failed"
