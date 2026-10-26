@@ -261,6 +261,44 @@ impl Cache {
         }
     }
 
+    // A publication uses its own connection. Retry a rolled-back transaction
+    // only behind a local SQL owner; never turn external replay contention into
+    // a real-time busy wait. One immediate retry closes the owner-release race.
+    pub(crate) fn publish_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        mut operation: impl FnMut() -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
+        let started = std::time::Instant::now();
+        let remaining = deadline.remaining();
+        let mut idle_retry = false;
+        loop {
+            if deadline.expired() || started.elapsed() >= remaining {
+                return Err(CacheError::Busy);
+            }
+            match operation() {
+                Err(CacheError::Busy) => {
+                    let owned =
+                        matches!(self.0.try_lock(), Err(std::sync::TryLockError::WouldBlock));
+                    if !owned {
+                        if idle_retry {
+                            return Err(CacheError::Busy);
+                        }
+                        idle_retry = true;
+                    } else {
+                        idle_retry = false;
+                        std::thread::park_timeout(
+                            Duration::from_millis(1)
+                                .min(deadline.remaining())
+                                .min(remaining.saturating_sub(started.elapsed())),
+                        );
+                    }
+                }
+                result => return result,
+            }
+        }
+    }
+
     pub(crate) fn read(
         &self,
         key: &[u8; 32],

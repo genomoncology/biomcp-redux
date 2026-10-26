@@ -28,15 +28,16 @@ impl Cache {
     ) -> Result<bool, CacheError> {
         let connection = self.owned_connection()?;
         connection.execute_batch(STAGING).map_err(db_error)?;
-        let result = (|| {
-            if let Some(rows) = rows {
-                for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
-                    ready(&connection, deadline)?;
-                    let tx = connection.unchecked_transaction().map_err(db_error)?;
-                    insert(&tx, bundle.name, batch * BATCH_ROWS, chunk)?;
-                    tx.commit().map_err(db_error)?;
-                }
+        if let Some(rows) = rows {
+            for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
+                ready(&connection, deadline)?;
+                let tx = connection.unchecked_transaction().map_err(db_error)?;
+                insert(&tx, bundle.name, batch * BATCH_ROWS, chunk)?;
+                tx.commit().map_err(db_error)?;
             }
+        }
+        // A busy attempt rolls back before retry; staged rows remain private.
+        self.publish_sql(deadline, || {
             ready(&connection, deadline)?;
             let tx = connection.unchecked_transaction().map_err(db_error)?;
             if let Some(holder) = holder {
@@ -69,9 +70,7 @@ impl Cache {
             metadata(&tx, bundle.name, holder, meta)?;
             tx.commit().map_err(db_error)?;
             Ok(true)
-        })();
-        // TEMP rows belong to this connection and vanish on every return path.
-        result
+        })
     }
 }
 
