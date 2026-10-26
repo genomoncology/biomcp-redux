@@ -36,18 +36,8 @@ fn walk(genes: bool) -> Check {
         let value = call(&env, &args, offset > 0, 0)?;
         let rows = value.pointer("/result/items").and_then(Value::as_array).ok_or("missing rows")?;
         if value.pointer("/result/page/offset") != Some(&json!(offset)) { return Err("page gap".into()); }
-        for row in rows {
-            let identity = if genes {
-                let namespace = row.pointer("/reference/namespace").and_then(Value::as_str).ok_or("namespace")?;
-                let id = row.pointer("/reference/value").and_then(Value::as_str).ok_or("reference")?;
-                if let Some(gene) = row.get("gene").and_then(Value::as_str) { joins.insert((id.to_owned(), gene.to_owned())); }
-                format!("{namespace}:{id}")
-            } else {
-                if row.get("kind") == Some(&json!("object")) { objects += 1; } else { integers += 1; }
-                row.get("db_id").ok_or("database reference")?.to_string()
-            };
-            if !seen.insert(identity) { return Err("duplicate source member during walk".into()); }
-        }
+        let observed = observe(rows, genes, &mut seen, &mut joins)?;
+        objects += observed.0; integers += observed.1;
         let Some(next) = continuation(&value)? else { break; };
         if offset == 0 {
             let forwarded = mcp::call_with_globals(&env, &next, false, &globals(&env, true))?;
@@ -65,6 +55,23 @@ fn walk(genes: bool) -> Check {
         return Err(format!("native event union changed: {} / {objects} / {integers}", seen.len()));
     }
     Ok(())
+}
+fn observe(rows: &[Value], genes: bool, seen: &mut BTreeSet<String>,
+    joins: &mut BTreeSet<(String, String)>) -> Result<(usize, usize), String> {
+    let mut objects = 0; let mut integers = 0;
+    for row in rows {
+            let identity = if genes {
+                let namespace = row.pointer("/reference/namespace").and_then(Value::as_str).ok_or("namespace")?;
+                let id = row.pointer("/reference/value").and_then(Value::as_str).ok_or("reference")?;
+                if let Some(gene) = row.get("gene").and_then(Value::as_str) { joins.insert((id.to_owned(), gene.to_owned())); }
+                format!("{namespace}:{id}")
+            } else {
+                if row.get("kind") == Some(&json!("object")) { objects += 1; } else { integers += 1; }
+                row.get("db_id").ok_or("database reference")?.to_string()
+            };
+            if !seen.insert(identity) { return Err("duplicate source member during walk".into()); }
+    }
+    Ok((objects, integers))
 }
 fn bindings() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
