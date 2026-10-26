@@ -49,7 +49,43 @@ pub(super) fn surfaces(
     if markdown.status.code() != Some(exit) || markdown.stdout.is_empty() {
         return Err("Markdown output absent".into());
     }
+    help_markdown(phase, &markdown.stdout, &value)?;
     let sizes = json!({"cli":output.stdout.len(),"bare":bare.len(),"mcp-text":text.len(),"markdown":markdown.stdout.len(),"mcp-rpc":rpc.len()});
     writeln!(std::io::stderr(), "AUTHOR_COST {phase} {sizes}").map_err(|e| e.to_string())?;
     Ok(value)
+}
+
+fn help_markdown(phase: &str, bytes: &[u8], value: &Value) -> Result<(), String> {
+    let ceiling = match phase {
+        "native/author-help/0" => 1137,
+        "native/author-help/1" => 708,
+        "native/author-help/2" => 1748,
+        _ => return Ok(()),
+    };
+    if bytes.len() > ceiling {
+        return Err(format!(
+            "{phase}: Markdown exceeds approved ceiling {ceiling}"
+        ));
+    }
+    let markdown = std::str::from_utf8(bytes).map_err(|e| e.to_string())?;
+    for command in value
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("help commands")?
+    {
+        for argument in command
+            .get("arguments")
+            .and_then(Value::as_array)
+            .ok_or("help arguments")?
+        {
+            let name = argument
+                .get("name")
+                .and_then(Value::as_str)
+                .ok_or("argument name")?;
+            if !markdown.contains(name) {
+                return Err(format!("{phase}: Markdown omitted {name}"));
+            }
+        }
+    }
+    Ok(())
 }

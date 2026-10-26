@@ -20,8 +20,8 @@
         "/page/offset": 0
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 1191,
+      "max_tokens": 298
     },
     {
       "run": [
@@ -41,8 +41,8 @@
         "/page/offset": 0
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 1191,
+      "max_tokens": 298
     },
     {
       "run": [
@@ -70,8 +70,8 @@
         "/page/offset": 5
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 786,
+      "max_tokens": 197
     },
     {
       "run": [
@@ -95,8 +95,8 @@
         "/page/offset": 0
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 1239,
+      "max_tokens": 310
     },
     {
       "run": [
@@ -120,8 +120,8 @@
         "/next/0/kind": "restart"
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 229,
+      "max_tokens": 58
     },
     {
       "run": [
@@ -147,8 +147,8 @@
         "/next/0/kind": "restart"
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 226,
+      "max_tokens": 57
     },
     {
       "run": [
@@ -172,8 +172,8 @@
         "/next/0/kind": "restart"
       },
       "full_output_bytes": true,
-      "max_bytes": 8000,
-      "max_tokens": 2000
+      "max_bytes": 226,
+      "max_tokens": 57
     }
   ]
 }

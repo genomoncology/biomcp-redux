@@ -869,7 +869,7 @@
       ]
     }
   },
-  "$id": "biodata.request/24",
+  "$id": "biodata.request/25",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -931,6 +931,7 @@
           "items": {
             "$ref": "#/$defs/AuthorId"
           },
+          "maxItems": 20,
           "minItems": 1,
           "type": "array",
           "x-positional": 0

@@ -5,7 +5,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author-get-query/1",
+  "$id": "biomcp.author-get-query/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Exact qualified records in caller order, with no name reconciliation.",
@@ -15,6 +15,7 @@
       "items": {
         "$ref": "#/$defs/AuthorId"
       },
+      "maxItems": 20,
       "minItems": 1,
       "type": "array",
       "x-positional": 0
