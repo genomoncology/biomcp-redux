@@ -2,7 +2,7 @@ use super::*;
 pub(super) fn run() -> Result<(), String> {
     for assay in [false, true] {
         for fault in ["429", "500", "broken", "html", "timeout"] { failure(assay, fault)?; }
-        for fault in ["mismatch", "missing", "malformed"] { admission(assay, fault)?; }
+        for fault in ["mismatch", "missing", "malformed", "bad-page"] { admission(assay, fault)?; }
         disabled(assay)?;
         release(assay)?;
     }
@@ -14,7 +14,7 @@ fn failed(value: &Value) -> Result<(), String> {
     path(value, "/status", json!("failed"))?;
     path(value, "/sources/0/source", json!("chembl"))?;
     path(value, "/sources/0/state", json!("failed"))?;
-    path(value, "/sources/0/use", json!("open"))?;
+    path(value, "/sources/0/use", json!("attribution"))?;
     if value.get("result").is_some() { return Err("failure became a valid count or empty metadata".into()); }
     if value.pointer("/sources/0/terms_url").and_then(Value::as_str).is_none_or(str::is_empty) {
         return Err("failure lost terms".into());
@@ -48,6 +48,10 @@ fn failure(assay: bool, fault: &str) -> Result<(), String> {
 }
 fn bad(assay: bool, fault: &str) -> Result<String, String> {
     let mut value: Value = serde_json::from_str(&fixture(if assay {"assays"} else {"CVCL_2119"})?).map_err(|e| e.to_string())?;
+    if fault == "bad-page" {
+        *value.pointer_mut("/page_meta/limit").ok_or("native limit")? = json!(2);
+        return Ok(value.to_string());
+    }
     let row = value.pointer_mut(if assay {"/assays/0"} else {"/cell_lines/0"}).and_then(Value::as_object_mut).ok_or("row")?;
     let field = if assay {"cell_chembl_id"} else {"cellosaurus_id"};
     match fault {

@@ -43,6 +43,7 @@ fn native() -> Result<(), String> {
         let args = ["get", "cell-line", id, "chembl"];
         let phase = format!("chembl/native/metadata/{id}");
         let value = parity(&phase, &env, &args, if count == 0 {1} else {0}, MEASURE)?;
+        native_facts(&value, id)?;
         path(&value, "/result/items/total", json!(count))?;
         path(&value, "/result/accession", json!(id))?;
         path(&value, "/result/release/version", json!("ChEMBL_37"))?;
@@ -112,6 +113,24 @@ fn help() -> Result<(), String> {
     for args in [vec!["cell-line", "assay-count", "MOLM13"], vec!["cell-line", "assay-count", "CHEMBL3706573", "--limit", "1"], vec!["cell-line", "assay-count", "CHEMBL3706573", "--unknown", "x"]] {
         let rejected = invoke(&env, &args, 2)?;
         path(&rejected, "/status", json!("usage"))?;
+    }
+    Ok(())
+}
+
+fn native_facts(value: &Value, id: &str) -> Result<(), String> {
+    let native: Value = serde_json::from_str(&fixture(id)?).map_err(|e| e.to_string())?;
+    let rows = native.get("cell_lines").and_then(Value::as_array).ok_or("native rows")?;
+    let actual = value.pointer("/result/items/items").and_then(Value::as_array).ok_or("result rows")?;
+    if rows.len() != actual.len() { return Err("metadata dropped complete source rows".into()); }
+    for (source, result) in rows.iter().zip(actual) {
+        for (native, field) in [
+            ("cell_chembl_id", "id"), ("cell_id", "cell_id"), ("cellosaurus_id", "cellosaurus_id"),
+            ("cell_name", "name"), ("cell_description", "description"), ("cell_source_organism", "organism"),
+            ("cell_source_tax_id", "taxon"), ("cell_source_tissue", "tissue"), ("clo_id", "clo"), ("efo_id", "efo"),
+        ] {
+            let expected = source.get(native).filter(|v| !v.is_null());
+            if result.get(field) != expected { return Err(format!("{id}: lost native field {native}")); }
+        }
     }
     Ok(())
 }

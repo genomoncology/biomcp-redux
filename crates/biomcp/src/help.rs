@@ -203,7 +203,7 @@ pub(crate) fn tree() -> String {
         if command.command.first().is_none_or(|verb| {
             !matches!(
                 verb.as_str(),
-                "search" | "get" | "article" | "trial" | "variant" | "sync" | "pathway"
+                "search" | "get" | "article" | "trial" | "variant" | "sync" | "pathway" | "cell-line"
             )
         }) {
             continue;
