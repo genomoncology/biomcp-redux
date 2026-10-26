@@ -2,12 +2,14 @@
 import argparse
 import hashlib
 import json
+import io
 from pathlib import Path
 import tarfile
 
 
 def archive(path):
-    with tarfile.open(path) as packed:
+    options = {"fileobj": path} if hasattr(path, "read") else {"name": path}
+    with tarfile.open(**options) as packed:
         members = packed.getmembers()
         assert all(m.isfile() and '/' not in m.name for m in members)
         assert len({m.name for m in members}) == len(members)
@@ -23,16 +25,16 @@ def compact(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
 
 
-def recording(replay, url, raw):
+def recording(replay, url, raw, status=200):
     key = hashlib.sha256(b'GET\0' + url.encode()).hexdigest()
     value = {'source': 'cbioportal', 'method': 'GET', 'url': url,
-             'exchanges': [{'status': 200, 'fetched': 0, 'content_type': 'application/json',
+             'exchanges': [{'status': status, 'fetched': 0, 'content_type': 'application/json',
                             'delay_ms': 0, 'retry_after_ms': None,
                             'body': {'kind': 'text', 'value': raw.decode()}}]}
     (replay / (key + '.json')).write_text(compact(value))
 
 
-def main(native, catalog, out):
+def main(native, catalog, admission, out):
     source = archive(native)
     catalog = archive(catalog)
     assert out.is_absolute() and not out.exists()
@@ -53,7 +55,12 @@ def main(native, catalog, out):
         assert len({r['path'] for r in entries}) == total
         recording(replay, f'https://api.github.com/repos/cBioPortal/datahub/contents/public/{identity}', raw)
         notice = next(r['html_url'] for r in entries if r['name'] == 'LICENSE')
-        operations = [(['get', 'study', identity], {'/result/license_notice': notice})]
+        for section, suffix in [('molecular-profiles', 'profiles'), ('sample-lists', 'sample-lists')]:
+            recording(replay, f'https://www.cbioportal.org/api/studies/{identity}/{section}?projection=DETAILED', catalog[f'{identity}-{suffix}.body'])
+        operations = [(['get', 'study', identity], {'/result/license_notice': notice}),
+                      (['get', 'study', identity, 'all'], {'/result/license_notice': notice,
+                       '/result/files/data/page/total': total,
+                       '/result/files/data/page/returned': 5})]
         for offset in range(0, total, 5):
             expected = {'/page/total': total, '/page/offset': offset, '/result/license_notice': notice}
             for n, row in enumerate(entries[offset:offset + 5]):
@@ -69,6 +76,17 @@ def main(native, catalog, out):
                      {'run': args, 'mcp': args, 'expect': expected}]}
             (cases / f'{count:03d}.yaml').write_text(compact(value))
             count += 1
+    absent = archive(io.BytesIO(archive(admission)['absent-files-capture.tar.gz']))
+    receipt = json.loads(absent['0000.receipt.json'])
+    assert receipt['status'] == 404
+    recording(replay, receipt['url'], absent['0000.body'], 404)
+    args = ['get', 'study', 'biomcp_absent_study_0207', 'files']
+    value = {'story': 'Exact retained directory absence does not require a catalog lookup',
+             'feature': 'study-files', 'replay': str(replay.parent),
+             'steps': [{'run': args, 'mcp': args, 'exit': 1,
+                        'expect': {'/status': 'absent', '/sources/0/use': 'restricted'}}]}
+    (cases / f'{count:03d}.yaml').write_text(compact(value))
+    count += 1
     print(f'Prepared {count} native CLI/MCP file-reference cases; no provider request')
 
 
@@ -76,6 +94,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('native', type=Path)
     parser.add_argument('catalog', type=Path)
+    parser.add_argument('admission', type=Path)
     parser.add_argument('out', type=Path)
     args = parser.parse_args()
-    main(args.native, args.catalog, args.out)
+    main(args.native, args.catalog, args.admission, args.out)

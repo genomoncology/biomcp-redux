@@ -86,7 +86,7 @@ fn retained(directory: &Path) -> Check {
         .map(|entry| entry.map(|v| v.path()).map_err(|e| e.to_string()))
         .collect::<Result<Vec<_>, _>>()?;
     paths.sort();
-    if paths.len() != 18 { return Err("native file case inventory differs".into()); }
+    if paths.len() != 21 { return Err("native file case inventory differs".into()); }
     for path in paths {
         let value = crate::runner::run_case(&path, &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
