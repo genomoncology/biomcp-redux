@@ -23,7 +23,9 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
         .push(status::source(Source::Cbioportal, leg.finish(), error));
     if error.is_some() {
         out.status = Status::Failed
-    } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
+    } else if out.status == Status::Complete
+        && out.sources.iter().any(|s| s.state == SourceState::Stale)
+    {
         out.status = Status::Partial
     }
     if out

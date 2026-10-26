@@ -1,10 +1,8 @@
-use super::failure;
 use crate::{Action, Ctx, Outcome, store::Store};
 use biodata::StudyHeader;
 use biomcp_fetch::{BundleInfo, CacheError, Deadline, RequestError};
 use biomcp_types::{
-    PageInfo, QueryBody, Reason, Request, Status, StepKind, StudyGet, StudyPage, StudySearch,
-    StudySnapshot,
+    PageInfo, QueryBody, Request, Status, StepKind, StudyGet, StudyPage, StudySearch, StudySnapshot,
 };
 type Retained = (Vec<StudyHeader>, StudySnapshot);
 pub(super) fn search(
@@ -16,36 +14,30 @@ pub(super) fn search(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let snapshot = biomcp_adapters::cbioportal::studies::snapshot(&info)?;
-    let key = serde_json::to_vec(&(
-        "study-catalog/1",
-        q.text(),
-        q.cancer_type(),
-        q.limit(),
-        &snapshot.revision,
-    ))
-    .map_err(|_| CacheError::Database)?;
+    let key = request_key(q, &snapshot)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let existing = store.find(&key, q.pool().map(|p| p.as_str()))?;
-    let pool = if let Some(pool) = existing.filter(|pool| pool.key == key) {
+    let pool = if let Some(pool) = existing {
         pool
     } else if q.pool().is_some() {
-        out.next.push((
-            StepKind::Restart,
-            Action::Run {
-                request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
-                fresh: cx.fresh,
-            },
-        ));
-        return Err(failure(Reason::Rejected));
+        pool_error(cx, q, false, out);
+        return Ok(());
     } else {
         let size = u32::try_from(rows.len()).map_err(|_| CacheError::Database)?;
         let payload = serde_json::to_string(&(rows, snapshot)).map_err(|_| CacheError::Database)?;
         store.publish_source_pool(&key, &payload, size, &[])?
     };
-    let payload = store
-        .source_snapshot(pool.info.id.as_str(), &key, |s| cx.fetch.disabled(s))?
-        .ok_or_else(|| failure(Reason::Rejected))?;
+    let Some(payload) =
+        store.source_snapshot(pool.info.id.as_str(), &pool.key, |s| cx.fetch.disabled(s))?
+    else {
+        pool_error(cx, q, false, out);
+        return Ok(());
+    };
     let retained = serde_json::from_str::<Retained>(&payload).map_err(|_| CacheError::Database)?;
+    if pool.key != request_key(q, &retained.1)? {
+        pool_error(cx, q, true, out);
+        return Ok(());
+    }
     render(cx, q, pool.info, retained, out)
 }
 fn render(
@@ -100,4 +92,24 @@ fn render(
     }));
     out.status = Status::Complete;
     Ok(())
+}
+
+fn request_key(q: &StudySearch, snapshot: &StudySnapshot) -> Result<Vec<u8>, RequestError> {
+    serde_json::to_vec(&(
+        "study-catalog/1",
+        q.text(),
+        q.cancer_type(),
+        &snapshot.revision,
+    ))
+    .map_err(|_| CacheError::Database.into())
+}
+fn pool_error(cx: &Ctx<'_>, q: &StudySearch, mismatch: bool, out: &mut Outcome) {
+    out.body = QueryBody::PoolError { mismatch };
+    out.next.push((
+        StepKind::Restart,
+        Action::Run {
+            request: Request::SearchStudy(q.with_pool(None).at_offset(0)),
+            fresh: cx.fresh,
+        },
+    ));
 }

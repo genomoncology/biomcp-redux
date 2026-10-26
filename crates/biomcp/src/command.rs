@@ -223,6 +223,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
     match request {
         Request::SearchStudy(q) => match body {
             QueryBody::StudyPage(body) => meta.encode(q, body),
+            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
         Request::GetStudy(q) => match body {

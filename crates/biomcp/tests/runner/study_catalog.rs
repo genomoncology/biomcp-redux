@@ -146,7 +146,7 @@ fn search() -> Check {
         &env,
         &replay,
         &["search", "study", "other", "--pool", pool],
-        4,
+        2,
     )?;
     if changed.get("result").is_some() {
         return Err("changed selectors reused a pool".into());
@@ -230,7 +230,7 @@ fn lifetimes() -> Check {
         &env,
         &replay,
         &["search", "study", "atlas", "--pool", id, "--offset", "5"],
-        4,
+        3,
     )?;
     if expired.get("result").is_some() || expired.pointer("/next/0/kind") != Some(&json!("restart"))
     {
@@ -343,7 +343,7 @@ fn revision() -> Check {
         &env,
         &replay,
         &["search", "study", "atlas", "--pool", id, "--offset", "5"],
-        4,
+        0,
     )?;
     if after.get("result").is_some() || after.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err("continuation mixed catalog revisions".into());
