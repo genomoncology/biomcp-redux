@@ -11,7 +11,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        "Native detailed metadata for the same paper window."
+        " Native detailed metadata for the same paper window."
       ]
     },
     "Text": {
