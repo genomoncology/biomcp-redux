@@ -286,11 +286,11 @@ The rows below close every surface in the accounting table above. Shared aliases
 | Shared `--disable-sources`, help | Retained; source/component policy before I/O/cache/replay | Disease registry admission, source cases and generated help. |
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search disease` | Ported or renamed | `--source`, `--limit`, `--offset` | `--query`, `--inheritance`, `--phenotype`, `--onset`, `--no-fallback` | — | Literal OLS text and explicit ontology selection replace rewritten MyDisease discovery; unsupported clinical filters and fallback remain retired. |
-| `get disease` | Ported or renamed | — | `--name` | — | Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts. |
-| `disease drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search disease` | Ported or renamed | `--source`, `--limit`, `--offset` | `--query`, `--inheritance`, `--phenotype`, `--onset`, `--no-fallback` | — | — | Literal OLS text and explicit ontology selection replace rewritten MyDisease discovery; unsupported clinical filters and fallback remain retired. |
+| `get disease` | Ported or renamed | — | `--name` | — | — | Exact CURIE cards and explicit one-source sections replace name selection and hidden enrichment. Section values and shared flags are accounted above, outside option-slot counts. |
+| `disease drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | — | Drop convenience indication search; explicit drug commands retain their own source contracts and no reverse indication join is fabricated. |
 <!-- /parity-accounting -->
 
 ### Executed harvested-case map

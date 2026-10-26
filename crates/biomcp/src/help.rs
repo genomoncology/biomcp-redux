@@ -110,7 +110,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         ),
         (
             vec!["serve"],
-            "Serve MCP over stdio, or use --http [ADDR] for native HTTP clients. Non-loopback addresses require --allow-host HOST or http.allowed_hosts. Responses contain one JSON object; HTTP frames and active connections have fixed limits.",
+            "Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.",
         ),
     ] {
         commands.push(HelpCommand {

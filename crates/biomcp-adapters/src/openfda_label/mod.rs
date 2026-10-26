@@ -1,5 +1,5 @@
 //! Exact openFDA brand candidates and SPL revisions without clinical text selection.
-use biomcp_fetch::{KeyUse, SourceSpec, Terms};
+use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
 /// Publisher policy shared by health, request admission and response outcomes.
@@ -13,7 +13,7 @@ pub static SPEC: SourceSpec = SourceSpec {
         usage: crate::drug_sources::FDA_TERMS.usage,
     },
     quota: &crate::quotas::OPENFDA,
-    key: KeyUse::None,
+    key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
 };
 mod map;

@@ -32,10 +32,10 @@ Six crates. Each exists because a rule needs a crate boundary to enforce it.
 | --- | --- | --- | --- |
 | `biodata` | Neutral entity values, identifiers, coordinates, notation and closed vocabularies. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
 | `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
-| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
-| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
-| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
+| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
 
@@ -859,10 +859,11 @@ pub enum Find<'a> { Exact(KeyKind, &'a str), Prefix(KeyKind, &'a str), Words(&'a
 Sync rules:
 
 - `biomcp sync` with no name syncs every bundle the enabled sources use. The install guide recommends running it once after install.
-- A query that needs an absent or stale bundle syncs it on first use only when the bundle's last known size is below `auto_sync_max_bytes`, 32 MB by default. A larger bundle answers `syncing` with a `sync` next step. Offline mode never syncs.
+- Explicitly synchronized bundle reads, including EMA, use `Leg::stored_rows` or the complete-set stored reader. They never synchronize, including under fresh or replay settings. Missing bundles return `syncing` with an explicit sync step; stale rows remain readable with a stale marker.
+- The older `Leg::rows` path still synchronizes absent or stale data. HGNC and ClinGen call this path. `auto_sync_max_bytes` remains active in `bundle/download.rs`: it bounds those automatic transfers and rejects a known oversized prior bundle before download. It does not control stored-bundle reads or explicit sync. Offline mode never syncs.
 - A sync takes a lock row in `bundle_sync`. Another process that finds the lock held answers `syncing` with a retry step, and a lock older than the sync budget is taken over.
 - An explicit `biomcp sync` runs under `sync_budget`, separate from the command budget. An automatic sync on first use runs inside the remaining budget of the leg that needs the rows, so a command never outlives its deadline; a first download that does not finish answers `syncing` with a retry step and resumes on the next call. The download writes to a part file in the cache folder and resumes with a range request when the server supports one. A sync that runs out of budget leaves the part file, answers `syncing` with a retry step, and the next sync resumes it.
-- A stale bundle that cannot sync answers from its stale rows with `stale` and a `sync` next step.
+- The older automatic read path may return stale stored rows when its refresh fails. Stored-bundle reads do not attempt that refresh.
 
 ### 4.12 Errors
 
@@ -1567,7 +1568,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
 }
 ```
 
-The description embeds a compact command tree of about 300 tokens, generated at startup from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. The discovery case pins the main tree and the research descriptions under their separate measured ceilings. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
+The description embeds the command tree generated from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. The discovery case pins the main tree and the research descriptions under their separate measured ceilings. [Ticket 0270](../tickets/0270-author-docs-and-accounting.md) records the current approved main-description cap. The [measured-caps decision](../decisions/2026-10-26-measured-entity-caps-need-no-ask.md) requires a PM ruling before a global description or full tool-list cap grows. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
 
 `biomcp serve` speaks MCP over standard input and output from one file, `mcp.rs`, written to the specification:
 
@@ -1913,7 +1914,7 @@ The PM ruled on this design's earlier open questions on 2026-10-23. This file ap
 4. **Links as next steps.** Link commands that equal a search filter are gone. Next steps carry the resolved ID, and retired 0.9 spellings return a usage error that names the new command.
 5. **Several inputs per get.** `get` takes up to twenty inputs and returns items in input order, each with its own status. Sections are a closed enum per entity, with `--section` on collision.
 6. **Statuses and exit codes.** Distinct statuses and codes for absent, usage, expired, failed and local errors. Ambiguous and withdrawn inputs and zero-hit searches are answers that exit 0. A capped pool is complete with `truncated` and `total`. `main` returns `ExitCode`.
-7. **Bundles.** `biomcp sync` at install, auto-sync on first use below a size threshold, a lock row, a separate budget, resumable downloads or a `syncing` outcome, and never offline.
+7. **Bundles.** Explicit `biomcp sync` uses a lock, a separate budget and resumable downloads, and never runs offline. Stored-bundle reads never synchronize. The older `Leg::rows` path retains bounded automatic synchronization as described in section 4.11.
 8. **Coverage floor.** In the gate with a 0.2-point tolerance. Only the lander raises it. The subprocess binary is instrumented.
 9. **Wiki tables.** Entity, alias and link tables are deferred to the wiki's own design, and their DDL is gone from this file.
 

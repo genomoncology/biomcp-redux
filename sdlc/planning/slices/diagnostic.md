@@ -483,13 +483,12 @@ Ceilings round complete stdout times 1.15 upward. The existing case runner indep
 This closes the static legacy surface accounting above. The historical denominator includes leaf commands and long command options, excluding aliases, positional IDs, section words and global flags. A ported source selector does not retain the old `all` value. Deferred selectors remain recorded as undecided implementation; they are not silently counted as dropped.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search diagnostic` | Ported or renamed | `--source`, `--gene`, `--type`, `--manufacturer`, `--limit`, `--offset` | `--disease`, `--full` | — | Choose gtr, who-ivd or fda-cdx explicitly. GTR uses exact native fields; condition-id replaces phrase expansion. WHO uses literal `--marker` and `--manufacturer` words without synonyms. GTR laboratory selection remains deferred. |
-| `get diagnostic` | Ported or renamed | — | — | — | Choose gtr, who-ivd, fda-pma or fda-510k explicitly and an exact native identity. Named sections remain source-scoped; all and the name-derived regulatory overlay retire. |
-| `gtr sync` | Ported or renamed | — | — | — | Use sync gtr; validate and atomically replace the complete two-file bundle. |
-| `who-ivd sync` | Ported or renamed | — | — | — | Use sync who-ivd; replace the full unfiltered export. |
-| `list diagnostic` | Ported or renamed | — | — | — | Use generated help diagnostic; examples come from executable cases. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search diagnostic` | Ported or renamed | `--source`, `--gene`, `--type`, `--manufacturer`, `--limit`, `--offset` | `--disease`, `--full` | — | — | Choose gtr, who-ivd or fda-cdx explicitly. GTR uses exact native fields; condition-id replaces phrase expansion. WHO uses literal `--marker` and `--manufacturer` words without synonyms. GTR laboratory selection remains deferred. |
+| `get diagnostic` | Ported or renamed | — | — | — | — | Choose gtr, who-ivd, fda-pma or fda-510k explicitly and an exact native identity. Named sections remain source-scoped; all and the name-derived regulatory overlay retire. |
+| `gtr sync` | Ported or renamed | — | — | — | — | Use sync gtr; validate and atomically replace the complete two-file bundle. |
+| `who-ivd sync` | Ported or renamed | — | — | — | — | Use sync who-ivd; replace the full unfiltered export. |
 <!-- /parity-accounting -->
 
 | Legacy or added surface | Shipped spelling or disposition | Case owner |

@@ -129,3 +129,5 @@ pub mod vaers;
 
 /// Literal Cellosaurus discovery and exact cell identity.
 pub mod cellosaurus;
+
+mod openfda_key;

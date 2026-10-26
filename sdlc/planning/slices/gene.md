@@ -31,7 +31,7 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 | `gene definition`, `gene get` | | Same as `get gene` | Same card | `get gene <input>`; both aliases return `use: get gene <gene>`. |
 | `gene <symbol>` | | Same as `get gene` | Same card, through an external-subcommand fallback | `get gene <input>`; fallback returns `use: get gene <gene>`. |
 | `gene trials <symbol>` | `--limit`, `--offset`, `--source ctgov\|nci` | ClinicalTrials.gov or NCI CTS | Trials whose text names the symbol | Trial slice: `search trial --gene <gene>`; `use: search trial --gene <gene>`. Its paging and source options belong to that slice. |
-| `gene drugs <symbol>` | `--limit`, `--offset` | MyChem and drug sources | Drugs listing the gene as target | Drug slice: `search drug --target <gene>`; `use: search drug --target <gene>`. Its paging options belong to that slice. |
+| `gene drugs <symbol>` | `--limit`, `--offset` | MyChem and drug sources | Drugs listing the gene as target | Dropped under the 2026-10-26 pathway ruling on unsupported reverse gene-to-drug search. Select a drug identity and request explicit source sections. |
 | `gene articles <symbol>` | `--limit`, `--offset` | PubMed and article sources | Article rows | Article slice: `search article --gene <gene>`; `use: search article --gene <gene>`. Its paging options belong to that slice. |
 | `gene pathways <symbol>` | `--limit` 1-25, `--offset` | Reactome and KEGG | The whole gene card with the pathways section | `get gene <input> pathways`; `use: get gene <gene> pathways`. Old `--limit` and `--offset` belong to pathway paging in the pathway slice; this section returns its bounded list. |
 | `gene cell-lines <symbol> --group G` | `--limit` 1-100, `--offset` | HPA cell line data | nTPM for each cell line in one cancer group | Cell line slice, including `--group`, `--limit` and `--offset`. `moved to the cell line entity`. |
@@ -40,20 +40,19 @@ Ian approved all eight recommendations in section 9, as `decisions/2026-10-24-ge
 
 ### Leaf-command parity accounting
 
-The historical inventory in the architecture investigation, section 6.1, counts leaf commands and command-specific option slots. Short aliases share the long option's slot. Command aliases, the external-symbol fallback, positional arguments, section names, MCP tools and global flags are outside that denominator. `gene cspec document` is the leaf; its parent's five options are outside the historical leaf inventory. This table owns `gene articles`, so article accounting does not count that command again. Moved capabilities awaiting their slice remain undecided here.
+The historical inventory in the architecture investigation, section 6.1, counts leaf commands and command-specific option slots. Short aliases share the long option's slot. Command aliases, the external-symbol fallback, positional arguments, section names, MCP tools and global flags are outside that denominator. `gene cspec document` is the leaf; its parent's five options are outside the historical leaf inventory. This table owns `gene articles`, so article accounting does not count that command again. The variant slice owns the CSpec document leaf; each other leaf has its disposition below.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search gene` | Ported or renamed | `--type`, `--chromosome`, `--limit`, `--offset` | `--query`, `--region`, `--pathway`, `--go` | — | Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters. |
-| `get gene` | Ported or renamed | — | — | — | Section 1 preserves the gene card; section values do not count as option slots. |
-| `gene definition` | Ported or renamed | — | — | — | Section 1 replaces this leaf and its get alias with get gene. |
-| `gene trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page. |
-| `gene drugs` | Not yet decided | — | — | `--limit`, `--offset` | The drug slice owns this capability and its paging options. Reverse target search remains unproved and absent; fixed guidance requests a selected drug identity and explicit source sections. |
-| `gene articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 maps this capability to search article --gene; article search preserves paging. |
-| `gene pathways` | Ported or renamed | `--limit`, `--offset` | — | — | Use get gene INPUT pathways for the bounded card section; search pathway --gene INPUT --limit N --offset N owns full membership paging. |
-| `gene cell-lines` | Dropped by ruling | — | `--group`, `--limit`, `--offset` | — | The cell line slice defers HPA expression until an exact source cell identity join exists; name matching is forbidden. |
-| `gene cspec document` | Not yet decided | — | — | — | Section 1 moves CSpec and its document leaf to the variant slice. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search gene` | Ported or renamed | `--type`, `--chromosome`, `--limit`, `--offset` | `--query`, `--region`, `--pathway`, `--go` | — | — | Section 1 maps type and chromosome, preserves paging and removes the query alias and unused filters. |
+| `get gene` | Ported or renamed | — | — | — | — | Section 1 preserves the gene card; section values do not count as option slots. |
+| `gene definition` | Ported or renamed | — | — | — | — | Section 1 replaces this leaf and its get alias with get gene. |
+| `gene trials` | Ported or renamed | `--limit`, `--offset`, `--source` | — | — | — | The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page. |
+| `gene drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 protein, pathway and study rulings retire reverse gene-to-drug search. Use a selected drug identity and its explicit source sections; no reverse search or paging replacement is approved. |
+| `gene articles` | Ported or renamed | `--limit`, `--offset` | — | — | — | Section 1 maps this capability to search article --gene; article search preserves paging. |
+| `gene pathways` | Ported or renamed | `--limit`, `--offset` | — | — | — | Use get gene INPUT pathways for the bounded card section; search pathway --gene INPUT --limit N --offset N owns full membership paging. |
+| `gene cell-lines` | Deferred by ruling | — | — | `--group`, `--limit`, `--offset` | — | The cell line slice defers HPA expression until an exact source cell identity join exists; name matching is forbidden. |
 <!-- /parity-accounting -->
 
 ### Speed and size

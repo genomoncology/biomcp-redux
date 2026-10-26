@@ -62,6 +62,8 @@ pub(super) fn help_source(matches: &clap::ArgMatches) -> Result<biomcp_types::So
         .map_or(Ok(biomcp_types::Source::Oncokb), |s| {
             if s == "ncbi" {
                 Ok(biomcp_types::Source::PubMed)
+            } else if s == "openfda" {
+                Ok(biomcp_types::Source::OpenfdaLabel)
             } else {
                 s.parse()
             }

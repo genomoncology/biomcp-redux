@@ -202,11 +202,11 @@ Static audit uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b863665
 | Global `--json`, freshness/cache/policy/settings and MCP transport | Reuse landed global behavior and source registry. This slice adds no parallel environment/key parser or rendering path. |
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search protein` | Ported or renamed | `--query`, `--reviewed`, `--limit`, `--offset`, `--next-page` | `--all-species`, `--include-unreviewed`, `--disease`, `--existence` | — | Use positional text or --gene with reviewed human scope; query aliases retire to positional text and next-page retires to --pool plus --offset. All-species is dropped. Unreviewed scope lacks a positive capture; disease and existence selectors have no harvested need and remain deferred. |
-| `get protein` | Ported or renamed | — | — | — | Keep exact accessions, source isoforms and explicit gene candidates. Keep domains, complexes, structures and all; interactions defers STRING because distinct CDKN2A products map to one source identity. Native features, isoforms, function and sequence are explicit deeper sections. Function keeps one whole source text record. |
-| `protein structures` | Ported or renamed | `--limit`, `--offset` | — | — | Keep native UniProt PDB references and bounded retained paging; preserve provider credit and native properties without inferred residue placement. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search protein` | Ported or renamed | `--query`, `--reviewed`, `--limit`, `--offset`, `--next-page` | `--all-species` | `--include-unreviewed`, `--disease`, `--existence` | — | Use positional text or --gene with reviewed human scope; query aliases retire to positional text and next-page retires to --pool plus --offset. All-species is dropped. Unreviewed scope lacks a positive capture; disease and existence selectors have no harvested need and remain deferred. |
+| `get protein` | Ported or renamed | — | — | — | — | Keep exact accessions, source isoforms and explicit gene candidates. Keep domains, complexes, structures and all; interactions defers STRING because distinct CDKN2A products map to one source identity. Native features, isoforms, function and sequence are explicit deeper sections. Function keeps one whole source text record. |
+| `protein structures` | Ported or renamed | `--limit`, `--offset` | — | — | — | Keep native UniProt PDB references and bounded retained paging; preserve provider credit and native properties without inferred residue placement. |
 <!-- /parity-accounting -->
 
 The leaf accounting counts command-specific options under the shared historical inventory. The detailed rows above also account for positional sections, default scope and global flags, which the inventory excludes. Global `--json` uses `--format json`; freshness, cache, policy, settings and MCP reuse their shared routes. These rows close spellings and source decisions; they claim no measured 0.9 execution.

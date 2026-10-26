@@ -54,23 +54,23 @@ The investigation listed 16 article-family command spellings and 88 arguments, o
 
 ### Leaf-command parity accounting
 
-The historical denominator counts leaves and command-specific long option spellings; short aliases share their option's slot. Long aliases such as `--since` are distinct historical spellings. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` is accounted by the pathway slice under its retirement ruling.
+The released inventory counts leaves and their own canonical long options. Short and long aliases share their option's slot; `--since`, `--until` and `--query` add no slots. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` is accounted by the pathway slice under its retirement ruling.
 
 <!-- parity-accounting -->
-| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
-| --- | --- | --- | --- | --- | --- |
-| `search article` | Ported or renamed | `--gene`, `--disease`, `--drug`, `--author`, `--keyword`, `--query`, `--date-from`, `--since`, `--date-to`, `--until`, `--year-min`, `--year-max`, `--type`, `--journal`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, `--source`, `--limit`, `--offset` | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | — | Section 5 maps selectors and paging to typed search, replaces keyword aliases with TEXT, and retires blends and hidden planning under the no-text-heuristics ruling. |
-| `get article` | Ported or renamed | `--outline`, `--lines`, `--pdf`, `--output`, `--out` | `--asset-view`, `--asset-limit`, `--asset-offset` | — | Section 5 moves parts into the reader. The download-only decision of 2026-10-24 maps `--pdf` to `get article ID pdf` and `article pdf ID --save PATH`; its landed text/supplement save rule maps `--output` and `--out` to `article text ID --save PATH` and `article supplement ID FILE --save PATH`. |
-| `article authors` | Ported or renamed | — | — | — | Section 1 maps author disclosure to the article card. |
-| `article entities` | Ported or renamed | — | `--limit`, `--full` | — | Section 5 maps normalized entities to the annotations section with one bounded shape. |
-| `article batch` | Ported or renamed | — | — | — | Section 1 maps repeated inputs to get article. |
-| `article citations` | Ported or renamed | `--limit`, `--offset` | — | — | Section 5 keeps the Semantic Scholar graph one source option away and adds iCite as the default. |
-| `article references` | Ported or renamed | `--limit`, `--offset` | — | — | Section 5 keeps contexts and intents through the explicit graph source. |
-| `article citation-evidence` | Ported or renamed | `--fulltext` | — | — | Section 5 preserves the pair reader and optional citing paragraphs. |
-| `article supplement-search` | Ported or renamed | `--asset` | — | — | Section 5 replaces the asset selector with the exact file positional input of article supplement. |
-| `article recommendations` | Ported or renamed | `--negative`, `--limit` | — | — | Section 5 preserves native positive and negative seed recommendations. |
-| `variant articles` | Ported or renamed | `--limit`, `--offset` | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | — | The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice. |
-| `disease articles` | Ported or renamed | `--limit`, `--offset` | — | — | Section 1 moves the capability to search article --disease. |
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- | --- |
+| `search article` | Ported or renamed | `--gene`, `--disease`, `--drug`, `--author`, `--keyword`, `--date-from`, `--date-to`, `--year-min`, `--year-max`, `--type`, `--journal`, `--open-access`, `--no-preprints`, `--exclude-retracted`, `--include-retracted`, `--sort`, `--source`, `--limit`, `--offset` | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | — | — | Section 5 maps selectors and paging to typed search, replaces keyword aliases with TEXT, and retires blends and hidden planning under the no-text-heuristics ruling. |
+| `get article` | Ported or renamed | `--outline`, `--lines`, `--pdf`, `--output`, `--out` | `--asset-view`, `--asset-limit`, `--asset-offset` | — | — | Section 5 moves parts into the reader. The download-only decision of 2026-10-24 maps `--pdf` to `get article ID pdf` and `article pdf ID --save PATH`; its landed text/supplement save rule maps `--output` and `--out` to `article text ID --save PATH` and `article supplement ID FILE --save PATH`. |
+| `article authors` | Ported or renamed | — | — | — | — | Section 1 maps author disclosure to the article card. |
+| `article entities` | Ported or renamed | — | `--limit`, `--full` | — | — | Section 5 maps normalized entities to the annotations section with one bounded shape. |
+| `article batch` | Ported or renamed | — | — | — | — | Section 1 maps repeated inputs to get article. |
+| `article citations` | Ported or renamed | `--limit`, `--offset` | — | — | — | Section 5 keeps the Semantic Scholar graph one source option away and adds iCite as the default. |
+| `article references` | Ported or renamed | `--limit`, `--offset` | — | — | — | Section 5 keeps contexts and intents through the explicit graph source. |
+| `article citation-evidence` | Ported or renamed | `--fulltext` | — | — | — | Section 5 preserves the pair reader and optional citing paragraphs. |
+| `article supplement-search` | Ported or renamed | `--asset` | — | — | — | Section 5 replaces the asset selector with the exact file positional input of article supplement. |
+| `article recommendations` | Ported or renamed | `--negative`, `--limit` | — | — | — | Section 5 preserves native positive and negative seed recommendations. |
+| `variant articles` | Ported or renamed | `--limit`, `--offset` | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | — | — | The no-text-heuristics ruling replaces hidden plans and identity scores with explicit variant and source choices; variant notation belongs to its slice. |
+| `disease articles` | Ported or renamed | `--limit`, `--offset` | — | — | — | Section 1 moves the capability to search article --disease. |
 <!-- /parity-accounting -->
 
 ### Speed and size

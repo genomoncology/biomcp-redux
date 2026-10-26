@@ -1,6 +1,7 @@
 # 0278 — Clinical review of the author slice questions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c53658d8838e24fd46e9899756df5454460777e6
 
 Milestone: 4
 
