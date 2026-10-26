@@ -104,8 +104,8 @@ fn metadata(query: &VariantRecurrenceQuery, cohort: &cbioportal::Cohort, out: &m
     if let Some(error) = cohort.count_error {
         if let Some(source) = out.sources.last_mut() {
             source.state = biomcp_types::SourceState::Failed;
-            if let RequestError::Source(e) = error {
-                source.reason = Some(e.reason);
+            if let Some(reason) = status::reason(error) {
+                source.reason = Some(reason);
             }
         }
         out.local = status::local(error);

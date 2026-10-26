@@ -92,9 +92,9 @@ fn read(
         if let Ok((candidates, None)) = found {
             rows = candidates;
         }
-        if let Some(RequestError::Source(error)) = error {
+        if let Some(reason) = error.and_then(status::reason) {
             return (
-                Section::unavailable(Source::Gnomad, error.reason),
+                Section::unavailable(Source::Gnomad, reason),
                 Vec::new(),
                 sources,
                 problems,
