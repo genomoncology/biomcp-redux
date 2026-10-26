@@ -309,9 +309,21 @@ fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
     if result.pointer("/result/sections") != Some(&json!(expected)) {
         return Err("native available sections changed".into());
     }
-    let handlers = expected.into_iter().filter(|section| matches!(*section, "synonyms" | "xrefs" | "hierarchy")).collect::<Vec<_>>();
-    let next = result.get("next").and_then(Value::as_array).map(Vec::as_slice).unwrap_or_default();
-    if next.len() != handlers.len() || next.iter().zip(handlers).any(|(step, section)| step.get("kind") != Some(&json!("section")) || step.pointer("/args/3") != Some(&json!(section))) {
+    let handlers = expected
+        .into_iter()
+        .filter(|section| matches!(*section, "synonyms" | "xrefs" | "hierarchy"))
+        .collect::<Vec<_>>();
+    let next = result
+        .get("next")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or_default();
+    if next.len() != handlers.len()
+        || next.iter().zip(handlers).any(|(step, section)| {
+            step.get("kind") != Some(&json!("section"))
+                || step.pointer("/args/3") != Some(&json!(section))
+        })
+    {
         return Err("card section steps do not match the implemented source fields".into());
     }
     Ok(())

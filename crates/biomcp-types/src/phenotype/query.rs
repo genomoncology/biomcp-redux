@@ -109,7 +109,11 @@ struct GetFields {
     #[serde(default)]
     section_offset: u32,
     /// Retained exact source reply for local section pages.
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     snapshot: Option<Text>,
 }
@@ -200,19 +204,29 @@ impl PhenotypeGet {
         self.0.section_offset
     }
     /// Retained exact source reply selector.
-    pub fn snapshot(&self) -> Option<&Text> { self.0.snapshot.as_ref() }
+    pub fn snapshot(&self) -> Option<&Text> {
+        self.0.snapshot.as_ref()
+    }
     /// Bind a card or local section to the same source reply.
     pub fn with_snapshot(&self, snapshot: Text) -> Self {
-        let mut q = self.clone(); q.0.snapshot = Some(snapshot); q
+        let mut q = self.clone();
+        q.0.snapshot = Some(snapshot);
+        q
     }
     /// Select a source-available section without replacing the retained reply.
     pub fn with_section(&self, section: PhenotypeSection) -> Self {
-        let mut q = self.clone(); q.0.section = Some(section); q.0.section_offset = 0;
-        q.0.section_limit = Some(defaults(Some(section)).1); q
+        let mut q = self.clone();
+        q.0.section = Some(section);
+        q.0.section_offset = 0;
+        q.0.section_limit = Some(defaults(Some(section)).1);
+        q
     }
     /// Restart exact source acquisition after retained reply expiry.
     pub fn restart(&self) -> Self {
-        let mut q = self.clone(); q.0.snapshot = None; q.0.section_offset = 0; q
+        let mut q = self.clone();
+        q.0.snapshot = None;
+        q.0.section_offset = 0;
+        q
     }
     /// Continue the same section and publisher.
     pub fn at_section_offset(&self, offset: u32) -> Self {

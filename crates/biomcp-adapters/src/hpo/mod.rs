@@ -50,7 +50,11 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
     })?;
     map(term, metadata, query)
 }
-fn map(term: raw::Term, metadata: ReplyMetadata, query: &PhenotypeGet) -> Result<Record, RequestError> {
+fn map(
+    term: raw::Term,
+    metadata: ReplyMetadata,
+    query: &PhenotypeGet,
+) -> Result<Record, RequestError> {
     let mut sections = Vec::new();
     if term.synonyms.is_some() {
         sections.push(PhenotypeSection::Synonyms);
@@ -59,8 +63,26 @@ fn map(term: raw::Term, metadata: ReplyMetadata, query: &PhenotypeGet) -> Result
         sections.push(PhenotypeSection::Xrefs);
     }
     let attribution = attribution(&term.id)?;
-    let synonyms = term.synonyms.map(|rows| rows.into_vec().into_iter().map(|value| PhenotypeSynonym { value, relationship: None, attribution: attribution.clone() }).collect());
-    let xrefs = term.xrefs.map(|rows| rows.into_vec().into_iter().map(|id| PhenotypeXref { id, predicate: None, attribution: attribution.clone() }).collect());
+    let synonyms = term.synonyms.map(|rows| {
+        rows.into_vec()
+            .into_iter()
+            .map(|value| PhenotypeSynonym {
+                value,
+                relationship: None,
+                attribution: attribution.clone(),
+            })
+            .collect()
+    });
+    let xrefs = term.xrefs.map(|rows| {
+        rows.into_vec()
+            .into_iter()
+            .map(|id| PhenotypeXref {
+                id,
+                predicate: None,
+                attribution: attribution.clone(),
+            })
+            .collect()
+    });
     Ok(Record {
         synonyms,
         xrefs,

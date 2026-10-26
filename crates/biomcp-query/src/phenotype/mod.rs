@@ -1,6 +1,6 @@
 //! Literal source term discovery and independent exact term cards.
-mod snapshot;
 mod sections;
+mod snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{

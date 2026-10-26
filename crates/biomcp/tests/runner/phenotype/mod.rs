@@ -1,8 +1,8 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
 mod native;
-mod sections;
 mod section_failures;
 mod section_native;
+mod sections;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 pub(super) use native::run as native;
@@ -12,7 +12,11 @@ pub(super) fn trials() -> Vec<Trial> {
     let directory = super::launch::fixtures().join("phenotype-section-native");
     let absent = !directory.is_dir();
     let mut rows = vec![
-        Trial::test("phenotype-sections/retained-native-witnesses-and-costs", move || section_native::run(&directory).map_err(Into::into)).with_ignored_flag(absent),
+        Trial::test(
+            "phenotype-sections/retained-native-witnesses-and-costs",
+            move || section_native::run(&directory).map_err(Into::into),
+        )
+        .with_ignored_flag(absent),
         Trial::test("phenotype-identity/generated-help-matches-markdown", || {
             help().map_err(Into::into)
         }),
@@ -38,7 +42,10 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ];
     rows.extend(sections::trials());
-    rows.push(Trial::test("phenotype-sections/recorded-failures-retain-source-and-terms", || section_failures::run().map_err(Into::into)));
+    rows.push(Trial::test(
+        "phenotype-sections/recorded-failures-retain-source-and-terms",
+        || section_failures::run().map_err(Into::into),
+    ));
     rows
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
