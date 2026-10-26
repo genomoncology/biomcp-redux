@@ -14,7 +14,7 @@ pub struct ScientificPValue(Parts);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Parts {
     /// Source mantissa spelling, including significant trailing zeros.
-    #[cfg_attr(feature = "schema", schemars(pattern = r"^[1-9](\.[0-9]+)?$"))]
+    #[cfg_attr(feature = "schema", schemars(regex(pattern = r"^[1-9](\.[0-9]+)?$")))]
     mantissa: Text,
     /// Source base-ten exponent; values below the double range remain exact.
     #[cfg_attr(feature = "schema", schemars(range(max = 0)))]
