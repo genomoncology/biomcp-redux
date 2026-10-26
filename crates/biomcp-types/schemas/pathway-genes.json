@@ -1,5 +1,12 @@
 {
   "$defs": {
+    "Details": {
+      "description": "Explicit full physical-context disclosure; omission keeps membership compact.",
+      "enum": [
+        "details"
+      ],
+      "type": "string"
+    },
     "HgncId": {
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
@@ -54,14 +61,14 @@
     },
     "PathwayGenes": {
       "additionalProperties": false,
-      "description": "Independent source-ordered page of whole native references.",
+      "description": "Independent source-ordered distinct membership references and their observed counts.",
       "properties": {
         "header": {
           "$ref": "#/$defs/PathwayHeader",
           "description": "Exact source pathway owning this relation."
         },
         "items": {
-          "description": "Whole native references; unresolved identities remain visible.",
+          "description": "Distinct namespaced source references in first occurrence order.",
           "items": {
             "$ref": "#/$defs/PathwayMember"
           },
@@ -69,20 +76,39 @@
         },
         "page": {
           "$ref": "#/$defs/PathwayPageInfo",
-          "description": "Relation-specific count provenance and continuation."
+          "description": "Distinct-reference total and continuation."
+        },
+        "physical_entities": {
+          "description": "All native physical entities, never described as gene counts.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reference_occurrences": {
+          "description": "All reference occurrences across physical entities before distinct-reference grouping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
         "header",
         "items",
-        "page"
+        "page",
+        "reference_occurrences",
+        "physical_entities"
       ],
       "type": "object"
     },
     "PathwayGenesQuery": {
       "additionalProperties": false,
-      "description": "Continue native namespaced pathway membership, without name-based gene extraction.",
+      "description": "Continue exact pathway membership; details explicitly discloses full physical contexts.",
       "properties": {
+        "details": {
+          "$ref": "#/$defs/Details",
+          "description": "Include every physical entity context for these references; never clips source text.",
+          "x-positional": 1
+        },
         "id": {
           "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
           "pattern": "^R-HSA-[1-9][0-9]*$",
@@ -228,11 +254,20 @@
           "description": "Native label, never interpreted as a gene symbol."
         },
         "participants": {
-          "description": "Physical source entities that carry this reference; preserve modification context.",
+          "description": "Complete physical contexts, disclosed only by the explicit details view.",
           "items": {
             "$ref": "#/$defs/PathwayParticipant"
           },
-          "type": "array"
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "physical_context_count": {
+          "description": "Number of source physical entity contexts carrying this exact reference.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         },
         "reference": {
           "$ref": "#/$defs/PathwaySourceRef",
@@ -248,11 +283,22 @@
             }
           ],
           "description": "Native reference schema class."
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native reference URL, including therapeutic references without a drug action."
         }
       },
       "required": [
         "reference",
-        "participants"
+        "physical_context_count"
       ],
       "type": "object"
     },
@@ -367,7 +413,8 @@
       "description": "Meaning of the collection total, independent of admitted rows on a page.",
       "enum": [
         "source",
-        "observed"
+        "observed",
+        "distinct_references"
       ],
       "type": "string"
     },
@@ -851,7 +898,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_genes/1",
+  "$id": "biomcp.pathway_genes/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -897,7 +944,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_genes/1",
+      "const": "biomcp.pathway_genes/3",
       "type": "string"
     },
     "sources": {

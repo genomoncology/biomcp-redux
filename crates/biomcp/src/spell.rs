@@ -24,6 +24,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::WikiPathways => "wikipathways",
                 Bundle::CbioportalStudies => "cbioportal-studies",
                 Bundle::FdaCdx => "fda-cdx",
                 Bundle::Gtr => "gtr",

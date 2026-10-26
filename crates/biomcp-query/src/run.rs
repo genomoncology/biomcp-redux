@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// Both checked WikiPathways metadata catalogs.
+    WikiPathways,
     /// Complete public cBioPortal metadata catalog.
     CbioportalStudies,
     /// Complete WHO finished pharmaceutical products CSV.

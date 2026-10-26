@@ -1,5 +1,12 @@
 {
   "$defs": {
+    "Details": {
+      "description": "Explicit full physical-context disclosure; omission keeps membership compact.",
+      "enum": [
+        "details"
+      ],
+      "type": "string"
+    },
     "Text": {
       "description": "Nonempty text with surrounding Unicode whitespace removed.",
       "minLength": 1,
@@ -9,8 +16,13 @@
   "$id": "biomcp.pathway-genes-query/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Continue native namespaced pathway membership, without name-based gene extraction.",
+  "description": "Continue exact pathway membership; details explicitly discloses full physical contexts.",
   "properties": {
+    "details": {
+      "$ref": "#/$defs/Details",
+      "description": "Include every physical entity context for these references; never clips source text.",
+      "x-positional": 1
+    },
     "id": {
       "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
       "pattern": "^R-HSA-[1-9][0-9]*$",

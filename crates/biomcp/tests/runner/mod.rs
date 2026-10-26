@@ -74,6 +74,7 @@ mod oncokb;
 mod oncokb_context;
 mod pathway_commands;
 mod pathway_registry;
+mod pathway_sections;
 mod pdf;
 mod pgx_registry;
 mod pgx_retirements;
@@ -116,6 +117,7 @@ mod variant_hotspots;
 mod variant_population;
 mod variant_population_release;
 mod variant_search;
+mod wikipathways;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;

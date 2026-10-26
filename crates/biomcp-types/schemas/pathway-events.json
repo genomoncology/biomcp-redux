@@ -119,6 +119,17 @@
               ],
               "description": "Native class; a reaction is not automatically a pathway."
             },
+            "source_url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Publisher record URL for the event's own stable identity, never the parent pathway."
+            },
             "version": {
               "anyOf": [
                 {
@@ -354,7 +365,8 @@
       "description": "Meaning of the collection total, independent of admitted rows on a page.",
       "enum": [
         "source",
-        "observed"
+        "observed",
+        "distinct_references"
       ],
       "type": "string"
     },

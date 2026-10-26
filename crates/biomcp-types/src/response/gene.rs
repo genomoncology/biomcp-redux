@@ -97,6 +97,8 @@ pub enum QueryBody {
     StudyProfiles(Option<crate::StudyProfiles>),
     /// Independently paged sample-list metadata without sample members.
     StudySampleLists(Option<crate::StudySampleLists>),
+    /// Source-owned study file metadata and explicit download pointers.
+    StudyFiles(Option<crate::StudyFiles>),
     /// Whole physical FDA companion association rows.
     DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-native CPIC pair page.
