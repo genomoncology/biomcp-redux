@@ -30,7 +30,9 @@ fn locked(cdx: bool) -> Result<(), String> {
             200,
         )?
     };
-    let mut peer = Peer::with_globals(&env, &env.globals(Some(&replay), false))?;
+    let repeated = env.root().join("repeated-replies");
+    super::recordings(&replay, &repeated)?;
+    let mut peer = Peer::with_globals(&env, &env.globals(Some(&repeated), false))?;
     let source = if cdx { "fda-cdx" } else { "wikipathways" };
     let sync = vec!["sync", source];
     let initial = call(&mut peer, &schemas, &sync)?;
@@ -57,7 +59,7 @@ fn locked(cdx: bool) -> Result<(), String> {
         }
     }
     failure(&call(&mut peer, &schemas, &sync)?)?;
-    let mut args = env.globals(Some(&replay), false);
+    let mut args = env.globals(Some(&repeated), false);
     args.extend(sync.iter().map(|word| (*word).to_owned()));
     let startup = super::super::configuration::invoke(&env, args.clone(), 5)?;
     schemas.validate(&startup, &args, false)?;
