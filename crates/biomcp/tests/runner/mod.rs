@@ -5,6 +5,7 @@ mod article_save;
 mod assertions;
 mod author;
 mod execution;
+mod orcid;
 use execution::run_step;
 pub(super) mod cell_line;
 mod clinpgx;
