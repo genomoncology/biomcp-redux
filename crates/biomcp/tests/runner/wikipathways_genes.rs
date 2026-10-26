@@ -101,7 +101,11 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     )?;
     for entry in fs::read_dir(genes_record.join("wikipathways")).map_err(|e| e.to_string())? {
         let entry = entry.map_err(|e| e.to_string())?;
-        fs::copy(entry.path(), replay.join("wikipathways").join(entry.file_name())).map_err(|e| e.to_string())?;
+        fs::copy(
+            entry.path(),
+            replay.join("wikipathways").join(entry.file_name()),
+        )
+        .map_err(|e| e.to_string())?;
     }
     let requests = stub.finish()?;
     if requests.len() != 3 {
@@ -206,7 +210,8 @@ fn failures() -> Check {
         let body = failed_body(mode);
         *exchange.pointer_mut("/body/value").ok_or("recorded body")? = json!(body);
         if mode == "429" || mode == "500" {
-            *exchange.get_mut("status").ok_or("recorded status")? = json!(mode.parse::<u16>().map_err(|e| e.to_string())?);
+            *exchange.get_mut("status").ok_or("recorded status")? =
+                json!(mode.parse::<u16>().map_err(|e| e.to_string())?);
         }
         if mode == "timeout" {
             *exchange.get_mut("delay_ms").ok_or("recorded delay")? = json!(10_000);
