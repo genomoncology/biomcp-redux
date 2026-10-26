@@ -1,6 +1,7 @@
 # 0227 — Retire old study commands and chart options and prove study failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a3e010de543b628c3da438beee1fb601f770dd4e
 
 Milestone: 4
 
