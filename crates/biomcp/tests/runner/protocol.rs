@@ -188,7 +188,7 @@ fn validation() -> Check {
 
 fn concurrent() -> Check {
     let ids = [json!("one"), json!(2), json!("three"), json!(4)];
-    let frames: Vec<_> = ids
+    let mut frames: Vec<_> = ids
         .iter()
         .map(|id| {
             request(
@@ -198,9 +198,19 @@ fn concurrent() -> Check {
             )
         })
         .collect();
-    let replies = exchange(&environment()?, &frames)?;
-    if replies.len() != ids.len() {
+    frames.push(request(json!("gwas"), "tools/call", json!({"name":"biomcp",
+        "arguments":{"args":["search","gwas","--pubmed","17529967"]}})));
+    let env = environment()?;
+    let replay = super::launch::fixtures().join("replies/gwas/synthetic");
+    let replies = super::mcp::exchange_with_globals(&env, &frames, &env.globals(Some(&replay), false))?;
+    if replies.len() != ids.len() + 1 {
         return Err("EOF failed to drain accepted calls".into());
+    }
+    if reply(&replies, &json!("gwas"))?.pointer("/result/structuredContent/result/items/0/id") != Some(&json!(6110)) {
+        return Err("concurrent GWAS cache-writing call failed".into());
+    }
+    if !env.root().join("case-cache/replay.sqlite").is_file() {
+        return Err("GWAS call did not write its owned cache".into());
     }
     for id in ids {
         let result = reply(&replies, &id)?

@@ -45,6 +45,39 @@ The clinical reviewer checked the six primary sources and accepted the attribute
 | Q24 | What does a failed GWAS source establish? | Retrieval failed. Do not fabricate zero associations or a risk conclusion. | Synthetic provider-failure control; no deliberate live fault request. |
 | Q25 | If the first rsID page lacks the target publication, is its association absent? | No. The first page is incomplete when source metadata reports further pages. Preserve continuation and search by exact publication/study when needed. | Investigator control using Q01 and source page metadata. |
 
+
+### Product question coverage
+
+The clinical review for this accounting preserves the accepted question wording and source discrepancies. Answered means that an existing case supplies the requested retrieval fact. Partial means that a requested facet is retrieved while the full paper answer remains unavailable. Unanswered means that the implemented Catalog commands do not supply the question's answer. These statuses do not change the attributed publication answers above. Native witness names refer to the retained external cases and budget files below; they require no new source request.
+
+| Question | Product status | Existing case witness | Boundary |
+| --- | --- | --- | --- |
+| Q01 | Answered | pubmed-first | 6110 retains the requested rsID. |
+| Q02 | Answered | pubmed-first | 6111 retains the requested rsID. |
+| Q03 | Answered | pubmed-first | 6112 retains the requested rsID. |
+| Q04 | Answered | pubmed-second | 6113 retains the requested rsID. |
+| Q05 | Answered | pubmed-second; association-6114 | 6114 retains the requested rsID. |
+| Q06 | Unanswered | study-GCST000035; ancestries | Native sample prose differs from the requested paper-stage counts. |
+| Q07 | Unanswered | study-GCST000035; ancestries | Native sample prose does not supply the paper confirmation-stage counts. |
+| Q08 | Unanswered | loci | Reported gene IDs do not answer causality. |
+| Q09 | Partial | stacey; study-GCST000037 | A allele and native per-copy effect are retained; the paper homozygote contrast is not supplied. |
+| Q10 | Partial | stacey; study-GCST000037 | T allele and native per-copy effect are retained; the paper homozygote contrast is not supplied. |
+| Q11 | Partial | study-GCST000037 | Native ancestry context does not supply the complete paper population and tumor context. |
+| Q12 | Unanswered | pubmed-negative | The exact publication query returns zero; no substituted answer. |
+| Q13 | Unanswered | pubmed-negative | The zero reply supplies no paper sample counts. |
+| Q14 | Unanswered | pubmed-negative | The zero reply supplies no variant-to-effect assignment. |
+| Q15 | Answered | broderick | 5949 retains rs4939827-T and exact 1e-12. |
+| Q16 | Unanswered | study-GCST000113 | Native counts do not supply the paper discovery category split. |
+| Q17 | Answered | study-GCST000113 | Native replication prose retains 7,473 cases and 5,984 controls; the separate ancestry-summary discrepancy stays visible. |
+| Q18 | Partial | tomlinson; association-6063 | The requested rsID is retrieved; no current case proves 8q24.21. |
+| Q19 | Unanswered | tomlinson | The native statistic does not supply either requested paper context. |
+| Q20 | Partial | tomlinson; association-6063 | The source-labeled effect and interval do not supply the paper genotype contrasts. |
+| Q21 | Answered | samani; association-11386 | The requested rsID is retrieved. |
+| Q22 | Partial | samani; study-GCST000057 | Native study context does not supply the separate paper cohorts and p values. |
+| Q23 | Answered | variant-negative; variant/population/catalog-zero.yaml | Only source-local zero is established. |
+| Q24 | Answered | gwas-search/failures-are-never-empty | Synthetic failures retain failed status and never become zero associations. |
+| Q25 | Answered | variant-positive; variant-publication; pubmed-first; pubmed-second; associations-0; associations-1 | Further source pages remain explicit and publication records remain reachable. This is not a completed rsID-wide walk. |
+
 ### Publication and Catalog disagreement
 
 The live Catalog study for PMID 17529967 is `GCST000035`. Its initial sample text says “390 European ancestry cases, 364 European ancestry controls”. Its replication text says “4,364 East Asian ancestry cases, 24,174 European ancestry controls, 3,564 East Asian ancestry controls, 24,391 European ancestry controls”. These native strings differ from Q06–Q07 and include a repeated control label. Catalog metadata differs from the publication; no reconciliation performed. Paper-wide stage counts and one Catalog study record have different scopes, but that possible scope difference does not explain away the unresolved prose. Do not correct, sum or deduplicate it.
