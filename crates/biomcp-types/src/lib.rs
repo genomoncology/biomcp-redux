@@ -182,3 +182,5 @@ pub use drug::DrugGetCommand;
 
 mod gwas;
 pub use gwas::*;
+mod study;
+pub use study::*;

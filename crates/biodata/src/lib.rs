@@ -111,3 +111,5 @@ pub use diagnostic::*;
 
 mod gwas;
 pub use gwas::{GwasAssociationId, GwasStudyId, GwasTraitId, GwasValueInvalid, ScientificPValue};
+mod study;
+pub use study::*;
