@@ -22,7 +22,7 @@ pub(super) fn headers(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, o
 /// Exact stored human WikiPathways metadata, without an implicit refresh.
 pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     let mut out = empty(QueryBody::PathwayCard(None));
-    let PathwayId::WikiPathways(id) = q.id() else { return out; };
+    let PathwayId::Wikipathways(id) = q.id() else { return out; };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&wikipathways::SPEC, deadline);
