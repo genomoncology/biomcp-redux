@@ -63,7 +63,7 @@ fn failure(assay: bool, fault: &str) -> Result<(), String> {
     }
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("recording")?]);
-    let value = invoke(&env, &replay, 4)?;
+    let (value, bytes) = invoke_measured(&env, &replay, 4)?;
     failed(&value)?;
     compared(
         &format!("chembl/fault/{}/{fault}", surface(assay)),
@@ -72,7 +72,7 @@ fn failure(assay: bool, fault: &str) -> Result<(), String> {
         4,
         MEASURE,
         &directory,
-        value,
+        (value, bytes),
     )?;
     Ok(())
 }
@@ -136,7 +136,7 @@ fn admission(assay: bool, fault: &str) -> Result<(), String> {
     )?;
     let env = setup(&stub)?;
     let words = words(assay);
-    let value = invoke(&env, &words, 4)?;
+    let (value, bytes) = invoke_measured(&env, &words, 4)?;
     failed(&value)?;
     if value
         .get("problems")
@@ -147,42 +147,37 @@ fn admission(assay: bool, fault: &str) -> Result<(), String> {
     }
     budget_phase(
         &format!("chembl/admission/{}/{fault}/failed", surface(assay)),
-        &value,
+        bytes,
     )?;
-    let healthy = invoke(&env, &words, 0)?;
+    let (healthy, healthy_bytes) = invoke_measured(&env, &words, 0)?;
     path(&healthy, "/sources/0/state", json!("ok"))?;
     budget_phase(
         &format!("chembl/admission/{}/{fault}/healthy", surface(assay)),
-        &healthy,
+        healthy_bytes,
     )?;
     if stub.finish()?.len() != 3 {
         return Err("rejected identity entered cache".into());
     }
     Ok(())
 }
-fn budget_phase(phase: &str, value: &Value) -> Result<(), String> {
-    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + 1;
-    let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [cli] {bytes}");
-    if !MEASURE {
-        budget(phase, "cli", value)?;
-    }
-    Ok(())
+fn budget_phase(phase: &str, bytes: usize) -> Result<(), String> {
+    measure_bytes(phase, "cli", bytes, MEASURE)
 }
 fn disabled(assay: bool) -> Result<(), String> {
     let stub = stub()?;
     let env = setup(&stub)?;
     let words = words(assay);
-    let value = invoke(&env, &words, 0)?;
-    budget_phase(&format!("chembl/disabled/{}/prime", surface(assay)), &value)?;
+    let (_value, bytes) = invoke_measured(&env, &words, 0)?;
+    budget_phase(&format!("chembl/disabled/{}/prime", surface(assay)), bytes)?;
     let mut args = words.clone();
     args.extend(["--disable-sources", "chembl"]);
-    let value = invoke(&env, &args, 4)?;
+    let (value, warm_bytes) = invoke_measured(&env, &args, 4)?;
     path(&value, "/sources/0/state", json!("skipped"))?;
     path(&value, "/sources/0/reason", json!("disabled"))?;
     if value.get("result").is_some() {
         return Err("disabled source supplied cached facts".into());
     }
-    budget_phase(&format!("chembl/disabled/{}/warm", surface(assay)), &value)?;
+    budget_phase(&format!("chembl/disabled/{}/warm", surface(assay)), warm_bytes)?;
     if stub.finish()?.len() != 2 {
         return Err("disabled source called network".into());
     }
@@ -260,7 +255,17 @@ fn more() -> Result<(), String> {
             }
             let mut value: Value =
                 serde_json::from_str(&fixture("CVCL_2119")?).map_err(|e| e.to_string())?;
-            *value.pointer_mut("/page_meta/total_count").ok_or("total")? = json!(6);
+            let original = value.pointer("/cell_lines/0").ok_or("native row")?.clone();
+        let mut rows = Vec::new();
+        for index in 0..5 {
+            let mut row = original.clone();
+            *row.get_mut("cell_chembl_id").ok_or("cell ID")? = json!(format!("CHEMBL{}", 3706573 + index));
+            *row.get_mut("cell_id").ok_or("cell record")? = json!(5547 + index);
+            rows.push(row);
+        }
+        *value.get_mut("cell_lines").ok_or("rows")? = json!(rows);
+        *value.pointer_mut("/page_meta/total_count").ok_or("total")? = json!(6);
+        *value.pointer_mut("/page_meta/next").ok_or("native next")? = json!("/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_2119&limit=5&offset=5");
             Ok(value.to_string())
         },
         |_| 200,

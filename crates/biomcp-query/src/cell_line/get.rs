@@ -22,8 +22,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         if query.section() == Some(CellLineSection::Chembl)
             && let Some(header) = &card.header
         {
-            let mut metadata = super::chembl::get(cx, query, &header.accession);
+            let mut metadata = super::chembl::get_at(cx, query, &header.accession, deadline);
             metadata.sources.splice(0..0, out.sources);
+            command.finish(deadline.remaining());
             return metadata;
         }
         out.body = QueryBody::CellLineCard(card);

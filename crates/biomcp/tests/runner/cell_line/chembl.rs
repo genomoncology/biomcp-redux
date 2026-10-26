@@ -1,6 +1,8 @@
 //! Feature cell-line-chembl: exact source metadata and separately requested assay totals.
 use super::*;
 mod faults;
+mod surface;
+use surface::{parity, compared, invoke_measured, measure_bytes, measure_mcp};
 const MEASURE: bool = true;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
@@ -158,8 +160,10 @@ fn markdown(phase: &str, env: &Environment, words: &[&str], value: &Value) -> Re
 fn help() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let args = ["help", "cell-line", "assay-count"];
-    let value = invoke(&env, &args, 0)?;
-    let mcp = super::super::mcp::call_with_globals(&env, &args.map(String::from), false, &[])?;
+    let (value, bytes) = invoke_measured(&env, &args, 0)?;
+    let directory = env.root().join("help-mcp");
+    fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
+    let mcp = super::super::mcp::call_retained(&env, &args.map(String::from), false, &[], Some(&directory))?;
     if value != mcp {
         return Err("assay help CLI/MCP mismatch".into());
     }
@@ -168,17 +172,8 @@ fn help() -> Result<(), String> {
         "/result/commands/0/command",
         json!(["cell-line", "assay-count"]),
     )?;
-    for (surface, output) in [("cli", &value), ("mcp", &mcp)] {
-        let bytes = serde_json::to_vec(output).map_err(|e| e.to_string())?.len()
-            + usize::from(surface == "cli");
-        let _ = writeln!(
-            std::io::stderr(),
-            "CELL_LINE_MEASURE chembl/help/assay-count [{surface}] {bytes}"
-        );
-        if !MEASURE {
-            budget("chembl/help/assay-count", surface, output)?;
-        }
-    }
+    measure_bytes("chembl/help/assay-count", "cli", bytes, MEASURE)?;
+    measure_mcp("chembl/help/assay-count", &directory, MEASURE)?;
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),

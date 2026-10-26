@@ -1,5 +1,5 @@
 //! Exact source-local cell metadata and assay counts.
-use super::{SPEC, page};
+use super::SPEC;
 use biodata::{CellosaurusAccession, ChemblCellId};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use biomcp_types::{CellLineChemblRecord, CellLineRelease};
@@ -7,10 +7,30 @@ use serde::Deserialize;
 const CELLS: biomcp_fetch::Endpoint = SPEC.get("/cell_line.json").fresh(Freshness::Days(1));
 const ASSAYS: biomcp_fetch::Endpoint = SPEC.get("/assay.json").fresh(Freshness::Days(1));
 const STATUS: biomcp_fetch::Endpoint = SPEC.get("/status.json").fresh(Freshness::Days(1));
+/// Cell-specific native paging; drug endpoint validation remains independent.
+#[derive(Debug, Deserialize)]
+struct PageMeta {
+    total_count: u64,
+    offset: u32,
+    limit: u32,
+    next: Option<biodata::Text>,
+    previous: Option<biodata::Text>,
+}
+impl PageMeta {
+    fn check(&self, count: usize, limit: u32, offset: u32) -> Result<(), BadReply> {
+        let expected = self.total_count.saturating_sub(u64::from(offset)).min(u64::from(limit));
+        let more = u64::from(offset) + u64::from(limit) < self.total_count;
+        if (1..=25).contains(&limit) && self.limit == limit && self.offset == offset
+            && count as u64 == expected && self.next.is_some() == more
+            && (offset != 0 || self.previous.is_none()) {
+            Ok(())
+        } else { Err(BadReply) }
+    }
+}
 #[derive(Debug, Deserialize)]
 struct Cells {
     cell_lines: Vec<Cell>,
-    page_meta: super::PageMeta,
+    page_meta: PageMeta,
 }
 #[derive(Debug, Deserialize)]
 struct Cell {
@@ -70,7 +90,7 @@ pub fn cells(
             ("offset", Arg::Num(offset.into())),
         ],
         |r: &Cells| {
-            page(&r.page_meta, r.cell_lines.len(), limit, offset)?;
+            r.page_meta.check(r.cell_lines.len(), limit, offset)?;
             if r.cell_lines.iter().all(|r| &r.cellosaurus_id == id) {
                 Ok(())
             } else {
@@ -87,7 +107,7 @@ pub fn cells(
 #[derive(Debug, Deserialize)]
 struct Assays {
     assays: Vec<Assay>,
-    page_meta: super::PageMeta,
+    page_meta: PageMeta,
 }
 #[derive(Debug, Deserialize)]
 struct Assay {
@@ -109,7 +129,7 @@ pub fn assay_count(leg: &Leg<'_>, id: &ChemblCellId) -> Result<(u64, ReplyMetada
             ("offset", Arg::Num(0)),
         ],
         |r: &Assays| {
-            page(&r.page_meta, r.assays.len(), 1, 0)?;
+            r.page_meta.check(r.assays.len(), 1, 0)?;
             if (r.page_meta.total_count == 0) == r.assays.is_empty()
                 && r.assays.iter().all(|r| &r.cell_chembl_id == id)
             {

@@ -9,6 +9,11 @@ use biomcp_types::{
 pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet, accession: &CellosaurusAccession) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
+    let out = get_at(cx, query, accession, deadline);
+    command.finish(deadline.remaining());
+    out
+}
+pub(super) fn get_at(cx: &Ctx<'_>, query: &CellLineGet, accession: &CellosaurusAccession, deadline: biomcp_fetch::Deadline<'_>) -> Outcome {
     let leg = cx.fetch.leg(&chembl::SPEC, deadline).fresh(cx.fresh);
     let mut body = CellLineChembl {
         accession: accession.clone(),
@@ -63,7 +68,6 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet, accession: &CellosaurusAcce
         out.problems.push(problem("cellosaurus_id"));
     }
     recovery(&mut out, Request::GetCellLine(query.clone()));
-    command.finish(deadline.remaining());
     out
 }
 /// One exact assay request with its native total, including zero.
