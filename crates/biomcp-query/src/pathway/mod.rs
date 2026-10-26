@@ -2,6 +2,8 @@
 mod gene;
 mod get;
 mod get_sections;
+mod gpml_membership;
+mod gpml_relation;
 mod membership;
 mod relation;
 mod relation_snapshot;

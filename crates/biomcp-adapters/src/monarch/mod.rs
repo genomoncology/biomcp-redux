@@ -123,3 +123,6 @@ pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError>
 }
 /// HP-native discovery and independent exact term cards.
 pub mod phenotype;
+
+#[cfg(test)]
+mod native_contracts;

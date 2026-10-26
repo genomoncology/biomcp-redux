@@ -1,0 +1,94 @@
+//! Exact direct source association pages, without joins or clinical inference.
+use super::{empty, overall, problem, recovery, run};
+use crate::{Ctx, Outcome, status};
+use biomcp_adapters::monarch;
+use biomcp_types::{
+    DiseaseGet, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection,
+    QueryBody, Request, Source, StepKind,
+};
+pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);
+    let reply = monarch::phenotype::associations::get(&leg, q);
+    let error = reply.as_ref().err().copied();
+    let mut out = empty(body(q, Vec::new(), Box::default(), None));
+    out.sources
+        .push(status::source(Source::Monarch, leg.finish(), error));
+    out.local = error.and_then(status::local);
+    if let Ok(page) = reply {
+        let returned = page.items.len() as u32;
+        out.page = Some(PageInfo {
+            offset: q.section_offset(),
+            returned,
+            total: page.total,
+            pool: None,
+            truncated: None,
+        });
+        pivots(&mut out, q, &page.items);
+        if returned > 0 && u64::from(q.section_offset()) + u64::from(returned) < page.total {
+            out.next.push((
+                StepKind::Page,
+                run(Request::GetPhenotype(q.at_section_offset(
+                    q.section_offset().saturating_add(returned),
+                ))),
+            ));
+        }
+        out.body = body(
+            q,
+            page.items,
+            page.components,
+            u64::try_from(page.metadata.fetched).ok().filter(|v| *v > 0),
+        );
+        out.status = overall(&out, page.total == 0);
+    }
+    problem(&mut out, Source::Monarch, q.id().as_str().parse().ok());
+    recovery(&mut out, Request::GetPhenotype(q.clone()));
+    command.finish(deadline.remaining());
+    out
+}
+fn body(
+    q: &PhenotypeGet,
+    items: Vec<biomcp_types::DiseaseAssociationItem>,
+    components: Box<[biomcp_types::ComponentLabel]>,
+    fetched: Option<u64>,
+) -> QueryBody {
+    if q.section() == Some(PhenotypeSection::Genes) {
+        QueryBody::PhenotypeGenes(PhenotypeGenes {
+            items: items.into(),
+            components,
+            fetched,
+            direct: true,
+        })
+    } else {
+        QueryBody::PhenotypeDiseases(PhenotypeDiseases {
+            items: items.into(),
+            components,
+            fetched,
+            direct: true,
+        })
+    }
+}
+fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAssociationItem]) {
+    for row in rows {
+        let Some(id) = &row.association.subject.id else {
+            continue;
+        };
+        let id = id.to_string();
+        let request = if q.section() == Some(PhenotypeSection::Genes) {
+            crate::disease::monarch::gene_query(&id).map(Request::GetGene)
+        } else {
+            biomcp_adapters::mydisease::supported_id(&id)
+                .then(|| id.parse::<biodata::Curie>().ok())
+                .flatten()
+                .and_then(|id| DiseaseGet::from_id(id).ok())
+                .map(Request::GetDisease)
+        };
+        if let Some(request) = request {
+            let step = (StepKind::Pivot, run(request));
+            if !out.next.contains(&step) {
+                out.next.push(step);
+            }
+        }
+    }
+}

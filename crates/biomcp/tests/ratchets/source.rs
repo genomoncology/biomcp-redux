@@ -4,6 +4,10 @@ use std::{collections::BTreeSet, fs, path::Path};
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-adapters/src/monarch/native_contracts.rs",
+        "Locate and read retained external bodies only inside the ignored private mapper contract",
+    ),
+    (
         "crates/biomcp-adapters/src/registry.rs",
         "Require every source outcome to use its unique publisher declaration",
     ),

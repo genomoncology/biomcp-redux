@@ -22,7 +22,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway-get/1",
+  "$id": "biomcp.pathway-get/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One exact pathway card or source-supported named disclosure.",
@@ -44,7 +44,7 @@
     },
     "section": {
       "$ref": "#/$defs/PathwaySection",
-      "description": "Omit for the card; WikiPathways genes await the GPML implementation.",
+      "description": "Omit for the card; WikiPathways has summary and genes sections.",
       "x-positional": 1
     },
     "section_limit": {

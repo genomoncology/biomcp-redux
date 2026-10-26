@@ -181,7 +181,7 @@
           "description": "Native Reactome database release, separate from pathway version."
         },
         "sections": {
-          "description": "Source-supported named sections; WikiPathways excludes genes and events.",
+          "description": "Source-supported named sections; WikiPathways excludes events.",
           "items": {
             "$ref": "#/$defs/PathwaySection"
           },
@@ -385,7 +385,7 @@
         },
         "section": {
           "$ref": "#/$defs/PathwaySection",
-          "description": "Omit for the card; WikiPathways genes await the GPML implementation.",
+          "description": "Omit for the card; WikiPathways has summary and genes sections.",
           "x-positional": 1
         },
         "section_limit": {
@@ -571,6 +571,17 @@
           ],
           "description": "Native label, never interpreted as a gene symbol."
         },
+        "node_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native data-node identity; repeated references remain separate nodes."
+        },
         "participants": {
           "description": "Complete physical contexts, disclosed only by the explicit details view.",
           "items": {
@@ -722,8 +733,11 @@
       "description": "An open source namespace paired with its complete native identifier.",
       "properties": {
         "namespace": {
-          "$ref": "#/$defs/Text",
-          "description": "Native namespace; never discarded during a gene join."
+          "description": "Native namespace; never discarded during a gene join.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "value": {
           "$ref": "#/$defs/Text",
@@ -731,7 +745,6 @@
         }
       },
       "required": [
-        "namespace",
         "value"
       ],
       "type": "object"
@@ -769,7 +782,8 @@
       "enum": [
         "source",
         "observed",
-        "distinct_references"
+        "distinct_references",
+        "data_nodes"
       ],
       "type": "string"
     },
@@ -1524,7 +1538,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_card/4",
+  "$id": "biomcp.pathway_card/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1570,7 +1584,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_card/4",
+      "const": "biomcp.pathway_card/5",
       "type": "string"
     },
     "sources": {

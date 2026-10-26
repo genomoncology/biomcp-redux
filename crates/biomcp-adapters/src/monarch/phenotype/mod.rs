@@ -1,4 +1,5 @@
 //! Literal HP discovery and independent exact Monarch term cards.
+pub mod associations;
 mod raw;
 mod sections;
 use biodata::{Attribution, PhenotypeCard, PhenotypeHeader, Text};

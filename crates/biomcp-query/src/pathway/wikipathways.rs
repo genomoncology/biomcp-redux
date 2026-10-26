@@ -70,24 +70,28 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
         ),
     );
     let error = reply.as_ref().err().copied();
-    if let Ok(card) = reply {
+    out.sources
+        .push(status::source(Source::WikiPathways, leg.finish(), error));
+    if let Ok(mut card) = reply {
         let absent = card.is_none();
-        if card.is_some()
-            && q.section().is_none()
-            && let Ok(query) = q.with_section(PathwaySection::Summary)
-        {
-            out.next
-                .push((StepKind::Section, run(Request::GetPathway(query))));
+        if let Some(value) = &mut card {
+            super::get_sections::attach(cx, q, value, deadline, &mut out);
+            for section in &value.sections {
+                if q.section() != Some(PathwaySection::All)
+                    && Some(*section) != q.section()
+                    && let Ok(query) = q.with_section(*section)
+                {
+                    out.next
+                        .push((StepKind::Section, run(Request::GetPathway(query))));
+                }
+            }
         }
-        out.body = QueryBody::PathwayCard(card);
-        out.sources
-            .push(status::source(Source::WikiPathways, leg.finish(), error));
-        out.status = overall(&out, absent);
-    } else {
-        out.sources
-            .push(status::source(Source::WikiPathways, leg.finish(), error));
+        if !matches!(out.body, QueryBody::PoolError { .. }) {
+            out.body = QueryBody::PathwayCard(card);
+            out.status = overall(&out, absent);
+        }
     }
-    out.local = error.and_then(status::local);
+    out.local = out.local.or_else(|| error.and_then(status::local));
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
