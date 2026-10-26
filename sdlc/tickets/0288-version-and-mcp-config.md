@@ -14,3 +14,4 @@ Milestone: 5
 - Proof: cases assert `version` and `version --verbose` fields, `mcp-config` output parses as JSON with the absolute binary path and `serve` arguments, an unknown `--client` is a usage error, and both run with an empty environment and offline.
 - Changes: the grammar, two small commands, help, the MCP tool description if it lists housekeeping, and the cross-cutting accounting rows.
 - Defers: nothing.
+- PM ruling 2026-10-26 (m8126 ask 16): `mcp-config` emits two neutral JSON shapes, `mcp-servers` (the default, with `json` as an alias) and `servers`. The 0.9 absolute-path option stays accepted as a no-op because output always uses the absolute path. The 0.9 vendor-named shell command format retires with a usage error that names `mcp-config --client mcp-servers`.
