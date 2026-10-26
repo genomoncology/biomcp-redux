@@ -4,7 +4,7 @@ use crate::runner::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use std::{fs, path::Path};
+use std::{fs, io::Write, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     let native = crate::runner::launch::fixtures().join("study-get-cases");
@@ -246,14 +246,16 @@ fn retained(directory: &Path) -> Check {
         reject_members(directory, &value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = crate::runner::source_terms::size(&value, "")?;
-        println!(
+        writeln!(
+            std::io::stdout(),
             "Study native {}: CLI={}, MCP={}, comparable={}, estimated_tokens={}",
             path.file_stem().ok_or("case name")?.to_string_lossy(),
             full + 1,
             full,
             comparable,
             comparable.div_ceil(4)
-        );
+        )
+        .map_err(|e| e.to_string())?;
     }
     Ok(())
 }
