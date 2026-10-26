@@ -20,17 +20,22 @@ fn admission(fault: &str, measure: bool) -> Result<(), String> {
     let bad = bad.to_string();
     let release = fixture("portable-cellosaurus-cellosaurus-release.json")?;
     let mut reads = 0;
-    let stub = Stub::for_source("api.cellosaurus.org", "application/json", move |request| {
-        if request.contains("/release-info?") {
-            return Ok(release.clone());
-        }
-        reads += 1;
-        Ok(if reads == 1 {
-            bad.clone()
-        } else {
-            native.clone()
-        })
-    })?;
+    let stub = Stub::for_source_status(
+        "api.cellosaurus.org",
+        "application/json",
+        move |request| {
+            if request.contains("/release-info?") {
+                return Ok(release.clone());
+            }
+            reads += 1;
+            Ok(if reads == 1 {
+                bad.clone()
+            } else {
+                native.clone()
+            })
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     for (phase, exit) in [("failed", 4), ("healthy", 0)] {
         let value = invoke(&env, &["get", "cell-line", "CVCL_2119", "variants"], exit)?;
@@ -84,13 +89,18 @@ fn identity(measure: bool) -> Result<(), String> {
         .insert("comment-list".into(), json!(warnings));
     let body = native.to_string();
     let release = fixture("portable-cellosaurus-cellosaurus-release.json")?;
-    let stub = Stub::for_source("api.cellosaurus.org", "application/json", move |request| {
-        Ok(if request.contains("/release-info?") {
-            release.clone()
-        } else {
-            body.clone()
-        })
-    })?;
+    let stub = Stub::for_source_status(
+        "api.cellosaurus.org",
+        "application/json",
+        move |request| {
+            Ok(if request.contains("/release-info?") {
+                release.clone()
+            } else {
+                body.clone()
+            })
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     let value = parity(
         "sections/synthetic/qualified-identity",
@@ -131,15 +141,20 @@ pub(super) fn ordinary(phase: &str, value: &Value, measure: bool) -> Result<(), 
 fn ambiguous(measure: bool) -> Result<(), String> {
     let candidates = fixture("native-ambiguous-reverse.json")?;
     let release = fixture("portable-cellosaurus-cellosaurus-release.json")?;
-    let stub = Stub::for_source("api.cellosaurus.org", "application/json", move |request| {
-        if request.contains("/release-info?") {
-            Ok(release.clone())
-        } else if request.contains("/search/cell-line?") {
-            Ok(candidates.clone())
-        } else {
-            Err("ambiguous section fetched a selected card".into())
-        }
-    })?;
+    let stub = Stub::for_source_status(
+        "api.cellosaurus.org",
+        "application/json",
+        move |request| {
+            if request.contains("/release-info?") {
+                Ok(release.clone())
+            } else if request.contains("/search/cell-line?") {
+                Ok(candidates.clone())
+            } else {
+                Err("ambiguous section fetched a selected card".into())
+            }
+        },
+        |_| 200,
+    )?;
     let env = setup(&stub)?;
     let value = parity(
         "sections/synthetic/ambiguous-variants",
