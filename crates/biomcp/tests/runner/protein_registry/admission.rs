@@ -21,15 +21,15 @@ impl biomcp_fetch::Reply for Synthetic {
 }
 fn specs() -> Result<Vec<&'static SourceSpec>, String> {
     ["interpro", "complex-portal", "uniprot"]
-    .into_iter()
-    .map(|source| {
-        registry::SOURCES
-            .iter()
-            .copied()
-            .find(|s| s.source.to_string() == source)
-            .ok_or_else(|| format!("missing {source}"))
-    })
-    .collect()
+        .into_iter()
+        .map(|source| {
+            registry::SOURCES
+                .iter()
+                .copied()
+                .find(|s| s.source.to_string() == source)
+                .ok_or_else(|| format!("missing {source}"))
+        })
+        .collect()
 }
 fn get(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Synthetic, RequestError> {
     let leg = fetch.leg(spec, fetch.deadline(spec.deadline));
@@ -82,11 +82,7 @@ fn assert_routes(fetch: &Fetch, switch: &str, absent: bool) -> Check {
 pub(super) fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = crate::runner::network_stub::Stub::for_sources(
-        &[
-            "www.ebi.ac.uk",
-            "wwwdev.ebi.ac.uk",
-            "rest.uniprot.org",
-        ],
+        &["www.ebi.ac.uk", "wwwdev.ebi.ac.uk", "rest.uniprot.org"],
         |_| "application/json",
         |_| Ok(r#"{"present":true}"#.into()),
     )?;
