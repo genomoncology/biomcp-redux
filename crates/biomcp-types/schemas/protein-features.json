@@ -450,13 +450,6 @@
       ],
       "type": "object"
     },
-    "Position1": {
-      "description": "A positive one-based position, without an assembly or biological meaning.",
-      "format": "uint32",
-      "maximum": 4294967295,
-      "minimum": 1,
-      "type": "integer"
-    },
     "Problem": {
       "additionalProperties": false,
       "description": "A field that could not be accepted from a source record.",
@@ -583,8 +576,11 @@
           "description": "Retained collection identity."
         },
         "position": {
-          "$ref": "#/$defs/Position1",
-          "description": "Native one-based residue; zero fails during deserialization."
+          "description": "Native one-based residue; zero fails during deserialization.",
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
         },
         "type": {
           "$ref": "#/$defs/Text",

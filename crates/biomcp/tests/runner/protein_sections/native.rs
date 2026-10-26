@@ -45,6 +45,18 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
                 return Err("source sequence was truncated".into());
             }
         }
+        if name == "get-P00533-function" {
+            if value
+                .pointer("/result/items/0/sections/function/data/items/0/molecule")
+                .is_some()
+                || value.pointer("/result/items/0/sections/function/data/items/1/molecule")
+                    != Some(&json!("Isoform 2"))
+            {
+                return Err(
+                    "native function qualifier was lost or applied to another paragraph".into(),
+                );
+            }
+        }
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::super::source_terms::size(&value, "")?;
         fs::write(
@@ -52,11 +64,26 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
             serde_json::to_vec(&value).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
+        let interface = "CLI/MCP parity";
         writeln!(
             std::io::stdout(),
-            "PROTEIN {name} CLI={} MCP={full} comparable={comparable} ceiling={}",
+            "PROTEIN {name} {interface} CLI={} JSON={full} comparable={comparable} ceiling={}",
             full + 1,
             (comparable * 115).div_ceil(100)
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    let walks = directory.parent().ok_or("native directory")?.join("walks");
+    for path in fs::read_dir(walks).map_err(|e| e.to_string())? {
+        let path = path.map_err(|e| e.to_string())?.path();
+        let value = super::super::run_case(&path, &registry)?;
+        let name = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or("walk name")?;
+        fs::write(
+            output.join(format!("walk-{name}.json")),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
     }

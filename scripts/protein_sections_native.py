@@ -69,3 +69,13 @@ case('structures', ['protein', 'structures', 'P00533'], {
     '/result/items/0/id': '1IVO', '/result/items/0/database': 'PDB',
     '/result/items/0/url': 'https://www.rcsb.org/structure/1IVO',
     '/result/items/0/properties/0': {'key': 'Method', 'value': 'X-ray'}})
+for accession in ['P00533', 'Q9UIF7', 'P38398-2', 'BRAF']:
+    case('card-' + accession, ['get', 'protein', accession], {'/status': 'complete'})
+for accession, remainder in [('P04637', ['P04637-6', 'P04637-7', 'P04637-8', 'P04637-9']),
+                             ('Q9UIF7', ['Q9UIF7-6'])]:
+    path = cases / ('isoforms-' + accession + '.yaml')
+    value = json.loads(path.read_text())
+    value['steps'].append({'follow': 'page', 'expect': {'/result/items/*/ids/0': remainder}})
+    walks = output / 'walks'
+    walks.mkdir(exist_ok=True)
+    (walks / path.name).write_text(json.dumps(value))

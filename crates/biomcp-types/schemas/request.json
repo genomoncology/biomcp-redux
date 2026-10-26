@@ -550,13 +550,6 @@
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
-    "Position1": {
-      "description": "A positive one-based position, without an assembly or biological meaning.",
-      "format": "uint32",
-      "maximum": 4294967295,
-      "minimum": 1,
-      "type": "integer"
-    },
     "ProteinInput": {
       "description": "Exact source accession or a checked display gene symbol needing later resolution.\nThe schema describes the string surface; deserialization checks either identity grammar.",
       "minLength": 1,
@@ -908,8 +901,11 @@
           "description": "Retained collection identity."
         },
         "position": {
-          "$ref": "#/$defs/Position1",
-          "description": "Native one-based residue; zero fails during deserialization."
+          "description": "Native one-based residue; zero fails during deserialization.",
+          "format": "uint32",
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
         },
         "type": {
           "$ref": "#/$defs/Text",
