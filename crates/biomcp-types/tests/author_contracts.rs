@@ -103,6 +103,20 @@ fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
         roundtrip::<OrcidPublicVisibility>(json!("PUBLIC")),
         json!("public")
     );
+    for client in [
+        "APP-KO1W9Y3EYYW6ESL8",
+        "0000-0001-9884-1913",
+        "0000-0002-5982-8983",
+    ] {
+        assert_eq!(client.parse::<OrcidClientId>().unwrap().to_string(), client);
+    }
+    assert_eq!(
+        "PUBLIC"
+            .parse::<OrcidPublicVisibility>()
+            .unwrap()
+            .to_string(),
+        "public"
+    );
     for private in ["limited", "private", "LIMITED", "PRIVATE"] {
         assert!(serde_json::from_value::<OrcidPublicVisibility>(json!(private)).is_err());
     }

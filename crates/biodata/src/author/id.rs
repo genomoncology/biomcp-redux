@@ -123,11 +123,13 @@ pub struct OrcidClientId(Box<str>);
 impl FromStr for OrcidClientId {
     type Err = AuthorIdInvalid;
     fn from_str(v: &str) -> Result<Self, Self::Err> {
-        if v.strip_prefix("APP-").is_some_and(|s| {
-            s.len() == 16
-                && s.bytes()
-                    .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
-        }) {
+        if v.parse::<OrcidId>().is_ok()
+            || v.strip_prefix("APP-").is_some_and(|s| {
+                s.len() == 16
+                    && s.bytes()
+                        .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
+            })
+        {
             Ok(Self(v.into()))
         } else {
             Err(AuthorIdInvalid::Syntax)
@@ -139,4 +141,8 @@ impl fmt::Display for OrcidClientId {
         f.write_str(&self.0)
     }
 }
-crate::text_value!(OrcidClientId, "OrcidClientId", "^APP-[A-Z0-9]{16}$");
+crate::text_value!(
+    OrcidClientId,
+    "OrcidClientId",
+    "^(APP-[A-Z0-9]{16}|[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$"
+);

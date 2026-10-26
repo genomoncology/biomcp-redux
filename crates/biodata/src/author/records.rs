@@ -65,7 +65,7 @@ pub struct AuthorPaperHeader {
     pub title: Text,
     /// Source publication year.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub year: Option<u16>,
+    pub year: Option<u32>,
     /// Source venue when supplied and nonempty.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub venue: Option<Text>,

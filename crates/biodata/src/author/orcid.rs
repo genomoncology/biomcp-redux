@@ -96,3 +96,17 @@ pub struct OrcidWorkGroup {
     /// Every public summary in native source order.
     pub assertions: Box<[OrcidWorkAssertion]>,
 }
+impl std::str::FromStr for OrcidPublicVisibility {
+    type Err = super::AuthorIdInvalid;
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "public" | "PUBLIC" => Ok(Self::Public),
+            _ => Err(super::AuthorIdInvalid::Syntax),
+        }
+    }
+}
+impl std::fmt::Display for OrcidPublicVisibility {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("public")
+    }
+}
