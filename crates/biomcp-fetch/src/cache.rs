@@ -238,7 +238,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let connection = wait_mutex(&self.0, deadline)?;
+        let connection = wait_mutex(&self.0, deadline, deadline.local())?;
         sql_deadline(&connection, deadline)?;
         operation(&connection)
     }
@@ -249,11 +249,11 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        self.sql(deadline, |connection| {
-            let _writer = wait_mutex(&self.3, deadline)?;
-            sql_deadline(connection, deadline)?;
-            operation(connection)
-        })
+        let wall_bound = deadline.local();
+        let connection = wait_mutex(&self.0, deadline, wall_bound)?;
+        let _writer = wait_mutex(&self.3, deadline, wall_bound)?;
+        sql_deadline(&connection, deadline)?;
+        operation(&connection)
     }
 
     // Publishers borrow only write admission, never the ordinary connection.
@@ -262,7 +262,7 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce() -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
-        let _writer = wait_mutex(&self.3, deadline)?;
+        let _writer = wait_mutex(&self.3, deadline, deadline.local())?;
         operation()
     }
 
@@ -397,19 +397,16 @@ fn try_mutex<T>(mutex: &Mutex<T>) -> Result<std::sync::MutexGuard<'_, T>, CacheE
 fn wait_mutex<'a, T>(
     mutex: &'a Mutex<T>,
     deadline: Deadline<'_>,
+    wall_bound: crate::LocalDeadline,
 ) -> Result<std::sync::MutexGuard<'a, T>, CacheError> {
-    let started = std::time::Instant::now();
-    let remaining = deadline.remaining();
     loop {
-        if deadline.expired() || started.elapsed() >= remaining {
+        if deadline.expired() || wall_bound.expired() {
             return Err(CacheError::Busy);
         }
         match try_mutex(mutex) {
-            Err(CacheError::Busy) => std::thread::park_timeout(
-                Duration::from_millis(1)
-                    .min(deadline.remaining())
-                    .min(remaining.saturating_sub(started.elapsed())),
-            ),
+            Err(CacheError::Busy) => {
+                std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()))
+            }
             result => return result,
         }
     }
