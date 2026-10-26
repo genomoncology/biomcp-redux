@@ -54,7 +54,7 @@ fn load(cx: &Ctx<'_>, q: &PhenotypeGet, deadline: Deadline<'_>, out: &mut Outcom
             PhenotypeSource::Monarch => monarch::phenotype::get(&leg, q).map(|r| (r.card, r.synonyms, r.xrefs, r.hierarchy, u64::try_from(r.metadata.fetched).ok().filter(|n| *n > 0))),
         };
         let error = reply.as_ref().err().copied();
-        out.sources.push(status::source(source(q), leg.finish(), error));
+        out.sources.push(status::source(source(q), leg.finish(), error.filter(|e| !matches!(e, RequestError::Source(source) if source.reason == Reason::NotFound))));
         let saved = (reply?, out.sources.clone());
         let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
         let token = Store::open(cx.fetch.cache_access()?, deadline)?.save_source_snapshot(&key(q), &payload, &out.sources)?;
