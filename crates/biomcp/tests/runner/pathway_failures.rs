@@ -61,7 +61,7 @@ fn failed(value: &Value,reason: &str) -> Check {
 }
 fn uncached(env: &Environment,route: &str) -> Check {
     let db=rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e|e.to_string())?;
-    let count: u64=db.query_row("SELECT count(*) FROM reply WHERE source='reactome' AND instr(url,?1)>0",[route],|r|r.get(0)).map_err(|e|e.to_string())?;
+    let count: i64=db.query_row("SELECT count(*) FROM reply WHERE source='reactome' AND instr(url,?1)>0",[route],|r|r.get(0)).map_err(|e|e.to_string())?;
     if count!=0 {return Err(format!("rejected {route} entered reply cache"));}
     Ok(())
 }
