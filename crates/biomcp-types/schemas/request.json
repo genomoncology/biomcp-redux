@@ -930,7 +930,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Page one exact provider record\u2019s native papers.",
+      "description": "Page one exact provider record’s native papers.",
       "properties": {
         "command": {
           "const": "author_papers",
