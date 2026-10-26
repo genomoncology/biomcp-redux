@@ -196,7 +196,9 @@ impl PhenotypeGet {
     }
     /// Checked bounded section size.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit.unwrap_or_else(|| defaults(self.section()).1)
+        self.0
+            .section_limit
+            .unwrap_or_else(|| defaults(self.section()).1)
     }
     /// Section offset.
     pub fn section_offset(&self) -> u32 {
@@ -217,7 +219,10 @@ impl PhenotypeGet {
         let mut fields = self.0.clone();
         fields.section = Some(section);
         fields.section_offset = 0;
-        if matches!(section, PhenotypeSection::Diseases | PhenotypeSection::Genes) {
+        if matches!(
+            section,
+            PhenotypeSection::Diseases | PhenotypeSection::Genes
+        ) {
             fields.snapshot = None;
         }
         Self::try_from(fields)

@@ -211,8 +211,17 @@ impl DiseaseGet {
     pub fn from_id(id: biodata::Curie) -> Result<Self, QueryInvalid> {
         Ok(Self(GetFields {
             id: Text::new(&id.to_string()).map_err(|_| QueryInvalid)?,
-            source: get_source(), ontology: None, section: None, section_limit: Some(default_limit()),
-            section_offset: 0, sex: None, race: None, age_range: None, dataset: None, period: None, interval: None,
+            source: get_source(),
+            ontology: None,
+            section: None,
+            section_limit: Some(default_limit()),
+            section_offset: 0,
+            sex: None,
+            race: None,
+            age_range: None,
+            dataset: None,
+            period: None,
+            interval: None,
         }))
     }
 

@@ -4,6 +4,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("phenotype-associations/card-actions-keep-one-row-default-and-explicit-limits", || cards().map_err(Into::into)),
         Trial::test(
             "phenotype-associations/direct-pages-preserve-native-rows",
             || exact().map_err(Into::into),
@@ -230,6 +231,35 @@ fn disabled() -> Result<(), String> {
     invoke(&env, &allowed, 0)?;
     if stub.finish()?.len() != 1 {
         return Err("disabled source or warm cache made another request".into());
+    }
+    Ok(())
+}
+
+fn cards()->Result<(),String> {
+    for explicit in [false,true] {
+        let stub=Stub::for_source("api-v3.monarchinitiative.org","application/json",move |request| {
+            if request.starts_with("GET /v3/api/entity/") {
+                return Ok(json!({"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature","association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","count":3}]}).to_string());
+            }
+            let limit=if explicit {2} else {1};
+            if !request.contains(&format!("&limit={limit}&offset=0 ")) {return Err(format!("association action changed limit: {request}"));}
+            let mut row=row();
+            if request.contains("subject_category=biolink%3ADisease") {row["subject"]=json!("MONDO:0014379");}
+            Ok(json!({"limit":limit,"offset":0,"total":3,"items":[row]}).to_string())
+        })?;
+        let env=setup(&stub)?;
+        let mut words=vec!["get","phenotype","HP:0001250","--source","monarch"];
+        if explicit {words.extend(["--section-limit","2"]);}
+        let card=invoke(&env,&words,0)?;
+        let next=card["next"].as_array().ok_or("association card actions")?;
+        for section in ["diseases","genes"] {
+            let action=next.iter().find(|step|step["args"].as_array().is_some_and(|args|args.contains(&json!(section)))).ok_or("missing association action")?;
+            let args=action["args"].as_array().ok_or("args")?.iter().map(|v|v.as_str().ok_or("word")).collect::<Result<Vec<_>,_>>()?;
+            if args.contains(&"--snapshot") {return Err("association inherited entity snapshot".into());}
+            let page=invoke(&env,&args,0)?;
+            if page.pointer("/page/returned")!=Some(&json!(1)) {return Err("association row omitted".into());}
+        }
+        if stub.finish()?.len()!=3 {return Err("card action made extra requests".into());}
     }
     Ok(())
 }
