@@ -1,6 +1,7 @@
 # 0217 — Search phenotype terms in Monarch and get the exact HPO and Monarch term cards
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f96a921443548a678c05a460ce29e9c3bd2cb38e
 
 Milestone: 4
 
