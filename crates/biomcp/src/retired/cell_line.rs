@@ -2,8 +2,6 @@
 use biomcp_types::ErrorMessage;
 pub(super) fn message(words: &super::Words<'_>) -> Option<ErrorMessage> {
     match words.positional.as_slice() {
-        ["cell-line", "drug-response", ..] => Some(ErrorMessage::CellLineDrugResponse),
-        ["gene", "cell-lines", ..] => Some(ErrorMessage::CellLineExpression),
         ["get", "cell-line", input @ ..] if !words.literal => {
             if words
                 .sections
@@ -19,6 +17,14 @@ pub(super) fn message(words: &super::Words<'_>) -> Option<ErrorMessage> {
                 None
             }
         }
+        _ => None,
+    }
+}
+
+pub(super) fn command(words: &[&str]) -> Option<ErrorMessage> {
+    match words {
+        ["cell-line", "drug-response", ..] => Some(ErrorMessage::CellLineDrugResponse),
+        ["gene", "cell-lines", ..] => Some(ErrorMessage::CellLineExpression),
         _ => None,
     }
 }

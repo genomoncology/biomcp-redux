@@ -21,7 +21,6 @@ const GENE: &[(&str, ErrorMessage)] = &[
     ("trials", ErrorMessage::Trials),
     ("articles", ErrorMessage::Articles),
     ("drugs", ErrorMessage::Drugs),
-    ("cell-lines", ErrorMessage::CellLines),
     ("cspec", ErrorMessage::Variant),
 ];
 const SEARCH: &[(&str, ErrorMessage)] = &[
@@ -164,6 +163,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     }
 }
 fn command(positional: &[&str]) -> Option<ErrorMessage> {
+    if let Some(message) = cell_line::command(positional) {
+        return Some(message);
+    }
     if let Some(message) = drug::command(positional) {
         return Some(message);
     }
@@ -178,8 +180,6 @@ fn command(positional: &[&str]) -> Option<ErrorMessage> {
             "car" | "mutalyzer" | "variantvalidator" | "all",
             ..,
         ] => Some(ErrorMessage::VariantNormalize),
-        ["gene", "cell-lines", ..] => Some(ErrorMessage::CellLineExpression),
-        ["cell-line", "drug-response", ..] => Some(ErrorMessage::CellLineDrugResponse),
         ["gene", word] => find(GENE, word),
         ["batch", "trial", ..] => Some(ErrorMessage::TrialBatch),
         ["variant", "trials", ..] => Some(ErrorMessage::VariantTrials),

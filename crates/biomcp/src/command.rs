@@ -130,9 +130,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
         && query.section() == Some(biomcp_types::CellLineSection::All)
         && (query.section_limit().is_some() || query.section_offset() != 0)
     {
-        let mut error = ErrorEnvelope::arguments();
-        error.error.message = biomcp_types::ErrorMessage::CellLineAllPaging;
-        return Some(usage_envelope(error));
+        return Some(usage_envelope(ErrorEnvelope::cell_line_all_paging()));
     }
     if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));

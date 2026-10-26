@@ -50,51 +50,7 @@ fn native() -> Result<(), String> {
                 json!("data"),
             )?;
         }
-        let native: Value =
-            serde_json::from_str(&fixture(&format!("portable-cellosaurus-cell-{id}.json"))?)
-                .map_err(|e| e.to_string())?;
-        let row = native
-            .pointer("/Cellosaurus/cell-line-list/0")
-            .ok_or("native row")?;
-        for section in ["names", "identity", "xrefs", "variants"] {
-            let page = json!({"result": value.pointer(&format!("/result/sections/{section}/data")).ok_or("section data")?});
-            sections::expected::page(
-                row,
-                section,
-                &page,
-                0,
-                if section == "variants" { 3 } else { 5 },
-            )?;
-        }
-        path(&value, "/result/release/version", json!("57.0"))?;
-        path(
-            &value,
-            "/result/sections/chembl/data/release/version",
-            json!("ChEMBL_37"),
-        )?;
-        path(
-            &value,
-            "/result/sections/chembl/data/release/updated",
-            json!("2026-05-01"),
-        )?;
-        if value.pointer("/result/release/updated")
-            == value.pointer("/result/sections/chembl/data/release/updated")
-        {
-            return Err("source dates were conflated".into());
-        }
-        let actions = value.get("next").and_then(Value::as_array).ok_or("next")?;
-        for section in ["xrefs"] {
-            if !actions.iter().any(|action| {
-                action
-                    .get("args")
-                    .and_then(Value::as_array)
-                    .is_some_and(|args| {
-                        args.contains(&json!(section)) && args.contains(&json!("--section-offset"))
-                    })
-            }) {
-                return Err(format!("all lost {section} continuation"));
-            }
-        }
+        facts(id, &value)?;
         sections::markdown(
             &phase,
             &env,
@@ -115,6 +71,55 @@ fn native() -> Result<(), String> {
     let requests = stub.finish()?;
     if requests.len() != 8 || requests.iter().any(|(_, r)| r.contains("/assay.json")) {
         return Err(format!("all fanout changed: {}", requests.len()));
+    }
+    Ok(())
+}
+
+fn facts(id: &str, value: &Value) -> Result<(), String> {
+    let native: Value =
+        serde_json::from_str(&fixture(&format!("portable-cellosaurus-cell-{id}.json"))?)
+            .map_err(|e| e.to_string())?;
+    let row = native
+        .pointer("/Cellosaurus/cell-line-list/0")
+        .ok_or("native row")?;
+    for section in ["names", "identity", "xrefs", "variants"] {
+        let page = json!({"result": value.pointer(&format!("/result/sections/{section}/data")).ok_or("section data")?});
+        sections::expected::page(
+            row,
+            section,
+            &page,
+            0,
+            if section == "variants" { 3 } else { 5 },
+        )?;
+    }
+    path(&value, "/result/release/version", json!("57.0"))?;
+    path(
+        &value,
+        "/result/sections/chembl/data/release/version",
+        json!("ChEMBL_37"),
+    )?;
+    path(
+        &value,
+        "/result/sections/chembl/data/release/updated",
+        json!("2026-05-01"),
+    )?;
+    if value.pointer("/result/release/updated")
+        == value.pointer("/result/sections/chembl/data/release/updated")
+    {
+        return Err("source dates were conflated".into());
+    }
+    let actions = value.get("next").and_then(Value::as_array).ok_or("next")?;
+    for section in ["xrefs"] {
+        if !actions.iter().any(|action| {
+            action
+                .get("args")
+                .and_then(Value::as_array)
+                .is_some_and(|args| {
+                    args.contains(&json!(section)) && args.contains(&json!("--section-offset"))
+                })
+        }) {
+            return Err(format!("all lost {section} continuation"));
+        }
     }
     Ok(())
 }

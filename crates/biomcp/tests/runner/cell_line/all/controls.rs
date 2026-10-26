@@ -178,6 +178,9 @@ fn fault_case(source: &str, fault: &str) -> Result<(), String> {
     let raw = fs::read(env.root().join("mcp-raw").join(&phase).join("mcp.stdout"))
         .map_err(|e| e.to_string())?;
     surface::measure_bytes(&phase, "mcp-rpc", raw.len(), MEASURE)?;
+    assertions(source, fault, exit, &value)
+}
+fn assertions(source: &str, fault: &str, exit: i32, value: &Value) -> Result<(), String> {
     let index = usize::from(source == "chembl");
     path(&value, &format!("/sources/{index}/source"), json!(source))?;
     path(
@@ -200,6 +203,25 @@ fn fault_case(source: &str, fault: &str) -> Result<(), String> {
     };
     path(&value, "/status", json!(status))?;
     path(&value, "/result/status", json!(status))?;
+    if value
+        .pointer(&format!("/sources/{index}/terms_url"))
+        .and_then(Value::as_str)
+        .is_none_or(str::is_empty)
+    {
+        return Err("source outcome lost publisher terms".into());
+    }
+    release_facts(source, fault, value)?;
+    if fault != "disabled"
+        && fault != "empty"
+        && source == "chembl"
+        && value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_none_or(Vec::is_empty)
+    {
+        return Err("partial composite lost its source problem".into());
+    }
+
     if source == "chembl" && fault != "release" {
         path(
             &value,
@@ -223,6 +245,25 @@ fn fault_case(source: &str, fault: &str) -> Result<(), String> {
             .any(|v| v.get("kind") == Some(&json!("fresh")))
     {
         return Err("failure lost fresh step".into());
+    }
+    Ok(())
+}
+
+fn release_facts(source: &str, fault: &str, value: &Value) -> Result<(), String> {
+    if fault == "release" {
+        let prefix = if source == "cellosaurus" {
+            "/result"
+        } else {
+            "/result/sections/chembl/data"
+        };
+        if value.pointer(&format!("{prefix}/release")).is_some()
+            || value
+                .pointer(&format!("{prefix}/fetched"))
+                .and_then(Value::as_u64)
+                .is_none()
+        {
+            return Err("failed release fabricated metadata or hid retrieval time".into());
+        }
     }
     Ok(())
 }

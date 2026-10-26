@@ -311,6 +311,12 @@ impl ErrorEnvelope {
             },
         }
     }
+    /// Direct composite readers to independently paged named sections.
+    pub fn cell_line_all_paging() -> Self {
+        let mut error = Self::arguments();
+        error.error.message = ErrorMessage::CellLineAllPaging;
+        error
+    }
     /// Explain a failed checked GWAS command without changing its usage code.
     pub fn gwas_arguments(message: ErrorMessage) -> Self {
         let mut error = Self::arguments();
