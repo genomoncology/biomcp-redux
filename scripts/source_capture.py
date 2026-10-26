@@ -9,6 +9,7 @@ A stopped plan can continue with --continue-from DIR into a new --out directory.
 Every attempted request is retained and never automatically retried. Verify an
 archive with --verify FILE. --cleanup removes scratch only after archive proof.
 Default stdout is one summary line; bodies and headers stay in the output folder.
+Response headers have a separate 64 KiB bound; oversized replies stop the plan.
 """
 import argparse
 import hashlib
@@ -26,9 +27,19 @@ from urllib.parse import urlsplit
 
 from capture_outcome import classify
 
+HEADER_BYTES = 64 * 1024
+
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def file_digest(path):
+    result = hashlib.sha256()
+    with path.open('rb') as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b''):
+            result.update(chunk)
+    return result.hexdigest()
 
 
 def write_json(path, value):
@@ -109,7 +120,7 @@ def files_in(directory):
         if path.is_symlink() or not path.is_file():
             raise ValueError('evidence must contain only regular files')
         if path.name != 'manifest.json':
-            files[path.name] = digest(path.read_bytes())
+            files[path.name] = file_digest(path)
     return files
 
 
@@ -156,6 +167,24 @@ def initialize(out, plan, previous):
     return state
 
 
+def bounded_curl(command, config, plan):
+    limit = plan['max_bytes'] + HEADER_BYTES
+    with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                          stderr=subprocess.DEVNULL) as process:
+        try:
+            process.stdin.write(('\n'.join(config) + '\n').encode())
+            process.stdin.close()
+            raw = process.stdout.read(limit + 1)
+            if len(raw) > limit:
+                process.kill()
+                return 63, raw[:limit]
+            return process.wait(timeout=plan['deadline_seconds'] + 2), raw
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.wait()
+
+
 def curl_reply(request, plan):
     headers = dict(request.get('headers', {}))
     if 'key' in request:
@@ -174,21 +203,20 @@ def curl_reply(request, plan):
                '--proto', '=http,https']
     if request.get('method') == 'HEAD':
         command.append('--head')
-    result = subprocess.run(command, input=('\n'.join(config) + '\n').encode(),
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            timeout=plan['deadline_seconds'] + 2)
-    raw = result.stdout
+    returncode, raw = bounded_curl(command, config, plan)
     status, headers, body = 0, b'', raw
+    header_bytes = 0
     while body.startswith(b'HTTP/'):
         headers, separator, body = body.partition(b'\r\n\r\n')
-        if not separator:
-            raise ValueError('incomplete HTTP headers')
+        header_bytes += len(headers) + len(separator)
+        if not separator or header_bytes > HEADER_BYTES:
+            return 0, b'', b'', True, False
         status = int(headers.split(b' ', 2)[1])
         if status >= 200:
             break
-    truncated = len(body) > plan['max_bytes'] or result.returncode == 63
+    truncated = len(body) > plan['max_bytes'] or returncode == 63
     body = body[:plan['max_bytes']]
-    transport = result.returncode not in (0, 63)
+    transport = returncode not in (0, 63)
     return status, headers, body, truncated, transport
 
 
@@ -256,7 +284,7 @@ def run_capture(args):
     if args.cleanup:
         shutil.rmtree(args.out)
     print(json.dumps({'attempted': len(state['receipts']), 'stopped': stopped,
-                      'archive': str(archive), 'sha256': digest(archive.read_bytes())}))
+                      'archive': str(archive), 'sha256': file_digest(archive)}))
     return 2 if stopped else 0
 
 
