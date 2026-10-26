@@ -32,10 +32,10 @@ Six crates. Each exists because a rule needs a crate boundary to enforce it.
 | --- | --- | --- | --- |
 | `biodata` | Neutral entity values, identifiers, coordinates, notation and closed vocabularies. JSON Schemas. | `serde`, `winnow`; `schemars` behind the `schema` feature | Any workspace crate, any I/O crate, `serde_json` outside tests |
 | `biomcp-types` | BioMCP queries, requests, source identities and response disclosure; generated contract schemas | `biodata`, `serde`; `schemars` behind the `schema` feature | Any I/O crate, transport, adapters or services |
-| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url` | `biomcp-adapters`, `biomcp-query`, `clap` |
-| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
-| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2` | `ureq`, `clap` |
-| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
+| `biomcp-fetch` | The transport: HTTP, quotas, deadlines, retry, body limits, decoding, reply checks, the reply cache, offline, record and replay, bundle sync and bundle rows | `biodata`, `biomcp-types`, `ureq`, `rusqlite`, `serde`, `serde_json`, `quick-xml`, `sha2`, `url`, `rustls`, `rustls-platform-verifier`, `httpdate`, `tempfile`, `csv`, `flate2`, `thiserror` | `biomcp-adapters`, `biomcp-query`, `clap` |
+| `biomcp-adapters` | One module per source: a source description, endpoints, raw reply types with their checks and mapping into biodata | `biodata`, `biomcp-types`, `biomcp-fetch`, `serde`, `quick-xml`, `calamine`, `csv`, `zip`, `thiserror` | `ureq`, `rusqlite`, `serde_json`, `biomcp-query`, `clap` |
+| `biomcp-query` | The services and the store: resolve, fan out, merge, rank, pool, page, sections and next steps | `biodata`, `biomcp-types`, `biomcp-fetch`, `biomcp-adapters`, `rusqlite`, `serde_json`, `sha2`, `thiserror` | `ureq`, `clap` |
+| `biomcp` | The binary: CLI grammar, MCP server, config file, Markdown view, the runner's test target, later the web mode | every crate above, `clap`, `serde`, `serde_json`, `httparse`, `base64`, `ctrlc`, `rpassword`, `tempfile`, `sha2`, `shlex` | `ureq`, `rusqlite` |
 
 Why each crate is its own:
 
@@ -1567,7 +1567,7 @@ MCP offers the main `biomcp` tool and read-only research `search` and `fetch` wr
 }
 ```
 
-The description embeds a compact command tree of about 300 tokens, generated at startup from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. The discovery case pins the main tree and the research descriptions under their separate measured ceilings. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
+The description embeds the command tree generated from the embedded schemas: each entity, its verbs, its section names and its main flags, one line each. The discovery case pins the main tree and the research descriptions under their separate measured ceilings. [Ticket 0270](../tickets/0270-author-docs-and-accounting.md) records the current approved main-description cap. The [measured-caps decision](../decisions/2026-10-26-measured-entity-caps-need-no-ask.md) requires a PM ruling before a global description or full tool-list cap grows. The agent learns the whole surface from `tools/list` and asks `["help", ...]` only for detail.
 
 `biomcp serve` speaks MCP over standard input and output from one file, `mcp.rs`, written to the specification:
 

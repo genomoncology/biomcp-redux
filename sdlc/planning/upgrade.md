@@ -104,7 +104,7 @@ Create `biomcp/config.json` under `$XDG_CONFIG_HOME`, or under `$HOME/.config` w
 }
 ```
 
-Register each key with `biomcp key set <source>`, which prompts for the key, keeps it out of shell history and writes it to this file. Omit unused keys. The environment variables keep their 0.9 names, `ONCOKB_TOKEN`, `NCBI_API_KEY` and `S2_API_KEY`, so existing settings need no change; stored file values override environment values. The 0.9 DisGeNET credential has no 1.0 gene section; the gene slice ruling drops that section. Keep credentials local and outside version control.
+Register each key with `biomcp key set <source>`, which prompts for the key, keeps it out of shell history and writes it to this file. Omit unused keys. The environment variables keep their 0.9 names: `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY`, `ORCID_ACCESS_TOKEN`, `UMLS_API_KEY` and `ALPHAGENOME_API_KEY`. The [legacy-key ruling](../decisions/2026-10-25-legacy-key-names.md) preserves these spellings; a retained name does not promise an implemented source. Stored file values override environment values. The 0.9 DisGeNET credential has no 1.0 gene section; the gene slice ruling drops that section. Keep credentials local and outside version control.
 
 Optional `ncbi_email` identifies NCBI requests. Optional `ca_bundle` names a PEM file that adds company certificates to platform trust. Optional `proxy` names an HTTP or HTTPS proxy and overrides `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Without it, routing uses those environment variables. `disable_sources` accepts individual sources and the `restricted` and `noncommercial` groups; CLI exclusions add to file exclusions. Run `biomcp health` to inspect enabled sources and reachability.
 
