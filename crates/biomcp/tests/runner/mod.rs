@@ -130,7 +130,7 @@ mod wikipathways;
 use libtest_mimic::Trial;
 use serde::Deserialize;
 use serde_json::Value;
-use std::{collections::BTreeMap, fs, path::Path, sync::Arc};
+use std::{collections::BTreeMap, fs, io::Write, path::Path, sync::Arc};
 
 // Maintained serde YAML parser; only deserialization is needed. Its typed parser
 // rejects unknown fields so a misspelled assertion cannot silently pass.
@@ -315,6 +315,15 @@ fn run_step(
             registry.validate(&value, args, output.status.success())?;
             pathway_budgets::help(&value, args, "cli")?;
             assertions::check(&output.stdout, step, expectations)?;
+            if step.full_output_bytes {
+                writeln!(
+                    std::io::stderr(),
+                    "RAW_OUTPUT cli {:?} {}",
+                    args,
+                    output.stdout.len()
+                )
+                .map_err(|e| e.to_string())?;
+            }
             Ok(value)
         })
         .transpose()?;
@@ -325,6 +334,15 @@ fn run_step(
         registry.validate(&result, args, !step.is_error)?;
         pathway_budgets::help(&result, args, "mcp")?;
         assertions::check(text.as_bytes(), step, expectations)?;
+        if step.full_output_bytes {
+            writeln!(
+                std::io::stderr(),
+                "RAW_OUTPUT mcp-text {:?} {}",
+                args,
+                text.len()
+            )
+            .map_err(|e| e.to_string())?;
+        }
         answer = Some(result.clone());
         if let Some(cli) = cli.as_ref() {
             let mut comparable = result.clone();

@@ -43,36 +43,8 @@ for name, expected in accepted.items():
             (replay / (key + '.json')).write_text(json.dumps(record) + '\n')
             records[row['id']] = (row, json.loads(raw))
 
-budgets_path = Path(__file__).resolve().parent.parent / 'tests/author-command-budgets.json'
-budgets = json.loads(budgets_path.read_text()) if budgets_path.exists() else {}
-
-def case(name, args, expect, exit_code=0):
-    step = {'run': args, 'mcp': args, 'exit': exit_code, 'is_error': exit_code >= 2,
-            'expect': expect, 'full_output_bytes': True}
-    if name in budgets:
-        ceiling = (budgets[name] * 115 + 99) // 100
-        step.update(max_bytes=ceiling, max_tokens=(ceiling + 3) // 4)
-    (cases / (name + '.yaml')).write_text(json.dumps({
-        'feature': 'author-search', 'harvest': 'sdlc/planning/slices/author.md A01 A03 A05 A07 A09 A11 A16 A21',
-        'story': 'Retained exact provider records preserve native identity and counts without linking people',
-        'replay': str(replay.parent), 'steps': [step]}, indent=2) + '\n')
-
-for offset in [0, 5]:
-    _, body = records['search-' + str(offset)]
-    args = ['search', 'author', 'Louis Williams'] + (['--offset', str(offset)] if offset else [])
-    case('search-' + str(offset), args, {
-        '/status': 'complete', '/page/offset': offset, '/page/returned': 5,
-        '/result/items/*/id': ['semantic-scholar:' + r['authorId'] for r in body['data']],
-        '/result/matching_records': body['total'], '/next/5/kind': 'page'})
-for pmid in ['17611497', '33123537', '34096690']:
-    _, body = records['card-' + pmid]
-    qualified = 'semantic-scholar:' + body['authorId']
-    case('card-' + pmid, ['get', 'author', qualified], {
-        '/status': 'complete', '/result/items/0/input': qualified,
-        '/result/items/0/card/header/id': qualified, '/result/items/0/card/header/name': body['name'],
-        '/result/items/0/card/header/counts/scope': 'provider_record',
-        '/result/items/0/card/header/counts/paper_count': body['paperCount'],
-        '/result/items/0/card/header/counts/citation_count': body['citationCount'],
-        '/result/items/0/card/url': body['url'], '/next/0/kind': 'pivot'})
-case('absent', ['get', 'author', 'semantic-scholar:999999999999999999'], {
-    '/status': 'absent', '/result/items/0/status': 'absent', '/sources/0/state': 'ok'}, 1)
+templates = Path(__file__).resolve().parent.parent / 'tests/native/author'
+for template in templates.glob('*.yaml'):
+    case = json.loads(template.read_text())
+    case['replay'] = str(replay.parent)
+    (cases / template.name).write_text(json.dumps(case, indent=2) + '\n')

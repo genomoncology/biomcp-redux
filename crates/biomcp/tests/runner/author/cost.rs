@@ -4,8 +4,10 @@ pub(super) fn surfaces(
     phase: &str,
     args: &[String],
     globals: &[String],
-    exit: i32,
+    step: &super::super::Step,
 ) -> Result<Value, String> {
+    let exit = step.exit;
+    let expectations = super::super::assertions::prepare(step)?;
     let mut cli = args.to_vec();
     cli.extend_from_slice(globals);
     let output = env
@@ -19,6 +21,7 @@ pub(super) fn surfaces(
             String::from_utf8_lossy(&output.stdout)
         ));
     }
+    super::super::assertions::check(&output.stdout, step, &expectations)?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     let retained = env.root().join("mcp-raw");
     fs::create_dir_all(&retained).map_err(|e| e.to_string())?;
@@ -32,6 +35,10 @@ pub(super) fn surfaces(
         .pointer("/result/content/0/text")
         .and_then(Value::as_str)
         .ok_or("MCP text")?;
+    super::super::assertions::check(text.as_bytes(), step, &expectations)?;
+    let registry = super::super::schema::Registry::embedded()?;
+    registry.validate(&value, args, exit == 0)?;
+    registry.validate(&mcp, args, exit == 0)?;
     let bare = serde_json::to_vec(value.get("result").unwrap_or(&Value::Null))
         .map_err(|e| e.to_string())?;
     cli.extend(["--format".into(), "md".into()]);
@@ -44,21 +51,5 @@ pub(super) fn surfaces(
     }
     let sizes = json!({"cli":output.stdout.len(),"bare":bare.len(),"mcp-text":text.len(),"markdown":markdown.stdout.len(),"mcp-rpc":rpc.len()});
     writeln!(std::io::stderr(), "AUTHOR_COST {phase} {sizes}").map_err(|e| e.to_string())?;
-    let path =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/author-command-budgets.json");
-    if path.is_file() {
-        let budgets: std::collections::BTreeMap<String, usize> =
-            serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
-                .map_err(|e| e.to_string())?;
-        for (surface, size) in sizes.as_object().ok_or("size map")? {
-            let name = format!("{phase} [{surface}]");
-            let measured = budgets
-                .get(&name)
-                .ok_or_else(|| format!("missing measured cost {name}"))?;
-            if size.as_u64().ok_or("size")? as usize > (measured * 115).div_ceil(100) {
-                return Err(format!("{name}: exceeds measured fifteen-percent cap"));
-            }
-        }
-    }
     Ok(value)
 }
