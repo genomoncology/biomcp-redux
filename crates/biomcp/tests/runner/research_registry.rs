@@ -195,7 +195,9 @@ fn enum_strings<'a>(root: &'a Value, node: &'a Value) -> Vec<&'a str> {
     variants(root, node)
         .into_iter()
         .flat_map(|v| {
-            if let Some(value) = v.get("const").and_then(Value::as_str) {
+            if let Some(items) = v.get("items") {
+                enum_strings(root, items)
+            } else if let Some(value) = v.get("const").and_then(Value::as_str) {
                 vec![value]
             } else {
                 v.get("enum")

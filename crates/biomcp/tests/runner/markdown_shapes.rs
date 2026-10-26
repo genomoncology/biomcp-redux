@@ -28,8 +28,10 @@ const SHAPES: &[Shape] = &[
         required: &[
             "RAF/MAP kinase cascade",
             "biomcp get pathway R-HSA-5673001 summary",
+            "biomcp get pathway R-HSA-5673001 genes",
+            "biomcp get pathway R-HSA-5673001 events",
         ],
-        max_bytes: 562,
+        max_bytes: 832,
     },
     Shape {
         args: &["get", "pathway", "R-HSA-5673001", "summary"],
