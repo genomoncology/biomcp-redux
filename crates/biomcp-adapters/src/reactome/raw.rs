@@ -33,18 +33,24 @@ pub(super) struct Empty {
     reason: String,
     url: String,
     pub messages: Vec<String>,
-    targets: (),
+    #[serde(rename = "targets")]
+    _targets: (),
 }
 impl Reply for Search {
     fn check(&self) -> Result<(), BadReply> {
         let valid = match self {
-            Self::Page { results, count, total } => {
+            Self::Page {
+                results,
+                count,
+                total,
+            } => {
                 results.iter().map(|g| g.entries.len()).sum::<usize>() == *count as usize
-                    && *count <= 50 && u64::from(*count) <= *total
+                    && *count <= 50
+                    && u64::from(*count) <= *total
             }
             Self::Empty(v) => {
-                let () = v.targets;
-                v.code == 404 && v.reason == "NOT_FOUND"
+                v.code == 404
+                    && v.reason == "NOT_FOUND"
                     && v.url == "http://reactome.org/ContentService/search/query"
                     && v.messages.len() == 1
             }
@@ -59,7 +65,7 @@ impl Reply for Search {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Card {
     pub st_id: String,
@@ -70,13 +76,13 @@ pub(super) struct Card {
     pub summation: Option<Vec<Summation>>,
     pub literature_reference: Option<Vec<Literature>>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Summation {
     pub db_id: NonZeroU64,
     pub text: Box<str>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Literature {
     pub db_id: NonZeroU64,
@@ -85,12 +91,16 @@ pub(super) struct Literature {
     pub url: Option<String>,
 }
 impl Reply for Card {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 #[derive(Deserialize)]
 pub(super) struct Cards(pub Vec<Card>);
 impl Reply for Cards {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 #[derive(Deserialize)]
 pub(super) struct Version(pub u64);

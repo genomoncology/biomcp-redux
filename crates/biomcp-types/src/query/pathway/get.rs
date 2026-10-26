@@ -62,7 +62,14 @@ impl TryFrom<GetFields> for PathwayGet {
 impl PathwayGet {
     /// Construct one exact default card from a checked source identity.
     pub fn new(id: PathwayId) -> Self {
-        Self(GetFields { id, section: None, section_limit: default_limit(), section_offset: 0, pool: None, fresh: false })
+        Self(GetFields {
+            id,
+            section: None,
+            section_limit: default_limit(),
+            section_offset: 0,
+            pool: None,
+            fresh: false,
+        })
     }
     /// Select a source-supported disclosure.
     pub fn with_section(&self, section: PathwaySection) -> Self {
