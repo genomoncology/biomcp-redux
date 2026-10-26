@@ -13,7 +13,6 @@ pub(super) struct Document {
     pub version: String,
     pub organism: String,
     pub name: String,
-    pub modified: String,
     pub nodes: Vec<Node>,
 }
 #[derive(Debug, Deserialize)]
@@ -49,7 +48,6 @@ impl Document {
             version: required(tag, b"Version")?,
             organism: required(tag, b"Organism")?,
             name: required(tag, b"Name")?,
-            modified: required(tag, b"Last-Modified")?,
             nodes: Vec::new(),
         })
     }
