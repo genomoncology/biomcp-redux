@@ -3,11 +3,9 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 /// Exact Human Phenotype Ontology identifier with seven decimal digits.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(try_from = "String")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(!try_from, transparent))]
-pub struct HpId(#[cfg_attr(feature = "schema", schemars(pattern = "^HP:[0-9]{7}$"))] Box<str>);
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct HpId(Box<str>);
+crate::text_value!(HpId, "HpId", "^HP:[0-9]{7}$");
 /// Invalid published HP identifier spelling.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct HpIdInvalid;
@@ -29,12 +27,6 @@ impl FromStr for HpId {
         } else {
             Err(HpIdInvalid)
         }
-    }
-}
-impl TryFrom<String> for HpId {
-    type Error = HpIdInvalid;
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        value.parse()
     }
 }
 impl fmt::Display for HpId {
