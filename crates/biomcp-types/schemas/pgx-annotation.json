@@ -1115,6 +1115,17 @@
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
   "properties": {
+    "local_error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CacheProblem"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Bounded local cache failure, independent of provider outcomes."
+    },
     "next": {
       "description": "Available next commands.",
       "items": {

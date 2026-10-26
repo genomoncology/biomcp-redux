@@ -26,7 +26,16 @@ pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<
                 .collect::<String>()
         ));
     }
-    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if let Some(kind) = value.get("local_error") {
+        use std::io::Write;
+        writeln!(
+            std::io::stdout(),
+            "LOCAL_ERROR_CLI_BYTES {kind} {}",
+            output.stdout.len()
+        )
+        .map_err(|e| e.to_string())?;
+    }
     if args.iter().any(|word| word == "diagnostic")
         || args.windows(2).any(|words| {
             words.first().is_some_and(|word| word == "sync")
@@ -247,7 +256,7 @@ fn boundaries() -> Check {
         vec!["get", "gene", "BRAF", "--offline", "--replay", "sensitive"],
     ] {
         let value = invoke(&env, args.iter().map(|arg| (*arg).into()).collect(), 2)?;
-        if value.to_string().contains("sensitive") {
+        if value.to_string().contains("sensitive") || value.get("local_error").is_some() {
             return Err("usage echoed caller input".into());
         }
     }
@@ -287,7 +296,7 @@ fn boundaries() -> Check {
             ],
             5,
         )?;
-        if value.to_string().contains("sensitive") {
+        if value.to_string().contains("sensitive") || value.get("local_error").is_some() {
             return Err("configuration echoed input".into());
         }
     }
@@ -429,7 +438,9 @@ fn article_owners() -> Check {
             args.extend(["--case-cache".into(), case.to_string_lossy().into()]);
         }
         let result = invoke(&env, args, 5)?;
-        if result.pointer("/error/code") != Some(&json!("local.failure")) {
+        if result.pointer("/error/code") != Some(&json!("local.failure"))
+            || result.get("local_error") != Some(&json!("version"))
+        {
             return Err("wrong owner was not a local configuration error".into());
         }
         let journal = connection

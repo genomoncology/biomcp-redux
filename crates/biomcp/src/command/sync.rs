@@ -26,7 +26,9 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
         biomcp_fetch::RequestError::Source(error) => Some(error.reason),
         _ => None,
     });
+    let local_error = super::local::kind(result.as_ref().err().copied());
     let mut envelope = Envelope::<T>::new(status, biomcp_types::SyncQuery { source }, result.ok());
+    envelope.local_error = local_error;
     envelope.sources.push(biomcp_adapters::registry::outcome(
         source,
         if reason == Some(biomcp_types::Reason::Disabled) {

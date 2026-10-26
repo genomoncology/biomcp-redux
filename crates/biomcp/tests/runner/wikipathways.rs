@@ -42,7 +42,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ]
 }
-fn catalog(search: bool, changed: bool) -> Value {
+pub(super) fn catalog(search: bool, changed: bool) -> Value {
     json!({"pathwayInfo":(0..13).map(|n| {
         let mut row = json!({"id":format!("WP{}",
 n+1),
@@ -68,7 +68,12 @@ fn recording(root: &Path, url: &str) -> PathBuf {
         .collect::<String>();
     root.join("wikipathways").join(format!("{key}.json"))
 }
-fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<PathBuf, String> {
+pub(super) fn seed(
+    env: &Environment,
+    search: Value,
+    get: Value,
+    status: u16,
+) -> Result<PathBuf, String> {
     let root = env.root().join("replay");
     let dir = root.join("wikipathways");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -183,7 +188,9 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
             4,
         )
         .map_err(|e| format!("catalog fault {label}: {e}"))?;
-        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+            || failed.get("local_error").is_some()
+        {
             return Err(format!("validation classification: {failed}"));
         }
         let retained = call(
@@ -388,7 +395,9 @@ fn partial_download(env: &Environment, replay: &Path) -> Check {
         &["sync", "wikipathways"],
         4,
     )?;
-    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
+        || failed.get("local_error").is_some()
+    {
         return Err(format!("partial download: {failed}"));
     }
     let retained = call(

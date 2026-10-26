@@ -272,6 +272,9 @@ pub struct ErrorEnvelope {
     schema: ErrorSchema,
     status: ErrorStatus,
     error: ErrorDetail,
+    /// Bounded cache failure when local startup cannot open its store.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub local_error: Option<super::CacheProblem>,
     /// Typed restart when a snapshot cannot answer this query.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub next: Vec<super::Step>,
@@ -293,6 +296,7 @@ impl ErrorEnvelope {
     /// Construct the fixed response for every invalid schema request.
     pub fn schema_usage() -> Self {
         Self {
+            local_error: None,
             next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
@@ -319,6 +323,7 @@ impl ErrorEnvelope {
                 .collect()
         });
         Self {
+            local_error: None,
             next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
@@ -336,6 +341,7 @@ impl ErrorEnvelope {
     /// Refuse invalid command arguments without echoing input.
     pub fn arguments() -> Self {
         Self {
+            local_error: None,
             next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Usage,
@@ -383,6 +389,7 @@ impl ErrorEnvelope {
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self {
+            local_error: None,
             next: Vec::new(),
             schema: ErrorSchema::V1,
             status: ErrorStatus::Local,
@@ -426,6 +433,7 @@ impl ErrorEnvelope {
                     ErrorMessage::PoolExpired
                 },
             },
+            local_error: None,
             next: vec![next],
         }
     }
@@ -446,6 +454,7 @@ impl ErrorEnvelope {
                 code: ErrorCode::TooManyPmids,
                 message: ErrorMessage::TooManyPmids,
             },
+            local_error: None,
             next: Vec::new(),
         }
     }
