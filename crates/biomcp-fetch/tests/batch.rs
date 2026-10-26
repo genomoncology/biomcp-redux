@@ -380,8 +380,8 @@ fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
         .unwrap()
         .execute("UPDATE reply SET fresh_until=0", [])
         .unwrap();
+    let stale_read = std::sync::Barrier::new(2);
     thread::scope(|scope| {
-        let stale_read = std::sync::Barrier::new(2);
         let worker = scope.spawn(|| {
             leg.batch(&[false, true], |child, wait| {
                 if *wait {
