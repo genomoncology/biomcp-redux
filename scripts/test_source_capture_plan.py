@@ -1,9 +1,12 @@
 """Exercise the source capture command against an offline HTTP source."""
+import hashlib
 import http.server
 import json
 import os
 from pathlib import Path
 import subprocess
+import sys
+import tarfile
 import tempfile
 import threading
 import unittest
@@ -89,6 +92,30 @@ class CapturePlanTests(unittest.TestCase):
                                 env=self.env, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(out.exists())
+        with tarfile.open(archive) as packed:
+            names = [member.name for member in packed.getmembers()]
+        expected = set(json.loads((out / 'manifest.json').read_text())) | {'manifest.json'}
+        self.assertEqual(set(names), expected)
+        self.assertEqual(len(names), len(expected))
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'AppleDouble requires macOS tar')
+    def test_archive_verification_rejects_hidden_appledouble_members(self):
+        evidence = self.base / 'metadata'
+        evidence.mkdir()
+        payload = evidence / 'payload'
+        payload.write_bytes(b'{}')
+        os.setxattr(payload, 'com.biomcp.capture-test', b'outside-in-witness')
+        (evidence / 'manifest.json').write_text(json.dumps(
+            {'payload': hashlib.sha256(b'{}').hexdigest()}))
+        archive = self.base / 'metadata.tar.gz'
+        env = {name: value for name, value in self.env.items() if name != 'COPYFILE_DISABLE'}
+        subprocess.run(['tar', '-czf', str(archive), '-C', str(evidence),
+                        'payload', 'manifest.json'], env=env, check=True)
+        with tarfile.open(archive) as packed:
+            self.assertIn('._payload', packed.getnames())
+        result = subprocess.run(['python3', str(SCRIPT), '--verify', str(archive)],
+                                env=self.env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
     def test_rate_limit_stops_and_continuation_sends_only_undelivered(self):
         plan = self.plan(['/one', '/stop', '/three'])
