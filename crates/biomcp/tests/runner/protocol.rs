@@ -5,7 +5,7 @@ use super::{
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::{io::Write, process::Stdio};
+use std::{io::Write, process::Stdio, time::Instant};
 
 type Check = Result<(), String>;
 
@@ -285,6 +285,7 @@ fn framing() -> Check {
 }
 
 fn broken_output() -> Check {
+    let started = Instant::now();
     let (reader, writer) = std::io::pipe().map_err(|e| e.to_string())?;
     drop(reader);
     let child = environment()?
@@ -303,9 +304,14 @@ fn broken_output() -> Check {
     let (status, _, stderr) = Process::new(child)?.finish()?;
     drop(stdin);
     if status.code() != Some(5) || stderr != b"biomcp: output failed\n" {
-        return Err(
-            "broken stdout must exit 5 with fixed diagnostic while stdin stays open".into(),
-        );
+        return Err(format!(
+            "broken stdout must exit 5 with fixed diagnostic while stdin stays open; \
+             elapsed={:?}; status={status}; stderr (first {} of {} bytes)={:?}",
+            started.elapsed(),
+            stderr.len().min(4096),
+            stderr.len(),
+            String::from_utf8_lossy(&stderr[..stderr.len().min(4096)]),
+        ));
     }
     Ok(())
 }
