@@ -1,5 +1,5 @@
 //! Prove diagnostic request equality through the public checked fetch boundary.
-use super::super::{launch::Environment, network_stub::Stub};
+use super::super::super::{launch::Environment, network_stub::Stub};
 use biomcp_fetch::{Arg, BadReply, Certificates, Fetch, FetchConfig, Network, Reply};
 use std::{fs, sync::Arc, time::Duration};
 

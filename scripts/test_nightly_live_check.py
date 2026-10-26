@@ -189,6 +189,7 @@ class NightlyCommand(unittest.TestCase):
         self.assertEqual(self.scratch(), [])
 
     def classified(self, row, expected, exit_code):
+        shutil.rmtree(self.store, ignore_errors=True)
         report = {"drift_cases": int(bool(row["result"]["drift"])), "error_cases": 0,
                   "checked": 1, "omitted": 0, "case_sample": [row]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
@@ -196,7 +197,6 @@ class NightlyCommand(unittest.TestCase):
         saved = json.loads((self.copied() / 'report.json').read_text())
         self.assertEqual(saved['case_sample'][0]['classification'], expected)
         self.assertEqual(saved[expected + '_cases'], 1)
-        shutil.rmtree(self.store)
 
     def test_discovery_changes_dependents_but_not_invariants(self):
         for change, expected, code in [
