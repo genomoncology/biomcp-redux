@@ -1,7 +1,7 @@
 //! Neutral study records preserve source metadata without I/O or clinical inference.
 mod id;
-pub use id::*;
 use crate::{Pmid, Text};
+pub use id::*;
 use serde::{Deserialize, Serialize};
 /// Compact source study identity; source codes and counts retain their own scope.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

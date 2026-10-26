@@ -1,7 +1,9 @@
 use crate::{QueryInvalid, Text};
 use biodata::{CbioportalCancerTypeId, StudyId};
 use serde::{Deserialize, Serialize};
-fn limit() -> u32 { 5 }
+fn limit() -> u32 {
+    5
+}
 
 biodata::wire_enum! {
     described
@@ -21,7 +23,7 @@ biodata::wire_enum! {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("anyOf" = [{"required":["text"]},{"required":["cancer_type"]}])))]
 pub struct StudySearch(SearchFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -56,18 +58,30 @@ impl TryFrom<SearchFields> for StudySearch {
 }
 impl StudySearch {
     /// Literal caller text.
-    pub fn text(&self) -> Option<&Text> { self.0.text.as_ref() }
+    pub fn text(&self) -> Option<&Text> {
+        self.0.text.as_ref()
+    }
     /// Exact namespace-preserving cancer-type selector.
-    pub fn cancer_type(&self) -> Option<&CbioportalCancerTypeId> { self.0.cancer_type.as_ref() }
+    pub fn cancer_type(&self) -> Option<&CbioportalCancerTypeId> {
+        self.0.cancer_type.as_ref()
+    }
     /// Bounded page size.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Snapshot offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Opaque retained snapshot.
-    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    pub fn pool(&self) -> Option<&Text> {
+        self.0.pool.as_ref()
+    }
     /// Continue without changing selectors or snapshot.
     pub fn at_offset(&self, offset: u32) -> Self {
-        let mut q = self.clone(); q.0.offset = offset; q
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
     }
 }
 /// Exact case-sensitive study retrieval or a bounded metadata section.
@@ -99,7 +113,8 @@ impl TryFrom<GetFields> for StudyGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
         if !(1..=50).contains(&v.section_limit)
-            || (matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0) {
+            || (matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0)
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
@@ -107,15 +122,25 @@ impl TryFrom<GetFields> for StudyGet {
 }
 impl StudyGet {
     /// Exact checked study ID.
-    pub fn id(&self) -> &StudyId { &self.0.id }
+    pub fn id(&self) -> &StudyId {
+        &self.0.id
+    }
     /// Selected metadata section.
-    pub fn section(&self) -> Option<StudySection> { self.0.section }
+    pub fn section(&self) -> Option<StudySection> {
+        self.0.section
+    }
     /// Bounded section size.
-    pub fn section_limit(&self) -> u32 { self.0.section_limit }
+    pub fn section_limit(&self) -> u32 {
+        self.0.section_limit
+    }
     /// Offset within the named collection.
-    pub fn section_offset(&self) -> u32 { self.0.section_offset }
+    pub fn section_offset(&self) -> u32 {
+        self.0.section_offset
+    }
     /// Continue one named section; card and all have no aggregate offset.
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
-        let mut q = self.0.clone(); q.section_offset = offset; Self::try_from(q)
+        let mut q = self.0.clone();
+        q.section_offset = offset;
+        Self::try_from(q)
     }
 }

@@ -1,4 +1,4 @@
-use super::{StudyId, StudyProfileId, StudySampleListId, StudyBlobSha};
+use super::{StudyBlobSha, StudyId, StudyProfileId, StudySampleListId};
 use crate::Text;
 use serde::{Deserialize, Serialize};
 /// Molecular profile reference with exact study membership.

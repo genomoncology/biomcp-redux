@@ -73,6 +73,10 @@ macro_rules! page {
         }
     };
 }
-page!(StudyProfiles,StudyProfile,"biomcp.study_profiles/1");
-page!(StudySampleLists,StudySampleList,"biomcp.study_sample_lists/1");
-page!(StudyFiles,StudyFile,"biomcp.study_files/1");
+page!(StudyProfiles, StudyProfile, "biomcp.study_profiles/1");
+page!(
+    StudySampleLists,
+    StudySampleList,
+    "biomcp.study_sample_lists/1"
+);
+page!(StudyFiles, StudyFile, "biomcp.study_files/1");
