@@ -190,7 +190,17 @@ pub struct PhenotypeHierarchyLink {
     /// Whole related term label.
     pub label: Box<str>,
     /// Original source relation, such as super_classes or sub_classes.
-    pub relation: Box<str>,
+    pub relation: PhenotypeHierarchyRelation,
     /// Publisher provenance.
     pub attribution: Attribution,
+}
+
+crate::wire_enum! { described
+    /// Native hierarchy collection that supplies the link.
+    PhenotypeHierarchyRelation {
+        /// A direct parent in the native super_classes collection.
+        Parent => "super_classes",
+        /// A direct child in the native sub_classes collection.
+        Child => "sub_classes",
+    }
 }
