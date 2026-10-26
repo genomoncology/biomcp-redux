@@ -68,3 +68,40 @@ fn selectors_and_sections_reject_invalid_requests_before_io()
     }
     Ok(())
 }
+
+#[test]
+fn one_association_record_preserves_arrays_unknown_frequency_and_effects()
+-> Result<(), Box<dyn std::error::Error>> {
+    let value = json!({"id":6110,"study":"GCST000035","traits":["Whole synthetic trait","Second trait"],"ontology_traits":[{"id":"MONDO_0004989","label":"Native label"}],"alleles":[{"rs_id":"rs2981582","allele":"A"},{"rs_id":"rs1","allele":"T"}],"p_value":0.0,"exact_p_value":{"mantissa":"2","exponent":-28539},"odds_ratio":1.26,"beta":"source beta text","risk_frequency":"NR","publication":"17529967","author":"Native author","mapped_genes":["FGFR2","intergenic"],"locations":["10:123"],"ci_lower":1.1,"ci_upper":1.4});
+    let row: biomcp_types::GwasAssociation = serde_json::from_value(value.clone())?;
+    assert_eq!(serde_json::to_value(&row)?, value);
+    let card: biomcp_types::GwasAssociationCard =
+        serde_json::from_value(json!({"association":value.clone()}))?;
+    assert_eq!(card.association, row);
+    let page: biomcp_types::GwasPage =
+        serde_json::from_value(json!({"items":[value],"page":{"limit":3,"offset":0,"total":1}}))?;
+    assert_eq!(page.items.first(), Some(&row));
+    Ok(())
+}
+
+#[cfg(feature = "schema")]
+#[test]
+fn consumer_schemas_are_standalone_and_keep_exact_probability_contracts()
+-> Result<(), Box<dyn std::error::Error>> {
+    use biomcp_types::*;
+    use schemars::schema_for;
+    for schema in [
+        schema_for!(Envelope<GwasPage>),
+        schema_for!(Envelope<GwasAssociationCard>),
+        schema_for!(Envelope<GwasLoci>),
+        schema_for!(Envelope<GwasStudy>),
+        schema_for!(Envelope<GwasAncestries>),
+    ] {
+        jsonschema::draft202012::new(&serde_json::to_value(schema)?)?;
+    }
+    let schema = serde_json::to_value(schema_for!(ScientificPValue))?;
+    let validator = jsonschema::draft202012::new(&schema)?;
+    assert!(validator.is_valid(&json!({"mantissa":"2","exponent":-28539})));
+    assert!(!validator.is_valid(&json!({"mantissa":"0","exponent":-76})));
+    Ok(())
+}
