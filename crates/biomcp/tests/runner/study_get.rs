@@ -311,7 +311,7 @@ fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> C
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    let cached: u64 = db
+    let cached: i64 = db
         .query_row(
             "SELECT count(*) FROM reply WHERE url LIKE '%/studies/synthetic_0/%'",
             [],
