@@ -6,13 +6,7 @@ use biomcp_types::{
     PageInfo, PoolInfo, QueryBody, Reason, Request, Status, StepKind, StudyGet, StudyPage,
     StudySearch, StudySnapshot,
 };
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize)]
-struct Retained {
-    items: Vec<StudyHeader>,
-    snapshot: StudySnapshot,
-    created: u64,
-}
+type Retained = (Vec<StudyHeader>, StudySnapshot, u64);
 pub(super) fn search(
     cx: &Ctx<'_>,
     q: &StudySearch,
@@ -48,11 +42,11 @@ pub(super) fn search(
             serde_json::from_str::<Retained>(&payload).map_err(|_| CacheError::Database)?,
         )
     } else {
-        let retained = Retained {
-            items: rows,
+        let retained = (
+            rows,
             snapshot,
-            created: u64::try_from(Store::now()).map_err(|_| CacheError::Database)?,
-        };
+            u64::try_from(Store::now()).map_err(|_| CacheError::Database)?,
+        );
         let payload = serde_json::to_string(&retained).map_err(|_| CacheError::Database)?;
         let id = store.save_source_snapshot(&key, &payload, &[])?;
         (id, retained)
@@ -66,10 +60,10 @@ fn render(
     retained: Retained,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    let (rows, snapshot, created) = retained;
     let query = q.with_pool(Some(id.clone()));
-    let total = retained.items.len() as u64;
-    let items: Box<[_]> = retained
-        .items
+    let total = rows.len() as u64;
+    let items: Box<[_]> = rows
         .into_iter()
         .skip(q.offset() as usize)
         .take(q.limit() as usize)
@@ -82,8 +76,8 @@ fn render(
         pool: Some(PoolInfo {
             id,
             size: u32::try_from(total).map_err(|_| CacheError::Database)?,
-            created: retained.created,
-            expires: retained.created.saturating_add(86400),
+            created: created,
+            expires: created.saturating_add(86400),
         }),
         truncated: None,
     };
@@ -112,7 +106,7 @@ fn render(
     out.body = QueryBody::StudyPage(Some(StudyPage {
         items,
         page,
-        snapshot: retained.snapshot,
+        snapshot,
     }));
     out.status = Status::Complete;
     Ok(())
