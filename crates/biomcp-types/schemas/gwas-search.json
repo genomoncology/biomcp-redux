@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "GwasOrder": {
+      "description": "Native source order, echoed without a configurable sort command.",
+      "enum": [
+        "p_value,asc"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Ascending source p value."
+      ]
+    },
+    "GwasStudyId": {
+      "pattern": "^GCST[0-9]{6,}$",
+      "type": "string"
+    },
+    "GwasTraitId": {
+      "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
+      "type": "string"
+    },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
+    "RsId": {
+      "pattern": "^rs[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.gwas-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Checked association search selectors with native conjunction semantics.",
+  "properties": {
+    "extended_geneset": {
+      "default": false,
+      "description": "Source extended gene set; requires gene.",
+      "type": "boolean"
+    },
+    "gene": {
+      "$ref": "#/$defs/GeneSymbol",
+      "description": "Exact native mapped gene; legacy positional query aliases this field."
+    },
+    "include_child_traits": {
+      "default": false,
+      "description": "Source child-trait expansion; requires trait_id.",
+      "type": "boolean"
+    },
+    "limit": {
+      "default": 3,
+      "description": "Maximum association rows.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native association offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pubmed": {
+      "$ref": "#/$defs/Pmid",
+      "description": "Exact source publication identity."
+    },
+    "query": {
+      "$ref": "#/$defs/GeneSymbol",
+      "description": "Exact native mapped gene; legacy positional query aliases this field.",
+      "x-positional": 0
+    },
+    "study": {
+      "$ref": "#/$defs/GwasStudyId",
+      "description": "Exact source study accession."
+    },
+    "trait": {
+      "$ref": "#/$defs/Text",
+      "description": "Literal native efo_trait label; never searches reported_trait prose."
+    },
+    "trait_id": {
+      "$ref": "#/$defs/GwasTraitId",
+      "description": "Exact native ontology identity."
+    },
+    "variant": {
+      "$ref": "#/$defs/RsId",
+      "description": "Exact source rsID."
+    }
+  },
+  "title": "GwasSearchCommand",
+  "type": "object"
+}

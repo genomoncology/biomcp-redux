@@ -1,0 +1,64 @@
+{
+  "live_check": "synthetic control",
+  "feature": "protein-search",
+  "story": "Exact protein cards preserve request order and isoform identity without disclosing sequence",
+  "replay": "protein/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533",
+        "Q9UIF7",
+        "P38398-2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/header/protein/accession": [
+          "P00533",
+          "Q9UIF7",
+          "P38398-2"
+        ],
+        "/result/items/*/header/protein/length": [
+          1210,
+          546,
+          63
+        ],
+        "/result/items/0/audit/sequence_version": 2
+      },
+      "mcp": [
+        "get",
+        "protein",
+        "P00533",
+        "Q9UIF7",
+        "P38398-2"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "P00533"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "protein",
+        "--gene",
+        "BRAF"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/protein/accession": "P15056",
+        "/next/0/kind": "disambiguate"
+      }
+    }
+  ]
+}

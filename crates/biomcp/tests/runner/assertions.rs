@@ -278,3 +278,34 @@ fn nonincreasing(pointer: &str, actual: &Value) -> Result<(), String> {
     }
     Ok(())
 }
+
+// A bounded first-field diagnostic preserves the exact parity failure.
+pub(super) fn difference(left: &Value, right: &Value, path: &str) -> Option<String> {
+    if left == right {
+        return None;
+    }
+    match (left, right) {
+        (Value::Object(a), Value::Object(b)) => {
+            for key in a.keys().chain(b.keys()) {
+                let key_path = format!("{path}/{}", key.replace('~', "~0").replace('/', "~1"));
+                if let Some(diff) = difference(
+                    a.get(key).unwrap_or(&Value::Null),
+                    b.get(key).unwrap_or(&Value::Null),
+                    &key_path,
+                ) {
+                    return Some(diff);
+                }
+            }
+        }
+        (Value::Array(a), Value::Array(b)) if a.len() == b.len() => {
+            for (index, (a, b)) in a.iter().zip(b).enumerate() {
+                if let Some(diff) = difference(a, b, &format!("{path}/{index}")) {
+                    return Some(diff);
+                }
+            }
+        }
+        _ => (),
+    }
+    let brief = |value: &Value| value.to_string().chars().take(120).collect::<String>();
+    Some(format!("{path}: CLI={} MCP={}", brief(left), brief(right)))
+}

@@ -2,7 +2,7 @@
 use libtest_mimic::Trial;
 
 pub(super) fn drug_trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
+    let mut trials = super::gwas_search::trials();
     trials.extend(super::study_catalog::trials());
     trials.extend(super::drug_failures::trials());
     trials.extend(super::adverse_event_failures::trials());

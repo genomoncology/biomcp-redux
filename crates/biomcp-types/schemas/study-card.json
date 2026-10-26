@@ -1029,12 +1029,17 @@
           "$ref": "#/$defs/StudySnapshot",
           "description": "Catalog revision and acquisition, apart from each live section's time."
         },
+        "source_url": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact publisher study page for this checked source identity."
+        },
         "study": {
           "$ref": "#/$defs/Study",
           "description": "Native card metadata, preserving all source count distinctions."
         }
       },
       "required": [
+        "source_url",
         "study",
         "snapshot"
       ],
@@ -1531,7 +1536,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study_card/1",
+  "$id": "biomcp.study_card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1577,7 +1582,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study_card/1",
+      "const": "biomcp.study_card/2",
       "type": "string"
     },
     "sources": {

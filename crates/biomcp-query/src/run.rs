@@ -69,6 +69,9 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::SearchGwas(q) => crate::gwas::search(cx, q),
+        Request::SearchProtein(q) => crate::protein::search(cx, q),
+        Request::GetProtein(q) => crate::protein::get(cx, q),
         Request::SearchPhenotype(q) => crate::phenotype::search(cx, q),
         Request::GetPhenotype(q) => crate::phenotype::get(cx, q),
         Request::SearchPathway(q) => crate::pathway::search(cx, q),

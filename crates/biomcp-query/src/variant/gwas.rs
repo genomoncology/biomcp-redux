@@ -4,8 +4,7 @@ use biodata::VariantId;
 use biomcp_adapters::gwas;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    GwasAssociation, GwasEffectAllele, PageInfo, Problem, ProblemCode, Reason, Section, Source,
-    VariantGet, VariantGwas, VariantHeader,
+    PageInfo, Problem, ProblemCode, Reason, Section, Source, VariantGet, VariantGwas, VariantHeader,
 };
 /// Ask only the current catalog and preserve source selection and paging.
 pub(super) fn section(
@@ -58,7 +57,10 @@ pub(super) fn section(
                 source: Source::Gwas,
                 data: VariantGwas {
                     rs_id: id,
-                    associations: rows.into_iter().map(map).collect(),
+                    associations: rows
+                        .into_iter()
+                        .map(crate::gwas::map::association)
+                        .collect(),
                     page: PageInfo {
                         offset,
                         returned,
@@ -100,46 +102,6 @@ fn rs_id(query: &VariantGet, candidates: &[VariantHeader]) -> Option<VariantId> 
         }
     }
     if ids.len() == 1 { ids.pop() } else { None }
-}
-fn map(row: gwas::Association) -> GwasAssociation {
-    let exact_p_value = row.exact_p_value();
-    GwasAssociation {
-        id: row.association_id,
-        study: row.accession_id,
-        traits: row.reported_trait.into(),
-        ontology_traits: row
-            .efo_traits
-            .into_iter()
-            .map(|t| biomcp_types::GwasTrait {
-                id: t.efo_id,
-                label: t.efo_trait,
-            })
-            .collect(),
-        alleles: row
-            .snp_allele
-            .into_iter()
-            .map(|a| GwasEffectAllele {
-                rs_id: a.rs_id,
-                allele: a.effect_allele,
-            })
-            .collect(),
-        p_value: row.p_value,
-        exact_p_value,
-        author: optional_text(row.author.clone()),
-        mapped_genes: row.mapped_gene.clone().unwrap_or_default().into(),
-        locations: row.locations.clone().unwrap_or_default().into(),
-        ci_lower: row.ci_lower,
-        ci_upper: row.ci_upper,
-        beta: optional_text(row.beta),
-        odds_ratio: row.or_per_copy_num,
-        risk_frequency: optional_text(row.risk_frequency),
-        interval: optional_text(row.range),
-        publication: optional_text(row.pubmed_id),
-    }
-}
-
-fn optional_text(value: Option<String>) -> Option<biodata::Text> {
-    value.and_then(|v| v.parse().ok())
 }
 
 fn continuation(
