@@ -1,0 +1,87 @@
+{
+  "feature": "generated-help",
+  "story": "GWAS help exposes every selector, section, page option and two parsed case examples.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "gwas"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "gwas"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "search",
+          "gwas"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "query",
+            "--gene",
+            "--variant",
+            "--trait",
+            "--trait-id",
+            "--study",
+            "--pubmed",
+            "--include-child-traits",
+            "--extended-geneset",
+            "--p-value",
+            "--limit",
+            "--offset",
+            "--pool"
+          ]
+        },
+        "/result/commands/0/description": {
+          "matches": "personal risk.*causal variant or gene.*clinical interpretation"
+        }
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "gwas"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "gwas"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "get",
+          "gwas"
+        ],
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "section",
+            "--section-limit",
+            "--section-offset",
+            "--snapshot"
+          ]
+        },
+        "/result/commands/0/description": {
+          "matches": "personal risk.*causal variant or gene.*clinical interpretation"
+        },
+        "/result/commands/0/sections/*/word": [
+          "loci",
+          "associations",
+          "ancestries"
+        ]
+      }
+    }
+  ]
+}

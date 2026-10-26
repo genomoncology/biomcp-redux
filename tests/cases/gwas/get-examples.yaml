@@ -1,0 +1,40 @@
+{
+  "feature": "gwas-get",
+  "story": "Synthetic exact association and study examples preserve native identities.",
+  "live_check": "synthetic command examples",
+  "replay": "gwas/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gwas",
+        "association:6114"
+      ],
+      "mcp": [
+        "get",
+        "gwas",
+        "association:6114"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": 6114
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gwas",
+        "GCST000035"
+      ],
+      "mcp": [
+        "get",
+        "gwas",
+        "GCST000035"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": "GCST000035"
+      }
+    }
+  ]
+}

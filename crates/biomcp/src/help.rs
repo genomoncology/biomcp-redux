@@ -238,6 +238,7 @@ pub(crate) fn tree() -> String {
                 }
             }
         }
+        gwas_selectors(&command, &mut line);
         diagnostic_selectors(&command, &mut line);
         if !command.sections.is_empty() {
             line.push_str(" sections: ");
@@ -253,6 +254,18 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn gwas_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "gwas") {
+        for argument in &command.arguments {
+            line.push_str(&format!(" {}", argument.name));
+        }
+        line.push_str("; source associations; no personal risk, causal variant/gene or clinical statistic interpretation");
+        if command.command.first().is_some_and(|word| word == "search") {
+            line.push_str("; default p-value-ascending; --p-value requires this order");
+        }
+    }
 }
 
 fn diagnostic_selectors(command: &HelpCommand, line: &mut String) {
