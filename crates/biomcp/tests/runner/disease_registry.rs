@@ -189,6 +189,11 @@ fn component_labels() -> Check {
 }
 const PROBES: &[(&str, &str, &str)] = &[
     (
+        "hpo",
+        "ontology.jax.org",
+        "GET /api/hp/terms/HP:0001250 HTTP/1.1",
+    ),
+    (
         "ols",
         "www.ebi.ac.uk",
         "GET /ols4/api/ontologies?size=1 HTTP/1.1",
