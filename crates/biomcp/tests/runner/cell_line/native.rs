@@ -150,7 +150,7 @@ fn headers(value: &Value, name: &str, query: &str, ids: &[&str], offset: u32) ->
     if actual != ids || value.get("page").is_some() {
         return Err(format!("{name}: source order or unknown total changed"));
     }
-    for (row, id) in items.iter().zip(&ids) {
+    for (row, id) in items.iter().zip(ids) {
         path(row, "/accession", json!(id))?;
         if row.get("name").is_none() || row.get("category").is_none() {
         return Err("header facts missing".into());

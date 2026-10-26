@@ -7,7 +7,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         (Request::SearchCellLine(q), QueryBody::CellLinePage(body)) => {
             meta.encode(q, success.then_some(body))
         }
-        (Request::GetCellLine(q), QueryBody::CellLineCard(body)) => meta.encode(q, body),
+        (Request::GetCellLine(q), QueryBody::CellLineCard(body)) => meta.encode(q, Some(body)),
         _ => Err(io::Error::other("cell line response mismatch")),
     }
 }

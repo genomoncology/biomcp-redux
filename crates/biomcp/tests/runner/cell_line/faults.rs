@@ -277,5 +277,7 @@ fn usage() -> Result<(), String> {
         let value = invoke(&env, &words, 2)?;
         path(&value, "/status", json!("usage"))?;
     }
+    let value=invoke(&env,&["get","cell-line","ArrayExpress:E-MTAB-2770"],2)?;
+    path(&value,"/status",json!("usage"))?;
     Ok(())
 }
