@@ -18,7 +18,7 @@ fn lists() -> Value {
 }
 fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
     let url = format!("https://www.cbioportal.org/api/studies/synthetic_0/{section}?projection=DETAILED");
-    let key = format!("{:x}", Sha256::digest(url.as_bytes()));
+    let key = Sha256::digest(url.as_bytes()).iter().map(|v| format!("{v:02x}")).collect::<String>();
     let value = json!({"source":"cbioportal","method":"GET","url":url,"exchanges":[{"status":status,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]});
     fs::write(replay.join("cbioportal").join(format!("{key}.json")), value.to_string()).map_err(|e| e.to_string())
 }
