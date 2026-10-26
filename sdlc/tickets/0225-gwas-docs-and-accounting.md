@@ -1,6 +1,7 @@
 # 0225 — Document the GWAS commands and close the GWAS accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 27c7b03b502b9f544c4d3f4967ae6761e67aafca
 
 Milestone: 4
 

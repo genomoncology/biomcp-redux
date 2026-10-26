@@ -3,15 +3,31 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+mod card_failures;
 mod cards;
 mod complexes;
+mod composite;
 mod failures;
+mod identities;
 mod native;
 mod paging;
+mod policy;
+mod retirements;
 pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("protein-domain-native");
     let absent = !root.is_dir();
-    vec![
+    let mut trials = card_failures::trials();
+    trials.extend(retirements::trials());
+    trials.extend(identities::trials());
+    trials.push(Trial::test(
+        "protein-domains-complexes/P24-no-analysis-tool-discovery",
+        || policy::run().map_err(Into::into),
+    ));
+    trials.push(Trial::test(
+        "protein-domains-complexes/synthetic-all-first-pages-and-disabled",
+        || composite::run().map_err(Into::into),
+    ));
+    trials.extend(vec![
         Trial::test(
             "protein-domains-complexes/card-sections-and-source-policy",
             || cards::run().map_err(Into::into),
@@ -36,7 +52,8 @@ pub(super) fn trials() -> Vec<Trial> {
             "protein-domains-complexes/native-types-and-fragments",
             || domains().map_err(Into::into),
         ),
-    ]
+    ]);
+    trials
 }
 fn domains() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {

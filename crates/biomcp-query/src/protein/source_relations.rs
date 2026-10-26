@@ -206,7 +206,13 @@ fn load(
         let error = result.as_ref().err().copied();
         out.sources
             .push(status::source(q.source(), leg.finish(), error));
-        let saved = result?;
+        let saved = match result {
+            Ok(saved) => saved,
+            Err(error) => {
+                super::reply_problem(out, q.source(), q.accession(), error);
+                return Err(error);
+            }
+        };
         let size = saved.total() as u32;
         let pool = store.publish_source_pool(&key, &saved.encode()?, size, &out.sources)?;
         (saved, pool.info)

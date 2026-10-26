@@ -1,6 +1,7 @@
 # 0255 — Diagnose the WikiPathways concurrent catalog replacement failure
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9a6e275c377d6ae879de556a3a0047697f0287f2
 
 Milestone: 1
 

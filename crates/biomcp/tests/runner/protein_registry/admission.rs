@@ -105,7 +105,7 @@ pub(super) fn run() -> Check {
     )?;
     assert_routes(&original, "", false)?;
     drop(original);
-    for switch in ["interpro", "complex-portal", "restricted"] {
+    for switch in ["uniprot", "interpro", "complex-portal", "restricted"] {
         for mode in [
             Mode::Live { fresh: false },
             Mode::Replay {
@@ -118,7 +118,7 @@ pub(super) fn run() -> Check {
     }
     std::fs::remove_dir_all(&record).map_err(|e| e.to_string())?;
     std::fs::create_dir(&record).map_err(|e| e.to_string())?;
-    for switch in ["interpro", "complex-portal", "restricted"] {
+    for switch in ["uniprot", "interpro", "complex-portal", "restricted"] {
         let fetch = policy(
             Mode::Replay {
                 dir: record.clone(),

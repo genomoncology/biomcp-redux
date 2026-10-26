@@ -7,6 +7,7 @@ mod gwas;
 mod pathway;
 mod pgx;
 mod phenotype;
+mod protein;
 mod study;
 pub(crate) use gwas::usage as gwas_usage;
 
@@ -130,6 +131,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         return Some(message);
     }
     let words = words(args)?;
+    if let Some(message) = protein::message(&words) {
+        return Some(message);
+    }
     if let Some(message) = command(&words.positional) {
         return Some(message);
     }
@@ -286,6 +290,7 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
             .map_or((arg, None), |(key, value)| (key, Some(value)));
         let table = match result.positional.get(..2) {
             Some(["search", "drug"]) => drug::SEARCH,
+            Some(["search", "protein"]) => protein::SEARCH,
             Some(["search", "gwas"]) => GWAS_SEARCH,
             Some(["get", "drug"]) => drug::GET,
             Some(["search", "article"]) => ARTICLE_SEARCH,

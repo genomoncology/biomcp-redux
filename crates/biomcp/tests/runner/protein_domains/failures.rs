@@ -37,6 +37,20 @@ pub(super) fn run() -> Result<(), String> {
             let mut words = env.globals(Some(&replay), false);
             words.extend(["protein", command, "P38398"].map(str::to_owned));
             let value = invoke(&env, words, 4)?;
+            let (cli_ceiling, mcp_ceiling) = relation_ceilings(command, kind)?;
+            super::card_failures::bounded(&value, cli_ceiling, mcp_ceiling)?;
+            let args = ["protein", command, "P38398"].map(str::to_owned);
+            let mcp = super::super::mcp::call_with_globals(
+                &env,
+                &args,
+                true,
+                &env.globals(Some(&replay), false),
+            )?;
+
+            if value != mcp {
+                return Err("synthetic relation CLI/MCP failures differ".into());
+            }
+            super::card_failures::bounded(&mcp, cli_ceiling, mcp_ceiling)?;
             if value.pointer("/status") != Some(&json!("failed"))
                 || value.pointer("/sources/0/reason") != Some(&json!(reason))
                 || value.pointer("/sources/0/terms") != Some(&json!("CC0"))
@@ -99,4 +113,21 @@ fn copy(original: &Path, target: &Path, kind: &str) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+// Complete synthetic envelopes measured in j15006, with fifteen percent headroom.
+fn relation_ceilings(command: &str, kind: &str) -> Result<(usize, usize), String> {
+    Ok(match (command, kind) {
+        ("domains", "429") => (528, 527),
+        ("domains", "500") => (527, 526),
+        ("domains", "timeout") => (534, 533),
+        ("domains", "broken") => (525, 524),
+        ("domains", "error") => (525, 524),
+        ("complexes", "429") => (526, 525),
+        ("complexes", "500") => (525, 524),
+        ("complexes", "timeout") => (532, 531),
+        ("complexes", "broken") => (523, 521),
+        ("complexes", "error") => (523, 521),
+        _ => return Err("missing measured protein case ceiling".into()),
+    })
 }
