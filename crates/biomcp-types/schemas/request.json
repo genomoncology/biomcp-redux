@@ -777,7 +777,7 @@
       ]
     }
   },
-  "$id": "biodata.request/12",
+  "$id": "biodata.request/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -1138,6 +1138,86 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Page retained exact source membership references.",
+      "properties": {
+        "command": {
+          "const": "pathway_genes",
+          "type": "string"
+        },
+        "id": {
+          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+          "pattern": "^R-HSA-[1-9][0-9]*$",
+          "type": "string",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five complete relation rows by default, at most fifty.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Offset within the retained selected relation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Immutable relation snapshot."
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Page retained source-contained event references.",
+      "properties": {
+        "command": {
+          "const": "pathway_events",
+          "type": "string"
+        },
+        "id": {
+          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+          "pattern": "^R-HSA-[1-9][0-9]*$",
+          "type": "string",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five complete relation rows by default, at most fifty.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Offset within the retained selected relation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Immutable relation snapshot."
         }
       },
       "required": [
