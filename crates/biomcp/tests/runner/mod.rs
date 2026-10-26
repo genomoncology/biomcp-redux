@@ -604,4 +604,6 @@ pub(super) fn cell_line_measure() -> Result<(), String> {
     cell_line::measure()
 }
 
-pub(super) fn cell_line_examples(directory: &Path) -> Result<(),String> { cell_line::examples(directory) }
+pub(super) fn cell_line_examples(directory: &Path) -> Result<(), String> {
+    cell_line::examples(directory)
+}

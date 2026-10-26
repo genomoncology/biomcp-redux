@@ -248,6 +248,11 @@ fn ambiguous(measure: bool) -> Result<(), String> {
 fn disabled(measure: bool) -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;
+    invoke(&env, &words("card"), 0)?;
+    let disabled_words=["get", "cell-line", "CVCL_2119", "--disable-sources", "cellosaurus"];
+    let disabled=invoke(&env,&disabled_words,4)?;
+    path(&disabled,"/sources/0/state",json!("skipped"))?;
+    if disabled.pointer("/result/header").is_some(){return Err("disabled source returned warm identity".into());}
     parity(
         "synthetic/disabled/prime-card",
         &env,
@@ -269,7 +274,7 @@ fn disabled(measure: bool) -> Result<(), String> {
         measure,
     )?;
     path(&value, "/sources/0/state", json!("skipped"))?;
-    if stub.finish()?.len() != 2 {
+    if stub.finish()?.len() != 4 {
         return Err("disabled source used cache or fetched".into());
     }
     Ok(())

@@ -1,10 +1,10 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
 use std::io::Write;
-mod faults;
 mod examples;
-mod research;
+mod faults;
 mod help;
 mod native;
+mod research;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -18,7 +18,10 @@ pub(super) fn trials() -> Vec<Trial> {
         "cell-line-identity/help-and-markdown-parity",
         || help::run(false).map_err(Into::into),
     ));
-    tests.push(Trial::test("cell-line-identity/research-search-fetch-runtime", || research::run(false).map_err(Into::into)));
+    tests.push(Trial::test(
+        "cell-line-identity/research-search-fetch-runtime",
+        || research::run(false).map_err(Into::into),
+    ));
     tests.extend(faults::trials());
     tests
 }
@@ -56,6 +59,7 @@ fn parity(
     measure: bool,
 ) -> Result<Value, String> {
     let recording = env.root().join("recordings").join(phase.replace(':', "_"));
+    fs::create_dir_all(recording.parent().ok_or("record parent")?).map_err(|e| e.to_string())?;
     let mut args = words.to_vec();
     args.extend(["--record", recording.to_str().ok_or("recording path")?]);
     let value = invoke(env, &args, exit)?;
@@ -269,4 +273,6 @@ fn markdown(
     Ok(())
 }
 
-pub(in crate::runner) fn examples(directory: &std::path::Path) -> Result<(), String> { examples::generate(directory) }
+pub(in crate::runner) fn examples(directory: &std::path::Path) -> Result<(), String> {
+    examples::generate(directory)
+}

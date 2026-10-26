@@ -18,26 +18,28 @@
         "/status": "complete",
         "/result/items/0/accession": "CVCL_2119"
       },
-      "max_bytes": 1,
-      "max_tokens": 1
+      "max_bytes": 1828,
+      "max_tokens": 457
     },
     {
       "run": [
         "search",
         "cell-line",
+        "--query",
         "MV4;11"
       ],
       "mcp": [
         "search",
         "cell-line",
+        "--query",
         "MV4;11"
       ],
       "expect": {
         "/status": "complete",
         "/result/items/0/accession": "CVCL_0064"
       },
-      "max_bytes": 1,
-      "max_tokens": 1
+      "max_bytes": 1562,
+      "max_tokens": 391
     },
     {
       "run": [
@@ -54,8 +56,8 @@
         "/status": "complete",
         "/result/header/accession": "CVCL_2119"
       },
-      "max_bytes": 1,
-      "max_tokens": 1
+      "max_bytes": 2392,
+      "max_tokens": 598
     },
     {
       "run": [
@@ -72,8 +74,8 @@
         "/status": "complete",
         "/result/header/accession": "CVCL_0004"
       },
-      "max_bytes": 1,
-      "max_tokens": 1
+      "max_bytes": 2143,
+      "max_tokens": 536
     }
   ]
 }
