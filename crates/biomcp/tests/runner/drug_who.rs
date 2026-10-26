@@ -230,8 +230,8 @@ fn bounded(value: &Value) -> Check {
         ("biomcp.drug_who_card/1", "partial") => 729,
         ("biomcp.drug_who_card/1", "absent") => 305,
         ("biomcp.drug_who_card/1", "failed") => 330,
-        ("biomcp.sync/3", "complete") => 311,
-        ("biomcp.sync/3", "failed") => 302,
+        ("biomcp.sync/4", "complete") => 311,
+        ("biomcp.sync/4", "failed") => 302,
         _ => return Err(format!("unmeasured WHO output {schema}/{status}")),
     };
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();

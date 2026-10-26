@@ -1,0 +1,34 @@
+{
+  "feature": "pathway-reactome",
+  "story": "Pathway discovery exposes source selectors and bounded native paging through shared CLI and MCP help.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "pathway"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "pathway"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": [
+          "search",
+          "pathway"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--gene",
+            "--top-level",
+            "--limit",
+            "--offset"
+          ]
+        }
+      },
+      "max_bytes": 6000
+    }
+  ]
+}

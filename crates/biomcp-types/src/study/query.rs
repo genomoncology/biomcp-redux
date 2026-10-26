@@ -86,6 +86,12 @@ impl StudySearch {
     pub fn pool(&self) -> Option<&Text> {
         self.0.pool.as_ref()
     }
+    /// Bind this request to an immutable catalog search snapshot.
+    pub fn with_pool(&self, pool: Option<Text>) -> Self {
+        let mut q = self.clone();
+        q.0.pool = pool;
+        q
+    }
     /// Continue without changing selectors or snapshot.
     pub fn at_offset(&self, offset: u32) -> Self {
         let mut q = self.clone();

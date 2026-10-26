@@ -41,6 +41,9 @@ pub fn sync(
     fetch: &biomcp_fetch::Fetch,
 ) -> Result<biomcp_types::SyncResult, biomcp_fetch::RequestError> {
     fetch.sync_set(&SET).map(|info| biomcp_types::SyncResult {
+        snapshot: None,
+        etag: None,
+        last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
         duplicate_identities: None,

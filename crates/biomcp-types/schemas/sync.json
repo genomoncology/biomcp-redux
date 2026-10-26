@@ -504,6 +504,27 @@
       ],
       "type": "string"
     },
+    "StudySnapshot": {
+      "additionalProperties": false,
+      "description": "Metadata catalog revision and acquisition time; never a biological release date.",
+      "properties": {
+        "acquired": {
+          "description": "Catalog acquisition wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "revision": {
+          "$ref": "#/$defs/Text",
+          "description": "Immutable bundle revision."
+        }
+      },
+      "required": [
+        "revision",
+        "acquired"
+      ],
+      "type": "object"
+    },
     "SyncQuery": {
       "additionalProperties": false,
       "description": "Explicit source synchronization selector.",
@@ -537,11 +558,36 @@
             "null"
           ]
         },
+        "etag": {
+          "description": "Native publisher ETag when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_modified": {
+          "description": "Native publisher Last-Modified when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "rows": {
           "description": "Imported rows.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
+        },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StudySnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Catalog content revision and acquisition time, separate from source headers."
         }
       },
       "required": [
@@ -566,7 +612,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.sync/3",
+  "$id": "biomcp.sync/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -612,7 +658,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.sync/3",
+      "const": "biomcp.sync/4",
       "type": "string"
     },
     "sources": {

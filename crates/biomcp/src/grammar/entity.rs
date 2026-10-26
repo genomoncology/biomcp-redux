@@ -2,6 +2,12 @@ use biomcp_types::Request;
 use serde_json::Value;
 pub(super) fn request(verb: &str, entity: &str, value: Value) -> Result<Request, ()> {
     let result = match (verb, entity) {
+        ("search", "phenotype") => serde_json::from_value(value).map(Request::SearchPhenotype),
+        ("get", "phenotype") => serde_json::from_value(value).map(Request::GetPhenotype),
+        ("search", "pathway") => serde_json::from_value(value).map(Request::SearchPathway),
+        ("get", "pathway") => serde_json::from_value(value).map(Request::GetPathway),
+        ("search", "study") => serde_json::from_value(value).map(Request::SearchStudy),
+        ("get", "study") => serde_json::from_value(value).map(Request::GetStudy),
         ("search", "pgx") => serde_json::from_value(value).map(Request::SearchPgx),
         ("get", "pgx") if value.get("annotation_id").is_some() => {
             let mut value = value;

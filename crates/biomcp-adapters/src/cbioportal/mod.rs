@@ -1,4 +1,4 @@
-//! Bounded, explicit-cohort mutation observations; no inferred recurrence denominator.
+//! Bounded explicit-cohort mutation observations and stored public study metadata.
 mod raw;
 use biodata::NcbiGeneId;
 use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
@@ -154,3 +154,7 @@ fn sample_count(
     }
     .into())
 }
+
+/// Stored public catalog metadata.
+pub mod studies;
+pub use studies::sync as sync_studies;

@@ -41,6 +41,9 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
+        Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
+        Body::PhenotypeCard(_) => Navigation::Bounded,
+        Body::PathwayCard(_) => Navigation::Bounded,
         Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
         Body::VariantCard(card) => {
             if card.resolution == biomcp_types::VariantResolution::Candidates {
@@ -52,7 +55,8 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
             Navigation::BoundedPma
         }
-        Body::DiagnosticCompanion(_)
+        Body::StudyPage(_)
+        | Body::DiagnosticCompanion(_)
         | Body::DiagnosticPage(_)
         | Body::DiagnosticGenes(_)
         | Body::DiagnosticSupplements(_)
@@ -65,7 +69,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::DrugFdaPage(_)
         | Body::DrugCivic(_)
         | Body::VariantPage(_) => Navigation::Selectable,
-        Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
+        Body::StudyCard(_) | Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
         Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
         Body::PgxDiplotype(_) => Navigation::Bounded,
         Body::PgxAnnotations(PgxAnnotations::Guideline { .. } | PgxAnnotations::Label { .. }) => {

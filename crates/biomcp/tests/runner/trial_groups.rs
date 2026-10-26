@@ -3,6 +3,7 @@ use libtest_mimic::Trial;
 
 pub(super) fn drug_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
+    trials.extend(super::study_catalog::trials());
     trials.extend(super::drug_failures::trials());
     trials.extend(super::adverse_event_failures::trials());
     trials.extend(super::vaers::trials());
@@ -22,6 +23,7 @@ pub(super) fn drug_trials() -> Vec<Trial> {
     trials.extend(super::diagnostic_cdx::trials());
     trials.extend(super::pgx_registry::trials());
     trials.extend(super::pathway_registry::trials());
+    trials.extend(super::pathway_commands::trials());
     trials.extend(super::hpo_registry::trials());
     trials.extend(super::protein_registry::trials());
     trials.extend(super::pgx_retirements::trials());

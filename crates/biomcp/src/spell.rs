@@ -24,6 +24,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::CbioportalStudies => "cbioportal-studies",
                 Bundle::FdaCdx => "fda-cdx",
                 Bundle::Gtr => "gtr",
                 Bundle::WhoIvd => "who-ivd",
@@ -66,6 +67,23 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchPhenotype(q) => serde_json::to_value(q),
+        Request::GetPhenotype(q) => {
+            let mut value = serde_json::to_value(q)?;
+            if let Some(fields) = value.as_object_mut() {
+                if q.source() == q.default_source() {
+                    fields.remove("source");
+                }
+                if q.section_limit() == q.default_section_limit() {
+                    fields.remove("section_limit");
+                }
+            }
+            Ok(value)
+        }
+        Request::SearchPathway(q) => serde_json::to_value(q),
+        Request::GetPathway(q) => serde_json::to_value(q),
+        Request::SearchStudy(q) => serde_json::to_value(q),
+        Request::GetStudy(q) => serde_json::to_value(q),
         Request::SearchPgx(query) => serde_json::to_value(query),
         Request::GetPgx(query) => {
             let mut value = serde_json::to_value(query)?;
@@ -154,7 +172,10 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetPgx(_)
+        Request::GetPhenotype(_)
+        | Request::GetPathway(_)
+        | Request::GetStudy(_)
+        | Request::GetPgx(_)
         | Request::GetPgxAnnotation(_)
         | Request::GetDiagnostic(_)
         | Request::GetAdverseEvent(_)
@@ -165,7 +186,10 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchPgx(_)
+        Request::SearchPhenotype(_)
+        | Request::SearchPathway(_)
+        | Request::SearchStudy(_)
+        | Request::SearchPgx(_)
         | Request::SearchDiagnostic(_)
         | Request::SearchAdverseEvent(_)
         | Request::SearchDisease(_)
@@ -177,7 +201,16 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
-    if matches!(
+    if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {
+        "study"
+    } else if matches!(
+        request,
+        Request::SearchPhenotype(_) | Request::GetPhenotype(_)
+    ) {
+        "phenotype"
+    } else if matches!(request, Request::SearchPathway(_) | Request::GetPathway(_)) {
+        "pathway"
+    } else if matches!(
         request,
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_)
     ) {
