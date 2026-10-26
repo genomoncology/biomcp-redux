@@ -226,27 +226,7 @@ pub(crate) fn tree() -> String {
                 }
             }
         }
-        if command.command.iter().any(|word| word == "pgx") {
-            for argument in command.arguments.iter().filter(|arg| {
-                discovery_argument(arg)
-                    && matches!(
-                        arg.name.as_str(),
-                        "--source"
-                            | "--diplotype"
-                            | "--kind"
-                            | "--cpic-level"
-                            | "--limit"
-                            | "--offset"
-                            | "--section-limit"
-                            | "--section-offset"
-                    )
-            }) {
-                line.push_str(&format!(" {}", argument.name));
-                if argument.name == "--source" {
-                    line.push_str(&format!(" {}", argument.choices.join("|")));
-                }
-            }
-        }
+        pgx_selectors(&command, &mut line);
         gwas_selectors(&command, &mut line);
         diagnostic_selectors(&command, &mut line);
         study_selectors(&command, &mut line);
@@ -264,6 +244,30 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn pgx_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "pgx") {
+        for argument in command.arguments.iter().filter(|arg| {
+            discovery_argument(arg)
+                && matches!(
+                    arg.name.as_str(),
+                    "--source"
+                        | "--diplotype"
+                        | "--kind"
+                        | "--cpic-level"
+                        | "--limit"
+                        | "--offset"
+                        | "--section-limit"
+                        | "--section-offset"
+                )
+        }) {
+            line.push_str(&format!(" {}", argument.name));
+            if argument.name == "--source" {
+                line.push_str(&format!(" {}", argument.choices.join("|")));
+            }
+        }
+    }
 }
 
 fn discovery_argument(argument: &HelpArgument) -> bool {
