@@ -72,7 +72,8 @@ def main():
     print(json.dumps(dict(archive_sha256=local_hash, records=rows)))
     shutil.rmtree(scratch)
     archive.unlink()
+    return 2 if stopped else 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
