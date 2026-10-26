@@ -350,6 +350,9 @@ fn discovery() -> Check {
 }
 
 const DISCOVERY_WORDS: &[&str] = &[
+    "search study [--cancer-type] [--limit] [--offset] [--pool]",
+    "get study [--section-limit] [--section-offset] sections: profiles|sample-lists|files|all",
+    "sync cbioportal-studies",
     "protein",
     "civic",
     "clingen",

@@ -448,5 +448,7 @@ fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Va
             String::from_utf8_lossy(&output.stderr)
         ));
     }
-    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    super::measured(&value)?;
+    Ok(value)
 }

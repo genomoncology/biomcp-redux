@@ -74,7 +74,13 @@ pub(super) fn call(
             "study header page exceeds retained-catalog measurement plus fifteen percent".into(),
         );
     }
+    measured(&value)?;
     Ok(value)
+}
+pub(super) fn measured(value: &Value) -> Check {
+    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + 1;
+    eprintln!("STUDY_OUTPUT_BYTES {} {bytes}", value["schema"]);
+    Ok(())
 }
 fn missing() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
