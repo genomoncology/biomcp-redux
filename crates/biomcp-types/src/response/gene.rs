@@ -75,6 +75,12 @@ pub enum QueryBody {
     PhenotypePage(crate::PhenotypePage),
     /// Complete independent publisher term card.
     PhenotypeCard(Option<crate::PhenotypeTermCard>),
+    /// Native source synonym page.
+    PhenotypeSynonyms(Option<crate::PhenotypeSynonyms>),
+    /// Native source cross-reference page.
+    PhenotypeXrefs(Option<crate::PhenotypeXrefs>),
+    /// Native source direct parent and child links.
+    PhenotypeHierarchy(Option<crate::PhenotypeHierarchy>),
     /// Native ordered human pathway headers.
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.

@@ -54,7 +54,10 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         }
         Body::StudyProfiles(_) | Body::StudySampleLists(_) => Navigation::Bounded,
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
-        Body::PhenotypeCard(_) => Navigation::Bounded,
+        Body::PhenotypeCard(_)
+        | Body::PhenotypeSynonyms(_)
+        | Body::PhenotypeXrefs(_)
+        | Body::PhenotypeHierarchy(_) => Navigation::Bounded,
         Body::PathwayCard(_) | Body::PathwayGenes(_) | Body::PathwayEvents(_) => {
             Navigation::Bounded
         }
