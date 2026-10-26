@@ -47,6 +47,15 @@ fn unrelated_and_disabled_commands_never_read_keys() {
     for command in [
         vec!["get", "gene", "HGNC:3236"],
         vec![
+            "search",
+            "article",
+            "EGFR",
+            "--source",
+            "pubmed",
+            "--disable-sources",
+            "pubmed",
+        ],
+        vec![
             "get",
             "author",
             "orcid:0000-0002-4299-3018",
@@ -99,6 +108,10 @@ fn unrelated_and_disabled_commands_never_read_keys() {
 #[test]
 fn called_sources_read_only_their_own_environment_key_once() {
     let cases = [
+        (
+            SecretName::NcbiApiKey,
+            vec!["search", "article", "EGFR", "--source", "pubmed"],
+        ),
         (
             SecretName::OrcidAccessToken,
             vec!["get", "author", "orcid:0000-0002-4299-3018"],
