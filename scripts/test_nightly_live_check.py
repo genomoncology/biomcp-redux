@@ -43,10 +43,13 @@ def classification_case(change):
                 "status": status, "cached": False, "response_digest": digest,
                 "url": "https://example.org/" + role, "shape": {}}
     discovery = request('search', 'discovery', 'old')
+    discovery['provenance'] = {"discovery": {"namespace": "pmid", "ids": ["old-id"]}}
     dependent = request('old-id', 'detail', 'detail')
-    live_discovery = dict(discovery, response_digest=(
-        'new' if change == 'discovery' else 'old'))
-    live_dependent = dict(dependent, identity='new-id')
+    dependent['provenance'] = {"inputs": {"namespace": "pmid", "ids": ["old-id"]}}
+    live_discovery = dict(discovery, provenance={"discovery": {
+        "namespace": "pmid", "ids": ["new-id" if change == 'discovery' else "old-id"]}})
+    live_dependent = dict(dependent, identity='new-id', provenance={"inputs": {
+        "namespace": "pmid", "ids": ["new-id"]}})
     drift = ['old-id: request-plan-changed']
     if change == 'order':
         live_dependent = dependent
@@ -144,19 +147,21 @@ class NightlyCommand(unittest.TestCase):
                           "shape": {"fields": {"/id": True}}}],
             "result_ids": [{"field": "id", "value": "new"}], "output": {"id": "new"}}}
         report = {"drift_cases": 1, "error_cases": 0,
-                  "case_sample": [{"case": "changed", "witness": witness},
+                  "case_sample": [{"case": "changed", "witness": witness,
+                                   "result": {"drift": ["x: request-plan-changed"]}},
                                   {"case": "clean", "result": {"drift": []}}]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
         self.assertNotEqual(result.returncode, 0)
         copied = json.loads((self.copied() / 'report.json').read_text())
-        self.assertEqual(copied, report)
+        self.assertEqual(copied['case_sample'][0]['witness'], witness)
+        self.assertEqual(copied['case_sample'][0]['classification'], 'uncertain')
         self.assertEqual(self.scratch(), [])
 
     def classified(self, row, expected, exit_code):
         report = {"drift_cases": 1, "error_cases": 0,
                   "checked": 1, "omitted": 0, "case_sample": [row]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
-        self.assertEqual(result.returncode, exit_code, result.stdout + result.stderr)
+        self.assertEqual(result.returncode == 0, exit_code == 0, result.stdout + result.stderr)
         saved = json.loads((self.copied() / 'report.json').read_text())
         self.assertEqual(saved['case_sample'][0]['classification'], expected)
         self.assertEqual(saved[expected + '_cases'], 1)

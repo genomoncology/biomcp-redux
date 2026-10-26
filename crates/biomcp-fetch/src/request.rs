@@ -345,7 +345,7 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn observe_exchange<T>(
+    fn observe_exchange<T: Reply>(
         &self,
         prepared: &Prepared,
         exchange: &Result<Wire, Failure>,
@@ -367,7 +367,8 @@ impl Leg<'_> {
                 body.len() as u64,
                 crate::Shape::inspect(body, media),
                 elapsed,
-                (std::any::type_name::<T>(), false, &prepared.url),
+                (std::any::type_name::<T>(), false, &prepared.url,
+                    crate::Provenance::received::<T>(prepared, body, status)),
             );
         }
     }

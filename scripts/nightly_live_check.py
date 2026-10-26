@@ -68,6 +68,130 @@ def digest(path):
     return checksum.hexdigest()
 
 
+def terminal(requests):
+    """Ignore concurrency order and successful retries, preserving transport attempts."""
+    result = {}
+    for item in requests:
+        identity = item['identity']
+        if identity not in result or not item.get('cached') or result[identity].get('cached'):
+            result[identity] = item
+    return result
+
+
+def cut(value):
+    if isinstance(value, dict):
+        return value.get('cut') is True or any(cut(item) for item in value.values())
+    return isinstance(value, list) and any(cut(item) for item in value)
+
+
+def discovery_changes(before, after):
+    changes = {}
+    for key in before.keys() & after.keys():
+        old, new = before[key], after[key]
+        left = old.get('provenance', {}).get('discovery')
+        right = new.get('provenance', {}).get('discovery')
+        if (left and right and left['namespace'] == right['namespace']
+                and old.get('status') == new.get('status') == 200
+                and left['ids'] != right['ids']):
+            changes.setdefault(left['namespace'], []).append((left['ids'], right['ids']))
+    return changes
+
+
+def dependent_change(removed, added, discoveries):
+    groups = {}
+    for side, requests in enumerate((removed, added)):
+        for request in requests:
+            inputs = request.get('provenance', {}).get('inputs')
+            if not inputs:
+                return 'uncertain'
+            group = (request['source'], request['role'], inputs['namespace'])
+            groups.setdefault(group, [set(), set()])[side].update(inputs['ids'])
+    for (_, _, namespace), (old, new) in groups.items():
+        candidates = discoveries.get(namespace, [])
+        if not candidates:
+            return 'failure'
+        # A changed input must come from the corresponding received discovery;
+        # changing selection among unchanged discovery IDs remains a defect.
+        if not any(old <= set(left) and new <= set(right)
+                   and old - new <= set(left) - set(right)
+                   and new - old <= set(right) - set(left)
+                   for left, right in candidates):
+            return 'failure'
+    return 'churn'
+
+
+def command_classification(capture, discoveries):
+    before = terminal(capture['baseline']['requests'])
+    after = terminal(capture['live']['requests'])
+    statuses = [item.get('status') for item in after.values()]
+    if any(type(status) is not int or not (200 <= status < 300 or status == 429)
+           for status in statuses):
+        return 'failure'
+    removed = [before[key] for key in before.keys() - after.keys()]
+    added = [after[key] for key in after.keys() - before.keys()]
+    # Proven 429-only outcomes are nonfatal; unrelated plan changes still need proof.
+    plan = dependent_change(removed, added, discoveries) if removed or added else 'healthy'
+    if plan in ('failure', 'uncertain'):
+        return plan
+    return 'throttled' if 429 in statuses else plan
+
+
+def classify_case(row):
+    result = row.get('result', {})
+    drift = result.get('drift', [])
+    if not isinstance(drift, list) or any(not isinstance(item, str) for item in drift):
+        raise ValueError('invalid case drift')
+    if row.get('error') is not None:
+        return 'failure'
+    if not drift:
+        return 'healthy'
+    # Schema and equivalent-request invariants always retain their failure status.
+    invariant = any(not (': request-plan-' in item or ': HTTP status ' in item
+                         or item.startswith('more drift details omitted;')) for item in drift)
+    if invariant:
+        return 'failure'
+    witness = row.get('witness')
+    if not witness or cut(witness):
+        return 'uncertain'
+    if not isinstance(witness, list):
+        return 'uncertain'
+    discoveries = {}
+    outcomes = []
+    for command in witness:
+        before = terminal(command['baseline']['requests'])
+        after = terminal(command['live']['requests'])
+        for namespace, changes in discovery_changes(before, after).items():
+            discoveries.setdefault(namespace, []).extend(changes)
+        outcomes.append(command_classification(command, discoveries))
+    for outcome in ('failure', 'uncertain', 'throttled', 'churn'):
+        if outcome in outcomes:
+            return outcome
+    return 'healthy'
+
+
+def classify_report(report):
+    counts = [report['drift_cases'], report['error_cases']]
+    if any(type(count) is not int or count < 0 for count in counts):
+        raise ValueError('invalid drift/error counts')
+    rows = report.get('case_sample', [])
+    if not isinstance(rows, list):
+        raise ValueError('invalid case sample')
+    totals = {name + '_cases': 0 for name in
+              ('healthy', 'churn', 'throttled', 'uncertain', 'failure')}
+    for row in rows:
+        outcome = classify_case(row)
+        row['classification'] = outcome
+        totals[outcome + '_cases'] += 1
+    # A partial report cannot clear diagnostics hidden outside its sample.
+    drift_rows = sum(bool(row.get('result', {}).get('drift')) for row in rows)
+    error_rows = sum(row.get('error') is not None for row in rows)
+    if drift_rows != counts[0] or error_rows != counts[1]:
+        raise ValueError('diagnostic counts do not match retained cases')
+    report.update(totals)
+    report['classification_version'] = 1
+    return bool(totals['failure_cases'] or totals['uncertain_cases'])
+
+
 def run_check(scratch):
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     (scratch / 'run.json').write_text(json.dumps({
@@ -82,11 +206,10 @@ def run_check(scratch):
     (scratch / 'exit-status').write_text(str(result) + '\n')
     try:
         report = json.loads((scratch / 'report.json').read_text())
-        counts = [report['drift_cases'], report['error_cases']]
-        if any(type(count) is not int or count < 0 for count in counts):
-            raise ValueError('invalid drift/error counts')
-        return result != 0 or any(counts)
-    except (ValueError, KeyError, TypeError) as error:
+        failed = classify_report(report)
+        (scratch / 'report.json').write_text(json.dumps(report) + '\n')
+        return result != 0 or failed
+    except (ValueError, KeyError, TypeError, AttributeError) as error:
         print('Invalid live-check report: ' + str(error), file=sys.stderr)
         return True
 

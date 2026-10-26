@@ -21,6 +21,9 @@ pub(super) struct ErrorList {
     pub phrasesnotfound: Option<Vec<String>>,
 }
 impl Reply for Search {
+    fn discovery(&self) -> Option<biomcp_fetch::Identities> {
+        biomcp_fetch::Identities::bounded("pmid", self.esearchresult.idlist.iter().map(ToString::to_string).collect())
+    }
     fn check(&self) -> Result<(), BadReply> {
         let r = &self.esearchresult;
         let count = r.count;
@@ -68,6 +71,9 @@ pub(super) struct ArticleId {
     pub value: String,
 }
 impl Reply for Summary {
+    fn input_parameter() -> Option<(&'static str, &'static str)> {
+        Some(("pmid", "id"))
+    }
     fn check(&self) -> Result<(), BadReply> {
         match self.result.get("uids") {
             Some(SummaryValue::Ids(ids)) if ids.len() <= 50 => Ok(()),
