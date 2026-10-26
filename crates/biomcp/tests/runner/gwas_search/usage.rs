@@ -8,7 +8,7 @@ pub(super) fn run() -> Result<(), String> {
     )?;
     let env = super::super::variant::source_environment(&stub)?;
     for args in inputs() {
-        let expected = if args[0] == "search" {
+        let expected = if args.first() == Some(&"search") {
             "search gwas"
         } else {
             "get gwas"

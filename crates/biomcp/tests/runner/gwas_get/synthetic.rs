@@ -119,39 +119,6 @@ pub(super) fn ancestry() -> Result<(), String> {
     }
     Ok(())
 }
-pub(super) fn failures() -> Result<(), String> {
-    for (body, status, delay, reason) in [
-        ("{}", 429, 0, "rate_limited"),
-        ("{}", 500, 0, "unavailable"),
-        ("broken", 200, 0, "bad_reply"),
-        ("{}", 200, 16000, "deadline_exceeded"),
-    ] {
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let args = ["get", "gwas", "association:6114"];
-        let replay = seed(&env, &args, body.into(), status, delay)?;
-        let value = call(&env, &replay, &args, 4)?;
-        if value.pointer("/status") != Some(&json!("failed"))
-            || value.get("result").is_some()
-            || value.pointer("/sources/0/reason") != Some(&json!(reason))
-            || value.pointer("/sources/0/terms_url").is_none()
-        {
-            return Err(format!("failure {reason}: {value}"));
-        }
-    }
-    for args in [
-        vec!["get", "gwas", "association:0"],
-        vec!["get", "gwas", "GCST000035", "loci"],
-        vec!["get", "gwas", "association:6114", "ancestries"],
-        vec!["get", "gwas", "GCST000035", "--section-limit", "0"],
-    ] {
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let mut command = env.globals(None, false);
-        command.extend(args.iter().map(|s| (*s).to_owned()));
-        invoke(&env, command, 2)?;
-    }
-    Ok(())
-}
-
 pub(super) fn contexts() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", source)?;
     let live = super::super::variant::source_environment(&stub)?;

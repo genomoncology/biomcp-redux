@@ -203,11 +203,13 @@ pub(super) fn warm() -> Result<(), String> {
     let mut fresh = args.clone();
     fresh.push("--fresh".into());
     invoke(&env, fresh, 0)?;
-    let mut disabled = args;
-    disabled.extend(["--disable-sources".into(), "restricted".into()]);
-    let disabled = invoke(&env, disabled, 4)?;
-    if disabled.pointer("/sources/0/reason") != Some(&json!("disabled")) {
-        return Err("warm source policy was bypassed".into());
+    for source in ["gwas", "restricted"] {
+        let mut disabled = args.clone();
+        disabled.extend(["--disable-sources".into(), source.into()]);
+        let disabled = invoke(&env, disabled, 4)?;
+        if disabled.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+            return Err("warm source policy was bypassed".into());
+        }
     }
     let requests = stub.finish()?;
     if requests.len() != 2 {

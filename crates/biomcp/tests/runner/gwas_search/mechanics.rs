@@ -40,6 +40,7 @@ pub(super) fn admission() -> Result<(), String> {
         let failed = call(&env, &replay, &args, 4)?;
         if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || failed.get("result").is_some()
+            || failed.get("problems").and_then(Value::as_array).is_none_or(Vec::is_empty)
         {
             return Err(format!("admitted {fault}: {failed}"));
         }
@@ -83,11 +84,28 @@ fn alter(value: &mut Value, fault: &str, url: &str) -> Result<(), String> {
     Ok(())
 }
 pub(super) fn failures() -> Result<(), String> {
-    for fault in ["429", "500", "timeout", "broken"] {
+    for fault in [
+        "429",
+        "500",
+        "timeout",
+        "broken",
+        "error-object",
+        "missing-array",
+    ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let url = url(&pairs());
         let text = if fault == "broken" {
             "{".into()
+        } else if fault == "error-object" {
+            r#"{"error":"synthetic provider failure"}"#.into()
+        } else if fault == "missing-array" {
+            let mut body = body(&url, 0, 6);
+            body.get_mut("_embedded")
+                .and_then(Value::as_object_mut)
+                .ok_or("array owner")?
+                .remove("associations")
+                .ok_or("required array")?;
+            body.to_string()
         } else {
             body(&url, 0, 6).to_string()
         };
@@ -104,6 +122,9 @@ pub(super) fn failures() -> Result<(), String> {
             &["search", "gwas", "--pubmed", "17529967"],
             4,
         )?;
+        if serde_json::to_vec(&v).map_err(|e| e.to_string())?.len() > 2500 {
+            return Err("synthetic failure exceeds ceiling".into());
+        }
         if v.get("status") != Some(&json!("failed"))
             || v.get("result").is_some()
             || v.pointer("/sources/0/use") != Some(&json!("restricted"))
