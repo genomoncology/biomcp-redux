@@ -381,9 +381,19 @@ fn batch_stale_fallbacks_retain_original_failures_after_later_success() {
         .execute("UPDATE reply SET fresh_until=0", [])
         .unwrap();
     thread::scope(|scope| {
-        let worker =
-            scope.spawn(|| leg.batch(&[(); 2], |child, ()| child.json::<Answer>(&endpoint, &[])));
+        let stale_read = std::sync::Barrier::new(2);
+        let worker = scope.spawn(|| {
+            leg.batch(&[false, true], |child, wait| {
+                if *wait {
+                    stale_read.wait();
+                }
+                child.json::<Answer>(&endpoint, &[])
+            })
+        });
         let first = server.next();
+        // The first HTTP request proves its stale read released the cache.
+        // Keep both live replies pending while the second callback reads stale.
+        stale_read.wait();
         let second = server.next();
         first.respond(400, "", "failed");
         second.respond(401, "", "failed");
