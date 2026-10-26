@@ -26,11 +26,11 @@ fn oversized() -> Result<(), String> {
     let cli = invoke(&env, args.clone(), 4)?;
     let mcp = super::mcp::call_with_globals(&env, &args, true, &[])?;
     for value in [&cli, &mcp] {
-        if value["status"] != "failed"
-            || !value["result"].is_null()
-            || value["sources"][0]["source"] != "orcid"
-            || value["sources"][0]["state"] != "failed"
-            || value["sources"][0]["use"] != "noncommercial"
+        if value.get("status") != Some(&json!("failed"))
+            || !value.get("result").is_none_or(serde_json::Value::is_null)
+            || value.pointer("/sources/0/source") != Some(&json!("orcid"))
+            || value.pointer("/sources/0/state") != Some(&json!("failed"))
+            || value.pointer("/sources/0/use") != Some(&json!("noncommercial"))
         {
             return Err(
                 "oversized ORCID body returned partial groups or lost source policy".into(),
