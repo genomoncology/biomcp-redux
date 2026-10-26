@@ -7,6 +7,14 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Search one native GWAS Catalog association page.
     SearchGwas(crate::GwasSearch),
+    /// Read exact native feature rows with checked residue selectors.
+    ProteinFeatures(crate::ProteinFeaturesQuery),
+    /// Read native alternative products without constructing sequences.
+    ProteinIsoforms(crate::ProteinRelationQuery),
+    /// Read source PDB references without residue coverage inference.
+    ProteinStructures(crate::ProteinRelationQuery),
+    /// Read one exact source sequence without alias repair.
+    ProteinSequence(crate::ProteinSequenceQuery),
     /// Discover reviewed human UniProt candidates without selecting one.
     SearchProtein(crate::ProteinSearch),
     /// Read exact protein cards or all HGNC-listed protein candidates.

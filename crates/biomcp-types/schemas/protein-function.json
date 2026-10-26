@@ -143,6 +143,17 @@
           },
           "type": "array"
         },
+        "molecule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native molecule qualifier; never attributed to another isoform."
+        },
         "text": {
           "$ref": "#/$defs/Text",
           "description": "Whole native source text, without clinical interpretation."
@@ -186,7 +197,8 @@
           "items": {
             "$ref": "#/$defs/ProteinSection"
           },
-          "type": "array"
+          "type": "array",
+          "x-trailing-section": true
         },
         "section_limit": {
           "default": 5,
@@ -609,7 +621,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein_function/1",
+  "$id": "biomcp.protein_function/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -655,7 +667,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein_function/1",
+      "const": "biomcp.protein_function/2",
       "type": "string"
     },
     "sources": {

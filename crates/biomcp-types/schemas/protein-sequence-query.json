@@ -1,0 +1,24 @@
+{
+  "$defs": {
+    "UniProtIsoform": {
+      "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.protein-sequence-query/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Direct sequence retrieval accepts only a checked source identity.",
+  "properties": {
+    "isoform": {
+      "$ref": "#/$defs/UniProtIsoform",
+      "description": "Exact isoform or base accession; no canonical suffix is synthesized.",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "isoform"
+  ],
+  "title": "ProteinSequenceQuery",
+  "type": "object"
+}
