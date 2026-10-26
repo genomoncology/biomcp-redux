@@ -7,7 +7,7 @@ type Check = Result<(), String>;
 const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json";
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("wikipathways/stored-identity-pages-and-replacement", || run().map_err(Into::into))]
+    vec![Trial::test("wikipathways/stored-identity-pages-and-replacement", || run().map_err(Into::into)), Trial::test("wikipathways/independent-union-legs-and-round-robin",||union().map_err(Into::into))]
 }
 fn catalog(search: bool, changed: bool) -> Value {
     json!({"pathwayInfo":(0..13).map(|n| {
@@ -61,5 +61,36 @@ fn run()->Check {
     if retained.pointer("/result/items/0/name")!=Some(&json!("Literal Atlas 5")){return Err("pool changed with catalog replacement".into());}
     let disabled=call(&env,&replay,&["get","pathway","WP1","--disable-sources","wikipathways"],4)?;
     if disabled.pointer("/sources/0/reason")!=Some(&json!("disabled")){return Err("disabled read used stored rows".into());}
+    Ok(())
+}
+fn union() -> Check {
+    use super::launch::fixtures;
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let replay=seed(&env,catalog(true,false),catalog(false,false),200)?;
+    call(&env,&replay,&["sync","wikipathways"],0)?;
+    let source=fixtures().join("replies/pathway/native/reactome");
+    fs::create_dir_all(replay.join("reactome")).map_err(|e|e.to_string())?;
+    for path in fs::read_dir(source).map_err(|e|e.to_string())? {
+        let path=path.map_err(|e|e.to_string())?.path();
+        if path.extension().is_some_and(|s|s=="json") {
+            fs::copy(&path,replay.join("reactome").join(path.file_name().ok_or("filename")?)).map_err(|e|e.to_string())?;
+        }
+    }
+    let args=["search","pathway","MAPK signaling","--source","reactome","--source","wikipathways"];
+    // The synthetic catalog has no title match for this phrase; the leg still has an outcome.
+    let page=call(&env,&replay,&args,0)?;
+    if page.pointer("/sources/0/source")!=Some(&json!("reactome")) || page.pointer("/sources/1/source")!=Some(&json!("wikipathways")) {return Err(format!("independent legs: {page}"));}
+    let mut body=catalog(true,false);
+    for row in body.get_mut("pathwayInfo").and_then(Value::as_array_mut).ok_or("rows")? {
+        *row.get_mut("name").ok_or("name")?=json!("MAPK signaling");
+    }
+    seed(&env,body,catalog(false,false),200)?;
+    call(&env,&replay,&["sync","wikipathways"],0)?;
+    let first=call(&env,&replay,&args,0)?;
+    let sources=first.pointer("/result/items").and_then(Value::as_array).ok_or("items")?.iter().map(|r|r.pointer("/id/source").and_then(Value::as_str)).collect::<Vec<_>>();
+    if sources!=vec![Some("reactome"),Some("wikipathways"),Some("reactome"),Some("wikipathways"),Some("reactome")] {return Err(format!("round robin order: {first}"));}
+    let mut failed=args.to_vec();failed.extend(["--disable-sources","reactome"]);
+    let partial=call(&env,&replay,&failed,0)?;
+    if partial.get("status")!=Some(&json!("partial")) || partial.pointer("/sources/0/reason")!=Some(&json!("disabled")) || partial.pointer("/result/items/0/id/source")!=Some(&json!("wikipathways")){return Err(format!("failed leg beside successful leg: {partial}"));}
     Ok(())
 }
