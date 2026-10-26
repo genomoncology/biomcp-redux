@@ -142,3 +142,5 @@ study-files: Read bounded native DataHub file references and study license links
 phenotype-sections: A caller pages native source synonyms, cross references and direct hierarchy links from one retained term reply. Cases: `crates/biomcp/tests/runner/phenotype/sections.rs`.
 protein-sections: A caller reads native protein features, alternative products, references, complete sequences and qualified function text without transferring coordinates. Cases: `tests/cases/protein/sections/*.yaml`, `crates/biomcp/tests/runner/protein_sections.rs`.
 
+
+protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership.

@@ -86,6 +86,7 @@ pub(super) mod proof;
 mod protein_commands;
 mod protein_registry;
 mod protein_sections;
+mod protein_domains;
 mod protocol;
 mod publication;
 mod recurrence;
@@ -347,6 +348,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
     trials.extend(protein_sections::trials());
+    trials.extend(protein_domains::trials());
     trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
