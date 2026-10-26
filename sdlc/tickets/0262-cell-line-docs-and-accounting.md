@@ -1,6 +1,7 @@
 # 0262 — Document the cell line commands and close the cell line accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 29235ec5e9efe7f187f98a1c5bc148a2ff4fb968
 
 Milestone: 4
 

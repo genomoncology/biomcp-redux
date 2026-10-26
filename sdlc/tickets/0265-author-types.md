@@ -1,6 +1,7 @@
 # 0265 — Add the author types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0e68f897c9dbdb7f870cc0cc34b77953b67f3f00
 
 Milestone: 4
 
