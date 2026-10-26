@@ -373,9 +373,24 @@ Dropped: name normalization and reranking can merge distinct lines or imply iden
 Assay totals count assays. They imply no activity, sensitivity or treatment response, and no bioinformatics tool runs. Every implemented command retains complete measured CLI and MCP output ceilings.
 
 ### Author
+
 - [ ] Slice complete
-- [ ] Semantic Scholar (optional key)
-- [ ] ORCID (optional key)
+- [x] Investigation
+- [ ] Questions accepted by clinical review
+- [x] Biodata types and schema
+- [x] Search
+- [x] Get and sections
+- [x] Outside-in cases
+- [ ] Token budget
+- [ ] MCP parity
+- [ ] Docs
+- [ ] 0.9 accounting
+
+Sources:
+- [x] Semantic Scholar (optional key)
+- [x] ORCID (optional key)
+
+Provider-qualified records remain separate. Native counts describe one provider record, and ORCID groups retain every public assertion. Topic-wide ranking, coauthor aggregation and cross-provider merging remain deferred because source coverage and person identity are unproved. ORCID name search is unsupported, and the new-sources ruling replaces the proposed public data file. A01, A05 and A09 remain partial in current command coverage; A13 and A23 remain unanswered. The contained 0.9 size and timing comparison belongs to milestone 5. No clinical review acceptance is asserted by this checklist.
 
 ### Phenotype
 

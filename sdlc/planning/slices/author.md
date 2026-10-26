@@ -415,3 +415,19 @@ These existing native measurements separate each canonical case and page phase. 
 | `orcid-0000-0002-7433-2740/3` | j15720 | 1372 | 921 | 1371 | 1571 | 3142 |
 | `orcid-absent/0` | j15720 | 354 | 67 | 353 | 377 | 972 |
 | `orcid-native-identifiers/0` | j15720 | 1751 | 1015 | 1750 | 1689 | 3980 |
+
+## Generated author help
+
+The build selects two successful canonical run steps for each author command. The shared executable-example contract parses those steps and executes them through CLI and MCP with their owning synthetic replies. Search and exact get have no named sections. Papers exposes the named `details` section and the shipped `--full` alias for Semantic Scholar metadata; ORCID keeps its distinct public work-group scope. Qualified IDs, both source names, source and ID aliases, native paging, provider-record count scope, optional key registration and the noncommercial disable group remain visible in generated help.
+
+Job j15876 measured the changed help surfaces without provider access. CLI includes its newline; MCP text and full RPC are distinct. Each canonical help step owns raw output bytes. Markdown owns its independent shape ceiling. The standing measured-cap decision applies rounded fifteen-percent headroom; global cap and large allocation changes require the PM ruling before landing.
+
+| Help command | CLI | Bare result | MCP text | Markdown | Full RPC |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `help search author` | 1699 | 1614 | 1698 | 1599 | 3756 |
+| `help get author` | 1221 | 1139 | 1220 | 1292 | 2732 |
+| `help author papers` | 2019 | 1934 | 2018 | 1882 | 4422 |
+| `help author` | 4735 | 4659 | 4734 | 4613 | 10032 |
+| Whole help | 90918 | 90850 | 90917 | 81550 | 191990 |
+
+The historical `list author` measurement tables above describe the former route inventory. `list author` now returns fixed retirement guidance; `help author` owns the current aggregate route help. Every canonical author, ORCID, author-papers and outside-repo native step retains `full_output_bytes: true` and its own measured `max_bytes` and estimated-token ceiling. Native source bodies and derived expected strings stay outside Git. Existing native measurement jobs supply data-envelope evidence; this documentation work does not repeat those walks. Product cold/warm timing and every 0.9 output size and timing remain unmeasured until the contained milestone 5 comparison.
