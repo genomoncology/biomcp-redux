@@ -1,6 +1,7 @@
 # 0260 — Add the cell line ChEMBL section and the assay count command
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 31aaa90e7e01f3358ecfd1415634f05e8154825a
 
 Milestone: 4
 

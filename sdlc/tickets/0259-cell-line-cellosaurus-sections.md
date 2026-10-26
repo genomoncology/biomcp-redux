@@ -1,6 +1,7 @@
 # 0259 — Add the cell line names, identity, xrefs and variants sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0d1fc241093da6928b1768ffbc9507fbffba57a2
 
 Milestone: 4
 
