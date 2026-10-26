@@ -27,7 +27,7 @@ These questions are reformulated from published records and papers. They are ret
 | C19 | Which published datasets contain MOLM-13 experiments? | PMID 34850112 | Source experiment IDs and dataset names, with count scope explicit; no sensitivity classification. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
 | C20 | Which published metrics exist for PharmacoDB cell 1248 and compound 53572? | PMID 34850112 | Native experiment identities, dataset, compound and cell IDs, AAC, IC50, EC50, Einf, HS and DSS1 when present. No units or threshold invented. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
 | C21 | How does PharmacoDB represent repeated experiments on the same pair? | PMID 34850112 | Preserve distinct experiment IDs and dataset context; never average or deduplicate by compound and line names. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
-| C22 | What should a request return when a source has no cell record? | Cellosaurus and ChEMBL API contracts; technical control | Source-local empty result only after a valid reply; it does not establish that the cell line does not exist. | Answered; `cell_line/faults.rs` and `cell_line/chembl/faults.rs`. |
+| C22 | What should a request return when a source has no cell record? | Cellosaurus and ChEMBL API contracts; technical control | Source-local empty result only after a valid reply; it does not establish that the cell line does not exist. | Answered; `cell_line/native.rs` and `cell_line/chembl.rs` prove native absence; `cell_line/faults.rs` and `cell_line/chembl/faults.rs` distinguish failures. |
 | C23 | What should happen when a source fails or returns an HTML verification page? | API contracts; technical control | Failed source outcome with no fabricated empty biology; no retry through verification. | Answered; `cell_line/faults.rs`, `cell_line/chembl/faults.rs` and `cell_line/all.rs`. |
 | C24 | What source version supports a cell-line answer? | PMID 29805321; PMID 34850112; provider release endpoints | Source release when supplied; otherwise retrieval time explicitly labelled as such. | Partial; `cell_line/native.rs`, `cell_line/sections.rs` and `cell_line/chembl.rs` prove Cellosaurus and ChEMBL provenance; PharmacoDB remains deferred. |
 
@@ -260,9 +260,9 @@ These are complete compact product envelopes. CLI includes its newline; MCP meas
 | `help/get` | cli | 1015 | 1168 | 292 |
 | `help/get` | markdown | 940 | 1081 | 271 |
 | `help/get` | mcp | 1014 | 1167 | 292 |
-| `help/search` | cli | 760 | 874 | 219 |
-| `help/search` | markdown | 735 | 846 | 212 |
-| `help/search` | mcp | 759 | 873 | 219 |
+| `help/search` | cli | 880 | 1012 | 253 |
+| `help/search` | markdown | 855 | 984 | 246 |
+| `help/search` | mcp | 879 | 1011 | 253 |
 | `native/card/CVCL_0002` | cli | 1873 | 2154 | 539 |
 | `native/card/CVCL_0002` | mcp | 1872 | 2153 | 539 |
 | `native/card/CVCL_0004` | cli | 1863 | 2143 | 536 |
@@ -419,9 +419,9 @@ Native and help measurements come from `j15181`; completed metadata source-fault
 | `chembl/fault/metadata/html` | mcp | 463 | 533 | 134 |
 | `chembl/fault/metadata/timeout` | cli | 472 | 543 | 136 |
 | `chembl/fault/metadata/timeout` | mcp | 471 | 542 | 136 |
-| `chembl/help/assay-count` | cli | 415 | 478 | 120 |
-| `chembl/help/assay-count` | markdown | 461 | 531 | 133 |
-| `chembl/help/assay-count` | mcp | 414 | 477 | 120 |
+| `chembl/help/assay-count` | cli | 632 | 727 | 182 |
+| `chembl/help/assay-count` | markdown | 682 | 785 | 197 |
+| `chembl/help/assay-count` | mcp | 631 | 726 | 182 |
 | `chembl/native/assays` | cli | 376 | 433 | 109 |
 | `chembl/native/assays` | markdown | 388 | 447 | 112 |
 | `chembl/native/assays` | mcp | 375 | 432 | 108 |
@@ -528,3 +528,18 @@ Composite paging controls return fixed usage guidance before provider access. Ea
 The outside-in composite cases reuse the protected native fixtures and the existing independent source fault matrices. Additional composites label synthetic failures and distinguish successful empty, failed, skipped and unavailable states. The ordinary-cache policy cases reject disabled sources before retained replies or requests. A local HTML verification page proves that neither source follows or retries a verification route. No live provider request, licensed fixture or analysis tool is involved.
 
 The `all/` keys in `tests/cell-line-command-budgets.json` own measured output sizes and derive each ceiling independently through the existing measured-size helper. CLI bytes include the emitted newline. MCP text bytes and the complete RPC reply have distinct entries. Markdown has its own measured entry for each native composite. No group maximum or shared budget replaces a fixture and phase measurement.
+
+
+## Generated cell line help
+
+The generated help examples come from the canonical case run steps. The existing parsed-example check executes both examples for search, get and assay-count through CLI and MCP. The assay examples use the same retained exact source record with an explicit fresh read as the second spelling. They add no provider request or source interpretation. Named get sections expose their independent paging; a qualified source ID still requires exact candidate verification. Each command states that assay counts are not activity or sensitivity counts, no treatment response is inferred and no bioinformatics tool runs.
+
+Job `j15358` measured complete help output after these descriptions and examples were added. The PM approved the search and assay-count increases on 2026-10-26. Get remains within its previous stricter caps, which stay unchanged. The command budget fixture retains the original get baseline because its existing derived ceilings remain authoritative; the current emitted values below do not grant headroom.
+
+| Help command | CLI including newline | Bare Help result | MCP text | Markdown | Full RPC including newline |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `help search cell-line` | 880 | 792 | 879 | 855 | 2080 |
+| `help get cell-line` | 1135 | 1050 | 1134 | 1060 | 2618 |
+| `help cell-line assay-count` | 632 | 539 | 631 | 682 | 1546 |
+
+The MCP description measured 3,359 UTF-8 bytes and keeps the existing description ceiling. Whole CLI help measured 85,535 emitted bytes and keeps its existing global ceiling. The complete compact tools/list RPC measured 7,945 bytes without its newline. Discovery includes the exact-source input, independent paging, named sections and the explicit assay-count route. Source names and their schema retain the shared source registry.
