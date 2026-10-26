@@ -52,32 +52,21 @@ fn pages() -> Check {
     let replay = seed(&env, rows(), 200)?;
     call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
     let cold = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    let has_files = cold.get("next").and_then(Value::as_array).is_some_and(|steps| {
+        steps.iter().any(|step| {
+            step.get("kind") == Some(&json!("section"))
+                && step.get("args").and_then(Value::as_array)
+                    .is_some_and(|args| args.iter().any(|word| word.as_str() == Some("files")))
+        })
+    });
+    if !has_files { return Err("stored card lost files action".into()); }
     record(&replay, entries(), 200, 0)?;
     let mut seen = std::collections::BTreeSet::new();
+    let mut args = ["get", "study", "synthetic_0", "files"].map(str::to_owned).to_vec();
     for offset in [0, 5, 10] {
-        let value = call(
-            &env,
-            &replay,
-            &[
-                "get",
-                "study",
-                "synthetic_0",
-                "files",
-                "--section-offset",
-                &offset.to_string(),
-            ],
-            0,
-        )?;
+        let words: Vec<_> = args.iter().map(String::as_str).collect();
+        let value = call(&env, &replay, &words, 0)?;
         check_page(&value, offset, &mut seen)?;
-        let args = [
-            "get",
-            "study",
-            "synthetic_0",
-            "files",
-            "--section-offset",
-            &offset.to_string(),
-        ]
-        .map(str::to_owned);
         let mcp = crate::runner::mcp::call_with_globals(
             &env,
             &args,
@@ -86,6 +75,11 @@ fn pages() -> Check {
         )?;
         if value != mcp {
             return Err("CLI/MCP files differ".into());
+        }
+        if offset < 10 {
+            args = crate::runner::action(&value, "page")?;
+        } else if crate::runner::action(&value, "page").is_ok() {
+            return Err("last file page offered another page".into());
         }
     }
     let card = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
@@ -103,7 +97,10 @@ fn check_page(
         .pointer("/result/items")
         .and_then(Value::as_array)
         .ok_or("file items")?;
-    if value.pointer("/page/total") != Some(&json!(12)) || items.len() != (12 - offset).min(5) {
+    if value.pointer("/page/total") != Some(&json!(12))
+        || value.pointer("/page/offset") != Some(&json!(offset))
+        || items.len() != (12 - offset).min(5)
+    {
         return Err(format!("native page bounds lost: {value}"));
     }
     for row in items {
