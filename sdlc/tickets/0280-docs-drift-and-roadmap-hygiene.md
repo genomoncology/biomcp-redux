@@ -17,6 +17,7 @@ Architecture, method and roadmap text match shipped behavior, and every unticked
   - biodata-variants-and-annotations.md line 26 no longer says variant sections are open tickets.
   - ROADMAP.md marks the UMLS key and MyDisease.info lines dropped or deferred with their rulings, explains or ticks GWAS Slice complete, and gives pharmacogenomics, diagnostic and adverse event the same checklist rows as the other slices, ticking only what has landed proof.
   - The comparator is named once: the parity ledger uses released 0.9.3, and the agent comparison uses the latest released 0.9.
+  - architecture.md section 2.1 lists the dependencies the ratchet table allows, including rustls, rustls-platform-verifier, httpdate, tempfile, csv, flate2 and thiserror, or the ratchet drops them.
   - upgrade.md lists every legacy key variable, including `NCI_API_KEY` and `ORCID_ACCESS_TOKEN`.
 - Proof: `make docs-check` passes, and a reviewer checks each listed line against the code or ruling it cites.
 - Defers: the full docs rewrite, which is milestone 5 work.
