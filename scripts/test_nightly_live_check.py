@@ -45,10 +45,12 @@ def classification_case(change):
     discovery = request('search', 'discovery', 'old')
     discovery['provenance'] = {"discovery": {"namespace": "pmid", "ids": ["old-id"]}}
     dependent = request('old-id', 'detail', 'detail')
-    dependent['provenance'] = {"inputs": {"namespace": "pmid", "ids": ["old-id"]}}
+    dependent['provenance'] = {"input_context": "fixed-checked-request", "inputs": {
+        "namespace": "pmid", "ids": ["old-id"]}}
     live_discovery = dict(discovery, provenance={"discovery": {
         "namespace": "pmid", "ids": ["new-id" if change == 'discovery' else "old-id"]}})
-    live_dependent = dict(dependent, identity='new-id', provenance={"inputs": {
+    live_dependent = dict(dependent, identity='new-id', provenance={
+        "input_context": "fixed-checked-request", "inputs": {
         "namespace": "pmid", "ids": ["new-id"]}})
     drift = ['old-id: request-plan-changed']
     if change == 'order':
@@ -64,12 +66,33 @@ def classification_case(change):
         live_discovery['provenance']['discovery']['ids'] = ['unrelated-id']
     if change == 'schema':
         drift.append('output schema failure')
+    if change in ('rank', 'unused-tail', 'parameter', 'omitted'):
+        discovery['provenance']['discovery']['ids'] = ['a', 'b', 'x']
+        live_discovery['provenance']['discovery']['ids'] = ['b', 'a', 'x']
+        dependent['provenance']['inputs']['ids'] = ['a']
+        live_dependent['provenance']['inputs']['ids'] = ['b']
+    if change == 'unused-tail':
+        live_discovery['provenance']['discovery']['ids'] = ['a', 'b', 'y']
+        dependent['provenance']['inputs']['ids'] = ['a', 'b']
+        live_dependent['provenance']['inputs']['ids'] = ['b', 'a']
+    if change == 'parameter':
+        live_dependent['provenance']['input_context'] = 'changed-non-id-parameter'
+    if change == 'omitted':
+        drift.append('more drift details omitted; counts are in command exchanges')
+    if change in ('429-output', '429-schema', '500-output'):
+        live_dependent = dict(dependent, status=500 if change == '500-output' else 429)
+        drift = ['old-id: HTTP status Some(200) -> Some(' + str(live_dependent['status']) + ')',
+                 'command 1: output status changed: Some(String("found")) -> Some(String("unavailable"))']
+        if change == '429-schema':
+            drift.append('output schema failure')
     before = [discovery, dependent]
     after = [live_discovery, live_dependent]
     if change == 'order':
         after.reverse()
     witness = [{"ordinal": 1,
                 "baseline": {"requests": before}, "live": {"requests": after}}]
+    if change == 'omitted':
+        witness[0]['exchanges'] = {'drift_omitted': 1}
     if change in ('cut', 'clean-cut'):
         if change == 'clean-cut':
             drift = []
@@ -182,6 +205,15 @@ class NightlyCommand(unittest.TestCase):
                 ('500', 'failure', 1), ('429', 'throttled', 0),
                 ('cut', 'uncertain', 1), ('clean-cut', 'uncertain', 1), ('missing', 'uncertain', 1),
                 ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
+            with self.subTest(change=change):
+                self.classified(classification_case(change), expected, code)
+
+    def test_causality_requires_ordered_selection_complete_diagnostics_and_fixed_parameters(self):
+        for change, expected, code in [
+                ('rank', 'churn', 0), ('unused-tail', 'failure', 1),
+                ('parameter', 'failure', 1), ('omitted', 'uncertain', 1),
+                ('429-output', 'throttled', 0), ('429-schema', 'failure', 1),
+                ('500-output', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
