@@ -14,7 +14,7 @@
         "literal, unchanged"
       ],
       "offline": true,
-      "exit": 4,
+      "exit": 5,
       "expect": {
         "/schema": "biomcp.phenotype-search/1"
       },
@@ -33,7 +33,7 @@
         "HP:0001250"
       ],
       "offline": true,
-      "exit": 4,
+      "exit": 5,
       "expect": {
         "/schema": "biomcp.phenotype-card/1"
       },

@@ -112,29 +112,22 @@ struct GetFields {
 impl TryFrom<GetFields> for PhenotypeGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
-        let monarch_only = matches!(
-            v.section,
-            Some(
-                PhenotypeSection::Hierarchy | PhenotypeSection::Diseases | PhenotypeSection::Genes
-            )
-        );
-        let association = matches!(
-            v.section,
-            Some(PhenotypeSection::Diseases | PhenotypeSection::Genes)
-        );
-        if (monarch_only && v.source == Some(PhenotypeSource::Hpo))
+        let (source, limit) = defaults(v.section);
+        if (source == PhenotypeSource::Monarch && v.source == Some(PhenotypeSource::Hpo))
             || v.section_limit.is_some_and(|n| !(1..=50).contains(&n))
         {
             return Err(QueryInvalid);
         }
-        v.source.get_or_insert(if monarch_only {
-            PhenotypeSource::Monarch
-        } else {
-            PhenotypeSource::Hpo
-        });
-        v.section_limit
-            .get_or_insert(if association { 1 } else { 5 });
+        v.source.get_or_insert(source);
+        v.section_limit.get_or_insert(limit);
         Ok(Self(v))
+    }
+}
+fn defaults(section: Option<PhenotypeSection>) -> (PhenotypeSource, u32) {
+    match section {
+        Some(PhenotypeSection::Diseases | PhenotypeSection::Genes) => (PhenotypeSource::Monarch, 1),
+        Some(PhenotypeSection::Hierarchy) => (PhenotypeSource::Monarch, five()),
+        _ => (PhenotypeSource::Hpo, five()),
     }
 }
 impl PhenotypeSearch {
@@ -162,6 +155,15 @@ impl PhenotypeSearch {
     }
 }
 impl PhenotypeGet {
+    /// Publisher selected when the caller omits the source flag for this section.
+    pub fn default_source(&self) -> PhenotypeSource {
+        defaults(self.section()).0
+    }
+    /// Page size selected when the caller omits the section limit.
+    pub fn default_section_limit(&self) -> u32 {
+        defaults(self.section()).1
+    }
+
     /// Construct a default direct HPO card request from a checked identity.
     pub fn new(id: HpId) -> Self {
         Self(GetFields {

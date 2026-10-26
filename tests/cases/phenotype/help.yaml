@@ -23,7 +23,7 @@
           ]
         }
       },
-      "max_bytes": 7000
+      "max_bytes": 971
     },
     {
       "run": [
@@ -39,7 +39,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 7000
+      "max_bytes": 1674
     }
   ]
 }

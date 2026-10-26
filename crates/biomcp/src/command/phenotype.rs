@@ -8,6 +8,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(q, success.then_some(body))
         }
         (Request::GetPhenotype(q), QueryBody::PhenotypeCard(body)) => meta.encode(q, body),
+        (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("phenotype response mismatch")),
     }
 }
