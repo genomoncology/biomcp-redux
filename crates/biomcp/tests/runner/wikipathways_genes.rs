@@ -84,8 +84,6 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
             "wikipathways",
             "--record",
             record,
-            "--case-cache",
-            cache,
         ]
         .map(str::to_owned)
         .to_vec(),
@@ -100,8 +98,6 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
             "genes",
             "--record",
             record,
-            "--case-cache",
-            cache,
         ]
         .map(str::to_owned)
         .to_vec(),
