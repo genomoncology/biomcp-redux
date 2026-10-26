@@ -21,7 +21,9 @@ pub struct PapersPage {
 }
 impl Reply for PapersPage {
     fn check(&self) -> Result<(), BadReply> {
-        for row in &self.data { row.clone().detail()?; }
+        for row in &self.data {
+            row.clone().detail()?;
+        }
         if self.data.len() > 25
             || self.next.is_some_and(|n| n <= self.offset)
             || self.total.is_some_and(|n| self.data.len() as u64 > n)
@@ -38,18 +40,28 @@ pub fn papers(
     id: &SemanticScholarAuthorId,
     q: &AuthorPapersQuery,
 ) -> Result<PapersPage, RequestError> {
-    let endpoint = SPEC.get("").with_path(format!("/author/{id}/papers"))?
+    let endpoint = SPEC
+        .get("")
+        .with_path(format!("/author/{id}/papers"))?
         .fresh(Freshness::Days(1));
-    let fields = if q.section().is_some() { DETAILS } else { COMPACT };
+    let fields = if q.section().is_some() {
+        DETAILS
+    } else {
+        COMPACT
+    };
     let (page, _) = leg.json_received_checked::<PapersPage>(
         &endpoint,
-        &[("fields", Arg::Text(fields)),
-          ("offset", Arg::Num(u64::from(q.offset()))),
-          ("limit", Arg::Num(u64::from(q.limit())))],
+        &[
+            ("fields", Arg::Text(fields)),
+            ("offset", Arg::Num(u64::from(q.offset()))),
+            ("limit", Arg::Num(u64::from(q.limit()))),
+        ],
         |page| {
-            if page.offset == q.offset() && page.data.len() <= q.limit() as usize
-                
-            { Ok(()) } else { Err(BadReply) }
+            if page.offset == q.offset() && page.data.len() <= q.limit() as usize {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
         },
     )?;
     Ok(page)

@@ -12,8 +12,13 @@ pub(super) struct Saved {
     pub key_needed: bool,
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("biomcp.author_papers_snapshot/1", q.id(), q.section(), q.limit()))
-        .map_err(|_| CacheError::Database.into())
+    serde_json::to_vec(&(
+        "biomcp.author_papers_snapshot/1",
+        q.id(),
+        q.section(),
+        q.limit(),
+    ))
+    .map_err(|_| CacheError::Database.into())
 }
 pub(super) fn load(
     cx: &Ctx<'_>,

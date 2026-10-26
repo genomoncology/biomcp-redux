@@ -21,12 +21,23 @@
         "/result/items/0/paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "/result/items/0/pmid": "12345678",
         "/result/items/0/title": "Synthetic whole paper title",
-        "/next/0/kind": "page"
+        "/next/0/kind": "page",
+        "/result/items/0": {
+          "equals": {
+            "paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pmid": "12345678",
+            "doi": "10.1234/synthetic",
+            "external_ids": [
+              {
+                "id": "CorpusId:123"
+              }
+            ],
+            "title": "Synthetic whole paper title",
+            "year": 2025,
+            "venue": "Synthetic venue"
+          }
+        }
       },
-      "absent": [
-        "/result/items/0/abstract_text",
-        "/page"
-      ],
       "max_bytes": 10000,
       "max_tokens": 2500,
       "full_output_bytes": true
