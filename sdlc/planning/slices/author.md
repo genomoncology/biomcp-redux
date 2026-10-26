@@ -383,3 +383,35 @@ The warm Semantic Scholar snapshot owners cover candidate search and indexed pap
 
 
 Job j15838 measured the warm disabled search at 342 CLI bytes for its default query and 384 for its actual pool continuation. The indexed-paper equivalents measured 373 and 415. Both selectors produced the same sizes. The source continuation pages measured 683 search bytes and 589 paper bytes. Literal deferred-option text supplied through either query alias measured 335 CLI bytes. Each owning canonical step applies the rounded fifteen-percent allowance to the larger actual CLI/MCP-text measurement. The pool continuation owner measures the real returned identifier, rather than the shorter placeholder used in the static case.
+
+## Retained ORCID envelope measurements
+
+These existing native measurements separate each canonical case and page phase. They reuse j15682's completed Swanton walk and j15720's successful Butte and absence outputs. The earlier j15682 Butte decoding failure proves no positive works result; its successful person output is replaced here by the same person's completed j15720 measurement. No provider request or native walk was repeated for this accounting. Each canonical step in `tests/native/orcid/` owns its strict raw CLI/MCP byte and estimated-token ceiling.
+
+| Canonical case / step | Job | CLI | Bare result | MCP text | Markdown | Full RPC |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `orcid-0000-0002-4299-3018/0` | j15682 | 563 | 193 | 562 | 582 | 1420 |
+| `orcid-0000-0002-4299-3018/1` | j15682 | 4366 | 3487 | 4365 | 4875 | 9478 |
+| `orcid-0000-0002-4299-3018/2` | j15682 | 1990 | 1310 | 1989 | 2179 | 4436 |
+| `orcid-0000-0002-4299-3018/3` | j15682 | 18933 | 18036 | 18932 | 21487 | 40224 |
+| `orcid-0000-0002-4299-3018/4` | j15682 | 18709 | 17768 | 18708 | 19603 | 40104 |
+| `orcid-0000-0002-4299-3018/5` | j15682 | 23569 | 22664 | 23568 | 22440 | 50734 |
+| `orcid-0000-0002-4299-3018/6` | j15682 | 21683 | 20734 | 21682 | 21611 | 46576 |
+| `orcid-0000-0002-4299-3018/7` | j15682 | 18504 | 17574 | 18503 | 19530 | 39638 |
+| `orcid-0000-0002-4299-3018/8` | j15682 | 18072 | 17166 | 18071 | 18973 | 38752 |
+| `orcid-0000-0002-4299-3018/9` | j15682 | 19150 | 18224 | 19149 | 19656 | 41098 |
+| `orcid-0000-0002-4299-3018/10` | j15682 | 24258 | 23341 | 24257 | 25002 | 51740 |
+| `orcid-0000-0002-4299-3018/11` | j15682 | 24948 | 24016 | 24947 | 25478 | 53254 |
+| `orcid-0000-0002-4299-3018/12` | j15682 | 25314 | 24391 | 25313 | 25908 | 53962 |
+| `orcid-0000-0002-4299-3018/13` | j15682 | 25325 | 24385 | 25324 | 25759 | 54056 |
+| `orcid-0000-0002-4299-3018/14` | j15682 | 22848 | 21906 | 22847 | 23755 | 48692 |
+| `orcid-0000-0002-4299-3018/15` | j15682 | 27025 | 26089 | 27024 | 27776 | 57608 |
+| `orcid-0000-0002-4299-3018/16` | j15682 | 31094 | 30197 | 31093 | 31989 | 66192 |
+| `orcid-0000-0002-4299-3018/17` | j15682 | 31445 | 30539 | 31444 | 32570 | 67020 |
+| `orcid-0000-0002-4299-3018/18` | j15682 | 6903 | 6068 | 6902 | 7289 | 14896 |
+| `orcid-0000-0002-7433-2740/0` | j15720 | 568 | 198 | 567 | 587 | 1430 |
+| `orcid-0000-0002-7433-2740/1` | j15720 | 1371 | 921 | 1370 | 1570 | 3140 |
+| `orcid-0000-0002-7433-2740/2` | j15720 | 1119 | 516 | 1118 | 1232 | 2608 |
+| `orcid-0000-0002-7433-2740/3` | j15720 | 1372 | 921 | 1371 | 1571 | 3142 |
+| `orcid-absent/0` | j15720 | 354 | 67 | 353 | 377 | 972 |
+| `orcid-native-identifiers/0` | j15720 | 1751 | 1015 | 1750 | 1689 | 3980 |
