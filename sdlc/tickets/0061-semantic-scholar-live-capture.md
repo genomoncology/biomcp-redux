@@ -1,6 +1,7 @@
 # 0061 — Capture a successful public Semantic Scholar search
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fe5324c65bb7f2c93c1d4a2379aa684aabd934ed
 
 Milestone: 1
 
