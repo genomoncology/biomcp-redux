@@ -18,8 +18,7 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def reused_evidence(recipe):
-    previous = recipe['reused_archive']
+def retained_members(previous):
     raw = subprocess.check_output(['ssh', 'yellow', 'cat', previous['path']])
     if hashlib.sha256(raw).hexdigest() != previous['sha256']:
         raise ValueError('protected source archive hash differs')
@@ -28,17 +27,33 @@ def reused_evidence(recipe):
         names = packed.getnames()
         if len(names) != len(set(names)) or set(names) != set(manifest) | {'manifest.json'}:
             raise ValueError('protected source archive members differ')
+        files = {name: packed.extractfile(name).read() for name in manifest}
         for name, expected in manifest.items():
-            if hashlib.sha256(packed.extractfile(name).read()).hexdigest() != expected:
+            if hashlib.sha256(files[name]).hexdigest() != expected:
                 raise ValueError('protected source archive member differs')
-        body_raw = packed.extractfile('0000.body').read()
+    return files
+
+
+def reused_evidence(recipe):
+    previous = recipe['reused_archive']
+    files = retained_members(previous)
+    bylines = [('17611497', '0000.body', previous)]
+    additional = recipe.get('additional_reused_archive')
+    extra = retained_members(additional) if additional else {}
+    if additional:
+        bylines += [('33123537', '0000.body', additional),
+                    ('34096690', '0001.body', additional)]
+    evidence = []
+    for pmid, member, archive in bylines:
+        body_raw = (files if archive is previous else extra)[member]
         body = json.loads(body_raw)
         first = body['authors'][0]['authorId']
-        if (body['externalIds']['PubMed'] != '17611497'
-                or first != recipe['reused_first_author_ids']['first_17611497']):
+        if (body['externalIds']['PubMed'] != pmid
+                or first != recipe['reused_first_author_ids']['first_' + pmid]):
             raise ValueError('retained first-row identity differs')
-    return dict(previous, member='0000.body', body_sha256=capture.digest(body_raw),
-                first_author_id=first, all_orcid_requests_reused=True)
+        evidence.append(dict(archive, member=member, body_sha256=capture.digest(body_raw),
+                             pmid=pmid, first_author_id=first))
+    return {'bylines': evidence, 'all_orcid_requests_reused': True}
 
 
 def prelaunch(folder, args):
@@ -56,19 +71,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--prelaunch-snapshot', type=Path, required=True)
     parser.add_argument('--prelaunch-sha256', required=True)
+    parser.add_argument('--plan', type=Path, default=Path('scripts/author_followup_plan.json'))
     args = parser.parse_args()
     capture.require_environment()
     if not os.environ.get('S2_API_KEY'):
         raise ValueError('follow-up requires the named Semantic Scholar key')
-    recipe = json.loads(Path('scripts/author_followup_plan.json').read_text())
+    recipe = json.loads(args.plan.read_text())
     planned = recipe['phase1'] + recipe['phase2']
-    if len(planned) != recipe['max_requests'] or len(planned) != 14:
-        raise ValueError('follow-up must contain exactly fourteen planned rows')
+    if len(planned) != recipe['max_requests'] or len(planned) not in (11, 14):
+        raise ValueError('follow-up must match its approved eleven or fourteen rows')
+    if len(planned) == 11 and recipe['phase1']:
+        raise ValueError('dependent capture cannot repeat any byline')
     if any(r['source'] != 'semantic-scholar' or r['id'] == 'byline-17611497' for r in planned):
         raise ValueError('follow-up cannot repeat ORCID or the retained byline')
     reused = reused_evidence(recipe)
     folder = author.initialize()
-    for name in ('author_followup_plan.json', 'capture_author_followup.py'):
+    for name in (args.plan.name, 'capture_author_followup.py'):
         shutil.copyfile(Path('scripts') / name, folder / name)
     capture.write_json(folder / 'reused-evidence.json', reused)
     capture.write_json(folder / 'credential-presence.json', {

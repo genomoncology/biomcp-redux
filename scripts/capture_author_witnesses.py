@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tarfile
 import time
+from urllib.parse import parse_qs, urlsplit
 
 import source_capture as capture
 
@@ -110,21 +111,22 @@ def second_phase(rows, recipe, folder, ledger):
         source = row['source']
         if source in stopped:
             continue
-        predecessor = {'search-5': 'search-0',
-                       'papers-32955176-5': 'papers-32955176-0'}.get(row['id'])
+        predecessor = row.get('requires_next_from') or {
+            'search-5': 'search-0',
+            'papers-32955176-5': 'papers-32955176-0'}.get(row['id'])
         if predecessor and previous.get(predecessor, {}).get('next') != 5:
             stopped.add(source)
             continue
         receipt, body = request(row, recipe, folder, ledger)
         previous[row['id']] = body
         if row['id'].startswith(('search-', 'papers-')) and receipt['outcome'] == 'success':
-            offset = 5 if row['id'] in ('search-5', 'papers-32955176-5') else 0
+            offset = int(parse_qs(urlsplit(row['url']).query)['offset'][0])
             data = body.get('data')
             if not isinstance(data, list) or len(data) > 5 or body.get('offset') != offset:
                 receipt['capability'] = 'failed: native page does not match request'
                 stopped.add(source)
-        if row['id'] == 'papers-34096690-0-details' and receipt['outcome'] == 'success':
-            compact = previous.get('papers-34096690-0', {}).get('data', [])
+        if row['id'].endswith('-details') and receipt['outcome'] == 'success':
+            compact = previous.get(row['id'].removesuffix('-details'), {}).get('data', [])
             if [p.get('paperId') for p in body.get('data', [])] != [p.get('paperId') for p in compact]:
                 receipt['capability'] = 'failed: details changed the paper page'
                 stopped.add(source)
