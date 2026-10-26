@@ -2,7 +2,7 @@
 use super::*;
 mod faults;
 mod surface;
-use surface::{parity, compared, invoke_measured, measure_bytes, measure_mcp};
+use surface::{compared, invoke_measured, measure_bytes, measure_mcp, parity};
 const MEASURE: bool = false;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
@@ -164,7 +164,13 @@ fn help() -> Result<(), String> {
     let (value, bytes) = invoke_measured(&env, &args, 0)?;
     let directory = env.root().join("help-mcp");
     fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
-    let mcp = super::super::mcp::call_retained(&env, &args.map(String::from), false, &[], Some(&directory))?;
+    let mcp = super::super::mcp::call_retained(
+        &env,
+        &args.map(String::from),
+        false,
+        &[],
+        Some(&directory),
+    )?;
     if value != mcp {
         return Err("assay help CLI/MCP mismatch".into());
     }
@@ -250,12 +256,38 @@ fn native_facts(value: &Value, id: &str) -> Result<(), String> {
 }
 
 fn discovery(env: &Environment) -> Result<(), String> {
-    let replies = super::super::mcp::exchange(env, &[super::super::mcp::request(json!(1), "tools/list", json!({}))])?;
-    let description = replies.first().and_then(|r| r.pointer("/result/tools/0/description")).and_then(Value::as_str).ok_or("description")?;
-    if !description.contains("cell-line assay-count") { return Err("MCP discovery lost assay-count".into()); }
-    let _ = writeln!(std::io::stderr(), "CHEMBL_DISCOVERY_DESCRIPTION_BYTES {}", description.len());
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &["--help".to_string()]).output().map_err(|e| e.to_string())?;
-    if !output.status.success() { return Err("whole CLI help failed".into()); }
-    let _ = writeln!(std::io::stderr(), "CHEMBL_DISCOVERY_CLI_HELP_BYTES {}", output.stdout.len());
+    let replies = super::super::mcp::exchange(
+        env,
+        &[super::super::mcp::request(
+            json!(1),
+            "tools/list",
+            json!({}),
+        )],
+    )?;
+    let description = replies
+        .first()
+        .and_then(|r| r.pointer("/result/tools/0/description"))
+        .and_then(Value::as_str)
+        .ok_or("description")?;
+    if !description.contains("cell-line assay-count") {
+        return Err("MCP discovery lost assay-count".into());
+    }
+    let _ = writeln!(
+        std::io::stderr(),
+        "CHEMBL_DISCOVERY_DESCRIPTION_BYTES {}",
+        description.len()
+    );
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &["--help".to_string()])
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err("whole CLI help failed".into());
+    }
+    let _ = writeln!(
+        std::io::stderr(),
+        "CHEMBL_DISCOVERY_CLI_HELP_BYTES {}",
+        output.stdout.len()
+    );
     Ok(())
 }

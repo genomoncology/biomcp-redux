@@ -23,7 +23,12 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
         {
             let mut metadata = super::chembl::get_at(cx, query, &header.accession, deadline);
             metadata.sources.splice(0..0, out.sources);
-            if metadata.status != Status::Failed && metadata.sources.iter().any(|source| source.state == biomcp_types::SourceState::Stale) {
+            if metadata.status != Status::Failed
+                && metadata
+                    .sources
+                    .iter()
+                    .any(|source| source.state == biomcp_types::SourceState::Stale)
+            {
                 metadata.status = Status::Partial;
             }
             command.finish(deadline.remaining());
