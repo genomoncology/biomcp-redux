@@ -34,7 +34,7 @@ fn problem(id: &WikiPathwaysId, field: String) -> Problem {
 pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, RequestError> {
     let endpoint = SPEC.get("/wikipathways-assets/pathways")
         .with_path(format!("/wikipathways-assets/pathways/{id}/{id}.gpml"))?
-        .once().bytes(MAX_BYTES).fresh(Freshness::Days(7));
+        .once().octet_stream().bytes(MAX_BYTES).fresh(Freshness::Days(7));
     let (document, _) = leg.xml_received_checked::<Document>(&endpoint, &[], |value| value.matches(id))?;
     let mut problems = Vec::new();
     let mut items = Vec::new();

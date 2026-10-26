@@ -39,8 +39,10 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     let env = super::variant::source_environment(&stub)?;
     let replay = env.root().join("replay");
     let record = replay.to_str().ok_or("record path")?;
-    invoke(&env, ["sync", "wikipathways", "--record", record].map(str::to_owned).to_vec(), 0)?;
-    let first = invoke(&env, ["get", "pathway", "WP382", "genes", "--record", record].map(str::to_owned).to_vec(), 0)?;
+    let cache = env.root().join("case-cache");
+    let cache = cache.to_str().ok_or("cache path")?;
+    invoke(&env, ["sync", "wikipathways", "--record", record, "--case-cache", cache].map(str::to_owned).to_vec(), 0)?;
+    let first = invoke(&env, ["get", "pathway", "WP382", "genes", "--record", record, "--case-cache", cache].map(str::to_owned).to_vec(), 0)?;
     let requests = stub.finish()?;
     if requests.len() != 3 { return Err(format!("Expected two catalog requests and one GPML request: {}", requests.len())); }
     Ok((env, replay, first))

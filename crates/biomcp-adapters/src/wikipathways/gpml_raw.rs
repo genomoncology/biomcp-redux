@@ -120,11 +120,10 @@ impl XmlReply for Document {
     }
 }
 fn read_child(tag: &BytesStart<'_>, depth: usize, node: &mut Option<Node>) -> Result<(), BadReply> {
-    for attr in tag.attributes() {
-        let attr = attr.map_err(|_| BadReply)?;
-        if attr.key.as_ref() == b"xmlns" || attr.key.as_ref().starts_with(b"xmlns:") {
-            return Err(BadReply);
-        }
+    if ((depth == 1 && tag.name().as_ref() == b"DataNode")
+        || (depth == 2 && node.is_some() && tag.name().as_ref() == b"Xref"))
+        && attribute(tag, b"xmlns")?.is_some_and(|namespace| namespace != NAMESPACE) {
+        return Err(BadReply);
     }
     if depth == 1 && tag.name().as_ref() == b"DataNode" {
         *node = Some(Node {
