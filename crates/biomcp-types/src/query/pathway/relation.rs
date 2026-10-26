@@ -44,7 +44,12 @@ macro_rules! relation {
         impl $name {
             /// Start an exact source relation with a checked page size.
             pub fn new(id: PathwayId, limit: u32) -> Result<Self, QueryInvalid> {
-                Self::try_from(RelationFields { id, limit, offset: 0, pool: None })
+                Self::try_from(RelationFields {
+                    id,
+                    limit,
+                    offset: 0,
+                    pool: None,
+                })
             }
             /// Retain the same immutable relation on subsequent pages.
             pub fn with_pool(mut self, pool: Text) -> Self {

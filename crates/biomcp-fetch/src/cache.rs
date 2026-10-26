@@ -147,7 +147,9 @@ impl Cache {
         } else {
             None
         };
-        if version.is_some_and(|version| version != 1 && version != 2 && version != 3 && version != VERSION) {
+        if version.is_some_and(|version| {
+            version != 1 && version != 2 && version != 3 && version != VERSION
+        }) {
             return Err(CacheError::Version);
         }
         if version.is_none() {

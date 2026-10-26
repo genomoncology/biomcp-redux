@@ -47,7 +47,8 @@ impl Row for Gene {
         }
         for value in parts(cell(&self.uniprot_ids)) {
             if let Ok(id) = UniProtAcc::new(value) {
-                keys.exact.push((KeyKind::Xref, format!("uniprot:{id}").into()));
+                keys.exact
+                    .push((KeyKind::Xref, format!("uniprot:{id}").into()));
             }
         }
         if Cytoband::new(cell(&self.location)).is_ok() {

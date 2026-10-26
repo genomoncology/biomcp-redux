@@ -314,14 +314,14 @@
     },
     "PathwayGenes": {
       "additionalProperties": false,
-      "description": "Independent source-ordered page of whole native references.",
+      "description": "Independent source-ordered distinct membership references and their observed counts.",
       "properties": {
         "header": {
           "$ref": "#/$defs/PathwayHeader",
           "description": "Exact source pathway owning this relation."
         },
         "items": {
-          "description": "Whole native references; unresolved identities remain visible.",
+          "description": "Distinct namespaced source references in first occurrence order.",
           "items": {
             "$ref": "#/$defs/PathwayMember"
           },
@@ -329,13 +329,27 @@
         },
         "page": {
           "$ref": "#/$defs/PathwayPageInfo",
-          "description": "Relation-specific count provenance and continuation."
+          "description": "Distinct-reference total and continuation."
+        },
+        "physical_entities": {
+          "description": "All native physical entities, never described as gene counts.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reference_occurrences": {
+          "description": "All reference occurrences across physical entities before distinct-reference grouping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
         "header",
         "items",
-        "page"
+        "page",
+        "reference_occurrences",
+        "physical_entities"
       ],
       "type": "object"
     },
@@ -567,6 +581,17 @@
             }
           ],
           "description": "Native reference schema class."
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native reference URL, including therapeutic references without a drug action."
         }
       },
       "required": [
@@ -723,7 +748,8 @@
       "description": "Meaning of the collection total, independent of admitted rows on a page.",
       "enum": [
         "source",
-        "observed"
+        "observed",
+        "distinct_references"
       ],
       "type": "string"
     },
@@ -1478,7 +1504,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_card/2",
+  "$id": "biomcp.pathway_card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1524,7 +1550,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_card/2",
+      "const": "biomcp.pathway_card/3",
       "type": "string"
     },
     "sources": {

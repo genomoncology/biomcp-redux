@@ -23,9 +23,7 @@ pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
         biomcp_query::Action::Run {
             request: Request::GetPathway(q),
             ..
-        } => {
-            !matches!(q.id(), biodata::PathwayId::Reactome(_))
-        }
+        } => !matches!(q.id(), biodata::PathwayId::Reactome(_)),
         _ => false,
     }
 }

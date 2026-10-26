@@ -6,15 +6,29 @@ use biomcp_types::{PathwayGet, PathwaySection, QueryBody, Request, Source, StepK
 /// Read one exact native human pathway and only its requested bounded disclosures.
 pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
     let mut out = empty(QueryBody::PathwayCard(None));
-    let PathwayId::Reactome(id) = q.id() else { return out; };
+    let PathwayId::Reactome(id) = q.id() else {
+        return out;
+    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx.fetch.leg(&reactome::SPEC, deadline).fresh(cx.fresh || q.fresh());
-    let reply = reactome::card(&leg, id,
-        matches!(q.section(), Some(PathwaySection::Summary | PathwaySection::All)));
+    let leg = cx
+        .fetch
+        .leg(&reactome::SPEC, deadline)
+        .fresh(cx.fresh || q.fresh());
+    let reply = reactome::card(
+        &leg,
+        id,
+        matches!(
+            q.section(),
+            Some(PathwaySection::Summary | PathwaySection::All)
+        ),
+    );
     let mut error = reply.as_ref().err().copied();
     let mut card = match reply {
-        Ok(mapped) => { out.problems = mapped.problems; mapped.value }
+        Ok(mapped) => {
+            out.problems = mapped.problems;
+            mapped.value
+        }
         Err(_) => None,
     };
     if let Some(value) = &mut card {
@@ -23,20 +37,26 @@ pub fn get(cx: &Ctx<'_>, q: &PathwayGet) -> Outcome {
             Err(e) => error = Some(e),
         }
     }
-    out.sources.push(status::source(Source::Reactome, leg.finish(), error));
+    out.sources
+        .push(status::source(Source::Reactome, leg.finish(), error));
     if let Some(value) = &mut card {
         super::get_sections::attach(cx, q, value, deadline, &mut out);
         if !matches!(out.body, QueryBody::PoolError { .. }) {
             for section in &value.sections {
-                if q.section() != Some(PathwaySection::All) && Some(*section) != q.section()
-                    && let Ok(query) = q.with_section(*section) {
-                    out.next.push((StepKind::Section, run(Request::GetPathway(query))));
+                if q.section() != Some(PathwaySection::All)
+                    && Some(*section) != q.section()
+                    && let Ok(query) = q.with_section(*section)
+                {
+                    out.next
+                        .push((StepKind::Section, run(Request::GetPathway(query))));
                 }
             }
         }
     }
     if !matches!(out.body, QueryBody::PoolError { .. }) {
-        if card.is_some() || error.is_none() { out.status = overall(&out, card.is_none()); }
+        if card.is_some() || error.is_none() {
+            out.status = overall(&out, card.is_none());
+        }
         out.body = QueryBody::PathwayCard(card);
     }
     out.local = out.local.or_else(|| error.and_then(status::local));

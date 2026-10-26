@@ -3,8 +3,10 @@ use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, Text};
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{PathwayEventsQuery, PathwayGenesQuery, PathwayHeader, PathwayPageInfo,
-    PathwayTotalKind, QueryBody, Reason, Source, Status, StepKind, Request};
+use biomcp_types::{
+    PathwayEventsQuery, PathwayGenesQuery, PathwayHeader, PathwayPageInfo, PathwayTotalKind,
+    QueryBody, Reason, Request, Source, Status, StepKind,
+};
 pub(super) struct Selection<'a> {
     pub id: &'a PathwayId,
     pub genes: bool,
@@ -16,13 +18,33 @@ pub(super) struct Selection<'a> {
 }
 /// Page retained source membership with checked gene pivots.
 pub fn genes(cx: &Ctx<'_>, q: &PathwayGenesQuery) -> Outcome {
-    execute(cx, Selection { id: q.id(), genes: true, limit: q.limit(), offset: q.offset(),
-        pool: q.pool(), fresh: cx.fresh, header: None })
+    execute(
+        cx,
+        Selection {
+            id: q.id(),
+            genes: true,
+            limit: q.limit(),
+            offset: q.offset(),
+            pool: q.pool(),
+            fresh: cx.fresh,
+            header: None,
+        },
+    )
 }
 /// Page retained source event objects and unresolved integer references.
 pub fn events(cx: &Ctx<'_>, q: &PathwayEventsQuery) -> Outcome {
-    execute(cx, Selection { id: q.id(), genes: false, limit: q.limit(), offset: q.offset(),
-        pool: q.pool(), fresh: cx.fresh, header: None })
+    execute(
+        cx,
+        Selection {
+            id: q.id(),
+            genes: false,
+            limit: q.limit(),
+            offset: q.offset(),
+            pool: q.pool(),
+            fresh: cx.fresh,
+            header: None,
+        },
+    )
 }
 fn execute(cx: &Ctx<'_>, q: Selection<'_>) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -32,8 +54,11 @@ fn execute(cx: &Ctx<'_>, q: Selection<'_>) -> Outcome {
     out
 }
 pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Outcome {
-    let mut out = empty(if q.genes { QueryBody::PathwayGenes(None) }
-        else { QueryBody::PathwayEvents(None) });
+    let mut out = empty(if q.genes {
+        QueryBody::PathwayGenes(None)
+    } else {
+        QueryBody::PathwayEvents(None)
+    });
     if let Err(error) = read_inner(cx, &q, deadline, &mut out) {
         out.local = status::local(error);
         out.status = Status::Failed;
@@ -44,27 +69,49 @@ fn restart(q: &Selection<'_>, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch: false };
     let request = if q.genes {
         PathwayGenesQuery::new(q.id.clone(), q.limit).map(Request::PathwayGenes)
-    } else { PathwayEventsQuery::new(q.id.clone(), q.limit).map(Request::PathwayEvents) };
+    } else {
+        PathwayEventsQuery::new(q.id.clone(), q.limit).map(Request::PathwayEvents)
+    };
     if let Ok(request) = request {
         out.next.push((StepKind::Restart, super::run(request)));
     }
 }
-fn read_inner(cx: &Ctx<'_>, q: &Selection<'_>, deadline: Deadline<'_>, out: &mut Outcome)
-    -> Result<(), RequestError> {
+fn read_inner(
+    cx: &Ctx<'_>,
+    q: &Selection<'_>,
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
     if cx.fetch.disabled(Source::Reactome) {
-        let error: RequestError = SourceError { source: Source::Reactome, reason: Reason::Disabled,
-            status: None, retry_after: None }.into();
-        out.sources.push(biomcp_adapters::registry::outcome(Source::Reactome,
-            biomcp_types::SourceState::Skipped, Some(Reason::Disabled)));
+        let error: RequestError = SourceError {
+            source: Source::Reactome,
+            reason: Reason::Disabled,
+            status: None,
+            retry_after: None,
+        }
+        .into();
+        out.sources.push(biomcp_adapters::registry::outcome(
+            Source::Reactome,
+            biomcp_types::SourceState::Skipped,
+            Some(Reason::Disabled),
+        ));
         return Err(error);
     }
     if q.pool.is_some() && q.fresh || q.offset > 0 && q.pool.is_none() {
-        restart(q, out); return Ok(());
+        restart(q, out);
+        return Ok(());
     }
-    let loaded = if q.fresh { None } else { snapshot::load(cx, q.id, q.genes, q.pool, deadline)? };
+    let loaded = if q.fresh {
+        None
+    } else {
+        snapshot::load(cx, q.id, q.genes, q.pool, deadline)?
+    };
     let (saved, pool) = match loaded {
         Some(pair) => pair,
-        None if q.pool.is_some() => { restart(q, out); return Ok(()); }
+        None if q.pool.is_some() => {
+            restart(q, out);
+            return Ok(());
+        }
         None => {
             let saved = fetch(cx, q, deadline, out)?;
             let pool = snapshot::save(cx, q.id, q.genes, deadline, &saved)?;
@@ -74,16 +121,32 @@ fn read_inner(cx: &Ctx<'_>, q: &Selection<'_>, deadline: Deadline<'_>, out: &mut
     out.sources = saved.sources;
     out.problems = saved.problems;
     if let Some(mut body) = saved.genes {
-        body.items = body.items.iter().skip(q.offset as usize).take(q.limit as usize)
-            .cloned().collect();
+        body.items = body
+            .items
+            .iter()
+            .skip(q.offset as usize)
+            .take(q.limit as usize)
+            .cloned()
+            .collect();
         body.page = position(body.page, q, body.items.len(), pool.info);
-        super::membership::resolve(cx, &mut body.items, deadline, &mut out.sources, &mut out.problems);
+        super::membership::resolve(
+            cx,
+            &mut body.items,
+            deadline,
+            &mut out.sources,
+            &mut out.problems,
+        );
         super::relation_steps::genes(&body, q.limit, &mut out.next);
         out.status = overall(out, body.page.total == 0);
         out.body = QueryBody::PathwayGenes(Some(body));
     } else if let Some(mut body) = saved.events {
-        body.items = body.items.iter().skip(q.offset as usize).take(q.limit as usize)
-            .cloned().collect();
+        body.items = body
+            .items
+            .iter()
+            .skip(q.offset as usize)
+            .take(q.limit as usize)
+            .cloned()
+            .collect();
         body.page = position(body.page, q, body.items.len(), pool.info);
         super::relation_steps::events(&body, q.limit, &mut out.next);
         out.status = overall(out, body.page.total == 0);
@@ -91,8 +154,12 @@ fn read_inner(cx: &Ctx<'_>, q: &Selection<'_>, deadline: Deadline<'_>, out: &mut
     }
     Ok(())
 }
-fn position(mut page: PathwayPageInfo, q: &Selection<'_>, returned: usize,
-    pool: biomcp_types::PoolInfo) -> PathwayPageInfo {
+fn position(
+    mut page: PathwayPageInfo,
+    q: &Selection<'_>,
+    returned: usize,
+    pool: biomcp_types::PoolInfo,
+) -> PathwayPageInfo {
     page.offset = q.offset;
     page.returned = returned as u32;
     let next = q.offset.saturating_add(q.limit);
@@ -100,8 +167,12 @@ fn position(mut page: PathwayPageInfo, q: &Selection<'_>, returned: usize,
     page.pool = Some(pool);
     page
 }
-fn fetch(cx: &Ctx<'_>, q: &Selection<'_>, deadline: Deadline<'_>, out: &mut Outcome)
-    -> Result<snapshot::Saved, RequestError> {
+fn fetch(
+    cx: &Ctx<'_>,
+    q: &Selection<'_>,
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<snapshot::Saved, RequestError> {
     let PathwayId::Reactome(id) = q.id else {
         return Err(biomcp_fetch::InputError::Serialization.into());
     };
@@ -113,34 +184,59 @@ fn fetch(cx: &Ctx<'_>, q: &Selection<'_>, deadline: Deadline<'_>, out: &mut Outc
                 let mapped = reactome::card(&leg, id, false)?;
                 out.problems.extend(mapped.problems);
                 let card = mapped.value.ok_or(biomcp_fetch::BadReply)?;
-                PathwayHeader { id: card.pathway.id, name: card.pathway.name,
-                    species: card.pathway.species, version: card.pathway.version, revision: None }
+                PathwayHeader {
+                    id: card.pathway.id,
+                    name: card.pathway.name,
+                    species: card.pathway.species,
+                    version: card.pathway.version,
+                    revision: None,
+                }
             }
         };
-        let mut saved = snapshot::Saved { genes: None, events: None, sources: Vec::new(),
-            problems: Vec::new() };
+        let mut saved = snapshot::Saved {
+            genes: None,
+            events: None,
+            sources: Vec::new(),
+            problems: Vec::new(),
+        };
         if q.genes {
             let rows = reactome::members(&leg, id)?;
             saved.problems = rows.problems;
-            saved.genes = Some(biomcp_types::PathwayGenes { header,
+            saved.genes = Some(biomcp_types::PathwayGenes {
+                header,
                 page: full_page(rows.value.items.len(), PathwayTotalKind::DistinctReferences),
-                items: rows.value.items.into(), reference_occurrences: rows.value.reference_occurrences,
-                physical_entities: rows.value.physical_entities });
+                items: rows.value.items.into(),
+                reference_occurrences: rows.value.reference_occurrences,
+                physical_entities: rows.value.physical_entities,
+            });
         } else {
             let rows = reactome::events(&leg, id)?;
             saved.problems = rows.problems;
-            saved.events = Some(biomcp_types::PathwayEvents { header,
-                page: full_page(rows.value.len(), PathwayTotalKind::Observed), items: rows.value.into() });
+            saved.events = Some(biomcp_types::PathwayEvents {
+                header,
+                page: full_page(rows.value.len(), PathwayTotalKind::Observed),
+                items: rows.value.into(),
+            });
         }
         Ok::<_, RequestError>(saved)
     })();
-    out.sources.push(status::source(Source::Reactome, leg.finish(), reply.as_ref().err().copied()));
+    out.sources.push(status::source(
+        Source::Reactome,
+        leg.finish(),
+        reply.as_ref().err().copied(),
+    ));
     let mut saved = reply?;
     saved.sources = out.sources.clone();
     saved.problems.extend(out.problems.clone());
     Ok(saved)
 }
 fn full_page(size: usize, kind: PathwayTotalKind) -> PathwayPageInfo {
-    PathwayPageInfo { offset: 0, returned: size as u32, total: size as u64, total_kind: kind,
-        next_offset: None, pool: None }
+    PathwayPageInfo {
+        offset: 0,
+        returned: size as u32,
+        total: size as u64,
+        total_kind: kind,
+        next_offset: None,
+        pool: None,
+    }
 }

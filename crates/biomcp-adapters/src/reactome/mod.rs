@@ -11,8 +11,8 @@ mod map;
 mod raw;
 mod relation_raw;
 mod relations;
-pub use relations::{Members, members, events};
 pub use discovery::{Page, card, release, search, top_level};
+pub use relations::{Members, events, members};
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
     user_agent: None,

@@ -22,14 +22,19 @@ pub(super) struct Reference {
 }
 impl Reply for Participants {
     fn check(&self) -> Result<(), BadReply> {
-        self.0.iter().all(|p| {
-            !p.display_name.trim().is_empty() && !p.schema_class.trim().is_empty()
-                && p.ref_entities.iter().all(|r| {
-                    r.st_id.split_once(':').is_some_and(|(namespace, id)| {
-                        !namespace.is_empty() && id == r.identifier && !id.trim().is_empty()
-                    }) && !r.schema_class.trim().is_empty()
-                })
-        }).then_some(()).ok_or(BadReply)
+        self.0
+            .iter()
+            .all(|p| {
+                !p.display_name.trim().is_empty()
+                    && !p.schema_class.trim().is_empty()
+                    && p.ref_entities.iter().all(|r| {
+                        r.st_id.split_once(':').is_some_and(|(namespace, id)| {
+                            !namespace.is_empty() && id == r.identifier && !id.trim().is_empty()
+                        }) && !r.schema_class.trim().is_empty()
+                    })
+            })
+            .then_some(())
+            .ok_or(BadReply)
     }
 }
 #[derive(Deserialize)]
@@ -51,5 +56,7 @@ pub(super) struct Object {
     pub species_name: Option<String>,
 }
 impl Reply for Events {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
