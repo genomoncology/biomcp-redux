@@ -6,11 +6,13 @@ use biomcp_types::Reason;
 use std::time::{Duration, Instant};
 
 pub(crate) type Decoded<T> = (T, u16, Vec<u8>, i64, Option<String>);
+#[derive(serde::Serialize)]
 struct Wire {
     fetched: i64,
     status: u16,
     content_type: String,
     content_range: Option<String>,
+    #[serde(skip)] // Raw and decoded body scanning stays separate from metadata.
     body: Vec<u8>,
     retry_after: Option<Duration>,
 }
@@ -475,7 +477,7 @@ impl Leg<'_> {
             body,
             retry_after,
         };
-        self.contain_response(prepared, &wire.content_type, &wire.body, status)
+        self.contain_response(prepared, &wire, &wire.body, status)
             .map_err(Failure::Local)?;
         if recording {
             self.record_wire(prepared, codec, &wire, started)
@@ -483,7 +485,7 @@ impl Leg<'_> {
         }
         Ok(wire)
     }
-    fn replayed_wire(&self, prepared: &Prepared, exchange: Exchange) -> Result<Wire, Failure> {
+    fn replayed_wire(&self, prepared: &Prepared, mut exchange: Exchange) -> Result<Wire, Failure> {
         if !self
             .budget()
             .advance(Duration::from_millis(exchange.delay_ms))
@@ -493,19 +495,17 @@ impl Leg<'_> {
                     .into(),
             ));
         }
-        self.contain_response(
-            prepared,
-            &exchange.content_type,
-            exchange.body.bytes(),
-            exchange.status,
-        )
-        .map_err(Failure::Local)?;
+        // Sidecars become non-serializable Bytes on read. Scan their raw body
+        // separately while deriving metadata from every remaining exchange field.
+        let body = std::mem::replace(&mut exchange.body, Body::Text(String::new()));
+        self.contain_response(prepared, &exchange, body.bytes(), exchange.status)
+            .map_err(Failure::Local)?;
         Ok(Wire {
             fetched: exchange.fetched,
             status: exchange.status,
             content_type: exchange.content_type,
             content_range: exchange.content_range,
-            body: exchange.body.bytes().to_vec(),
+            body: body.bytes().to_vec(),
             retry_after: exchange.retry_after_ms.map(Duration::from_millis),
         })
     }

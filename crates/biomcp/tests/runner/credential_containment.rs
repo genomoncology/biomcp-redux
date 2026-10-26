@@ -1,8 +1,4 @@
 //! The actual CLI refuses reflected outbound credentials before persistence or output.
-#![expect(
-    clippy::indexing_slicing,
-    reason = "Response-only mutations check the captured fixture shape"
-)]
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -57,8 +53,8 @@ fn reply(request: &str) -> Result<String, String> {
 }
 fn setup() -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::with_status(
-        "clinicaltrialsapi.cancer.gov",
+    let stub = Stub::with_headers(
+        &["clinicaltrialsapi.cancer.gov"],
         |request| {
             if request.contains("keyword=media") {
                 "application/json; synthetic-containment-key"
@@ -75,17 +71,33 @@ fn setup() -> Result<(Environment, Stub), String> {
                 200
             }
         },
+        |request| {
+            if request.contains("keyword=range") {
+                format!("Content-Range: {KEY}\r\n")
+            } else {
+                "Content-Range: items 0-0/1\r\n".into()
+            }
+        },
     )?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY,"semantic_scholar_api_key":"synthetic-unrelated-config-key"}})).map_err(|e|e.to_string())?;
     Ok((env, stub))
 }
-fn invoke(env: &Environment, args: Vec<String>, bad: bool) -> Result<Value, String> {
+fn invoke(env: &Environment, mut args: Vec<String>, bad: bool) -> Result<Value, String> {
+    let trace = tempfile::tempdir_in(env.root()).map_err(|e| e.to_string())?;
+    let observed = trace.path().join("observations.jsonl");
+    args.extend(["--observe".into(), observed.to_string_lossy().into()]);
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
+    clean(&fs::read(observed).map_err(|e| {
+        format!(
+            "missing containment trace: {e}; exit {:?}",
+            output.status.code()
+        )
+    })?)?;
     for bytes in [&output.stdout, &output.stderr] {
         clean(bytes)?;
     }
@@ -144,12 +156,27 @@ fn files(root: &Path) -> Result<Vec<PathBuf>, String> {
 }
 fn wire() -> Check {
     let (env, stub) = setup()?;
-    for query in ["duplicate", "deep", "body", "escaped", "error", "media"] {
+    let mut live = SEARCH
+        .iter()
+        .map(|arg| (*arg).to_owned())
+        .collect::<Vec<_>>();
+    *live.last_mut().ok_or("missing synthetic query")? = "range".into();
+    invoke(&env, live, true)?;
+    for query in [
+        "duplicate",
+        "deep",
+        "body",
+        "escaped",
+        "error",
+        "media",
+        "range",
+    ] {
         let dir = env.root().join(format!("record-{query}"));
         invoke(&env, args(query, "--record", &dir), true)?;
         for path in files(&dir)?
             .into_iter()
             .chain(files(&env.root().join("cache"))?)
+            .chain(files(&env.root().join("case-cache"))?)
         {
             clean(&fs::read(path).map_err(|e| e.to_string())?)?;
         }
@@ -159,9 +186,31 @@ fn wire() -> Check {
     }
     let dir = env.root().join("record-safe");
     invoke(&env, args("safe", "--record", &dir), false)?;
-    invoke(&env, args("safe", "--replay", &dir), false)?;
+    let cache = env.root().join("case-cache");
+    let mut replay = args("safe", "--replay", &dir);
+    replay.extend(["--case-cache".into(), cache.to_string_lossy().into()]);
+    invoke(&env, replay, false)?;
+    invoke(
+        &env,
+        args("safe", "--case-cache", &cache)
+            .into_iter()
+            .chain(["--offline".into()])
+            .collect(),
+        false,
+    )?;
+    for path in files(&dir)?.into_iter().chain(files(&cache)?) {
+        clean(&fs::read(path).map_err(|e| e.to_string())?)?;
+    }
+    let connection =
+        rusqlite::Connection::open(cache.join("replay.sqlite")).map_err(|e| e.to_string())?;
+    let range: String = connection
+        .query_row("SELECT content_range FROM reply", [], |row| row.get(0))
+        .map_err(|e| e.to_string())?;
+    if range != "items 0-0/1" {
+        return Err("unrelated range did not survive recording and cache".into());
+    }
     let requests = stub.finish()?;
-    if requests.len() != 7
+    if requests.len() != 9
         || requests.iter().any(|(_, request)| {
             !request
                 .lines()
@@ -173,6 +222,10 @@ fn wire() -> Check {
     Ok(())
 }
 fn stored() -> Check {
+    stored_field("/exchanges/0/body/value/ignored", false)?;
+    stored_field("/exchanges/0/content_range", true)
+}
+fn stored_field(pointer: &str, range: bool) -> Check {
     let (env, stub) = setup()?;
     let dir = env.root().join("original");
     invoke(&env, args("safe", "--record", &dir), false)?;
@@ -183,7 +236,9 @@ fn stored() -> Check {
         .ok_or("missing safe recording")?;
     let original = fs::read(&entry).map_err(|e| e.to_string())?;
     let mut record: Value = serde_json::from_slice(&original).map_err(|e| e.to_string())?;
-    record["exchanges"][0]["body"]["value"]["ignored"] = json!(KEY);
+    *record
+        .pointer_mut(pointer)
+        .ok_or("missing response field")? = json!(KEY);
     let changed = serde_json::to_vec(&record).map_err(|e| e.to_string())?;
     fs::write(&entry, &changed).map_err(|e| e.to_string())?;
     invoke(&env, args("safe", "--replay", &dir), true)?;
@@ -198,12 +253,22 @@ fn stored() -> Check {
     let connection =
         rusqlite::Connection::open(cache.join("replay.sqlite")).map_err(|e| e.to_string())?;
     let body = json!({"total":0,"data":[],"ignored":KEY}).to_string();
+    let (update, select, value) = if range {
+        (
+            "UPDATE reply SET content_range=?1, fresh_until=?2",
+            "SELECT content_range FROM reply",
+            KEY,
+        )
+    } else {
+        (
+            "UPDATE reply SET body=CAST(?1 AS BLOB), fresh_until=?2",
+            "SELECT CAST(body AS TEXT) FROM reply",
+            body.as_str(),
+        )
+    };
     for fresh in [i64::MAX, 0] {
         connection
-            .execute(
-                "UPDATE reply SET body=?1, fresh_until=?2",
-                rusqlite::params![body.as_bytes(), fresh],
-            )
+            .execute(update, rusqlite::params![value, fresh])
             .map_err(|e| e.to_string())?;
         invoke(
             &env,
@@ -213,10 +278,10 @@ fn stored() -> Check {
                 .collect(),
             true,
         )?;
-        let saved: Vec<u8> = connection
-            .query_row("SELECT body FROM reply", [], |row| row.get(0))
+        let saved: String = connection
+            .query_row(select, [], |row| row.get(0))
             .map_err(|e| e.to_string())?;
-        if saved != body.as_bytes() {
+        if saved != value {
             return Err("contaminated cache evidence was rewritten".into());
         }
     }

@@ -13,7 +13,7 @@ impl Leg<'_> {
     pub(crate) fn contain_response(
         &self,
         prepared: &Prepared,
-        media: &str,
+        response: &impl serde::Serialize,
         body: &[u8],
         status: u16,
     ) -> Result<(), RequestError> {
@@ -40,7 +40,12 @@ impl Leg<'_> {
         // field names) so JSON escaping cannot conceal a value from this boundary.
         // Scan tokens independently: object decoding drops duplicate fields and
         // its nesting limit can hide strings before recording rejects the reply.
-        if reflected(media.as_bytes()) || reflected(body) || json_strings_contain(body, &reflected)
+        let metadata = serde_json::to_vec(response)
+            .map_err(|_| self.failure(Reason::BadReply, Some(status)))?;
+        if reflected(&metadata)
+            || json_strings_contain(&metadata, &reflected)
+            || reflected(body)
+            || json_strings_contain(body, &reflected)
         {
             return Err(self.failure(Reason::BadReply, Some(status)).into());
         }

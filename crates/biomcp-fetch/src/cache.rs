@@ -27,9 +27,10 @@ pub(crate) struct Cache(
     pub(crate) std::path::PathBuf,
 );
 
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize)]
 pub(crate) struct Entry {
     pub(crate) status: u16,
+    #[serde(skip)] // Containment scans raw and decoded body bytes directly.
     pub(crate) body: Vec<u8>,
     pub(crate) content_type: Option<String>,
     pub(crate) content_range: Option<String>,

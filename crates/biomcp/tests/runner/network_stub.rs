@@ -96,7 +96,7 @@ impl Stub {
             range,
         )
     }
-    fn with_headers(
+    pub(super) fn with_headers(
         hosts: &[&str],
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
