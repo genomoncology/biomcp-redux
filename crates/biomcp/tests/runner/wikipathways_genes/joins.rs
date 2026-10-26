@@ -20,6 +20,7 @@ pub(super) fn run() -> Check {
         if request.contains("findPathwaysByText.json") { Ok(super::catalog(true)) }
         else if request.contains("getPathwayInfo.json") { Ok(super::catalog(false)) }
         else if request.contains("hgnc_complete_set.txt") { Ok(HGNC.into()) }
+        else if request.contains("withdrawn.txt") { Ok("HGNC_ID\tSTATUS\tWITHDRAWN_SYMBOL\nHGNC:3\tEntry Withdrawn\tSYNTHWITHDRAWN\n".into()) }
         else if request.contains(".gpml") { Ok(body()) }
         else { Err(format!("Unexpected source request {request}")) }
     })?;
@@ -44,6 +45,6 @@ pub(super) fn run() -> Check {
     if page.pointer("/result/items").and_then(Value::as_array).ok_or("remaining nodes")?.iter().any(|row| row.get("gene").is_some()) {
         return Err(format!("Alias, label or version stripping resolved a gene: {page}"));
     }
-    if stub.finish()?.len() != 4 { return Err("A retained page fetched source data".into()); }
+    if stub.finish()?.len() != 5 { return Err("A retained page fetched source data".into()); }
     Ok(())
 }

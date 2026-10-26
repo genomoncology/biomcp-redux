@@ -10,6 +10,7 @@ pub(super) fn run() -> Check {
     let search = fs::read_to_string(input.join("search.json")).map_err(|e| e.to_string())?;
     let get = fs::read_to_string(input.join("get.json")).map_err(|e| e.to_string())?;
     let hgnc = fs::read_to_string(input.join("hgnc.tsv")).map_err(|e| e.to_string())?;
+    let withdrawn = fs::read_to_string(input.join("withdrawn.tsv")).map_err(|e| e.to_string())?;
     let wp382 = fs::read_to_string(input.join("WP382.gpml")).map_err(|e| e.to_string())?;
     let wp100 = fs::read_to_string(input.join("WP100.gpml")).map_err(|e| e.to_string())?;
     let stub = Stub::for_sources(
@@ -30,6 +31,8 @@ pub(super) fn run() -> Check {
                 Ok(get.clone())
             } else if r.contains("hgnc_complete_set.txt") {
                 Ok(hgnc.clone())
+            } else if r.contains("withdrawn.txt") {
+                Ok(withdrawn.clone())
             } else if r.contains("/WP382/WP382.gpml") {
                 Ok(wp382.clone())
             } else if r.contains("/WP100/WP100.gpml") {
@@ -61,7 +64,7 @@ pub(super) fn run() -> Check {
         )?;
         measure(&env, id, &mut outputs)?;
     }
-    if stub.finish()?.len() != 5 {
+    if stub.finish()?.len() != 6 {
         return Err("A retained page or section refetched GPML".into());
     }
     fs::write(
