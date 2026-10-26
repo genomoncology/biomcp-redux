@@ -1,0 +1,45 @@
+{
+  "feature": "cell-line-sections",
+  "story": "A caller walks all 1,398 K-562 source cross-references in native order without gaps or duplicate identities.",
+  "replay": "cell-line/k562-xrefs",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "cell-line",
+        "CVCL_0004",
+        "xrefs",
+        "--section-limit",
+        "25"
+      ],
+      "mcp": [
+        "get",
+        "cell-line",
+        "CVCL_0004",
+        "xrefs",
+        "--section-limit",
+        "25"
+      ],
+      "walk": {
+        "items": "/result/items/items",
+        "max_pages": 56
+      },
+      "expect": {
+        "/status": "complete",
+        "/result/items/total": 1398,
+        "/result/items/items": {
+          "count": 1398,
+          "unique": true
+        },
+        "/result/items/items/*/database": {
+          "equals_file": "k562-xref-databases.json"
+        },
+        "/result/items/items/*/accession": {
+          "equals_file": "k562-xref-accessions.json"
+        }
+      },
+      "max_bytes": 5868,
+      "max_tokens": 1467
+    }
+  ]
+}

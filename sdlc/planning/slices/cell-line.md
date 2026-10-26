@@ -337,3 +337,76 @@ These are complete compact product envelopes. CLI includes its newline; MCP meas
 The focused discovery check in `j15137` measured whole-tree CLI help at 84,770 bytes including its newline. The compact MCP tools/list RPC reply was 7,713 bytes and its main-tool description was 3,129 bytes; all remain within existing shared limits. The source enum array was 673 compact bytes and the printed schema was 3,670 bytes, within their existing limits. Entity search help was 760 CLI bytes, 759 MCP bytes and 672 bytes for the bare Help result; get help was 1,015, 1,014 and 930 respectively. Help has no source-term subtraction. The owning table above uses the complete envelopes, with separate actual Markdown measurements. The preserved-recording example replay passed with the explicit `--query` alias; no recording was repeated.
 
 The restored checked canonical-accession branch was measured independently in `j15149`: `native/search/accession-CVCL_0005` returned 1,358 CLI bytes including newline and 1,357 MCP bytes. Its separate ceilings are 1,562 and 1,561 bytes (391 estimated tokens each), with the same 15 percent headroom. It uses the unchanged exact 0256 `ac` witness; no provider call or completed literal-search measurement was repeated.
+
+## Complete-card field contracts
+
+Named Cellosaurus sections reuse the retained `ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt` request. The first cold section reads one checked complete reply; independently requested pages share that request and cache identity. The default card retains its separate smaller projection. Unrequested collections remain distinct from source omission.
+
+The complete native xref inventory contains `database`, `accession`, `label`, `url`, `category`, `iri` and `discontinued`. The last field is native text, including `true` and `probable`; it is not converted to a boolean. Native names contain `type` and `value`. Variations contain `variation-type`, optional `mutation-type`, optional `mutation-description`, optional `variation-note`, optional `zygosity-type`, `xref-list` and `source-list`. Provenance contains independently optional `reference`, `institution`, `value` and `xref`; publication references contain `resource-internal-ref`. Every retained member maps without clipping. HL-60 deletion rows omit `mutation-description`, so the public description is optional. The card envelope advances to version 3 and standalone variants to version 2 for that omission contract. The four standalone section pages retain independent source release and original complete-card retrieval time.
+
+Complete-card ambiguity retains the card's bounded candidate identities and exact gets. Gene pivots use only source HGNC members, and article pivots use exact `PubMed=` identities. Native disease accession strings receive no invented namespace. Requested offsets apply independently to species, diseases and warnings, and variation totals count whole source rows.
+
+## Measured native section output budgets
+
+The focused measurements in `j15205` and `j15207` retain separate actual CLI, MCP and Markdown surfaces. Each cell shows observed bytes, its byte ceiling with 15 percent headroom, and the estimated token ceiling. Ordinary cache controls own only their executed CLI surface. Unknown ordinary phase keys fail. The existing command budget fixture owns these phases; executable YAML steps own their own `max_bytes` and `max_tokens`.
+
+| Owning phase | CLI observed / ceiling / tokens | MCP observed / ceiling / tokens | Markdown observed / ceiling / tokens |
+| --- | ---: | ---: | ---: |
+| `sections/admission/provenance/failed` | 412 / 474 / 119 |  |  |
+| `sections/admission/provenance/healthy` | 2182 / 2510 / 628 |  |  |
+| `sections/admission/xref/failed` | 412 / 474 / 119 |  |  |
+| `sections/admission/xref/healthy` | 2182 / 2510 / 628 |  |  |
+| `sections/bounds/identity/1/1` | 894 / 1029 / 258 | 893 / 1027 / 257 | 982 / 1130 / 283 |
+| `sections/bounds/names/1/1` | 660 / 759 / 190 | 659 / 758 / 190 | 714 / 822 / 206 |
+| `sections/bounds/variants/25/100` | 521 / 600 / 150 | 520 / 598 / 150 | 572 / 658 / 165 |
+| `sections/bounds/xrefs/1/1` | 886 / 1019 / 255 | 885 / 1018 / 255 | 961 / 1106 / 277 |
+| `sections/cache/identity` | 1526 / 1755 / 439 |  |  |
+| `sections/cache/names` | 638 / 734 / 184 |  |  |
+| `sections/cache/variants` | 2182 / 2510 / 628 |  |  |
+| `sections/cache/xrefs` | 1559 / 1793 / 449 |  |  |
+| `sections/disabled/prime` | 2182 / 2510 / 628 |  |  |
+| `sections/disabled/warm` | 326 / 375 / 94 |  |  |
+| `sections/full/CVCL_0002/names` | 697 / 802 / 201 | 696 / 801 / 201 | 703 / 809 / 203 |
+| `sections/full/CVCL_0002/variants` | 2970 / 3416 / 854 | 2969 / 3415 / 854 | 3144 / 3616 / 904 |
+| `sections/full/CVCL_0007/variants` | 4207 / 4839 / 1210 | 4206 / 4837 / 1210 | 4560 / 5244 / 1311 |
+| `sections/full/CVCL_0064/variants` | 1948 / 2241 / 561 | 1947 / 2240 / 560 | 1990 / 2289 / 573 |
+| `sections/full/CVCL_1844/variants` | 3202 / 3683 / 921 | 3201 / 3682 / 921 | 3366 / 3871 / 968 |
+| `sections/full/CVCL_2119/variants` | 2201 / 2532 / 633 | 2200 / 2530 / 633 | 2156 / 2480 / 620 |
+| `sections/full/CVCL_8821/names` | 691 / 795 / 199 | 690 / 794 / 199 | 697 / 802 / 201 |
+| `sections/full/CVCL_8821/variants` | 1219 / 1402 / 351 | 1218 / 1401 / 351 | 1356 / 1560 / 390 |
+| `sections/full/CVCL_8821/xrefs` | 2508 / 2885 / 722 | 2507 / 2884 / 721 | 2120 / 2438 / 610 |
+| `sections/full/CVCL_A794/variants` | 2385 / 2743 / 686 | 2384 / 2742 / 686 | 2654 / 3053 / 764 |
+| `sections/native/CVCL_0002/identity` | 1319 / 1517 / 380 | 1318 / 1516 / 379 | 1409 / 1621 / 406 |
+| `sections/native/CVCL_0002/names` | 678 / 780 / 195 | 677 / 779 / 195 | 679 / 781 / 196 |
+| `sections/native/CVCL_0002/variants` | 2951 / 3394 / 849 | 2950 / 3393 / 849 | 3120 / 3588 / 897 |
+| `sections/native/CVCL_0002/xrefs` | 1592 / 1831 / 458 | 1591 / 1830 / 458 | 1517 / 1745 / 437 |
+| `sections/native/CVCL_0007/identity` | 1525 / 1754 / 439 | 1524 / 1753 / 439 | 1627 / 1872 / 468 |
+| `sections/native/CVCL_0007/names` | 596 / 686 / 172 | 595 / 685 / 172 | 627 / 722 / 181 |
+| `sections/native/CVCL_0007/variants` | 2707 / 3114 / 779 | 2706 / 3112 / 778 | 2841 / 3268 / 817 |
+| `sections/native/CVCL_0007/xrefs` | 1592 / 1831 / 458 | 1591 / 1830 / 458 | 1517 / 1745 / 437 |
+| `sections/native/CVCL_0007/xrefs-qualified` | 1153 / 1326 / 332 | 1152 / 1325 / 332 | 1089 / 1253 / 314 |
+| `sections/native/CVCL_0064/identity` | 1296 / 1491 / 373 | 1295 / 1490 / 373 | 1386 / 1594 / 399 |
+| `sections/native/CVCL_0064/names` | 767 / 883 / 221 | 766 / 881 / 221 | 760 / 874 / 219 |
+| `sections/native/CVCL_0064/variants` | 1929 / 2219 / 555 | 1928 / 2218 / 555 | 1966 / 2261 / 566 |
+| `sections/native/CVCL_0064/xrefs` | 1545 / 1777 / 445 | 1544 / 1776 / 444 | 1467 / 1688 / 422 |
+| `sections/native/CVCL_1844/identity` | 1290 / 1484 / 371 | 1289 / 1483 / 371 | 1380 / 1587 / 397 |
+| `sections/native/CVCL_1844/names` | 776 / 893 / 224 | 775 / 892 / 223 | 769 / 885 / 222 |
+| `sections/native/CVCL_1844/variants` | 3183 / 3661 / 916 | 3182 / 3660 / 915 | 3342 / 3844 / 961 |
+| `sections/native/CVCL_1844/xrefs` | 1575 / 1812 / 453 | 1574 / 1811 / 453 | 1497 / 1722 / 431 |
+| `sections/native/CVCL_2119/identity` | 1526 / 1755 / 439 | 1525 / 1754 / 439 | 1563 / 1798 / 450 |
+| `sections/native/CVCL_2119/names` | 638 / 734 / 184 | 637 / 733 / 184 | 654 / 753 / 189 |
+| `sections/native/CVCL_2119/variants` | 2182 / 2510 / 628 | 2181 / 2509 / 628 | 2132 / 2452 / 613 |
+| `sections/native/CVCL_2119/xrefs` | 1559 / 1793 / 449 | 1558 / 1792 / 448 | 1481 / 1704 / 426 |
+| `sections/native/CVCL_8821/identity` | 1252 / 1440 / 360 | 1251 / 1439 / 360 | 1342 / 1544 / 386 |
+| `sections/native/CVCL_8821/names` | 672 / 773 / 194 | 671 / 772 / 193 | 673 / 774 / 194 |
+| `sections/native/CVCL_8821/variants` | 1200 / 1380 / 345 | 1199 / 1379 / 345 | 1332 / 1532 / 383 |
+| `sections/native/CVCL_8821/xrefs` | 1401 / 1612 / 403 | 1400 / 1610 / 403 | 1308 / 1505 / 377 |
+| `sections/native/CVCL_A794/identity` | 1319 / 1517 / 380 | 1318 / 1516 / 379 | 1409 / 1621 / 406 |
+| `sections/native/CVCL_A794/names` | 684 / 787 / 197 | 683 / 786 / 197 | 685 / 788 / 197 |
+| `sections/native/CVCL_A794/variants` | 2366 / 2721 / 681 | 2365 / 2720 / 680 | 2630 / 3025 / 757 |
+| `sections/native/CVCL_A794/xrefs` | 1488 / 1712 / 428 | 1487 / 1711 / 428 | 1416 / 1629 / 408 |
+| `sections/synthetic/ambiguous-variants` | 4753 / 5466 / 1367 | 4752 / 5465 / 1367 | 5200 / 5980 / 1495 |
+| `sections/synthetic/qualified-identity` | 690 / 794 / 199 | 689 / 793 / 199 | 745 / 857 / 215 |
+| `sections/synthetic/release-failure` | 2312 / 2659 / 665 | 2311 / 2658 / 665 | 2280 / 2622 / 656 |
+
+The K-562 executable YAML walk owns its whole 1,398-row cross-reference sequence and exact ordered database/accession floors. `j15207` measured every 25-row page independently in CLI and MCP. The largest pages were 5,102 CLI bytes and 5,101 MCP bytes. The canonical walk ceiling is 5,868 bytes and 1,467 estimated tokens. First, middle and terminal pages retain the same complete source rows and native total. Every variation row stays whole; growth past its owning measured ceiling fails the case instead of clipping the row.

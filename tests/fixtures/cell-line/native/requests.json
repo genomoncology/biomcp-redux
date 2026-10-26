@@ -93,5 +93,45 @@
     "target": "/search/cell-line?q=ac%3A%22CVCL_0005%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5",
     "file": "native-accession-search.json",
     "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_0064": {
+    "target": "/cell-line/CVCL_0064?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_0064.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_1844": {
+    "target": "/cell-line/CVCL_1844?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_1844.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_0004": {
+    "target": "/cell-line/CVCL_0004?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_0004.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_0005": {
+    "target": "/cell-line/CVCL_0005?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_0005.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_8821": {
+    "target": "/cell-line/CVCL_8821?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_8821.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_0002": {
+    "target": "/cell-line/CVCL_0002?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_0002.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_A794": {
+    "target": "/cell-line/CVCL_A794?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_A794.json",
+    "status": 200
+  },
+  "portable-cellosaurus-cell-CVCL_0007": {
+    "target": "/cell-line/CVCL_0007?format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cdr%2Cvar%2Cprob%2Ccaution%2Cdt",
+    "file": "portable-cellosaurus-cell-CVCL_0007.json",
+    "status": 200
   }
 }

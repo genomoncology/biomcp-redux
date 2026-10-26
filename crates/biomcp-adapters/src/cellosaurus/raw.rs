@@ -33,12 +33,41 @@ pub(super) struct Record {
     pub entry_version: Option<Text>,
     pub comment_list: Option<Box<[Comment]>>,
     pub xref_list: Option<Box<[Xref]>>,
+    pub sequence_variation_list: Option<Box<[Variation]>>,
 }
 // Native xrefs can carry additional publisher fields, unlike the public projection.
 #[derive(Debug, Deserialize)]
 pub(super) struct Xref {
     pub database: Text,
     pub accession: Text,
+    pub label: Option<Text>,
+    pub url: Option<Text>,
+    pub category: Option<Text>,
+    pub iri: Option<Text>,
+    pub discontinued: Option<Text>,
+}
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub(super) struct Variation {
+    pub variation_type: Text,
+    pub mutation_type: Option<Text>,
+    pub mutation_description: Option<Text>,
+    pub variation_note: Option<Text>,
+    pub zygosity_type: Option<Text>,
+    pub xref_list: Option<Box<[Xref]>>,
+    pub source_list: Option<Box<[Provenance]>>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct Provenance {
+    pub reference: Option<Reference>,
+    pub institution: Option<Text>,
+    pub value: Option<Text>,
+    pub xref: Option<Xref>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct Reference {
+    #[serde(rename = "resource-internal-ref")]
+    pub resource_internal_ref: Text,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Accession {

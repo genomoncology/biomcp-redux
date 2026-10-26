@@ -13,9 +13,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     out.local = error.and_then(status::local);
     if reply.is_ok() {
         out.status = card.status;
-        actions(&mut out, &card);
+        if query.section().is_some() && card.candidates.is_empty() {
+            super::sections::actions(query, &card, &mut out);
+        } else {
+            actions(&mut out, &card);
+        }
         out.body = QueryBody::CellLineCard(card);
         super::provenance::attach(cx, deadline, &mut out);
+        if let QueryBody::CellLineCard(card) = &mut out.body {
+            super::sections::provenance(card);
+        }
     }
     recovery(&mut out, Request::GetCellLine(query.clone()));
     command.finish(deadline.remaining());
@@ -53,7 +60,11 @@ fn resolve(
             )
         }
     };
-    let reply = cellosaurus::get(leg, &accession, source)?;
+    let reply = if query.section().is_some() {
+        cellosaurus::complete(leg, &accession, source)?
+    } else {
+        cellosaurus::get(leg, &accession, source)?
+    };
     if let Some(mut selected) = reply.card {
         selected.input = query.id().clone();
         selected.fetched = u64::try_from(reply.metadata.fetched).ok();
@@ -70,6 +81,7 @@ fn resolve(
                 .filter(|s| *s != CellLineSection::Identity)
                 .collect();
         }
+        super::sections::select(query, &mut selected);
         *card = selected;
     } else {
         card.status = Status::Absent;

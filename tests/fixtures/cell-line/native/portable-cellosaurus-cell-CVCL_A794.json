@@ -1,0 +1,274 @@
+{
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_A794"
+          }
+        ],
+        "age": "36Y",
+        "category": "Cancer cell line",
+        "created": "2012-06-06",
+        "disease-list": [
+          {
+            "accession": "C7961",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C7961",
+            "label": "Adult acute myeloid leukemia with maturation",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C7961"
+          },
+          {
+            "accession": "Orphanet_98834",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_98834",
+            "label": "Acute myeloblastic leukemia with maturation",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_98834"
+          }
+        ],
+        "entry-version": "36",
+        "last-updated": "2026-06-25",
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "HL-60 (TB)"
+          },
+          {
+            "type": "synonym",
+            "value": "HL-60-TB"
+          },
+          {
+            "type": "synonym",
+            "value": "HL-60TB"
+          },
+          {
+            "type": "synonym",
+            "value": "HL-60 TB"
+          },
+          {
+            "type": "identifier",
+            "value": "HL-60(TB)"
+          }
+        ],
+        "sequence-variation-list": [
+          {
+            "source-list": [
+              {
+                "value": "from parent cell line HL-60",
+                "xref": {
+                  "accession": "CVCL_0002",
+                  "category": "Cell line databases/resources",
+                  "database": "Cellosaurus",
+                  "label": "HL-60",
+                  "url": "https://www.cellosaurus.org/CVCL_0002"
+                }
+              }
+            ],
+            "variation-type": "Gene deletion",
+            "xref-list": [
+              {
+                "accession": "HGNC:11998",
+                "category": "Organism-specific databases",
+                "database": "HGNC",
+                "label": "TP53",
+                "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:11998"
+              }
+            ],
+            "zygosity-type": "Homozygous"
+          },
+          {
+            "mutation-description": "p.Arg80Ter (c.238C>T) (p.Pro94Leu, c.281C>T)",
+            "mutation-type": "Simple",
+            "source-list": [
+              {
+                "reference": {
+                  "resource-internal-ref": "PubMed=17088437"
+                }
+              }
+            ],
+            "variation-type": "Mutation",
+            "xref-list": [
+              {
+                "accession": "HGNC:1787",
+                "category": "Organism-specific databases",
+                "database": "HGNC",
+                "label": "CDKN2A",
+                "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:1787"
+              },
+              {
+                "accession": "VCV000009409",
+                "category": "Polymorphism and mutation databases",
+                "database": "ClinVar",
+                "url": "https://www.ncbi.nlm.nih.gov/clinvar/variation/VCV000009409"
+              }
+            ],
+            "zygosity-type": "Homozygous"
+          },
+          {
+            "mutation-description": "p.Gln61Leu (c.182A>T)",
+            "mutation-type": "Simple",
+            "source-list": [
+              {
+                "reference": {
+                  "resource-internal-ref": "PubMed=17088437"
+                }
+              }
+            ],
+            "variation-type": "Mutation",
+            "xref-list": [
+              {
+                "accession": "HGNC:7989",
+                "category": "Organism-specific databases",
+                "database": "HGNC",
+                "label": "NRAS",
+                "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:7989"
+              },
+              {
+                "accession": "VCV000375874",
+                "category": "Polymorphism and mutation databases",
+                "database": "ClinVar",
+                "url": "https://www.ncbi.nlm.nih.gov/clinvar/variation/VCV000375874"
+              }
+            ],
+            "zygosity-type": "Heterozygous"
+          }
+        ],
+        "sex": "Female",
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ],
+        "xref-list": [
+          {
+            "accession": "BTO_0004119",
+            "category": "Anatomy/cell type resources",
+            "database": "BTO",
+            "iri": "http://purl.obolibrary.org/obo/BTO_0004119",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/bto/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FBTO_0004119"
+          },
+          {
+            "accession": "CVCL_A794",
+            "category": "Cell line databases/resources",
+            "database": "cancercelllines",
+            "url": "https://cancercelllines.org/cellline/?id=cellosaurus:CVCL_A794"
+          },
+          {
+            "accession": "CHEMBL4106363",
+            "category": "Chemistry resources",
+            "database": "ChEMBL-Cells",
+            "url": "https://www.ebi.ac.uk/chembldb/cell/inspect/CHEMBL4106363"
+          },
+          {
+            "accession": "CHEMBL4296429",
+            "category": "Chemistry resources",
+            "database": "ChEMBL-Targets",
+            "url": "https://www.ebi.ac.uk/chembldb/target/inspect/CHEMBL4296429"
+          },
+          {
+            "accession": "974252",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=974252"
+          },
+          {
+            "accession": "1175855",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=1175855"
+          },
+          {
+            "accession": "1312323",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=1312323"
+          },
+          {
+            "accession": "GSM2173",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM2173"
+          },
+          {
+            "accession": "GSM1178186",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1178186"
+          },
+          {
+            "accession": "GSM1178187",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1178187"
+          },
+          {
+            "accession": "GSM1178188",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1178188"
+          },
+          {
+            "accession": "GSM1178189",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1178189"
+          },
+          {
+            "accession": "GSM1178190",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1178190"
+          },
+          {
+            "accession": "GSM2124666",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM2124666"
+          },
+          {
+            "accession": "HL-60",
+            "category": "Cell line collections (Providers)",
+            "database": "NCI-DCTD"
+          },
+          {
+            "accession": "PXD005942",
+            "category": "Proteomic databases",
+            "database": "PRIDE",
+            "url": "https://www.ebi.ac.uk/pride/archive/projects/PXD005942"
+          },
+          {
+            "accession": "PXD005946",
+            "category": "Proteomic databases",
+            "database": "PRIDE",
+            "url": "https://www.ebi.ac.uk/pride/archive/projects/PXD005946"
+          },
+          {
+            "accession": "CVCL_A794",
+            "category": "Chemistry resources",
+            "database": "PubChem_Cell_line",
+            "url": "https://pubchem.ncbi.nlm.nih.gov/cell/CVCL_A794"
+          },
+          {
+            "accession": "2738",
+            "category": "Cell line databases/resources",
+            "database": "SKY/M-FISH/CGH"
+          },
+          {
+            "accession": "Q54889812",
+            "category": "Encyclopedic resources",
+            "database": "Wikidata",
+            "url": "https://www.wikidata.org/wiki/Q54889812"
+          }
+        ]
+      }
+    ]
+  }
+}

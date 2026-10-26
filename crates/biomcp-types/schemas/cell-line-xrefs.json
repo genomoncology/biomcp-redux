@@ -63,6 +63,24 @@
       "pattern": "^(CVCL_[A-Z0-9]{4}|[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+)$",
       "type": "string"
     },
+    "CellLineRelease": {
+      "description": "Publisher release identity, fetched independently from record data.",
+      "properties": {
+        "updated": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Native release update date."
+        },
+        "version": {
+          "$ref": "#/$defs/Text",
+          "description": "Native release version."
+        }
+      },
+      "required": [
+        "version",
+        "updated"
+      ],
+      "type": "object"
+    },
     "CellLineSection": {
       "description": "Named disclosure sections; all requests each bounded first page without an assay count.",
       "enum": [
@@ -97,6 +115,17 @@
         "database": {
           "$ref": "#/$defs/Text",
           "description": "Native database name; no fixed vocabulary."
+        },
+        "discontinued": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native discontinuation qualifier, including values such as probable."
         },
         "iri": {
           "anyOf": [
@@ -146,6 +175,15 @@
           "$ref": "#/$defs/CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
+        "fetched": {
+          "description": "Original complete-card retrieval seconds, distinct from source release.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "$ref": "#/$defs/Capped",
           "description": "Whole source rows and the total in this collection only."
@@ -155,6 +193,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independently fetched publisher release."
         }
       },
       "required": [
@@ -215,6 +264,10 @@
         "total"
       ],
       "type": "object"
+    },
+    "PartialDate": {
+      "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+      "type": "string"
     },
     "PoolInfo": {
       "additionalProperties": false,

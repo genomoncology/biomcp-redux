@@ -5,6 +5,7 @@ mod faults;
 mod help;
 mod native;
 mod research;
+mod sections;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -25,6 +26,10 @@ pub(super) fn trials() -> Vec<Trial> {
     tests.push(Trial::test(
         "cell-line-identity/checked-canonical-accession-search",
         || native::canonical(false).map_err(Into::into),
+    ));
+    tests.push(Trial::test(
+        "cell-line-sections/native-whole-rows-and-independent-pages",
+        || sections::run(false).map_err(Into::into),
     ));
     tests.extend(faults::trials());
     tests
@@ -105,6 +110,9 @@ fn compared(
     }
     if matches!(phase, "native/search/MOLM13" | "native/card/CVCL_0007") {
         markdown(phase, env, words, &replay, &value, measure)?;
+    }
+    if phase.starts_with("sections/") {
+        sections::markdown(phase, env, words, &replay, &value, measure)?;
     }
     let registry = super::schema::Registry::embedded()?;
     let arguments = words.iter().map(|s| s.to_string()).collect::<Vec<_>>();
@@ -290,4 +298,16 @@ pub(crate) fn measure_remaining() -> Result<(), String> {
 
 pub(crate) fn measure_canonical() -> Result<(), String> {
     native::canonical(true)
+}
+
+pub(crate) fn measure_sections() -> Result<(), String> {
+    sections::run(true)
+}
+
+pub(crate) fn generate_xrefs(directory: &std::path::Path) -> Result<(), String> {
+    examples::generate_xrefs(directory)
+}
+
+pub(crate) fn measure_section_release() -> Result<(), String> {
+    sections::measure_release()
 }

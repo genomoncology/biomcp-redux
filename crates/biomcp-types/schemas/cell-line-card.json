@@ -516,11 +516,31 @@
           "$ref": "#/$defs/Capped",
           "description": "Whole disease rows and their independent source total."
         },
+        "fetched": {
+          "description": "Original complete-card retrieval seconds, distinct from source release.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "offset": {
           "description": "Requested offset applied independently to each collection.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independently fetched publisher release."
         },
         "species": {
           "$ref": "#/$defs/Capped",
@@ -572,6 +592,15 @@
           "$ref": "#/$defs/CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
+        "fetched": {
+          "description": "Original complete-card retrieval seconds, distinct from source release.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "$ref": "#/$defs/Capped3",
           "description": "Whole source rows and the total in this collection only."
@@ -581,6 +610,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independently fetched publisher release."
         }
       },
       "required": [
@@ -755,6 +795,15 @@
           "$ref": "#/$defs/CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
+        "fetched": {
+          "description": "Original complete-card retrieval seconds, distinct from source release.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "$ref": "#/$defs/Capped4",
           "description": "Whole source rows and the total in this collection only."
@@ -764,6 +813,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independently fetched publisher release."
         }
       },
       "required": [
@@ -778,7 +838,14 @@
       "description": "One complete native variation row; descriptions do not become normalized alleles.",
       "properties": {
         "description": {
-          "$ref": "#/$defs/Text",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Complete native mutation description including all coordinate spellings."
         },
         "genes": {
@@ -842,7 +909,6 @@
       },
       "required": [
         "variation_type",
-        "description",
         "genes",
         "references",
         "provenance"
@@ -890,6 +956,17 @@
         "database": {
           "$ref": "#/$defs/Text",
           "description": "Native database name; no fixed vocabulary."
+        },
+        "discontinued": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native discontinuation qualifier, including values such as probable."
         },
         "iri": {
           "anyOf": [
@@ -939,6 +1016,15 @@
           "$ref": "#/$defs/CellosaurusAccession",
           "description": "Selected exact primary accession."
         },
+        "fetched": {
+          "description": "Original complete-card retrieval seconds, distinct from source release.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "$ref": "#/$defs/Capped",
           "description": "Whole source rows and the total in this collection only."
@@ -948,6 +1034,17 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independently fetched publisher release."
         }
       },
       "required": [
@@ -2125,7 +2222,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell_line_card/2",
+  "$id": "biomcp.cell_line_card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2171,7 +2268,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell_line_card/2",
+      "const": "biomcp.cell_line_card/3",
       "type": "string"
     },
     "sources": {
