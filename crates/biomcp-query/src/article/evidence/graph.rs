@@ -84,7 +84,8 @@ pub(super) fn read<'a>(
     let target = match target(cx, query, deadline, snapshot, out) {
         Ok(value) => value,
         Err(error) => {
-            snapshot.graph = Section::unavailable(Source::SemanticScholar, reason(error));
+            snapshot.graph =
+                Section::unavailable(Source::SemanticScholar, crate::status::reason(error));
             out.local = status::local(error);
             return Ok(());
         }
@@ -148,7 +149,8 @@ pub(super) fn read<'a>(
     if let Err(error) = result {
         out.local = status::local(error);
         if !matches!(snapshot.graph, Section::Data { .. }) {
-            snapshot.graph = Section::unavailable(Source::SemanticScholar, reason(error));
+            snapshot.graph =
+                Section::unavailable(Source::SemanticScholar, crate::status::reason(error));
         }
     }
     finish(snapshot);
@@ -224,11 +226,5 @@ fn finish(snapshot: &mut Snapshot) {
                 notice: None,
             },
         };
-    }
-}
-pub(super) fn reason(error: RequestError) -> biomcp_types::Reason {
-    match error {
-        RequestError::Source(e) => e.reason,
-        _ => biomcp_types::Reason::Unavailable,
     }
 }

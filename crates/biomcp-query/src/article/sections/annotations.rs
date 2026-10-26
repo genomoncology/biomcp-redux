@@ -3,8 +3,8 @@ use biodata::Pmid;
 use biomcp_adapters::pubtator;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    Annotations, ArticleCardItem, ArticleResolution, Problem, Reason, Section, Source,
-    SourceOutcome, SourceState, Status,
+    Annotations, ArticleCardItem, ArticleResolution, Problem, Section, Source, SourceOutcome,
+    SourceState, Status,
 };
 pub(super) struct Result {
     pub values: Vec<(Pmid, Section<Annotations>)>,
@@ -51,10 +51,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -
                 }
             }
             Err(error) => {
-                let reason = match error {
-                    RequestError::Source(e) => e.reason,
-                    _ => Reason::Unavailable,
-                };
+                let reason = crate::status::reason(error);
                 values.extend(
                     chunk
                         .iter()

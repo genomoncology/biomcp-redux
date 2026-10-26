@@ -103,7 +103,11 @@ impl Leg<'_> {
             });
         };
         let mut stale = None;
-        if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
+        if matches!(
+            self.fetch.config.mode,
+            Mode::Live { .. } | Mode::Replay { .. }
+        ) && !self.fresh
+        {
             match self.checked_cached(cache, prepared, codec)? {
                 Some(Checked::Positive(reply, true, fetched, range, pagination)) => {
                     return Ok((reply, fetched, range, pagination));

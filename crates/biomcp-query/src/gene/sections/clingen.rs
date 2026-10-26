@@ -3,7 +3,7 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
 use biomcp_adapters::clingen;
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 use biomcp_types::{Reason, Section, Source};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
@@ -24,13 +24,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 Err(failure) => {
                     error = Some(failure);
                     local = local.or(status::local(failure));
-                    Section::unavailable(
-                        Source::ClinGen,
-                        match failure {
-                            RequestError::Source(failure) => failure.reason,
-                            _ => Reason::Unavailable,
-                        },
-                    )
+                    Section::unavailable(Source::ClinGen, crate::status::reason(failure))
                 }
             };
             (*id, SectionValue::ClinGen(section))

@@ -202,7 +202,10 @@ fn next(out: &mut Outcome, cx: &Ctx<'_>, kind: StepKind, query: StudyGet) {
 fn section_error(out: &mut Outcome, section: StudySection, error: Option<RequestError>) {
     let Some(error) = error else { return };
     let reason = match error {
-        RequestError::Source(source) => source.reason,
+        error @ (RequestError::Source(_)
+        | RequestError::Recording(
+            biomcp_fetch::RecordError::Missing | biomcp_fetch::RecordError::Exhausted,
+        )) => crate::status::reason(error),
         _ => biomcp_types::Reason::BadReply,
     };
     if let QueryBody::StudyCard(Some(card)) = &mut out.body {

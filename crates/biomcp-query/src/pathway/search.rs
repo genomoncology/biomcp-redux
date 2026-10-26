@@ -35,7 +35,10 @@ pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         if out.sources.iter().all(|s| s.source != source) {
             let reason = match error {
-                RequestError::Source(e) => Some(e.reason),
+                error @ (RequestError::Source(_)
+                | RequestError::Recording(
+                    biomcp_fetch::RecordError::Missing | biomcp_fetch::RecordError::Exhausted,
+                )) => Some(crate::status::reason(error)),
                 _ => None,
             };
             out.sources.push(biomcp_adapters::registry::outcome(

@@ -73,13 +73,7 @@ fn disclose(
     problems: &mut Vec<Problem>,
 ) -> Section<VariantHotspots> {
     if let Some(error) = error {
-        Section::unavailable(
-            Source::CancerHotspots,
-            match error {
-                RequestError::Source(e) => e.reason,
-                _ => Reason::Unavailable,
-            },
-        )
+        Section::unavailable(Source::CancerHotspots, crate::status::reason(error))
     } else if rows.is_empty() {
         Section::Empty {
             source: Source::CancerHotspots,

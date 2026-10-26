@@ -18,7 +18,10 @@ pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &
         && let QueryBody::StudyCard(Some(card)) = &mut out.body
     {
         let reason = match error {
-            RequestError::Source(e) => e.reason,
+            error @ (RequestError::Source(_)
+            | RequestError::Recording(
+                biomcp_fetch::RecordError::Missing | biomcp_fetch::RecordError::Exhausted,
+            )) => crate::status::reason(error),
             _ => biomcp_types::Reason::BadReply,
         };
         card.files = Some(Section::unavailable(Source::Cbioportal, reason));

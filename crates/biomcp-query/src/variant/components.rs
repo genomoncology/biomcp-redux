@@ -1,7 +1,7 @@
 //! Component restrictions are decided before reading replies or caches.
 use crate::{Ctx, status};
 use biodata::Build;
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 use biomcp_types::{
     Reason, Section, Source, SourceState, VariantGet, VariantHeader, VariantPredictors,
 };
@@ -86,8 +86,7 @@ pub(super) fn measurements(
                 }
             }
         }
-        Err(RequestError::Source(error)) => Section::unavailable(Source::MyVariant, error.reason),
-        Err(_) => Section::unavailable(Source::MyVariant, Reason::Unavailable),
+        Err(error) => Section::unavailable(Source::MyVariant, crate::status::reason(error)),
     };
     (
         section,

@@ -37,7 +37,7 @@ pub(super) fn section(
                 .ok()
                 .map(|id| biomcp_types::SourceRecord { id, url: None }),
         },
-        Err(e) => Section::unavailable(Source::Gnomad, reason(e)),
+        Err(e) => Section::unavailable(Source::Gnomad, crate::status::reason(e)),
     };
     (value, vec![source], problems, error.and_then(status::local))
 }
@@ -223,10 +223,4 @@ fn text(value: &str) -> Result<Text, RequestError> {
         }
         .into()
     })
-}
-fn reason(error: RequestError) -> Reason {
-    match error {
-        RequestError::Source(e) => e.reason,
-        _ => Reason::Unavailable,
-    }
 }

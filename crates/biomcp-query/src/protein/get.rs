@@ -166,13 +166,7 @@ fn hydrate(
                 super::reply_problem(out, Source::UniProt, &id, e);
                 failed = true;
                 if !q.sections().is_empty() {
-                    item.sections = Some(super::sections::failed(
-                        q,
-                        match e {
-                            RequestError::Source(s) => s.reason,
-                            _ => biomcp_types::Reason::Unavailable,
-                        },
-                    ));
+                    item.sections = Some(super::sections::failed(q, crate::status::reason(e)));
                 }
                 *error = Some(e);
                 out.local = out.local.or(status::local(e));

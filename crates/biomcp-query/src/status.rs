@@ -22,7 +22,12 @@ pub(crate) fn source(
     error: Option<RequestError>,
 ) -> SourceOutcome {
     let reason = match error {
-        Some(RequestError::Source(error)) => Some(error.reason),
+        Some(
+            error @ (RequestError::Source(_)
+            | RequestError::Recording(
+                biomcp_fetch::RecordError::Missing | biomcp_fetch::RecordError::Exhausted,
+            )),
+        ) => Some(reason(error)),
         _ => report.failures.first().map(|failure| failure.reason),
     };
     let mut outcome = biomcp_adapters::registry::outcome(
@@ -82,5 +87,16 @@ pub(crate) fn retain_source_state(target: &mut SourceOutcome, incoming: &SourceO
     {
         target.state = incoming.state;
         target.reason = incoming.reason;
+    }
+}
+
+/// Preserve provider reasons and distinguish absent replay exchanges from local failures.
+pub(crate) fn reason(error: RequestError) -> biomcp_types::Reason {
+    match error {
+        RequestError::Source(error) => error.reason,
+        RequestError::Recording(
+            biomcp_fetch::RecordError::Missing | biomcp_fetch::RecordError::Exhausted,
+        ) => biomcp_types::Reason::ReplayMiss,
+        _ => biomcp_types::Reason::Unavailable,
     }
 }

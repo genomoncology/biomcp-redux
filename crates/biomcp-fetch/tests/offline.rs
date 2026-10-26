@@ -148,8 +148,13 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     .unwrap();
     assert!(get(&replay).is_err());
     assert!(get(&replay).unwrap().answer);
+    assert!(get(&replay).unwrap().answer);
     assert_eq!(
-        get(&replay).unwrap_err(),
+        replay
+            .leg(spec, replay.deadline(Duration::from_secs(10)))
+            .fresh(true)
+            .json::<Answer>(&ep, &[])
+            .unwrap_err(),
         RequestError::Recording(RecordError::Exhausted)
     );
     let offline = Fetch::open(FetchConfig {

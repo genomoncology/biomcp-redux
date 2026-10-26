@@ -32,7 +32,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
             Ok(section) => section,
             Err(error) => {
                 out.local = out.local.or(status::local(error));
-                Section::unavailable(Source::SemanticScholar, reason(error))
+                Section::unavailable(Source::SemanticScholar, crate::status::reason(error))
             }
         };
         if matches!(section, Section::Data { .. }) && out.next.len() < 5 {
@@ -112,12 +112,6 @@ pub(in crate::article) fn load<'a>(
         source: Source::SemanticScholar,
         data,
     })
-}
-pub(in crate::article) fn reason(error: RequestError) -> Reason {
-    match error {
-        RequestError::Source(error) => error.reason,
-        _ => Reason::Unavailable,
-    }
 }
 pub(in crate::article) fn bad(reason: Reason) -> RequestError {
     SourceError {

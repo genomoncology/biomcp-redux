@@ -3,8 +3,8 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
 use biomcp_adapters::reactome;
-use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Capped, Reason, Section, Source};
+use biomcp_fetch::Deadline;
+use biomcp_types::{Capped, Section, Source};
 const LIMIT: usize = 25;
 pub(super) fn applicable(gene: &Gene) -> bool {
     !gene.uniprot.is_empty()
@@ -52,10 +52,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     }
                 }
                 Err(error) => {
-                    failure.get_or_insert(match error {
-                        RequestError::Source(error) => error.reason,
-                        _ => Reason::Unavailable,
-                    });
+                    failure.get_or_insert(crate::status::reason(error));
                 }
             }
         }

@@ -34,10 +34,7 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                         {
                             return Err(error);
                         }
-                        let reason = result.err().map(|e| match e {
-                            RequestError::Source(e) => e.reason,
-                            _ => Reason::Unavailable,
-                        });
+                        let reason = result.err().map(|e| crate::status::reason(e));
                         (
                             if reason == Some(Reason::Disabled) {
                                 SourceState::Skipped

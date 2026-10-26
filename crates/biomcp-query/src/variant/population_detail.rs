@@ -161,13 +161,7 @@ fn load(
             source: Source::Gnomad,
             record: None,
         },
-        Err(error) => Section::unavailable(
-            Source::Gnomad,
-            match error {
-                RequestError::Source(e) => e.reason,
-                _ => Reason::Unavailable,
-            },
-        ),
+        Err(error) => Section::unavailable(Source::Gnomad, crate::status::reason(error)),
     };
     (section, groups, source, error.and_then(status::local))
 }

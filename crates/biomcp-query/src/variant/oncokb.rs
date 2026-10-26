@@ -2,7 +2,7 @@
 use crate::{Ctx, status};
 use biodata::Build;
 use biomcp_adapters::oncokb;
-use biomcp_fetch::{Deadline, RequestError, SecretName};
+use biomcp_fetch::{Deadline, SecretName};
 use biomcp_types::{
     PageInfo, Reason, Section, Source, SourceOutcome, SourceState, VariantGet, VariantHeader,
     VariantOncokb, VariantSection,
@@ -81,8 +81,7 @@ pub(super) fn section(
                 },
             }
         }
-        Err(RequestError::Source(e)) => Section::unavailable(Source::Oncokb, e.reason),
-        Err(_) => Section::unavailable(Source::Oncokb, Reason::Unavailable),
+        Err(error) => Section::unavailable(Source::Oncokb, crate::status::reason(error)),
     };
     (
         section,

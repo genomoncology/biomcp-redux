@@ -50,13 +50,7 @@ pub(super) fn section(
             mapped.problems,
         ),
         Err(error) => (
-            Section::unavailable(
-                Source::Civic,
-                match error {
-                    RequestError::Source(e) => e.reason,
-                    _ => Reason::Unavailable,
-                },
-            ),
+            Section::unavailable(Source::Civic, crate::status::reason(error)),
             Vec::new(),
         ),
     };
