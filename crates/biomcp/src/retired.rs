@@ -6,6 +6,7 @@ mod drug;
 mod gwas;
 mod pathway;
 mod pgx;
+mod phenotype;
 mod study;
 pub(crate) use gwas::usage as gwas_usage;
 
@@ -114,6 +115,9 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         return Some(message);
     }
     if let Some(message) = adverse_event::message(args) {
+        return Some(message);
+    }
+    if let Some(message) = phenotype::message(args) {
         return Some(message);
     }
     if let Some(message) = disease::message(args) {
