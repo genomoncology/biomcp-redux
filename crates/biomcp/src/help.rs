@@ -304,7 +304,9 @@ fn author_selectors(command: &HelpCommand, line: &mut String) {
         line.push_str(" details|--full --limit/-l --offset --pool");
     }
     if command.command == ["search", "author"] {
-        line.push_str(" --source semantic-scholar|semanticscholar --query/-q --limit/-l --offset --pool");
+        line.push_str(
+            " --source semantic-scholar|semanticscholar --query/-q --limit/-l --offset --pool",
+        );
     }
 }
 
