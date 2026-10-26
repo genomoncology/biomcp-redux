@@ -1,7 +1,7 @@
 //! Feature cell-line-chembl: exact source metadata and separately requested assay totals.
 use super::*;
 mod faults;
-mod surface;
+pub(super) mod surface;
 use surface::{compared, invoke_measured, measure_bytes, measure_mcp, parity};
 const MEASURE: bool = false;
 pub(super) fn trials() -> Vec<Trial> {
@@ -25,7 +25,7 @@ fn fixture(name: &str) -> Result<String, String> {
     )
     .map_err(|e| e.to_string())
 }
-fn reply(request: &str) -> Result<String, String> {
+pub(super) fn reply(request: &str) -> Result<String, String> {
     let target = request.split_whitespace().nth(1).ok_or("target")?;
     if canonical(target)
         == canonical("/chembl/api/data/assay.json?cell_chembl_id=CHEMBL3706573&limit=1&offset=0")
@@ -220,7 +220,7 @@ fn help() -> Result<(), String> {
     Ok(())
 }
 
-fn native_facts(value: &Value, id: &str) -> Result<(), String> {
+pub(super) fn native_facts(value: &Value, id: &str) -> Result<(), String> {
     let native: Value = serde_json::from_str(&fixture(id)?).map_err(|e| e.to_string())?;
     let rows = native
         .get("cell_lines")

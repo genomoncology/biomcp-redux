@@ -51,7 +51,7 @@ The reviewed source tree is the 0.9 implementation in `biomcp`. Runtime output s
 | `xrefs` | Keep bounded native cross-reference rows | Do not replace unobserved links with synthetic empty arrays for a fixed seven-source list. |
 | `chembl` | Keep exact accession-linked metadata | Cell line metadata and assay count require separate requests and disclosure actions. A single section must not hide the count request. |
 | `drug_response` | Defer under the PM source-eligibility ruling | No PharmacoDB data call or implementation until affirmative database reuse terms are found. A future exact UID/accession join cannot use a name fallback. |
-| `all` | Retire by PM ruling | Named sections make independent source and output cost explicit. |
+| `all` | Keep bounded first pages under the later PM ruling | Return every named section, one ChEMBL metadata page and no assay request. |
 | `cell-line drug-response ID --dataset D --limit N --offset N` | Defer with PharmacoDB source eligibility | Old dataset filtering occurs after downloading every experiment for the line. A small rendered page does not bound source transfer. |
 | `drug cell-lines NAME --cell-line ID/--dataset D --limit/--offset` and drug `cell_lines` section | Preserve prior retirement pending PM reconsideration | The drug slice settled retirement. A PharmacoDB-local compound ID cannot become a resolved drug identity through name matching. Any replacement must take exact provider identifiers and preserve this distinction. |
 | `gene cell-lines SYMBOL --group GROUP --limit/--offset` | Defer pending exact cell identity proof | The gene slice moved this capability here. Its old HPA-to-Cellosaurus name join is forbidden. One bounded source contract capture is authorized; no whole expression download or local analysis. |
@@ -115,7 +115,7 @@ The retained Cellosaurus API release date and FTP listing agree. Its cadence is 
 6. How are disagreement and missing fields shown? Separate source records, optional source fields and source-specific outcomes. Preserve the MV4-11 zygosity discrepancy rather than choose a consensus.
 7. How are empty and failed distinguished? A valid empty native list completes as empty. A timeout, bad body, unexpected identity, HTTP failure or verification page fails its source and gives a fresh action; it never states absent biology.
 8. How can the agent stop early? The card answers identity and disease; `variants` answers the curated variation question without ChEMBL; the assay count answers coverage without an assay listing or activity download.
-9. What should not be copied from 0.9? Name rewriting, human-first reranking, name-based joins, `all`, implicit fan-out and dataset filters that download every screen row first.
+9. What should not be copied from 0.9? Name rewriting, human-first reranking, name-based joins, unbounded `all`, implicit fan-out and dataset filters that download every screen row first.
 10. What is not measured? Warm product latency, actual product envelopes, real tokenizer counts and 0.9 runtime comparisons. Native cold timings and offline projected payload byte measurements are the available evidence.
 
 ## Proposed model and schemas
@@ -167,7 +167,7 @@ A card cannot embed another complete entity. Variation gene identifiers may give
 | Qualified warning | U-937 source text preserves “some”, historical stock context and correction; no blanket contamination assertion. |
 | Terms and versions | C24; Cellosaurus 57.0 and ChEMBL_37 independent dates, failed release read, skipped/disabled source and use/terms metadata retained. |
 | Error controls | C22/C23; recorded 429, 500, timeout, malformed JSON, identity mismatch and HTTP 200 HTML each produce source failure, not empty results. No live outage is manufactured. |
-| Retired or deferred surfaces | `all`, PharmacoDB screening/compound name routes and HPA name joins fail before provider I/O with the PM-approved guidance. |
+| Retired or deferred surfaces | PharmacoDB screening/compound name routes and HPA name joins fail before provider I/O with the PM-approved guidance. |
 | CLI/MCP/Markdown | Shared grammar and envelope parity for every kept command, canonical URLs and exact typed next arguments; no shell command strings. |
 
 ## Ian's questions
@@ -503,3 +503,13 @@ The focused measurements in `j15205` and `j15207` retain separate actual CLI, MC
 | `sections/synthetic/release-failure` | 2312 / 2659 / 665 | 2311 / 2658 / 665 | 2280 / 2622 / 656 |
 
 The K-562 executable YAML walk owns its whole 1,398-row cross-reference sequence and exact ordered database/accession floors. `j15207` measured every 25-row page independently in CLI and MCP. The largest pages were 5,102 CLI bytes and 5,101 MCP bytes. The canonical walk ceiling is 5,868 bytes and 1,467 estimated tokens. First, middle and terminal pages retain the same complete source rows and native total. Every variation row stays whole; growth past its owning measured ceiling fails the case instead of clipping the row.
+
+## Bounded composite disclosure and retirements
+
+`get cell-line CVCL_2119 all` and `get cell-line CVCL_0004 all` retain every named section's default first page. The complete checked Cellosaurus reply supplies names, identity, cross-references and variants. One exact-accession ChEMBL metadata request supplies the independent ChEMBL section. The original command deadline covers both sources and their separate release reads. No assay request follows implicitly. Source failure and policy skip remain visible in their section states and source outcomes. A ChEMBL failure keeps the Cellosaurus card partial and offers a fresh command.
+
+Composite paging controls return fixed usage guidance before provider access. Each explicit section limit is a composite control because named sections have different defaults. A nonzero section offset is also refused. The named section command owns paging. Deferred PharmacoDB spellings and the HPA expression command return fixed reasons before provider access. The prior drug cell-line retirement remains unchanged. The explicit query aliases continue to submit unchanged Cellosaurus queries.
+
+The outside-in composite cases reuse the protected native fixtures and the existing independent source fault matrices. Additional composites label synthetic failures and distinguish successful empty, failed, skipped and unavailable states. The ordinary-cache policy cases reject disabled sources before retained replies or requests. A local HTML verification page proves that neither source follows or retries a verification route. No live provider request, licensed fixture or analysis tool is involved.
+
+The `all/` keys in `tests/cell-line-command-budgets.json` own measured output sizes and derive each ceiling independently through the existing measured-size helper. CLI bytes include the emitted newline. MCP text bytes and the complete RPC reply have distinct entries. Markdown has its own measured entry for each native composite. No group maximum or shared budget replaces a fixture and phase measurement.

@@ -1,7 +1,7 @@
 //! Feature cell-line-sections: callers retrieve whole native rows independently.
 use super::*;
 mod controls;
-mod expected;
+pub(super) mod expected;
 pub(super) fn run(measure: bool) -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;

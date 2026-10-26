@@ -119,10 +119,18 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
         request: Request::GetCellLine(q),
         ..
     } = action
-        && (matches!(q.section(), Some(biomcp_types::CellLineSection::All))
-            || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none()))
+        && matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none())
     {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
+    }
+    if let Action::Run {
+        request: Request::GetCellLine(query),
+        ..
+    } = action
+        && query.section() == Some(biomcp_types::CellLineSection::All)
+        && (query.section_limit().is_some() || query.section_offset() != 0)
+    {
+        return Some(usage_envelope(ErrorEnvelope::cell_line_all_paging()));
     }
     if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));

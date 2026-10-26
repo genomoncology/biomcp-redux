@@ -165,3 +165,5 @@ cell-line-identity: A caller searches literal Cellosaurus headers and retrieves 
 cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance. Cases: `crates/biomcp/tests/runner/cell_line/chembl.rs`, `crates/biomcp/tests/runner/cell_line/chembl/*.rs`.
 
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference. Cases: `crates/biomcp/tests/runner/cell_line/sections.rs`.
+
+cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests. Cases: `crates/biomcp/tests/runner/cell_line/all.rs`, `crates/biomcp/tests/runner/cell_line/all/*.rs`.
