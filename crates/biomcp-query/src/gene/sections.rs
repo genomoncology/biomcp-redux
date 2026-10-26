@@ -72,7 +72,7 @@ fn applicable(section: GeneSection, gene: &Gene) -> bool {
         _ => false,
     }
 }
-pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem], keyed: bool) -> Vec<(HgncId, Gene)> {
+pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, Gene)> {
     let requested = requested(query);
     let mut genes = Vec::new();
     for item in items {
@@ -84,7 +84,7 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem], keyed: bool) -> V
             .filter(|section| {
                 !requested.contains(section)
                     && applicable(*section, gene)
-                    && (*section != GeneSection::Oncokb || keyed)
+                    && *section != GeneSection::Oncokb
             })
             .collect();
         if !requested.is_empty() {
@@ -120,6 +120,34 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem], keyed: bool) -> V
         }
     }
     genes
+}
+pub(super) fn offer_oncokb(
+    query: &GeneGet,
+    items: &mut [GeneItem],
+    sources: &[biomcp_types::SourceOutcome],
+) {
+    if requested(query).contains(&GeneSection::Oncokb)
+        || !sources.iter().any(|source| {
+            source.source == biomcp_types::Source::Oncokb
+                && !matches!(
+                    source.reason,
+                    Some(biomcp_types::Reason::NoKey | biomcp_types::Reason::Disabled)
+                )
+        })
+    {
+        return;
+    }
+    for item in items {
+        if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if applicable(GeneSection::Oncokb, gene))
+        {
+            item.more = item
+                .more
+                .iter()
+                .copied()
+                .chain([GeneSection::Oncokb])
+                .collect();
+        }
+    }
 }
 pub(super) fn jobs<'a>(
     cx: &'a Ctx<'a>,
@@ -183,10 +211,7 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(pathways::run(cx, deadline, genes))
         }));
     }
-    if !genes.is_empty()
-        && (!cx.fetch.has_key(biomcp_fetch::SecretName::OncokbApiKey)
-            || genes.iter().any(|(_, gene)| gene.entrez_id.is_some()))
-    {
+    if !genes.is_empty() {
         jobs.push(Box::new(move || {
             super::get::Job::Section(oncokb::run(cx, deadline, genes))
         }));

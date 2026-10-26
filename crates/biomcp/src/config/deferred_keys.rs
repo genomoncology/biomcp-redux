@@ -1,0 +1,218 @@
+//! Credential reads are observable only at the settings boundary, before outgoing headers exist.
+use super::*;
+use std::sync::mpsc;
+
+fn execute(words: &[&str], allowed: Option<SecretName>) -> usize {
+    let (send, receive) = mpsc::channel();
+    let secrets = secrets_using(None, move |name| {
+        assert_eq!(
+            Some(name),
+            allowed.map(SecretName::environment),
+            "forbidden key read"
+        );
+        send.send(()).unwrap();
+        Some(PathBuf::from("synthetic-settings-key"))
+    });
+    assert!(!format!("{secrets:?}").contains("API_KEY"));
+    let directory = tempfile::tempdir().unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        cache: Some(directory.path().join("cache.sqlite")),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        mode: Mode::Offline,
+        secrets,
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    run(&fetch, words);
+    receive.try_iter().count()
+}
+
+fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
+    let args = words.iter().map(OsString::from).collect::<Vec<_>>();
+    let parsed = crate::grammar::parse(&args).unwrap();
+    let fetch = super::restrict(fetch.clone(), &parsed.globals).unwrap();
+    crate::command::execute(&fetch, parsed.action.unwrap(), &parsed.globals, false)
+        .unwrap()
+        .value
+}
+
+#[test]
+fn unrelated_and_disabled_commands_never_read_keys() {
+    for command in [
+        vec!["get", "gene", "HGNC:3236"],
+        vec!["search", "trial", "--condition", "melanoma"],
+        vec![
+            "get",
+            "variant",
+            "clinvar:13961",
+            "clinvar",
+            "--disable-sources",
+            "clinvar",
+        ],
+        vec![
+            "get",
+            "author",
+            "semantic-scholar:123",
+            "--disable-sources",
+            "semantic-scholar",
+        ],
+        vec![
+            "get",
+            "variant",
+            "chr7:g.140453136A>T",
+            "oncokb",
+            "--build",
+            "GRCh37",
+            "--tumor-type",
+            "Synthetic tumor",
+            "--disable-sources",
+            "oncokb",
+        ],
+        vec![
+            "search",
+            "trial",
+            "--source",
+            "nci",
+            "--keyword",
+            "melanoma",
+            "--disable-sources",
+            "nci",
+        ],
+    ] {
+        assert_eq!(execute(&command, None), 0);
+    }
+}
+
+#[test]
+fn called_sources_read_only_their_own_environment_key_once() {
+    for (name, command) in [
+        (
+            SecretName::NcbiApiKey,
+            vec!["get", "variant", "clinvar:13961", "clinvar"],
+        ),
+        (
+            SecretName::SemanticScholarApiKey,
+            vec!["get", "author", "semantic-scholar:123"],
+        ),
+        (
+            SecretName::OncokbApiKey,
+            vec![
+                "get",
+                "variant",
+                "chr7:g.140453136A>T",
+                "oncokb",
+                "--build",
+                "GRCh37",
+                "--tumor-type",
+                "Synthetic tumor",
+            ],
+        ),
+        (
+            SecretName::NciApiKey,
+            vec![
+                "search",
+                "trial",
+                "--source",
+                "nci",
+                "--keyword",
+                "melanoma",
+            ],
+        ),
+    ] {
+        assert_eq!(execute(&command, Some(name)), 1, "{name:?}");
+    }
+}
+
+#[test]
+fn config_keys_override_environment_and_resolve_once_per_owner() {
+    for &name in SecretName::ALL {
+        let keys = Some(
+            [(
+                name.config().to_owned(),
+                "synthetic-settings-key".to_owned(),
+            )]
+            .into(),
+        );
+        let secrets = secrets_using(keys, |_| panic!("config key read environment"));
+        let fetch = Fetch::open(FetchConfig {
+            secrets,
+            ..FetchConfig::default()
+        })
+        .unwrap();
+        assert!(fetch.has_key(name));
+        assert!(fetch.has_key(name));
+        assert!(!format!("{fetch:?}").contains("synthetic-settings-key"));
+    }
+}
+
+#[test]
+fn saved_query_pages_never_resolve_credentials() {
+    for (recording, words, pointer) in [
+        (
+            "trial/nci/get",
+            vec![
+                "get",
+                "trial",
+                "NCT05136196",
+                "diseases",
+                "--source",
+                "nci",
+                "--section-limit",
+                "1",
+            ],
+            "/result/items/0/more",
+        ),
+        (
+            "author/synthetic",
+            vec!["search", "author", "Louis Williams"],
+            "/page/pool/id",
+        ),
+    ] {
+        let secrets = secrets_using(None, |_| Some(PathBuf::from("synthetic-settings-key")));
+        let fetch = Fetch::open(FetchConfig {
+            mode: Mode::Replay {
+                dir: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../tests/replies")
+                    .join(recording),
+            },
+            cache_owners: vec![biomcp_query::store::OWNER],
+            secrets,
+            ..FetchConfig::default()
+        })
+        .unwrap();
+        let first = run(&fetch, &words);
+        assert_eq!(first["status"], "complete", "{first}");
+        let forbidden = fetch.with_secrets(secrets_using(None, |_| panic!("pool resolved a key")));
+        let page = if recording == "trial/nci/get" {
+            first
+                .pointer(pointer)
+                .unwrap()
+                .as_array()
+                .unwrap()
+                .iter()
+                .find_map(|step| {
+                    step["args"]
+                        .as_array()
+                        .filter(|args| args.iter().any(|arg| arg == "--pool"))
+                })
+                .unwrap()
+                .iter()
+                .map(|arg| arg.as_str().unwrap())
+                .collect::<Vec<_>>()
+        } else {
+            let mut page = words.clone();
+            page.extend(["--pool", first.pointer(pointer).unwrap().as_str().unwrap()]);
+            page
+        };
+        let saved = run(&forbidden, &page);
+        assert_eq!(saved["status"], "complete", "{saved}");
+        assert!(
+            saved["sources"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|source| source["cached"].as_bool().unwrap_or(false))
+                || saved["result"].is_object()
+        );
+    }
+}

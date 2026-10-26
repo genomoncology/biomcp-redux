@@ -3,7 +3,7 @@ use super::{ATTRIBUTION, empty, finish, page};
 use crate::{Action, Ctx, Outcome, status, store::Store};
 
 use biomcp_adapters::nci;
-use biomcp_fetch::{CacheError, RequestError, SecretName};
+use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
     NciTrialCards, QueryBody, Reason, Request, Source, SourceOutcome, Status, StepKind, TrialGet,
 };
@@ -23,10 +23,7 @@ pub(in crate::trial) fn run(cx: &Ctx<'_>, q: &TrialGet) -> Outcome {
     }));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let result = if q.pool().is_some()
-        && !cx.fetch.disabled(Source::Nci)
-        && cx.fetch.has_key(SecretName::NciApiKey)
-    {
+    let result = if q.pool().is_some() && !cx.fetch.disabled(Source::Nci) {
         restore(cx, q, deadline, &mut out)
     } else {
         fetch(cx, q, deadline, &mut out)

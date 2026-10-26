@@ -116,7 +116,7 @@ fn dispatch_using(
     };
     execute(fetch, action, &parsed.globals, allow_save)
 }
-fn execute(
+pub(crate) fn execute(
     fetch: &biomcp_fetch::Fetch,
     action: Action,
     globals: &crate::grammar::Globals,
