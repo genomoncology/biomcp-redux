@@ -36,8 +36,12 @@ pub(crate) fn command(
         }
         _ => outcome.cli_bytes.clone(),
     };
+    self::bytes(&bytes)
+}
+
+pub(crate) fn bytes(bytes: &[u8]) -> io::Result<()> {
     let mut stdout = io::stdout().lock();
-    stdout.write_all(&bytes)?;
+    stdout.write_all(bytes)?;
     stdout.flush()
 }
 

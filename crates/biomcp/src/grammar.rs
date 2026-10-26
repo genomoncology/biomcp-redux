@@ -3,6 +3,7 @@ mod entity;
 pub(crate) mod gwas;
 mod local;
 mod queries;
+pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
 
@@ -47,6 +48,7 @@ pub(crate) enum Format {
 #[derive(Debug)]
 pub(crate) struct Parsed {
     pub(crate) key: Option<crate::keys::Command>,
+    pub(crate) housekeeping: Option<crate::housekeeping::Command>,
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
@@ -122,6 +124,7 @@ fn root() -> Result<Command, ()> {
         "who-ivd",
         "fda-cdx",
     ])));
+    root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
         Command::new("list")
@@ -146,31 +149,26 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
+        return Ok(local::serve(matches, globals));
+    }
+    if verb == "key" {
         return Ok(Parsed {
-            key: None,
-            http: matches.get_one::<String>("http").map(|address| {
-                (
-                    address.clone(),
-                    matches
-                        .get_many::<String>("allow-host")
-                        .into_iter()
-                        .flatten()
-                        .cloned()
-                        .collect(),
-                )
-            }),
+            key: Some(crate::keys::parse(matches)?),
+            housekeeping: None,
+            http: None,
             action: None,
             globals,
             help: None,
         });
     }
-    if verb == "key" {
+    if let Some(command) = local::housekeeping(verb, matches) {
         return Ok(Parsed {
-            key: Some(crate::keys::parse(matches)?),
-            http: None,
+            key: None,
+            housekeeping: Some(command),
             action: None,
             globals,
             help: None,
+            http: None,
         });
     }
     let help = help_path(verb, matches)?;
@@ -205,6 +203,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     };
     Ok(Parsed {
         key: None,
+        housekeeping: None,
         http: None,
         action: Some(action),
         globals,
@@ -217,6 +216,7 @@ fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String
     } else if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
+            Some((name @ ("version" | "mcp-config"), _)) => Some(vec![name.into()]),
             Some(("author", matches)) if matches.subcommand().is_none() => {
                 Some(vec!["author".into()])
             }

@@ -4,6 +4,7 @@ mod config;
 mod exit;
 mod grammar;
 mod help;
+mod housekeeping;
 mod keys;
 mod mcp;
 mod output;
@@ -18,8 +19,19 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let args = config::arguments();
+    if let Ok(parsed) = grammar::parse(&args)
+        && let Some(command) = parsed.housekeeping
+    {
+        return exit::finish(
+            command
+                .render(&parsed.globals)
+                .and_then(|bytes| output::bytes(&bytes)),
+            exit::Status::Success,
+        );
+    }
     if let Ok(grammar::Parsed {
         action: None,
+        housekeeping: None,
         key: None,
         globals,
         http,
