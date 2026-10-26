@@ -47,13 +47,23 @@ pub struct Association {
     /// Reported association p value.
     pub p_value: FiniteNumber,
     /// Source exact mantissa, independent of rounded p_value.
-    pub p_value_mantissa: Option<FiniteNumber>,
+    #[serde(rename = "pvalue_mantissa")]
+    pub p_value_mantissa: Option<u64>,
     /// Source exponent, including values below the double range.
+    #[serde(rename = "pvalue_exponent")]
     pub p_value_exponent: Option<i32>,
     /// Source author attribution.
+    #[serde(rename = "first_author")]
     pub author: Option<String>,
     /// Source gene mapping strings.
+    #[serde(rename = "mapped_genes")]
     pub mapped_gene: Option<Vec<Text>>,
+    /// Native mapping locations.
+    pub locations: Option<Vec<Text>>,
+    /// Source interval lower bound.
+    pub ci_lower: Option<FiniteNumber>,
+    /// Source interval upper bound.
+    pub ci_upper: Option<FiniteNumber>,
     /// Reported effect beta, preserving units and prose.
     pub beta: Option<String>,
     /// Reported odds ratio where provided.
@@ -131,7 +141,7 @@ impl Response {
 impl Association {
     /// Decode exact native parts without converting the probability to a double.
     pub fn exact_p_value(&self) -> Option<biodata::ScientificPValue> {
-        let mantissa = f64::from(self.p_value_mantissa?);
+        let mantissa = self.p_value_mantissa?;
         format!("{mantissa}e{}", self.p_value_exponent?)
             .parse()
             .ok()

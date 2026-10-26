@@ -87,6 +87,15 @@ pub struct GwasAssociation {
     /// Original native mapped gene context; reported genes remain in loci.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub mapped_genes: Box<[Text]>,
+    /// Native mapping location strings; no assumed assembly or coordinate conversion.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub locations: Box<[Text]>,
+    /// Source lower effect interval bound.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ci_lower: Option<FiniteNumber>,
+    /// Source upper effect interval bound.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ci_upper: Option<FiniteNumber>,
     /// Source beta text, including units and direction.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub beta: Option<Text>,

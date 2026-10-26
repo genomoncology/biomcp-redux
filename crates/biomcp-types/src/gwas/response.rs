@@ -123,6 +123,9 @@ impl ResponseBody for GwasStudy {
 pub struct GwasCountry {
     /// Original country label including NR.
     pub country: Text,
+    /// Native source major area when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub major_area: Option<Text>,
     /// Original region label when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub region: Option<Text>,
