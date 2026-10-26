@@ -19,7 +19,7 @@ GLOBALS = {"--help", "--json", "--no-cache", "--disable-sources"}
 ALIASES = {("serve",)}
 
 
-def generate(binary):
+def generate(binary, capture_dir=None):
     leaves = {}
     with tempfile.TemporaryDirectory() as directory:
         env = {
@@ -50,6 +50,10 @@ def generate(binary):
                 text=True,
                 check=True,
             ).stdout
+            if capture_dir is not None:
+                capture = capture_dir.joinpath(*command, "help.txt")
+                capture.parent.mkdir(parents=True, exist_ok=True)
+                capture.write_text(text)
             section = None
             children = []
             options = set()
@@ -102,5 +106,10 @@ def generate(binary):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
+    parser.add_argument(
+        "--capture-dir",
+        type=Path,
+        help="Retain raw help under this owned staging directory",
+    )
     args = parser.parse_args()
-    print(json.dumps(generate(args.binary.resolve()), indent=2))
+    print(json.dumps(generate(args.binary.resolve(), args.capture_dir), indent=2))
