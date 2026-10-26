@@ -72,7 +72,9 @@ pub(super) fn retained() -> Result<(), String> {
         return Err("multiple cases bypassed the total witness bound".into());
     }
     retained_context()?;
-    discovery_context().and_then(|()| input_context::prove()).map_err(|error| error.to_string())
+    discovery_context()
+        .and_then(|()| input_context::prove())
+        .map_err(|error| error.to_string())
 }
 
 fn retained_context() -> Result<(), String> {

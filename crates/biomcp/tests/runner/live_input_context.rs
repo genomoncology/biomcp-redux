@@ -28,7 +28,10 @@ pub(super) fn prove() -> Result<(), Box<dyn std::error::Error>> {
         observations: Some(Arc::new(biomcp_fetch::Observations::create(&path)?)),
         network: Network::new(
             None,
-            Some(biomcp_fetch::Secret::new(format!("http://{}", stub.address))),
+            Some(biomcp_fetch::Secret::new(format!(
+                "http://{}",
+                stub.address
+            ))),
             "",
             Certificates::from_pem(stub.certificate.as_bytes())?,
         )?,
@@ -42,22 +45,33 @@ pub(super) fn prove() -> Result<(), Box<dyn std::error::Error>> {
             } else {
                 spec.get("/input-context")
             };
-            fetch.leg(spec, fetch.deadline(Duration::from_secs(15))).json::<Checked>(
-                &endpoint,
-                &[("id", Arg::Text(id)), ("mode", Arg::Text(mode))],
-            )?;
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(15)))
+                .json::<Checked>(
+                    &endpoint,
+                    &[("id", Arg::Text(id)), ("mode", Arg::Text(mode))],
+                )?;
         }
     }
-    let rows = fs::read_to_string(path)?.lines()
+    let rows = fs::read_to_string(path)?
+        .lines()
         .map(serde_json::from_str::<biomcp_fetch::Observation>)
         .collect::<Result<Vec<_>, _>>()?;
-    let contexts = rows.iter().map(|row| row.provenance.input_context.as_deref())
+    let contexts = rows
+        .iter()
+        .map(|row| row.provenance.input_context.as_deref())
         .collect::<Vec<_>>();
     let [get, get_ids, get_changed, post, post_ids, post_changed] = contexts.as_slice() else {
         return Err("missing request-context observations".into());
     };
-    if get.is_none() || post.is_none() || get != get_ids || post != post_ids
-        || get == get_changed || post == post_changed || get == post {
+    if get.is_none()
+        || post.is_none()
+        || get != get_ids
+        || post != post_ids
+        || get == get_changed
+        || post == post_changed
+        || get == post
+    {
         return Err("request context ignored method/non-ID inputs or retained ID values".into());
     }
     Ok(())

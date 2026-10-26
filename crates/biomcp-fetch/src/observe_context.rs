@@ -87,7 +87,8 @@ impl Provenance {
 
 fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
     let mut url = url::Url::parse(&prepared.url).ok()?;
-    let query: Vec<_> = url.query_pairs()
+    let query: Vec<_> = url
+        .query_pairs()
         .filter(|(name, _)| name != parameter)
         .map(|(name, value)| (name.into_owned(), value.into_owned()))
         .collect();
@@ -104,5 +105,10 @@ fn request_context(prepared: &Prepared, parameter: &str) -> Option<String> {
         Some(_) => return None,
     };
     let bytes = serde_json::to_vec(&(prepared.post.is_some(), url.as_str(), form)).ok()?;
-    Some(Sha256::digest(bytes).iter().map(|byte| format!("{byte:02x}")).collect())
+    Some(
+        Sha256::digest(bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect(),
+    )
 }
