@@ -236,3 +236,36 @@ Source IDs and their aliases should have one checked type and one parser. Every 
 Ian resolved source eligibility through the open-by-default ruling. Both sources retain their noncommercial use category. Exact capture results must establish which capabilities can proceed.
 
 The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. Types, output ceilings and question answers wait for exact public API captures. No capability retirement or new source cost is accepted by this proposal.
+
+## Semantic Scholar execution contract
+
+`search author TEXT` preserves the original nonempty query, including surrounding and repeated whitespace. The source controls candidate order, offsets and continuation. A qualified author ID names a provider record. A shared display name does not link records. The search's retained pool keeps its published identity and expiry while later native pages extend its observed window. Restored pages retain the original source provenance. A changed selector rejects the pool; an expired pool offers a restart. Source disable checks precede pool and raw-cache access.
+
+`get author ID...` accepts one through twenty checked inputs and preserves one result slot for each input in input order. Each slot carries the qualified input, its independent status and its checked card when available. A native missing record is absent. A transport or decode error is failed. The adapter rejects a returned author ID that differs from the request before cache admission. Optional counts carry the `provider_record` scope. Missing metadata is unavailable; an empty source affiliation collection remains distinct from an unavailable collection. Cards offer typed `author papers` pivots. That deferred command returns its explicit deferred response until its owning implementation lands.
+
+The response schemas are `biomcp.author_page/2` and `biomcp.author_card/3`. The shared request schema is `biodata.request/25`. `Step` still carries checked action arguments in its existing wire shape; generic `Envelope` has no independent versioned schema identity. The changed author response identities carry the wrapper and count-scope changes.
+
+Semantic Scholar resolves its credential at an admitted adapter/transport request. This includes raw-cache and replay validation because reflected-credential containment still checks the current credential. A disabled source and a restored query pool do not resolve it. The deferred credential uses the configuration key first, then `S2_API_KEY`; a missing key omits the header. Other credentials retain their existing resolution behavior.
+
+The first-row record for PMID 33123537 has one additional exact card witness. Job j15451 made the approved single request for record `2118426986`, received a native 200 and retained its unchanged 181-byte body with SHA-256 `84dab7a910afdf55a49545196b35116603960ca89d2ceff57a7b6d3a2c8ecd4e`. Yellow `data/biomcp-redux/0264-author-captures/0266-author-card-xowlaemk.tar.gz` has SHA-256 `c077d787ebf31f8308c90a22a9c1085d8fff3ea8c50626afae9d5984f73a4d2a`. The receipt records actual `x-api-key` attachment as a boolean and never records its value. The approved source window was `2026-10-26T17:03:16.126796+00:00` through `2026-10-26T17:03:21.307162+00:00`.
+
+The unchanged prelaunch snapshot is archived inside that capture. Its SHA-256 is `10e4667852be1b6a7a2d952ff963e135eb302ad2baa0ee64b3b0ee841a616504`. Yellow `data/biomcp-redux/0264-author-captures/0266-author-card-concurrency.tar.gz`, SHA-256 `f70e3cdf9b36ce51d60c054608ef30a5c3d75f65a6120a39760e4f78fad86464`, binds the post-completion snapshot to the same archive and window. The post snapshot has SHA-256 `17d1ba9a57d812754723345f71c611708cbda87d4ed8809fc6681b65b4a065d2`. Both archives passed outer and member verification and independent cross-machine hash comparison. These bounded owned-job snapshots do not establish visibility of other teams, global jobs or external key holders.
+
+The exact card cases use the first-row records from the retained complete bylines for PMIDs 17611497, 33123537 and 34096690. They do not claim that every byline member's card was fetched. PMID 32955176 supplied only the retained native paper 404, so its byline and first-row author identity remain unavailable. No replacement identity is inferred.
+
+### Normalized author output measurements
+
+The retained native replay measures the whole emitted envelope, including shared source terms. The bare column measures only `result`; it is not the enforced command ceiling. CLI includes its terminating newline, MCP text is the actual `content[0].text`, and RPC measures the complete retained MCP frame. Native response bodies remain outside Git. Each owning canonical YAML step enforces its raw byte and token ceiling with the agreed 15 percent allowance. Source-body sizes above are separate measurements. The original design supplied no numeric normalized search/card ceiling, so these values do not replace an earlier numeric bound. The same-question 0.9 comparison remains unmeasured.
+
+| Native owner | CLI | Bare result | MCP text | Markdown | Full RPC |
+|---|---:|---:|---:|---:|---:|
+| Search offset 0 | 1824 | 836 | 1823 | 1597 | 4126 |
+| Search offset 5 | 1836 | 845 | 1835 | 1609 | 4150 |
+| First card from PMID 17611497 | 703 | 304 | 702 | 744 | 1722 |
+| First card from PMID 33123537 | 713 | 308 | 712 | 754 | 1742 |
+| First card from PMID 34096690 | 705 | 306 | 704 | 746 | 1726 |
+| Exact absent card | 376 | 77 | 375 | 399 | 1016 |
+
+The approved help ceilings for CLI/MCP text/Markdown are search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
+
+The final help metadata includes the twenty-input bound. The measured get-help surfaces are CLI 574, bare help 492, MCP text 573, Markdown 636 and full RPC 1420 bytes. List-author measures 1566/1490/1565/1541/3510 bytes on those same surfaces. Search help remains 1097/1012/1096/988/2536 bytes. Whole help measures 87594/87526/87593/78299/185140 bytes. The MCP description measures 3426 bytes and tools-list measures 8014 compact bytes or 8015 with its terminating newline. All fit the existing approved ceilings; the measurement does not reset their headroom.

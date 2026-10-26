@@ -78,3 +78,50 @@ fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure
         }
     }
 }
+
+#[test]
+fn deferred_credentials_resolve_once_after_source_admission()
+-> Result<(), Box<dyn std::error::Error>> {
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+    for disabled in [true, false] {
+        let calls = Arc::new(AtomicUsize::new(0));
+        let observed = calls.clone();
+        let stub = Stub::new(200, "application/json", r#"{"answer":"safe"}"#, None);
+        let spec = stub.spec(
+            KeyUse::Optional(credential(KeyPlace::Header("x-api-key"))),
+            Duration::from_secs(10),
+        );
+        let mut config = FetchConfig::default();
+        config.secrets.defer(SecretName::NcbiApiKey, move || {
+            observed.fetch_add(1, Ordering::SeqCst);
+            Some(Secret::new("synthetic-deferred-key"))
+        });
+        if disabled {
+            config.disabled_sources.insert(Source::PubMed);
+        }
+        assert!(!format!("{config:?}").contains("synthetic-deferred-key"));
+        let fetch = Fetch::open(config)?;
+        let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+        assert_eq!(calls.load(Ordering::SeqCst), 0);
+        let reply = leg.json::<Answer>(&spec.get("/answer"), &[]);
+        if disabled {
+            assert!(
+                matches!(reply,Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::Disabled)
+            );
+            assert_eq!(calls.load(Ordering::SeqCst), 0);
+        } else {
+            assert_eq!(reply?.answer.as_deref(), Some("safe"));
+            assert!(fetch.has_key(SecretName::NcbiApiKey));
+            assert_eq!(calls.load(Ordering::SeqCst), 1);
+        }
+        let requests = stub.finish();
+        assert_eq!(requests.len(), usize::from(!disabled));
+        if let Some(request) = requests.first() {
+            assert!(request.contains("x-api-key: synthetic-deferred-key"));
+        }
+    }
+    Ok(())
+}

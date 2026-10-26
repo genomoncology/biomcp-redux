@@ -1,0 +1,38 @@
+{
+  "feature": "author-search",
+  "story": "Exact retained source metadata preserves provider identity and record-scoped counts",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 0,
+        "/page/returned": 5,
+        "/result/items/*/id": [
+          "semantic-scholar:2162869982",
+          "semantic-scholar:113751091",
+          "semantic-scholar:40574561",
+          "semantic-scholar:2112863574",
+          "semantic-scholar:2431851858"
+        ],
+        "/result/matching_records": 61,
+        "/next/5/kind": "page"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 2098,
+      "max_tokens": 525
+    }
+  ]
+}

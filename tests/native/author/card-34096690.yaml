@@ -1,0 +1,35 @@
+{
+  "feature": "author-search",
+  "story": "Exact retained source metadata preserves provider identity and record-scoped counts",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "author",
+        "semantic-scholar:9845886"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "semantic-scholar:9845886"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/input": "semantic-scholar:9845886",
+        "/result/items/0/card/header/id": "semantic-scholar:9845886",
+        "/result/items/0/card/header/name": "F. Skoulidis",
+        "/result/items/0/card/header/counts/scope": "provider_record",
+        "/result/items/0/card/header/counts/paper_count": 174,
+        "/result/items/0/card/header/counts/citation_count": 14821,
+        "/result/items/0/card/url": "https://www.semanticscholar.org/author/9845886",
+        "/next/0/kind": "pivot"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 811,
+      "max_tokens": 203
+    }
+  ]
+}

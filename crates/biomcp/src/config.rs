@@ -221,18 +221,30 @@ pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ()> {
 }
 fn secrets_from(file: Option<&ConfigFile>) -> Secrets {
     let mut secrets = Secrets::default();
-    for &name in SecretName::ALL {
-        let value = file
-            .and_then(|file| file.keys.as_ref())
-            .and_then(|keys| keys.get(name.config()))
-            .filter(|v| !v.is_empty())
-            .cloned()
-            .or_else(|| variable(name.environment()).map(|v| v.to_string_lossy().into_owned()));
-        if let Some(value) = value {
-            secrets.insert(name, Secret::new(value));
+    let keys = file.and_then(|file| file.keys.clone());
+    let deferred_keys = keys.clone();
+    secrets.defer(SecretName::SemanticScholarApiKey, move || {
+        configured_secret(deferred_keys.as_ref(), SecretName::SemanticScholarApiKey)
+    });
+    for &name in SecretName::ALL
+        .iter()
+        .filter(|&&name| name != SecretName::SemanticScholarApiKey)
+    {
+        if let Some(value) = configured_secret(keys.as_ref(), name) {
+            secrets.insert(name, value);
         }
     }
     secrets
+}
+fn configured_secret(
+    keys: Option<&std::collections::BTreeMap<String, String>>,
+    name: SecretName,
+) -> Option<Secret> {
+    keys.and_then(|keys| keys.get(name.config()))
+        .filter(|v| !v.is_empty())
+        .cloned()
+        .or_else(|| variable(name.environment()).map(|v| v.to_string_lossy().into_owned()))
+        .map(Secret::new)
 }
 
 pub(crate) fn has_environment_key(name: SecretName) -> bool {

@@ -1,0 +1,29 @@
+{
+  "$defs": {
+    "AuthorId": {
+      "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.author-get-query/2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact qualified records in caller order, with no name reconciliation.",
+  "properties": {
+    "ids": {
+      "description": "One or more exact qualified IDs.",
+      "items": {
+        "$ref": "#/$defs/AuthorId"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "type": "array",
+      "x-positional": 0
+    }
+  },
+  "required": [
+    "ids"
+  ],
+  "title": "AuthorGet",
+  "type": "object"
+}

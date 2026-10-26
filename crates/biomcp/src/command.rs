@@ -1,5 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod adverse_event;
+mod author;
 mod cell_line;
 mod diagnostic;
 mod disease;
@@ -12,6 +13,7 @@ mod phenotype;
 mod protein;
 mod steps;
 mod sync;
+mod unsupported;
 mod variant;
 
 use biomcp_query::{Action, Bundle};
@@ -84,7 +86,7 @@ fn dispatch_using(
         Ok(action) => action,
         Err(error) => return disease::selector_error(error),
     };
-    if let Some(outcome) = unsupported(&action) {
+    if let Some(outcome) = unsupported::check(&action) {
         return outcome;
     }
     let owned;
@@ -114,60 +116,6 @@ fn dispatch_using(
     };
     execute(fetch, action, &parsed.globals, allow_save)
 }
-fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if let Action::Run {
-        request: Request::GetCellLine(q),
-        ..
-    } = action
-        && matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none())
-    {
-        return Some(usage_envelope(ErrorEnvelope::arguments()));
-    }
-    if let Action::Run {
-        request: Request::GetCellLine(query),
-        ..
-    } = action
-        && query.section() == Some(biomcp_types::CellLineSection::All)
-        && (query.section_limit().is_some() || query.section_offset() != 0)
-    {
-        return Some(usage_envelope(ErrorEnvelope::cell_line_all_paging()));
-    }
-    if disease::unsupported(action) {
-        return Some(usage_envelope(ErrorEnvelope::arguments()));
-    }
-    if let Action::Run {
-        request: Request::SearchTrial(q),
-        ..
-    } = action
-    {
-        if q.nci_disease_invalid() {
-            return Some(usage_envelope(ErrorEnvelope::nci_disease()));
-        }
-        if let Some(option) = q.unsupported() {
-            let source = if q.source() == biomcp_types::TrialSource::Nci {
-                biomcp_types::Source::Nci
-            } else {
-                biomcp_types::Source::ClinicalTrialsGov
-            };
-            return Some(usage_envelope(ErrorEnvelope::unsupported_trial_filter(
-                source, option,
-            )));
-        }
-    }
-
-    if let Action::Run {
-        request: Request::SearchArticle(query),
-        ..
-    } = action
-        && let Some((source, option)) = biomcp_query::article::unsupported(query)
-    {
-        return Some(encode(
-            ErrorEnvelope::unsupported_filter(source, option),
-            crate::exit::Status::Usage,
-        ));
-    }
-    None
-}
 fn execute(
     fetch: &biomcp_fetch::Fetch,
     action: Action,
@@ -175,6 +123,7 @@ fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
+        Action::AuthorPapers(_) => author::deferred(),
         Action::QueryHelp(request) => {
             let path = crate::spell::command_words(&request);
             encode(
@@ -242,6 +191,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchAuthor(_) | Request::GetAuthor(_) => author::response(meta, request, body),
         Request::SearchCellLine(_) | Request::GetCellLine(_) | Request::CellLineAssayCount(_) => {
             cell_line::encode(meta, request, body)
         }

@@ -126,6 +126,18 @@
       ],
       "type": "string"
     },
+    "AuthorId": {
+      "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
+      "type": "string"
+    },
+    "AuthorSearchSource": {
+      "description": "Author search supports one provider and its legacy spelling.",
+      "enum": [
+        "semantic-scholar",
+        "semanticscholar"
+      ],
+      "type": "string"
+    },
     "Build": {
       "description": "The assembly stated by the source; no default is inferred.",
       "enum": [
@@ -857,10 +869,80 @@
       ]
     }
   },
-  "$id": "biodata.request/23",
+  "$id": "biodata.request/25",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Discover native author candidates without identity reconciliation.",
+      "properties": {
+        "command": {
+          "const": "search_author",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Bounded source page size.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained page identity."
+        },
+        "query": {
+          "description": "Literal query from the positional argument or --query.",
+          "minLength": 1,
+          "type": "string",
+          "x-positional": 0
+        },
+        "source": {
+          "$ref": "#/$defs/AuthorSearchSource",
+          "default": "semantic-scholar",
+          "description": "Native author source."
+        }
+      },
+      "required": [
+        "command",
+        "query"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read exact provider author cards in input order.",
+      "properties": {
+        "command": {
+          "const": "get_author",
+          "type": "string"
+        },
+        "ids": {
+          "description": "One or more exact qualified IDs.",
+          "items": {
+            "$ref": "#/$defs/AuthorId"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "ids"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Read the native assay total for one exact ChEMBL cell.",

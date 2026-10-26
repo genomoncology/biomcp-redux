@@ -1,0 +1,35 @@
+{
+  "feature": "author-search",
+  "story": "Exact retained source metadata preserves provider identity and record-scoped counts",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "author",
+        "semantic-scholar:2118426986"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "semantic-scholar:2118426986"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/input": "semantic-scholar:2118426986",
+        "/result/items/0/card/header/id": "semantic-scholar:2118426986",
+        "/result/items/0/card/header/name": "Ying Chen",
+        "/result/items/0/card/header/counts/scope": "provider_record",
+        "/result/items/0/card/header/counts/paper_count": 10,
+        "/result/items/0/card/header/counts/citation_count": 259,
+        "/result/items/0/card/url": "https://www.semanticscholar.org/author/2118426986",
+        "/next/0/kind": "pivot"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 820,
+      "max_tokens": 205
+    }
+  ]
+}

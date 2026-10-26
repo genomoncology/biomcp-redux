@@ -21,7 +21,20 @@ pub struct AuthorPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCards {
     /// Exact returned source cards, with no cross-source links.
-    pub items: Box<[AuthorCard]>,
+    pub items: Box<[AuthorCardItem]>,
+}
+/// One exact input and its independent outcome.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorCardItem {
+    /// Requested qualified provider identity.
+    pub input: AuthorId,
+    /// This exact input's outcome.
+    pub status: crate::Status,
+    /// Exact checked source card when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub card: Option<AuthorCard>,
 }
 macro_rules! papers {
     ($name:ident, $row:ty, $doc:literal) => {
@@ -60,11 +73,11 @@ pub struct OrcidWorks {
     pub observed_groups: u64,
 }
 impl ResponseBody for AuthorPage {
-    const SCHEMA: &'static str = "biomcp.author_page/1";
+    const SCHEMA: &'static str = "biomcp.author_page/2";
     type Query = AuthorSearch;
 }
 impl ResponseBody for AuthorCards {
-    const SCHEMA: &'static str = "biomcp.author_card/1";
+    const SCHEMA: &'static str = "biomcp.author_card/3";
     type Query = AuthorGet;
 }
 impl ResponseBody for AuthorPapers {

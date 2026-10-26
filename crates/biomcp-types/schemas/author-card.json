@@ -25,6 +25,36 @@
       ],
       "type": "object"
     },
+    "AuthorCardItem": {
+      "additionalProperties": false,
+      "description": "One exact input and its independent outcome.",
+      "properties": {
+        "card": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorCard"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact checked source card when available."
+        },
+        "input": {
+          "$ref": "#/$defs/AuthorId",
+          "description": "Requested qualified provider identity."
+        },
+        "status": {
+          "$ref": "#/$defs/Status",
+          "description": "This exact input's outcome."
+        }
+      },
+      "required": [
+        "input",
+        "status"
+      ],
+      "type": "object"
+    },
     "AuthorCards": {
       "additionalProperties": false,
       "description": "Exact source cards in input order; outer source outcomes retain failures.",
@@ -32,7 +62,7 @@
         "items": {
           "description": "Exact returned source cards, with no cross-source links.",
           "items": {
-            "$ref": "#/$defs/AuthorCard"
+            "$ref": "#/$defs/AuthorCardItem"
           },
           "type": "array"
         }
@@ -41,6 +71,13 @@
         "items"
       ],
       "type": "object"
+    },
+    "AuthorCountScope": {
+      "description": "Scope of source-reported bibliographic counts.",
+      "enum": [
+        "provider_record"
+      ],
+      "type": "string"
     },
     "AuthorCounts": {
       "additionalProperties": false,
@@ -72,8 +109,15 @@
             "integer",
             "null"
           ]
+        },
+        "scope": {
+          "$ref": "#/$defs/AuthorCountScope",
+          "description": "Counts apply only to this provider record."
         }
       },
+      "required": [
+        "scope"
+      ],
       "type": "object"
     },
     "AuthorGet": {
@@ -85,6 +129,7 @@
           "items": {
             "$ref": "#/$defs/AuthorId"
           },
+          "maxItems": 20,
           "minItems": 1,
           "type": "array",
           "x-positional": 0
@@ -661,7 +706,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author_card/1",
+  "$id": "biomcp.author_card/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -707,7 +752,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author_card/1",
+      "const": "biomcp.author_card/3",
       "type": "string"
     },
     "sources": {

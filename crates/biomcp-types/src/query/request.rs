@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover native author candidates without identity reconciliation.
+    SearchAuthor(crate::AuthorSearch),
+    /// Read exact provider author cards in input order.
+    GetAuthor(crate::AuthorGet),
     /// Read the native assay total for one exact ChEMBL cell.
     CellLineAssayCount(crate::CellLineAssayCountQuery),
     /// Discover unchanged literal Cellosaurus candidates.

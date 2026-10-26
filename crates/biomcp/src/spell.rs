@@ -15,6 +15,7 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
+        Action::AuthorPapers(q) => Ok(author_papers(q)),
         Action::QueryHelp(request) => Ok(std::iter::once("help".into())
             .chain(command_words(request))
             .collect()),
@@ -50,6 +51,22 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         }
     }
 }
+fn author_papers(q: &biomcp_types::AuthorPapersQuery) -> Vec<String> {
+    let mut args = vec!["author".into(), "papers".into(), q.id().to_string()];
+    if let Some(section) = q.section() {
+        args.push(section.as_str().into());
+    }
+    args.extend([
+        "--limit".into(),
+        q.limit().to_string(),
+        "--offset".into(),
+        q.offset().to_string(),
+    ]);
+    if let Some(pool) = q.pool() {
+        args.extend(["--pool".into(), pool.to_string()]);
+    }
+    args
+}
 fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     let schema: Value = serde_json::from_str(
         crate::schema::find(crate::grammar::query_schema(request)).unwrap_or("{}"),
@@ -68,6 +85,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchAuthor(q) => serde_json::to_value(q),
+        Request::GetAuthor(q) => serde_json::to_value(q),
         Request::CellLineAssayCount(q) => serde_json::to_value(q),
         Request::SearchCellLine(q) => serde_json::to_value(q),
         Request::GetCellLine(q) => serde_json::to_value(q),
@@ -188,7 +207,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetCellLine(_)
+        Request::GetAuthor(_)
+        | Request::GetCellLine(_)
         | Request::GetGwasAssociation(_)
         | Request::GetGwasStudy(_)
         | Request::GetProtein(_)
@@ -206,7 +226,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchCellLine(_)
+        Request::SearchAuthor(_)
+        | Request::SearchCellLine(_)
         | Request::SearchGwas(_)
         | Request::SearchProtein(_)
         | Request::SearchPhenotype(_)
@@ -239,6 +260,9 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
     }
 }
 fn base_entity(request: &Request) -> &'static str {
+    if matches!(request, Request::SearchAuthor(_) | Request::GetAuthor(_)) {
+        return "author";
+    }
     if matches!(
         request,
         Request::SearchCellLine(_) | Request::GetCellLine(_)
@@ -251,6 +275,9 @@ fn base_entity(request: &Request) -> &'static str {
     ) {
         return "gwas";
     }
+    other_entity(request)
+}
+fn other_entity(request: &Request) -> &'static str {
     if matches!(request, Request::SearchProtein(_) | Request::GetProtein(_)) {
         "protein"
     } else if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {

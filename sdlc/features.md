@@ -169,3 +169,5 @@ cell-line-sections: A caller pages complete native Cellosaurus names, identities
 author-types: A public API caller checks source-qualified author records and native paper and work-group contracts without inferring person identity. Contracts: `biomcp-types/author_contracts` (features: `schema`).
 
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests. Cases: `crates/biomcp/tests/runner/cell_line/all.rs`, `crates/biomcp/tests/runner/cell_line/all/*.rs`.
+
+author-search: Literal Semantic Scholar author candidates retain provider identities and native order. Cases: `tests/cases/author/*.yaml`, `crates/biomcp/tests/runner/author/*.rs`.

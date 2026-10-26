@@ -1,0 +1,144 @@
+{
+  "live_check": "synthetic control",
+  "feature": "author-search",
+  "story": "usage",
+  "replay": "author/synthetic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        " "
+      ],
+      "mcp": [
+        "search",
+        "author",
+        " "
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 166,
+      "max_tokens": 42
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "x",
+        "--limit",
+        "0"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "x",
+        "--limit",
+        "0"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 166,
+      "max_tokens": 42
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "x",
+        "--limit",
+        "26"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "x",
+        "--limit",
+        "26"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 166,
+      "max_tokens": 42
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "x",
+        "--offset",
+        "-1"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "x",
+        "--offset",
+        "-1"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 166,
+      "max_tokens": 42
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "x",
+        "--source",
+        "orcid"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "x",
+        "--source",
+        "orcid"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 166,
+      "max_tokens": 42
+    },
+    {
+      "run": [
+        "get",
+        "author",
+        "123"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "123"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 166,
+      "max_tokens": 42
+    }
+  ]
+}

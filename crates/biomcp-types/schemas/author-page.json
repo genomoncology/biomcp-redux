@@ -1,5 +1,12 @@
 {
   "$defs": {
+    "AuthorCountScope": {
+      "description": "Scope of source-reported bibliographic counts.",
+      "enum": [
+        "provider_record"
+      ],
+      "type": "string"
+    },
     "AuthorCounts": {
       "additionalProperties": false,
       "description": "Counts describe only this provider record, never a global publication corpus.",
@@ -30,8 +37,15 @@
             "integer",
             "null"
           ]
+        },
+        "scope": {
+          "$ref": "#/$defs/AuthorCountScope",
+          "description": "Counts apply only to this provider record."
         }
       },
+      "required": [
+        "scope"
+      ],
       "type": "object"
     },
     "AuthorHeader": {
@@ -128,8 +142,9 @@
           "description": "Retained page identity."
         },
         "query": {
-          "$ref": "#/$defs/Text",
           "description": "Literal query from the positional argument or --query.",
+          "minLength": 1,
+          "type": "string",
           "x-positional": 0
         },
         "source": {
@@ -673,7 +688,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.author_page/1",
+  "$id": "biomcp.author_page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -719,7 +734,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.author_page/1",
+      "const": "biomcp.author_page/2",
       "type": "string"
     },
     "sources": {

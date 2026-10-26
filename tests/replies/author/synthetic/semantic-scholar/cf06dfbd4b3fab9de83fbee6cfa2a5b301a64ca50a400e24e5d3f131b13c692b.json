@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/author/789?fields=authorId%2Cname%2Caffiliations%2CpaperCount%2CcitationCount%2ChIndex%2Curl",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "authorId": "123",
+          "name": "Wrong returned record"
+        }
+      }
+    }
+  ]
+}

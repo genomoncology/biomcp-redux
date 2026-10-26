@@ -1,0 +1,29 @@
+{
+  "feature": "author-search",
+  "story": "Exact retained source metadata preserves provider identity and record-scoped counts",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "author",
+        "semantic-scholar:999999999999999999"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "semantic-scholar:999999999999999999"
+      ],
+      "exit": 1,
+      "is_error": false,
+      "expect": {
+        "/status": "absent",
+        "/result/items/0/status": "absent",
+        "/sources/0/state": "ok"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 433,
+      "max_tokens": 109
+    }
+  ]
+}

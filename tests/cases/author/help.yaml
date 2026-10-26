@@ -1,0 +1,60 @@
+{
+  "feature": "author-search",
+  "story": "Author help describes exact provider identity and unavailable topic rank",
+  "live_check": "synthetic control",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "author"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "author"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/description": "Literal author name query and native window; positional text maps to query. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking is unavailable."
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1261,
+      "max_tokens": 316
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "author"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "author"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 644,
+      "max_tokens": 161
+    },
+    {
+      "run": [
+        "list",
+        "author"
+      ],
+      "mcp": [
+        "list",
+        "author"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1785,
+      "max_tokens": 447
+    }
+  ]
+}

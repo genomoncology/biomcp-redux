@@ -1,6 +1,7 @@
 use crate::QueryInvalid;
 use biodata::{AuthorId, Text};
 use serde::{Deserialize, Serialize};
+const MAX_INPUTS: usize = 20;
 fn default_limit() -> u32 {
     5
 }
@@ -32,8 +33,8 @@ pub struct AuthorSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Literal query from the positional argument or --query.
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    query: Text,
+    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-positional" = 0)))]
+    query: Box<str>,
     /// Native author source.
     #[serde(default)]
     source: AuthorSearchSource,
@@ -56,7 +57,7 @@ struct SearchFields {
 impl TryFrom<SearchFields> for AuthorSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=25).contains(&v.limit) {
+        if !(1..=25).contains(&v.limit) || v.query.trim().is_empty() {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
@@ -64,8 +65,26 @@ impl TryFrom<SearchFields> for AuthorSearch {
 }
 impl AuthorSearch {
     /// Literal source query.
-    pub fn query(&self) -> &Text {
+    pub fn query(&self) -> &str {
         &self.0.query
+    }
+    /// Start a replacement native search without retained state.
+    pub fn restart(&self) -> Self {
+        let mut q = self.at_offset(0);
+        q.0.pool = None;
+        q
+    }
+    /// Retain the checked snapshot identity for this native page.
+    pub fn with_pool(&self, pool: Text) -> Self {
+        let mut q = self.clone();
+        q.0.pool = Some(pool);
+        q
+    }
+    /// Continue at the provider's own next offset.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
     }
     /// Selected native provider.
     pub fn source(&self) -> AuthorSearchSource {
@@ -95,19 +114,25 @@ pub struct AuthorGet(GetFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct GetFields {
     /// One or more exact qualified IDs.
-    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-positional" = 0)))]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = MAX_INPUTS), extend("x-positional" = 0)))]
     ids: Box<[AuthorId]>,
 }
 impl TryFrom<GetFields> for AuthorGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if v.ids.is_empty() {
+        if !(1..=MAX_INPUTS).contains(&v.ids.len()) {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
     }
 }
 impl AuthorGet {
+    /// Select one checked provider record.
+    pub fn one(id: AuthorId) -> Self {
+        Self(GetFields {
+            ids: vec![id].into(),
+        })
+    }
     /// Qualified records in input order.
     pub fn ids(&self) -> &[AuthorId] {
         &self.0.ids
@@ -167,6 +192,17 @@ impl TryFrom<PapersFields> for AuthorPapersQuery {
     }
 }
 impl AuthorPapersQuery {
+    /// Start the default native paper window for a checked provider record.
+    pub fn new(id: AuthorId) -> Self {
+        Self(PapersFields {
+            id,
+            section: None,
+            full: false,
+            limit: default_limit(),
+            offset: 0,
+            pool: None,
+        })
+    }
     /// Exact qualified record.
     pub fn id(&self) -> &AuthorId {
         &self.0.id

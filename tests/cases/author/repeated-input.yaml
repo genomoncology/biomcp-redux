@@ -1,0 +1,35 @@
+{
+  "feature": "author-search",
+  "live_check": "synthetic control",
+  "story": "Repeated exact inputs retain both result slots without repeating one papers action",
+  "replay": "author/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "author",
+        "semantic-scholar:123",
+        "semantic-scholar:123"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "semantic-scholar:123",
+        "semantic-scholar:123"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/input": [
+          "semantic-scholar:123",
+          "semantic-scholar:123"
+        ],
+        "/next": {
+          "count": 1
+        }
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1126,
+      "max_tokens": 282
+    }
+  ]
+}

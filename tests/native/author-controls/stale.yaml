@@ -1,0 +1,130 @@
+{
+  "feature": "author-search",
+  "story": "A retained stale first page stays partial after a fresh next page and a warm first-page read",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "offline": false,
+      "expect": {
+        "/status": "complete"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1191,
+      "max_tokens": 298
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "offline": true,
+      "expect": {
+        "/status": "partial",
+        "/sources/0/state": "stale",
+        "/next/*/kind": {
+          "includes": "fresh"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "author",
+            "Louis Williams",
+            "--fresh"
+          ]
+        }
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1275,
+      "max_tokens": 319
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--offset",
+        "5",
+        "--pool",
+        "<pool>"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--offset",
+        "5",
+        "--pool",
+        "<pool>"
+      ],
+      "offline": false,
+      "expect": {
+        "/status": "partial",
+        "/sources/0/state": "stale",
+        "/next/*/kind": {
+          "includes": "fresh"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "author",
+            "Louis Williams",
+            "--fresh"
+          ]
+        }
+      },
+      "full_output_bytes": true,
+      "max_bytes": 870,
+      "max_tokens": 218
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>"
+      ],
+      "offline": false,
+      "expect": {
+        "/status": "partial",
+        "/sources/0/state": "stale",
+        "/next/*/kind": {
+          "includes": "fresh"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "author",
+            "Louis Williams",
+            "--fresh"
+          ]
+        }
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1323,
+      "max_tokens": 331
+    }
+  ]
+}

@@ -24,7 +24,7 @@ pub(super) fn exchange_with_globals(
 ) -> Result<Vec<Value>, String> {
     exchange_retained(environment, frames, globals, None)
 }
-fn exchange_retained(
+pub(super) fn exchange_retained(
     environment: &Environment,
     frames: &[Value],
     globals: &[String],

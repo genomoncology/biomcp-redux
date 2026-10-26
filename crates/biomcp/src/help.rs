@@ -12,7 +12,11 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     }
     let commands = commands()?
         .into_iter()
-        .filter(|c| path.is_empty() || c.command == path)
+        .filter(|c| {
+            path.is_empty()
+                || c.command == path
+                || (path.len() == 1 && c.command.get(1) == path.first())
+        })
         .collect();
     Ok(Help { commands })
 }
@@ -56,6 +60,9 @@ const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivi
 
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
+    if entity == "author" {
+        description.push_str(" Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking is unavailable.");
+    }
     if entity == "cell-line" || verb == "cell-line" {
         description.push(' ');
         description.push_str(CELL_LINE_BOUNDARY);

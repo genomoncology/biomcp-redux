@@ -124,6 +124,11 @@ fn root() -> Result<Command, ()> {
     ])));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
+        Command::new("list")
+            .subcommand_required(true)
+            .subcommand(Command::new("author")),
+    );
+    root = root.subcommand(
         Command::new("store")
             .subcommand_required(true)
             .subcommand(Command::new("clean")),
@@ -173,7 +178,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         Action::StoreClean
     } else if verb == "health" {
         Action::Health
-    } else if verb == "help" {
+    } else if verb == "help" || verb == "list" {
         Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
@@ -207,7 +212,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     })
 }
 fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
-    Ok(if verb == "help" {
+    Ok(if verb == "list" {
+        Some(vec!["author".into()])
+    } else if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
             Some(("network", matches)) => Some(vec![
@@ -432,7 +439,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         (
             "search" | "get",
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
-            | "protein" | "study" | "cell-line",
+            | "protein" | "study" | "cell-line" | "author",
         ) => entity::request(verb, entity, value),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)

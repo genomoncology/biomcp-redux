@@ -1,0 +1,179 @@
+{
+  "feature": "author-search",
+  "story": "Native pages retain fixed pool identity and expiry and reject mismatched fresh and expired reuse",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 0
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1191,
+      "max_tokens": 298
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 0
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1191,
+      "max_tokens": 298
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--offset",
+        "5",
+        "--pool",
+        "<pool>"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--offset",
+        "5",
+        "--pool",
+        "<pool>"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 5
+      },
+      "full_output_bytes": true,
+      "max_bytes": 786,
+      "max_tokens": 197
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 0
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1239,
+      "max_tokens": 310
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Other",
+        "--pool",
+        "<pool>"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Other",
+        "--pool",
+        "<pool>"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.pool_mismatch",
+        "/next/0/kind": "restart"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 229,
+      "max_tokens": 58
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>",
+        "--fresh"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>",
+        "--fresh"
+      ],
+      "exit": 3,
+      "is_error": true,
+      "expect": {
+        "/error/code": "pool.expired",
+        "/next/0/kind": "restart"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 226,
+      "max_tokens": 57
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "--pool",
+        "<pool>"
+      ],
+      "exit": 3,
+      "is_error": true,
+      "expect": {
+        "/error/code": "pool.expired",
+        "/next/0/kind": "restart"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 226,
+      "max_tokens": 57
+    }
+  ]
+}

@@ -29,19 +29,59 @@ impl fmt::Display for Secret {
 
 /// Explicitly supplied secrets; never reads environment or files.
 #[derive(Debug, Default)]
-pub struct Secrets(BTreeMap<SecretName, Secret>);
+pub struct Secrets(BTreeMap<SecretName, SecretValue>);
+#[derive(Debug)]
+enum SecretValue {
+    Ready(Secret),
+    Deferred(DeferredSecret),
+}
+// A caller-supplied credential resolves once per Secrets owner, never globally.
+struct DeferredSecret {
+    resolved: std::sync::OnceLock<Option<Secret>>,
+    load: Box<dyn Fn() -> Option<Secret> + Send + Sync>,
+}
+impl fmt::Debug for DeferredSecret {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("DeferredSecret(***)")
+    }
+}
+impl SecretValue {
+    fn get(&self) -> Option<&str> {
+        match self {
+            Self::Ready(secret) => Some(secret.value()),
+            Self::Deferred(secret) => secret
+                .resolved
+                .get_or_init(|| (secret.load)())
+                .as_ref()
+                .map(Secret::value),
+        }
+        .filter(|v| !v.is_empty())
+    }
+}
 
 impl Secrets {
     /// Insert or replace a configured secret.
     pub fn insert(&mut self, name: SecretName, value: Secret) {
-        self.0.insert(name, value);
+        self.0.insert(name, SecretValue::Ready(value));
     }
 
+    /// Resolve a caller-owned credential only when an admitted request needs it.
+    /// The loader runs once for this owner, including a missing credential.
+    pub fn defer(
+        &mut self,
+        name: SecretName,
+        load: impl Fn() -> Option<Secret> + Send + Sync + 'static,
+    ) {
+        self.0.insert(
+            name,
+            SecretValue::Deferred(DeferredSecret {
+                resolved: std::sync::OnceLock::new(),
+                load: Box::new(load),
+            }),
+        );
+    }
     pub(crate) fn get(&self, name: SecretName) -> Option<&str> {
-        self.0
-            .get(&name)
-            .map(Secret::value)
-            .filter(|v| !v.is_empty())
+        self.0.get(&name).and_then(SecretValue::get)
     }
 }
 

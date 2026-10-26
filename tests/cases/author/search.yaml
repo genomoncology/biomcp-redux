@@ -1,0 +1,32 @@
+{
+  "live_check": "synthetic control",
+  "feature": "author-search",
+  "story": "An author search keeps provider records separate and offers exact disambiguation",
+  "replay": "author/synthetic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.author_page/2",
+        "/result/items/*/id": [
+          "semantic-scholar:2162869982",
+          "semantic-scholar:113751091"
+        ],
+        "/next/0/kind": "disambiguate"
+      },
+      "max_bytes": 1191,
+      "max_tokens": 298,
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "full_output_bytes": true
+    }
+  ]
+}
