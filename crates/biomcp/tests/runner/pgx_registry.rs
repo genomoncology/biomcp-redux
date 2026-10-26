@@ -56,7 +56,7 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
         || row
             .get("terms")
             .and_then(Value::as_str)
-            .is_none_or(|t| !t.contains("PM ruling") || !t.contains("JavaScript shell"))
+            .is_none_or(|t| !t.contains("reviewed policy") || !t.contains("JavaScript shell"))
     {
         return Err(format!("wrong declaration: {row}"));
     }
