@@ -34,6 +34,15 @@ fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
     recording(replay, section, body, status, 0)
 }
 fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64) -> Check {
+    recording_raw(replay, section, &body.to_string(), status, delay)
+}
+pub(super) fn recording_raw(
+    replay: &Path,
+    section: &str,
+    body: &str,
+    status: u16,
+    delay: u64,
+) -> Check {
     let stub = crate::runner::network_stub::Stub::for_source(
         "www.cbioportal.org",
         "application/json",
@@ -73,7 +82,7 @@ fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64)
         let mut value: Value =
             serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
-        let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+        let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
         let exchanges = if matches!(status, 429 | 500) {
             vec![exchange; 3]
         } else {
@@ -214,17 +223,6 @@ fn failures() -> Check {
                 || value.pointer("/sources/0/reason") != Some(&json!("disabled"))
             {
                 return Err(format!("policy bypass: {value}"));
-            }
-        }
-        for (status, delay) in [(429, 0), (500, 0), (200, 0), (200, 120001)] {
-            recording(&replay, route, json!({"broken":"body"}), status, delay)?;
-            let value = call(&env, &replay, &["get", "study", "synthetic_0", section], 4)?;
-            if value.pointer("/sources/0/use") != Some(&json!("restricted"))
-                || value.get("result").is_some()
-            {
-                return Err(format!(
-                    "failure lost source terms or became empty page: {value}"
-                ));
             }
         }
     }

@@ -31,12 +31,18 @@ pub(super) fn trials() -> Vec<Trial> {
     ];
     cases.extend(study_get::trials());
     cases.extend(study_files::trials());
+    cases.extend(study_retirements::trials());
+    cases.extend(study_failures::trials());
     cases
 }
+#[path = "study_failures.rs"]
+mod study_failures;
 #[path = "study_files.rs"]
 mod study_files;
 #[path = "study_get.rs"]
 mod study_get;
+#[path = "study_retirements.rs"]
+mod study_retirements;
 pub(super) fn rows() -> Value {
     json!((0..12).map(|n| json!({"studyId":format!("synthetic_{n}"),"name":format!("Synthetic Atlas {n}"),"description":"Literal mixed metadata","cancerTypeId":if n < 8 {"brca"} else {"mixed"},"allSampleCount":n,"referenceGenome":"hg19","sequencedSampleCount":n,"cnaSampleCount":0,"structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],"importDate":"2026-08-20 21:46:46","groups":"","readPermission":true,"publicStudy":true})).collect::<Vec<_>>())
 }
@@ -78,6 +84,15 @@ fn missing() -> Check {
         || v.pointer("/next/0/args") != Some(&json!(["sync", "cbioportal-studies"]))
     {
         return Err(format!("missing bundle: {v}"));
+    }
+    let card = call(&env, &replay, &["get", "study", "synthetic_0"], 4)?;
+    if card.get("status") != Some(&json!("failed"))
+        || card.get("result").is_some()
+        || card.pointer("/sources/0/reason") != Some(&json!("syncing"))
+    {
+        return Err(format!(
+            "missing card snapshot became source absence: {card}"
+        ));
     }
     call(&env, &replay, &["search", "study"], 2)?;
     Ok(())
@@ -146,15 +161,7 @@ fn search() -> Check {
     Ok(())
 }
 fn replacement() -> Check {
-    for fault in [
-        "malformed",
-        "conflict",
-        "429",
-        "500",
-        "oversized",
-        "partial",
-        "timeout",
-    ] {
+    for fault in ["conflict", "oversized"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let replay = seed(&env, rows(), 200)?;
         call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
@@ -251,7 +258,7 @@ fn surfaces() -> Check {
         return Err("exact stored study card lost native description".into());
     }
     let absent = call(&env, &replay, &["get", "study", "SYNTHETIC_0"], 1)?;
-    if absent.get("result").is_some() {
+    if absent.get("status") != Some(&json!("absent")) || absent.get("result").is_some() {
         return Err("study ID case was repaired".into());
     }
     let args = vec!["search".into(), "study".into(), "atlas".into()];
