@@ -1,6 +1,7 @@
 # 0250 — Give every research result a canonical URL and title from its source identity
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4b3cbfe9a10f31351bc5ccd172e41545b52cb806
 
 Milestone: 4
 

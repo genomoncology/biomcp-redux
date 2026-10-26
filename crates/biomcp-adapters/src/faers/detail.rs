@@ -39,11 +39,14 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
         }
         raw::Response::Absent { .. } => None,
     };
-    let report_url = biodata::Text::new(&format!(
-        "{}?search=safetyreportid%3A%22{id}%22&limit=5&skip=0&sort=receivedate%3Adesc",
-        SPEC.base
-    ))
-    .map_err(|_| biomcp_fetch::InputError::Serialization)?;
+    let url = crate::registry::records::record_url(
+        biomcp_types::Source::Faers,
+        crate::registry::records::RecordKind::AdverseEvent,
+        id.as_str(),
+    )
+    .ok_or(biomcp_fetch::InputError::Serialization)?;
+    let report_url =
+        biodata::Text::new(&url).map_err(|_| biomcp_fetch::InputError::Serialization)?;
     Ok(Detail {
         report,
         report_url,

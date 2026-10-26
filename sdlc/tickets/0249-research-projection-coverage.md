@@ -1,6 +1,7 @@
 # 0249 — Project phenotype results through search and fetch, and check every entity
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 72a3b5e0670233d2af76660dea86268661b2f6c4
 
 Milestone: 4
 

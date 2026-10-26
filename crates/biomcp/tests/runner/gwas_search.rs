@@ -2,7 +2,6 @@
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -88,30 +87,46 @@ fn body(url: &str, page: u32, total: u32) -> Value {
 }
 fn seed(
     env: &Environment,
-    url: &str,
+    args: &[&str],
     body: Value,
     status: u16,
     delay: u64,
 ) -> Result<PathBuf, String> {
-    seed_text(env, url, body.to_string(), status, delay)
+    seed_text(env, args, body.to_string(), status, delay)
 }
 fn seed_text(
     env: &Environment,
-    url: &str,
+    args: &[&str],
     body: String,
     status: u16,
     delay: u64,
 ) -> Result<PathBuf, String> {
+    let stub = super::network_stub::Stub::for_source(
+        "www.ebi.ac.uk",
+        "application/json",
+        wire::live_body,
+    )?;
+    let recording_env = super::variant::source_environment(&stub)?;
+    let temporary = recording_env.root().join("recorded");
+    let mut command = args.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>();
+    command.extend(["--record".into(), temporary.to_string_lossy().into()]);
+    invoke(&recording_env, command, 0)?;
+    if stub.finish()?.len() != 1 {
+        return Err("synthetic recording made an unexpected request count".into());
+    }
     let directory = env.root().join("replay/gwas");
     fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
-    let key: String = Sha256::digest(format!("GET\0{url}").as_bytes())
-        .iter()
-        .map(|byte| format!("{byte:02x}"))
-        .collect();
-    let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
-    let recording = json!({"source":"gwas","method":"GET","url":url,"exchanges":[exchange.clone(),exchange.clone(),exchange]});
-    fs::write(directory.join(format!("{key}.json")), recording.to_string())
-        .map_err(|e| e.to_string())?;
+    for file in fs::read_dir(temporary.join("gwas")).map_err(|e| e.to_string())? {
+        let file = file.map_err(|e| e.to_string())?;
+        let mut recording: Value =
+            serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body}});
+        *recording.get_mut("exchanges").ok_or("recorded exchanges")? =
+            json!([exchange.clone(), exchange.clone(), exchange]);
+        fs::write(directory.join(file.file_name()), recording.to_string())
+            .map_err(|e| e.to_string())?;
+    }
     Ok(env.root().join("replay"))
 }
 fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
