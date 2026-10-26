@@ -1,7 +1,7 @@
 """Walk released BioMCP help and print its leaf and own-option inventory.
 
 Run against the public v0.9.3 executable: python3 scripts/parity_inventory.py /path/to/biomcp
-The executable is invoked only with --help. Aliases, globals, positionals and
+The executable is invoked only for its version and help. Aliases, globals, positionals and
 parent options are excluded. Hidden options below come from the released source.
 """
 
@@ -31,6 +31,16 @@ def generate(binary):
             "TERM": "dumb",
             "COLUMNS": "160",
         }
+
+        version = subprocess.run(
+            [str(binary), "--version"],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        if version != "biomcp 0.9.3":
+            raise ValueError(f"expected biomcp 0.9.3, got {version!r}")
 
         def walk(command):
             text = subprocess.run(

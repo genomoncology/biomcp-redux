@@ -349,7 +349,6 @@ The leaf table owns pathway leaves. The article slice transfers `pathway article
 | `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported. |
 | `pathway articles` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT. |
 | `pathway trials` | Dropped by ruling | — | `--limit`, `--offset`, `--source` | — | — | The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE. |
-| `list pathway` | Ported or renamed | — | — | — | — | Use help search pathway and help get pathway. |
 | `enrich` | Dropped by ruling | — | `--limit` | — | — | The entity boundary ruling excludes g:Profiler, enrichment calculation and execution of analysis tools. |
 <!-- /parity-accounting -->
 

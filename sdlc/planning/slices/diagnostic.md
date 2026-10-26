@@ -489,7 +489,6 @@ This closes the static legacy surface accounting above. The historical denominat
 | `get diagnostic` | Ported or renamed | — | — | — | — | Choose gtr, who-ivd, fda-pma or fda-510k explicitly and an exact native identity. Named sections remain source-scoped; all and the name-derived regulatory overlay retire. |
 | `gtr sync` | Ported or renamed | — | — | — | — | Use sync gtr; validate and atomically replace the complete two-file bundle. |
 | `who-ivd sync` | Ported or renamed | — | — | — | — | Use sync who-ivd; replace the full unfiltered export. |
-| `list diagnostic` | Ported or renamed | — | — | — | — | Use generated help diagnostic; examples come from executable cases. |
 <!-- /parity-accounting -->
 
 | Legacy or added surface | Shipped spelling or disposition | Case owner |

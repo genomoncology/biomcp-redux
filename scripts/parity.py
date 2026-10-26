@@ -76,21 +76,18 @@ def rows(root):
 
 
 def counts(root):
-    totals = {outcome: [0, 0] for outcome in OUTCOMES}
-    for _, (_, outcome, *rest) in rows(root):
-        totals[outcome][0] += 1
-        for category, cell in zip(OUTCOMES, rest[:4]):
-            totals[category][1] += len(re.findall(r"`--[a-z][a-z-]*`", cell))
     leaves = inventory(root)
+    totals = {outcome: [0, 0] for outcome in OUTCOMES}
     accounted_commands = set()
     accounted_options = set()
-    for _, (command, _, *rest) in rows(root):
+    for _, (command, outcome, *rest) in rows(root):
         name = command.strip("`")
         accounted_commands.add(name)
-        for cell in rest[:4]:
-            accounted_options.update(
-                (name, option) for option in re.findall(r"`(--[a-z][a-z-]*)`", cell)
-            )
+        totals[outcome][0] += 1
+        for category, cell in zip(OUTCOMES, rest[:4]):
+            options = re.findall(r"`(--[a-z][a-z-]*)`", cell)
+            totals[category][1] += len(options)
+            accounted_options.update((name, option) for option in options)
     totals["Not yet decided"][0] += len(leaves.keys() - accounted_commands)
     all_options = {
         (command, option) for command, options in leaves.items() for option in options

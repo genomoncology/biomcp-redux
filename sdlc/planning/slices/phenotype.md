@@ -142,7 +142,6 @@ The counted ledger preserves the earlier disease ruling on the old ranking leaf.
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- | --- |
 | `search phenotype` | Dropped by ruling | — | `--limit`, `--offset` | — | — | Drop symptom-to-disease ranking and automatic HPO resolution; literal Monarch term discovery and explicit source associations have independent contracts. Similarity stays deferred. |
-| `list phenotype` | Ported or renamed | — | — | — | — | Rename to generated help phenotype; expose source choices, sections, paging and executable examples. |
 <!-- /parity-accounting -->
 
 The complete closed public-issue inventory returned 57 issues. No issue title or body contained phenotype, Monarch or HPO. The investigation must preserve the inventory and filter as external evidence; this means zero entity-specific closed issues were found, not that general transport, cache or MCP issues cease to apply.
