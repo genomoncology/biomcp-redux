@@ -289,3 +289,25 @@ Every row below cites the same immutable evidence archive: Yellow `data/biomcp-r
 | InterPro absent control, `interpro-absent` | The P00000 request records status0, outcome `truncated`, empty headers and empty body. The helper exits2 and retains its receipt unchanged. There is no admitted HTTP404 or native empty collection. | Native absence remains unproved. Treat this capture as a failed bounded request, never as absent. Absent-versus-failed acceptance cases remain labeled synthetic. No retry or repaired URL was attempted. |
 
 These source windows remove the paging, five-hit search, domain-selector and exact-isoform evidence gaps only. They do not measure product output or expand the approved source set. The unreviewed and native-absence capabilities keep their stated fallbacks. All retained timing values describe single shared-machine source calls rather than a throughput or quiet-machine benchmark.
+
+
+## Exact card and search command budgets
+
+The actual CLI and MCP envelopes were measured from the three accepted archives by the existing command case runner in jobs j14664 and j14669. Both interfaces returned identical status, query, page and result values for every measured shape. The Markdown view preserved every returned card and search accession. The second native text page retained the first pool's identity and fixed expiry. These are replay measurements; they add no provider calls or latency claim.
+
+The comparable column subtracts only the three required publisher-terms fields through the existing test helper. Full bytes include those fields. Each case ceiling is `ceil(comparable bytes * 1.15)`, and each approximate-token ceiling is `ceil(byte ceiling / 4)`. The external native cases enforce both ceilings through the ordinary runner.
+
+| Command or page | Full JSON bytes | Comparable bytes | Case byte ceiling |
+| --- | ---: | ---: | ---: |
+| `get protein P00533` | 758 | 667 | 768 |
+| `get protein Q9UIF7` | 735 | 644 | 741 |
+| `get protein P38398-2` | 777 | 686 | 789 |
+| `get protein P42771 Q8N726` | 1,192 | 1,101 | 1,267 |
+| `get protein BRAF` | 869 | 692 | 796 |
+| `get protein CDKN2A` candidates | 1,020 | 843 | 970 |
+| `search protein --gene BRAF` | 742 | 651 | 749 |
+| `search protein --gene CDKN2A` | 1,026 | 935 | 1,076 |
+| `search protein EGFR`, first five | 2,117 | 2,026 | 2,330 |
+| Same retained search, second five | 2,047 | 1,956 | 2,250 |
+
+The native first and second windows preserve total399 and remain an incomplete collection. Card output keeps source audit dates and versions separate. It omits section actions and availability disclosures until their handlers are admitted by the section tickets, following the PM's staged-registration ruling. The unreviewed search and native absence fallbacks from the admission results remain unchanged.
