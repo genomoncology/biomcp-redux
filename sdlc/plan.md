@@ -1,87 +1,39 @@
-# Plan: foundations, then the gene and article slices
+# Plan: parity and release
 
-This plan covers milestone 1. It builds the foundations every entity rests on, then the gene slice, then the article slice. It names stages, not tickets. Each stage files its own tickets when it starts, and each slice files its tickets from its investigation, as `decisions/2026-10-23-slices-not-preplanned-tickets.md` says. `planning/architecture.md` holds the design, `planning/rust-standards.md` holds the rules and ratchets, and `planning/slices.md` holds the slice method.
+This plan covers milestone 5. Every 1.0 entity slice has landed, so this milestone proves that 1.0 keeps what 0.9 users rely on, makes 1.0 safe to run as a long-lived server, documents it, builds every release artifact, and ends with the history replacement after Ian approves the release. It names stages and the tickets that own them.
 
 ## Why this order
 
-Foundations come first because every slice uses all of them. The crate layout fixes the dependency direction before any code can cross it. The lint ratchets go on while the code is empty, so no file or function ever exceeds its limit and no ratchet starts with a debt. The biodata conventions and schema generation come before the first entity type, so every type follows one pattern, and the transport's few biodata types land before the transport. The shared transport comes before any adapter, so no adapter ever builds its own client, retry or cache. The runner and the output contract come before the first command, so the first command is written outside-in against a schema.
-
-Gene comes first among the slices because it is the simplest entity that still runs the whole stack. A gene has stable identifiers, few sources and small replies. The slice proves the types, the schema, the transport, the adapter shape, the commands, the MCP tool and the harvested cases end to end, with little domain risk. Gene symbols and identifiers also feed every later slice, including article queries.
-
-Articles come second because article search is where BioMCP 0.9 fails a clinician most visibly: a plain PubMed search finds papers that BioMCP drops. The article slice proves what gene cannot. It has many sources, paged and multi-step adapters, a merged and ranked pool, a stored snapshot for stable paging, and a get that returns supplementary material. It also tests the adapter size estimate in `planning/architecture.md` on the hardest sources first.
+Robustness and public-text fixes come first, because the parity run, the docs and the rehearsal should all measure the code that will ship. The parity run comes before the docs rewrite, because any fact 1.0 loses against 0.9 becomes a fix that the docs must describe. The pipeline and schema gate come before the rehearsal, because the rehearsal installs what the pipeline builds. The history replacement is last because it is the step that cannot be undone.
 
 ## Stages
 
-### 1. Workspace and crate layout
+### 1. Close milestone 4 and harden the server
 
-- One Cargo workspace with the crates in `planning/architecture.md`. Crates that no stage needs yet do not exist.
-- Cargo enforces the dependency direction. `biodata` carries the no-I/O `clippy.toml`.
-- `make landing-gate` runs formatting, clippy with warnings denied, the ratchet check and the case suite.
+- Finish the native concurrency diagnosis (0287).
+- MCP server robustness (0283), store upgrades that keep bundles (0284), replay miss reasons through one mapping (0285) and check hardening (0286).
+- Port `version` and `mcp-config` (0288).
+- Remove private infrastructure and vendor names from public text (0279).
 
-### 2. Rust standards and lint ratchets
+### 2. Prove parity
 
-- The workspace lint table from `planning/rust-standards.md`.
-- The file length limits, `clippy::too_many_lines` at 80, and the ratchet check that fails when a crate names a forbidden dependency or type.
-- Each ratchet starts at its 1.0 target, because the code starts empty.
+- Run the harvested cases against 0.9.3 and 1.0 and fill the deferred size and timing comparison (0291). Each fact 1.0 loses becomes a bug ticket.
+- Run the outside judged agent comparison against the latest released 0.9 (0098), PM-owned.
+- Capture the LitSense gene search when the source allows it (0072).
 
-### 3. biodata core conventions and schema generation
+### 3. Document
 
-- The ID newtype pattern, closed-set enums, coordinate types, the error pattern and the serde rules from `planning/rust-standards.md`.
-- JSON Schema generated from the types behind a `schema` feature, checked in, versioned, and failed on drift. The binary enables the feature, so the tested build is the shipped build.
-- The shared envelope types: status, section states, problems and typed next steps.
-- The minimal types the transport names, `Source`, `Reason` and `Problem`, land first, so the transport stage can start on them.
+- Rewrite the README as a short guide, generate the reference docs and recipes (0292).
+- Ship the agent skill guide (0187).
 
-### 4. The shared transport with record and replay
+### 4. Build the release
 
-- `biomcp-fetch` on blocking `ureq` with scoped threads, as the amended `decisions/2026-10-23-one-transport.md` says: endpoint declarations, deadlines, quotas keyed by a declared source key, keyed sources that never run without the user's key, the reply cache in SQLite, retry with `Retry-After`, body limits and one `SourceError` type.
-- The cache stores a reply only after it decodes and passes its raw type's check, and never stores another non-2xx reply.
-- Record mode writes each reply to a recording directory. Replay mode serves only recordings, keeps quota spacing in virtual time and fails on a miss.
-- Recordings can hold a status code, a delay, a broken body or a 200 with an error body, so failures are ordinary cases.
-- A bundle endpoint kind for local data bundles, built when the first bundle source needs it. HGNC makes that the gene slice.
+- Carry the 0.9 release pipeline over, with publication gated on Ian's approval (0289).
+- Compare schemas with the last released copy (0290).
+- AlphaGenome transport design goes to Ian with options (0271); the AlphaGenome section follows only if he approves a transport (0198).
 
-### 5. The outside-in runner
+### 5. Rehearse and release
 
-- One integration test target that turns each YAML case into a named test.
-- It runs the built binary over recordings, checks JSON pointer assertions and prints a readable diff.
-- The assertion set: equality, subset, includes, count range, rank range, uniqueness and regular expression.
-- Size ceilings, `max_bytes` and `max_tokens`, on each step and at any JSON pointer, so each slice's token budget per command and per section fails a case when output grows.
-- An `mcp:` key sends the same request through the MCP tool, so a case proves CLI and MCP agree.
-
-### 6. JSON output and the schema contract
-
-- Every command prints compact JSON in the envelope by default.
-- The runner validates every output against its schema.
-- `biomcp schema <name>` prints a checked-in schema.
-
-### 7. The gene slice
-
-Runs the method in `planning/slices.md`:
-
-1. Investigation: real gene questions harvested from published papers and real questions, how each source answers them, and a critical look at every 0.9 gene command, section and option.
-2. The five to ten delight questions, answered in `planning/slices/gene.md`.
-3. Types and schema: the gene identifiers, the gene header and the gene card.
-4. Adapters: only the sources the investigation shows the answers need.
-5. Commands: `search gene`, `get gene` and the drill-downs the investigation names, through the CLI and the one MCP tool.
-6. Cases: harvested stories with answers verified against the live sources, recorded for replay.
-
-The PM files the gene tickets from step 2's findings.
-
-### 8. The article slice
-
-Runs the same method for articles. Its known bars, from 0.9's failures:
-
-- Every PMID that a plain PubMed relevance search returns appears in the full walk, or the response says which source was partial and why. AKT1 E17K is the standing case, with its recorded floor and its two key papers, 17611497 and 33123537, on page one.
-- Two full walks give the same order, with no duplicates or gaps.
-- A warm page makes no network request.
-- Article get returns supplementary material where the source offers it.
-- A kernel of about 20 cancer variant questions, harvested from published papers and real questions, sets the pass mark for ranking.
-
-The pool tables arrive in this slice, because the article pool is the first thing that must be stored. Entity, alias and link tables wait for the wiki.
-
-## Running beside each other
-
-- Stages 1 and 2 land together, because the gate needs both.
-- Stage 3's minimal types land first after stage 2. Then the rest of stage 3, stage 4 and stage 5 run side by side. Stage 6 follows 3 and 5.
-- The gene investigation may start any time, because it writes no product code. Gene code waits for stage 6.
-- The article investigation may start during the gene slice. Article code waits for the gene slice to land, so it reuses what gene proved.
-- Every ticket lands green with its ratchets on.
+- Rehearse the final candidate on every platform (0293).
+- Ian approves the release, and the release operators publish.
+- Replace the public repository's history (0294), after Ian's explicit approval of that step.
