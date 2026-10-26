@@ -1,0 +1,20 @@
+{
+  "live_check": "synthetic control",
+  "feature": "protein-sections",
+  "story": "A caller reads exact source feature bounds on the displayed sequence",
+  "replay": "protein/synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "P00533",
+        "features"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/features/state": "empty"
+      }
+    }
+  ]
+}

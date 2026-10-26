@@ -19,7 +19,21 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
             }],
         };
     }
-    let audit = raw.entry_audit.unwrap_or_default();
+    let audit: biodata::ProteinAudit = raw.entry_audit.unwrap_or_default().into();
+    let mut problems = Vec::new();
+    let features =
+        super::sections_map::features(raw.features.unwrap_or_default(), id, &audit, &mut problems);
+    let (isoforms, function) = super::sections_map::comments(raw.comments.unwrap_or_default());
+    let structures =
+        super::sections_map::structures(raw.uni_prot_kb_cross_references.unwrap_or_default());
+    let sequence = raw.sequence.value.map(|sequence| biodata::ProteinSequence {
+        accession: id.clone(),
+        sequence,
+        length: raw.sequence.length,
+        crc64: raw.sequence.crc64,
+        md5: raw.sequence.md5,
+        audit: audit.clone(),
+    });
     let value = header(
         raw.primary_accession,
         raw.uni_protkb_id,
@@ -29,12 +43,14 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
     )
     .map(|header| Entry {
         header,
-        audit: audit.into(),
+        audit,
+        features,
+        isoforms,
+        function,
+        structures,
+        sequence,
     });
-    Mapped {
-        value,
-        problems: Vec::new(),
-    }
+    Mapped { value, problems }
 }
 pub(in crate::uniprot) fn header(
     accession: UniProtIsoform,
