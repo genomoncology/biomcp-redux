@@ -23,6 +23,14 @@ pub(super) fn run() -> Result<(), String> {
             "native non-protein facts or bounded page lost: {members}"
         ));
     }
+    walk(&env,members)?;
+    rejected(&env)?;
+    if stub.finish()?.len() != 6 {
+        return Err("retained member paging made extra provider requests".into());
+    }
+    Ok(())
+}
+fn walk(env:&Environment,members:Value)->Result<(),String>{
     let pool = members
         .pointer("/page/pool")
         .cloned()
@@ -52,7 +60,7 @@ pub(super) fn run() -> Result<(), String> {
         }
         let action = super::super::action(&value, "page")?;
         let words: Vec<_> = action.iter().map(String::as_str).collect();
-        value = call(&env, &words, 0)?;
+        value = call(env, &words, 0)?;
         if value.pointer("/page/pool") != Some(&pool) {
             return Err("member continuation renewed the retained snapshot".into());
         }
@@ -60,8 +68,11 @@ pub(super) fn run() -> Result<(), String> {
     if ids.len() != 93 || ids.iter().collect::<std::collections::BTreeSet<_>>().len() != 93 {
         return Err("member walk lost or duplicated native rows".into());
     }
+    Ok(())
+}
+fn rejected(env:&Environment)->Result<(),String>{
     let wrong = call(
-        &env,
+        env,
         &[
             "protein",
             "complex-members",
@@ -78,7 +89,7 @@ pub(super) fn run() -> Result<(), String> {
         return Err(format!("wrong anchor exposed member rows: {wrong}"));
     }
     let mismatch = call(
-        &env,
+        env,
         &[
             "protein",
             "complex-members",
@@ -92,7 +103,7 @@ pub(super) fn run() -> Result<(), String> {
         return Err("mismatched complex identity admitted".into());
     }
     call(
-        &env,
+        env,
         &[
             "protein",
             "complex-members",
@@ -104,7 +115,7 @@ pub(super) fn run() -> Result<(), String> {
     )?;
     for complex in ["CPX-716", "CPX-717"] {
         let rejected = call(
-            &env,
+            env,
             &["protein", "complex-members", "P38398", "--complex", complex],
             4,
         )?;
@@ -112,11 +123,9 @@ pub(super) fn run() -> Result<(), String> {
             return Err("native participant whitespace established a protein join".into());
         }
     }
-    if stub.finish()?.len() != 6 {
-        return Err("retained member paging made extra provider requests".into());
-    }
     Ok(())
 }
+
 fn member(id: String, kind: &str) -> Value {
     json!({"identifier":id,"interactorType":kind,"organismName":if kind=="protein"{"Homo sapiens; 9606"}else{"chemical synthesis; -2"},"name":"Native participant","stochiometry":"minValue: 1, maxValue: 2","xrefs":[{"database":"native","identifier":"identifier"}]})
 }
