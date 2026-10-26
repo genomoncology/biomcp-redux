@@ -49,6 +49,32 @@
       "full_output_bytes": true,
       "max_bytes": 368,
       "max_tokens": 92
+    },
+    {
+      "run": [
+        "--disable-sources",
+        "orcid",
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "mcp": [
+        "--disable-sources",
+        "orcid",
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 368,
+      "max_tokens": 92
     }
   ]
 }

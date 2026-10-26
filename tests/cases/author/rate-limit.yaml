@@ -22,7 +22,9 @@
         "/result/items/0/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/reason": "rate_limited",
-        "/next/1/kind": "key"
+        "/next/1/kind": "key",
+        "/sources/0/state": "failed",
+        "/sources/0/terms": "Semantic Scholar API License Agreement"
       },
       "full_output_bytes": true,
       "max_bytes": 590,

@@ -42,6 +42,32 @@
       "full_output_bytes": true,
       "max_bytes": 427,
       "max_tokens": 107
+    },
+    {
+      "run": [
+        "get",
+        "author",
+        "semantic-scholar:123",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "semantic-scholar:123",
+        "--disable-sources",
+        "noncommercial"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 427,
+      "max_tokens": 107
     }
   ]
 }

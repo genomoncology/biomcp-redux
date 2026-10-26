@@ -20,7 +20,9 @@
       "expect": {
         "/status": "failed",
         "/result/items/0/status": "failed",
-        "/sources/0/source": "semantic-scholar"
+        "/sources/0/source": "semantic-scholar",
+        "/sources/0/state": "failed",
+        "/sources/0/terms": "Semantic Scholar API License Agreement"
       },
       "full_output_bytes": true,
       "max_bytes": 525,
