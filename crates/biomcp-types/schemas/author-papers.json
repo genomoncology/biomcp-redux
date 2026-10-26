@@ -103,7 +103,10 @@
       "enum": [
         "details"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native detailed metadata for the same paper window."
+      ]
     },
     "AuthorPapers": {
       "additionalProperties": false,

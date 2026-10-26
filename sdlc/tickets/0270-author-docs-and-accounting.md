@@ -1,6 +1,7 @@
 # 0270 — Document the author commands and close the author accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 588f4daa023c2501bc0e9bf6fbf19e751cb5c503
 
 Milestone: 4
 

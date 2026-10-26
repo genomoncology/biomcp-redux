@@ -135,7 +135,10 @@
       "enum": [
         "details"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native detailed metadata for the same paper window."
+      ]
     },
     "AuthorSearchSource": {
       "description": "Author search supports one provider and its legacy spelling.",
