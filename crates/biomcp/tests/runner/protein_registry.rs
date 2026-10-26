@@ -90,7 +90,10 @@ fn declaration(name: &str, usage: &str, terms: &str, url: &str) -> Check {
         let mut outcome = registry::outcome(spec.source, state, Some(Reason::Disabled));
         outcome.count = Some(0);
         let value = serde_json::to_value(outcome).map_err(|e| e.to_string())?;
-        if value["use"] != usage || value["terms"] != terms || value["terms_url"] != url {
+        if value.get("use") != Some(&json!(usage))
+            || value.get("terms") != Some(&json!(terms))
+            || value.get("terms_url") != Some(&json!(url))
+        {
             return Err(format!("lost outcome terms: {value}"));
         }
     }
