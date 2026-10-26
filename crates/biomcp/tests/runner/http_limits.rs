@@ -183,6 +183,9 @@ fn overload() -> Check {
     excess
         .set_read_timeout(Some(Duration::from_millis(800)))
         .map_err(|e| e.to_string())?;
+    excess
+        .write_all(format!("GET /health HTTP/1.1\r\nHost: {}\r\n\r\n", server.address).as_bytes())
+        .map_err(|e| e.to_string())?;
     let mut response = String::new();
     excess
         .read_to_string(&mut response)
