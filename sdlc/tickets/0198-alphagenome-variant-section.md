@@ -2,6 +2,8 @@
 
 Status: OPEN.
 
+Blocked: 2026-10-26. AlphaGenome's current API terms exclude commercial entities, even for noncommercial work. No capture runs until Ian confirms a separate applicable license.
+
 Milestone: 4
 
 ## Outcome
