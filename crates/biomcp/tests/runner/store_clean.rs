@@ -45,7 +45,8 @@ fn seed(cx: &Connection) -> Check {
         INSERT INTO citation_evidence VALUES ('live-citation',x'03',9223372036854775807,'{}','[]');
         INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES (x'01','pubmed','https://example.test/',200,x'7b7d',0,0);
         INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES (x'02','pubmed','https://example.test/',200,x'7b7d',0,9223372036854775807);
-        CREATE TABLE foreign_state(value TEXT); INSERT INTO foreign_state VALUES ('keep');")?;
+        CREATE TABLE foreign_state(value TEXT); INSERT INTO foreign_state VALUES ('keep');
+        INSERT INTO meta VALUES ('foreign-owner',77);")?;
     Ok(())
 }
 fn count(cx: &Connection, table: &str) -> Check<u64> {
@@ -82,6 +83,29 @@ fn clean() -> Check {
         if count(&cx, table)? != 1 {
             return Err(format!("cleanup changed live {table}").into());
         }
+    }
+    let fresh_reply: bool = cx.query_row(
+        "SELECT EXISTS(SELECT 1 FROM reply WHERE key=x'02' AND fresh_until=9223372036854775807)",
+        [],
+        |r| r.get(0),
+    )?;
+    let fresh_trial: String = cx.query_row("SELECT id FROM trial_snapshot", [], |r| r.get(0))?;
+    let fresh_citation: String =
+        cx.query_row("SELECT id FROM citation_evidence", [], |r| r.get(0))?;
+    let foreign_value: String =
+        cx.query_row("SELECT value FROM foreign_state", [], |r| r.get(0))?;
+    let foreign_version: u32 = cx.query_row(
+        "SELECT version FROM meta WHERE owner='foreign-owner'",
+        [],
+        |r| r.get(0),
+    )?;
+    if !fresh_reply
+        || fresh_trial != "live-trial"
+        || fresh_citation != "live-citation"
+        || foreign_value != "keep"
+        || foreign_version != 77
+    {
+        return Err("cleanup changed fresh or foreign content".into());
     }
     if count(&cx, "pool_item")? != 0 || count(&cx, "pool_current")? != 0 {
         return Err("orphan pool rows survived".into());
