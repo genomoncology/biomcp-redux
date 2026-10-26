@@ -45,6 +45,62 @@ fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
 #[test]
 fn unrelated_and_disabled_commands_never_read_keys() {
     for command in [
+        vec![
+            "search",
+            "author",
+            "name",
+            "--disable-sources",
+            "noncommercial",
+        ],
+        vec![
+            "search",
+            "author",
+            "name",
+            "--disable-sources",
+            "semantic-scholar",
+        ],
+        vec![
+            "get",
+            "author",
+            "orcid:0000-0002-4299-3018",
+            "--disable-sources",
+            "noncommercial",
+        ],
+        vec![
+            "get",
+            "author",
+            "semantic-scholar:123",
+            "--disable-sources",
+            "noncommercial",
+        ],
+        vec![
+            "author",
+            "papers",
+            "orcid:0000-0002-4299-3018",
+            "--disable-sources",
+            "orcid",
+        ],
+        vec![
+            "author",
+            "papers",
+            "orcid:0000-0002-4299-3018",
+            "--disable-sources",
+            "noncommercial",
+        ],
+        vec![
+            "author",
+            "papers",
+            "semantic-scholar:123",
+            "--disable-sources",
+            "semantic-scholar",
+        ],
+        vec![
+            "author",
+            "papers",
+            "semantic-scholar:123",
+            "--disable-sources",
+            "noncommercial",
+        ],
         vec!["get", "gene", "HGNC:3236"],
         vec![
             "search",

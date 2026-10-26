@@ -20,9 +20,31 @@ pub(super) fn check() -> Result<(), String> {
         args.extend(["--case-cache".into(), blocked.to_string_lossy().into()]);
         let value = invoke(&env, args.clone(), 2)?;
         let raw = serde_json::to_vec(&value).map_err(|e| e.to_string())?;
+        writeln!(
+            std::io::stderr(),
+            "AUTHOR_RETIREMENT_COST {:?} {}",
+            step.run,
+            raw.len() + 1
+        )
+        .map_err(|e| e.to_string())?;
         super::super::assertions::check(&raw, &step, &super::super::assertions::prepare(&step)?)?;
         if mcp::call_with_globals(&env, &args, true, &[])? != value {
             return Err("author retirement CLI/MCP mismatch".into());
+        }
+    }
+    for text in ["", " "] {
+        let args = vec![
+            "search".into(),
+            "author".into(),
+            text.into(),
+            "--case-cache".into(),
+            blocked.to_string_lossy().into(),
+        ];
+        let value = invoke(&env, args.clone(), 2)?;
+        if value.pointer("/error/code") != Some(&json!("usage.arguments"))
+            || mcp::call_with_globals(&env, &args, true, &[])? != value
+        {
+            return Err("empty author search crossed input boundary".into());
         }
     }
     for id in ["semantic-scholar:123", "orcid:0000-0002-4299-3018"] {
@@ -32,7 +54,11 @@ pub(super) fn check() -> Result<(), String> {
             "semantic-scholar"
         };
         for selector in [source, "noncommercial"] {
-            for words in [vec!["get", "author", id], vec!["author", "papers", id]] {
+            let mut commands = vec![vec!["get", "author", id], vec!["author", "papers", id]];
+            if source == "semantic-scholar" {
+                commands.push(vec!["search", "author", "name"]);
+            }
+            for words in commands {
                 let mut args: Vec<String> = words.into_iter().map(String::from).collect();
                 args.extend([
                     "--disable-sources".into(),

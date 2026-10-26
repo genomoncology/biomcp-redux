@@ -42,7 +42,7 @@
     },
     {
       "run": [
-        "list",
+        "help",
         "author"
       ],
       "expect": {
@@ -60,7 +60,7 @@
     },
     {
       "mcp": [
-        "list",
+        "help",
         "author"
       ],
       "expect": {

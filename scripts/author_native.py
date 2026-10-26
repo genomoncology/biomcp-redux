@@ -75,7 +75,7 @@ for template in [*templates.glob('*.yaml'), *templates.with_name('author-papers'
 for name, source, indices in [
     ('author-search-help', 'tests/cases/author/help.yaml', [0]),
     ('author-get-help', 'tests/cases/author/help.yaml', [1]),
-    ('author-list-help', 'tests/cases/author/help.yaml', [2]),
+    ('author-entity-help', 'tests/cases/author/help.yaml', [2]),
     ('whole-help', 'tests/cases/gene/help.yaml', [0]),
 ]:
     if kind != 'all':
