@@ -11,6 +11,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("protein-search/native-continuation-admission", || {
             links().map_err(|e| e.to_string().into())
         }),
+        Trial::test("protein-search/row-cache-admission", || {
+            cache_admission().map_err(|e| e.to_string().into())
+        }),
     ]
 }
 fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
@@ -112,6 +115,38 @@ fn links() -> Result<(), Box<dyn std::error::Error>> {
             },
             serde_json::json!({"/status":"failed", "/sources/0/reason":"bad_reply"}),
             4,
+        )?;
+    }
+    Ok(())
+}
+
+fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
+    for (pointer, value) in [
+        ("/organism/taxonId", serde_json::json!(10090)),
+        (
+            "/entryType",
+            serde_json::json!("UniProtKB unreviewed (TrEMBL)"),
+        ),
+    ] {
+        super::response_cases::checked_steps(
+            "protein/pages",
+            |_, record| {
+                if record
+                    .get("url")
+                    .and_then(Value::as_str)
+                    .is_some_and(|u| !u.contains("cursor="))
+                    && let Some(row) = record.pointer_mut("/exchanges/0/body/value/results/0")
+                    && let Some(field) = row.pointer_mut(pointer)
+                {
+                    *field = value.clone();
+                }
+            },
+            serde_json::json!([
+                {"run":["search","protein","EGFR"], "exit":0,
+                 "expect":{"/status":"partial", "/problems/0/code":"value_unknown"}},
+                {"run":["search","protein","EGFR","--fresh"], "offline":true,"exit":4,
+                 "expect":{"/status":"failed"}}
+            ]),
         )?;
     }
     Ok(())
