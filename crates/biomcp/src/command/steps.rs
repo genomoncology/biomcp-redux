@@ -45,6 +45,10 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     match body {
         Body::GwasPage(_) => Navigation::NativeGwas,
         Body::ProteinPage(_) => Navigation::Selectable,
+        Body::ProteinFeatures(_)
+        | Body::ProteinIsoforms(_)
+        | Body::ProteinStructures(_)
+        | Body::ProteinSequence(_) => Navigation::Bounded,
         Body::ProteinCard(card) => {
             candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
         }
