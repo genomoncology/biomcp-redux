@@ -45,3 +45,56 @@ fn requests_validate_before_io_and_preserve_selection() {
         assert!(serde_json::from_value::<AuthorPapersQuery>(value).is_err());
     }
 }
+#[test]
+fn metadata_absence_and_repeated_byline_names_remain_source_local() {
+    // Synthetic repetition protects the required contract; D's detailed pages
+    // contain no repeated display names. No native titles or abstracts enter Git.
+    let header = json!({"paper_id":"0123456789abcdef0123456789abcdef01234567","title":"Synthetic paper","external_ids":[{"id":"CorpusId:123"}],"doi":"10.1234/example"});
+    let detail = json!({"header":header,"authors":[{"id":"123","name":"Repeated name"},{"id":"456","name":"Repeated name"}],"publication_types":["JournalArticle","Review"],"open_access_pdf":{}});
+    assert_eq!(roundtrip::<AuthorPaperDetail>(detail.clone()),detail);
+    assert!(detail["header"].get("pmid").is_none());
+    assert!(detail.get("fields_of_study").is_none());
+    let absent = json!({"id":"semantic-scholar:123","name":"Synthetic name"});
+    assert_eq!(roundtrip::<AuthorHeader>(absent.clone()),absent);
+    let empty = json!({"id":"semantic-scholar:123","name":"Synthetic name","affiliations":[],"counts":{"paper_count":0}});
+    assert_eq!(roundtrip::<AuthorHeader>(empty.clone()),empty);
+}
+fn assertion(code: u64, title: Option<&str>) -> Value {
+    let mut v = json!({"put_code":code,"work_type":"journal-article","source":{"source_client_id":"APP-1234567890ABCDEF","source_name":"Synthetic source","assertion_origin_orcid":"0000-0002-4299-3018"},"visibility":"public","external_ids":[{"kind":"doi","value":"10.1234/example","relationship":"self"},{"kind":"wosuid","value":"native-value","relationship":"part-of"}]});
+    if let Some(title)=title { v["title"]=json!(title); }
+    v
+}
+#[test]
+fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
+    // A 0003 has 73 groups with two summaries; A 0005 has absent title/date.
+    let group=json!({"external_ids":[{"kind":"pmid","value":"123","relationship":"self"}],"assertions":[assertion(2,Some("Synthetic title")),assertion(1,None)]});
+    assert_eq!(roundtrip::<OrcidWorkGroup>(group.clone()),group);
+    let works=json!({"author":"0000-0002-4299-3018","groups":[group],"observed_groups":380});
+    assert_eq!(roundtrip::<OrcidWorks>(works.clone()),works);
+    assert_eq!(roundtrip::<OrcidPublicVisibility>(json!("PUBLIC")),json!("public"));
+    for private in ["limited","private","LIMITED","PRIVATE"] {
+        assert!(serde_json::from_value::<OrcidPublicVisibility>(json!(private)).is_err());
+    }
+    let mut invalid=assertion(1,None);
+    invalid["visibility"]=json!("private");
+    assert!(serde_json::from_value::<OrcidWorkAssertion>(invalid).is_err());
+}
+#[cfg(feature="schema")]
+fn check<T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned>(query: Value,body: Value)
+where T::Query: schemars::JsonSchema + serde::de::DeserializeOwned {
+    let value=serde_json::to_value(Envelope::<T>::new(Status::Complete,serde_json::from_value(query).unwrap(),Some(serde_json::from_value(body).unwrap()))).unwrap();
+    let schema=serde_json::to_value(schemars::schema_for!(Envelope<T>)).unwrap();
+    assert!(jsonschema::validator_for(&schema).unwrap().is_valid(&value));
+    assert_eq!(value["schema"],T::SCHEMA);
+}
+#[cfg(feature="schema")]
+#[test]
+fn five_standalone_envelopes_validate_without_shared_request_changes() {
+    check::<AuthorPage>(json!({"query":"Synthetic name"}),json!({"items":[],"matching_records":0}));
+    check::<AuthorCards>(json!({"ids":["semantic-scholar:123"]}),json!({"items":[]}));
+    let query=json!({"id":"semantic-scholar:123"});
+    let body=json!({"author":"semantic-scholar:123","items":[]});
+    check::<AuthorPapers>(query.clone(),body.clone());
+    check::<AuthorPaperDetails>(query,body);
+    check::<OrcidWorks>(json!({"id":"orcid:0000-0002-4299-3018"}),json!({"author":"0000-0002-4299-3018","groups":[],"observed_groups":0}));
+}

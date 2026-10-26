@@ -1,4 +1,4 @@
-use super::OrcidId;
+use super::{OrcidId, OrcidClientId};
 use crate::{PartialDate, Text};
 use serde::{Deserialize, Serialize};
 /// Only public source visibility is admitted; legacy uppercase is an alias.
@@ -34,7 +34,7 @@ pub struct OrcidAssertionSource {
     pub source_orcid: Option<OrcidId>,
     /// Native ORCID client ID; no person identity.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub source_client_id: Option<Text>,
+    pub source_client_id: Option<OrcidClientId>,
     /// Native source display name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_name: Option<Text>,
@@ -43,7 +43,7 @@ pub struct OrcidAssertionSource {
     pub assertion_origin_orcid: Option<OrcidId>,
     /// Native origin client ID.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub assertion_origin_client_id: Option<Text>,
+    pub assertion_origin_client_id: Option<OrcidClientId>,
     /// Native origin display name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assertion_origin_name: Option<Text>,
