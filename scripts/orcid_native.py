@@ -43,7 +43,10 @@ def prepare(records, cases, replay):
         for assertion in group['work-summary']:
             for external in assertion['external-ids']['external-id']:
                 if external['external-id-relationship'] == 'self' and external['external-id-type'] in ['pmid', 'doi']:
-                    args = ['get', 'article', external['external-id-value']]
+                    value = external['external-id-value']
+                    if external['external-id-type'] == 'doi':
+                        value = value.lower()
+                    args = ['get', 'article', value]
                     if args not in pivots:
                         pivots.append(args)
         reserved = 1 if index + 1 < total else 0

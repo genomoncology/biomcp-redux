@@ -16,6 +16,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
             path.is_empty()
                 || c.command == path
                 || (path.len() == 1 && c.command.get(1) == path.first())
+                || (path.as_slice() == ["author"] && c.command.first() == path.first())
         })
         .collect();
     Ok(Help { commands })

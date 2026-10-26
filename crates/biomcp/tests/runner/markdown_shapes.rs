@@ -17,6 +17,20 @@ pub(super) struct Shape {
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
+        args: &["help", "author", "papers"],
+        replies: "",
+        required: &[
+            "author papers",
+            "id",
+            "section",
+            "full",
+            "limit",
+            "offset",
+            "pool",
+        ],
+        max_bytes: 1008,
+    },
+    Shape {
         args: &["help", "search", "author"],
         replies: "",
         required: &[
