@@ -88,7 +88,7 @@ fn invoke(env: &Environment, args: &[&str], flag: &str, directory: &Path, mode: 
     secret_free(&output.stdout)?;
     secret_free(&output.stderr)?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if output.status.code() != Some(1) || value.get("status") != Some(&json!("not_found")) {
+    if output.status.code() != Some(1) || value.get("status") != Some(&json!("absent")) {
         return Err(format!("openFDA absence failed: {value}"));
     }
     Ok(())
