@@ -18,3 +18,5 @@ pub(super) const URLS: &[&str] = &[
     "/term/attribution/url",
     "/identity/url",
 ];
+
+pub(super) const VARIANT_IDS: &[&str] = &["/record/id"];

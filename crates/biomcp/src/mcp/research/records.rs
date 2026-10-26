@@ -91,7 +91,7 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
     })
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    let id = text(row, &["/record/id"])?;
+    let id = text(row, paths::VARIANT_IDS)?;
     hit(
         next_args("variant", id, envelope).or_else(|| variant_args(id, envelope))?,
         id,
@@ -149,7 +149,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
                 return None;
             }
             let row = rows.first()?;
-            let native_id = text(row, &["/record/id"])?;
+            let native_id = text(row, paths::VARIANT_IDS)?;
             hit(
                 vec![entity.into(), native_id.into()],
                 native_id,
@@ -184,7 +184,7 @@ fn variant_url(row: &Value, envelope: &Value) -> Option<String> {
     if text(row, &["/source"]) != Some("myvariant") {
         return None;
     }
-    let id = text(row, &["/record/id"])?;
+    let id = text(row, paths::VARIANT_IDS)?;
     let encoded = id
         .bytes()
         .map(|b| {

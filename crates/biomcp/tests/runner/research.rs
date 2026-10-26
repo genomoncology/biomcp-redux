@@ -1,4 +1,6 @@
 //! Research wrappers map the existing CLI result without provider calls.
+#[path = "research_registry.rs"]
+mod registry;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -9,6 +11,9 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("mcp/research-registry-projection-paths", || {
+            registry::check().map_err(Into::into)
+        }),
         Trial::test("mcp/research-search-fetch-parity", || {
             parity().map_err(Into::into)
         }),
