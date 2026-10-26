@@ -28,3 +28,12 @@ Date: 2026-10-26. Decided by the PM on the 0190, 0191 and 0194 investigation pro
 ## All three
 
 0.9 timings and output sizes stay marked unmeasured; the milestone 5 comparison measures them. The proposals land as slice designs, and the PM files product tickets from them.
+
+## Phenotype
+
+Added 2026-10-26 on the 0192 proposal.
+
+- Keep Monarch term search restricted to the HP namespace, exact HPO and Monarch term cards, `synonyms`, `xrefs`, Monarch `hierarchy`, and `diseases` and `genes` association sections that reuse the disease slice's association model. Add source taxon to that shared model only if it is missing.
+- Defer Monarch similarity. The disease slice already retired symptom-to-diagnosis ranking, and one research question does not outweigh that ruling. The 0.9 `search phenotype` HP-ID-set form gets a fixed retirement message that names term search and the association sections.
+- Accept the defaults: five term headers, five-row text and link sections, one complete association row, and whole definitions and comments. The hierarchy section returns parent and child links, not whole native nodes, and its ceiling comes from that measured output.
+- Defer translations and HPO or Monarch bundles.
