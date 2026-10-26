@@ -1,6 +1,6 @@
 # 0151 — Fix the live-check diagnostics that 0068's first run exposed
 
-Status: OPEN.
+Status: WITHDRAWN.
 
 Milestone: 3
 

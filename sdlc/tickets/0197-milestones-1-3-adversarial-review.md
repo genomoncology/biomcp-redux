@@ -1,6 +1,6 @@
 # 0197 — Adversarial review of milestones 1 to 3 against their claims
 
-Status: OPEN.
+Status: COMPLETE.
 
 Milestone: 3
 

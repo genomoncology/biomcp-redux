@@ -1,6 +1,6 @@
 # 0223 — Add the study counts section with source gene aggregates
 
-Status: OPEN.
+Status: WITHDRAWN.
 
 Milestone: 4
 

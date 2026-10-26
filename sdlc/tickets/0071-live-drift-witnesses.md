@@ -1,6 +1,6 @@
 # 0071 — live-drift-witnesses
 
-Status: OPEN.
+Status: WITHDRAWN.
 
 Milestone: 1
 

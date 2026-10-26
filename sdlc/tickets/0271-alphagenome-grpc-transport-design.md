@@ -12,5 +12,5 @@ A reviewed design says how BioMCP calls AlphaGenome's TLS streaming gRPC service
 - Starts from: the official `dna_client.py` and `dna_model_service.proto` in google-deepmind/alphagenome, the transport sections of architecture.md, `2026-10-26-new-sources-follow-open-by-default.md`, and the 0198 delegate report in m7290.
 - Keeps: one shared transport, no publisher SDK, no automatic retries, keys read only when the source is called, and no new dependency before the design is accepted.
 - Changes: a design section in architecture.md or a variant slice note. No product code.
-- Proof: the PM accepts the design after an exact-commit docs review. A design that adds dependencies states their size, build time and license.
+- Proof: the PM reviews the design after an exact-commit docs review, and Ian approves either outcome, because adding a streaming client or an async runtime would change the one-transport decision and dropping AlphaGenome would reverse his entity boundary ruling. A design that adds dependencies states their size, build time and license.
 - Defers: the product section, which stays 0198. Choosing the public variant, build, interval and outputs for any capture goes to a clinical reviewer before a call.

@@ -1,6 +1,6 @@
 # 0006 — Compare schemas with the last public release
 
-Status: OPEN.
+Status: WITHDRAWN.
 
 Milestone: 5
 
