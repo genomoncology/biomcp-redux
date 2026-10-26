@@ -36,7 +36,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-search/1",
+  "$id": "biomcp.gwas-search/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Checked association search selectors with native conjunction semantics.",
@@ -69,6 +69,14 @@
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
+    },
+    "p_value": {
+      "description": "Inclusive positive probability in scientific notation, such as 1e-5. The qualifying total stays unknown until the ordered walk reaches its end.",
+      "type": "string"
+    },
+    "pool": {
+      "$ref": "#/$defs/Text",
+      "description": "Retained threshold walk identity; requires a threshold."
     },
     "pubmed": {
       "$ref": "#/$defs/Pmid",

@@ -327,6 +327,16 @@
         "page": {
           "$ref": "#/$defs/PageInfo",
           "description": "Native page scope and total."
+        },
+        "qualifying_total": {
+          "default": null,
+          "description": "Complete qualifying count, unknown until the threshold walk reaches its end.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
@@ -413,11 +423,12 @@
           "description": "Source order; threshold requests use this same native order."
         },
         "p_value": {
-          "description": "Inclusive exact threshold under native ascending order.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "description": "Inclusive positive probability in scientific notation, such as 1e-5. The qualifying total stays unknown until the ordered walk reaches its end.",
+          "type": "string"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained threshold walk identity; requires a threshold."
         },
         "pubmed": {
           "$ref": "#/$defs/Pmid",
@@ -1031,7 +1042,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas_page/2",
+  "$id": "biomcp.gwas_page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1077,7 +1088,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas_page/2",
+      "const": "biomcp.gwas_page/3",
       "type": "string"
     },
     "sources": {

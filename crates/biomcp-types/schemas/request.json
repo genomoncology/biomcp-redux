@@ -162,6 +162,13 @@
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
     },
+    "Details": {
+      "description": "Explicit full physical-context disclosure; omission keeps membership compact.",
+      "enum": [
+        "details"
+      ],
+      "type": "string"
+    },
     "DiagnosticDeviceId": {
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
@@ -777,7 +784,7 @@
       ]
     }
   },
-  "$id": "biodata.request/12",
+  "$id": "biodata.request/17",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -824,11 +831,12 @@
           "description": "Source order; threshold requests use this same native order."
         },
         "p_value": {
-          "description": "Inclusive exact threshold under native ascending order.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "description": "Inclusive positive probability in scientific notation, such as 1e-5. The qualifying total stays unknown until the ordered walk reaches its end.",
+          "type": "string"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained threshold walk identity; requires a threshold."
         },
         "pubmed": {
           "$ref": "#/$defs/Pmid",
@@ -1028,6 +1036,10 @@
           "minimum": 0,
           "type": "integer"
         },
+        "snapshot": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained exact source reply for local section pages."
+        },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",
           "description": "HPO for card, synonyms and xrefs; Monarch for other sections."
@@ -1081,9 +1093,17 @@
           "x-positional": 0
         },
         "source": {
-          "$ref": "#/$defs/PathwaySource",
-          "default": "reactome",
-          "description": "One source; Reactome by default."
+          "default": [
+            "reactome"
+          ],
+          "description": "Sources in caller order; repeated sources take turns without title joins.",
+          "items": {
+            "$ref": "#/$defs/PathwaySource"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "type": "array",
+          "x-comma-separated": true
         },
         "top_level": {
           "default": false,
@@ -1138,6 +1158,91 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Page retained exact source membership references.",
+      "properties": {
+        "command": {
+          "const": "pathway_genes",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/Details",
+          "description": "Include every physical entity context for these references; never clips source text.",
+          "x-positional": 1
+        },
+        "id": {
+          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+          "pattern": "^R-HSA-[1-9][0-9]*$",
+          "type": "string",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five complete relation rows by default, at most fifty.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Offset within the retained selected relation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Immutable relation snapshot."
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Page retained source-contained event references.",
+      "properties": {
+        "command": {
+          "const": "pathway_events",
+          "type": "string"
+        },
+        "id": {
+          "description": "Checked human Reactome identity; WikiPathways relations are not yet available.",
+          "pattern": "^R-HSA-[1-9][0-9]*$",
+          "type": "string",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 5,
+          "description": "Five complete relation rows by default, at most fifty.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Offset within the retained selected relation.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Immutable relation snapshot."
         }
       },
       "required": [

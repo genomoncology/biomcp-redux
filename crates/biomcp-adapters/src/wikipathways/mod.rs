@@ -1,6 +1,9 @@
 //! Publisher policy for explicit WikiPathways catalog synchronization.
+mod catalog;
+mod raw;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
+pub use catalog::{card, search, sync};
 use std::time::Duration;
 
 /// One declaration owns publisher terms, admission and bundle download policy.

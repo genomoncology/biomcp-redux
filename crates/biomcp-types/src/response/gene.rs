@@ -75,10 +75,20 @@ pub enum QueryBody {
     PhenotypePage(crate::PhenotypePage),
     /// Complete independent publisher term card.
     PhenotypeCard(Option<crate::PhenotypeTermCard>),
+    /// Native source synonym page.
+    PhenotypeSynonyms(Option<crate::PhenotypeSynonyms>),
+    /// Native source cross-reference page.
+    PhenotypeXrefs(Option<crate::PhenotypeXrefs>),
+    /// Native source direct parent and child links.
+    PhenotypeHierarchy(Option<crate::PhenotypeHierarchy>),
     /// Native ordered human pathway headers.
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.
     PathwayCard(Option<crate::PathwayCard>),
+    /// Retained native membership references.
+    PathwayGenes(Option<crate::PathwayGenes>),
+    /// Retained native contained events.
+    PathwayEvents(Option<crate::PathwayEvents>),
     /// Source-ordered study catalog metadata.
     StudyPage(Option<crate::StudyPage>),
     /// Exact stored study metadata.
@@ -87,6 +97,8 @@ pub enum QueryBody {
     StudyProfiles(Option<crate::StudyProfiles>),
     /// Independently paged sample-list metadata without sample members.
     StudySampleLists(Option<crate::StudySampleLists>),
+    /// Source-owned study file metadata and explicit download pointers.
+    StudyFiles(Option<crate::StudyFiles>),
     /// Whole physical FDA companion association rows.
     DiagnosticCompanion(crate::DiagnosticCompanion),
     /// Source-native CPIC pair page.

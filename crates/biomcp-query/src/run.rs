@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// Both checked WikiPathways metadata catalogs.
+    WikiPathways,
     /// Complete public cBioPortal metadata catalog.
     CbioportalStudies,
     /// Complete WHO finished pharmaceutical products CSV.
@@ -76,6 +78,8 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetPhenotype(q) => crate::phenotype::get(cx, q),
         Request::SearchPathway(q) => crate::pathway::search(cx, q),
         Request::GetPathway(q) => crate::pathway::get(cx, q),
+        Request::PathwayGenes(q) => crate::pathway::genes(cx, q),
+        Request::PathwayEvents(q) => crate::pathway::events(cx, q),
         Request::SearchStudy(q) => crate::study::search(cx, q),
         Request::GetStudy(q) => crate::study::get(cx, q),
         Request::SearchPgx(query) => crate::pgx::search(cx, query),

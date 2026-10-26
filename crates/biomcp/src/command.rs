@@ -230,10 +230,14 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
     match request {
         Request::SearchGwas(q) => match body {
             QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Search(q), body),
+            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("gwas response mismatch")),
         },
         Request::SearchProtein(_) | Request::GetProtein(_) => protein::encode(meta, request, body),
-        Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
+        Request::SearchPathway(_)
+        | Request::GetPathway(_)
+        | Request::PathwayGenes(_)
+        | Request::PathwayEvents(_) => pathway::encode(meta, request, body),
         Request::SearchPhenotype(_) | Request::GetPhenotype(_) => {
             phenotype::encode(meta, request, body)
         }
@@ -246,6 +250,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             QueryBody::StudyCard(body) => meta.encode(q, body),
             QueryBody::StudyProfiles(body) => meta.encode(q, body),
             QueryBody::StudySampleLists(body) => meta.encode(q, body),
+            QueryBody::StudyFiles(body) => meta.encode(q, body),
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
@@ -425,6 +430,9 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             error = ErrorEnvelope::trial_facility_radius();
         }
     }
+    if crate::grammar::gwas::invalid_threshold(args) {
+        error = ErrorEnvelope::gwas_threshold();
+    }
     if root == Some("key") {
         error.next = biomcp_fetch::SecretName::ALL
             .iter()
@@ -535,6 +543,7 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
 fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
     match bundle {
         Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
+        Bundle::WikiPathways => biomcp_types::Source::WikiPathways,
         Bundle::CbioportalStudies => biomcp_types::Source::Cbioportal,
         Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::WhoIvd => biomcp_types::Source::WhoIvd,

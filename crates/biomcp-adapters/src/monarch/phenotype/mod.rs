@@ -1,5 +1,6 @@
 //! Literal HP discovery and independent exact Monarch term cards.
 mod raw;
+mod sections;
 use biodata::{Attribution, PhenotypeCard, PhenotypeHeader, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeTermCard};
@@ -18,6 +19,12 @@ pub struct Page {
 pub struct Record {
     /// Complete independent source card.
     pub card: PhenotypeTermCard,
+    /// Native source synonyms with their original classes.
+    pub synonyms: Option<Box<[biodata::PhenotypeSynonym]>>,
+    /// Native references without an invented predicate.
+    pub xrefs: Option<Box<[biodata::PhenotypeXref]>>,
+    /// Direct parents followed by direct children, preserving each native array.
+    pub hierarchy: Option<Box<[biodata::PhenotypeHierarchyLink]>>,
     /// Original retrieval metadata.
     pub metadata: ReplyMetadata,
 }
@@ -74,10 +81,15 @@ pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
         }
     })?;
     let sections = sections(&node);
+    let attribution = attribution(&node.id)?;
+    let (synonyms, xrefs, hierarchy) = sections::rows(&node, &attribution);
     Ok(Record {
+        synonyms,
+        xrefs,
+        hierarchy,
         card: PhenotypeTermCard {
             term: PhenotypeCard::Monarch {
-                attribution: attribution(&node.id)?,
+                attribution,
                 requested_id: q.id().clone(),
                 returned_id: node.id,
                 label: node.name,

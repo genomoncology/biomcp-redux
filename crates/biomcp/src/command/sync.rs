@@ -3,8 +3,16 @@ use biomcp_query::Bundle;
 use biomcp_types::{Envelope, Status};
 use std::io;
 pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
+    match acquire(fetch, bundle) {
+        Some(result) => finish(bundle, result),
+        None => finish(bundle, biomcp_adapters::wikipathways::sync(fetch)),
+    }
+}
+fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
+    bundle: Bundle,
+    result: Result<T, biomcp_fetch::RequestError>,
+) -> io::Result<Outcome> {
     let source = bundle_source(bundle);
-    let result = acquire(fetch, bundle);
     let status = if result.is_ok() {
         Status::Complete
     } else {
@@ -18,11 +26,7 @@ pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Out
         biomcp_fetch::RequestError::Source(error) => Some(error.reason),
         _ => None,
     });
-    let mut envelope = Envelope::<biomcp_types::SyncResult>::new(
-        status,
-        biomcp_types::SyncQuery { source },
-        result.ok(),
-    );
+    let mut envelope = Envelope::<T>::new(status, biomcp_types::SyncQuery { source }, result.ok());
     envelope.sources.push(biomcp_adapters::registry::outcome(
         source,
         if reason == Some(biomcp_types::Reason::Disabled) {
@@ -48,8 +52,9 @@ pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Out
 fn acquire(
     fetch: &biomcp_fetch::Fetch,
     bundle: Bundle,
-) -> Result<biomcp_types::SyncResult, biomcp_fetch::RequestError> {
-    match bundle {
+) -> Option<Result<biomcp_types::SyncResult, biomcp_fetch::RequestError>> {
+    Some(match bundle {
+        Bundle::WikiPathways => return None,
         Bundle::CbioportalStudies => biomcp_adapters::cbioportal::sync_studies(fetch),
         Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
         Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
@@ -91,5 +96,5 @@ fn acquire(
                     })
                 })
         }
-    }
+    })
 }

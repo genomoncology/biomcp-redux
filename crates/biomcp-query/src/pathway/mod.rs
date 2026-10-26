@@ -3,6 +3,8 @@ mod gene;
 mod get;
 mod search;
 mod snapshot;
+mod union;
+mod wikipathways;
 use crate::{Action, Outcome};
 use biomcp_types::{QueryBody, Request, Status};
 pub use get::get;
@@ -39,4 +41,13 @@ fn overall(out: &Outcome, absent: bool) -> Status {
     } else {
         Status::Complete
     }
+}
+
+/// Read retained native pathway membership.
+pub fn genes(_: &crate::Ctx<'_>, _: &biomcp_types::PathwayGenesQuery) -> Outcome {
+    empty(QueryBody::PathwayGenes(None))
+}
+/// Read retained native contained events.
+pub fn events(_: &crate::Ctx<'_>, _: &biomcp_types::PathwayEventsQuery) -> Outcome {
+    empty(QueryBody::PathwayEvents(None))
 }

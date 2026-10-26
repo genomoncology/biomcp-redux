@@ -60,7 +60,7 @@ pub struct PathwayPage {
     pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway_page/1";
+    const SCHEMA: &'static str = "biomcp.pathway_page/2";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.
@@ -146,4 +146,9 @@ pub struct WikiPathwaysSync {
     pub search: WikiPathwaysCatalogReceipt,
     /// Exact-get metadata catalog receipt.
     pub get: WikiPathwaysCatalogReceipt,
+}
+
+impl ResponseBody for WikiPathwaysSync {
+    const SCHEMA: &'static str = "biomcp.wikipathways_sync/1";
+    type Query = crate::SyncQuery;
 }

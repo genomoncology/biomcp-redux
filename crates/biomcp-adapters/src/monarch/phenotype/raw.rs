@@ -24,8 +24,13 @@ pub(super) struct Node {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Hierarchy {
-    pub super_classes: Option<Box<[serde::de::IgnoredAny]>>,
-    pub sub_classes: Option<Box<[serde::de::IgnoredAny]>>,
+    pub super_classes: Option<Box<[Link]>>,
+    pub sub_classes: Option<Box<[Link]>>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct Link {
+    pub id: biodata::Curie,
+    pub name: Box<str>,
 }
 impl Reply for Node {
     fn check(&self) -> Result<(), BadReply> {
