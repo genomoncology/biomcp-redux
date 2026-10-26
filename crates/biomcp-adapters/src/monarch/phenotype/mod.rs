@@ -51,7 +51,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> 
         .into_iter()
         .map(|node| {
             Ok(PhenotypeHeader {
-                attribution,
+                attribution: attribution(&node.id)?,
                 id: node.id,
                 label: node.name,
                 match_score: node.score,
