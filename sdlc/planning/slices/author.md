@@ -252,3 +252,18 @@ The first-row record for PMID 33123537 has one additional exact card witness. Jo
 The unchanged prelaunch snapshot is archived inside that capture. Its SHA-256 is `10e4667852be1b6a7a2d952ff963e135eb302ad2baa0ee64b3b0ee841a616504`. Yellow `data/biomcp-redux/0264-author-captures/0266-author-card-concurrency.tar.gz`, SHA-256 `f70e3cdf9b36ce51d60c054608ef30a5c3d75f65a6120a39760e4f78fad86464`, binds the post-completion snapshot to the same archive and window. The post snapshot has SHA-256 `17d1ba9a57d812754723345f71c611708cbda87d4ed8809fc6681b65b4a065d2`. Both archives passed outer and member verification and independent cross-machine hash comparison. These bounded owned-job snapshots do not establish visibility of other teams, global jobs or external key holders.
 
 The exact card cases use the first-row records from the retained complete bylines for PMIDs 17611497, 33123537 and 34096690. They do not claim that every byline member's card was fetched. PMID 32955176 supplied only the retained native paper 404, so its byline and first-row author identity remain unavailable. No replacement identity is inferred.
+
+### Normalized author output measurements
+
+The retained native replay measures the whole emitted envelope, including shared source terms. The bare column measures only `result`; it is not the enforced command ceiling. CLI includes its terminating newline, MCP text is the actual `content[0].text`, and RPC measures the complete retained MCP frame. Native response bodies remain outside Git. Each owning canonical YAML step enforces its raw byte and token ceiling with the agreed 15 percent allowance. Source-body sizes above are separate measurements. The original design supplied no numeric normalized search/card ceiling, so these values do not replace an earlier numeric bound. The same-question 0.9 comparison remains unmeasured.
+
+| Native owner | CLI | Bare result | MCP text | Markdown | Full RPC |
+|---|---:|---:|---:|---:|---:|
+| Search offset 0 | 1824 | 836 | 1823 | 1597 | 4126 |
+| Search offset 5 | 1836 | 845 | 1835 | 1609 | 4150 |
+| First card from PMID 17611497 | 703 | 304 | 702 | 744 | 1722 |
+| First card from PMID 33123537 | 713 | 308 | 712 | 754 | 1742 |
+| First card from PMID 34096690 | 705 | 306 | 704 | 746 | 1726 |
+| Exact absent card | 376 | 77 | 375 | 399 | 1016 |
+
+The approved help ceilings for CLI/MCP text/Markdown are search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
