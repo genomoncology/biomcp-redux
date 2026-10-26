@@ -26,7 +26,7 @@ pub fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
         .iter()
         .position(|(kind, _)| *kind == StepKind::Key)
         .map(|index| out.next.remove(index));
-    retry(&mut out, Request::SearchAuthor(q.clone()));
+    retry(&mut out, Request::SearchAuthor(q.restart()));
     if let Some(key) = key {
         out.next.push(key);
     }

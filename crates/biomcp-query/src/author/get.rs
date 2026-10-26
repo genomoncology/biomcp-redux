@@ -57,12 +57,15 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
     recovery(cx, &mut out, Request::GetAuthor(q.clone()));
     for item in &items {
         if item.card.is_some() && out.next.len() < 5 {
-            out.next.push((
+            let step = (
                 biomcp_types::StepKind::Pivot,
                 crate::Action::AuthorPapers(biomcp_types::AuthorPapersQuery::new(
                     item.input.clone(),
                 )),
-            ));
+            );
+            if !out.next.contains(&step) {
+                out.next.push(step);
+            }
         }
     }
     out.body = QueryBody::AuthorCards(AuthorCards {

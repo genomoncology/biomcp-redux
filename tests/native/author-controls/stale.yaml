@@ -38,6 +38,14 @@
         "/sources/0/state": "stale",
         "/next/*/kind": {
           "includes": "fresh"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "author",
+            "Louis Williams",
+            "--fresh"
+          ]
         }
       },
       "full_output_bytes": true,
@@ -69,6 +77,14 @@
         "/sources/0/state": "stale",
         "/next/*/kind": {
           "includes": "fresh"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "author",
+            "Louis Williams",
+            "--fresh"
+          ]
         }
       },
       "full_output_bytes": true,
@@ -96,6 +112,14 @@
         "/sources/0/state": "stale",
         "/next/*/kind": {
           "includes": "fresh"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "author",
+            "Louis Williams",
+            "--fresh"
+          ]
         }
       },
       "full_output_bytes": true,
