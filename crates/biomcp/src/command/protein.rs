@@ -13,3 +13,7 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
         _ => super::usage_envelope(biomcp_types::ErrorEnvelope::arguments()),
     }
 }
+
+pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
+    matches!(action, biomcp_query::Action::Run { request: Request::GetProtein(q), .. } if !q.sections().is_empty())
+}

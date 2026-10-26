@@ -82,6 +82,7 @@ mod pmc_tables;
 mod pool_tables;
 mod process;
 pub(super) mod proof;
+mod protein_commands;
 mod protein_registry;
 mod protocol;
 mod publication;

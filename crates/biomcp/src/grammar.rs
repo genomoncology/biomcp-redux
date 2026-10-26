@@ -49,6 +49,8 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchProtein(_) => "biomcp.protein-search/1",
+        Request::GetProtein(_) => "biomcp.protein-get/1",
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
         Request::GetPhenotype(_) => "biomcp.phenotype-get/1",
         Request::SearchPathway(_) => "biomcp.pathway-search/1",
@@ -88,6 +90,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "protein", "biomcp.protein-search/1"),
+    ("get", "protein", "biomcp.protein-get/1"),
     ("search", "phenotype", "biomcp.phenotype-search-query/1"),
     ("get", "phenotype", "biomcp.phenotype-get/1"),
     ("search", "pathway", "biomcp.pathway-search/1"),
@@ -481,7 +485,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         (
             "search" | "get",
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
-            | "study",
+            | "protein" | "study",
         ) => entity::request(verb, entity, value),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)

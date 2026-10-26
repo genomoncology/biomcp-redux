@@ -120,7 +120,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/10"),
+        Request => ("request", "biodata.request/11"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -428,6 +428,8 @@ fn pathway_contracts() -> Vec<Contract> {
 
 fn protein_contracts() -> Vec<Contract> {
     contracts! {
+        ProteinSearch => ("protein-search", "biomcp.protein-search/1"),
+        ProteinGet => ("protein-get", "biomcp.protein-get/1"),
         Envelope<ProteinPage> => ("protein-page", "biomcp.protein_page/1"),
         Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/1"),
         Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein_features/1"),

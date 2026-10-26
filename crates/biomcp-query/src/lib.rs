@@ -37,3 +37,6 @@ pub mod pathway;
 pub mod phenotype;
 /// Stored study catalog discovery.
 pub mod study;
+
+/// Exact reviewed-human protein discovery and cards.
+pub mod protein;

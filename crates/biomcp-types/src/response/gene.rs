@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native reviewed-human protein headers.
+    ProteinPage(crate::ProteinPage),
+    /// Caller-ordered exact protein cards and unselected candidates.
+    ProteinCard(crate::ProteinCard),
     /// Native ordered HP term candidates.
     PhenotypePage(crate::PhenotypePage),
     /// Complete independent publisher term card.

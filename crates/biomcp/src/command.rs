@@ -8,6 +8,7 @@ mod maintenance;
 mod pathway;
 mod pgx;
 mod phenotype;
+mod protein;
 mod steps;
 mod sync;
 mod variant;
@@ -116,6 +117,7 @@ fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if disease::unsupported(action)
         || pathway::unsupported(action)
         || phenotype::unsupported(action)
+        || protein::unsupported(action)
     {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
@@ -226,6 +228,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchProtein(_) | Request::GetProtein(_) => protein::encode(meta, request, body),
         Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
         Request::SearchPhenotype(_) | Request::GetPhenotype(_) => {
             phenotype::encode(meta, request, body)
