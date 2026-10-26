@@ -3,8 +3,8 @@ use biodata::*;
 use biomcp_types::*;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
-fn roundtrip<T: DeserializeOwned + Serialize>(v: Value) -> Value {
-    serde_json::to_value(serde_json::from_value::<T>(v).unwrap()).unwrap()
+fn roundtrip<T: DeserializeOwned + Serialize>(v: Value) -> Result<Value, serde_json::Error> {
+    serde_json::to_value(serde_json::from_value::<T>(v)?)
 }
 #[test]
 fn source_qualified_identity_checks_checksum_and_aliases() {
@@ -16,7 +16,10 @@ fn source_qualified_identity_checks_checksum_and_aliases() {
     ] {
         let id: AuthorId = input.parse().unwrap();
         assert_eq!(id.to_string(), canonical);
-        assert_eq!(roundtrip::<AuthorId>(json!(input)), json!(canonical));
+        assert_eq!(
+            roundtrip::<AuthorId>(json!(input)).unwrap(),
+            json!(canonical)
+        );
         assert_eq!(canonical.parse::<AuthorId>().unwrap(), id);
     }
     for bad in [
@@ -38,6 +41,7 @@ fn requests_validate_before_io_and_preserve_selection() {
     assert_eq!(q.source(), AuthorSearchSource::SemanticScholar);
     assert_eq!(
         roundtrip::<AuthorSearch>(json!({"query":"Example name","source":"semanticscholar"}))
+            .unwrap()
             .get("source")
             .unwrap(),
         "semantic-scholar"
@@ -54,7 +58,7 @@ fn requests_validate_before_io_and_preserve_selection() {
     assert!(serde_json::from_value::<AuthorGet>(json!({"ids":[]})).is_err());
     assert!(serde_json::from_value::<AuthorGet>(json!({"ids":["2060978"]})).is_err());
     let ids = json!({"ids":["semantic-scholar:2060978","orcid:0000-0002-4299-3018"]});
-    assert_eq!(roundtrip::<AuthorGet>(ids.clone()), ids);
+    assert_eq!(roundtrip::<AuthorGet>(ids.clone()).unwrap(), ids);
     let p: AuthorPapersQuery = serde_json::from_value(json!({"id":"semantic-scholar:2060978","full":true,"limit":25,"offset":5,"pool":"native-pool"})).unwrap();
     assert_eq!(p.section(), Some(AuthorPaperSection::Details));
     assert_eq!(p.limit(), 25);
@@ -75,20 +79,21 @@ fn metadata_absence_and_repeated_byline_names_remain_source_local() {
     // contain no repeated display names. No native titles or abstracts enter Git.
     let header = json!({"paper_id":"0123456789abcdef0123456789abcdef01234567","title":"Synthetic paper","external_ids":[{"id":"CorpusId:123"}],"doi":"10.1234/example"});
     let detail = json!({"header":header,"authors":[{"id":"123","name":"Repeated name"},{"id":"456","name":"Repeated name"}],"publication_types":["JournalArticle","Review"],"open_access_pdf":{}});
-    assert_eq!(roundtrip::<AuthorPaperDetail>(detail.clone()), detail);
+    assert_eq!(
+        roundtrip::<AuthorPaperDetail>(detail.clone()).unwrap(),
+        detail
+    );
     assert!(detail.get("header").unwrap().get("pmid").is_none());
     assert!(detail.get("fields_of_study").is_none());
     let absent = json!({"id":"semantic-scholar:123","name":"Synthetic name"});
-    assert_eq!(roundtrip::<AuthorHeader>(absent.clone()), absent);
+    assert_eq!(roundtrip::<AuthorHeader>(absent.clone()).unwrap(), absent);
     let empty = json!({"id":"semantic-scholar:123","name":"Synthetic name","affiliations":[],"counts":{"paper_count":0}});
-    assert_eq!(roundtrip::<AuthorHeader>(empty.clone()), empty);
+    assert_eq!(roundtrip::<AuthorHeader>(empty.clone()).unwrap(), empty);
 }
 fn assertion(code: u64, title: Option<&str>) -> Value {
     let mut v = json!({"put_code":code,"work_type":"journal-article","source":{"source_client_id":"APP-1234567890ABCDEF","source_name":"Synthetic source","assertion_origin_orcid":"0000-0002-4299-3018"},"visibility":"public","external_ids":[{"kind":"doi","value":"10.1234/example","relationship":"self"},{"kind":"wosuid","value":"native-value","relationship":"part-of"}]});
-    if let Some(title) = title {
-        v.as_object_mut()
-            .unwrap()
-            .insert("title".into(), json!(title));
+    if let (Some(title), Some(object)) = (title, v.as_object_mut()) {
+        object.insert("title".into(), json!(title));
     }
     v
 }
@@ -96,11 +101,11 @@ fn assertion(code: u64, title: Option<&str>) -> Value {
 fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
     // A 0003 has 73 groups with two summaries; A 0005 has absent title/date.
     let group = json!({"external_ids":[{"kind":"pmid","value":"123","relationship":"self"}],"assertions":[assertion(2,Some("Synthetic title")),assertion(1,None)]});
-    assert_eq!(roundtrip::<OrcidWorkGroup>(group.clone()), group);
+    assert_eq!(roundtrip::<OrcidWorkGroup>(group.clone()).unwrap(), group);
     let works = json!({"author":"0000-0002-4299-3018","groups":[group],"observed_groups":380});
-    assert_eq!(roundtrip::<OrcidWorks>(works.clone()), works);
+    assert_eq!(roundtrip::<OrcidWorks>(works.clone()).unwrap(), works);
     assert_eq!(
-        roundtrip::<OrcidPublicVisibility>(json!("PUBLIC")),
+        roundtrip::<OrcidPublicVisibility>(json!("PUBLIC")).unwrap(),
         json!("public")
     );
     for client in [
@@ -131,18 +136,23 @@ fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
 fn check<T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned>(
     query: Value,
     body: Value,
-) where
+) -> Result<(), Box<dyn std::error::Error>>
+where
     T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
 {
     let value = serde_json::to_value(Envelope::<T>::new(
         Status::Complete,
-        serde_json::from_value(query).unwrap(),
-        Some(serde_json::from_value(body).unwrap()),
-    ))
-    .unwrap();
-    let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>)).unwrap();
-    assert!(jsonschema::validator_for(&schema).unwrap().is_valid(&value));
-    assert_eq!(value.get("schema").unwrap(), T::SCHEMA);
+        serde_json::from_value(query)?,
+        Some(serde_json::from_value(body)?),
+    ))?;
+    let schema = serde_json::to_value(schemars::schema_for!(Envelope<T>))?;
+    assert!(
+        jsonschema::validator_for(&schema)
+            .map_err(|error| error.to_string())?
+            .is_valid(&value)
+    );
+    assert_eq!(value.get("schema"), Some(&json!(T::SCHEMA)));
+    Ok(())
 }
 #[cfg(feature = "schema")]
 #[test]
@@ -150,14 +160,16 @@ fn five_standalone_envelopes_validate_without_shared_request_changes() {
     check::<AuthorPage>(
         json!({"query":"Synthetic name"}),
         json!({"items":[],"matching_records":0}),
-    );
-    check::<AuthorCards>(json!({"ids":["semantic-scholar:123"]}), json!({"items":[]}));
+    )
+    .unwrap();
+    check::<AuthorCards>(json!({"ids":["semantic-scholar:123"]}), json!({"items":[]})).unwrap();
     let query = json!({"id":"semantic-scholar:123"});
     let body = json!({"author":"semantic-scholar:123","items":[]});
-    check::<AuthorPapers>(query.clone(), body.clone());
-    check::<AuthorPaperDetails>(query, body);
+    check::<AuthorPapers>(query.clone(), body.clone()).unwrap();
+    check::<AuthorPaperDetails>(query, body).unwrap();
     check::<OrcidWorks>(
         json!({"id":"orcid:0000-0002-4299-3018"}),
         json!({"author":"0000-0002-4299-3018","groups":[],"observed_groups":0}),
-    );
+    )
+    .unwrap();
 }
