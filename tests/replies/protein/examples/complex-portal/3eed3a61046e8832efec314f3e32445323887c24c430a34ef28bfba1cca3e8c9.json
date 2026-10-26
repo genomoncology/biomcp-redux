@@ -1,0 +1,32 @@
+{
+  "method": "GET",
+  "source": "complex-portal",
+  "url": "https://www.ebi.ac.uk/intact/complex-ws/complex/CPX-715",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "complexAc": "CPX-715",
+          "name": "Synthetic complex",
+          "species": "Homo sapiens; 9606",
+          "predictedComplex": false,
+          "participants": [
+            {
+              "identifier": "P00533",
+              "interactorType": "protein",
+              "organismName": "Homo sapiens; 9606",
+              "name": "Synthetic member",
+              "stochiometry": "minValue: 1, maxValue: 1",
+              "xrefs": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -41,7 +41,8 @@ pub enum ProteinInput {
     /// A symbol requests candidates; no first-hit selection.
     Gene(GeneSymbol),
 }
-/// Human reviewed UniProt search; unreviewed positives remain unproved.
+/// Search five reviewed human UniProt headers by literal text or exact gene.
+/// No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -136,7 +137,9 @@ impl ProteinSearch {
         self.0.pool.as_ref()
     }
 }
-/// One or more protein identities or gene symbols, with explicit named sections.
+/// Read source protein cards; a symbol returns candidates without choosing a protein.
+/// Sections disclose native facts with independent row bounds; function keeps all paragraphs.
+/// No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -149,7 +152,7 @@ struct GetFields {
     /// Source accessions or gene symbols, preserving caller order.
     #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 20), extend("x-positional" = 0)))]
     input: Box<[ProteinInput]>,
-    /// Only requested sections disclose their full content.
+    /// Select native sections or all bounded first pages; function keeps one whole text record.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[ProteinSection]>,

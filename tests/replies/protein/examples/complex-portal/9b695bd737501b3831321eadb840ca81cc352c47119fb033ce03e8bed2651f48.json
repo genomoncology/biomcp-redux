@@ -1,0 +1,38 @@
+{
+  "method": "GET",
+  "source": "complex-portal",
+  "url": "https://www.ebi.ac.uk/intact/complex-ws/search/P00533?number=25&filters=species_f%3A%28%22Homo%20sapiens%22%29",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "size": 1,
+          "totalNumberOfResults": 1,
+          "elements": [
+            {
+              "complexAC": "CPX-715",
+              "complexName": "Synthetic complex",
+              "organismName": "Homo sapiens; 9606",
+              "predictedComplex": false,
+              "interactors": [
+                {
+                  "identifier": "P00533",
+                  "interactorType": "protein",
+                  "organismName": "Homo sapiens; 9606",
+                  "name": "Synthetic member",
+                  "stochiometry": "minValue: 1, maxValue: 1",
+                  "xrefs": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

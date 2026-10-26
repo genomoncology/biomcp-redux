@@ -151,16 +151,16 @@ Static audit uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b863665
 | human reviewed default | Keep; source-native query and returned taxon/review state checked. |
 | `--all-species` | Drop under current human-health scope; no organism research examples justify it. |
 | `--reviewed` | Keep explicit default spelling with conflict validation. |
-| `--include-unreviewed` | Keep opt-in reviewed-scope widening; first implementation needs an exact positive capture before claiming coverage. The investigation's two gene searches used reviewed-only. |
+| `--include-unreviewed` | Defer because no retained search contains a known-positive unreviewed row; the command returns explicit unsupported guidance. |
 | `--disease TEXT` | Defer until a source-native known-positive human question and exact query capture establish value; do not implement disease-name heuristics. |
 | `--existence 1..5` | Defer: none of the harvested questions needs this search selector. Return source evidence where supplied. |
-| `--limit` | Keep checked page size; proposed default5/max25 follows measured projection below, subject to PM review. |
+| `--limit` | Keep checked page size; default and maximum come from the checked query schema. |
 | `--offset` | Keep over the retained source-bound pool, never offset-as-source-refetch. |
 | `--next-page` | Rename to existing opaque `--pool` continuation and emitted offset. A source cursor stays inside retained state. |
 | `get protein ACCESSION` or symbol | Keep exact accession and explicit source isoforms. A gene symbol resolves through gene candidates; ambiguity never chooses the first protein. |
 | `domains` | Keep; preserve InterPro types and every location fragment rather than accession/name/type alone. |
 | `interactions` | Defer STRING; its network limit is not edge pagination and distinct CDKN2A products collapse to one STRING ID. Do not relabel association confidence as physical interaction. |
-| `complexes` | Keep source-attributed headers and exact-member admission. Add bounded member drill-down as a proposed route. |
+| `complexes` | Keep source-attributed headers and exact-member admission. Use `protein complex-members ACCESSION --complex CPX-ID` for bounded participants. |
 | `structures` | Keep UniProt PDB cross-references with truthful provider credit, native properties and paging; no inferred residue mapping. |
 | `all` | Keep explicit opt-in over kept sections with bounded independent pages. No unbounded arrays. |
 | `protein structures ACCESSION --limit --offset` | Keep relation spelling with the existing pool convention; exact source identity and schema apply equally to JSON/Markdown/MCP. |
@@ -227,7 +227,7 @@ The first follow-up attempt stopped after delivering only the BRAF request becau
 
 Clinical review accepted the corrected P01–P28 bank and meaning contracts. P23/P24 are controls rather than published-research examples. The reviewer confirmed the historical MUTYH citation against the [publisher abstract](https://academic.oup.com/carcin/article-abstract/26/11/2010/2476061), corrected EGFR790 to Kobayashi2005 and restricted PMID14578343 to BRCT research context. Source facts do not imply classification, efficacy, binding or coordinate translation.
 
-## Measured disclosure budget proposal
+## Historical offline disclosure projection
 
 The offline projection uses all captured native rows, with page size5 and a representative envelope including source terms. It preserves raw row fields rather than pretending to be the generated future schema. It measures compact UTF-8 JSON and defines token units as `ceil(bytes/4)`; the stdout column adds one newline. It executes no product and performs no provider requests. Thus these are measured source-row projections, not measurements of shipped CLI/MCP output or a semantic tokenizer. Every implementation ticket must measure its actual complete envelopes and next actions through the existing runner, then set the accepted ceilings against that output.
 
@@ -291,9 +291,9 @@ Every row below cites the same immutable evidence archive: Yellow `data/biomcp-r
 These source windows remove the paging, five-hit search, domain-selector and exact-isoform evidence gaps only. They do not measure product output or expand the approved source set. The unreviewed and native-absence capabilities keep their stated fallbacks. All retained timing values describe single shared-machine source calls rather than a throughput or quiet-machine benchmark.
 
 
-## Exact card and search command budgets
+## Historical card and search command measurements
 
-The actual CLI and MCP envelopes were measured from the three accepted archives by the existing command case runner in jobs j14664 and j14669. Both interfaces returned identical status, query, page and result values for every measured shape. The Markdown view preserved every returned card and search accession. The second native text page retained the first pool's identity and fixed expiry. These are replay measurements; they add no provider calls or latency claim.
+Before section registration, the CLI and MCP envelopes were measured from the three accepted archives by the existing command case runner in jobs j14664 and j14669. Both interfaces returned identical status, query, page and result values for every measured shape. The Markdown view preserved every returned card and search accession. The second native text page retained the first pool's identity and fixed expiry. These are replay measurements; they add no provider calls or latency claim.
 
 The comparable column subtracts only the three required publisher-terms fields through the existing test helper. Full bytes include those fields. Each case ceiling is `ceil(comparable bytes * 1.15)`, and each approximate-token ceiling is `ceil(byte ceiling / 4)`. The external native cases enforce both ceilings through the ordinary runner.
 
@@ -310,7 +310,7 @@ The comparable column subtracts only the three required publisher-terms fields t
 | `search protein EGFR`, first five | 2,117 | 2,026 | 2,330 |
 | Same retained search, second five | 2,047 | 1,956 | 2,250 |
 
-The native first and second windows preserve total399 and remain an incomplete collection. Card output keeps source audit dates and versions separate. It omits section actions and availability disclosures until their handlers are admitted by the section tickets, following the PM's staged-registration ruling. The unreviewed search and native absence fallbacks from the admission results remain unchanged.
+The native first and second windows preserve total399 and remain an incomplete collection. Card output keeps source audit dates and versions separate. These historical envelopes omitted section actions and availability disclosures before their handlers were admitted. Current card sizes live in the section budget map. The unreviewed search and native absence fallbacks from the admission results remain unchanged.
 
 
 ### UniProt section field rules
@@ -368,3 +368,31 @@ The retained CLI/MCP proof passed without provider requests. Yellow holds `data/
 | Get all | `get-all` | 13,168 | 12,874 | 14,806 |
 
 The source walks keep native order, collection identity and fixed expiry. The 93-member complex remains reachable through five-row pages. The changed composite `all` adds the complete bounded InterPro section and an independent Complex Portal outcome; other UniProt command allocations remain unchanged.
+
+
+## Command and case ownership
+
+Every shipped protein command reads source facts. No command infers a variant effect, structure, interaction or clinical meaning. BioMCP never downloads, installs or runs another bioinformatics tool. `function` returns one whole source text record with every paragraph; the section row limit does not page its paragraphs, under the PM's whole-record ruling. All other collection sections return independent bounded first pages. Sequence returns the complete checked source sequence.
+
+| Command | Owning cases |
+| --- | --- |
+| `search protein` | `tests/cases/protein/cards.yaml`, `paging.yaml`, `gene-crossrefs.yaml`; `protein_commands.rs` owns pool lifetime, native continuation and checked cache admission. |
+| `get protein` | `cards.yaml`, `gene-crossrefs.yaml`; `protein_domains/cards.rs` owns source policy and section disclosure. |
+| `protein features` | `protein_sections/boundaries.rs`; external `protein-section-native/cases` owns native positions, endpoints, BRCT gap and native type selection. |
+| `protein domains` | `protein_domains.rs`, `protein_domains/paging.rs`; external `protein-domain-native` owns retained native type and fragment pages. |
+| `protein isoforms` | `protein_sections/boundaries.rs`; external `protein-section-native/cases` and `walks` own every received alternative and continuation. |
+| `protein complexes` | `protein_domains/complexes.rs`; external `protein-domain-native` owns exact participant admissions, predicted flags and source-local emptiness. |
+| `protein complex-members` | `protein_domains/complexes.rs`; external `protein-domain-native` owns CPX-715 and every retained CPX-12671 member page. |
+| `protein structures` | `protein_sections/boundaries.rs`; external `protein-section-native/cases` owns native PDB links. |
+| `protein sequence` | `protein_sections/boundaries.rs`; external `protein-section-native/cases` owns complete native displayed and exact alternative sequences. |
+| Get sections and `all` | `protein_domains/composite.rs` owns P00533 and P38398 first pages, repeated sections and disabled optional sources; external `get-all` owns the native full composite. |
+| Synthetic failures and identity admission | `protein_domains/card_failures.rs`, `failures.rs`, `identities.rs`, protein failure YAML cases and section boundaries preserve failed, partial, skipped and empty states. |
+| Deferred and retired routes | `protein_domains/retirements.rs` owns every recorded spelling and zero-request guidance. STRING associations, disease and existence selectors, and unproved unreviewed scope stay deferred. `--all-species` is dropped. |
+
+Case paths in the first column's owning-case directory refer to `crates/biomcp/tests/runner`. External native cases remain outside Git under their retained archive recipes. Native absence and a known-positive unreviewed result remain unproved. Synthetic controls do not change that evidence boundary. Bulk human proteome, InterPro match, ComplexTab and whole-human STRING bundles remain deferred because no harvested question needs them.
+
+The old projection table above records the investigation's row projection and design reserve. It supplies no current case bound. The implemented section and relation tables report complete envelopes, including actions, queries, outcomes and publisher terms. The maps `tests/protein-section-budgets.json` and `tests/protein-domain-budgets.json` own native per-case measurements. The owning fixture, command phase and surface select a measurement before fifteen percent headroom is applied. CLI includes its final newline; MCP JSON omits it. No schema-wide, native-family or loop-wide maximum replaces an owning case measurement. Approximate tokens use the existing four-byte convention.
+
+Job j15006 retains the historical complete synthetic CLI and MCP measurements for the failure, retirement, wrong-identity, repeated-section and disabled-source cases. Its original `disabled/ACCESSION` label covered both the ordinary `all` phase and disabled-source phase; the measured bytes distinguish these recorded phases. Ordinary `all` measured 2,826 CLI bytes and 2,825 MCP bytes for each accession. Disabled optional sources measured 2,020 CLI bytes and 2,019 MCP bytes. Repeated features measured 1,328 CLI bytes and 1,327 MCP bytes. These measurements are reused without provider calls or another replay run.
+
+Every 0.9 timing and output size remains unmeasured because no verified denied-network executable baseline was run. The milestone 5 contained comparison owns those measurements. Current source JSON, offline projections and current envelopes supply no substitute for 0.9 output.
