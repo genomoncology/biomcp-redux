@@ -58,7 +58,9 @@ def case(name, steps):
         'CDKN2A': [1267], 'search-BRAF': [749], 'search-CDKN2A': [1076],
         'text-pages': [2330, 2250], 'gene-crossrefs': [796, 970],
     }
-    for step, ceiling in zip(steps, ceilings[name], strict=True):
+    if len(steps) != len(ceilings[name]):
+        raise ValueError('every native step needs its measured ceiling')
+    for step, ceiling in zip(steps, ceilings[name]):
         step['max_bytes'] = ceiling
         step['max_tokens'] = (ceiling + 3) // 4
         if 'run' in step:
