@@ -193,11 +193,14 @@
           "description": "Native association category."
         },
         "evidence": {
-          "description": "Source evidence terms without interpretation.",
+          "description": "Source evidence terms; unavailable evidence stays absent.",
           "items": {
             "$ref": "#/$defs/DiseaseAssociationReference"
           },
-          "type": "array"
+          "type": [
+            "array",
+            "null"
+          ]
         },
         "evidence_count": {
           "description": "Native evidence count, distinct from returned reference count.",
@@ -383,7 +386,6 @@
         "predicate",
         "object",
         "attribution",
-        "evidence",
         "qualifiers",
         "subject_closure",
         "object_closure"
@@ -1122,7 +1124,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.phenotype-genes/2",
+  "$id": "biomcp.phenotype-genes/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1168,7 +1170,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.phenotype-genes/2",
+      "const": "biomcp.phenotype-genes/3",
       "type": "string"
     },
     "sources": {

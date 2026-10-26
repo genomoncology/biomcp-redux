@@ -301,11 +301,9 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
     }
     Ok(if name == "gwas" {
         gwas::aliases(command, schema)
-    } else if schema
-        .get("$id")
-        .and_then(Value::as_str)
-        .is_some_and(|id| id.starts_with("biomcp.pathway-"))
-        && properties(schema)?.contains_key("limit")
+    } else if schema.get("$id").and_then(Value::as_str).is_some_and(|id| {
+        id.starts_with("biomcp.pathway-") || id == "biomcp.phenotype-search-query/1"
+    }) && properties(schema)?.contains_key("limit")
     {
         command.mut_arg("limit", |argument| argument.short('l'))
     } else {

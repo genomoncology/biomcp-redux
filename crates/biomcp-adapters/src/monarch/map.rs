@@ -37,7 +37,11 @@ pub(super) fn row(
             primary_knowledge_source: raw.primary_knowledge_source,
             aggregator_knowledge_source: raw.aggregators.0,
             provided_by: raw.provided_by,
-            evidence: references(raw.has_evidence, raw.has_evidence_links),
+            evidence: if raw.has_evidence.is_some() || raw.has_evidence_links.is_some() {
+                Some(references(raw.has_evidence, raw.has_evidence_links))
+            } else {
+                None
+            },
             publications: references(raw.publications, raw.publications_links),
             qualifiers: qualifiers.into(),
             original_predicate: raw.original_predicate,
