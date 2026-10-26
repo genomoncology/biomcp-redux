@@ -229,3 +229,145 @@ Unmeasured limits remain explicit: 0.9 commands were inspected but not executed 
 Reproducibility supplement: `metadata-annotations.tar.gz`, SHA-256 `eff5b037f893c4e0fba9723f9d1e8d39dd45f8319d3bcc5fad4d508576f6623f`, lives beside the native archives. Its four members preserve the complete closed-issue inventory, the byte-projection recipe, its JSON measurements and a manifest. Every member hash and the exact member set were independently checked on Yellow. The recipe reads the two retained source archives and reproduces the byte table without contacting providers or calculating biological counts.
 
 The independent clinical review accepts all twenty-six question answers and the final count boundaries. It verified the exact TP53/KRAS native arrays, four count fields, panel IDs and the separately scoped patient endpoint total. No clinical question remains. Shared-model representation, source policy, transport design and output ceilings remain PM and technical review decisions.
+
+## Bounded admission witnesses
+
+Job j14352 ran from landed `6e20aa069bbb981f9c9c6f0da3fd4ba31e556ceb` on the M5 on 2026-10-26 UTC. It verified the retained j14206 archive and inspected its OpenAPI before making requests. It wrote both fixed request plans before admission and invoked `make source-capture PLAN=... OUT=...` for each. Each plan permits one attempt, no redirect or retry, a 20-second deadline and a 1 MiB body bound. The job paced admissions by one second. It made two physical requests and no aggregate or sample-list request. No credential was used.
+
+| Capability | Result and boundary |
+| --- | --- |
+| Gene-count section | Blocked. `/api/mutated-genes/fetch` accepts `StudyViewFilter`, which has no declared selector for restricting returned aggregate rows to named Entrez IDs. `geneFilters[].geneQueries[][]` includes `entrezGeneId`, `hugoGeneSymbol` and alteration predicates within the study-view cohort filter. That field is not proof of an aggregate-row selector and was not substituted. No filtered count witness ran. Retained unfiltered BRCA and MSK costs remain 4,258,105 and 113,843 bytes. The PM must rule on this cost before the section proceeds. |
+| Full-catalog search projection | Proven offline for all 551 retained records and all 547 consecutive five-header windows in source order. Largest header: 334 bytes, `brca_hta9_htan_2022`, zero-based index 545. Largest five-header page: 1,192 bytes, index 541, from `rms_msk_2023` through `brca_hta9_htan_2022`. These replace the selected-case maxima as the measured search basis. They exclude envelope, terms and actions, so they do not establish a product ceiling. |
+| Largest catalog description | Proven offline: `brca_mbcproject_2022`, index 7, has 1,018 UTF-8 text bytes and 1,024 compact JSON-string bytes. This bounds the retained description projection, not a full product card. |
+| Catalog revalidation | The retained catalog headers contain neither ETag nor Last-Modified. They state `Cache-Control: no-cache, no-store, max-age=0, must-revalidate`, `expires: 0` and `pragma: no-cache`. Conditional revalidation is unproved; acquisition time is not a publisher revision. |
+| Second source patient total | `GET https://www.cbioportal.org/api/studies/msk_impact_2017/patients?projection=META&pageSize=1` returned HTTP 200, zero body bytes and `total-count: 10336` in 0.228 seconds. This proves a second separately attributed patient-total witness beside BRCA 1084. It does not fill a study-card field, count participants locally or establish a gene denominator. |
+| Absent DataHub directory | `GET https://api.github.com/repos/cBioPortal/datahub/contents/public/biomcp_absent_study_0207` returned HTTP 404 and a 141-byte native error body in 0.179 seconds. The helper records this as `provider_failure`; the fixed witness interprets the captured 404 as absence of that exact directory. It proves the files section can distinguish exact source absence. It does not establish absence of an unrelated study or grant a fallback. |
+
+The offline recipe uses the earlier header keys `studyId`, `name`, `cancerTypeId`, `allSampleCount`, `citation` and `referenceGenome`, retaining only present fields. It serializes compact UTF-8 JSON with `ensure_ascii=False` and separators `(',', ':')`. Each full five-header window is measured; the description measurement records both raw UTF-8 text and its JSON string. The retained catalog body SHA-256 is `7840bd832d3b6593888cfbeb1788f9bb3ab77469168e7cccedea64216d87545a`. These are technical metadata measurements, not calculated clinical counts.
+
+Every distinct native `cancerTypeId` and its study-record count appears below. The codes retain source spelling; no ontology equivalence or descendant expansion is inferred.
+
+| Native code | Study records |
+| --- | --- |
+| `acbc` | 1 |
+| `acc` | 3 |
+| `acyc` | 7 |
+| `adifg` | 1 |
+| `alal` | 1 |
+| `aml` | 9 |
+| `ampca` | 1 |
+| `angs` | 3 |
+| `apad` | 1 |
+| `astr` | 1 |
+| `bcc` | 1 |
+| `bfn` | 1 |
+| `biliary_tract` | 2 |
+| `bladder` | 5 |
+| `blca` | 18 |
+| `bll` | 4 |
+| `bowel` | 4 |
+| `brain` | 2 |
+| `brca` | 27 |
+| `breast` | 8 |
+| `ccrcc` | 10 |
+| `cervix` | 1 |
+| `cesc` | 3 |
+| `chl` | 1 |
+| `chol` | 8 |
+| `chrcc` | 4 |
+| `cllsll` | 6 |
+| `coad` | 5 |
+| `coadread` | 16 |
+| `cscc` | 4 |
+| `desm` | 1 |
+| `difg` | 20 |
+| `dlbclnos` | 6 |
+| `egc` | 6 |
+| `es` | 3 |
+| `esca` | 4 |
+| `escc` | 2 |
+| `gbc` | 3 |
+| `gist` | 3 |
+| `hcc` | 12 |
+| `hccihch` | 1 |
+| `hdcn` | 2 |
+| `head_neck` | 1 |
+| `hgsoc` | 5 |
+| `hnsc` | 8 |
+| `ihch` | 5 |
+| `lgsoc` | 1 |
+| `liad` | 1 |
+| `lipo` | 2 |
+| `luad` | 17 |
+| `lung` | 5 |
+| `lusc` | 6 |
+| `lymph` | 1 |
+| `mbc` | 1 |
+| `mbl` | 5 |
+| `mbn` | 3 |
+| `mcl` | 1 |
+| `mds` | 3 |
+| `mel` | 7 |
+| `mixed` | 49 |
+| `mnet` | 2 |
+| `mng` | 1 |
+| `mnm` | 1 |
+| `mpn` | 1 |
+| `mpnst` | 1 |
+| `mrt` | 2 |
+| `mtnn` | 1 |
+| `myeloid` | 1 |
+| `nbl` | 6 |
+| `nccrcc` | 1 |
+| `nfib` | 1 |
+| `nhl` | 3 |
+| `npc` | 1 |
+| `nsclc` | 9 |
+| `nsgct` | 2 |
+| `nst` | 1 |
+| `ohnca` | 1 |
+| `os` | 1 |
+| `ovary` | 4 |
+| `paac` | 2 |
+| `paad` | 10 |
+| `pact` | 1 |
+| `pancreas` | 4 |
+| `panet` | 4 |
+| `past` | 1 |
+| `pcm` | 2 |
+| `pcnsl` | 2 |
+| `plmeso` | 5 |
+| `prad` | 25 |
+| `prcc` | 3 |
+| `prostate` | 6 |
+| `ptad` | 2 |
+| `rbl` | 2 |
+| `rcc` | 2 |
+| `read` | 3 |
+| `rms` | 5 |
+| `scco` | 1 |
+| `schw` | 1 |
+| `sclc` | 4 |
+| `skcm` | 12 |
+| `skin` | 3 |
+| `soft_tissue` | 13 |
+| `stad` | 8 |
+| `stmyec` | 1 |
+| `stomach` | 2 |
+| `testis` | 3 |
+| `tet` | 1 |
+| `thpa` | 4 |
+| `thym` | 3 |
+| `thyroid` | 2 |
+| `uccc` | 1 |
+| `ucec` | 12 |
+| `ucs` | 4 |
+| `uec` | 1 |
+| `um` | 4 |
+| `urcc` | 1 |
+| `usarc` | 1 |
+| `utuc` | 5 |
+| `vsc` | 1 |
+| `wt` | 2 |
+
+The evidence archive is `data/biomcp-redux/0207-study-bounded-captures/2293-study-admission.tar.gz` on Yellow, SHA-256 `7ce61d45a4fc89024452f5467524a0b759be6cae39ff767fc32d58e0634ecd71`. Its 17 exact members include the retained input archive, request plans, both helper archives, HTTP headers, receipts, offline measurements, OpenAPI inspection and executable recipe. Every one of its 16 manifest hashes was independently verified after transfer, together with both nested helper archives. The input archive's exact members and hashes were verified before use. Raw replies remain outside Git. No product code, participant identifier or licensed curation answer enters this change.
