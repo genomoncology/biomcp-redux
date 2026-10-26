@@ -6,7 +6,7 @@ pub(super) fn run() -> Check {
     let root = fixtures::seed(&template)?;
     let empty = json!({"code":404,"reason":"NOT_FOUND","url":"http://reactome.org/ContentService/search/query","messages":["No entries found for query: Synthetic"],"targets":null});
     let mut foreign = empty.clone();
-    foreign["messages"] = json!(["No entries found for query: Other"]);
+    *foreign.get_mut("messages").ok_or("messages")? = json!(["No entries found for query: Other"]);
     for body in [json!({"message":"Not found"}), foreign] {
         fixtures::replace(&root, "/search/query", &body.to_string(), 404, 0)?;
         let env = Environment::new().map_err(|e| e.to_string())?;
