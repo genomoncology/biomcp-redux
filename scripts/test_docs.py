@@ -80,7 +80,9 @@ def main():
             ),
             (
                 original_slice.replace(
-                    "`--type`, `--chromosome`", "`--invented`, `--chromosome`", 1
+                    "| `search gene` | Ported or renamed | `--type`",
+                    "| `search gene` | Ported or renamed | `--invented`",
+                    1,
                 ),
                 "unknown option",
             ),
@@ -93,6 +95,7 @@ def main():
                 "parity table differs",
             ),
         ):
+            assert changed != original_slice, expected
             slice_path.write_text(changed)
             result = check(root)
             assert result.returncode != 0 and expected in result.stderr, result
