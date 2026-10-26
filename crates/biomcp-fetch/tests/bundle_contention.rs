@@ -51,7 +51,7 @@ fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() 
     std::thread::scope(|scope| {
         let sync = scope.spawn(|| fetch.sync(&bundle));
         let request = server.next();
-        access
+        let answer = access
             .admit(fetch.deadline(Duration::from_secs(10)), || {
                 // The request proves claim has finished. Keep the ordinary SQL
                 // connection held while a multi-batch publication completes.
@@ -64,10 +64,10 @@ fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() 
                     leg.finish()
                 });
                 server.next().ok();
-                assert!(answer.join().unwrap().failures.is_empty());
                 assert_eq!(sync.join().unwrap().unwrap().rows, 600);
-                Ok(())
+                Ok(answer)
             })
             .unwrap();
+        assert!(answer.join().unwrap().failures.is_empty());
     });
 }
