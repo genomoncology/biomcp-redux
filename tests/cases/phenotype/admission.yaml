@@ -24,7 +24,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -51,7 +52,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -78,7 +80,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -99,7 +102,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -120,7 +124,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -141,7 +146,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -166,7 +172,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -191,7 +198,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -216,7 +224,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -241,7 +250,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -266,7 +276,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -293,7 +304,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -320,7 +332,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -347,7 +360,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -374,7 +388,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
@@ -401,7 +416,8 @@
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/message": "expected a supported command with checked arguments"
       },
       "max_bytes": 400,
       "max_tokens": 150
