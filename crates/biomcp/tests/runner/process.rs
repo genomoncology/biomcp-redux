@@ -46,7 +46,7 @@ impl Process {
                     started.elapsed(),
                     stderr.len().min(4096),
                     stderr.len(),
-                    String::from_utf8_lossy(&stderr[..stderr.len().min(4096)]),
+                    String::from_utf8_lossy(stderr.get(..4096).unwrap_or(&stderr)),
                 ));
             }
             thread::sleep(Duration::from_millis(10));
