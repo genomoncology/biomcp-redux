@@ -1,6 +1,6 @@
 mod id;
-mod records;
 mod orcid;
+mod records;
 pub use id::*;
-pub use records::*;
 pub use orcid::*;
+pub use records::*;

@@ -1,6 +1,8 @@
 use super::{AuthorGet, AuthorPapersQuery, AuthorSearch};
 use crate::ResponseBody;
-use biodata::{AuthorCard, AuthorHeader, AuthorId, AuthorPaperDetail, AuthorPaperHeader, OrcidWorkGroup};
+use biodata::{
+    AuthorCard, AuthorHeader, AuthorId, AuthorPaperDetail, AuthorPaperHeader, OrcidWorkGroup,
+};
 use serde::{Deserialize, Serialize};
 /// Native author candidates in provider order; search total counts only this query.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -35,8 +37,16 @@ macro_rules! papers {
         }
     };
 }
-papers!(AuthorPapers, AuthorPaperHeader, "Compact native indexed-paper window.");
-papers!(AuthorPaperDetails, AuthorPaperDetail, "Detailed metadata for the same native indexed-paper window.");
+papers!(
+    AuthorPapers,
+    AuthorPaperHeader,
+    "Compact native indexed-paper window."
+);
+papers!(
+    AuthorPaperDetails,
+    AuthorPaperDetail,
+    "Detailed metadata for the same native indexed-paper window."
+);
 /// Locally paged groups from one complete public ORCID works reply.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -49,8 +59,23 @@ pub struct OrcidWorks {
     /// Observed groups in the complete received reply, never a publication total.
     pub observed_groups: u64,
 }
-impl ResponseBody for AuthorPage { const SCHEMA: &'static str = "biomcp.author_page/1"; type Query = AuthorSearch; }
-impl ResponseBody for AuthorCards { const SCHEMA: &'static str = "biomcp.author_card/1"; type Query = AuthorGet; }
-impl ResponseBody for AuthorPapers { const SCHEMA: &'static str = "biomcp.author_papers/1"; type Query = AuthorPapersQuery; }
-impl ResponseBody for AuthorPaperDetails { const SCHEMA: &'static str = "biomcp.author_paper_details/1"; type Query = AuthorPapersQuery; }
-impl ResponseBody for OrcidWorks { const SCHEMA: &'static str = "biomcp.orcid_works/1"; type Query = AuthorPapersQuery; }
+impl ResponseBody for AuthorPage {
+    const SCHEMA: &'static str = "biomcp.author_page/1";
+    type Query = AuthorSearch;
+}
+impl ResponseBody for AuthorCards {
+    const SCHEMA: &'static str = "biomcp.author_card/1";
+    type Query = AuthorGet;
+}
+impl ResponseBody for AuthorPapers {
+    const SCHEMA: &'static str = "biomcp.author_papers/1";
+    type Query = AuthorPapersQuery;
+}
+impl ResponseBody for AuthorPaperDetails {
+    const SCHEMA: &'static str = "biomcp.author_paper_details/1";
+    type Query = AuthorPapersQuery;
+}
+impl ResponseBody for OrcidWorks {
+    const SCHEMA: &'static str = "biomcp.orcid_works/1";
+    type Query = AuthorPapersQuery;
+}

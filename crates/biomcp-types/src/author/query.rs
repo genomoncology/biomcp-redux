@@ -1,10 +1,13 @@
 use crate::QueryInvalid;
 use biodata::{AuthorId, Text};
 use serde::{Deserialize, Serialize};
-fn default_limit() -> u32 { 5 }
+fn default_limit() -> u32 {
+    5
+}
 /// Author search supports one provider and its legacy spelling.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["semantic-scholar", "semanticscholar"])))]
 pub enum AuthorSearchSource {
     /// Canonical Semantic Scholar source.
     #[default]
@@ -42,28 +45,44 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
     /// Retained page identity.
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
 impl TryFrom<SearchFields> for AuthorSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=25).contains(&v.limit) { return Err(QueryInvalid); }
+        if !(1..=25).contains(&v.limit) {
+            return Err(QueryInvalid);
+        }
         Ok(Self(v))
     }
 }
 impl AuthorSearch {
     /// Literal source query.
-    pub fn query(&self) -> &Text { &self.0.query }
+    pub fn query(&self) -> &Text {
+        &self.0.query
+    }
     /// Selected native provider.
-    pub fn source(&self) -> AuthorSearchSource { self.0.source }
+    pub fn source(&self) -> AuthorSearchSource {
+        self.0.source
+    }
     /// Bounded native window size.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Native start offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Retained window identity.
-    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    pub fn pool(&self) -> Option<&Text> {
+        self.0.pool.as_ref()
+    }
 }
 /// Exact qualified records in caller order, with no name reconciliation.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -82,13 +101,17 @@ struct GetFields {
 impl TryFrom<GetFields> for AuthorGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if v.ids.is_empty() { return Err(QueryInvalid); }
+        if v.ids.is_empty() {
+            return Err(QueryInvalid);
+        }
         Ok(Self(v))
     }
 }
 impl AuthorGet {
     /// Qualified records in input order.
-    pub fn ids(&self) -> &[AuthorId] { &self.0.ids }
+    pub fn ids(&self) -> &[AuthorId] {
+        &self.0.ids
+    }
 }
 /// One exact provider record's publication window.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -104,7 +127,11 @@ struct PapersFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: AuthorId,
     /// Detailed disclosure when requested.
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "AuthorPaperSection", extend("x-positional" = 1)))]
     section: Option<AuthorPaperSection>,
     /// Legacy alias for details; normalized on construction.
@@ -118,27 +145,46 @@ struct PapersFields {
     #[serde(default)]
     offset: u32,
     /// Retained collection identity.
-    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
 impl TryFrom<PapersFields> for AuthorPapersQuery {
     type Error = QueryInvalid;
     fn try_from(mut v: PapersFields) -> Result<Self, Self::Error> {
-        if !(1..=25).contains(&v.limit) { return Err(QueryInvalid); }
-        if v.full { v.section = Some(AuthorPaperSection::Details); v.full = false; }
+        if !(1..=25).contains(&v.limit) {
+            return Err(QueryInvalid);
+        }
+        if v.full {
+            v.section = Some(AuthorPaperSection::Details);
+            v.full = false;
+        }
         Ok(Self(v))
     }
 }
 impl AuthorPapersQuery {
     /// Exact qualified record.
-    pub fn id(&self) -> &AuthorId { &self.0.id }
+    pub fn id(&self) -> &AuthorId {
+        &self.0.id
+    }
     /// Normalized disclosure selection.
-    pub fn section(&self) -> Option<AuthorPaperSection> { self.0.section }
+    pub fn section(&self) -> Option<AuthorPaperSection> {
+        self.0.section
+    }
     /// Bounded row count.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Collection start offset.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Retained collection identity.
-    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    pub fn pool(&self) -> Option<&Text> {
+        self.0.pool.as_ref()
+    }
 }
