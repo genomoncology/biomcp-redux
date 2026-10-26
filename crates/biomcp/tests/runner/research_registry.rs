@@ -23,7 +23,12 @@ pub(super) fn check() -> Result<(), String> {
             continue;
         }
         // Pair-level guideline links do not identify a fetchable CPIC pair record.
-        if name == "PgxPage" {
+        // Cell line Page/Card are standalone contracts until 0258 registers commands.
+        // CellLineIdentityPage is section metadata, not a research search result.
+        if matches!(
+            name,
+            "PgxPage" | "CellLinePage" | "CellLineCard" | "CellLineIdentityPage"
+        ) {
             continue;
         }
         if name == "PathwayCard" {
