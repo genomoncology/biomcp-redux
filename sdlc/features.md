@@ -140,3 +140,5 @@ pathway-wikipathways: Explicitly synchronize both metadata catalogs atomically a
 
 study-files: Read bounded native DataHub file references and study license links without fetching data files. Cases: `crates/biomcp/tests/runner/study_files.rs`.
 phenotype-sections: A caller pages native source synonyms, cross references and direct hierarchy links from one retained term reply. Cases: `crates/biomcp/tests/runner/phenotype/sections.rs`.
+
+pathway-retirements: Retired pathway spellings return fixed supported routes before any source request. Cases: `crates/biomcp/tests/runner/pathway_retirements.rs`.
