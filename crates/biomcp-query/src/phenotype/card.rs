@@ -2,9 +2,7 @@ use super::{empty, overall, problem};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{hpo, monarch};
 use biomcp_fetch::{InputError, RequestError};
-use biomcp_types::{
-    PhenotypeGet, PhenotypeSource, PhenotypeTermCard, QueryBody, Request, Source, Status, StepKind,
-};
+use biomcp_types::{PhenotypeGet, PhenotypeSource, PhenotypeTermCard, QueryBody, Source, Status};
 /// Read exactly one source card, with no merge or fallback request.
 pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let mut out = empty(QueryBody::PhenotypeCard(None));
