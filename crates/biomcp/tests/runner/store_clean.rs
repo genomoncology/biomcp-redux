@@ -84,6 +84,13 @@ fn clean() -> Check {
             return Err(format!("cleanup changed live {table}").into());
         }
     }
+    fresh_content(&cx)?;
+    if count(&cx, "pool_item")? != 0 || count(&cx, "pool_current")? != 0 {
+        return Err("orphan pool rows survived".into());
+    }
+    Ok(())
+}
+fn fresh_content(cx: &Connection) -> Check {
     let fresh_reply: bool = cx.query_row(
         "SELECT EXISTS(SELECT 1 FROM reply WHERE key=x'02' AND fresh_until=9223372036854775807)",
         [],
@@ -107,11 +114,9 @@ fn clean() -> Check {
     {
         return Err("cleanup changed fresh or foreign content".into());
     }
-    if count(&cx, "pool_item")? != 0 || count(&cx, "pool_current")? != 0 {
-        return Err("orphan pool rows survived".into());
-    }
     Ok(())
 }
+
 fn publish() -> Check {
     let env = Environment::new()?;
     let replay = super::launch::fixtures().join("replies/article/search/synthetic-small");
