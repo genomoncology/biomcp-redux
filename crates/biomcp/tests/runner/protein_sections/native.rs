@@ -18,45 +18,7 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
             .file_stem()
             .and_then(|s| s.to_str())
             .ok_or("native case name")?;
-        if name == "sequence-Q9UIF7" {
-            let sequence = value
-                .pointer("/result/sequence/sequence")
-                .and_then(Value::as_str)
-                .ok_or("sequence")?;
-            if sequence.as_bytes().get(367) != Some(&b'S')
-                || sequence.as_bytes().get(392) != Some(&b'G')
-            {
-                return Err(
-                    "displayed source residues changed or historical labels were translated".into(),
-                );
-            }
-        }
-        if let Some(sequence) = value.pointer("/result/sequence") {
-            let length = sequence
-                .get("length")
-                .and_then(Value::as_u64)
-                .ok_or("sequence length")?;
-            if sequence
-                .get("sequence")
-                .and_then(Value::as_str)
-                .map(str::len)
-                != Some(length as usize)
-            {
-                return Err("source sequence was truncated".into());
-            }
-        }
-        if name == "get-P00533-function" {
-            if value
-                .pointer("/result/items/0/sections/function/data/items/0/molecule")
-                .is_some()
-                || value.pointer("/result/items/0/sections/function/data/items/1/molecule")
-                    != Some(&json!("Isoform 2"))
-            {
-                return Err(
-                    "native function qualifier was lost or applied to another paragraph".into(),
-                );
-            }
-        }
+        facts(name, &value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::super::source_terms::size(&value, "")?;
         fs::write(
@@ -86,6 +48,46 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
             serde_json::to_vec(&value).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+fn facts(name: &str, value: &Value) -> Result<(), String> {
+    if name == "sequence-Q9UIF7" {
+        let sequence = value
+            .pointer("/result/sequence/sequence")
+            .and_then(Value::as_str)
+            .ok_or("sequence")?;
+        if sequence.as_bytes().get(367) != Some(&b'S')
+            || sequence.as_bytes().get(392) != Some(&b'G')
+        {
+            return Err(
+                "displayed source residues changed or historical labels were translated".into(),
+            );
+        }
+    }
+    if let Some(sequence) = value.pointer("/result/sequence") {
+        let length = sequence
+            .get("length")
+            .and_then(Value::as_u64)
+            .ok_or("sequence length")?;
+        if sequence
+            .get("sequence")
+            .and_then(Value::as_str)
+            .map(str::len)
+            != Some(length as usize)
+        {
+            return Err("source sequence was truncated".into());
+        }
+    }
+    if name == "get-P00533-function"
+        && (value
+            .pointer("/result/items/0/sections/function/data/items/0/molecule")
+            .is_some()
+            || value.pointer("/result/items/0/sections/function/data/items/1/molecule")
+                != Some(&json!("Isoform 2")))
+    {
+        return Err("native function qualifier was lost or applied to another paragraph".into());
     }
     Ok(())
 }

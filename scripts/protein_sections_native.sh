@@ -33,7 +33,7 @@ evidence = root/'evidence'
 evidence.mkdir()
 for name in ['proof.log', 'revision.txt']:
     shutil.copyfile(root/name, evidence/name)
-for kind, folder in [('case', 'cases'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
+for kind, folder in [('case', 'cases'), ('walk', 'walks'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
     for path in (root/'protein-section-native'/folder).iterdir():
         shutil.copyfile(path, evidence/(kind+'-'+path.name))
 source_capture.manifest(evidence)
