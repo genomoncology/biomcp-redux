@@ -1,12 +1,12 @@
 use super::QueryInvalid;
 use biodata::{PathwayId, Text};
 use serde::{Deserialize, Serialize};
-mod search;
 mod get;
 mod relation;
-pub use search::PathwaySearch;
+mod search;
 pub use get::PathwayGet;
 pub use relation::{PathwayEventsQuery, PathwayGenesQuery};
+pub use search::PathwaySearch;
 biodata::wire_enum! {
     /// One explicit pathway source, without fallback or cross-source title joins.
     PathwaySource {
@@ -15,7 +15,9 @@ biodata::wire_enum! {
     }
 }
 impl Default for PathwaySource {
-    fn default() -> Self { Self::Reactome }
+    fn default() -> Self {
+        Self::Reactome
+    }
 }
 biodata::wire_enum! {
     described
@@ -27,13 +29,22 @@ biodata::wire_enum! {
         #[doc = "Each source-supported section's bounded first page."] All => "all"
     }
 }
-fn default_limit() -> u32 { 5 }
-fn valid_limit(limit: u32) -> bool { (1..=50).contains(&limit) }
-fn reactome(id: &PathwayId) -> bool { matches!(id, PathwayId::Reactome(_)) }
+fn default_limit() -> u32 {
+    5
+}
+fn valid_limit(limit: u32) -> bool {
+    (1..=50).contains(&limit)
+}
+fn reactome(id: &PathwayId) -> bool {
+    matches!(id, PathwayId::Reactome(_))
+}
 // CLI requests carry one checked native spelling; neutral records remain source-tagged.
 mod native_id {
     use super::*;
-    pub fn serialize<S: serde::Serializer>(id: &PathwayId, serializer: S) -> Result<S::Ok, S::Error> {
+    pub fn serialize<S: serde::Serializer>(
+        id: &PathwayId,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
         serializer.collect_str(id)
     }
     pub fn deserialize<'de, D: serde::Deserializer<'de>>(d: D) -> Result<PathwayId, D::Error> {

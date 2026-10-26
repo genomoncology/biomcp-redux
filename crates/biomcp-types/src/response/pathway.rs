@@ -1,4 +1,7 @@
-use crate::{PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PoolInfo, ResponseBody};
+use crate::{
+    PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PoolInfo,
+    ResponseBody,
+};
 use biodata::{Pathway, PathwayEventRef, PathwayId, PathwayMember, PathwaySpecies, Text};
 use serde::{Deserialize, Serialize};
 /// Small selectable native pathway identity, without its potentially long description.
@@ -97,8 +100,18 @@ macro_rules! relation_page {
         }
     };
 }
-relation_page!(PathwayGenes, PathwayMember, PathwayGenesQuery, "biomcp.pathway_genes/1");
-relation_page!(PathwayEvents, PathwayEventRef, PathwayEventsQuery, "biomcp.pathway_events/1");
+relation_page!(
+    PathwayGenes,
+    PathwayMember,
+    PathwayGenesQuery,
+    "biomcp.pathway_genes/1"
+);
+relation_page!(
+    PathwayEvents,
+    PathwayEventRef,
+    PathwayEventsQuery,
+    "biomcp.pathway_events/1"
+);
 /// Receipt for one independently validated WikiPathways metadata catalog.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

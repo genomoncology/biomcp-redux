@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 pub use biodata::{PathwayRef, ReactomeId, ReactomeIdInvalid};
+use serde::{Deserialize, Serialize};
 /// A bounded list with the total before its cap was applied.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

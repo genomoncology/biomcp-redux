@@ -13,11 +13,19 @@ pub struct PathwaySearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Literal source query; exclusive with gene and top-level discovery.
-    #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
     /// Human gene input for exact resolution and UniProt mapping; Reactome only.
-    #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneInput"))]
     gene: Option<GeneInput>,
     /// Native human Reactome top-level discovery, exclusive with text and gene.
@@ -34,7 +42,11 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
     /// Retained snapshot identity for deterministic continuation.
-    #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
     /// Request a new retained observation.
@@ -44,9 +56,13 @@ struct SearchFields {
 impl TryFrom<SearchFields> for PathwaySearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        let selectors = usize::from(v.query.is_some()) + usize::from(v.gene.is_some()) + usize::from(v.top_level);
-        if selectors != 1 || !valid_limit(v.limit)
-            || (v.source == PathwaySource::Wikipathways && (v.gene.is_some() || v.top_level)) {
+        let selectors = usize::from(v.query.is_some())
+            + usize::from(v.gene.is_some())
+            + usize::from(v.top_level);
+        if selectors != 1
+            || !valid_limit(v.limit)
+            || (v.source == PathwaySource::Wikipathways && (v.gene.is_some() || v.top_level))
+        {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
@@ -54,23 +70,41 @@ impl TryFrom<SearchFields> for PathwaySearch {
 }
 impl PathwaySearch {
     /// Literal positional text.
-    pub fn query(&self) -> Option<&Text> { self.0.query.as_ref() }
+    pub fn query(&self) -> Option<&Text> {
+        self.0.query.as_ref()
+    }
     /// Exact-resolution gene input.
-    pub fn gene(&self) -> Option<&GeneInput> { self.0.gene.as_ref() }
+    pub fn gene(&self) -> Option<&GeneInput> {
+        self.0.gene.as_ref()
+    }
     /// Whether native top-level discovery was selected.
-    pub fn top_level(&self) -> bool { self.0.top_level }
+    pub fn top_level(&self) -> bool {
+        self.0.top_level
+    }
     /// Explicit source, without fallback.
-    pub fn source(&self) -> PathwaySource { self.0.source }
+    pub fn source(&self) -> PathwaySource {
+        self.0.source
+    }
     /// Native requested page size, which may exceed admitted rows.
-    pub fn limit(&self) -> u32 { self.0.limit }
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
     /// Native result offset, independent of admitted row count.
-    pub fn offset(&self) -> u32 { self.0.offset }
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
     /// Retained page snapshot.
-    pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+    pub fn pool(&self) -> Option<&Text> {
+        self.0.pool.as_ref()
+    }
     /// Whether to refresh the observation.
-    pub fn fresh(&self) -> bool { self.0.fresh }
+    pub fn fresh(&self) -> bool {
+        self.0.fresh
+    }
     /// Advance the native position without changing selectors.
     pub fn at_offset(&self, offset: u32) -> Self {
-        let mut value = self.clone(); value.0.offset = offset; value
+        let mut value = self.clone();
+        value.0.offset = offset;
+        value
     }
 }

@@ -16,23 +16,53 @@ fn identities_preserve_native_namespaces_and_refuse_foreign_species() {
     for id in ["WP", "WP0", "WP0382", "wp382", "WP382_r140476", "hsa:04010"] {
         assert!(serde_json::from_value::<WikiPathwaysId>(json!(id)).is_err());
     }
-    for id in [json!({"source":"reactome","id":"R-HSA-5673001"}), json!({"source":"wikipathways","id":"WP382"})] {
+    for id in [
+        json!({"source":"reactome","id":"R-HSA-5673001"}),
+        json!({"source":"wikipathways","id":"WP382"}),
+    ] {
         assert_eq!(roundtrip::<PathwayId>(id.clone()), id);
     }
-    for id in [json!({"source":"reactome","id":"R-MMU-5673001"}), json!({"source":"reactome","id":"R-HSA-5673001.12"}), json!({"source":"kegg","id":"hsa04010"})] {
+    for id in [
+        json!({"source":"reactome","id":"R-MMU-5673001"}),
+        json!({"source":"reactome","id":"R-HSA-5673001.12"}),
+        json!({"source":"kegg","id":"hsa04010"}),
+    ] {
         assert!(serde_json::from_value::<PathwayId>(id).is_err());
     }
 }
 
 #[test]
 fn search_selectors_and_page_bounds_are_checked_before_io() {
-    for query in [json!({"query":"MAPK signaling"}), json!({"gene":"HGNC:1097"}), json!({"top_level":true}), json!({"query":"MAPK","source":"wikipathways","limit":50,"offset":5,"pool":"snapshot","fresh":true})] {
+    for query in [
+        json!({"query":"MAPK signaling"}),
+        json!({"gene":"HGNC:1097"}),
+        json!({"top_level":true}),
+        json!({"query":"MAPK","source":"wikipathways","limit":50,"offset":5,"pool":"snapshot","fresh":true}),
+    ] {
         let checked: PathwaySearch = serde_json::from_value(query).expect("valid selector");
         assert_eq!(checked.at_offset(10).offset(), 10);
         assert!((1..=50).contains(&checked.limit()));
     }
-    for query in [json!({}), json!({"query":""}), json!({"query":"   "}), json!({"query":null}), json!({"gene":null}), json!({"query":"MAPK","gene":"HGNC:1097"}), json!({"query":"MAPK","top_level":true}), json!({"gene":"HGNC:1097","top_level":true}), json!({"source":"wikipathways","gene":"HGNC:1097"}), json!({"source":"wikipathways","top_level":true}), json!({"query":"MAPK","limit":0}), json!({"query":"MAPK","limit":51}), json!({"query":"MAPK","type":"Pathway"}), json!({"query":"MAPK","source":"all"})] {
-        assert!(serde_json::from_value::<PathwaySearch>(query.clone()).is_err(), "{query}");
+    for query in [
+        json!({}),
+        json!({"query":""}),
+        json!({"query":"   "}),
+        json!({"query":null}),
+        json!({"gene":null}),
+        json!({"query":"MAPK","gene":"HGNC:1097"}),
+        json!({"query":"MAPK","top_level":true}),
+        json!({"gene":"HGNC:1097","top_level":true}),
+        json!({"source":"wikipathways","gene":"HGNC:1097"}),
+        json!({"source":"wikipathways","top_level":true}),
+        json!({"query":"MAPK","limit":0}),
+        json!({"query":"MAPK","limit":51}),
+        json!({"query":"MAPK","type":"Pathway"}),
+        json!({"query":"MAPK","source":"all"}),
+    ] {
+        assert!(
+            serde_json::from_value::<PathwaySearch>(query.clone()).is_err(),
+            "{query}"
+        );
     }
     let value = roundtrip::<PathwaySearch>(json!({"query":"MAPK"}));
     assert_eq!(value.get("source"), Some(&json!("reactome")));
@@ -45,22 +75,39 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
         for section in [None, Some("summary"), Some("all")] {
             let mut v = json!({"id":id});
             if let Some(section) = section {
-                v.as_object_mut().expect("object").insert("section".into(), json!(section));
+                v.as_object_mut()
+                    .expect("object")
+                    .insert("section".into(), json!(section));
             }
             assert!(serde_json::from_value::<PathwayGet>(v).is_ok());
         }
     }
     for section in ["genes", "events"] {
-        assert!(serde_json::from_value::<PathwayGet>(json!({"id":"R-HSA-5673001","section":section})).is_ok());
-        assert!(serde_json::from_value::<PathwayGet>(json!({"id":"WP382","section":section})).is_err());
+        assert!(
+            serde_json::from_value::<PathwayGet>(json!({"id":"R-HSA-5673001","section":section}))
+                .is_ok()
+        );
+        assert!(
+            serde_json::from_value::<PathwayGet>(json!({"id":"WP382","section":section})).is_err()
+        );
     }
-    for v in [json!({"id":"R-MMU-5673001"}), json!({"id":"hsa04010"}), json!({"id":"WP0"}), json!({"id":"WP382","section":"enrichment"}), json!({"id":"WP382","section":null})] {
+    for v in [
+        json!({"id":"R-MMU-5673001"}),
+        json!({"id":"hsa04010"}),
+        json!({"id":"WP0"}),
+        json!({"id":"WP382","section":"enrichment"}),
+        json!({"id":"WP382","section":null}),
+    ] {
         assert!(serde_json::from_value::<PathwayGet>(v).is_err());
     }
     let q = json!({"id":"R-HSA-5673001","limit":1,"offset":5,"pool":"snapshot"});
     assert_eq!(roundtrip::<PathwayGenesQuery>(q.clone()), q);
     assert_eq!(roundtrip::<PathwayEventsQuery>(q.clone()), q);
-    for q in [json!({"id":"WP382"}), json!({"id":"R-HSA-5673001","limit":51}), json!({"id":"R-HSA-5673001","limit":0})] {
+    for q in [
+        json!({"id":"WP382"}),
+        json!({"id":"R-HSA-5673001","limit":51}),
+        json!({"id":"R-HSA-5673001","limit":0}),
+    ] {
         assert!(serde_json::from_value::<PathwayGenesQuery>(q.clone()).is_err());
         assert!(serde_json::from_value::<PathwayEventsQuery>(q).is_err());
     }
@@ -71,10 +118,16 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     let base = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"12"});
     assert_eq!(roundtrip::<Pathway>(base.clone()), base);
     let mut empty = base.clone();
-    empty.as_object_mut().expect("object").insert("description".into(), json!(""));
+    empty
+        .as_object_mut()
+        .expect("object")
+        .insert("description".into(), json!(""));
     assert_eq!(roundtrip::<Pathway>(empty.clone()), empty);
     let mut foreign = base;
-    foreign.as_object_mut().expect("object").insert("species".into(), json!("Mus musculus"));
+    foreign
+        .as_object_mut()
+        .expect("object")
+        .insert("species".into(), json!("Mus musculus"));
     assert!(serde_json::from_value::<Pathway>(foreign).is_err());
     for accession in ["P01116-1", "P01116-2"] {
         let member = json!({"reference":{"namespace":"uniprot","value":accession},"name":"KRAS","gene":"HGNC:6407","schema_class":"ReferenceIsoform"});
@@ -82,8 +135,14 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     }
     let unknown = json!({"reference":{"namespace":"ChEBI","value":"15377"}});
     assert_eq!(roundtrip::<PathwayMember>(unknown.clone()), unknown);
-    for event in [json!({"kind":"database","db_id":5673001}), json!({"kind":"object","db_id":5668599,"name":"Native reaction","schema_class":"Reaction"}), json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","name":"Native pathway","schema_class":"Pathway"})] {
+    for event in [
+        json!({"kind":"database","db_id":5673001}),
+        json!({"kind":"object","db_id":5668599,"name":"Native reaction","schema_class":"Reaction"}),
+        json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","name":"Native pathway","schema_class":"Pathway"}),
+    ] {
         assert_eq!(roundtrip::<PathwayEventRef>(event.clone()), event);
     }
-    assert!(serde_json::from_value::<PathwayEventRef>(json!({"kind":"database","db_id":0})).is_err());
+    assert!(
+        serde_json::from_value::<PathwayEventRef>(json!({"kind":"database","db_id":0})).is_err()
+    );
 }

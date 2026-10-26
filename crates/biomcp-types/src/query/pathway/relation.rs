@@ -16,7 +16,11 @@ struct RelationFields {
     #[serde(default)]
     offset: u32,
     /// Immutable relation snapshot.
-    #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
 }
@@ -31,25 +35,43 @@ macro_rules! relation {
         impl TryFrom<RelationFields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: RelationFields) -> Result<Self, Self::Error> {
-                if !valid_limit(v.limit) || !reactome(&v.id) { return Err(QueryInvalid); }
+                if !valid_limit(v.limit) || !reactome(&v.id) {
+                    return Err(QueryInvalid);
+                }
                 Ok(Self(v))
             }
         }
         impl $name {
             /// Checked source identity owning this relation.
-            pub fn id(&self) -> &PathwayId { &self.0.id }
+            pub fn id(&self) -> &PathwayId {
+                &self.0.id
+            }
             /// Complete relation rows per page.
-            pub fn limit(&self) -> u32 { self.0.limit }
+            pub fn limit(&self) -> u32 {
+                self.0.limit
+            }
             /// Relation offset, independent of other sections.
-            pub fn offset(&self) -> u32 { self.0.offset }
+            pub fn offset(&self) -> u32 {
+                self.0.offset
+            }
             /// Immutable relation snapshot.
-            pub fn pool(&self) -> Option<&Text> { self.0.pool.as_ref() }
+            pub fn pool(&self) -> Option<&Text> {
+                self.0.pool.as_ref()
+            }
             /// Continue without changing relation identity or page size.
             pub fn at_offset(&self, offset: u32) -> Self {
-                let mut v = self.clone(); v.0.offset = offset; v
+                let mut v = self.clone();
+                v.0.offset = offset;
+                v
             }
         }
     };
 }
-relation!(PathwayGenesQuery, "Continue native namespaced pathway membership, without name-based gene extraction.");
-relation!(PathwayEventsQuery, "Continue Reactome event objects and unresolved native integer references.");
+relation!(
+    PathwayGenesQuery,
+    "Continue native namespaced pathway membership, without name-based gene extraction."
+);
+relation!(
+    PathwayEventsQuery,
+    "Continue Reactome event objects and unresolved native integer references."
+);
