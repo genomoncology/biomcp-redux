@@ -88,12 +88,12 @@ impl Secrets {
 impl SecretName {
     /// Every supported credential identity, shared by configuration and CLI discovery.
     pub const ALL: &[Self] = &[
-        Self::OpenfdaApiKey,
         Self::NcbiApiKey,
         Self::SemanticScholarApiKey,
         Self::OrcidAccessToken,
         Self::OncokbApiKey,
         Self::NciApiKey,
+        Self::OpenfdaApiKey,
     ];
     /// Source name accepted by key registration.
     pub const fn source(self) -> &'static str {
