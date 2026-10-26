@@ -48,7 +48,7 @@ fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAsso
             biomcp_adapters::mydisease::supported_id(&id).then(|| id.parse::<biodata::Curie>().ok()).flatten().and_then(|id| DiseaseGet::from_id(id).ok()).map(Request::GetDisease)
         };
         if let Some(request) = request {
-            let step = (StepKind::Disambiguate, run(request));
+            let step = (StepKind::Pivot, run(request));
             if !out.next.contains(&step) { out.next.push(step); }
         }
     }
