@@ -26,6 +26,31 @@ pub(super) fn check() -> Result<(), String> {
         if name == "PgxPage" {
             continue;
         }
+        if name == "PathwayCard" {
+            let mut broken = root.clone();
+            if let Some(properties) = broken
+                .pointer_mut("/$defs/PathwayId/oneOf/1/properties")
+                .and_then(Value::as_object_mut)
+            {
+                properties.remove("id");
+            } else {
+                return Err("pathway tagged ID fixture changed".into());
+            }
+            if rows(
+                &broken,
+                broken
+                    .pointer("/properties/result")
+                    .ok_or("broken result")?,
+                name,
+            )
+            .iter()
+            .any(|row| declared_fallback(&broken, row, id, name))
+            {
+                return Err(
+                    "a tagged source identity without its ID passed projection coverage".into(),
+                );
+            }
+        }
         let projected = rows(&root, result, name);
         if projected.is_empty() {
             gaps.push(format!("{id} {name}: missing record path"));
@@ -136,22 +161,36 @@ fn rows<'a>(root: &'a Value, result: &'a Value, name: &str) -> Vec<&'a Value> {
         })
         .collect()
 }
+fn scalar_path(root: &Value, row: &Value, path: &[&str], numeric: bool) -> bool {
+    let branches = variants(root, row);
+    !branches.is_empty()
+        && branches.into_iter().all(|branch| {
+            if let Some((head, tail)) = path.split_first() {
+                branch
+                    .get("properties")
+                    .and_then(|p| p.get(*head))
+                    .is_some_and(|next| scalar_path(root, next, tail, numeric))
+            } else {
+                let wanted = if numeric { "integer" } else { "string" };
+                branch.get("type") == Some(&json!(wanted))
+                    || branch
+                        .get("type")
+                        .and_then(Value::as_array)
+                        .is_some_and(|a| a.contains(&json!(wanted)))
+            }
+        })
+}
 fn string_path(root: &Value, row: &Value, paths: &[&str]) -> bool {
     paths.iter().any(|path| {
-        at(
+        scalar_path(
             root,
             row,
             &path.trim_start_matches('/').split('/').collect::<Vec<_>>(),
+            false,
         )
-        .iter()
-        .any(|v| {
-            v.get("type") == Some(&json!("string"))
-                || v.get("type")
-                    .and_then(Value::as_array)
-                    .is_some_and(|a| a.contains(&json!("string")))
-        })
     })
 }
+
 fn projectable(
     root: &Value,
     row: &Value,
@@ -261,12 +300,8 @@ fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
                     return true;
                 }
                 let identity = paths::IDS.iter().any(|path| {
-                    !at(
-                        root,
-                        row,
-                        &path.trim_start_matches('/').split('/').collect::<Vec<_>>(),
-                    )
-                    .is_empty()
+                    let parts = path.trim_start_matches('/').split('/').collect::<Vec<_>>();
+                    scalar_path(root, row, &parts, false) || scalar_path(root, row, &parts, true)
                 });
                 identity && !policy.display_name.is_empty()
             })
