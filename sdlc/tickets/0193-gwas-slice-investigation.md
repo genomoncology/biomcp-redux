@@ -1,6 +1,7 @@
 # 0193 — Investigate the gwas slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 693666739141046ddc2576917e937139529fcb64
 
 Milestone: 4
 

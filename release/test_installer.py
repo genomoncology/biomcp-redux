@@ -40,7 +40,7 @@ class Installer(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             marker = "synthetic-parent-marker"
-            with patch.dict(os.environ, {key: marker for key in ["HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "HTTPS_PROXY", "HTTP_PROXY", "SEMANTIC_SCHOLAR_API_KEY", "BASH_ENV"]}):
+            with patch.dict(os.environ, {key: marker for key in ["HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "HTTPS_PROXY", "HTTP_PROXY", "S2_API_KEY", "BASH_ENV"]}):
                 env = installer_environment(root, bash)
             for name, leaf in [("HOME", "home"), ("XDG_CONFIG_HOME", "config"), ("XDG_CACHE_HOME", "cache")]:
                 self.assertEqual(env[name], str(root / leaf))

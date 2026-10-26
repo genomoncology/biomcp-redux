@@ -34,7 +34,7 @@ fn configured() -> Result<(), String> {
         args.extend(env.globals(Some(&replay), false));
         let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
         if mode == 2 {
-            command.env("SEMANTIC_SCHOLAR_API_KEY", "placeholder-scholar-key");
+            command.env("S2_API_KEY", "placeholder-scholar-key");
         }
         let output = command.output().map_err(|e| e.to_string())?;
         if output.status.code() != Some(4)
@@ -70,6 +70,13 @@ fn outgoing() -> Result<(), String> {
     {
         return Err("the source declaration changed its optional-key rate policy".into());
     }
+    for configured in [false, true] {
+        outgoing_with_key(configured)?;
+    }
+    Ok(())
+}
+
+fn outgoing_with_key(configured: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = super::network_stub::Stub::for_source(
         "api.semanticscholar.org",
@@ -82,12 +89,14 @@ fn outgoing() -> Result<(), String> {
         "ca_bundle":certificate,"proxy":format!("http://{}",stub.address),
     }))
     .map_err(|e| e.to_string())?;
-    super::key_registration::invoke(
-        &env,
-        &["key", "set", "semantic-scholar"],
-        "placeholder-scholar-key\n",
-        0,
-    )?;
+    if configured {
+        super::key_registration::invoke(
+            &env,
+            &["key", "set", "semantic-scholar"],
+            "placeholder-scholar-key\n",
+            0,
+        )?;
+    }
     let capture = env.root().join("capture");
     let args = vec![
         "search".into(),
@@ -100,6 +109,14 @@ fn outgoing() -> Result<(), String> {
     ];
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .env(
+            "S2_API_KEY",
+            if configured {
+                "synthetic-environment-shadowed"
+            } else {
+                "placeholder-scholar-key"
+            },
+        )
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;

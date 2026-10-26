@@ -2,11 +2,13 @@
 
 Status: OPEN.
 
+Blocked: 2026-10-26. AlphaGenome's current API terms exclude commercial entities, even for noncommercial work. No capture runs until Ian confirms a separate applicable license.
+
 Milestone: 4
 
 ## Outcome
 
-`get variant ID --section alphagenome` returns AlphaGenome's numeric predictions for that one variant, as the API sends them, only when the user has set their own AlphaGenome key. Without a key it sends nothing and names the key to set.
+`get variant ID alphagenome` returns AlphaGenome's numeric predictions for that one variant, as the API sends them, only when the user has set their own AlphaGenome key. Without a key it sends nothing and names the key to set.
 
 - Why: Ian's entity boundary ruling of 2026-10-25 keeps AlphaGenome as a variant section with numbers only. 0.9 offered AlphaGenome predictions, including plots.
 - Starts from: `decisions/2026-10-25-entity-boundary-rulings.md`; variant.md's AlphaGenome row; 0.9's AlphaGenome source; the keyed-source pattern from OncoKB and the NCI key; the publisher's API documentation and terms.
