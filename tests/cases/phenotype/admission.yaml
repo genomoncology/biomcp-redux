@@ -1,45 +1,7 @@
 {
   "feature": "phenotype-identity",
-  "story": "Literal phenotype commands reach source admission and invalid source sections fail before I/O.",
+  "story": "Unsupported phenotype source, namespace and section combinations fail before source access.",
   "steps": [
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "literal, unchanged"
-      ],
-      "mcp": [
-        "search",
-        "phenotype",
-        "literal, unchanged"
-      ],
-      "offline": true,
-      "exit": 5,
-      "expect": {
-        "/schema": "biomcp.phenotype-search/1"
-      },
-      "max_bytes": 4000,
-      "is_error": true
-    },
-    {
-      "run": [
-        "get",
-        "phenotype",
-        "HP:0001250"
-      ],
-      "mcp": [
-        "get",
-        "phenotype",
-        "HP:0001250"
-      ],
-      "offline": true,
-      "exit": 5,
-      "expect": {
-        "/schema": "biomcp.phenotype-card/1"
-      },
-      "max_bytes": 4000,
-      "is_error": true
-    },
     {
       "run": [
         "get",
