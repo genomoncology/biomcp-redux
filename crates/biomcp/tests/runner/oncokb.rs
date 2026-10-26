@@ -290,7 +290,7 @@ fn failures(env: &Environment, dir: &Path) -> Result<(), String> {
 fn reload() -> Result<(), String> {
     for http in [false, true] {
         let assets = Environment::new().map_err(|e| e.to_string())?;
-        let stub = Stub::for_source("www.oncokb.org", "application/json", reply)?;
+        let stub = Stub::for_source("www.oncokb.org", "application/json", reload_reply)?;
         let ca = assets.root().join("ca.pem");
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         let mut client = super::key_reload::start(
@@ -299,9 +299,6 @@ fn reload() -> Result<(), String> {
             json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}),
             "ONCOKB_TOKEN",
         )?;
-        let mut args = args();
-        args.push("--fresh".into());
-        let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
         for (index, key) in [None, Some(KEY), Some("synthetic-oncokb-replaced-key"), None]
             .into_iter()
             .enumerate()
@@ -326,6 +323,9 @@ fn reload() -> Result<(), String> {
                     0,
                 )?;
             }
+            let mut args = args();
+            *args.get_mut(7).ok_or("tumor argument")? = format!("Synthetic tumor {index}");
+            let refs = args.iter().map(String::as_str).collect::<Vec<_>>();
             let output = client.call(index, &refs)?;
             let expected = if key.is_some() { "data" } else { "skipped" };
             if output.pointer(&format!("{SECTION}/state")) != Some(&json!(expected)) {
@@ -494,4 +494,12 @@ fn environment_key() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+// Each key snapshot uses a distinct uncached input over both transports.
+fn reload_reply(request: &str) -> Result<String, String> {
+    let index = (0..4)
+        .find(|index| request.contains(&format!("tumorType=Synthetic%20tumor%20{index}")))
+        .ok_or("missing synthetic tumor input")?;
+    Ok(reply(request)?.replace("Synthetic tumor", &format!("Synthetic tumor {index}")))
 }

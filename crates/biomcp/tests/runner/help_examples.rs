@@ -44,16 +44,16 @@ pub(super) fn check() -> Result<(), String> {
             .as_ref()
             .map(|name| launch::fixtures().join("replies").join(name));
         prepare_bundles(&case, index, &environment, &registry, replay.as_deref())?;
-        let mut step = step.clone();
-        step.mcp = step.run.clone();
-        run_sequence(
-            &step,
-            &environment,
-            &assertions::prepare(&step)?,
-            &registry,
-            replay.as_deref(),
-            None,
-        )?;
+        for step in example_steps(step)? {
+            run_sequence(
+                &step,
+                &environment,
+                &assertions::prepare(&step)?,
+                &registry,
+                replay.as_deref(),
+                None,
+            )?;
+        }
     }
     if !printed.is_empty() {
         return Err("printed example has no owning case witness".into());
@@ -150,4 +150,21 @@ fn prepare_bundles(
         )?;
     }
     Ok(())
+}
+
+// Saves have independent destinations; replacement remains a CLI example.
+fn example_steps(original: &super::Step) -> Result<Vec<super::Step>, String> {
+    let mut step = original.clone();
+    step.mcp = step.run.clone();
+    let args = step.mcp.as_mut().ok_or("example arguments")?;
+    let Some(save) = args.iter().position(|arg| arg == "--save") else {
+        return Ok(vec![step]);
+    };
+    let path = args.get_mut(save + 1).ok_or("save destination")?;
+    *path = format!("stdio-{path}");
+    args.retain(|arg| arg != "--replace");
+    let mut cli = original.clone();
+    cli.mcp = None;
+    step.run = None;
+    Ok(vec![cli, step])
 }

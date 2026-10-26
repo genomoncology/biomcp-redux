@@ -229,7 +229,6 @@ fn query(index: usize, nci: bool, source: &str) -> Vec<String> {
             source.into(),
             "--keyword".into(),
             format!("synthetic {index}"),
-            "--fresh".into(),
         ]
     } else {
         vec![
@@ -238,7 +237,6 @@ fn query(index: usize, nci: bool, source: &str) -> Vec<String> {
             format!("synthetic EGFR {index}"),
             "--source".into(),
             source.into(),
-            "--fresh".into(),
         ]
     }
 }

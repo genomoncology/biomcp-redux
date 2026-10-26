@@ -7,6 +7,7 @@ mod disease;
 mod drug;
 mod drug_label;
 mod maintenance;
+mod mcp_policy;
 mod pathway;
 mod pgx;
 mod phenotype;
@@ -69,6 +70,9 @@ fn dispatch_using(
     let Some(action) = parsed.action else {
         return usage(args);
     };
+    if shared.is_some() && !mcp_policy::allows(&action, &parsed.globals, !allow_save) {
+        return encode(ErrorEnvelope::arguments(), crate::exit::Status::Usage);
+    }
     if let Some(path) = parsed.help {
         return encode(
             Envelope::new(
@@ -94,9 +98,7 @@ fn dispatch_using(
         Some(Ok(fetch)) if !parsed.globals.offline => {
             let secrets = match crate::config::secrets(&parsed.globals) {
                 Ok(secrets) => secrets,
-                Err(()) => {
-                    return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
-                }
+                Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
             };
             owned = crate::config::restrict(fetch.with_secrets(secrets), &parsed.globals)?;
             &owned
@@ -107,9 +109,7 @@ fn dispatch_using(
         _ => {
             owned = match crate::config::fetch(&parsed.globals) {
                 Ok(fetch) => fetch,
-                Err(()) => {
-                    return encode(ErrorEnvelope::local(), crate::exit::Status::Local);
-                }
+                Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
             };
             &owned
         }
