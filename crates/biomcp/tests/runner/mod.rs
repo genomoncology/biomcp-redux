@@ -284,10 +284,15 @@ fn run_step(
                 .map_err(|error| error.to_string())?;
             if output.status.code() != Some(step.exit) {
                 return Err(format!(
-                    "exit: expected {}, actual {:?}; stderr: {}",
+                    "exit: expected {}, actual {:?}; command: {:?}; stderr: {}; stdout: {}",
                     step.exit,
                     output.status.code(),
-                    String::from_utf8_lossy(&output.stderr)
+                    args,
+                    String::from_utf8_lossy(&output.stderr),
+                    String::from_utf8_lossy(&output.stdout)
+                        .chars()
+                        .take(2000)
+                        .collect::<String>()
                 ));
             }
             if !output.stderr.is_empty() {
