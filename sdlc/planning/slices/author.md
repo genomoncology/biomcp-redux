@@ -41,30 +41,30 @@ Status describes the current command answer to each accepted retrieval boundary.
 
 | Case | Status | Proof and limitation |
 | --- | --- | --- |
-| A01 | Partial | Native complete byline retained; article cards expose only the native first-author ID. |
-| A02 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A03 | Answered | Native exact-card cases preserve provider-record counts, empty affiliations and unavailable metadata. |
-| A04 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A05 | Partial | Native complete byline retained; article cards expose only the native first-author ID. |
-| A06 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A07 | Answered | Qualified-ID schemas, ordered-card cases and fixed deferred guidance preserve separate provider records. |
-| A08 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A09 | Partial | Native complete byline retained; article cards expose only the native first-author ID. |
-| A10 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A11 | Answered | Native exact-card cases preserve provider-record counts, empty affiliations and unavailable metadata. |
-| A12 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A13 | Unanswered | Exact PMID 32955176 returned native 404; no author identity or substitute is inferred. |
-| A14 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A15 | Answered | Native author-papers canonical cases and exact article pivots; j15660, j15676 and j15665. A14/A15 use the explicitly recorded 2118426986 fallback, without resolving PMID 32955176. |
-| A16 | Answered | Qualified-ID schemas, ordered-card cases and fixed deferred guidance preserve separate provider records. |
-| A17 | Answered | Outside-repo canonical ORCID cases cover exact public names, groups and assertions; j15682, j15720 and j15767. |
-| A18 | Answered | Outside-repo canonical ORCID cases cover exact public names, groups and assertions; j15682, j15720 and j15767. |
-| A19 | Answered | Outside-repo canonical ORCID cases cover exact public names, groups and assertions; j15682, j15720 and j15767. |
-| A20 | Answered | Outside-repo canonical ORCID cases cover exact public names, groups and assertions; j15682, j15720 and j15767. |
-| A21 | Answered | Native candidate offsets 0 and 5 retain distinct source IDs and native order; canonical author search cases. |
-| A22 | Answered | Outside-repo canonical ORCID cases cover exact public names, groups and assertions; j15682, j15720 and j15767. |
-| A23 | Unanswered | Topic-wide author ranking remains deferred; refusal is not a ranking answer. |
-| A24 | Answered | Outside-repo canonical ORCID cases cover exact public names, groups and assertions; j15682, j15720 and j15767. |
+| A01 | Partial | `tests/native/author/card-17611497.yaml` step 0 and `tests/cases/author/papers-article-pivot.yaml` steps 0–1 prove exact first-record access. Archive A `0000.body` retains the complete 24-ID byline; no command exposes that complete byline. |
+| A02 | Answered | `tests/native/author-papers/papers-17611497.yaml` step 0 owns the native ordered paper page. |
+| A03 | Answered | `tests/native/author/card-17611497.yaml` step 0 owns exact counts; `tests/cases/author/ordered-cards.yaml` step 0 distinguishes record-scoped counts and unavailable metadata. |
+| A04 | Answered | `tests/native/author-papers/papers-17611497.yaml` step 0 retains source paper IDs; `tests/cases/author/papers.yaml` step 0 owns the checked-ID article pivot. |
+| A05 | Partial | `tests/native/author/card-33123537.yaml` step 0 and `tests/cases/author/papers-article-pivot.yaml` steps 0–1 prove first-record access. Archive B `0000.body` retains seven byline IDs; no command exposes the complete byline. |
+| A06 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 0–2 own native page order and its exact warm continuation. |
+| A07 | Answered | `tests/cases/author/ordered-cards.yaml` step 0 keeps repeated names separate; `tests/cases/author/retired.yaml` supplies fixed merge refusal. |
+| A08 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 1–2 retain a paper without PMID and its native DOI; `tests/cases/author/papers.yaml` owns typed article pivots. |
+| A09 | Partial | `tests/native/author/card-34096690.yaml` step 0 and `tests/cases/author/papers-article-pivot.yaml` steps 0–1 prove first-record access. Archive B `0001.body` retains 26 byline IDs; no command exposes the complete byline. |
+| A10 | Answered | `tests/native/author-papers/papers-34096690.yaml` step 0 owns this exact record’s native ordered page. |
+| A11 | Answered | `tests/native/author/card-34096690.yaml` step 0 owns provider-record citation counts; `tests/cases/author/help.yaml` step 1 states the identity and ranking boundary. |
+| A12 | Answered | `tests/native/author-papers/papers-34096690-details.yaml` steps 0–1 own native details and full; `tests/cases/author/papers-details.yaml` compares identical synthetic details/full pages. |
+| A13 | Unanswered | Archive B `0002.body` is the exact PMID 32955176 paper 404. It supplies no byline or author ID, so no positive author case exists for this question. |
+| A14 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 0–1 own bounded native continuation using explicitly accepted record 2118426986. The unavailable PMID 32955176 identity stays unresolved; the endpoint supplies no total. |
+| A15 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 1–2 own exact selector-preserving and warm continuation on the accepted 2118426986 record. `tests/cases/author/papers-disabled-pool.yaml` owns actual retained-pool controls. |
+| A16 | Answered | `tests/cases/author/ordered-cards.yaml` step 0 and `tests/cases/author/help.yaml` step 1 preserve qualified provider records without person resolution. |
+| A17 | Answered | Outside-repo generated `orcid-0000-0002-4299-3018.yaml` steps 1–18, owned by `tests/native/orcid/orcid-0000-0002-4299-3018.yaml`, retain all 380 groups and 453 assertions; j15682. |
+| A18 | Answered | The same generated Swanton case step 0 owns the exact lowercase-public person name; j15682. |
+| A19 | Answered | Outside-repo generated `orcid-native-identifiers.yaml` step 0, owned by `tests/native/orcid/orcid-native-identifiers.yaml`, retains exact native PMID/DOI claims and pivot provenance; j15720. |
+| A20 | Answered | Generated Swanton case step 2 and complete walk steps 3–18 preserve group/assertion boundaries and exact ordered put-codes; j15682. `scripts/orcid_native.py` derives the outside-repo expectations. |
+| A21 | Answered | `tests/native/author/search-0.yaml` step 0 and `tests/native/author/search-5.yaml` step 0 own the two native candidate windows without choosing a person. |
+| A22 | Answered | Outside-repo generated `orcid-0000-0002-7433-2740.yaml` steps 0–3, owned by `tests/native/orcid/orcid-0000-0002-7433-2740.yaml`, retain the exact public name, two groups and two assertions; j15720. |
+| A23 | Unanswered | `tests/cases/author/retired.yaml` step 1 proves fixed topic-rank refusal. Both APIs leave topic-wide ranking deferred; refusal is not a ranking answer. |
+| A24 | Answered | `tests/cases/orcid/visibility.yaml` steps 0–1 and `tests/cases/orcid/person-public.yaml` step 0 own public-visibility controls; generated native Swanton/Butte step 0 proves accepted lowercase public names; j15682 and j15720. |
 
 ## Prior behavior and public issues
 
