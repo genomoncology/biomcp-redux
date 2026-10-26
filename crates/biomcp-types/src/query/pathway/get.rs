@@ -72,10 +72,11 @@ impl PathwayGet {
         })
     }
     /// Select a source-supported disclosure.
-    pub fn with_section(&self, section: PathwaySection) -> Self {
-        let mut value = self.clone();
-        value.0.section = Some(section);
-        value
+    pub fn with_section(&self, section: PathwaySection) -> Result<Self, QueryInvalid> {
+        let mut value = self.0.clone();
+        value.section = Some(section);
+        value.section_offset = 0;
+        Self::try_from(value)
     }
     /// Checked source identity.
     pub fn id(&self) -> &PathwayId {
