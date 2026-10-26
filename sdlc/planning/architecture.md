@@ -828,7 +828,7 @@ A recording is one JSON file per exchange, at `<dir>/<source>/<key>.json`:
 
 ### 4.10 Credentials and proxies
 
-`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
+`Secrets` maps a `SecretName` enum to a `Secret(Box<str>)` whose `Debug` and `Display` print `***`. Only the binary's config module builds `Secrets`, from the config file and the documented environment variables. Every declared key uses the same per-command deferred loader, which resolves the config value before its environment fallback when the source is admitted, including raw-cache and replay validation. Disabled sources and stored query pages do not resolve keys. The secret enters only the outgoing request. It never enters a cache key, a recording, a trace, an error or the envelope. The config file's `proxy` key overrides all proxy environment settings. Otherwise `config.rs` reads `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` and passes checked routes to Fetch. Proxy credentials and CA paths never enter reply identities or recordings.
 
 ### 4.11 Bundles
 
@@ -1761,6 +1761,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp/src/config/deferred_keys.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
 | `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
 | `crates/biomcp-types/tests/cell_line_contracts.rs` | Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/gwas_contracts.rs` | Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public library API before adapters exist. |

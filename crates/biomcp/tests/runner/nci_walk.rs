@@ -137,11 +137,11 @@ fn snapshot_policy(env: &Environment, args: &[String]) -> Check {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if output.status.code() != Some(4)
-        || value.pointer("/sources/0/reason") != Some(&json!("no_key"))
-        || value.pointer("/result/items/0/card").is_some()
+    if !output.status.success()
+        || value.pointer("/status") != Some(&json!("complete"))
+        || value.pointer("/result/items/0/card").is_none()
     {
-        return Err("saved NCI content bypassed its required key".into());
+        return Err("saved NCI pool required an unused source key".into());
     }
     Ok(())
 }

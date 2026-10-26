@@ -44,6 +44,9 @@ def library(root):
         "cargo", "test", "--workspace", "--exclude", "biomcp", "--lib",
         "--features", "biomcp-types/schema", "--locked",
     ], cwd=root, check=True)
+    subprocess.run([
+        "cargo", "test", "--locked", "-p", "biomcp", "--bin", "biomcp",
+    ], cwd=root, check=True)
     for package in metadata["packages"]:
         if package["name"] == "biomcp":
             continue
