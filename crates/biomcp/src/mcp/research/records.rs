@@ -2,6 +2,7 @@
 use biodata::Text;
 use biomcp_types::ResearchHit;
 use serde_json::Value;
+mod paths;
 fn text<'a>(value: &'a Value, paths: &[&str]) -> Option<&'a str> {
     paths.iter().find_map(|path| {
         value
@@ -98,14 +99,21 @@ fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
     )
 }
 fn native(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    let id = text(row, &["/id", "/header/id", "/concept/id", "/product/id"])?;
-    let url = text(
+    let id = text(
         row,
-        &["/url", "/header/url", "/attribution/url", "/record/url"],
+        &[
+            "/id",
+            "/header/id",
+            "/concept/id",
+            "/product/id",
+            "/protein/accession",
+            "/identity/id",
+        ],
     )?;
+    let url = text(row, paths::URLS)?;
     hit(
         next_args(entity, id, envelope)?,
-        text(row, &["/title", "/name", "/header/name", "/concept/label"]).unwrap_or(id),
+        text(row, paths::TITLES).unwrap_or(id),
         url,
     )
 }
@@ -153,11 +161,14 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
             search(entity, row, envelope)
         }
         _ => {
-            let row = result.get("header").unwrap_or(result);
-            let url = text(row, &["/url", "/attribution/url", "/record/url"])?;
+            let row = first
+                .and_then(|row| row.get("header"))
+                .or_else(|| result.get("header"))
+                .unwrap_or(result);
+            let url = text(row, paths::URLS)?;
             hit(
                 vec![entity.into()],
-                text(row, &["/title", "/name", "/concept/label"]).unwrap_or(id),
+                text(row, paths::TITLES).unwrap_or(id),
                 url,
             )
         }
