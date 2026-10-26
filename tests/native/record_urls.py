@@ -4,9 +4,7 @@ Run only through pm job. No retries or redirects. A failed source skips its
 remaining witness. Raw pages remain outside Git and transfer to Yellow before
 scratch removal. No publisher failures authorize substitute requests.
 """
-import hashlib
 import json
-import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -26,7 +24,7 @@ REQUESTS = [
     ('faers', 'adverse-event', '26940567', 'https://api.fda.gov/drug/event.json?search=safetyreportid%3A%2226940567%22&limit=5&skip=0&sort=receivedate%3Adesc'),
     ('maude', 'adverse-event', '50952244', 'https://api.fda.gov/device/event.json?search=mdr_report_key%3A%2250952244%22&limit=1'),
     ('nci', 'trial', 'NCI-2021-12653', 'https://www.cancer.gov/research/participate/clinical-trials-search/v?id=NCI-2021-12653'),
-    ('fda-510k', 'diagnostic', 'K173492', 'https://www.accessdata.fda.gov/cdrh_docs/pdf17/K173492.pdf'),
+    ('fda-510k', 'diagnostic', 'K173492', 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=K173492'),
 ]
 
 
