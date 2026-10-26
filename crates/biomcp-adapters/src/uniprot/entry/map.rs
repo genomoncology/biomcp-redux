@@ -25,8 +25,12 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
     let (isoforms, function) = super::sections_map::comments(raw.comments);
     let structures = super::sections_map::structures(raw.uni_prot_kb_cross_references);
     let sequence = raw.sequence.value.map(|sequence| biodata::ProteinSequence {
-        accession: id.clone(), sequence, length: raw.sequence.length,
-        crc64: raw.sequence.crc64, md5: raw.sequence.md5, audit: audit.clone(),
+        accession: id.clone(),
+        sequence,
+        length: raw.sequence.length,
+        crc64: raw.sequence.crc64,
+        md5: raw.sequence.md5,
+        audit: audit.clone(),
     });
     let value = header(
         raw.primary_accession,
@@ -37,12 +41,14 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
     )
     .map(|header| Entry {
         header,
-        audit, features, isoforms, function, structures, sequence,
+        audit,
+        features,
+        isoforms,
+        function,
+        structures,
+        sequence,
     });
-    Mapped {
-        value,
-        problems,
-    }
+    Mapped { value, problems }
 }
 pub(in crate::uniprot) fn header(
     accession: UniProtIsoform,

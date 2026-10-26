@@ -4,13 +4,13 @@ mod map;
 mod raw;
 mod search;
 mod sequence;
-pub use sequence::sequence;
 use crate::{Mapped, quotas};
 use biodata::UniProtAcc;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::{Protein, Source};
 pub use entry::{Entry, entry};
 pub use search::{SearchPage, search};
+pub use sequence::sequence;
 use std::time::Duration;
 /// Source policy for UniProt's accession endpoint.
 pub static SPEC: SourceSpec = SourceSpec {

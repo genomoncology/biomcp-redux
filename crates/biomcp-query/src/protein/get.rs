@@ -124,8 +124,13 @@ fn hydrate(
                         rows.push(entry.header);
                         item.candidates = rows.into();
                     } else {
-                        item.more = super::sections::NAMES.into_iter().filter(|name| !super::sections::wants(q, *name)).collect();
-                        if !q.sections().is_empty() { item.sections = Some(super::sections::first(q, &entry)); }
+                        item.more = super::sections::NAMES
+                            .into_iter()
+                            .filter(|name| !super::sections::wants(q, *name))
+                            .collect();
+                        if !q.sections().is_empty() {
+                            item.sections = Some(super::sections::first(q, &entry));
+                        }
                         item.header = Some(entry.header);
                         item.audit = Some(entry.audit);
                     }
@@ -134,9 +139,13 @@ fn hydrate(
             Err(e) => {
                 failed = true;
                 if !q.sections().is_empty() {
-                    item.sections = Some(super::sections::failed(q, match e {
-                        RequestError::Source(s) => s.reason, _ => biomcp_types::Reason::Unavailable,
-                    }));
+                    item.sections = Some(super::sections::failed(
+                        q,
+                        match e {
+                            RequestError::Source(s) => s.reason,
+                            _ => biomcp_types::Reason::Unavailable,
+                        },
+                    ));
                 }
                 *error = Some(e);
                 out.local = out.local.or(status::local(e));

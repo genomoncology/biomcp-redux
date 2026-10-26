@@ -1,19 +1,29 @@
 use super::sections_raw as raw;
-use biodata::{Attribution, Bound, ProteinAudit, ProteinCoordinateConvention, ProteinFeature,
-    ProteinFunction, ProteinIsoform, ProteinSequenceAvailability, ProteinStructureRef, Term, Text,
-    UniProtFeature, UniProtIsoform, UncertainSpan0};
+use biodata::{
+    Attribution, Bound, ProteinAudit, ProteinCoordinateConvention, ProteinFeature, ProteinFunction,
+    ProteinIsoform, ProteinSequenceAvailability, ProteinStructureRef, Term, Text, UncertainSpan0,
+    UniProtFeature, UniProtIsoform,
+};
 use biomcp_types::{Problem, ProblemCode, Source};
 pub(super) fn evidence(rows: Vec<raw::Evidence>) -> Box<[Text]> {
-    rows.into_iter().filter_map(|e| {
-        let mut text = e.evidence_code.to_string();
-        if let Some(source) = e.source { text.push_str(&format!("|{source}")); }
-        if let Some(id) = e.id { text.push_str(&format!("|{id}")); }
-        Text::new(&text).ok()
-    }).collect()
+    rows.into_iter()
+        .filter_map(|e| {
+            let mut text = e.evidence_code.to_string();
+            if let Some(source) = e.source {
+                text.push_str(&format!("|{source}"));
+            }
+            if let Some(id) = e.id {
+                text.push_str(&format!("|{id}"));
+            }
+            Text::new(&text).ok()
+        })
+        .collect()
 }
 fn bound(v: raw::Boundary) -> Option<Bound> {
     let n = v.value?;
-    if n == 0 { return None; }
+    if n == 0 {
+        return None;
+    }
     match v.modifier.as_str() {
         "EXACT" => Bound::new(Some(n), Some(n)).ok(),
         "OUTSIDE" => Bound::new(None, Some(n)).ok(),
@@ -21,32 +31,60 @@ fn bound(v: raw::Boundary) -> Option<Bound> {
         _ => None,
     }
 }
-pub(super) fn features(rows: Vec<raw::Feature>, id: &UniProtIsoform, audit: &ProteinAudit,
-    problems: &mut Vec<Problem>) -> Vec<ProteinFeature> {
-    rows.into_iter().filter_map(|r| {
-        let span = bound(r.location.start).zip(bound(r.location.end))
-            .and_then(|(start, end)| UncertainSpan0::from_inclusive(start, end).ok());
-        let Some(span) = span else {
-            problems.push(Problem { source: Source::UniProt, record: Text::new(id.as_str()).ok(),
-                field: "features.location".into(), code: ProblemCode::ValueUnknown });
-            return None;
-        };
-        let alternative = r.alternative_sequence;
-        Some(ProteinFeature {
-            feature: UniProtFeature { protein: r.location.sequence.unwrap_or_else(|| id.clone()),
-                span, kind: Term { label: r.kind, coding: None },
-                description: r.description.and_then(|v| Text::new(&v).ok()), id: r.feature_id,
-                original: alternative.as_ref().and_then(|a| a.original_sequence.clone()),
-                alternative: alternative.map(|a| a.alternative_sequences.into()).unwrap_or_default(),
-                evidence: evidence(r.evidences) },
-            attribution: Attribution { source: Text::new("uniprot").ok()?,
-                record: Text::new(id.as_str()).ok(),
-                version: audit.entry_version.and_then(|v| Text::new(&v.to_string()).ok()),
-                release: audit.release.clone(), submitter: None, evaluated: audit.last_annotation_update,
-                url: Text::new(&format!("https://www.uniprot.org/uniprotkb/{id}/entry")).ok() },
-            source_coordinates: ProteinCoordinateConvention::OneBasedInclusive,
+pub(super) fn features(
+    rows: Vec<raw::Feature>,
+    id: &UniProtIsoform,
+    audit: &ProteinAudit,
+    problems: &mut Vec<Problem>,
+) -> Vec<ProteinFeature> {
+    rows.into_iter()
+        .filter_map(|r| {
+            let span = bound(r.location.start)
+                .zip(bound(r.location.end))
+                .and_then(|(start, end)| UncertainSpan0::from_inclusive(start, end).ok());
+            let Some(span) = span else {
+                problems.push(Problem {
+                    source: Source::UniProt,
+                    record: Text::new(id.as_str()).ok(),
+                    field: "features.location".into(),
+                    code: ProblemCode::ValueUnknown,
+                });
+                return None;
+            };
+            let alternative = r.alternative_sequence;
+            Some(ProteinFeature {
+                feature: UniProtFeature {
+                    protein: r.location.sequence.unwrap_or_else(|| id.clone()),
+                    span,
+                    kind: Term {
+                        label: r.kind,
+                        coding: None,
+                    },
+                    description: r.description.and_then(|v| Text::new(&v).ok()),
+                    id: r.feature_id,
+                    original: alternative
+                        .as_ref()
+                        .and_then(|a| a.original_sequence.clone()),
+                    alternative: alternative
+                        .map(|a| a.alternative_sequences.into())
+                        .unwrap_or_default(),
+                    evidence: evidence(r.evidences),
+                },
+                attribution: Attribution {
+                    source: Text::new("uniprot").ok()?,
+                    record: Text::new(id.as_str()).ok(),
+                    version: audit
+                        .entry_version
+                        .and_then(|v| Text::new(&v.to_string()).ok()),
+                    release: audit.release.clone(),
+                    submitter: None,
+                    evaluated: audit.last_annotation_update,
+                    url: Text::new(&format!("https://www.uniprot.org/uniprotkb/{id}/entry")).ok(),
+                },
+                source_coordinates: ProteinCoordinateConvention::OneBasedInclusive,
+            })
         })
-    }).collect()
+        .collect()
 }
 pub(super) fn comments(rows: Vec<raw::Comment>) -> (Vec<ProteinIsoform>, Vec<ProteinFunction>) {
     let mut isoforms = Vec::new();
@@ -54,22 +92,33 @@ pub(super) fn comments(rows: Vec<raw::Comment>) -> (Vec<ProteinIsoform>, Vec<Pro
     for row in rows {
         if row.comment_type == "ALTERNATIVE PRODUCTS" {
             isoforms.extend(row.isoforms.into_iter().map(|r| ProteinIsoform {
-                ids: r.isoform_ids.into(), name: r.name.value,
+                ids: r.isoform_ids.into(),
+                name: r.name.value,
                 synonyms: r.synonyms.into_iter().map(|v| v.value).collect(),
-                sequence_status: r.isoform_sequence_status, sequence_ids: r.sequence_ids.into(),
+                sequence_status: r.isoform_sequence_status,
+                sequence_ids: r.sequence_ids.into(),
                 direct_sequence: ProteinSequenceAvailability::NotChecked,
             }));
         } else if row.comment_type == "FUNCTION" {
             function.extend(row.texts.into_iter().map(|p| ProteinFunction {
-                molecule: row.molecule.clone(), text: p.value, evidence: evidence(p.evidences),
+                molecule: row.molecule.clone(),
+                text: p.value,
+                evidence: evidence(p.evidences),
             }));
         }
     }
     (isoforms, function)
 }
 pub(super) fn structures(rows: Vec<raw::CrossReference>) -> Vec<ProteinStructureRef> {
-    rows.into_iter().filter(|r| r.database.as_str() == "PDB").filter_map(|r| {
-        Some(ProteinStructureRef { url: Text::new(&format!("https://www.rcsb.org/structure/{}", r.id)).ok()?,
-            database: r.database, id: r.id, properties: r.properties.into() })
-    }).collect()
+    rows.into_iter()
+        .filter(|r| r.database.as_str() == "PDB")
+        .filter_map(|r| {
+            Some(ProteinStructureRef {
+                url: Text::new(&format!("https://www.rcsb.org/structure/{}", r.id)).ok()?,
+                database: r.database,
+                id: r.id,
+                properties: r.properties.into(),
+            })
+        })
+        .collect()
 }

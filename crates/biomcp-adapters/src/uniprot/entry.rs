@@ -6,8 +6,8 @@ use biomcp_fetch::{Freshness, Leg, RequestError};
 use serde::{Deserialize, Serialize};
 pub(super) mod map;
 pub(super) mod raw;
-mod sections_raw;
 mod sections_map;
+mod sections_raw;
 /// A source-native card without sequence, references or other sections.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Entry {

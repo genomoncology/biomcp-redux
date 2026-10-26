@@ -30,7 +30,13 @@ impl Entry {
 }
 impl Reply for Entry {
     fn check(&self) -> Result<(), BadReply> {
-        if self.sequence.length == 0 || self.sequence.value.as_ref().is_some_and(|v| v.as_str().len() != self.sequence.length as usize) {
+        if self.sequence.length == 0
+            || self
+                .sequence
+                .value
+                .as_ref()
+                .is_some_and(|v| v.as_str().len() != self.sequence.length as usize)
+        {
             Err(BadReply)
         } else {
             Ok(())

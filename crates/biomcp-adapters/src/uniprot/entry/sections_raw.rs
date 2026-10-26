@@ -2,7 +2,7 @@ use biodata::{AminoAcids, ProteinIsoformStatus, ProteinStructureProperty, Text, 
 use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Feature {
+pub(in crate::uniprot) struct Feature {
     #[serde(rename = "type")]
     pub kind: Text,
     pub location: Location,
@@ -13,33 +13,33 @@ pub(super) struct Feature {
     pub evidences: Vec<Evidence>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Location {
+pub(in crate::uniprot) struct Location {
     pub start: Boundary,
     pub end: Boundary,
     pub sequence: Option<UniProtIsoform>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Boundary {
+pub(in crate::uniprot) struct Boundary {
     pub value: Option<u32>,
     pub modifier: String,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Alternative {
+pub(in crate::uniprot) struct Alternative {
     pub original_sequence: Option<AminoAcids>,
     #[serde(default)]
     pub alternative_sequences: Vec<AminoAcids>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Evidence {
+pub(in crate::uniprot) struct Evidence {
     pub evidence_code: Text,
     pub source: Option<Text>,
     pub id: Option<Text>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Comment {
+pub(in crate::uniprot) struct Comment {
     pub comment_type: String,
     pub molecule: Option<Text>,
     #[serde(default)]
@@ -48,14 +48,14 @@ pub(super) struct Comment {
     pub isoforms: Vec<Isoform>,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct Paragraph {
+pub(in crate::uniprot) struct Paragraph {
     pub value: Text,
     #[serde(default)]
     pub evidences: Vec<Evidence>,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Isoform {
+pub(in crate::uniprot) struct Isoform {
     pub name: super::raw::Value,
     #[serde(default)]
     pub synonyms: Vec<super::raw::Value>,
@@ -66,7 +66,7 @@ pub(super) struct Isoform {
     pub isoform_sequence_status: ProteinIsoformStatus,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct CrossReference {
+pub(in crate::uniprot) struct CrossReference {
     pub database: Text,
     pub id: Text,
     #[serde(default)]
