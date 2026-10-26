@@ -220,6 +220,15 @@ impl Cache {
         deadline: Deadline<'_>,
         operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
     ) -> Result<T, CacheError> {
+        self.serial_sql(deadline, true, operation)
+    }
+
+    fn serial_sql<T>(
+        &self,
+        deadline: Deadline<'_>,
+        wait_database: bool,
+        operation: impl FnOnce(&Connection) -> Result<T, CacheError>,
+    ) -> Result<T, CacheError> {
         let started = std::time::Instant::now();
         let remaining = deadline.remaining();
         loop {
@@ -229,7 +238,7 @@ impl Cache {
             match self.0.try_lock() {
                 Ok(connection) => {
                     connection
-                        .busy_timeout(if deadline.virtual_time() {
+                        .busy_timeout(if deadline.virtual_time() || !wait_database {
                             Duration::ZERO
                         } else {
                             deadline.remaining()
@@ -341,7 +350,7 @@ impl Cache {
         entry: &Entry,
         deadline: Deadline<'_>,
     ) -> Result<(), CacheError> {
-        self.try_sql(deadline, |connection| {
+        self.serial_sql(deadline, false, |connection| {
             connection.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
                 ON CONFLICT(key) DO UPDATE SET source=excluded.source,url=excluded.url,status=excluded.status,content_type=excluded.content_type,body=excluded.body,fetched_at=excluded.fetched_at,fresh_until=excluded.fresh_until,content_range=excluded.content_range,pagination=excluded.pagination",
