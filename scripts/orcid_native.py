@@ -1,11 +1,11 @@
 """Derive exact public-field assertions from accepted ORCID captures outside Git."""
 import json
+from pathlib import Path
 
 
 def step(args, expect, exit=0):
     return {'run': args, 'mcp': args, 'expect': expect, 'exit': exit,
-            'is_error': False, 'full_output_bytes': True,
-            'max_bytes': 100000, 'max_tokens': 25000}
+            'is_error': False, 'full_output_bytes': True}
 
 
 def prepare(records, cases, replay):
@@ -69,10 +69,21 @@ def prepare(records, cases, replay):
             steps.append(owner)
         case = {'feature': 'author-orcid', 'story': 'Retained exact public ORCID names and grouped works',
                 'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay), 'steps': steps}
-        (cases / ('orcid-' + identifier + '.yaml')).write_text(json.dumps(case, indent=2) + '\n')
+        save(case, cases, 'orcid-' + identifier + '.yaml')
     absent = '0000-0000-0000-0001'
     case = {'feature': 'author-orcid', 'story': 'Native ORCID absence differs from failure',
             'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay),
             'steps': [step(['get', 'author', 'orcid:' + absent], {
                 '/status': 'absent', '/result/items/0/status': 'absent', '/sources/0/state': 'ok'}, 1)]}
-    (cases / 'orcid-absent.yaml').write_text(json.dumps(case, indent=2) + '\n')
+    save(case, cases, 'orcid-absent.yaml')
+
+
+def save(case, cases, name):
+    canonical = Path(__file__).resolve().parent.parent / 'tests/native/orcid' / name
+    owner = json.loads(canonical.read_text())
+    if len(owner['steps']) != len(case['steps']):
+        raise ValueError('native ORCID step inventory differs')
+    for source, target in zip(owner['steps'], case['steps']):
+        for field in ['max_bytes', 'max_tokens', 'full_output_bytes']:
+            target[field] = source[field]
+    (cases / name).write_text(json.dumps(case, indent=2) + '\n')
