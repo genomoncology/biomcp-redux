@@ -1,6 +1,7 @@
 # 0228 — Document the pathway commands and close the pathway accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9f9f0a624013db7fa3f0b0cae2338cd1c50a8bf5
 
 Milestone: 4
 

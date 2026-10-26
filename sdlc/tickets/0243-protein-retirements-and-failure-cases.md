@@ -1,6 +1,7 @@
 # 0243 — Add the protein all section, retire old protein options and prove protein failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: efd55284d3a47acfce10d6d516cca5279a44fe34
 
 Milestone: 4
 
