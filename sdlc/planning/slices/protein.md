@@ -56,7 +56,7 @@ P01–P21 reuse the same nine records across all four candidate sources; the led
 
 ## Source findings and terms
 
-All36 initial requests returned HTTP200 with no retry or redirect. These are first-observation network calls from M5 under shared load, with unknown upstream/CDN warmth. They are not quiet-machine speed baselines or provider throughput guarantees. No warm-call timing is claimed.
+All36 initial requests returned HTTP200 with no retry or redirect. These are first-observation network calls from M5 under shared load, with unknown upstream/CDN warmth. The first source job reported launch load6.89 on18 cores beside three other jobs, with a1GiB memory and1GiB disk booking. They are not quiet-machine speed baselines or provider throughput guarantees. No warm-call timing is claimed.
 
 | Source | Requests | Raw bytes min–max | Seconds min / median / max | Public-tier findings |
 | --- | --- | --- | --- | --- |
@@ -210,7 +210,7 @@ The evidence store holds these immutable archives under `data/biomcp-redux/0190-
 | --- | --- | --- |
 | `j14202-native-sources.tar.gz` | `ecbbfb02876ef49eb317730c796c9c50396b931f`, j14202 | `25d2cd2bb2a1236e6aee9fe84ffc7879723df92bd031396da3e41b0c6ff989c8`;75 members,36 raw source bodies/headers, receipts and manifest. |
 | `j14211-j14221-identity-followup.tar.gz` | `692d389bee1bd796c2cf80c5c5213653cd22e652`, j14211/j14221 | `2558f595fd554a648f6477fb1fcd2e6e3645b425f64d8df0ffd6375575dbdafe`;33 members,15 request bodies/headers and retained receipts. |
-| `j14236-native-row-projection.tar.gz` | `b8c2bb0bb4c29dc9d5ec5169d4f10fc8fb8afda8`, j14236 | `411ba037bf120a998ac461a206a4ad2877f8b54bb387d160a325acb995ee1024`;1,058 members, offline recipe,1,054 projected responses, measurements and manifest. |
+| `j14236-native-row-projection.tar.gz` | `b8c2bb0bb4c29dc9d5ec5169d4f10fc8fb8afda8`, j14236 | `411ba037bf120a998ac461a206a4ad2877f8b54bb387d160a325acb995ee1024`;1,058 members, offline recipe,1,055 projected responses, measurements and manifest. |
 
 The follow-up sent exactly15 new requests: BRAF search returned P15056; CDKN2A search returned P42771 and Q8N726. The deliberately invalid accession query returned HTTP400, not an absent result. That body is preserved as an input-validation observation. P38398-2 FASTA returned exact isoform identity and63 residues; Q9UIF7-2 returned536 residues. A FASTA body is expected non-JSON; the generic capture helper's JSON parse note does not classify that native sequence as a failed source. CPX-715 detail returned exact complex identity and participants. All nine STRING mapping replies returned HTTP200 and matched the queryItem, while two distinct CDKN2A protein products collapsed to the same source STRING ID. That is a genuine source granularity limitation.
 
