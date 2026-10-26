@@ -283,7 +283,7 @@ The historical j14236 investigation projected source rows before the response sc
 | Domains | `domains-P15056` | 3,845 | 3,844 | 3,734 | 4,295 |
 | Features | `features-default` | 2,490 | 2,489 | 2,398 | 2,758 |
 | Get function | `get-P00533-function` | 4,743 | 4,742 | 4,651 | 5,349 |
-| Card | `external-P42771` | 1,224 | 1,223 | 1,132 | 1,302 |
+| Card | `card-BRAF` | 1,212 | 1,211 | 1,034 | 1,190 |
 | Isoforms | `isoforms-P04637` | 1,339 | 1,338 | 1,247 | 1,435 |
 | Search first five | Native EGFR first page, j14669 | 2,117 | 2,116 | 2,026 | 2,330 |
 | Search second five | Native retained EGFR second page, j14669 | 2,047 | 2,046 | 1,956 | 2,250 |
@@ -376,7 +376,7 @@ The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-s
 
 | Shape | Largest case key | Whole CLI bytes | Whole MCP bytes | Comparable bytes | Comparable ceiling |
 | --- | --- | ---: | ---: | ---: | ---: |
-| Card | `card-P38398-2` | 1,129 | 1,128 | 1,037 | 1,193 |
+| Exact accession card | `card-P38398-2` | 1,129 | 1,128 | 1,037 | 1,193 |
 | Features | `features-default` | 2,490 | 2,489 | 2,398 | 2,758 |
 | Isoforms | `isoforms-P04637` | 1,339 | 1,338 | 1,247 | 1,435 |
 | Structures | `structures` | 1,536 | 1,535 | 1,444 | 1,661 |

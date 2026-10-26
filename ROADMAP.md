@@ -267,7 +267,9 @@ Sources:
 - [x] InterPro
 - [x] Complex Portal
 
-Deferred: STRING because its mapping merges distinct CDKN2A protein products. Disease and existence filters have no harvested need; unreviewed scope lacks a positive capture. Bulk proteome, InterPro match, ComplexTab and whole-human STRING bundles have no harvested need. The contained 0.9 size and timing comparison belongs to milestone 5. `--all-species` is dropped under human-health scope.
+Deferred: STRING because its mapping merges distinct CDKN2A protein products. Disease and existence filters have no harvested need; unreviewed scope lacks a positive capture. Bulk proteome, InterPro match, ComplexTab and whole-human STRING bundles have no harvested need. The contained 0.9 size and timing comparison belongs to milestone 5.
+
+Dropped: `--all-species` under human-health scope.
 
 ### Pathway
 
