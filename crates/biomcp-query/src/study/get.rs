@@ -193,10 +193,10 @@ fn continuation(out: &mut Outcome, cx: &Ctx<'_>, q: &StudyGet, page: &PageInfo, 
     } else if out.status != Status::Partial {
         out.status = Status::Complete;
     }
-    if u64::from(page.offset) + u64::from(page.returned) < page.total {
-        if let Ok(query) = q.at_section_offset(page.offset + page.returned) {
-            next(out, cx, StepKind::Page, query);
-        }
+    if u64::from(page.offset) + u64::from(page.returned) < page.total
+        && let Ok(query) = q.at_section_offset(page.offset + page.returned)
+    {
+        next(out, cx, StepKind::Page, query);
     }
 }
 fn next(out: &mut Outcome, cx: &Ctx<'_>, kind: StepKind, query: StudyGet) {

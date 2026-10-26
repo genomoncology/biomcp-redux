@@ -85,7 +85,7 @@ impl Reply for SampleLists {
 fn endpoint(id: &StudyId, name: &str) -> Result<biomcp_fetch::Endpoint, RequestError> {
     Ok(SPEC
         .get("/studies")
-        .with_segments(&[PathSegment::new(id.as_str())?, PathSegment::new(name)?])?
+        .with_segments(&[PathSegment::new(id.as_str())?, PathSegment::new(name)?])
         .fresh(Freshness::Days(1))
         .bytes(MAX_SAMPLE_LIST_BYTES))
 }
