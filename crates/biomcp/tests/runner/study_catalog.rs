@@ -94,7 +94,8 @@ pub(super) fn budget(value: &Value, phase: &str, surface: &str, args: &[&str]) -
         Some("biomcp.study_profiles/1") => 1991,
         _ => return Err("study response has no measured envelope budget".into()),
     };
-    let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + 1;
+    let bytes =
+        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
     use std::io::Write;
     writeln!(
         std::io::stdout(),
