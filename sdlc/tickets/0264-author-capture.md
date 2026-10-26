@@ -1,0 +1,18 @@
+# 0264 — Capture the Semantic Scholar and ORCID author witnesses
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: none
+
+## Outcome
+
+One bounded pm job captures the exact author requests that the author tickets need, and `planning/slices/author.md` records each one as proven, empty or failed. The Semantic Scholar witnesses are: the paper bylines with author IDs for PMIDs 17611497, 33123537, 34096690 and 32955176; the author search for `Louis Williams` at the default page and its next page; the author card for the first byline record of PMID 17611497 and PMID 34096690; that first record's compact papers page and the same page with the details fields; the next papers page for the first byline record of PMID 32955176; and one exact card request for a well-formed author ID that has no record. The ORCID witnesses are the public person record and the public works record for 0000-0002-4299-3018 and 0000-0002-7433-2740, and one exact person request for a checksum-valid ORCID iD that has no record. Raw replies, headers, the ledger and the recipe go to the evidence store, and no product code changes.
+
+- Why: The slice method requires each exact request a product ticket sends to have a known-positive capture first, and the 0195 investigation made no author API call because captures were paused; `decisions/2026-10-26-new-sources-follow-open-by-default.md` lifts that pause.
+- Starts from: author.md's question bank, source boundaries, proposed command shape and measurement table, with the author rulings in `decisions/2026-10-26-protein-pathway-study-rulings.md` and the new-sources decision, which win over the design text; the existing Semantic Scholar adapter in `crates/biomcp-adapters/src/semantic_scholar/`; `make source-capture` from 0200; the legacy key names in `decisions/2026-10-25-legacy-key-names.md`.
+- Rules: the recipe names each exact URL before the job runs, sends each row once in order with at least one second between Semantic Scholar requests and half a second between ORCID requests, a 25-second deadline and an 8 MiB body bound, and makes at most twenty physical requests. No retry, redirect, altered query, fallback host or extra page. A 401, 403 or 429 stops that source. The job inherits `S2_API_KEY` and `ORCID_ACCESS_TOKEN` by name when the machine sets them and runs keyless otherwise; the ledger records only whether each variable was set, and the agent never prints, copies or records a key value. No OAuth exchange, account creation, ORCID public data file, bulk dataset or hosted query.
+- Proof: the job ledger records every attempt with its exact URL with any key removed, status, headers with credentials removed, bytes, SHA-256, elapsed time, returned author IDs or ORCID iDs, native totals and paging state, and the archive path and hash appear in author.md beside each witness's result, and through pm progress. Each archive member is verified independently before unique scratch is deleted. A reviewer checks that each witness names the capability it unlocks or defers. No raw source body, publisher abstract or licensed content enters the repo. Then make landing-gate runs through pm job.
+- Defers: a failed or empty witness keeps its capability deferred and returns to the PM. Without the absent author or absent ORCID witness, absent versus failed rests on synthetic cases labeled synthetic.
+- Changes: the capture recipe under `scripts/`, author.md, and the evidence store. author.md replaces its paused-capture text, the ORCID public data file route and the expanded-license prerequisite with the new-sources decision, and keeps both sources labeled `noncommercial`. No product code.
