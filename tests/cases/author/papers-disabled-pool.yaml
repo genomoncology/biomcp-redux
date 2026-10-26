@@ -52,7 +52,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled"
+        "/sources/0/reason": "disabled",
+        "/result/items": {
+          "equals": []
+        }
       },
       "full_output_bytes": true,
       "max_bytes": 700,
@@ -87,7 +90,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled"
+        "/sources/0/reason": "disabled",
+        "/result/items": {
+          "equals": []
+        }
       },
       "full_output_bytes": true,
       "max_bytes": 700,
@@ -114,7 +120,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled"
+        "/sources/0/reason": "disabled",
+        "/result/items": {
+          "equals": []
+        }
       },
       "full_output_bytes": true,
       "max_bytes": 700,
@@ -149,7 +158,10 @@
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled"
+        "/sources/0/reason": "disabled",
+        "/result/items": {
+          "equals": []
+        }
       },
       "full_output_bytes": true,
       "max_bytes": 700,

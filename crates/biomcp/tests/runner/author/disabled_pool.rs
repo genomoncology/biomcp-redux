@@ -42,7 +42,13 @@ pub(super) fn check() -> Result<(), String> {
                     .cloned();
             }
             if value.pointer("/sources/0/reason") == Some(&json!("disabled"))
-                && value.get("result").is_some_and(|v| !v.is_null())
+                && (if name == "papers" {
+                    value
+                        .pointer("/result/items")
+                        .is_some_and(|v| v.as_array().is_none_or(|rows| !rows.is_empty()))
+                } else {
+                    value.get("result").is_some_and(|v| !v.is_null())
+                })
             {
                 return Err("disabled source restored author rows".into());
             }
