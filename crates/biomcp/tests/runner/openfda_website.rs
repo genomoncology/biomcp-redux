@@ -52,39 +52,3 @@ fn check() -> Result<(), String> {
     }
     Ok(())
 }
-
-pub(super) fn help_trial() -> Trial {
-    Trial::test("keys/openfda/configuration-help", || {
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        let output = env
-            .command(
-                env!("CARGO_BIN_EXE_biomcp"),
-                &["help".into(), "key".into(), "openfda".into()],
-            )
-            .output()
-            .map_err(|e| e.to_string())?;
-        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if !output.status.success()
-            || value.pointer("/result/config") != Some(&json!("keys.openfda_api_key"))
-            || value.pointer("/result/environment") != Some(&json!("OPENFDA_API_KEY"))
-            || value.pointer("/result/guidance") != Some(&json!("biomcp key set openfda"))
-        {
-            return Err("openFDA key help omitted registration or names".into());
-        }
-        let help = env
-            .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
-            .output()
-            .map_err(|e| e.to_string())?;
-        if !help.status.success() {
-            return Err("whole help failed".into());
-        }
-        use std::io::Write;
-        writeln!(
-            std::io::stderr(),
-            "OPENFDA_CLI_HELP_BYTES {}",
-            help.stdout.len()
-        )
-        .map_err(|e| e.to_string())?;
-        Ok(())
-    })
-}
