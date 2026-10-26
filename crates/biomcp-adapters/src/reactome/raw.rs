@@ -44,7 +44,8 @@ impl Reply for Search {
                 count,
                 total,
             } => {
-                results.iter().map(|g| g.entries.len()).sum::<usize>() == *count as usize
+                *total > 0
+                    && results.iter().map(|g| g.entries.len()).sum::<usize>() == *count as usize
                     && *count <= 50
                     && u64::from(*count) <= *total
             }

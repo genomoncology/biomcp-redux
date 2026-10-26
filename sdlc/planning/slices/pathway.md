@@ -147,6 +147,21 @@ Job `j14621` at `cb0a5a3f` executes the retained command cases through CLI, MCP 
 
 The database's complete source summaries vary in length. Ten observed summaries exceed the design's 900-token allocation while retaining whole native summation objects and source citations. The largest is the ALK pathway `R-HSA-201556`, with 2,631 comparable tokens. These measurements preserve source text and do not replace it with a locally written summary. The source observations include PubMed references on 21 of the 23 question cards; the captured NOTCH and Cell Cycle cards contain no native PMID. Citation cases assert the source's native reference positions, and URL-only references retain `uniformResourceLocator` as their source URL beside optional PubMed identities.
 
+The approved whole-summary budget uses each observed disclosure's measured ceiling. Summation objects and native references remain complete. The following per-record limits are enforced by their caller cases.
+
+| Native summary ID | Measured tokens | Token ceiling | Measured CLI bytes | Byte ceiling |
+| --- | --- | --- | --- | --- |
+| `R-HSA-109581` | 1010 | 1162 | 4041 | 4648 |
+| `R-HSA-1227990` | 1645 | 1892 | 6581 | 7569 |
+| `R-HSA-177929` | 1057 | 1216 | 4226 | 4860 |
+| `R-HSA-195721` | 1554 | 1788 | 6214 | 7147 |
+| `R-HSA-201556` | 2631 | 3026 | 10524 | 12103 |
+| `R-HSA-2028269` | 1449 | 1667 | 5796 | 6666 |
+| `R-HSA-2219528` | 2185 | 2513 | 8739 | 10050 |
+| `R-HSA-5358508` | 1100 | 1265 | 4399 | 5059 |
+| `R-HSA-73894` | 1539 | 1770 | 6157 | 7081 |
+| `R-HSA-5673001` | 1197 | 1377 | 4787 | 5506 |
+
 The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/output-measurements.json`, SHA256 `4b5dd0d6f40fe8ba8d7ac7ccaca904b427ddf15376f8af4d7083ea9fcf810ca8`. Transfer verification checks the complete file hash and every row's CLI/MCP equality result. The permanent caller cases also exercise a retained pool under a foreign query, disabled-source admission before saved content, exact ordered gene/top-level walks, native search continuation and Markdown command shapes.
 
 ### Public fields and identity joins
