@@ -64,7 +64,11 @@ struct Assertion {
 struct Title {
     title: Option<Wrapped>,
     subtitle: Option<Wrapped>,
-    translated_title: Option<Wrapped>,
+    translated_title: Option<TranslatedTitle>,
+}
+#[derive(Deserialize)]
+struct TranslatedTitle {
+    content: Text,
 }
 #[derive(Deserialize)]
 struct Date {
@@ -124,7 +128,7 @@ impl Assertion {
                 (
                     v.title.map(|v| v.value),
                     v.subtitle.map(|v| v.value),
-                    v.translated_title.map(|v| v.value),
+                    v.translated_title.map(|v| v.content),
                 )
             })
             .unwrap_or_default();
