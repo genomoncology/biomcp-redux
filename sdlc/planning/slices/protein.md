@@ -323,7 +323,7 @@ An alternative sequence uses the exact FASTA request. The returned accession, re
 
 ### Implemented UniProt section measurements
 
-The retained native CLI and MCP proof covers every section command and the complete `all` disclosure. It reuses the accepted source archives without provider requests. Both isoform continuations preserve source order and make every captured TP53 and MUTYH alternative reachable. Native EGFR function paragraphs preserve the presence and absence of the molecule qualifier independently. Sequence proof checks complete residues and the native MUTYH positions without historical-label conversion.
+The retained native CLI and MCP proof covers every UniProt section command. The changed composite `all` proof and allocation belong to the protein relation measurements below. It reuses the accepted source archives without provider requests. Both isoform continuations preserve source order and make every captured TP53 and MUTYH alternative reachable. Native EGFR function paragraphs preserve the presence and absence of the molecule qualifier independently. Sequence proof checks complete residues and the native MUTYH positions without historical-label conversion.
 
 The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-sections/biomcp-redux-0239-native.mXeaPJ.tar.gz`, SHA-256 `47b39aa4ef15ddc8453e8addf2bed30b29c7f370ab67eb3d36ab89fd1b9a7513`. The archive passed exact member and content-hash verification on the build host and Yellow. The retained phase logs and revisions identify reused successful measurements.
 
@@ -341,7 +341,6 @@ The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-s
 | Get structures | `get-P00533-structures` | 2,103 | 2,102 | 2,011 | 2,313 |
 | Get sequence | `get-P38398-sequence` | 3,246 | 3,245 | 3,154 | 3,628 |
 | Get function | `get-P00533-function` | 4,743 | 4,742 | 4,651 | 5,349 |
-| Get all | `get-P00533-all` | 9,766 | 9,765 | 9,674 | 11,126 |
 
 ### InterPro and Complex Portal field rules
 
