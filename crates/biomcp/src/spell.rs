@@ -24,6 +24,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::CbioportalStudies => "cbioportal-studies",
                 Bundle::FdaCdx => "fda-cdx",
                 Bundle::Gtr => "gtr",
                 Bundle::WhoIvd => "who-ivd",
@@ -68,6 +69,8 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
         Request::SearchPathway(q) => serde_json::to_value(q),
         Request::GetPathway(q) => serde_json::to_value(q),
+        Request::SearchStudy(q) => serde_json::to_value(q),
+        Request::GetStudy(q) => serde_json::to_value(q),
         Request::SearchPgx(query) => serde_json::to_value(query),
         Request::GetPgx(query) => {
             let mut value = serde_json::to_value(query)?;
@@ -157,6 +160,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
         Request::GetPathway(_)
+        | Request::GetStudy(_)
         | Request::GetPgx(_)
         | Request::GetPgxAnnotation(_)
         | Request::GetDiagnostic(_)
@@ -169,6 +173,7 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
         Request::SearchPathway(_)
+        | Request::SearchStudy(_)
         | Request::SearchPgx(_)
         | Request::SearchDiagnostic(_)
         | Request::SearchAdverseEvent(_)
@@ -183,6 +188,8 @@ fn command_verb(request: &Request) -> &'static str {
 pub(crate) fn command_entity(request: &Request) -> &'static str {
     if matches!(request, Request::SearchPathway(_) | Request::GetPathway(_)) {
         "pathway"
+    } else if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {
+        "study"
     } else if matches!(
         request,
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_)

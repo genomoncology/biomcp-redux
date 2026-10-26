@@ -1,6 +1,7 @@
 # 0230 — Add the GWAS types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f2a9295312e46cace86be998a5ce30913fdde7da
 
 Milestone: 4
 

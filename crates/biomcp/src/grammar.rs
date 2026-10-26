@@ -2,7 +2,15 @@
 mod entity;
 mod local;
 
-pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx"];
+pub(crate) const BUNDLE_HELP: &[&str] = &[
+    "cbioportal-studies",
+    "ema",
+    "ddinter",
+    "who-pq",
+    "gtr",
+    "who-ivd",
+    "fda-cdx",
+];
 
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{
@@ -43,6 +51,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
         Request::SearchPathway(_) => "biomcp.pathway-search/1",
         Request::GetPathway(_) => "biomcp.pathway-get/1",
+        Request::SearchStudy(_) => "biomcp.study-search/1",
+        Request::GetStudy(_) => "biomcp.study-get/1",
         Request::SearchPgx(_) => "biomcp.pgx-search/2",
         Request::GetPgx(_) => "biomcp.pgx-get/1",
         Request::GetPgxAnnotation(_) => "biomcp.pgx-get-command/1",
@@ -78,6 +88,8 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
     ("search", "pathway", "biomcp.pathway-search/1"),
     ("get", "pathway", "biomcp.pathway-get/1"),
+    ("search", "study", "biomcp.study-search/1"),
+    ("get", "study", "biomcp.study-get/1"),
     ("search", "pgx", "biomcp.pgx-search/2"),
     ("get", "pgx", "biomcp.pgx-get-command/1"),
     ("search", "diagnostic", "biomcp.diagnostic-search/1"),
@@ -172,7 +184,15 @@ fn root() -> Result<Command, ()> {
         root = root.subcommand(command);
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
-        "hgnc", "clingen", "ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx",
+        "cbioportal-studies",
+        "hgnc",
+        "clingen",
+        "ema",
+        "ddinter",
+        "who-pq",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
     ])));
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
@@ -230,6 +250,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("cbioportal-studies") => Bundle::CbioportalStudies,
                 Some("fda-cdx") => Bundle::FdaCdx,
                 Some("gtr") => Bundle::Gtr,
                 Some("who-ivd") => Bundle::WhoIvd,
@@ -455,7 +476,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     match (verb, entity) {
         (
             "search" | "get",
-            "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway",
+            "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "study",
         ) => entity::request(verb, entity, value),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)

@@ -232,8 +232,8 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.diagnostic_regulatory/1", "", "complete") => 7260,
         ("biomcp.diagnostic_supplements/1", "", "complete") => 1414,
         ("biomcp.error/1", "", "usage") => 196,
-        ("biomcp.sync/3", "", "complete") => 348,
-        ("biomcp.sync/3", "", "failed") => 337,
+        ("biomcp.sync/4", "", "complete") => 348,
+        ("biomcp.sync/4", "", "failed") => 337,
         _ => {
             return Err(format!(
                 "unmeasured diagnostic envelope: {schema}/{kind}/{status}"

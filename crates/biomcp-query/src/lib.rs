@@ -33,3 +33,5 @@ pub mod adverse_event_maude;
 
 /// Native human pathway discovery and exact cards.
 pub mod pathway;
+/// Stored study catalog discovery.
+pub mod study;

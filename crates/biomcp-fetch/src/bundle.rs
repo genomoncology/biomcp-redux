@@ -11,6 +11,8 @@ use std::marker::PhantomData;
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 /// A decoded bundle row supplies its own search keys.
 pub trait Row: serde::de::DeserializeOwned {
+    /// Source-specific complete transfer bound, capped by the shared bundle ceiling.
+    const MAX_BYTES: u64 = MAX_BUNDLE_BYTES;
     /// Decode a complete source document before any row is published.
     fn decode_document(_body: &[u8]) -> Result<Vec<String>, crate::BadReply> {
         Err(crate::BadReply)
@@ -123,6 +125,10 @@ pub enum Find<'a> {
 /// Public bundle metadata contains no local filenames or provider diagnostics.
 #[derive(Clone, Debug)]
 pub struct BundleInfo {
+    /// Native publisher revision validator, when supplied.
+    pub etag: Option<Box<str>>,
+    /// Native publisher modification header, when supplied.
+    pub last_modified: Option<Box<str>>,
     /// Stable declared bundle name.
     pub name: &'static str,
     /// Complete raw body bytes.
@@ -270,4 +276,11 @@ impl Leg<'_> {
 /// Serialize a typed source document row for the shared checked bundle store.
 pub fn encode_bundle_row<T: serde::Serialize>(row: &T) -> Result<String, crate::BadReply> {
     serde_json::to_string(row).map_err(|_| crate::BadReply)
+}
+
+/// Decode a complete typed JSON catalog inside the transport JSON boundary.
+pub fn decode_bundle_document<T: serde::de::DeserializeOwned>(
+    body: &[u8],
+) -> Result<T, crate::BadReply> {
+    serde_json::from_slice(body).map_err(|_| crate::BadReply)
 }

@@ -120,11 +120,11 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/9"),
+        Request => ("request", "biodata.request/10"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
-        Envelope<SyncResult> => ("sync", "biomcp.sync/3"),
+        Envelope<SyncResult> => ("sync", "biomcp.sync/4"),
         HgncId => ("hgnc-id", "biodata.hgnc-id/1"),
         PartialDate => ("partial-date", "biodata.partial-date/1"),
         Position1 => ("position1", "biodata.position1/1"),
@@ -159,6 +159,13 @@ fn registry() -> Vec<Contract> {
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
     };
+    contracts.extend(contracts! {
+        Envelope<GwasPage> => ("gwas-page", "biomcp.gwas_page/1"),
+        Envelope<GwasAssociationCard> => ("gwas-association", "biomcp.gwas_association/1"),
+        Envelope<GwasLoci> => ("gwas-loci", "biomcp.gwas_loci/1"),
+        Envelope<GwasStudy> => ("gwas-study", "biomcp.gwas_study/1"),
+        Envelope<GwasAncestries> => ("gwas-ancestries", "biomcp.gwas_ancestries/1"),
+    });
     contracts.extend(diagnostic_contracts());
     contracts.extend(pathway_contracts());
     contracts.extend(protein_contracts());
@@ -176,6 +183,8 @@ fn registry() -> Vec<Contract> {
 }
 fn study_registry() -> Vec<Contract> {
     contracts! {
+        StudySearch => ("study-search", "biomcp.study-search/1"),
+        StudyGet => ("study-get", "biomcp.study-get/1"),
         Envelope<StudyPage> => ("study-page", "biomcp.study_page/1"),
         Envelope<StudyCard> => ("study-card", "biomcp.study_card/1"),
         Envelope<StudyProfiles> => ("study-profiles", "biomcp.study_profiles/1"),
@@ -224,9 +233,9 @@ fn variant_contracts() -> Vec<Contract> {
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/2"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/3"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/5"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/6"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/4"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/5"),
     }
 }
 
@@ -355,6 +364,8 @@ fn checked_in_schemas_match_types() {
 #[test]
 fn consumed_queries_stay_inside_the_flat_command_grammar() {
     for schema in [
+        generate::<StudySearch>(),
+        generate::<StudyGet>(),
         generate::<GeneGet>(),
         generate::<GeneSearch>(),
         generate::<ArticleSearch>(),
