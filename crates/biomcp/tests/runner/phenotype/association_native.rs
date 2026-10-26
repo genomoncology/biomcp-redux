@@ -35,11 +35,16 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
     )?;
     let env = setup(&stub)?;
     let output = directory.join("product-proof");
-    fs::create_dir(&output).map_err(|e| e.to_string())?;
+    fs::create_dir_all(&output).map_err(|e| e.to_string())?;
+    let mut completed = 0;
     for (index, row) in plan.iter().enumerate() {
+        if output.join(format!("{index}-cli-mcp.json")).is_file() {
+            continue;
+        }
         prove(directory, &output, &env, index, row)?;
+        completed += 1;
     }
-    if stub.finish()?.len() != plan.len() {
+    if stub.finish()?.len() != completed {
         return Err("retained proof request count changed".into());
     }
     Ok(())
