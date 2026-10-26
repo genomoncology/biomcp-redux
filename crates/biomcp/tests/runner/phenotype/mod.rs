@@ -179,6 +179,9 @@ fn failures() -> Result<(), String> {
             vec!["search", "phenotype", "synthetic"]
         };
         let result = invoke(&env, &words, 4)?;
+        if kind == 5 {
+            invoke(&env, &words, 4)?;
+        }
         if result.get("status") != Some(&json!("failed")) {
             return Err(format!("source failure became absence: {result}"));
         }
@@ -190,8 +193,8 @@ fn failures() -> Result<(), String> {
         {
             return Err("bad reply lost its problem".into());
         }
-        if stub.finish()?.is_empty() {
-            return Err("failure did not reach the intended boundary".into());
+        if stub.finish()?.len() != if kind == 5 { 2 } else { 1 } {
+            return Err("failure entered the cache or changed its bounded request count".into());
         }
     }
     Ok(())

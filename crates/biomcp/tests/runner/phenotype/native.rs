@@ -70,6 +70,12 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     };
     let delivered = invoke(&env, &recording, exit)?;
     verify(row, &native, &delivered)?;
+    restore_date(
+        &directory,
+        row.get("fetched")
+            .and_then(Value::as_u64)
+            .ok_or("missing native fetched date")?,
+    )?;
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("record path")?]);
     let local = invoke(&env, &replay, exit)?;
@@ -206,5 +212,36 @@ fn mcp(directory: &Path, words: &[&str], local: &Value, exit: i32) -> Result<(),
     let ceiling = (bytes * 115).div_ceil(100);
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,"steps":[{"run":words,"mcp":words,"exit":exit,"expect":{"/result":local.get("result").ok_or("result")?,"/status":local.get("status").ok_or("status")?},"max_bytes":ceiling,"max_tokens":ceiling.div_ceil(4)}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     super::super::run_case(file.path(), &super::super::schema::Registry::embedded()?)?;
+    Ok(())
+}
+
+fn restore_date(directory: &Path, fetched: u64) -> Result<(), String> {
+    for source in ["hpo", "monarch"] {
+        let path = directory.join(source);
+        if !path.exists() {
+            continue;
+        }
+        for entry in fs::read_dir(path).map_err(|e| e.to_string())? {
+            let entry = entry.map_err(|e| e.to_string())?;
+            let mut value: Value =
+                serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
+            for exchange in value
+                .get_mut("exchanges")
+                .and_then(Value::as_array_mut)
+                .ok_or("exchanges")?
+            {
+                exchange
+                    .as_object_mut()
+                    .ok_or("exchange")?
+                    .insert("fetched".into(), json!(fetched));
+            }
+            fs::write(
+                entry.path(),
+                serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+            )
+            .map_err(|e| e.to_string())?;
+        }
+    }
     Ok(())
 }
