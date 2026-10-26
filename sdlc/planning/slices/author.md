@@ -1,6 +1,6 @@
 # Author investigation
 
-This investigation proposes an author surface through steps 1 to 4 of the slice method. It treats an author identifier as one source's record. A shared name, affiliation, paper or research topic never establishes that two records represent one person. Bibliographic questions below ask what a source asserts and make no clinical judgment.
+This investigation records the accepted author surface and its implemented command evidence. It treats an author identifier as one source's record. A shared name, affiliation, paper or research topic never establishes that two records represent one person. Bibliographic questions below ask what a source asserts and make no clinical judgment.
 
 ## Questions and accepted answer boundaries
 
@@ -111,7 +111,7 @@ Semantic Scholar author APIs use an optional `S2_API_KEY`. Existing article sour
 
 Exact public ORCID person and works API requests are the selected route. The annual Public Data File, bulk downloads, hosted queries, OAuth exchanges and account creation are outside this slice. Historical fixtures establish historical reply shapes only. They do not establish current source facts.
 
-## Proposed command and disclosure shape
+## Accepted command and disclosure shape
 
 `search author TEXT [--source semantic-scholar] [--limit N] [--offset N] [--pool ID]` returns source candidates. `semantic-scholar` is canonical; `--source semanticscholar` and `semanticscholar:` IDs remain accepted aliases. Each header keeps the qualified ID, full source name, source-provided affiliations, and native paper/citation counts when available. Names never become IDs.
 
@@ -277,7 +277,7 @@ Source IDs and their aliases should have one checked type and one parser. Every 
 
 Ian resolved source eligibility through the open-by-default ruling. Both sources retain their noncommercial use category. Exact capture results must establish which capabilities can proceed.
 
-The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. Types, output ceilings and question answers wait for exact public API captures. No capability retirement or new source cost is accepted by this proposal.
+The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. The retained exact public API captures now support the implemented types, measured output ceilings and current question coverage recorded below. The explicit retirement contract below records the accepted capability rulings. No new source cost is introduced.
 
 ## Semantic Scholar execution contract
 
@@ -308,9 +308,9 @@ The retained native replay measures the whole emitted envelope, including shared
 | First card from PMID 34096690 | 705 | 306 | 704 | 746 | 1726 |
 | Exact absent card | 376 | 77 | 375 | 399 | 1016 |
 
-The approved help ceilings for CLI/MCP text/Markdown are search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
+At that earlier stage, the approved help ceilings for CLI/MCP text/Markdown were search 1262/1261/1137, get 646/644/708 and list 1786/1785/1748. Canonical help cases own raw CLI/MCP ceilings; mandatory Markdown shape cases own the three Markdown ceilings. Existing global discovery ceilings remain unchanged.
 
-The final help metadata includes the twenty-input bound. The measured get-help surfaces are CLI 574, bare help 492, MCP text 573, Markdown 636 and full RPC 1420 bytes. List-author measures 1566/1490/1565/1541/3510 bytes on those same surfaces. Search help remains 1097/1012/1096/988/2536 bytes. Whole help measures 87594/87526/87593/78299/185140 bytes. The MCP description measures 3426 bytes and tools-list measures 8014 compact bytes or 8015 with its terminating newline. All fit the existing approved ceilings; the measurement does not reset their headroom.
+The then-current help metadata includes the twenty-input bound. The measured get-help surfaces are CLI 574, bare help 492, MCP text 573, Markdown 636 and full RPC 1420 bytes. List-author measures 1566/1490/1565/1541/3510 bytes on those same surfaces. Search help remains 1097/1012/1096/988/2536 bytes. Whole help measures 87594/87526/87593/78299/185140 bytes. The MCP description measures 3426 bytes and tools-list measures 8014 compact bytes or 8015 with its terminating newline. All fit the existing approved ceilings; the measurement does not reset their headroom.
 
 
 ## ORCID execution contract
@@ -362,7 +362,7 @@ Historical help measurements from j15720 are listed separately below. The then-l
 | List author | 2583 | 2507 | 2582 | 2419 | 5668 |
 | Whole help | 88766 | 88698 | 88765 | 79356 | 187626 |
 
-The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare result bytes, 294 MCP text bytes, 308 Markdown bytes and 846 full RPC bytes in j15767. Its canonical owner enforces 340 raw bytes and 86 estimated tokens. The native person absence remains distinct from this synthetic works status control. Current papers help owns 1284 raw bytes and 321 estimated tokens; its mandatory Markdown shape owns 1099 bytes. List author owns 2971 CLI bytes, 2970 MCP text bytes, 743 estimated tokens and 2782 Markdown bytes.
+The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare result bytes, 294 MCP text bytes, 308 Markdown bytes and 846 full RPC bytes in j15767. Its canonical owner enforces 340 raw bytes and 86 estimated tokens. The native person absence remains distinct from this synthetic works status control. At that stage, papers help owned 1284 raw bytes and 321 estimated tokens; its mandatory Markdown shape owned 1099 bytes. The former list-author inventory owned 2971 CLI bytes, 2970 MCP text bytes, 743 estimated tokens and 2782 Markdown bytes. Current help owners use the generated-help measurements below.
 
 
 ## Retirement and source-failure contract
