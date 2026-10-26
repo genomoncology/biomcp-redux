@@ -20,6 +20,7 @@
       "expect": {
         "/status": "failed",
         "/sources/0/source": "semantic-scholar",
+        "/sources/0/reason": "deadline_exceeded",
         "/sources/0/use": "noncommercial"
       },
       "max_bytes": 538,
