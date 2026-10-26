@@ -91,7 +91,13 @@ impl Reply for Response {
                 for row in &data.rows {
                     row.accession()?;
                     row.name()?;
-                    if row.entry_version.as_ref().is_some_and(|v| v.as_str().parse::<std::num::NonZeroU32>().is_err()) { return Err(BadReply); }
+                    if row
+                        .entry_version
+                        .as_ref()
+                        .is_some_and(|v| v.as_str().parse::<std::num::NonZeroU32>().is_err())
+                    {
+                        return Err(BadReply);
+                    }
                 }
                 Ok(())
             }

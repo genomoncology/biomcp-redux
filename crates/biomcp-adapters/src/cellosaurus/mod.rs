@@ -162,4 +162,12 @@ pub fn release(leg: &Leg<'_>) -> Result<biomcp_types::CellLineRelease, RequestEr
     Ok(reply.data.header.release)
 }
 
-fn bad(_: BadReply) -> RequestError { biomcp_fetch::SourceError { source: Source::Cellosaurus, reason: biomcp_types::Reason::BadReply, status: None, retry_after: None }.into() }
+fn bad(_: BadReply) -> RequestError {
+    biomcp_fetch::SourceError {
+        source: Source::Cellosaurus,
+        reason: biomcp_types::Reason::BadReply,
+        status: None,
+        retry_after: None,
+    }
+    .into()
+}

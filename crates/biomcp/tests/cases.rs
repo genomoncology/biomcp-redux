@@ -68,7 +68,15 @@ fn main() -> ExitCode {
 }
 
 fn native_proof() -> Option<ExitCode> {
-    if env::args().nth(1).as_deref() == Some("--cell-line-measure") { return Some(match runner::cell_line_measure() { Ok(()) => ExitCode::SUCCESS, Err(e) => { eprintln!("{e}"); ExitCode::FAILURE } }); }
+    if env::args().nth(1).as_deref() == Some("--cell-line-measure") {
+        return Some(match runner::cell_line_measure() {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(e) => {
+                eprintln!("{e}");
+                ExitCode::FAILURE
+            }
+        });
+    }
     let mode = env::args().nth(1)?;
     let run = match mode.as_str() {
         "--faers-search-synthetic-examples" => runner::faers_search_examples,

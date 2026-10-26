@@ -3,6 +3,7 @@ mod adverse_event_registry;
 mod adverse_event_retirements;
 mod article_save;
 mod assertions;
+mod cell_line;
 mod clinpgx;
 mod clinvar_key;
 mod configuration;
@@ -82,7 +83,6 @@ mod pdf;
 mod pgx_registry;
 mod pgx_retirements;
 mod phenotype;
-mod cell_line;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -600,4 +600,6 @@ pub(super) fn protein_native(path: &Path) -> Result<(), String> {
 
 mod wikipathways_genes;
 
-pub(super) fn cell_line_measure() -> Result<(), String> { cell_line::measure() }
+pub(super) fn cell_line_measure() -> Result<(), String> {
+    cell_line::measure()
+}

@@ -46,7 +46,7 @@ fn resolve(
             (
                 page.items
                     .first()
-                    .ok_or(biomcp_fetch::BadReply)?
+                    .ok_or(biomcp_fetch::InputError::Serialization)?
                     .accession
                     .clone(),
                 Some(id),

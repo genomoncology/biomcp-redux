@@ -36,7 +36,8 @@ pub(super) fn card(row: raw::Record) -> Result<CellLineCard, RequestError> {
     let version = row
         .entry_version
         .map(|v| v.as_str().parse().map_err(|_| BadReply))
-        .transpose().map_err(super::bad)?;
+        .transpose()
+        .map_err(super::bad)?;
     Ok(CellLineCard {
         input: CellLineInput::Accession(accession.clone()),
         status: Status::Complete,
