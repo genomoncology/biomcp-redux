@@ -57,8 +57,8 @@ fn reply(request: &str) -> Result<String, String> {
 }
 fn setup() -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = Stub::with_status(
-        "clinicaltrialsapi.cancer.gov",
+    let stub = Stub::with_headers(
+        &["clinicaltrialsapi.cancer.gov"],
         |request| {
             if request.contains("keyword=media") {
                 "application/json; synthetic-containment-key"
@@ -73,6 +73,13 @@ fn setup() -> Result<(Environment, Stub), String> {
                 400
             } else {
                 200
+            }
+        },
+        |request| {
+            if request.contains("keyword=range") {
+                format!("Content-Range: {KEY}\r\n")
+            } else {
+                "Content-Range: items 0-0/1\r\n".into()
             }
         },
     )?;
@@ -144,12 +151,13 @@ fn files(root: &Path) -> Result<Vec<PathBuf>, String> {
 }
 fn wire() -> Check {
     let (env, stub) = setup()?;
-    for query in ["duplicate", "deep", "body", "escaped", "error", "media"] {
+    for query in ["duplicate", "deep", "body", "escaped", "error", "media", "range"] {
         let dir = env.root().join(format!("record-{query}"));
         invoke(&env, args(query, "--record", &dir), true)?;
         for path in files(&dir)?
             .into_iter()
             .chain(files(&env.root().join("cache"))?)
+            .chain(files(&env.root().join("case-cache"))?)
         {
             clean(&fs::read(path).map_err(|e| e.to_string())?)?;
         }
@@ -161,7 +169,7 @@ fn wire() -> Check {
     invoke(&env, args("safe", "--record", &dir), false)?;
     invoke(&env, args("safe", "--replay", &dir), false)?;
     let requests = stub.finish()?;
-    if requests.len() != 7
+    if requests.len() != 8
         || requests.iter().any(|(_, request)| {
             !request
                 .lines()
