@@ -101,3 +101,32 @@ The complete closed public-issue inventory returned 57 issues. No issue title or
 ## Clinical review of question boundaries
 
 The clinical reviewer checked GeneReviews source sections: NF1 Suggestive Findings (revision 2025-04-03); PTEN Summary, Clinical Description and Suggestive Findings (update 2026-07-28); VHL Summary (revision 2025-05-01); and Birt-Hogg-Dube Summary/Clinical Description (update 2024-12-05). These support the features used in P01–P15. They establish retrieval questions, not literal HPO equivalence or diagnostic sufficiency. NF1 and Legius syndrome can share pigmentary findings; a shared term does not select a diagnosis. Exact native HP IDs and source association interpretation require the capture review below.
+
+## Native candidate findings
+
+Captures occurred on 2026-10-26 UTC, which was still 2026-10-25 in New York. Job `j14204` captured the API contract and first term, search and similarity replies. Job `j14210` captured both source searches for P01–P16. Both used one attempt, no response cache, no redirects and no fallback on the M5. Measurements describe the machine and network at capture time; no quiet-machine speed comparison or warm-cache measurement is claimed.
+
+| Case | Native answer or candidates | HPO returned / native total | Monarch returned / native total |
+| --- | --- | --- | --- |
+| P01 | `HP:0000957` Cafe-au-lait spot is second in both lists. The first candidate is `HP:0005605` Large cafe-au-lait macules with irregular margins. No automatic selection. | 9 / 9 | 3 / 3 |
+| P02 | `HP:0001067` Neurofibroma | 10 / 15 | 5 / 16 |
+| P03 | `HP:0009732` Plexiform neurofibroma | 10 / 16 | 1 / 1 |
+| P04 | `HP:0000997` Axillary freckling | 10 / 15 | 1 / 1 |
+| P05 | `HP:0000256` Macrocephaly | 5 / 5 | 5 / 8 |
+| P06 | HPO first `HP:0200008` Intestinal polyposis; Monarch first `HP:0004784` Juvenile gastrointestinal polyposis. Both carry `HP:0004390` Hamartomatous polyposis. None becomes equivalent to the input by rank. | 10 / 50 | 3 / 3 |
+| P07 | `HP:0012032` Lipoma | 10 / 25 | 5 / 26 |
+| P08 | Both first return `HP:0001263` Global developmental delay. The broader phrase is not silently replaced with this term. | 10 / 100 | 5 / 17 |
+| P09 | Monarch's literal search is empty. HPO first returns `HP:0000573` Retinal hemorrhage, which is not retinal hemangioblastoma. No candidate is selected as an equivalent. | 10 / 100 | 0 / 0 |
+| P10 | HPO first `HP:0005562` Multiple renal cysts; Monarch first `HP:0000107` Renal cyst. Preserve singular versus multiple. | 10 / 100 | 5 / 12 |
+| P11 | `HP:0002666` Pheochromocytoma. Monarch also returns `HP:0001676` with an obsolete label; that row needs a deprecation case. | 4 / 4 | 5 / 11 |
+| P12 | `HP:0001737` Pancreatic cysts | 10 / 72 | 2 / 2 |
+| P13 | `HP:0030436` Fibrofolliculoma | 1 / 1 | 1 / 1 |
+| P14 | HPO first `HP:0005948` Multiple pulmonary cysts; Monarch first `HP:0032445` Pulmonary cyst. Preserve multiplicity. | 10 / 100 | 5 / 8 |
+| P15 | `HP:0002108` Spontaneous pneumothorax | 10 / 32 | 2 / 2 |
+| P16 | `HP:0001250` Seizure | 10 / 100 | 5 / 355 |
+
+These are publisher search-match totals with different matching rules. They are not counts of synonymous terms or clinically equivalent features. HPO's response supplies `totalCount` and up to ten candidates in these observations; this investigation has not established an HPO server paging contract. Monarch's captured contract supports explicit namespace, limit and offset. The unfiltered first Monarch search included MP and UPHENO concepts; provider-side `namespace=HP` is therefore required for this human phenotype surface.
+
+The clinical reviewer accepted the exact reported native identities and the explicit selection boundaries. It specifically rejected equating retinal hemorrhage with retinal hemangioblastoma and warned against interpreting the subtype and multiplicity differences above as synonyms. These counterexamples become acceptance cases, not extra aliases.
+
+The first association request in `j14210` accidentally included an empty `subject_taxon=` selector for a disease subject. It returned HTTP 500, and the recipe stopped before later requests. This is evidence of a malformed investigation request and the stop rule. It is not an accepted source outage measurement or a successful disease association measurement. Successful searches are not repeated to repair that recipe.
