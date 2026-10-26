@@ -19,3 +19,4 @@ Depends on: 0265
 - Changes: the Semantic Scholar adapter under `crates/biomcp-adapters/src/semantic_scholar/`, the author query and dispatch code, cases and author.md.
 
 - Added from 0265 (m7478): when executable author registration lands, remove the temporary `AuthorPage` and `AuthorCards` exclusions that f4446de4 added to the research registry contract test, and prove the test then covers the registered author types.
+- PM ruling 2026-10-26 (m7554): first-row byline pivots suffice. One Semantic Scholar job may send the single missing exact card request for author 2118426986 from PMID 33123537, at least 5 seconds after any other Semantic Scholar request, with a 25 second and 8 MiB bound, zero retries, an attached-header witness and reviewer clearance. Complete native bylines stay as provenance, and no case claims a card for every byline member. A13 is marked unavailable because PMID 32955176 returned a native 404 with no author ID.
