@@ -120,14 +120,13 @@ struct GetFields {
 impl TryFrom<GetFields> for PhenotypeGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
-        let (source, limit) = defaults(v.section);
+        let (source, _) = defaults(v.section);
         if (source == PhenotypeSource::Monarch && v.source == Some(PhenotypeSource::Hpo))
             || v.section_limit.is_some_and(|n| !(1..=50).contains(&n))
         {
             return Err(QueryInvalid);
         }
         v.source.get_or_insert(source);
-        v.section_limit.get_or_insert(limit);
         Ok(Self(v))
     }
 }
@@ -178,7 +177,7 @@ impl PhenotypeGet {
             id,
             source: Some(PhenotypeSource::Hpo),
             section: None,
-            section_limit: Some(5),
+            section_limit: None,
             section_offset: 0,
             snapshot: None,
         })
@@ -197,7 +196,7 @@ impl PhenotypeGet {
     }
     /// Checked bounded section size.
     pub fn section_limit(&self) -> u32 {
-        self.0.section_limit.unwrap_or(5)
+        self.0.section_limit.unwrap_or_else(|| defaults(self.section()).1)
     }
     /// Section offset.
     pub fn section_offset(&self) -> u32 {
@@ -218,6 +217,9 @@ impl PhenotypeGet {
         let mut fields = self.0.clone();
         fields.section = Some(section);
         fields.section_offset = 0;
+        if matches!(section, PhenotypeSection::Diseases | PhenotypeSection::Genes) {
+            fields.snapshot = None;
+        }
         Self::try_from(fields)
     }
     /// Restart exact source acquisition after retained reply expiry.
