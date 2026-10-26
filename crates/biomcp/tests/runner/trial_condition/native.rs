@@ -257,7 +257,11 @@ fn finish(stub: Stub, output: &Path) -> Result<(), String> {
         ));
     }
     use std::io::Write;
-    writeln!(std::io::stderr(), "Trial condition native proof: seven local deliveries, four resolved CLI/MCP pairs and one explicit \
-        NCIt pair; zero provider calls").map_err(|e|e.to_string())?;
+    writeln!(
+        std::io::stderr(),
+        "Trial condition native proof: seven local deliveries, four resolved CLI/MCP pairs and one explicit \
+        NCIt pair; zero provider calls"
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }

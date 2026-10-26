@@ -265,7 +265,8 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     envelope::<PhenotypeSynonyms>(
         get.clone(),
         json!({"items":[{"value":"","relationship":"related","attribution":{"source":"synthetic"}}],"components":[]}),
-    ).unwrap();
+    )
+    .unwrap();
     envelope::<PhenotypeXrefs>(
         get.clone(),
         json!({"items":[{"id":"Fyler:4335","attribution":{"source":"synthetic"}}],"components":[]}),
@@ -274,7 +275,8 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     envelope::<PhenotypeHierarchy>(
         json!({"id":"HP:0001250","section":"hierarchy"}),
         json!({"items":[{"id":"HP:0000001","label":"All","relation":"super_classes","attribution":{"source":"synthetic"}}],"components":[]}),
-    ).unwrap();
+    )
+    .unwrap();
     let empty = json!({"items":[],"components":[],"direct":true});
     envelope::<PhenotypeDiseases>(
         json!({"id":"HP:0001250","section":"diseases"}),

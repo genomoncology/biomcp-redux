@@ -82,7 +82,9 @@ fn identity(measure: bool) -> Result<(), String> {
     let mut native: Value =
         serde_json::from_str(&fixture("portable-cellosaurus-cell-CVCL_2119.json")?)
             .map_err(|e| e.to_string())?;
-    let warnings: Vec<_> = (0..5).map(|i|json!({"category":"Caution","value":format!("Stock {i}: original punctuation; full qualified warning.")})).collect();
+    let warnings: Vec<_> = (0..5)
+        .map(|i| json!({"category":"Caution","value":format!("Stock {i}: original punctuation; full qualified warning.")}))
+        .collect();
     native
         .pointer_mut("/Cellosaurus/cell-line-list/0")
         .and_then(Value::as_object_mut)

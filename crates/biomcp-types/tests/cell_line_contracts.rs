@@ -262,7 +262,8 @@ fn standalone_envelopes_validate_all_eight_consumer_schemas() {
     check_envelope::<CellLineIdentityPage>(
         get,
         json!({"accession":"CVCL_2119","species":empty,"diseases":empty,"warnings":empty,"offset":0}),
-    ).unwrap();
+    )
+    .unwrap();
     check_envelope::<CellLineAssayCount>(
         json!({"id":"CHEMBL3706573"}),
         json!({"id":"CHEMBL3706573","assay_count":0}),

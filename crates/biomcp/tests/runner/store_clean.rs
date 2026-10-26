@@ -116,7 +116,9 @@ fn unowned_legacy(directory: &std::path::Path) -> Check<Vec<(PathBuf, &'static s
     ] {
         let path = directory.join(name);
         let cx = Connection::open(&path)?;
-        cx.execute_batch(&format!("CREATE TABLE meta(owner TEXT,version INTEGER); CREATE TABLE {table}(value TEXT); INSERT INTO {table} VALUES ('keep');"))?;
+        cx.execute_batch(&format!(
+            "CREATE TABLE meta(owner TEXT,version INTEGER); CREATE TABLE {table}(value TEXT); INSERT INTO {table} VALUES ('keep');"
+        ))?;
         if !owner.is_empty() {
             cx.execute("INSERT INTO meta VALUES (?1,4)", [owner])?;
         }
@@ -177,8 +179,10 @@ fn publish() -> Check {
     let cx = Connection::open(state.join("replay.sqlite"))?;
     seed(&cx)?;
     // More than one publication batch: a single publish must not delete everything.
-    cx.execute_batch("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<150) INSERT INTO pool SELECT \
-        'expired-'||x,x'04',0,0,0,'[]' FROM n;")?;
+    cx.execute_batch(
+        "WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<150) INSERT INTO pool SELECT \
+        'expired-'||x,x'04',0,0,0,'[]' FROM n;",
+    )?;
     let reader = Connection::open(state.join("replay.sqlite"))?;
     reader.execute_batch("BEGIN")?;
     let live: i64 =

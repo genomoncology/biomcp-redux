@@ -293,7 +293,7 @@ fn civic_continuation_refuses_incomplete_or_cross_source_claim_selectors() {
         assert!(serde_json::from_value::<DrugGet>(query).is_err());
     }
     let query: DrugGet = serde_json::from_value(json!({"source":"civic", "input":"5", "section":["civic"], "civic_profile":1, "civic_kind":"evidence"}))
-    .expect("selected profile");
+        .expect("selected profile");
     assert_eq!(query.civic_profile(), Some(1));
 }
 #[test]

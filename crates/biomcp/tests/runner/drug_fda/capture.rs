@@ -152,14 +152,14 @@ fn report(n: usize, peak: (usize, usize), entry: &Value) -> Check {
         peak.1
     )
     .map_err(|e| e.to_string())?;
-    writeln!(std::io::stdout(),
-"FDA original_url={} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",
-field(entry,
-"url")?,
-field(entry,
-"retrieved_at")?,
-field(entry,
-"sha256")?).map_err(|e|e.to_string())
+    writeln!(
+        std::io::stdout(),
+        "FDA original_url={} original_date={} original_sha256={} local_delivery=true fresh_provider_calls=0",
+        field(entry, "url")?,
+        field(entry, "retrieved_at")?,
+        field(entry, "sha256")?
+    )
+    .map_err(|e| e.to_string())
 }
 fn delivery(
     raw: String,

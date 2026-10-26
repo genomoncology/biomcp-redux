@@ -193,22 +193,23 @@ member("Q99728".into(),
         members.push(member(format!("P{n:05}"), "protein"));
     }
     Ok(json!({"size":3,"totalNumberOfResults":3,"elements":[
-        {"complexAC":"CPX-100","complexName":"Native predicted complex","organismName":"Homo sapiens; 9606","predictedComplex":true,"interactors":members},
-        {"complexAC":"CPX-715",
-"complexName":"Exact complex",
-"organismName":"Homo sapiens; 9606",
-"predictedComplex":false,
-"interactors":[member("P38398".into(),
-"protein"),
-member("Q99728".into(),
-"protein")]},
+            {"complexAC":"CPX-100","complexName":"Native predicted complex","organismName":"Homo sapiens; 9606","predictedComplex":true,"interactors":members},
+            {"complexAC":"CPX-715",
+    "complexName":"Exact complex",
+    "organismName":"Homo sapiens; 9606",
+    "predictedComplex":false,
+    "interactors":[member("P38398".into(),
+    "protein"),
+    member("Q99728".into(),
+    "protein")]},
 
-        {"complexAC":"CPX-26353",
-"complexName":"Mentions BRCA1",
-"description":"P38398",
-"organismName":"Homo sapiens; 9606",
-"predictedComplex":false,
-"interactors":[member("P15056".into(),
-"protein")]}
-    ]}).to_string())
+            {"complexAC":"CPX-26353",
+    "complexName":"Mentions BRCA1",
+    "description":"P38398",
+    "organismName":"Homo sapiens; 9606",
+    "predictedComplex":false,
+    "interactors":[member("P15056".into(),
+    "protein")]}
+        ]})
+    .to_string())
 }

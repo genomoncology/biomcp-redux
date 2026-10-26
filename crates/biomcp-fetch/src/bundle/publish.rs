@@ -111,10 +111,14 @@ fn metadata(
     holder: Option<&str>,
     meta: &Meta,
 ) -> Result<(), CacheError> {
-    connection.execute("INSERT INTO bundle VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(name) DO UPDATE SET \
+    connection
+        .execute(
+            "INSERT INTO bundle VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(name) DO UPDATE SET \
         bytes=excluded.bytes,rows=excluded.rows,fresh_until=excluded.fresh_until,etag=excluded.etag,modified\
         =excluded.modified",
-        params![name,meta.bytes as i64,meta.rows as i64,meta.fresh_until,meta.etag,meta.modified]).map_err(db_error)?;
+            params![name, meta.bytes as i64, meta.rows as i64, meta.fresh_until, meta.etag, meta.modified],
+        )
+        .map_err(db_error)?;
     if let (Some(revision), Some(retrieved)) = (&meta.content_revision, meta.retrieved_at) {
         connection
             .execute(

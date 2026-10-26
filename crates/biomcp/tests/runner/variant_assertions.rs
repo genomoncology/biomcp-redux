@@ -94,7 +94,8 @@ fn body(caid: &str) -> String {
 "approvedDate":"2024-08-05",
 "versionsList":["1.1.0",
 "1.0.0"],
-"summaryDesc":"Synthetic public-fixture payload; structured PS4 and source prose PS4_Very Strong remain separate."}]}).to_string()
+"summaryDesc":"Synthetic public-fixture payload; structured PS4 and source prose PS4_Very Strong remain separate."}]})
+    .to_string()
 }
 fn erepo_absence() -> Result<(), String> {
     let mut body_count = 0;
@@ -400,8 +401,8 @@ fn history_stub(mode: u8) -> Result<Stub, String> {
                 return Ok(summary.to_string());
             }
             if !request.starts_with("GET /evrepo/api/summary/classification/8d32df42-16ac-41f2-9bf1-e2b9ce206190/doc/sepio/version/1.0.0 HTTP/1.1") {
-            return Err(format!("unexpected historical source request: {request}"));
-        }
+                return Err(format!("unexpected historical source request: {request}"));
+            }
             Ok(json!({"data":{
                 "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190",
                 "id":"CG-PCER-VARINT:synthetic-history",
@@ -429,12 +430,15 @@ fn history_stub(mode: u8) -> Result<Stub, String> {
 fn native_walk_body(request: &str) -> Result<String, String> {
     let xml = super::variant_assertion_wire::clinvar_body(request)?;
     // Explicit synthetic XML retains the public record's native not-provided classification.
-    Ok(xml.replace("</ClinicalAssertionList>","<ClinicalAssertion><ClinVarAccession Accession=\"SCV000601142\" \
+    Ok(xml.replace(
+        "</ClinicalAssertionList>",
+        "<ClinicalAssertion><ClinVarAccession Accession=\"SCV000601142\" \
         Version=\"6\"/><Classification><GermlineClassification>pathogenic</GermlineClassification></Classifi\
         cation></ClinicalAssertion><ClinicalAssertion><ClinVarAccession Accession=\"SCV000607207\" \
         Version=\"3\" SubmitterName=\"GenomeConnect, ClinGen\"/><Classification><ReviewStatus>no \
         classification provided</ReviewStatus><GermlineClassification>not \
-        provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>"))
+        provided</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList>",
+    ))
 }
 
 fn native_row(value: &Value, offset: u32) -> Result<Value, String> {

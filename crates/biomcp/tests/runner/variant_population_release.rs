@@ -135,11 +135,14 @@ fn published(request: &str) -> Result<String, String> {
             .pointer_mut("/data/variant")
             .and_then(Value::as_object_mut)
             .ok_or("missing synthetic variant")?;
-        variant.insert("va".into(), json!({
-            "exome":[{"derivedFrom":{"version":"synthetic-subgroup"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"nfe"}},
-                {"derivedFrom":{"version":"synthetic-exome-8.7"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"ALL"}}],
-            "genome":[{"derivedFrom":{"version":"synthetic-genome-9.2"},"focusAlleleCount":0,"locusAlleleCount":50,"cohort":{"id":"ALL"}}]
-        }));
+        variant.insert(
+            "va".into(),
+            json!({
+                "exome":[{"derivedFrom":{"version":"synthetic-subgroup"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"nfe"}},
+                    {"derivedFrom":{"version":"synthetic-exome-8.7"},"focusAlleleCount":2,"locusAlleleCount":1460618,"cohort":{"id":"ALL"}}],
+                "genome":[{"derivedFrom":{"version":"synthetic-genome-9.2"},"focusAlleleCount":0,"locusAlleleCount":50,"cohort":{"id":"ALL"}}]
+            }),
+        );
     }
     Ok(body.to_string())
 }

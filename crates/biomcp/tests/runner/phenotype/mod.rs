@@ -113,9 +113,13 @@ fn search() -> Result<(), String> {
         "api-v3.monarchinitiative.org",
         "application/json",
         |request| {
-            if !request.starts_with("GET \
+            if !request.starts_with(
+            "GET \
                 /v3/api/search?q=literal%2C%20unchanged&category=biolink%3APhenotypicFeature&namespace=HP&limit=5&of\
-                fset=0 ") {return Err(format!("literal query changed: {request}"));}
+                fset=0 ",
+        ) {
+            return Err(format!("literal query changed: {request}"));
+        }
             let mut second = node();
             second
                 .as_object_mut()

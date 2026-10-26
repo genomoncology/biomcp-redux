@@ -117,11 +117,17 @@ fn wire() -> Result<(), String> {
         return Err("OncoKB request without key or redundant request".into());
     }
     let request = &keyed.first().ok_or("missing annotation request")?.1;
-    if !request.starts_with("GET \
+    if !request.starts_with(
+        "GET \
         /api/v1/annotate/mutations/byHGVSg?hgvsg=7%3Ag.140753336A%3ET&referenceGenome=GRCh38&tumorType=Synth\
-        etic%20tumor HTTP/1.1") || !request.lines().any(|l|l.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}"))) {
-return Err(format!("source request context/header mismatch: {}",
- request.lines().next().unwrap_or_default()));}
+        etic%20tumor HTTP/1.1",
+    ) || !request.lines().any(|l| l.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}")))
+    {
+        return Err(format!(
+            "source request context/header mismatch: {}",
+            request.lines().next().unwrap_or_default()
+        ));
+    }
     for file in fs::read_dir(directory.join("oncokb")).map_err(|e| e.to_string())? {
         let bytes = fs::read(file.map_err(|e| e.to_string())?.path()).map_err(|e| e.to_string())?;
         if bytes.windows(KEY.len()).any(|b| b == KEY.as_bytes()) {
@@ -429,7 +435,8 @@ fn echo() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"oncokb_api_key":KEY}})).map_err(|e|e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"oncokb_api_key":KEY}}))
+        .map_err(|e| e.to_string())?;
     let mut command = args();
     let directory = env.root().join("echo");
     command.extend(["--record".into(), directory.to_string_lossy().into()]);

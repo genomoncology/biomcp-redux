@@ -46,9 +46,8 @@ fn http() -> Check {
     let directory = server.environment().root().join("cache/biomcp");
     fs::create_dir_all(&directory)?;
     let old = directory.join("cache-1-4.sqlite");
-    rusqlite::Connection::open(&old)?.execute_batch(
-        "CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);"
-    )?;
+    rusqlite::Connection::open(&old)?
+        .execute_batch("CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);")?;
     let before = fs::read(&old)?;
     let entries = fs::read_dir(&directory)?.count();
     for args in [

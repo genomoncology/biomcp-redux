@@ -51,8 +51,12 @@ fn stale(source: &str) -> Result<(), String> {
     fs::remove_dir_all(replay.join(source)).map_err(|e| e.to_string())?;
     let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    cache.execute_batch("BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
-        fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;").map_err(|e|e.to_string())?;
+    cache
+        .execute_batch(
+            "BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+        fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;",
+        )
+        .map_err(|e| e.to_string())?;
     let tail = match source {
         "gtr" => vec!["get", "diagnostic", "GTR000006692.3", "--source", source],
         "who-ivd" => vec!["get", "diagnostic", "0466-046-00", "--source", source],

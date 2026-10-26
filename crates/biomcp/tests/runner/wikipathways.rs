@@ -451,9 +451,12 @@ fn read_policy() -> Check {
     if expired.pointer("/next/0/kind") != Some(&json!("restart")) {
         return Err(format!("expired catalog pool: {expired}"));
     }
-    db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+    db.execute_batch(
+        "BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
         fresh_until=0 WHERE name='wikipathways'; INSERT INTO bundle_content SELECT * FROM \
-        original_content; COMMIT;").map_err(|e|e.to_string())?;
+        original_content; COMMIT;",
+    )
+    .map_err(|e| e.to_string())?;
     let stale = call(
         "wikipathways/read_policy/4",
         &env,

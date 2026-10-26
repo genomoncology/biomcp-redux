@@ -141,8 +141,13 @@ fn walks(root: &Path, recordings: &Path) -> Result<(), String> {
         let mut expected = serde_json::Map::new();
         expected.insert("/result/items".into(), json!({"count":count}));
         expected.insert(identity.into(), json!({"unique":true}));
-        fs::write(&path,json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[{
-            "run":args,"mcp":args,"walk":{"items":"/result/items","max_pages":3},"expect":expected}]}).to_string()).map_err(|e|e.to_string())?;
+        fs::write(
+            &path,
+            json!({"feature":"gwas-get","story":name,"replay":recordings,"steps":[{
+            "run":args,"mcp":args,"walk":{"items":"/result/items","max_pages":3},"expect":expected}]})
+            .to_string(),
+        )
+        .map_err(|e| e.to_string())?;
         super::super::run_case(&path, &super::super::schema::Registry::embedded()?)?;
     }
     Ok(())

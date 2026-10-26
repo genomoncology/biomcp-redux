@@ -115,7 +115,9 @@ pub(super) fn check(root: &Path) -> Check {
             source_terms(root, &relative, &tokens)?;
             if relative != "crates/biomcp-types/src/response/source.rs"
                 && relative != "crates/biomcp-adapters/src/registry.rs"
-                && tokens.windows(3).any(|part| matches!(part, [before, name, open] if before != ">" && name == "SourceOutcome" && open == "{"))
+                && tokens
+                    .windows(3)
+                    .any(|part| matches!(part, [before, name, open] if before != ">" && name == "SourceOutcome" && open == "{"))
             {
                 return fail(&relative, "source outcomes require registry terms");
             }

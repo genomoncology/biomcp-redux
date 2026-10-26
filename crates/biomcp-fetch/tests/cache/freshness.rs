@@ -62,7 +62,9 @@ fn body_and_send_failures_can_use_only_a_checked_stale_positive() {
             assert!(leg.json::<Answer>(&endpoint, &[]).unwrap().answer);
             leg.finish()
         });
-        server.next().raw("HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 100\r\nConnection: close\r\n\r\n{cut");
+        server
+            .next()
+            .raw("HTTP/1.1 200 Stub\r\nContent-Type: application/json\r\nContent-Length: 100\r\nConnection: close\r\n\r\n{cut");
         worker.join().unwrap()
     });
     assert_eq!(report.failures[0].reason, Reason::BadReply);

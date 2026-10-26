@@ -314,8 +314,8 @@ fn literal_gene() -> Result<(), String> {
 }
 fn literal_body(request: &str) -> Result<String, String> {
     if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3AHER%5C-2%5C%2Fneu%20AND%20dbnsfp.hgvsp%3A%22p.W24%5C%2A%22&") {
-return Err(format!("source query metacharacter was not escaped: {request}"));
-}
+        return Err(format!("source query metacharacter was not escaped: {request}"));
+    }
 
     Ok(json!({"total":0,"hits":[]}).to_string())
 }

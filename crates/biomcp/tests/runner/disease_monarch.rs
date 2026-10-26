@@ -89,8 +89,8 @@ fn exact() -> Result<(), String> {
         "application/json",
         |request| {
             if !request.starts_with("GET /v3/api/association?object=MONDO%3A0019003&subject_category=biolink%3AGene&limit=5&offset=0 ") {
-return Err(format!("unexpected request: {request}"));
-}
+                return Err(format!("unexpected request: {request}"));
+            }
 
             let mut row = association();
             row.as_object_mut()

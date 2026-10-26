@@ -64,9 +64,11 @@ fn car() -> Result<(), String> {
     let [(_, request)] = requests.as_slice() else {
         return Err("expected one CAR request".into());
     };
-    if !request.starts_with("GET \
+    if !request.starts_with(
+        "GET \
         /allele?hgvs=NM_004333.4%3Ac.1799T%3EA&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles\
-        %2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations HTTP/1.1") {
+        %2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations HTTP/1.1",
+    ) {
         return Err(format!("CAR projection must preserve literal plus modifiers: {request}"));
     }
     if output.pointer("/result/candidates/0/identity/ids/0") != Some(&json!("CA123643")) {
@@ -83,9 +85,13 @@ fn myvariant() -> Result<(), String> {
     let [(_, request)] = requests.as_slice() else {
         return Err("expected one exact MyVariant request".into());
     };
-    if !request.starts_with("GET \
+    if !request.starts_with(
+        "GET \
         /v1/variant/chr7%3Ag.140753336A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id\
-        &assembly=hg38 HTTP/1.1") { return Err(format!("exact annotation endpoint/build was not sent: {request}")); }
+        &assembly=hg38 HTTP/1.1",
+    ) {
+        return Err(format!("exact annotation endpoint/build was not sent: {request}"));
+    }
     if output.pointer("/result/candidates/0/identity/representations/0/build")
         != Some(&json!("GRCh38"))
     {
@@ -273,9 +279,12 @@ fn validator_order() -> Result<(), String> {
     Ok(())
 }
 fn validator_body(_: &str) -> Result<String, String> {
-    Ok("{\"flag\":\"gene_variant\",\"metadata\":{\"variantvalidator_version\":\"synthetic\"},\"z\":{\"submit\
+    Ok(
+        "{\"flag\":\"gene_variant\",\"metadata\":{\"variantvalidator_version\":\"synthetic\"},\"z\":{\"submit\
         ted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.2A>T\"},\"a\":{\
-        \"submitted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.1A>T\"}}".into())
+        \"submitted_variant\":\"NM_004333.4:c.1799T>A\",\"hgvs_transcript_variant\":\"NM_004333.4:c.1A>T\"}}"
+            .into(),
+    )
 }
 
 fn components() -> Result<(), String> {
@@ -337,12 +346,13 @@ fn component_body(request: &str) -> Result<String, String> {
     // Synthetic provider bodies test transport and association, not source truth.
     if request.starts_with("GET /v1/metadata") {
         return Ok(json!(
-        {"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{ "cosmic":{"version":"synthetic-68",
-        "license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
-        "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
-        "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms",
-        "upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}} }}
-    ).to_string());
+            {"build_version":"synthetic-build","build_date":"2020-01-01T00:00:00Z","src":{ "cosmic":{"version":"synthetic-68",
+            "license_url":"https://example.org/component-terms","upload_date":"2019-01-01T00:00:00Z","note":"synthetic historical snapshot"},
+            "cadd":{"version":null,"license_url":"https://example.org/cadd-terms","upload_date":"2019-01-01T00:00:00Z"},
+            "dbnsfp":{"version":"synthetic-4.8a","license_url":"https://example.org/dbnsfp-terms",
+            "upload_date":{"synthetic_part":"2020-01-01T00:00:00Z"}} }}
+        )
+        .to_string());
     }
     if request.contains("cadd.phred") || request.contains("dbnsfp.gerp") {
         return Ok(json!({"_id":"chr7:g.140453136A>T",
@@ -351,13 +361,14 @@ fn component_body(request: &str) -> Result<String, String> {
                 "polyphen2":{"hdiv":{"score":0.4,"pred":"D"},"hvar":{"score":0.3,"pred":"B"}},"revel":{"score":0.2},"mutationtaster":{"score":0.1,"pred":"D"},
                 "gerp++":{"nr":1.5,"rs":1.2,"rs_rankscore":0.1},"phastcons":{"100way_vertebrate":{"score":0.8,"rankscore":0.6}},
                 "siphy_29way":{"logodds_score":1.4,"logodds_rankscore":0.2,"pi":{"a":1,"c":0,"g":0,"t":0}}}
-        }).to_string());
+        })
+        .to_string());
     }
     if request.contains("fields=_id%2Ccosmic") {
         return Ok(json!(
-        {"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,
-        "end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}
-    )
+            {"_id":"chr7:g.140453136A>T","cosmic":{"cosmic_id":"COSM999999","ref":"T","alt":"A","chrom":"7","hg19":{"start":140453136,
+            "end":140453136},"mut_nt":"T>A","mut_freq":0,"tumor_site":"synthetic_site"}}
+        )
         .to_string());
     }
     myvariant_body37(request)

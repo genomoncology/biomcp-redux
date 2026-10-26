@@ -246,15 +246,14 @@ pub(super) fn check(root: &Path) -> Check {
                 let has_test = tokens.iter().enumerate().any(|(index, token)| {
                     token == "#"
                         && tokens.get(index + 1).is_some_and(|v| v == "[")
-                        && tokens.iter()
+                        && tokens
+                            .iter()
                             .skip(index + 2)
                             .take_while(|v| v.as_str() != "]")
                             .collect::<Vec<_>>()
                             .windows(2)
                             .any(|v| matches!(v, [left, right] if right.as_str() == "test" && matches!(left.as_str(), "," | ":")))
-                        || tokens
-                            .get(index..index + 4)
-                            .is_some_and(|v| v == ["#", "[", "test", "]"])
+                        || tokens.get(index..index + 4).is_some_and(|v| v == ["#", "[", "test", "]"])
                 });
                 if has_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
                     return Err(format!("{relative}: inline test outside listed locations").into());

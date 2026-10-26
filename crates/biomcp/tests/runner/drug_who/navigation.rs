@@ -5,7 +5,9 @@ pub(super) fn check() -> Check {
     let header = CSV.lines().next().ok_or("missing header")?;
     let mut body = format!("{header}\n");
     for n in 0..10 {
-        body.push_str(&format!("SYN-{n},Trastuzumab synthetic product,Synthetic type,Synthetic area,Synthetic applicant,Synthetic form,,\n"));
+        body.push_str(&format!(
+            "SYN-{n},Trastuzumab synthetic product,Synthetic type,Synthetic area,Synthetic applicant,Synthetic form,,\n"
+        ));
     }
     let replay = seed_csv(&env, body)?;
     let base = ["search", "drug", "trastuzumab", "--source", "who-pq"];

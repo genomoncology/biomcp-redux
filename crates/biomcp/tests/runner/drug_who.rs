@@ -191,8 +191,11 @@ fn stale(env: &Environment, replay: &Path, get: &[&str]) -> Check {
     let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     // Preserve content-addressed old snapshot bytes while expiring current bundle metadata.
-    cache.execute_batch("BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
-        fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;")
+    cache
+        .execute_batch(
+            "BEGIN; CREATE TEMP TABLE saved_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+        fresh_until=0; INSERT INTO bundle_content SELECT * FROM saved_content; COMMIT;",
+        )
         .map_err(|e| e.to_string())?;
     drop(cache);
     for args in [

@@ -67,11 +67,15 @@ fn gpml() -> String {
         } else {
             format!("{namespace} ID=\"7189\"")
         };
-        body.push_str(&format!("<DataNode TextLabel=\"Node {n}\" GraphId=\"n{n}\" Type=\"GeneProduct\"><Xref {xref}/></DataNode>"));
+        body.push_str(&format!(
+            "<DataNode TextLabel=\"Node {n}\" GraphId=\"n{n}\" Type=\"GeneProduct\"><Xref {xref}/></DataNode>"
+        ));
     }
-    body.push_str("<DataNode TextLabel=\"Not a gene\" GraphId=\"p1\" Type=\"Pathway\"><Xref Database=\"\" \
+    body.push_str(
+        "<DataNode TextLabel=\"Not a gene\" GraphId=\"p1\" Type=\"Pathway\"><Xref Database=\"\" \
         ID=\"\"/></DataNode><DataNode TextLabel=\"Metabolite\" GraphId=\"m1\" Type=\"Metabolite\"><Xref \
-        Database=\"ChEBI\" ID=\"CHEBI:1\"/></DataNode></Pathway>");
+        Database=\"ChEBI\" ID=\"CHEBI:1\"/></DataNode></Pathway>",
+    );
     body
 }
 fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {

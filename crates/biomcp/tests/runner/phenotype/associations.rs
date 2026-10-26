@@ -52,9 +52,13 @@ fn exact() -> Result<(), String> {
         "api-v3.monarchinitiative.org",
         "application/json",
         |request| {
-            if !request.starts_with("GET \
+            if !request.starts_with(
+            "GET \
                 /v3/api/association?object=HP%3A0001250&subject_category=biolink%3AGene&subject_taxon=NCBITaxon%3A96\
-                06&direct=true&limit=1&offset=0 ") { return Err(format!("wrong direct request: {request}")); }
+                06&direct=true&limit=1&offset=0 ",
+        ) {
+            return Err(format!("wrong direct request: {request}"));
+        }
             Ok(json!({"limit":1,"offset":0,"total":3,"items":[row()]}).to_string())
         },
     )?;

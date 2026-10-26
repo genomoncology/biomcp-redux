@@ -119,8 +119,8 @@ fn wire() -> Result<(), String> {
     }
     for (_, request) in requests.iter().filter(|(_, r)| r.contains("/mutations?")) {
         if !request.contains("sampleListId=msk_impact_2017_all&entrezGeneId=673&projection=SUMMARY&pageSize=3&pageNumber=") {
- return Err(format!("lost explicit cohort or HGNC bound: {request}"));
- }
+            return Err(format!("lost explicit cohort or HGNC bound: {request}"));
+        }
     }
     Ok(())
 }
@@ -138,7 +138,8 @@ fn car(_: &str) -> Result<String, String> {
 fn hgnc(_: &str) -> Result<String, String> {
     Ok("hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tentrez_id\nHGNC:1097\tBRAF\tB-Raf \
         proto-oncogene, serine/threonine kinase\tprotein-coding gene\tgene with protein \
-        product\tApproved\t673\n".into())
+        product\tApproved\t673\n"
+        .into())
 }
 pub(super) fn row(sample: &str, alternate: &str) -> Value {
     json!({"molecularProfileId":"msk_impact_2017_mutations",
@@ -166,10 +167,14 @@ pub(super) fn cbio(request: &str) -> Result<String, String> {
 "name":"Synthetic cohort",
 "description":"Synthetic notice: commercial reuse requires permission",
 "citation":"Synthetic citation"})
-
     } else if request.contains("/mutations?") {
-        if request.contains("pageNumber=1") { json!([row("s2","T")]) } else { json!([row("s1","T"),row("s1","T"),row("wrong-allele","G")]) }
+        if request.contains("pageNumber=1") {
+            json!([row("s2", "T")])
+        } else {
+            json!([row("s1", "T"), row("s1", "T"), row("wrong-allele", "G")])
+        }
     } else {
         json!({"studyId":"msk_impact_2017","molecularProfileId":"msk_impact_2017_mutations","molecularAlterationType":"MUTATION_EXTENDED"})
-    }.to_string())
+    }
+    .to_string())
 }

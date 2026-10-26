@@ -63,7 +63,8 @@ fn wire() -> Check {
     let stub = Stub::for_source("clinicaltrialsapi.cancer.gov", "application/json", reply)?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY}})).map_err(|e|e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY}}))
+        .map_err(|e| e.to_string())?;
     let search = [
         "search",
         "trial",

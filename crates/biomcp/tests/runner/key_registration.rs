@@ -79,7 +79,8 @@ fn presence(env: &Environment, expected: &str, fallback: bool) -> Check {
 }
 fn registration() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    env.config(&json!({"format":"json","disable_sources":["reactome"],"ncbi_email":"synthetic@example.invalid"})).map_err(|e|e.to_string())?;
+    env.config(&json!({"format":"json","disable_sources":["reactome"],"ncbi_email":"synthetic@example.invalid"}))
+        .map_err(|e| e.to_string())?;
     invoke(
         &env,
         &["key", "set", "semantic-scholar"],

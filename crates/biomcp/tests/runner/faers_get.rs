@@ -103,7 +103,9 @@ fn setup(mode: &str) -> Result<(Environment, Stub), String> {
 "drugcharacterization":if n%2==0 {"1"}else{"2"}})
             })
             .collect();
-        let reactions: Vec<_> = (0..22).map(|n| json!({"reactionmeddrapt":format!("Synthetic reaction {n}"),"reactionoutcome":"1"})).collect();
+        let reactions: Vec<_> = (0..22)
+            .map(|n| json!({"reactionmeddrapt":format!("Synthetic reaction {n}"),"reactionoutcome":"1"}))
+            .collect();
         *body.pointer_mut("/results/0/patient/drug").ok_or("drugs")? = json!(drugs);
         *body
             .pointer_mut("/results/0/patient/reaction")
@@ -131,8 +133,12 @@ fn setup(mode: &str) -> Result<(Environment, Stub), String> {
         "api.fda.gov",
         "application/json",
         move |request| {
-            if !request.starts_with("GET /drug/event.json?search=safetyreportid%3A%22100%22&limit=5&skip=0&sort=receivedate%3Adesc \
-                HTTP/1.1") {return Err(format!("wrong get: {request}"));}
+            if !request.starts_with(
+                "GET /drug/event.json?search=safetyreportid%3A%22100%22&limit=5&skip=0&sort=receivedate%3Adesc \
+                HTTP/1.1",
+            ) {
+                return Err(format!("wrong get: {request}"));
+            }
             Ok(body.to_string())
         },
         move |_| status,

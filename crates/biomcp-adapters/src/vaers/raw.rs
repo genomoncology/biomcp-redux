@@ -172,15 +172,22 @@ fn map(page: Node) -> Result<VaersSummary, BadReply> {
             notice(node, kind, &mut notices);
         }
     }
-    Ok(VaersSummary { vaccine, scope, grouping, dataset: dataset.attrs.clone(), measures: measures.into(),
+    Ok(VaersSummary {
+        vaccine,
+        scope,
+        grouping,
+        dataset: dataset.attrs.clone(),
+        measures: measures.into(),
         measure_metadata: response.child("measure-selections")?.children.iter().map(|n| n.attrs.clone()).collect(),
         report_total,
- footer,
- rows: rows.into(),
- notices: notices.into(),
- interpretation: "Counts are VAERS reports, not people. Reports do not show that a vaccine caused an event and \
+        footer,
+        rows: rows.into(),
+        notices: notices.into(),
+        interpretation: "Counts are VAERS reports, not people. Reports do not show that a vaccine caused an event and \
             cannot measure risk or compare vaccine safety. A report may mention several symptoms and several \
-            vaccines. Each table retains its own source total and percentages.".into() })
+            vaccines. Each table retains its own source total and percentages."
+            .into(),
+    })
 }
 fn row(node: &Node) -> Result<VaersRow, BadReply> {
     let [label, reports, percent] = node.children.as_slice() else {

@@ -13,9 +13,13 @@ impl schemars::JsonSchema for GwasSearchCommand {
         if let Some(fields) = schema.get_mut("properties").and_then(|v| v.as_object_mut()) {
             fields.remove("order");
             if let Some(value) = fields.get_mut("p_value").and_then(|v| v.as_object_mut()) {
-                value.insert("description".into(), "Inclusive positive probability in scientific notation. Requires the default p-value-ascending \
+                value.insert(
+                    "description".into(),
+                    "Inclusive positive probability in scientific notation. Requires the default p-value-ascending \
                     order; no sort option is available. The qualifying total stays unknown until the ordered walk \
-                    reaches its end.".into());
+                    reaches its end."
+                        .into(),
+                );
             }
             if let Some(gene) = fields.get("gene").cloned() {
                 let mut query = gene;

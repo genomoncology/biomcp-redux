@@ -26,8 +26,12 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
     thread::scope(|scope| {
         let worker = scope.spawn(|| [bytes(&capture, spec), bytes(&capture, spec)]);
         for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
-            let mut response=format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: \
-                close\r\n\r\n",payload.len()).into_bytes();
+            let mut response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: \
+                close\r\n\r\n",
+                payload.len()
+            )
+            .into_bytes();
             response.extend_from_slice(payload);
             server.next().bytes(response);
         }
@@ -100,7 +104,9 @@ pub(super) fn cut_binary_body_is_refused_before_returning_bytes() {
     let fetch = fetch(Mode::default());
     thread::scope(|scope| {
         let worker = scope.spawn(|| bytes(&fetch, spec));
-        server.next().raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
+        server
+            .next()
+            .raw("HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: 19\r\nConnection: close\r\n\r\n%PDF-");
         assert!(
             matches!(worker.join().unwrap(), Err(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
         );

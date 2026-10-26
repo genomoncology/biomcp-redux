@@ -347,7 +347,11 @@ fn replay_retains_sole_slot_completion_and_stops_expired_callbacks() {
         child.json::<Number>(&spec.get("/number"), &[])
     });
     assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
-    assert!(results.iter().any(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::DeadlineExceeded)));
+    assert!(
+        results
+            .iter()
+            .any(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::DeadlineExceeded))
+    );
     assert_eq!(leg.remaining(), Duration::ZERO);
     assert!(
         leg.batch(&[()], |_, ()| -> Result<(), RequestError> {
@@ -435,6 +439,10 @@ fn real_batch_requests_share_the_original_absolute_deadline() {
         child.json::<Answer>(&spec.get("/held"), &[])
     });
     assert_eq!(results.len(), 16);
-    assert!(results.into_iter().all(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::DeadlineExceeded)));
+    assert!(
+        results
+            .into_iter()
+            .all(|result| matches!(result, Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::DeadlineExceeded))
+    );
     assert_eq!(leg.remaining(), Duration::ZERO);
 }

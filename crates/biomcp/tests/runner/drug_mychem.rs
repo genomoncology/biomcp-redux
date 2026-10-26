@@ -99,11 +99,13 @@ fn check(n: usize) -> Check {
         .copied()
         .ok_or("budget index")?;
     use std::io::Write;
-    writeln!(std::io::stdout(),
+    writeln!(
+        std::io::stdout(),
         "drug native case {n}: full {bytes} bytes/{} tokens; comparable {comparable} bytes/{} tokens",
         bytes.div_ceil(4),
         comparable.div_ceil(4)
-    ).map_err(|e|e.to_string())?;
+    )
+    .map_err(|e| e.to_string())?;
     let measured_full: [usize; 9] = [3822, 3251, 2250, 2443, 1848, 1767, 2398, 1795, 1199];
     let full_bound = (*measured_full.get(n).ok_or("full budget index")? * 115).div_ceil(100);
     if comparable > bound || bytes > full_bound {
@@ -237,7 +239,8 @@ fn component_policy() -> Check {
     })?;
     let cert = env.root().join("ca.pem");
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":["chembl"]})).map_err(|e|e.to_string())?;
+    env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address),"disable_sources":["chembl"]}))
+        .map_err(|e| e.to_string())?;
     let args = [
         "get",
         "drug",

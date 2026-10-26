@@ -52,7 +52,11 @@ fn interrupted_download_resumes_only_the_same_representation() {
         let cut = TSV.len() / 2;
         std::thread::scope(|scope| {
             let call = scope.spawn(|| f.sync(&b));
-            server.next().raw(&format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",TSV.len(),&TSV[..cut]));
+            server.next().raw(&format!(
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",
+                TSV.len(),
+                &TSV[..cut]
+            ));
             assert!(call.join().unwrap().is_err());
         });
         std::thread::scope(|scope| {
@@ -155,10 +159,18 @@ fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
         let call = scope.spawn(|| f.sync(&b));
         let request = server.next();
         let (release, wait) = std::sync::mpsc::channel();
-        request.reply.send(support::Response{bytes:format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",
-TSV.len(),
-&TSV[..cut]).into_bytes(),
-continuation:Some(wait)}).unwrap();
+        request
+            .reply
+            .send(support::Response {
+                bytes: format!(
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"one\"\r\nConnection: close\r\n\r\n{}",
+                    TSV.len(),
+                    &TSV[..cut]
+                )
+                .into_bytes(),
+                continuation: Some(wait),
+            })
+            .unwrap();
         assert!(
             matches!(call.join().unwrap(),Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Syncing)
         );

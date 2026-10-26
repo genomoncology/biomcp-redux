@@ -330,10 +330,12 @@ fn lifetimes() -> Check {
     {
         return Err(format!("expired snapshot: {expired}"));
     }
-    db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
+    db.execute_batch(
+        "BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET \
         fresh_until=0 WHERE name='cbioportal-studies'; INSERT INTO bundle_content SELECT * FROM \
-        original_content; COMMIT;")
-        .map_err(|e| e.to_string())?;
+        original_content; COMMIT;",
+    )
+    .map_err(|e| e.to_string())?;
     let stale = call(
         &env,
         &replay,

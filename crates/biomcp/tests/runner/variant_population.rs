@@ -60,11 +60,14 @@ fn gwas_zero() -> Result<(), String> {
     Ok(())
 }
 fn empty_gwas(_: &str) -> Result<String, String> {
-    Ok(json!({"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3"}},
+    Ok(
+        json!({"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3"}},
 "page":{"size":3,
 "totalElements":0,
 "totalPages":0,
-"number":0}}).to_string())
+"number":0}})
+        .to_string(),
+    )
 }
 
 fn population() -> Result<(), String> {
@@ -372,7 +375,8 @@ fn gwas_page(request: &str) -> Result<String, String> {
 "page":{"size":2,
 "totalElements":3,
 "totalPages":2,
-"number":number}}).to_string())
+"number":number}})
+    .to_string())
 }
 
 fn chromosome_mismatch() -> Result<(), String> {

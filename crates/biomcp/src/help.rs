@@ -156,7 +156,8 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
             } else {
                 "Replace the complete validated local bundle atomically. Reads use stored data and never \
                     synchronize. Failed replacement preserves the last usable bundle."
-            }.into(),
+            }
+            .into(),
             arguments: Vec::new(),
             sections: Vec::new(),
             section_rule: None,
@@ -301,13 +302,15 @@ fn tree_intro() -> Vec<String> {
         CELL_LINE_BOUNDARY.into(),
         "Author IDs name provider records;no ranking/merge. Both sources noncommercial;--disable-sources \
             noncommercial. Optional keys: biomcp key set semantic-scholar (S2_API_KEY);biomcp key set orcid \
-            (ORCID_ACCESS_TOKEN)".into(),
+            (ORCID_ACCESS_TOKEN)"
+            .into(),
         "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
         "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
         "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
         "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
         "GWAS source associations; no personal risk, causal variant/gene or clinical statistic \
-            interpretation; --p-value requires default p-value-ascending".into(),
+            interpretation; --p-value requires default p-value-ascending"
+            .into(),
     ]
 }
 

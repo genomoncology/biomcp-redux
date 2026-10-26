@@ -36,9 +36,17 @@ fn assertions_wire() -> Result<(), String> {
         return Err(format!("native assertion lost: {value}"));
     }
     let requests = stub.finish()?;
-    if requests.len()!=1 || !requests.first().is_some_and(|(_, request)| request.starts_with("GET \
+    if requests.len() != 1
+        || !requests.first().is_some_and(|(_, request)| {
+            request.starts_with(
+                "GET \
         /entrez/eutils/efetch.fcgi?db=clinvar&id=128042&rettype=vcv&is_variationid=true&retmode=xml&tool=bio\
-        mcp HTTP/1.1")) {return Err(format!("wrong exact ClinVar wire: {requests:?}"));}
+        mcp HTTP/1.1",
+            )
+        })
+    {
+        return Err(format!("wrong exact ClinVar wire: {requests:?}"));
+    }
     Ok(())
 }
 
@@ -57,5 +65,6 @@ pub(super) fn clinvar_body(_: &str) -> Result<String, String> {
         ID=\"114480\"/></Trait><Trait><XRef DB=\"OMIM\" ID=\"176807\"/></Trait><Trait><XRef DB=\"OMIM\" \
         ID=\"259500\"/></Trait><Trait><XRef DB=\"OMIM\" \
         ID=\"609265\"/></Trait></TraitSet></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></V\
-        ariationArchive></ClinVarResult-Set>".into())
+        ariationArchive></ClinVarResult-Set>"
+        .into())
 }

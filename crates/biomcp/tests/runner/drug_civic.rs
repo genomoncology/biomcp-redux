@@ -143,11 +143,13 @@ fn check(n: usize) -> Result<(), String> {
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(&value, "")?;
     use std::io::Write;
-    writeln!(std::io::stdout(),
+    writeln!(
+        std::io::stdout(),
         "CIVIC_SIZE case={n} full_bytes={full} full_tokens={} comparable_bytes={comparable} comparable_tokens={}",
         full.div_ceil(4),
         comparable.div_ceil(4)
-    ).map_err(|e| e.to_string())?;
+    )
+    .map_err(|e| e.to_string())?;
     let bound = [
         701, 726, 704, 304, 739, 3621, 3637, 4002, 2088, 2113, 2176, 577, 2160, 575, 850,
     ]

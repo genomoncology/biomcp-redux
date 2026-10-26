@@ -111,8 +111,11 @@ fn default_cache_migration() -> Check {
         .map_err(|e| e.to_string())?;
     }
     let connection = rusqlite::Connection::open(&historical).map_err(|e| e.to_string())?;
-    connection.execute_batch("ALTER TABLE reply DROP COLUMN pagination; ALTER TABLE reply DROP COLUMN content_range; UPDATE meta \
-        SET version=1 WHERE owner='biomcp-fetch';")
+    connection
+        .execute_batch(
+            "ALTER TABLE reply DROP COLUMN pagination; ALTER TABLE reply DROP COLUMN content_range; UPDATE meta \
+        SET version=1 WHERE owner='biomcp-fetch';",
+        )
         .map_err(|e| e.to_string())?;
     drop(connection);
     let args = vec![
