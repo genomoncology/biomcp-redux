@@ -5,6 +5,7 @@ mod faults;
 mod help;
 mod native;
 mod research;
+mod sections;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -25,6 +26,10 @@ pub(super) fn trials() -> Vec<Trial> {
     tests.push(Trial::test(
         "cell-line-identity/checked-canonical-accession-search",
         || native::canonical(false).map_err(Into::into),
+    ));
+    tests.push(Trial::test(
+        "cell-line-sections/native-whole-rows-and-independent-pages",
+        || sections::run().map_err(Into::into),
     ));
     tests.extend(faults::trials());
     tests

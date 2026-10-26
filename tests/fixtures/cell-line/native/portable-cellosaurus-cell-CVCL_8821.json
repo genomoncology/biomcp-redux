@@ -1,0 +1,181 @@
+{
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_8821"
+          }
+        ],
+        "age": "1Y",
+        "category": "Cancer cell line",
+        "created": "2012-06-06",
+        "disease-list": [
+          {
+            "accession": "C3270",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3270",
+            "label": "Neuroblastoma",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3270"
+          },
+          {
+            "accession": "Orphanet_635",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_635",
+            "label": "Neuroblastoma",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_635"
+          }
+        ],
+        "entry-version": "19",
+        "last-updated": "2025-04-10",
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "SJNB4"
+          },
+          {
+            "type": "synonym",
+            "value": "SJNB-4(SD)"
+          },
+          {
+            "type": "synonym",
+            "value": "NB4"
+          },
+          {
+            "type": "synonym",
+            "value": "NB4-DH"
+          },
+          {
+            "type": "identifier",
+            "value": "SJNB-4"
+          }
+        ],
+        "sequence-variation-list": [
+          {
+            "mutation-description": "p.Cys176Phe (c.527G>T)",
+            "mutation-type": "Simple",
+            "source-list": [
+              {
+                "xref": {
+                  "accession": "15545",
+                  "category": "Polymorphism and mutation databases",
+                  "database": "IARC_TP53"
+                }
+              }
+            ],
+            "variation-type": "Mutation",
+            "xref-list": [
+              {
+                "accession": "HGNC:11998",
+                "category": "Organism-specific databases",
+                "database": "HGNC",
+                "label": "TP53",
+                "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:11998"
+              },
+              {
+                "accession": "VCV000376569",
+                "category": "Polymorphism and mutation databases",
+                "database": "ClinVar",
+                "url": "https://www.ncbi.nlm.nih.gov/clinvar/variation/VCV000376569"
+              }
+            ],
+            "zygosity-type": "Unspecified"
+          }
+        ],
+        "sex": "Male",
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ],
+        "xref-list": [
+          {
+            "accession": "CVCL_8821",
+            "category": "Cell line databases/resources",
+            "database": "cancercelllines",
+            "url": "https://cancercelllines.org/cellline/?id=cellosaurus:CVCL_8821"
+          },
+          {
+            "accession": "688079",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=688079"
+          },
+          {
+            "accession": "801747",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=801747"
+          },
+          {
+            "accession": "947715",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=947715"
+          },
+          {
+            "accession": "1037334",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=1037334"
+          },
+          {
+            "accession": "1099131",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=1099131"
+          },
+          {
+            "accession": "1153795",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=1153795"
+          },
+          {
+            "accession": "2131585",
+            "category": "Polymorphism and mutation databases",
+            "database": "Cosmic",
+            "url": "https://cancer.sanger.ac.uk/cosmic/sample/overview?id=2131585"
+          },
+          {
+            "accession": "GSM314022",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM314022"
+          },
+          {
+            "accession": "GSM333809",
+            "category": "Gene expression databases",
+            "database": "GEO",
+            "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM333809"
+          },
+          {
+            "accession": "15545",
+            "category": "Polymorphism and mutation databases",
+            "database": "IARC_TP53"
+          },
+          {
+            "accession": "CVCL_8821",
+            "category": "Polymorphism and mutation databases",
+            "database": "Progenetix",
+            "url": "https://progenetix.org/cellline/?id=cellosaurus:CVCL_8821"
+          },
+          {
+            "accession": "Q54953569",
+            "category": "Encyclopedic resources",
+            "database": "Wikidata",
+            "url": "https://www.wikidata.org/wiki/Q54953569"
+          }
+        ]
+      }
+    ]
+  }
+}
