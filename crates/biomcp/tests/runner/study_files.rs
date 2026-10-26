@@ -37,19 +37,7 @@ fn pages() -> Check {
     let mut seen = std::collections::BTreeSet::new();
     for offset in [0,5,10] {
         let value=call(&env,&replay,&["get","study","synthetic_0","files","--section-offset",&offset.to_string()],0)?;
-        let items=value.pointer("/result/items").and_then(Value::as_array).ok_or("file items")?;
-        if value.pointer("/page/total") != Some(&json!(12)) || items.len() != (12-offset).min(5) {
-            return Err(format!("native page bounds lost: {value}"));
-        }
-        for row in items {
-            let path=row.get("path").and_then(Value::as_str).ok_or("native path")?;
-            if !seen.insert(path.to_owned()) || row.get("repositoryBlobSize") != Some(&json!(131)) || row.get("data_type").is_some() {
-                return Err(format!("blob identity or size changed: {row}"));
-            }
-        }
-        if value.pointer("/result/license_notice").and_then(Value::as_str) != Some("https://github.com/cBioPortal/datahub/blob/master/public/synthetic_0/LICENSE") {
-            return Err(format!("publisher notice missing: {value}"));
-        }
+        check_page(&value, offset, &mut seen)?;
         let args=["get","study","synthetic_0","files","--section-offset",&offset.to_string()].map(str::to_owned);
         let mcp=crate::runner::mcp::call_with_globals(&env,&args,false,&env.globals(Some(&replay),false))?;
         if value != mcp { return Err("CLI/MCP files differ".into()); }
@@ -58,18 +46,27 @@ fn pages() -> Check {
     if card.pointer("/result/license_notice").is_some() || seen.len()!=12 { return Err("stored card changed or walk missing".into()); }
     Ok(())
 }
+fn check_page(value: &Value, offset: usize, seen: &mut std::collections::BTreeSet<String>) -> Check {
+    let items=value.pointer("/result/items").and_then(Value::as_array).ok_or("file items")?;
+    if value.pointer("/page/total") != Some(&json!(12)) || items.len() != (12-offset).min(5) {
+        return Err(format!("native page bounds lost: {value}"));
+    }
+    for row in items {
+        let path=row.get("path").and_then(Value::as_str).ok_or("native path")?;
+        if !seen.insert(path.to_owned()) || row.get("repositoryBlobSize") != Some(&json!(131)) || row.get("data_type").is_some() {
+        return Err(format!("blob identity or size changed: {row}"));
+        }
+    }
+    if value.pointer("/result/license_notice").and_then(Value::as_str) != Some("https://github.com/cBioPortal/datahub/blob/master/public/synthetic_0/LICENSE") {
+        return Err(format!("publisher notice missing: {value}"));
+    }
+    Ok(())
+}
 fn failures() -> Check {
     let env=Environment::new().map_err(|e|e.to_string())?;
     let replay=seed(&env,rows(),200)?;
     call(&env,&replay,&["sync","cbioportal-studies"],0)?;
-    let mut wrong=entries();
-    *wrong.pointer_mut("/0/path").ok_or("synthetic path")?=json!("public/other_study/data_0.txt");
-    record(&replay,wrong,200,0)?;
-    let value=call(&env,&replay,&["get","study","synthetic_0","files"],4)?;
-    if value.get("result").is_some() { return Err("wrong directory row was admitted".into()); }
-    let db=rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e|e.to_string())?;
-    let cached:i64=db.query_row("SELECT count(*) FROM reply WHERE url LIKE '%api.github.com/%'",[],|row|row.get(0)).map_err(|e|e.to_string())?;
-    if cached!=0 { return Err("wrong directory reply entered cache".into()); }
+    reject_scope(&env, &replay)?;
     record(&replay,json!({"message":"Not Found"}),404,0)?;
     let value=call(&env,&replay,&["get","study","synthetic_0","files"],1)?;
     if value.get("status") != Some(&json!("absent")) { return Err(format!("absent directory failed: {value}")); }
@@ -84,6 +81,18 @@ fn failures() -> Check {
         let value=call(&env,&replay,&["get","study","synthetic_0","files","--disable-sources",disabled],4)?;
         if value.pointer("/sources/0/reason")!=Some(&json!("disabled")) { return Err(format!("policy bypass: {value}")); }
     }
+    Ok(())
+}
+
+fn reject_scope(env: &Environment, replay: &Path) -> Check {
+    let mut wrong=entries();
+    *wrong.pointer_mut("/0/path").ok_or("synthetic path")?=json!("public/other_study/data_0.txt");
+    record(replay,wrong,200,0)?;
+    let value=call(env,replay,&["get","study","synthetic_0","files"],4)?;
+    if value.get("result").is_some() { return Err("wrong directory row was admitted".into()); }
+    let db=rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e|e.to_string())?;
+    let cached:i64=db.query_row("SELECT count(*) FROM reply WHERE url LIKE '%api.github.com/%'",[],|row|row.get(0)).map_err(|e|e.to_string())?;
+    if cached!=0 { return Err("wrong directory reply entered cache".into()); }
     Ok(())
 }
 
