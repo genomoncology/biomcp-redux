@@ -283,22 +283,28 @@ Next actions follow architecture 6.10: selectable headers receive get actions in
 ### Measured disclosure costs
 
 <!-- disclosure-costs -->
-The projection recipe serializes only captured native facts as compact UTF-8 JSON. It does not execute product code and does not include the future envelope, source terms or actions. These are measured disclosure payloads and proposed allocation targets, not product acceptance ceilings.
+The retained native-fact projections are lower bounds. They exclude envelope metadata and actions. The following measurements replace the proposed allocations with product output. Job j14975 measured the local CLI and MCP cases at `da2e537d`; the native WikiPathways measurements below remain the accepted archive observations without replay. Each case owns its fixed measured baseline and enforces the shared headroom rule. A CLI measurement includes its trailing newline; compact JSON excludes that newline.
 
-| Command or section | Measured native-fact projection bytes | Estimated tokens (bytes/4) | Proposed total default allocation |
-| --- | --- | --- | --- |
-| Search, five headers |397–594 across 23 queries |100–149 |700 tokens including envelope and actions |
-| Reactome default identity card |149 |38 |450 tokens including envelope and sections/actions |
-| WikiPathways default identity card, WP382 |87 |22 |450 tokens including envelope and sections/actions |
-| Whole Reactome summary section |1,999 |500 |900 tokens including card and section state |
-| WP382 catalog description |202 |51 |650 tokens; label source truncation, not whole explanation |
-| Five distinct exact UniProt references |633 |159 |850 tokens including source context and eventual resolved actions |
-| Five native event references |501 |126 |850 tokens including source context and page actions |
-| All, Reactome card + summary + first gene/event pages |3,282 by sum of measured components |821 |1,800 tokens including envelope and actions |
-| Exact gene's first five pathway mappings |use same header projection and actual native membership labels |not a separately measured product output |700 tokens, subject to actual measured fixture |
-| WikiPathways sync |metadata receipt only; product output unmeasured |unmeasured |300 tokens; counts/hash/revision, no full catalog |
+| Command or section | Full CLI bytes | Compact JSON bytes | Comparable JSON bytes | Measured case owner |
+| --- | ---: | ---: | ---: | --- |
+| Reactome search, largest retained five-header page | 1,641 | 1,640 | 1,552 | `pathway/search-1.yaml` |
+| Reactome default identity card, largest retained card | 759 | 758 | 670 | `pathway/card-R-HSA-8950505.yaml` |
+| WikiPathways default card, WP382 catalog capture | 519 | 518 | 427 | Native catalog archive; updated genes-action budget in `wikipathways-budgets.json` |
+| Whole Reactome summary, largest retained section | 10,756 | 10,755 | 10,667 | `pathway/card-R-HSA-201556.yaml` |
+| WP382 whole catalog description | 714 | 713 | 622 | Native catalog archive |
+| Reactome first five exact references as a genes section | 2,836 | 2,835 | 2,661 | `pathway-sections/genes.yaml` |
+| Reactome first five event references as an events section | 2,298 | 2,297 | 2,209 | `pathway-sections/events.yaml` |
+| Reactome all, card and bounded first section pages | 8,714 | 8,713 | 8,539 | `pathway-sections/all.yaml` |
+| Reactome direct genes page | 2,395 | 2,394 | 2,220 | `pathway_sections/measurements` CLI and MCP phases |
+| Reactome direct events page | 1,857 | 1,856 | 1,768 | `pathway_sections/measurements` CLI and MCP phases |
+| Reactome direct genes details, complete physical contexts | 10,744 | 10,743 | 10,569 | `pathway-sections/details.yaml` |
+| WikiPathways sync receipt | 692 | 691 | 600 | Native catalog archive |
 
-No density claim uses the 244,106-byte compact physical-participant reply as a gene wall. Source fields remain whole at their requested layer. A long name, long summary, unresolved reference or maximum-page case can exceed these first proposals; the PM must compare actual product measurements and decide a bounded larger allocation or a deeper paged disclosure. It cannot silently truncate a native string. 0.9 default, section, helper, JSON and Markdown costs remain unmeasured under the containment rule. The proposal therefore makes no measured claim that it is cheaper than 0.9. Implementation proof must report that comparison or explicitly preserve the unmeasured qualification.
+Comparable output removes only source `use`, `terms` and `terms_url`. The prior native projections (including search headers, bare identity fields, exact gene mappings and event references) remain lower-bound observations in the source evidence sections. The existing Reactome gene-mapping and top-level cases enforce their measured page budgets. The retained WikiPathways GPML table below separately measures both captured pathways and their genes sections, all responses and direct relation pages. Its full-envelope baselines live in `wikipathways-gpml-budgets.json`.
+
+`tests/pathway-command-budgets.json` owns the measured full-envelope baselines for each named Rust command phase and exercised surface. Stable selectors distinguish commands; runtime pool tokens and temporary cache paths do not create separate budgets. Loops retain their largest observed page. YAML cases own their measured comparable `max_bytes`; a CLI newline is included in those ceilings. Transport and concurrent-process cases retain their existing CLI ownership; a compact JSON size alone does not claim an additional MCP execution. No provider call or native archive replay supplies these new attribution measurements.
+
+The 0.9 default, section, helper, JSON and Markdown costs remain **unmeasured** under the containment ruling. Milestone 5 owns the contained comparison. No 0.9 saving or latency comparison is inferred from these 1.0 measurements.
 <!-- /disclosure-costs -->
 
 Bytes divided by four are a planning estimate of tokens and are labeled as such. They are not a tokenizer measurement. Whole observed raw source bodies are not proposed default outputs. Before adapters land, actual CLI and MCP output must be retained and measured at the released revision, with full output and the shared source-terms comparable formula reported separately. The product cases enforce measured bytes plus 15 percent for new budgets. An existing entity-help or MCP description cap increase requires a PM ruling. Whole-tree help and source enum allowances follow their standing measured rules.
@@ -392,7 +398,7 @@ Twenty-seven native command cases cover sync, the 24 investigation search phrase
 | WP382 default card | 519 | 518 | 428 | 427 | 107 |
 | WP382 summary | 714 | 713 | 623 | 622 | 156 |
 
-CLI bytes include the trailing newline; MCP bytes count compact JSON. Comparable bytes remove exactly source `use`, `terms` and `terms_url` with the shared helper. Estimated tokens are comparable MCP bytes divided by four and rounded up. These are output measurements, not tokenizer measurements or latency comparisons. All observed forms fit the proposed allocations above, including full output. The source catalog description remains whole and explicitly carries its source-truncation label.
+CLI bytes include the trailing newline; MCP bytes count compact JSON. Comparable bytes remove exactly source `use`, `terms` and `terms_url` with the shared helper. Estimated tokens are comparable MCP bytes divided by four and rounded up. These are output measurements, not tokenizer measurements or latency comparisons. The native forms retain their measured ceilings in the case budget files. The source catalog description remains whole and explicitly carries its source-truncation label.
 
 `tests/wikipathways-budgets.json` records each case's full CLI bytes, comparable CLI bytes and estimated comparable MCP tokens in that order. The opt-in native runner enforces each measured value plus fifteen percent, rounded up. Full catalog evidence remains outside the ordinary routine suite; ordinary command cases exercise catalog replacement, retained paging, exact species admission and failure boundaries with isolated synthetic inputs. The 0.9 comparison remains unmeasured under the containment rule.
 
@@ -423,4 +429,4 @@ Native CLI and MCP walks preserve every captured GraphId in source order and ret
 | WP100 all | 2818 | 705 |
 | WP100 direct genes page | 2287 | 572 |
 
-CLI and MCP have equal JSON content sizes above; CLI adds its trailing newline. Both genes sections remain within the design allocation. `tests/wikipathways-gpml-budgets.json` owns the measured full-body, comparable-body and token baselines. Every command's checked ceiling is its matching baseline multiplied by 115 percent and rounded up. The retained-output contract checks all sixteen original surface results against these fixed ceilings without repeating source replay. The existing WikiPathways card budget also includes the newly available genes action.
+CLI and MCP have equal JSON content sizes above; CLI adds its trailing newline. Both genes sections retain their measured ceilings in the case budget file. `tests/wikipathways-gpml-budgets.json` owns the measured full-body, comparable-body and token baselines. Every command's checked ceiling is its matching baseline multiplied by 115 percent and rounded up. The retained-output contract checks all sixteen original surface results against these fixed ceilings without repeating source replay. The existing WikiPathways card budget also includes the newly available genes action.

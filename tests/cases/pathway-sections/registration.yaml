@@ -23,7 +23,8 @@
         "/status": "failed",
         "/query/id": "R-HSA-5673001",
         "/query/limit": 5
-      }
+      },
+      "max_bytes": 205
     },
     {
       "run": [
@@ -46,7 +47,8 @@
         "/status": "failed",
         "/query/id": "R-HSA-5673001",
         "/query/limit": 5
-      }
+      },
+      "max_bytes": 206
     }
   ]
 }

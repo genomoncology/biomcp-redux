@@ -24,15 +24,22 @@ pub(super) fn mcp(
     Ok(value)
 }
 fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
-    use std::io::Write;
-    let bytes =
-        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    writeln!(
-        std::io::stdout(),
-        "PATHWAY_PHASE {}",
-        serde_json::json!({"phase":phase,"surface":surface,"bytes":bytes})
+    let measurements: std::collections::BTreeMap<String, usize> = serde_json::from_str(
+        include_str!("../../../../tests/pathway-command-budgets.json"),
     )
     .map_err(|e| e.to_string())?;
+    let key = format!("{phase} [{surface}]");
+    let measured = measurements
+        .get(&key)
+        .ok_or_else(|| format!("unmeasured pathway phase: {key}"))?;
+    let max_bytes = (measured * 115).div_ceil(100);
+    let bytes =
+        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
+    if bytes > max_bytes {
+        return Err(format!(
+            "pathway {key}: {bytes} bytes exceeds max_bytes={max_bytes}"
+        ));
+    }
     Ok(())
 }
 
