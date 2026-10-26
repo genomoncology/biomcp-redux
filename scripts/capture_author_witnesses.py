@@ -54,7 +54,7 @@ def request(row, recipe, folder, ledger):
     capture.write_json(path, plan)
     plan, secrets = capture.load_plan(path)
     if ledger:
-        time.sleep(1 if row['source'] == 'semantic-scholar' else 0.5)
+        time.sleep(recipe['spacing_seconds'] if row['source'] == 'semantic-scholar' else 0.5)
     receipt = capture.capture_one(len(ledger), row, plan, secrets, folder)
     body = json.loads((folder / ('%04d.body' % len(ledger))).read_bytes()) if (
         receipt['outcome'] == 'success') else {}
@@ -90,7 +90,7 @@ def author_ids(body):
 
 
 def bylines(recipe, folder, ledger):
-    ids = {}
+    ids = dict(recipe.get('reused_first_author_ids', {}))
     for row in materialize(recipe['phase1'], {}):
         receipt, body = request(row, recipe, folder, ledger)
         pmid = row['id'].removeprefix('byline-')

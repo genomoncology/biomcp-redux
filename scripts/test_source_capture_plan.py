@@ -41,6 +41,9 @@ class Source(http.server.BaseHTTPRequestHandler):
             secret = self.headers.get('X-Key', '')
             escaped = ''.join('\\u%04x' % ord(char) for char in secret)
             self.wfile.write(('{' + '"key":"' + escaped + '"}').encode())
+        elif self.path == '/attached':
+            attached = self.headers.get('x-api-key') == 'synthetic-credential'
+            self.wfile.write(json.dumps({'attached': attached}).encode())
         elif self.path == '/reflect':
             self.wfile.write(self.headers.get('X-Key', '').encode())
         elif self.path == '/large':
@@ -116,6 +119,24 @@ class CapturePlanTests(unittest.TestCase):
         self.assertIn(b'x-ordinary: retained', headers)
         with tarfile.open(out.with_suffix('.tar.gz')) as packed:
             self.assertEqual(packed.extractfile('0000.headers').read().lower(), headers)
+
+    def test_named_key_attachment_matches_actual_curl_receiver_without_value_evidence(self):
+        for keyed in (False, True):
+            plan = self.plan(['/attached'])
+            value = json.loads(plan.read_text())
+            if keyed:
+                value['requests'][0]['key'] = {'env': 'CAPTURE_TEST_KEY', 'header': 'x-api-key'}
+            plan.write_text(json.dumps(value))
+            out = self.base / ('keyed' if keyed else 'keyless')
+            env = dict(self.env, CAPTURE_TEST_KEY='synthetic-credential')
+            result = self.run_capture(plan, out, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            receipt = json.loads((out / '0000.receipt.json').read_text())
+            self.assertEqual(receipt['credential_header_attached'], keyed)
+            self.assertEqual(receipt['credential_header'], 'x-api-key' if keyed else None)
+            self.assertEqual(json.loads((out / '0000.body').read_text())['attached'], keyed)
+            for path in out.iterdir():
+                self.assertNotIn(b'synthetic-credential', path.read_bytes())
 
     @unittest.skipUnless(sys.platform == 'darwin', 'AppleDouble requires macOS tar')
     def test_archive_verification_rejects_hidden_appledouble_members(self):

@@ -193,7 +193,7 @@ def bounded_curl(command, config, plan):
                 process.wait()
 
 
-def curl_reply(request, plan):
+def curl_reply(request, plan, witness):
     headers = dict(request.get('headers', {}))
     if 'key' in request:
         key = request['key']
@@ -211,6 +211,12 @@ def curl_reply(request, plan):
                '--proto', '=http,https']
     if request.get('method') == 'HEAD':
         command.append('--head')
+    key_name = request.get('key', {}).get('header')
+    witness['header_name'] = key_name
+    witness['attached'] = bool(key_name) and any(
+        line.startswith('header = "' + key_name + ': ') for line in config)
+    if key_name and not witness['attached']:
+        raise ValueError('named credential header missing at curl boundary')
     returncode, raw = bounded_curl(command, config, plan)
     status, headers, body = 0, b'', raw
     header_bytes = 0
@@ -255,8 +261,9 @@ def sanitize_headers(headers):
 
 def capture_one(index, request, plan, secrets, out):
     started = time.monotonic()
+    witness = {}
     try:
-        status, headers, body, truncated, transport = curl_reply(request, plan)
+        status, headers, body, truncated, transport = curl_reply(request, plan, witness)
     except subprocess.TimeoutExpired:
         status, headers, body, truncated, transport = 0, b'', b'', False, True
     if reflects_key(headers, body, secrets):
@@ -270,7 +277,9 @@ def capture_one(index, request, plan, secrets, out):
     receipt = {'index': index, 'id': request['id'], 'source': request['source'],
                'url': request['url'], 'status': status, 'outcome': outcome,
                'elapsed_seconds': round(time.monotonic() - started, 3),
-               'body_bytes': len(body), 'body_sha256': digest(body)}
+               'body_bytes': len(body), 'body_sha256': digest(body),
+               'credential_header': witness.get('header_name'),
+               'credential_header_attached': witness.get('attached', False)}
     headers = sanitize_headers(headers)
     prefix = f'{index:04d}'
     (out / (prefix + '.body')).write_bytes(body)
