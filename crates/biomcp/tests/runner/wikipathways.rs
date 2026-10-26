@@ -47,7 +47,9 @@ fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<Pat
     for (url, body, code) in [(SEARCH, search, 200), (GET, get, status)] {
         let key = Sha256::digest(format!("GET\0{url}").as_bytes());
         let key = key.iter().map(|b| format!("{b:02x}")).collect::<String>();
-        let wire = json!({"source":"wikipathways","method":"GET","url":url,"exchanges":[{"status":code,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]});
+        let exchange = json!({"status":code,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+        let exchanges = vec![exchange; if code == 500 { 3 } else { 1 }];
+        let wire = json!({"source":"wikipathways","method":"GET","url":url,"exchanges":exchanges});
         fs::write(dir.join(format!("{key}.json")), wire.to_string()).map_err(|e| e.to_string())?;
     }
     Ok(root)
@@ -105,8 +107,10 @@ fn run() -> Check {
 }
 fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
     for fault in [json!({"unexpected":true}), json!({"pathwayInfo":[]})] {
+        let label = fault.to_string();
         seed(env, catalog(true, true), fault, 200)?;
-        call(env, replay, &["sync", "wikipathways"], 4)?;
+        let failed = call(env, replay, &["sync", "wikipathways"], 4).map_err(|e|format!("catalog fault {label}: {e}"))?;
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) { return Err(format!("validation classification: {failed}")); }
         let retained = call(
             env,
             replay,
