@@ -351,6 +351,24 @@
       ],
       "type": "string"
     },
+    "GwasOrder": {
+      "description": "Native source order, echoed without a configurable sort command.",
+      "enum": [
+        "p_value,asc"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Ascending source p value."
+      ]
+    },
+    "GwasStudyId": {
+      "pattern": "^GCST[0-9]{6,}$",
+      "type": "string"
+    },
+    "GwasTraitId": {
+      "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
+      "type": "string"
+    },
     "HgvsText": {
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$",
       "type": "string"
@@ -521,6 +539,10 @@
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
+    "Pmid": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
     "ProteinInput": {
       "description": "Exact source accession or a checked display gene symbol needing later resolution.\nThe schema describes the string surface; deserialization checks either identity grammar.",
       "minLength": 1,
@@ -561,6 +583,10 @@
         "include",
         "exclude"
       ],
+      "type": "string"
+    },
+    "RsId": {
+      "pattern": "^rs[1-9][0-9]*$",
       "type": "string"
     },
     "SheetRows": {
@@ -751,10 +777,85 @@
       ]
     }
   },
-  "$id": "biodata.request/11",
+  "$id": "biodata.request/12",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Search one native GWAS Catalog association page.",
+      "properties": {
+        "command": {
+          "const": "search_gwas",
+          "type": "string"
+        },
+        "extended_geneset": {
+          "default": false,
+          "description": "Source extended gene set; requires gene.",
+          "type": "boolean"
+        },
+        "gene": {
+          "$ref": "#/$defs/GeneSymbol",
+          "description": "Exact native mapped gene; legacy positional query aliases this field."
+        },
+        "include_child_traits": {
+          "default": false,
+          "description": "Source child-trait expansion; requires trait_id.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 3,
+          "description": "Maximum association rows.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native association offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "order": {
+          "$ref": "#/$defs/GwasOrder",
+          "default": "p_value,asc",
+          "description": "Source order; threshold requests use this same native order."
+        },
+        "p_value": {
+          "description": "Inclusive exact threshold under native ascending order.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pubmed": {
+          "$ref": "#/$defs/Pmid",
+          "description": "Exact source publication identity."
+        },
+        "study": {
+          "$ref": "#/$defs/GwasStudyId",
+          "description": "Exact source study accession."
+        },
+        "trait": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal native efo_trait label; never searches reported_trait prose."
+        },
+        "trait_id": {
+          "$ref": "#/$defs/GwasTraitId",
+          "description": "Exact native ontology identity."
+        },
+        "variant": {
+          "$ref": "#/$defs/RsId",
+          "description": "Exact source rsID."
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "anyOf": [
