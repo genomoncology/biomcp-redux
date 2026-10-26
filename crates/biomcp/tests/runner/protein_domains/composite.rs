@@ -33,10 +33,11 @@ pub(super) fn run() -> Result<(), String> {
                         .pointer_mut("/metadata/accession")
                         .ok_or("second IPR")? = json!("IPR010991");
                     rows.push(second);
+                    for row in rows {
+                        *row.pointer_mut("/proteins/0/accession")
+                            .ok_or("protein accession")? = json!(id.to_ascii_lowercase());
+                    }
                     *value.get_mut("count").ok_or("domain count")? = json!(2);
-                }
-                if let Some(protein) = value.pointer_mut("/results/0/proteins/0/accession") {
-                    *protein = json!(id.to_ascii_lowercase());
                 }
                 Ok(value.to_string().replace("P38398", id))
             },
