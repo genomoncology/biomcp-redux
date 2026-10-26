@@ -51,7 +51,7 @@ pub struct Association {
     pub p_value_mantissa: Option<u64>,
     /// Source exponent, including values below the double range.
     #[serde(rename = "pvalue_exponent")]
-    pub p_value_exponent: Option<i32>,
+    pub p_value_exponent: Option<i64>,
     /// Source author attribution.
     #[serde(rename = "first_author")]
     pub author: Option<String>,

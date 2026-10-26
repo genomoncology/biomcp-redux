@@ -12,6 +12,7 @@ pub struct GwasPage {
     pub page: PageInfo,
     /// Same-selector search continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "GwasPageQuery"))]
     pub continuation: Option<GwasPageQuery>,
 }
 impl ResponseBody for GwasPage {
@@ -70,6 +71,7 @@ pub struct GwasLoci {
     pub items: Box<[GwasLocus]>,
     /// Same-resource relation continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "GwasGet"))]
     pub continuation: Option<GwasGet>,
 }
 impl ResponseBody for GwasLoci {
@@ -184,6 +186,7 @@ pub struct GwasAncestries {
     pub items: Box<[GwasAncestry]>,
     /// Retained relation continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "GwasGet"))]
     pub continuation: Option<GwasGet>,
 }
 impl ResponseBody for GwasAncestries {

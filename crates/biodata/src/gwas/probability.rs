@@ -18,7 +18,7 @@ struct Parts {
     mantissa: Text,
     /// Source base-ten exponent; values below the double range remain exact.
     #[cfg_attr(feature = "schema", schemars(range(max = 0)))]
-    exponent: i32,
+    exponent: i64,
 }
 impl TryFrom<Parts> for ScientificPValue {
     type Error = GwasValueInvalid;
@@ -43,7 +43,7 @@ impl ScientificPValue {
         self.0.mantissa.as_str()
     }
     /// Base-ten exponent, without a double-range limit.
-    pub fn exponent(&self) -> i32 {
+    pub fn exponent(&self) -> i64 {
         self.0.exponent
     }
 }

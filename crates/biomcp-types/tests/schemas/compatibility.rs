@@ -356,12 +356,7 @@ fn tagged_branches(branches: &Value) -> Check<Vec<(String, &Value)>> {
     let mut discriminator = None;
     for branch in branches.as_array().ok_or("invalid oneOf")? {
         if branch["type"] != "object" {
-            return Err(format!(
-                "unsupported oneOf branch: keys={:?}; type={:?}; ref={:?}",
-                branch.as_object().map(|o| o.keys().collect::<Vec<_>>()),
-                branch.get("type"),
-                branch.get("$ref")
-            ));
+            return Err("unsupported oneOf branch".into());
         }
         let properties = branch["properties"]
             .as_object()
