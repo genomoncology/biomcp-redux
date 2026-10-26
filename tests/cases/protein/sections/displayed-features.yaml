@@ -1,6 +1,6 @@
 {
   "live_check": "synthetic control",
-  "feature": "protein-search",
+  "feature": "protein-sections",
   "story": "A caller reads exact source feature bounds on the displayed sequence",
   "replay": "protein/synthetic",
   "steps": [

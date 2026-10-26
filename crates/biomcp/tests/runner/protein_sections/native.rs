@@ -1,0 +1,64 @@
+use super::*;
+use std::io::Write;
+pub(super) fn run(directory: &Path) -> Result<(), String> {
+    let registry = super::super::schema::Registry::embedded()?;
+    let mut paths = fs::read_dir(directory)
+        .map_err(|e| e.to_string())?
+        .map(|e| e.map(|e| e.path()).map_err(|e| e.to_string()))
+        .collect::<Result<Vec<_>, _>>()?;
+    paths.sort();
+    let output = directory
+        .parent()
+        .ok_or("native directory")?
+        .join("outputs");
+    fs::create_dir(&output).map_err(|e| e.to_string())?;
+    for path in paths {
+        let value = super::super::run_case(&path, &registry)?;
+        let name = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or("native case name")?;
+        if name == "sequence-Q9UIF7" {
+            let sequence = value
+                .pointer("/result/sequence/sequence")
+                .and_then(Value::as_str)
+                .ok_or("sequence")?;
+            if sequence.as_bytes().get(367) != Some(&b'S')
+                || sequence.as_bytes().get(392) != Some(&b'G')
+            {
+                return Err(
+                    "displayed source residues changed or historical labels were translated".into(),
+                );
+            }
+        }
+        if let Some(sequence) = value.pointer("/result/sequence") {
+            let length = sequence
+                .get("length")
+                .and_then(Value::as_u64)
+                .ok_or("sequence length")?;
+            if sequence
+                .get("sequence")
+                .and_then(Value::as_str)
+                .map(str::len)
+                != Some(length as usize)
+            {
+                return Err("source sequence was truncated".into());
+            }
+        }
+        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+        let comparable = super::super::source_terms::size(&value, "")?;
+        fs::write(
+            output.join(format!("{name}.json")),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(
+            std::io::stdout(),
+            "PROTEIN {name} CLI={} MCP={full} comparable={comparable} ceiling={}",
+            full + 1,
+            (comparable * 115).div_ceil(100)
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
