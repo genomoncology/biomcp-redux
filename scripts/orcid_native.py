@@ -27,33 +27,7 @@ def prepare(records, cases, replay):
         # Find a native multi-assertion group, then compare all native assertion IDs
         # and external identifier facts on that group without copying source text to Git.
         index = next((i for i, g in enumerate(works) if len(g['work-summary']) > 1), 0)
-        group = works[index]
-        expect = {'/status': 'complete', '/result/observed_groups': total}
-        for i, assertion in enumerate(group['work-summary']):
-            prefix = f'/result/groups/0/assertions/{i}'
-            expect[prefix + '/put_code'] = assertion['put-code']
-            expect[prefix + '/work_type'] = assertion['type']
-            expect[prefix + '/visibility'] = 'public'
-            for j, external in enumerate(assertion['external-ids']['external-id']):
-                base = prefix + f'/external_ids/{j}'
-                for native, normalized in [('type', 'kind'), ('value', 'value'), ('relationship', 'relationship')]:
-                    expect[base + '/' + normalized] = external['external-id-' + native]
-        expect['/result/groups/0/assertions'] = {'count': len(group['work-summary'])}
-        pivots = []
-        pivot_ids = set()
-        for assertion in group['work-summary']:
-            for external in assertion['external-ids']['external-id']:
-                if external['external-id-relationship'] == 'self' and external['external-id-type'] in ['pmid', 'doi']:
-                    value = external['external-id-value']
-                    kind = external['external-id-type']
-                    identity = (kind, value.lower() if kind == 'doi' else value)
-                    if identity not in pivot_ids:
-                        pivot_ids.add(identity)
-                        pivots.append(['get', 'article', value])
-        reserved = 1 if index + 1 < total else 0
-        for i, args in enumerate(pivots[:5 - reserved]):
-            expect[f'/next/{i}/args'] = args
-        steps.append(step(['author', 'papers', 'orcid:' + identifier, '--limit', '1', '--offset', str(index)], expect))
+        steps.append(group_step(identifier, total, index, works[index]))
         # A complete bounded local page walk retains one collection. Its exact native
         # put-code sequence proves stable group boundaries, no gaps and no duplicates.
         for offset in range(0, total, 25):
@@ -74,6 +48,12 @@ def prepare(records, cases, replay):
         case = {'feature': 'author-orcid', 'story': 'Retained exact public ORCID names and grouped works',
                 'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay), 'steps': steps}
         save(case, cases, 'orcid-' + identifier + '.yaml')
+    identifier = '0000-0002-4299-3018'
+    works = records[identifier + '-works'][1]['group']
+    case = {'feature': 'author-orcid', 'story': 'Native PMID and DOI claims retain provenance',
+            'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay),
+            'steps': [group_step(identifier, len(works), 42, works[42])]}
+    save(case, cases, 'orcid-native-identifiers.yaml')
     absent = '0000-0000-0000-0001'
     case = {'feature': 'author-orcid', 'story': 'Native ORCID absence differs from failure',
             'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay),
@@ -115,3 +95,37 @@ def controls(cases):
             step['max_bytes'] = None
             step['max_tokens'] = None
         (cases / ('measurement-' + name + '.yaml')).write_text(json.dumps(case, indent=2) + '\n')
+
+
+def identifiers(expect, prefix, native):
+    expect[prefix] = {'count': len(native)}
+    for index, external in enumerate(native):
+        for source, normalized in [('type', 'kind'), ('value', 'value'), ('relationship', 'relationship')]:
+            expect[f'{prefix}/{index}/{normalized}'] = external['external-id-' + source]
+
+
+def group_step(identifier, total, index, group):
+    expect = {'/status': 'complete', '/result/observed_groups': total}
+    identifiers(expect, '/result/groups/0/external_ids', group['external-ids']['external-id'])
+    pivots, pivot_ids = [], set()
+    for i, assertion in enumerate(group['work-summary']):
+        prefix = f'/result/groups/0/assertions/{i}'
+        expect[prefix + '/put_code'] = assertion['put-code']
+        expect[prefix + '/work_type'] = assertion['type']
+        expect[prefix + '/visibility'] = 'public'
+        identifiers(expect, prefix + '/external_ids', assertion['external-ids']['external-id'])
+        for name, value in assertion['source'].items():
+            if value is not None:
+                expect[prefix + '/source/' + name.replace('-', '_')] = value.get('value', value.get('path'))
+        for external in assertion['external-ids']['external-id']:
+            kind, value = external['external-id-type'], external['external-id-value']
+            if external['external-id-relationship'] == 'self' and kind in ['pmid', 'doi']:
+                identity = (kind, value.lower() if kind == 'doi' else value)
+                if identity not in pivot_ids:
+                    pivot_ids.add(identity)
+                    pivots.append(['get', 'article', value])
+    expect['/result/groups/0/assertions'] = {'count': len(group['work-summary'])}
+    reserved = 1 if index + 1 < total else 0
+    for i, args in enumerate(pivots[:5 - reserved]):
+        expect[f'/next/{i}/args'] = args
+    return step(['author', 'papers', 'orcid:' + identifier, '--limit', '1', '--offset', str(index)], expect)

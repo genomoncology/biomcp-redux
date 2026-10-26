@@ -1,0 +1,35 @@
+{
+  "feature": "author-orcid",
+  "story": "Native PMID and DOI claims retain provenance",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "1",
+        "--offset",
+        "42"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "1",
+        "--offset",
+        "42"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 100000,
+      "max_tokens": 25000
+    }
+  ]
+}
