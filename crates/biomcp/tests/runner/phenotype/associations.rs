@@ -4,8 +4,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("phenotype-associations/recorded-timeout-keeps-source-and-terms", || timeout().map_err(Into::into)),
-        Trial::test("phenotype-associations/card-actions-keep-one-row-default-and-explicit-limits", || cards().map_err(Into::into)),
+        Trial::test(
+            "phenotype-associations/recorded-timeout-keeps-source-and-terms",
+            || timeout().map_err(Into::into),
+        ),
+        Trial::test(
+            "phenotype-associations/card-actions-keep-one-row-default-and-explicit-limits",
+            || cards().map_err(Into::into),
+        ),
         Trial::test(
             "phenotype-associations/direct-pages-preserve-native-rows",
             || exact().map_err(Into::into),
@@ -236,52 +242,95 @@ fn disabled() -> Result<(), String> {
     Ok(())
 }
 
-fn cards()->Result<(),String> {
-    for explicit in [false,true] {
-        let stub=Stub::for_source("api-v3.monarchinitiative.org","application/json",move |request| {
-            if request.starts_with("GET /v3/api/entity/") {
-                return Ok(json!({"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature","association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","count":3}]}).to_string());
-            }
-            let limit=if explicit {2} else {1};
-            if !request.contains(&format!("&limit={limit}&offset=0 ")) {return Err(format!("association action changed limit: {request}"));}
-            let mut row=row();
-            if request.contains("subject_category=biolink%3ADisease") {row["subject"]=json!("MONDO:0014379");}
-            Ok(json!({"limit":limit,"offset":0,"total":3,"items":[row]}).to_string())
-        })?;
-        let env=setup(&stub)?;
-        let mut words=vec!["get","phenotype","HP:0001250","--source","monarch"];
-        if explicit {words.extend(["--section-limit","2"]);}
-        let card=invoke(&env,&words,0)?;
-        let next=card["next"].as_array().ok_or("association card actions")?;
-        for section in ["diseases","genes"] {
-            let action=next.iter().find(|step|step["args"].as_array().is_some_and(|args|args.contains(&json!(section)))).ok_or("missing association action")?;
-            let args=action["args"].as_array().ok_or("args")?.iter().map(|v|v.as_str().ok_or("word")).collect::<Result<Vec<_>,_>>()?;
-            if args.contains(&"--snapshot") {return Err("association inherited entity snapshot".into());}
-            let page=invoke(&env,&args,0)?;
-            if page.pointer("/page/returned")!=Some(&json!(1)) {return Err("association row omitted".into());}
+fn cards() -> Result<(), String> {
+    for explicit in [false, true] {
+        let stub = Stub::for_source(
+            "api-v3.monarchinitiative.org",
+            "application/json",
+            move |request| {
+                if request.starts_with("GET /v3/api/entity/") {
+                    return Ok(json!({"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature","association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","count":3}]}).to_string());
+                }
+                let limit = if explicit { 2 } else { 1 };
+                if !request.contains(&format!("&limit={limit}&offset=0 ")) {
+                    return Err(format!("association action changed limit: {request}"));
+                }
+                let mut row = row();
+                if request.contains("subject_category=biolink%3ADisease") {
+                    row["subject"] = json!("MONDO:0014379");
+                }
+                Ok(json!({"limit":limit,"offset":0,"total":3,"items":[row]}).to_string())
+            },
+        )?;
+        let env = setup(&stub)?;
+        let mut words = vec!["get", "phenotype", "HP:0001250", "--source", "monarch"];
+        if explicit {
+            words.extend(["--section-limit", "2"]);
         }
-        if stub.finish()?.len()!=3 {return Err("card action made extra requests".into());}
+        let card = invoke(&env, &words, 0)?;
+        let next = card["next"].as_array().ok_or("association card actions")?;
+        for section in ["diseases", "genes"] {
+            let action = next
+                .iter()
+                .find(|step| {
+                    step["args"]
+                        .as_array()
+                        .is_some_and(|args| args.contains(&json!(section)))
+                })
+                .ok_or("missing association action")?;
+            let args = action["args"]
+                .as_array()
+                .ok_or("args")?
+                .iter()
+                .map(|v| v.as_str().ok_or("word"))
+                .collect::<Result<Vec<_>, _>>()?;
+            if args.contains(&"--snapshot") {
+                return Err("association inherited entity snapshot".into());
+            }
+            let page = invoke(&env, &args, 0)?;
+            if page.pointer("/page/returned") != Some(&json!(1)) {
+                return Err("association row omitted".into());
+            }
+        }
+        if stub.finish()?.len() != 3 {
+            return Err("card action made extra requests".into());
+        }
     }
     Ok(())
 }
 
-fn timeout() -> Result<(),String> {
-    let stub=Stub::for_source("api-v3.monarchinitiative.org","application/json", |_| Ok(json!({"limit":1,"offset":0,"total":1,"items":[row()]}).to_string()))?;
-    let env=setup(&stub)?;
-    let words=["get","phenotype","HP:0001250","genes"];
-    let directory=env.root().join("timeout");
-    super::record(&env,&words,&directory,0)?;
+fn timeout() -> Result<(), String> {
+    let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| {
+        Ok(json!({"limit":1,"offset":0,"total":1,"items":[row()]}).to_string())
+    })?;
+    let env = setup(&stub)?;
+    let words = ["get", "phenotype", "HP:0001250", "genes"];
+    let directory = env.root().join("timeout");
+    super::record(&env, &words, &directory, 0)?;
     stub.finish()?;
-    for entry in std::fs::read_dir(directory.join("monarch")).map_err(|e|e.to_string())? {
-        let entry=entry.map_err(|e|e.to_string())?;
-        let mut value:Value=serde_json::from_slice(&std::fs::read(entry.path()).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
-        *value.pointer_mut("/exchanges/0/delay_ms").ok_or("recorded delay")?=json!(20000);
-        std::fs::write(entry.path(),serde_json::to_vec(&value).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+    for entry in std::fs::read_dir(directory.join("monarch")).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let mut value: Value =
+            serde_json::from_slice(&std::fs::read(entry.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        *value
+            .pointer_mut("/exchanges/0/delay_ms")
+            .ok_or("recorded delay")? = json!(20000);
+        std::fs::write(
+            entry.path(),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
     }
-    let mut args=words.to_vec();args.extend(["--replay",directory.to_str().ok_or("record path")?]);
-    let result=invoke(&env,&args,4)?;
-    if result.pointer("/sources/0/reason")!=Some(&json!("deadline_exceeded")) || result.get("result").is_some()
-        || result.pointer("/sources/0/terms")!=Some(&json!("Monarch source-specific licensing")) {return Err(format!("timeout lost source failure: {result}"));}
-    super::native::mcp(&directory,&words,&result,4,None)?;
+    let mut args = words.to_vec();
+    args.extend(["--replay", directory.to_str().ok_or("record path")?]);
+    let result = invoke(&env, &args, 4)?;
+    if result.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+        || result.get("result").is_some()
+        || result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
+    {
+        return Err(format!("timeout lost source failure: {result}"));
+    }
+    super::native::mcp(&directory, &words, &result, 4, None)?;
     Ok(())
 }

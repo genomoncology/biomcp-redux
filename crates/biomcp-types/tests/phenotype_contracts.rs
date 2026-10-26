@@ -202,7 +202,6 @@ where
 fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     use biomcp_types::*;
     let get = json!({"id":"HP:0001250"});
-    let empty = json!({"items":[],"components":[]});
     envelope::<PhenotypePage>(
         json!({"text":"seizure"}),
         json!({"items":[{"id":"HP:0001250","label":"Seizure","match_score":1.5,"matched_field":"name","match_type":"exact","attribution":{"source":"synthetic"}}],"components":[]}),
