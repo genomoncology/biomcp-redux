@@ -64,6 +64,48 @@
         "/status": "usage"
       },
       "max_bytes": 1000
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "literal",
+        "--source",
+        "hpo"
+      ],
+      "mcp": [
+        "search",
+        "phenotype",
+        "literal",
+        "--source",
+        "hpo"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage"
+      },
+      "max_bytes": 1000
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "MONDO:0000001"
+      ],
+      "mcp": [
+        "get",
+        "phenotype",
+        "MONDO:0000001"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage"
+      },
+      "max_bytes": 1000
     }
   ]
 }
