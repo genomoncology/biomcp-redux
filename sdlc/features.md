@@ -165,3 +165,5 @@ cell-line-identity: A caller searches literal Cellosaurus headers and retrieves 
 cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance. Cases: `crates/biomcp/tests/runner/cell_line/chembl.rs`, `crates/biomcp/tests/runner/cell_line/chembl/*.rs`.
 
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference. Cases: `crates/biomcp/tests/runner/cell_line/sections.rs`.
+
+author-types: A public API caller checks source-qualified author records and native paper and work-group contracts without inferring person identity. Contracts: `biomcp-types/author_contracts` (features: `schema`).

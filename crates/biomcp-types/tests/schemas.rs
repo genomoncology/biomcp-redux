@@ -179,6 +179,7 @@ fn registry() -> Vec<Contract> {
     contracts.extend(disease::registry());
     contracts.extend(phenotype::registry());
     contracts.extend(cell_line::registry());
+    contracts.extend(author::registry());
     contracts.extend(study_registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
@@ -462,3 +463,6 @@ fn protein_contracts() -> Vec<Contract> {
         Envelope<ProteinFunctionResult> => ("protein-function", "biomcp.protein_function/2")
     }
 }
+
+#[path = "schemas/author.rs"]
+mod author;

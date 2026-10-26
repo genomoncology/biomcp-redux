@@ -1,0 +1,97 @@
+use super::OrcidId;
+use crate::{PartialDate, Text};
+use serde::{Deserialize, Serialize};
+/// Only public source visibility is admitted; legacy uppercase is an alias.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum OrcidPublicVisibility {
+    /// A public source assertion.
+    #[serde(rename = "public", alias = "PUBLIC")]
+    Public,
+}
+/// Native ORCID external identifier before any article pivot.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrcidExternalId {
+    /// Open native external-id-type.
+    pub kind: Text,
+    /// Unchanged native identifier value.
+    pub value: Text,
+    /// Open native relationship, including self and part-of.
+    pub relationship: Text,
+    /// Native identifier URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+}
+/// Source and assertion origin remain distinct provider claims.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrcidAssertionSource {
+    /// Native source ORCID iD.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_orcid: Option<OrcidId>,
+    /// Native ORCID client ID; no person identity.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_client_id: Option<Text>,
+    /// Native source display name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_name: Option<Text>,
+    /// Native assertion origin ORCID iD.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assertion_origin_orcid: Option<OrcidId>,
+    /// Native origin client ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assertion_origin_client_id: Option<Text>,
+    /// Native origin display name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assertion_origin_name: Option<Text>,
+}
+/// One public summary, retained in native group order without representative selection.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrcidWorkAssertion {
+    /// Source assertion identifier scoped to this ORCID record.
+    pub put_code: std::num::NonZeroU64,
+    /// Native title; some summaries have none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Text>,
+    /// Native subtitle.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subtitle: Option<Text>,
+    /// Native translated title.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub translated_title: Option<Text>,
+    /// Open native work type.
+    pub work_type: Text,
+    /// Native partial publication date.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub publication_date: Option<PartialDate>,
+    /// Native journal title.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub journal_title: Option<Text>,
+    /// Native work URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+    /// Every native assertion identifier in order.
+    pub external_ids: Box<[OrcidExternalId]>,
+    /// Native source and origin provenance.
+    pub source: OrcidAssertionSource,
+    /// Only public assertions belong to this product.
+    pub visibility: OrcidPublicVisibility,
+    /// Native display index retained without sorting.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub display_index: Option<Text>,
+}
+/// One native work group is one group, regardless of assertion multiplicity.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrcidWorkGroup {
+    /// Native group identifiers in source order.
+    pub external_ids: Box<[OrcidExternalId]>,
+    /// Every public summary in native source order.
+    pub assertions: Box<[OrcidWorkAssertion]>,
+}
