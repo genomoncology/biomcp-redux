@@ -39,6 +39,9 @@ pub(super) fn trials() -> Vec<Trial> {
             }
             Ok(())
         }),
+        Trial::test("mcp/cancel-preserves-another-active-call", || {
+            super::held_proxy::isolated_cancel().map_err(Into::into)
+        }),
         Trial::test("mcp/bounded-framing", || framing().map_err(Into::into)),
         Trial::test("mcp/broken-output-with-open-input", || {
             broken_output().map_err(Into::into)

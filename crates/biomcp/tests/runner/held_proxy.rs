@@ -18,6 +18,9 @@ pub(super) fn check() -> Result<(), String> {
 pub(super) fn oversized() -> Result<(), String> {
     run(Mode::Oversized)
 }
+pub(super) fn isolated_cancel() -> Result<(), String> {
+    run(Mode::Isolation)
+}
 pub(super) fn cancelled() -> Result<(), String> {
     run(Mode::Cancel)
 }
@@ -26,6 +29,7 @@ enum Mode {
     Reply,
     Oversized,
     Cancel,
+    Isolation,
 }
 fn run(mode: Mode) -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
@@ -64,7 +68,7 @@ fn run(mode: Mode) -> Result<(), String> {
         }
     });
     let result = prove(&mut stdin, &connected_rx, &reply_rx)
-        .and_then(|()| mode_input(mode, &mut stdin, &reply_rx));
+        .and_then(|()| mode_input(mode, &mut stdin, &reply_rx, &connected_rx));
     let _ = release_tx.send(());
     let proxy_result = proxy.join().map_err(|_| "proxy panicked")?;
     if result.is_err() || proxy_result.is_err() {
@@ -85,10 +89,32 @@ fn mode_input(
     mode: Mode,
     stdin: &mut impl Write,
     replies: &mpsc::Receiver<Result<Value, String>>,
+    connected: &mpsc::Receiver<Result<(), String>>,
 ) -> Result<(), String> {
     match mode {
         Mode::Reply => Ok(()),
         Mode::Cancel => cancel_capacity(stdin, replies),
+        Mode::Isolation => {
+            send(
+                stdin,
+                request(
+                    json!("other"),
+                    "tools/call",
+                    json!({"name":"biomcp", "arguments":{"args":["get","gene","BRAF"]}}),
+                ),
+            )?;
+            send(
+                stdin,
+                json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"call"}}),
+            )?;
+            connected
+                .recv_timeout(Duration::from_secs(5))
+                .map_err(|_| "cancellation stopped the other call")??;
+            send(
+                stdin,
+                json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":"other"}}),
+            )
+        }
         Mode::Oversized => {
             stdin
                 .write_all(&vec![b'x'; 65537])
@@ -107,7 +133,7 @@ fn mode_input(
 }
 
 fn mode_reply(mode: Mode, reply_rx: &mpsc::Receiver<Result<Value, String>>) -> Result<(), String> {
-    if mode == Mode::Cancel {
+    if matches!(mode, Mode::Cancel | Mode::Isolation) {
         if reply_rx.try_recv().is_ok() {
             return Err("cancelled call replied".into());
         }
@@ -186,20 +212,33 @@ fn hold(
     release: mpsc::Receiver<()>,
 ) -> Result<(), String> {
     let deadline = Instant::now() + WATCHDOG;
-    let mut stream = loop {
+    let mut held = Vec::new();
+    loop {
+        if release.try_recv().is_ok() {
+            break;
+        }
+        if Instant::now() >= deadline {
+            return Err("release watchdog".into());
+        }
         match listener.accept() {
-            Ok((stream, _)) => break stream,
-            Err(error)
-                if error.kind() == std::io::ErrorKind::WouldBlock && Instant::now() < deadline =>
-            {
-                if release.try_recv().is_ok() {
-                    return Ok(());
-                }
+            Ok((stream, _)) => {
+                held.push(proxy_request(stream, &connected)?);
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
                 thread::sleep(Duration::from_millis(5));
             }
             Err(error) => return Err(error.to_string()),
         }
-    };
+    }
+    for stream in held {
+        stream.shutdown(Shutdown::Both).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+fn proxy_request(
+    mut stream: std::net::TcpStream,
+    connected: &mpsc::Sender<Result<(), String>>,
+) -> Result<std::net::TcpStream, String> {
     stream.set_nonblocking(false).map_err(|e| e.to_string())?;
     stream
         .set_read_timeout(Some(WATCHDOG))
@@ -216,10 +255,7 @@ fn hold(
         Err("proxy expected CONNECT".into())
     };
     let _ = connected.send(result);
-    release
-        .recv_timeout(WATCHDOG)
-        .map_err(|_| "release watchdog")?;
-    stream.shutdown(Shutdown::Both).map_err(|e| e.to_string())
+    Ok(stream)
 }
 
 fn cancel_capacity(
