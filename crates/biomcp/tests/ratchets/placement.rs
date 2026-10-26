@@ -4,7 +4,7 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
-        "crates/biomcp/src/config/deferred_keys.rs",
+        "crates/biomcp/src/config/deferred_keys_tests.rs",
         "Observe forbidden credential environment reads at the private settings boundary while executing real commands.",
     ),
     (

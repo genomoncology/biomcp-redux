@@ -5,7 +5,7 @@ use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Se
 use serde::Deserialize;
 use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 #[cfg(test)]
-mod deferred_keys;
+mod deferred_keys_tests;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

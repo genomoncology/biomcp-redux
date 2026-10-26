@@ -28,7 +28,13 @@ fn execute(words: &[&str], allowed: Option<SecretName>) -> usize {
 }
 
 fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
-    let args = words.iter().map(OsString::from).collect::<Vec<_>>();
+    let config = tempfile::NamedTempFile::new().unwrap();
+    fs::write(config.path(), b"{}").unwrap();
+    let mut args = words.iter().map(OsString::from).collect::<Vec<_>>();
+    args.extend([
+        OsString::from("--config"),
+        config.path().as_os_str().to_owned(),
+    ]);
     let parsed = crate::grammar::parse(&args).unwrap();
     let fetch = super::restrict(fetch.clone(), &parsed.globals).unwrap();
     crate::command::execute(&fetch, parsed.action.unwrap(), &parsed.globals, false)
@@ -40,6 +46,22 @@ fn run(fetch: &Fetch, words: &[&str]) -> serde_json::Value {
 fn unrelated_and_disabled_commands_never_read_keys() {
     for command in [
         vec!["get", "gene", "HGNC:3236"],
+        vec![
+            "search",
+            "article",
+            "EGFR",
+            "--source",
+            "pubmed",
+            "--disable-sources",
+            "pubmed",
+        ],
+        vec![
+            "get",
+            "author",
+            "orcid:0000-0002-4299-3018",
+            "--disable-sources",
+            "orcid",
+        ],
         vec!["search", "trial", "--condition", "melanoma"],
         vec![
             "get",
@@ -85,7 +107,15 @@ fn unrelated_and_disabled_commands_never_read_keys() {
 
 #[test]
 fn called_sources_read_only_their_own_environment_key_once() {
-    for (name, command) in [
+    let cases = [
+        (
+            SecretName::NcbiApiKey,
+            vec!["search", "article", "EGFR", "--source", "pubmed"],
+        ),
+        (
+            SecretName::OrcidAccessToken,
+            vec!["get", "author", "orcid:0000-0002-4299-3018"],
+        ),
         (
             SecretName::NcbiApiKey,
             vec!["get", "variant", "clinvar:13961", "clinvar"],
@@ -118,7 +148,15 @@ fn called_sources_read_only_their_own_environment_key_once() {
                 "melanoma",
             ],
         ),
-    ] {
+    ];
+    assert_eq!(
+        cases
+            .iter()
+            .map(|(name, _)| *name)
+            .collect::<std::collections::BTreeSet<_>>(),
+        SecretName::ALL.iter().copied().collect()
+    );
+    for (name, command) in cases {
         assert_eq!(execute(&command, Some(name)), 1, "{name:?}");
     }
 }
@@ -157,10 +195,10 @@ fn saved_query_pages_never_resolve_credentials() {
                 "diseases",
                 "--source",
                 "nci",
-                "--section-limit",
+                "--limit",
                 "1",
             ],
-            "/result/items/0/more",
+            "/next",
         ),
         (
             "author/synthetic",
@@ -206,13 +244,10 @@ fn saved_query_pages_never_resolve_credentials() {
         };
         let saved = run(&forbidden, &page);
         assert_eq!(saved["status"], "complete", "{saved}");
-        assert!(
-            saved["sources"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|source| source["cached"].as_bool().unwrap_or(false))
-                || saved["result"].is_object()
-        );
+        if recording == "trial/nci/get" {
+            assert!(saved.pointer("/result/items/0/card").is_some());
+        } else {
+            assert_eq!(saved.pointer(pointer), first.pointer(pointer));
+        }
     }
 }
