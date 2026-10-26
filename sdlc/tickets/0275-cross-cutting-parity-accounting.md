@@ -1,6 +1,7 @@
 # 0275 — Account for the 0.9 commands that no entity slice owns
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 509c94027c377a7c82867271c354fe9ac3de7366
 
 Milestone: 4
 

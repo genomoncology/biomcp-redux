@@ -1,6 +1,7 @@
 # 0282 — Refuse state-changing and quota-spending actions over HTTP MCP and file replacement over MCP
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0b77eccdce199bdbf990dfa8b7ee0c770d0b68f1
 
 Milestone: 4
 
