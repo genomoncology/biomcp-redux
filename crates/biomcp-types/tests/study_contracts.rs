@@ -186,7 +186,7 @@ fn five_envelopes_keep_catalog_and_live_acquisition_times_independent()
     }
     let v = envelope::<StudyCard>(
         json!({"id":"brca_tcga_pan_can_atlas_2018","section":"all"}),
-        json!({"study":study(),"snapshot":snapshot,"profiles":{"state":"data","source":"cbioportal","data":scope},"sample_lists":{"state":"skipped","source":"cbioportal","reason":"disabled"}}),
+        json!({"source_url":"https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018","study":study(),"snapshot":snapshot,"profiles":{"state":"data","source":"cbioportal","data":scope},"sample_lists":{"state":"skipped","source":"cbioportal","reason":"disabled"}}),
     )?;
     assert_ne!(
         v["result"]["snapshot"]["acquired"],

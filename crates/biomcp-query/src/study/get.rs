@@ -26,31 +26,12 @@ pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
             }
         }
     }
-    if matches!(
-        q.section(),
-        Some(StudySection::Profiles | StudySection::SampleLists | StudySection::All)
-    ) {
-        for section in [StudySection::Profiles, StudySection::SampleLists] {
-            if q.section() == Some(section) || q.section() == Some(StudySection::All) {
-                let leg = cx.fetch.leg(&SPEC, deadline).fresh(cx.fresh);
-                let query = if q.section() == Some(StudySection::All) {
-                    q.with_section(section)
-                } else {
-                    q.clone()
-                };
-                let result = section_page(&leg, &query, cx, &mut out);
-                let error = result.err();
-                if q.section() == Some(StudySection::All) {
-                    section_error(&mut out, section, error);
-                }
-                let was_partial = out.status == Status::Partial;
-                finish(&mut out, leg, error);
-                if q.section() == Some(StudySection::All) && (error.is_some() || was_partial) {
-                    out.status = Status::Partial;
-                }
-            }
-        }
+    if q.section() == Some(StudySection::All) && !matches!(out.body, QueryBody::StudyCard(Some(_)))
+    {
+        command.finish(deadline.remaining());
+        return out;
     }
+    sections(cx, q, deadline, &mut out);
     if q.section() == Some(StudySection::Files) {
         let leg = cx.fetch.leg(&SPEC, deadline);
         finish(
@@ -69,6 +50,46 @@ pub fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+fn sections(cx: &Ctx<'_>, q: &StudyGet, deadline: biomcp_fetch::Deadline<'_>, out: &mut Outcome) {
+    if matches!(
+        q.section(),
+        Some(StudySection::Profiles | StudySection::SampleLists | StudySection::All)
+    ) {
+        for section in [StudySection::Profiles, StudySection::SampleLists] {
+            if q.section() == Some(section) || q.section() == Some(StudySection::All) {
+                let leg = cx.fetch.leg(&SPEC, deadline).fresh(cx.fresh);
+                let query = if q.section() == Some(StudySection::All) {
+                    q.with_section(section)
+                } else {
+                    q.clone()
+                };
+                let result = section_page(&leg, &query, cx, out);
+                let error = result.err();
+                if matches!(error, Some(RequestError::Source(e)) if e.reason == biomcp_types::Reason::BadReply)
+                {
+                    out.problems.push(Problem {
+                        source: Source::Cbioportal,
+                        record: biodata::Text::new(q.id().as_str()).ok(),
+                        field: match section {
+                            StudySection::Profiles => "profiles",
+                            _ => "sample-lists",
+                        }
+                        .into(),
+                        code: ProblemCode::CollectionIncomplete,
+                    });
+                }
+                if q.section() == Some(StudySection::All) {
+                    section_error(out, section, error);
+                }
+                let was_partial = out.status == Status::Partial;
+                finish(out, leg, error);
+                if q.section() == Some(StudySection::All) && (error.is_some() || was_partial) {
+                    out.status = Status::Partial;
+                }
+            }
+        }
+    }
 }
 fn card(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestError> {
     let (row, info) = studies::card(leg, q.id())?;

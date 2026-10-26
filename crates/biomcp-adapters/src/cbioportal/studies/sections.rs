@@ -94,7 +94,6 @@ pub fn profiles(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudyProfile>, Re
     let (reply, metadata) = leg.json_received_checked_cache::<Profiles>(
         &endpoint(id, "molecular-profiles")?,
         &[("projection", Arg::Text("DETAILED"))],
-        |_| Ok(()),
         |r| r.0.iter().all(|v| v.study_id == *id),
     )?;
     let rejected = reply.0.iter().filter(|v| v.study_id != *id).count();
@@ -114,7 +113,6 @@ pub fn sample_lists(leg: &Leg<'_>, id: &StudyId) -> Result<Records<StudySampleLi
     let (reply, metadata) = leg.json_received_checked_cache::<SampleLists>(
         &endpoint(id, "sample-lists")?,
         &[("projection", Arg::Text("DETAILED"))],
-        |_| Ok(()),
         |r| r.0.iter().all(|v| v.study_id == *id),
     )?;
     let rejected = reply.0.iter().filter(|v| v.study_id != *id).count();
