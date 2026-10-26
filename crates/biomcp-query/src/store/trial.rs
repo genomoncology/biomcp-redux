@@ -38,6 +38,14 @@ impl Store<'_> {
             .map_err(db)
         })
     }
+    /// Read the current unexpired source collection for one exact checked selector key.
+    pub(crate) fn current_source_pool(&self, key: &[u8]) -> Result<Option<Text>, CacheError> {
+        self.read(|cx| {
+            let id: Option<String> = cx.query_row("SELECT id FROM trial_snapshot WHERE request_key=?1 AND expires>?2 ORDER BY rowid DESC LIMIT 1",
+                params![key, Self::now()], |r| r.get(0)).optional().map_err(db)?;
+            id.map(|id| Text::new(&id).map_err(|_| CacheError::Database)).transpose()
+        })
+    }
     /// Metadata of a snapshot already admitted through source_snapshot.
     pub(crate) fn source_snapshot_info(
         &self,

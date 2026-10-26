@@ -16,6 +16,10 @@ struct Saved {
     sources: Vec<SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
 }
+struct Loaded {
+    saved: Saved,
+    prior: Option<(Text, String)>,
+}
 /// Walk the retained collection; an invalid pool never silently refetches.
 pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -79,7 +83,7 @@ fn read(
     }
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let loaded = load(q, &leg, &store, cx, out);
-    let (mut saved, previous_payload) = match loaded {
+    let Loaded { mut saved, prior } = match loaded {
         Ok(Some(saved)) => saved,
         Ok(None) => return Ok(()),
         Err(error) => {
@@ -101,8 +105,8 @@ fn read(
     out.problems = saved.problems.clone();
     out.local = error.and_then(status::local);
     let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
-    let pool = if previous_payload.as_deref() == Some(payload.as_str()) {
-        q.pool().cloned().ok_or(CacheError::Database)?
+    let pool = if prior.as_ref().is_some_and(|(_, old)| old == &payload) {
+        prior.map(|(id, _)| id).ok_or(CacheError::Database)?
     } else {
         store.publish_source_pool(&key(q), &payload, &out.sources)?
     };
@@ -116,8 +120,15 @@ fn load(
     store: &Store<'_>,
     cx: &Ctx<'_>,
     out: &mut Outcome,
-) -> Result<Option<(Saved, Option<String>)>, RequestError> {
-    if let Some(id) = q.pool() {
+) -> Result<Option<Loaded>, RequestError> {
+    let id = if let Some(id) = q.pool() {
+        Some(id.clone())
+    } else if !cx.fresh {
+        store.current_source_pool(&key(q))?
+    } else {
+        None
+    };
+    if let Some(id) = id {
         match store.source_snapshot_matches(id.as_str(), &key(q))? {
             Some(true) => {}
             Some(false) => {
@@ -136,17 +147,20 @@ fn load(
             return Ok(None);
         };
         let saved = serde_json::from_str::<Saved>(&payload).map_err(|_| CacheError::Database)?;
-        return Ok(Some((saved, Some(payload))));
+        return Ok(Some(Loaded {
+            saved,
+            prior: Some((id, payload)),
+        }));
     }
     let mapped = uniprot::search(leg, q, None)?;
-    Ok(Some((
-        Saved {
+    Ok(Some(Loaded {
+        saved: Saved {
             page: mapped.value,
             sources: vec![status::source(Source::UniProt, Default::default(), None)],
             problems: mapped.problems,
         },
-        None,
-    )))
+        prior: None,
+    }))
 }
 fn extend(
     leg: &biomcp_fetch::Leg<'_>,
