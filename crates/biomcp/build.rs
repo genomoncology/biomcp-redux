@@ -42,6 +42,8 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("protein/paging.yaml", 0),
     ("phenotype/examples.yaml", 0),
     ("phenotype/examples.yaml", 1),
+    ("phenotype/examples.yaml", 2),
+    ("phenotype/examples.yaml", 3),
     ("pathway/examples.yaml", 0),
     ("pathway/examples.yaml", 1),
     ("pathway/examples.yaml", 2),
