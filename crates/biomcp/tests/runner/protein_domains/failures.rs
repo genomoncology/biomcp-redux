@@ -41,8 +41,15 @@ pub(super) fn run() -> Result<(), String> {
             let value = invoke(&env, words, 4)?;
             super::card_failures::bounded(&value, CLI_FAILURE_BYTES, MCP_FAILURE_BYTES)?;
             let args = ["protein", command, "P38398"].map(str::to_owned);
-            let mcp = super::super::mcp::call_with_globals(&env, &args, true, &env.globals(Some(&replay), false))?;
-            if value != mcp { return Err("synthetic relation CLI/MCP failures differ".into()); }
+            let mcp = super::super::mcp::call_with_globals(
+                &env,
+                &args,
+                true,
+                &env.globals(Some(&replay), false),
+            )?;
+            if value != mcp {
+                return Err("synthetic relation CLI/MCP failures differ".into());
+            }
             super::card_failures::bounded(&mcp, CLI_FAILURE_BYTES, MCP_FAILURE_BYTES)?;
             if value.pointer("/status") != Some(&json!("failed"))
                 || value.pointer("/sources/0/reason") != Some(&json!(reason))

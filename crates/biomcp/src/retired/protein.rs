@@ -15,9 +15,12 @@ pub(super) fn message(words: &super::Words<'_>) -> Option<ErrorMessage> {
         ["protein", "interactions" | "associations", ..] => Some(ErrorMessage::ProteinString),
         ["get", "protein", input @ ..] if !words.literal => {
             if words.sections.iter().any(|word| *word == "interactions")
-                || input.iter().skip(1).any(|word| *word == "interactions") {
+                || input.iter().skip(1).any(|word| *word == "interactions")
+            {
                 Some(ErrorMessage::ProteinString)
-            } else { None }
+            } else {
+                None
+            }
         }
         _ => None,
     }
