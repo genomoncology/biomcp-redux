@@ -13,12 +13,15 @@ use std::{
 const WATCHDOG: Duration = Duration::from_secs(30);
 
 pub(super) fn check() -> Result<(), String> {
-    run(false)
+    run(0)
 }
 pub(super) fn oversized() -> Result<(), String> {
-    run(true)
+    run(1)
 }
-fn run(oversized: bool) -> Result<(), String> {
+pub(super) fn cancelled() -> Result<(), String> {
+    run(2)
+}
+fn run(mode: u8) -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
     let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
     let address = listener.local_addr().map_err(|e| e.to_string())?;
@@ -55,7 +58,7 @@ fn run(oversized: bool) -> Result<(), String> {
         }
     });
     let result = prove(&mut stdin, &connected_rx, &reply_rx).and_then(|()| {
-        if oversized {
+        if mode == 1 {
             stdin
                 .write_all(&vec![b'x'; 65537])
                 .map_err(|e| e.to_string())?;
@@ -67,6 +70,9 @@ fn run(oversized: bool) -> Result<(), String> {
             if reply.pointer("/error/code") != Some(&json!(-32600)) {
                 return Err(format!("missing oversized frame error: {reply}"));
             }
+        }
+        if mode == 2 {
+            cancel_capacity(&mut stdin, &reply_rx)?;
         }
         Ok(())
     });
@@ -83,6 +89,12 @@ fn run(oversized: bool) -> Result<(), String> {
     let (status, _, stderr) = finish?;
     if !status.success() || !stderr.is_empty() {
         return Err("held proxy server failed".into());
+    }
+    if mode == 2 {
+        if reply_rx.try_recv().is_ok() {
+            return Err("cancelled call replied".into());
+        }
+        return Ok(());
     }
     let reply = reply_rx
         .recv_timeout(WATCHDOG)
@@ -191,4 +203,42 @@ fn hold(
         .recv_timeout(WATCHDOG)
         .map_err(|_| "release watchdog")?;
     stream.shutdown(Shutdown::Both).map_err(|e| e.to_string())
+}
+
+fn cancel_capacity(
+    stdin: &mut impl Write,
+    replies: &mpsc::Receiver<Result<Value, String>>,
+) -> Result<(), String> {
+    for id in 1..8 {
+        send(
+            stdin,
+            request(
+                json!(id),
+                "tools/call",
+                json!({"name":"biomcp", "arguments":{
+            "args":["get","gene","BRAF"]}}),
+            ),
+        )?;
+    }
+    for id in std::iter::once(json!("call")).chain((1..8).map(|id| json!(id))) {
+        send(
+            stdin,
+            json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":id}}),
+        )?;
+    }
+    send(
+        stdin,
+        request(
+            json!("free"),
+            "tools/call",
+            json!({"name":"biomcp", "arguments":{"args":["help"]}}),
+        ),
+    )?;
+    let reply = replies
+        .recv_timeout(Duration::from_secs(5))
+        .map_err(|_| "cancel did not stop work")??;
+    if reply.get("id") != Some(&json!("free")) || reply.get("error").is_some() {
+        return Err(format!("cancel did not free capacity: {reply}"));
+    }
+    Ok(())
 }
