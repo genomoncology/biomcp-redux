@@ -332,9 +332,14 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
             .split('/')
             .next()
             .unwrap_or("");
+        let module = module.strip_suffix(".rs").unwrap_or(module);
+        let expected = format!("&crate::{module}::SPEC");
         let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
-        if !registry.contains(&format!("&crate::{module}::SPEC")) {
-            return fail(path, "implemented source must appear in source registry");
+        if !registry.contains(&expected) {
+            return fail(
+                path,
+                &format!("implemented source must appear in source registry: expected {expected}"),
+            );
         }
     }
     Ok(())
