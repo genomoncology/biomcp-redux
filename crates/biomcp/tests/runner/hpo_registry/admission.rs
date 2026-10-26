@@ -20,10 +20,20 @@ impl biomcp_fetch::Reply for Synthetic {
     }
 }
 fn specs() -> Result<Vec<&'static SourceSpec>, String> {
-    [biomcp_types::Source::Hpo, biomcp_types::Source::Monarch, biomcp_types::Source::MyDisease]
-        .into_iter()
-        .map(|source| registry::SOURCES.iter().copied().find(|s| s.source == source).ok_or_else(|| format!("missing {source}")))
-        .collect()
+    [
+        biomcp_types::Source::Hpo,
+        biomcp_types::Source::Monarch,
+        biomcp_types::Source::MyDisease,
+    ]
+    .into_iter()
+    .map(|source| {
+        registry::SOURCES
+            .iter()
+            .copied()
+            .find(|s| s.source == source)
+            .ok_or_else(|| format!("missing {source}"))
+    })
+    .collect()
 }
 fn get(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Synthetic, RequestError> {
     let leg = fetch.leg(spec, fetch.deadline(spec.deadline));
@@ -34,10 +44,10 @@ fn get(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Synthetic, RequestErr
         biomcp_adapters::disease_sources::components::allowed_fields(&leg, "_id,hpo.name")?;
     }
     leg.json_checked_cache(
-            &spec.get("/registry-stub").fresh(Freshness::Days(1)),
-            &[],
-            |_| true,
-        )
+        &spec.get("/registry-stub").fresh(Freshness::Days(1)),
+        &[],
+        |_| true,
+    )
 }
 fn policy(
     mode: Mode,
@@ -73,7 +83,6 @@ fn assert_routes(fetch: &Fetch, switch: &str, absent: bool) -> Check {
                     result.err()
                 ));
             }
-
         } else if !absent {
             result.map_err(|e| e.to_string())?;
         }
@@ -83,7 +92,11 @@ fn assert_routes(fetch: &Fetch, switch: &str, absent: bool) -> Check {
 pub(super) fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = crate::runner::network_stub::Stub::for_sources(
-        &["ontology.jax.org", "api-v3.monarchinitiative.org", "mydisease.info"],
+        &[
+            "ontology.jax.org",
+            "api-v3.monarchinitiative.org",
+            "mydisease.info",
+        ],
         |_| "application/json",
         |_| Ok(r#"{"present":true}"#.into()),
     )?;

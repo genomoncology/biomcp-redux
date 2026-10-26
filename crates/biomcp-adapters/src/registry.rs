@@ -55,6 +55,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::ols::SPEC,
     &crate::mydisease::SPEC,
     &crate::monarch::SPEC,
+    &crate::hpo::SPEC,
     &crate::seer::SPEC,
     &crate::faers::SPEC,
     &crate::maude::SPEC,
@@ -257,6 +258,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
 fn disease_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
+        Source::Hpo => ("/api/hp/terms/HP:0001250", vec![]),
         Source::Ols => ("/api/ontologies", vec![("size", Arg::Num(1))]),
         Source::Monarch => (
             "/v3/api/association",

@@ -12,6 +12,8 @@ pub use mapped::Mapped;
 pub mod gnomad;
 pub mod uniprot;
 
+/// Direct HPO publisher policy.
+pub mod hpo;
 pub mod reactome;
 pub mod wikipathways;
 

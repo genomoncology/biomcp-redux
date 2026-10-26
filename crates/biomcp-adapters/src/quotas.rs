@@ -197,3 +197,6 @@ pub(crate) static WIKIPATHWAYS: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative serial local policy; no published numeric provider quota verified.
+pub(crate) static HPO: Quota = Quota::new(SourceKey::declare("hpo"), Rate::per_second(1), None, 1);
