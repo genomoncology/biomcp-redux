@@ -4,6 +4,10 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
+        "crates/biomcp-types/tests/protein_contracts.rs",
+        "Exercise neutral protein records and checked standalone consumer contracts through the public library API before adapters exist.",
+    ),
+    (
         "crates/biomcp-types/tests/diagnostic_contracts.rs",
         "Exercise neutral diagnostic records, native identities and checked standalone consumer contracts through the public library API before adapters exist.",
     ),
