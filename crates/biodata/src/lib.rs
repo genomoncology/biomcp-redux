@@ -109,10 +109,8 @@ pub use pgx::*;
 mod diagnostic;
 pub use diagnostic::*;
 
-<<<<<<< HEAD
 mod gwas;
 pub use gwas::{GwasAssociationId, GwasStudyId, GwasTraitId, GwasValueInvalid, ScientificPValue};
-=======
 mod phenotype;
 pub use phenotype::*;
 mod pathway;
@@ -124,6 +122,5 @@ pub use pathway::{
 
 mod protein;
 pub use protein::*;
->>>>>>> main
 mod study;
 pub use study::*;
