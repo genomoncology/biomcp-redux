@@ -57,8 +57,8 @@ pub(super) fn selectors() -> Result<(), String> {
         p.retain(|(key, _)| *key != "pubmed_id");
         p.extend(extra);
         let url = url(&p);
-        let replay = seed(&env, &url, body(&url, 0, 6), 200, 0)?;
         let args = [vec!["search", "gwas"], args].concat();
+        let replay = seed(&env, &args, body(&url, 0, 6), 200, 0)?;
         let v = call(&env, &replay, &args, 0)?;
         if v.pointer("/result/items/0/id") != Some(&json!(6110))
             || v.pointer("/query/query/order") != Some(&json!("p_value,asc"))
@@ -71,12 +71,24 @@ pub(super) fn selectors() -> Result<(), String> {
 pub(super) fn paging() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let first_url = url(&pairs());
-    let replay = seed(&env, &first_url, body(&first_url, 0, 6), 200, 0)?;
+    let replay = seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967"],
+        body(&first_url, 0, 6),
+        200,
+        0,
+    )?;
     let mut p = pairs();
     p.retain(|(k, _)| *k != "page");
     p.push(("page", "1"));
     let second_url = url(&p);
-    seed(&env, &second_url, body(&second_url, 1, 6), 200, 0)?;
+    seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967", "--offset", "3"],
+        body(&second_url, 1, 6),
+        200,
+        0,
+    )?;
     let first = call(
         &env,
         &replay,
@@ -125,7 +137,13 @@ pub(super) fn paging() -> Result<(), String> {
 pub(super) fn surfaces() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let url = url(&pairs());
-    let replay = seed(&env, &url, body(&url, 0, 6), 200, 0)?;
+    let replay = seed(
+        &env,
+        &["search", "gwas", "--pubmed", "17529967"],
+        body(&url, 0, 6),
+        200,
+        0,
+    )?;
     let args = ["search", "gwas", "--pubmed", "17529967"].map(str::to_owned);
     let value = super::super::mcp::call_with_globals(
         &env,
@@ -200,7 +218,13 @@ pub(super) fn warm() -> Result<(), String> {
     }
     Ok(())
 }
-fn live_body(request: &str) -> Result<String, String> {
+pub(super) fn live_body(request: &str) -> Result<String, String> {
     let path = request.split_whitespace().nth(1).ok_or("request path")?;
-    Ok(body(&format!("https://www.ebi.ac.uk{path}"), 0, 6).to_string())
+    let page = path
+        .split(['?', '&'])
+        .find_map(|pair| pair.strip_prefix("page="))
+        .ok_or("request page")?
+        .parse()
+        .map_err(|_| "request page number")?;
+    Ok(body(&format!("https://www.ebi.ac.uk{path}"), page, 6).to_string())
 }

@@ -1,4 +1,8 @@
 //! Research wrappers map the existing CLI result without provider calls.
+#[path = "research_links.rs"]
+mod links;
+#[path = "research_registry.rs"]
+mod registry;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -8,9 +12,20 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("mcp/research-search-fetch-parity", || {
-        parity().map_err(Into::into)
-    })]
+    vec![
+        Trial::test("mcp/research-registry-record-links", || {
+            links::check().map_err(Into::into)
+        }),
+        Trial::test("mcp/research-registry-projection-paths", || {
+            registry::check().map_err(Into::into)
+        }),
+        Trial::test("mcp/research-search-fetch-parity", || {
+            parity().map_err(Into::into)
+        }),
+        Trial::test("mcp/research-phenotype-search-fetch", || {
+            phenotype().map_err(Into::into)
+        }),
+    ]
 }
 pub(super) fn call(
     env: &Environment,
@@ -399,6 +414,62 @@ fn headers(rows: &[Value], hits: &[Value], entity: &str) -> Result<(), String> {
         {
             return Err("research header differs from source row".into());
         }
+    }
+    Ok(())
+}
+
+fn phenotype() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let globals = env.globals(
+        Some(&super::launch::fixtures().join("replies/phenotype/synthetic")),
+        false,
+    );
+    let searched = call(
+        &env,
+        "search",
+        json!({"query":"phenotype synthetic"}),
+        &globals,
+    )?;
+    let hit = searched
+        .pointer("/results/0")
+        .ok_or("phenotype hit missing")?;
+    if hit.get("title") != Some(&json!("Synthetic term"))
+        || hit.get("url") != Some(&json!("https://monarchinitiative.org/HP:0000001/"))
+    {
+        return Err(format!("phenotype search lost its label: {hit}"));
+    }
+    let id = hit
+        .get("id")
+        .and_then(Value::as_str)
+        .ok_or("phenotype get id")?;
+    let fetched = call(
+        &env,
+        "fetch",
+        json!({"id":"phenotype HP:0000001"}),
+        &globals,
+    )?;
+    let args = vec!["get".into(), "phenotype".into(), "HP:0000001".into()];
+    let card = command(&env, &args, &globals, 0)?;
+    if fetched.get("title") != Some(&json!("Synthetic term"))
+        || fetched.get("url") != Some(&json!("https://hpo.jax.org/browse/term/HP:0000001"))
+        || fetched.get("url") != card.pointer("/result/term/attribution/url")
+        || fetched.get("metadata") != Some(&card)
+        || !id.contains("HP:0000001")
+    {
+        return Err(format!(
+            "phenotype fetch lost its source identity: {fetched}"
+        ));
+    }
+    let mut args = args;
+    args.extend(["--format".into(), "md".into()]);
+    args.extend(globals);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    if fetched.get("text") != Some(&json!(text)) || !text.contains("Complete synthetic comment") {
+        return Err("phenotype fetch lost complete card Markdown".into());
     }
     Ok(())
 }
