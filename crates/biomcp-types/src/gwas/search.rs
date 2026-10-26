@@ -2,14 +2,17 @@
 use crate::{GeneSymbol, Pmid, QueryInvalid, RsId, Text};
 use biodata::{GwasStudyId, GwasTraitId, ScientificPValue};
 use serde::{Deserialize, Serialize};
-/// Native source order, echoed without a configurable sort command.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum GwasOrder {
-    /// Ascending source p value.
-    #[default]
-    #[serde(rename = "p_value,asc")]
-    PValueAscending,
+biodata::wire_enum! {
+    described
+    /// Native source order, echoed without a configurable sort command.
+    GwasOrder {
+        #[doc = "Ascending source p value."] PValueAscending => "p_value,asc"
+    }
+}
+impl Default for GwasOrder {
+    fn default() -> Self {
+        Self::PValueAscending
+    }
 }
 /// Checked association search selectors with native conjunction semantics.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,23 +1,20 @@
 use crate::QueryInvalid;
 use biodata::{GwasAssociationId, GwasStudyId};
 use serde::{Deserialize, Serialize};
-/// Association-only section.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum GwasAssociationSection {
-    /// Native locus and reported gene context.
-    Loci,
+biodata::wire_enum! {
+    described
+    /// Association-only section.
+    GwasAssociationSection {
+        #[doc = "Native locus and reported gene context."] Loci => "loci"
+    }
 }
-/// Study-only sections.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum GwasStudySection {
-    /// Shared association rows.
-    Associations,
-    /// Independent native ancestry rows.
-    Ancestries,
+biodata::wire_enum! {
+    described
+    /// Study-only sections.
+    GwasStudySection {
+        #[doc = "Shared association rows."] Associations => "associations",
+        #[doc = "Independent native ancestry rows."] Ancestries => "ancestries"
+    }
 }
 /// Explicit resource sum; impossible section and identity pairings fail during decoding.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
