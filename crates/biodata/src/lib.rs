@@ -108,3 +108,6 @@ mod pgx;
 pub use pgx::*;
 mod diagnostic;
 pub use diagnostic::*;
+
+mod gwas;
+pub use gwas::{GwasAssociationId, GwasStudyId, GwasTraitId, GwasValueInvalid, ScientificPValue};

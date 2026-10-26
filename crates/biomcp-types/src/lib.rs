@@ -179,3 +179,6 @@ pub use response::DiagnosticCountUnit;
 
 #[cfg(feature = "schema")]
 pub use drug::DrugGetCommand;
+
+mod gwas;
+pub use gwas::*;

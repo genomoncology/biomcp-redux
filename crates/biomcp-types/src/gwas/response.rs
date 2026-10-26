@@ -1,0 +1,165 @@
+use crate::{GwasAssociation, GwasGet, GwasSearch, GwasTrait, PageInfo, ResponseBody, Text};
+use biodata::{GwasAssociationId, GwasStudyId, Pmid};
+use serde::{Deserialize, Serialize};
+/// One native association page, also used for a study associations section.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasPage {
+    /// Shared complete association records.
+    pub items: Box<[GwasAssociation]>,
+    /// Native page scope and total.
+    pub page: PageInfo,
+    /// Same-selector search continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continuation: Option<GwasSearch>,
+}
+impl ResponseBody for GwasPage {
+    const SCHEMA: &'static str = "biomcp.gwas_page/1";
+    type Query = GwasSearch;
+}
+/// Exact association card; no second association representation.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasAssociationCard {
+    /// The shared source association record.
+    pub association: GwasAssociation,
+}
+impl ResponseBody for GwasAssociationCard {
+    const SCHEMA: &'static str = "biomcp.gwas_association/1";
+    type Query = GwasGet;
+}
+/// Source reported gene identity, without a causal-gene interpretation.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasReportedGene {
+    /// Native source gene name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
+    /// Exact source Ensembl identifiers.
+    pub ensembl_ids: Box<[Text]>,
+    /// Exact source Entrez identifiers.
+    pub entrez_ids: Box<[Text]>,
+}
+/// One native locus with independent reported genes and risk-allele text.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasLocus {
+    /// Complete source locus description.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<Text>,
+    /// Source strongest-risk-allele strings.
+    pub strongest_risk_alleles: Box<[Text]>,
+    /// Reported source genes; never inferred from names.
+    pub author_reported_genes: Box<[GwasReportedGene]>,
+}
+/// One bounded locus section for an association.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasLoci {
+    /// Exact owning association.
+    pub association: GwasAssociationId,
+    /// Native locus rows.
+    pub items: Box<[GwasLocus]>,
+    /// Same-resource relation continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continuation: Option<GwasGet>,
+}
+impl ResponseBody for GwasLoci {
+    const SCHEMA: &'static str = "biomcp.gwas_loci/1";
+    type Query = GwasGet;
+}
+/// Native study card; independent source descriptions are never reconciled.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasStudy {
+    /// Exact accession.
+    pub id: GwasStudyId,
+    /// Source publication identity.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub publication: Option<Pmid>,
+    /// Native reported disease traits.
+    pub reported_traits: Box<[Text]>,
+    /// Every native mapped ontology label and ID.
+    pub ontology_traits: Box<[GwasTrait]>,
+    /// Whole discovery sample prose.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub initial_sample_description: Option<Text>,
+    /// Whole replication sample prose.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replication_sample_description: Option<Text>,
+    /// Native discovery ancestry summaries.
+    pub discovery_ancestries: Box<[Text]>,
+    /// Native replication ancestry summaries.
+    pub replication_ancestries: Box<[Text]>,
+    /// Source technologies.
+    pub genotyping_technologies: Box<[Text]>,
+    /// Source SNP count; missing differs from zero.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub snp_count: Option<u64>,
+    /// Source availability flag; grants no download or reuse permission.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub summary_statistics_available: Option<bool>,
+    /// Native summary statistics link; not a local download.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub summary_statistics_url: Option<Text>,
+    /// Native terms link without an inferred reuse grant.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license_url: Option<Text>,
+}
+impl ResponseBody for GwasStudy {
+    const SCHEMA: &'static str = "biomcp.gwas_study/1";
+    type Query = GwasGet;
+}
+/// Native country and region metadata.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasCountry {
+    /// Original country label including NR.
+    pub country: Text,
+    /// Original region label when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub region: Option<Text>,
+}
+/// One independent source ancestry row; counts are never summed.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasAncestry {
+    /// Native discovery or replication stage.
+    pub stage: Text,
+    /// Source row count; no unique-person denominator is inferred.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub number_of_individuals: Option<u64>,
+    /// Original ancestry group labels.
+    pub ancestry_groups: Box<[Text]>,
+    /// Native origin metadata.
+    pub country_of_origin: Box<[GwasCountry]>,
+    /// Native recruitment metadata.
+    pub country_of_recruitment: Box<[GwasCountry]>,
+    /// Native row self link, checked against its owning study by the adapter.
+    pub source_url: Text,
+}
+/// Bounded retained ancestry relation for one exact study.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasAncestries {
+    /// Exact owning study.
+    pub study: GwasStudyId,
+    /// Independent source rows.
+    pub items: Box<[GwasAncestry]>,
+    /// Retained relation continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub continuation: Option<GwasGet>,
+}
+impl ResponseBody for GwasAncestries {
+    const SCHEMA: &'static str = "biomcp.gwas_ancestries/1";
+    type Query = GwasGet;
+}

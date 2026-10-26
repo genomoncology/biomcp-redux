@@ -102,6 +102,7 @@ fn rs_id(query: &VariantGet, candidates: &[VariantHeader]) -> Option<VariantId> 
     if ids.len() == 1 { ids.pop() } else { None }
 }
 fn map(row: gwas::Association) -> GwasAssociation {
+    let exact_p_value = row.exact_p_value();
     GwasAssociation {
         id: row.association_id,
         study: row.accession_id,
@@ -123,6 +124,9 @@ fn map(row: gwas::Association) -> GwasAssociation {
             })
             .collect(),
         p_value: row.p_value,
+        exact_p_value,
+        author: optional_text(row.author.clone()),
+        mapped_genes: row.mapped_gene.clone().unwrap_or_default().into(),
         beta: optional_text(row.beta),
         odds_ratio: row.or_per_copy_num,
         risk_frequency: optional_text(row.risk_frequency),

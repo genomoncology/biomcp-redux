@@ -156,6 +156,13 @@ fn registry() -> Vec<Contract> {
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
     };
+    contracts.extend(contracts! {
+        Envelope<GwasPage> => ("gwas-page", "biomcp.gwas_page/1"),
+        Envelope<GwasAssociationCard> => ("gwas-association", "biomcp.gwas_association/1"),
+        Envelope<GwasLoci> => ("gwas-loci", "biomcp.gwas_loci/1"),
+        Envelope<GwasStudy> => ("gwas-study", "biomcp.gwas_study/1"),
+        Envelope<GwasAncestries> => ("gwas-ancestries", "biomcp.gwas_ancestries/1"),
+    });
     contracts.extend(diagnostic_contracts());
     contracts.extend(common_registry());
     contracts.extend(article_registry());
@@ -207,9 +214,9 @@ fn variant_contracts() -> Vec<Contract> {
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/2"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant_normalization/3"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/5"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant_page/6"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/4"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant_card/5"),
     }
 }
 
