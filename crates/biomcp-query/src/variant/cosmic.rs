@@ -52,7 +52,10 @@ pub(super) fn section(
             source: Source::MyVariant,
             record: candidates.first().map(|candidate| candidate.record.clone()),
         },
-        Err(error) => Section::unavailable(Source::MyVariant, crate::status::reason(error)),
+        Err(error) => Section::unavailable(
+            Source::MyVariant,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         section,

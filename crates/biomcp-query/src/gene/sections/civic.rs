@@ -34,7 +34,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                         }
                         None => Section::unavailable(Source::Civic, Reason::BadReply),
                     },
-                    Err(error) => Section::unavailable(Source::Civic, crate::status::reason(error)),
+                    Err(error) => Section::unavailable(
+                        Source::Civic,
+                        crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+                    ),
                 }
             } else {
                 problems.push(Problem {

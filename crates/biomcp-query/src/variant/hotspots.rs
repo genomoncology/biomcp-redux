@@ -73,7 +73,10 @@ fn disclose(
     problems: &mut Vec<Problem>,
 ) -> Section<VariantHotspots> {
     if let Some(error) = error {
-        Section::unavailable(Source::CancerHotspots, crate::status::reason(error))
+        Section::unavailable(
+            Source::CancerHotspots,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        )
     } else if rows.is_empty() {
         Section::Empty {
             source: Source::CancerHotspots,

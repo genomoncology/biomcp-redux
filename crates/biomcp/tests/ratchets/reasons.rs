@@ -17,6 +17,7 @@ pub(super) fn check(root: &Path) -> Check {
                 continue;
             };
             if after.starts_with(&format!("=>{binding}.reason"))
+                || after.starts_with(&format!("=>Some({binding}.reason)"))
                 || binding.starts_with("SourceError{") && after.starts_with("=>reason")
             {
                 return Err(format!(

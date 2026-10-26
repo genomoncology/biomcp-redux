@@ -92,7 +92,10 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
                 item.status = Status::Partial;
-                Section::unavailable(Source::EuropePmc, crate::status::reason(e))
+                Section::unavailable(
+                    Source::EuropePmc,
+                    crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
+                )
             }
         });
     }

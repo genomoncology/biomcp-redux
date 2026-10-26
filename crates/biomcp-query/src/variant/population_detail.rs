@@ -161,7 +161,10 @@ fn load(
             source: Source::Gnomad,
             record: None,
         },
-        Err(error) => Section::unavailable(Source::Gnomad, crate::status::reason(error)),
+        Err(error) => Section::unavailable(
+            Source::Gnomad,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (section, groups, source, error.and_then(status::local))
 }

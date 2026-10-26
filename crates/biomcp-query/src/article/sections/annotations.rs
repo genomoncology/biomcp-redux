@@ -51,7 +51,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, ids: &[Pmid]) -
                 }
             }
             Err(error) => {
-                let reason = crate::status::reason(error);
+                let reason =
+                    crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable);
                 values.extend(
                     chunk
                         .iter()

@@ -54,7 +54,10 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         out.status = Status::Failed;
         out.local = status::local(error);
         out.body = QueryBody::TrialDocument(TrialDocumentResult {
-            file: Section::unavailable(Source::ClinicalTrialsGov, crate::status::reason(error)),
+            file: Section::unavailable(
+                Source::ClinicalTrialsGov,
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            ),
         });
     }
     let remaining = leg.remaining();

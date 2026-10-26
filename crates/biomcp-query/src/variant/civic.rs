@@ -50,7 +50,10 @@ pub(super) fn section(
             mapped.problems,
         ),
         Err(error) => (
-            Section::unavailable(Source::Civic, crate::status::reason(error)),
+            Section::unavailable(
+                Source::Civic,
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            ),
             Vec::new(),
         ),
     };

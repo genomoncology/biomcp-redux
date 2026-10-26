@@ -37,7 +37,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 Err(failure) => {
                     error = Some(failure);
                     local = local.or(status::local(failure));
-                    Section::unavailable(Source::Hpa, crate::status::reason(failure))
+                    Section::unavailable(
+                        Source::Hpa,
+                        crate::status::reason(failure).unwrap_or(biomcp_types::Reason::Unavailable),
+                    )
                 }
             };
             (id, SectionValue::Expression(section))

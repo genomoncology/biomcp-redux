@@ -129,7 +129,10 @@ fn read(
                 }
             }
         }
-        Err(error) => Section::unavailable(spec.source, crate::status::reason(error)),
+        Err(error) => Section::unavailable(
+            spec.source,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         section,

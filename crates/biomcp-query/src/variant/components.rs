@@ -86,7 +86,10 @@ pub(super) fn measurements(
                 }
             }
         }
-        Err(error) => Section::unavailable(Source::MyVariant, crate::status::reason(error)),
+        Err(error) => Section::unavailable(
+            Source::MyVariant,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         section,

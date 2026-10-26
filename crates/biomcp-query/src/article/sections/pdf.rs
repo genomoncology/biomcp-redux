@@ -32,7 +32,10 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
             Ok(section) => section,
             Err(error) => {
                 out.local = out.local.or(status::local(error));
-                Section::unavailable(Source::SemanticScholar, crate::status::reason(error))
+                Section::unavailable(
+                    Source::SemanticScholar,
+                    crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+                )
             }
         };
         if matches!(section, Section::Data { .. }) && out.next.len() < 5 {

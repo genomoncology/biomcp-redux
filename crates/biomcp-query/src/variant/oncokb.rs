@@ -81,7 +81,10 @@ pub(super) fn section(
                 },
             }
         }
-        Err(error) => Section::unavailable(Source::Oncokb, crate::status::reason(error)),
+        Err(error) => Section::unavailable(
+            Source::Oncokb,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         section,

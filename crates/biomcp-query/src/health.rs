@@ -34,7 +34,9 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                         {
                             return Err(error);
                         }
-                        let reason = result.err().map(|e| crate::status::reason(e));
+                        let reason = result.err().map(|e| {
+                            crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable)
+                        });
                         (
                             if reason == Some(Reason::Disabled) {
                                 SourceState::Skipped

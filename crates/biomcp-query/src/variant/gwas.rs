@@ -72,7 +72,10 @@ pub(super) fn section(
                 },
             }
         }
-        Err(e) => Section::unavailable(Source::Gwas, crate::status::reason(e)),
+        Err(e) => Section::unavailable(
+            Source::Gwas,
+            crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         value,

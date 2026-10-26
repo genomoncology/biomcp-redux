@@ -32,7 +32,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 error = Some(failure);
                 local = local.or(status::local(failure));
                 (
-                    Section::unavailable(Source::Oncokb, crate::status::reason(failure)),
+                    Section::unavailable(
+                        Source::Oncokb,
+                        crate::status::reason(failure).unwrap_or(biomcp_types::Reason::Unavailable),
+                    ),
                     None,
                     true,
                 )

@@ -27,7 +27,10 @@ pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download 
         out.local = out.local.or(status::local(error));
         out.status = Status::Failed;
         out.body = QueryBody::ArticlePdf(ArticlePdfResult {
-            file: Section::unavailable(Source::SemanticScholar, crate::status::reason(error)),
+            file: Section::unavailable(
+                Source::SemanticScholar,
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            ),
         });
     }
     command.finish(deadline.remaining());

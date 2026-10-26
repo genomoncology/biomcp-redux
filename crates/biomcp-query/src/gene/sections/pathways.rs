@@ -52,7 +52,9 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     }
                 }
                 Err(error) => {
-                    failure.get_or_insert(crate::status::reason(error));
+                    failure.get_or_insert(
+                        crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+                    );
                 }
             }
         }
