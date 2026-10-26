@@ -24,6 +24,7 @@ fn check(command: &str, message: &str) -> Result<(), String> {
     Ok(())
 }
 const CASES: &[(&str, &str)] = &[
+    ("search protein EGFR --include-unreviewed", "--include-unreviewed is not yet supported because no unreviewed positive was captured"),
     ("search protein -q EGFR", "use: search protein <TEXT>; the positional query stays unchanged"),
     ("search protein --query=EGFR", "use: search protein <TEXT>; the positional query stays unchanged"),
     ("search protein EGFR --all-species", "--all-species is dropped; protein access stays within human-health scope"),

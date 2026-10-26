@@ -10,11 +10,15 @@ mod native;
 mod paging;
 mod retirements;
 mod card_failures;
+mod identities;
+mod composite;
 pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("protein-domain-native");
     let absent = !root.is_dir();
     let mut trials = card_failures::trials();
     trials.extend(retirements::trials());
+    trials.extend(identities::trials());
+    trials.push(Trial::test("protein-domains-complexes/synthetic-all-first-pages-and-disabled", || composite::run().map_err(Into::into)));
     trials.extend(vec![
         Trial::test(
             "protein-domains-complexes/card-sections-and-source-policy",
