@@ -542,4 +542,4 @@ Job `j15358` measured complete help output after these descriptions and examples
 | `help get cell-line` | 1135 | 1050 | 1134 | 1060 | 2618 |
 | `help cell-line assay-count` | 632 | 539 | 631 | 682 | 1546 |
 
-The MCP description measured 3,359 UTF-8 bytes and keeps the existing description ceiling. Whole CLI help measured 85,535 emitted bytes and keeps its existing global ceiling. The complete compact tools/list RPC measured 7,945 bytes without its newline. Discovery includes the exact-source input, independent paging, named sections and the explicit assay-count route. Source names and their schema retain the shared source registry.
+The MCP description measured 3,359 UTF-8 bytes and keeps the existing description ceiling. Whole CLI help measured 85,535 emitted bytes and keeps its existing global ceiling. The complete compact tools/list RPC measured 7,945 bytes without its newline. The PM approved its existing full-listing cap at that measurement plus fifteen percent on 2026-10-26. Discovery includes the exact-source input, independent paging, named sections and the explicit assay-count route. Source names and their schema retain the shared source registry.
