@@ -1,0 +1,14 @@
+{
+  "deadline_seconds": 25,
+  "max_bytes": 8388608,
+  "spacing_seconds": 0.5,
+  "requests": [
+    {"id":"chembl-reverse","source":"cellosaurus","url":"https://api.cellosaurus.org/search/cell-line?q=dr%3A%22CHEMBL3706573%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5","response_format":"json"},
+    {"id":"ambiguous-reverse","source":"cellosaurus","url":"https://api.cellosaurus.org/search/cell-line?q=dr%3A%22E-MTAB-2770%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5","response_format":"json"},
+    {"id":"projected-molm13","source":"cellosaurus","url":"https://api.cellosaurus.org/cell-line/CVCL_2119?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt","response_format":"json"},
+    {"id":"projected-k562","source":"cellosaurus","url":"https://api.cellosaurus.org/cell-line/CVCL_0004?format=json&fields=ac%2Cid%2Cox%2Cdi%2Cca%2Csx%2Cag%2Cproblematic%2Ccaution%2Cdt","response_format":"json"},
+    {"id":"accession-search","source":"cellosaurus","url":"https://api.cellosaurus.org/search/cell-line?q=ac%3A%22CVCL_0005%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&start=0&rows=5","response_format":"json"},
+    {"id":"chembl-second-accession","source":"chembl","url":"https://www.ebi.ac.uk/chembl/api/data/cell_line.json?cellosaurus_id=CVCL_0064&limit=5&offset=0","response_format":"json"},
+    {"id":"absent-card","source":"cellosaurus","url":"https://api.cellosaurus.org/cell-line/CVCL_ZZZZ?format=json","response_format":"json"}
+  ]
+}
