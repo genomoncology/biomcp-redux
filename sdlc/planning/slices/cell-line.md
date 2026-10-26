@@ -4,32 +4,34 @@
 
 These questions are reformulated from published records and papers. They are retrieval questions about human health research. They do not ask BioMCP to select an experimental model, predict a treatment response or run an analysis. The accepted answers below identify the facts to preserve; the source capture will establish current values and availability.
 
-| Case | Question | Published source | Accepted answer boundary |
-| --- | --- | --- | --- |
-| C01 | Which accession identifies MOLM-13 in the AML paper? | PMID 9305600; [Cellosaurus CVCL_2119](https://www.cellosaurus.org/CVCL_2119) | CVCL_2119, recommended name and source synonyms; no punctuation-based identity invention. |
-| C02 | Which exact line does MV4;11 denote? | PMID 12529668; [CVCL_0064](https://www.cellosaurus.org/CVCL_0064) | Native search candidates, followed by exact CVCL_0064 card. |
-| C03 | Does Cellosaurus list a FLT3 internal tandem duplication for MOLM-13? | PMID 12529668; CVCL_2119 | Native mutation description, HGNC identifier, zygosity and supporting references; no allele coordinate inferred. |
-| C04 | What FLT3 variation does the source list for MV4-11? | PMID 12529668; CVCL_0064 | Independent source mutation record; preserve source zygosity and publication context. |
-| C05 | What fusion does Cellosaurus list for MOLM-13? | PMID 9305600; CVCL_2119 | Native KMT2A-MLLT3 record and both gene identifiers, without collapsing a fusion into a single-gene allele. |
-| C06 | Which disease identifiers accompany MOLM-13? | PMID 9305600; CVCL_2119 | Native NCIt and ORDO identifiers with their independent labels. |
-| C07 | Which curated variations are recorded for OCI-AML3? | [CVCL_1844](https://www.cellosaurus.org/CVCL_1844); PMID 29805321 | Every returned variation with its original source context, including DNMT3A, NPM1 and NRAS when present. |
-| C08 | What exact accession and source name does K-562 have? | [CVCL_0004](https://www.cellosaurus.org/CVCL_0004); PMID 29805321 | CVCL_0004 and K-562; a ChEMBL spelling difference does not change identity. |
-| C09 | Which line does the accession CVCL_0005 identify? | [CVCL_0005](https://www.cellosaurus.org/CVCL_0005); PMID 29805321 | NB4 card, without selecting another line that carries NB4 as a synonym. |
-| C10 | Why can a search for NB4 return another candidate? | [CVCL_8821](https://www.cellosaurus.org/CVCL_8821); PMID 29805321 | Preserve source names and synonyms for SJNB-4 independently; do not choose by name similarity. |
-| C11 | Are HL-60 and HL-60(TB) the same accession? | [CVCL_0002](https://www.cellosaurus.org/CVCL_0002), [CVCL_A794](https://www.cellosaurus.org/CVCL_A794); PMID 29805321 | Two separate exact records; no merge from their similar names. |
-| C12 | Which source identities accompany MOLM-13? | CVCL_2119; PMID 29805321 | Exact Cellosaurus cross-references for DepMap, ChEMBL, PharmacoDB and other returned resources. |
-| C13 | Which Cellosaurus accession is linked to ACH-000362? | CVCL_2119; PMID 29805321 | Source cross-reference search candidates; a selected record must contain the exact requested cross-reference. |
-| C14 | Which accession is linked to CHEMBL3706573? | CVCL_2119; PMID 29805321 | Exact cross-reference join to CVCL_2119, not a name join. |
-| C15 | Does the MOLM-13 ChEMBL cell record carry EFO and CLO identifiers? | [ChEMBL cell CHEMBL3706573](https://www.ebi.ac.uk/chembl/explore/cell_line/CHEMBL3706573); PMID 25883136, DOI 10.1093/nar/gkv352 | Preserve optional identifiers as absent when the native record omits them. |
-| C16 | How many ChEMBL assays name the MOLM-13 cell record? | CHEMBL3706573; ChEMBL API documentation | Native assay page total for exact cell_chembl_id, with release metadata; no inferred activity count. |
-| C17 | Can ChEMBL find K-562 by its Cellosaurus accession? | [ChEMBL cell CHEMBL3308378](https://www.ebi.ac.uk/chembl/explore/cell_line/CHEMBL3308378) | Every record returned by exact cellosaurus_id CVCL_0004; verify each returned identifier. |
-| C18 | Which PharmacoDB cell identity claims MOLM-13's accession? | PMID 34850112; Cellosaurus PharmacoDB cross-reference MOLM13_950_2019 | Exact UID request, native integer ID and accession_id must match CVCL_2119. |
-| C19 | Which published datasets contain MOLM-13 experiments? | PMID 34850112 | Source experiment IDs and dataset names, with count scope explicit; no sensitivity classification. |
-| C20 | Which published metrics exist for PharmacoDB cell 1248 and compound 53572? | PMID 34850112 | Native experiment identities, dataset, compound and cell IDs, AAC, IC50, EC50, Einf, HS and DSS1 when present. No units or threshold invented. |
-| C21 | How does PharmacoDB represent repeated experiments on the same pair? | PMID 34850112 | Preserve distinct experiment IDs and dataset context; never average or deduplicate by compound and line names. |
-| C22 | What should a request return when a source has no cell record? | Cellosaurus and ChEMBL API contracts; technical control | Source-local empty result only after a valid reply; it does not establish that the cell line does not exist. |
-| C23 | What should happen when a source fails or returns an HTML verification page? | API contracts; technical control | Failed source outcome with no fabricated empty biology; no retry through verification. |
-| C24 | What source version supports a cell-line answer? | PMID 29805321; PMID 34850112; provider release endpoints | Source release when supplied; otherwise retrieval time explicitly labelled as such. |
+| Case | Question | Published source | Accepted answer boundary | Answer status and proof owner |
+| --- | --- | --- | --- | --- |
+| C01 | Which accession identifies MOLM-13 in the AML paper? | PMID 9305600; [Cellosaurus CVCL_2119](https://www.cellosaurus.org/CVCL_2119) | CVCL_2119, recommended name and source synonyms; no punctuation-based identity invention. | Answered; `cell_line/native.rs` and `cell_line/sections.rs`. |
+| C02 | Which exact line does MV4;11 denote? | PMID 12529668; [CVCL_0064](https://www.cellosaurus.org/CVCL_0064) | Native search candidates, followed by exact CVCL_0064 card. | Answered; `cell_line/native.rs` and `cell_line/sections.rs`. |
+| C03 | Does Cellosaurus list a FLT3 internal tandem duplication for MOLM-13? | PMID 12529668; CVCL_2119 | Native mutation description, HGNC identifier, zygosity and supporting references; no allele coordinate inferred. | Answered; `cell_line/sections.rs`. |
+| C04 | What FLT3 variation does the source list for MV4-11? | PMID 12529668; CVCL_0064 | Independent source mutation record; preserve source zygosity and publication context. | Answered; `cell_line/sections.rs`. |
+| C05 | What fusion does Cellosaurus list for MOLM-13? | PMID 9305600; CVCL_2119 | Native KMT2A-MLLT3 record and both gene identifiers, without collapsing a fusion into a single-gene allele. | Answered; `cell_line/sections.rs`. |
+| C06 | Which disease identifiers accompany MOLM-13? | PMID 9305600; CVCL_2119 | Native NCIt and ORDO identifiers with their independent labels. | Answered; `cell_line/sections.rs`. |
+| C07 | Which curated variations are recorded for OCI-AML3? | [CVCL_1844](https://www.cellosaurus.org/CVCL_1844); PMID 29805321 | Every returned variation with its original source context, including DNMT3A, NPM1 and NRAS when present. | Answered; `cell_line/sections.rs`. |
+| C08 | What exact accession and source name does K-562 have? | [CVCL_0004](https://www.cellosaurus.org/CVCL_0004); PMID 29805321 | CVCL_0004 and K-562; a ChEMBL spelling difference does not change identity. | Answered; `cell_line/native.rs` and `cell_line/chembl.rs`. |
+| C09 | Which line does the accession CVCL_0005 identify? | [CVCL_0005](https://www.cellosaurus.org/CVCL_0005); PMID 29805321 | NB4 card, without selecting another line that carries NB4 as a synonym. | Answered; `cell_line/native.rs`. |
+| C10 | Why can a search for NB4 return another candidate? | [CVCL_8821](https://www.cellosaurus.org/CVCL_8821); PMID 29805321 | Preserve source names and synonyms for SJNB-4 independently; do not choose by name similarity. | Answered; `cell_line/sections.rs`. |
+| C11 | Are HL-60 and HL-60(TB) the same accession? | [CVCL_0002](https://www.cellosaurus.org/CVCL_0002), [CVCL_A794](https://www.cellosaurus.org/CVCL_A794); PMID 29805321 | Two separate exact records; no merge from their similar names. | Answered; `cell_line/native.rs` and `cell_line/sections.rs`. |
+| C12 | Which source identities accompany MOLM-13? | CVCL_2119; PMID 29805321 | Exact Cellosaurus cross-references for DepMap, ChEMBL, PharmacoDB and other returned resources. | Answered; `cell_line/sections.rs`. |
+| C13 | Which Cellosaurus accession is linked to ACH-000362? | CVCL_2119; PMID 29805321 | Source cross-reference search candidates; a selected record must contain the exact requested cross-reference. | Answered; `cell_line/native.rs`. |
+| C14 | Which accession is linked to CHEMBL3706573? | CVCL_2119; PMID 29805321 | Exact cross-reference join to CVCL_2119, not a name join. | Answered; `cell_line/native.rs`. |
+| C15 | Does the MOLM-13 ChEMBL cell record carry EFO and CLO identifiers? | [ChEMBL cell CHEMBL3706573](https://www.ebi.ac.uk/chembl/explore/cell_line/CHEMBL3706573); PMID 25883136, DOI 10.1093/nar/gkv352 | Preserve optional identifiers as absent when the native record omits them. | Answered; `cell_line/chembl.rs`. |
+| C16 | How many ChEMBL assays name the MOLM-13 cell record? | CHEMBL3706573; ChEMBL API documentation | Native assay page total for exact cell_chembl_id, with release metadata; no inferred activity count. | Answered; `cell_line/chembl.rs`. |
+| C17 | Can ChEMBL find K-562 by its Cellosaurus accession? | [ChEMBL cell CHEMBL3308378](https://www.ebi.ac.uk/chembl/explore/cell_line/CHEMBL3308378) | Every record returned by exact cellosaurus_id CVCL_0004; verify each returned identifier. | Answered; `cell_line/chembl.rs`. |
+| C18 | Which PharmacoDB cell identity claims MOLM-13's accession? | PMID 34850112; Cellosaurus PharmacoDB cross-reference MOLM13_950_2019 | Exact UID request, native integer ID and accession_id must match CVCL_2119. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
+| C19 | Which published datasets contain MOLM-13 experiments? | PMID 34850112 | Source experiment IDs and dataset names, with count scope explicit; no sensitivity classification. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
+| C20 | Which published metrics exist for PharmacoDB cell 1248 and compound 53572? | PMID 34850112 | Native experiment identities, dataset, compound and cell IDs, AAC, IC50, EC50, Einf, HS and DSS1 when present. No units or threshold invented. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
+| C21 | How does PharmacoDB represent repeated experiments on the same pair? | PMID 34850112 | Preserve distinct experiment IDs and dataset context; never average or deduplicate by compound and line names. | Unanswered; deferred with PharmacoDB until an affirmative database reuse grant exists. |
+| C22 | What should a request return when a source has no cell record? | Cellosaurus and ChEMBL API contracts; technical control | Source-local empty result only after a valid reply; it does not establish that the cell line does not exist. | Answered; `cell_line/faults.rs` and `cell_line/chembl/faults.rs`. |
+| C23 | What should happen when a source fails or returns an HTML verification page? | API contracts; technical control | Failed source outcome with no fabricated empty biology; no retry through verification. | Answered; `cell_line/faults.rs`, `cell_line/chembl/faults.rs` and `cell_line/all.rs`. |
+| C24 | What source version supports a cell-line answer? | PMID 29805321; PMID 34850112; provider release endpoints | Source release when supplied; otherwise retrieval time explicitly labelled as such. | Partial; `cell_line/native.rs`, `cell_line/sections.rs` and `cell_line/chembl.rs` prove Cellosaurus and ChEMBL provenance; PharmacoDB remains deferred. |
+
+All proof-owner paths in the question bank are relative to `crates/biomcp/tests/runner/`. These existing outside-in files own the design case IDs C01 through C24. C18 through C21 have no executable data case because source eligibility forbids PharmacoDB calls; `cell_line/all/controls.rs` proves the explicit deferred guidance. Answered means the retained source facts satisfy the retrieval boundary, without a clinical interpretation. C24 remains partial across the full question because PharmacoDB provenance is unavailable.
 
 ## Investigation boundary
 
@@ -40,24 +42,35 @@ The investigation captured Cellosaurus and ChEMBL directly, plus one bounded HPA
 
 The reviewed source tree is the 0.9 implementation in `biomcp`. Runtime output size, latency and warm-cache behavior remain unmeasured because this investigation has not established independent network containment for that executable. Source files and old recordings describe old behavior; they do not prove current direct-provider behavior.
 
-| Legacy command or behavior | Proposed disposition | Reason and replacement |
+| 0.9 command, option, section or behavior | 1.0 disposition | Reason and replacement |
 | --- | --- | --- |
-| `search cell-line QUERY`, `--query`/`-q`, `--limit`/`-l`, `--offset` | Keep search and paging; keep the explicit query alias | Preserve the literal source query and native candidate order. Default five headers; checked positive bounds. |
+| `search cell-line QUERY`, `--query`/`-q`, `--limit`/`-l`, `--offset` | `search cell-line QUERY`, `--query`/`-q`, `--limit`/`-l`, `--offset` | Preserve the literal source query and native candidate order. Default five headers; checked positive bounds. |
 | Name normalization, removal of punctuation, a second hyphenless search | Retire by PM ruling | Text rewriting can join different lines. One unchanged native field query supplies candidates. |
 | Human-first and identifier/synonym match reranking | Retire by PM ruling | Publish species and source names without introducing an ordering or declaring exact identity from normalized text. |
-| `get cell-line CVCL_…` | Keep | Resolve the exact accession and verify the returned primary or explicitly supplied secondary accession. |
-| Reverse get from DepMap, Cell Model Passports, ChEMBL and PharmacoDB IDs | Keep as candidate resolution | Verify the exact database and accession in the native cross-reference before returning a selected identity. Multiple records remain ambiguous. |
-| `variants` | Keep bounded source variation rows | Preserve every gene member, reference, description and source zygosity; a free-text description is not a normalized allele. |
-| `xrefs` | Keep bounded native cross-reference rows | Do not replace unobserved links with synthetic empty arrays for a fixed seven-source list. |
-| `chembl` | Keep exact accession-linked metadata | Cell line metadata and assay count require separate requests and disclosure actions. A single section must not hide the count request. |
+| `get cell-line CVCL_…` | `get cell-line CVCL_…` | Resolve the exact accession and verify the returned primary or explicitly supplied secondary accession. |
+| Reverse get from DepMap, Cell Model Passports, ChEMBL and PharmacoDB IDs | `get cell-line SOURCE:ID` | Verify the exact database and accession in the native cross-reference before returning a selected identity. Multiple records remain ambiguous. |
+| `variants` | `get cell-line ID variants` | Preserve every gene member, reference, description and source zygosity; a free-text description is not a normalized allele. |
+| `xrefs` | `get cell-line ID xrefs` | Do not replace unobserved links with synthetic empty arrays for a fixed seven-source list. |
+| `chembl` | `get cell-line ID chembl`; separate `cell-line assay-count CHEMBL_ID` | Cell line metadata and assay count require separate requests and disclosure actions. A single section must not hide the count request. |
 | `drug_response` | Defer under the PM source-eligibility ruling | No PharmacoDB data call or implementation until affirmative database reuse terms are found. A future exact UID/accession join cannot use a name fallback. |
-| `all` | Keep bounded first pages under the later PM ruling | Return every named section, one ChEMBL metadata page and no assay request. |
+| `all` | `get cell-line ID all` | Return every named section, one ChEMBL metadata page and no assay request. |
 | `cell-line drug-response ID --dataset D --limit N --offset N` | Defer with PharmacoDB source eligibility | Old dataset filtering occurs after downloading every experiment for the line. A small rendered page does not bound source transfer. |
-| `drug cell-lines NAME --cell-line ID/--dataset D --limit/--offset` and drug `cell_lines` section | Preserve prior retirement pending PM reconsideration | The drug slice settled retirement. A PharmacoDB-local compound ID cannot become a resolved drug identity through name matching. Any replacement must take exact provider identifiers and preserve this distinction. |
+| `drug cell-lines NAME --cell-line ID/--dataset D --limit/--offset` and drug `cell_lines` section | Dropped under the prior drug-slice ruling | The drug slice settled retirement. A PharmacoDB-local compound ID cannot become a resolved drug identity through name matching. Any replacement must take exact provider identifiers and preserve this distinction. |
 | `gene cell-lines SYMBOL --group GROUP --limit/--offset` | Defer pending exact cell identity proof | The gene slice moved this capability here. Its old HPA-to-Cellosaurus name join is forbidden. One bounded source contract capture is authorized; no whole expression download or local analysis. |
 | Global JSON/Markdown, fresh/offline/record/replay, source disable and terms controls | Shared grammar | Do not add separate entity-specific transport or formatting options. |
 
 The closed public-issue inventory reads every closed issue returned by the repository's full issue listing, then checks title and body for cell-line, Cellosaurus, PharmacoDB and ChEMBL references. No closed issue requests or reports a cell-line behavior. Issue [220](https://github.com/genomoncology/biomcp/issues/220) mentions an unrelated ChEMBL drug link in a missing drug-interactions report; that issue is not applicable to cell identity or screening. Internal legacy tickets 1202, 1205, 1213 and 1214 explain implementation history and are not public user issues.
+
+<!-- parity-accounting -->
+| 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Undecided options | Ruling |
+| --- | --- | --- | --- | --- | --- |
+| `search cell-line` | Ported or renamed | `--query`, `--limit`, `--offset` | — | — | Keep unchanged literal text, explicit query aliases and native paging. Drop normalization and reranking because text rewriting can join different lines and invented order can imply identity. |
+| `get cell-line` | Ported or renamed | — | — | — | Keep exact primary accession and verified source-ID candidate resolution. Keep variants, xrefs, chembl and bounded all. The drug_response section defers PharmacoDB until affirmative database reuse terms exist. New names and identity sections disclose bounded source facts; assay-count remains a separate explicit request. |
+| `cell-line drug-response` | Dropped by ruling | — | `--dataset`, `--limit`, `--offset` | — | Deferred with PharmacoDB until an affirmative database reuse grant exists. No name fallback, experiment download or local response inference runs. |
+<!-- /parity-accounting -->
+
+The detailed rows above account for every legacy behavior, option and section, including global controls and the prior drug retirement. Leaf counts exclude positionals, aliases, sections and shared globals under the existing inventory. The gene slice owns the `gene cell-lines` leaf row; its HPA route remains deferred until an exact cell identity join exists. Shared JSON output uses `--format json`, Markdown uses `--format md`, and freshness, offline/cache, source-policy and record/replay controls keep the existing shared grammar. No second entity transport or renderer exists. Every 0.9 runtime size and timing remains unmeasured because independent network containment for that baseline has not been established. Milestone 5 owns the contained comparison.
+
 
 ## Identity and scientific boundaries
 
@@ -177,21 +190,23 @@ None. The PM owns source eligibility, defaults, budgets and the proposed legacy 
 
 ## Measured disclosure budget
 
-Job `j14326` made 46 compact UTF-8 projections from the retained native bytes without another source request. Each projection uses `json.dumps(ensure_ascii=False,separators=(',',':'))` plus one newline. The report retains every size and hash. These are proposed response payloads, not existing CLI/MCP envelopes. Shared source terms, status, problems and executable actions will add bytes. The table's 15 percent payload allowance is proposed for PM review; it must not be reported as a passing runtime output cap. Actual whole-output caps are measured and asserted when the commands exist.
+Complete emitted envelopes replace the investigation's offline payload projections. CLI bytes include the newline; MCP bytes count actual tool text; Markdown counts actual UTF-8 stdout. Separate full RPC entries do not become content budgets. The canonical YAML steps own their `max_bytes` and `max_tokens`; the existing exact Rust phases own their measurements in `tests/cell-line-command-budgets.json`. Each ceiling adds fifteen percent to that same case and surface. Source policy fields count in the complete envelope.
 
-| Default payload | Cases measured | Payload range in bytes | Maximum bytes / 4 estimate | Proposed payload ceiling |
-| --- | --- | --- | --- | --- |
-| Five native search headers | Six source windows, including zero | 52–4,580 | 1,145 | 5,267 bytes |
-| Exact default card | Nine lines, including qualified U-937 warning | 1,002–1,313 | 328.25 | 1,510 bytes |
-| Five name entries | Nine lines | 126–217 | 54.25 | 250 bytes |
-| Five complete xrefs | Nine lines | 838–1,323 | 330.75 | 1,522 bytes |
-| Three complete variation rows | Nine lines | 636–2,453 | 613.25 | 2,821 bytes |
-| Exact ChEMBL metadata | Two positive accessions and one valid empty | 23–324 | 81 | 373 bytes |
-| Exact ChEMBL assay count | One positive native count | 54 | 13.5 | 63 bytes |
+| Measured envelope | Owning phase | CLI bytes | MCP text bytes | Markdown bytes |
+| --- | --- | ---: | ---: | ---: |
+| Five native search headers | `native/search/MOLM13` | 1589 | 1588 | 1620 |
+| Exact default card with qualified warning | `native/card/CVCL_0007` | 2077 | 2076 | 2199 |
+| Identity overflow page | `sections/bounds/identity/1/1` | 894 | 893 | 982 |
+| Native names page | `sections/native/CVCL_0064/names` | 767 | 766 | 760 |
+| Complete xref page | `sections/native/CVCL_0002/xrefs` | 1592 | 1591 | 1517 |
+| Complete variation rows | `sections/native/CVCL_0002/variants` | 2951 | 2950 | 3120 |
+| Exact ChEMBL metadata | `chembl/native/metadata/CVCL_2119` | 719 | 718 | 807 |
+| Exact ChEMBL assay total | `chembl/native/assays` | 376 | 375 | 388 |
+| Every bounded first section page | `all/native/CVCL_2119` | 6903 | 6902 | 7000 |
 
-The identity-overflow section reuses the card's exact source fields and collection cap; its sample payload has no separate larger-field claim. A future input that exceeds these sampled values must preserve complete source rows and earn an explicit budget change, not shorten a warning or provenance. Nondefault limits scale by their checked page size. Whole help and MCP descriptions use the existing shared budgets; this proposal does not raise them.
+These rows reuse the accepted native measurements from 0258 through 0261. The detailed sections below retain every measured phase and ceiling. The K-562 canonical walk retains its own measured largest emitted page plus fifteen percent and proves all 1,398 exact identities in native order. It uses no other case's maximum. The strict `full_output_bytes` step option counts original stdout and actual validated MCP content text without subtracting source terms. Other entities keep their established basis.
 
-Bytes divided by four are an estimate, not a tokenizer measurement. No actual token counts, product cold/warm timing or 0.9 runtime ratio are claimed. The proposed card removes the enormous xref collection and variation provenance from the default layer while preserving the source facts behind explicit drill-downs. K-562's captured 325,557-byte source body demonstrates why source transfer and output budgets need separate checks.
+Bytes divided by four remain an estimate rather than tokenizer output. Source transfer sizes and source latency remain separate from product envelopes. Product cold/warm timing and all 0.9 sizes and timings remain unmeasured; milestone 5 owns the independently contained same-question comparison. No provider call or bioinformatics tool run was added for this accounting.
 
 
 ## Reproducible evidence

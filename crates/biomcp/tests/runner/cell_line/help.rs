@@ -55,44 +55,56 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
                 budget(phase, surface, output)?;
             }
         }
-        let output = env
-            .command(
-                env!("CARGO_BIN_EXE_biomcp"),
-                &words
-                    .into_iter()
-                    .chain(["--format", "md"])
-                    .map(String::from)
-                    .collect::<Vec<_>>(),
-            )
-            .output()
-            .map_err(|e| e.to_string())?;
-        if !output.status.success() {
-            return Err("Markdown help failed".into());
-        }
-        let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-        let _ = writeln!(
-            std::io::stderr(),
-            "CELL_LINE_MEASURE {phase} [markdown] {}",
-            markdown.len()
-        );
-        if !measure && markdown.len() > ceiling(phase, "markdown")? {
-            return Err("Markdown help exceeds measured cap".into());
-        }
-        for argument in value
-            .pointer("/result/commands/0/arguments")
-            .and_then(Value::as_array)
-            .ok_or("arguments")?
-        {
-            let name = argument
-                .get("name")
-                .and_then(Value::as_str)
-                .ok_or("argument name")?;
-            if !markdown.contains(name) {
-                return Err(format!("Markdown omitted {name}"));
-            }
-        }
+        markdown(&env, &words, phase, &value, measure)?;
     }
     discovery(&env)?;
+    Ok(())
+}
+
+fn markdown(
+    env: &Environment,
+    words: &[&str; 3],
+    phase: &str,
+    value: &Value,
+    measure: bool,
+) -> Result<(), String> {
+    let output = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &words
+                .iter()
+                .copied()
+                .chain(["--format", "md"])
+                .map(String::from)
+                .collect::<Vec<_>>(),
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err("Markdown help failed".into());
+    }
+    let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
+    let _ = writeln!(
+        std::io::stderr(),
+        "CELL_LINE_MEASURE {phase} [markdown] {}",
+        markdown.len()
+    );
+    if !measure && markdown.len() > ceiling(phase, "markdown")? {
+        return Err("Markdown help exceeds measured cap".into());
+    }
+    for argument in value
+        .pointer("/result/commands/0/arguments")
+        .and_then(Value::as_array)
+        .ok_or("arguments")?
+    {
+        let name = argument
+            .get("name")
+            .and_then(Value::as_str)
+            .ok_or("argument name")?;
+        if !markdown.contains(name) {
+            return Err(format!("Markdown omitted {name}"));
+        }
+    }
     Ok(())
 }
 
@@ -117,7 +129,7 @@ fn discovery(env: &Environment) -> Result<(), String> {
         serde_json::to_vec(reply).map_err(|e| e.to_string())?.len() + 1
     )
     .map_err(|e| e.to_string())?;
-    for words in [vec!["help"], vec!["schema", "biomcp.source/1"]] {
+    for words in [vec!["help"], vec!["schema", "biodata.source/1"]] {
         let output = env
             .command(
                 env!("CARGO_BIN_EXE_biomcp"),
