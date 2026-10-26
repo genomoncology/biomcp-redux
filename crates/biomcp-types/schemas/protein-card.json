@@ -1019,7 +1019,7 @@
         },
         "section_limit": {
           "default": 5,
-          "description": "Bounded first-page size for each requested section.",
+          "description": "First-page row limit; function keeps one whole native text record and does not page its paragraphs.",
           "format": "uint32",
           "maximum": 25,
           "minimum": 1,
