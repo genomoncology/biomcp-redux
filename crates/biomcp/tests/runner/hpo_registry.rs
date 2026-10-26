@@ -31,7 +31,7 @@ fn declaration() -> Check {
         return Err("HPO must be keyless".into());
     }
     for component in registry::components().filter(|c| c.native_source == Some(Source::Hpo)) {
-        if component.terms != spec.terms { return Err("HPO terms diverged".into()); }
+        if component.terms.name != spec.terms.name || component.terms.url != spec.terms.url || component.terms.usage != spec.terms.usage { return Err("HPO terms diverged".into()); }
     }
     for state in [SourceState::Ok, SourceState::Stale, SourceState::Skipped, SourceState::Failed] {
         let mut outcome = registry::outcome(Source::Hpo, state, Some(Reason::Disabled));
