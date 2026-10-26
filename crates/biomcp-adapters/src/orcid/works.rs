@@ -28,7 +28,16 @@ struct ExternalId {
     external_id_type: Text,
     external_id_value: Text,
     external_id_relationship: Text,
-    external_id_url: Option<Wrapped>,
+    external_id_url: Option<Url>,
+}
+#[derive(Deserialize)]
+struct Url {
+    value: String,
+}
+impl Url {
+    fn text(self) -> Option<Text> {
+        self.value.parse().ok()
+    }
 }
 impl Identifiers {
     fn convert(self) -> Box<[OrcidExternalId]> {
@@ -38,7 +47,7 @@ impl Identifiers {
                 kind: id.external_id_type,
                 value: id.external_id_value,
                 relationship: id.external_id_relationship,
-                url: id.external_id_url.map(|v| v.value),
+                url: id.external_id_url.and_then(Url::text),
             })
             .collect()
     }
@@ -54,7 +63,7 @@ struct Assertion {
     work_type: Text,
     publication_date: Option<Date>,
     journal_title: Option<Wrapped>,
-    url: Option<Wrapped>,
+    url: Option<Url>,
     external_ids: Identifiers,
     source: Origin,
     display_index: Option<Text>,
@@ -144,7 +153,7 @@ impl Assertion {
                 .map(Date::convert)
                 .transpose()?,
             journal_title: self.journal_title.map(|v| v.value),
-            url: self.url.map(|v| v.value),
+            url: self.url.and_then(Url::text),
             external_ids: self.external_ids.convert(),
             source: self.source.convert(),
             visibility: OrcidPublicVisibility::Public,
