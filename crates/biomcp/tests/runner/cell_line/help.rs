@@ -44,16 +44,8 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
         if value != mcp {
             return Err("help CLI/MCP mismatch".into());
         }
-        for (surface, output) in [("cli", &value), ("mcp", &mcp)] {
-            let bytes = serde_json::to_vec(output).map_err(|e| e.to_string())?.len()
-                + usize::from(surface == "cli");
-            let _ = writeln!(
-                std::io::stderr(),
-                "CELL_LINE_MEASURE {phase} [{surface}] {bytes}"
-            );
-            if !measure {
-                budget(phase, surface, output)?;
-            }
+        for (surface, bytes) in [("cli", output.stdout.len()), ("mcp", text.len())] {
+            super::chembl::surface::measure_bytes(phase, surface, bytes, measure)?;
         }
         markdown(&env, &words, phase, &value, measure)?;
     }
