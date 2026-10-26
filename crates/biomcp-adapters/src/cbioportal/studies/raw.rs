@@ -15,9 +15,7 @@ pub struct CatalogRow {
     description: Box<str>,
     all_sample_count: u64,
     reference_genome: Text,
-    #[serde(default)]
     pmid: Option<Box<str>>,
-    #[serde(default)]
     citation: Option<Box<str>>,
     sequenced_sample_count: u64,
     cna_sample_count: u64,
@@ -85,7 +83,7 @@ impl Row for CatalogRow {
         if body.len() > 1024 * 1024 {
             return Err(BadReply);
         }
-        let rows: Vec<Self> = serde_json::from_slice(body).map_err(|_| BadReply)?;
+        let rows: Vec<Self> = biomcp_fetch::decode_bundle_document(body)?;
         if rows.is_empty() {
             return Err(BadReply);
         }

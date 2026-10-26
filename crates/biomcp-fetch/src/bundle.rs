@@ -277,3 +277,10 @@ impl Leg<'_> {
 pub fn encode_bundle_row<T: serde::Serialize>(row: &T) -> Result<String, crate::BadReply> {
     serde_json::to_string(row).map_err(|_| crate::BadReply)
 }
+
+/// Decode a complete typed JSON catalog inside the transport JSON boundary.
+pub fn decode_bundle_document<T: serde::de::DeserializeOwned>(
+    body: &[u8],
+) -> Result<T, crate::BadReply> {
+    serde_json::from_slice(body).map_err(|_| crate::BadReply)
+}
