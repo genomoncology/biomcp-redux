@@ -14,7 +14,7 @@ pub(super) fn message(words: &super::Words<'_>) -> Option<ErrorMessage> {
         ["search", "protein", ..] => words.retired_option,
         ["protein", "interactions" | "associations", ..] => Some(ErrorMessage::ProteinString),
         ["get", "protein", input @ ..] if !words.literal => {
-            if words.sections.iter().any(|word| *word == "interactions")
+            if words.sections.contains(&"interactions")
                 || input.iter().skip(1).any(|word| *word == "interactions")
             {
                 Some(ErrorMessage::ProteinString)

@@ -189,22 +189,20 @@ fn hydrate(
 }
 
 fn recovery(q: &ProteinGet, out: &mut Outcome) {
-    if out
+    let fresh = out
         .sources
         .iter()
-        .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
-    {
-        out.next.truncate(4);
-    }
-    if out.next.len() < 5
-        && out.sources.iter().any(|s| {
-            s.source == Source::Hgnc
-                && matches!(
-                    s.state,
-                    SourceState::Syncing | SourceState::Failed | SourceState::Stale
-                )
-        })
-    {
+        .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale));
+    let sync = out.sources.iter().any(|s| {
+        s.source == Source::Hgnc
+            && matches!(
+                s.state,
+                SourceState::Syncing | SourceState::Failed | SourceState::Stale
+            )
+    });
+    out.next
+        .truncate(5 - usize::from(fresh) - usize::from(sync));
+    if sync {
         out.next.push((
             StepKind::Sync,
             Action::Sync {
@@ -212,12 +210,7 @@ fn recovery(q: &ProteinGet, out: &mut Outcome) {
             },
         ));
     }
-    if out.next.len() < 5
-        && out
-            .sources
-            .iter()
-            .any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale))
-    {
+    if fresh {
         out.next.push((
             StepKind::Fresh,
             Action::Run {
