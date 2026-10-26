@@ -1,6 +1,7 @@
 # 0191 — Investigate the pathway slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fa331a88ba12d1604bf9856d9fa83a50b625a29f
 
 Milestone: 4
 
