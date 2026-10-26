@@ -146,6 +146,7 @@ fn verify(row: &Value, native: &Value, result: &Value) -> Result<(), String> {
             }
         }
         let hpo = row.get("source") == Some(&json!("hpo"));
+        sections(native, result, hpo)?;
         let mappings = if hpo {
             vec![
                 ("label", "name"),
@@ -242,6 +243,57 @@ fn restore_date(directory: &Path, fetched: u64) -> Result<(), String> {
             )
             .map_err(|e| e.to_string())?;
         }
+    }
+    Ok(())
+}
+
+fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
+    let present = |field: &str| native.get(field).is_some_and(|v| !v.is_null());
+    let mut expected = Vec::new();
+    if if hpo {
+        present("synonyms")
+    } else {
+        [
+            "synonym",
+            "exact_synonym",
+            "broad_synonym",
+            "narrow_synonym",
+            "related_synonym",
+        ]
+        .into_iter()
+        .any(present)
+    } {
+        expected.push("synonyms");
+    }
+    if present(if hpo { "xrefs" } else { "xref" }) {
+        expected.push("xrefs");
+    }
+    if !hpo {
+        if ["super_classes", "sub_classes"].into_iter().any(|field| {
+            native
+                .pointer(&format!("/node_hierarchy/{field}"))
+                .is_some_and(|v| !v.is_null())
+        }) {
+            expected.push("hierarchy");
+        }
+        for (key, section) in [
+            ("biolink:DiseaseToPhenotypicFeatureAssociation", "diseases"),
+            ("biolink:GeneToPhenotypicFeatureAssociation", "genes"),
+        ] {
+            if native
+                .get("association_counts")
+                .and_then(Value::as_array)
+                .is_some_and(|rows| rows.iter().any(|row| row.get("key") == Some(&json!(key))))
+            {
+                expected.push(section);
+            }
+        }
+    }
+    if result.pointer("/result/sections") != Some(&json!(expected)) {
+        return Err("native available sections changed".into());
+    }
+    if result.get("next").is_some() {
+        return Err("card advertised a section handler before it exists".into());
     }
     Ok(())
 }
