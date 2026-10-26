@@ -20,11 +20,11 @@ fn entries() -> Value {
 }
 fn record(replay: &Path, body: Value, status: u16, delay: u64) -> Check {
     let url = "https://api.github.com/repos/cBioPortal/datahub/contents/public/synthetic_0";
-    let key = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat());
+    let key = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat()).iter().map(|byte| format!("{byte:02x}")).collect::<String>();
     let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
     let exchanges = if matches!(status, 429 | 500) { vec![exchange; 3] } else { vec![exchange] };
     let value = json!({"source":"cbioportal","method":"GET","url":url,"exchanges":exchanges});
-    fs::write(replay.join("cbioportal").join(format!("{key:x}.json")),value.to_string()).map_err(|e| e.to_string())
+    fs::write(replay.join("cbioportal").join(format!("{key}.json")),value.to_string()).map_err(|e| e.to_string())
 }
 fn pages() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
