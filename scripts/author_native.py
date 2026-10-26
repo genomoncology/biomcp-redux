@@ -56,6 +56,15 @@ for template in [*templates.glob('*.yaml'), *templates.with_name('author-papers'
     if kind != 'all' and template.parent.name != kind:
         continue
     case = json.loads(template.read_text())
+    if template.stem.startswith('papers-'):
+        native = records[template.stem][1]['data']
+        details = template.stem.endswith('-details')
+        for step in case['steps']:
+            for index, paper in enumerate(native):
+                prefix = f'/result/items/{index}/' + ('header/' if details else '')
+                step['expect'][prefix + 'title'] = paper['title']
+                if details:
+                    step['expect'][f'/result/items/{index}/authors/*/name'] = [row['name'] for row in paper['authors']]
     case['replay'] = str(replay.parent)
     (cases / template.name).write_text(json.dumps(case, indent=2) + '\n')
 
