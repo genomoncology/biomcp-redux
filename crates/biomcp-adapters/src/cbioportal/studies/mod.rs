@@ -80,3 +80,5 @@ pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {
 
 mod sections;
 pub use sections::{Records, profiles, sample_lists};
+mod files;
+pub use files::{Directory, files};

@@ -7,7 +7,10 @@ use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
+    let native = crate::runner::launch::fixtures().join("study-files-cases");
+    let available = native.is_dir();
     vec![
+        Trial::test("study-files/retained-native", move || retained(&native).map_err(Into::into)).with_ignored_flag(!available),
         Trial::test("study-files/complete-walk-and-notice", || pages().map_err(Into::into)),
         Trial::test("study-files/absence-failure-policy", || failures().map_err(Into::into)),
     ]
@@ -72,6 +75,23 @@ fn failures() -> Check {
         record(&replay,entries(),200,0)?;
         let value=call(&env,&replay,&["get","study","synthetic_0","files","--disable-sources",disabled],4)?;
         if value.pointer("/sources/0/reason")!=Some(&json!("disabled")) { return Err(format!("policy bypass: {value}")); }
+    }
+    Ok(())
+}
+
+fn retained(directory: &Path) -> Check {
+    use std::io::Write;
+    let registry = crate::runner::schema::Registry::embedded()?;
+    let mut paths = fs::read_dir(directory).map_err(|e| e.to_string())?
+        .map(|entry| entry.map(|v| v.path()).map_err(|e| e.to_string()))
+        .collect::<Result<Vec<_>, _>>()?;
+    paths.sort();
+    if paths.len() != 18 { return Err("native file case inventory differs".into()); }
+    for path in paths {
+        let value = crate::runner::run_case(&path, &registry)?;
+        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+        let comparable = crate::runner::source_terms::size(&value, "")?;
+        writeln!(std::io::stdout(), "Study files native {} CLI={} MCP={} comparable={} estimated_tokens={}", path.file_stem().ok_or("case name")?.to_string_lossy(), full+1,full,comparable,comparable.div_ceil(4)).map_err(|e| e.to_string())?;
     }
     Ok(())
 }
