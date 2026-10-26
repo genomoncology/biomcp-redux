@@ -263,6 +263,14 @@ fn surfaces() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
     call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
+    let card = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    if card.pointer("/result/study/description") != Some(&json!("Literal mixed metadata")) {
+        return Err("exact stored study card lost native description".into());
+    }
+    let absent = call(&env, &replay, &["get", "study", "SYNTHETIC_0"], 1)?;
+    if absent.get("result").is_some() {
+        return Err("study ID case was repaired".into());
+    }
     let args = vec!["search".into(), "study".into(), "atlas".into()];
     let mcp =
         super::mcp::call_with_globals(&env, &args, false, &env.globals(Some(&replay), false))?;
@@ -345,7 +353,7 @@ fn revision() -> Check {
         &["search", "study", "atlas", "--pool", id, "--offset", "5"],
         0,
     )?;
-    if after.get("result").is_some() || after.pointer("/next/0/kind") != Some(&json!("restart")) {
+    if after.pointer("/result/snapshot/revision") != first.pointer("/result/snapshot/revision") {
         return Err("continuation mixed catalog revisions".into());
     }
     let fresh = call(
