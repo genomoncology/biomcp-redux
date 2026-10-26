@@ -1,5 +1,14 @@
 {
   "$defs": {
+    "CacheProblem": {
+      "description": "A local cache failure that leaves the provider outcome intact.",
+      "enum": [
+        "busy",
+        "database",
+        "version"
+      ],
+      "type": "string"
+    },
     "ErrorCode": {
       "description": "The stable error code for an invalid schema request.",
       "enum": [
@@ -483,6 +492,17 @@
   "properties": {
     "error": {
       "$ref": "#/$defs/ErrorDetail"
+    },
+    "local_error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CacheProblem"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Bounded cache failure when local startup cannot open its store."
     },
     "next": {
       "description": "Typed restart when a snapshot cannot answer this query.",
