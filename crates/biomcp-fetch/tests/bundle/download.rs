@@ -267,3 +267,42 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
         }
     }
 }
+
+#[test]
+fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() {
+    let directory = tempfile::tempdir().unwrap();
+    let server = support::Server::<()>::new();
+    let bundle = declared(&server);
+    let fetch = Fetch::open(FetchConfig {
+        cache: Some(directory.path().join("cache.sqlite")),
+        sync_budget: Duration::from_secs(5),
+        ..Default::default()
+    })
+    .unwrap();
+    let access = fetch.cache_access().unwrap();
+    std::thread::scope(|scope| {
+        let sync = scope.spawn(|| fetch.sync(&bundle));
+        let request = server.next();
+        let answer = access
+            .admit(fetch.deadline(Duration::from_secs(10)), || {
+                // The request proves claim has finished. Keep the ordinary SQL
+                // connection held while a multi-batch publication completes.
+                let body = format!(
+                    "symbol\tband\tname\n{}",
+                    "BRAF\t9p21.1\tB raf kinase\n".repeat(600)
+                );
+                request.respond(200, "", &body);
+                let answer = scope.spawn(|| {
+                    let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(5)));
+                    let endpoint = bundle.spec.get("/answer").fresh(Freshness::Hours(1));
+                    assert!(leg.json::<support::Answer>(&endpoint, &[]).unwrap().answer);
+                    leg.finish()
+                });
+                server.next().ok();
+                assert_eq!(sync.join().unwrap().unwrap().rows, 600);
+                Ok(answer)
+            })
+            .unwrap();
+        assert!(answer.join().unwrap().failures.is_empty());
+    });
+}
