@@ -3,7 +3,7 @@ mod adverse_event_registry;
 mod adverse_event_retirements;
 mod article_save;
 mod assertions;
-mod cell_line;
+pub(super) mod cell_line;
 mod clinpgx;
 mod clinvar_key;
 mod configuration;
@@ -600,4 +600,3 @@ pub(super) fn protein_native(path: &Path) -> Result<(), String> {
 
 mod wikipathways_genes;
 
-pub(super) use cell_line::{measure as cell_line_measure, measure_remaining as cell_line_measure_remaining, measure_canonical as cell_line_canonical_measure, generate_examples as cell_line_examples};

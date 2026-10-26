@@ -69,9 +69,9 @@ fn main() -> ExitCode {
 
 fn native_proof() -> Option<ExitCode> {
     let measure: Option<fn() -> Result<(), String>> = match env::args().nth(1).as_deref() {
-        Some("--cell-line-measure") => Some(runner::cell_line_measure),
-        Some("--cell-line-measure-remaining") => Some(runner::cell_line_measure_remaining),
-        Some("--cell-line-canonical-measure") => Some(runner::cell_line_canonical_measure),
+        Some("--cell-line-measure") => Some(runner::cell_line::measure),
+        Some("--cell-line-measure-remaining") => Some(runner::cell_line::measure_remaining),
+        Some("--cell-line-canonical-measure") => Some(runner::cell_line::measure_canonical),
         _ => None,
     };
     if let Some(measure) = measure {
@@ -86,7 +86,7 @@ fn native_proof() -> Option<ExitCode> {
     }
     let mode = env::args().nth(1)?;
     let run = match mode.as_str() {
-        "--cell-line-examples" => runner::cell_line_examples,
+        "--cell-line-examples" => runner::cell_line::generate_examples,
         "--faers-search-synthetic-examples" => runner::faers_search_examples,
         "--seer-native-proof" => runner::seer_native,
         "--trial-condition-native-proof" => runner::trial_condition_native,
