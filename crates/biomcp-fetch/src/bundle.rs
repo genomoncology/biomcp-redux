@@ -11,6 +11,8 @@ use std::marker::PhantomData;
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 /// A decoded bundle row supplies its own search keys.
 pub trait Row: serde::de::DeserializeOwned {
+    /// Source-specific complete transfer bound, capped by the shared bundle ceiling.
+    const MAX_BYTES: u64 = MAX_BUNDLE_BYTES;
     /// Decode a complete source document before any row is published.
     fn decode_document(_body: &[u8]) -> Result<Vec<String>, crate::BadReply> {
         Err(crate::BadReply)

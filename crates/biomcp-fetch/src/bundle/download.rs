@@ -155,6 +155,9 @@ impl Leg<'_> {
                 )
                 .into());
         }
+        if exchange.body.bytes().len() as u64 > R::MAX_BYTES {
+            return Err(self.failure(Reason::BadReply, Some(200)).into());
+        }
         let rows = parse::rows::<R>(exchange.body.bytes(), b.format)
             .map_err(|_| self.failure(Reason::BadReply, Some(200)))?;
         let mut meta = meta(
@@ -296,7 +299,7 @@ impl Leg<'_> {
         if !matches!(b.format, super::RowFormat::Tsv) {
             t.part.etag = None;
         }
-        self.stream(t, response)?;
+        self.stream(t, response, R::MAX_BYTES)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
@@ -394,13 +397,15 @@ impl Leg<'_> {
         &self,
         t: &mut Transfer<'_>,
         response: &mut ureq::http::Response<ureq::Body>,
+        source_limit: u64,
     ) -> Result<(), RequestError> {
         let status = response.status().as_u16();
         let limit = if t.auto {
             self.fetch.config.auto_sync_max_bytes.min(MAX_BUNDLE_BYTES)
         } else {
             MAX_BUNDLE_BYTES
-        };
+        }
+        .min(source_limit);
         if t.part.total.is_some_and(|n| n > limit) {
             return Err(self.failure(Reason::Syncing, Some(status)).into());
         }

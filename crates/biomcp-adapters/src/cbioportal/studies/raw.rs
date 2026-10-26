@@ -80,6 +80,7 @@ impl CatalogRow {
     }
 }
 impl Row for CatalogRow {
+    const MAX_BYTES: u64 = 1024 * 1024;
     fn decode_document(body: &[u8]) -> Result<Vec<String>, BadReply> {
         if body.len() > 1024 * 1024 {
             return Err(BadReply);
