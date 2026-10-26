@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 import shutil
 import tarfile
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit, quote
 
 archives, output = map(Path, sys.argv[1:])
 output.mkdir()
@@ -18,7 +18,9 @@ shutil.copytree(Path(__file__).resolve().parent.parent / 'tests/replies/gene/mai
 
 def record(url, body, headers):
     parts = urlsplit(url)
-    canonical = urlunsplit(parts._replace(query=urlencode(sorted(parse_qsl(parts.query)))))
+    params = dict(parse_qsl(parts.query))
+    pairs = [(key, params[key]) for key in ('query', 'format', 'size', 'fields', 'cursor') if key in params]
+    canonical = urlunsplit(parts._replace(query=urlencode(pairs, quote_via=quote, safe='~')))
     headers = email.message_from_string(headers.decode().replace('\r\n', '\n').split('\n', 1)[1])
     exchange = {'status': 200, 'content_type': 'application/json', 'delay_ms': 0,
                 'retry_after_ms': None, 'body': {'kind': 'json', 'value': json.loads(body)}}
