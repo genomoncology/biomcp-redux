@@ -1,6 +1,7 @@
 # 0235 — Register InterPro and Complex Portal as open sources
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ccf7f16eb85c5c10ca9ca93d0948f9dbc0c93951
 
 Milestone: 4
 
