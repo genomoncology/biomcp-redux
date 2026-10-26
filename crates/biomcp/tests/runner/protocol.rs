@@ -33,7 +33,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         Trial::test("mcp/panicking-worker-completes-with-internal-error", || {
             let outcome: std::io::Result<()> =
-                worker::execute(|| panic!("injected worker failure"));
+                worker::execute(|| std::panic::resume_unwind(Box::new("injected worker failure")));
             if outcome.is_ok() {
                 return Err("panic did not become an internal error".into());
             }
