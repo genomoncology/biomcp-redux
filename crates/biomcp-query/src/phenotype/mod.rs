@@ -1,12 +1,13 @@
 //! Literal source term discovery and independent exact term cards.
-mod card;
+mod sections;
+mod snapshot;
 use crate::{Action, Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::{
     PageInfo, PhenotypeGet, PhenotypePage, PhenotypeSearch, QueryBody, Request, Source, Status,
     StepKind,
 };
-pub use card::get;
+pub use snapshot::get;
 /// Search one native HP page without source substitution or local selection.
 pub fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);

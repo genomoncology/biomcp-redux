@@ -40,3 +40,12 @@ fn overall(out: &Outcome, absent: bool) -> Status {
         Status::Complete
     }
 }
+
+/// Read retained native pathway membership.
+pub fn genes(_: &crate::Ctx<'_>, _: &biomcp_types::PathwayGenesQuery) -> Outcome {
+    empty(QueryBody::PathwayGenes(None))
+}
+/// Read retained native contained events.
+pub fn events(_: &crate::Ctx<'_>, _: &biomcp_types::PathwayEventsQuery) -> Outcome {
+    empty(QueryBody::PathwayEvents(None))
+}

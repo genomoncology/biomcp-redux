@@ -9,6 +9,8 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(q, body)
         }
         (Request::GetPathway(q), QueryBody::PathwayCard(body)) => meta.encode(q, body),
+        (Request::PathwayGenes(q), QueryBody::PathwayGenes(body)) => meta.encode(q, body),
+        (Request::PathwayEvents(q), QueryBody::PathwayEvents(body)) => meta.encode(q, body),
         _ => Err(io::Error::other("pathway response mismatch")),
     }
 }

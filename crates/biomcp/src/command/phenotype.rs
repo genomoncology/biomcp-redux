@@ -8,11 +8,14 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(q, success.then_some(body))
         }
         (Request::GetPhenotype(q), QueryBody::PhenotypeCard(body)) => meta.encode(q, body),
+        (Request::GetPhenotype(q), QueryBody::PhenotypeSynonyms(body)) => meta.encode(q, body),
+        (Request::GetPhenotype(q), QueryBody::PhenotypeXrefs(body)) => meta.encode(q, body),
+        (Request::GetPhenotype(q), QueryBody::PhenotypeHierarchy(body)) => meta.encode(q, body),
         (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
         _ => Err(io::Error::other("phenotype response mismatch")),
     }
 }
 
 pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
-    matches!(action, biomcp_query::Action::Run { request: Request::GetPhenotype(query), .. } if query.section().is_some())
+    matches!(action, biomcp_query::Action::Run { request: Request::GetPhenotype(query), .. } if matches!(query.section(), Some(biomcp_types::PhenotypeSection::Diseases | biomcp_types::PhenotypeSection::Genes)))
 }

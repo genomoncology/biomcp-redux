@@ -20,7 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 
 mod raw;
-use biodata::{Attribution, PhenotypeCard, Text};
+use biodata::{Attribution, PhenotypeCard, PhenotypeSynonym, PhenotypeXref, Text};
 use biomcp_fetch::{BadReply, Freshness, InputError, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{PhenotypeGet, PhenotypeSection, PhenotypeTermCard};
 /// Exact native term and its original retrieval metadata.
@@ -30,6 +30,10 @@ pub struct Record {
     pub card: PhenotypeTermCard,
     /// Checked retrieval metadata.
     pub metadata: ReplyMetadata,
+    /// Unclassified source synonyms; missing remains unavailable.
+    pub synonyms: Option<Box<[PhenotypeSynonym]>>,
+    /// Source references, without an inferred predicate.
+    pub xrefs: Option<Box<[PhenotypeXref]>>,
 }
 /// Read exactly one HPO identity without fallback or local term selection.
 pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> {
@@ -44,6 +48,13 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
             Err(BadReply)
         }
     })?;
+    map(term, metadata, query)
+}
+fn map(
+    term: raw::Term,
+    metadata: ReplyMetadata,
+    query: &PhenotypeGet,
+) -> Result<Record, RequestError> {
     let mut sections = Vec::new();
     if term.synonyms.is_some() {
         sections.push(PhenotypeSection::Synonyms);
@@ -52,7 +63,29 @@ pub fn get(leg: &Leg<'_>, query: &PhenotypeGet) -> Result<Record, RequestError> 
         sections.push(PhenotypeSection::Xrefs);
     }
     let attribution = attribution(&term.id)?;
+    let synonyms = term.synonyms.map(|rows| {
+        rows.into_vec()
+            .into_iter()
+            .map(|value| PhenotypeSynonym {
+                value,
+                relationship: None,
+                attribution: attribution.clone(),
+            })
+            .collect()
+    });
+    let xrefs = term.xrefs.map(|rows| {
+        rows.into_vec()
+            .into_iter()
+            .map(|id| PhenotypeXref {
+                id,
+                predicate: None,
+                attribution: attribution.clone(),
+            })
+            .collect()
+    });
     Ok(Record {
+        synonyms,
+        xrefs,
         card: PhenotypeTermCard {
             term: PhenotypeCard::Hpo {
                 requested_id: query.id().clone(),

@@ -76,6 +76,8 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetPhenotype(q) => crate::phenotype::get(cx, q),
         Request::SearchPathway(q) => crate::pathway::search(cx, q),
         Request::GetPathway(q) => crate::pathway::get(cx, q),
+        Request::PathwayGenes(q) => crate::pathway::genes(cx, q),
+        Request::PathwayEvents(q) => crate::pathway::events(cx, q),
         Request::SearchStudy(q) => crate::study::search(cx, q),
         Request::GetStudy(q) => crate::study::get(cx, q),
         Request::SearchPgx(query) => crate::pgx::search(cx, query),
