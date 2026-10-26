@@ -62,7 +62,7 @@ pub struct PathwayPage {
     pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway_page/2";
+    const SCHEMA: &'static str = "biomcp.pathway_page/3";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.

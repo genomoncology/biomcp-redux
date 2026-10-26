@@ -80,6 +80,7 @@ impl Document {
 }
 impl Reply for Document {
     fn check(&self) -> Result<(), BadReply> {
+        biodata::Text::new(&self.name).map_err(|_| BadReply)?;
         if self.nodes.len() > MAX_NODES {
             return Err(BadReply);
         }

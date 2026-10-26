@@ -431,7 +431,7 @@ fn pathway_contracts() -> Vec<Contract> {
         PathwayGenesQuery => ("pathway-genes-query", "biomcp.pathway-genes-query/2"),
         PathwayEventsQuery => ("pathway-events-query", "biomcp.pathway-events-query/1"),
         Envelope<WikiPathwaysSync> => ("wikipathways-sync", "biomcp.wikipathways_sync/1"),
-        Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/2"),
+        Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/3"),
         Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/5"),
         Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/4"),
         Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/2"),
