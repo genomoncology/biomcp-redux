@@ -101,10 +101,14 @@ fn card(
         device_count: row.devices.len() as u32,
         narrative_count: row.narrative.len() as u32,
         source_url: text("https://open.fda.gov/apis/device/event/")?,
-        report_url: text(&format!(
-            "https://api.fda.gov/device/event.json?search=mdr_report_key%3A%22{}%22&limit=1",
-            query.id().as_str()
-        ))?,
+        report_url: text(
+            &biomcp_adapters::registry::records::record_url(
+                biomcp_types::Source::Maude,
+                biomcp_adapters::registry::records::RecordKind::AdverseEvent,
+                query.id().as_str(),
+            )
+            .ok_or(())?,
+        )?,
         available_sections: vec![AdverseEventSection::Devices, AdverseEventSection::Narrative]
             .into(),
         components: Box::default(),

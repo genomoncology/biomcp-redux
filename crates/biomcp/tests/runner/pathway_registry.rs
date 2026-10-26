@@ -6,6 +6,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod admission;
+mod record_urls;
 const SOURCES: &[(&str, &str, &str)] = &[
     ("reactome", "open", "https://reactome.org/license"),
     (
@@ -24,6 +25,9 @@ pub(super) fn trials() -> Vec<Trial> {
             )
         })
         .chain([
+            Trial::test("source-registry/canonical-record-urls", || {
+                record_urls::run().map_err(Into::into)
+            }),
             Trial::test("pathway-registry/policy-before-io", || {
                 admission::run().map_err(Into::into)
             }),

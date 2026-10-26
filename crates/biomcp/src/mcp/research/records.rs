@@ -2,6 +2,8 @@
 use biodata::Text;
 use biomcp_types::ResearchHit;
 use serde_json::Value;
+mod native;
+mod paths;
 fn text<'a>(value: &'a Value, paths: &[&str]) -> Option<&'a str> {
     paths.iter().find_map(|path| {
         value
@@ -32,6 +34,7 @@ pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<Rese
             )
         }
         "article" => article(row, row.get("header").unwrap_or(row)),
+        "trial" if text(row, &["/url"]).is_none() => native::search(entity, row, envelope),
         "trial" => {
             let id = text(row, &["/nct_id", "/nci_id"])?;
             hit(
@@ -49,7 +52,7 @@ pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<Rese
                 &format!("https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/{id}"),
             )
         }
-        _ => native(entity, row, envelope),
+        _ => native::search(entity, row, envelope),
     }
 }
 fn article(identity: &Value, card: &Value) -> Option<ResearchHit> {
@@ -98,23 +101,11 @@ fn next_args(entity: &str, id: &str, envelope: &Value) -> Option<Vec<String>> {
     })
 }
 fn variant(row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    let id = text(row, &["/record/id"])?;
+    let id = text(row, paths::VARIANT_IDS)?;
     hit(
         next_args("variant", id, envelope).or_else(|| variant_args(id, envelope))?,
         id,
         &variant_url(row, envelope)?,
-    )
-}
-fn native(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
-    let id = text(row, &["/id", "/header/id", "/concept/id", "/product/id"])?;
-    let url = text(
-        row,
-        &["/url", "/header/url", "/attribution/url", "/record/url"],
-    )?;
-    hit(
-        next_args(entity, id, envelope)?,
-        text(row, &["/title", "/name", "/header/name", "/concept/label"]).unwrap_or(id),
-        url,
     )
 }
 pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<ResearchHit> {
@@ -136,11 +127,21 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
         "trial" => {
             let row = first?.get("card")?;
             let native_id = text(row, &["/nct_id", "/id"])?;
-            hit(
-                vec![entity.into(), native_id.into()],
-                text(row, &["/title"]).unwrap_or(native_id),
-                text(row, &["/url"])?,
-            )
+            if text(row, &["/url"]).is_none() {
+                native::project(
+                    entity,
+                    row,
+                    envelope,
+                    vec![entity.into(), native_id.into()],
+                    None,
+                )
+            } else {
+                hit(
+                    vec![entity.into(), native_id.into()],
+                    text(row, &["/title"]).unwrap_or(native_id),
+                    text(row, &["/url"])?,
+                )
+            }
         }
         "variant" => {
             let rows = result.get("candidates")?.as_array()?;
@@ -150,7 +151,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
                 return None;
             }
             let row = rows.first()?;
-            let native_id = text(row, &["/record/id"])?;
+            let native_id = text(row, paths::VARIANT_IDS)?;
             hit(
                 vec![entity.into(), native_id.into()],
                 native_id,
@@ -161,15 +162,7 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
             let row = first?.pointer("/answer/gene")?;
             search(entity, row, envelope)
         }
-        _ => {
-            let row = result.get("header").unwrap_or(result);
-            let url = text(row, &["/url", "/attribution/url", "/record/url"])?;
-            hit(
-                vec![entity.into()],
-                text(row, &["/title", "/name", "/concept/label"]).unwrap_or(id),
-                url,
-            )
-        }
+        _ => native::fetch(entity, result, first, envelope),
     }?;
     found.id = id.into();
     Some(found)
@@ -182,7 +175,7 @@ fn variant_url(row: &Value, envelope: &Value) -> Option<String> {
     if text(row, &["/source"]) != Some("myvariant") {
         return None;
     }
-    let id = text(row, &["/record/id"])?;
+    let id = text(row, paths::VARIANT_IDS)?;
     let encoded = id
         .bytes()
         .map(|b| {
