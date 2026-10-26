@@ -109,7 +109,7 @@ fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
     // A 0003 has 73 groups with two summaries; A 0005 has absent title/date.
     let group = json!({"external_ids":[{"kind":"pmid","value":"123","relationship":"self"}],"assertions":[assertion(2,Some("Synthetic title")),assertion(1,None)]});
     assert_eq!(roundtrip::<OrcidWorkGroup>(group.clone()).unwrap(), group);
-    let works = json!({"author":"0000-0002-4299-3018","groups":[group],"observed_groups":380,"collection_scope":"whole_public_works_reply"});
+    let works = json!({"author":"0000-0002-4299-3018","groups":[group],"observed_groups":380});
     assert_eq!(roundtrip::<OrcidWorks>(works.clone()).unwrap(), works);
     assert_eq!(
         roundtrip::<OrcidPublicVisibility>(json!("PUBLIC")).unwrap(),
@@ -176,7 +176,7 @@ fn five_standalone_envelopes_validate_without_shared_request_changes() {
     check::<AuthorPaperDetails>(query, body).unwrap();
     check::<OrcidWorks>(
         json!({"id":"orcid:0000-0002-4299-3018"}),
-        json!({"author":"0000-0002-4299-3018","groups":[],"observed_groups":0,"collection_scope":"whole_public_works_reply"}),
+        json!({"author":"0000-0002-4299-3018","groups":[],"observed_groups":0}),
     )
     .unwrap();
 }
