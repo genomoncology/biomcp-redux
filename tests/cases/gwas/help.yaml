@@ -1,5 +1,5 @@
 {
-  "feature": "gwas-help",
+  "feature": "gwas-search",
   "story": "GWAS help exposes every selector, section, page option and two parsed case examples.",
   "steps": [
     {

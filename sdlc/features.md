@@ -130,7 +130,7 @@ pathway-types: A public API caller validates source-owned pathway identities and
 protein-types: Neutral protein identities, source records and checked standalone requests preserve source scope before adapters exist. Contracts: `biomcp-types/protein_contracts` (features: `schema`).
 
 study-get: Exact stored study cards expose bounded independent profile and sample-list metadata without participant identifiers. Cases: `crates/biomcp/tests/runner/study_get.rs`.
-gwas-search: Search source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end. Cases: `tests/cases/gwas/examples.yaml`, `crates/biomcp/tests/runner/gwas_search.rs`.
+gwas-search: Search source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end. Cases: `tests/cases/gwas/examples.yaml`, `tests/cases/gwas/help.yaml`, `crates/biomcp/tests/runner/gwas_search.rs`.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities. Cases: `tests/cases/protein/*.yaml`, `crates/biomcp/tests/runner/protein_commands.rs`.
 
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging. Cases: `tests/cases/phenotype/*.yaml`.
@@ -143,7 +143,7 @@ phenotype-sections: A caller pages native source synonyms, cross references and 
 
 pathway-wikipathways-genes: Read exact human pathway GeneProduct data nodes from bounded publisher GPML and page the retained relation without name-based identifier inference. Cases: `tests/cases/pathway/wikipathways-genes-missing.yaml`, `crates/biomcp/tests/runner/wikipathways_genes.rs`.
 phenotype-associations: A caller pages exact direct Monarch disease and human gene association rows without clinical inference or identity repair. Cases: `crates/biomcp/tests/runner/phenotype/associations.rs`.
-gwas-get: Read exact Catalog association and study records and their independent native context sections. Cases: `crates/biomcp/tests/runner/gwas_get.rs`, `tests/cases/gwas/get-examples.yaml`.
+gwas-get: Read exact Catalog association and study records and their independent native context sections. Cases: `tests/cases/gwas/get-examples.yaml`, `crates/biomcp/tests/runner/gwas_get.rs`.
 pathway-retirements: Retired pathway spellings return fixed supported routes before any source request. Cases: `crates/biomcp/tests/runner/pathway_retirements.rs`.
 
 pathway-failures: Source faults and foreign identities retain failed or rejected outcomes without cache admission. Cases: `crates/biomcp/tests/runner/pathway_failures.rs`.
@@ -155,4 +155,3 @@ protein-sections: A caller reads native protein features, alternative products, 
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership. Cases: `crates/biomcp/tests/runner/protein_domains.rs`.
 
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples. Cases: `tests/cases/pathway/help.yaml`.
-gwas-help: Discover GWAS selectors, native ordering, sections and paging through generated help and parsed case examples. Cases: `tests/cases/gwas/help.yaml`.

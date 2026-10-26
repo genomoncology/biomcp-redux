@@ -324,10 +324,18 @@ fn run_step(
             expectations,
         )?;
         answer = Some(result.clone());
-        if let Some(cli) = cli.as_ref()
-            && let Some(diff) = assertions::difference(cli, &result, "")
-        {
-            return Err(format!("CLI/MCP parity: unequal results at {diff}"));
+        if let Some(cli) = cli.as_ref() {
+            let mut comparable = result.clone();
+            // Repeated explicit syncs may acquire the same source in different seconds.
+            if args.first().is_some_and(|verb| verb == "sync")
+                && let Some(acquired) = cli.pointer("/result/snapshot/acquired")
+                && let Some(value) = comparable.pointer_mut("/result/snapshot/acquired")
+            {
+                *value = acquired.clone();
+            }
+            if let Some(diff) = assertions::difference(cli, &comparable, "") {
+                return Err(format!("CLI/MCP parity: unequal results at {diff}"));
+            }
         }
     }
     answer.ok_or_else(|| "step requires run or mcp".into())
