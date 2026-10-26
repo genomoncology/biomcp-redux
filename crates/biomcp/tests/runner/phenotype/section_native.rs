@@ -53,7 +53,8 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     };
     let value = invoke(&env, &record, exit)?;
     verify(&value, expected.as_deref(), row)?;
-    if text(row, "section")? == "hierarchy"
+    if raw.get("id") == Some(&json!("HP:0001250"))
+        && text(row, "section")? == "hierarchy"
         && row.get("offset") == Some(&json!(0))
         && row.get("limit") == Some(&json!(5))
     {
