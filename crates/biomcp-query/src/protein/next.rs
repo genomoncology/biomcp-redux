@@ -56,6 +56,7 @@ pub(super) fn search(
     pool: biodata::Text,
     offset: u32,
     more: bool,
+    partial: bool,
 ) -> Vec<Step> {
     let mut steps: Vec<_> = rows.iter().filter_map(accession).collect();
     if more {
@@ -64,6 +65,15 @@ pub(super) fn search(
             Action::Run {
                 request: Request::SearchProtein(q.at_page(pool, offset)),
                 fresh: false,
+            },
+        ));
+    }
+    if partial {
+        steps.push((
+            StepKind::Fresh,
+            Action::Run {
+                request: Request::SearchProtein(q.restart()),
+                fresh: true,
             },
         ));
     }

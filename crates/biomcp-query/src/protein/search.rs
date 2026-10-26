@@ -25,6 +25,13 @@ pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
     }));
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);
+        out.next.push((
+            StepKind::Fresh,
+            Action::Run {
+                request: Request::SearchProtein(q.restart()),
+                fresh: true,
+            },
+        ));
     }
     command.finish(deadline.remaining());
     out
@@ -225,6 +232,7 @@ fn render(
         pool,
         offset,
         returned > 0 && u64::from(offset) < saved.page.total,
+        out.status != Status::Complete,
     );
     out.page = Some(PageInfo {
         offset: q.offset(),
