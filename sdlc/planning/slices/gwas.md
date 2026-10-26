@@ -369,3 +369,5 @@ Job `j14895` replayed all eleven native responses through CLI and MCP, checked t
 | `ancestries` | 2390 | 2266 | 2749 | 2608 |
 | `associations-0` | 2100 | 1976 | 2415 | 2274 |
 | `associations-1` | 1860 | 1736 | 2139 | 1998 |
+
+The routine collection in `j14903` measured whole-tree generated help at 76,572 bytes after adding the exact get grammar. Its standing measured-size-plus-fifteen-percent formula sets the help fixture ceiling to 88,058 bytes. This is whole-tree command help rather than a source response or a per-command disclosure budget.
