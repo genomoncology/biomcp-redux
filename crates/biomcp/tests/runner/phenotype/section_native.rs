@@ -53,6 +53,17 @@ fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), S
     };
     let value = invoke(&env, &record, exit)?;
     verify(&value, expected.as_deref(), row)?;
+    if text(row, "section")? == "hierarchy"
+        && row.get("offset") == Some(&json!(0))
+        && row.get("limit") == Some(&json!(5))
+    {
+        walk(
+            &env,
+            &value,
+            expected.as_deref().ok_or("native hierarchy")?,
+            row,
+        )?;
+    }
     if let Some(fetched) = row.get("fetched").and_then(Value::as_u64) {
         native::restore_date(&directory, fetched)?;
     }
@@ -156,6 +167,59 @@ fn verify(value: &Value, expected: Option<&[Value]>, row: &Value) -> Result<(), 
         if &item != expected {
             return Err(format!("native row changed: {item} != {expected}"));
         }
+    }
+    Ok(())
+}
+
+fn walk(
+    env: &super::super::launch::Environment,
+    first: &Value,
+    expected: &[Value],
+    row: &Value,
+) -> Result<(), String> {
+    let mut value = first.clone();
+    let mut offset = 0_u64;
+    let mut token: Option<String> = None;
+    while let Some(next) = value
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|next| next.first())
+    {
+        if next.get("kind") != Some(&json!("page")) {
+            return Err("hierarchy offered an unrelated step".into());
+        }
+        let words: Vec<String> =
+            serde_json::from_value(next.get("args").ok_or("next args")?.clone())
+                .map_err(|e| e.to_string())?;
+        let selected = words
+            .windows(2)
+            .find(|pair| pair.first().is_some_and(|v| v == "--snapshot"))
+            .and_then(|pair| pair.get(1))
+            .ok_or("retained hierarchy selector")?;
+        if token.as_ref().is_some_and(|token| token != selected) {
+            return Err("hierarchy walk changed retained reply".into());
+        }
+        token = Some(selected.clone());
+        offset += 5;
+        let mut page = row.clone();
+        page.as_object_mut()
+            .ok_or("row")?
+            .insert("offset".into(), json!(offset));
+        value = invoke(
+            env,
+            &words.iter().map(String::as_str).collect::<Vec<_>>(),
+            0,
+        )?;
+        verify(&value, Some(expected), &page)?;
+        if value.pointer("/query/section_limit") != Some(&json!(5))
+            || value.pointer("/query/section") != Some(&json!("hierarchy"))
+            || value.pointer("/query/source") != Some(&json!("monarch"))
+        {
+            return Err("hierarchy next selectors changed".into());
+        }
+    }
+    if offset != 10 {
+        return Err("native hierarchy walk did not reach its terminal local page".into());
     }
     Ok(())
 }
