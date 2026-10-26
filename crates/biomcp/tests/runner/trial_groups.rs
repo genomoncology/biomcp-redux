@@ -1,0 +1,42 @@
+//! Group entity trials without growing the case entry point.
+use libtest_mimic::Trial;
+
+pub(super) fn drug_trials() -> Vec<Trial> {
+    let mut trials = Vec::new();
+    trials.extend(super::drug_failures::trials());
+    trials.extend(super::adverse_event_failures::trials());
+    trials.extend(super::vaers::trials());
+    trials.extend(super::drug_identity::trials());
+    trials.extend(super::drug_registry::trials());
+    trials.extend(super::adverse_event_registry::trials());
+    trials.extend(super::faers_search::trials());
+    trials.extend(super::maude::trials());
+    trials.extend(super::faers_get::trials());
+    trials.extend(super::diagnostic_registry::trials());
+    trials.extend(super::diagnostic_retirements::trials());
+    trials.extend(super::diagnostic_bundles::trials());
+    trials.extend(super::diagnostic_gtr::trials());
+    trials.extend(super::diagnostic_who::trials());
+    trials.extend(super::diagnostic_pma::trials());
+    trials.extend(super::diagnostic_510k::trials());
+    trials.extend(super::diagnostic_cdx::trials());
+    trials.extend(super::pgx_registry::trials());
+    trials.extend(super::pathway_registry::trials());
+    trials.extend(super::hpo_registry::trials());
+    trials.extend(super::pgx_retirements::trials());
+    trials.extend(super::cpic::trials());
+    trials.extend(super::clinpgx::trials());
+    trials.extend(super::drug_retirements::trials());
+    trials.extend(super::adverse_event_retirements::trials());
+    trials.extend(super::drug_civic::trials());
+    trials.extend(super::drug_next::trials());
+    trials.extend(super::drug_ema::trials());
+    trials.extend(super::drug_who::trials());
+    trials.extend(super::drug_ddinter::trials());
+    trials.extend(super::drug_fda::trials());
+    trials.extend(super::drug_mychem::trials());
+    trials.extend(super::drug_native::trials());
+    trials.extend(super::drug_native_identity::trials());
+    trials.extend(super::drug_label::trials());
+    trials
+}
