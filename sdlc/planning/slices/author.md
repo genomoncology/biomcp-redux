@@ -108,14 +108,16 @@ All 24 questions above are harvested questions with acceptance criteria. They ar
 | Source use policy | Both sources retain `noncommercial` under Ian's open-by-default ruling. The capture pause and separate expanded-license prerequisite are superseded. |
 | Documentation limits | Swagger retrieval returned 429, and a separate incorrect license page returned 403; neither was retried. The correct primary API license page was readable. These are documentation observations only. |
 
+Native source reply measurements and exact identity/paging proofs appear below. Command output budgets, warm-cache measurements and normalized type acceptance remain downstream work.
+
 | Command or layer | Measurement required before implementation | Current budget claim |
 | --- | --- | --- |
 | `search author` default page | Exact candidate order, source total, full names/affiliations, request count, compact JSON bytes/tokens, empty and failure outcomes | Unmeasured. No numeric ceiling accepted. |
 | `get author` Semantic Scholar card | Matching returned author ID, optional field/multiplicity inventory, cold/warm timings and bytes/tokens | Unmeasured. No numeric ceiling accepted. |
-| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Unmeasured for the public API route. Historical fixtures are not current proof. |
+| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Public API identity and visibility proved below. Normalized card size remains unmeasured. |
 | `author papers` compact | Native order, page size/next/total scope, every identifier type and exact article join, same-question bytes/tokens | Unmeasured. No numeric ceiling accepted. |
 | `author papers details` | Same page as compact, absent/optional abstract and access fields, complete bylines and counts, source terms | Unmeasured. No numeric ceiling accepted. |
-| ORCID groups and assertions | Group cardinality, representative selection without silent loss, external-ID relationship, bounded assertion drill-down | Unmeasured for the proposed route. No type accepted from a guessed shape. |
+| ORCID groups and assertions | Group cardinality, representative selection without silent loss, external-ID relationship, bounded assertion drill-down | Native groups and assertion provenance proved below. Representative selection and normalized output remain unmeasured; no type is accepted here. |
 | Whole help, entity help and MCP listing | Exact command spelling, examples and tool-description growth on approved implementation | Existing caps remain unchanged; this design requests no cap increase. |
 | Same-question 0.9 comparison | Verified network containment, exact request graph and replay of eligible captures | Unmeasured; no legacy binary was executed. |
 
@@ -219,7 +221,7 @@ Before type acceptance, the capture set must cover each source field's absence, 
 | `get author` one/many qualified IDs and ID alias | A01/A05/A09/A13 exact provider identities; A18/A24 exact ORCID; input order; invalid checksum before request; missing record; mismatched source ID refused; no name-based join. |
 | Card optional fields and output formats | A03/A11 counts/affiliations unavailable versus absent, compact JSON schema, Markdown facts, CLI/MCP parity. |
 | `author papers` compact | A02/A04/A06/A08/A10/A14/A16/A17/A19/A20/A22 native papers and exact article pivots, no enrichment or corpus merge. |
-| Papers `--limit`, `--offset`, `--pool` | A14/A15 native continuation or disclosed whole snapshot scope, stable source order, warm page, expired pool, incomplete source window. |
+| Papers `--limit`, `--offset`, `--pool` | A14/A15 native continuation or disclosed whole public-record scope, stable source order, warm page, expired pool, incomplete source window. |
 | Papers rich layer / legacy `--full` | A12 same paper IDs and page, retained native abstract/date/count/access/field/type/byline capabilities, absent fields remain optional; continuation retains rich selection. |
 | ORCID assertion disclosure | A17/A19/A20 same-group multiple summaries, exact external ID type/value/relationship, nonpublic assertion exclusion, lower/upper public visibility, stale snapshot disclosure. |
 | Global source disable and fresh | Issue 290 prevents requests and cache restoration; failure differs from an empty public record and offers a typed next action. |
