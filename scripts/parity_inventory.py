@@ -60,7 +60,11 @@ def generate(binary):
                     match = re.match(r"  ([a-z][a-z0-9-]*)\s", line)
                     if match and match[1] != "help":
                         children.append(match[1])
-                elif line.startswith("  "):
+                elif section in {
+                    "Options",
+                    "Chart Output",
+                    "Chart Styling",
+                } and line.startswith("  "):
                     # Only option declarations, never prose examples or defaults.
                     declaration = re.match(
                         r"\s+(?:-[A-Za-z],\s+)?(--[a-z][a-z0-9-]*)\b", line

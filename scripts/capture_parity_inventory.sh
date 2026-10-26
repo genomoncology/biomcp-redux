@@ -9,6 +9,6 @@ mkdir "$scratch/source"
 git -C "$public_repo" archive "$source_revision" | tar -x -C "$scratch/source"
 (
     cd "$scratch/source"
-    CARGO_TARGET_DIR="$scratch/target" cargo build --offline --locked --bin biomcp >&2
+    CARGO_TARGET_DIR="$scratch/target" cargo build --jobs 2 --offline --locked --bin biomcp >&2
 )
 python3 scripts/parity_inventory.py "$scratch/target/debug/biomcp"
