@@ -183,6 +183,121 @@
       "full_output_bytes": true,
       "max_bytes": 400,
       "max_tokens": 100
+    },
+    {
+      "run": [
+        "author",
+        "ranking",
+        "topic"
+      ],
+      "mcp": [
+        "author",
+        "ranking",
+        "topic"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 400,
+      "max_tokens": 100
+    },
+    {
+      "run": [
+        "author",
+        "merge",
+        "name"
+      ],
+      "mcp": [
+        "author",
+        "merge",
+        "name"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 400,
+      "max_tokens": 100
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "x",
+        "--rank"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "x",
+        "--rank"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 400,
+      "max_tokens": 100
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "x",
+        "--ranking"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "x",
+        "--ranking"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 400,
+      "max_tokens": 100
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "--query",
+        "name",
+        "--topic",
+        "topic"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "--query",
+        "name",
+        "--topic",
+        "topic"
+      ],
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 400,
+      "max_tokens": 100
     }
   ]
 }

@@ -54,7 +54,7 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 | Papers `-l/--limit`, `--offset` | Keep long flags and shared pool | Semantic Scholar pages natively; ORCID work summaries may require one bounded whole reply. |
 | Papers `--full` | Keep as an alias of the named `details` section | Accepted spelling preserves existing rich metadata; heavy abstracts and bylines stay below compact defaults. |
 | `article authors ID` | Article slice already retires the separate command | Author slice must ensure article bylines carry provider-qualified pivots where source supplies them; no new hidden enrichment call. |
-| `list author` | Shared typed help | Explain exact provider identity, sources, limits and sections. |
+| `list author` | Retire with fixed guidance to `help author`, `help search author` and `help get author` | Typed help retains provider identity, sources, limits and sections. |
 | Global JSON/Markdown, fresh/cache and source-disable options | Shared behavior | No entity-specific duplicate configuration. |
 
 No coauthor aggregation, topic scoring, affiliation filtering or cross-provider merging shipped in the legacy author surface. They are not retained merely because an earlier design proposed them. Its rich paper page did ship and therefore needs equivalent named access.
@@ -321,3 +321,12 @@ Current help measurements from j15720 are listed separately below. `list author`
 | Whole help | 88766 | 88698 | 88765 | 79356 | 187626 |
 
 The scoped synthetic works HTTP 404 control measures 295 CLI bytes, 4 bare result bytes, 294 MCP text bytes, 308 Markdown bytes and 846 full RPC bytes in j15767. Its canonical owner enforces 340 raw bytes and 86 estimated tokens. The native person absence remains distinct from this synthetic works status control. Current papers help owns 1284 raw bytes and 321 estimated tokens; its mandatory Markdown shape owns 1099 bytes. List author owns 2971 CLI bytes, 2970 MCP text bytes, 743 estimated tokens and 2782 Markdown bytes.
+
+
+## Retirement and source-failure contract
+
+`list author` returns `usage.retired` and names `help author`, `help search author` and `help get author`. `help author` retains the complete author route list, including papers. Topic ranking, coauthor aggregation and cross-provider merging return fixed unsupported guidance to `search author TEXT` or `search article`. An ORCID name search returns its own fixed unsupported guidance. Neither route rewrites query text, chooses a candidate or joins records by name. The existing article-owned `article authors` retirement remains unchanged. Legacy `-q` and `--query` author searches remain supported.
+
+Synthetic controls distinguish a successful empty candidate page, an absent exact record and a failed source. Both sources retain source identity and publisher terms on HTTP 429, HTTP 500, deadline, broken JSON and HTTP 200 error-body failures. An anonymous Semantic Scholar 429 retains the key-help action. The existing source failure handling required no adapter change for these controls.
+
+The zero-I/O command owner reads the canonical retired spelling table. CLI and MCP run against a local proxy listener and an unusable cache path. Disabled author search, exact cards and papers check each source name and the noncommercial group before cache and network. Existing settings-boundary tests separately observe deferred credential reads because subprocess output cannot expose whether a credential was resolved. Warm-cache canonical cases reject disabled delivery for both selectors. Publisher bodies remain outside Git; the added replies are synthetic controls.

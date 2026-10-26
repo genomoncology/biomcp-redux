@@ -38,7 +38,7 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
                 continue;
             }
             // Short query and limit flags retain their ordinary value boundaries.
-            if matches!(flag, "-q" | "-l") {
+            if matches!(flag, "-q" | "--query" | "-l") {
                 if inline.is_none() {
                     args.next();
                 }
