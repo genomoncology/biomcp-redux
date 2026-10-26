@@ -24,7 +24,7 @@
   "$id": "biomcp.study-get/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Exact case-sensitive study retrieval or a bounded metadata section.",
+  "description": "Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.",
   "properties": {
     "id": {
       "$ref": "#/$defs/StudyId",
