@@ -21,11 +21,17 @@ fn page(q: &PathwaySearch) -> PathwayPage {
 }
 /// Read a retained native page or request only its next bounded native window.
 pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
-    if q.sources().len()>1 { return super::union::search(cx,q); }
+    if q.sources().len() > 1 {
+        return super::union::search(cx, q);
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(QueryBody::PathwayPage(page(q)));
-    let source = if q.source() == biomcp_types::PathwaySource::Wikipathways { Source::WikiPathways } else { Source::Reactome };
+    let source = if q.source() == biomcp_types::PathwaySource::Wikipathways {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
     if let Err(error) = execute(cx, q, deadline, &mut out) {
         if out.sources.iter().all(|s| s.source != source) {
             let reason = match error {
@@ -55,7 +61,11 @@ fn execute(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let source = if q.source() == biomcp_types::PathwaySource::Wikipathways { Source::WikiPathways } else { Source::Reactome };
+    let source = if q.source() == biomcp_types::PathwaySource::Wikipathways {
+        Source::WikiPathways
+    } else {
+        Source::Reactome
+    };
     if cx.fetch.disabled(source) {
         return Err(SourceError {
             source,

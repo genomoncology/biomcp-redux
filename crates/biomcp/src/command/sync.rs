@@ -3,12 +3,15 @@ use biomcp_query::Bundle;
 use biomcp_types::{Envelope, Status};
 use std::io;
 pub(super) fn run(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
-    match acquire(fetch,bundle) {
-        Some(result) => finish(bundle,result),
-        None => finish(bundle,biomcp_adapters::wikipathways::sync(fetch)),
+    match acquire(fetch, bundle) {
+        Some(result) => finish(bundle, result),
+        None => finish(bundle, biomcp_adapters::wikipathways::sync(fetch)),
     }
 }
-fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(bundle:Bundle,result:Result<T,biomcp_fetch::RequestError>)->io::Result<Outcome>{
+fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
+    bundle: Bundle,
+    result: Result<T, biomcp_fetch::RequestError>,
+) -> io::Result<Outcome> {
     let source = bundle_source(bundle);
     let status = if result.is_ok() {
         Status::Complete
@@ -23,11 +26,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(bundle
         biomcp_fetch::RequestError::Source(error) => Some(error.reason),
         _ => None,
     });
-    let mut envelope = Envelope::<T>::new(
-        status,
-        biomcp_types::SyncQuery { source },
-        result.ok(),
-    );
+    let mut envelope = Envelope::<T>::new(status, biomcp_types::SyncQuery { source }, result.ok());
     envelope.sources.push(biomcp_adapters::registry::outcome(
         source,
         if reason == Some(biomcp_types::Reason::Disabled) {

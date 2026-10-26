@@ -63,8 +63,12 @@ impl TryFrom<SearchFields> for PathwaySearch {
         if selectors != 1
             || !valid_limit(v.limit)
             || v.source.is_empty()
-            || v.source.iter().enumerate().any(|(i,s)|v.source.iter().take(i).any(|p|p==s))
-            || (v.source.contains(&PathwaySource::Wikipathways) && (v.gene.is_some() || v.top_level))
+            || v.source
+                .iter()
+                .enumerate()
+                .any(|(i, s)| v.source.iter().take(i).any(|p| p == s))
+            || (v.source.contains(&PathwaySource::Wikipathways)
+                && (v.gene.is_some() || v.top_level))
         {
             return Err(QueryInvalid);
         }
@@ -126,18 +130,31 @@ impl PathwaySearch {
     }
 }
 
-fn default_sources() -> Box<[PathwaySource]> { vec![PathwaySource::Reactome].into() }
-fn source_list<'de, D: serde::Deserializer<'de>>(d:D)->Result<Box<[PathwaySource]>,D::Error>{
+fn default_sources() -> Box<[PathwaySource]> {
+    vec![PathwaySource::Reactome].into()
+}
+fn source_list<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Box<[PathwaySource]>, D::Error> {
     #[derive(Deserialize)]
     #[serde(untagged)]
-    enum Input { One(PathwaySource), Many(Box<[PathwaySource]>) }
-    Ok(match Input::deserialize(d)? { Input::One(v)=>vec![v].into(),Input::Many(v)=>v })
+    enum Input {
+        One(PathwaySource),
+        Many(Box<[PathwaySource]>),
+    }
+    Ok(match Input::deserialize(d)? {
+        Input::One(v) => vec![v].into(),
+        Input::Many(v) => v,
+    })
 }
 impl PathwaySearch {
     /// Requested source legs in their unchanged caller order.
-    pub fn sources(&self)->&[PathwaySource]{ &self.0.source }
+    pub fn sources(&self) -> &[PathwaySource] {
+        &self.0.source
+    }
     /// Select one source leg without changing literal text or native page size.
-    pub fn for_source(&self,source:PathwaySource)->Self {
-        let mut value=self.clone();value.0.source=vec![source].into();value.0.pool=None;value
+    pub fn for_source(&self, source: PathwaySource) -> Self {
+        let mut value = self.clone();
+        value.0.source = vec![source].into();
+        value.0.pool = None;
+        value
     }
 }

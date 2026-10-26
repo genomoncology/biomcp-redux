@@ -201,7 +201,7 @@ fn root() -> Result<Command, ()> {
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
         "wikipathways",
-    "cbioportal-studies",
+        "cbioportal-studies",
         "hgnc",
         "clingen",
         "ema",
