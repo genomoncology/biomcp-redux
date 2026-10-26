@@ -403,7 +403,9 @@ fn native() -> Check {
             .zip(measured)
             .any(|(actual, baseline)| *actual > (baseline * 115).div_ceil(100))
         {
-            return Err(format!("{name}: response exceeded its measured fifteen-percent ceiling"));
+            return Err(format!(
+                "{name}: response exceeded its measured fifteen-percent ceiling"
+            ));
         }
         fs::write(
             outputs
