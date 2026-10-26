@@ -8,6 +8,8 @@ The entity is a source association or study. Its output answers which source rep
 
 The current variant slice already owns `get variant ID gwas` and its exact-rsID adapter. This slice extends that adapter rather than creating a second GWAS transport, terms declaration, association decoder or effect representation. The variant section remains owned by the variant slice. Study and association identities add context without silently resolving a variant allele from an rsID.
 
+The evidence store holds `data/biomcp-redux/0193-gwas-investigation/2292-gwas-source-and-cost-evidence.tar.gz`, SHA-256 `9ae7b649d7a391dfc67206bf8c9a21c2ec28fd6cd6a3081c5a7a9c1808c6912f`. It contains 160 manifest entries plus the manifest: request plans/scripts, raw responses and headers, source timings, closed-issue inventory, the captured OpenAPI, superseded and final cost projections, and the experiment report. The exact archive member set and all content hashes were independently checked after transfer. Six jobs made 63 bounded GETs and four HEADs in total; `j14247` used retained inputs only. The original M5 scratch is removed after verification. No source body or historical-binary output is checked into this branch.
+
 ## Public questions
 
 The bank paraphrases retrieval questions anchored to primary papers. It does not claim the authors asked these questions verbatim. The bank preserves the publication's finding separately from later catalog curation. A source-local empty result and an unavailable source are investigator controls. They establish retrieval behavior only.
@@ -95,6 +97,21 @@ The source ancestry endpoint is unpaged. Section limits bound the user output, w
 
 The Catalog's 6063 record labels 1.27 [1.16–1.39] as `or_per_copy_num`, while Tomlinson's paper attributes those same values to heterozygotes. This is an explicit source-label inconsistency. Preserve both source identities and labels without conversion or reconciliation. Stacey's Catalog per-copy effects (1.20 and 1.28) and paper homozygote contrasts are different scopes, rather than an established inconsistency. Samani's Catalog p=3×10⁻¹⁹ and paper cohort-specific p values likewise remain separate analyses unless an exact comparison proves otherwise.
 
+Job `j14249` completed four exact study cards and the missing publication's study query. GCST000113 initially reports 930 European-ancestry cases and 960 controls, rather than the paper-wide Q16 counts. Its replication sample prose reports 7,473 cases and 5,984 controls while its ancestry summary says 13,475; preserve both native statements without reconciliation. GCST000037 has multiple replication ancestry categories, so Q11's paper context cannot replace its full source metadata. GCST000057 has one native “Coronary heart disease” label even though Q22 distinguishes the paper's CAD and MI cohorts. The study query for PMID 18438407 also returned zero. Every published question therefore has an actual Catalog request or an explicitly reported source limitation; shared publication/study responses serve several questions without duplicate provider requests.
+
+| Question group | Direct Catalog evidence and answer scope |
+| --- | --- |
+| Q01–Q05 | Association IDs 6110–6114: respectively rs2981582-A / OR 1.26 / p=2×10⁻⁷⁶; rs3803662-T / 1.20 / 1×10⁻³⁶; rs889312-C / 1.13 / 7×10⁻²⁰; rs13281615-C / 1.08 / 5×10⁻¹²; rs3817198-C / 1.07 / 3×10⁻⁹. All retain GCST000035 and PMID 17529967. |
+| Q06–Q08 | GCST000035 metadata and 6110's explicit locus/gene IDs; paper counts and causal-variant caution remain separately attributed. The API does not perform the paper's interpretation. |
+| Q09–Q11 | GCST000037 and associations 6116/6117 preserve exact A/T alleles, native per-copy effects and study ancestry. Homozygote comparisons remain paper facts. |
+| Q12–Q14 | Both association and study queries by PMID 18438407 return zero. The paper remains the evidence; no repaired query or substitute publication is used. |
+| Q15–Q17 | GCST000113 and association 5949 retain rs4939827-T and native p=1×10⁻¹². Paper-wide sample categories and discrepant source metadata remain distinct. |
+| Q18–Q20 | GCST000053 and association 6063 retain rs6983267-G, the exact source-labeled effect and its interval. The source does not settle the contrast discrepancy. |
+| Q21–Q22 | GCST000057 and association 11386 preserve rs1333049-C, source OR 1.36 and p=3×10⁻¹⁹. Paper cohort-specific p values are not overwritten. |
+| Q23–Q25 | Actual exact-rsID zero, a separately planned synthetic failure, and a first page with further source pages. No live error was induced. |
+
+Job `j14229` followed the Swagger initializer's actual configuration link and captured the 84,674-byte publisher OpenAPI YAML at `/gwas/rest/api/v2/rest-api-doc.yaml`. It confirms `show_child_trait` in the singular and no `gene_name` collection filter or native p-value-threshold parameter. The human guide's gene-collection example therefore does not replace the actual endpoint contract. The captured exact association locus endpoint supplies `author_reported_genes` with FGFR2, ENSG00000066468 and Entrez 2263, separately from the association's mapped-gene strings. Its 333-byte response proves the proposed `loci` section. The same job proves publication associations sorted by native `p_value` ascending: the first three identities are 6110, 6111 and 6112. This is source order under an explicit selector, not a local significance or clinical ranking.
+
 ### Identity and joins
 
 | Identifier | Meaning and allowed join | Forbidden inference |
@@ -121,13 +138,16 @@ The proposed grammar follows the existing `search`, `get` and entity relation fo
 | `search gwas --study GCST…` | Associations belonging to the exact study. | Source-native association continuation. |
 | `search gwas --pubmed PMID` | Associations from the exact publication, retaining all study IDs. | Study gets and article pivot. |
 | `get gwas association:ID` | Exact association identity, all source effect alleles and traits, reported effect and interval, source study and publication IDs. | Study card, exact-rsID variant actions and publication. |
+| `get gwas association:ID loci` | Source locus descriptions, strongest-risk-allele strings and author-reported gene IDs. | Exact gene pivots only from the returned stable IDs; no causal-gene assertion. |
 | `get gwas GCST…` | Exact study accession, publication, reported and mapped traits, sample descriptions, summary-statistics availability and source date where supplied. | `associations` and separately paged `ancestries` when proved by capture. |
 | `get gwas GCST… associations` | One bounded native association page belonging to this study. | Continuation with the original checked study and source query. |
 | `get gwas GCST… ancestries` | One bounded retained ancestry/sample metadata page. | Local continuation over the one bounded source collection; never a patient-level denominator. |
 
 All search filters are explicit. Empty search input is a usage error, rather than a scan of the whole catalog. The command-specific page limit and offset use the existing page/pool contract. A continuation preserves every original selector and sort choice. Reads never refresh a bundle or fan out into summary-statistics files.
 
-Keep `--p-value` as an explicit reviewed capability. The public endpoint has no proved native threshold selector. The recommendation is a filter over one retained source page with separate unfiltered source count, returned count and unknown global qualifying count. Preserve a continuation even when the current page filters to zero. Never relabel a partial scan's count as the complete threshold result. A complete threshold search needs separately approved bounded scanning semantics; an implementation must not recreate the old first-50-row completeness claim.
+Use the documented native p-value-ascending order as the default association order, matching the useful historical search behavior. Echo that choice in the query. The captured PMID 17529967 default provides a concrete top-hit story: 6110/rs2981582, 6111/rs3803662, then 6112/rs889312. Source ordering does not imply clinical importance, causality or a complete summary-statistics ranking.
+
+Keep `--p-value` as an explicit reviewed capability. The public endpoint has no native threshold selector. The recommendation is a filter over one retained source page with separate unfiltered source count, returned count and unknown global qualifying count. Preserve a continuation even when the current page filters to zero. Never relabel a partial scan's count as the complete threshold result. A complete threshold search needs separately approved bounded scanning semantics; an implementation must not present the old bounded-prefix filter as a full-catalog search.
 
 The API provides no immutable catalog snapshot token in these captures. A pool preserves the source pages already received and all checked selectors. It cannot promise an atomic database snapshot across later live page requests. Preserve received identities, reject duplicate/mismatched pages, and expose source drift instead of claiming a stable whole-catalog walk. No full-data walk is needed to land the initial commands.
 
@@ -147,11 +167,42 @@ A study card preserves source accession, publication and source-native sample de
 
 The new schemas are versioned response and request schemas. Extension of the existing shared association representation must preserve variant-section compatibility. A captured public field absent from some records remains optional. An unproved public field stays outside the initial schema. No dictionary of local risk labels, inferred disease names or gene heuristics is proposed.
 
+The external biodata repository provides reusable identity/provenance concepts, while this workspace's current `crates/biodata` has no checked GCST or exact scientific p-value type. Those are proposed additions, not existing capabilities. Capture-before-types applies to them. Reuse existing variant identity and text types, add only the checked values these source contracts require, and keep all source decoding in the one existing GWAS adapter. A schema change that adds exact p-value parts to the existing variant section needs explicit compatibility/version handling rather than an unversioned field substitution.
+
 ## Source and bundle disposition
 
 Keep the existing keyless GWAS Catalog API and source policy. API metadata and complete summary-statistics datasets have distinct rights. The [publisher FAQ](https://www.ebi.ac.uk/gwas/docs/faq/) places non-summary catalog data under EBI service terms and describes study-specific exceptions for summary statistics. Preserve the current restricted source category until the PM reviews any change. Enabling the source does not authorize every reuse of every linked dataset. No key is required and no key value enters the design or evidence.
 
-Keep the original source captures outside Git. Prefer bounded API reads for the harvested questions. Investigate the association, study, ancestry and trait-mapping download inventories before deciding whether a local bundle buys a demonstrated retrieval capability. A download endpoint being public does not justify downloading the whole catalog. No summary-statistics bundle or tool execution belongs to this first slice. Do not add GWAS Central, Enrichr or another source without a harvested unanswered question and a separate source decision.
+Keep the original source captures outside Git. Prefer bounded API reads for the harvested questions. The [file download inventory](https://www.ebi.ac.uk/gwas/docs/file-downloads/) supplies the four current release URLs below. Job `j14240` used one HEAD per file with identity encoding, no redirects and a 20-second deadline. These are server-reported object lengths, not downloaded or decompressed sizes. No bundle body was downloaded, parsed or indexed.
+
+| Candidate release object | HEAD Content-Length | Source Last-Modified, UTC | Disposition |
+| --- | --- | --- | --- |
+| gwas-catalog-associations-full.zip | 68,743,246 bytes | 2026-10-22 10:40:20 | Defer. Bounded association queries answer the measured needs without whole-catalog storage. Uncompressed size and build cost remain unmeasured. |
+| gwas-catalog-studies.tsv | 77,196,598 bytes | 2026-10-22 10:40:17 | Defer. Exact study reads preserve current source identity and metadata. |
+| gwas-catalog-ancestry.tsv | 51,955,277 bytes | 2026-10-22 10:40:18 | Defer. Explicit per-study metadata suffices for the bank. |
+| gwas-efo-trait-mappings.tsv | 19,481,277 bytes | 2026-10-22 10:40:17 | Defer. The trait endpoint supplies source IDs and labels without a local name-matching index. |
+
+The publisher describes curated releases approximately every two weeks; that is distinct from the adapter's one-day cache freshness. File Last-Modified and a fresh response are not a guarantee that every study changed on that date. The API responses do not carry an immutable catalog release token. Do not add a speculative `sync gwas` command for deferred bundles. No summary-statistics bundle or tool execution belongs to this first slice. Do not add GWAS Central, Enrichr or another source without a harvested unanswered question and a separate source decision.
+
+## Measured disclosure costs
+
+Jobs `j14240` and `j14247` measure explicit source-derived JSON projections. The final `projections/` outputs retain section row source identities; the earlier `budgets/` prototypes are retained as superseded cost experiments because they omitted those row links. These are design projections, not shipped product envelopes, schema-validation proof, or native product measurements. The projection uses actual captured fields, one source outcome with all three terms fields, a query echo containing the exact source URL, selected get actions, a 64-character placeholder pool and bounded study pivots. Removing API link boilerplate and unbuilt coordinate strings does not remove the source IDs needed by these questions. An implementation must measure its actual typed query, real opaque pool, all required fields and emitted actions before binding its fixture ceilings.
+
+Bytes below are compact UTF-8 without the CLI's final newline. The projections include the current exact registry values; comparable bytes remove only `use`, `terms` and `terms_url`, including for this restricted source. The difference is 123 bytes in these projections. Token figures estimate ceil(bytes/4); no tokenizer was run. Candidate ceilings use the full projection plus 15 percent. They are proposal inputs, not changes to an existing approved product cap.
+
+| Disclosure and captured case | Full bytes | Comparable bytes | Estimated tokens | Candidate full ceiling |
+| --- | --- | --- | --- | --- |
+| Default three-row rs2981582 page | 2,170 | 2,047 | 543 | 2,496 |
+| Default three-row PMID 17529967 top hits | 2,078 | 1,955 | 520 | 2,390 |
+| Largest observed three-row projection, FGFR2 plus breast trait | 2,837 | 2,714 | 710 | 3,263 |
+| Exact association 6114 card | 1,085 | 962 | 272 | 1,248 |
+| GCST000035 study card | 1,448 | 1,325 | 362 | 1,666 |
+| GCST000035 ancestry section, three source rows with recruitment detail | 2,500 | 2,377 | 625 | 2,875 |
+| Association 6110 locus section, one source row | 639 | 516 | 160 | 735 |
+
+The largest observed source response is not a worst-case catalog guarantee. Default search, study associations and the variant selector use the same measured association-page projection; the exact selector changes query bytes and its final fixture measures them. Explicit study metadata costs one additional request only when selected. Ancestry adds the detailed country arrays and increases this study's answer from 1,448 to a separate 2,500-byte section. The locus layer buys source-reported stable gene IDs without loading unrelated variant annotations. The proposed three-row default exposes several choices while keeping the measured pages below about 710 estimated tokens. Larger page limits and a full-card batch need separate real outputs and ceilings; this design does not declare those measured.
+
+The same-question 0.9 comparison is unmeasured because no contained historical binary was executed. Native API bytes measure source transport and the projections measure proposed disclosure; neither substitutes for 0.9 product bytes, warm/cold product latency or a judged clinical quality comparison. There is no defensible numeric claim that these outputs outperform 0.9. The source fields and named legacy capabilities above define the quality floor that implementation and the later contained comparison must check.
 
 ## Agent questions
 
@@ -179,6 +230,8 @@ The static inventory reads 0.9 source revision `4050fdc7dbdf4d713d94cf02a39a147b
 
 The old search maps either gene or trait to one v2 request sorted by p value. A combined gene/trait search fetches two independent 50-row prefixes and intersects them locally. That bounded-prefix result cannot establish completeness for the source intersection. The old p-value filter applies locally to fetched rows. Exact p-value parts are preserved by the old mapper when supplied. New types must retain that precision and cannot replace underflow with a literal probability of zero.
 
+The proposal retains the positional query as the documented `--gene` alias and preserves the `-g` and `-l` aliases; it does not infer a trait from their text. `--trait` remains literal publisher trait text. `--limit` and `--offset` become the checked source/retained page view. `--p-value` retains an explicitly scoped numeric filter as described above. Proposed new flags are `--variant`, `--trait-id`, `--study`, `--pubmed`, `--include-child-traits` and `--extended-geneset`; the latter two default to false and map to the singular native child-trait and extended-gene-set parameters. Every new long option needs its own positive case. No command or option in this proposal is marked ported until its implementation lands.
+
 All 57 closed public issues were enumerated through GitHub. The GWAS-relevant bodies were read. [Issue 283](https://github.com/genomoncology/biomcp/issues/283) uses a GWAS call to expose Windows cache-write stdout corruption. Keep the shared clean JSON-RPC stream behavior; add GWAS coverage to the shared Windows/MCP proof when this source writes cache. This is not a source-specific new subprocess mechanism. [Issue 78](https://github.com/genomoncology/biomcp/issues/78) includes GWAS disease associations as an enrichment-library use. Source association retrieval is kept; local enrichment analysis, other organisms and installation/execution of another tool are outside the amended entity-access scope. Neither issue authorizes a new analytic command.
 
 No 0.9 binary is executed until operating-system containment and a local delivery witness establish that it cannot contact a provider. Without that proof, its timings and byte costs remain unmeasured. Static accounting is not runtime comparison. The proposed design must not claim clinical or output parity from static code reading.
@@ -194,3 +247,5 @@ Failure cases cover 429, 500, timeout, malformed JSON, HTTP 200 wrong identity, 
 ## Ian's questions
 
 The PM decides the product forms and scope through design review. The source contracts and measurements below supply the trade-offs. No clinical or configuration question needs Ian. A material expansion beyond entity access, a new paid service or publication still needs the existing approval path.
+
+The recommendation for PM review is the API-only command tree above, a three-association default page, exact study and association gets, and explicit ancestry and locus sections. The measured largest three-row projection is 2,837 bytes; adopting every candidate bundle would transfer at least the four server-reported object lengths above and add storage/indexing work without answering a demonstrated additional question. Keep the current restricted source policy and the existing adapter deadline. Review the page-scoped `--p-value` semantics explicitly; its lower request cost trades away a claim of complete threshold enumeration. Clinical source-label discrepancies and the PMID 18438407 gap remain visible limitations. The contained 0.9 runtime comparison remains unmeasured and must not be treated as passed.
