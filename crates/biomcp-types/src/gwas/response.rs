@@ -16,7 +16,7 @@ pub struct GwasPage {
     pub continuation: Option<GwasPageQuery>,
 }
 impl ResponseBody for GwasPage {
-    const SCHEMA: &'static str = "biomcp.gwas_page/1";
+    const SCHEMA: &'static str = "biomcp.gwas_page/2";
     type Query = GwasPageQuery;
 }
 /// Exact association card; no second association representation.

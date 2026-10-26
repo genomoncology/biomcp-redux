@@ -96,6 +96,21 @@ impl TryFrom<SearchFields> for ProteinSearch {
     }
 }
 impl ProteinSearch {
+    /// Restart the same literal source search without a retained pool.
+    pub fn restart(&self) -> Self {
+        let mut q = self.clone();
+        q.0.pool = None;
+        q.0.offset = 0;
+        q
+    }
+    /// Walk one retained search without exposing a provider cursor.
+    pub fn at_page(&self, pool: Text, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.pool = Some(pool);
+        q.0.offset = offset;
+        q
+    }
+
     /// Literal native text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
@@ -152,6 +167,16 @@ impl TryFrom<GetFields> for ProteinGet {
     }
 }
 impl ProteinGet {
+    /// Build a default card request without inferring an accession.
+    pub fn new(input: Box<[ProteinInput]>) -> Result<Self, QueryInvalid> {
+        GetFields {
+            input,
+            section: Box::default(),
+            section_limit: limit(),
+        }
+        .try_into()
+    }
+
     /// Caller identities in their original order.
     pub fn input(&self) -> &[ProteinInput] {
         &self.0.input

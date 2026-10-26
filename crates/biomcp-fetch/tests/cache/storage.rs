@@ -300,7 +300,7 @@ fn version_one_cache_migrates_without_losing_other_owners_or_cached_bytes() {
     let path = dir.path().join("migration.sqlite");
     drop(Fetch::open(config(&path)).unwrap());
     let connection = Connection::open(&path).unwrap();
-    connection.execute_batch("ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch'; CREATE TABLE other_data(value TEXT); INSERT INTO other_data VALUES('keep'); INSERT INTO meta VALUES('other',7); INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until) VALUES(zeroblob(32),'cpic','https://example.org/synthetic',200,'application/json','[]',1,2);").unwrap();
+    connection.execute_batch("ALTER TABLE reply DROP COLUMN pagination; ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch'; CREATE TABLE other_data(value TEXT); INSERT INTO other_data VALUES('keep'); INSERT INTO meta VALUES('other',7); INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until) VALUES(zeroblob(32),'cpic','https://example.org/synthetic',200,'application/json','[]',1,2);").unwrap();
     drop(Fetch::open(config(&path)).unwrap());
     let value:(String,u32,Option<String>)=connection.query_row("SELECT body,(SELECT version FROM meta WHERE owner='biomcp-fetch'),content_range FROM reply",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).unwrap();
     assert_eq!(value, ("[]".into(), biomcp_fetch::VERSION, None));
@@ -318,4 +318,16 @@ fn version_one_cache_migrates_without_losing_other_owners_or_cached_bytes() {
             .unwrap(),
         7
     );
+}
+
+#[test]
+fn version_two_cache_retains_native_range_during_pagination_migration() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("migration-v2.sqlite");
+    drop(Fetch::open(config(&path)).unwrap());
+    let cx = Connection::open(&path).unwrap();
+    cx.execute_batch("ALTER TABLE reply DROP COLUMN pagination; UPDATE meta SET version=2 WHERE owner='biomcp-fetch'; INSERT INTO reply(key,source,url,status,content_type,content_range,body,fetched_at,fresh_until) VALUES(zeroblob(32),'pubmed','https://example.test/synthetic',200,'application/json','0-0/1','[]',1,2);").unwrap();
+    drop(Fetch::open(config(&path)).unwrap());
+    let value: (String, u32, Option<String>) = cx.query_row("SELECT content_range,(SELECT version FROM meta WHERE owner='biomcp-fetch'),pagination FROM reply", [], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?))).unwrap();
+    assert_eq!(value, ("0-0/1".into(), biomcp_fetch::VERSION, None));
 }
