@@ -40,15 +40,16 @@ def prepare(records, cases, replay):
                     expect[base + '/' + normalized] = external['external-id-' + native]
         expect['/result/groups/0/assertions'] = {'count': len(group['work-summary'])}
         pivots = []
+        pivot_ids = set()
         for assertion in group['work-summary']:
             for external in assertion['external-ids']['external-id']:
                 if external['external-id-relationship'] == 'self' and external['external-id-type'] in ['pmid', 'doi']:
                     value = external['external-id-value']
-                    if external['external-id-type'] == 'doi':
-                        value = value.lower()
-                    args = ['get', 'article', value]
-                    if args not in pivots:
-                        pivots.append(args)
+                    kind = external['external-id-type']
+                    identity = (kind, value.lower() if kind == 'doi' else value)
+                    if identity not in pivot_ids:
+                        pivot_ids.add(identity)
+                        pivots.append(['get', 'article', value])
         reserved = 1 if index + 1 < total else 0
         for i, args in enumerate(pivots[:5 - reserved]):
             expect[f'/next/{i}/args'] = args
