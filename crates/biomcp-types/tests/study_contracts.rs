@@ -155,7 +155,7 @@ where
         .into_generator()
         .into_root_schema_for::<biomcp_types::Envelope<T>>();
     assert!(jsonschema::draft202012::new(&serde_json::to_value(schema)?)?.is_valid(&v));
-    assert_eq!(v["schema"], T::SCHEMA);
+    assert_eq!(v.get("schema").and_then(Value::as_str), Some(T::SCHEMA));
     Ok(v)
 }
 #[cfg(feature = "schema")]
