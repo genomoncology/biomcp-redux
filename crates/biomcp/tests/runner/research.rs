@@ -71,6 +71,11 @@ pub(super) fn call(
 fn parity() -> Result<(), String> {
     for (query, args, capture) in [
         (
+            "protein --gene BRAF",
+            vec!["search", "protein", "--gene", "BRAF"],
+            "protein/synthetic",
+        ),
+        (
             "AKT1 E17K",
             vec!["search", "article", "AKT1 E17K"],
             "article/search/synthetic-card-step",
@@ -209,6 +214,7 @@ fn fetch_parity(
     };
     // Search and get captures are retained separately; exact ids come from the wrapper.
     let get_capture = match args.get(1).map(String::as_str) {
+        Some("protein") => "protein/synthetic",
         Some("article") => "article/search/synthetic-card-step",
         Some("trial") => "trial/get/NCT02296125",
         _ => "variant/synthetic-components",
@@ -345,6 +351,16 @@ fn bounded(value: &Value, cap: usize) -> Result<(), String> {
 fn headers(rows: &[Value], hits: &[Value], entity: &str) -> Result<(), String> {
     for (row, hit) in rows.iter().zip(hits) {
         let (native_id, title, url) = match entity {
+            "protein" => (
+                row.pointer("/protein/accession")
+                    .and_then(Value::as_str)
+                    .ok_or("protein accession")?,
+                row.pointer("/protein/name"),
+                row.get("url")
+                    .and_then(Value::as_str)
+                    .ok_or("source URL")?
+                    .to_owned(),
+            ),
             "article" => {
                 let id = row
                     .get("pmid")

@@ -17,9 +17,13 @@ pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<
         .map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) || !output.stderr.is_empty() {
         return Err(format!(
-            "expected exit {exit}: {:?}; {}",
+            "expected exit {exit}: {:?}; stderr: {}; stdout: {}",
             output.status,
-            String::from_utf8_lossy(&output.stderr)
+            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stdout)
+                .chars()
+                .take(2000)
+                .collect::<String>()
         ));
     }
     let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
@@ -98,7 +102,7 @@ fn default_cache_migration() -> Check {
         .map_err(|e| e.to_string())?;
     }
     let connection = rusqlite::Connection::open(&historical).map_err(|e| e.to_string())?;
-    connection.execute_batch("ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch';")
+    connection.execute_batch("ALTER TABLE reply DROP COLUMN pagination; ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch';")
         .map_err(|e| e.to_string())?;
     drop(connection);
     let args = vec![

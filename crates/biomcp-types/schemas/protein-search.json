@@ -1,0 +1,66 @@
+{
+  "$defs": {
+    "GeneSymbol": {
+      "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.protein-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "anyOf": [
+    {
+      "required": [
+        "query"
+      ]
+    },
+    {
+      "required": [
+        "gene"
+      ]
+    }
+  ],
+  "description": "Human reviewed UniProt search; unreviewed positives remain unproved.",
+  "properties": {
+    "gene": {
+      "$ref": "#/$defs/GeneSymbol",
+      "description": "Exact native gene field, without identifier inference."
+    },
+    "limit": {
+      "default": 5,
+      "description": "Five rows by default; no more than 25.",
+      "format": "uint32",
+      "maximum": 25,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Source/retained result offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pool": {
+      "$ref": "#/$defs/Text",
+      "description": "Exact retained collection identity."
+    },
+    "query": {
+      "$ref": "#/$defs/Text",
+      "description": "Literal text, exclusive with gene.",
+      "x-positional": 0
+    },
+    "reviewed": {
+      "default": true,
+      "description": "Reviewed human scope stays enabled; unreviewed search is deferred.",
+      "type": "boolean"
+    }
+  },
+  "title": "ProteinSearch",
+  "type": "object"
+}

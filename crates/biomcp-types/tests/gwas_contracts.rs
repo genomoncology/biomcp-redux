@@ -47,6 +47,8 @@ fn selectors_and_sections_reject_invalid_requests_before_io()
         json!({"trait":"breast carcinoma","extended_geneset":true}),
         json!({"gene":"FGFR2","limit":0}),
         json!({"gene":"FGFR2","sort":"other"}),
+        json!({"gene":"FGFR2","variant":null}),
+        json!({"gene":"FGFR2","trait":null}),
     ] {
         assert!(serde_json::from_value::<GwasSearch>(request).is_err());
     }
