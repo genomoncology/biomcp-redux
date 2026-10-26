@@ -26,6 +26,8 @@ For each example, the slice asks each candidate source directly and records:
 - Which identifiers come back, and which ones an agent needs to chain the next call.
 - What each source's license allows.
 
+Run bounded source captures with `make source-capture PLAN=... OUT=...` (`scripts/source_capture.py`); the plan supplies every selector and the command retains and verifies the evidence archive.
+
 This step also measures the 0.9 command on the same examples, so each 0.9 behavior is kept, changed or dropped for a named reason.
 
 ### 3. Ask what would delight the agent

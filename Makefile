@@ -30,6 +30,7 @@ docs-check:
 	python3 scripts/check_docs.py
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
+	python3 scripts/test_source_capture_plan.py
 	python3 scripts/test_coverage.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer
@@ -40,3 +41,7 @@ release-artifacts:
 .PHONY: nightly-live-check
 nightly-live-check:
 	python3 scripts/nightly_live_check.py
+
+.PHONY: source-capture
+source-capture:
+	python3 scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"
