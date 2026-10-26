@@ -19,7 +19,7 @@
         "/result/commands/0/description": "Literal author name query and native window; positional text maps to query. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking is unavailable."
       },
       "full_output_bytes": true,
-      "max_bytes": 1262,
+      "max_bytes": 1261,
       "max_tokens": 316
     },
     {
@@ -37,8 +37,8 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 646,
-      "max_tokens": 162
+      "max_bytes": 644,
+      "max_tokens": 161
     },
     {
       "run": [
@@ -53,7 +53,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 1786,
+      "max_bytes": 1785,
       "max_tokens": 447
     }
   ]
