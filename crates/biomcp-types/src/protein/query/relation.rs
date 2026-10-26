@@ -1,7 +1,7 @@
 use super::{ComplexPortalId, Position1, QueryInvalid, Text, UniProtIsoform, limit, present};
 use serde::{Deserialize, Serialize};
 macro_rules! relation {
-    ($name:ident, $fields:ident, $wire:literal, { $($(#[$meta:meta])* $field:ident: $ty:ty),* }, $doc:literal) => {
+    ($name:ident, $fields:ident, $wire:literal, { $($(#[$meta:meta])* $field:ident: $ty:ty),* }, $doc:literal $(, $check:expr)?) => {
         #[doc = $doc]
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
         #[serde(try_from = $wire)]
@@ -13,6 +13,7 @@ macro_rules! relation {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         struct $fields {
             /// Exact source protein sequence identity.
+            #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
             accession: UniProtIsoform,
             $($(#[$meta])* $field: $ty,)*
             /// Five rows by default, at most 25.
@@ -31,10 +32,19 @@ macro_rules! relation {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, QueryInvalid> {
                 if !(1..=25).contains(&v.limit) { return Err(QueryInvalid); }
+                $(if !($check)(&v) { return Err(QueryInvalid); })?
                 Ok(Self(v))
             }
         }
         impl $name {
+            /// Continue a retained source collection without changing selectors.
+            pub fn at_page(&self, pool: Text, offset: u32) -> Self {
+                let mut q = self.clone(); q.0.pool = Some(pool); q.0.offset = offset; q
+            }
+            /// Restart the same source selection.
+            pub fn restart(&self) -> Self {
+                let mut q = self.clone(); q.0.pool = None; q.0.offset = 0; q
+            }
             /// Exact anchor accession.
             pub fn accession(&self) -> &UniProtIsoform { &self.0.accession }
             /// Bounded page size.
@@ -49,13 +59,14 @@ macro_rules! relation {
 relation!(ProteinFeaturesQuery, FeatureFields, "FeatureFields", {
     /// Native one-based residue; zero fails during deserialization.
     #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(with = "Position1"))]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = u32::MAX)))]
     position: Option<Position1>,
     /// Exact UniProt native label, without an alias map.
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     feature_type: Option<Text>
-}, "Native UniProt features filtered by exact native label and residue.");
+}, "Native UniProt features filtered by exact native label and residue.",
+|v: &FeatureFields| v.position.is_none() || !v.accession.as_str().contains('-'));
 relation!(ProteinDomainsQuery, DomainFields, "DomainFields", {
     /// Exact native InterPro type, not a normalized domain label.
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
@@ -101,5 +112,6 @@ impl ProteinComplexMembersQuery {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSequenceQuery {
     /// Exact isoform or base accession; no canonical suffix is synthesized.
+    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub isoform: UniProtIsoform,
 }

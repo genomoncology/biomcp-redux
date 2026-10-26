@@ -67,6 +67,14 @@ impl ResponseBody for GenePage {
 pub enum QueryBody {
     /// Native GWAS association page, absent after failure.
     GwasPage(Option<crate::GwasPage>),
+    /// Exact filtered native features.
+    ProteinFeatures(Option<crate::ProteinFeatures>),
+    /// Native alternative products.
+    ProteinIsoforms(Option<crate::ProteinIsoforms>),
+    /// Source PDB cross-reference properties.
+    ProteinStructures(Option<crate::ProteinStructures>),
+    /// Whole exact source sequence.
+    ProteinSequence(Option<crate::ProteinSequenceResult>),
     /// Native reviewed-human protein headers.
     ProteinPage(crate::ProteinPage),
     /// Caller-ordered exact protein cards and unselected candidates.

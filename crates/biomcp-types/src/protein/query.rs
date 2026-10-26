@@ -151,6 +151,7 @@ struct GetFields {
     input: Box<[ProteinInput]>,
     /// Only requested sections disclose their full content.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[ProteinSection]>,
     /// Bounded first-page size for each requested section.
     #[serde(default = "limit")]
@@ -175,6 +176,13 @@ impl ProteinGet {
             section_limit: limit(),
         }
         .try_into()
+    }
+
+    /// Select bounded native sections on the same exact input identities.
+    pub fn with_section(&self, section: ProteinSection) -> Self {
+        let mut q = self.clone();
+        q.0.section = vec![section].into();
+        q
     }
 
     /// Caller identities in their original order.

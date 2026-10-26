@@ -2,6 +2,9 @@
 mod entity;
 pub(crate) mod gwas;
 mod local;
+mod queries;
+pub(crate) use queries::QUERIES;
+pub(crate) use queries::query_schema;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
     "wikipathways",
@@ -49,98 +52,6 @@ pub(crate) struct Parsed {
     pub(crate) help: Option<Vec<String>>,
     pub(crate) http: Option<(String, Vec<String>)>,
 }
-pub(crate) fn query_schema(request: &Request) -> &'static str {
-    match request {
-        Request::SearchGwas(_) => "biomcp.gwas-search/2",
-        Request::SearchProtein(_) => "biomcp.protein-search/1",
-        Request::GetProtein(_) => "biomcp.protein-get/1",
-        Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
-        Request::GetPhenotype(_) => "biomcp.phenotype-get/1",
-        Request::SearchPathway(_) => "biomcp.pathway-search/2",
-        Request::GetPathway(_) => "biomcp.pathway-get/1",
-        Request::PathwayGenes(_) => "biomcp.pathway-genes-query/1",
-        Request::PathwayEvents(_) => "biomcp.pathway-events-query/1",
-        Request::SearchStudy(_) => "biomcp.study-search/1",
-        Request::GetStudy(_) => "biomcp.study-get/1",
-        Request::SearchPgx(_) => "biomcp.pgx-search/2",
-        Request::GetPgx(_) => "biomcp.pgx-get/1",
-        Request::GetPgxAnnotation(_) => "biomcp.pgx-get-command/1",
-        Request::SearchDiagnostic(_) => "biomcp.diagnostic-search/1",
-        Request::GetDiagnostic(_) => "biomcp.diagnostic-get/1",
-        Request::SearchAdverseEvent(_) => "biomcp.adverse-event-search/1",
-        Request::GetAdverseEvent(_) => "biomcp.adverse-event-get/1",
-        Request::SearchDisease(_) => "biomcp.disease-search/1",
-        Request::GetDisease(_) => "biomcp.disease-get/2",
-        Request::SearchDrug(_) => "biomcp.drug-search/2",
-        Request::GetDrug(_) | Request::GetWhoMedicine(_) => "biomcp.drug-get-command/1",
-        Request::VariantAssertions(_) => "biodata.variant-assertions/1",
-        Request::VariantPopulation(_) => "biodata.variant-population/2",
-        Request::VariantNormalize(_) => "biodata.variant-normalize/2",
-        Request::SearchVariant(_) => "biodata.variant-search/2",
-        Request::VariantRecurrence(_) => "biodata.variant-recurrence-query/2",
-        Request::GetVariant(_) => "biodata.variant-get/2",
-        Request::TrialDocument(_) => "biodata.trial-document/1",
-        Request::GetTrial(_) => "biodata.trial-get/1",
-        Request::SearchTrial(_) => "biodata.trial-search/2",
-        Request::ArticlePdf(_) => "biodata.article-pdf/1",
-        Request::ArticleEvidence(_) => "biodata.article-evidence/1",
-        Request::ArticleRecommend(_) => "biodata.article-recommend/1",
-        Request::ArticleSupplement(_) => "biodata.article-supplement/1",
-        Request::ArticleText(_) => "biodata.article-text/2",
-        Request::ArticleCitations(_) | Request::ArticleReferences(_) => "biodata.article-edges/2",
-        Request::GetArticle(_) => "biodata.article-get/2",
-        Request::SearchArticle(_) => "biodata.article-search/1",
-        Request::GetGene(_) => "biodata.gene-get/1",
-        Request::SearchGene(_) => "biodata.gene-search/1",
-    }
-}
-pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
-    ("search", "gwas", "biomcp.gwas-search/2"),
-    ("search", "protein", "biomcp.protein-search/1"),
-    ("get", "protein", "biomcp.protein-get/1"),
-    ("search", "phenotype", "biomcp.phenotype-search-query/1"),
-    ("get", "phenotype", "biomcp.phenotype-get/1"),
-    ("search", "pathway", "biomcp.pathway-search/2"),
-    ("get", "pathway", "biomcp.pathway-get/1"),
-    ("pathway", "genes", "biomcp.pathway-genes-query/1"),
-    ("pathway", "events", "biomcp.pathway-events-query/1"),
-    ("search", "study", "biomcp.study-search/1"),
-    ("get", "study", "biomcp.study-get/1"),
-    ("search", "pgx", "biomcp.pgx-search/2"),
-    ("get", "pgx", "biomcp.pgx-get-command/1"),
-    ("search", "diagnostic", "biomcp.diagnostic-search/1"),
-    ("get", "diagnostic", "biomcp.diagnostic-get/1"),
-    ("search", "adverse-event", "biomcp.adverse-event-search/1"),
-    ("get", "adverse-event", "biomcp.adverse-event-get/1"),
-    ("search", "disease", "biomcp.disease-search/1"),
-    ("get", "disease", "biomcp.disease-get/2"),
-    ("search", "drug", "biomcp.drug-search/2"),
-    ("get", "drug", "biomcp.drug-get-command/1"),
-    ("get", "gene", "biodata.gene-get/1"),
-    ("search", "gene", "biodata.gene-search/1"),
-    ("search", "article", "biodata.article-search/1"),
-    ("get", "article", "biodata.article-get/2"),
-    ("article", "supplement", "biodata.article-supplement/1"),
-    ("article", "pdf", "biodata.article-pdf/1"),
-    ("article", "text", "biodata.article-text/2"),
-    ("article", "citations", "biodata.article-edges/2"),
-    ("article", "references", "biodata.article-edges/2"),
-    ("article", "citation-evidence", "biodata.article-evidence/1"),
-    ("article", "recommendations", "biodata.article-recommend/1"),
-    ("search", "trial", "biodata.trial-search/2"),
-    ("get", "trial", "biodata.trial-get/1"),
-    ("trial", "document", "biodata.trial-document/1"),
-    ("variant", "assertions", "biodata.variant-assertions/1"),
-    ("get", "variant", "biodata.variant-get/2"),
-    ("variant", "population", "biodata.variant-population/2"),
-    ("search", "variant", "biodata.variant-search/2"),
-    (
-        "variant",
-        "recurrence",
-        "biodata.variant-recurrence-query/2",
-    ),
-    ("variant", "normalize", "biodata.variant-normalize/2"),
-];
 pub(crate) fn global_arguments() -> Command {
     let mut root = Command::new("biomcp")
         .disable_help_flag(true)
@@ -504,6 +415,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
         ("search", "gwas") => gwas::request(verb, value),
+        ("protein", _) => entity::request(verb, entity, value),
         ("pathway", "genes" | "events") => entity::request(verb, entity, value),
         (
             "search" | "get",
