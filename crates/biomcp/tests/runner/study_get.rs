@@ -36,7 +36,13 @@ fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
 fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64) -> Check {
     recording_raw(replay, section, &body.to_string(), status, delay)
 }
-pub(super) fn recording_raw(replay: &Path, section: &str, body: &str, status: u16, delay: u64) -> Check {
+pub(super) fn recording_raw(
+    replay: &Path,
+    section: &str,
+    body: &str,
+    status: u16,
+    delay: u64,
+) -> Check {
     let stub = crate::runner::network_stub::Stub::for_source(
         "www.cbioportal.org",
         "application/json",
@@ -219,7 +225,6 @@ fn failures() -> Check {
                 return Err(format!("policy bypass: {value}"));
             }
         }
-
     }
     Ok(())
 }

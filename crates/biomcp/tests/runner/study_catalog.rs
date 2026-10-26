@@ -37,12 +37,12 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 #[path = "study_failures.rs"]
 mod study_failures;
-#[path = "study_retirements.rs"]
-mod study_retirements;
 #[path = "study_files.rs"]
 mod study_files;
 #[path = "study_get.rs"]
 mod study_get;
+#[path = "study_retirements.rs"]
+mod study_retirements;
 pub(super) fn rows() -> Value {
     json!((0..12).map(|n| json!({"studyId":format!("synthetic_{n}"),"name":format!("Synthetic Atlas {n}"),"description":"Literal mixed metadata","cancerTypeId":if n < 8 {"brca"} else {"mixed"},"allSampleCount":n,"referenceGenome":"hg19","sequencedSampleCount":n,"cnaSampleCount":0,"structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],"importDate":"2026-08-20 21:46:46","groups":"","readPermission":true,"publicStudy":true})).collect::<Vec<_>>())
 }
@@ -90,7 +90,9 @@ fn missing() -> Check {
         || card.get("result").is_some()
         || card.pointer("/sources/0/reason") != Some(&json!("syncing"))
     {
-        return Err(format!("missing card snapshot became source absence: {card}"));
+        return Err(format!(
+            "missing card snapshot became source absence: {card}"
+        ));
     }
     call(&env, &replay, &["search", "study"], 2)?;
     Ok(())
