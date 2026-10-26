@@ -254,3 +254,59 @@ All eight helper archives passed their own verification. The first outer packagi
 The archived closed-issue search is complete at 57 returned of 57 total, `incomplete_results=false`; the entity/source filter has no matches. The issue response body has SHA-256 `6a425c084987cbf99b48924b318c63b669ffb580987a951a06e9dbd4c651c8f6`. It preserves the full public inventory rather than a selected issue summary.
 
 This is a proposed design for PM review. Product code, generated schema, source registry and roadmap boxes are unchanged. The remaining product choices are named above. Remaining source limitations are explicit: no warm product timing or contained 0.9 execution; no pinned API ontology version; no native terminal empty search page or wrong-taxon returned-row rejection witness; no obsolete replacement field; and no whole-graph bundle download/size measurement. The existing captured fields can guide types, but final type acceptance must check actual absence, multiplicity and scope against the preserved bodies. These limits do not justify inventing a source fact or another automatic live pass.
+
+## Implemented term command measurements
+
+The term commands retain literal Monarch text, native candidate order and complete independent source cards. Each search header offers the exact default HPO get action. Cards list their source's native sections and do not advertise handlers that are not implemented. The positive Monarch synonym witness retains exact and related classes independently from HPO's unclassified list; this card implementation only uses field presence to list the section.
+
+Jobs `j14607` and `j14614` replayed forty-one unchanged native replies through CLI and MCP. The first job proved thirty-five rows. Its next row exposed a request-scope mismatch in the old unknown-text witness: that request omitted the phenotype category selector. The ticket-authorized single keyless request in `j14614` supplied the exact missing selector set with no retry, a fifteen-second deadline and a four-MiB bound. It returned a successful empty page. The six unreached cases then passed. The local replay recipe failure was not a publisher outage. No successful source request or completed native case was repeated.
+
+Complete definitions, comments, references, counts and available source sections remain in these outputs. Their actual envelopes include checked queries, attribution, component terms and typed candidate actions that the proposed formatter did not fully model. The measured ceilings below replace the proposed term-command allocations under the standing measured-size-plus-fifteen-percent rule. Comparable bytes remove exactly `use`, `terms` and `terms_url` from each source outcome. They remove no other fields. The native replay check binds each retained case to its fixed `native_ceiling` entry.
+
+| Retained case | Full bytes | Comparable bytes | Comparable ceiling |
+| --- | --- | --- | --- |
+| `00-hpo-term.raw` | 1178 | 1015 | 1168 |
+| `01-monarch-term.raw` | 1749 | 1618 | 1861 |
+| `02-P01-monarch-search.raw` | 1600 | 1469 | 1690 |
+| `03-P02-monarch-search.raw` | 2118 | 1987 | 2286 |
+| `04-P03-monarch-search.raw` | 1075 | 944 | 1086 |
+| `05-P04-monarch-search.raw` | 1067 | 936 | 1077 |
+| `06-P05-monarch-search.raw` | 2121 | 1990 | 2289 |
+| `07-P06-monarch-search.raw` | 1597 | 1466 | 1686 |
+| `08-P07-monarch-search.raw` | 2088 | 1957 | 2251 |
+| `09-P08-monarch-search.raw` | 2203 | 2072 | 2383 |
+| `10-P09-monarch-search.raw` | 776 | 645 | 742 |
+| `11-P10-monarch-search.raw` | 2110 | 1979 | 2276 |
+| `12-P11-monarch-search.raw` | 2190 | 2059 | 2368 |
+| `13-P12-monarch-search.raw` | 1311 | 1180 | 1357 |
+| `14-P13-monarch-search.raw` | 1064 | 933 | 1073 |
+| `15-P14-monarch-search.raw` | 2145 | 2014 | 2317 |
+| `16-P15-monarch-search.raw` | 1336 | 1205 | 1386 |
+| `17-P16-monarch-search.raw` | 2086 | 1955 | 2249 |
+| `18-card-HP_0000957.raw` | 1243 | 1080 | 1242 |
+| `19-card-HP_0001067.raw` | 894 | 731 | 841 |
+| `20-card-HP_0009732.raw` | 839 | 676 | 778 |
+| `21-card-HP_0000997.raw` | 896 | 733 | 843 |
+| `22-card-HP_0000256.raw` | 1725 | 1562 | 1797 |
+| `23-card-HP_0200008.raw` | 746 | 583 | 671 |
+| `24-card-HP_0004390.raw` | 1068 | 905 | 1041 |
+| `25-card-HP_0012032.raw` | 796 | 633 | 728 |
+| `26-card-HP_0001263.raw` | 1453 | 1290 | 1484 |
+| `27-card-HP_0005562.raw` | 737 | 574 | 661 |
+| `28-card-HP_0000107.raw` | 720 | 557 | 641 |
+| `29-card-HP_0002666.raw` | 1013 | 850 | 978 |
+| `30-card-HP_0001737.raw` | 877 | 714 | 822 |
+| `31-card-HP_0030436.raw` | 1082 | 919 | 1057 |
+| `32-card-HP_0005948.raw` | 1059 | 896 | 1031 |
+| `33-card-HP_0032445.raw` | 1443 | 1280 | 1472 |
+| `34-card-HP_0002108.raw` | 769 | 606 | 697 |
+| `35-P24-monarch-empty.raw` | 767 | 636 | 732 |
+| `36-P24-hpo-absent.raw` | 339 | 176 | 203 |
+| `37-P02-middle.raw` | 2085 | 1954 | 2248 |
+| `38-P16-middle.raw` | 2050 | 1919 | 2207 |
+| `39-P02-terminal.raw` | 1035 | 904 | 1040 |
+| `40-obsolete.raw` | 1043 | 912 | 1049 |
+
+The generated search help measures 844 comparable bytes and uses a 971-byte ceiling. Exact get help measures 1,455 bytes and uses a 1,674-byte ceiling. Their Markdown views measure 776 and 1,266 bytes and retain every checked argument. Whole-tree help, including the accepted study and pathway command registrations, measures 66,338 compact bytes; the existing whole-help case uses its standing measured-size-plus-fifteen-percent ceiling of 76,290 bytes. The CLI and MCP help cases and whole-tree executable examples passed in `j14605`.
+
+The complete native evidence archive is on Yellow at `data/biomcp-redux/0217-phenotype-commands/1792992427-remaining-package.tar.gz`, SHA-256 `74b34e6090b6f3a3f636a933a5b4977ecc44b112052736f0e42b7e98b942c31e`. It retains the original and missing-request plans, unchanged bodies, hashes, receipts, complete CLI/MCP product outputs and logs. `paths.json` reverses the flat archive names to their original collection and path. Independent offline job `j14619` verified the archive hash, all 143 exact members, all 142 content hashes and all forty-one CLI/MCP result files after transfer. Raw source text remains outside Git.
