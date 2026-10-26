@@ -52,7 +52,7 @@ case('active-site', ['protein', 'features', 'P00533', '--type', 'Active site'], 
 for accession, ids in [
         ('P00533', ['P00533-1', 'P00533-2', 'P00533-3', 'P00533-4']),
         ('P04637', [f'P04637-{n}' for n in range(1, 6)]),
-        ('Q9UIF7', [f'Q9UIF7-{n}' for n in range(2, 7)])]:
+        ('Q9UIF7', [f'Q9UIF7-{n}' for n in range(1, 6)])]:
     case('isoforms-' + accession, ['protein', 'isoforms', accession], {
         '/result/items/*/ids/0': ids})
 for accession in ['P42771', 'Q8N726']:

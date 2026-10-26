@@ -67,7 +67,7 @@ pub(super) fn load(
         }
         return Ok(None);
     };
-    let size = q.render(entry.clone(), out) as u32;
+    let size = q.total(&entry) as u32;
     let payload =
         serde_json::to_string(&(&entry, &out.problems)).map_err(|_| CacheError::Database)?;
     let pool = store.publish_source_pool(&key, &payload, size, &out.sources)?;

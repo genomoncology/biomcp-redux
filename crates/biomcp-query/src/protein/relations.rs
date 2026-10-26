@@ -48,6 +48,13 @@ impl Selection {
         hash.update(request);
         Ok(hash.finalize().to_vec())
     }
+    fn total(&self, entry: &uniprot::Entry) -> usize {
+        match self {
+            Self::Features(q) => entry.features.iter().filter(|r| accepts(q, r)).count(),
+            Self::Isoforms(_) => entry.isoforms.len(),
+            Self::Structures(_) => entry.structures.len(),
+        }
+    }
     fn render(&self, entry: uniprot::Entry, out: &mut Outcome) -> usize {
         let (limit, offset, _) = self.window();
         match self {
@@ -55,15 +62,7 @@ impl Selection {
                 let rows: Vec<_> = entry
                     .features
                     .into_iter()
-                    .filter(|r| {
-                        q.feature_type().is_none_or(|t| r.feature.kind.label == *t)
-                            && q.position().is_none_or(|p| {
-                                let point = p.get() - 1;
-                                r.feature.protein == *q.accession()
-                                    && r.feature.span.start().max().is_some_and(|n| n <= point)
-                                    && r.feature.span.end().min().is_some_and(|n| n > point)
-                            })
-                    })
+                    .filter(|r| accepts(q, r))
                     .collect();
                 let total = rows.len();
                 out.body = QueryBody::ProteinFeatures(Some(ProteinFeatures {
@@ -101,6 +100,16 @@ impl Selection {
             }
         }
     }
+}
+fn accepts(q: &ProteinFeaturesQuery, row: &biodata::ProteinFeature) -> bool {
+    q.feature_type()
+        .is_none_or(|t| row.feature.kind.label == *t)
+        && q.position().is_none_or(|p| {
+            let point = p.get() - 1;
+            row.feature.protein == *q.accession()
+                && row.feature.span.start().max().is_some_and(|n| n <= point)
+                && row.feature.span.end().min().is_some_and(|n| n > point)
+        })
 }
 fn restart(q: &Selection, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
