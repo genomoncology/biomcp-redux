@@ -6,6 +6,7 @@ mod batch;
 mod bundle;
 mod cache;
 mod cache_access;
+mod cleanup;
 pub use cache_access::CacheAccess;
 mod cache_request;
 mod containment;

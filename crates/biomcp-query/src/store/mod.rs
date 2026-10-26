@@ -4,6 +4,8 @@
     clippy::disallowed_methods,
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
+mod cleanup;
+pub use cleanup::clean;
 mod evidence;
 mod trial;
 pub(crate) use evidence::EvidenceState;

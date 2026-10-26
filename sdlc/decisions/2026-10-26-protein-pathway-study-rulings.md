@@ -77,3 +77,11 @@ Added 2026-10-26 while filing the slice tickets.
 - Study: `get study` sections page with `--section-limit` and `--section-offset`, as other entities do. The patient total stays in `counts`. The DataHub `study_list.json` catalog is deferred. DataHub file reads sit under the `cbioportal` declaration. Empty search text with no `--cancer-type` fails before I/O. `all` never sends the gene aggregate request.
 - Pathway: `pathway drugs` retirement uses the `gene drugs` guidance, because reverse gene-to-drug search is unsupported.
 - Protein: `function` is a get section only. Source spellings are `interpro` and `complex-portal`. `protein features --type` takes UniProt's native feature type label exactly, such as `Domain` or `DNA binding`, with no alias mapping. `ProteinSite` is not adopted until a command uses it. `ProteinHeader` shares the gene slice's `Protein` record fields without a second name for one concept.
+
+## Capture limit rulings
+
+Added 2026-10-26 on the 0205 to 0208 captures.
+
+- GWAS: `--trait` sends the literal native `efo_trait` label and help says so. It does not search reported trait prose.
+- Study: the gene counts section is deferred. The aggregate endpoint has no per-gene row filter, its `geneFilters` changes the cohort, and the unfiltered replies are 4.2 MB for BRCA. The patient total is deferred with it. 0223 is withdrawn.
+- Pathway: Reactome search pages natively with the proven `Start row` parameter and a row count equal to the page size. It never fetches the 1,252-row window to show five rows. Exact class admission applies to each page, so a page may hold fewer rows than the limit; the next offset continues from the native position, and the native total stays as the source reports it.

@@ -27,6 +27,7 @@ impl Store<'_> {
         sources: &[SourceOutcome],
     ) -> Result<Text, CacheError> {
         self.write(|tx| {
+            Self::collect_expired(tx)?;
             let id=Sha256::digest([key,payload.as_bytes()].concat()).iter().map(|b|format!("{b:02x}")).collect::<String>();
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;
             tx.execute("INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(id) DO UPDATE SET expires=excluded.expires",params![id,key,Self::now().saturating_add(86400),payload,outcomes]).map_err(db)?;

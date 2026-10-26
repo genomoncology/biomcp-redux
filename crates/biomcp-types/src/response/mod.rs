@@ -33,6 +33,8 @@ mod page;
 mod section;
 mod source;
 mod status;
+mod store;
+pub use store::StoreClean;
 mod step;
 pub use envelope::{Envelope, ResponseBody};
 pub use gene::{GeneCards, GeneItem, GenePage, QueryBody};

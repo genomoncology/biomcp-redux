@@ -32,6 +32,7 @@ impl Store<'_> {
         sources: &[SourceOutcome],
     ) -> Result<Text, CacheError> {
         self.write(|tx| {
+            Self::collect_expired(tx)?;
             let id=match id {Some(id)=>id.to_string(),None=>tx.query_row("SELECT lower(hex(randomblob(16)))",[],|r|r.get(0)).map_err(db)?};
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;
             tx.execute("INSERT INTO citation_evidence(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload,outcomes=excluded.outcomes",params![id,key,Self::now().saturating_add(86400),payload,outcomes]).map_err(db)?;

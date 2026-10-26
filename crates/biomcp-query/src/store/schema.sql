@@ -16,3 +16,8 @@ CREATE TABLE IF NOT EXISTS citation_evidence (
 CREATE TABLE IF NOT EXISTS trial_snapshot (
  id TEXT PRIMARY KEY, request_key BLOB NOT NULL, expires INTEGER NOT NULL, payload TEXT NOT NULL, outcomes TEXT NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS pool_expiry ON pool(expires,id);
+CREATE INDEX IF NOT EXISTS pool_current_pool ON pool_current(pool);
+CREATE INDEX IF NOT EXISTS trial_snapshot_expiry ON trial_snapshot(expires,id);
+CREATE INDEX IF NOT EXISTS citation_evidence_expiry ON citation_evidence(expires,id);
