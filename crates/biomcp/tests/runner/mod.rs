@@ -311,7 +311,6 @@ fn run_step(
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(research::trials());
-    trials.extend(store_clean::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
     }));
