@@ -1,6 +1,6 @@
 use crate::{Ctx, Outcome};
-use biomcp_types::{AuthorPapersQuery, QueryBody};
-/// Dispatch exact provider records without an identity join.
-pub fn papers(_cx: &Ctx<'_>, _q: &AuthorPapersQuery) -> Outcome {
-    super::empty(QueryBody::AuthorPapers(None))
+use biomcp_types::AuthorPapersQuery;
+/// Route one native author papers selector to its provider.
+pub fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
+    super::semantic_scholar::papers(cx, q)
 }
