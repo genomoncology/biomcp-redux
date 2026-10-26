@@ -550,3 +550,5 @@ fn disease_trials() -> Vec<Trial> {
 pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
     faers_search::record_examples(directory)
 }
+
+mod gwas_search;
