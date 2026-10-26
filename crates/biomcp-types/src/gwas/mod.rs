@@ -7,4 +7,4 @@ pub use search::{GwasOrder, GwasSearch};
 
 mod command;
 #[cfg(feature = "schema")]
-pub use command::GwasSearchCommand;
+pub use command::{GwasGetCommand, GwasSearchCommand};

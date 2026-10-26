@@ -1,0 +1,104 @@
+//! Exact get and independent context pages share the native association mapping.
+mod ancestry;
+mod next;
+use crate::{Action, Ctx, Outcome, status};
+use biomcp_adapters::gwas;
+use biomcp_fetch::{Deadline, Leg, RequestError};
+use biomcp_types::*;
+use super::map;
+/// Read only the explicitly selected source resource.
+pub fn get(cx: &Ctx<'_>, q: &GwasGet) -> Outcome {
+    let mut out = Outcome { status: Status::Failed, body: empty(q), page: None, sources: vec![], problems: vec![], next: vec![], local: None };
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    if let Err(error) = read(cx, q, deadline, &mut out) {
+        out.local = status::local(error);
+        if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) { out.status = Status::Absent; }
+    }
+    if out.sources.iter().any(|s| s.reason == Some(Reason::BadReply)) {
+        problem(&mut out, "resource", ProblemCode::ValueUnknown);
+        if matches!(q, GwasGet::Study { section: Some(GwasStudySection::Ancestries), .. }) {
+            problem(&mut out, "ancestries", ProblemCode::CollectionIncomplete);
+        }
+    }
+    if out.sources.iter().any(|s| s.state == SourceState::Stale) && out.status == Status::Complete { out.status = Status::Partial; }
+    if out.sources.iter().any(|s| matches!(s.state, SourceState::Failed | SourceState::Stale)) {
+        out.next.push((StepKind::Fresh, action(q.restart(), true)));
+    }
+    command.finish(deadline.remaining());
+    out
+}
+fn empty(q: &GwasGet) -> QueryBody {
+    match q {
+        GwasGet::Association { section: None, .. } => QueryBody::GwasAssociation(None),
+        GwasGet::Association { .. } => QueryBody::GwasLoci(None),
+        GwasGet::Study { section: None, .. } => QueryBody::GwasStudy(None),
+        GwasGet::Study { section: Some(GwasStudySection::Associations), .. } => QueryBody::GwasPage(None),
+        GwasGet::Study { .. } => QueryBody::GwasAncestries(None),
+    }
+}
+fn read(cx: &Ctx<'_>, q: &GwasGet, deadline: Deadline<'_>, out: &mut Outcome) -> Result<(), RequestError> {
+    if matches!(q, GwasGet::Study { section: Some(GwasStudySection::Ancestries), .. }) { return ancestry::read(cx, q, deadline, out); }
+    let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
+    let result = resource(q, &leg, out);
+    out.sources.push(status::source(Source::Gwas, leg.finish(), result.as_ref().err().copied()));
+    result
+}
+fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), RequestError> {
+    match q {
+        GwasGet::Association { id, section: None, .. } => {
+            let association = map::association(gwas::get::association(leg, *id)?);
+            next::association(&association, out);
+            let mut loci = q.clone();
+            if let GwasGet::Association { section, .. } = &mut loci { *section = Some(GwasAssociationSection::Loci); }
+            out.next.push((StepKind::Section, action(loci, false)));
+            out.body = QueryBody::GwasAssociation(Some(GwasAssociationCard { association }));
+        }
+        GwasGet::Association { id, section: Some(GwasAssociationSection::Loci), .. } => {
+            let rows = gwas::get::loci(leg, *id)?;
+            rejected(out, rows.rejected);
+            let (items, continuation) = page(q, &rows.items, out);
+            next::loci(&items, out);
+            out.body = QueryBody::GwasLoci(Some(GwasLoci { association: *id, items, continuation }));
+        }
+        GwasGet::Study { id, section: None, .. } => {
+            let study = gwas::get::study(leg, id)?;
+            for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
+                let q = GwasGet::Study { id: id.clone(), section: Some(section), page: GwasSectionPage::default() };
+                out.next.push((StepKind::Section, action(q, false)));
+            }
+            out.body = QueryBody::GwasStudy(Some(study));
+        }
+        GwasGet::Study { id, section: Some(GwasStudySection::Associations), page: window } => {
+            let selector = GwasSearch::study_page(id.clone(), window);
+            let rows = gwas::search(leg, &selector)?;
+            let items: Box<[_]> = rows.rows.into_iter().skip((window.offset() % window.limit()) as usize).map(map::association).collect();
+            let returned = items.len() as u32;
+            let continuation = (returned > 0 && u64::from(window.offset()) + u64::from(returned) < rows.total)
+                .then(|| GwasPageQuery::Get(q.with_page(window.at_offset(window.offset().saturating_add(returned)))));
+            out.page = Some(PageInfo { offset: window.offset(), returned, total: rows.total, pool: None, truncated: None });
+            if let Some(GwasPageQuery::Get(q)) = &continuation { out.next.push((StepKind::Page, action(q.clone(), false))); }
+            out.body = QueryBody::GwasPage(Some(GwasPage { items, page: out.page.clone().ok_or(biomcp_fetch::CacheError::Database)?, qualifying_total: None, continuation }));
+        }
+        GwasGet::Study { .. } => return Ok(()),
+    }
+    if out.status != Status::Partial { out.status = Status::Complete; }
+    Ok(())
+}
+fn action(q: GwasGet, fresh: bool) -> Action { Action::Run { request: Request::GetGwas(q), fresh } }
+fn problem(out: &mut Outcome, field: &str, code: ProblemCode) {
+    out.problems.push(Problem { source: Source::Gwas, record: None, field: field.into(), code });
+}
+fn rejected(out: &mut Outcome, count: usize) {
+    if count > 0 { out.status = Status::Partial; problem(out, "source_url", ProblemCode::ValueUnknown); }
+}
+fn page<T: Clone>(q: &GwasGet, rows: &[T], out: &mut Outcome) -> (Box<[T]>, Option<GwasGet>) {
+    let window = q.page();
+    let items: Box<[_]> = rows.iter().skip(window.offset() as usize).take(window.limit() as usize).cloned().collect();
+    let returned = items.len() as u32;
+    let next = window.offset().saturating_add(returned);
+    let continuation = (returned > 0 && (next as usize) < rows.len()).then(|| q.with_page(window.at_offset(next)));
+    if let Some(q) = &continuation { out.next.push((StepKind::Page, action(q.clone(), false))); }
+    out.page = Some(PageInfo { offset: window.offset(), returned, total: rows.len() as u64, pool: None, truncated: None });
+    (items, continuation)
+}

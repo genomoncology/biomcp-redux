@@ -51,6 +51,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::GetGwas(_) => "biomcp.gwas-get/1",
         Request::SearchGwas(_) => "biomcp.gwas-search/2",
         Request::SearchProtein(_) => "biomcp.protein-search/1",
         Request::GetProtein(_) => "biomcp.protein-get/1",
@@ -95,6 +96,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("get", "gwas", "biomcp.gwas-get/1"),
     ("search", "gwas", "biomcp.gwas-search/2"),
     ("search", "protein", "biomcp.protein-search/1"),
     ("get", "protein", "biomcp.protein-get/1"),
@@ -496,7 +498,7 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
-        ("search", "gwas") => gwas::request(verb, value),
+        ("search" | "get", "gwas") => gwas::request(verb, value),
         ("pathway", "genes" | "events") => entity::request(verb, entity, value),
         (
             "search" | "get",

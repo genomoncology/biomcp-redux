@@ -61,6 +61,10 @@ struct PageFields {
     /// Rows to skip in this relation.
     #[serde(default)]
     section_offset: u32,
+    /// Retained ancestry reply for local pages without provider access.
+    #[serde(default, deserialize_with = "crate::query::present", skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "biodata::Text"))]
+    snapshot: Option<biodata::Text>,
 }
 fn limit() -> u32 {
     3
@@ -89,4 +93,34 @@ impl GwasSectionPage {
         page.0.section_offset = offset;
         page
     }
+}
+
+impl Default for GwasSectionPage {
+    fn default() -> Self { Self(PageFields { section_limit: 3, section_offset: 0, snapshot: None }) }
+}
+impl GwasSectionPage {
+    /// Retained ancestry source reply.
+    pub fn snapshot(&self) -> Option<&biodata::Text> { self.0.snapshot.as_ref() }
+    /// Bind every local page to the same reply.
+    pub fn with_snapshot(&self, token: biodata::Text) -> Self {
+        let mut page = self.clone(); page.0.snapshot = Some(token); page
+    }
+}
+impl GwasGet {
+    /// Exact study card with default relation paging.
+    pub fn study(id: GwasStudyId) -> Self { Self::Study { id, section: None, page: GwasSectionPage::default() } }
+    /// Exact association card with default relation paging.
+    pub fn association(id: GwasAssociationId) -> Self { Self::Association { id, section: None, page: GwasSectionPage::default() } }
+    /// Relation window for either source identity.
+    pub fn page(&self) -> &GwasSectionPage {
+        match self { Self::Association { page, .. } | Self::Study { page, .. } => page }
+    }
+    /// Continue the checked identity and section.
+    pub fn with_page(&self, page: GwasSectionPage) -> Self {
+        let mut next = self.clone();
+        match &mut next { Self::Association { page: p, .. } | Self::Study { page: p, .. } => *p = page }
+        next
+    }
+    /// Restart the same relation without a retained reply.
+    pub fn restart(&self) -> Self { self.with_page(GwasSectionPage(PageFields { section_limit: self.page().limit(), section_offset: 0, snapshot: None })) }
 }

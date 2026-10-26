@@ -43,6 +43,7 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
+        Body::GwasAssociation(_) | Body::GwasStudy(_) | Body::GwasLoci(_) | Body::GwasAncestries(_) => Navigation::NativeOrder,
         Body::GwasPage(_) | Body::PathwayEvents(_) => Navigation::NativeOrder,
         Body::PathwayCard(Some(card)) if card.events.is_some() && card.genes.is_none() => {
             Navigation::NativeOrder

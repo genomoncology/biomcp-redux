@@ -120,7 +120,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/17"),
+        Request => ("request", "biodata.request/18"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene_cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene_page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
@@ -160,6 +160,7 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
     };
     contracts.extend(contracts! {
+        GwasGetCommand => ("gwas-get", "biomcp.gwas-get/1"),
         GwasSearchCommand => ("gwas-search", "biomcp.gwas-search/2"),
         Envelope<GwasPage> => ("gwas-page", "biomcp.gwas_page/3"),
         Envelope<GwasAssociationCard> => ("gwas-association", "biomcp.gwas_association/1"),

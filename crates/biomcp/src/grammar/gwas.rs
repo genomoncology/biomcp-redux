@@ -14,6 +14,13 @@ pub(super) fn request(verb: &str, mut value: Value) -> Result<Request, ()> {
                 .map(Request::SearchGwas)
                 .map_err(|_| ())
         }
+        "get" => {
+            let fields = value.as_object_mut().ok_or(())?;
+            let id = fields.get("id").and_then(Value::as_str).ok_or(())?;
+            let kind = if id.starts_with("association:") { "association" } else { "study" };
+            fields.insert("kind".into(), kind.into());
+            serde_json::from_value(value).map(Request::GetGwas).map_err(|_| ())
+        }
         _ => Err(()),
     }
 }

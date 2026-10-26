@@ -227,6 +227,15 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::GetGwas(q) => match body {
+            QueryBody::GwasAssociation(body) => meta.encode(q, body),
+            QueryBody::GwasStudy(body) => meta.encode(q, body),
+            QueryBody::GwasLoci(body) => meta.encode(q, body),
+            QueryBody::GwasAncestries(body) => meta.encode(q, body),
+            QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Get(q), body),
+            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+            _ => Err(io::Error::other("gwas get response mismatch")),
+        },
         Request::SearchGwas(q) => match body {
             QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Search(q), body),
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),

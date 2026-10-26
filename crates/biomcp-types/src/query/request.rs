@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Search one native GWAS Catalog association page.
     SearchGwas(crate::GwasSearch),
+    /// Read one exact association or study and its native relation.
+    GetGwas(crate::GwasGet),
     /// Discover reviewed human UniProt candidates without selecting one.
     SearchProtein(crate::ProteinSearch),
     /// Read exact protein cards or all HGNC-listed protein candidates.

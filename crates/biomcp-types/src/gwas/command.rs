@@ -23,3 +23,34 @@ impl schemars::JsonSchema for GwasSearchCommand {
         schema
     }
 }
+
+/// Get command grammar selects an association or study by its checked native identifier.
+#[cfg(feature = "schema")]
+#[derive(Debug, schemars::JsonSchema)]
+pub struct GwasGetCommand {
+    /// Qualified association ID or exact GCST study accession.
+    #[schemars(extend("x-positional" = 0))]
+    pub id: biodata::Text,
+    /// Association loci or study associations and ancestries.
+    #[schemars(with = "CommandSection", extend("x-positional" = 1))]
+    pub section: Option<CommandSection>,
+    /// Maximum native relation rows.
+    #[schemars(range(min = 1, max = 50))]
+    pub section_limit: Option<u32>,
+    /// Native relation row offset.
+    pub section_offset: Option<u32>,
+    /// Retained ancestry reply for a local page.
+    pub snapshot: Option<biodata::Text>,
+}
+/// Native context section grammar.
+#[cfg(feature = "schema")]
+#[derive(Debug, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CommandSection {
+    /// Native association loci.
+    Loci,
+    /// Native study association pages.
+    Associations,
+    /// Native study ancestry rows.
+    Ancestries
+}
