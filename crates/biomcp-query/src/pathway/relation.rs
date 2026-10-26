@@ -183,7 +183,7 @@ fn fetch(
             None => {
                 let mapped = reactome::card(&leg, id, false)?;
                 out.problems.extend(mapped.problems);
-                let card = mapped.value.ok_or(biomcp_fetch::BadReply)?;
+                let card = mapped.value.ok_or_else(|| SourceError { source: Source::Reactome, reason: Reason::NotFound, status: Some(404), retry_after: None })?;
                 PathwayHeader {
                     id: card.pathway.id,
                     name: card.pathway.name,

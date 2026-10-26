@@ -88,6 +88,9 @@ pub enum PathwayEventRef {
         /// Native stable identity when present, never copied from the pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         id: Option<ReactomeId>,
+        /// Publisher record URL for the event's own stable identity, never the parent pathway.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        source_url: Option<Text>,
         /// Whole native stIdVersion, separate from the event stable identity.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         version: Option<Text>,
