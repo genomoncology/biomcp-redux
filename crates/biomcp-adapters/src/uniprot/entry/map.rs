@@ -19,13 +19,13 @@ pub(in crate::uniprot) fn entry(raw: raw::Entry, id: &UniProtIsoform) -> Mapped<
             }],
         };
     }
-    let audit = raw.entry_audit;
+    let audit = raw.entry_audit.unwrap_or_default();
     let value = header(
         raw.primary_accession,
         raw.uni_protkb_id,
         raw.protein_description.recommended_name.full_name.value,
         raw.sequence.length,
-        raw.genes,
+        raw.genes.unwrap_or_default(),
     )
     .map(|header| Entry {
         header,
@@ -52,9 +52,9 @@ pub(in crate::uniprot) fn header(
         .flat_map(|g| {
             g.gene_name
                 .into_iter()
-                .chain(g.synonyms)
-                .chain(g.ordered_locus_names)
-                .chain(g.orf_names)
+                .chain(g.synonyms.into_iter().flatten())
+                .chain(g.ordered_locus_names.into_iter().flatten())
+                .chain(g.orf_names.into_iter().flatten())
         })
         .map(|v| v.value)
         .collect();

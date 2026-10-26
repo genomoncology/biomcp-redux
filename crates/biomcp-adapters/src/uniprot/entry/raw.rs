@@ -10,10 +10,8 @@ pub(in crate::uniprot) struct Entry {
     pub organism: Organism,
     pub protein_description: Description,
     pub sequence: Sequence,
-    #[serde(default)]
-    pub genes: Vec<Gene>,
-    #[serde(default)]
-    pub entry_audit: Audit,
+    pub genes: Option<Vec<Gene>>,
+    pub entry_audit: Option<Audit>,
 }
 impl Entry {
     pub(in crate::uniprot) fn admitted(&self, id: &UniProtIsoform) -> bool {
@@ -60,12 +58,9 @@ pub(in crate::uniprot) struct Sequence {
 #[serde(rename_all = "camelCase")]
 pub(in crate::uniprot) struct Gene {
     pub gene_name: Option<Value>,
-    #[serde(default)]
-    pub synonyms: Vec<Value>,
-    #[serde(default)]
-    pub ordered_locus_names: Vec<Value>,
-    #[serde(default)]
-    pub orf_names: Vec<Value>,
+    pub synonyms: Option<Vec<Value>>,
+    pub ordered_locus_names: Option<Vec<Value>>,
+    pub orf_names: Option<Vec<Value>>,
 }
 #[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
