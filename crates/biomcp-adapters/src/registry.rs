@@ -213,6 +213,18 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             "/uniprotkb/P15056.json",
             vec![("fields", Arg::Text("accession"))],
         ),
+        Source::InterPro => (
+            "/entry/interpro/protein/uniprot/P00533/",
+            vec![("page_size", Arg::Num(5))],
+        ),
+        Source::ComplexPortal => (
+            "/search/P15056",
+            vec![
+                ("first", Arg::Num(0)),
+                ("number", Arg::Num(5)),
+                ("filters", Arg::Text("species_f:(\"Homo sapiens\")")),
+            ],
+        ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),

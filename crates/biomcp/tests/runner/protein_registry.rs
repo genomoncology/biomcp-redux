@@ -6,8 +6,12 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod admission;
+mod health;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        Trial::test("protein-registry/bounded-health", || {
+            health::run().map_err(Into::into)
+        }),
         Trial::test("protein-registry/policy-before-io", || {
             admission::run().map_err(Into::into)
         }),
