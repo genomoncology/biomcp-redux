@@ -138,7 +138,7 @@ impl AuthorGet {
         &self.0.ids
     }
 }
-/// One exact provider record's publication window.
+/// One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "PapersFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -192,6 +192,24 @@ impl TryFrom<PapersFields> for AuthorPapersQuery {
     }
 }
 impl AuthorPapersQuery {
+    /// Restart the exact provider collection.
+    pub fn restart(&self) -> Self {
+        let mut q = self.at_offset(0);
+        q.0.pool = None;
+        q
+    }
+    /// Select a bounded local or native page.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
+    }
+    /// Retain this collection identity.
+    pub fn with_pool(&self, pool: Text) -> Self {
+        let mut q = self.clone();
+        q.0.pool = Some(pool);
+        q
+    }
     /// Start the default native paper window for a checked provider record.
     pub fn new(id: AuthorId) -> Self {
         Self(PapersFields {

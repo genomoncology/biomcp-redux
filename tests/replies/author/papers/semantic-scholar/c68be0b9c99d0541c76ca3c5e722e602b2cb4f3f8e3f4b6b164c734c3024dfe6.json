@@ -1,0 +1,40 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/search?query=Synthetic%20author%20pivot&limit=100&fields=externalIds%2Ctitle%2Cvenue%2Cyear%2CpublicationDate%2Cauthors",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 1,
+          "data": [
+            {
+              "paperId": "cccccccccccccccccccccccccccccccccccccccc",
+              "externalIds": {
+                "PubMed": "12345678"
+              },
+              "title": "Synthetic paper with native first author",
+              "venue": "Synthetic venue",
+              "year": 2025,
+              "authors": [
+                {
+                  "authorId": "123",
+                  "name": "Synthetic first author"
+                },
+                {
+                  "authorId": "456",
+                  "name": "Synthetic second author"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

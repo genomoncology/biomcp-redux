@@ -1,0 +1,90 @@
+{
+  "feature": "author-papers",
+  "story": "Retained exact native author paper page preserves source identifiers and disclosure",
+  "steps": [
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:2118426986"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:2118426986"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:2118426986",
+        "/result/items/*/paper_id": [
+          "9bf97eda6d51e6208f229eff5c842816e14ad6ef",
+          "6eb1664e3af92f095150396543967d24b7dadc04",
+          "09e67ce237274574fd2ba9fb822fcc9a4992c88d",
+          "0d0fbfb189601e751b3cb7bb09a9c9f9f8138c17",
+          "36c904a8295dda4c9a5a83a6e0833f76bfeadd3c"
+        ],
+        "/next/5/kind": "page",
+        "/query/id": "semantic-scholar:2118426986",
+        "/query/limit": 5,
+        "/query/offset": 0
+      },
+      "full_output_bytes": true,
+      "max_bytes": 2831,
+      "max_tokens": 708
+    },
+    {
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:2118426986",
+        "/result/items/*/paper_id": [
+          "3d999a318bb09eca0cfe32043c960632081e0edc",
+          "4b8be27720db5e4f4936eed4508eb09b06d09933",
+          "9ef40868d742771efcd89625ecea3aac9ba67e04",
+          "cf296f417706777ebc4b0a40429218ab27322e95",
+          "126ae28159f2bbbe68e5de9cfc962d24d2913010"
+        ],
+        "/query/id": "semantic-scholar:2118426986",
+        "/query/limit": 5,
+        "/query/offset": 5
+      },
+      "full_output_bytes": true,
+      "max_bytes": 2847,
+      "max_tokens": 712,
+      "follow": "page"
+    },
+    {
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:2118426986",
+        "/result/items/*/paper_id": [
+          "3d999a318bb09eca0cfe32043c960632081e0edc",
+          "4b8be27720db5e4f4936eed4508eb09b06d09933",
+          "9ef40868d742771efcd89625ecea3aac9ba67e04",
+          "cf296f417706777ebc4b0a40429218ab27322e95",
+          "126ae28159f2bbbe68e5de9cfc962d24d2913010"
+        ],
+        "/query/id": "semantic-scholar:2118426986",
+        "/query/limit": 5,
+        "/query/offset": 5
+      },
+      "full_output_bytes": true,
+      "max_bytes": 2798,
+      "max_tokens": 700,
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:2118426986",
+        "--offset",
+        "5"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:2118426986",
+        "--offset",
+        "5"
+      ],
+      "offline": true
+    }
+  ]
+}

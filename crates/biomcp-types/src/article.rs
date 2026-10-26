@@ -90,6 +90,9 @@ pub struct ArticleHeader {
     /// First author in source order.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub first_author: Option<Text>,
+    /// Exact Semantic Scholar ID for the displayed native first author, when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub first_author_id: Option<biodata::SemanticScholarAuthorId>,
     /// Whole source author count.
     pub author_count: u32,
 }

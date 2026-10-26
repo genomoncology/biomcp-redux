@@ -1,0 +1,61 @@
+{
+  "feature": "author-orcid",
+  "story": "visibility",
+  "live_check": "synthetic control",
+  "replay": "orcid/visibility",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "author",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/header/name": "Synthetic Author"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 649,
+      "max_tokens": 163
+    },
+    {
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "exit": 0,
+      "is_error": false,
+      "expect": {
+        "/status": "complete",
+        "/result/collection_scope": "whole_public_works_reply",
+        "/result/observed_groups": 1,
+        "/result/groups/0/assertions/1/put_code": 2,
+        "/result/groups/0/assertions/0/external_ids/1/relationship": "part-of",
+        "/next/0/args": [
+          "get",
+          "article",
+          "123"
+        ],
+        "/result/groups/0/assertions": {
+          "count": 2
+        }
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1568,
+      "max_tokens": 393
+    }
+  ]
+}

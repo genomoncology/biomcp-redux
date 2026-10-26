@@ -39,6 +39,8 @@ canonical_enum! {
         LitSense => "litsense",
         /// Semantic Scholar.
         SemanticScholar => "semantic-scholar",
+        /// ORCID public registry.
+        Orcid => "orcid",
         /// PMC Open Access bucket.
         PmcOa => "pmc-oa",
         /// NIH iCite.

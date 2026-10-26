@@ -90,6 +90,7 @@ impl SecretName {
     pub const ALL: &[Self] = &[
         Self::NcbiApiKey,
         Self::SemanticScholarApiKey,
+        Self::OrcidAccessToken,
         Self::OncokbApiKey,
         Self::NciApiKey,
     ];
@@ -98,6 +99,7 @@ impl SecretName {
         match self {
             Self::NcbiApiKey => "ncbi",
             Self::SemanticScholarApiKey => "semantic-scholar",
+            Self::OrcidAccessToken => "orcid",
             Self::OncokbApiKey => "oncokb",
             Self::NciApiKey => "nci",
         }
@@ -107,6 +109,7 @@ impl SecretName {
         match self {
             Self::NcbiApiKey => "ncbi_api_key",
             Self::SemanticScholarApiKey => "semantic_scholar_api_key",
+            Self::OrcidAccessToken => "orcid_access_token",
             Self::OncokbApiKey => "oncokb_api_key",
             Self::NciApiKey => "nci_api_key",
         }
@@ -116,6 +119,7 @@ impl SecretName {
         match self {
             Self::NcbiApiKey => "NCBI_API_KEY",
             Self::SemanticScholarApiKey => "S2_API_KEY",
+            Self::OrcidAccessToken => "ORCID_ACCESS_TOKEN",
             Self::OncokbApiKey => "ONCOKB_TOKEN",
             Self::NciApiKey => "NCI_API_KEY",
         }

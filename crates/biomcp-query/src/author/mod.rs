@@ -1,6 +1,11 @@
 //! Provider-record author search and independent exact cards.
 mod get;
+mod orcid;
+mod papers;
+pub use papers::papers;
+mod papers_snapshot;
 mod search;
+mod semantic_scholar;
 mod snapshot;
 use crate::{Action, Outcome};
 use biomcp_types::{
@@ -30,17 +35,15 @@ fn recovery(cx: &crate::Ctx<'_>, out: &mut Outcome, request: Request) {
     key_recovery(cx, out);
 }
 fn retry(out: &mut Outcome, request: Request) {
-    if out
-        .sources
-        .iter()
-        .any(|s| s.reason == Some(Reason::BadReply))
-    {
-        out.problems.push(Problem {
-            source: Source::SemanticScholar,
-            record: None,
-            field: "author".into(),
-            code: ProblemCode::ValueUnknown,
-        });
+    for source in &out.sources {
+        if source.reason == Some(Reason::BadReply) {
+            out.problems.push(Problem {
+                source: source.source,
+                record: None,
+                field: "author".into(),
+                code: ProblemCode::ValueUnknown,
+            });
+        }
     }
     if out
         .sources
@@ -60,7 +63,7 @@ fn key_recovery(cx: &crate::Ctx<'_>, out: &mut Outcome) {
     if out
         .sources
         .iter()
-        .any(|s| s.reason == Some(Reason::RateLimited))
+        .any(|s| s.source == Source::SemanticScholar && s.reason == Some(Reason::RateLimited))
         && !cx
             .fetch
             .has_key(biomcp_fetch::SecretName::SemanticScholarApiKey)
@@ -73,4 +76,8 @@ fn key_step(out: &mut Outcome) {
         out.next
             .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
     }
+}
+
+fn source_error(error: Option<biomcp_fetch::RequestError>) -> Option<biomcp_fetch::RequestError> {
+    error.filter(|error| !matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::NotFound))
 }

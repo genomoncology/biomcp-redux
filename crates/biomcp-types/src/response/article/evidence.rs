@@ -100,6 +100,6 @@ pub struct ArticleRecommendations {
     pub notice: Option<EvidenceNotice>,
 }
 impl super::super::ResponseBody for ArticleRecommendations {
-    const SCHEMA: &'static str = "biomcp.article_recommendations/2";
+    const SCHEMA: &'static str = "biomcp.article_recommendations/3";
     type Query = crate::ArticleRecommend;
 }

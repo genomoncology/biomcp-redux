@@ -1,0 +1,279 @@
+{
+  "feature": "author-orcid",
+  "story": "Retained exact public ORCID names and grouped works",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 648,
+      "max_tokens": 163,
+      "run": [
+        "get",
+        "author",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "orcid:0000-0002-4299-3018"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 5021,
+      "max_tokens": 1256,
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 2289,
+      "max_tokens": 573,
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "1",
+        "--offset",
+        "8"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "1",
+        "--offset",
+        "8"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 21773,
+      "max_tokens": 5445,
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "25"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "25"
+      ]
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 21516,
+      "max_tokens": 5380,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 27105,
+      "max_tokens": 6777,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 24936,
+      "max_tokens": 6235,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 21280,
+      "max_tokens": 5320,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 20783,
+      "max_tokens": 5196,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 22023,
+      "max_tokens": 5507,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 27897,
+      "max_tokens": 6975,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 28691,
+      "max_tokens": 7173,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 29112,
+      "max_tokens": 7279,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 29124,
+      "max_tokens": 7282,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 26276,
+      "max_tokens": 6569,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 31079,
+      "max_tokens": 7771,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 35759,
+      "max_tokens": 8941,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 36162,
+      "max_tokens": 9042,
+      "follow": "page",
+      "offline": true
+    },
+    {
+      "expect": {
+        "/status": "complete"
+      },
+      "exit": 0,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 7939,
+      "max_tokens": 1985,
+      "follow": "page",
+      "offline": true
+    }
+  ]
+}

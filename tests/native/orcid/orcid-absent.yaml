@@ -1,0 +1,49 @@
+{
+  "feature": "author-orcid",
+  "story": "Native ORCID absence differs from failure",
+  "harvest": "sdlc/planning/slices/author.md",
+  "steps": [
+    {
+      "expect": {
+        "/status": "absent"
+      },
+      "exit": 1,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 408,
+      "max_tokens": 103,
+      "run": [
+        "get",
+        "author",
+        "orcid:0000-0000-0000-0001"
+      ],
+      "mcp": [
+        "get",
+        "author",
+        "orcid:0000-0000-0000-0001"
+      ]
+    },
+    {
+      "run": [
+        "author",
+        "papers",
+        "orcid:0000-0000-0000-0001"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "orcid:0000-0000-0000-0001"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1,
+      "is_error": false,
+      "full_output_bytes": true,
+      "max_bytes": 340,
+      "max_tokens": 86
+    }
+  ],
+  "live_check": "Native person absence; derived synthetic works HTTP404 control"
+}

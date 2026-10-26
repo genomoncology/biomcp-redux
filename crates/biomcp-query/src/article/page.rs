@@ -273,4 +273,5 @@ fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut 
             },
         ));
     }
+    super::next::authors(out);
 }

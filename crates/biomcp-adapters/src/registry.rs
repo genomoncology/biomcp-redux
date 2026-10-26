@@ -50,6 +50,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::pmc_oa::SPEC,
     &crate::icite::SPEC,
     &crate::semantic_scholar::SPEC,
+    &crate::orcid::SPEC,
     &crate::nci::SPEC,
     &crate::cbioportal::SPEC,
     &crate::mychem::SPEC,
@@ -246,6 +247,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
                 ("max-keys", Arg::Num(1)),
             ],
         ),
+        Source::Orcid => ("/0000-0002-4299-3018/person", vec![]),
         Source::SemanticScholar => (
             "/paper/search",
             vec![

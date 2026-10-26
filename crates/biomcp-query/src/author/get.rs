@@ -9,22 +9,23 @@ use biomcp_types::{
 pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let leg = cx
-        .fetch
-        .leg(&semantic_scholar::SPEC, deadline)
-        .fresh(cx.fresh);
     let mut out = empty(QueryBody::AuthorCards(AuthorCards {
         items: Box::default(),
     }));
     let mut items = Vec::new();
-    let mut error = None;
     for input in q.ids() {
-        let AuthorId::SemanticScholar(id) = input else {
-            continue;
+        let (spec, source) = match input {
+            AuthorId::SemanticScholar(_) => (&semantic_scholar::SPEC, Source::SemanticScholar),
+            AuthorId::Orcid(_) => (&biomcp_adapters::orcid::SPEC, Source::Orcid),
         };
-        let reply = author::card(&leg, id);
-        let status = match &reply {
-            Ok(_) => Status::Complete,
+        let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
+        let reply = match input {
+            AuthorId::SemanticScholar(id) => author::card(&leg, id).map(Some),
+            AuthorId::Orcid(id) => biomcp_adapters::orcid::card(&leg, id),
+        };
+        let mut state = match &reply {
+            Ok(Some(_)) => Status::Complete,
+            Ok(None) => Status::Absent,
             Err(biomcp_fetch::RequestError::Source(e)) if e.reason == Reason::NotFound => {
                 Status::Absent
             }
@@ -33,26 +34,25 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
                 Status::Failed
             }
         };
-        if let Err(e) = &reply
-            && !matches!(e, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::NotFound)
-        {
-            error = Some(*e);
+        let outcome = status::source(
+            source,
+            leg.finish(),
+            super::source_error(reply.as_ref().err().copied()),
+        );
+        if outcome.state == SourceState::Stale && state == Status::Complete {
+            state = Status::Partial;
+        }
+        if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source) {
+            status::retain_source_state(existing, &outcome);
+        } else {
+            out.sources.push(outcome);
         }
         items.push(AuthorCardItem {
             input: input.clone(),
-            status,
-            card: reply.ok(),
+            status: state,
+            card: reply.ok().flatten(),
         });
     }
-    let source = status::source(Source::SemanticScholar, leg.finish(), error);
-    if source.state == SourceState::Stale {
-        for item in &mut items {
-            if item.status == Status::Complete {
-                item.status = Status::Partial;
-            }
-        }
-    }
-    out.sources.push(source);
     out.status = status::status(items.iter().map(|i| i.status));
     recovery(cx, &mut out, Request::GetAuthor(q.clone()));
     for item in &items {

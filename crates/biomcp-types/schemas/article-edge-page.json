@@ -121,6 +121,17 @@
           ],
           "description": "First author in source order."
         },
+        "first_author_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SemanticScholarAuthorId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact Semantic Scholar ID for the displayed native first author, when supplied."
+        },
         "journal": {
           "anyOf": [
             {
@@ -692,6 +703,10 @@
         " Identity lacks the identifier required to join this source."
       ]
     },
+    "SemanticScholarAuthorId": {
+      "pattern": "^[1-9][0-9]*$",
+      "type": "string"
+    },
     "SemanticScholarId": {
       "pattern": "^[a-f0-9]{40}$",
       "type": "string"
@@ -717,6 +732,7 @@
         "litvar",
         "litsense",
         "semantic-scholar",
+        "orcid",
         "pmc-oa",
         "icite",
         "pubtator",
@@ -788,6 +804,7 @@
         " NCBI LitVar2.",
         " NCBI LitSense2.",
         " Semantic Scholar.",
+        " ORCID public registry.",
         " PMC Open Access bucket.",
         " NIH iCite.",
         " PubTator.",
@@ -1042,7 +1059,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article_edges/3",
+  "$id": "biomcp.article_edges/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1088,7 +1105,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article_edges/3",
+      "const": "biomcp.article_edges/4",
       "type": "string"
     },
     "sources": {

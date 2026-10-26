@@ -1,0 +1,57 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/author/123/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue%2Cabstract%2CpublicationDate%2CcitationCount%2CreferenceCount%2CinfluentialCitationCount%2CisOpenAccess%2CopenAccessPdf%2CfieldsOfStudy%2CpublicationTypes%2Cauthors.authorId%2Cauthors.name&offset=0&limit=5",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "offset": 0,
+          "next": 5,
+          "data": [
+            {
+              "paperId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "externalIds": {
+                "PubMed": "12345678",
+                "DOI": "10.1234/synthetic",
+                "CorpusId": 123
+              },
+              "title": "Synthetic whole paper title",
+              "year": 2025,
+              "venue": "Synthetic venue",
+              "abstract": "Synthetic abstract for a replay control.",
+              "publicationDate": "2025-01-02",
+              "referenceCount": 0,
+              "citationCount": 3,
+              "influentialCitationCount": 0,
+              "isOpenAccess": false,
+              "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Synthetic access disclaimer."
+              },
+              "fieldsOfStudy": null,
+              "publicationTypes": [],
+              "authors": [
+                {
+                  "authorId": "123",
+                  "name": "Repeated synthetic name"
+                },
+                {
+                  "authorId": null,
+                  "name": "Repeated synthetic name"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

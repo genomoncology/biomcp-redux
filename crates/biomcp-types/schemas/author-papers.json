@@ -129,7 +129,7 @@
     },
     "AuthorPapersQuery": {
       "additionalProperties": false,
-      "description": "One exact provider record's publication window.",
+      "description": "One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.",
       "properties": {
         "full": {
           "description": "Legacy alias for details; normalized on construction.",
@@ -387,6 +387,7 @@
         "litvar",
         "litsense",
         "semantic-scholar",
+        "orcid",
         "pmc-oa",
         "icite",
         "pubtator",
@@ -458,6 +459,7 @@
         " NCBI LitVar2.",
         " NCBI LitSense2.",
         " Semantic Scholar.",
+        " ORCID public registry.",
         " PMC Open Access bucket.",
         " NIH iCite.",
         " PubTator.",

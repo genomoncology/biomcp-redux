@@ -1,19 +1,6 @@
 use super::{Outcome, ResponseMeta};
-use biomcp_query::Action;
-use biomcp_types::{ErrorEnvelope, QueryBody, Request};
+use biomcp_types::{QueryBody, Request};
 use std::io;
-
-pub(super) fn unsupported(action: &Action) -> bool {
-    matches!(action, Action::Run {request: Request::GetAuthor(q), ..}
-        if q.ids().iter().any(|id| matches!(id, biodata::AuthorId::Orcid(_))))
-}
-
-pub(super) fn deferred() -> io::Result<Outcome> {
-    super::encode(
-        ErrorEnvelope::retired(biomcp_types::ErrorMessage::Deferred),
-        crate::exit::Status::Usage,
-    )
-}
 
 pub(super) fn response(
     meta: ResponseMeta,
@@ -21,6 +8,12 @@ pub(super) fn response(
     body: QueryBody,
 ) -> io::Result<Outcome> {
     match (request, body) {
+        (Request::AuthorPapers(q), QueryBody::AuthorPapers(body)) => meta.encode(q, body),
+        (Request::AuthorPapers(q), QueryBody::AuthorPaperDetails(body)) => meta.encode(q, body),
+        (Request::AuthorPapers(q), QueryBody::OrcidWorks(body)) => meta.encode(q, body),
+        (Request::AuthorPapers(_), QueryBody::PoolError { mismatch }) => {
+            super::pool_error(mismatch, meta.next)
+        }
         (Request::SearchAuthor(q), QueryBody::AuthorPage(body)) => meta.encode(q, body),
         (Request::SearchAuthor(_), QueryBody::PoolError { mismatch }) => {
             super::pool_error(mismatch, meta.next)

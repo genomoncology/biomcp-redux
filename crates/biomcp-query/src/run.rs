@@ -73,6 +73,7 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::AuthorPapers(q) => crate::author::papers(cx, q),
         Request::SearchAuthor(q) => crate::author::search(cx, q),
         Request::GetAuthor(q) => crate::author::get(cx, q),
         Request::CellLineAssayCount(q) => crate::cell_line::assay_count(cx, q),

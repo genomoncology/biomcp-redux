@@ -37,7 +37,7 @@ article-recommendations: Read Semantic Scholar recommendations in source order w
 
 article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination. Cases: `crates/biomcp/tests/runner/article_save.rs`.
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP. Cases: `tests/cases/article/pdf/*.yaml`, `crates/biomcp/tests/runner/pdf.rs`.
-key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
+key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call. The private settings cases in `crates/biomcp/src/config/deferred_keys_tests.rs` execute parsed commands with observed environment reads and remain in the excluded binary-test collection. Cases: `crates/biomcp/tests/runner/key_registration.rs`, `crates/biomcp/tests/runner/key_reload.rs`.
 
 variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair. Cases: `tests/cases/variant/*.yaml`, `crates/biomcp/tests/runner/variant.rs`, `crates/biomcp/tests/runner/next_navigation.rs`.
 trial-search: Search the registry with explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages and caller-controlled wider alternatives for short searches. Cases: `tests/cases/trial/*.yaml`, `crates/biomcp/tests/runner/trial_tables.rs`, `crates/biomcp/tests/runner/trial_wider.rs`, `crates/biomcp/tests/runner/trial_condition.rs`.
@@ -171,3 +171,6 @@ author-types: A public API caller checks source-qualified author records and nat
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests. Cases: `crates/biomcp/tests/runner/cell_line/all.rs`, `crates/biomcp/tests/runner/cell_line/all/*.rs`.
 
 author-search: Literal Semantic Scholar author candidates retain provider identities and native order. Cases: `tests/cases/author/*.yaml`, `crates/biomcp/tests/runner/author/*.rs`.
+author-orcid: Read exact public ORCID names and locally page whole public work groups without identity joins. Cases: `tests/cases/orcid/*.yaml`, `crates/biomcp/tests/runner/orcid.rs`.
+
+author-papers: Exact Semantic Scholar author papers preserve native order, IDs and details. Cases: `tests/cases/author/papers*.yaml`.
