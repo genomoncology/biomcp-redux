@@ -30,15 +30,24 @@ impl Process {
     }
 
     pub(super) fn finish(mut self) -> Result<(ExitStatus, Vec<u8>, Vec<u8>), String> {
-        let deadline = Instant::now() + WATCHDOG;
+        let started = Instant::now();
+        let deadline = started + WATCHDOG;
         let status = loop {
             if let Some(status) = self.child.try_wait().map_err(|e| e.to_string())? {
                 break status;
             }
             if Instant::now() >= deadline {
-                let _ = self.child.kill();
-                let _ = self.child.wait();
-                return Err("MCP watchdog killed and reaped server".into());
+                let kill = self.child.kill();
+                let status = self.child.wait();
+                let stderr = joined(self.stderr)?;
+                return Err(format!(
+                    "MCP watchdog: server still running after {:?}; kill={kill:?}; \
+                     reaped={status:?}; stderr (first {} of {} bytes)={:?}",
+                    started.elapsed(),
+                    stderr.len().min(4096),
+                    stderr.len(),
+                    String::from_utf8_lossy(stderr.get(..4096).unwrap_or(&stderr)),
+                ));
             }
             thread::sleep(Duration::from_millis(10));
         };
