@@ -25,9 +25,7 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": {
-          "includes": "No treatment response is inferred; no bioinformatics tool runs."
-        }
+        "/result/commands/0/description": "One literal cell line search, with native order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs."
       },
       "max_bytes": 874,
       "max_tokens": 219
@@ -56,9 +54,7 @@
             "--section-offset"
           ]
         },
-        "/result/commands/0/description": {
-          "includes": "No treatment response is inferred; no bioinformatics tool runs."
-        },
+        "/result/commands/0/description": "One exact identity and an optional bounded named section. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.",
         "/result/commands/0/sections/*/word": {
           "includes_all_of": [
             "names",
@@ -93,7 +89,8 @@
           "includes_all_of": [
             "id"
           ]
-        }
+        },
+        "/result/commands/0/description": "A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs."
       },
       "max_bytes": 478,
       "max_tokens": 120
