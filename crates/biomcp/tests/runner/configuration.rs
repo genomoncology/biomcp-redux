@@ -92,7 +92,7 @@ fn default_cache_migration() -> Check {
         .map(|e| e.path())
         .find(|p| p.extension().is_some_and(|v| v == "sqlite"))
         .ok_or("missing cache")?;
-    let historical = folder.join("cache-1-5.sqlite");
+    let historical = folder.join("cache-1-4.sqlite");
     if current != historical {
         fs::rename(&current, &historical).map_err(|e| e.to_string())?;
         fs::rename(
