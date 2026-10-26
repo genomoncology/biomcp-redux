@@ -121,3 +121,4 @@ diagnostic-who-search: Search stored WHO product headers by literal marker and m
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools. Cases: `crates/biomcp/tests/runner/research.rs`.
 
 store-clean: Publishing removes bounded expired pools and snapshots; explicit cleanup removes expired replies and older incompatible cache files while preserving fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `tests/cases/store/clean.yaml`.
+gwas-types: A public API caller validates Catalog identities, exact scientific probabilities, native association context and standalone source-scoped consumer contracts before adapters exist. Contracts: `biomcp-types/gwas_contracts` (features: `schema`).

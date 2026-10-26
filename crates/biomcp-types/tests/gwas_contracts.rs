@@ -106,3 +106,49 @@ fn consumer_schemas_are_standalone_and_keep_exact_probability_contracts()
     assert!(!validator.is_valid(&json!({"mantissa":"0","exponent":-76})));
     Ok(())
 }
+
+#[cfg(feature = "schema")]
+fn envelope<T>(
+    query: serde_json::Value,
+    body: serde_json::Value,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    T: biomcp_types::ResponseBody + serde::de::DeserializeOwned + schemars::JsonSchema,
+    T::Query: serde::de::DeserializeOwned + schemars::JsonSchema,
+{
+    let value = serde_json::to_value(biomcp_types::Envelope::<T>::new(
+        biomcp_types::Status::Complete,
+        serde_json::from_value(query)?,
+        Some(serde_json::from_value(body)?),
+    ))?;
+    let schema = serde_json::to_value(schemars::schema_for!(biomcp_types::Envelope<T>))?;
+    let validator = jsonschema::draft202012::new(&schema)?;
+    assert!(validator.is_valid(&value), "{value}");
+    Ok(())
+}
+
+#[cfg(feature = "schema")]
+#[test]
+fn native_relation_scopes_have_valid_consumer_envelopes() -> Result<(), Box<dyn std::error::Error>>
+{
+    use biomcp_types::*;
+    let study = json!({"kind":"study","id":"GCST000035"});
+    let association = json!({"kind":"association","id":"association:6110"});
+    envelope::<GwasPage>(
+        json!({"gene":"FGFR2"}),
+        json!({"items":[],"page":{"offset":0,"returned":0,"total":0}}),
+    )?;
+    envelope::<GwasLoci>(
+        association,
+        json!({"association":"association:6110","items":[{"description":"Native description","strongest_risk_alleles":["rs2981582-A"],"author_reported_genes":[{"name":"FGFR2","ensembl_ids":["ENSG00000066468"],"entrez_ids":["2263"]}]}]}),
+    )?;
+    envelope::<GwasStudy>(
+        study.clone(),
+        json!({"id":"GCST000035","reported_traits":["Synthetic source label"],"ontology_traits":[],"initial_sample_description":"Discovery prose","replication_sample_description":"Replication prose","discovery_ancestries":["Source discovery count"],"replication_ancestries":["Independent replication count"],"genotyping_technologies":[],"summary_statistics_available":false}),
+    )?;
+    envelope::<GwasAncestries>(
+        study,
+        json!({"study":"GCST000035","items":[{"stage":"replication","number_of_individuals":13475,"ancestry_groups":["Native label"],"country_of_origin":[{"country":"NR"}],"country_of_recruitment":[{"country":"Source country","major_area":"Native area","region":"Native region"}],"source_url":"https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST000035/ancestries"}]}),
+    )?;
+    Ok(())
+}
