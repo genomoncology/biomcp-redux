@@ -24,6 +24,9 @@ class Source(http.server.BaseHTTPRequestHandler):
         if status == 302:
             self.send_header('Location', '/never')
         self.send_header('Content-Type', 'application/json')
+        if self.path == '/headers':
+            for index in range(12):
+                self.send_header('X-Padding-' + str(index), 'x' * 8192)
         self.end_headers()
         if self.path == '/escaped':
             secret = self.headers.get('X-Key', '')
@@ -158,6 +161,14 @@ class CapturePlanTests(unittest.TestCase):
         result = self.run_capture(plan, self.base / 'post')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.server.calls, [('/query?value=[1-2]', body.encode())])
+
+    def test_oversized_headers_stop_with_bounded_evidence(self):
+        out = self.base / 'headers'
+        result = self.run_capture(self.plan(['/headers', '/never']), out)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(self.server.calls, ['/headers'])
+        self.assertLessEqual((out / '0000.headers').stat().st_size, 65536)
+        self.assertLessEqual((out / '0000.body').stat().st_size, 4096)
 
     def test_make_target_runs_one_request(self):
         result = subprocess.run(['make', 'source-capture', 'PLAN=' + str(self.plan(['/make'])),
