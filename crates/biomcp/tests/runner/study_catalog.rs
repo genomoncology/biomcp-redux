@@ -45,7 +45,12 @@ pub(super) fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBu
     fs::write(dir.join(format!("{key}.json")), recording.to_string()).map_err(|e| e.to_string())?;
     Ok(env.root().join("replay"))
 }
-pub(super) fn call(env: &Environment, replay: &Path, args: &[&str], exit: i32) -> Result<Value, String> {
+pub(super) fn call(
+    env: &Environment,
+    replay: &Path,
+    args: &[&str],
+    exit: i32,
+) -> Result<Value, String> {
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
     let value = invoke(env, command, exit)?;
