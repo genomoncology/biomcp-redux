@@ -2,6 +2,41 @@
 use super::*;
 
 #[test]
+fn safe_keyed_binary_recording_replays_without_opening_http()
+-> Result<(), Box<dyn std::error::Error>> {
+    let dir = tempfile::tempdir()?;
+    let stub = Stub::new(200, "application/octet-stream", "safe binary", None);
+    let spec = stub.spec(
+        KeyUse::Required(credential(KeyPlace::Header("x-api-key"))),
+        Duration::from_secs(10),
+    );
+    for mode in [
+        biomcp_fetch::Mode::Record {
+            dir: dir.path().to_owned(),
+        },
+        biomcp_fetch::Mode::Replay {
+            dir: dir.path().to_owned(),
+        },
+    ] {
+        let mut config = FetchConfig {
+            mode,
+            ..FetchConfig::default()
+        };
+        config.secrets.insert(
+            SecretName::NcbiApiKey,
+            Secret::new("placeholder-binary-key"),
+        );
+        let fetch = Fetch::open(config)?;
+        let bytes = fetch
+            .leg(spec, fetch.deadline(Duration::from_secs(10)))
+            .bytes(&spec.get("/binary").bytes(1024), &[])?;
+        assert_eq!(bytes, b"safe binary");
+    }
+    assert_eq!(stub.finish().len(), 1);
+    Ok(())
+}
+
+#[test]
 fn reflected_credentials_are_sent_but_refused_without_retry_or_public_disclosure() {
     let secret = "placeholder-only-abc123";
     for place in [
