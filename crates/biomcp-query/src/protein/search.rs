@@ -126,15 +126,11 @@ fn read(
     out.problems = saved.problems.clone();
     out.local = error.and_then(status::local);
     let payload = saved.encode()?;
-    let pool = if prior.as_ref().is_some_and(|(_, old)| old == &payload) {
-        prior.map(|(pool, _)| pool).ok_or(CacheError::Database)?
-    } else {
-        store.publish_source_pool(
-            &key(q),
-            &payload,
-            saved.page.items.len() as u32,
-            &out.sources,
-        )?
+    let size = saved.page.items.len() as u32;
+    let pool = match prior {
+        Some((pool, old)) if old == payload => pool,
+        Some((pool, _)) => store.extend_source_pool(pool, &payload, size, &out.sources)?,
+        None => store.publish_source_pool(&key(q), &payload, size, &out.sources)?,
     };
     render(q, saved, pool.info.id.clone(), pool.info, out);
     Ok(())

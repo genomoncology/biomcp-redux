@@ -5,6 +5,10 @@ use serde_json::Value;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "protein-search/continuation-keeps-publication-lifetime",
+            || continuation_lifetime().map_err(Into::into),
+        ),
         Trial::test("protein-search/pool-binding-and-lifetime", || {
             pools().map_err(Into::into)
         }),
@@ -210,6 +214,26 @@ pub(super) fn native(root: &std::path::Path) -> Result<(), String> {
         {
             return Err(format!("protein Markdown failed for {words:?}"));
         }
+    }
+    Ok(())
+}
+
+fn continuation_lifetime() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = super::launch::fixtures().join("replies/protein/pages");
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(["search", "protein", "EGFR"].map(str::to_owned));
+    let first = invoke(&env, args.clone(), 0)?;
+    args.extend(["--pool", id(&first)?, "--offset", "5"].map(str::to_owned));
+    let next = invoke(&env, args, 0)?;
+    for key in ["id", "created", "expires"] {
+        let pointer = format!("/page/pool/{key}");
+        if first.pointer(&pointer) != next.pointer(&pointer) {
+            return Err(format!("native continuation changed pool {key}"));
+        }
+    }
+    if next.pointer("/page/pool/size").and_then(Value::as_u64) != Some(7) {
+        return Err("native continuation did not extend the retained window".into());
     }
     Ok(())
 }
