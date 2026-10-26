@@ -7,6 +7,7 @@ mod author;
 mod execution;
 mod orcid;
 use execution::run_step;
+mod cache_contention;
 pub(super) mod cell_line;
 mod clinpgx;
 mod clinvar_key;
@@ -307,6 +308,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(cache_contention::trials());
     trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());
     trials.extend(scholar::trials());
