@@ -75,8 +75,8 @@ impl SecretName {
     pub const fn environment(self) -> &'static str {
         match self {
             Self::NcbiApiKey => "NCBI_API_KEY",
-            Self::SemanticScholarApiKey => "SEMANTIC_SCHOLAR_API_KEY",
-            Self::OncokbApiKey => "ONCOKB_API_KEY",
+            Self::SemanticScholarApiKey => "S2_API_KEY",
+            Self::OncokbApiKey => "ONCOKB_TOKEN",
             Self::NciApiKey => "NCI_API_KEY",
         }
     }

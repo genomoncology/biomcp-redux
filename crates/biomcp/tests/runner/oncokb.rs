@@ -453,21 +453,42 @@ fn environment_key() -> Result<(), String> {
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
         if configured {
-            config.as_object_mut().ok_or("config object")?
+            config
+                .as_object_mut()
+                .ok_or("config object")?
                 .insert("keys".into(), json!({"oncokb_api_key":KEY}));
         }
         env.config(&config).map_err(|e| e.to_string())?;
-        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args())
-            .env("ONCOKB_TOKEN", if configured { "synthetic-environment-shadowed" } else { KEY })
-            .output().map_err(|e| e.to_string())?;
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args())
+            .env(
+                "ONCOKB_TOKEN",
+                if configured {
+                    "synthetic-environment-shadowed"
+                } else {
+                    KEY
+                },
+            )
+            .output()
+            .map_err(|e| e.to_string())?;
         let requests = stub.finish()?;
-        if !output.status.success() || !output.stderr.is_empty() || requests.len() != 1
-            || !requests.first().is_some_and(|(_, request)| request.lines()
-                .any(|line| line.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}")))) {
+        if !output.status.success()
+            || !output.stderr.is_empty()
+            || requests.len() != 1
+            || !requests.first().is_some_and(|(_, request)| {
+                request
+                    .lines()
+                    .any(|line| line.eq_ignore_ascii_case(&format!("authorization: Bearer {KEY}")))
+            })
+        {
             return Err("OncoKB environment key or config precedence failed".into());
         }
         for marker in [KEY, "synthetic-environment-shadowed"] {
-            if output.stdout.windows(marker.len()).any(|part| part == marker.as_bytes()) {
+            if output
+                .stdout
+                .windows(marker.len())
+                .any(|part| part == marker.as_bytes())
+            {
                 return Err("OncoKB environment credential leaked".into());
             }
         }

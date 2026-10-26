@@ -64,6 +64,12 @@ fn configured() -> Result<(), String> {
 }
 
 fn outgoing() -> Result<(), String> {
+    let quota = biomcp_adapters::semantic_scholar::SPEC.quota;
+    if quota.interval(false) != std::time::Duration::from_secs(2)
+        || quota.interval(true) != std::time::Duration::from_secs(1)
+    {
+        return Err("the source declaration changed its optional-key rate policy".into());
+    }
     for configured in [false, true] {
         outgoing_with_key(configured)?;
     }
@@ -71,12 +77,6 @@ fn outgoing() -> Result<(), String> {
 }
 
 fn outgoing_with_key(configured: bool) -> Result<(), String> {
-    let quota = biomcp_adapters::semantic_scholar::SPEC.quota;
-    if quota.interval(false) != std::time::Duration::from_secs(2)
-        || quota.interval(true) != std::time::Duration::from_secs(1)
-    {
-        return Err("the source declaration changed its optional-key rate policy".into());
-    }
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = super::network_stub::Stub::for_source(
         "api.semanticscholar.org",
@@ -109,7 +109,14 @@ fn outgoing_with_key(configured: bool) -> Result<(), String> {
     ];
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
-        .env("S2_API_KEY", if configured { "synthetic-environment-shadowed" } else { "placeholder-scholar-key" })
+        .env(
+            "S2_API_KEY",
+            if configured {
+                "synthetic-environment-shadowed"
+            } else {
+                "placeholder-scholar-key"
+            },
+        )
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;

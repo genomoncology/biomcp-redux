@@ -135,11 +135,7 @@ pub(super) fn nci() -> Check {
 fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let source = if nci { "nci" } else { "semantic-scholar" };
-    let variable = if nci {
-        "NCI_API_KEY"
-    } else {
-        "S2_API_KEY"
-    };
+    let variable = if nci { "NCI_API_KEY" } else { "S2_API_KEY" };
     let stub = Stub::for_source(
         if nci {
             "clinicaltrialsapi.cancer.gov"
