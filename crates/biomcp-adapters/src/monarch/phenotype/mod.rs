@@ -1,0 +1,68 @@
+//! Literal HP discovery and independent exact Monarch term cards.
+mod raw;
+use biodata::{Attribution, PhenotypeCard, PhenotypeHeader, Text};
+use biomcp_fetch::{Arg, BadReply, Freshness, InputError, Leg, ReplyMetadata, RequestError};
+use biomcp_types::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeTermCard};
+/// Native ordered HP page and retrieval metadata.
+#[derive(Debug)]
+pub struct Page {
+    /// Publisher order without reranking or deduplication.
+    pub items: Vec<PhenotypeHeader>,
+    /// Source total, without local extrapolation.
+    pub total: u64,
+    /// Original retrieval metadata.
+    pub metadata: ReplyMetadata,
+}
+/// Exact term card and original retrieval metadata.
+#[derive(Debug)]
+pub struct Record {
+    /// Complete independent source card.
+    pub card: PhenotypeTermCard,
+    /// Original retrieval metadata.
+    pub metadata: ReplyMetadata,
+}
+/// Send the caller's literal query with the proved native HP/category selectors.
+pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Page, RequestError> {
+    crate::disease_sources::components::monarch(leg)?;
+    let endpoint = super::SPEC.get("/v3/api/search").fresh(Freshness::Days(1));
+    let args = [("q", Arg::Text(q.text())), ("category", Arg::Text("biolink:PhenotypicFeature")),
+        ("namespace",Arg::Text("HP")), ("limit",Arg::Num(q.limit().into())), ("offset",Arg::Num(q.offset().into()))];
+    let (page, metadata) = leg.json_received_checked::<raw::Page>(&endpoint,&args,|page| {
+        if page.limit != q.limit() || page.offset != q.offset() { Err(BadReply) } else { Ok(()) }
+    })?;
+    let items = page.items.into_iter().map(|node| {
+        Ok(PhenotypeHeader { attribution: attribution(&node.id)?, id: node.id, label: node.name,
+            match_score: node.score, matched_field: node.matched_field, match_type: node.match_type })
+    }).collect::<Result<Vec<_>, RequestError>>()?;
+    Ok(Page { items, total: page.total, metadata })
+}
+/// Reject a mismatched publisher identity before cache admission.
+pub fn get(leg: &Leg<'_>, q: &PhenotypeGet) -> Result<Record, RequestError> {
+    crate::disease_sources::components::monarch(leg)?;
+    let endpoint = super::SPEC.get("/v3/api/entity").with_path(format!("/v3/api/entity/{}",q.id()))?.fresh(Freshness::Days(1));
+    let (node, metadata) = leg.json_received_checked::<raw::Node>(&endpoint,&[],|node| {
+        if &node.id == q.id() { Ok(()) } else { Err(BadReply) }
+    })?;
+    let sections = sections(&node);
+    Ok(Record { card: PhenotypeTermCard { term: PhenotypeCard::Monarch {
+        attribution: attribution(&node.id)?, requested_id:q.id().clone(),returned_id:node.id,label:node.name,
+        description:node.description,deprecated:node.deprecated,monarch_descendant_count:node.has_descendant_count,
+        association_counts:node.association_counts,
+    },sections:sections.into(),components:super::components()? },metadata })
+}
+fn sections(node: &raw::Node) -> Vec<PhenotypeSection> {
+    let mut out = Vec::new();
+    if node.synonym.is_some() { out.push(PhenotypeSection::Synonyms); }
+    if node.xref.is_some() { out.push(PhenotypeSection::Xrefs); }
+    if node.node_hierarchy.as_ref().is_some_and(|h| h.super_classes.is_some() || h.sub_classes.is_some()) { out.push(PhenotypeSection::Hierarchy); }
+    for (key,section) in [("biolink:DiseaseToPhenotypicFeatureAssociation",PhenotypeSection::Diseases),("biolink:GeneToPhenotypicFeatureAssociation",PhenotypeSection::Genes)] {
+        if node.association_counts.as_deref().unwrap_or_default().iter().any(|count|count.key.as_str()==key) { out.push(section); }
+    }
+    out
+}
+fn attribution(id: &biodata::HpId) -> Result<Attribution, RequestError> {
+    let text = |s: &str| Text::new(s).map_err(|_| InputError::Serialization);
+    Ok(Attribution { source:text("monarch")?, record:Some(text(id.as_str())?),
+        url:Some(text(&format!("https://monarchinitiative.org/HP:{}/",id.as_str().trim_start_matches("HP:")))?),
+        version:None,release:None,submitter:None,evaluated:None })
+}

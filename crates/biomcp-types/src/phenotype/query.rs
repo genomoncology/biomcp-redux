@@ -162,6 +162,23 @@ impl PhenotypeSearch {
     }
 }
 impl PhenotypeGet {
+    /// Construct a default direct HPO card request from a checked identity.
+    pub fn new(id: HpId) -> Self {
+        Self(GetFields { id, source: Some(PhenotypeSource::Hpo), section: None, section_limit: Some(5), section_offset: 0 })
+    }
+    /// Select an independent publisher without changing the exact identity.
+    pub fn with_source(mut self, source: PhenotypeSource) -> Self {
+        self.0.source = Some(source);
+        self
+    }
+    /// Select an offered section and its source-specific default page size.
+    pub fn with_section(mut self, section: PhenotypeSection) -> Self {
+        self.0.section = Some(section);
+        self.0.section_limit = Some(if matches!(section, PhenotypeSection::Diseases | PhenotypeSection::Genes) { 1 } else { 5 });
+        self.0.section_offset = 0;
+        self
+    }
+
     /// Checked term identity.
     pub fn id(&self) -> &HpId {
         &self.0.id
