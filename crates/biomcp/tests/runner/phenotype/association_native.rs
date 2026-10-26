@@ -174,8 +174,8 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
             let ids = mapped
                 .get(target)
                 .and_then(Value::as_array)
-                .ok_or("referencearray")?
-                .iter()
+                .into_iter()
+                .flatten()
                 .map(|r| r.get("id").cloned().ok_or("reference ID"))
                 .collect::<Result<Vec<_>, _>>()?;
             if ids != source {

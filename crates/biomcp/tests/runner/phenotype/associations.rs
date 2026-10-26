@@ -122,7 +122,7 @@ fn pages() -> Result<(), String> {
         || first
             .pointer("/result/items/1/association/negated")
             .is_some()
-        || first.pointer("/result/items/1/association/publications") != Some(&json!([]))
+        || first.pointer("/result/items/1/association/publications").is_some()
         || first.pointer("/result/items/1/association/qualifiers") != Some(&json!([]))
     {
         return Err(format!("native independent rows collapsed: {first}"));
@@ -133,7 +133,7 @@ fn pages() -> Result<(), String> {
         .ok_or("next")?;
     if next.len() != 2
         || next.first().and_then(|row| row.get("args"))
-            != Some(&json!(["get", "disease", "MONDO:0014379"]))
+            != Some(&json!(["get", "disease", "MONDO:0014379", "--section-limit", "5"]))
         || next.get(1).and_then(|row| row.get("kind")) != Some(&json!("page"))
     {
         return Err(format!("association navigation changed: {first}"));
@@ -252,7 +252,7 @@ fn cards() -> Result<(), String> {
             |_| "application/json",
             move |request| {
                 if request.starts_with("GET /v3/api/entity/") {
-                    return Ok(json!({"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature","association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","count":3}]}).to_string());
+                    return Ok(json!({"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature","association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","category":"biolink:Disease","label":"Synthetic disease associations","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","category":"biolink:Gene","label":"Synthetic gene associations","count":3}]}).to_string());
                 }
                 let limit = if explicit { 2 } else { 1 };
                 if !request.contains(&format!("&limit={limit}&offset=0 ")) {
