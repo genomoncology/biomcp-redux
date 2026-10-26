@@ -141,12 +141,24 @@ fn expired() -> Result<(), String> {
     let replay = seed(&env, &args, ancestry_body().to_string(), 200, 0)?;
     let value = call(&env, &replay, &args, 0)?;
     let page = super::super::action(&value, "page")?;
+    fs::remove_dir_all(replay.join("gwas")).map_err(|e| e.to_string())?;
+    for source in ["gwas", "restricted"] {
+        let mut command = env.globals(Some(&replay), false);
+        command.extend(page.clone());
+        command.extend(["--disable-sources".into(), source.into()]);
+        let value = invoke(&env, command, 4)?;
+        if value.pointer("/sources/0/reason") != Some(&json!("disabled"))
+            || value.get("result").is_some() {
+            return Err(format!("disabled source restored ancestry snapshot: {value}"));
+        }
+        bounded(&value)?;
+    }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    db.execute("UPDATE pool SET expires=0", [])
+    let changed = db.execute("UPDATE trial_snapshot SET expires=0", [])
         .map_err(|e| e.to_string())?;
+    if changed != 1 { return Err("expected one retained ancestry snapshot".into()); }
     drop(db);
-    fs::remove_dir_all(replay.join("gwas")).map_err(|e| e.to_string())?;
     let mut command = env.globals(Some(&replay), false);
     command.extend(page);
     let value = invoke(&env, command, 3)?;
