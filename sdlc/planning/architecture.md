@@ -1761,6 +1761,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-types/tests/phenotype_contracts.rs` | Exercise neutral phenotype records and checked standalone source and section contracts before adapters exist. |
 | `crates/biomcp-types/tests/diagnostic_contracts.rs` | Exercise neutral diagnostic records, native identities and checked standalone consumer contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/variant_values.rs` | Exercise copied common variant values and constructor boundaries through the public library API. |
 | `crates/biomcp-types/tests/article_ids.rs` | Exercise checked values and schema contracts through the public library API. |
