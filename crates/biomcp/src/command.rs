@@ -538,6 +538,7 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
 fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
     match bundle {
         Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
+        Bundle::WikiPathways => biomcp_types::Source::WikiPathways,
         Bundle::CbioportalStudies => biomcp_types::Source::Cbioportal,
         Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::WhoIvd => biomcp_types::Source::WhoIvd,

@@ -21,6 +21,7 @@ fn page(q: &PathwaySearch) -> PathwayPage {
 }
 /// Read a retained native page or request only its next bounded native window.
 pub fn search(cx: &Ctx<'_>, q: &PathwaySearch) -> Outcome {
+    if q.sources().len()>1 { return super::union::search(cx,q); }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(QueryBody::PathwayPage(page(q)));

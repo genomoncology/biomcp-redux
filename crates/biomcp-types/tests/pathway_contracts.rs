@@ -72,7 +72,7 @@ fn search_selectors_and_page_bounds_are_checked_before_io() {
         );
     }
     let value = roundtrip::<PathwaySearch>(json!({"query":"MAPK"})).expect("public round-trip");
-    assert_eq!(value.get("source"), Some(&json!("reactome")));
+    assert_eq!(value.get("source"), Some(&json!(["reactome"])));
     assert_eq!(value.get("limit"), Some(&json!(5)));
 }
 

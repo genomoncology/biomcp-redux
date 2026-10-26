@@ -147,3 +147,8 @@ pub struct WikiPathwaysSync {
     /// Exact-get metadata catalog receipt.
     pub get: WikiPathwaysCatalogReceipt,
 }
+
+impl ResponseBody for WikiPathwaysSync {
+    const SCHEMA: &'static str = "biomcp.wikipathways_sync/1";
+    type Query = crate::SyncQuery;
+}

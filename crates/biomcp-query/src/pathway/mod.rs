@@ -3,6 +3,8 @@ mod gene;
 mod get;
 mod search;
 mod snapshot;
+mod wikipathways;
+mod union;
 use crate::{Action, Outcome};
 use biomcp_types::{QueryBody, Request, Status};
 pub use get::get;

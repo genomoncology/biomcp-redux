@@ -4,6 +4,7 @@ mod gwas;
 mod local;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
+    "wikipathways",
     "cbioportal-studies",
     "ema",
     "ddinter",
@@ -199,7 +200,8 @@ fn root() -> Result<Command, ()> {
         root = root.subcommand(command);
     }
     root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
-        "cbioportal-studies",
+        "wikipathways",
+    "cbioportal-studies",
         "hgnc",
         "clingen",
         "ema",
@@ -265,6 +267,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
+                Some("wikipathways") => Bundle::WikiPathways,
                 Some("cbioportal-studies") => Bundle::CbioportalStudies,
                 Some("fda-cdx") => Bundle::FdaCdx,
                 Some("gtr") => Bundle::Gtr,
