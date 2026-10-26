@@ -306,3 +306,50 @@ fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() 
         assert!(answer.join().unwrap().failures.is_empty());
     });
 }
+
+#[test]
+fn replay_external_writer_stays_external_while_an_admission_owner_does_no_sql() {
+    use biomcp_fetch::{CacheError, Mode, RequestError};
+    let directory = tempfile::tempdir().unwrap();
+    let records = directory.path().join("records");
+    let server = support::Server::<()>::new();
+    let bundle = declared(&server);
+    let recorder = Fetch::open(FetchConfig {
+        cache: Some(directory.path().join("record.sqlite")),
+        mode: Mode::Record {
+            dir: records.clone(),
+        },
+        ..Default::default()
+    })
+    .unwrap();
+    sync_reply(&recorder, &bundle, &server, 200, "", TSV).unwrap();
+    drop(recorder);
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: records },
+        sync_budget: Duration::from_secs(60),
+        ..Default::default()
+    })
+    .unwrap();
+    let access = fetch.cache_access().unwrap();
+    let external = access.connect().unwrap();
+    external.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let (done, result) = std::sync::mpsc::channel();
+    std::thread::scope(|scope| {
+        let worker = access
+            .admit(fetch.deadline(Duration::from_secs(60)), || {
+                let worker = scope.spawn(|| {
+                    done.send(fetch.sync(&bundle)).unwrap();
+                });
+                // This watchdog is shorter than the frozen replay budget. A held
+                // no-SQL owner must not turn an external refusal into that wait.
+                assert!(matches!(
+                    result.recv_timeout(Duration::from_secs(30)).unwrap(),
+                    Err(RequestError::Cache(CacheError::Busy))
+                ));
+                Ok(worker)
+            })
+            .unwrap();
+        external.execute_batch("ROLLBACK").unwrap();
+        worker.join().unwrap();
+    });
+}
