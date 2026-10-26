@@ -173,8 +173,12 @@ impl<'a, T: Reply> Decoder<'a, T> {
     }
     pub(crate) fn accepts(&self, media: &str) -> bool {
         self.codec.accepts(media)
-            || self.octet_stream.is_some_and(|accepted| media.split(';').next()
-                .is_some_and(|value| value.trim().eq_ignore_ascii_case(accepted)))
+            || self.octet_stream.is_some_and(|accepted| {
+                media
+                    .split(';')
+                    .next()
+                    .is_some_and(|value| value.trim().eq_ignore_ascii_case(accepted))
+            })
     }
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;

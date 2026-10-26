@@ -4,14 +4,23 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 type Check = Result<(), String>;
-mod native;
 mod joins;
+mod native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        Trial::test("wikipathways-genes/retained-output-ceilings", || native::saved().map_err(Into::into))
-            .with_ignored_flag(!super::launch::fixtures().join("wikipathways-genes-native/outputs.json").is_file()),
-        Trial::test("wikipathways-genes/exact-xrefs-and-distinct-gene-pivots", || joins::run().map_err(Into::into)),
+        Trial::test("wikipathways-genes/retained-output-ceilings", || {
+            native::saved().map_err(Into::into)
+        })
+        .with_ignored_flag(
+            !super::launch::fixtures()
+                .join("wikipathways-genes-native/outputs.json")
+                .is_file(),
+        ),
+        Trial::test(
+            "wikipathways-genes/exact-xrefs-and-distinct-gene-pivots",
+            || joins::run().map_err(Into::into),
+        ),
         Trial::test(
             "wikipathways-genes/single-attempt-provider-failures",
             || single_attempt().map_err(Into::into),
