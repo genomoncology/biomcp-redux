@@ -17,7 +17,7 @@ pub(super) fn identity() -> Result<(), String> {
         let env = Environment::new().map_err(|e| e.to_string())?;
         *value.get_mut(key).ok_or("identity field")? = replacement;
         let replay = seed(&env, &args, value.to_string(), 200, 0)?;
-        let failed = call(&env, &replay, &args, 4)?;
+        let failed = call("gwas_get/synthetic/identity/1", &env, &replay, &args, 4)?;
         if failed.get("result").is_some()
             || failed.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || failed
@@ -29,7 +29,7 @@ pub(super) fn identity() -> Result<(), String> {
         }
         let mut offline = env.globals(None, true);
         offline.extend(args.iter().map(|s| (*s).to_owned()));
-        let value = invoke(&env, offline, 4)?;
+        let value = gwas_budgets::invoke("gwas_get/synthetic/identity/2", &env, offline, 4)?;
         if value.pointer("/sources/0/reason") != Some(&json!("offline")) {
             return Err("wrong identity cached".into());
         }
@@ -37,7 +37,7 @@ pub(super) fn identity() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let args = ["get", "gwas", "association:6114"];
     let replay = seed(&env, &args, card().to_string(), 200, 0)?;
-    let result = call(&env, &replay, &args, 0)?;
+    let result = call("gwas_get/synthetic/identity/3", &env, &replay, &args, 0)?;
     let steps = result.get("next").and_then(Value::as_array).ok_or("next")?;
     if steps.iter().any(|s| {
         s.pointer("/args/2") == Some(&json!("association:6114"))
@@ -61,7 +61,7 @@ pub(super) fn ancestry() -> Result<(), String> {
     ];
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, &args, ancestry_body().to_string(), 200, 0)?;
-    let mut value = call(&env, &replay, &args, 0)?;
+    let mut value = call("gwas_get/synthetic/ancestry/1", &env, &replay, &args, 0)?;
     fs::remove_dir_all(replay.join("gwas")).map_err(|e| e.to_string())?;
     let mut counts = vec![
         value
@@ -73,7 +73,7 @@ pub(super) fn ancestry() -> Result<(), String> {
         let args = super::super::action(&value, "page")?;
         let mut command = env.globals(Some(&replay), false);
         command.extend(args);
-        value = invoke(&env, command, 0)?;
+        value = gwas_budgets::invoke("gwas_get/synthetic/ancestry/2", &env, command, 0)?;
         counts.push(
             value
                 .pointer("/result/items/0/number_of_individuals")
@@ -96,7 +96,7 @@ pub(super) fn ancestry() -> Result<(), String> {
         ]
         .map(str::to_owned),
     );
-    let value = invoke(&env, disabled, 4)?;
+    let value = gwas_budgets::invoke("gwas_get/synthetic/ancestry/3", &env, disabled, 4)?;
     if value.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("cached disabled ancestry".into());
     }
@@ -107,6 +107,7 @@ pub(super) fn ancestry() -> Result<(), String> {
         .ok_or("row link")? = json!(format!("{BASE}/studies/GCST000037/ancestries/1"));
     let replay = seed(&env, &args, rows.to_string(), 200, 0)?;
     let value = call(
+        "gwas_get/synthetic/ancestry/4",
         &env,
         &replay,
         &["get", "gwas", "GCST000035", "ancestries"],
@@ -122,7 +123,8 @@ pub(super) fn ancestry() -> Result<(), String> {
 pub(super) fn contexts() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", source)?;
     let live = super::super::variant::source_environment(&stub)?;
-    let value = invoke(
+    let value = gwas_budgets::invoke(
+        "gwas_get/synthetic/contexts/1",
         &live,
         vec![
             "get".into(),
@@ -146,7 +148,8 @@ pub(super) fn contexts() -> Result<(), String> {
     }
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", source)?;
     let live = super::super::variant::source_environment(&stub)?;
-    let first = invoke(
+    let first = gwas_budgets::invoke(
+        "gwas_get/synthetic/contexts/2",
         &live,
         ["get", "gwas", "GCST000035", "associations"]
             .map(str::to_owned)
@@ -154,7 +157,7 @@ pub(super) fn contexts() -> Result<(), String> {
         0,
     )?;
     let next = super::super::action(&first, "page")?;
-    let last = invoke(&live, next, 0)?;
+    let last = gwas_budgets::invoke("gwas_get/synthetic/contexts/3", &live, next, 0)?;
     if first.pointer("/result/items/0/id") != Some(&json!(6110))
         || last.pointer("/result/items/0/id") != Some(&json!(6113))
         || last.pointer("/query/query/id") != Some(&json!("GCST000035"))

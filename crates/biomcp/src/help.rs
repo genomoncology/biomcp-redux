@@ -118,7 +118,11 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
     for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
             command: vec!["sync".into(), bundle.into()],
-            description: "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.".into(),
+            description: if bundle == "wikipathways" {
+                "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated."
+            } else {
+                "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle."
+            }.into(),
             arguments: Vec::new(),
             sections: Vec::new(),
             section_rule: None,
@@ -187,12 +191,17 @@ pub(crate) fn tree() -> String {
     let Ok(commands) = commands() else {
         return "BioMCP command help unavailable".into();
     };
-    let mut lines = vec!["help CMD;schema ID".into()];
+    let mut lines = vec![
+        "help CMD;schema ID".into(),
+        "Pages --limit --offset; sections --section-limit --section-offset".into(),
+        "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
+        "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
+    ];
     for command in commands {
         if command.command.first().is_none_or(|verb| {
             !matches!(
                 verb.as_str(),
-                "search" | "get" | "article" | "trial" | "variant" | "sync"
+                "search" | "get" | "article" | "trial" | "variant" | "sync" | "pathway"
             )
         }) {
             continue;
@@ -204,47 +213,31 @@ pub(crate) fn tree() -> String {
         // Detailed options belong to help COMMAND; retain search facets
         // required for discovering checked gene and disease searches.
         if command.command == ["search", "gene"] || command.command == ["search", "disease"] {
-            for argument in &command.arguments {
-                line.push_str(&format!(" [{}]", argument.name));
-            }
-        }
-        if command.command.iter().any(|word| word == "adverse-event") {
             for argument in command
                 .arguments
                 .iter()
-                .filter(|arg| arg.position.is_none() && arg.name != "--snapshot")
+                .filter(|arg| discovery_argument(arg))
             {
-                line.push_str(&format!(" [{}", argument.name));
+                line.push_str(&format!(" {}", argument.name));
+            }
+        }
+        if command.command.iter().any(|word| word == "adverse-event") {
+            for argument in command.arguments.iter().filter(|arg| {
+                arg.position.is_none() && arg.name != "--snapshot" && discovery_argument(arg)
+            }) {
+                line.push_str(&format!(" {}", argument.name));
                 if !argument.choices.is_empty() {
                     line.push_str(&format!(" {}", argument.choices.join("|")));
                 }
-                line.push(']');
             }
         }
-        if command.command.iter().any(|word| word == "pgx") {
-            for argument in command.arguments.iter().filter(|arg| {
-                matches!(
-                    arg.name.as_str(),
-                    "--source"
-                        | "--diplotype"
-                        | "--kind"
-                        | "--cpic-level"
-                        | "--limit"
-                        | "--offset"
-                        | "--section-limit"
-                        | "--section-offset"
-                )
-            }) {
-                line.push_str(&format!(" {}", argument.name));
-                if argument.name == "--source" {
-                    line.push_str(&format!(" {}", argument.choices.join("|")));
-                }
-            }
-        }
+        pgx_selectors(&command, &mut line);
+        gwas_selectors(&command, &mut line);
+        pathway_selectors(&command, &mut line);
         diagnostic_selectors(&command, &mut line);
         study_selectors(&command, &mut line);
         if !command.sections.is_empty() {
-            line.push_str(" sections: ");
+            line.push_str(" :");
             line.push_str(
                 &command
                     .sections
@@ -259,12 +252,80 @@ pub(crate) fn tree() -> String {
     lines.join("\n")
 }
 
+fn pathway_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "pathway") {
+        for argument in command
+            .arguments
+            .iter()
+            .filter(|arg| discovery_argument(arg))
+        {
+            line.push_str(&format!(" {}", argument.name));
+            if argument.name == "--source" {
+                line.push_str(&format!(" {}", argument.choices.join("|")));
+            }
+        }
+        match command.command.as_slice() {
+            [verb, _] if verb == "get" => line.push_str("; R-HSA|WP"),
+            [verb, relation] if verb == "pathway" && relation == "genes" => {
+                line.push_str("; Reactome|WikiPathways GPML")
+            }
+            [verb, relation] if verb == "pathway" && relation == "events" => {
+                line.push_str("; Reactome")
+            }
+            _ => {}
+        }
+    }
+}
+
+fn pgx_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "pgx") {
+        for argument in command.arguments.iter().filter(|arg| {
+            discovery_argument(arg)
+                && matches!(
+                    arg.name.as_str(),
+                    "--source"
+                        | "--diplotype"
+                        | "--kind"
+                        | "--cpic-level"
+                        | "--limit"
+                        | "--offset"
+                        | "--section-limit"
+                        | "--section-offset"
+                )
+        }) {
+            line.push_str(&format!(" {}", argument.name));
+            if argument.name == "--source" {
+                line.push_str(&format!(" {}", argument.choices.join("|")));
+            }
+        }
+    }
+}
+
+fn discovery_argument(argument: &HelpArgument) -> bool {
+    !matches!(
+        argument.name.as_str(),
+        "--limit" | "--offset" | "--section-limit" | "--section-offset"
+    )
+}
+
+fn gwas_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "gwas") {
+        for argument in command
+            .arguments
+            .iter()
+            .filter(|arg| discovery_argument(arg))
+        {
+            line.push_str(&format!(" {}", argument.name));
+        }
+    }
+}
+
 fn study_selectors(command: &HelpCommand, line: &mut String) {
     if command.command.iter().any(|word| word == "study") {
         for argument in command
             .arguments
             .iter()
-            .filter(|arg| arg.position.is_none())
+            .filter(|arg| arg.position.is_none() && discovery_argument(arg))
         {
             line.push_str(&format!(" {}", argument.name));
         }

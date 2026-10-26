@@ -46,7 +46,15 @@ The generated table below lists decided leaf commands and their dropped options 
 | `gene definition` | Ported or renamed | — | [Section 1 replaces this leaf and its get alias with get gene.](slices/gene.md) |
 | `gene trials` | Ported or renamed | — | [The accepted trial rulings move discovery to search trial --gene, preserve the limit and source choices, and rename source paging to --next-page.](slices/gene.md) |
 | `gene articles` | Ported or renamed | — | [Section 1 maps this capability to search article --gene; article search preserves paging.](slices/gene.md) |
-| `gene pathways` | Ported or renamed | — | [Section 1 maps the command to the pathways section and moves old paging to the pathway slice.](slices/gene.md) |
+| `gene pathways` | Ported or renamed | — | [Use get gene INPUT pathways for the bounded card section; search pathway --gene INPUT --limit N --offset N owns full membership paging.](slices/gene.md) |
+| `search gwas` | Ported or renamed | — | [Native mapped-gene and literal mapped-trait selectors replace local prefix intersection. Exact positive thresholds require default native p-value-ascending order. Positional gene, -g and -l aliases remain.](slices/gwas.md) |
+| `search pathway` | Ported or renamed | `--query`, `--type` | [Use positional text or exact gene or native top-level discovery. The native Reactome page controls preserve source offsets; WikiPathways pages retain their catalog revision.](slices/pathway.md) |
+| `get pathway` | Ported or renamed | — | [Use exact human Reactome or WikiPathways IDs with summary, genes, events or all as supported by that source. Enrichment retires under the entity boundary ruling.](slices/pathway.md) |
+| `pathway drugs` | Dropped by ruling | `--limit`, `--offset` | [The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported.](slices/pathway.md) |
+| `pathway articles` | Dropped by ruling | `--limit`, `--offset` | [The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT.](slices/pathway.md) |
+| `pathway trials` | Dropped by ruling | `--limit`, `--offset`, `--source` | [The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE.](slices/pathway.md) |
+| `list pathway` | Ported or renamed | — | [Use help search pathway and help get pathway.](slices/pathway.md) |
+| `enrich` | Dropped by ruling | `--limit` | [The entity boundary ruling excludes g:Profiler, enrichment calculation and execution of analysis tools.](slices/pathway.md) |
 | `search pgx` | Ported or renamed | `--drug`, `--evidence` | [Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof.](slices/pharmacogenomics.md) |
 | `get pgx` | Ported or renamed | `--full` | [Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire.](slices/pharmacogenomics.md) |
 | `study list` | Ported or renamed | — | [Search the stored public catalog with search study; local installations do not define source absence.](slices/study.md) |

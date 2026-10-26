@@ -41,8 +41,20 @@ fn failures() -> Check {
             200,
             0,
         )?;
-        call(&env, &root, &["sync", "wikipathways"], 0)?;
-        let prior = call(&env, &root, &["get", "pathway", "WP382"], 0)?;
+        call(
+            "pathway_failures/wikipathways/failures/1",
+            &env,
+            &root,
+            &["sync", "wikipathways"],
+            0,
+        )?;
+        let prior = call(
+            "pathway_failures/wikipathways/failures/2",
+            &env,
+            &root,
+            &["get", "pathway", "WP382"],
+            0,
+        )?;
         let huge;
         let body = if label == "oversized" {
             huge = " ".repeat(8 * 1024 * 1024 + 1);
@@ -51,7 +63,13 @@ fn failures() -> Check {
             body
         };
         fixtures::replace_source(&root, "wikipathways", "getPathwayInfo", body, status, delay)?;
-        let failed = call(&env, &root, &["sync", "wikipathways"], 4)?;
+        let failed = call(
+            "pathway_failures/wikipathways/failures/3",
+            &env,
+            &root,
+            &["sync", "wikipathways"],
+            4,
+        )?;
         if failed.get("status") != Some(&json!("failed"))
             || failed.pointer("/sources/0/state") != Some(&json!("failed"))
             || failed.pointer("/sources/0/source") != Some(&json!("wikipathways"))
@@ -61,7 +79,13 @@ fn failures() -> Check {
                 "{label}: sync did not report its failed source receipt: {failed}"
             ));
         }
-        let retained = call(&env, &root, &["get", "pathway", "WP382"], 0)?;
+        let retained = call(
+            "pathway_failures/wikipathways/failures/4",
+            &env,
+            &root,
+            &["get", "pathway", "WP382"],
+            0,
+        )?;
         if retained.get("result") != prior.get("result") {
             return Err(format!("{label}: failed replacement changed old copy"));
         }
@@ -71,9 +95,16 @@ fn failures() -> Check {
 fn partial() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let root = fixtures::seed(&env)?;
-    call(&env, &root, &["sync", "wikipathways"], 0)?;
+    call(
+        "pathway_failures/wikipathways/partial/1",
+        &env,
+        &root,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     fixtures::replace(&root, "/search/query", "{}", 500, 0)?;
     let value = call(
+        "pathway_failures/wikipathways/partial/2",
         &env,
         &root,
         &[
@@ -130,7 +161,13 @@ fn identities() -> Check {
         200,
         0,
     )?;
-    let synced = call(&env, &root, &["sync", "wikipathways"], 0)?;
+    let synced = call(
+        "pathway_failures/wikipathways/identities/1",
+        &env,
+        &root,
+        &["sync", "wikipathways"],
+        0,
+    )?;
     if synced.pointer("/result/get/human_rows") != Some(&json!(0))
         || synced.pointer("/result/get/total_rows") != Some(&json!(1))
     {
@@ -142,7 +179,13 @@ fn identities() -> Check {
         &["get", "pathway", "WP382"][..],
         &["get", "pathway", "WP99999"][..],
     ] {
-        let absent = call(&env, &root, words, 1)?;
+        let absent = call(
+            "pathway_failures/wikipathways/identities/2",
+            &env,
+            &root,
+            words,
+            1,
+        )?;
         if absent.get("status") != Some(&json!("absent"))
             || absent.get("result").is_some_and(|v| !v.is_null())
             || absent
@@ -156,6 +199,7 @@ fn identities() -> Check {
         }
     }
     let found = call(
+        "pathway_failures/wikipathways/identities/3",
         &env,
         &root,
         &["search", "pathway", "Synthetic", "--source", "wikipathways"],
@@ -172,8 +216,20 @@ fn identities() -> Check {
 fn rejected_identity() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let root = fixtures::seed(&env)?;
-    call(&env, &root, &["sync", "wikipathways"], 0)?;
-    let prior = call(&env, &root, &["get", "pathway", "WP382"], 0)?;
+    call(
+        "pathway_failures/wikipathways/rejected_identity/1",
+        &env,
+        &root,
+        &["sync", "wikipathways"],
+        0,
+    )?;
+    let prior = call(
+        "pathway_failures/wikipathways/rejected_identity/2",
+        &env,
+        &root,
+        &["get", "pathway", "WP382"],
+        0,
+    )?;
     for id in ["WP999", "bad-id"] {
         let mut catalog = fixtures::catalog(false);
         *catalog.pointer_mut("/pathwayInfo/0/id").ok_or("identity")? = json!(id);
@@ -185,7 +241,13 @@ fn rejected_identity() -> Check {
             200,
             0,
         )?;
-        let rejected = call(&env, &root, &["sync", "wikipathways"], 4)?;
+        let rejected = call(
+            "pathway_failures/wikipathways/rejected_identity/3",
+            &env,
+            &root,
+            &["sync", "wikipathways"],
+            4,
+        )?;
         if rejected.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || !rejected
                 .get("problems")
@@ -202,11 +264,23 @@ fn rejected_identity() -> Check {
                 "rejected identity lost its failed receipt/catalog problem: {rejected}"
             ));
         }
-        let retained = call(&env, &root, &["get", "pathway", "WP382"], 0)?;
+        let retained = call(
+            "pathway_failures/wikipathways/rejected_identity/4",
+            &env,
+            &root,
+            &["get", "pathway", "WP382"],
+            0,
+        )?;
         if retained.get("result") != prior.get("result") {
             return Err("rejected identity changed the old catalog pair".into());
         }
-        let absent = call(&env, &root, &["get", "pathway", "WP999"], 1)?;
+        let absent = call(
+            "pathway_failures/wikipathways/rejected_identity/5",
+            &env,
+            &root,
+            &["get", "pathway", "WP999"],
+            1,
+        )?;
         if absent.get("result").is_some_and(|v| !v.is_null()) {
             return Err("rejected identity entered get catalog".into());
         }

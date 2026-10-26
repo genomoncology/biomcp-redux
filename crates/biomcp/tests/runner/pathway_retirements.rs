@@ -1,5 +1,6 @@
 //! Feature pathway-retirements: fixed migration guidance precedes parsing and I/O.
-use super::{configuration::invoke, launch::Environment, mcp};
+use super::launch::Environment;
+use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::json;
 const TEXT: &str = "use: search pathway <text>";
@@ -68,14 +69,14 @@ fn check(words: &str, message: &str) -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     let args: Vec<String> = words.split_whitespace().map(str::to_owned).collect();
-    let value = invoke(&env, args.clone(), 2)?;
+    let value = budgets::invoke("runner/pathway_retirements/check/1", &env, args.clone(), 2)?;
     if value.pointer("/error/code") != Some(&json!("usage.retired"))
         || value.pointer("/error/message") != Some(&json!(message))
         || value.get("sources").is_some()
     {
         return Err(format!("{words}: wrong fixed guidance: {value}"));
     }
-    if mcp::call_with_globals(&env, &args, true, &[])? != value {
+    if budgets::mcp("runner/pathway_retirements/check/2", &env, &args, true, &[])? != value {
         return Err(format!("{words}: CLI/MCP guidance differs"));
     }
     if serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() > 400 {
