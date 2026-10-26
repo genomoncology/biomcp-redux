@@ -16,7 +16,7 @@ struct GetFields {
     #[serde(with = "native_id")]
     #[cfg_attr(feature = "schema", schemars(with = "str", regex(pattern = "^(R-HSA-|WP)[1-9][0-9]*$"), extend("x-positional" = 0)))]
     id: PathwayId,
-    /// Omit for the card; WikiPathways genes await the GPML implementation.
+    /// Omit for the card; WikiPathways has summary and genes sections.
     #[serde(
         default,
         deserialize_with = "super::super::gene::present",
@@ -51,7 +51,7 @@ impl TryFrom<GetFields> for PathwayGet {
             Some(PathwaySection::Genes | PathwaySection::Events)
         );
         if !valid_limit(v.section_limit)
-            || (relation && !reactome(&v.id))
+            || (v.section == Some(PathwaySection::Events) && !reactome(&v.id))
             || (!relation && v.section_offset != 0)
         {
             return Err(QueryInvalid);

@@ -1,5 +1,8 @@
 //! Publisher policy for explicit WikiPathways catalog synchronization.
 mod catalog;
+mod gpml;
+mod gpml_raw;
+pub use gpml::{Members, members};
 mod raw;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};

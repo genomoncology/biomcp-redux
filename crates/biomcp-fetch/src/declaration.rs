@@ -219,6 +219,11 @@ impl Endpoint {
         self.identity_encoding = true;
         self
     }
+    /// Attempt this endpoint once, without retries for status or transport failures.
+    pub const fn once(mut self) -> Self {
+        self.idempotent = false;
+        self
+    }
     /// Permit retries for a POST that only reads provider data.
     pub const fn idempotent(mut self) -> Self {
         self.idempotent = true;

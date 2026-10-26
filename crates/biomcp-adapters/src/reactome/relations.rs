@@ -58,7 +58,7 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
             value.reference_occurrences += 1;
             let (namespace, identifier) = reference.st_id.split_once(':').ok_or_else(bad_reply)?;
             if let Some(existing) = value.items.iter_mut().find(|m| {
-                m.reference.namespace.as_str() == namespace
+                m.reference.namespace.as_deref() == Some(namespace)
                     && m.reference.value.as_str() == identifier
             }) {
                 let mut participants = existing
@@ -72,8 +72,9 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 existing.participants = Some(participants.into());
             } else {
                 value.items.push(PathwayMember {
+                    node_id: None,
                     reference: PathwaySourceRef {
-                        namespace: text(namespace)?,
+                        namespace: Some(namespace.into()),
                         value: text(identifier)?,
                     },
                     name: reference.display_name.as_deref().map(text).transpose()?,
