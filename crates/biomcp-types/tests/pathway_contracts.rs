@@ -3,15 +3,19 @@ use biodata::{Pathway, PathwayEventRef, PathwayId, PathwayMember, WikiPathwaysId
 use biomcp_types::{PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch};
 use serde_json::{Value, json};
 
-fn roundtrip<T: serde::Serialize + serde::de::DeserializeOwned>(v: Value) -> Value {
-    let decoded: T = serde_json::from_value(v).expect("valid public contract");
-    serde_json::to_value(decoded).expect("serializable contract")
+fn roundtrip<T: serde::Serialize + serde::de::DeserializeOwned>(
+    v: Value,
+) -> Result<Value, serde_json::Error> {
+    serde_json::to_value(serde_json::from_value::<T>(v)?)
 }
 
 #[test]
 fn identities_preserve_native_namespaces_and_refuse_foreign_species() {
     for id in ["WP382", "WP1"] {
-        assert_eq!(roundtrip::<WikiPathwaysId>(json!(id)), id);
+        assert_eq!(
+            roundtrip::<WikiPathwaysId>(json!(id)).expect("public round-trip"),
+            id
+        );
     }
     for id in ["WP", "WP0", "WP0382", "wp382", "WP382_r140476", "hsa:04010"] {
         assert!(serde_json::from_value::<WikiPathwaysId>(json!(id)).is_err());
@@ -20,7 +24,10 @@ fn identities_preserve_native_namespaces_and_refuse_foreign_species() {
         json!({"source":"reactome","id":"R-HSA-5673001"}),
         json!({"source":"wikipathways","id":"WP382"}),
     ] {
-        assert_eq!(roundtrip::<PathwayId>(id.clone()), id);
+        assert_eq!(
+            roundtrip::<PathwayId>(id.clone()).expect("public round-trip"),
+            id
+        );
     }
     for id in [
         json!({"source":"reactome","id":"R-MMU-5673001"}),
@@ -64,7 +71,7 @@ fn search_selectors_and_page_bounds_are_checked_before_io() {
             "{query}"
         );
     }
-    let value = roundtrip::<PathwaySearch>(json!({"query":"MAPK"}));
+    let value = roundtrip::<PathwaySearch>(json!({"query":"MAPK"})).expect("public round-trip");
     assert_eq!(value.get("source"), Some(&json!("reactome")));
     assert_eq!(value.get("limit"), Some(&json!(5)));
 }
@@ -101,8 +108,14 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
         assert!(serde_json::from_value::<PathwayGet>(v).is_err());
     }
     let q = json!({"id":"R-HSA-5673001","limit":1,"offset":5,"pool":"snapshot"});
-    assert_eq!(roundtrip::<PathwayGenesQuery>(q.clone()), q);
-    assert_eq!(roundtrip::<PathwayEventsQuery>(q.clone()), q);
+    assert_eq!(
+        roundtrip::<PathwayGenesQuery>(q.clone()).expect("public round-trip"),
+        q
+    );
+    assert_eq!(
+        roundtrip::<PathwayEventsQuery>(q.clone()).expect("public round-trip"),
+        q
+    );
     for q in [
         json!({"id":"WP382"}),
         json!({"id":"R-HSA-5673001","limit":51}),
@@ -116,13 +129,19 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
 #[test]
 fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     let base = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","version":"R-HSA-5673001.12"});
-    assert_eq!(roundtrip::<Pathway>(base.clone()), base);
+    assert_eq!(
+        roundtrip::<Pathway>(base.clone()).expect("public round-trip"),
+        base
+    );
     let mut empty = base.clone();
     empty
         .as_object_mut()
         .expect("object")
         .insert("description".into(), json!(""));
-    assert_eq!(roundtrip::<Pathway>(empty.clone()), empty);
+    assert_eq!(
+        roundtrip::<Pathway>(empty.clone()).expect("public round-trip"),
+        empty
+    );
     let mut foreign = base;
     foreign
         .as_object_mut()
@@ -131,16 +150,25 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
     assert!(serde_json::from_value::<Pathway>(foreign).is_err());
     for accession in ["P01116-1", "P01116-2"] {
         let member = json!({"reference":{"namespace":"uniprot","value":accession},"name":format!("UniProt:{accession} KRAS"),"gene":"HGNC:6407","schema_class":"ReferenceIsoform","participants":[{"db_id":5672718,"name":"p21 RAS:GTP:activated RAF homo/heterodimer complexes [plasma membrane]","schema_class":"Complex"}]});
-        assert_eq!(roundtrip::<PathwayMember>(member.clone()), member);
+        assert_eq!(
+            roundtrip::<PathwayMember>(member.clone()).expect("public round-trip"),
+            member
+        );
     }
     let unknown = json!({"reference":{"namespace":"chebi","value":"15377"},"participants":[]});
-    assert_eq!(roundtrip::<PathwayMember>(unknown.clone()), unknown);
+    assert_eq!(
+        roundtrip::<PathwayMember>(unknown.clone()).expect("public round-trip"),
+        unknown
+    );
     for event in [
         json!({"kind":"database","db_id":5673001}),
         json!({"kind":"object","db_id":5668599,"name":"Native reaction","schema_class":"Reaction"}),
         json!({"kind":"object","db_id":5673001,"id":"R-HSA-5673001","version":"R-HSA-5673001.12","name":"Native pathway","schema_class":"Pathway"}),
     ] {
-        assert_eq!(roundtrip::<PathwayEventRef>(event.clone()), event);
+        assert_eq!(
+            roundtrip::<PathwayEventRef>(event.clone()).expect("public round-trip"),
+            event
+        );
     }
     assert!(
         serde_json::from_value::<PathwayEventRef>(json!({"kind":"database","db_id":0})).is_err()
@@ -150,16 +178,22 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
 #[test]
 fn native_short_page_keeps_total_scope_and_next_position() {
     let page = json!({"items":[{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"}],"page":{"offset":0,"returned":1,"total":917,"total_kind":"source","next_offset":5}});
-    assert_eq!(roundtrip::<biomcp_types::PathwayPage>(page.clone()), page);
+    assert_eq!(
+        roundtrip::<biomcp_types::PathwayPage>(page.clone()).expect("public round-trip"),
+        page
+    );
     let page = json!({"header":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},"items":[{"kind":"database","db_id":5668599}],"page":{"offset":5,"returned":1,"total":81,"total_kind":"observed","next_offset":10}});
-    assert_eq!(roundtrip::<biomcp_types::PathwayEvents>(page.clone()), page);
+    assert_eq!(
+        roundtrip::<biomcp_types::PathwayEvents>(page.clone()).expect("public round-trip"),
+        page
+    );
 }
 
 #[test]
 fn wiki_metadata_sync_receipts_keep_each_catalog_scope() {
     let receipt = json!({"search":{"sha256":"search-digest","bytes":2346682,"revision":"search-revision","human_rows":1131,"total_rows":2218},"get":{"sha256":"get-digest","bytes":1224217,"revision":"get-revision","human_rows":1131,"total_rows":2218}});
     assert_eq!(
-        roundtrip::<biomcp_types::WikiPathwaysSync>(receipt.clone()),
+        roundtrip::<biomcp_types::WikiPathwaysSync>(receipt.clone()).expect("public round-trip"),
         receipt
     );
 }
@@ -168,7 +202,7 @@ fn wiki_metadata_sync_receipts_keep_each_catalog_scope() {
 fn legacy_gene_reference_keeps_its_wire_shape_and_checked_identity() {
     let reference = json!({"id":"R-HSA-5673001","name":"RAF/MAP kinase cascade"});
     assert_eq!(
-        roundtrip::<biomcp_types::PathwayRef>(reference.clone()),
+        roundtrip::<biomcp_types::PathwayRef>(reference.clone()).expect("public round-trip"),
         reference
     );
     let id: biomcp_types::ReactomeId = "R-HSA-5673001".parse().expect("human identity");
@@ -184,13 +218,22 @@ fn legacy_gene_reference_keeps_its_wire_shape_and_checked_identity() {
 fn source_summation_multiplicity_and_pathway_citations_stay_independent() {
     // Minimal source-field projection; text/title and the second summation are synthetic controls.
     let pathway = json!({"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens","summations":[{"db_id":5683030,"text":"Complete retained source text."},{"db_id":5683031,"text":"Second source summation."}],"references":[{"db_id":5672144,"pubmed":"24937142","title":"Native reference"},{"db_id":208231,"pubmed":"17496910"}]});
-    assert_eq!(roundtrip::<Pathway>(pathway.clone()), pathway);
+    assert_eq!(
+        roundtrip::<Pathway>(pathway.clone()).expect("public round-trip"),
+        pathway
+    );
     let wiki = json!({"id":{"source":"wikipathways","id":"WP382"},"name":"MAPK signaling pathway","species":"Homo sapiens","revision":"2025-08-29","description":"Native catalog excerpt ...","cited_in":""});
-    assert_eq!(roundtrip::<Pathway>(wiki.clone()), wiki);
+    assert_eq!(
+        roundtrip::<Pathway>(wiki.clone()).expect("public round-trip"),
+        wiki
+    );
 }
 
 #[test]
 fn all_card_retains_each_requested_relation_state_without_inventing_rows() {
     let card = json!({"pathway":{"id":{"source":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},"sections":["summary","genes","events","all"],"genes":{"state":"empty","source":"reactome"},"events":{"state":"not_applicable"}});
-    assert_eq!(roundtrip::<biomcp_types::PathwayCard>(card.clone()), card);
+    assert_eq!(
+        roundtrip::<biomcp_types::PathwayCard>(card.clone()).expect("public round-trip"),
+        card
+    );
 }
