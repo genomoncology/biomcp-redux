@@ -142,6 +142,7 @@ impl Row {
                     .as_ref()
                     .and_then(|s| s.as_str().split(',').next())
                     .and_then(|s| Text::new(s.trim()).ok()),
+                first_author_id: None,
                 author_count: self
                     .author_string
                     .as_ref()

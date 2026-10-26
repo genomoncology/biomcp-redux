@@ -181,6 +181,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         }
     };
     actions(query, pool, returned, total, out);
+    super::next::authors(out);
     if let Cursor::Search(search) = query {
         super::next::search(search, total, partial, out);
     }

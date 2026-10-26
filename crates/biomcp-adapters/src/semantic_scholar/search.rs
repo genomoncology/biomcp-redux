@@ -76,6 +76,9 @@ impl<'de> Deserialize<'de> for ExternalIds {
 /// One source author.
 #[derive(Debug, Deserialize)]
 pub struct Author {
+    /// Exact native author identity when this reply supplies one.
+    #[serde(rename = "authorId")]
+    pub id: Option<biodata::SemanticScholarAuthorId>,
     /// Source display name.
     pub name: Text,
 }
@@ -144,6 +147,11 @@ impl Paper {
                 .as_ref()
                 .and_then(|a| a.first())
                 .map(|a| a.name.clone()),
+            first_author_id: self
+                .authors
+                .as_ref()
+                .and_then(|a| a.first())
+                .and_then(|a| a.id.clone()),
             author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
         });
         ArticleItem {

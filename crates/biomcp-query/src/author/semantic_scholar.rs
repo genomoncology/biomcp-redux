@@ -119,6 +119,9 @@ fn present(
             status: None,
             retry_after: None,
         })?;
+    for row in &items {
+        pivot(&row.header, out);
+    }
     if let Some(offset) = page.next {
         out.next.push((
             StepKind::Page,
@@ -126,9 +129,6 @@ fn present(
                 q.at_offset(offset).with_pool(pool.info.id.clone()),
             )),
         ));
-    }
-    for row in &items {
-        pivot(&row.header, out);
     }
     out.page = page.total.map(|total| PageInfo {
         offset: q.offset(),
@@ -168,7 +168,6 @@ fn pivot(row: &AuthorPaperHeader, out: &mut Outcome) {
         .map(ArticleInput::Pmid)
         .or_else(|| row.doi.clone().map(ArticleInput::Doi));
     if let Some(input) = input
-        && out.next.len() < 5
         && let Ok(q) = ArticleGet::with_sections(vec![input].into(), Box::default())
     {
         out.next

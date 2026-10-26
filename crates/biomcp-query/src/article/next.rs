@@ -130,3 +130,31 @@ fn variant_step(search: &biomcp_types::ArticleSearch, out: &mut Outcome) {
         ));
     }
 }
+
+/// Existing source-given author identities survive ordinary pool paging.
+pub(super) fn authors(out: &mut Outcome) {
+    let items = match &out.body {
+        QueryBody::ArticlePage(page) => page.items.as_ref(),
+        QueryBody::ArticleEdges(page) => page.items.as_ref(),
+        QueryBody::ArticleRecommendations(page) => page.items.as_ref(),
+        _ => return,
+    };
+    for id in items
+        .iter()
+        .filter_map(|row| row.header.as_ref())
+        .filter_map(|header| header.first_author_id.as_ref())
+    {
+        let step = (
+            StepKind::Pivot,
+            Action::Run {
+                request: Request::GetAuthor(biomcp_types::AuthorGet::one(
+                    biodata::AuthorId::SemanticScholar(id.clone()),
+                )),
+                fresh: false,
+            },
+        );
+        if !out.next.contains(&step) {
+            out.next.push(step);
+        }
+    }
+}
