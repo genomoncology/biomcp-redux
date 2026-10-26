@@ -37,7 +37,7 @@ fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
 fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64) -> Check {
     let url =
         format!("https://www.cbioportal.org/api/studies/synthetic_0/{section}?projection=DETAILED");
-    let key = Sha256::digest(url.as_bytes())
+    let key = Sha256::digest([b"GET\0".as_slice(), url.as_bytes()].concat())
         .iter()
         .map(|v| format!("{v:02x}"))
         .collect::<String>();

@@ -31,7 +31,7 @@ def inputs(path):
 def recording(root, url, body):
     target = root / 'cbioportal'
     target.mkdir(parents=True, exist_ok=True)
-    key = hashlib.sha256(url.encode()).hexdigest()
+    key = hashlib.sha256(b'GET\0' + url.encode()).hexdigest()
     value = {'source': 'cbioportal', 'method': 'GET', 'url': url,
              'exchanges': [{'status': 200, 'fetched': 1793059200,
                             'content_type': 'application/json', 'delay_ms': 0,
