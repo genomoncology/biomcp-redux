@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native source author candidates.
+    AuthorPage(Option<crate::AuthorPage>),
+    /// Exact provider author cards and per-input outcomes.
+    AuthorCards(crate::AuthorCards),
     /// Exact accession-linked native metadata.
     CellLineChembl(crate::CellLineChembl),
     /// Native assay total without assay listings.

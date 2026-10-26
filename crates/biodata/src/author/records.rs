@@ -1,11 +1,20 @@
 use super::{AuthorId, SemanticScholarAuthorId};
 use crate::{Curie, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
 use serde::{Deserialize, Serialize};
+crate::wire_enum! {
+    /// Scope of source-reported bibliographic counts.
+    AuthorCountScope {
+        /// Only the requested provider record's indexed papers and citations.
+        ProviderRecord => "provider_record"
+    }
+}
 /// Counts describe only this provider record, never a global publication corpus.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCounts {
+    /// Counts apply only to this provider record.
+    pub scope: AuthorCountScope,
     /// Native indexed paper count.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paper_count: Option<u64>,

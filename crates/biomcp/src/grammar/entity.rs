@@ -5,6 +5,8 @@ pub(super) fn request(verb: &str, entity: &str, value: Value) -> Result<Request,
         ("cell-line", "assay-count") => {
             serde_json::from_value(value).map(Request::CellLineAssayCount)
         }
+        ("search", "author") => serde_json::from_value(value).map(Request::SearchAuthor),
+        ("get", "author") => serde_json::from_value(value).map(Request::GetAuthor),
         ("search", "cell-line") => serde_json::from_value(value).map(Request::SearchCellLine),
         ("get", "cell-line") => serde_json::from_value(value).map(Request::GetCellLine),
         ("protein", "domains") => serde_json::from_value(value).map(Request::ProteinDomains),

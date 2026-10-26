@@ -116,6 +116,16 @@ pub(super) fn fetch(entity: &str, id: &str, envelope: &Value) -> Option<Research
         .filter(|v| v.len() == 1)
         .and_then(|v| v.first());
     let mut found = match entity {
+        "author" => {
+            let card = first?.get("card")?;
+            native::project(
+                entity,
+                card.get("header")?,
+                envelope,
+                vec![entity.into()],
+                Some(card),
+            )
+        }
         "protein" => search(entity, first?.get("header")?, envelope),
         "article" => {
             let row = first?;

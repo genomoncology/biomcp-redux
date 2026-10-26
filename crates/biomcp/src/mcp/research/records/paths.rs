@@ -50,6 +50,7 @@ pub(super) const IDS: &[&str] = &[
 use biomcp_adapters::registry::records::RecordKind;
 pub(super) fn kind(entity: &str) -> Option<RecordKind> {
     Some(match entity {
+        "author" => RecordKind::Author,
         "cell-line" => RecordKind::CellLine,
         "pathway" => RecordKind::Pathway,
         "study" => RecordKind::Study,

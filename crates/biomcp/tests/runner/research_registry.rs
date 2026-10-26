@@ -24,12 +24,7 @@ pub(super) fn check() -> Result<(), String> {
         }
         // Pair-level guideline links do not identify a fetchable CPIC pair record.
         // CellLineIdentityPage is section metadata, not a research search result.
-        // AuthorPage and AuthorCards are standalone contracts until author
-        // command registration in 0266 removes these temporary exclusions.
-        if matches!(
-            name,
-            "PgxPage" | "CellLineIdentityPage" | "AuthorPage" | "AuthorCards"
-        ) {
+        if matches!(name, "PgxPage" | "CellLineIdentityPage") {
             continue;
         }
         if name == "PathwayCard" {
@@ -130,6 +125,7 @@ fn rows<'a>(root: &'a Value, result: &'a Value, name: &str) -> Vec<&'a Value> {
         "ArticlePage" | "ArticleEdgePage" => &["items", "*", "header"],
         "ArticleCards" => &["items", "*", "answer", "card"],
         "GeneCards" => &["items", "*", "answer", "gene"],
+        "AuthorCards" => &["items", "*", "card"],
         "TrialCards" | "NciTrialCards" => &["items", "*", "card"],
         "ProteinCard" => &["items", "*", "header"],
         "VariantCard" => &["candidates", "*"],
@@ -224,6 +220,7 @@ fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
     }
     let fixed = match name {
         "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
+        "AuthorPage" | "AuthorCards" => Some(Source::SemanticScholar),
         "StudyPage" | "StudyCard" => Some(Source::Cbioportal),
         "PgxCard" => Some(Source::Cpic),
         "CellLinePage" | "CellLineCard" => Some(Source::Cellosaurus),

@@ -32,8 +32,8 @@ pub struct AuthorSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Literal query from the positional argument or --query.
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
-    query: Text,
+    #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-positional" = 0)))]
+    query: Box<str>,
     /// Native author source.
     #[serde(default)]
     source: AuthorSearchSource,
@@ -56,7 +56,7 @@ struct SearchFields {
 impl TryFrom<SearchFields> for AuthorSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if !(1..=25).contains(&v.limit) {
+        if !(1..=25).contains(&v.limit) || v.query.trim().is_empty() {
             return Err(QueryInvalid);
         }
         Ok(Self(v))
@@ -64,8 +64,14 @@ impl TryFrom<SearchFields> for AuthorSearch {
 }
 impl AuthorSearch {
     /// Literal source query.
-    pub fn query(&self) -> &Text {
+    pub fn query(&self) -> &str {
         &self.0.query
+    }
+    /// Continue at the provider's own next offset.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut q = self.clone();
+        q.0.offset = offset;
+        q
     }
     /// Selected native provider.
     pub fn source(&self) -> AuthorSearchSource {
@@ -108,6 +114,12 @@ impl TryFrom<GetFields> for AuthorGet {
     }
 }
 impl AuthorGet {
+    /// Select one checked provider record.
+    pub fn one(id: AuthorId) -> Self {
+        Self(GetFields {
+            ids: vec![id].into(),
+        })
+    }
     /// Qualified records in input order.
     pub fn ids(&self) -> &[AuthorId] {
         &self.0.ids
@@ -167,6 +179,17 @@ impl TryFrom<PapersFields> for AuthorPapersQuery {
     }
 }
 impl AuthorPapersQuery {
+    /// Start the default native paper window for a checked provider record.
+    pub fn new(id: AuthorId) -> Self {
+        Self(PapersFields {
+            id,
+            section: None,
+            full: false,
+            limit: default_limit(),
+            offset: 0,
+            pool: None,
+        })
+    }
     /// Exact qualified record.
     pub fn id(&self) -> &AuthorId {
         &self.0.id

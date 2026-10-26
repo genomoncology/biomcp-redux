@@ -116,6 +116,19 @@ fn dispatch_using(
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
     if let Action::Run {
+        request: Request::GetAuthor(q),
+        ..
+    } = action
+        && q.ids()
+            .iter()
+            .any(|id| matches!(id, biodata::AuthorId::Orcid(_)))
+    {
+        return Some(encode(
+            ErrorEnvelope::retired(biomcp_types::ErrorMessage::Deferred),
+            crate::exit::Status::Usage,
+        ));
+    }
+    if let Action::Run {
         request: Request::GetCellLine(q),
         ..
     } = action
@@ -175,6 +188,10 @@ fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
+        Action::AuthorPapers(_) => encode(
+            ErrorEnvelope::retired(biomcp_types::ErrorMessage::Deferred),
+            crate::exit::Status::Usage,
+        ),
         Action::QueryHelp(request) => {
             let path = crate::spell::command_words(&request);
             encode(
@@ -242,6 +259,15 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchAuthor(q) => match body {
+            QueryBody::AuthorPage(body) => meta.encode(q, body),
+            QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
+            _ => Err(io::Error::other("author response mismatch")),
+        },
+        Request::GetAuthor(q) => match body {
+            QueryBody::AuthorCards(body) => meta.encode(q, Some(body)),
+            _ => Err(io::Error::other("author response mismatch")),
+        },
         Request::SearchCellLine(_) | Request::GetCellLine(_) | Request::CellLineAssayCount(_) => {
             cell_line::encode(meta, request, body)
         }

@@ -44,5 +44,7 @@ pub mod protein;
 /// Checked native GWAS association search.
 pub mod gwas;
 
+/// Provider-local author discovery and exact cards.
+pub mod author;
 /// Literal Cellosaurus discovery and exact cell identity.
 pub mod cell_line;

@@ -40,7 +40,14 @@ pub(super) fn project(
     args: Vec<String>,
     card: Option<&Value>,
 ) -> Option<ResearchHit> {
-    let id = identity(row)?;
+    let identity = identity(row)?;
+    let id = if entity == "author" {
+        identity
+            .strip_prefix("semantic-scholar:")
+            .unwrap_or(&identity)
+    } else {
+        &identity
+    };
     let source = source(row, envelope);
     let declared = source.zip(paths::kind(entity));
     let template = declared.and_then(|(source, kind)| declaration(source, kind));

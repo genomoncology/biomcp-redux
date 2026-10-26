@@ -29,6 +29,8 @@ pub enum Bundle {
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
+    /// Follow an exact checked author record to its deferred native paper surface.
+    AuthorPapers(biomcp_types::AuthorPapersQuery),
     /// Remove expired local state and older incompatible cache files.
     StoreClean,
     /// Probe source reachability and report publisher terms.
@@ -71,6 +73,8 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::SearchAuthor(q) => crate::author::search(cx, q),
+        Request::GetAuthor(q) => crate::author::get(cx, q),
         Request::CellLineAssayCount(q) => crate::cell_line::assay_count(cx, q),
         Request::SearchCellLine(q) => crate::cell_line::search(cx, q),
         Request::GetCellLine(q) => crate::cell_line::get(cx, q),
