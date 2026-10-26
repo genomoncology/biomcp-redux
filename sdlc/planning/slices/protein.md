@@ -323,7 +323,7 @@ An alternative sequence uses the exact FASTA request. The returned accession, re
 
 ### Implemented UniProt section measurements
 
-The retained native CLI and MCP proof covers every section command and the complete `all` disclosure. It reuses the accepted source archives without provider requests. Both isoform continuations preserve source order and make every captured TP53 and MUTYH alternative reachable. Native EGFR function paragraphs preserve the presence and absence of the molecule qualifier independently. Sequence proof checks complete residues and the native MUTYH positions without historical-label conversion.
+The retained native CLI and MCP proof covers every UniProt section command. The changed composite `all` proof and allocation belong to the protein relation measurements below. It reuses the accepted source archives without provider requests. Both isoform continuations preserve source order and make every captured TP53 and MUTYH alternative reachable. Native EGFR function paragraphs preserve the presence and absence of the molecule qualifier independently. Sequence proof checks complete residues and the native MUTYH positions without historical-label conversion.
 
 The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-sections/biomcp-redux-0239-native.mXeaPJ.tar.gz`, SHA-256 `47b39aa4ef15ddc8453e8addf2bed30b29c7f370ab67eb3d36ab89fd1b9a7513`. The archive passed exact member and content-hash verification on the build host and Yellow. The retained phase logs and revisions identify reused successful measurements.
 
@@ -341,4 +341,30 @@ The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-s
 | Get structures | `get-P00533-structures` | 2,103 | 2,102 | 2,011 | 2,313 |
 | Get sequence | `get-P38398-sequence` | 3,246 | 3,245 | 3,154 | 3,628 |
 | Get function | `get-P00533-function` | 4,743 | 4,742 | 4,651 | 5,349 |
-| Get all | `get-P00533-all` | 9,766 | 9,765 | 9,674 | 11,126 |
+
+### InterPro and Complex Portal field rules
+
+InterPro reads the accession-scoped integrated-entry request with `page_size=25`. The response keeps each entry's native type and each protein location's complete fragment list. Native inclusive coordinates become interbase coordinates by subtracting one from each start. `--type` compares the native entry type over the complete checked collection. The result's `native_total` retains the unfiltered source count, while the page total counts selected entries. A selected type with no rows is a successful empty collection. Source continuation URLs must preserve the origin, accession path and page size before their opaque cursor can be used.
+
+Complex Portal reads the human accession search with `number=25` and scans the complete native collection before stating an admitted total. A native participant with the exact supported protein identifier and the literal `protein` type admits a complex. Descriptions, names, nested complexes and participant cross references never establish membership. The result's `native_total` remains the independent text-search count. Each header keeps the native predicted flag and actual participant count.
+
+A displayed complex publishes its received participants through the existing source snapshot store. Its member action reads that retained collection. A cold direct member command may read the named complex detail once. The returned complex identity must match before mapping or cache admission, and the anchor must be an actual protein participant before a member page is returned. Every member keeps native stoichiometry text and supplied cross references. The optional organism text preserves source values such as `chemical synthesis; -2` when they cannot be represented as a positive taxonomy identifier. Non-proteins receive no protein action.
+
+The native proof uses the exact retained 25-row requests from the investigation archives. It walks the complete received collections through five-row output pages. A labeled synthetic 25-then-1 source walk exercises continuation validation through the public command. The earlier native five-row source-page witness remains unchanged; it is not replayed under a rewritten request identity. This proof adjustment supplies no new provider calls and adds no page-size control for tests. The independent UniProt section proofs remain applicable; only the changed composite `all` output receives a new measurement.
+
+### Implemented protein relation measurements
+
+The retained CLI/MCP proof passed without provider requests. Yellow holds `data/biomcp-redux/0241-protein-domains-complexes/native.E8zfiz.tar.gz`, SHA-256 `28d6a1d13d3834427122406946f4bab2f770732303581b13c2a4746991b37050`. Its exact member list and every content hash passed verification on both machines. The archive preserves the first successful complex walk and its continuation proof from the resumed run.
+
+`tests/protein-domain-budgets.json` owns the whole CLI bytes and comparable bytes for each measured shape. The native runner enforces measured size plus 15 percent; approximate token ceilings use the existing four-bytes-per-token convention. Comparable size subtracts only the three required publisher-terms fields. CLI includes its final newline, and MCP omits that one byte.
+
+| Shape | Largest measured case | Whole CLI bytes | Comparable bytes | Comparable ceiling |
+| --- | --- | ---: | ---: | ---: |
+| Domains | `domains-P15056` | 3,845 | 3,734 | 4,295 |
+| Complexes | `complexes-P15056` | 3,274 | 3,181 | 3,659 |
+| Complex members | `members-CPX-12671-page-5` | 1,681 | 1,588 | 1,827 |
+| Get domains | `get-domains` | 4,438 | 4,236 | 4,872 |
+| Get complexes | `get-complexes` | 2,834 | 2,650 | 3,048 |
+| Get all | `get-all` | 13,168 | 12,874 | 14,806 |
+
+The source walks keep native order, collection identity and fixed expiry. The 93-member complex remains reachable through five-row pages. The changed composite `all` adds the complete bounded InterPro section and an independent Complex Portal outcome; other UniProt command allocations remain unchanged.

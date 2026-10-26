@@ -2,6 +2,11 @@ use biomcp_types::Request;
 use serde_json::Value;
 pub(super) fn request(verb: &str, entity: &str, value: Value) -> Result<Request, ()> {
     let result = match (verb, entity) {
+        ("protein", "domains") => serde_json::from_value(value).map(Request::ProteinDomains),
+        ("protein", "complexes") => serde_json::from_value(value).map(Request::ProteinComplexes),
+        ("protein", "complex-members") => {
+            serde_json::from_value(value).map(Request::ProteinComplexMembers)
+        }
         ("protein", "features") => serde_json::from_value(value).map(Request::ProteinFeatures),
         ("protein", "isoforms") => serde_json::from_value(value).map(Request::ProteinIsoforms),
         ("protein", "structures") => serde_json::from_value(value).map(Request::ProteinStructures),

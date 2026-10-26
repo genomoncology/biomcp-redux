@@ -71,24 +71,17 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
         Request::GetGwasAssociation(q) => serde_json::to_value(q),
         Request::GetGwasStudy(q) => serde_json::to_value(q),
         Request::SearchGwas(q) => serde_json::to_value(q),
+        Request::ProteinDomains(q) => serde_json::to_value(q),
+        Request::ProteinComplexMembers(q) => serde_json::to_value(q),
         Request::ProteinFeatures(q) => serde_json::to_value(q),
-        Request::ProteinIsoforms(q) | Request::ProteinStructures(q) => serde_json::to_value(q),
+        Request::ProteinIsoforms(q)
+        | Request::ProteinStructures(q)
+        | Request::ProteinComplexes(q) => serde_json::to_value(q),
         Request::ProteinSequence(q) => serde_json::to_value(q),
         Request::SearchProtein(q) => serde_json::to_value(q),
         Request::GetProtein(q) => serde_json::to_value(q),
         Request::SearchPhenotype(q) => serde_json::to_value(q),
-        Request::GetPhenotype(q) => {
-            let mut value = serde_json::to_value(q)?;
-            if let Some(fields) = value.as_object_mut() {
-                if q.source() == q.default_source() {
-                    fields.remove("source");
-                }
-                if q.section_limit() == q.default_section_limit() {
-                    fields.remove("section_limit");
-                }
-            }
-            Ok(value)
-        }
+        Request::GetPhenotype(q) => phenotype_value(q),
         Request::SearchPathway(q) => serde_json::to_value(q),
         Request::GetPathway(q) => serde_json::to_value(q),
         Request::PathwayGenes(q) => serde_json::to_value(q),
@@ -174,6 +167,9 @@ fn command_verb(request: &Request) -> &'static str {
         Request::PathwayGenes(_) | Request::PathwayEvents(_) => "pathway",
         Request::ProteinFeatures(_)
         | Request::ProteinIsoforms(_)
+        | Request::ProteinDomains(_)
+        | Request::ProteinComplexes(_)
+        | Request::ProteinComplexMembers(_)
         | Request::ProteinStructures(_)
         | Request::ProteinSequence(_) => "protein",
         Request::VariantAssertions(_)
@@ -225,6 +221,9 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
     match request {
         Request::ProteinFeatures(_) => "features",
         Request::ProteinIsoforms(_) => "isoforms",
+        Request::ProteinDomains(_) => "domains",
+        Request::ProteinComplexes(_) => "complexes",
+        Request::ProteinComplexMembers(_) => "complex-members",
         Request::ProteinStructures(_) => "structures",
         Request::ProteinSequence(_) => "sequence",
         Request::PathwayGenes(_) => "genes",
@@ -375,4 +374,17 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
     }
     positional.extend(trailing);
     positional
+}
+
+fn phenotype_value(q: &biomcp_types::PhenotypeGet) -> Result<Value, serde_json::Error> {
+    let mut value = serde_json::to_value(q)?;
+    if let Some(fields) = value.as_object_mut() {
+        if q.source() == q.default_source() {
+            fields.remove("source");
+        }
+        if q.section_limit() == q.default_section_limit() {
+            fields.remove("section_limit");
+        }
+    }
+    Ok(value)
 }

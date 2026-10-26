@@ -32,6 +32,9 @@ pub struct ProteinComplexMember {
     /// Native taxonomy identifier when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub taxon: Option<u32>,
+    /// Literal supplied organism text, including non-taxonomic source sentinels.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub organism: Option<Text>,
     /// Native display name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,
