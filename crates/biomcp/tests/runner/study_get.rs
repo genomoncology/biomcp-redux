@@ -241,6 +241,7 @@ fn retained(directory: &Path) -> Check {
         {
             return Err("study reply retained members or invented patient count".into());
         }
+        reject_members(directory, &value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = crate::runner::source_terms::size(&value, "")?;
         println!(
@@ -253,4 +254,47 @@ fn retained(directory: &Path) -> Check {
         );
     }
     Ok(())
+}
+
+fn reject_members(directory: &Path, value: &Value) -> Check {
+    if value.get("schema") != Some(&json!("biomcp.study_sample_lists/1")) {
+        return Ok(());
+    }
+    let id = value
+        .pointer("/query/id")
+        .and_then(Value::as_str)
+        .ok_or("study ID")?;
+    let replay = directory
+        .parent()
+        .ok_or("fixture parent")?
+        .join("replay/cbioportal");
+    let expected =
+        format!("https://www.cbioportal.org/api/studies/{id}/sample-lists?projection=DETAILED");
+    let output = value.to_string();
+    for entry in fs::read_dir(replay).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let recording: Value = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        if recording.get("url").and_then(Value::as_str) != Some(expected.as_str()) {
+            continue;
+        }
+        let raw = recording
+            .pointer("/exchanges/0/body/value")
+            .and_then(Value::as_str)
+            .ok_or("raw body")?;
+        let rows: Value = serde_json::from_str(raw).map_err(|e| e.to_string())?;
+        for row in rows.as_array().ok_or("raw rows")? {
+            for member in row
+                .get("sampleIds")
+                .and_then(Value::as_array)
+                .ok_or("native member IDs")?
+            {
+                if output.contains(&member.to_string()) {
+                    return Err("native sample member entered product output".into());
+                }
+            }
+        }
+        return Ok(());
+    }
+    Err("matching retained sample-list request missing".into())
 }
