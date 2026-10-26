@@ -170,6 +170,7 @@ fn command(positional: &[&str]) -> Option<ErrorMessage> {
         return Some(message);
     }
     match positional {
+        ["author", "papers", ..] => Some(ErrorMessage::Deferred),
         ["variant", "structure", ..] => Some(ErrorMessage::VariantStructure),
         ["variant", "oncokb", ..] => Some(ErrorMessage::VariantOncokb),
         ["variant", "erepo", ..] => Some(ErrorMessage::VariantErepo),

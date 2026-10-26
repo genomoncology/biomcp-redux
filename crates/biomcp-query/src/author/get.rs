@@ -33,7 +33,9 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
                 Status::Failed
             }
         };
-        if let Err(e) = &reply {
+        if let Err(e) = &reply
+            && !matches!(e, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::NotFound)
+        {
             error = Some(*e);
         }
         items.push(AuthorCardItem {

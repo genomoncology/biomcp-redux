@@ -14,8 +14,8 @@ pub fn search(leg: &Leg<'_>, q: &AuthorSearch) -> Result<Page, RequestError> {
         &[
             ("query", Arg::Text(q.query())),
             ("fields", Arg::Text(FIELDS)),
-            ("offset", Arg::Num(q.offset())),
-            ("limit", Arg::Num(q.limit())),
+            ("offset", Arg::Num(u64::from(q.offset()))),
+            ("limit", Arg::Num(u64::from(q.limit()))),
         ],
         |page| {
             if page.offset == q.offset() && page.data.len() <= q.limit() as usize {

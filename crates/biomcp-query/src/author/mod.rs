@@ -1,6 +1,7 @@
 //! Provider-record author search and independent exact cards.
 mod get;
 mod search;
+mod snapshot;
 use crate::{Action, Outcome};
 use biomcp_types::{
     Problem, ProblemCode, QueryBody, Reason, Request, Source, SourceState, Status, StepKind,

@@ -67,6 +67,18 @@ impl AuthorSearch {
     pub fn query(&self) -> &str {
         &self.0.query
     }
+    /// Start a replacement native search without retained state.
+    pub fn restart(&self) -> Self {
+        let mut q = self.at_offset(0);
+        q.0.pool = None;
+        q
+    }
+    /// Retain the checked snapshot identity for this native page.
+    pub fn with_pool(&self, pool: Text) -> Self {
+        let mut q = self.clone();
+        q.0.pool = Some(pool);
+        q
+    }
     /// Continue at the provider's own next offset.
     pub fn at_offset(&self, offset: u32) -> Self {
         let mut q = self.clone();
