@@ -1,6 +1,7 @@
 # 0287 — Diagnose opaque native concurrency failures in snapshot and bundle stores
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fd46686eadb0af839534a969e9b213b982b8ba29
 
 Milestone: 4
 

@@ -6,6 +6,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
+mod local;
 mod maintenance;
 mod mcp_policy;
 mod pathway;
@@ -36,7 +37,7 @@ fn dispatch_using(
     allow_save: bool,
     shared: Option<(
         &crate::grammar::Globals,
-        &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+        &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     )>,
 ) -> io::Result<Outcome> {
     if let [command, name] = args
@@ -96,7 +97,7 @@ fn dispatch_using(
     }
     let fetch = match transport::fetch(&parsed.globals, shared.map(|(_, fetch)| fetch))? {
         Ok(fetch) => fetch,
-        Err(()) => return encode(ErrorEnvelope::local(), crate::exit::Status::Local),
+        Err(error) => return local::startup(error),
     };
     execute(&fetch, action, &parsed.globals, allow_save)
 }
@@ -140,6 +141,7 @@ pub(crate) fn execute(
 }
 struct ResponseMeta {
     status: Status,
+    local_error: Option<biomcp_types::CacheProblem>,
     sources: Vec<biomcp_types::SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
     next: Vec<biomcp_types::Step>,
@@ -161,6 +163,7 @@ impl ResponseMeta {
         envelope.problems = self.problems;
         envelope.next = self.next;
         envelope.page = self.page;
+        envelope.local_error = self.local_error;
         encode(envelope, self.exit)
     }
 }
@@ -174,6 +177,7 @@ fn response(
     let steps = steps::next(fetch, &result)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
+        local_error: local::kind(result.local),
         status: result.status,
         next: steps,
         page: result.page,
@@ -321,21 +325,21 @@ fn response_common(meta: ResponseMeta, request: Request, body: QueryBody) -> io:
 pub(crate) fn tool(
     args: &[OsString],
     globals: &crate::grammar::Globals,
-    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
 ) -> io::Result<Outcome> {
     tool_using(args, globals, fetch, true)
 }
 pub(crate) fn tool_http(
     args: &[OsString],
     globals: &crate::grammar::Globals,
-    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
 ) -> io::Result<Outcome> {
     tool_using(args, globals, fetch, false)
 }
 fn tool_using(
     args: &[OsString],
     globals: &crate::grammar::Globals,
-    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, ()>,
+    fetch: &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     allow_save: bool,
 ) -> io::Result<Outcome> {
     if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
