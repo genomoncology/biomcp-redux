@@ -61,12 +61,11 @@ fn locked(cdx: bool) -> Result<(), String> {
     failure(&call(&mut peer, &schemas, &sync)?)?;
     let mut args = env.globals(Some(&repeated), false);
     args.extend(sync.iter().map(|word| (*word).to_owned()));
-    let startup = super::super::configuration::invoke(&env, args.clone(), 5)?;
-    schemas.validate(&startup, &args, false)?;
-    if startup.get("local_error") != Some(&json!("busy"))
-        || startup.get("status") != Some(&json!("local"))
+    let cli = super::super::configuration::invoke(&env, args.clone(), 5)?;
+    schemas.validate(&cli, &args, false)?;
+    if cli.get("local_error") != Some(&json!("busy")) || cli.get("status") != Some(&json!("failed"))
     {
-        return Err(format!("startup erased cache failure: {startup}"));
+        return Err(format!("fresh CLI erased cache failure: {cli}"));
     }
     db.execute_batch("ROLLBACK").map_err(|e| e.to_string())?;
     peer.finish()
