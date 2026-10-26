@@ -459,7 +459,7 @@ const DISCOVERY_WORDS: &[&str] = &[
     "hotspots",
     "search phenotype --limit --offset --source hpo|monarch",
     "get phenotype --section-limit --section-offset --snapshot --source hpo|monarch",
-    "sections: synonyms|xrefs|hierarchy|diseases|genes",
+    ":synonyms|xrefs|hierarchy|diseases|genes",
     "terms are terminology, associations publisher assertions; neither diagnoses",
 ];
 
