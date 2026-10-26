@@ -1,0 +1,28 @@
+{
+  "feature": "cell-line-identity",
+  "story": "Literal cell line search and exact identity help expose checked arguments.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "search",
+        "cell-line"
+      ],
+      "mcp": [
+        "help",
+        "search",
+        "cell-line"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "query",
+            "--limit",
+            "--offset"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -159,3 +159,5 @@ pathway-help: Discover every pathway source, selector, section and paging option
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples. Cases: `tests/cases/protein/help.yaml`, `tests/cases/protein/examples.yaml`.
 
 cell-line-types: A public API caller validates exact cell identities and standalone requests while preserving native variation members, provenance and independently scoped collections before I/O. Contracts: `biomcp-types/cell_line_contracts` (features: `schema`).
+
+- `cell-line-identity`: Search literal Cellosaurus headers and retrieve exact accession or verified source-qualified cell identities.
