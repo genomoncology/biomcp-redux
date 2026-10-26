@@ -29,7 +29,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ));
     tests.push(Trial::test(
         "cell-line-sections/native-whole-rows-and-independent-pages",
-        || sections::run().map_err(Into::into),
+        || sections::run(false).map_err(Into::into),
     ));
     tests.extend(faults::trials());
     tests
@@ -295,4 +295,8 @@ pub(crate) fn measure_remaining() -> Result<(), String> {
 
 pub(crate) fn measure_canonical() -> Result<(), String> {
     native::canonical(true)
+}
+
+pub(crate) fn measure_sections() -> Result<(), String> {
+    sections::run(true)
 }

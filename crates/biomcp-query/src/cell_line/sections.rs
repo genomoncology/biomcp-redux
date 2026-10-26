@@ -94,13 +94,15 @@ pub(super) fn actions(query: &CellLineGet, card: &CellLineCard, out: &mut Outcom
     }
 }
 fn pivots(data: &CellLineVariants, out: &mut Outcome) {
-    let mut requests = Vec::new();
+    let mut genes = Vec::new();
+    let mut articles = Vec::new();
     for row in &data.items.items {
         for gene in &row.genes {
-            if let Some(id) = &gene.hgnc
-                && let Ok(query) = GeneGet::new(vec![GeneInput::HgncId(id.clone())].into())
-            {
-                requests.push(Request::GetGene(query));
+            if let Some(id) = &gene.hgnc {
+                let input = GeneInput::HgncId(id.clone());
+                if !genes.contains(&input) {
+                    genes.push(input);
+                }
             }
         }
         for source in &row.provenance {
@@ -110,16 +112,28 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
                     .as_str()
                     .strip_prefix("PubMed=")
                 && let Ok(pmid) = value.parse()
-                && let Ok(query) = ArticleGet::new(vec![ArticleInput::Pmid(pmid)].into())
             {
-                requests.push(Request::GetArticle(query));
+                let input = ArticleInput::Pmid(pmid);
+                if !articles.contains(&input) {
+                    articles.push(input);
+                }
             }
         }
     }
-    let mut seen = std::collections::BTreeSet::new();
-    for request in requests {
-        if out.next.len() < 5 && serde_json::to_string(&request).is_ok_and(|key| seen.insert(key)) {
-            out.next.push((StepKind::Pivot, run(request)));
+    for chunk in genes.chunks(20) {
+        if out.next.len() < 5
+            && let Ok(query) = GeneGet::new(chunk.into())
+        {
+            out.next
+                .push((StepKind::Pivot, run(Request::GetGene(query))));
+        }
+    }
+    for chunk in articles.chunks(20) {
+        if out.next.len() < 5
+            && let Ok(query) = ArticleGet::new(chunk.into())
+        {
+            out.next
+                .push((StepKind::Pivot, run(Request::GetArticle(query))));
         }
     }
 }
