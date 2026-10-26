@@ -37,8 +37,8 @@ fn key(q: &ProteinSearch) -> Vec<u8> {
     ))
     .to_vec()
 }
-fn restart(q: &ProteinSearch, out: &mut Outcome) {
-    out.body = QueryBody::PoolError { mismatch: false };
+fn restart(q: &ProteinSearch, out: &mut Outcome, mismatch: bool) {
+    out.body = QueryBody::PoolError { mismatch };
     out.next.push((
         StepKind::Restart,
         Action::Run {
@@ -67,39 +67,22 @@ fn read(
         return Err(error);
     }
     if q.pool().is_none() && q.offset() != 0 || q.pool().is_some() && cx.fresh {
-        restart(q, out);
+        restart(q, out, false);
         return Ok(());
     }
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
-    let mut previous_payload = None;
-    let mut saved = if let Some(id) = q.pool() {
-        let Some(payload) =
-            store.source_snapshot(id.as_str(), &key(q), |s| cx.fetch.disabled(s))?
-        else {
-            restart(q, out);
-            return Ok(());
-        };
-        let saved = serde_json::from_str::<Saved>(&payload).map_err(|_| CacheError::Database)?;
-        previous_payload = Some(payload);
-        saved
-    } else {
-        let reply = uniprot::search(&leg, q, None);
-        let error = reply.as_ref().err().copied();
-        if let Err(error) = reply {
+    let loaded = load(q, &leg, &store, cx, out);
+    let (mut saved, previous_payload) = match loaded {
+        Ok(Some(saved)) => saved,
+        Ok(None) => return Ok(()),
+        Err(error) => {
             out.sources
                 .push(status::source(Source::UniProt, leg.finish(), Some(error)));
             return Err(error);
         }
-        let mapped = reply.map_err(|_| CacheError::Database)?;
-        let sources = vec![status::source(Source::UniProt, Default::default(), error)];
-        Saved {
-            page: mapped.value,
-            sources,
-            problems: mapped.problems,
-        }
     };
     if u64::from(q.offset()) > saved.page.total {
-        restart(q, out);
+        restart(q, out, false);
         return Ok(());
     }
     let error = extend(&leg, q, &mut saved);
@@ -114,11 +97,49 @@ fn read(
     let pool = if previous_payload.as_deref() == Some(payload.as_str()) {
         q.pool().cloned().ok_or(CacheError::Database)?
     } else {
-        store.save_source_snapshot(&key(q), &payload, &out.sources)?
+        store.publish_source_pool(&key(q), &payload, &out.sources)?
     };
     let info = store.source_snapshot_info(pool.clone(), saved.page.items.len() as u32)?;
     render(q, saved, pool, info, out);
     Ok(())
+}
+fn load(
+    q: &ProteinSearch,
+    leg: &biomcp_fetch::Leg<'_>,
+    store: &Store<'_>,
+    cx: &Ctx<'_>,
+    out: &mut Outcome,
+) -> Result<Option<(Saved, Option<String>)>, RequestError> {
+    if let Some(id) = q.pool() {
+        match store.source_snapshot_matches(id.as_str(), &key(q))? {
+            Some(true) => {}
+            Some(false) => {
+                restart(q, out, true);
+                return Ok(None);
+            }
+            None => {
+                restart(q, out, false);
+                return Ok(None);
+            }
+        }
+        let Some(payload) =
+            store.source_snapshot(id.as_str(), &key(q), |s| cx.fetch.disabled(s))?
+        else {
+            restart(q, out, false);
+            return Ok(None);
+        };
+        let saved = serde_json::from_str::<Saved>(&payload).map_err(|_| CacheError::Database)?;
+        return Ok(Some((saved, Some(payload))));
+    }
+    let mapped = uniprot::search(leg, q, None)?;
+    Ok(Some((
+        Saved {
+            page: mapped.value,
+            sources: vec![status::source(Source::UniProt, Default::default(), None)],
+            problems: mapped.problems,
+        },
+        None,
+    )))
 }
 fn extend(
     leg: &biomcp_fetch::Leg<'_>,
@@ -183,7 +204,16 @@ fn render(
         .any(|s| s.state != biomcp_types::SourceState::Ok)
         || !out.problems.is_empty()
     {
-        Status::Partial
+        if rows.is_empty()
+            && saved
+                .sources
+                .iter()
+                .any(|s| s.state == biomcp_types::SourceState::Failed)
+        {
+            Status::Failed
+        } else {
+            Status::Partial
+        }
     } else {
         Status::Complete
     };

@@ -1,0 +1,169 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/search?fields=accession%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Creviewed%2Clength&format=json&query=%28EGFR%29+AND+%28organism_id%3A9606%29+AND+%28reviewed%3Atrue%29&size=5",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "pagination": {
+        "total": 7,
+        "next": "https://example.invalid/uniprotkb/search?cursor=native-second&fields=accession%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Creviewed%2Clength&format=json&query=%28EGFR%29+AND+%28organism_id%3A9606%29+AND+%28reviewed%3Atrue%29&size=5"
+      },
+      "body": {
+        "kind": "json",
+        "value": {
+          "results": [
+            {
+              "primaryAccession": "P00533",
+              "uniProtkbId": "P00533_SYNTHETIC",
+              "entryType": "UniProtKB reviewed (Swiss-Prot)",
+              "organism": {
+                "taxonId": 9606
+              },
+              "proteinDescription": {
+                "recommendedName": {
+                  "fullName": {
+                    "value": "Synthetic protein fixture"
+                  }
+                }
+              },
+              "sequence": {
+                "length": 1210
+              },
+              "genes": [
+                {
+                  "geneName": {
+                    "value": "EGFR"
+                  }
+                }
+              ],
+              "entryAudit": {
+                "entryVersion": 1,
+                "sequenceVersion": 2
+              }
+            },
+            {
+              "primaryAccession": "P15056",
+              "uniProtkbId": "P15056_SYNTHETIC",
+              "entryType": "UniProtKB reviewed (Swiss-Prot)",
+              "organism": {
+                "taxonId": 9606
+              },
+              "proteinDescription": {
+                "recommendedName": {
+                  "fullName": {
+                    "value": "Synthetic protein fixture"
+                  }
+                }
+              },
+              "sequence": {
+                "length": 1210
+              },
+              "genes": [
+                {
+                  "geneName": {
+                    "value": "EGFR"
+                  }
+                }
+              ],
+              "entryAudit": {
+                "entryVersion": 1,
+                "sequenceVersion": 2
+              }
+            },
+            {
+              "primaryAccession": "P38398",
+              "uniProtkbId": "P38398_SYNTHETIC",
+              "entryType": "UniProtKB reviewed (Swiss-Prot)",
+              "organism": {
+                "taxonId": 9606
+              },
+              "proteinDescription": {
+                "recommendedName": {
+                  "fullName": {
+                    "value": "Synthetic protein fixture"
+                  }
+                }
+              },
+              "sequence": {
+                "length": 1210
+              },
+              "genes": [
+                {
+                  "geneName": {
+                    "value": "EGFR"
+                  }
+                }
+              ],
+              "entryAudit": {
+                "entryVersion": 1,
+                "sequenceVersion": 2
+              }
+            },
+            {
+              "primaryAccession": "P04637",
+              "uniProtkbId": "P04637_SYNTHETIC",
+              "entryType": "UniProtKB reviewed (Swiss-Prot)",
+              "organism": {
+                "taxonId": 9606
+              },
+              "proteinDescription": {
+                "recommendedName": {
+                  "fullName": {
+                    "value": "Synthetic protein fixture"
+                  }
+                }
+              },
+              "sequence": {
+                "length": 1210
+              },
+              "genes": [
+                {
+                  "geneName": {
+                    "value": "EGFR"
+                  }
+                }
+              ],
+              "entryAudit": {
+                "entryVersion": 1,
+                "sequenceVersion": 2
+              }
+            },
+            {
+              "primaryAccession": "P13569",
+              "uniProtkbId": "P13569_SYNTHETIC",
+              "entryType": "UniProtKB reviewed (Swiss-Prot)",
+              "organism": {
+                "taxonId": 9606
+              },
+              "proteinDescription": {
+                "recommendedName": {
+                  "fullName": {
+                    "value": "Synthetic protein fixture"
+                  }
+                }
+              },
+              "sequence": {
+                "length": 1210
+              },
+              "genes": [
+                {
+                  "geneName": {
+                    "value": "EGFR"
+                  }
+                }
+              ],
+              "entryAudit": {
+                "entryVersion": 1,
+                "sequenceVersion": 2
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
