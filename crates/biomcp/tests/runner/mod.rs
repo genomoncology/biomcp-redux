@@ -77,6 +77,7 @@ mod pathway_registry;
 mod pdf;
 mod pgx_registry;
 mod pgx_retirements;
+mod phenotype;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -544,10 +545,15 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_ols::trials())
         .chain(disease_mydisease::trials())
         .chain(disease_monarch::trials())
+        .chain(phenotype::trials())
         .chain(disease_seer::trials())
         .collect()
 }
 
 pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), String> {
     faers_search::record_examples(directory)
+}
+
+pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
+    phenotype::native(path)
 }

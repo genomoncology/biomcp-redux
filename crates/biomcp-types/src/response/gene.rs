@@ -65,6 +65,10 @@ impl ResponseBody for GenePage {
 /// Typed dispatch result before the interface constructs an envelope.
 #[derive(Clone, Debug)]
 pub enum QueryBody {
+    /// Native ordered HP term candidates.
+    PhenotypePage(crate::PhenotypePage),
+    /// Complete independent publisher term card.
+    PhenotypeCard(Option<crate::PhenotypeTermCard>),
     /// Native ordered human pathway headers.
     PathwayPage(crate::PathwayPage),
     /// Checked exact pathway card or summary.

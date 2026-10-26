@@ -38,6 +38,22 @@ const SHAPES: &[Shape] = &[
         max_bytes: 5161,
     },
     Shape {
+        args: &["search", "phenotype", "synthetic"],
+        replies: "phenotype/synthetic",
+        required: &["Synthetic term", "biomcp get phenotype HP:0000001"],
+        max_bytes: 5000,
+    },
+    Shape {
+        args: &["get", "phenotype", "HP:0000001"],
+        replies: "phenotype/synthetic",
+        required: &[
+            "Synthetic term",
+            "Complete synthetic definition",
+            "Complete synthetic comment",
+        ],
+        max_bytes: 5000,
+    },
+    Shape {
         args: &["get", "gene", "BRAF"],
         replies: "gene/main",
         required: &[
