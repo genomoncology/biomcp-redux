@@ -218,7 +218,6 @@ impl PhenotypeGet {
         let mut q = self.clone();
         q.0.section = Some(section);
         q.0.section_offset = 0;
-        q.0.section_limit = Some(defaults(Some(section)).1);
         q
     }
     /// Restart exact source acquisition after retained reply expiry.

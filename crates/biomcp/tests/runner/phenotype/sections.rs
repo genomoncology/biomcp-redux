@@ -49,6 +49,19 @@ fn pages() -> Result<(), String> {
     {
         return Err(format!("local terminal changed: {terminal}"));
     }
+    let explicit = invoke(
+        &env,
+        &["get", "phenotype", "HP:0000001", "--section-limit", "2"],
+        0,
+    )?;
+    let explicit = step(&explicit, "section", 0)?;
+    let explicit = explicit.iter().map(String::as_str).collect::<Vec<_>>();
+    let limited = invoke(&env, &explicit, 0)?;
+    if limited.pointer("/query/section_limit") != Some(&json!(2))
+        || limited.pointer("/page/returned") != Some(&json!(2))
+    {
+        return Err("card section action lost the explicit section limit".into());
+    }
     if stub.finish()?.len() != 1 {
         return Err("section walk refetched retained entity".into());
     }
