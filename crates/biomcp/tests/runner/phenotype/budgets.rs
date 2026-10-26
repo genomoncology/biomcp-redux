@@ -4,16 +4,6 @@ use std::path::Path;
 pub(in crate::runner) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), String> {
     let bytes =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    if phase.starts_with("case/help ") {
-        use std::io::Write;
-        writeln!(
-            std::io::stdout(),
-            "PHENOTYPE_HELP_MEASURE {}",
-            serde_json::json!({"phase":phase,"surface":surface,"bytes":bytes})
-        )
-        .map_err(|e| e.to_string())?;
-        return Ok(());
-    }
     let max_bytes = ceiling(phase, surface)?;
     let key = format!("{phase} [{surface}]");
     if bytes > max_bytes {

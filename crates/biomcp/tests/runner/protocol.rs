@@ -458,7 +458,8 @@ const DISCOVERY_WORDS: &[&str] = &[
     "no personal risk, causal variant/gene or clinical statistic interpretation",
     "hotspots",
     "search phenotype --limit --offset --source hpo|monarch",
-    "get phenotype --section-limit --section-offset --snapshot --source hpo|monarch sections: synonyms|xrefs|hierarchy|diseases|genes",
+    "get phenotype --section-limit --section-offset --snapshot --source hpo|monarch",
+    "sections: synonyms|xrefs|hierarchy|diseases|genes",
     "terms are terminology, associations publisher assertions; neither diagnoses",
 ];
 

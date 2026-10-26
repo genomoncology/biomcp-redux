@@ -35,6 +35,39 @@ Sources: [NF1 GeneReviews](https://www.ncbi.nlm.nih.gov/books/NBK1109/), [PTEN G
 | P23 | Which phenotype annotations are connected to the human NF1 gene? | Same source association contract; preserve many rows for one term when provenance differs. | NF1; Monarch |
 | P24 | Does an unknown term or an unavailable source mean no matching syndrome exists? | No. An unknown exact term is absent; a successful empty search is empty; a source failure is failed or partial. These states make no clinical absence claim. | HPO/Monarch workflow; recorded failure case required |
 
+### Implemented question mapping
+
+The clinical reviewer accepted this mapping against the cited GeneReviews, HPO and Monarch sources above and the accepted native identity, complete-card and association reviews below. No new clinical interpretation changes a question's boundary. The result is nineteen answered questions, four partial questions and one unanswered question.
+
+| Question | Status | Owning proof and limit |
+| --- | --- | --- |
+| P01 | Answered | HP:0000957; native search 02 and card 18. |
+| P02 | Answered | HP:0001067; native search 03, card 19 and synonym sections. |
+| P03 | Answered | HP:0009732; native search 04 and card 20. |
+| P04 | Answered | HP:0000997; native search 05 and card 21. |
+| P05 | Answered | HP:0000256; native search 06, card 22 and complete definition/comment. |
+| P06 | Answered | Native search 07 and cards 23/24 retain HP:0200008 and HP:0004390 as separate candidates. |
+| P07 | Answered | HP:0012032; native search 08 and card 25. |
+| P08 | Answered | Native search 09 and card 26 retain HP:0001263 with its complete age-limited definition and comment. |
+| P09 | Partial | Native search 10 proves Monarch's successful empty result. The retained HPO candidates establish no retinal hemangioblastoma equivalent. |
+| P10 | Answered | Native search 11 and cards 27/28 retain HP:0005562 and HP:0000107 with distinct multiplicity. |
+| P11 | Answered | HP:0002666; native search 12 and card 29. Obsolete HP:0001676 remains separate in witness 40. |
+| P12 | Answered | HP:0001737; native search 13 and card 30 retain the pseudocyst comment. |
+| P13 | Answered | HP:0030436; native search 14 and card 31. |
+| P14 | Answered | Native search 15 and cards 32/33 retain HP:0005948 and HP:0032445 with their complete comments. |
+| P15 | Answered | HP:0002108; native search 16 and card 34. |
+| P16 | Answered | Exact HP:0001250 cards 00/01 and native synonym sections keep independent source answers. |
+| P17 | Unanswered | Similarity is deferred by the PM ruling. Single-term association sections do not answer pair similarity. |
+| P18 | Answered | Existing get disease MONDO:0008667 phenotypes; retained disease native proof preserves closure scope. |
+| P19 | Answered | Existing get disease MONDO:0018875 phenotypes; retained disease native proof preserves source rows. |
+| P20 | Answered | Existing get disease MONDO:0019003 phenotypes; retain the disease route's 100 closure-expanded rows separately from the investigated 48 direct rows. |
+| P21 | Partial | Retained HGNC:12687 gene-keyed mapper proof preserves VHL rows, original NCBIGene:7428 and total 58. No gene-keyed product query route exists. |
+| P22 | Partial | Retained HGNC:9588 gene-keyed mapper proof preserves PTEN rows, original NCBIGene:5728 and total 85. No gene-keyed product query route exists. |
+| P23 | Partial | Retained HGNC:7765 gene-keyed mapper proof preserves NF1 rows, original NCBIGene:4763 and total 129; PMID:8317503 stays on its second row. No gene-keyed product query route exists. |
+| P24 | Answered | Retained witnesses 35/36 plus states.rs and faults.rs distinguish successful empty, exact absence and failure. Empty and exact absence share status absent; source state/reason and result presence distinguish them. |
+
+The numbered search/card witnesses belong to `crates/biomcp/tests/runner/phenotype/native.rs` and the unchanged term archive recorded below. `section_native.rs` owns the retained text/link sections. The [disease case map](disease.md#executed-harvested-case-map) and `crates/biomcp/tests/runner/disease_monarch/native.rs` own P18–P20. `crates/biomcp-adapters/src/monarch/native_contracts.rs` owns the P21–P23 retained mapper check; it does not supply a new query. The [PM phenotype ruling](../../decisions/2026-10-26-protein-pathway-study-rulings.md#phenotype) owns P17's deferral.
+
 ## Investigation boundaries
 
 Native captures run through ticket jobs. The first bounded metadata pass names six requests, a single attempt, no redirects or fallback, a per-response byte bound and a stop on rate limiting or server errors. The raw capture remains outside Git. No 0.9 binary has been executed by this investigation. Its output budgets remain unmeasured unless verified containment can supply the exact native request identities.
@@ -428,3 +461,28 @@ The unchanged P21 to P23 gene-keyed bodies exercise the existing private row map
 | genes | 2 / 0 | 4715 | 4584 | 1146 | 5272 | 1318 |
 
 Job j14910 verified all six native command pairs and their original source identities, evidence, publications, qualifier IDs and labels. The verified product archive is `data/biomcp-redux/0240-phenotype-associations/product-738c589063c7970b04ff8106de1848339e247947.tar.gz`, SHA-256 `a2205d41d2cdbd47d6139d679942345b2ad9f270d5535ebc749db7854781e7b3`. It retains the checked source plan, unchanged bodies, original-date replay recordings, complete product results and measurements. Fixed ceiling and exact native next-step checks reuse those complete results without another command or source request.
+
+## Accounting case ownership and current envelope limits
+
+The synthetic attribution uses every ordinary phenotype case and leaves both opt-in native collections ignored. `tests/phenotype-command-budgets.json` records full-envelope measurements by named command phase and actual surface. CLI measurements include the newline; MCP measurements count compact structured JSON. Each check multiplies its fixed baseline by 115 percent and rounds up. Loops share their phase's largest observed output. The YAML `max_bytes` checks separately retain the existing validated source-terms subtraction and include the CLI newline. The runtime never grants headroom from the output it is checking.
+
+| Owning case | Behavior and measured phases |
+| --- | --- |
+| `tests/cases/phenotype/examples.yaml` | Two parsed search examples and two parsed exact get examples, from their actual case run steps; CLI/MCP equality. |
+| `tests/cases/phenotype/help.yaml` | Search/get source choices, all paging arguments, five sections and two examples each, through CLI/MCP help. |
+| `tests/cases/phenotype/admission.yaml` | Invalid source, identifier, section and bounds; unsupported snapshot combinations fail before I/O. |
+| `tests/cases/phenotype/retired.yaml` | Help rename, ID-set retirement, short limit spelling and deferred HPO search recovery. |
+| `runner/phenotype/mod.rs` | Literal native paging, independent complete cards, cache admission, disabled components, timeout and Markdown help; phases name each invocation and recording. |
+| `runner/phenotype/states.rs` | P24 empty/absent/failure distinctions, short limit and cold/warm disabled behavior. |
+| `runner/phenotype/faults.rs` | Seven command forms across 429, 500, timeout, malformed JSON and source error bodies; five identity/taxon rejections and rejected-cache checks. |
+| `runner/phenotype/sections.rs` | First/terminal/explicit-limit text pages, classified Monarch synonyms, hierarchy, positive xrefs, empty/unavailable sections, retained refresh and policy checks. |
+| `runner/phenotype/section_failures.rs` | Text section 429, 500, malformed reply, wrong identity and recorded timeout through CLI/MCP. |
+| `runner/phenotype/associations.rs` | Exact human gene scope, native pages, malformed endpoints/taxa, failed cache admission, source policy, card actions and recorded timeout. |
+| Outside-repo native term proof | All forty-one retained term/search witnesses, including P01–P16, P24, middle/terminal and obsolete cases, owned by `native.rs`. |
+| Outside-repo native section proof | Forty-nine source text/link witnesses and twenty revised cards, owned by `section_native.rs`. |
+| Outside-repo native association proof | Six exact reverse command pairs, owned by `association_native.rs`; gene-keyed P21–P23 rows remain the declared retained mapper contract. |
+| Shared generated help and MCP discovery | `gene/help.yaml`, `help_examples.rs` and `protocol.rs` own whole-tree help, case-derived executable examples and the complete bounded MCP description. |
+
+Runner paths in the table are relative to `crates/biomcp/tests/`. Every design case P01–P24 maps to an owning command case or an explicitly retained outside-repo witness above. Deferred similarity, translations and bundles remain investigation evidence and do not become accepted command cases. Every 0.9 command timing and output size stays unmeasured until the contained comparison in 0098. New exact get and section forms have no 0.9 counterpart.
+
+The complete attribution in `j15009` measured 423 synthetic command/surface results and supplied 137 fixed phase/surface baselines. Sixty-six cases passed; the help case stopped on an invalid scalar assertion. The scoped `j15010` continuation corrected that assertion and measured all four help surfaces without repeating successful source cases. Search help measures 985 CLI bytes and 984 MCP bytes; get help measures 1,917 CLI bytes and 1,916 MCP bytes. The PM approved their fixed YAML `max_bytes` limits, 1,133 and 2,205, from the full CLI envelopes. The actual combined MCP description measures 2,782 bytes and retains the existing approved ceiling in `protocol.rs`. No phenotype content was removed to fit it. The current complete whole-tree help measures 80,734 CLI bytes. Earlier help and native tables above retain their original revision basis.
