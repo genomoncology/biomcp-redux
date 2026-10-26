@@ -25,6 +25,10 @@ PY
 if [ ! -d "$proof_root/protein-domain-native" ]; then
     python3 scripts/protein_domains_native.py "$proof_root/archives" "$proof_root/protein-domain-native"
 fi
+if [ -f "$proof_root/proof.log" ]; then
+    prior_log=$(mktemp "$proof_root/prior-proof.XXXXXX.log")
+    cp "$proof_root/proof.log" "$prior_log"
+fi
 git rev-parse HEAD >> "$proof_root/revisions.txt"
 BIOMCP_TEST_FIXTURES="$proof_root" cargo test --locked -p biomcp --test cases -- protein-domains-complexes/retained-native-facts-and-costs --nocapture > "$proof_root/proof.log" 2>&1 || { cat "$proof_root/proof.log"; exit 1; }
 cat "$proof_root/proof.log"
@@ -41,7 +45,7 @@ for folder,prefix in [('cases','case'),('outputs','result')]:
         shutil.copyfile(path,evidence/(prefix+'-'+path.name))
 for source in (root/'protein-domain-native/replay').iterdir():
     for path in source.iterdir(): shutil.copyfile(path,evidence/('replay-'+source.name+'-'+path.name))
-for name in ['proof.log','revisions.txt']: shutil.copyfile(root/name,evidence/name)
+for path in [*root.glob('*proof*.log'),root/'revisions.txt']: shutil.copyfile(path,evidence/path.name)
 source_capture.manifest(evidence)
 archive=root/'native-proof.tar.gz'
 with tarfile.open(archive,'w:gz') as packed:
