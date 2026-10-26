@@ -13,7 +13,7 @@ impl fmt::Display for GwasValueInvalid {
 impl std::error::Error for GwasValueInvalid {}
 
 /// Exact Catalog study accession; case and leading zeros survive.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GwasStudyId(Text);
 impl FromStr for GwasStudyId {
     type Err = GwasValueInvalid;
@@ -69,7 +69,7 @@ text_value!(
 );
 
 /// Native ontology identifier; namespaces are preserved without an EFO restriction.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GwasTraitId(Text);
 impl FromStr for GwasTraitId {
     type Err = GwasValueInvalid;
