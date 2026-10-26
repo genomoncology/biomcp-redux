@@ -44,6 +44,7 @@ mod gene_tables;
 mod held_proxy;
 mod help_examples;
 mod hpo_registry;
+mod protein_registry;
 mod http;
 mod http_limits;
 mod key_registration;
@@ -567,6 +568,7 @@ fn drug_trials() -> Vec<Trial> {
     trials.extend(pgx_registry::trials());
     trials.extend(pathway_registry::trials());
     trials.extend(hpo_registry::trials());
+    trials.extend(protein_registry::trials());
     trials.extend(pgx_retirements::trials());
     trials.extend(cpic::trials());
     trials.extend(clinpgx::trials());
