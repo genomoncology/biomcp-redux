@@ -29,6 +29,7 @@ pub(super) fn run() -> Result<(), String> {
             }
         }
     }
+
     let replies = mcp::exchange(&env, &[mcp::request(json!(1), "tools/list", json!({}))])?;
     let result = replies
         .first()

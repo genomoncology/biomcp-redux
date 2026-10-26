@@ -49,6 +49,15 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
         )
         .map_err(|e| e.to_string())?;
     }
+    walks(directory, &output, &budgets)
+}
+
+fn walks(
+    directory: &Path,
+    output: &Path,
+    budgets: &std::collections::BTreeMap<String, [usize; 2]>,
+) -> Result<(), String> {
+    let registry = super::super::schema::Registry::embedded()?;
     let walks = directory.parent().ok_or("native directory")?.join("walks");
     for path in fs::read_dir(walks).map_err(|e| e.to_string())? {
         let path = path.map_err(|e| e.to_string())?.path();
@@ -57,6 +66,18 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
             .file_stem()
             .and_then(|s| s.to_str())
             .ok_or("walk name")?;
+        let [whole, small] = budgets
+            .get(&format!("walk-{name}"))
+            .ok_or("unmeasured native walk")?;
+        // Retained continuation proof ran on CLI only; the first page owns CLI/MCP parity.
+        let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len() + 1;
+        if bytes > (whole * 115).div_ceil(100)
+            || super::super::source_terms::size(&value, "")? > (small * 115).div_ceil(100)
+        {
+            return Err(format!(
+                "{name}: continuation exceeded its own measured CLI ceiling"
+            ));
+        }
         fs::write(
             output.join(format!("walk-{name}.json")),
             serde_json::to_vec(&value).map_err(|e| e.to_string())?,

@@ -86,6 +86,7 @@ mod pmc_tables;
 mod pool_tables;
 mod process;
 pub(super) mod proof;
+mod protein_budgets;
 mod protein_commands;
 mod protein_domains;
 mod protein_registry;

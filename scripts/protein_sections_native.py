@@ -13,8 +13,8 @@ budgets = json.loads(budget_path.read_text()) if budget_path.is_file() else {}
 
 def case(name, args, expect, exit=0):
     step = {'run': args, 'mcp': args, 'expect': expect, 'exit': exit}
-    if name in budgets:
-        step['max_bytes'] = (budgets[name][1] * 115 + 99) // 100
+    step['max_bytes'] = (budgets[name][1] * 115 + 99) // 100
+    step['max_tokens'] = (step['max_bytes'] + 3) // 4
     cases.joinpath(name + '.yaml').write_text(json.dumps({
         'feature': 'protein-sections', 'story': 'A caller reads exact native protein section facts',
         'replay': str(replay.parent.resolve()), 'steps': [step]}))
@@ -79,7 +79,8 @@ for accession, remainder in [('P04637', ['P04637-6', 'P04637-7', 'P04637-8', 'P0
     path = cases / ('isoforms-' + accession + '.yaml')
     value = json.loads(path.read_text())
     follow = {'follow': 'page', 'expect': {'/result/items/*/ids/0': remainder}}
-    if 'max_bytes' in value['steps'][0]: follow['max_bytes'] = value['steps'][0]['max_bytes']
+    follow['max_bytes'] = (budgets['walk-isoforms-' + accession][1] * 115 + 99) // 100
+    follow['max_tokens'] = (follow['max_bytes'] + 3) // 4
     value['steps'].append(follow)
     walks = output / 'walks'
     walks.mkdir(exist_ok=True)

@@ -39,16 +39,19 @@ fn pools() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let args = ["search", "protein", "--gene", "BRAF"];
     let first = call(&env, &args, 0)?;
+    super::protein_budgets::check(&first, "search-pool/first", "cli")?;
     let pool = id(&first)?;
     let retained = call(
         &env,
         &["search", "protein", "--gene", "BRAF", "--pool", pool],
         0,
     )?;
+    super::protein_budgets::check(&retained, "search-pool/retained", "cli")?;
     if first.pointer("/page/pool") != retained.pointer("/page/pool") {
         return Err("retained protein pool changed its publication metadata".into());
     }
     let fresh = call(&env, &["search", "protein", "--gene", "BRAF", "--fresh"], 0)?;
+    super::protein_budgets::check(&fresh, "search-pool/fresh", "cli")?;
     if pool == id(&fresh)? {
         return Err("fresh protein search reused a published pool".into());
     }
@@ -57,6 +60,7 @@ fn pools() -> Check {
         &["search", "protein", "--gene", "EGFR", "--pool", pool],
         2,
     )?;
+    super::protein_budgets::check(&mismatch, "search-pool/mismatch", "cli")?;
     if mismatch.pointer("/error/code").and_then(Value::as_str) != Some("usage.pool_mismatch") {
         return Err("changed protein selectors did not reject the old pool".into());
     }
@@ -67,6 +71,7 @@ fn pools() -> Check {
         ],
         0,
     )?;
+    super::protein_budgets::check(&terminal, "search-pool/terminal", "cli")?;
     if terminal.pointer("/page/returned").and_then(Value::as_u64) != Some(0) {
         return Err("terminal protein page returned a duplicate".into());
     }
@@ -77,6 +82,7 @@ fn pools() -> Check {
         ],
         3,
     )?;
+    super::protein_budgets::check(&invalid, "search-pool/invalid-offset", "cli")?;
     if invalid.pointer("/next/0/kind").and_then(Value::as_str) != Some("restart") {
         return Err("invalid retained protein offset omitted restart".into());
     }
@@ -89,6 +95,7 @@ fn pools() -> Check {
         &["search", "protein", "--gene", "BRAF", "--pool", pool],
         3,
     )?;
+    super::protein_budgets::check(&expired, "search-pool/expired", "cli")?;
     if expired.pointer("/error/code").and_then(Value::as_str) != Some("pool.expired") {
         return Err("expired protein pool refetched instead of restarting".into());
     }
@@ -106,7 +113,7 @@ fn links() -> Result<(), Box<dyn std::error::Error>> {
         ),
         ("uniprotkb/search", "other/search"),
     ] {
-        super::response_cases::case(
+        let value = super::response_cases::checked_case(
             "protein/pages",
             &["search", "protein", "EGFR"],
             |_, record| {
@@ -123,6 +130,11 @@ fn links() -> Result<(), Box<dyn std::error::Error>> {
             serde_json::json!({"/status":"failed", "/sources/0/reason":"bad_reply"}),
             4,
         )?;
+        super::protein_budgets::check(
+            &value,
+            &format!("search-continuation-rejection/{before}/{after}"),
+            "cli",
+        )?;
     }
     Ok(())
 }
@@ -135,7 +147,8 @@ fn cache_admission() -> Result<(), Box<dyn std::error::Error>> {
             serde_json::json!("UniProtKB unreviewed (TrEMBL)"),
         ),
     ] {
-        super::response_cases::checked_steps(
+        super::protein_budgets::steps(
+            &format!("search-cache-admission/{pointer}"),
             "protein/pages",
             |_, record| {
                 if record
@@ -234,8 +247,10 @@ fn continuation_lifetime() -> Check {
     let mut args = env.globals(Some(&replay), false);
     args.extend(["search", "protein", "EGFR"].map(str::to_owned));
     let first = invoke(&env, args.clone(), 0)?;
+    super::protein_budgets::check(&first, "native-continuation/first", "cli")?;
     args.extend(["--pool", id(&first)?, "--offset", "5"].map(str::to_owned));
     let next = invoke(&env, args, 0)?;
+    super::protein_budgets::check(&next, "native-continuation/next", "cli")?;
     for key in ["id", "created", "expires"] {
         let pointer = format!("/page/pool/{key}");
         if first.pointer(&pointer) != next.pointer(&pointer) {
@@ -249,7 +264,7 @@ fn continuation_lifetime() -> Check {
 }
 
 fn continuation_count() -> Result<(), Box<dyn std::error::Error>> {
-    super::response_cases::case(
+    let value = super::response_cases::checked_case(
         "protein/pages",
         &["search", "protein", "EGFR", "--limit", "25"],
         |_, record| {
@@ -274,5 +289,7 @@ fn continuation_count() -> Result<(), Box<dyn std::error::Error>> {
         serde_json::json!({"/status":"partial", "/sources/0/reason":"bad_reply",
             "/page/returned":5, "/page/total":7}),
         0,
-    )
+    )?;
+    super::protein_budgets::check(&value, "search-continuation/declared-count-rejected", "cli")?;
+    Ok(())
 }

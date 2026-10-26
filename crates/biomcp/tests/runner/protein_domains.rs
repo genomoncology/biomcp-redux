@@ -65,6 +65,7 @@ fn domains() -> Result<(), String> {
     })?;
     let env = setup(&stub)?;
     let value = call(&env, &["protein", "domains", "P04637"], 0)?;
+    super::protein_budgets::check(&value, "synthetic-domains/default", "cli")?;
     if value.pointer("/result/items/0/entry_type") != Some(&json!("family"))
         || value
             .pointer("/result/items/0/locations/0/fragments")
@@ -90,6 +91,7 @@ fn domains() -> Result<(), String> {
         &["protein", "domains", "P04637", "--type", "domain"],
         0,
     )?;
+    super::protein_budgets::check(&selected, "synthetic-domains/selected-domain", "cli")?;
     if selected.pointer("/page/total") != Some(&json!(1))
         || selected.pointer("/result/native_total") != Some(&json!(2))
         || selected.pointer("/result/items/0/id") != Some(&json!("IPR010991"))
@@ -103,13 +105,21 @@ fn domains() -> Result<(), String> {
         &["protein", "domains", "P04637", "--type", "repeat"],
         0,
     )?;
+    super::protein_budgets::check(&empty, "synthetic-domains/empty-repeat", "cli")?;
     if empty.pointer("/page/total") != Some(&json!(0))
         || empty.pointer("/status") != Some(&json!("complete"))
     {
         return Err("empty type selection became a missing source".into());
     }
+    admission(&env)?;
+    if stub.finish()?.len() != 3 {
+        return Err("a rejected native protein identity was cached".into());
+    }
+    Ok(())
+}
+fn admission(env: &Environment) -> Result<(), String> {
     let skipped = call(
-        &env,
+        env,
         &[
             "protein",
             "domains",
@@ -119,24 +129,24 @@ fn domains() -> Result<(), String> {
         ],
         4,
     )?;
+    super::protein_budgets::check(&skipped, "synthetic-domains/disabled", "cli")?;
     if skipped.pointer("/sources/0/state") != Some(&json!("skipped"))
         || skipped.get("result").is_some()
     {
         return Err("disabled source returned a retained collection".into());
     }
     for _ in 0..2 {
-        let rejected = call(&env, &["protein", "domains", "P15056"], 4)?;
+        let rejected = call(env, &["protein", "domains", "P15056"], 4)?;
+        super::protein_budgets::check(&rejected, "synthetic-domains/wrong-anchor", "cli")?;
         if rejected.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
             || rejected.get("result").is_some()
         {
             return Err("a live response for another protein was admitted".into());
         }
     }
-    if stub.finish()?.len() != 3 {
-        return Err("a rejected native protein identity was cached".into());
-    }
     Ok(())
 }
+
 fn call(env: &Environment, args: &[&str], exit: i32) -> Result<Value, String> {
     let mut words = env.globals(None, false);
     words.extend(args.iter().map(|s| (*s).to_owned()));

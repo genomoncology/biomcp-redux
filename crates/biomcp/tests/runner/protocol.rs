@@ -466,9 +466,23 @@ const DISCOVERY_WORDS: &[&str] = &[
 fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
-    // The PM approved j14994 measured 2602 bytes plus fifteen percent.
-    if text.len() > 2993 {
+    // The PM approved j15040 measured 3098 bytes plus fifteen percent.
+    if text.len() > 3563 {
         return Err("command description exceeds budget".into());
+    }
+    for word in [
+        "protein features --position --type",
+        "domains --type",
+        "complex-members --complex",
+        "isoforms",
+        "structures",
+        "sequence",
+        "--reviewed",
+        "no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs",
+    ] {
+        if !text.contains(word) {
+            return Err(format!("protein discovery misses {word}"));
+        }
     }
     for &word in DISCOVERY_WORDS {
         if !text.contains(word) {

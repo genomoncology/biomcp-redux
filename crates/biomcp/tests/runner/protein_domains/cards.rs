@@ -7,6 +7,7 @@ pub(super) fn run() -> Result<(), String> {
     )?;
     let env = setup(&stub)?;
     let card = call(&env, &["get", "protein", "P38398"], 0)?;
+    super::super::protein_budgets::check(&card, "synthetic-card/card", "cli")?;
     for section in ["domains", "complexes"] {
         if !card
             .get("next")
@@ -23,17 +24,20 @@ pub(super) fn run() -> Result<(), String> {
         }
     }
     let domains = call(&env, &["get", "protein", "P38398", "domains"], 0)?;
+    super::super::protein_budgets::check(&domains, "synthetic-card/domains", "cli")?;
     if domains.pointer("/result/items/0/sections/domains/data/items/0/id")
         != Some(&json!("IPR002117"))
     {
         return Err("domain section differs from native match page".into());
     }
     let complexes = call(&env, &["get", "protein", "P38398", "complexes"], 0)?;
+    super::super::protein_budgets::check(&complexes, "synthetic-card/complexes", "cli")?;
     if complexes.pointer("/result/items/0/sections/complexes/data/native_total") != Some(&json!(3))
     {
         return Err("complex section lost its independent native count".into());
     }
     let all = call(&env, &["get", "protein", "P38398", "all"], 0)?;
+    super::super::protein_budgets::check(&all, "synthetic-card/all", "cli")?;
     if all.pointer("/result/items/0/sections/domains/state") != Some(&json!("data"))
         || all.pointer("/result/items/0/sections/complexes/state") != Some(&json!("data"))
     {
@@ -58,6 +62,7 @@ fn policy(env: &Environment) -> Result<(), String> {
         ],
         0,
     )?;
+    super::super::protein_budgets::check(&skipped, "synthetic-card/disabled-interpro", "cli")?;
     if skipped.pointer("/result/items/0/sections/domains/state") != Some(&json!("skipped")) {
         return Err("disabled source supplied a cached section".into());
     }
@@ -72,6 +77,7 @@ fn policy(env: &Environment) -> Result<(), String> {
         ],
         0,
     )?;
+    super::super::protein_budgets::check(&restricted, "synthetic-card/disabled-relations", "cli")?;
     let actions = restricted
         .get("next")
         .and_then(Value::as_array)

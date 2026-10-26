@@ -549,7 +549,7 @@
     },
     "ProteinFeaturesQuery": {
       "additionalProperties": false,
-      "description": "Native UniProt features filtered by exact native label and residue.",
+      "description": "Page five native UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",

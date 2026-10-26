@@ -25,11 +25,13 @@ with tarfile.open(archives/'j14211-j14221-identity-followup.tar.gz') as archive:
 (output/'requests.json').write_text(json.dumps(requests))
 cases = output/'cases'
 cases.mkdir()
+budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/protein-domain-budgets.json').read_text())
 
 def case(name, args, expect):
+    ceiling = (budgets[name][1] * 115 + 99) // 100
     (cases/(name+'.yaml')).write_text(json.dumps({'feature':'protein-domains-complexes',
         'story':'A caller reads native protein source facts with exact participant admission',
-        'replay':str((output/'replay').resolve()), 'steps':[{'run':args, 'mcp':args, 'expect':expect}]}))
+        'replay':str((output/'replay').resolve()), 'steps':[{'run':args, 'mcp':args, 'expect':expect, 'max_bytes':ceiling, 'max_tokens':(ceiling+3)//4}]}))
 
 for accession, total in [('P15056',11),('P04637',9),('Q8N726',1)]:
     case('domains-'+accession,['protein','domains',accession],{'/status':'complete','/result/native_total':total,'/page/total':total,'/page/returned':min(5,total)})

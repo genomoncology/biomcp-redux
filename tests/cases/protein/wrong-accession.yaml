@@ -14,7 +14,9 @@
       "expect": {
         "/status": "failed",
         "/problems/0/source": "uniprot"
-      }
+      },
+      "max_bytes": 462,
+      "max_tokens": 116
     },
     {
       "run": [
@@ -26,7 +28,9 @@
       "exit": 4,
       "expect": {
         "/status": "failed"
-      }
+      },
+      "max_bytes": 447,
+      "max_tokens": 112
     }
   ]
 }

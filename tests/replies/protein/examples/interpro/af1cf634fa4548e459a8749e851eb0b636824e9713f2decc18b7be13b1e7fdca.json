@@ -1,0 +1,39 @@
+{
+  "method": "GET",
+  "source": "interpro",
+  "url": "https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P00533/?page_size=25",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "count": 1,
+          "next": null,
+          "results": [
+            {
+              "metadata": {
+                "accession": "IPR002117",
+                "name": "Synthetic source domain",
+                "source_database": "interpro",
+                "type": "domain",
+                "member_databases": {}
+              },
+              "proteins": [
+                {
+                  "accession": "p00533",
+                  "protein_length": 6,
+                  "organism": "9606",
+                  "entry_protein_locations": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

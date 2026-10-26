@@ -1,0 +1,280 @@
+{
+  "feature": "protein-docs-accounting",
+  "live_check": "synthetic control",
+  "story": "Protein relation help examples parse and return source facts through CLI and MCP.",
+  "replay": "protein/examples",
+  "steps": [
+    {
+      "run": [
+        "protein",
+        "features",
+        "P00533"
+      ],
+      "mcp": [
+        "protein",
+        "features",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 725,
+      "max_tokens": 182
+    },
+    {
+      "run": [
+        "protein",
+        "features",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "protein",
+        "features",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 725,
+      "max_tokens": 182
+    },
+    {
+      "run": [
+        "protein",
+        "domains",
+        "P00533"
+      ],
+      "mcp": [
+        "protein",
+        "domains",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 672,
+      "max_tokens": 168
+    },
+    {
+      "run": [
+        "protein",
+        "domains",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "protein",
+        "domains",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 672,
+      "max_tokens": 168
+    },
+    {
+      "run": [
+        "protein",
+        "isoforms",
+        "P00533"
+      ],
+      "mcp": [
+        "protein",
+        "isoforms",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 487,
+      "max_tokens": 122
+    },
+    {
+      "run": [
+        "protein",
+        "isoforms",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "protein",
+        "isoforms",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 487,
+      "max_tokens": 122
+    },
+    {
+      "run": [
+        "protein",
+        "complexes",
+        "P00533"
+      ],
+      "mcp": [
+        "protein",
+        "complexes",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 776,
+      "max_tokens": 194
+    },
+    {
+      "run": [
+        "protein",
+        "complexes",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "protein",
+        "complexes",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 776,
+      "max_tokens": 194
+    },
+    {
+      "run": [
+        "protein",
+        "complex-members",
+        "P00533",
+        "--complex",
+        "CPX-715"
+      ],
+      "mcp": [
+        "protein",
+        "complex-members",
+        "P00533",
+        "--complex",
+        "CPX-715"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 682,
+      "max_tokens": 171
+    },
+    {
+      "run": [
+        "protein",
+        "complex-members",
+        "P00533",
+        "--complex",
+        "CPX-715",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "protein",
+        "complex-members",
+        "P00533",
+        "--complex",
+        "CPX-715",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 682,
+      "max_tokens": 171
+    },
+    {
+      "run": [
+        "protein",
+        "structures",
+        "P00533"
+      ],
+      "mcp": [
+        "protein",
+        "structures",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 458,
+      "max_tokens": 115
+    },
+    {
+      "run": [
+        "protein",
+        "structures",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "protein",
+        "structures",
+        "P00533",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 458,
+      "max_tokens": 115
+    },
+    {
+      "run": [
+        "protein",
+        "sequence",
+        "P00533"
+      ],
+      "mcp": [
+        "protein",
+        "sequence",
+        "P00533"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 255,
+      "max_tokens": 64
+    },
+    {
+      "run": [
+        "protein",
+        "sequence",
+        "P00533",
+        "--fresh"
+      ],
+      "mcp": [
+        "protein",
+        "sequence",
+        "P00533",
+        "--fresh"
+      ],
+      "expect": {
+        "/status": "complete"
+      },
+      "max_bytes": 255,
+      "max_tokens": 64
+    }
+  ]
+}

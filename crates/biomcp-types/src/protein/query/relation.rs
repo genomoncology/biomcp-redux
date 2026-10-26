@@ -65,25 +65,25 @@ relation!(ProteinFeaturesQuery, FeatureFields, "FeatureFields", {
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     feature_type: Option<Text>
-}, "Native UniProt features filtered by exact native label and residue.",
+}, "Page five native UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.",
 |v: &FeatureFields| v.position.is_none() || !v.accession.as_str().contains('-'));
 relation!(ProteinDomainsQuery, DomainFields, "DomainFields", {
     /// Exact native InterPro type, not a normalized domain label.
     #[serde(default, rename = "type", deserialize_with = "present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     entry_type: Option<Text>
-}, "Native InterPro matches; no position selector exists.");
+}, "Page five native InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.");
 relation!(
     ProteinRelationQuery,
     RelationFields,
     "RelationFields",
     {},
-    "An unfiltered source-owned isoform, complex or structure page."
+    "Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs."
 );
 relation!(ProteinComplexMembersQuery, MemberFields, "MemberFields", {
     /// Exact complex whose native participants contain the anchor.
     complex: ComplexPortalId
-}, "A bounded participant page of one exact containing complex.");
+}, "Page five native participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.");
 impl ProteinFeaturesQuery {
     /// Exact native residue filter.
     pub fn position(&self) -> Option<Position1> {
@@ -106,7 +106,8 @@ impl ProteinComplexMembersQuery {
         &self.0.complex
     }
 }
-/// Direct sequence retrieval accepts only a checked source identity.
+/// Read one complete native sequence for an exact source accession.
+/// No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

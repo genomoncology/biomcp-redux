@@ -238,7 +238,7 @@
     },
     "ProteinComplexMembersQuery": {
       "additionalProperties": false,
-      "description": "A bounded participant page of one exact containing complex.",
+      "description": "Page five native participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.",
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",

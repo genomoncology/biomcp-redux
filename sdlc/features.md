@@ -155,3 +155,5 @@ protein-sections: A caller reads native protein features, alternative products, 
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership. Cases: `crates/biomcp/tests/runner/protein_domains.rs`.
 
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples. Cases: `tests/cases/pathway/help.yaml`.
+
+protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples. Cases: `tests/cases/protein/help.yaml`, `tests/cases/protein/examples.yaml`.

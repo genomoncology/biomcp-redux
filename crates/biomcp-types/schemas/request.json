@@ -601,7 +601,17 @@
         "sequence",
         "all"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native UniProt features.",
+        " Native InterPro entry matches.",
+        " Native alternative products.",
+        " Exact participant-admitted complex headers.",
+        " Native structure cross-reference links.",
+        " One whole native function text record with all source paragraphs.",
+        " Direct exact-identity sequence and audit metadata.",
+        " Bounded first page of every named section."
+      ]
     },
     "RecurrenceSource": {
       "description": "Source requiring explicit study, profile and sample set.",
@@ -1348,7 +1358,7 @@
           "x-positional": 0
         },
         "section": {
-          "description": "Only requested sections disclose their full content.",
+          "description": "Select native sections or all bounded first pages; function keeps one whole text record.",
           "items": {
             "$ref": "#/$defs/ProteinSection"
           },

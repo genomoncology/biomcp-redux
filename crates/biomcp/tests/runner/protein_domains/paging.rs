@@ -3,6 +3,7 @@ pub(super) fn run() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", reply)?;
     let env = setup(&stub)?;
     let first = call(&env, &["protein", "domains", "P00533"], 0)?;
+    super::super::protein_budgets::check(&first, "synthetic-domain-walk/first", "cli")?;
     let pool = first.pointer("/page/pool").cloned().ok_or("domain pool")?;
     if first.pointer("/page/total") != Some(&json!(26)) {
         return Err("source next pointer lost".into());
@@ -19,6 +20,11 @@ pub(super) fn run() -> Result<(), String> {
             pool.get("id").and_then(Value::as_str).ok_or("pool id")?,
         ],
         2,
+    )?;
+    super::super::protein_budgets::check(
+        &mismatch,
+        "synthetic-domain-walk/mismatched-type",
+        "cli",
     )?;
     if mismatch.pointer("/error/code") != Some(&json!("usage.pool_mismatch")) {
         return Err("source pool ignored type selection".into());
@@ -40,6 +46,17 @@ pub(super) fn run() -> Result<(), String> {
         let next = super::super::action(&value, "page")?;
         let words: Vec<_> = next.iter().map(String::as_str).collect();
         value = call(&env, &words, 0)?;
+        super::super::protein_budgets::check(
+            &value,
+            &format!(
+                "synthetic-domain-walk/offset-{}",
+                value
+                    .pointer("/page/offset")
+                    .and_then(Value::as_u64)
+                    .ok_or("offset")?
+            ),
+            "cli",
+        )?;
         if value.pointer("/page/pool") != Some(&pool) {
             return Err("domain continuation renewed source snapshot".into());
         }
