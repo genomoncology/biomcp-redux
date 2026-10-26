@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+mkdir -p "$HOME/job-evidence"
 capture_parent=$(mktemp -d "$HOME/job-evidence/biomcp-redux-0221.XXXXXX")
 python3 scripts/source_capture.py --plan scripts/study_files_capture.json --out "$capture_parent/native"
 ssh yellow 'mkdir -p /home/ian/workspace/data/biomcp-redux/0221-study-files'
