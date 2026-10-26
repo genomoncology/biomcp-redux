@@ -31,7 +31,7 @@ const SHAPES: &[Shape] = &[
             "biomcp get pathway R-HSA-5673001 genes",
             "biomcp get pathway R-HSA-5673001 events",
         ],
-        max_bytes: 832,
+        max_bytes: 710,
     },
     Shape {
         args: &["get", "pathway", "R-HSA-5673001", "summary"],
