@@ -49,7 +49,7 @@ fn seed(cx: &Connection) -> Check {
         INSERT INTO meta VALUES ('foreign-owner',77);")?;
     Ok(())
 }
-fn count(cx: &Connection, table: &str) -> Check<u64> {
+fn count(cx: &Connection, table: &str) -> Check<i64> {
     Ok(cx.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))?)
 }
 fn clean() -> Check {
@@ -145,14 +145,14 @@ fn publish() -> Check {
     cx.execute_batch("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<150) INSERT INTO pool SELECT 'expired-'||x,x'04',0,0,0,'[]' FROM n;")?;
     let reader = Connection::open(state.join("replay.sqlite"))?;
     reader.execute_batch("BEGIN")?;
-    let live: u64 =
+    let live: i64 =
         reader.query_row("SELECT count(*) FROM pool_item WHERE pool=?1", [id], |r| {
             r.get(0)
         })?;
     let mut fresh = args.to_vec();
     fresh.push("--fresh");
     run(&env, &fresh)?;
-    let remaining: u64 = cx.query_row("SELECT count(*) FROM pool WHERE expires=0", [], |r| {
+    let remaining: i64 = cx.query_row("SELECT count(*) FROM pool WHERE expires=0", [], |r| {
         r.get(0)
     })?;
     if remaining != 51
@@ -162,7 +162,7 @@ fn publish() -> Check {
     {
         return Err("publish did not bound cleanup or retained replies incorrectly".into());
     }
-    let after: u64 =
+    let after: i64 =
         reader.query_row("SELECT count(*) FROM pool_item WHERE pool=?1", [id], |r| {
             r.get(0)
         })?;
@@ -176,7 +176,7 @@ fn publish() -> Check {
     if retained.pointer("/result/items") != first.pointer("/result/items") {
         return Err("publish changed live pool page".into());
     }
-    let orphans: u64 = cx.query_row(
+    let orphans: i64 = cx.query_row(
         "SELECT count(*) FROM pool_item i LEFT JOIN pool p ON p.id=i.pool WHERE p.id IS NULL",
         params![],
         |r| r.get(0),

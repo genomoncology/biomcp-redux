@@ -53,3 +53,18 @@ pub(super) fn help_command() -> Command {
     }
     help
 }
+
+pub(super) fn help_source(matches: &clap::ArgMatches) -> Result<biomcp_types::Source, ()> {
+    matches
+        .subcommand()
+        .filter(|(name, _)| *name == "key")
+        .and_then(|(_, m)| m.get_one::<String>("source"))
+        .map_or(Ok(biomcp_types::Source::Oncokb), |s| {
+            if s == "ncbi" {
+                Ok(biomcp_types::Source::PubMed)
+            } else {
+                s.parse()
+            }
+        })
+        .map_err(|_| ())
+}

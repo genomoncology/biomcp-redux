@@ -222,19 +222,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     } else if verb == "health" {
         Action::Health
     } else if verb == "help" {
-        let source = matches
-            .subcommand()
-            .filter(|(name, _)| *name == "key")
-            .and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biomcp_types::Source::Oncokb), |s| {
-                if s == "ncbi" {
-                    Ok(biomcp_types::Source::PubMed)
-                } else {
-                    s.parse()
-                }
-            })
-            .map_err(|_| ())?;
-        Action::KeyHelp(source)
+        Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {
