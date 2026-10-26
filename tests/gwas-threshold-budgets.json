@@ -1,0 +1,42 @@
+{
+  "pubmed-all-first": [
+    2648,
+    2524
+  ],
+  "pubmed-all-last": [
+    2347,
+    2223
+  ],
+  "pubmed-below-first": [
+    760,
+    636
+  ],
+  "pubmed-crossing": [
+    801,
+    677
+  ],
+  "study-all-first": [
+    2651,
+    2527
+  ],
+  "study-all-last": [
+    2348,
+    2224
+  ],
+  "study-below-first": [
+    761,
+    637
+  ],
+  "study-crossing": [
+    802,
+    678
+  ],
+  "pubmed-crossing-first": [
+    2648,
+    2524
+  ],
+  "study-crossing-first": [
+    2651,
+    2527
+  ]
+}

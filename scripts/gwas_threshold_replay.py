@@ -20,6 +20,12 @@ def case(root, name, args, first_count, first_total, second_count=None, second_t
         follow.pop('mcp')
         follow['follow'] = 'page'
         steps.append(follow)
+    budgets = json.loads((Path(__file__).resolve().parent.parent / 'tests/gwas-threshold-budgets.json').read_text())
+    first_key = name.split('-')[0] + '-crossing-first'
+    for index, item in enumerate(steps):
+        measured = budgets[first_key if index == 0 and len(steps) > 1 else name][1]
+        cap = (measured * 115 + 99) // 100
+        item.update(max_bytes=cap, max_tokens=(cap + 3) // 4)
     write(root / 'fixtures/gwas-threshold-cases' / f'{name}.yaml', {
         'feature': 'gwas-search', 'story': name,
         'live_check': 'retained restricted source replies outside Git',
@@ -43,12 +49,13 @@ def main():
     for selector, value in [('pubmed', '17529967'), ('study', 'GCST000035')]:
         for label, threshold, count, total, second, final in [
             ('crossing', '1e-15', 3, None, 0, 3),
+            ('crossing-first', '1e-15', 3, None, None, None),
             ('all-first', '1e0', 3, None, None, None),
             ('all-last', '1e0', 3, None, 3, 6),
             ('below-first', '1e-100', 0, 0, None, None)]:
             args = ['search', 'gwas', f'--{selector}', value, '--p-value', threshold]
             case(root, f'{selector}-{label}', args, count, total, second, final)
-    print('Prepared eight threshold cases from four retained pages; zero source requests')
+    print('Prepared ten threshold cases from four retained pages; zero source requests')
 
 
 if __name__ == '__main__':
