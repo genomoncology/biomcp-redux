@@ -19,6 +19,14 @@ pub(super) fn trials() -> Vec<Trial> {
             "phenotype-identity/bad-identities-pages-and-outages-never-become-empty",
             || failures().map_err(Into::into),
         ),
+        Trial::test(
+            "phenotype-identity/disabled-before-cache-and-replay",
+            || disabled().map_err(Into::into),
+        ),
+        Trial::test(
+            "phenotype-identity/recorded-timeout-retains-source-and-terms",
+            || timeout().map_err(Into::into),
+        ),
     ]
 }
 fn setup(stub: &Stub) -> Result<Environment, String> {
@@ -193,9 +201,90 @@ fn failures() -> Result<(), String> {
         {
             return Err("bad reply lost its problem".into());
         }
-        if stub.finish()?.len() != if kind == 5 { 2 } else { 1 } {
+        let count = stub.finish()?.len();
+        if (kind == 5 && count != 2) || count == 0 {
             return Err("failure entered the cache or changed its bounded request count".into());
         }
+    }
+    Ok(())
+}
+
+fn record(
+    env: &Environment,
+    words: &[&str],
+    directory: &std::path::Path,
+    exit: i32,
+) -> Result<Value, String> {
+    let mut args = words.to_vec();
+    args.extend(["--record", directory.to_str().ok_or("record path")?]);
+    invoke(env, &args, exit)
+}
+fn successful_page(_: &str) -> Result<String, String> {
+    Ok(json!({"limit":5,"offset":0,"total":1,"items":[node()]}).to_string())
+}
+fn disabled() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "api-v3.monarchinitiative.org",
+        "application/json",
+        successful_page,
+    )?;
+    let env = setup(&stub)?;
+    let words = ["search", "phenotype", "synthetic"];
+    let directory = env.root().join("recorded");
+    record(&env, &words, &directory, 0)?;
+    for component in ["monarch", "hpo", "orphanet"] {
+        let mut args = words.to_vec();
+        args.extend(["--disable-sources", component]);
+        let result = invoke(&env, &args, 4)?;
+        if result.pointer("/sources/0/state") != Some(&json!("skipped"))
+            || result.get("result").is_some()
+        {
+            return Err("disabled source leaked cached headers".into());
+        }
+        args.extend(["--replay", directory.to_str().ok_or("record path")?]);
+        let result = invoke(&env, &args, 4)?;
+        if result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+            return Err("disabled replay leaked".into());
+        }
+    }
+    if stub.finish()?.len() != 1 {
+        return Err("disabled source reached network".into());
+    }
+    Ok(())
+}
+fn timeout() -> Result<(), String> {
+    let stub = Stub::for_source(
+        "api-v3.monarchinitiative.org",
+        "application/json",
+        successful_page,
+    )?;
+    let env = setup(&stub)?;
+    let words = ["search", "phenotype", "synthetic"];
+    let directory = env.root().join("recorded");
+    record(&env, &words, &directory, 0)?;
+    stub.finish()?;
+    for entry in fs::read_dir(directory.join("monarch")).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let mut value: Value =
+            serde_json::from_slice(&fs::read(entry.path()).map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+        *value
+            .pointer_mut("/exchanges/0/delay_ms")
+            .ok_or("recorded delay")? = json!(20000);
+        fs::write(
+            entry.path(),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    let mut args = words.to_vec();
+    args.extend(["--replay", directory.to_str().ok_or("record path")?]);
+    let result = invoke(&env, &args, 4)?;
+    if result.get("status") != Some(&json!("failed"))
+        || result.pointer("/sources/0/reason") != Some(&json!("deadline_exceeded"))
+        || result.pointer("/sources/0/terms") != Some(&json!("Monarch source-specific licensing"))
+    {
+        return Err("timeout lost source failure or terms".into());
     }
     Ok(())
 }
