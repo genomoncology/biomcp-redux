@@ -84,7 +84,10 @@ fn compared(
     for (surface, actual) in [("cli", &value), ("mcp", &mcp)] {
         let bytes = serde_json::to_vec(actual).map_err(|e| e.to_string())?.len()
             + usize::from(surface == "cli");
-        let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
+        let _ = writeln!(
+            std::io::stderr(),
+            "CELL_LINE_MEASURE {phase} [{surface}] {bytes}"
+        );
         if !measure {
             budget(phase, surface, actual)?;
         }
@@ -111,7 +114,10 @@ fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
 fn budget(phase: &str, surface: &str, value: &Value) -> Result<(), String> {
     let bytes =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
-    let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
+    let _ = writeln!(
+        std::io::stderr(),
+        "CELL_LINE_MEASURE {phase} [{surface}] {bytes}"
+    );
     if bytes > ceiling(phase, surface)? {
         return Err(format!(
             "{phase} [{surface}] exceeds measured output budget"
@@ -209,7 +215,11 @@ fn markdown(
         return Err("native Markdown failed".into());
     }
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-    let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [markdown] {}", text.len());
+    let _ = writeln!(
+        std::io::stderr(),
+        "CELL_LINE_MEASURE {phase} [markdown] {}",
+        text.len()
+    );
     if !measure && text.len() > ceiling(phase, "markdown")? {
         return Err("native Markdown exceeds measured output cap".into());
     }
@@ -232,7 +242,8 @@ fn markdown(
     if let Some(warning) = result
         .pointer("/warnings/items/0/text")
         .and_then(Value::as_str)
-        && !unescaped.contains(warning) {
+        && !unescaped.contains(warning)
+    {
         return Err("Markdown shortened qualified warning".into());
     }
     let actions = value

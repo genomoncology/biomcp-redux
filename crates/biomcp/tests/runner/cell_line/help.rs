@@ -1,5 +1,5 @@
-use std::io::Write;
 use super::*;
+use std::io::Write;
 pub(super) fn run(measure: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     for verb in ["search", "get"] {
@@ -13,7 +13,10 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
             let phase = format!("help/{verb}");
             let bytes = serde_json::to_vec(output).map_err(|e| e.to_string())?.len()
                 + usize::from(surface == "cli");
-            let _ = writeln!(std::io::stderr(), "CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
+            let _ = writeln!(
+                std::io::stderr(),
+                "CELL_LINE_MEASURE {phase} [{surface}] {bytes}"
+            );
             if !measure {
                 budget(&phase, surface, output)?;
             }
@@ -29,7 +32,8 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
             return Err("Markdown help failed".into());
         }
         let markdown = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-        let _ = writeln!(std::io::stderr(), 
+        let _ = writeln!(
+            std::io::stderr(),
             "CELL_LINE_MEASURE help/{verb} [markdown] {}",
             markdown.len()
         );
