@@ -134,6 +134,7 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
                 return Err(format!("absent {from} invented"));
             }
         }
+        qualifiers(row, mapped)?;
         if mapped["requested_id"] != "HP:0001250" {
             return Err("requested HP identity changed".into());
         }
@@ -159,4 +160,22 @@ fn verify(expected: &Value, value: &Value) -> Result<(), String> {
 }
 fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
     row[key].as_str().ok_or_else(|| format!("missing {key}"))
+}
+
+fn qualifiers(raw:&Value,mapped:&Value)->Result<(),String> {
+    let expected=["frequency_qualifier","onset_qualifier","sex_qualifier","disease_context_qualifier","species_context_qualifier","stage_qualifier"];
+    let rows=mapped["qualifiers"].as_array().ok_or("mapped qualifiers")?;
+    for field in expected {
+        let source=raw.get(field).filter(|v|!v.is_null());
+        let selected=rows.iter().find(|r|r["field"]==field);
+        match (source,selected) {
+            (Some(id),Some(row)) if row.get("id")==Some(id) => {
+                let label=raw.get(format!("{field}_label")).filter(|v|!v.is_null());
+                if row.get("label")!=label {return Err(format!("native {field} label moved"));}
+            }
+            (None,None)=>(),
+            _=>return Err(format!("native {field} moved or changed")),
+        }
+    }
+    Ok(())
 }

@@ -2,7 +2,7 @@
 use super::{empty, overall, problem, recovery, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
-use biomcp_types::{DiseaseGet, GeneGet, GeneInput, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection, QueryBody, Request, Source, StepKind};
+use biomcp_types::{DiseaseGet, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection, QueryBody, Request, Source, StepKind};
 pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -39,11 +39,7 @@ fn pivots(out: &mut Outcome, q: &PhenotypeGet, rows: &[biomcp_types::DiseaseAsso
         let Some(id) = &row.association.subject.id else { continue; };
         let id = id.to_string();
         let request = if q.section() == Some(PhenotypeSection::Genes) {
-            let checked = match GeneInput::new(&id) {
-                Ok(input @ (GeneInput::HgncId(_) | GeneInput::EnsemblId(_) | GeneInput::EntrezId(_))) => Some(input),
-                _ => id.strip_prefix("NCBIGene:").and_then(|v| v.parse::<biodata::NcbiGeneId>().ok()).map(GeneInput::EntrezId),
-            };
-            checked.and_then(|input| GeneGet::new(vec![input].into()).ok()).map(Request::GetGene)
+            crate::disease::monarch::gene_query(&id).map(Request::GetGene)
         } else {
             biomcp_adapters::mydisease::supported_id(&id).then(|| id.parse::<biodata::Curie>().ok()).flatten().and_then(|id| DiseaseGet::from_id(id).ok()).map(Request::GetDisease)
         };
