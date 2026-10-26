@@ -59,7 +59,7 @@ pub(super) fn selectors() -> Result<(), String> {
         let url = url(&p);
         let args = [vec!["search", "gwas"], args].concat();
         let replay = seed(&env, &args, body(&url, 0, 6), 200, 0)?;
-        let v = call(&env, &replay, &args, 0)?;
+        let v = call("gwas_search/wire/selectors/1", &env, &replay, &args, 0)?;
         if v.pointer("/result/items/0/id") != Some(&json!(6110))
             || v.pointer("/query/query/order") != Some(&json!("p_value,asc"))
         {
@@ -90,6 +90,7 @@ pub(super) fn paging() -> Result<(), String> {
         0,
     )?;
     let first = call(
+        "gwas_search/wire/paging/1",
         &env,
         &replay,
         &["search", "gwas", "--pubmed", "17529967"],
@@ -115,13 +116,14 @@ pub(super) fn paging() -> Result<(), String> {
         .iter()
         .map(|v| v.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
-    let second = call(&env, &replay, &args, 0)?;
+    let second = call("gwas_search/wire/paging/2", &env, &replay, &args, 0)?;
     if second.pointer("/result/items/0/id") != Some(&json!(6113))
         || second.pointer("/page/offset") != Some(&json!(3))
     {
         return Err(format!("native page: {second}"));
     }
     let between = call(
+        "gwas_search/wire/paging/3",
         &env,
         &replay,
         &["search", "gwas", "--pubmed", "17529967", "--offset", "1"],
@@ -169,7 +171,8 @@ pub(super) fn surfaces() -> Result<(), String> {
     {
         return Err(format!("Markdown lost source facts: {text}"));
     }
-    let help = invoke(
+    let help = gwas_budgets::invoke(
+        "gwas_search/wire/surfaces/1",
         &env,
         ["help", "search", "gwas"].map(str::to_owned).to_vec(),
         0,
@@ -195,18 +198,18 @@ pub(super) fn warm() -> Result<(), String> {
     let args = ["search", "gwas", "--pubmed", "17529967"]
         .map(str::to_owned)
         .to_vec();
-    let first = invoke(&env, args.clone(), 0)?;
-    let second = invoke(&env, args.clone(), 0)?;
+    let first = gwas_budgets::invoke("gwas_search/wire/warm/1", &env, args.clone(), 0)?;
+    let second = gwas_budgets::invoke("gwas_search/wire/warm/2", &env, args.clone(), 0)?;
     if first != second {
         return Err("warm page changed source assertions".into());
     }
     let mut fresh = args.clone();
     fresh.push("--fresh".into());
-    invoke(&env, fresh, 0)?;
+    gwas_budgets::invoke("gwas_search/wire/warm/3", &env, fresh, 0)?;
     for source in ["gwas", "restricted"] {
         let mut disabled = args.clone();
         disabled.extend(["--disable-sources".into(), source.into()]);
-        let disabled = invoke(&env, disabled, 4)?;
+        let disabled = gwas_budgets::invoke("gwas_search/wire/warm/4", &env, disabled, 4)?;
         if disabled.pointer("/sources/0/reason") != Some(&json!("disabled")) {
             return Err("warm source policy was bypassed".into());
         }

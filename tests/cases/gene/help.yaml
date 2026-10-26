@@ -27,7 +27,7 @@
           ]
         }
       },
-      "max_bytes": 88058
+      "max_bytes": 88743
     },
     {
       "run": [
@@ -246,5 +246,5 @@
       }
     }
   ],
-  "verified": "j13144 measured whole-tree stdout at 55079 UTF-8 bytes. The ceiling follows the standing actual-plus-fifteen-percent rule. Existing unrelated entity bounds remain unchanged."
+  "verified": "j14984 measured whole-tree stdout at 77167 UTF-8 bytes after composing GWAS and study help. The ceiling follows the standing measured-size-plus-fifteen-percent rule."
 }

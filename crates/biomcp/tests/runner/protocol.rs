@@ -188,7 +188,7 @@ fn validation() -> Check {
 
 fn concurrent() -> Check {
     let ids = [json!("one"), json!(2), json!("three"), json!(4)];
-    let frames: Vec<_> = ids
+    let mut frames: Vec<_> = ids
         .iter()
         .map(|id| {
             request(
@@ -198,9 +198,26 @@ fn concurrent() -> Check {
             )
         })
         .collect();
-    let replies = exchange(&environment()?, &frames)?;
-    if replies.len() != ids.len() {
+    frames.push(request(
+        json!("gwas"),
+        "tools/call",
+        json!({"name":"biomcp",
+        "arguments":{"args":["search","gwas","--pubmed","17529967"]}}),
+    ));
+    let env = environment()?;
+    let replay = super::launch::fixtures().join("replies/gwas/synthetic");
+    let replies =
+        super::mcp::exchange_with_globals(&env, &frames, &env.globals(Some(&replay), false))?;
+    if replies.len() != ids.len() + 1 {
         return Err("EOF failed to drain accepted calls".into());
+    }
+    if reply(&replies, &json!("gwas"))?.pointer("/result/structuredContent/result/items/0/id")
+        != Some(&json!(6110))
+    {
+        return Err("concurrent GWAS cache-writing call failed".into());
+    }
+    if !env.root().join("case-cache/replay.sqlite").is_file() {
+        return Err("GWAS call did not write its owned cache".into());
     }
     for id in ids {
         let result = reply(&replies, &id)?
@@ -350,6 +367,9 @@ fn discovery() -> Check {
 }
 
 const DISCOVERY_WORDS: &[&str] = &[
+    "search study --cancer-type --limit --offset --pool",
+    "get study --section-limit --section-offset sections: profiles|sample-lists|files|all",
+    "sync cbioportal-studies",
     "protein",
     "civic",
     "clingen",
@@ -426,7 +446,10 @@ const DISCOVERY_WORDS: &[&str] = &[
     "predict",
     "conservation",
     "cosmic",
-    "gwas",
+    "search gwas --extended-geneset --gene --include-child-traits --limit --offset --p-value --pool --pubmed query --study --trait --trait-id --variant",
+    "get gwas id section --section-limit --section-offset --snapshot",
+    "default p-value-ascending; --p-value requires this order",
+    "no personal risk, causal variant/gene or clinical statistic interpretation",
     "hotspots",
 ];
 
@@ -434,7 +457,8 @@ fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
     // Keep discovery compact; detailed options live in generated command help.
-    if text.len() > 2311 {
+    // j14984 measured the composed GWAS/study discovery at 2750 bytes.
+    if text.len() > 3163 {
         return Err("command description exceeds budget".into());
     }
     for &word in DISCOVERY_WORDS {

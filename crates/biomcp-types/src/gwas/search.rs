@@ -12,7 +12,7 @@ biodata::wire_enum! {
 fn order() -> GwasOrder {
     GwasOrder::PValueAscending
 }
-/// Checked association search selectors with native conjunction semantics.
+/// Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

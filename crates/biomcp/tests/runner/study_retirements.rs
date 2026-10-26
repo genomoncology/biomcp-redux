@@ -75,8 +75,20 @@ fn boundaries() -> Check {
     check("study query -- --chart", CALCULATE)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::seed(&env, super::rows(), 200)?;
-    super::call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
-    let value = super::call(&env, &replay, &["search", "study", "--", "--chart"], 0)?;
+    super::call(
+        &env,
+        &replay,
+        &["sync", "cbioportal-studies"],
+        0,
+        "retirements/boundaries/1",
+    )?;
+    let value = super::call(
+        &env,
+        &replay,
+        &["search", "study", "--", "--chart"],
+        0,
+        "retirements/boundaries/2",
+    )?;
     if value.get("status") != Some(&json!("complete"))
         || value.pointer("/page/total") != Some(&json!(0))
     {

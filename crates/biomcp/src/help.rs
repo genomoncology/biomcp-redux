@@ -197,6 +197,9 @@ pub(crate) fn tree() -> String {
         }) {
             continue;
         }
+        if command.command == ["sync", "[hgnc|clingen]"] {
+            continue;
+        }
         let mut line = command.command.join(" ");
         // Detailed options belong to help COMMAND; retain search facets
         // required for discovering checked gene and disease searches.
@@ -238,7 +241,9 @@ pub(crate) fn tree() -> String {
                 }
             }
         }
+        gwas_selectors(&command, &mut line);
         diagnostic_selectors(&command, &mut line);
+        study_selectors(&command, &mut line);
         if !command.sections.is_empty() {
             line.push_str(" sections: ");
             line.push_str(
@@ -253,6 +258,30 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn gwas_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "gwas") {
+        for argument in &command.arguments {
+            line.push_str(&format!(" {}", argument.name));
+        }
+        line.push_str("; source associations; no personal risk, causal variant/gene or clinical statistic interpretation");
+        if command.command.first().is_some_and(|word| word == "search") {
+            line.push_str("; default p-value-ascending; --p-value requires this order");
+        }
+    }
+}
+
+fn study_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "study") {
+        for argument in command
+            .arguments
+            .iter()
+            .filter(|arg| arg.position.is_none())
+        {
+            line.push_str(&format!(" {}", argument.name));
+        }
+    }
 }
 
 fn diagnostic_selectors(command: &HelpCommand, line: &mut String) {

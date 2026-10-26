@@ -13,7 +13,12 @@ pub(super) fn run() -> Result<(), String> {
         } else {
             "get gwas"
         };
-        let value = invoke(&env, args.iter().map(|a| (*a).to_owned()).collect(), 2)?;
+        let value = gwas_budgets::invoke(
+            "gwas_search/usage/run/1",
+            &env,
+            args.iter().map(|a| (*a).to_owned()).collect(),
+            2,
+        )?;
         let message = value
             .pointer("/error/message")
             .and_then(Value::as_str)
