@@ -290,7 +290,7 @@ fn admission() -> Check {
     let value = call(
         &env,
         &replay,
-        &["get", "study", "synthetic_0", "sample-lists"],
+        &["get", "study", "synthetic_0", "sample-lists", "--fresh"],
         4,
         "get/admission/2",
     )?;
