@@ -11,6 +11,7 @@ const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json"
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("wikipathways/exact-source-species-before-text-normalization", || exact_species().map_err(Into::into)),
         Trial::test("wikipathways/stale-and-expired-stored-reads", || {
             read_policy().map_err(Into::into)
         }),
@@ -468,5 +469,21 @@ fn read_policy() -> Check {
     {
         return Err(format!("stale stored source: {stale}"));
     }
+    Ok(())
+}
+
+fn exact_species() -> Check {
+    let env=Environment::new().map_err(|e|e.to_string())?;
+    let mut search=catalog(true,false);let mut get=catalog(false,false);
+    for body in [&mut search,&mut get] {
+        *body.pointer_mut("/pathwayInfo/0/species").ok_or("species")?=json!(" Homo sapiens");
+        *body.pointer_mut("/pathwayInfo/1/species").ok_or("species")?=json!("Homo sapiens ");
+    }
+    let replay=seed(&env,search,get,200)?;
+    let receipt=call(&env,&replay,&["sync","wikipathways"],0)?;
+    if receipt.pointer("/result/search/human_rows")!=Some(&json!(10)) || receipt.pointer("/result/get/human_rows")!=Some(&json!(10)){return Err(format!("padded source species counted as exact human: {receipt}"));}
+    let found=call(&env,&replay,&["search","pathway","Atlas","--source","wikipathways"],0)?;
+    if found.pointer("/result/page/total")!=Some(&json!(10)) || found.pointer("/result/items/0/id/id")!=Some(&json!("WP3")){return Err(format!("padded source species admitted: {found}"));}
+    for id in ["WP1","WP2"] {call(&env,&replay,&["get","pathway",id],1)?;}
     Ok(())
 }
