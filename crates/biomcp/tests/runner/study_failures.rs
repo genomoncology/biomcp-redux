@@ -24,8 +24,8 @@ pub(super) fn trials() -> Vec<Trial> {
 fn failure(surface: &str, fault: &str) -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
-    let before = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    call(&env, &replay, &["sync", "cbioportal-studies"], 0, &format!("failures/failure/1/{surface}/{fault}"))?;
+    let before = call(&env, &replay, &["get", "study", "synthetic_0"], 0, &format!("failures/failure/2/{surface}/{fault}"))?;
     let status = fault.parse::<u16>().unwrap_or(200);
     let delay = if fault == "timeout" { 120001 } else { 0 };
     let body = if fault == "broken-json" {
@@ -52,9 +52,9 @@ fn failure(surface: &str, fault: &str) -> Check {
             vec!["get", "study", "synthetic_0", surface]
         }
     };
-    let value = call(&env, &replay, &command, 4)?;
+    let value = call(&env, &replay, &command, 4, &format!("failures/failure/3/{surface}/{fault}"))?;
     failed(&value)?;
-    let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0, &format!("failures/failure/4/{surface}/{fault}"))?;
     bounded_card(&after)?;
     if before != after {
         return Err(format!("{surface}/{fault} changed stored card"));
@@ -110,8 +110,8 @@ fn catalog_recording(
 fn bundle_identity() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env, rows(), 200)?;
-    call(&env, &replay, &["sync", "cbioportal-studies"], 0)?;
-    let before = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    call(&env, &replay, &["sync", "cbioportal-studies"], 0, "failures/bundle_identity/1")?;
+    let before = call(&env, &replay, &["get", "study", "synthetic_0"], 0, "failures/bundle_identity/2")?;
     let mut wrong = rows();
     *wrong
         .pointer_mut("/0/resourceCounts")
@@ -119,7 +119,7 @@ fn bundle_identity() -> Check {
         "resourceId":"synthetic_resource", "displayName":"Synthetic resource", "description":"Synthetic scope mismatch", "resourceType":"metadata", "priority":"1", "openByDefault":true, "cancerStudyIdentifier":"other_study", "sampleCount":1, "patientCount":1
     }]);
     catalog_recording(&env, &replay, &wrong.to_string(), 200, 0)?;
-    let value = call(&env, &replay, &["sync", "cbioportal-studies"], 4)?;
+    let value = call(&env, &replay, &["sync", "cbioportal-studies"], 4, "failures/bundle_identity/3")?;
     failed(&value)?;
     if value.pointer("/sources/0/reason") != Some(&json!("bad_reply"))
         || value
@@ -131,7 +131,7 @@ fn bundle_identity() -> Check {
             "cross-study bundle rejection lost its reason or problem: {value}"
         ));
     }
-    let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0)?;
+    let after = call(&env, &replay, &["get", "study", "synthetic_0"], 0, "failures/bundle_identity/4")?;
     bounded_card(&after)?;
     if before != after {
         return Err("cross-study replacement entered stored catalog".into());
