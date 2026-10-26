@@ -13,6 +13,7 @@ mod diagnostic_510k;
 mod diagnostic_bundles;
 mod diagnostic_cdx;
 mod diagnostic_gtr;
+mod study_catalog;
 mod diagnostic_pma;
 mod diagnostic_registry;
 mod diagnostic_retirements;
