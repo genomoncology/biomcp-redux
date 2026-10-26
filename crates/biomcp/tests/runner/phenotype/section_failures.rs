@@ -1,5 +1,6 @@
 //! Source failures cannot become a successful empty text collection.
-use super::{Stub, invoke, native, record, setup};
+use super::budgets;
+use super::{Stub, invoke, record, setup};
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn run() -> Result<(), String> {
@@ -23,14 +24,20 @@ pub(super) fn run() -> Result<(), String> {
         let env = setup(&stub)?;
         let words = ["get", "phenotype", "HP:0000001", "synonyms"];
         let directory = env.root().join("section-failure");
-        record(&env, &words, &directory, if kind == 4 { 1 } else { 4 })?;
+        record(
+            "section_failures/run/record1",
+            &env,
+            &words,
+            &directory,
+            if kind == 4 { 1 } else { 4 },
+        )?;
         stub.finish()?;
         if kind == 4 {
             delay(&directory)?;
         }
         let mut args = words.to_vec();
         args.extend(["--replay", directory.to_str().ok_or("replay path")?]);
-        let result = invoke(&env, &args, 4)?;
+        let result = invoke("section_failures/run/invoke1", &env, &args, 4)?;
         if result.get("status") != Some(&json!("failed"))
             || result.get("result").is_some()
             || result.pointer("/sources/0/terms").is_none()
@@ -40,7 +47,14 @@ pub(super) fn run() -> Result<(), String> {
                 "section failure lost source or became absence: {result}"
             ));
         }
-        native::mcp(&directory, &words, &result, 4, None)?;
+        budgets::mcp(
+            "section_failures/run/mcp1",
+            &directory,
+            &words,
+            &result,
+            4,
+            None,
+        )?;
     }
     Ok(())
 }

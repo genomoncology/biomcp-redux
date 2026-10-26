@@ -1,5 +1,5 @@
 //! Explicit proof reuses unchanged archived publisher bodies outside Git.
-use super::{Stub, invoke, setup};
+use super::{Stub, raw_invoke, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
@@ -73,7 +73,7 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     } else {
         0
     };
-    let delivered = invoke(&env, &recording, exit)?;
+    let delivered = raw_invoke(&env, &recording, exit)?;
     verify(row, &native, &delivered)?;
     restore_date(
         &directory,
@@ -83,7 +83,7 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     )?;
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("record path")?]);
-    let local = invoke(&env, &replay, exit)?;
+    let local = raw_invoke(&env, &replay, exit)?;
     verify(row, &native, &local)?;
     mcp(
         &directory,

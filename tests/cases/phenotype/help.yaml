@@ -17,13 +17,26 @@
         "/status": "complete",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
+            "text",
+            "--source",
             "--limit",
-            "--offset",
-            "--source"
+            "--offset"
+          ]
+        },
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/description": {
+          "includes": "does not establish a diagnosis"
+        },
+        "/result/commands/0/arguments/*/choices/*": {
+          "includes_all_of": [
+            "hpo",
+            "monarch"
           ]
         }
       },
-      "max_bytes": 971
+      "max_bytes": 100000
     },
     {
       "run": [
@@ -37,9 +50,40 @@
         "phenotype"
       ],
       "expect": {
-        "/status": "complete"
+        "/status": "complete",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/description": {
+          "includes": "Neither establishes a diagnosis"
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id",
+            "--source",
+            "section",
+            "--section-limit",
+            "--section-offset",
+            "--snapshot"
+          ]
+        },
+        "/result/commands/0/arguments/*/choices/*": {
+          "includes_all_of": [
+            "hpo",
+            "monarch"
+          ]
+        },
+        "/result/commands/0/sections/*/word": {
+          "equals": [
+            "synonyms",
+            "xrefs",
+            "hierarchy",
+            "diseases",
+            "genes"
+          ]
+        }
       },
-      "max_bytes": 1674
+      "max_bytes": 100000
     }
   ]
 }

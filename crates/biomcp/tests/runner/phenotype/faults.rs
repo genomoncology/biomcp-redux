@@ -1,5 +1,6 @@
 //! Synthetic failures preserve source outcomes and never admit rejected values.
-use super::{Environment, Stub, invoke, native, setup};
+use super::budgets;
+use super::{Environment, Stub, invoke, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -82,9 +83,16 @@ fn failure(surface: &str, fault: &str) -> Result<(), String> {
     let words = args(surface);
     let mut replay = words.clone();
     replay.extend(["--replay", directory.to_str().ok_or("replay path")?]);
-    let result = invoke(&env, &replay, 4)?;
+    let result = invoke("faults/failure/invoke1", &env, &replay, 4)?;
     failed(&result, source(surface))?;
-    native::mcp(&directory, &words, &result, 4, Some(FAILURE_BYTES))
+    budgets::mcp(
+        "faults/failure/mcp1",
+        &directory,
+        &words,
+        &result,
+        4,
+        Some(FAILURE_BYTES),
+    )
 }
 fn failed(value: &Value, source: &str) -> Result<(), String> {
     if value.get("status") != Some(&json!("failed"))
@@ -127,7 +135,7 @@ fn seed(
     // A rejected synthetic seed still records the checked request without provider I/O.
     let mut words = args(surface);
     words.extend(["--record", directory.to_str().ok_or("record path")?]);
-    invoke(&env, &words, 4)?;
+    invoke("faults/seed/invoke1", &env, &words, 4)?;
     if stub.finish()?.len() != 1 {
         return Err("seed request count".into());
     }
@@ -186,10 +194,17 @@ fn identity(fault: &str) -> Result<(), String> {
     let mut result = Value::Null;
     for n in 0..2 {
         let directory = env.root().join(format!("identity-{n}"));
-        result = super::record(&env, &words, &directory, 4)?;
+        result = super::record("faults/identity/record1", &env, &words, &directory, 4)?;
         failed(&result, source(surface))?;
         if n == 0 {
-            native::mcp(&directory, &words, &result, 4, Some(FAILURE_BYTES))?;
+            budgets::mcp(
+                "faults/identity/mcp1",
+                &directory,
+                &words,
+                &result,
+                4,
+                Some(FAILURE_BYTES),
+            )?;
         }
     }
     if result

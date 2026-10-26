@@ -1,5 +1,6 @@
 //! P24 separates source-local empty, exact absence and source failure.
-use super::{Environment, Stub, invoke, native, record, setup};
+use super::budgets;
+use super::{Environment, Stub, invoke, record, setup};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 const STATE_BYTES: usize = 6000;
@@ -52,12 +53,14 @@ fn states() -> Result<(), String> {
         };
         let directory = env.root().join("state");
         let result = record(
+            "states/states/record1",
             &env,
             &args,
             &directory,
             if kind == "failure" { 4 } else { 1 },
         )?;
-        native::mcp(
+        budgets::mcp(
+            "states/states/mcp1",
             &directory,
             &args,
             &result,
@@ -110,23 +113,30 @@ fn disabled(source: &str) -> Result<(), String> {
     let env = setup(&stub)?;
     let words = ["get", "phenotype", "HP:0000001", "--source", source];
     let directory = env.root().join("warm");
-    record(&env, &words, &directory, 0)?;
+    record("states/disabled/record1", &env, &words, &directory, 0)?;
     let mut args = words.to_vec();
     args.extend(["--fresh", "--disable-sources", source]);
-    let result = invoke(&env, &args, 4)?;
+    let result = invoke("states/disabled/invoke1", &env, &args, 4)?;
     if result.pointer("/sources/0/state") != Some(&json!("skipped"))
         || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
         || result.get("result").is_some()
     {
         return Err(format!("disabled fresh leaked cache: {result}"));
     }
-    native::mcp(&directory, &args, &result, 4, Some(STATE_BYTES))?;
+    budgets::mcp(
+        "states/disabled/mcp1",
+        &directory,
+        &args,
+        &result,
+        4,
+        Some(STATE_BYTES),
+    )?;
     if stub.finish()?.len() != 1 {
         return Err("disabled fresh reached source".into());
     }
     // A new isolated environment also skips without requiring any populated cache.
     let cold = Environment::new().map_err(|e| e.to_string())?;
-    let cold_result: Value = invoke(&cold, &args, 4)?;
+    let cold_result: Value = invoke("states/disabled/invoke2", &cold, &args, 4)?;
     if cold_result.pointer("/sources/0/reason") != Some(&json!("disabled")) {
         return Err("cold disabled source touched cache".into());
     }
@@ -147,11 +157,18 @@ fn short_limit() -> Result<(), String> {
     let env = setup(&stub)?;
     let args = ["search", "phenotype", "synthetic", "-l", "3"];
     let directory = env.root().join("alias");
-    let result = record(&env, &args, &directory, 1)?;
+    let result = record("states/short_limit/record1", &env, &args, &directory, 1)?;
     if result.pointer("/query/limit") != Some(&json!(3)) {
         return Err(format!("short limit lost: {result}"));
     }
-    native::mcp(&directory, &args, &result, 1, Some(STATE_BYTES))?;
+    budgets::mcp(
+        "states/short_limit/mcp1",
+        &directory,
+        &args,
+        &result,
+        1,
+        Some(STATE_BYTES),
+    )?;
     if stub.finish()?.len() != 1 {
         return Err("short limit request count".into());
     }

@@ -309,6 +309,7 @@ fn run_step(
                 .map_err(|error| error.to_string())?;
             registry.validate(&value, args, output.status.success())?;
             pathway_budgets::help(&value, args, "cli")?;
+            phenotype::budgets::case(&value, args, "cli")?;
             assertions::check(&output.stdout, step, expectations)?;
             Ok(value)
         })
@@ -318,6 +319,7 @@ fn run_step(
         let result = mcp::call_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
         pathway_budgets::help(&result, args, "mcp")?;
+        phenotype::budgets::case(&result, args, "mcp")?;
         assertions::check(
             &serde_json::to_vec(&result).map_err(|error| error.to_string())?,
             step,

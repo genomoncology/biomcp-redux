@@ -31,7 +31,7 @@ fn monarch() -> PhenotypeSource {
 fn five() -> u32 {
     5
 }
-/// Literal Monarch HP term search, with no similarity operation.
+/// Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -68,7 +68,7 @@ impl TryFrom<SearchFields> for PhenotypeSearch {
         }
     }
 }
-/// Exact HP term with independently selected source and bounded section.
+/// Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -81,7 +81,7 @@ struct GetFields {
     /// Exact HP identifier.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: HpId,
-    /// HPO for card, synonyms and xrefs; Monarch for other sections.
+    /// HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -108,7 +108,7 @@ struct GetFields {
     /// Native section row offset.
     #[serde(default)]
     section_offset: u32,
-    /// Retained exact source reply for local section pages.
+    /// Retained exact source reply for local text and link pages; unsupported for diseases and genes.
     #[serde(
         default,
         deserialize_with = "crate::query::present",

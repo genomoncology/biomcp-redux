@@ -1,5 +1,5 @@
 //! Unchanged retained reverse association requests prove source rows in both interfaces.
-use super::{Stub, invoke, native, record, setup};
+use super::{Stub, native, raw_invoke, setup};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::io::Write;
@@ -83,7 +83,9 @@ fn prove(
         words.extend(["--section-offset", &offset]);
     }
     let recorded = output.join(format!("record-{index}"));
-    record(env, &words, &recorded, 0)?;
+    let mut recording = words.clone();
+    recording.extend(["--record", recorded.to_str().ok_or("record path")?]);
+    raw_invoke(env, &recording, 0)?;
     native::restore_date(
         &recorded,
         row.get("fetched")
@@ -92,7 +94,7 @@ fn prove(
     )?;
     let mut replay = words.clone();
     replay.extend(["--replay", recorded.to_str().ok_or("recordpath")?]);
-    let value = invoke(env, &replay, 0)?;
+    let value = raw_invoke(env, &replay, 0)?;
     let expected: Value = serde_json::from_slice(
         &fs::read(directory.join(text(row, "body")?)).map_err(|e| e.to_string())?,
     )

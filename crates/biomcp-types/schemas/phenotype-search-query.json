@@ -16,7 +16,7 @@
   "$id": "biomcp.phenotype-search-query/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Literal Monarch HP term search, with no similarity operation.",
+  "description": "Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.",
   "properties": {
     "limit": {
       "default": 5,

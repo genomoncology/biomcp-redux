@@ -358,7 +358,6 @@ fn short_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
     Ok(())
 }
 
-
 fn partial_download(env: &Environment, replay: &Path) -> Check {
     seed(env, catalog(true, true), catalog(false, true), 200)?;
     let path = recording(replay, GET);
