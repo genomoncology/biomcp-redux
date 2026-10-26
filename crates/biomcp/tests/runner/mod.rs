@@ -99,6 +99,7 @@ mod supplement_tables;
 mod trial_condition;
 mod trial_documents;
 mod trial_get;
+mod trial_groups;
 mod trial_sites;
 mod trial_tables;
 mod trial_wider;
@@ -344,7 +345,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
-    trials.extend(drug_trials());
+    trials.extend(trial_groups::drug_trials());
     trials.extend(disease_trials());
 
     trials.extend(source_terms::trials());
@@ -544,47 +545,6 @@ fn trial_trials() -> Vec<Trial> {
     .into_iter()
     .flatten()
     .collect()
-}
-
-fn drug_trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
-    trials.extend(drug_failures::trials());
-    trials.extend(adverse_event_failures::trials());
-    trials.extend(vaers::trials());
-    trials.extend(drug_identity::trials());
-    trials.extend(drug_registry::trials());
-    trials.extend(adverse_event_registry::trials());
-    trials.extend(faers_search::trials());
-    trials.extend(maude::trials());
-    trials.extend(faers_get::trials());
-    trials.extend(diagnostic_registry::trials());
-    trials.extend(diagnostic_retirements::trials());
-    trials.extend(diagnostic_bundles::trials());
-    trials.extend(diagnostic_gtr::trials());
-    trials.extend(diagnostic_who::trials());
-    trials.extend(diagnostic_pma::trials());
-    trials.extend(diagnostic_510k::trials());
-    trials.extend(diagnostic_cdx::trials());
-    trials.extend(pgx_registry::trials());
-    trials.extend(pathway_registry::trials());
-    trials.extend(hpo_registry::trials());
-    trials.extend(protein_registry::trials());
-    trials.extend(pgx_retirements::trials());
-    trials.extend(cpic::trials());
-    trials.extend(clinpgx::trials());
-    trials.extend(drug_retirements::trials());
-    trials.extend(adverse_event_retirements::trials());
-    trials.extend(drug_civic::trials());
-    trials.extend(drug_next::trials());
-    trials.extend(drug_ema::trials());
-    trials.extend(drug_who::trials());
-    trials.extend(drug_ddinter::trials());
-    trials.extend(drug_fda::trials());
-    trials.extend(drug_mychem::trials());
-    trials.extend(drug_native::trials());
-    trials.extend(drug_native_identity::trials());
-    trials.extend(drug_label::trials());
-    trials
 }
 
 pub(super) fn monarch_native(path: &Path) -> Result<(), String> {
