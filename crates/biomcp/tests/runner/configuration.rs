@@ -428,7 +428,9 @@ fn article_owners() -> Check {
             args.extend(["--case-cache".into(), case.to_string_lossy().into()]);
         }
         let result = invoke(&env, args, 5)?;
-        if result.pointer("/error/code") != Some(&json!("local.failure")) {
+        if result.pointer("/error/code") != Some(&json!("local.failure"))
+            || result.get("local_error") != Some(&json!("version"))
+        {
             return Err("wrong owner was not a local configuration error".into());
         }
         let journal = connection
