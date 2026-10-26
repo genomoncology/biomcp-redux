@@ -512,6 +512,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(phenotype::trials())
         .chain(cell_line::trials())
         .chain(author::trials())
+        .chain(orcid::trials())
         .chain(disease_seer::trials())
         .collect()
 }
