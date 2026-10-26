@@ -17,7 +17,7 @@ pub(super) struct Native {
     pub id: WikiPathwaysId,
     url: Text,
     pub name: Text,
-    pub species: Text,
+    pub species: Box<str>,
     pub revision: Text,
     authors: Box<str>,
     pub description: Box<str>,
@@ -45,7 +45,8 @@ impl Row for CatalogRow {
         }
         let mut ids = BTreeSet::new();
         for row in &catalog.rows {
-            if !ids.insert(row.id.as_str())
+            if row.species.trim().is_empty()
+                || !ids.insert(row.id.as_str())
                 || row.url.as_str() != format!("https://www.wikipathways.org/instance/{}", row.id)
                 || row.datanodes.is_some() != row.annotations.is_some()
             {
@@ -60,7 +61,7 @@ impl Row for CatalogRow {
             human_rows: catalog
                 .rows
                 .iter()
-                .filter(|r| r.species.as_str() == "Homo sapiens")
+                .filter(|r| r.species.as_ref() == "Homo sapiens")
                 .count() as u64,
             total_rows: catalog.rows.len() as u64,
         };

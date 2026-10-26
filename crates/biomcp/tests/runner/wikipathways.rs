@@ -11,6 +11,13 @@ const SEARCH: &str = "https://www.wikipathways.org/json/findPathwaysByText.json"
 const GET: &str = "https://www.wikipathways.org/json/getPathwayInfo.json";
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "wikipathways/exact-source-species-before-text-normalization",
+            || exact_species().map_err(Into::into),
+        ),
+        Trial::test("wikipathways/stale-and-expired-stored-reads", || {
+            read_policy().map_err(Into::into)
+        }),
         Trial::test("wikipathways/stored-identity-pages-and-replacement", || {
             run().map_err(Into::into)
         }),
@@ -39,16 +46,23 @@ fn catalog(search: bool, changed: bool) -> Value {
         row
     }).collect::<Vec<_>>()})
 }
-fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<PathBuf, String> {
+fn recording(root: &Path, url: &str) -> PathBuf {
     use sha2::{Digest, Sha256};
+    let key = Sha256::digest(format!("GET\0{url}").as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
+    root.join("wikipathways").join(format!("{key}.json"))
+}
+fn seed(env: &Environment, search: Value, get: Value, status: u16) -> Result<PathBuf, String> {
     let root = env.root().join("replay");
     let dir = root.join("wikipathways");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     for (url, body, code) in [(SEARCH, search, 200), (GET, get, status)] {
-        let key = Sha256::digest(format!("GET\0{url}").as_bytes());
-        let key = key.iter().map(|b| format!("{b:02x}")).collect::<String>();
-        let wire = json!({"source":"wikipathways","method":"GET","url":url,"exchanges":[{"status":code,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]});
-        fs::write(dir.join(format!("{key}.json")), wire.to_string()).map_err(|e| e.to_string())?;
+        let exchange = json!({"status":code,"content_type":"application/json","delay_ms":0,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+        let exchanges = vec![exchange; if code == 500 { 3 } else { 1 }];
+        let wire = json!({"source":"wikipathways","method":"GET","url":url,"exchanges":exchanges});
+        fs::write(recording(&root, url), wire.to_string()).map_err(|e| e.to_string())?;
     }
     Ok(root)
 }
@@ -105,8 +119,13 @@ fn run() -> Check {
 }
 fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
     for fault in [json!({"unexpected":true}), json!({"pathwayInfo":[]})] {
+        let label = fault.to_string();
         seed(env, catalog(true, true), fault, 200)?;
-        call(env, replay, &["sync", "wikipathways"], 4)?;
+        let failed = call(env, replay, &["sync", "wikipathways"], 4)
+            .map_err(|e| format!("catalog fault {label}: {e}"))?;
+        if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+            return Err(format!("validation classification: {failed}"));
+        }
         let retained = call(
             env,
             replay,
@@ -123,6 +142,7 @@ fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
             return Err("failed pair replaced old snapshot".into());
         }
     }
+    partial_download(env, replay)?;
     seed(env, catalog(true, true), catalog(false, true), 500)?;
     call(env, replay, &["sync", "wikipathways"], 4)?;
     seed(env, catalog(true, true), catalog(false, true), 200)?;
@@ -269,7 +289,6 @@ fn short_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
 }
 
 fn concurrent() -> Check {
-    use sha2::{Digest, Sha256};
     use std::{
         process::Stdio,
         time::{Duration, Instant},
@@ -278,11 +297,7 @@ fn concurrent() -> Check {
     let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
     call(&env, &replay, &["sync", "wikipathways"], 0)?;
     seed(&env, catalog(true, true), catalog(false, true), 200)?;
-    let key = Sha256::digest(format!("GET\0{GET}").as_bytes())
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect::<String>();
-    let path = replay.join("wikipathways").join(format!("{key}.json"));
+    let path = recording(&replay, GET);
     let mut reply: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     *reply.pointer_mut("/exchanges/0/delay_ms").ok_or("delay")? = json!(1500);
@@ -363,6 +378,8 @@ fn native() -> Check {
     use std::io::Write;
     let root = super::launch::fixtures().join("cases/wikipathways-native");
     let registry = super::schema::Registry::embedded()?;
+    let outputs = super::launch::fixtures().join("wikipathways-native-outputs");
+    fs::create_dir(&outputs).map_err(|e| e.to_string())?;
     let mut files = fs::read_dir(root)
         .map_err(|e| e.to_string())?
         .map(|e| e.map(|e| e.path()).map_err(|e| e.to_string()))
@@ -372,7 +389,132 @@ fn native() -> Check {
         let value = super::run_case(&path, &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::source_terms::size(&value, "")?;
+        fs::write(
+            outputs
+                .join(path.file_stem().ok_or("case name")?)
+                .with_extension("json"),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(std::io::stdout(),"WIKIPATHWAYS_MEASURE {}",json!({"case":path.file_name().and_then(|n|n.to_str()).ok_or("filename")?,"full_cli_bytes":full+1,"full_mcp_bytes":full,"comparable_cli_bytes":comparable+1,"comparable_mcp_bytes":comparable,"tokens":comparable.div_ceil(4)})).map_err(|e|e.to_string())?;
+    }
+    Ok(())
+}
+
+fn partial_download(env: &Environment, replay: &Path) -> Check {
+    seed(env, catalog(true, true), catalog(false, true), 200)?;
+    let path = recording(replay, GET);
+    let mut value: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    *value.pointer_mut("/exchanges/0/body/value").ok_or("body")? = json!("{\"pathwayInfo\":[");
+    fs::write(path, value.to_string()).map_err(|e| e.to_string())?;
+    let failed = call(env, replay, &["sync", "wikipathways"], 4)?;
+    if failed.pointer("/sources/0/reason") != Some(&json!("bad_reply")) {
+        return Err(format!("partial download: {failed}"));
+    }
+    let retained = call(
+        env,
+        replay,
+        &[
+            "search",
+            "pathway",
+            "Literal Atlas",
+            "--source",
+            "wikipathways",
+        ],
+        0,
+    )?;
+    if retained.pointer("/result/page/total") != Some(&json!(12)) {
+        return Err("partial download replaced accepted catalogs".into());
+    }
+    Ok(())
+}
+fn read_policy() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env, catalog(true, false), catalog(false, false), 200)?;
+    call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    let first = call(
+        &env,
+        &replay,
+        &["search", "pathway", "Atlas", "--source", "wikipathways"],
+        0,
+    )?;
+    let args = first
+        .pointer("/next/5/args")
+        .and_then(Value::as_array)
+        .ok_or("page")?
+        .iter()
+        .map(|v| v.as_str().ok_or("arg"))
+        .collect::<Result<Vec<_>, _>>()?;
+    fs::remove_dir_all(replay.join("wikipathways")).map_err(|e| e.to_string())?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    db.execute("UPDATE trial_snapshot SET expires=0", [])
+        .map_err(|e| e.to_string())?;
+    let expired = call(&env, &replay, &args, 3)?;
+    if expired.pointer("/next/0/kind") != Some(&json!("restart")) {
+        return Err(format!("expired catalog pool: {expired}"));
+    }
+    db.execute_batch("BEGIN; CREATE TEMP TABLE original_content AS SELECT * FROM bundle_content; UPDATE bundle SET fresh_until=0 WHERE name='wikipathways'; INSERT INTO bundle_content SELECT * FROM original_content; COMMIT;").map_err(|e|e.to_string())?;
+    let stale = call(
+        &env,
+        &replay,
+        &[
+            "search",
+            "pathway",
+            "Atlas",
+            "--source",
+            "wikipathways",
+            "--fresh",
+        ],
+        0,
+    )?;
+    if stale.get("status") != Some(&json!("partial"))
+        || stale.pointer("/sources/0/state") != Some(&json!("stale"))
+        || !stale
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|a| a.iter().any(|s| s.get("kind") == Some(&json!("sync"))))
+    {
+        return Err(format!("stale stored source: {stale}"));
+    }
+    Ok(())
+}
+
+fn exact_species() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let mut search = catalog(true, false);
+    let mut get = catalog(false, false);
+    for body in [&mut search, &mut get] {
+        *body
+            .pointer_mut("/pathwayInfo/0/species")
+            .ok_or("species")? = json!(" Homo sapiens");
+        *body
+            .pointer_mut("/pathwayInfo/1/species")
+            .ok_or("species")? = json!("Homo sapiens ");
+    }
+    let replay = seed(&env, search, get, 200)?;
+    let receipt = call(&env, &replay, &["sync", "wikipathways"], 0)?;
+    if receipt.pointer("/result/search/human_rows") != Some(&json!(10))
+        || receipt.pointer("/result/get/human_rows") != Some(&json!(10))
+    {
+        return Err(format!(
+            "padded source species counted as exact human: {receipt}"
+        ));
+    }
+    let found = call(
+        &env,
+        &replay,
+        &["search", "pathway", "Atlas", "--source", "wikipathways"],
+        0,
+    )?;
+    if found.pointer("/result/page/total") != Some(&json!(10))
+        || found.pointer("/result/items/0/id/id") != Some(&json!("WP3"))
+    {
+        return Err(format!("padded source species admitted: {found}"));
+    }
+    for id in ["WP1", "WP2"] {
+        call(&env, &replay, &["get", "pathway", id], 1)?;
     }
     Ok(())
 }
