@@ -1,7 +1,7 @@
 //! Feature phenotype-identity: literal candidates and independent source term cards.
 mod association_native;
 mod associations;
-pub(super) mod budgets;
+mod budgets;
 mod faults;
 mod native;
 mod section_failures;
