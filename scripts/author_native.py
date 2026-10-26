@@ -8,7 +8,7 @@ import source_capture
 
 archives, output = map(Path, sys.argv[1:3])
 kind = sys.argv[3] if len(sys.argv) > 3 else 'all'
-if kind not in ['all', 'orcid', 'author-papers']:
+if kind not in ['all', 'orcid', 'author-papers', 'controls']:
     raise ValueError('unknown native case kind')
 source_capture.outside_git(output.resolve())
 output.mkdir()
@@ -90,3 +90,6 @@ for name, source, indices in [
 import orcid_native
 if kind in ['all', 'orcid']:
     orcid_native.prepare(records, cases, replay.parent)
+
+if kind == 'controls':
+    orcid_native.controls(cases)

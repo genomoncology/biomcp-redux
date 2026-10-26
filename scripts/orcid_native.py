@@ -91,3 +91,27 @@ def save(case, cases, name):
         for field in ['max_bytes', 'max_tokens', 'full_output_bytes']:
             target[field] = source[field]
     (cases / name).write_text(json.dumps(case, indent=2) + '\n')
+
+
+def controls(cases):
+    root = Path(__file__).resolve().parent.parent
+    for source in (root / 'tests/cases/orcid').glob('*.yaml'):
+        case = json.loads(source.read_text())
+        case['replay'] = str(root / 'tests/replies' / case['replay'])
+        (cases / ('control-' + source.name)).write_text(json.dumps(case, indent=2) + '\n')
+    for name, source, indices in [
+        ('papers-help', 'tests/cases/author/papers-help.yaml', [0]),
+        ('search-help', 'tests/cases/author/help.yaml', [0]),
+        ('get-help', 'tests/cases/author/help.yaml', [1]),
+        ('list-help', 'tests/cases/author/help.yaml', [2]),
+        ('whole-help', 'tests/cases/gene/help.yaml', [0]),
+    ]:
+        case = json.loads((root / source).read_text())
+        case['steps'] = [case['steps'][index] for index in indices]
+        case.pop('replay', None)
+        # Measure proposed help metadata before the PM rules its canonical caps.
+        # This staging-only measurement never certifies an existing output ceiling.
+        for step in case['steps']:
+            step['max_bytes'] = None
+            step['max_tokens'] = None
+        (cases / ('measurement-' + name + '.yaml')).write_text(json.dumps(case, indent=2) + '\n')

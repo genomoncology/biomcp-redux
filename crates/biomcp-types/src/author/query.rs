@@ -138,7 +138,7 @@ impl AuthorGet {
         &self.0.ids
     }
 }
-/// One exact provider record's publication window.
+/// One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "PapersFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
