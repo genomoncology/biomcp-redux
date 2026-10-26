@@ -29,7 +29,7 @@ pub(super) struct Node {
     #[serde(skip)]
     xref_seen: bool,
 }
-fn attribute(tag: &BytesStart<'_>, key: &[u8]) -> Result<Option<String>, BadReply> {
+fn attribute(tag: &BytesStart<'_>, key: &str) -> Result<Option<String>, BadReply> {
     let mut found = None;
     for attribute in tag.attributes() {
         let attribute = attribute.map_err(|_| BadReply)?;
@@ -44,23 +44,23 @@ fn attribute(tag: &BytesStart<'_>, key: &[u8]) -> Result<Option<String>, BadRepl
     }
     Ok(found)
 }
-fn required(tag: &BytesStart<'_>, key: &[u8]) -> Result<String, BadReply> {
+fn required(tag: &BytesStart<'_>, key: &str) -> Result<String, BadReply> {
     attribute(tag, key)?
         .filter(|s| !s.is_empty())
         .ok_or(BadReply)
 }
 impl Document {
     fn root(tag: &BytesStart<'_>) -> Result<Self, BadReply> {
-        if tag.name().as_ref() != b"Pathway"
-            || required(tag, b"xmlns")? != NAMESPACE
-            || required(tag, b"Data-Source")? != "WikiPathways"
+        if tag.name().as_ref() != "Pathway"
+            || required(tag, "xmlns")? != NAMESPACE
+            || required(tag, "Data-Source")? != "WikiPathways"
         {
             return Err(BadReply);
         }
         Ok(Self {
-            version: required(tag, b"Version")?,
-            organism: required(tag, b"Organism")?,
-            name: required(tag, b"Name")?,
+            version: required(tag, "Version")?,
+            organism: required(tag, "Organism")?,
+            name: required(tag, "Name")?,
             nodes: Vec::new(),
         })
     }
@@ -140,7 +140,7 @@ impl XmlReply for Document {
                 }
                 Event::End(tag) => {
                     depth = depth.checked_sub(1).ok_or(BadReply)?;
-                    if depth == 1 && tag.name().as_ref() == b"DataNode" {
+                    if depth == 1 && tag.name().as_ref() == "DataNode" {
                         push_node(&mut document, &mut node)?;
                     }
                 }
@@ -152,31 +152,31 @@ impl XmlReply for Document {
     }
 }
 fn read_child(tag: &BytesStart<'_>, depth: usize, node: &mut Option<Node>) -> Result<(), BadReply> {
-    if ((depth == 1 && tag.name().as_ref() == b"DataNode")
-        || (depth == 2 && node.is_some() && tag.name().as_ref() == b"Xref"))
-        && attribute(tag, b"xmlns")?.is_some_and(|namespace| namespace != NAMESPACE)
+    if ((depth == 1 && tag.name().as_ref() == "DataNode")
+        || (depth == 2 && node.is_some() && tag.name().as_ref() == "Xref"))
+        && attribute(tag, "xmlns")?.is_some_and(|namespace| namespace != NAMESPACE)
     {
         return Err(BadReply);
     }
-    if depth == 1 && tag.name().as_ref() == b"DataNode" {
+    if depth == 1 && tag.name().as_ref() == "DataNode" {
         *node = Some(Node {
-            kind: attribute(tag, b"Type")?,
-            id: attribute(tag, b"GraphId")?,
-            label: attribute(tag, b"TextLabel")?,
+            kind: attribute(tag, "Type")?,
+            id: attribute(tag, "GraphId")?,
+            label: attribute(tag, "TextLabel")?,
             namespace: None,
             value: None,
             xref_seen: false,
         });
     } else if depth == 2
-        && tag.name().as_ref() == b"Xref"
+        && tag.name().as_ref() == "Xref"
         && let Some(node) = node
     {
         if node.xref_seen {
             return Err(BadReply);
         }
         node.xref_seen = true;
-        node.namespace = attribute(tag, b"Database")?;
-        node.value = attribute(tag, b"ID")?;
+        node.namespace = attribute(tag, "Database")?;
+        node.value = attribute(tag, "ID")?;
     }
     Ok(())
 }
@@ -186,7 +186,7 @@ fn finish_node(
     document: &mut Option<Document>,
     node: &mut Option<Node>,
 ) -> Result<(), BadReply> {
-    if depth == 1 && tag.name().as_ref() == b"DataNode" {
+    if depth == 1 && tag.name().as_ref() == "DataNode" {
         push_node(document, node)?;
     }
     Ok(())
