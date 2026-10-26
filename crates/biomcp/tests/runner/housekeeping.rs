@@ -57,20 +57,10 @@ fn check() -> Check {
         for client in [None, Some("mcp-servers"), Some("servers"), Some("json")] {
             check_config(&env, client, empty)?;
         }
-        let output = run(
-            &env,
-            &["mcp-config", "--client", "unknown", "--offline"],
-            empty,
-        )?;
-        if output.status.code() != Some(2) {
-            return Err("unknown client was not a usage error".into());
-        }
-        let value: Value = serde_json::from_slice(&output.stdout)?;
-        if value.pointer("/next/0/args") != Some(&json!(["mcp-config", "--client", "mcp-servers"]))
-        {
-            return Err("invalid client omitted the supported replacement command".into());
-        }
+        invalid_client(&env, empty)?;
     }
+    env.config(&json!({"format":"md","keys":{"unknown":"never-read"}}))?;
+    invalid_client(&env, false)?;
     help(&env)?;
     if env.root().join("cache/biomcp").exists() {
         return Err("housekeeping created a cache".into());
@@ -126,6 +116,22 @@ fn help(env: &Environment) -> Check {
         {
             return Err(format!("missing {name} {flag} help: {value}").into());
         }
+    }
+    Ok(())
+}
+
+fn invalid_client(env: &Environment, empty: bool) -> Check {
+    let output = run(
+        env,
+        &["mcp-config", "--client", "unknown", "--offline"],
+        empty,
+    )?;
+    if output.status.code() != Some(2) {
+        return Err("unknown client was not a usage error".into());
+    }
+    let value: Value = serde_json::from_slice(&output.stdout)?;
+    if value.pointer("/next/0/args") != Some(&json!(["mcp-config", "--client", "mcp-servers"])) {
+        return Err("invalid client omitted the supported replacement command".into());
     }
     Ok(())
 }
