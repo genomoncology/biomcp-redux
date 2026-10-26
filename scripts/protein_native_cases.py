@@ -53,6 +53,18 @@ with tarfile.open(archives / 'j14362-native-witnesses.tar.gz') as archive:
 
 
 def case(name, steps):
+    ceilings = {
+        'P00533': [768], 'Q9UIF7': [741], 'P38398-2': [789],
+        'CDKN2A': [1267], 'search-BRAF': [749], 'search-CDKN2A': [1076],
+        'text-pages': [2330, 2250], 'gene-crossrefs': [796, 970],
+    }
+    if len(steps) != len(ceilings[name]):
+        raise ValueError('every native step needs its measured ceiling')
+    for step, ceiling in zip(steps, ceilings[name]):
+        step['max_bytes'] = ceiling
+        step['max_tokens'] = (ceiling + 3) // 4
+        if 'run' in step:
+            step['mcp'] = step['run']
     (output / f'{name}.yaml').write_text(json.dumps({'feature': 'protein-search',
         'story': 'Accepted native protein facts retain exact identities and source ordering',
         'replay': str(replay.parent.resolve()), 'steps': steps}))
@@ -60,7 +72,7 @@ def case(name, steps):
 
 for accession, length in [('P00533', 1210), ('Q9UIF7', 546), ('P38398-2', 63)]:
     args = ['get', 'protein', accession]
-    case(accession, [{'run': args, 'mcp': args, 'max_bytes': 2182, 'expect': {
+    case(accession, [{'run': args, 'mcp': args, 'expect': {
         '/status': 'complete', '/result/items/0/header/protein/accession': accession,
         '/result/items/0/header/protein/length': length}}])
 p00533 = output / 'P00533.yaml'
@@ -81,9 +93,9 @@ for gene, accessions in [('BRAF', ['P15056']), ('CDKN2A', ['P42771', 'Q8N726'])]
         '/next/*/kind': ['disambiguate'] * len(accessions)}}])
 case('text-pages', [
     {'run': ['search', 'protein', 'EGFR'], 'mcp': ['search', 'protein', 'EGFR'],
-     'max_bytes': 6500, 'expect': {'/status': 'complete', '/page/total': 399,
+     'expect': {'/status': 'complete', '/page/total': 399,
         '/result/items/*/protein/accession': ['P00533', 'Q86T13', 'Q9ULV8', 'O00750', 'O14744']}},
-    {'follow': 'page', 'max_bytes': 6500, 'expect': {'/status': 'complete', '/page/offset': 5,
+    {'follow': 'page', 'expect': {'/status': 'complete', '/page/offset': 5,
         '/result/items/*/protein/accession': ['P04626', 'P01133', 'P22681', 'Q8NFJ5', 'P12004']}}])
 
 case('gene-crossrefs', [
