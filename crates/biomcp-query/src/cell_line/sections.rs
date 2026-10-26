@@ -111,7 +111,7 @@ fn pivots(data: &CellLineVariants, out: &mut Outcome) {
     for row in &data.items.items {
         for gene in &row.genes {
             if let Some(id) = &gene.hgnc {
-                let input = GeneInput::HgncId(id.clone());
+                let input = GeneInput::HgncId(*id);
                 if !genes.contains(&input) {
                     genes.push(input);
                 }

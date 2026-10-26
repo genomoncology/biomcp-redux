@@ -204,7 +204,9 @@ pub(super) fn markdown(
         .replace("\\*", "*")
         .replace("\\|", "|")
         .replace("\\`", "`")
-        .replace("&amp;", "&");
+        .replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">");
     strings(value.get("result").ok_or("result")?, &unescaped)
 }
 fn strings(value: &Value, text: &str) -> Result<(), String> {
