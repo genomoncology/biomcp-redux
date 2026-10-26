@@ -142,3 +142,5 @@ study-files: Read bounded native DataHub file references and study license links
 phenotype-sections: A caller pages native source synonyms, cross references and direct hierarchy links from one retained term reply. Cases: `crates/biomcp/tests/runner/phenotype/sections.rs`.
 
 pathway-retirements: Retired pathway spellings return fixed supported routes before any source request. Cases: `crates/biomcp/tests/runner/pathway_retirements.rs`.
+
+pathway-failures: Source faults and foreign identities retain failed or rejected outcomes without cache admission. Cases: `crates/biomcp/tests/runner/pathway_failures.rs`.

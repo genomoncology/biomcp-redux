@@ -73,6 +73,7 @@ mod normalization;
 mod oncokb;
 mod oncokb_context;
 mod pathway_commands;
+mod pathway_failures;
 mod pathway_retirements;
 mod pathway_registry;
 mod pathway_sections;
@@ -347,6 +348,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
     trials.extend(pathway_retirements::trials());
+    trials.extend(pathway_failures::trials());
     trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
