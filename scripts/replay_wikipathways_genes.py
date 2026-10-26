@@ -37,13 +37,18 @@ def main():
     if hashlib.sha256(archive).hexdigest() != 'eeb794004a09a28cd022a81dfe3c10a255dbbed367d9f3dd8b2be744a2e0ca4c':
         raise ValueError('retained GPML archive mismatch')
     references = set()
+    nodes = {}
     for identity in ['WP382', 'WP100']:
         body = member(member(archive, identity + '.tar.gz'), '0000.body')
         (native / (identity + '.gpml')).write_bytes(body)
+        nodes[identity] = []
         for node in ET.fromstring(body).findall('{http://pathvisio.org/GPML/2013a}DataNode'):
             xref = node.find('{http://pathvisio.org/GPML/2013a}Xref')
-            if node.get('Type') == 'GeneProduct' and xref is not None:
-                references.add((xref.get('Database'), xref.get('ID')))
+            if node.get('Type') == 'GeneProduct':
+                nodes[identity].append(node.get('GraphId'))
+                if xref is not None:
+                    references.add((xref.get('Database'), xref.get('ID')))
+    (native / 'nodes.json').write_text(json.dumps(nodes))
     catalog = read_remote(CATALOG)
     if hashlib.sha256(catalog).hexdigest() != '7d7a46ccaf538be9bf10393d6d5a336072a75e1fdd2cdc2fd271bef2888f26a3':
         raise ValueError('retained catalogs archive mismatch')
