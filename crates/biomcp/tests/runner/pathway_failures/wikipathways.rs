@@ -110,7 +110,9 @@ fn identities() -> Check {
     let mut search = fixtures::catalog(true);
     let mut get = fixtures::catalog(false);
     for catalog in [&mut search, &mut get] {
-        *catalog.pointer_mut("/pathwayInfo/0/species").ok_or("species")? = json!("Mus musculus");
+        *catalog
+            .pointer_mut("/pathwayInfo/0/species")
+            .ok_or("species")? = json!("Mus musculus");
     }
     fixtures::replace_source(
         &root,

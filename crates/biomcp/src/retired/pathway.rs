@@ -21,10 +21,15 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             .map_or((word, None), |(a, b)| (a, Some(b)));
         if matches!(positional.get(..2), Some(["search", "pathway"])) {
             if flag == "-l" {
-                if inline.is_none() { args.next(); }
+                if inline.is_none() {
+                    args.next();
+                }
                 continue;
             }
-            if flag.strip_prefix("-l").is_some_and(|v| !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit())) {
+            if flag
+                .strip_prefix("-l")
+                .is_some_and(|v| !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit()))
+            {
                 continue;
             }
             match flag {
@@ -60,7 +65,7 @@ fn kegg(id: &str) -> bool {
     let id = id.strip_prefix("path:").unwrap_or(id);
     let letters = id.bytes().take_while(u8::is_ascii_lowercase).count();
     matches!(letters, 2 | 3)
-        && id.get(letters..).is_some_and(|digits| {
-            digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit())
-        })
+        && id
+            .get(letters..)
+            .is_some_and(|digits| digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit()))
 }
