@@ -187,7 +187,7 @@ where
     T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
 {
     let envelope = Envelope::<T>::new(
-        Status::Ok,
+        Status::Complete,
         serde_json::from_value(query).unwrap(),
         Some(serde_json::from_value(body).unwrap()),
     );
@@ -211,7 +211,7 @@ fn standalone_envelopes_validate_all_eight_consumer_schemas() {
     );
     check_envelope::<CellLineCard>(
         get.clone(),
-        json!({"input":"CVCL_2119","status":"ok","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names","identity","xrefs","variants","chembl"]}),
+        json!({"input":"CVCL_2119","status":"complete","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names","identity","xrefs","variants","chembl"]}),
     );
     let page = json!({"accession":"CVCL_2119","items":empty,"offset":0});
     check_envelope::<CellLineNames>(get.clone(), page.clone());
