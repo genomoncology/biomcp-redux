@@ -6,6 +6,7 @@ mod native;
 mod section_failures;
 mod section_native;
 mod sections;
+mod states;
 use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 pub(super) use native::run as native;
@@ -45,6 +46,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ),
     ];
     rows.extend(faults::trials());
+    rows.extend(states::trials());
     rows.extend(sections::trials());
     rows.extend(associations::trials());
     let directory = super::launch::fixtures().join("phenotype-association-native");
