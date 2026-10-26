@@ -41,7 +41,7 @@ fn recording(replay: &Path, section: &str, body: Value, status: u16, delay: u64)
         .iter()
         .map(|v| format!("{v:02x}"))
         .collect::<String>();
-    let exchange = json!({"status":status,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
+    let exchange = json!({"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}});
     let exchanges = if matches!(status, 429 | 500) {
         vec![exchange; 3]
     } else {
@@ -120,6 +120,7 @@ fn pages() -> Check {
     {
         return Err(format!("all lost independent bounded sections: {all}"));
     }
+    navigation(&env, &replay)?;
     Ok(())
 }
 fn failures() -> Check {
@@ -140,6 +141,7 @@ fn failures() -> Check {
         *body.pointer_mut("/0/studyId").ok_or("scope")? = json!("other_study");
         record(&replay, route, body, 200)?;
         let value = call(&env, &replay, &["get", "study", "synthetic_0", section], 0)?;
+        rejected(&env, &replay, section, &value)?;
         if value.get("status") != Some(&json!("partial"))
             || value
                 .get("problems")
@@ -297,4 +299,80 @@ fn reject_members(directory: &Path, value: &Value) -> Check {
         return Ok(());
     }
     Err("matching retained sample-list request missing".into())
+}
+
+fn rejected(env: &Environment, replay: &Path, section: &str, value: &Value) -> Check {
+    if value.to_string().contains("other_study") {
+        return Err("wrong-study row survived filtering".into());
+    }
+    let expected = if section == "profiles" { 16 } else { 12 };
+    if value.pointer("/page/total") != Some(&json!(expected)) {
+        return Err("rejected row changed accepted total".into());
+    }
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    let cached: u64 = db
+        .query_row(
+            "SELECT count(*) FROM reply WHERE url LIKE '%/studies/synthetic_0/%'",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    if cached != 0 {
+        return Err("wrong-study collection entered checked cache".into());
+    }
+    let mut args = env.globals(None, true);
+    args.extend(["get", "study", "synthetic_0", section].map(str::to_owned));
+    let offline = crate::runner::configuration::invoke(env, args, 4)?;
+    if offline.get("result").is_some() {
+        return Err("wrong-study collection survived offline cache reuse".into());
+    }
+    if !replay.is_dir() {
+        return Err("replay directory disappeared".into());
+    }
+    Ok(())
+}
+fn follow(env: &Environment, replay: &Path, value: &Value, kind: &str) -> Result<Value, String> {
+    let next = value
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|steps| {
+            steps
+                .iter()
+                .find(|s| s.get("kind").and_then(Value::as_str) == Some(kind))
+        })
+        .ok_or("next step")?;
+    let args = next
+        .get("args")
+        .and_then(Value::as_array)
+        .ok_or("step arguments")?
+        .iter()
+        .map(|a| a.as_str().ok_or("argument"))
+        .collect::<Result<Vec<_>, _>>()?;
+    let cli = call(env, replay, &args, 0)?;
+    let args: Vec<String> = args.into_iter().map(str::to_owned).collect();
+    let mcp = crate::runner::mcp::call_with_globals(
+        env,
+        &args,
+        false,
+        &env.globals(Some(replay), false),
+    )?;
+    if cli != mcp {
+        return Err("emitted study step differs between CLI and MCP".into());
+    }
+    Ok(cli)
+}
+fn navigation(env: &Environment, replay: &Path) -> Check {
+    let card = call(env, replay, &["get", "study", "synthetic_0"], 0)?;
+    let section = follow(env, replay, &card, "section")?;
+    let next = follow(env, replay, &section, "page")?;
+    if next.pointer("/page/offset") != Some(&json!(5))
+        || next.pointer("/result/acquired") != Some(&json!(42))
+    {
+        return Err("emitted section or page lost offset or acquisition".into());
+    }
+    call(env, replay, &["get", "study", "synthetic_absent"], 1)?;
+    fs::remove_dir_all(replay.join("cbioportal")).map_err(|e| e.to_string())?;
+    call(env, replay, &["get", "study", "../escape"], 2)?;
+    Ok(())
 }

@@ -33,7 +33,7 @@ def recording(root, url, body):
     target.mkdir(parents=True, exist_ok=True)
     key = hashlib.sha256(b'GET\0' + url.encode()).hexdigest()
     value = {'source': 'cbioportal', 'method': 'GET', 'url': url,
-             'exchanges': [{'status': 200, 'fetched': 1793059200,
+             'exchanges': [{'status': 200, 'fetched': 0,
                             'content_type': 'application/json', 'delay_ms': 0,
                             'retry_after_ms': None,
                             'body': {'kind': 'text', 'value': body.decode()}}]}
@@ -80,7 +80,7 @@ def main(archive, out):
             native = json.loads(contents[f'{study}-{suffix}.body'])
             for offset in range(0, len(native), 5):
                 expected = {'/page/total': len(native), '/page/offset': offset,
-                            '/result/acquired': 1793059200}
+                            '/result/acquired': 0}
                 for n, row in enumerate(native[offset:offset + 5]):
                     for key in [identifier, 'studyId', 'name', 'description']:
                         expected[f'/result/items/{n}/{key}'] = row[key]
