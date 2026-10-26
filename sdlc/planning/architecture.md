@@ -1352,7 +1352,7 @@ The authoritative tables live in [`biomcp-fetch/src/cache.rs`](../../crates/biom
 
 Each pool item distinguishes unattempted metadata, checked missing metadata and an accepted header. Hydration joins by checked PMID, preserves order and fixed lifetime, and never replaces an accepted header during a concurrent write. A stale fallback's source outcome stays with its item, so a warm page keeps its partial status and offers a replacement search. A summary hole keeps its PMID and offers a fresh read of the same pool. Pool creation and expiry use wall time.
 
-The private store opens with `Store::open(CacheAccess, Deadline)` and exposes `find`, `publish`, `page` and `hydrate` to article queries. Public `store::VERSION` and `store::OWNER` let the binary select and validate the active file. Store statistics and cleanup wait for their own consumer.
+The private store opens with `Store::open(CacheAccess, Deadline)` and exposes `find`, `publish`, `page` and `hydrate` to article queries. Public `store::VERSION` and `store::OWNER` let the binary select and validate the active file. Store statistics wait for their own consumer. Cleanup follows 7.2.
 
 For sequential article stages, `Fetch::command_deadline` retains one fixed replay origin. The command debits each completed leg's virtual spend before starting another and caps real SQLite admission with its original wall budget. `CommandDeadline::finish` advances shared replay time to the completed absolute endpoint once, including early failures. Concurrent completions take the maximum endpoint, never the sum. Existing independent-leg consumers keep `Fetch::deadline`.
 
@@ -1361,7 +1361,7 @@ For sequential article stages, `Fetch::command_deadline` retains one fixed repla
 - A reply is fresh until its endpoint's freshness ends. A 404 is fresh for ten minutes.
 - A pool is readable by ID until it expires. It is the current pool for its request until it expires or a `--fresh` rerun replaces it.
 - A stale reply or bundle is served only when its source fails, and then only with `stale` in its source outcome. Offline mode serves stale values the same way.
-- `biomcp store clean` removes expired replies and pools and old cache files. A size cap in config removes the oldest replies first.
+- Publishing a pool or snapshot deletes expired pools and snapshots in the same transaction. Expired replies stay for stale serving. `biomcp store clean` removes expired replies, expired pools and snapshots, and cache files from older incompatible schema versions. 1.0 has no size cap.
 
 ### 7.3 When each table arrives
 

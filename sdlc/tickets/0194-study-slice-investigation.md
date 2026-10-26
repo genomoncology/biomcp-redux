@@ -1,6 +1,7 @@
 # 0194 — Investigate the study slice and propose its design
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 715b7486b62882f005ace42ac2ad60e090e0bc92
 
 Milestone: 4
 

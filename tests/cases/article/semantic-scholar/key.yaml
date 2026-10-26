@@ -18,7 +18,7 @@
       "expect": {
         "/result/source": "semantic-scholar",
         "/result/config": "keys.semantic_scholar_api_key",
-        "/result/environment": "SEMANTIC_SCHOLAR_API_KEY",
+        "/result/environment": "S2_API_KEY",
         "/result/guidance": "biomcp key set semantic-scholar; a free key raises the request limit"
       },
       "max_tokens": 76
