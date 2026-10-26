@@ -1,6 +1,7 @@
 # 0203 — Remove expired pools and snapshots, and add store clean
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 415bfa7f89f878063c4590fbb469ac133d0b4e91
 
 Milestone: 1
 
