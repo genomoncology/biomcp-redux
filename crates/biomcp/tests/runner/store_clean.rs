@@ -59,7 +59,7 @@ fn clean() -> Check {
     let cx = Connection::open(&path)?;
     seed(&cx)?;
     let directory = path.parent().ok_or("missing cache directory")?;
-    let old = directory.join("cache-1-4.sqlite");
+    let old = directory.join("cache-1-2.sqlite");
     let foreign = directory.join("cache-1-3.sqlite");
     let future = directory.join("cache-1-999.sqlite");
     for file in [&old, &foreign, &future] {
@@ -73,8 +73,12 @@ fn clean() -> Check {
         std::fs::write(&sidecar, [])?;
         sidecars.push(sidecar);
     }
+    let retained = coexisting_generation(directory)?;
     let unowned = unowned_legacy(directory)?;
     let result = run(&env, &["store", "clean", "--offline"])?;
+    if retained.iter().any(|path| !path.exists()) {
+        return Err("cleanup removed a coexisting generation or its sidecars".into());
+    }
     if result.get("result")
         != Some(&json!({"replies":1,"pools":1,"items":1,"snapshots":2,"files":1}))
     {
@@ -112,6 +116,19 @@ fn clean() -> Check {
         return Err("orphan pool rows survived".into());
     }
     Ok(())
+}
+fn coexisting_generation(directory: &std::path::Path) -> Check<Vec<PathBuf>> {
+    let path = directory.join("cache-1-4.sqlite");
+    let cx = Connection::open(&path)?;
+    cx.execute_batch("CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT); INSERT INTO pool VALUES ('keep');")?;
+    drop(cx);
+    let mut paths = vec![path.clone()];
+    for suffix in ["-wal", "-shm"] {
+        let sidecar = PathBuf::from(format!("{}{suffix}", path.display()));
+        std::fs::write(&sidecar, [])?;
+        paths.push(sidecar);
+    }
+    Ok(paths)
 }
 fn unowned_legacy(directory: &std::path::Path) -> Check<Vec<(PathBuf, &'static str)>> {
     let mut files = Vec::new();
