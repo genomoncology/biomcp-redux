@@ -63,25 +63,8 @@ fn run(mode: Mode) -> Result<(), String> {
             }
         }
     });
-    let result = prove(&mut stdin, &connected_rx, &reply_rx).and_then(|()| {
-        if mode == Mode::Oversized {
-            stdin
-                .write_all(&vec![b'x'; 65537])
-                .map_err(|e| e.to_string())?;
-            stdin.write_all(b"\n").map_err(|e| e.to_string())?;
-            stdin.flush().map_err(|e| e.to_string())?;
-            let reply = reply_rx
-                .recv_timeout(WATCHDOG)
-                .map_err(|_| "oversized reply watchdog")??;
-            if reply.pointer("/error/code") != Some(&json!(-32600)) {
-                return Err(format!("missing oversized frame error: {reply}"));
-            }
-        }
-        if mode == Mode::Cancel {
-            cancel_capacity(&mut stdin, &reply_rx)?;
-        }
-        Ok(())
-    });
+    let result = prove(&mut stdin, &connected_rx, &reply_rx)
+        .and_then(|()| mode_input(mode, &mut stdin, &reply_rx));
     let _ = release_tx.send(());
     let proxy_result = proxy.join().map_err(|_| "proxy panicked")?;
     if result.is_err() || proxy_result.is_err() {
@@ -96,6 +79,34 @@ fn run(mode: Mode) -> Result<(), String> {
     if !status.success() || !stderr.is_empty() {
         return Err("held proxy server failed".into());
     }
+    mode_reply(mode, &reply_rx)
+}
+fn mode_input(
+    mode: Mode,
+    stdin: &mut impl Write,
+    replies: &mpsc::Receiver<Result<Value, String>>,
+) -> Result<(), String> {
+    match mode {
+        Mode::Reply => Ok(()),
+        Mode::Cancel => cancel_capacity(stdin, replies),
+        Mode::Oversized => {
+            stdin
+                .write_all(&vec![b'x'; 65537])
+                .map_err(|e| e.to_string())?;
+            stdin.write_all(b"\n").map_err(|e| e.to_string())?;
+            stdin.flush().map_err(|e| e.to_string())?;
+            let reply = replies
+                .recv_timeout(WATCHDOG)
+                .map_err(|_| "oversized reply watchdog")??;
+            if reply.pointer("/error/code") != Some(&json!(-32600)) {
+                return Err(format!("missing oversized frame error: {reply}"));
+            }
+            Ok(())
+        }
+    }
+}
+
+fn mode_reply(mode: Mode, reply_rx: &mpsc::Receiver<Result<Value, String>>) -> Result<(), String> {
     if mode == Mode::Cancel {
         if reply_rx.try_recv().is_ok() {
             return Err("cancelled call replied".into());
