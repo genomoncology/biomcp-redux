@@ -38,6 +38,7 @@ const SET: BundleSet<raw::Native> = BundleSet {
 /// Validate the whole native export before atomically replacing its stored snapshot.
 pub fn sync(fetch: &Fetch) -> Result<biomcp_types::SyncResult, RequestError> {
     fetch.sync_set(&SET).map(|info| biomcp_types::SyncResult {
+        snapshot: None, etag: None, last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
         duplicate_identities: None,

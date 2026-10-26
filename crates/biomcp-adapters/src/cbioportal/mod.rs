@@ -154,3 +154,7 @@ fn sample_count(
     }
     .into())
 }
+
+/// Stored public catalog metadata.
+pub mod studies;
+pub use studies::sync as sync_studies;

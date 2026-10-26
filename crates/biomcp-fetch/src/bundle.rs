@@ -123,6 +123,10 @@ pub enum Find<'a> {
 /// Public bundle metadata contains no local filenames or provider diagnostics.
 #[derive(Clone, Debug)]
 pub struct BundleInfo {
+    /// Native publisher revision validator, when supplied.
+    pub etag: Option<Box<str>>,
+    /// Native publisher modification header, when supplied.
+    pub last_modified: Option<Box<str>>,
     /// Stable declared bundle name.
     pub name: &'static str,
     /// Complete raw body bytes.

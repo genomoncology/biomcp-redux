@@ -220,6 +220,14 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchStudy(q) => match body {
+            QueryBody::StudyPage(body) => meta.encode(q, body),
+            _ => Err(io::Error::other("study response mismatch")),
+        },
+        Request::GetStudy(q) => match body {
+            QueryBody::StudyCard(body) => meta.encode(q, body),
+            _ => Err(io::Error::other("study response mismatch")),
+        },
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_) => {
             pgx::encode(meta, request, body)
         }
@@ -410,18 +418,21 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
 fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
     let source = bundle_source(bundle);
     let result = match bundle {
+        Bundle::CbioportalStudies => biomcp_adapters::cbioportal::sync_studies(fetch),
         Bundle::FdaCdx => biomcp_adapters::fda_cdx::sync(fetch),
         Bundle::Gtr => biomcp_adapters::gtr::sync(fetch),
         Bundle::WhoIvd => biomcp_adapters::who_ivd::sync(fetch),
         Bundle::WhoPq => biomcp_adapters::who_pq::sync(fetch),
         Bundle::Ddinter => {
             biomcp_adapters::ddinter::sync(fetch).map(|info| biomcp_types::SyncResult {
+        snapshot: None, etag: None, last_modified: None,
                 duplicate_identities: None,
                 rows: info.rows,
                 bytes: info.bytes,
             })
         }
         Bundle::Ema => biomcp_adapters::ema::sync(fetch).map(|info| biomcp_types::SyncResult {
+        snapshot: None, etag: None, last_modified: None,
             duplicate_identities: None,
             rows: info.rows,
             bytes: info.bytes,
@@ -435,6 +446,7 @@ fn sync(fetch: &biomcp_fetch::Fetch, bundle: Bundle) -> io::Result<Outcome> {
                         biomcp_adapters::hgnc::HgncBundle::Withdrawn,
                     )?;
                     Ok(biomcp_types::SyncResult {
+        snapshot: None, etag: None, last_modified: None,
                         duplicate_identities: None,
                         rows: complete.rows + withdrawn.rows,
                         bytes: complete.bytes + withdrawn.bytes,
@@ -580,6 +592,7 @@ fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
 fn bundle_source(bundle: Bundle) -> biomcp_types::Source {
     match bundle {
         Bundle::FdaCdx => biomcp_types::Source::FdaCdx,
+        Bundle::CbioportalStudies => biomcp_types::Source::Cbioportal,
         Bundle::Gtr => biomcp_types::Source::Gtr,
         Bundle::WhoIvd => biomcp_types::Source::WhoIvd,
         Bundle::Ema => biomcp_types::Source::Ema,

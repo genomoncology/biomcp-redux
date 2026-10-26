@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "command", rename_all = "snake_case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum Request {
+    /// Discover literal study catalog metadata.
+    SearchStudy(crate::StudySearch),
+    /// Read exact study metadata.
+    GetStudy(crate::StudyGet),
     /// Discover source-native CPIC gene pairs.
     SearchPgx(crate::PgxSearch),
     /// Read an explicit CPIC gene card or source section.

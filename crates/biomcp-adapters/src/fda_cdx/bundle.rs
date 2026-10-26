@@ -25,6 +25,7 @@ pub(super) fn read(
 /// Replace the complete validated two-table document atomically.
 pub fn sync(fetch: &Fetch) -> Result<SyncResult, RequestError> {
     fetch.sync_set(&SET).map(|info| SyncResult {
+        snapshot: None, etag: None, last_modified: None,
         rows: info.rows,
         bytes: info.bytes,
         duplicate_identities: None,

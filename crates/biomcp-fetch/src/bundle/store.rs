@@ -78,6 +78,8 @@ fn kind(k: KeyKind) -> u8 {
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
     BundleInfo {
+        etag: m.etag.as_deref().map(Into::into),
+        last_modified: m.modified.as_deref().map(Into::into),
         name: b.name,
         bytes: m.bytes,
         rows: m.rows,
