@@ -252,3 +252,14 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
     assert!(failure.contains("&crate::missing::SPEC"), "{failure}");
     Ok(())
 }
+
+#[test]
+fn rust_lines_obey_width_limit() -> Check {
+    for path in ["crates/biodata/src/lib.rs", "crates/biodata/tests/width.rs"] {
+        let tree = tree()?;
+        put(tree.path(), path, &format!("//{}\n", "x".repeat(158)))?;
+        check(tree.path())?;
+        rejects(path, &format!("//{}\n", "x".repeat(159)), "line width limit")?;
+    }
+    Ok(())
+}

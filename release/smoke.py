@@ -7,6 +7,11 @@ import subprocess
 import tempfile
 
 
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
 def environment(root):
     # No host keys, proxies, configuration, warm caches, or build PATH.
     root = Path(root).resolve()
@@ -34,18 +39,26 @@ def smoke(binary, runner, fixtures, version, server_args=("serve",)):
             if result.returncode or result.stderr:
                 raise ValueError("installed command failed: " + result.stdout.decode() + result.stderr.decode())
             return json.loads(result.stdout)
-        assert command(["schema", "biodata.problem/1"])["$id"] == "biodata.problem/1"
-        assert command(["help"])["result"]["commands"]
+        checks = []
+        require(command(["schema", "biodata.problem/1"])["$id"] == "biodata.problem/1", "schema identity differs")
+        checks.append("schemas")
+        require(command(["help"])["result"]["commands"], "help commands missing")
+        checks.append("help")
         # The first tool call creates the ordinary cache; every emitted line,
         # including shutdown, must be a correlated JSON-RPC response.
         tools = mcp_probe([str(binary)] + list(server_args), env, root, version)
-        assert any((root / "cache").rglob("*.sqlite")), "first tool call did not create the cache"
+        checks.extend(["version", "mcp-all-stdout"])
+        require(any((root / "cache").rglob("*.sqlite")), "first tool call did not create the cache")
+        checks.append("ordinary-cache-created")
         env.update(BIOMCP_TEST_EXECUTABLE=str(binary), BIOMCP_TEST_FIXTURES=str(fixtures))
         subprocess.run([str(runner), "--cases", str(fixtures / "cases"), "--test-threads", "1"], env=env, cwd=root, check=True, timeout=120)
+        checks.append("replay-cli-mcp")
         # The existing process publication test uses the very same selector.
         subprocess.run([str(runner), "--installed-process-proof"], env=env, cwd=root, check=True, timeout=120)
+        checks.append("ordinary-cache-two-process")
         subprocess.run([str(runner), "--installed-http-proof"], env=env, cwd=root, check=True, timeout=120)
-        return tools
+        checks.append("mcp-http")
+        return {"tools": tools, "checks": checks}
 
 def mcp_probe(command, env, root, version):
     frames = [
@@ -56,11 +69,11 @@ def mcp_probe(command, env, root, version):
     ]
     result = subprocess.run(command, input="".join(json.dumps(f) + "\n" for f in frames), env=env, cwd=root, capture_output=True, text=True, timeout=60)
     replies = [json.loads(line) for line in result.stdout.splitlines()]
-    assert result.returncode == 0 and not result.stderr, result.stderr
-    assert len(replies) == 3 and {r["id"] for r in replies} == {1, 2, 3}, replies
-    assert all(r["jsonrpc"] == "2.0" for r in replies)
+    require(result.returncode == 0 and not result.stderr, "MCP process failed: " + result.stderr)
+    require(len(replies) == 3 and {r["id"] for r in replies} == {1, 2, 3}, "MCP response IDs differ")
+    require(all(r["jsonrpc"] == "2.0" for r in replies), "MCP protocol differs")
     indexed = {r["id"]: r for r in replies}
-    assert indexed[1]["result"]["serverInfo"]["version"] == version
-    assert indexed[2]["result"]["tools"][0]["name"] == "biomcp"
+    require(indexed[1]["result"]["serverInfo"]["version"] == version, "MCP version differs")
+    require(indexed[2]["result"]["tools"][0]["name"] == "biomcp", "MCP tool differs")
 
     return [tool["name"] for tool in indexed[2]["result"]["tools"]]
