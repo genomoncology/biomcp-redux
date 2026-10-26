@@ -253,8 +253,28 @@ fn json_bundle_reads_never_sync_and_failed_replacements_keep_old_rows() {
         r#"{"meta":{"timestamp":"2026-10-24T18:22:32Z"},"data":[{"id":"old","name":"Tibsovo"}]}"#;
     std::thread::scope(|s| {
         let call = s.spawn(|| f.sync(&b));
-        server.next().respond(200, "", body);
-        assert_eq!(call.join().unwrap().unwrap().bytes, body.len() as u64);
+        server.next().respond(
+            200,
+            "ETag: \"catalog-one\"\r\nLast-Modified: Mon, 26 Oct 2026 00:00:00 GMT\r\n",
+            body,
+        );
+        let info = call.join().unwrap().unwrap();
+        assert_eq!(info.bytes, body.len() as u64);
+        assert_eq!(info.etag.as_deref(), Some("\"catalog-one\""));
+        assert_eq!(
+            info.last_modified.as_deref(),
+            Some("Mon, 26 Oct 2026 00:00:00 GMT")
+        );
+        assert!(info.retrieved_at.is_some());
+        use sha2::{Digest, Sha256};
+        let digest = Sha256::digest(body.as_bytes())
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>();
+        assert_eq!(
+            info.content_revision.as_deref(),
+            Some(format!("sha256:{digest}").as_str())
+        );
     });
     for invalid in [
         "{",
@@ -269,6 +289,8 @@ fn json_bundle_reads_never_sync_and_failed_replacements_keep_old_rows() {
         let (rows, info) = leg.stored_rows(&b, Find::Words("Tibsovo")).unwrap();
         assert_eq!(rows[0].id, "old");
         assert_eq!(info.rows, 1);
+        assert_eq!(info.etag.as_deref(), Some("\"catalog-one\""));
+        assert!(info.retrieved_at.is_some());
     }
     assert!(server.requests.try_recv().is_err());
 }

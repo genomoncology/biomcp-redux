@@ -155,15 +155,19 @@ impl Leg<'_> {
                 )
                 .into());
         }
+        if exchange.body.bytes().len() as u64 > R::MAX_BYTES {
+            return Err(self.failure(Reason::BadReply, Some(200)).into());
+        }
         let rows = parse::rows::<R>(exchange.body.bytes(), b.format)
             .map_err(|_| self.failure(Reason::BadReply, Some(200)))?;
-        let meta = meta(
+        let mut meta = meta(
             b,
             exchange.body.bytes().len() as u64,
             rows.len() as u64,
             None,
             None,
         );
+        provenance(&mut meta, exchange.body.bytes());
         cache.publish(b, None, &meta, Some(&rows), self.budget())?;
         imported.insert(b.name);
         Ok(store::info(b, &meta))
@@ -295,7 +299,7 @@ impl Leg<'_> {
         if !matches!(b.format, super::RowFormat::Tsv) {
             t.part.etag = None;
         }
-        self.stream(t, response)?;
+        self.stream(t, response, R::MAX_BYTES)?;
         t.file.flush().map_err(|_| CacheError::Database)?;
         let body = fs::read(t.file.path()).map_err(|_| CacheError::Database)?;
         let url = format!("{}{}", self.spec.base.trim_end_matches('/'), b.path);
@@ -311,21 +315,14 @@ impl Leg<'_> {
         if self.budget().expired() {
             return Err(self.failure(Reason::Syncing, None).into());
         }
-        let meta = meta(
+        let mut meta = meta(
             b,
             t.part.bytes,
             rows.len() as u64,
-            if matches!(b.format, super::RowFormat::Tsv) {
-                header(response, "etag")
-            } else {
-                None
-            },
-            if matches!(b.format, super::RowFormat::Tsv) {
-                header(response, "last-modified")
-            } else {
-                None
-            },
+            header(response, "etag"),
+            header(response, "last-modified"),
         );
+        provenance(&mut meta, &body);
         if matches!(self.fetch.config.mode, Mode::Record { .. }) {
             let exchange = Exchange {
                 fetched: crate::cache::now(),
@@ -400,13 +397,15 @@ impl Leg<'_> {
         &self,
         t: &mut Transfer<'_>,
         response: &mut ureq::http::Response<ureq::Body>,
+        source_limit: u64,
     ) -> Result<(), RequestError> {
         let status = response.status().as_u16();
         let limit = if t.auto {
             self.fetch.config.auto_sync_max_bytes.min(MAX_BUNDLE_BYTES)
         } else {
             MAX_BUNDLE_BYTES
-        };
+        }
+        .min(source_limit);
         if t.part.total.is_some_and(|n| n > limit) {
             return Err(self.failure(Reason::Syncing, Some(status)).into());
         }
@@ -545,4 +544,14 @@ fn resume(
         }
     }
     Ok(())
+}
+
+fn provenance(meta: &mut Meta, body: &[u8]) {
+    use sha2::{Digest, Sha256};
+    let hex = Sha256::digest(body)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
+    meta.content_revision = Some(format!("sha256:{hex}"));
+    meta.retrieved_at = Some(crate::cache::now());
 }

@@ -1,0 +1,67 @@
+{
+  "$defs": {
+    "StudyId": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "type": "string"
+    },
+    "StudySection": {
+      "description": "Supported bounded study metadata sections; gene counts are deferred.",
+      "enum": [
+        "profiles",
+        "sample-lists",
+        "files",
+        "all"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Five exact native molecular profile references.",
+        " Five sample-list metadata records, without member sample IDs.",
+        " Five repository file references; no automatic download.",
+        " Each named section's bounded first page; never a gene aggregate request."
+      ]
+    }
+  },
+  "$id": "biomcp.study-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Exact case-sensitive study retrieval or a bounded metadata section.",
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/StudyId",
+      "description": "Exact source study ID; no default or repair.",
+      "x-positional": 0
+    },
+    "section": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StudySection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Omit for the card; all returns bounded first pages only.",
+      "x-positional": 1
+    },
+    "section_limit": {
+      "default": 5,
+      "description": "Maximum records in each selected section.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "section_offset": {
+      "default": 0,
+      "description": "Offset within one named section; all requires zero.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "StudyGet",
+  "type": "object"
+}

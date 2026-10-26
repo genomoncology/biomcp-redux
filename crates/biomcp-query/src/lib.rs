@@ -30,3 +30,6 @@ pub mod pgx;
 
 /// Explicit native device report cards and sections.
 pub mod adverse_event_maude;
+
+/// Stored study catalog discovery.
+pub mod study;

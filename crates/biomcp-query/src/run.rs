@@ -5,6 +5,8 @@ use biomcp_types::{PageInfo, Problem, QueryBody, Request, SourceOutcome, Status,
 /// Housekeeping selector independent of an entity query.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Bundle {
+    /// Complete public cBioPortal metadata catalog.
+    CbioportalStudies,
     /// Complete WHO finished pharmaceutical products CSV.
     WhoPq,
     /// Complete WHO prequalified diagnostics export.
@@ -67,6 +69,8 @@ pub struct Outcome {
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     match request {
+        Request::SearchStudy(q) => crate::study::search(cx, q),
+        Request::GetStudy(q) => crate::study::get(cx, q),
         Request::SearchPgx(query) => crate::pgx::search(cx, query),
         Request::GetPgx(query) => crate::pgx::get(cx, query),
         Request::GetPgxAnnotation(query) => crate::pgx::annotation(cx, query),
