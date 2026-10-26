@@ -4,13 +4,16 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 type Check = Result<(), String>;
+mod native;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![Trial::test("wikipathways-genes/native-kinds-and-retained-paging", || {
         paging().map_err(Into::into)
     }), Trial::test("wikipathways-genes/failed-bodies-never-enter-retained-membership", || {
         failures().map_err(Into::into)
-    })]
+    }), Trial::test("wikipathways-genes/retained-native-measurements", || {
+        native::run().map_err(Into::into)
+    }).with_ignored_flag(!super::launch::fixtures().join("wikipathways-genes-native").is_dir())]
 }
 fn catalog(search: bool) -> String {
     let mut row = json!({"id":"WP382","url":"https://www.wikipathways.org/instance/WP382",
