@@ -81,18 +81,7 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
         Request::SearchProtein(q) => serde_json::to_value(q),
         Request::GetProtein(q) => serde_json::to_value(q),
         Request::SearchPhenotype(q) => serde_json::to_value(q),
-        Request::GetPhenotype(q) => {
-            let mut value = serde_json::to_value(q)?;
-            if let Some(fields) = value.as_object_mut() {
-                if q.source() == q.default_source() {
-                    fields.remove("source");
-                }
-                if q.section_limit() == q.default_section_limit() {
-                    fields.remove("section_limit");
-                }
-            }
-            Ok(value)
-        }
+        Request::GetPhenotype(q) => phenotype_value(q),
         Request::SearchPathway(q) => serde_json::to_value(q),
         Request::GetPathway(q) => serde_json::to_value(q),
         Request::PathwayGenes(q) => serde_json::to_value(q),
@@ -385,4 +374,17 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
     }
     positional.extend(trailing);
     positional
+}
+
+fn phenotype_value(q:&biomcp_types::PhenotypeGet)->Result<Value,serde_json::Error>{
+            let mut value = serde_json::to_value(q)?;
+            if let Some(fields) = value.as_object_mut() {
+                if q.source() == q.default_source() {
+                    fields.remove("source");
+                }
+                if q.section_limit() == q.default_section_limit() {
+                    fields.remove("section_limit");
+                }
+            }
+            Ok(value)
 }

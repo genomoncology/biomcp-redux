@@ -41,7 +41,7 @@ enum Navigation<'a> {
 }
 
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
-    use biomcp_types::{PgxAnnotations, QueryBody as Body};
+    use biomcp_types::QueryBody as Body;
     match body {
         Body::GwasAssociation(_)
         | Body::GwasStudy(_)
@@ -68,7 +68,7 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         | Body::PhenotypeXrefs(_)
         | Body::PhenotypeHierarchy(_) => Navigation::Bounded,
         Body::PathwayGenes(_) => Navigation::Bounded,
-        Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
+        Body::PgxAnnotations(value) => pgx_navigation(value),
         Body::VariantCard(card) => variant_navigation(card),
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
             Navigation::BoundedPma
@@ -92,9 +92,6 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::StudyCard(_) | Body::PgxPage(_) | Body::PgxCard(_) => Navigation::Bounded,
         Body::PgxRecommendations(_) | Body::PgxGuidelines(_) => Navigation::Bounded,
         Body::PgxDiplotype(_) => Navigation::Bounded,
-        Body::PgxAnnotations(PgxAnnotations::Guideline { .. } | PgxAnnotations::Label { .. }) => {
-            Navigation::Bounded
-        }
         Body::PgxAnnotation(_) | Body::DiagnosticCard(_) => Navigation::Bounded,
         Body::DiagnosticConditions(_) | Body::DiagnosticMethods(_) => Navigation::Bounded,
         Body::DiagnosticRegulatory(_) | Body::UnsupportedAdverseEvent => Navigation::Bounded,
@@ -242,4 +239,11 @@ fn protein_navigation(card: &biomcp_types::ProteinCard) -> Navigation<'_> {
 
 fn variant_navigation(card: &biomcp_types::VariantCard) -> Navigation<'static> {
     candidate_navigation(card.resolution == biomcp_types::VariantResolution::Candidates)
+}
+
+fn pgx_navigation(value:&biomcp_types::PgxAnnotations)->Navigation<'_>{
+    match value {
+        biomcp_types::PgxAnnotations::Clinical{page,..}=>Navigation::Nested(page),
+        biomcp_types::PgxAnnotations::Guideline{..}|biomcp_types::PgxAnnotations::Label{..}=>Navigation::Bounded,
+    }
 }
