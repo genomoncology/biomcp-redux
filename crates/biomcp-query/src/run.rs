@@ -25,6 +25,8 @@ pub enum Bundle {
 /// Typed action before an interface spells command arguments.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
+    /// Remove expired local state and older incompatible cache files.
+    StoreClean,
     /// Probe source reachability and report publisher terms.
     Health,
     /// Run a query, retaining fresh policy.

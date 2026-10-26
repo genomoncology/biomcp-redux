@@ -10,7 +10,7 @@ use std::{io::Write, process::Stdio};
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("mcp/cancellation-suppresses-later-output", || {
             cancellation().map_err(Into::into)
         }),
@@ -27,7 +27,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("mcp/discovers-artifact-command-tree", || {
             discovery().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(super::store_clean::trials());
+    trials
 }
 
 fn environment() -> Result<Environment, String> {

@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
+mod local;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &["ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx"];
 
@@ -170,56 +171,14 @@ fn root() -> Result<Command, ()> {
         "hgnc", "clingen", "ema", "ddinter", "who-pq", "gtr", "who-ivd", "fda-cdx",
     ])));
     root = root.subcommand(Command::new("health"));
+    root = root.subcommand(
+        Command::new("store")
+            .subcommand_required(true)
+            .subcommand(Command::new("clean")),
+    );
     root = root.subcommand(crate::keys::grammar());
-    root = root.subcommand(help_command());
-    Ok(root.subcommand(serve_command()))
-}
-fn help_command() -> Command {
-    let mut help = Command::new("help")
-        .subcommand(
-            Command::new("network").arg(
-                Arg::new("setting")
-                    .required(true)
-                    .value_parser(["ca_bundle", "proxy"]),
-            ),
-        )
-        .subcommand(
-            Command::new("key").arg(
-                Arg::new("source")
-                    .required(true)
-                    .value_parser(crate::keys::names()),
-            ),
-        );
-    let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for (verb, entity, _) in QUERIES
-        .iter()
-        .copied()
-        .chain(BUNDLE_HELP.iter().map(|&bundle| ("sync", bundle, "")))
-    {
-        let command = verbs
-            .remove(verb)
-            .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
-        verbs.insert(verb, command.subcommand(Command::new(entity)));
-    }
-    for command in verbs.into_values() {
-        help = help.subcommand(command);
-    }
-    help
-}
-fn serve_command() -> Command {
-    Command::new("serve")
-        .arg(
-            Arg::new("http")
-                .long("http")
-                .num_args(0..=1)
-                .default_missing_value("127.0.0.1:8080"),
-        )
-        .arg(
-            Arg::new("allow-host")
-                .long("allow-host")
-                .action(ArgAction::Append)
-                .requires("http"),
-        )
+    root = root.subcommand(local::help_command());
+    Ok(root.subcommand(local::serve_command()))
 }
 
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -258,22 +217,12 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         });
     }
     let help = help_path(verb, matches)?;
-    let action = if verb == "health" {
+    let action = if verb == "store" {
+        Action::StoreClean
+    } else if verb == "health" {
         Action::Health
     } else if verb == "help" {
-        let source = matches
-            .subcommand()
-            .filter(|(name, _)| *name == "key")
-            .and_then(|(_, m)| m.get_one::<String>("source"))
-            .map_or(Ok(biomcp_types::Source::Oncokb), |s| {
-                if s == "ncbi" {
-                    Ok(biomcp_types::Source::PubMed)
-                } else {
-                    s.parse()
-                }
-            })
-            .map_err(|_| ())?;
-        Action::KeyHelp(source)
+        Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
             bundle: match matches.get_one::<String>("bundle").map(String::as_str) {

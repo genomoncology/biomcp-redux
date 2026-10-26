@@ -37,6 +37,7 @@ impl Store<'_> {
         problems: &[Problem],
     ) -> Result<Pool, CacheError> {
         self.write(|tx| {
+            Self::collect_expired(tx)?;
             let created=Self::now();let expires=created.saturating_add(86400);
             let id:String=tx.query_row("SELECT lower(hex(randomblob(16)))",[],|r|r.get(0)).map_err(db)?;
             let outcomes=serde_json::to_string(sources).map_err(|_|CacheError::Database)?;

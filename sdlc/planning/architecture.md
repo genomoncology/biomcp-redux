@@ -1361,7 +1361,7 @@ For sequential article stages, `Fetch::command_deadline` retains one fixed repla
 - A reply is fresh until its endpoint's freshness ends. A 404 is fresh for ten minutes.
 - A pool is readable by ID until it expires. It is the current pool for its request until it expires or a `--fresh` rerun replaces it.
 - A stale reply or bundle is served only when its source fails, and then only with `stale` in its source outcome. Offline mode serves stale values the same way.
-- Publishing a pool or snapshot deletes expired pools and snapshots in the same transaction. Expired replies stay for stale serving. `biomcp store clean` removes expired replies, expired pools and snapshots, and cache files from older incompatible schema versions. 1.0 has no size cap.
+- Publishing a pool or snapshot deletes expired pools, their current pointers and items, and expired trial and citation snapshots in the same transaction. Each kind uses the bounded `PUBLISH_BATCH` in the store cleanup module. Live pools and snapshots remain readable. Expired replies stay for stale serving. `biomcp store clean` removes expired replies, expired pools and snapshots, and cache files from older incompatible schema versions. 1.0 has no size cap.
 
 ### 7.3 When each table arrives
 
