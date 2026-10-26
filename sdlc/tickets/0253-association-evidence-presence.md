@@ -1,6 +1,7 @@
 # 0253 — Keep null association evidence absent instead of an empty list
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6b2f1774068ee91143e24173f3a34872c47216c1
 
 Milestone: 4
 

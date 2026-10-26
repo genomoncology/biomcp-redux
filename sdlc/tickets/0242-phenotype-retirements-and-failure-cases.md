@@ -1,6 +1,7 @@
 # 0242 — Retire old phenotype forms and prove phenotype failure and pairing cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3c38067965ddf23ecb2de1262b5c2217e605e19d
 
 Milestone: 4
 
