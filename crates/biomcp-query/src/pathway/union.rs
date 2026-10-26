@@ -203,10 +203,7 @@ fn refill(
             .fetch
             .leg(&reactome::SPEC, deadline)
             .fresh(cx.fresh || q.fresh());
-        let reply = reactome::search(
-            &leg,
-            &q.reactome_leg().at_offset(offset),
-        );
+        let reply = reactome::search(&leg, &q.reactome_leg().at_offset(offset));
         let error = reply.as_ref().err().copied();
         out.local = out.local.or_else(|| error.and_then(status::local));
         if let Some(source) = saved.3.get_mut(index) {
