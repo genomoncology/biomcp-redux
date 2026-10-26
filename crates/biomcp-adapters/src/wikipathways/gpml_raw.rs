@@ -64,7 +64,7 @@ impl Document {
             nodes: Vec::new(),
         })
     }
-    pub fn matches(&self, id: &biodata::WikiPathwaysId) -> Result<(), BadReply> {
+    pub(super) fn matches(&self, id: &biodata::WikiPathwaysId) -> Result<(), BadReply> {
         let revision = self
             .version
             .strip_prefix(&format!("{id}_r"))

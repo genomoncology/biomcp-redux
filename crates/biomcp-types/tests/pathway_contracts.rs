@@ -102,7 +102,7 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
                 .is_ok()
         );
         assert!(
-            serde_json::from_value::<PathwayGet>(json!({"id":"WP382","section":section})).is_err()
+            serde_json::from_value::<PathwayGet>(json!({"id":"WP382","section":section})).is_ok() == (section == "genes")
         );
     }
     for v in [
@@ -138,8 +138,11 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
         serde_json::from_value::<PathwayGenesQuery>(json!({"id":"R-HSA-5673001","details":null}))
             .is_err()
     );
+    let wiki = json!({"id":"WP382","limit":5,"offset":0});
+    assert_eq!(roundtrip::<PathwayGenesQuery>(wiki.clone()).expect("WikiPathways genes"), wiki);
+    assert!(serde_json::from_value::<PathwayEventsQuery>(wiki).is_err());
+    assert!(serde_json::from_value::<PathwayGenesQuery>(json!({"id":"WP382","details":"details"})).is_err());
     for q in [
-        json!({"id":"WP382"}),
         json!({"id":"R-HSA-5673001","limit":51}),
         json!({"id":"R-HSA-5673001","limit":0}),
     ] {

@@ -90,9 +90,9 @@ relation!(
     "Continue Reactome event objects and unresolved native integer references."
 );
 impl PathwayGenesQuery {
-    /// Request all physical contexts of each displayed membership reference.
+    /// Request all physical contexts where the native source provides them.
     pub fn with_details(mut self) -> Self {
-        self.0.details = Some(Details::Details);
+        if reactome(&self.0.id) { self.0.details = Some(Details::Details); }
         self
     }
     /// Whether full physical contexts were explicitly requested.
