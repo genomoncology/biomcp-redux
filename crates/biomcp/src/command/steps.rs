@@ -14,7 +14,7 @@ pub(super) fn next(
         .as_ref()
         .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
     match navigation(&result.body) {
-        Navigation::NativeGwas => append_network_steps(&mut steps, &result.sources),
+        Navigation::NativeOrder => append_network_steps(&mut steps, &result.sources),
         Navigation::BoundedPma => {
             append_network_steps(&mut steps, &result.sources);
             steps.truncate(5);
@@ -32,7 +32,7 @@ pub(super) fn next(
 
 #[derive(Debug)]
 enum Navigation<'a> {
-    NativeGwas,
+    NativeOrder,
     Bounded,
     Selectable,
     Nested(&'a biomcp_types::PgxPageInfo),
@@ -43,26 +43,26 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
-        Body::GwasPage(_) => Navigation::NativeGwas,
+        Body::GwasPage(_) | Body::PathwayEvents(_) => Navigation::NativeOrder,
+        Body::PathwayCard(Some(card)) if card.events.is_some() && card.genes.is_none() => {
+            Navigation::NativeOrder
+        }
         Body::ProteinPage(_) => Navigation::Selectable,
         Body::ProteinCard(card) => {
-            if card.items.iter().any(|item| !item.candidates.is_empty()) {
-                Navigation::Selectable
-            } else {
-                Navigation::Bounded
-            }
+            candidate_navigation(card.items.iter().any(|item| !item.candidates.is_empty()))
         }
-        Body::StudyProfiles(_) | Body::StudySampleLists(_) => Navigation::Bounded,
+        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
+            Navigation::Bounded
+        }
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
-        Body::PhenotypeCard(_) => Navigation::Bounded,
-        Body::PathwayCard(_) => Navigation::Bounded,
+        Body::PhenotypeCard(_)
+        | Body::PhenotypeSynonyms(_)
+        | Body::PhenotypeXrefs(_)
+        | Body::PhenotypeHierarchy(_) => Navigation::Bounded,
+        Body::PathwayCard(_) | Body::PathwayGenes(_) => Navigation::Bounded,
         Body::PgxAnnotations(PgxAnnotations::Clinical { page, .. }) => Navigation::Nested(page),
         Body::VariantCard(card) => {
-            if card.resolution == biomcp_types::VariantResolution::Candidates {
-                Navigation::Selectable
-            } else {
-                Navigation::Bounded
-            }
+            candidate_navigation(card.resolution == biomcp_types::VariantResolution::Candidates)
         }
         Body::DiagnosticCard(Some(biomcp_types::DiagnosticCard::PmaSubmission(_))) => {
             Navigation::BoundedPma
@@ -115,6 +115,14 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
         Body::ArticleEdges(_) | Body::TooManyPmids { .. } => Navigation::Bounded,
         Body::ArticleCards(_) | Body::PoolError { .. } => Navigation::Bounded,
         Body::ArticlePage(_) | Body::GeneCards(_) | Body::GenePage(_) => Navigation::Bounded,
+    }
+}
+
+fn candidate_navigation(candidates: bool) -> Navigation<'static> {
+    if candidates {
+        Navigation::Selectable
+    } else {
+        Navigation::Bounded
     }
 }
 

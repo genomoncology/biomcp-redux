@@ -2,7 +2,7 @@ use super::{PathwaySource, QueryInvalid, default_limit, valid_limit};
 use crate::GeneInput;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
-/// Search exactly one source through text, an exact gene join or top-level discovery.
+/// Search explicit source legs through literal text or Reactome identity discovery.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -31,9 +31,10 @@ struct SearchFields {
     /// Native human Reactome top-level discovery, exclusive with text and gene.
     #[serde(default)]
     top_level: bool,
-    /// One source; Reactome by default.
-    #[serde(default)]
-    source: PathwaySource,
+    /// Sources in caller order; repeated sources take turns without title joins.
+    #[serde(default = "default_sources", deserialize_with = "source_list")]
+    #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 2), extend("x-comma-separated" = true)))]
+    source: Box<[PathwaySource]>,
     /// Five rows by default, one to fifty. Reactome rows equals this limit without refill.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -61,7 +62,13 @@ impl TryFrom<SearchFields> for PathwaySearch {
             + usize::from(v.top_level);
         if selectors != 1
             || !valid_limit(v.limit)
-            || (v.source == PathwaySource::Wikipathways && (v.gene.is_some() || v.top_level))
+            || v.source.is_empty()
+            || v.source
+                .iter()
+                .enumerate()
+                .any(|(i, s)| v.source.iter().take(i).any(|p| p == s))
+            || (v.source.contains(&PathwaySource::Wikipathways)
+                && (v.gene.is_some() || v.top_level))
         {
             return Err(QueryInvalid);
         }
@@ -83,7 +90,7 @@ impl PathwaySearch {
     }
     /// Explicit source, without fallback.
     pub fn source(&self) -> PathwaySource {
-        self.0.source
+        self.0.source.first().copied().unwrap_or_default()
     }
     /// Native requested page size, which may exceed admitted rows.
     pub fn limit(&self) -> u32 {
@@ -119,6 +126,35 @@ impl PathwaySearch {
     pub fn at_offset(&self, offset: u32) -> Self {
         let mut value = self.clone();
         value.0.offset = offset;
+        value
+    }
+}
+
+fn default_sources() -> Box<[PathwaySource]> {
+    vec![PathwaySource::Reactome].into()
+}
+fn source_list<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Box<[PathwaySource]>, D::Error> {
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Input {
+        One(PathwaySource),
+        Many(Box<[PathwaySource]>),
+    }
+    Ok(match Input::deserialize(d)? {
+        Input::One(v) => vec![v].into(),
+        Input::Many(v) => v,
+    })
+}
+impl PathwaySearch {
+    /// Requested source legs in their unchanged caller order.
+    pub fn sources(&self) -> &[PathwaySource] {
+        &self.0.source
+    }
+    /// Select Reactome without weakening the checked gene and top-level restrictions.
+    pub fn reactome_leg(&self) -> Self {
+        let mut value = self.clone();
+        value.0.source = vec![PathwaySource::Reactome].into();
+        value.0.pool = None;
         value
     }
 }

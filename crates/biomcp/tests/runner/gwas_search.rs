@@ -8,11 +8,27 @@ use std::{
 };
 mod mechanics;
 mod native;
+mod threshold;
 mod wire;
 pub(super) fn trials() -> Vec<Trial> {
     let native_directory = super::launch::fixtures().join("gwas-native-cases");
     let absent = !native_directory.is_dir();
     vec![
+        Trial::test("gwas-search/retained-threshold-witnesses-and-costs", || {
+            threshold::native(&super::launch::fixtures().join("gwas-threshold-cases"))
+                .map_err(Into::into)
+        })
+        .with_ignored_flag(
+            !super::launch::fixtures()
+                .join("gwas-threshold-cases")
+                .is_dir(),
+        ),
+        Trial::test("gwas-search/threshold-later-page-failures", || {
+            threshold::failures().map_err(Into::into)
+        }),
+        Trial::test("gwas-search/exact-threshold-page-walk", || {
+            threshold::walk().map_err(Into::into)
+        }),
         Trial::test(
             "gwas-search/retained-native-witnesses-and-costs",
             move || native::run(&native_directory).map_err(Into::into),

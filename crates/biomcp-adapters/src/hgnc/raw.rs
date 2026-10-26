@@ -1,4 +1,4 @@
-use biodata::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId};
+use biodata::{Cytoband, EnsemblGeneId, GeneSymbol, HgncId, NcbiGeneId, UniProtAcc};
 
 use biomcp_fetch::{KeyKind, Keys, Row};
 use serde::Deserialize;
@@ -44,6 +44,12 @@ impl Row for Gene {
         if let Ok(id) = cell(&self.ensembl_gene_id).parse::<EnsemblGeneId>() {
             keys.exact
                 .push((KeyKind::Xref, format!("ensembl:{}", id.base()).into()));
+        }
+        for value in parts(cell(&self.uniprot_ids)) {
+            if let Ok(id) = UniProtAcc::new(value) {
+                keys.exact
+                    .push((KeyKind::Xref, format!("uniprot:{id}").into()));
+            }
         }
         if Cytoband::new(cell(&self.location)).is_ok() {
             keys.exact

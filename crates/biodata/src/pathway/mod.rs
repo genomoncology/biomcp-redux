@@ -59,14 +59,20 @@ pub struct PathwayMember {
     /// Native label, never interpreted as a gene symbol.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<Text>,
+    /// Native reference URL, including therapeutic references without a drug action.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_url: Option<Text>,
     /// Exact resolved gene identifier, absent when no checked join exists.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gene: Option<HgncId>,
     /// Native reference schema class.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub schema_class: Option<Text>,
-    /// Physical source entities that carry this reference; preserve modification context.
-    pub participants: Box<[PathwayParticipant]>,
+    /// Number of source physical entity contexts carrying this exact reference.
+    pub physical_context_count: u64,
+    /// Complete physical contexts, disclosed only by the explicit details view.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub participants: Option<Box<[PathwayParticipant]>>,
 }
 /// An event object or unresolved integer reference; never the parent's inferred ID.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -85,6 +91,9 @@ pub enum PathwayEventRef {
         /// Native stable identity when present, never copied from the pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         id: Option<ReactomeId>,
+        /// Publisher record URL for the event's own stable identity, never the parent pathway.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        source_url: Option<Text>,
         /// Whole native stIdVersion, separate from the event stable identity.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         version: Option<Text>,

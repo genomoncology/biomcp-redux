@@ -16,7 +16,7 @@ pub(super) fn search(
             &mut next,
             StepKind::Page,
             Request::SearchGwas(query.clone()),
-            fresh,
+            fresh && query.pool().is_none(),
         );
     }
     let before = next.len();

@@ -1,0 +1,43 @@
+{
+  "feature": "pathway-reactome",
+  "story": "validation",
+  "replay": "pathway/sections",
+  "steps": [
+    {
+      "run": [
+        "pathway",
+        "events",
+        "WP382"
+      ],
+      "mcp": [
+        "pathway",
+        "events",
+        "WP382"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "WP382",
+        "events"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "WP382",
+        "events"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

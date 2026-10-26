@@ -19,6 +19,10 @@ pub enum Request {
     SearchPathway(crate::PathwaySearch),
     /// Read an exact human pathway card or summary.
     GetPathway(crate::PathwayGet),
+    /// Page retained exact source membership references.
+    PathwayGenes(crate::PathwayGenesQuery),
+    /// Page retained source-contained event references.
+    PathwayEvents(crate::PathwayEventsQuery),
     /// Discover literal study catalog metadata.
     SearchStudy(crate::StudySearch),
     /// Read exact study metadata.

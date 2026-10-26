@@ -10,13 +10,16 @@ pub struct GwasPage {
     pub items: Box<[GwasAssociation]>,
     /// Native page scope and total.
     pub page: PageInfo,
+    /// Complete qualifying count, unknown until the threshold walk reaches its end.
+    #[serde(default)]
+    pub qualifying_total: Option<u64>,
     /// Same-selector search continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "GwasPageQuery"))]
     pub continuation: Option<GwasPageQuery>,
 }
 impl ResponseBody for GwasPage {
-    const SCHEMA: &'static str = "biomcp.gwas_page/2";
+    const SCHEMA: &'static str = "biomcp.gwas_page/3";
     type Query = GwasPageQuery;
 }
 /// Exact association card; no second association representation.

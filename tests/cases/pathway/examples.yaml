@@ -51,8 +51,8 @@
         "/result/pathway/version": "R-HSA-9652817.2",
         "/result/release": "97"
       },
-      "max_bytes": 549,
-      "max_tokens": 137
+      "max_bytes": 707,
+      "max_tokens": 178
     },
     {
       "run": [
@@ -78,8 +78,8 @@
         "/result/pathway/version": "R-HSA-177929.6",
         "/result/release": "97"
       },
-      "max_bytes": 535,
-      "max_tokens": 134
+      "max_bytes": 690,
+      "max_tokens": 173
     }
   ]
 }

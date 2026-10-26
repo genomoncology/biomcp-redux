@@ -324,3 +324,24 @@ Failure cases cover 429, 500, timeout, malformed JSON, HTTP 200 wrong identity, 
 The PM decides the product forms and scope through design review. The source contracts and measurements below supply the trade-offs. No clinical or configuration question needs Ian. A material expansion beyond entity access, a new paid service or publication still needs the existing approval path.
 
 The recommendation for PM review is the API-only command tree above, a three-association default page, exact study and association gets, and explicit ancestry and locus sections. The measured largest three-row projection is 2,837 bytes; adopting every candidate bundle would transfer at least the four server-reported object lengths above and add storage/indexing work without answering a demonstrated additional question. Keep the current restricted source policy and the existing adapter deadline. Review the page-scoped `--p-value` semantics explicitly; its lower request cost trades away a claim of complete threshold enumeration. Clinical source-label discrepancies and the PMID 18438407 gap remain visible limitations. The contained 0.9 runtime comparison remains unmeasured and must not be treated as passed.
+
+### Exact positive thresholds
+
+The exact positive-threshold command supersedes the earlier page-scoped proposal. It compares the retained native mantissa and exponent, includes equality, and stops at the first above-threshold row or the source end. A threshold of zero is a usage error before source access, as PM ruling m6762 answer 1 requires. The source total stays in `page.total`; `result.qualifying_total` is null until the walk proves its end. A retained continuation binds every selector, the native order, threshold and page size. It rejects duplicate identities, decreasing p values and changed source totals across pages. The retained pool keeps its original lifetime and offers an explicit restart when absent or mismatched.
+
+The native proof reuses the exact size-three publication and study pages from the existing investigation and selector archives. It makes no source request. Per PM ruling m6762 answer 2, the threshold between associations 6112 and 6113 returns three rows with an unknown qualifying total first, then zero rows with qualifying total three. Synthetic command cases cover equality, underflow, usage, out-of-order pages, duplicate identities and later-page source failures.
+
+The evidence store holds `data/biomcp-redux/0215-gwas-threshold/product-ff179f837f0200d0fa1c72c5fd3e19d8a5608f96.tar.gz`, SHA-256 `97c18347e6be2d189fa7f3d9e94d5996020f2ff7b1f281ee32af4e7e131549f6`. The job verified the transferred manifest before scratch cleanup. Each file is a schema-validated product response from retained source replies. The initial command steps also prove CLI/MCP parity; a synthetic two-page walk proves continuation parity. Full bytes include the CLI newline. Comparable bytes use the shared response measurement. `tests/gwas-threshold-budgets.json` owns the measured values and the runner applies a fifteen-percent ceiling to full and comparable bytes. Every external case step has a comparable byte and estimated-token ceiling.
+
+| Native response | Full bytes | Comparable bytes | Full byte ceiling | Comparable byte ceiling |
+|---|---:|---:|---:|---:|
+| `pubmed-all-first` | 2,648 | 2,524 | 3,046 | 2,903 |
+| `pubmed-all-last` | 2,347 | 2,223 | 2,700 | 2,557 |
+| `pubmed-below-first` | 760 | 636 | 874 | 732 |
+| `pubmed-crossing` | 801 | 677 | 922 | 779 |
+| `study-all-first` | 2,651 | 2,527 | 3,049 | 2,907 |
+| `study-all-last` | 2,348 | 2,224 | 2,701 | 2,558 |
+| `study-below-first` | 761 | 637 | 876 | 733 |
+| `study-crossing` | 802 | 678 | 923 | 780 |
+| `pubmed-crossing-first` | 2,654 | 2,530 | 3,053 | 2,910 |
+| `study-crossing-first` | 2,657 | 2,533 | 3,056 | 2,913 |

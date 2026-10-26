@@ -9,25 +9,8 @@ pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> i
             meta.encode(q, body)
         }
         (Request::GetPathway(q), QueryBody::PathwayCard(body)) => meta.encode(q, body),
+        (Request::PathwayGenes(q), QueryBody::PathwayGenes(body)) => meta.encode(q, body),
+        (Request::PathwayEvents(q), QueryBody::PathwayEvents(body)) => meta.encode(q, body),
         _ => Err(io::Error::other("pathway response mismatch")),
-    }
-}
-pub(super) fn unsupported(action: &biomcp_query::Action) -> bool {
-    match action {
-        biomcp_query::Action::Run {
-            request: Request::SearchPathway(q),
-            ..
-        } => q.source() != biomcp_types::PathwaySource::Reactome,
-        biomcp_query::Action::Run {
-            request: Request::GetPathway(q),
-            ..
-        } => {
-            !matches!(q.id(), biodata::PathwayId::Reactome(_))
-                || !matches!(
-                    q.section(),
-                    None | Some(biomcp_types::PathwaySection::Summary)
-                )
-        }
-        _ => false,
     }
 }

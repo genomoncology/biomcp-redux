@@ -19,7 +19,7 @@ fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
         .and_then(Value::as_str)
         .ok_or_else(|| format!("missing {key}"))
 }
-fn archived_body(root: &Path, row: &Value) -> Result<(Value, String), String> {
+pub(super) fn archived_body(root: &Path, row: &Value) -> Result<(Value, String), String> {
     let bytes = fs::read(root.join(text(row, "body")?)).map_err(|e| e.to_string())?;
     let hash = Sha256::digest(&bytes)
         .iter()
@@ -233,7 +233,7 @@ pub(super) fn mcp(
     Ok(())
 }
 
-fn restore_date(directory: &Path, fetched: u64) -> Result<(), String> {
+pub(super) fn restore_date(directory: &Path, fetched: u64) -> Result<(), String> {
     for source in ["hpo", "monarch"] {
         let path = directory.join(source);
         if !path.exists() {
@@ -309,17 +309,41 @@ fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
     if result.pointer("/result/sections") != Some(&json!(expected)) {
         return Err("native available sections changed".into());
     }
-    if result.get("next").is_some() {
-        return Err("card advertised a section handler before it exists".into());
+    let handlers = expected
+        .into_iter()
+        .filter(|section| matches!(*section, "synonyms" | "xrefs" | "hierarchy"))
+        .collect::<Vec<_>>();
+    let next = result
+        .get("next")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or_default();
+    if next.len() != handlers.len()
+        || next.iter().zip(handlers).any(|(step, section)| {
+            step.get("kind") != Some(&json!("section"))
+                || step.pointer("/args/3") != Some(&json!(section))
+        })
+    {
+        return Err("card section steps do not match the implemented source fields".into());
     }
     Ok(())
 }
 
 // Fixed j14607/j14614 comparable CLI/MCP measurements plus fifteen percent.
 fn native_ceiling(body: &str) -> Result<usize, String> {
+    let card = match body {
+        "00-hpo-term.raw" => Some(("HP_0001250", "hpo")),
+        "01-monarch-term.raw" => Some(("HP_0001250", "monarch")),
+        "40-obsolete.raw" => Some(("HP_0001676", "monarch")),
+        _ => body
+            .split_once("-card-")
+            .and_then(|(_, id)| id.strip_suffix(".raw"))
+            .map(|id| (id, "hpo")),
+    };
+    if let Some((id, source)) = card {
+        return super::section_native::ceiling(&format!("card-{id}-{source}"));
+    }
     Ok(match body {
-        "00-hpo-term.raw" => 1168,
-        "01-monarch-term.raw" => 1861,
         "02-P01-monarch-search.raw" => 1690,
         "03-P02-monarch-search.raw" => 2286,
         "04-P03-monarch-search.raw" => 1086,
@@ -336,29 +360,11 @@ fn native_ceiling(body: &str) -> Result<usize, String> {
         "15-P14-monarch-search.raw" => 2317,
         "16-P15-monarch-search.raw" => 1386,
         "17-P16-monarch-search.raw" => 2249,
-        "18-card-HP_0000957.raw" => 1242,
-        "19-card-HP_0001067.raw" => 841,
-        "20-card-HP_0009732.raw" => 778,
-        "21-card-HP_0000997.raw" => 843,
-        "22-card-HP_0000256.raw" => 1797,
-        "23-card-HP_0200008.raw" => 671,
-        "24-card-HP_0004390.raw" => 1041,
-        "25-card-HP_0012032.raw" => 728,
-        "26-card-HP_0001263.raw" => 1484,
-        "27-card-HP_0005562.raw" => 661,
-        "28-card-HP_0000107.raw" => 641,
-        "29-card-HP_0002666.raw" => 978,
-        "30-card-HP_0001737.raw" => 822,
-        "31-card-HP_0030436.raw" => 1057,
-        "32-card-HP_0005948.raw" => 1031,
-        "33-card-HP_0032445.raw" => 1472,
-        "34-card-HP_0002108.raw" => 697,
         "35-P24-monarch-empty.raw" => 732,
         "36-P24-hpo-absent.raw" => 203,
         "37-P02-middle.raw" => 2248,
         "38-P16-middle.raw" => 2207,
         "39-P02-terminal.raw" => 1040,
-        "40-obsolete.raw" => 1049,
         _ => return Err("unmeasured native phenotype case".into()),
     })
 }

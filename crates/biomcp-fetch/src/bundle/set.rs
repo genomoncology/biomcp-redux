@@ -77,7 +77,7 @@ impl Fetch {
                 .get(part.path)
                 .bytes(match format {
                     RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
-                    _ => super::MAX_BUNDLE_BYTES,
+                    _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
                 })
                 .fresh(Freshness::Never);
             let body = leg.bytes_checked(&endpoint, &[], |body| {

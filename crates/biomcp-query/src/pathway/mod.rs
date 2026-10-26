@@ -1,11 +1,19 @@
 //! Human source-owned pathway discovery and exact identity retrieval.
 mod gene;
 mod get;
+mod get_sections;
+mod membership;
+mod relation;
+mod relation_snapshot;
+mod relation_steps;
 mod search;
 mod snapshot;
+mod union;
+mod wikipathways;
 use crate::{Action, Outcome};
 use biomcp_types::{QueryBody, Request, Status};
 pub use get::get;
+pub use relation::{events, genes};
 pub use search::search;
 fn empty(body: QueryBody) -> Outcome {
     Outcome {
