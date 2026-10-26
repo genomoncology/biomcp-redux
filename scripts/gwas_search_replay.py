@@ -67,7 +67,7 @@ def case(root, name, url, body, expected_ids=None):
     if name == 'tomlinson':
         expect['/result/items/0/odds_ratio'] = 1.27
     # Projection ceilings are starting measurements, not claims about shipped output.
-    write(root / 'cases' / (name + '.yaml'), {
+    write(root / 'fixtures/gwas-native-cases' / (name + '.yaml'), {
         'feature': 'gwas-search', 'live_check': 'retained restricted source replies outside Git',
         'story': name, 'replay': 'native', 'steps': [step]})
 

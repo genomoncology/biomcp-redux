@@ -8,9 +8,17 @@ use std::{
     path::{Path, PathBuf},
 };
 mod mechanics;
+mod native;
 mod wire;
 pub(super) fn trials() -> Vec<Trial> {
+    let native_directory = super::launch::fixtures().join("gwas-native-cases");
+    let absent = !native_directory.is_dir();
     vec![
+        Trial::test(
+            "gwas-search/retained-native-witnesses-and-costs",
+            move || native::run(&native_directory).map_err(Into::into),
+        )
+        .with_ignored_flag(absent),
         Trial::test("gwas-search/restricted-policy-before-io", || {
             policy().map_err(Into::into)
         }),
