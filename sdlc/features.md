@@ -172,3 +172,5 @@ cell-line-all: A caller receives every bounded first section page with independe
 
 author-search: Literal Semantic Scholar author candidates retain provider identities and native order. Cases: `tests/cases/author/*.yaml`, `crates/biomcp/tests/runner/author/*.rs`.
 author-orcid: Read exact public ORCID names and locally page whole public work groups without identity joins. Cases: `tests/cases/orcid/*.yaml`, `crates/biomcp/tests/runner/orcid.rs`.
+
+author-papers: Exact Semantic Scholar author papers preserve native order, IDs and details. Cases: `tests/cases/author/papers*.yaml`.

@@ -1,0 +1,66 @@
+{
+  "live_check": "synthetic control",
+  "feature": "author-papers",
+  "story": "Details and full preserve the same page, absent metadata, source counts and repeated bylines",
+  "replay": "author/papers",
+  "steps": [
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:123",
+        "details"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:123",
+        "details"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "/result/items/0/abstract_text": "Synthetic abstract for a replay control.",
+        "/result/items/0/reference_count": 0,
+        "/result/items/0/authors/*/name": [
+          "Repeated synthetic name",
+          "Repeated synthetic name"
+        ],
+        "/result/items/0/publication_types": [],
+        "/result/items/0/is_open_access": false
+      },
+      "max_bytes": 1359,
+      "max_tokens": 340,
+      "full_output_bytes": true
+    },
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:123",
+        "--full"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:123",
+        "--full"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "/result/items/0/abstract_text": "Synthetic abstract for a replay control.",
+        "/result/items/0/reference_count": 0,
+        "/result/items/0/authors/*/name": [
+          "Repeated synthetic name",
+          "Repeated synthetic name"
+        ],
+        "/result/items/0/publication_types": [],
+        "/result/items/0/is_open_access": false
+      },
+      "max_bytes": 1359,
+      "max_tokens": 340,
+      "full_output_bytes": true
+    }
+  ]
+}

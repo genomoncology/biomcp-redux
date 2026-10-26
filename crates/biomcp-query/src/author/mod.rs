@@ -3,7 +3,9 @@ mod get;
 mod orcid;
 mod papers;
 pub use papers::papers;
+mod papers_snapshot;
 mod search;
+mod semantic_scholar;
 mod snapshot;
 use crate::{Action, Outcome};
 use biomcp_types::{

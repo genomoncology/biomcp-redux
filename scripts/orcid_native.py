@@ -1,5 +1,6 @@
 """Derive exact public-field assertions from accepted ORCID captures outside Git."""
 import json
+import re
 from pathlib import Path
 
 
@@ -119,7 +120,8 @@ def group_step(identifier, total, index, group):
                 expect[prefix + '/source/' + name.replace('-', '_')] = value.get('value', value.get('path'))
         for external in assertion['external-ids']['external-id']:
             kind, value = external['external-id-type'], external['external-id-value']
-            if external['external-id-relationship'] == 'self' and kind in ['pmid', 'doi']:
+            pattern = r'10\.[0-9]+/[^\s\x00-\x1f\x7f]+' if kind == 'doi' else r'[1-9][0-9]*'
+            if external['external-id-relationship'] == 'self' and kind in ['pmid', 'doi'] and re.fullmatch(pattern, value):
                 identity = (kind, value.lower() if kind == 'doi' else value)
                 if identity not in pivot_ids:
                     pivot_ids.add(identity)

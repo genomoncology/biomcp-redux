@@ -1,9 +1,11 @@
 //! Literal native author candidates and request-checked exact provider cards.
+mod papers;
 mod raw;
 use super::SPEC;
 use biodata::{AuthorCard, SemanticScholarAuthorId};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::AuthorSearch;
+pub use papers::{Paper, PapersPage, papers};
 pub use raw::Page;
 const FIELDS: &str = "authorId,name,affiliations,paperCount,citationCount,hIndex,url";
 /// Read one unchanged source query in native order.

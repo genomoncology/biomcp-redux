@@ -1,0 +1,72 @@
+{
+  "feature": "author-papers",
+  "story": "Retained exact native author paper page preserves source identifiers and disclosure",
+  "steps": [
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:9845886",
+        "details"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:9845886",
+        "details"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:9845886",
+        "/result/items/*/header/paper_id": [
+          "1bab55cc9321b768db14ed158b32ce4cbed571a3",
+          "2ac85962e12032bb938f605a6744beb9aca3682c",
+          "3e00b537eb70774bff9f91c80530c77f2b1af728",
+          "3eb22b1e8a2cbf19508f11ca60fac83a594577f5",
+          "4311d203c6c4138f10c4cd9a78d8fa6079f66358"
+        ],
+        "/next/5/kind": "page",
+        "/query/id": "semantic-scholar:9845886",
+        "/query/limit": 5,
+        "/query/offset": 0,
+        "/query/section": "details"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 24198,
+      "max_tokens": 6050
+    },
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:9845886",
+        "--full"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:9845886",
+        "--full"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:9845886",
+        "/result/items/*/header/paper_id": [
+          "1bab55cc9321b768db14ed158b32ce4cbed571a3",
+          "2ac85962e12032bb938f605a6744beb9aca3682c",
+          "3e00b537eb70774bff9f91c80530c77f2b1af728",
+          "3eb22b1e8a2cbf19508f11ca60fac83a594577f5",
+          "4311d203c6c4138f10c4cd9a78d8fa6079f66358"
+        ],
+        "/next/5/kind": "page",
+        "/query/id": "semantic-scholar:9845886",
+        "/query/limit": 5,
+        "/query/offset": 0,
+        "/query/section": "details"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 24198,
+      "max_tokens": 6050
+    }
+  ]
+}

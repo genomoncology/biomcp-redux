@@ -103,6 +103,7 @@ fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<Art
         types,
         types_unknown: false,
         first_author,
+        first_author_id: None,
         author_count,
     })
 }
