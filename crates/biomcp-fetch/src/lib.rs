@@ -2,8 +2,8 @@
 
 mod observe;
 mod observe_context;
-pub use observe_context::{Identities, Provenance};
 pub use observe::{MAX_OBSERVATIONS, Observation, Observations, Shape};
+pub use observe_context::{Identities, Provenance};
 mod batch;
 mod bundle;
 mod cache;

@@ -141,14 +141,18 @@ def command_classification(capture, discoveries):
 
 
 def classify_case(row):
+    if not isinstance(row, dict) or not isinstance(row.get('case'), str):
+        raise ValueError('invalid case row')
     result = row.get('result', {})
+    if row.get('error') is None and 'drift' not in result:
+        raise ValueError('missing case result')
     drift = result.get('drift', [])
     if not isinstance(drift, list) or any(not isinstance(item, str) for item in drift):
         raise ValueError('invalid case drift')
     if row.get('error') is not None:
         return 'failure'
     if not drift:
-        return 'healthy'
+        return 'uncertain' if cut(row.get('witness')) else 'healthy'
     # Schema and equivalent-request invariants always retain their failure status.
     invariant = any(not (': request-plan-' in item or ': HTTP status ' in item
                          or item.startswith('more drift details omitted;')) for item in drift)

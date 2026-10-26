@@ -156,7 +156,10 @@ struct Publications {
 }
 impl Reply for Publications {
     fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        biomcp_fetch::Identities::bounded("pmid", self.pmids.iter().map(ToString::to_string).collect())
+        biomcp_fetch::Identities::bounded(
+            "pmid",
+            self.pmids.iter().map(ToString::to_string).collect(),
+        )
     }
     fn check(&self) -> Result<(), BadReply> {
         if self.pmids.len() as u64 > self.pmids_count || self.pmids.contains(&0) {

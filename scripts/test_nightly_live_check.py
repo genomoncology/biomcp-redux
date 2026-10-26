@@ -70,7 +70,9 @@ def classification_case(change):
         after.reverse()
     witness = [{"ordinal": 1,
                 "baseline": {"requests": before}, "live": {"requests": after}}]
-    if change == 'cut':
+    if change in ('cut', 'clean-cut'):
+        if change == 'clean-cut':
+            drift = []
         witness = {"cut": True}
     return {"case": change, "result": {"drift": drift}, "witness": witness}
 
@@ -164,7 +166,7 @@ class NightlyCommand(unittest.TestCase):
         self.assertEqual(self.scratch(), [])
 
     def classified(self, row, expected, exit_code):
-        report = {"drift_cases": 1, "error_cases": 0,
+        report = {"drift_cases": int(bool(row["result"]["drift"])), "error_cases": 0,
                   "checked": 1, "omitted": 0, "case_sample": [row]}
         result = self.run_command(FAKE_REPORT=json.dumps(report))
         self.assertEqual(result.returncode == 0, exit_code == 0, result.stdout + result.stderr)
@@ -178,7 +180,7 @@ class NightlyCommand(unittest.TestCase):
                 ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
                 ('order', 'healthy', 0), ('schema', 'failure', 1),
                 ('500', 'failure', 1), ('429', 'throttled', 0),
-                ('cut', 'uncertain', 1), ('missing', 'uncertain', 1),
+                ('cut', 'uncertain', 1), ('clean-cut', 'uncertain', 1), ('missing', 'uncertain', 1),
                 ('unrelated', 'failure', 1), ('invariant', 'failure', 1)]:
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)

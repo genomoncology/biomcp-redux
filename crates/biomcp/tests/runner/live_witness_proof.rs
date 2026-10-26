@@ -212,18 +212,37 @@ pub(super) fn credentials() -> Result<(), String> {
 fn discovery_context() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
     let replay = super::super::launch::fixtures().join("replies/article/search/live");
-    let requests = super::observe(&env, &replay, "discovery", &["search", "article", "AKT1 E17K"])?;
-    let discovery = requests.iter().find_map(|request| request.provenance.discovery.as_ref())
+    let requests = super::observe(
+        &env,
+        &replay,
+        "discovery",
+        &["search", "article", "AKT1 E17K"],
+    )?;
+    let discovery = requests
+        .iter()
+        .find_map(|request| request.provenance.discovery.as_ref())
         .ok_or("checked discovery identities absent")?;
     if discovery.namespace != "pmid" || discovery.ids.len() != 192 {
         return Err("whole native discovery selection was sampled or relabeled".into());
     }
-    let inputs = requests.iter().find_map(|request| request.provenance.inputs.as_ref())
+    let inputs = requests
+        .iter()
+        .find_map(|request| request.provenance.inputs.as_ref())
         .ok_or("explicit dependent POST inputs absent")?;
-    if inputs.namespace != "pmid" || inputs.ids.is_empty()
+    if inputs.namespace != "pmid"
+        || inputs.ids.is_empty()
         || !inputs.ids.iter().all(|id| discovery.ids.contains(id))
-        || requests.iter().filter(|request| request.bytes > 0)
-            .any(|request| request.provenance.response_digest.as_ref().is_none_or(|hash| hash.len() != 64)) {
+        || requests
+            .iter()
+            .filter(|request| request.bytes > 0)
+            .any(|request| {
+                request
+                    .provenance
+                    .response_digest
+                    .as_ref()
+                    .is_none_or(|hash| hash.len() != 64)
+            })
+    {
         return Err("dependent provenance or response digest lost".into());
     }
     Ok(())

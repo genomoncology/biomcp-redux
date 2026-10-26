@@ -367,8 +367,12 @@ impl Leg<'_> {
                 body.len() as u64,
                 crate::Shape::inspect(body, media),
                 elapsed,
-                (std::any::type_name::<T>(), false, &prepared.url,
-                    crate::Provenance::received::<T>(prepared, body, status)),
+                (
+                    std::any::type_name::<T>(),
+                    false,
+                    &prepared.url,
+                    crate::Provenance::received::<T>(prepared, body, status),
+                ),
             );
         }
     }

@@ -22,7 +22,14 @@ pub(super) struct ErrorList {
 }
 impl Reply for Search {
     fn discovery(&self) -> Option<biomcp_fetch::Identities> {
-        biomcp_fetch::Identities::bounded("pmid", self.esearchresult.idlist.iter().map(ToString::to_string).collect())
+        biomcp_fetch::Identities::bounded(
+            "pmid",
+            self.esearchresult
+                .idlist
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
+        )
     }
     fn check(&self) -> Result<(), BadReply> {
         let r = &self.esearchresult;
