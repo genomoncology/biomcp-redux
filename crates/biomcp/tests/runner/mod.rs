@@ -346,6 +346,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(litvar_tables::trials());
     trials.extend(named_search::trials());
     trials.extend(protein_commands::trials());
+    trials.extend(pathway_retirements::trials());
     trials.extend(trial_group::trials());
     trials.extend(clinvar_key::trials());
     trials.push(Trial::test("article-fulltext/source-boundaries", || {
