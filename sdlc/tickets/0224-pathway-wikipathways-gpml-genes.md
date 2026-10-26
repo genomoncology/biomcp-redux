@@ -1,0 +1,18 @@
+# 0224 — Add WikiPathways genes from the exact per-pathway GPML
+
+Status: OPEN.
+
+Milestone: 4
+
+Depends on: 0219
+Depends on: 0222
+
+## Outcome
+
+`get pathway WP382 genes` fetches the exact publisher-linked GPML for that one pathway, parses it with a reviewed XML parser under its own byte and node bounds, checks the returned WP identity, revision and `Homo sapiens` organism against the request, and returns the first five `GeneProduct` data nodes as members, each with its native label, its xref namespace and value, and an optional HGNC ID resolved through the existing exact HGNC maps for Entrez Gene, Ensembl and HGNC references. `pathway genes WP382` pages the retained member relation with `--limit`, `--offset` and `--pool`, and `get pathway WP382 all` now includes the genes section's first page.
+
+- Why: the 2026-10-26 pathway rulings approve WikiPathways genes through exact per-pathway GPML as its own ticket after the Reactome tickets, with its own parser and bounds.
+- Starts from: pathway.md's GPML findings, public fields and identity joins and bundles section; the 2026-10-26 pathway rulings; the separate `WP382_r140476` GPML capture in the 0191 evidence archive, with 263 data nodes of which 252 are `GeneProduct`, 6 `Metabolite` and 5 `Pathway`; 0219's member types, pivots and continuation command; 0222's catalog bundle and WP card.
+- Rules: the GPML URL is the exact publisher link for the requested WP ID that the capture recorded, with no guessed host or path and no fallback to the xref catalog or the monthly GPML archive. One GET per pathway, with a deadline, a body bound and no retry or redirect; a truncated or malformed body is a failed outcome, never a partial member list. The parser reads only the fields the capture proved and rejects external entities. A label never resolves an identifier, and a node count is never a distinct gene count. Metabolite, pathway, label and group nodes are not genes and stay out of the genes section or are counted separately by kind. A missing or empty xref namespace stays an unresolved member with a problem and no gene action. Totals say whether they count data nodes or distinct references. Next steps follow architecture 6.10: one pivot per distinct resolved gene in source order, then the page step. No drug, article or trial fanout.
+- Proof: outside-in cases first, watched to fail. Before parser code, one bounded keyless pm job captures the WP382 GPML and one second human pathway's GPML once, with zero retries. WP382 asserts its identity `WP382_r140476`, its 252 `GeneProduct` nodes on the capture date, TRAF6 resolved through Entrez 7189 and ELK4 through `ENSG00000158711`, its two empty-namespace nodes kept unresolved and its metabolite nodes kept out of the gene count; a walk asserts no gap or duplicate; a wrong returned WP identity or organism asserts the drop and no cache admission. Recorded 429, 500, timeout, oversized and broken-XML cases assert a failed outcome with source and terms, never an empty page. The job measures the genes page and `all` in CLI and MCP output, starting from the design allocation of 850 tokens for a genes page, and each case gets a ceiling at measured size plus 15 percent, recorded in pathway.md; a measurement over its allocation goes to the PM before landing. Then make landing-gate runs through pm job.
+- Defers: the full GPML archive, its decompressed size and a bundle-wide gene index, which need a later bounded whole-bundle job and their own design.

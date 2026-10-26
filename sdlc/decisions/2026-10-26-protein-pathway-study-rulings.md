@@ -67,3 +67,13 @@ Added 2026-10-26 on the 0196 proposal.
 - Accept the sections `names`, `identity`, `xrefs`, `variants` and `chembl`, and the separate `cell-line assay-count CHEMBL_CELL_ID` command. Defaults: five names, five xrefs, three variation rows.
 - Keep `all`, unlike the proposal. Protein and pathway keep `all`, and the entities stay consistent: `all` returns each named section's bounded first page, including the one `chembl` request, and never the assay count.
 - Accept the payload targets as starting points; each product ticket sets final ceilings from measured output plus 15%.
+
+## Ticket filing rulings
+
+Added 2026-10-26 while filing the slice tickets.
+
+- Phenotype: `get phenotype HP:ID` defaults to `hpo` for the card, `synonyms` and `xrefs`. `--source monarch` selects Monarch's. `hierarchy`, `diseases` and `genes` use Monarch without a flag, and `--source hpo` with them fails before I/O. A search header's get step uses the default source. HPO's `attribution` is its use label; no new source group.
+- GWAS: `search gwas` has no sort option, so threshold searches always use native p-value-ascending order. A p value equal to the threshold qualifies. Further threshold pages are continuation steps. `--include-child-traits` without `--trait-id` and `--extended-geneset` without `--gene` are usage errors. A selector whose capture fails stays deferred and returns to the PM.
+- Study: `get study` sections page with `--section-limit` and `--section-offset`, as other entities do. The patient total stays in `counts`. The DataHub `study_list.json` catalog is deferred. DataHub file reads sit under the `cbioportal` declaration. Empty search text with no `--cancer-type` fails before I/O. `all` never sends the gene aggregate request.
+- Pathway: `pathway drugs` retirement uses the `gene drugs` guidance, because reverse gene-to-drug search is unsupported.
+- Protein: `function` is a get section only. Source spellings are `interpro` and `complex-portal`. `protein features --type` takes UniProt's native feature type label exactly, such as `Domain` or `DNA binding`, with no alias mapping. `ProteinSite` is not adopted until a command uses it. `ProteinHeader` shares the gene slice's `Protein` record fields without a second name for one concept.
