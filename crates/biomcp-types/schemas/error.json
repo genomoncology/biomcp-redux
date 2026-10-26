@@ -84,6 +84,8 @@
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
+        "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
+        "use: get gwas association:<positive ID> [loci] or get gwas <exact GCST accession> [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never repaired",
         "use: search adverse-event <TEXT>; text stays literal",
         "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         "renamed; use: --received-from",

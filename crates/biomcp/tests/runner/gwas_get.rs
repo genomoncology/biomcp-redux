@@ -8,8 +8,9 @@ use std::{
 };
 mod native;
 mod synthetic;
+mod failures;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("gwas-get/exact-identities-and-no-cache-admission", || {
             synthetic::identity().map_err(Into::into)
         }),
@@ -30,7 +31,9 @@ pub(super) fn trials() -> Vec<Trial> {
                 .join("gwas-get-native/input.json")
                 .is_file(),
         ),
-    ]
+    ];
+    trials.extend(failures::trials());
+    trials
 }
 const BASE: &str = "https://www.ebi.ac.uk/gwas/rest/api/v2";
 fn card() -> Value {
