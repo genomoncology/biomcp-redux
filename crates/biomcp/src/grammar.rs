@@ -177,45 +177,8 @@ fn root() -> Result<Command, ()> {
             .subcommand(Command::new("clean")),
     );
     root = root.subcommand(crate::keys::grammar());
-    root = root.subcommand(help_command());
+    root = root.subcommand(local::help_command());
     Ok(root.subcommand(local::serve_command()))
-}
-fn help_command() -> Command {
-    let mut help = Command::new("help")
-        .subcommand(
-            Command::new("network").arg(
-                Arg::new("setting")
-                    .required(true)
-                    .value_parser(["ca_bundle", "proxy"]),
-            ),
-        )
-        .subcommand(
-            Command::new("key").arg(
-                Arg::new("source")
-                    .required(true)
-                    .value_parser(crate::keys::names()),
-            ),
-        );
-    help = help.subcommand(
-        Command::new("store")
-            .subcommand_required(true)
-            .subcommand(Command::new("clean")),
-    );
-    let mut verbs = std::collections::BTreeMap::<&str, Command>::new();
-    for (verb, entity, _) in QUERIES
-        .iter()
-        .copied()
-        .chain(BUNDLE_HELP.iter().map(|&bundle| ("sync", bundle, "")))
-    {
-        let command = verbs
-            .remove(verb)
-            .unwrap_or_else(|| Command::new(verb).subcommand_required(true));
-        verbs.insert(verb, command.subcommand(Command::new(entity)));
-    }
-    for command in verbs.into_values() {
-        help = help.subcommand(command);
-    }
-    help
 }
 
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {

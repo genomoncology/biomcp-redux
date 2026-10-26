@@ -4,9 +4,9 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
+mod maintenance;
 mod pgx;
 mod steps;
-mod store;
 mod variant;
 
 use biomcp_query::{Action, Bundle};
@@ -164,8 +164,8 @@ fn execute(
                 crate::exit::Status::Success,
             )
         }
-        Action::StoreClean => store::clean(fetch),
-        Action::Health => health(fetch),
+        Action::StoreClean => maintenance::clean(fetch),
+        Action::Health => maintenance::health(fetch),
         Action::KeyHelp(source) => key_help(source),
         Action::Sync { bundle } => sync(fetch, bundle),
         Action::Run { request, fresh } => {
@@ -567,16 +567,6 @@ fn pool_error(mismatch: bool, steps: Vec<biomcp_types::Step>) -> io::Result<Outc
 
 fn usage_envelope(error: ErrorEnvelope) -> io::Result<Outcome> {
     encode(error, crate::exit::Status::Usage)
-}
-
-fn health(fetch: &biomcp_fetch::Fetch) -> io::Result<Outcome> {
-    match biomcp_query::health::run(fetch, crate::config::BUDGET) {
-        Ok(result) => encode(
-            Envelope::new(Status::Complete, (), Some(result)),
-            crate::exit::Status::Success,
-        ),
-        Err(_) => encode(ErrorEnvelope::local(), crate::exit::Status::Local),
-    }
 }
 
 fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {
