@@ -25,5 +25,22 @@ scp "$proof.tar.gz" yellow:"/home/ian/workspace/data/biomcp-redux/0221-study-fil
 local_hash=$(shasum -a 256 "$proof.tar.gz" | cut -d ' ' -f 1)
 remote_hash=$(ssh yellow "sha256sum /home/ian/workspace/data/biomcp-redux/0221-study-files/native-proof-$revision.tar.gz" | cut -d ' ' -f 1)
 test "$local_hash" = "$remote_hash"
+ssh yellow python3 - "/home/ian/workspace/data/biomcp-redux/0221-study-files/native-proof-$revision.tar.gz" <<'PYVERIFY'
+import hashlib,json,sys,tarfile
+from pathlib import PurePosixPath
+with tarfile.open(sys.argv[1]) as packed:
+    files={}
+    for member in packed.getmembers():
+        if member.isdir():
+            continue
+        name=str(PurePosixPath(member.name))
+        assert member.isfile() and not name.startswith('/') and '..' not in PurePosixPath(name).parts
+        assert name not in files
+        files[name]=packed.extractfile(member).read()
+    expected=json.loads(files.pop('manifest.json'))
+    assert set(files)==set(expected)
+    assert all(hashlib.sha256(data).hexdigest()==expected[name] for name,data in files.items())
+    print(f'Exact retained member set and {len(files)} hashes verified on Yellow')
+PYVERIFY
 printf 'Retained proof archive SHA-256 %s\n' "$local_hash"
 exit "$result"
