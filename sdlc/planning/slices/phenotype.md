@@ -392,3 +392,5 @@ The retained CLI and MCP run validates forty-nine section witnesses and twenty r
 | `section-46` | monarch HP:0001676 | hierarchy | 10 / 5 | 672 | 773 | 194 |
 | `section-47` | monarch HP:0001676 | hierarchy | 0 / 2 | 670 | 771 | 193 |
 | `section-48` | monarch HP:0000256 | xrefs | 0 / 5 | 790 | 909 | 228 |
+
+The native section proof archive is on Yellow at `data/biomcp-redux/0220-phenotype-sections/native-section-proof.tar.gz`, SHA-256 `57c1ea2b054dcc0dc1f79882f8c4bf25fe31981a69b2dec6a94f8558b6369c1a`. It retains the verified source-body plan, unchanged bodies, CLI/MCP recordings, forty-nine section results, twenty revised cards, measured baselines and scoped ceiling proof. The producer revisions and source archive hashes are recorded in `proof.json`. Independent verification checked the exact 180-member inventory and all 179 content hashes on both machines. No provider request ran.
