@@ -42,7 +42,8 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/result/items/0/status": "failed"
+        "/result/items/0/status": "failed",
+        "/sources/0/reason": "offline"
       },
       "full_output_bytes": true,
       "max_bytes": 8000,
