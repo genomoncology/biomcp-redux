@@ -65,15 +65,9 @@ No coauthor aggregation, topic scoring, affiliation filtering or cross-provider 
 
 Semantic Scholar author APIs use an optional `S2_API_KEY`. Existing article source terms and source-group membership apply. Publisher text in rich papers stays outside Git unless its license permits inclusion. No capture is evidence of a right to redistribute the corpus.
 
-The investigation has not called either author API. Current source terms require a product ruling before new calls. The coordinator paused both candidate API captures while routing that ruling.
+[Ian's new-source ruling](../../decisions/2026-10-26-new-sources-follow-open-by-default.md) authorizes development captures and implementation under the open-by-default policy. Semantic Scholar and ORCID remain `noncommercial`. Commercial users disable that group. Neither source needs a separate expanded-license prerequisite for this work. An optional key changes access quota and does not change the source's use category.
 
-ORCID's Public API terms section 1 covers Anonymous API and Public API alike. Section 2 restricts service use in revenue-generating products or services. An optional token changes quota, not those rights. The Member API is a separate membership route; this investigation has no membership authorization. Historical repository fixtures can establish an old reply shape but cannot establish current access rights or current facts.
-
-[The annual Public Data File policy](https://info.orcid.org/public-data-file-use-policy/) grants CC0 for the released snapshot with no access or reuse conditions. It excludes rights in linked articles and does not waive individuals' rights. [The bulk-data guide](https://info.orcid.org/documentation/integration-guide/working-with-bulk-data/) lists a 2025 XML summary archive and eleven activity archives, organized by identifier suffix. A snapshot could preserve exact ORCID identity and claimed works while disclosing its release date. Its cost and individual-record extraction remain unmeasured; no archive download or conversion tool is authorized by this investigation.
-
-[The current Semantic Scholar API agreement](https://api.semanticscholar.org/license/), section 2(a), limits its default grant to internal use for model training/evaluation and dataset transformation for noncommercial research or education. Section 2(b) offers an expanded license through the provider. The existing adapter labels the source noncommercial. That label alone does not establish eligibility for a new author API investigation. The proposed capture purpose would be bounded internal evaluation of entity retrieval, without publishing source bodies, reselling the API, model training or user-facing commercial delivery. The PM must determine whether an existing expanded permission covers it or choose an eligible route. No key is proof of expanded rights.
-
-No whole Semantic Scholar dataset is proposed. ORCID snapshot metadata can be investigated separately from the restricted API service.
+Exact public ORCID person and works API requests are the selected route. The annual Public Data File, bulk downloads, hosted queries, OAuth exchanges and account creation are outside this slice. Historical fixtures establish historical reply shapes only. They do not establish current source facts.
 
 ## Proposed command and disclosure shape
 
@@ -102,27 +96,23 @@ Each search candidate gets a `disambiguate` action before the page action. Autho
 
 ## Measurement scope and decision boundary
 
-The [accepted author rulings](../../decisions/2026-10-26-protein-pathway-study-rulings.md#author) accept this metadata-only boundary and pause every new Semantic Scholar and ORCID author API capture pending Ian's eligibility decision. This proposal therefore ends at an explicit measurement boundary. It does not claim API acceptance, current positive or empty results, source timing, measured output ceilings, or implementable accepted types. Existing article code and its replays stay intact. No author API call, bulk download, conversion tool, OAuth exchange or account creation ran in this investigation.
+The [accepted author rulings](../../decisions/2026-10-26-protein-pathway-study-rulings.md#author) accept this metadata-only boundary. [Ian's later ruling](../../decisions/2026-10-26-new-sources-follow-open-by-default.md) lifts the capture pause for both sources. This proposal therefore ends at an explicit measurement boundary. It does not claim API acceptance, current positive or empty results, source timing, measured output ceilings, or implementable accepted types. Existing article code and its replays stay intact. No author API call, bulk download, conversion tool, OAuth exchange or account creation ran in this investigation.
 
-All 24 questions above are harvested questions with acceptance criteria. They are not 24 verified source answers. A01–A16 and A21/A23 await eligible Semantic Scholar captures. A17–A20/A22/A24 await an eligible ORCID route. A24 additionally has the historical recorded lower-case reply and public bug report. Unsuccessful documentation retrieval is not a source failure witness for a proposed command.
+All 24 questions above are harvested questions with acceptance criteria. They are not 24 verified source answers. A01–A16 and A21/A23 require exact Semantic Scholar captures. A17–A20/A22/A24 require exact public ORCID API captures. A24 additionally has the historical recorded lower-case reply and public bug report. Unsuccessful documentation retrieval is not a source failure witness for a proposed command.
 
 | Evidence | Observation and limitation |
 | --- | --- |
 | Legacy CLI and source files | Read-only inventory of all author commands and flags, exact source IDs, rich paper fields and source assertions. No baseline execution. |
 | Closed public issues | All 57 closed issues read; entity/source matches 289 and 225, with shared licensing switch request 290 considered separately. A search hit about trial semantic queries is unrelated. |
 | ORCID service policy | Current anonymous and Public API restrictions verified from the primary policy. Member API terms and entitlement remain unverified. |
-| ORCID snapshot policy | CC0 grant, annual cadence, XML summary and activity layouts verified from primary documentation. Current guide names the 2025 release, DOI `10.23640/07243.30375589.v1`. This is the latest release the guide names, not proof that no 2026 release exists. |
-| Snapshot metadata access | DOI retrieval returned 403; the metadata page was unavailable to the reading tool. Compressed sizes, member counts, unpack sizes, checksums, indexed size and per-record lookup cost remain unmeasured. No bulk request followed. |
-| Semantic Scholar policy | Current API agreement and existing adapter's noncommercial label read. Expanded permission is not established by key presence. |
+| Source use policy | Both sources retain `noncommercial` under Ian's open-by-default ruling. The capture pause and separate expanded-license prerequisite are superseded. |
 | Documentation limits | Swagger retrieval returned 429, and a separate incorrect license page returned 403; neither was retried. The correct primary API license page was readable. These are documentation observations only. |
-
-The CC0 snapshot is the only investigated ORCID alternative with an explicit reusable data grant. A future bounded metadata proof should verify the release manifest, all archive sizes and checksums before a download decision. A later contained sample should prove both exact person metadata and work assertion groups before proposing a bundle index. Downloading the full snapshot now would spend unknown disk and network resources without proving that it answers the questions. Hosted BigQuery access appears in ORCID documentation but requires separate service, account, cost and completeness review; no hosted query is proposed here.
 
 | Command or layer | Measurement required before implementation | Current budget claim |
 | --- | --- | --- |
 | `search author` default page | Exact candidate order, source total, full names/affiliations, request count, compact JSON bytes/tokens, empty and failure outcomes | Unmeasured. No numeric ceiling accepted. |
 | `get author` Semantic Scholar card | Matching returned author ID, optional field/multiplicity inventory, cold/warm timings and bytes/tokens | Unmeasured. No numeric ceiling accepted. |
-| `get author` ORCID card | Exact checksummed ID, public name visibility, snapshot date or eligible API provenance, matching returned identity | Unmeasured for the proposed route. Historical fixtures are not current proof. |
+| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Unmeasured for the public API route. Historical fixtures are not current proof. |
 | `author papers` compact | Native order, page size/next/total scope, every identifier type and exact article join, same-question bytes/tokens | Unmeasured. No numeric ceiling accepted. |
 | `author papers details` | Same page as compact, absent/optional abstract and access fields, complete bylines and counts, source terms | Unmeasured. No numeric ceiling accepted. |
 | ORCID groups and assertions | Group cardinality, representative selection without silent loss, external-ID relationship, bounded assertion drill-down | Unmeasured for the proposed route. No type accepted from a guessed shape. |
@@ -153,6 +143,6 @@ Source IDs and their aliases should have one checked type and one parser. Every 
 
 ## Ian's questions
 
-The PM must first resolve source eligibility through the existing escalation: existing expanded Semantic Scholar permission, an eligible ORCID route, or an explicit deferral that preserves the shipped capability requirement. A noncommercial source label and an API key do not settle the permitted purpose.
+Ian resolved source eligibility through the open-by-default ruling. Both sources retain their noncommercial use category. Exact capture results must establish which capabilities can proceed.
 
-The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. Types, output ceilings and question answers wait for captures on a route Ian rules eligible. No capability retirement or new source cost is accepted by this proposal.
+The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. Types, output ceilings and question answers wait for exact public API captures. No capability retirement or new source cost is accepted by this proposal.
