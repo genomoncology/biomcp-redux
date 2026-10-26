@@ -29,6 +29,25 @@ pub(super) fn cards(items: &[ProteinCardItem]) -> Vec<Step> {
             break;
         }
         if let Some(header) = &item.header {
+            if let Ok(q) = ProteinGet::new(
+                vec![ProteinInput::Accession(header.protein.accession.clone())].into(),
+            ) {
+                for section in &item.more {
+                    if steps.len() >= 5 {
+                        break;
+                    }
+                    steps.push((
+                        StepKind::Section,
+                        Action::Run {
+                            request: Request::GetProtein(q.with_section(*section)),
+                            fresh: false,
+                        },
+                    ));
+                }
+            }
+            if steps.len() >= 5 {
+                break;
+            }
             for name in &header.gene_names {
                 if let Ok(input) = biomcp_types::GeneInput::new(name.as_str())
                     && let Ok(q) = biomcp_types::GeneGet::new(vec![input].into())

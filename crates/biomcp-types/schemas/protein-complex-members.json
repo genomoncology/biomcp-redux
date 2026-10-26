@@ -231,7 +231,8 @@
       "properties": {
         "accession": {
           "$ref": "#/$defs/UniProtIsoform",
-          "description": "Exact source protein sequence identity."
+          "description": "Exact source protein sequence identity.",
+          "x-positional": 0
         },
         "complex": {
           "$ref": "#/$defs/ComplexPortalId",

@@ -49,6 +49,9 @@ pub struct ProteinSequence {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinFunction {
+    /// Native molecule qualifier; never attributed to another isoform.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub molecule: Option<Text>,
     /// Whole native source text, without clinical interpretation.
     pub text: Text,
     /// All evidence references supplied for this text.
