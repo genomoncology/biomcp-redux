@@ -1,0 +1,35 @@
+{
+  "live_check": "synthetic control",
+  "feature": "author-papers",
+  "story": "An exact author paper page preserves native rows and exact article pivots",
+  "replay": "author/papers",
+  "steps": [
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:123"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:123"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:123",
+        "/result/items/0/paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "/result/items/0/pmid": "12345678",
+        "/result/items/0/title": "Synthetic whole paper title",
+        "/next/0/kind": "page"
+      },
+      "absent": [
+        "/result/items/0/abstract_text",
+        "/page"
+      ],
+      "max_bytes": 10000,
+      "max_tokens": 2500,
+      "full_output_bytes": true
+    }
+  ]
+}
