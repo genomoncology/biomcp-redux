@@ -160,31 +160,32 @@ fn continuations_keep_checked_selectors_and_explicit_limits() {
 }
 
 #[cfg(feature = "schema")]
-fn envelope<T>(query: serde_json::Value, body: serde_json::Value)
+fn envelope<T>(
+    query: serde_json::Value,
+    body: serde_json::Value,
+) -> Result<(), Box<dyn std::error::Error>>
 where
     T: biomcp_types::ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
     T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
 {
-    let body: T = serde_json::from_value(body).unwrap();
-    let query = serde_json::from_value(query).unwrap();
+    let body: T = serde_json::from_value(body)?;
+    let query = serde_json::from_value(query)?;
     let value = serde_json::to_value(biomcp_types::Envelope::new(
         biomcp_types::Status::Complete,
         query,
         Some(body),
-    ))
-    .unwrap();
+    ))?;
     assert_eq!(
         value.get("schema").and_then(serde_json::Value::as_str),
         Some(T::SCHEMA)
     );
     let schema = schemars::schema_for!(biomcp_types::Envelope<T>);
-    let schema = serde_json::to_value(schema).unwrap();
+    let schema = serde_json::to_value(schema)?;
     assert!(
-        jsonschema::draft202012::new(&schema)
-            .unwrap()
-            .is_valid(&value),
+        jsonschema::draft202012::new(&schema)?.is_valid(&value),
         "{value}"
     );
+    Ok(())
 }
 
 #[cfg(feature = "schema")]
@@ -196,26 +197,28 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     envelope::<PhenotypePage>(
         json!({"text":"seizure"}),
         json!({"items":[{"id":"HP:0001250","label":"Seizure","match_score":1.5,"matched_field":"name","match_type":"exact","attribution":{"source":"synthetic"}}],"components":[]}),
-    );
+    ).unwrap();
     envelope::<PhenotypeTermCard>(
         get.clone(),
         json!({"term":{"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"","publication_references":[],"attribution":{"source":"synthetic"}},"sections":["synonyms","xrefs"],"components":[]}),
-    );
+    ).unwrap();
     envelope::<PhenotypeSynonyms>(
         get.clone(),
         json!({"items":[{"value":"","relationship":"related","attribution":{"source":"synthetic"}}],"components":[]}),
-    );
+    ).unwrap();
     envelope::<PhenotypeXrefs>(
         get.clone(),
         json!({"items":[{"id":"Fyler:4335","attribution":{"source":"synthetic"}}],"components":[]}),
-    );
+    )
+    .unwrap();
     envelope::<PhenotypeHierarchy>(
         json!({"id":"HP:0001250","section":"hierarchy"}),
         json!({"items":[{"id":"HP:0000001","label":"All","relation":"super_classes","attribution":{"source":"synthetic"}}],"components":[]}),
-    );
+    ).unwrap();
     envelope::<PhenotypeDiseases>(
         json!({"id":"HP:0001250","section":"diseases"}),
         empty.clone(),
-    );
+    )
+    .unwrap();
     envelope::<PhenotypeGenes>(json!({"id":"HP:0001250","section":"genes"}), empty);
 }
