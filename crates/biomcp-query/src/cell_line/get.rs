@@ -8,7 +8,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     let reply = resolve(&leg, query, &mut card);
     let error = reply.as_ref().err().copied();
     let mut out = empty(QueryBody::CellLineCard(vacant(query)));
-    out.sources.push(status::source(Source::Cellosaurus, leg.finish(), error));
+    out.sources
+        .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
     if reply.is_ok() {
         out.status = card.status;
@@ -20,41 +21,102 @@ pub(super) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn resolve(leg: &biomcp_fetch::Leg<'_>, query: &CellLineGet, card: &mut CellLineCard) -> Result<(), biomcp_fetch::RequestError> {
+fn resolve(
+    leg: &biomcp_fetch::Leg<'_>,
+    query: &CellLineGet,
+    card: &mut CellLineCard,
+) -> Result<(), biomcp_fetch::RequestError> {
     let (accession, source) = match query.id() {
         CellLineInput::Accession(id) => (id.clone(), None),
         CellLineInput::Source(id) => {
-            if cellosaurus::native_database(id).is_none() { return Err(biomcp_fetch::InputError::Path.into()); }
+            if cellosaurus::native_database(id).is_none() {
+                return Err(biomcp_fetch::InputError::Path.into());
+            }
             let page = cellosaurus::reverse(leg, id)?;
             card.fetched = u64::try_from(page.metadata.fetched).ok();
             if page.items.len() != 1 {
-                card.status = if page.items.is_empty() { Status::Absent } else { Status::Partial };
+                card.status = if page.items.is_empty() {
+                    Status::Absent
+                } else {
+                    Status::Partial
+                };
                 card.candidates = page.items.into();
                 return Ok(());
             }
-            (page.items.first().ok_or(biomcp_fetch::BadReply)?.accession.clone(), Some(id))
+            (
+                page.items
+                    .first()
+                    .ok_or(biomcp_fetch::BadReply)?
+                    .accession
+                    .clone(),
+                Some(id),
+            )
         }
     };
     let reply = cellosaurus::get(leg, &accession, source)?;
     if let Some(mut selected) = reply.card {
         selected.input = query.id().clone();
         selected.fetched = u64::try_from(reply.metadata.fetched).ok();
-        let overflow = selected.header.as_ref().is_some_and(|h| h.species.total > 3 || h.diseases.total > 3) || selected.warnings.as_ref().is_some_and(|w| w.total > 3);
-        if !overflow { selected.more = selected.more.into_vec().into_iter().filter(|s| *s != CellLineSection::Identity).collect(); }
+        let overflow = selected
+            .header
+            .as_ref()
+            .is_some_and(|h| h.species.total > 3 || h.diseases.total > 3)
+            || selected.warnings.as_ref().is_some_and(|w| w.total > 3);
+        if !overflow {
+            selected.more = selected
+                .more
+                .into_vec()
+                .into_iter()
+                .filter(|s| *s != CellLineSection::Identity)
+                .collect();
+        }
         *card = selected;
-    } else { card.status = Status::Absent; card.fetched = u64::try_from(reply.metadata.fetched).ok(); }
+    } else {
+        card.status = Status::Absent;
+        card.fetched = u64::try_from(reply.metadata.fetched).ok();
+    }
     Ok(())
 }
 fn actions(out: &mut Outcome, card: &CellLineCard) {
     for candidate in &card.candidates {
-        out.next.push((StepKind::Disambiguate, run(Request::GetCellLine(CellLineGet::accession(candidate.accession.clone())))));
+        out.next.push((
+            StepKind::Disambiguate,
+            run(Request::GetCellLine(CellLineGet::accession(
+                candidate.accession.clone(),
+            ))),
+        ));
     }
     if let Some(header) = &card.header {
         for section in card.more.iter().take(5) {
-            out.next.push((StepKind::Section, run(Request::GetCellLine(CellLineGet::accession(header.accession.clone()).with_section(*section)))));
+            out.next.push((
+                StepKind::Section,
+                run(Request::GetCellLine(
+                    CellLineGet::accession(header.accession.clone()).with_section(*section),
+                )),
+            ));
         }
     }
 }
 fn vacant(query: &CellLineGet) -> CellLineCard {
-    CellLineCard { input: query.id().clone(), status: Status::Failed, header: None, candidates: Box::default(), dates: None, age: None, sex: None, warnings: None, url: None, sections: CellLineSections { names: None, identity: None, xrefs: None, variants: None, chembl: None }, more: Box::default(), release: None, fetched: None }
+    CellLineCard {
+        input: query.id().clone(),
+        status: Status::Failed,
+        header: None,
+        candidates: Box::default(),
+        dates: None,
+        age: None,
+        sex: None,
+        warnings: None,
+        url: None,
+        sections: CellLineSections {
+            names: None,
+            identity: None,
+            xrefs: None,
+            variants: None,
+            chembl: None,
+        },
+        more: Box::default(),
+        release: None,
+        fetched: None,
+    }
 }

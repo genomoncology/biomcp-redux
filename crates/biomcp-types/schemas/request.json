@@ -142,6 +142,23 @@
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },
+    "CellLineInput": {
+      "description": "An exact accession or a database-qualified source identity; never a name lookup.",
+      "pattern": "^(CVCL_[A-Z0-9]{4}|[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+)$",
+      "type": "string"
+    },
+    "CellLineSection": {
+      "description": "Named disclosure sections; all requests each bounded first page without an assay count.",
+      "enum": [
+        "names",
+        "identity",
+        "xrefs",
+        "variants",
+        "chembl",
+        "all"
+      ],
+      "type": "string"
+    },
     "CivicClaimKind": {
       "description": "CIViC native claim collection.",
       "enum": [
@@ -828,10 +845,84 @@
       ]
     }
   },
-  "$id": "biodata.request/21",
+  "$id": "biodata.request/22",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
+    {
+      "additionalProperties": false,
+      "description": "Discover unchanged literal Cellosaurus candidates.",
+      "properties": {
+        "command": {
+          "const": "search_cell_line",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "description": "Native page size.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native start offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal source query; positional spelling and --query use the same field.",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command",
+        "query"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Read an exact accession or verified qualified source identity.",
+      "properties": {
+        "command": {
+          "const": "get_cell_line",
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/CellLineInput",
+          "description": "One exact primary accession or qualified source ID.",
+          "x-positional": 0
+        },
+        "section": {
+          "$ref": "#/$defs/CellLineSection",
+          "description": "Omit for the default identity card.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "description": "Explicit row limit for each requested collection; native variation defaults to three.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Offset within each independently requested collection.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "id"
+      ],
+      "type": "object"
+    },
     {
       "additionalProperties": false,
       "description": "Search one native GWAS Catalog association page.",

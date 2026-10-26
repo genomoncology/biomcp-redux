@@ -1,6 +1,6 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
-mod cell_line;
 mod adverse_event;
+mod cell_line;
 mod diagnostic;
 mod disease;
 mod drug;
@@ -115,8 +115,16 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if let Action::Run { request: Request::GetCellLine(q), .. } = action {
-        if q.section().is_some() || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none()) { return Some(usage_envelope(ErrorEnvelope::arguments())); }
+    if let Action::Run {
+        request: Request::GetCellLine(q),
+        ..
+    } = action
+    {
+        if q.section().is_some()
+            || matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none())
+        {
+            return Some(usage_envelope(ErrorEnvelope::arguments()));
+        }
     }
     if disease::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
@@ -228,7 +236,9 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
-        Request::SearchCellLine(_) | Request::GetCellLine(_) => cell_line::encode(meta, request, body),
+        Request::SearchCellLine(_) | Request::GetCellLine(_) => {
+            cell_line::encode(meta, request, body)
+        }
         Request::GetGwasAssociation(q) => gwas_get(meta, q.into(), body),
         Request::GetGwasStudy(q) => gwas_get(meta, q.into(), body),
         Request::SearchGwas(q) => match body {

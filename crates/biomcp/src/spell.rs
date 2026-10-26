@@ -236,7 +236,12 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
     }
 }
 fn base_entity(request: &Request) -> &'static str {
-    if matches!(request, Request::SearchCellLine(_) | Request::GetCellLine(_)) { return "cell-line"; }
+    if matches!(
+        request,
+        Request::SearchCellLine(_) | Request::GetCellLine(_)
+    ) {
+        return "cell-line";
+    }
     if matches!(
         request,
         Request::SearchGwas(_) | Request::GetGwasAssociation(_) | Request::GetGwasStudy(_)

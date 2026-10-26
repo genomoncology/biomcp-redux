@@ -41,7 +41,12 @@ pub struct RecordDeclaration {
 /// Exhaustive declared policies for the otherwise URL-less research shapes.
 /// Publisher witnesses are retained by the bounded native record URL proof.
 pub const DECLARATIONS: &[RecordDeclaration] = &[
-    RecordDeclaration { source: Source::Cellosaurus, kind: RecordKind::CellLine, display_name: "Cellosaurus", template: Some("https://www.cellosaurus.org/{id}") },
+    RecordDeclaration {
+        source: Source::Cellosaurus,
+        kind: RecordKind::CellLine,
+        display_name: "Cellosaurus",
+        template: Some("https://www.cellosaurus.org/{id}"),
+    },
     RecordDeclaration {
         source: Source::Reactome,
         kind: RecordKind::Pathway,

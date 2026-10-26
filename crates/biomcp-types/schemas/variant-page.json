@@ -3735,6 +3735,7 @@
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
+        "cellosaurus",
         "hgnc",
         "mygene",
         "reactome",
@@ -3805,6 +3806,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " Cellosaurus cell line identity.",
         " HGNC.",
         " MyGene.info.",
         " Reactome.",

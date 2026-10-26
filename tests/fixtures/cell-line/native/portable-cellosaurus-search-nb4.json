@@ -1,0 +1,245 @@
+{
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_8811"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C3182",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3182",
+            "label": "Acute promyelocytic leukemia with PML-RARA",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3182"
+          },
+          {
+            "accession": "Orphanet_520",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_520",
+            "label": "Acute promyelocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_520"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "NB4-RAr"
+          },
+          {
+            "type": "synonym",
+            "value": "NB4-R1"
+          },
+          {
+            "type": "identifier",
+            "value": "NB4-LR1"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      },
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_U085"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C3182",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3182",
+            "label": "Acute promyelocytic leukemia with PML-RARA",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3182"
+          },
+          {
+            "accession": "Orphanet_520",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_520",
+            "label": "Acute promyelocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_520"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "NB4-R1"
+          },
+          {
+            "type": "identifier",
+            "value": "NB4-DR1"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      },
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_U087"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C3182",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3182",
+            "label": "Acute promyelocytic leukemia with PML-RARA",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3182"
+          },
+          {
+            "accession": "Orphanet_520",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_520",
+            "label": "Acute promyelocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_520"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "NB4-R2"
+          },
+          {
+            "type": "identifier",
+            "value": "NB4-DR2"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      },
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_U088"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C3182",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3182",
+            "label": "Acute promyelocytic leukemia with PML-RARA",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3182"
+          },
+          {
+            "accession": "Orphanet_520",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_520",
+            "label": "Acute promyelocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_520"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "NB4-R3"
+          },
+          {
+            "type": "identifier",
+            "value": "NB4-DR3"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      },
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_U081"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C3182",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C3182",
+            "label": "Acute promyelocytic leukemia with PML-RARA",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C3182"
+          },
+          {
+            "accession": "Orphanet_520",
+            "category": "Medical resources",
+            "database": "ORDO",
+            "iri": "http://www.orpha.net/ORDO/Orphanet_520",
+            "label": "Acute promyelocytic leukemia",
+            "url": "https://www.ebi.ac.uk/ols4/ontologies/ordo/classes/http%253A%252F%252Fwww.orpha.net%252FORDO%252FOrphanet_520"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "synonym",
+            "value": "NB4-R2"
+          },
+          {
+            "type": "identifier",
+            "value": "NB4-LR2"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      }
+    ]
+  }
+}

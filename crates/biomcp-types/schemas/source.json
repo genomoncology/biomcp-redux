@@ -3,6 +3,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A source of BioMCP data, identified by its canonical short name.",
   "enum": [
+    "cellosaurus",
     "hgnc",
     "mygene",
     "reactome",
@@ -74,6 +75,7 @@
   "title": "Source",
   "type": "string",
   "x-enum-descriptions": [
+    " Cellosaurus cell line identity.",
     " HGNC.",
     " MyGene.info.",
     " Reactome.",

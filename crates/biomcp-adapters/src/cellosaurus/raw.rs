@@ -4,8 +4,14 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub(super) enum Response {
-    Records { #[serde(rename = "Cellosaurus")] data: Data },
-    Missing { code: u16, message: String },
+    Records {
+        #[serde(rename = "Cellosaurus")]
+        data: Data,
+    },
+    Missing {
+        code: u16,
+        message: String,
+    },
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Data {
@@ -56,15 +62,25 @@ pub(super) struct Comment {
 }
 impl Record {
     pub fn accession(&self) -> Result<&CellosaurusAccession, BadReply> {
-        let mut rows = self.accession_list.iter().filter(|a| a.kind.as_str() == "primary");
+        let mut rows = self
+            .accession_list
+            .iter()
+            .filter(|a| a.kind.as_str() == "primary");
         let first = rows.next().ok_or(BadReply)?;
-        if rows.next().is_some() { return Err(BadReply); }
+        if rows.next().is_some() {
+            return Err(BadReply);
+        }
         Ok(&first.value)
     }
     pub fn name(&self) -> Result<&Text, BadReply> {
-        let mut rows = self.name_list.iter().filter(|a| a.kind.as_str() == "identifier");
+        let mut rows = self
+            .name_list
+            .iter()
+            .filter(|a| a.kind.as_str() == "identifier");
         let first = rows.next().ok_or(BadReply)?;
-        if rows.next().is_some() { return Err(BadReply); }
+        if rows.next().is_some() {
+            return Err(BadReply);
+        }
         Ok(&first.value)
     }
 }
@@ -72,10 +88,18 @@ impl Reply for Response {
     fn check(&self) -> Result<(), BadReply> {
         match self {
             Self::Records { data } => {
-                for row in &data.rows { row.accession()?; row.name()?; }
+                for row in &data.rows {
+                    row.accession()?;
+                    row.name()?;
+                    if row.entry_version.as_ref().is_some_and(|v| v.as_str().parse::<std::num::NonZeroU32>().is_err()) { return Err(BadReply); }
+                }
                 Ok(())
             }
-            Self::Missing { code: 404, message } if message.starts_with("Item not found, ac: CVCL_") => Ok(()),
+            Self::Missing { code: 404, message }
+                if message.starts_with("Item not found, ac: CVCL_") =>
+            {
+                Ok(())
+            }
             _ => Err(BadReply),
         }
     }
@@ -92,9 +116,15 @@ pub(super) struct ReleaseReply {
     pub data: ReleaseData,
 }
 #[derive(Debug, Deserialize)]
-pub(super) struct ReleaseData { pub header: ReleaseHeader }
+pub(super) struct ReleaseData {
+    pub header: ReleaseHeader,
+}
 #[derive(Debug, Deserialize)]
-pub(super) struct ReleaseHeader { pub release: biomcp_types::CellLineRelease }
+pub(super) struct ReleaseHeader {
+    pub release: biomcp_types::CellLineRelease,
+}
 impl Reply for ReleaseReply {
-    fn check(&self) -> Result<(), BadReply> { Ok(()) }
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }

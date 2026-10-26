@@ -153,6 +153,15 @@
           ],
           "description": "Selected entry dates and version, separate from release metadata."
         },
+        "fetched": {
+          "description": "Original retrieval seconds, distinct from entry and release dates.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "header": {
           "anyOf": [
             {
@@ -174,6 +183,17 @@
             "$ref": "#/$defs/CellLineSection"
           },
           "type": "array"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CellLineRelease"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independently fetched publisher release."
         },
         "sections": {
           "$ref": "#/$defs/CellLineSections",
@@ -632,6 +652,24 @@
       },
       "required": [
         "resource_internal_ref"
+      ],
+      "type": "object"
+    },
+    "CellLineRelease": {
+      "description": "Publisher release identity, fetched independently from record data.",
+      "properties": {
+        "updated": {
+          "$ref": "#/$defs/PartialDate",
+          "description": "Native release update date."
+        },
+        "version": {
+          "$ref": "#/$defs/Text",
+          "description": "Native release version."
+        }
+      },
+      "required": [
+        "version",
+        "updated"
       ],
       "type": "object"
     },
@@ -1719,6 +1757,7 @@
     "Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",
       "enum": [
+        "cellosaurus",
         "hgnc",
         "mygene",
         "reactome",
@@ -1789,6 +1828,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
+        " Cellosaurus cell line identity.",
         " HGNC.",
         " MyGene.info.",
         " Reactome.",
@@ -2085,7 +2125,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.cell_line_card/1",
+  "$id": "biomcp.cell_line_card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2131,7 +2171,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.cell_line_card/1",
+      "const": "biomcp.cell_line_card/2",
       "type": "string"
     },
     "sources": {

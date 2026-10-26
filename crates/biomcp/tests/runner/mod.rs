@@ -82,6 +82,7 @@ mod pdf;
 mod pgx_registry;
 mod pgx_retirements;
 mod phenotype;
+mod cell_line;
 mod pmc_tables;
 mod pool_tables;
 mod process;
@@ -577,6 +578,7 @@ fn disease_trials() -> Vec<Trial> {
         .chain(disease_mydisease::trials())
         .chain(disease_monarch::trials())
         .chain(phenotype::trials())
+        .chain(cell_line::trials())
         .chain(disease_seer::trials())
         .collect()
 }
