@@ -28,7 +28,9 @@
         "/result/pathway/references/*/pubmed": {
           "includes": "24937142"
         }
-      }
+      },
+      "max_bytes": 19228,
+      "max_tokens": 4807
     }
   ]
 }

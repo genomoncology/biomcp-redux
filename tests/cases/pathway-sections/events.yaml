@@ -24,7 +24,9 @@
         "/result/events/data/page/total": 81,
         "/result/events/data/items/0/id": "R-HSA-5673000",
         "/result/events/data/items/0/schema_class": "Pathway"
-      }
+      },
+      "max_bytes": 2541,
+      "max_tokens": 636
     }
   ]
 }

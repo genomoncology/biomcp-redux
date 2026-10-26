@@ -2,9 +2,28 @@
   "feature": "pathway-reactome",
   "story": "Native participant references remain distinct and carry exact gene joins.",
   "replay": "pathway/sections",
-  "steps": [{
-    "run": ["get", "pathway", "R-HSA-5673001", "genes"],
-    "mcp": ["get", "pathway", "R-HSA-5673001", "genes"],
-    "expect": {"/status": "complete", "/result/genes/state": "data", "/result/genes/data/items/0/reference/value": "P15056", "/result/genes/data/items/0/gene": "HGNC:1097"}
-  }]
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "genes"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "genes"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/genes/state": "data",
+        "/result/genes/data/items/0/reference/value": "P15056",
+        "/result/genes/data/items/0/gene": "HGNC:1097"
+      },
+      "max_bytes": 12469,
+      "max_tokens": 3118
+    }
+  ]
 }

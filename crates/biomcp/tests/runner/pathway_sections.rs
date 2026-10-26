@@ -214,12 +214,12 @@ fn migration() -> Check {
     Ok(())
 }
 fn measurements() -> Check {
-    for args in [
-        vec!["get", "pathway", "R-HSA-5673001", "genes"],
-        vec!["get", "pathway", "R-HSA-5673001", "events"],
-        vec!["get", "pathway", "R-HSA-5673001", "all"],
-        vec!["pathway", "genes", "R-HSA-5673001"],
-        vec!["pathway", "events", "R-HSA-5673001"],
+    for (args, max_bytes, max_tokens) in [
+        (vec!["get", "pathway", "R-HSA-5673001", "genes"], 12469, 3118),
+        (vec!["get", "pathway", "R-HSA-5673001", "events"], 2541, 636),
+        (vec!["get", "pathway", "R-HSA-5673001", "all"], 19228, 4807),
+        (vec!["pathway", "genes", "R-HSA-5673001"], 11962, 2992),
+        (vec!["pathway", "events", "R-HSA-5673001"], 2034, 509),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let args: Vec<String> = args.into_iter().map(str::to_owned).collect();
@@ -229,6 +229,9 @@ fn measurements() -> Check {
             super::schema::Registry::embedded()?.validate(&value, &args, true)?;
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
             let comparable = super::source_terms::size(&value, "")?;
+            if comparable > max_bytes || comparable.div_ceil(4) > max_tokens {
+                return Err(format!("{} exceeds its measured disclosure ceiling", args.join(" ")));
+            }
             writeln!(
                 std::io::stdout(),
                 "pathway measure {} {surface}: full={full} comparable={comparable} tokens={}",

@@ -31,7 +31,7 @@ pub(crate) fn backfill(connection: &Connection) -> Result<(), CacheError> {
         for value in gene.uniprot_ids.as_deref().unwrap_or("").split('|') {
             if let Ok(id) = UniProtAcc::new(value) {
                 insert
-                    .execute(params![format!("uniprot:{id}"), n])
+                    .execute(params![format!("uniprot:{id}").to_ascii_lowercase(), n])
                     .map_err(db_error)?;
             }
         }

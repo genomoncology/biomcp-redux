@@ -176,6 +176,18 @@ The retained HGNC complete-set recording at `data/biomcp-redux/0102-article-shor
 
 Each complete relation has a source-bound immutable pool with the existing fixed lifetime. Continuations keep the relation kind and pathway identity, refuse foreign or expired tokens before source requests and never renew the pool lifetime. The default `all` reads the source summary plus each relation's bounded first page and performs no enrichment or therapeutic fanout.
 
+The recorded CLI and MCP section measurements agree. The comparable budget removes only the shared source terms metadata. These cases enforce measured size plus 15 percent.
+
+| Disclosure | Measured bytes | Measured tokens | Byte ceiling | Token ceiling |
+|---|---:|---:|---:|---:|
+| `get pathway R-HSA-5673001 genes` | 10842 | 2711 | 12469 | 3118 |
+| `get pathway R-HSA-5673001 events` | 2209 | 553 | 2541 | 636 |
+| `get pathway R-HSA-5673001 all` | 16720 | 4180 | 19228 | 4807 |
+| `pathway genes R-HSA-5673001` | 10401 | 2601 | 11962 | 2992 |
+| `pathway events R-HSA-5673001` | 1768 | 442 | 2034 | 509 |
+
+The genes page and `all` exceed the original allocation because a source reference retains all of its physical entity contexts. The first five references preserve 29, 9, 16, 16 and 2 physical entities respectively. The budget does not clip their native names or collapse isoform membership.
+
 ## Public fields and identity joins
 
 Reactome's query endpoint must prove the requested `stId`, `displayName`, `schemaClass`, species, summary and version before their types are accepted. Its participant endpoint describes physical entities, including complexes and modified proteins. A participant display name is not a gene symbol. The implementation must follow the publisher's reference entities and identifier namespaces. It must not extract symbols with regular expressions or treat each physical participant as one gene. Events may contain both objects and integer database references; every such reference needs either a checked hydration or an explicit unresolved record. Event records do not inherit the pathway's stable identifier. Only an event whose captured class is Pathway or TopLevelPathway may generate a `get pathway` action. Reactions and other event kinds retain source references and URLs without pretending to be pathway cards.
