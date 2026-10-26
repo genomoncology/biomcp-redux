@@ -40,7 +40,7 @@ fn entry() -> Value {
         "proteinDescription":{"recommendedName":{"fullName":{"value":"Synthetic protein"}}},
         "sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},
         "features":[
-            {"type":"Domain","description":"Native domain","location":{"start":{"value":10,"modifier":"EXACT"},"end":{"value":20,"modifier":"EXACT"}},"evidences":[{"evidenceCode":"ECO:0000269","source":"PubMed","id":"1"}]},
+            {"type":"Domain","featureId":"","description":"Native domain","location":{"start":{"value":10,"modifier":"EXACT"},"end":{"value":20,"modifier":"EXACT"}},"evidences":[{"evidenceCode":"ECO:0000269","source":"PubMed","id":"1"}]},
             {"type":"Region","description":"Uncertain edges","location":{"start":{"value":5,"modifier":"OUTSIDE"},"end":{"value":25,"modifier":"OUTSIDE"}}},
             {"type":"Domain","description":"Alternative sequence only","location":{"sequence":"P00533-2","start":{"value":10,"modifier":"EXACT"},"end":{"value":20,"modifier":"EXACT"}}},
             {"type":"Region","location":{"start":{"modifier":"UNKNOWN"},"end":{"value":30,"modifier":"EXACT"}}}],
