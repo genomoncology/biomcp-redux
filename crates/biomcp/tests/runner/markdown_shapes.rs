@@ -36,7 +36,7 @@ const SHAPES: &[Shape] = &[
         max_bytes: 708,
     },
     Shape {
-        args: &["list", "author"],
+        args: &["help", "author"],
         replies: "",
         required: &["query", "offset", "limit", "pool", "source", "id"],
         max_bytes: 2782,

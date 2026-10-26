@@ -98,18 +98,14 @@
     },
     {
       "run": [
-        "search",
+        "get",
         "author",
-        "x",
-        "--source",
-        "orcid"
+        "123"
       ],
       "mcp": [
-        "search",
+        "get",
         "author",
-        "x",
-        "--source",
-        "orcid"
+        "123"
       ],
       "is_error": true,
       "exit": 2,
@@ -122,23 +118,53 @@
     },
     {
       "run": [
-        "get",
+        "search",
         "author",
-        "123"
+        "-q--topic",
+        "--disable-sources",
+        "semantic-scholar"
       ],
       "mcp": [
-        "get",
+        "search",
         "author",
-        "123"
+        "-q--topic",
+        "--disable-sources",
+        "semantic-scholar"
       ],
       "is_error": true,
-      "exit": 2,
+      "exit": 4,
       "expect": {
-        "/error/code": "usage.arguments"
+        "/query/query": "--topic",
+        "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 386,
+      "max_tokens": 97
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "--query=--topic",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "--query=--topic",
+        "--disable-sources",
+        "semantic-scholar"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/query/query": "--topic",
+        "/sources/0/reason": "disabled"
+      },
+      "full_output_bytes": true,
+      "max_bytes": 386,
+      "max_tokens": 97
     }
   ]
 }

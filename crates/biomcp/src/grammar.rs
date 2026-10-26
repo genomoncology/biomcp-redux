@@ -217,6 +217,9 @@ fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String
     } else if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
+            Some(("author", matches)) if matches.subcommand().is_none() => {
+                Some(vec!["author".into()])
+            }
             Some(("network", matches)) => Some(vec![
                 "network".into(),
                 matches.get_one::<String>("setting").ok_or(())?.clone(),
@@ -306,7 +309,7 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
             argument.value_parser(clap::builder::StringValueParser::new())
         });
     }
-    if name == "cell-line" && properties(schema)?.contains_key("query") {
+    if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
         command = command
             .mut_arg("query", |arg| {
                 arg.required(false).required_unless_present("query_option")
@@ -322,7 +325,9 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
     Ok(if name == "gwas" {
         gwas::aliases(command, schema)
     } else if schema.get("$id").and_then(Value::as_str).is_some_and(|id| {
-        id.starts_with("biomcp.pathway-") || id == "biomcp.phenotype-search-query/1"
+        id.starts_with("biomcp.pathway-")
+            || id.starts_with("biomcp.author-")
+            || id == "biomcp.phenotype-search-query/1"
     }) && properties(schema)?.contains_key("limit")
     {
         command.mut_arg("limit", |argument| argument.short('l'))
@@ -520,7 +525,7 @@ fn request_arguments(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Re
     let schema: Value = serde_json::from_str(crate::schema::find(id).ok_or(())?).map_err(|_| ())?;
     let mut value = arguments(matches, &schema)?;
     if verb == "search"
-        && entity == "cell-line"
+        && matches!(entity, "cell-line" | "author")
         && let Some(query) = matches.get_one::<String>("query_option")
     {
         value

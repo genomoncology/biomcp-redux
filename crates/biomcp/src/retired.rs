@@ -1,6 +1,7 @@
 //! Fixed migration guidance matched at command and section boundaries.
 
 mod adverse_event;
+mod author;
 mod cell_line;
 mod diagnostic;
 mod drug;
@@ -106,6 +107,9 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 }
 
 pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
+    if let Some(message) = author::message(args) {
+        return Some(message);
+    }
     if retired_source(args) {
         return Some(ErrorMessage::Pharmgkb);
     }

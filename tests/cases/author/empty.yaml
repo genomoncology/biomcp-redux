@@ -1,0 +1,31 @@
+{
+  "live_check": "synthetic control",
+  "feature": "author-search",
+  "story": "Successful empty author search remains complete",
+  "replay": "author/empty",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/state": "ok",
+        "/result/items": {
+          "equals": []
+        },
+        "/page/total": 0
+      },
+      "max_bytes": 581,
+      "max_tokens": 146,
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams"
+      ],
+      "full_output_bytes": true
+    }
+  ]
+}

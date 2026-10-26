@@ -55,13 +55,6 @@ fn unrelated_and_disabled_commands_never_read_keys() {
             "--disable-sources",
             "pubmed",
         ],
-        vec![
-            "get",
-            "author",
-            "orcid:0000-0002-4299-3018",
-            "--disable-sources",
-            "orcid",
-        ],
         vec!["search", "trial", "--condition", "melanoma"],
         vec![
             "get",
@@ -70,13 +63,6 @@ fn unrelated_and_disabled_commands_never_read_keys() {
             "clinvar",
             "--disable-sources",
             "clinvar",
-        ],
-        vec![
-            "get",
-            "author",
-            "semantic-scholar:123",
-            "--disable-sources",
-            "semantic-scholar",
         ],
         vec![
             "get",
@@ -248,6 +234,25 @@ fn saved_query_pages_never_resolve_credentials() {
             assert!(saved.pointer("/result/items/0/card").is_some());
         } else {
             assert_eq!(saved.pointer(pointer), first.pointer(pointer));
+        }
+    }
+}
+
+#[test]
+fn disabled_author_sources_never_read_credentials() {
+    for (source, id) in [
+        ("semantic-scholar", "semantic-scholar:123"),
+        ("orcid", "orcid:0000-0002-4299-3018"),
+    ] {
+        for selector in [source, "noncommercial"] {
+            let mut commands = vec![vec!["get", "author", id], vec!["author", "papers", id]];
+            if source == "semantic-scholar" {
+                commands.push(vec!["search", "author", "name"]);
+            }
+            for mut command in commands {
+                command.extend(["--disable-sources", selector]);
+                assert_eq!(execute(&command, None), 0);
+            }
         }
     }
 }

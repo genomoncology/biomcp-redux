@@ -3,12 +3,20 @@ use super::{launch::Environment, mcp};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
+mod controls;
 mod cost;
+mod disabled_pool;
 mod pool;
 pub(super) fn trials() -> Vec<Trial> {
     let root = super::launch::fixtures().join("author-native");
     let absent = !root.is_dir();
     vec![
+        Trial::test("author-search/disabled-warm-source-pools", || {
+            disabled_pool::check().map_err(Into::into)
+        }),
+        Trial::test("author-search/zero-io-controls", || {
+            controls::check().map_err(Into::into)
+        }),
         Trial::test("author-papers/help-and-markdown", || {
             help().map_err(Into::into)
         }),
