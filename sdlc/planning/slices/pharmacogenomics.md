@@ -486,12 +486,12 @@ Static inventory uses the legacy checkout at `4050fdc7dbdf4d713d94cf02a39a147b86
 | PGx helper family | No separate helper in legacy CLI. | The new `get pgx --gene SYMBOL diplotype --diplotype TEXT --source cpic` is an explicit source lookup, not a claim of legacy parity. |
 | recommendation drug summary and annotation note | Legacy output fields, not commands/options. | Replace hidden fan-out summaries with source row contexts and ordinary problems; preserve any captured unique fact in its owning section. |
 
-The generated accounting counts leaf commands and long command options. It excludes shared formatting, aliases, positional text and section names. `--pgx-testing` remains undecided for implementation because its positive native selector is unproved; its deferred outcome is explicit rather than silently dropped.
+The generated accounting counts leaf commands and long command options. It excludes shared formatting, aliases, positional text and section names. `--pgx-testing` remains deferred for implementation because its positive native selector is unproved; its deferred outcome is explicit rather than silently dropped.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- | --- |
-| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset` | `--drug`, `--evidence` | — | `--pgx-testing` | Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof. |
+| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset` | `--drug`, `--evidence` | `--pgx-testing` | — | Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof under Deferred selectors and the 2026-10-26 PM ruling in ticket 0275. |
 | `get pgx` | Ported or renamed | `--limit`, `--offset` | `--full` | — | — | Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire. |
 <!-- /parity-accounting -->
 
