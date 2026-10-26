@@ -1,6 +1,6 @@
 {
   "feature": "cell-line-identity",
-  "story": "Literal cell line search and exact identity help expose checked arguments.",
+  "story": "Cell line commands expose sections, paging, exact source identities and two parsed examples without response inference.",
   "steps": [
     {
       "run": [
@@ -24,6 +24,9 @@
         },
         "/result/commands/0/examples": {
           "count": 2
+        },
+        "/result/commands/0/description": {
+          "includes": "No treatment response is inferred; no bioinformatics tool runs."
         }
       },
       "max_bytes": 874,
@@ -52,10 +55,48 @@
             "--section-limit",
             "--section-offset"
           ]
+        },
+        "/result/commands/0/description": {
+          "includes": "No treatment response is inferred; no bioinformatics tool runs."
+        },
+        "/result/commands/0/sections/*/word": {
+          "includes_all_of": [
+            "names",
+            "identity",
+            "xrefs",
+            "variants",
+            "chembl",
+            "all"
+          ]
         }
       },
       "max_bytes": 1168,
       "max_tokens": 292
+    },
+    {
+      "run": [
+        "help",
+        "cell-line",
+        "assay-count"
+      ],
+      "mcp": [
+        "help",
+        "cell-line",
+        "assay-count"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/examples": {
+          "count": 2
+        },
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "id"
+          ]
+        }
+      },
+      "max_bytes": 478,
+      "max_tokens": 120
     }
   ]
 }
