@@ -46,13 +46,13 @@ The closed public issue inventory was read on 2026-10-26: all 57 closed issues w
 | Legacy command or option | Proposed disposition | Reason |
 | --- | --- | --- |
 | `search author -q/--query TEXT` | Keep query capability as `search author TEXT` | Native Semantic Scholar candidates, unchanged text; no disambiguation guess. |
-| `--source semanticscholar` | Keep as `--source semantic-scholar` | Existing source spelling convention; do not silently query ORCID name search. |
+| `--source semanticscholar` | Keep as an alias of canonical `--source semantic-scholar` | Accepted compatibility preserves existing calls; do not silently query ORCID name search. |
 | Search `-l/--limit`, `--offset` | Keep long flags and add shared `--pool` | Native bounded page in source order, with stable local continuation. |
-| `get author semanticscholar:ID` | Keep, accept canonical source spelling and existing qualified alias | One exact provider record. |
+| `get author semanticscholar:ID` | Keep as an alias of canonical `semantic-scholar:ID` | One exact provider record; the existing ID spelling remains accepted. |
 | `get author orcid:ID` | Keep | Exact public ORCID person record, checksum validated before request. |
 | `author papers ID` | Keep | Provider-qualified corpus, with explicit source provenance. |
 | Papers `-l/--limit`, `--offset` | Keep long flags and shared pool | Semantic Scholar pages natively; ORCID work summaries may require one bounded whole reply. |
-| Papers `--full` | Keep rich disclosure, proposed named `details` section | Preserve existing source facts; heavy abstracts and bylines stay below compact defaults. PM must approve spelling. |
+| Papers `--full` | Keep as an alias of the named `details` section | Accepted spelling preserves existing rich metadata; heavy abstracts and bylines stay below compact defaults. |
 | `article authors ID` | Article slice already retires the separate command | Author slice must ensure article bylines carry provider-qualified pivots where source supplies them; no new hidden enrichment call. |
 | `list author` | Shared typed help | Explain exact provider identity, sources, limits and sections. |
 | Global JSON/Markdown, fresh/cache and source-disable options | Shared behavior | No entity-specific duplicate configuration. |
@@ -77,11 +77,11 @@ No whole Semantic Scholar dataset is proposed. ORCID snapshot metadata can be in
 
 ## Proposed command and disclosure shape
 
-`search author TEXT [--source semantic-scholar] [--limit N] [--offset N] [--pool ID]` returns source candidates. Each header keeps the qualified ID, full source name, source-provided affiliations, and native paper/citation counts when available. Names never become IDs.
+`search author TEXT [--source semantic-scholar] [--limit N] [--offset N] [--pool ID]` returns source candidates. `semantic-scholar` is canonical; `--source semanticscholar` and `semanticscholar:` IDs remain accepted aliases. Each header keeps the qualified ID, full source name, source-provided affiliations, and native paper/citation counts when available. Names never become IDs.
 
 `get author ID... [SECTION]...` returns one exact card per input. The card keeps source identity, professional display name, source counts and a link to the provider. Public contact details, biography, homepages and demographic inference are unnecessary. A candidate never gains an ORCID from a matching name.
 
-`author papers ID [details] [--limit N] [--offset N] [--pool ID]` returns source paper headers. Compact rows keep native paper ID, exact PMID/DOI where supplied, whole title, year and venue. Details preserve source-provided abstract, dates, counts, access metadata, fields, publication types and byline. The source's own order stays intact. ORCID claims remain separately typed from Semantic Scholar indexed papers.
+`author papers ID [details] [--limit N] [--offset N] [--pool ID]` returns source paper headers. The shipped `--full` flag remains an alias for `details`. Compact rows keep native paper ID, exact PMID/DOI where supplied, whole title, year and venue. Details preserve source-provided abstract, dates, counts, access metadata, fields, publication types and byline. The source's own order stays intact. ORCID claims remain separately typed from Semantic Scholar indexed papers.
 
 Proposed types are `AuthorId` with explicit source-qualified variants, `AuthorHeader`, `AuthorCard`, `AuthorPaperHeader`, and a separately typed `OrcidWorkGroup` with ordered assertion summaries. Source-derived counts are optional and state their scope. ORCID identifiers retain their original type and relationship before any exact article pivot. No field promises a global publication total, current employment or verified person identity.
 
@@ -102,7 +102,7 @@ Each search candidate gets a `disambiguate` action before the page action. Autho
 
 ## Measurement scope and decision boundary
 
-The PM's source-eligibility ruling pauses every new Semantic Scholar and ORCID author API capture pending Ian's eligibility decision. This proposal therefore ends at an explicit measurement boundary. It does not claim API acceptance, current positive or empty results, source timing, measured output ceilings, or implementable accepted types. Existing article code and its replays stay intact. No author API call, bulk download, conversion tool, OAuth exchange or account creation ran in this investigation.
+The [accepted author rulings](../../decisions/2026-10-26-protein-pathway-study-rulings.md#author) accept this metadata-only boundary and pause every new Semantic Scholar and ORCID author API capture pending Ian's eligibility decision. This proposal therefore ends at an explicit measurement boundary. It does not claim API acceptance, current positive or empty results, source timing, measured output ceilings, or implementable accepted types. Existing article code and its replays stay intact. No author API call, bulk download, conversion tool, OAuth exchange or account creation ran in this investigation.
 
 All 24 questions above are harvested questions with acceptance criteria. They are not 24 verified source answers. A01–A16 and A21/A23 await eligible Semantic Scholar captures. A17–A20/A22/A24 await an eligible ORCID route. A24 additionally has the historical recorded lower-case reply and public bug report. Unsuccessful documentation retrieval is not a source failure witness for a proposed command.
 
@@ -155,4 +155,4 @@ Source IDs and their aliases should have one checked type and one parser. Every 
 
 The PM must first resolve source eligibility through the existing escalation: existing expanded Semantic Scholar permission, an eligible ORCID route, or an explicit deferral that preserves the shipped capability requirement. A noncommercial source label and an API key do not settle the permitted purpose.
 
-Subject to that ruling, the proposal recommends keeping provider-qualified identity, native candidate order, compact papers and a rich named disclosure layer. The PM should decide the `details` spelling and compatibility for shipped `--full`, preserve existing `semanticscholar:` qualified IDs as aliases if canonical spelling changes, and require eligible captures before accepting ORCID group/assertion types or any output ceiling. It should defer topic-wide author ranking and provider merging because neither the shipped surface nor these sources establish them. No capability retirement or new source cost is silently accepted by this proposal.
+The accepted rulings keep provider-qualified identity, native candidate order, compact papers and the named `details` section, with shipped `--full` as its alias. `semantic-scholar` is canonical; existing `semanticscholar:` IDs and `--source semanticscholar` remain aliases. Topic-wide author ranking and cross-provider merging are deferred. Types, output ceilings and question answers wait for captures on a route Ian rules eligible. No capability retirement or new source cost is accepted by this proposal.
