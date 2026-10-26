@@ -12,9 +12,17 @@ def declared(root):
     research = (root / "crates/biomcp/src/mcp/research.rs").read_text()
     primary = protocol.split("pub(super) fn tool()", 1)[1].split("pub(super) fn tools()", 1)[0]
     projections = research.split("pub(super) fn tools()", 1)[1].split("#[derive", 1)[0]
+    assembly = protocol.split("pub(super) fn tools()", 1)[1].split("pub(super) fn result", 1)[0]
+    if re.sub(r"\s+", "", assembly) != "->Vec<Value>{letmuttools=vec![tool()];tools.extend(super::research::tools());tools}":
+        raise ValueError("unrecognized server tool assembly")
     names = re.findall(r'"name"\s*:\s*"([a-z][a-z0-9_-]*)"', primary)
-    names += re.findall(r'\(\s*"([a-z][a-z0-9_-]*)"\s*,\s*"[^"\\]*"\s*,\s*"[^"\\]*"\s*,\s*"[^"\\]*"\s*\)', projections)
-    if not names or len(names) != len(set(names)):
+    rows = re.fullmatch(r'\s*->\s*Vec<Value>\s*\{\s*\[(.*?)\]\s*\.into_iter\(\)\.map\(\|\(name,\s*key,\s*description,\s*schema\)\|\s*\{.*\}\)\.collect\(\)\s*\}\s*', projections, re.S)
+    string = r'"(?:[^"\\]|\\.)*"'
+    row = r'\(\s*(' + string + r')\s*,\s*' + string + r'\s*,\s*' + string + r'\s*,\s*' + string + r'\s*\)'
+    if len(names) != 1 or not rows or not re.fullmatch(r'\s*' + row + r'(?:\s*,\s*' + row + r')*\s*,?\s*', rows[1]):
+        raise ValueError("unrecognized server tool declarations")
+    names += [json.loads(match[1]) for match in re.finditer(row, rows[1])]
+    if len(names) != len(set(names)) or any(not re.fullmatch(r'[a-z][a-z0-9_-]*', name) for name in names):
         raise ValueError("server tool declarations are missing or duplicated")
     return sorted(names)
 
