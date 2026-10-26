@@ -182,6 +182,9 @@ pub fn probe(
 type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
+    if let Some(probe) = protein_probe(source) {
+        return Some(probe);
+    }
     Some(match source {
         Source::Gwas => (
             "/associations",
@@ -209,22 +212,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         ),
         Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
-        Source::UniProt => (
-            "/uniprotkb/P15056.json",
-            vec![("fields", Arg::Text("accession"))],
-        ),
-        Source::InterPro => (
-            "/entry/interpro/protein/uniprot/P00533/",
-            vec![("page_size", Arg::Num(5))],
-        ),
-        Source::ComplexPortal => (
-            "/search/P15056",
-            vec![
-                ("first", Arg::Num(0)),
-                ("number", Arg::Num(5)),
-                ("filters", Arg::Text("species_f:(\"Homo sapiens\")")),
-            ],
-        ),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
@@ -358,4 +345,27 @@ pub fn restore_outcome(mut saved: biomcp_types::SourceOutcome) -> biomcp_types::
     saved.terms = current.terms;
     saved.terms_url = current.terms_url;
     saved
+}
+
+fn protein_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::UniProt => (
+            "/uniprotkb/P15056.json",
+            vec![("fields", Arg::Text("accession"))],
+        ),
+        Source::InterPro => (
+            "/entry/interpro/protein/uniprot/P00533/",
+            vec![("page_size", Arg::Num(5))],
+        ),
+        Source::ComplexPortal => (
+            "/search/P15056",
+            vec![
+                ("first", Arg::Num(0)),
+                ("number", Arg::Num(5)),
+                ("filters", Arg::Text("species_f:(\"Homo sapiens\")")),
+            ],
+        ),
+        _ => return None,
+    })
 }
