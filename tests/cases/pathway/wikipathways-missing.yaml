@@ -1,0 +1,26 @@
+{
+  "feature": "pathway-wikipathways",
+  "story": "A missing WikiPathways snapshot requests explicit synchronization without a provider request.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pathway",
+        "Apoptosis",
+        "--source",
+        "wikipathways"
+      ],
+      "exit": 4,
+      "expect": {
+        "/sources/0/source": "wikipathways",
+        "/sources/0/reason": "syncing",
+        "/next/0/args": [
+          "sync",
+          "wikipathways"
+        ]
+      },
+      "max_bytes": 2000,
+      "max_tokens": 500
+    }
+  ]
+}

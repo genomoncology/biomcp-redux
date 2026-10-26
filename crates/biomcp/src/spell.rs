@@ -24,6 +24,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::Sync { bundle } => Ok(vec![
             "sync".into(),
             match bundle {
+                Bundle::WikiPathways => "wikipathways",
                 Bundle::CbioportalStudies => "cbioportal-studies",
                 Bundle::FdaCdx => "fda-cdx",
                 Bundle::Gtr => "gtr",
@@ -85,6 +86,8 @@ fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
         }
         Request::SearchPathway(q) => serde_json::to_value(q),
         Request::GetPathway(q) => serde_json::to_value(q),
+        Request::PathwayGenes(q) => serde_json::to_value(q),
+        Request::PathwayEvents(q) => serde_json::to_value(q),
         Request::SearchStudy(q) => serde_json::to_value(q),
         Request::GetStudy(q) => serde_json::to_value(q),
         Request::SearchPgx(query) => serde_json::to_value(query),
@@ -163,6 +166,7 @@ pub(crate) fn command_words(request: &Request) -> Vec<String> {
 }
 fn command_verb(request: &Request) -> &'static str {
     match request {
+        Request::PathwayGenes(_) | Request::PathwayEvents(_) => "pathway",
         Request::VariantAssertions(_)
         | Request::VariantPopulation(_)
         | Request::VariantRecurrence(_)
@@ -207,6 +211,12 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
+    if matches!(request, Request::PathwayGenes(_)) {
+        return "genes";
+    }
+    if matches!(request, Request::PathwayEvents(_)) {
+        return "events";
+    }
     if matches!(request, Request::SearchGwas(_)) {
         return "gwas";
     }
