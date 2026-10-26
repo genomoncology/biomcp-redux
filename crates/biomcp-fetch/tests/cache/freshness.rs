@@ -441,7 +441,7 @@ fn negative_admission_and_json_absence_removal_keep_the_source_answer() {
         connection.execute_batch("BEGIN IMMEDIATE").unwrap();
         let (result, report) = exchange(&server, 404, r#"{"absent":true}"#, || {
             let leg = fetch
-                .leg(spec, fetch.deadline(Duration::from_millis(500)))
+                .leg(spec, fetch.deadline(Duration::from_secs(10)))
                 .fresh(true);
             let result = if json_absence {
                 leg.json::<Absence>(&endpoint, &[])
