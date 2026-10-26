@@ -20,7 +20,7 @@ const SHAPES: &[Shape] = &[
         args: &["search", "pathway", "Signaling by EGFR"],
         replies: "pathway/native",
         required: &["Signaling by EGFR", "biomcp get pathway R-HSA-177929"],
-        max_bytes: 1561,
+        max_bytes: 1439,
     },
     Shape {
         args: &["get", "pathway", "R-HSA-5673001"],
@@ -29,13 +29,13 @@ const SHAPES: &[Shape] = &[
             "RAF/MAP kinase cascade",
             "biomcp get pathway R-HSA-5673001 summary",
         ],
-        max_bytes: 832,
+        max_bytes: 562,
     },
     Shape {
         args: &["get", "pathway", "R-HSA-5673001", "summary"],
         replies: "pathway/native",
         required: &["The RAS-RAF-MEK-ERK pathway", "24937142"],
-        max_bytes: 5441,
+        max_bytes: 5161,
     },
     Shape {
         args: &["get", "gene", "BRAF"],

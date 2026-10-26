@@ -29,7 +29,8 @@
           "R-HSA-4839726"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1646,
+      "max_tokens": 412
     },
     {
       "follow": "page",
@@ -49,7 +50,8 @@
           "R-HSA-73894"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1709,
+      "max_tokens": 428
     },
     {
       "follow": "page",
@@ -69,7 +71,8 @@
           "R-HSA-109582"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1724,
+      "max_tokens": 432
     },
     {
       "follow": "page",
@@ -89,7 +92,8 @@
           "R-HSA-397014"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1713,
+      "max_tokens": 428
     },
     {
       "follow": "page",
@@ -109,7 +113,8 @@
           "R-HSA-1474165"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1744,
+      "max_tokens": 436
     },
     {
       "follow": "page",
@@ -131,7 +136,8 @@
           "R-HSA-5653656"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1330,
+      "max_tokens": 333
     }
   ]
 }

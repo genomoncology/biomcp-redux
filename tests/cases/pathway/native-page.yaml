@@ -20,7 +20,8 @@
         "/result/page/total": 917,
         "/result/page/next_offset": 5
       },
-      "max_bytes": 7000
+      "max_bytes": 1615,
+      "max_tokens": 404
     },
     {
       "follow": "page",
@@ -31,7 +32,8 @@
         "/result/page/total": 917,
         "/result/page/next_offset": 10
       },
-      "max_bytes": 7000
+      "max_bytes": 1614,
+      "max_tokens": 404
     }
   ]
 }

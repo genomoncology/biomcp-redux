@@ -24,7 +24,8 @@
         "/error/code": "pool.expired",
         "/next/0/kind": "restart"
       },
-      "max_bytes": 1500
+      "max_bytes": 227,
+      "max_tokens": 57
     },
     {
       "run": [
@@ -37,7 +38,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -51,7 +53,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -65,7 +68,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -79,7 +83,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -91,7 +96,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -104,7 +110,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -118,7 +125,8 @@
       "expect": {
         "/error/code": "usage.arguments"
       },
-      "max_bytes": 1000
+      "max_bytes": 166,
+      "max_tokens": 42
     },
     {
       "run": [
@@ -134,7 +142,8 @@
         },
         "/result/page/total": 0
       },
-      "max_bytes": 2000
+      "max_bytes": 343,
+      "max_tokens": 87
     },
     {
       "run": [
@@ -146,7 +155,8 @@
       "expect": {
         "/status": "absent"
       },
-      "max_bytes": 2000
+      "max_bytes": 209,
+      "max_tokens": 52
     },
     {
       "run": [
@@ -158,7 +168,8 @@
       "expect": {
         "/status": "absent"
       },
-      "max_bytes": 2000
+      "max_bytes": 216,
+      "max_tokens": 55
     }
   ]
 }

@@ -12,7 +12,8 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 7000
+      "max_bytes": 1578,
+      "max_tokens": 395
     },
     {
       "run": [
@@ -23,7 +24,8 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 7000
+      "max_bytes": 1563,
+      "max_tokens": 391
     },
     {
       "run": [
@@ -49,7 +51,8 @@
         "/result/pathway/version": "R-HSA-9652817.2",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 549,
+      "max_tokens": 137
     },
     {
       "run": [
@@ -75,7 +78,8 @@
         "/result/pathway/version": "R-HSA-177929.6",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 535,
+      "max_tokens": 134
     }
   ]
 }

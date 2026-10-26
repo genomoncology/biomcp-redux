@@ -31,7 +31,8 @@
           "R-HSA-5673000"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1583,
+      "max_tokens": 396
     },
     {
       "follow": "page",
@@ -51,7 +52,8 @@
           "R-HSA-6802948"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1761,
+      "max_tokens": 441
     },
     {
       "follow": "page",
@@ -71,7 +73,8 @@
           "R-HSA-9726840"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 1771,
+      "max_tokens": 443
     },
     {
       "follow": "page",
@@ -90,7 +93,8 @@
           "R-HSA-9726842"
         ]
       },
-      "max_bytes": 10000
+      "max_bytes": 705,
+      "max_tokens": 176
     }
   ]
 }

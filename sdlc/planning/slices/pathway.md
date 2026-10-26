@@ -133,6 +133,22 @@ Job `j14564` at `81ea22bf` captured 24 HTTP 200 replies and the final exact stru
 
 The preserved archive is `data/biomcp-redux/0216-reactome-commands/native-search.tar.gz` on Yellow, SHA256 `0bf01b60951965eebf178e99408905446f3fb002a727af19c51e46f7c0c0af47`. Independent verification checked its complete 78-member list and all 77 manifest-listed file hashes. The original source bodies remain unchanged in the archive; the replay fixtures use the same JSON values and the transport's canonical request spelling. The archive's plan, receipts and native bodies bind the observations to their exact URLs rather than a reconstructed source query.
 
+### Product disclosure measurements
+
+Job `j14621` at `cb0a5a3f` executes the retained command cases through CLI, MCP and Markdown. It measures 106 command steps, including invalid selectors, source failures and local continuation pages. Every CLI envelope equals the MCP structured result and parsed MCP text. The measurements use local replay bodies and make no provider request. Comparable JSON removes exactly the registry's `use`, `terms` and `terms_url` fields from each validated source outcome. Tokens use compact UTF-8 bytes divided by four, rounded up. Each case's checked-in `max_bytes` and `max_tokens` is its own observed size plus fifteen percent, rounded up; the table shows the largest member of each command form.
+
+| Command form | Largest comparable CLI bytes | Largest tokens | Largest byte ceiling | Largest token ceiling |
+| --- | --- | --- | --- | --- |
+| Header pages | 1551 | 388 | 1784 | 447 |
+| Default card | 534 | 134 | 615 | 155 |
+| Whole summary | 10524 | 2631 | 12103 | 3026 |
+| Gene relation page | 1540 | 385 | 1771 | 443 |
+| Top-level relation page | 1516 | 379 | 1744 | 436 |
+
+The database's complete source summaries vary in length. Ten observed summaries exceed the design's 900-token allocation while retaining whole native summation objects and source citations. The largest is the ALK pathway `R-HSA-201556`, with 2,631 comparable tokens. These measurements preserve source text and do not replace it with a locally written summary. The source observations include PubMed references on 21 of the 23 question cards; the captured NOTCH and Cell Cycle cards contain no native PMID. Citation cases assert the source's native reference positions, and URL-only references retain `uniformResourceLocator` as their source URL beside optional PubMed identities.
+
+The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-commands/output-measurements.json`, SHA256 `4b5dd0d6f40fe8ba8d7ac7ccaca904b427ddf15376f8af4d7083ea9fcf810ca8`. Transfer verification checks the complete file hash and every row's CLI/MCP equality result. The permanent caller cases also exercise a retained pool under a foreign query, disabled-source admission before saved content, exact ordered gene/top-level walks, native search continuation and Markdown command shapes.
+
 ### Public fields and identity joins
 
 Reactome's query endpoint must prove the requested `stId`, `displayName`, `schemaClass`, species, summary and version before their types are accepted. Its participant endpoint describes physical entities, including complexes and modified proteins. A participant display name is not a gene symbol. The implementation must follow the publisher's reference entities and identifier namespaces. It must not extract symbols with regular expressions or treat each physical participant as one gene. Events may contain both objects and integer database references; every such reference needs either a checked hydration or an explicit unresolved record. Event records do not inherit the pathway's stable identifier. Only an event whose captured class is Pathway or TopLevelPathway may generate a `get pathway` action. Reactions and other event kinds retain source references and URLs without pretending to be pathway cards.

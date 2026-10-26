@@ -21,7 +21,8 @@
         "/sources/0/terms": "CC0 1.0 database data",
         "/problems/0/field": "identity"
       },
-      "max_bytes": 7000
+      "max_bytes": 328,
+      "max_tokens": 82
     },
     {
       "run": [
@@ -34,7 +35,8 @@
       "expect": {
         "/status": "failed"
       },
-      "max_bytes": 5000
+      "max_bytes": 236,
+      "max_tokens": 59
     }
   ]
 }
