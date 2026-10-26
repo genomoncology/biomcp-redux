@@ -8,7 +8,7 @@ pub fn sequence(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<ProteinSequence, R
     let ep = SPEC.get("").with_path(format!("/uniprotkb/{id}.fasta"))?
         .bytes(1024 * 1024).identity_encoding().fresh(Freshness::Days(7));
     let bytes = leg.bytes_checked(&ep, &[], |bytes| parse(bytes, id).map(|_| ()).ok_or(Reason::BadReply))?;
-    parse(&bytes, id).ok_or(RequestError::Source(biomcp_fetch::SourceError { source: biomcp_types::Source::UniProt, reason: Reason::BadReply }))
+    parse(&bytes, id).ok_or(RequestError::Source(biomcp_fetch::SourceError { source: biomcp_types::Source::UniProt, reason: Reason::BadReply, status: None, retry_after: None }))
 }
 fn parse(bytes: &[u8], id: &UniProtIsoform) -> Option<ProteinSequence> {
     let text = std::str::from_utf8(bytes).ok()?;

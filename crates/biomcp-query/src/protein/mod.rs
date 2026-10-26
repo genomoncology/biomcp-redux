@@ -2,6 +2,7 @@
 mod get;
 mod next;
 mod search;
+mod sections;
 use crate::Outcome;
 use biomcp_types::{QueryBody, Status};
 pub use get::get;
