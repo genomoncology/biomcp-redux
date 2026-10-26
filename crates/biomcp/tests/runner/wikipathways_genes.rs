@@ -88,13 +88,19 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
             .to_vec(),
         0,
     )?;
+    let genes_record = env.root().join("genes-record");
+    let genes_path = genes_record.to_str().ok_or("genes recording path")?;
     let first = invoke(
         &env,
-        ["get", "pathway", "WP382", "genes", "--record", record]
+        ["get", "pathway", "WP382", "genes", "--record", genes_path]
             .map(str::to_owned)
             .to_vec(),
         0,
     )?;
+    for entry in fs::read_dir(genes_record.join("wikipathways")).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        fs::copy(entry.path(), replay.join("wikipathways").join(entry.file_name())).map_err(|e| e.to_string())?;
+    }
     let requests = stub.finish()?;
     if requests.len() != 3 {
         return Err(format!(
