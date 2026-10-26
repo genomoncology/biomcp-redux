@@ -155,3 +155,5 @@ protein-sections: A caller reads native protein features, alternative products, 
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership. Cases: `crates/biomcp/tests/runner/protein_domains.rs`.
 
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples. Cases: `tests/cases/pathway/help.yaml`.
+
+cell-line-types: A public API caller validates exact cell identities and standalone requests while preserving native variation members, provenance and independently scoped collections before I/O. Contracts: `biomcp-types/cell_line_contracts` (features: `schema`).

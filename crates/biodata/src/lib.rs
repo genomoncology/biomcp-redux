@@ -124,3 +124,6 @@ mod protein;
 pub use protein::*;
 mod study;
 pub use study::*;
+
+mod cell_line;
+pub use cell_line::*;
