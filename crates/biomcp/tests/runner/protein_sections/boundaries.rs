@@ -102,8 +102,9 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
 }
 fn section_context(env: &Environment) -> Result<(), String> {
     let all = call(env, None, &["get", "protein", "P00533", "all"], 0)?;
-    if all.pointer("/result/items/0/sections/function/data/items/1/molecule")
-        != Some(&json!("Isoform 2"))
+    if all.pointer("/result/items/0/sections/structures/data/items/0/id") != Some(&json!("1ABC"))
+        || all.pointer("/result/items/0/sections/function/data/items/1/molecule")
+            != Some(&json!("Isoform 2"))
         || all.pointer("/result/items/0/sections/isoforms/data/items/0/ids/0")
             != Some(&json!("Q8N726"))
         || all

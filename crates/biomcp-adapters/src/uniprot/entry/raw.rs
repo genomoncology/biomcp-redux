@@ -14,6 +14,7 @@ pub(in crate::uniprot) struct Entry {
     pub entry_audit: Option<Audit>,
     pub features: Option<Vec<super::sections_raw::Feature>>,
     pub comments: Option<Vec<super::sections_raw::Comment>>,
+    #[serde(rename = "uniProtKBCrossReferences")]
     pub uni_prot_kb_cross_references: Option<Vec<super::sections_raw::CrossReference>>,
 }
 impl Entry {

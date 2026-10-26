@@ -3,7 +3,8 @@
 set -eu
 mkdir -p "$HOME/workspace/job-evidence"
 proof_root=$(mktemp -d "$HOME/workspace/job-evidence/biomcp-redux-0239-native.XXXXXX")
-export proof_root
+previous_proof=${1:-}
+export proof_root previous_proof
 printf 'Retained proof directory: %s\n' "$proof_root"
 mkdir "$proof_root/archives"
 scp yellow:/home/ian/workspace/data/biomcp-redux/0190-protein-investigation/j14202-native-sources.tar.gz yellow:/home/ian/workspace/data/biomcp-redux/0190-protein-investigation/j14211-j14221-identity-followup.tar.gz yellow:/home/ian/workspace/data/biomcp-redux/0229-protein-admission/j14362-native-witnesses.tar.gz "$proof_root/archives/"
@@ -21,6 +22,25 @@ for name, expected in {
 PY
 python3 scripts/protein_sections_native.py "$proof_root/archives" "$proof_root/protein-section-native"
 git rev-parse HEAD > "$proof_root/revision.txt"
+python3 - <<'PY_RESUME'
+import os, shutil
+from pathlib import Path
+previous = os.environ['previous_proof']
+if previous:
+    old = Path(previous).resolve()
+    parent = Path.home()/'workspace/job-evidence'
+    if old.parent != parent or not old.name.startswith('biomcp-redux-0239-native.'):
+        raise ValueError('continuation must name this lane own retained evidence')
+    root = Path(os.environ['proof_root'])
+    reused = root/'protein-section-native/reused-cases'
+    reused.mkdir()
+    for result in (old/'protein-section-native/outputs').glob('*.json'):
+        case = root/'protein-section-native/cases'/(result.stem+'.yaml')
+        if case.is_file(): shutil.move(case, reused/case.name)
+    shutil.copyfile(old/'proof.log', root/'prior-proof.log')
+    shutil.copyfile(old/'revision.txt', root/'prior-revision.txt')
+    print('Reuse', len(list(reused.iterdir())), 'completed native cases from', old.name)
+PY_RESUME
 BIOMCP_TEST_FIXTURES="$proof_root" cargo test --locked -p biomcp --test cases -- protein-sections/retained-native-facts-and-costs --nocapture > "$proof_root/proof.log" 2>&1 || { cat "$proof_root/proof.log"; exit 1; }
 cat "$proof_root/proof.log"
 python3 - <<'PY'
@@ -31,10 +51,17 @@ import source_capture
 root = Path(os.environ['proof_root'])
 evidence = root/'evidence'
 evidence.mkdir()
-for name in ['proof.log', 'revision.txt']:
-    shutil.copyfile(root/name, evidence/name)
-for kind, folder in [('case', 'cases'), ('walk', 'walks'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
-    for path in (root/'protein-section-native'/folder).iterdir():
+previous = os.environ['previous_proof']
+if previous:
+    old = Path(previous)
+    for path in (old/'protein-section-native/outputs').glob('*.json'):
+        shutil.copyfile(path, root/'protein-section-native/outputs'/path.name)
+for name in ['proof.log', 'revision.txt', 'prior-proof.log', 'prior-revision.txt']:
+    if (root/name).is_file(): shutil.copyfile(root/name, evidence/name)
+for kind, folder in [('case', 'cases'), ('reused', 'reused-cases'), ('walk', 'walks'), ('result', 'outputs'), ('replay', 'replay/uniprot')]:
+    directory = root/'protein-section-native'/folder
+    if not directory.is_dir(): continue
+    for path in directory.iterdir():
         shutil.copyfile(path, evidence/(kind+'-'+path.name))
 source_capture.manifest(evidence)
 archive = root/'native-proof.tar.gz'
