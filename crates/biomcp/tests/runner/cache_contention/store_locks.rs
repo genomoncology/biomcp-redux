@@ -50,6 +50,14 @@ fn locked(cdx: bool) -> Result<(), String> {
         }
     }
     failure(&call(&mut peer, &sync)?)?;
+    let mut args = env.globals(Some(&replay), false);
+    args.extend(sync.iter().map(|word| (*word).to_owned()));
+    let startup = super::super::configuration::invoke(&env, args, 5)?;
+    if startup.get("local_error") != Some(&json!("busy"))
+        || startup.get("status") != Some(&json!("local"))
+    {
+        return Err(format!("startup erased cache failure: {startup}"));
+    }
     db.execute_batch("ROLLBACK").map_err(|e| e.to_string())?;
     peer.finish()
 }
