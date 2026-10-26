@@ -21,6 +21,9 @@
             "--limit",
             "--offset"
           ]
+        },
+        "/result/commands/0/examples": {
+          "count": 2
         }
       }
     }

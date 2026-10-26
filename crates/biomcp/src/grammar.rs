@@ -418,7 +418,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         (
             "search" | "get",
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
-            | "protein" | "study",
+            | "protein" | "study" | "cell-line",
         ) => entity::request(verb, entity, value),
         ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
             .map(Request::VariantAssertions)

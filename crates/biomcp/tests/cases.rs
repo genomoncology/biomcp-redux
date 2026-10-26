@@ -80,6 +80,7 @@ fn native_proof() -> Option<ExitCode> {
     }
     let mode = env::args().nth(1)?;
     let run = match mode.as_str() {
+        "--cell-line-examples" => runner::cell_line_examples,
         "--faers-search-synthetic-examples" => runner::faers_search_examples,
         "--seer-native-proof" => runner::seer_native,
         "--trial-condition-native-proof" => runner::trial_condition_native,

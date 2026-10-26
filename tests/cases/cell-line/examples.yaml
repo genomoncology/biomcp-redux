@@ -1,0 +1,79 @@
+{
+  "feature": "cell-line-identity",
+  "story": "Executable cell line help examples preserve exact retained native requests and identities.",
+  "replay": "cell-line/examples",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "cell-line",
+        "MOLM13"
+      ],
+      "mcp": [
+        "search",
+        "cell-line",
+        "MOLM13"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/accession": "CVCL_2119"
+      },
+      "max_bytes": 1,
+      "max_tokens": 1
+    },
+    {
+      "run": [
+        "search",
+        "cell-line",
+        "MV4;11"
+      ],
+      "mcp": [
+        "search",
+        "cell-line",
+        "MV4;11"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/accession": "CVCL_0064"
+      },
+      "max_bytes": 1,
+      "max_tokens": 1
+    },
+    {
+      "run": [
+        "get",
+        "cell-line",
+        "CVCL_2119"
+      ],
+      "mcp": [
+        "get",
+        "cell-line",
+        "CVCL_2119"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/accession": "CVCL_2119"
+      },
+      "max_bytes": 1,
+      "max_tokens": 1
+    },
+    {
+      "run": [
+        "get",
+        "cell-line",
+        "CVCL_0004"
+      ],
+      "mcp": [
+        "get",
+        "cell-line",
+        "CVCL_0004"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/accession": "CVCL_0004"
+      },
+      "max_bytes": 1,
+      "max_tokens": 1
+    }
+  ]
+}

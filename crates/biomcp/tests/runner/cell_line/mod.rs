@@ -1,6 +1,8 @@
 //! Feature cell-line-identity: unchanged retained native requests through the real CLI and MCP.
 use std::io::Write;
 mod faults;
+mod examples;
+mod research;
 mod help;
 mod native;
 use super::{launch::Environment, network_stub::Stub};
@@ -16,6 +18,7 @@ pub(super) fn trials() -> Vec<Trial> {
         "cell-line-identity/help-and-markdown-parity",
         || help::run(false).map_err(Into::into),
     ));
+    tests.push(Trial::test("cell-line-identity/research-search-fetch-runtime", || research::run(false).map_err(Into::into)));
     tests.extend(faults::trials());
     tests
 }
@@ -193,7 +196,8 @@ fn path(value: &Value, path: &str, expected: Value) -> Result<(), String> {
 pub(in crate::runner) fn measure() -> Result<(), String> {
     native::run(true)?;
     faults::run(true)?;
-    help::run(true)
+    help::run(true)?;
+    research::run(true)
 }
 
 fn markdown(
@@ -264,3 +268,5 @@ fn markdown(
     }
     Ok(())
 }
+
+pub(in crate::runner) fn examples(directory: &std::path::Path) -> Result<(), String> { examples::generate(directory) }
