@@ -255,7 +255,7 @@ fn stored_field(pointer: &str, range: bool) -> Check {
         )
     } else {
         (
-            "UPDATE reply SET body=?1, fresh_until=?2",
+            "UPDATE reply SET body=CAST(?1 AS BLOB), fresh_until=?2",
             "SELECT CAST(body AS TEXT) FROM reply",
             body.as_str(),
         )
