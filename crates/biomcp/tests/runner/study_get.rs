@@ -7,7 +7,13 @@ use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
+    let native = crate::runner::launch::fixtures().join("study-get-cases");
+    let available = native.is_dir();
     vec![
+        Trial::test("study-get/retained-native", move || {
+            retained(&native).map_err(Into::into)
+        })
+        .with_ignored_flag(!available),
         Trial::test("study-get/complete-pages-and-native-counts", || {
             pages().map_err(Into::into)
         }),
@@ -214,6 +220,37 @@ fn admission() -> Check {
         || value.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
     {
         return Err(format!("over-bound response returned a cut page: {value}"));
+    }
+    Ok(())
+}
+
+fn retained(directory: &Path) -> Check {
+    let registry = crate::runner::schema::Registry::embedded()?;
+    let mut paths = fs::read_dir(directory)
+        .map_err(|e| e.to_string())?
+        .map(|e| e.map(|e| e.path()).map_err(|e| e.to_string()))
+        .collect::<Result<Vec<_>, _>>()?;
+    paths.sort();
+    if paths.len() < 20 {
+        return Err("retained study cases are incomplete".into());
+    }
+    for path in paths {
+        let value = crate::runner::run_case(&path, &registry)?;
+        if value.to_string().contains("sampleIds")
+            || value.pointer("/result/study/patientCount").is_some()
+        {
+            return Err("study reply retained members or invented patient count".into());
+        }
+        let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
+        let comparable = crate::runner::source_terms::size(&value, "")?;
+        println!(
+            "Study native {}: CLI={}, MCP={}, comparable={}, estimated_tokens={}",
+            path.file_stem().ok_or("case name")?.to_string_lossy(),
+            full + 1,
+            full,
+            comparable,
+            comparable.div_ceil(4)
+        );
     }
     Ok(())
 }

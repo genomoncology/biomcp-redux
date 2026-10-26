@@ -53,7 +53,7 @@ def main(archive, out):
     for study in STUDIES:
         for section, suffix in [('molecular-profiles', 'profiles'), ('sample-lists', 'sample-lists')]:
             recording(replay, f'{BASE}/{study}/{section}?projection=DETAILED', contents[f'{study}-{suffix}.body'])
-    cases = out / 'cases'
+    cases = out / 'study-get-cases'
     cases.mkdir()
     # Compare all native fields rather than interpreting clinical units or prose.
     catalog = json.loads(contents['studies.body'])
@@ -61,7 +61,7 @@ def main(archive, out):
     selected = [r['name'] for r in receipts if r['name'] + '.body' in contents
                 and r['name'] not in {'studies', 'api-docs', 'faq', 'datahub-readme', 'datahub-list', 'cancer-types', 'absent'}
                 and '-' not in r['name']]
-    steps = [step(['sync', 'cbioportal-studies'])]
+    steps = []
     for identity in selected:
         native = next(row for row in catalog if row['studyId'] == identity)
         expected = {'/result/study/header/studyId': identity,
@@ -89,8 +89,11 @@ def main(archive, out):
                         if key in row:
                             expected[f'/result/items/{n}/{key}'] = row[key]
                 steps.append(step(['get', 'study', study, section, '--section-offset', str(offset)], expected))
-    (cases / 'retained.yaml').write_text(compact({'story': 'Retained exact study metadata and complete DETAILED section walks',
-                                                'feature': 'study-get', 'replay': str(replay), 'steps': steps}))
+    for n, operation in enumerate(steps):
+        (cases / f'{n:03d}.yaml').write_text(compact({
+            'story': 'Retained exact study metadata and complete DETAILED section walks',
+            'feature': 'study-get', 'replay': str(replay),
+            'steps': [step(['sync', 'cbioportal-studies']), operation]}))
     print(f'Prepared {len(steps)} CLI/MCP steps outside Git; zero provider requests')
 
 
