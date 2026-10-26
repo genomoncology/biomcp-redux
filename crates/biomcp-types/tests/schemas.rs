@@ -161,6 +161,7 @@ fn registry() -> Vec<Contract> {
     };
     contracts.extend(diagnostic_contracts());
     contracts.extend(pathway_contracts());
+    contracts.extend(protein_contracts());
     contracts.extend(common_registry());
     contracts.extend(article_registry());
     contracts.extend(research_registry());
@@ -416,5 +417,20 @@ fn pathway_contracts() -> Vec<Contract> {
         Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/1"),
         Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/1"),
         Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/1"),
+    }
+}
+
+fn protein_contracts() -> Vec<Contract> {
+    contracts! {
+        Envelope<ProteinPage> => ("protein-page", "biomcp.protein_page/1"),
+        Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/1"),
+        Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein_features/1"),
+        Envelope<ProteinDomains> => ("protein-domains", "biomcp.protein_domains/1"),
+        Envelope<ProteinIsoforms> => ("protein-isoforms", "biomcp.protein_isoforms/1"),
+        Envelope<ProteinComplexes> => ("protein-complexes", "biomcp.protein_complexes/1"),
+        Envelope<ProteinComplexMembers> => ("protein-complex-members", "biomcp.protein_complex_members/1"),
+        Envelope<ProteinStructures> => ("protein-structures", "biomcp.protein_structures/1"),
+        Envelope<ProteinSequenceResult> => ("protein-sequence", "biomcp.protein_sequence/1"),
+        Envelope<ProteinFunctionResult> => ("protein-function", "biomcp.protein_function/1")
     }
 }

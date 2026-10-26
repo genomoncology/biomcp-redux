@@ -12,6 +12,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise neutral pathway identities and checked standalone consumer contracts through the public library API before adapters exist.",
     ),
     (
+        "crates/biomcp-types/tests/protein_contracts.rs",
+        "Exercise neutral protein records and checked standalone consumer contracts through the public library API before adapters exist.",
+    ),
+    (
         "crates/biomcp-types/tests/study_contracts.rs",
         "Exercise exact study identities, neutral source metadata and bounded standalone consumer contracts through the public library API before adapters exist.",
     ),

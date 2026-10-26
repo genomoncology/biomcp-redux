@@ -118,5 +118,7 @@ pub use pathway::{
     ReactomeIdInvalid, WikiPathwaysId,
 };
 
+mod protein;
+pub use protein::*;
 mod study;
 pub use study::*;
