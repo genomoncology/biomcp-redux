@@ -44,6 +44,10 @@ fn variable(name: &str) -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
+pub(crate) fn retired_study_directory() -> bool {
+    variable("BIOMCP_STUDY_DIR").is_some()
+}
+
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
 pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, ()> {
     let home = variable("HOME");
