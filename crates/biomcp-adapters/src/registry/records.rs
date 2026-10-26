@@ -61,31 +61,37 @@ pub const DECLARATIONS: &[RecordDeclaration] = &[
         source: Source::Gwas,
         kind: RecordKind::Association,
         display_name: "GWAS Catalog association",
-        template: None,
+        template: Some("https://www.ebi.ac.uk/gwas/rest/api/v2/associations/{id}"),
     },
     RecordDeclaration {
         source: Source::Gwas,
         kind: RecordKind::Study,
         display_name: "GWAS Catalog study",
-        template: None,
+        template: Some("https://www.ebi.ac.uk/gwas/rest/api/v2/studies/{id}"),
     },
     RecordDeclaration {
         source: Source::Faers,
         kind: RecordKind::AdverseEvent,
         display_name: "FDA FAERS report",
-        template: Some("https://api.fda.gov/drug/event.json?search=safetyreportid%3A%22{id}%22&limit=5&skip=0&sort=receivedate%3Adesc"),
+        template: Some(
+            "https://api.fda.gov/drug/event.json?search=safetyreportid%3A%22{id}%22&limit=5&skip=0&sort=receivedate%3Adesc",
+        ),
     },
     RecordDeclaration {
         source: Source::Maude,
         kind: RecordKind::AdverseEvent,
         display_name: "FDA MAUDE report",
-        template: Some("https://api.fda.gov/device/event.json?search=mdr_report_key%3A%22{id}%22&limit=1"),
+        template: Some(
+            "https://api.fda.gov/device/event.json?search=mdr_report_key%3A%22{id}%22&limit=1",
+        ),
     },
     RecordDeclaration {
         source: Source::Nci,
         kind: RecordKind::Trial,
         display_name: "NCI trial",
-        template: Some("https://www.cancer.gov/research/participate/clinical-trials-search/v?id={id}"),
+        template: Some(
+            "https://www.cancer.gov/research/participate/clinical-trials-search/v?id={id}",
+        ),
     },
     RecordDeclaration {
         source: Source::Fda510k,
