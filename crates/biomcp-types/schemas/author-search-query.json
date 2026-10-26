@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "AuthorSearchSource": {
+      "description": "Author search supports one provider and its legacy spelling.",
+      "enum": [
+        "semantic-scholar",
+        "semanticscholar"
+      ],
+      "type": "string"
+    },
+    "Text": {
+      "description": "Nonempty text with surrounding Unicode whitespace removed.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.author-search-query/2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Literal author name query and native window; positional text maps to query.",
+  "properties": {
+    "limit": {
+      "default": 5,
+      "description": "Bounded source page size.",
+      "format": "uint32",
+      "maximum": 25,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Native offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pool": {
+      "$ref": "#/$defs/Text",
+      "description": "Retained page identity."
+    },
+    "query": {
+      "description": "Literal query from the positional argument or --query.",
+      "minLength": 1,
+      "type": "string",
+      "x-positional": 0
+    },
+    "source": {
+      "$ref": "#/$defs/AuthorSearchSource",
+      "default": "semantic-scholar",
+      "description": "Native author source."
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "AuthorSearch",
+  "type": "object"
+}
