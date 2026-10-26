@@ -42,6 +42,7 @@ fn identities_preserve_native_namespaces_and_refuse_foreign_species() {
 fn search_selectors_and_page_bounds_are_checked_before_io() {
     for query in [
         json!({"query":"MAPK signaling"}),
+        json!({"query":"MAPK signaling","source":["reactome","wikipathways"]}),
         json!({"gene":"HGNC:1097"}),
         json!({"top_level":true}),
         json!({"query":"MAPK","source":"wikipathways","limit":50,"offset":5,"pool":"snapshot","fresh":true}),
@@ -59,6 +60,8 @@ fn search_selectors_and_page_bounds_are_checked_before_io() {
         json!({"query":"MAPK","gene":"HGNC:1097"}),
         json!({"query":"MAPK","top_level":true}),
         json!({"gene":"HGNC:1097","top_level":true}),
+        json!({"source":[],"query":"MAPK"}),
+        json!({"source":["reactome","reactome"],"query":"MAPK"}),
         json!({"source":"wikipathways","gene":"HGNC:1097"}),
         json!({"source":"wikipathways","top_level":true}),
         json!({"query":"MAPK","limit":0}),

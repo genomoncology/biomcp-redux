@@ -52,7 +52,9 @@ fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
                 Navigation::Bounded
             }
         }
-        Body::StudyProfiles(_) | Body::StudySampleLists(_) => Navigation::Bounded,
+        Body::StudyProfiles(_) | Body::StudySampleLists(_) | Body::StudyFiles(_) => {
+            Navigation::Bounded
+        }
         Body::PathwayPage(_) | Body::PhenotypePage(_) => Navigation::Selectable,
         Body::PhenotypeCard(_)
         | Body::PhenotypeSynonyms(_)

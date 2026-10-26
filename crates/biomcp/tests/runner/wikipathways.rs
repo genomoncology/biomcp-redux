@@ -101,9 +101,12 @@ fn run() -> Check {
     for section in ["genes", "events"] {
         call(&env, &replay, &["get", "pathway", "WP1", section], 2)?;
     }
+    replacement(&env, &replay, &pool)
+}
+fn replacement(env: &Environment, replay: &Path, pool: &[&str]) -> Check {
     for fault in [json!({"unexpected":true}), json!({"pathwayInfo":[]})] {
-        seed(&env, catalog(true, true), fault, 200)?;
-        call(&env, &replay, &["sync", "wikipathways"], 4)?;
+        seed(env, catalog(true, true), fault, 200)?;
+        call(env, replay, &["sync", "wikipathways"], 4)?;
         let retained = call(
             &env,
             &replay,
@@ -120,17 +123,17 @@ fn run() -> Check {
             return Err("failed pair replaced old snapshot".into());
         }
     }
-    seed(&env, catalog(true, true), catalog(false, true), 500)?;
-    call(&env, &replay, &["sync", "wikipathways"], 4)?;
-    seed(&env, catalog(true, true), catalog(false, true), 200)?;
-    call(&env, &replay, &["sync", "wikipathways"], 0)?;
-    let retained = call(&env, &replay, &pool, 0)?;
+    seed(env, catalog(true, true), catalog(false, true), 500)?;
+    call(env, replay, &["sync", "wikipathways"], 4)?;
+    seed(env, catalog(true, true), catalog(false, true), 200)?;
+    call(env, replay, &["sync", "wikipathways"], 0)?;
+    let retained = call(env, replay, pool, 0)?;
     if retained.pointer("/result/items/0/name") != Some(&json!("Literal Atlas 5")) {
         return Err("pool changed with catalog replacement".into());
     }
     let disabled = call(
-        &env,
-        &replay,
+        env,
+        replay,
         &["get", "pathway", "WP1", "--disable-sources", "wikipathways"],
         4,
     )?;
@@ -180,6 +183,9 @@ fn union() -> Check {
     {
         return Err(format!("independent legs: {page}"));
     }
+    matching_union(&env, &replay, &args)
+}
+fn matching_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
     let mut body = catalog(true, false);
     for row in body
         .get_mut("pathwayInfo")
@@ -188,9 +194,9 @@ fn union() -> Check {
     {
         *row.get_mut("name").ok_or("name")? = json!("MAPK signaling");
     }
-    seed(&env, body, catalog(false, false), 200)?;
-    call(&env, &replay, &["sync", "wikipathways"], 0)?;
-    let first = call(&env, &replay, &args, 0)?;
+    seed(env, body, catalog(false, false), 200)?;
+    call(env, replay, &["sync", "wikipathways"], 0)?;
+    let first = call(env, replay, args, 0)?;
     let sources = first
         .pointer("/result/items")
         .and_then(Value::as_array)
@@ -209,6 +215,20 @@ fn union() -> Check {
     {
         return Err(format!("round robin order: {first}"));
     }
+    short_union(env, replay, args)?;
+    let mut failed = args.to_vec();
+    failed.extend(["--disable-sources", "reactome"]);
+    let partial = call(env, replay, &failed, 0)?;
+    if partial.get("status") != Some(&json!("partial"))
+        || partial.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        || partial.pointer("/result/items/0/id/source") != Some(&json!("wikipathways"))
+    {
+        return Err(format!("failed leg beside successful leg: {partial}"));
+    }
+    Ok(())
+}
+fn short_union(env: &Environment, replay: &Path, args: &[&str]) -> Check {
+    use super::launch::fixtures;
     for path in fs::read_dir(fixtures().join("replies/pathway/mixed/reactome"))
         .map_err(|e| e.to_string())?
     {
@@ -223,7 +243,7 @@ fn union() -> Check {
     }
     let mut mixed = args.to_vec();
     mixed.push("--fresh");
-    let short = call(&env, &replay, &mixed, 0)?;
+    let short = call(env, replay, &mixed, 0)?;
     if short.pointer("/result/page/returned") != Some(&json!(4))
         || short.pointer("/result/page/next_offset") != Some(&json!(4))
     {
@@ -239,23 +259,15 @@ fn union() -> Check {
         .iter()
         .map(|v| v.as_str().ok_or("arg"))
         .collect::<Result<Vec<_>, _>>()?;
-    let resumed = call(&env, &replay, &next, 0)?;
+    let resumed = call(env, replay, &next, 0)?;
     if resumed.pointer("/result/items/0/id/source") != Some(&json!("reactome"))
         || resumed.pointer("/result/items/1/id/id") != Some(&json!("WP3"))
     {
         return Err(format!("short page changed source turn: {resumed}"));
     }
-    let mut failed = args.to_vec();
-    failed.extend(["--disable-sources", "reactome"]);
-    let partial = call(&env, &replay, &failed, 0)?;
-    if partial.get("status") != Some(&json!("partial"))
-        || partial.pointer("/sources/0/reason") != Some(&json!("disabled"))
-        || partial.pointer("/result/items/0/id/source") != Some(&json!("wikipathways"))
-    {
-        return Err(format!("failed leg beside successful leg: {partial}"));
-    }
     Ok(())
 }
+
 fn concurrent() -> Check {
     use sha2::{Digest, Sha256};
     use std::{
@@ -326,22 +338,27 @@ fn concurrent() -> Check {
     }
     for result in results {
         let result = result.map_err(|_| "reader panicked")??;
-        let names = result
-            .pointer("/result/items")
-            .and_then(Value::as_array)
-            .ok_or("items")?
-            .iter()
-            .filter_map(|r| r.get("name").and_then(Value::as_str))
-            .collect::<Vec<_>>();
-        if names.len() != 5
-            || !(names.iter().all(|n| n.starts_with("Literal Atlas"))
-                || names.iter().all(|n| n.starts_with("New Atlas")))
-        {
-            return Err(format!("reader observed partial replacement: {result}"));
-        }
+        check_reader(&result)?;
     }
     Ok(())
 }
+fn check_reader(result: &Value) -> Check {
+    let names = result
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("items")?
+        .iter()
+        .filter_map(|r| r.get("name").and_then(Value::as_str))
+        .collect::<Vec<_>>();
+    if names.len() != 5
+        || !(names.iter().all(|n| n.starts_with("Literal Atlas"))
+            || names.iter().all(|n| n.starts_with("New Atlas")))
+    {
+        return Err(format!("reader observed partial replacement: {result}"));
+    }
+    Ok(())
+}
+
 fn native() -> Check {
     use std::io::Write;
     let root = super::launch::fixtures().join("cases/wikipathways-native");

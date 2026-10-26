@@ -249,6 +249,7 @@ fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::R
             QueryBody::StudyCard(body) => meta.encode(q, body),
             QueryBody::StudyProfiles(body) => meta.encode(q, body),
             QueryBody::StudySampleLists(body) => meta.encode(q, body),
+            QueryBody::StudyFiles(body) => meta.encode(q, body),
             QueryBody::PoolError { mismatch } => pool_error(mismatch, meta.next),
             _ => Err(io::Error::other("study response mismatch")),
         },
