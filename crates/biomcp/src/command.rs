@@ -440,6 +440,7 @@ fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
         biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
         biomcp_types::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
         biomcp_types::Source::OpenfdaLabel => biomcp_fetch::SecretName::OpenfdaApiKey,
+        biomcp_types::Source::Orcid => biomcp_fetch::SecretName::OrcidAccessToken,
         _ => biomcp_fetch::SecretName::OncokbApiKey,
     };
     let data = biomcp_types::KeyHelp {
