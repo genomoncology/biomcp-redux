@@ -23,8 +23,8 @@ These are source-derived research questions, not quotations or claims that a nam
 | Case | Question and harvest source | Accepted answer and command coverage |
 | --- | --- | --- |
 | P01 | Which feature contains displayed EGFR residue858? [Paez, PMID15118125](https://pubmed.ncbi.nlm.nih.gov/15118125/) | P00533 displayed sequence, Protein kinase712–979; `protein features P00533 --position 858`. No efficacy conclusion. |
-| P02 | Which feature contains EGFR residue790? [Lynch, PMID15118073](https://pubmed.ncbi.nlm.nih.gov/15118073/) | Same source kinase range; source active-site837 remains a different annotation. Position filter uses exact checked coordinates. |
-| P03 | Which accession and sequence version qualify that EGFR numbering? Same paper | P00533, sequenceVersion2, length1210; `get protein P00533`. The capture explicitly lists displayed P00533-1; do not synthesize -1 on other entries. |
+| P02 | Which feature contains EGFR residue790? [Kobayashi2005](https://doi.org/10.1056/NEJMoa044238) | Same source kinase range; source active-site837 remains a different annotation. Position filter uses exact checked coordinates. |
+| P03 | Which accession and sequence version qualify that EGFR numbering? Same paper | P00533, source entry sequenceVersion2, length1210; `get protein P00533`. The sequence audit is not an independently supplied isoform version. The capture explicitly lists displayed P00533-1; do not synthesize -1 on other entries. |
 | P04 | Which EGFR alternative products does the source describe? Same paper and [UniProt P00533](https://www.uniprot.org/uniprotkb/P00533/entry) | P00533-1, P00533-2, P00533-3 and P00533-4; Displayed versus Described status preserved; `protein isoforms P00533`. A list is not an alignment. |
 | P05 | Which source domain contains current displayed BRAF residue600? [Davies, PMID12068308](https://pubmed.ncbi.nlm.nih.gov/12068308/) | P15056 Protein kinase457–717; historical paper V599 is not translated to V600. `protein features P15056 --position 600`. |
 | P06 | What other BRAF domains are supplied? Same paper | UniProt RBD155–227 and kinase457–717, zinc-finger234–280 as a distinct type; InterPro has11 entries across different types. `protein domains P15056`. |
@@ -34,7 +34,7 @@ These are source-derived research questions, not quotations or claims that a nam
 | P10 | Where are BRCA1's two BRCT features? [PMID9000507](https://pubmed.ncbi.nlm.nih.gov/9000507/) | P38398 BRCT1 1642–1736 and BRCT2 1756–1855, separately; the intervening gap stays outside either feature. `protein features P38398 --type domain`. |
 | P11 | Which source annotation identifies the BRCA1 RING region? Same paper and [UniProt P38398](https://www.uniprot.org/uniprotkb/P38398/entry) | Source type Zinc finger, RING-type24–65; do not rename it a Domain feature. The type filter covers an exact documented native feature type. |
 | P12 | Which BRCA1 complex has BARD1 as a participant? [Complex Portal2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC8689886/) | Native CPX-715, BRCA1-BARD1 complex, predictedComplex=false, exact source participant IDs. `protein complex-members P38398 --complex CPX-715`. |
-| P13 | Which BRCA1 alternate accession can qualify a sequence? [PMID14578343](https://pubmed.ncbi.nlm.nih.gov/14578343/) and UniProt alternative-products record | Native P38398-2 remains distinct from displayed P38398. Exact sequence retrieval must name and validate the returned isoform; it cannot inherit displayed coordinates. `protein sequence P38398-2`. |
+| P13 | Which BRCA1 alternate accession can qualify a sequence? [PMID14578343](https://pubmed.ncbi.nlm.nih.gov/14578343/) supplies BRCT research context only; [UniProt P38398 alternative products](https://www.uniprot.org/uniprotkb/P38398/entry) supplies the isoform identity | Native P38398-2 remains distinct from displayed P38398. Exact sequence retrieval must name and validate the returned isoform; it cannot inherit displayed coordinates. `protein sequence P38398-2`. |
 | P14 | Which TP53 sequence owns the displayed DNA-binding range? [Bourdon, PMID16131611](https://pubmed.ncbi.nlm.nih.gov/16131611/) | P04637 displayed sequence length393; DNA binding102–292. `protein features P04637 --type dna_binding`. |
 | P15 | What TP53 alternative products are explicitly described? Same paper | P04637-1 through P04637-9 in the captured alternative-products record; list all through bounded pages without making a residue translation. `protein isoforms P04637 --limit 5`. |
 | P16 | Can TP53 family and tetramerisation annotations all be called domains? Same paper and [InterPro FAQ](https://interpro-documentation.readthedocs.io/en/latest/faq.html) | No. IPR002117 is family; IPR010991 is domain. Preserve native types and match fragments. `protein domains P04637 --type domain`. |
@@ -201,3 +201,42 @@ Source policy and terms come from the existing source owner. Shared types define
 2. Approve `protein complex-members ACCESSION --complex CPX-ID` with bounded participants. Alternative: headers and publisher links only. The bounded relation costs one source detail request when absent from the retained search reply and avoids a93-member default; it answers P12 directly. Recommendation: keep the relation under exact anchor membership. No new complex search entity is proposed.
 3. Approve the proposed search/get and section ceilings after the native projection measurements below. The alternative is five generic unbounded source records, which already cost up to875KB each. These are implementation acceptance ceilings, not claims about a shipped command.
 4. Accept source-inspected0.9 accounting with executable timings and token comparison explicitly unmeasured, or assign a separate contained baseline. A baseline must prove denied external networking before running and must use exact current request recordings. Recommendation: do not delay source/type design on an unrestricted legacy invocation.
+
+## Verified evidence and identity follow-up
+
+The evidence store holds these immutable archives under `data/biomcp-redux/0190-protein-investigation/`. Each archive passed a full archive SHA-256 check, exact member inventory and each content SHA-256 check independently on the coordination host and on Yellow. These are bounded investigation results, not product acceptance.
+
+| Archive | Bound revision and job | SHA-256 and contents |
+| --- | --- | --- |
+| `j14202-native-sources.tar.gz` | `ecbbfb02876ef49eb317730c796c9c50396b931f`, j14202 | `25d2cd2bb2a1236e6aee9fe84ffc7879723df92bd031396da3e41b0c6ff989c8`;75 members,36 raw source bodies/headers, receipts and manifest. |
+| `j14211-j14221-identity-followup.tar.gz` | `692d389bee1bd796c2cf80c5c5213653cd22e652`, j14211/j14221 | `2558f595fd554a648f6477fb1fcd2e6e3645b425f64d8df0ffd6375575dbdafe`;33 members,15 request bodies/headers and retained receipts. |
+| `j14236-native-row-projection.tar.gz` | `b8c2bb0bb4c29dc9d5ec5169d4f10fc8fb8afda8`, j14236 | `411ba037bf120a998ac461a206a4ad2877f8b54bb387d160a325acb995ee1024`;1,058 members, offline recipe,1,054 projected responses, measurements and manifest. |
+
+The follow-up sent exactly15 new requests: BRAF search returned P15056; CDKN2A search returned P42771 and Q8N726. The deliberately invalid accession query returned HTTP400, not an absent result. That body is preserved as an input-validation observation. P38398-2 FASTA returned exact isoform identity and63 residues; Q9UIF7-2 returned536 residues. A FASTA body is expected non-JSON; the generic capture helper's JSON parse note does not classify that native sequence as a failed source. CPX-715 detail returned exact complex identity and participants. All nine STRING mapping replies returned HTTP200 and matched the queryItem, while two distinct CDKN2A protein products collapsed to the same source STRING ID. That is a genuine source granularity limitation.
+
+The first follow-up attempt stopped after delivering only the BRAF request because the throwaway helper lacked its receipts-list initialization. The continuation reused the untouched body/headers and sent only the14 undelivered requests. BRAF search elapsed time is unmeasured because it was not serialized before the setup failure; neither a fabricated timing nor a repeated request fills the gap. Total native traffic was51 requests, of which50 returned200 and one returned400. No retries, redirects, alternate URLs or queries occurred.
+
+Clinical review accepted the corrected P01–P28 bank and meaning contracts. P23/P24 are controls rather than published-research examples. The reviewer confirmed the historical MUTYH citation against the [publisher abstract](https://academic.oup.com/carcin/article-abstract/26/11/2010/2476061), corrected EGFR790 to Kobayashi2005 and restricted PMID14578343 to BRCT research context. Source facts do not imply classification, efficacy, binding or coordinate translation.
+
+## Measured disclosure budget proposal
+
+The offline projection uses all captured native rows, with page size5 and a representative envelope including source terms. It preserves raw row fields rather than pretending to be the generated future schema. It measures compact UTF-8 JSON and defines token units as `ceil(bytes/4)`; the stdout column adds one newline. It executes no product and performs no provider requests. Thus these are measured source-row projections, not measurements of shipped CLI/MCP output or a semantic tokenizer. Every implementation ticket must measure its actual complete envelopes and next actions through the existing runner, then set the accepted ceilings against that output.
+
+The projected responses omit typed next actions. The proposed ceiling adds a1,000-byte explicit reserve for those actions and request fields, then15% headroom. This reserve is a design allowance, not a measured fact. Search has only one- and two-header native results; its proposed five-header ceiling is a conservative6,500 bytes and cannot be described as a measured full five-hit page. A positive five-hit search capture remains an implementation admission requirement.
+
+| Layer / command | Captured projected pages | Largest stdout bytes / token units | Proposed full stdout ceiling / token units |
+| --- | --- | --- | --- |
+| complex-members | 157 | 2,237 /559 | 3,723 /931 |
+| complexes | 15 | 2,110 /528 | 3,577 /894 |
+| domains | 19 | 4,790 /1,198 | 6,659 /1,665 |
+| features | 623 | 7,878 /1,970 | 10,210 /2,553 |
+| function | 9 | 9,590 /2,398 | 12,179 /3,045 |
+| get | 9 | 897 /224 | 2,182 /546 |
+| isoforms | 14 | 1,261 /315 | 2,601 /650 |
+| search | 2 | 1,191 /298 | 6,500 /1,625 |
+| sequence | 9 | 2,242 /561 | 3,729 /932 |
+| structures | 198 | 1,120 /280 | 2,438 /610 |
+
+The sequence maximum is the complete1863-residue BRCA1 sequence with metadata; no sequence truncation is proposed. Function text and evidence-rich feature rows remain deeper options because their measured pages are costly. The default card is below900 bytes in this projection, while raw UniProt replies span55KB–875KB. The section pages are independent: `all` adds each requested section's bounded first page and does not claim to fit the default card ceiling. Its composite ceiling must be derived from actual complete implementation output before admission. No arbitrary shared help or discovery ceiling is raised here.
+
+0.9 default/section output tokens, comparable output after registry terms removal, product cold/warm latency and complete future `all` envelopes remain unmeasured. This proposal never compares source JSON bytes with0.9 rendered output. A PM-approved implementation must verify ceilings on the actual public schema and all emitted actions.
