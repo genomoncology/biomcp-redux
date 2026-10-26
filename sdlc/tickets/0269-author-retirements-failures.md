@@ -18,3 +18,4 @@ Every 0.9 author command and option that author.md and the author rulings retire
 - Defers: nothing.
 - Changes: the author query code, `crates/biomcp/src/retired.rs` and its author module, cases and author.md.
 - PM ruling 2026-10-26 (m7951): `list author` retires like `list phenotype`, `list disease` and `list pathway`: a usage error before I/O with code `usage.retired` that names `help author`. The route list that `list author` shows today, including `author papers`, moves to `help author` with the caps approved in m7735 for its measured size plus 15 percent. Legacy ranking, coauthor, merge and ORCID name search spellings retire as the ticket says.
+- PM ruling 2026-10-26 (m7951 ask 2): `-l` stays a working alias of `--limit` on `search author` and `author papers`, as pathway, study and GWAS keep it. It is not retired.
