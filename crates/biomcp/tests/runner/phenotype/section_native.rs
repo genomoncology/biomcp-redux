@@ -20,26 +20,8 @@ fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
 }
 fn prove(root: &Path, outputs: &Path, index: usize, row: &Value) -> Result<(), String> {
     let (raw, body) = native::archived_body(root, row)?;
-    let source = text(row, "source")?;
-    let hpo = source == "hpo";
-    let host = if hpo {
-        "ontology.jax.org"
-    } else {
-        "api-v3.monarchinitiative.org"
-    };
-    let target = text(row, "target")?.to_string();
-    let stub = Stub::for_source_status(
-        host,
-        "application/json",
-        move |request| {
-            if request.split_whitespace().nth(1) != Some(&target) {
-                return Err(format!("uncaptured entity request: {request}"));
-            }
-            Ok(body.clone())
-        },
-        |_| 200,
-    )?;
-    let env = setup(&stub)?;
+    let hpo = text(row, "source")? == "hpo";
+    let (env, stub) = environment(row, body)?;
     let words = row
         .get("words")
         .and_then(Value::as_array)
@@ -259,4 +241,31 @@ fn measure_card(
     )
     .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+fn environment(
+    row: &Value,
+    body: String,
+) -> Result<(super::super::launch::Environment, Stub), String> {
+    let source = text(row, "source")?;
+    let hpo = source == "hpo";
+    let host = if hpo {
+        "ontology.jax.org"
+    } else {
+        "api-v3.monarchinitiative.org"
+    };
+    let target = text(row, "target")?.to_string();
+    let stub = Stub::for_source_status(
+        host,
+        "application/json",
+        move |request| {
+            if request.split_whitespace().nth(1) != Some(&target) {
+                return Err(format!("uncaptured entity request: {request}"));
+            }
+            Ok(body.clone())
+        },
+        |_| 200,
+    )?;
+    let env = setup(&stub)?;
+    Ok((env, stub))
 }
