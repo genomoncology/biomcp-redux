@@ -1,6 +1,7 @@
 # 0274 — Fail a test run whose filter selects no tests
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 07303d3726a515bd963f36afc5c2a96b877ef307
 
 Milestone: 1
 

@@ -1,6 +1,7 @@
 # 0266 — Search Semantic Scholar authors and get the Semantic Scholar author card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a114188b4f54714aaade29cdc883bc49a0901dc1
 
 Milestone: 4
 
