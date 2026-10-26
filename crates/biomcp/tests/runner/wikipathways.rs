@@ -395,7 +395,10 @@ fn native() -> Check {
         let value = super::run_case(&path, &registry)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::source_terms::size(&value, "")?;
-        let name = path.file_name().and_then(|n| n.to_str()).ok_or("filename")?;
+        let name = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .ok_or("filename")?;
         let measured = budgets.get(name).ok_or("case budget")?;
         let observed = [full + 1, comparable + 1, comparable.div_ceil(4)];
         if observed
