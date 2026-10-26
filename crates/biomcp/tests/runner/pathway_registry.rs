@@ -90,10 +90,13 @@ fn declaration(name: &str, usage: &str, url: &str) -> Check {
 }
 fn switches() -> Check {
     for (configured, command) in [
-        ("reactome", "reactome"),
-        ("clinpathway", "clinpathway"),
-        ("open", "open"),
-        ("clinpathway", "cpic"),
+        ("", "reactome"),
+        ("", "wikipathways"),
+        ("", "open"),
+        ("reactome", ""),
+        ("wikipathways", ""),
+        ("open", ""),
+        ("wikipathways", "cpic"),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let configured_sources: Vec<&str> = if configured.is_empty() {
