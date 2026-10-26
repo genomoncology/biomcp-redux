@@ -220,5 +220,5 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
         empty.clone(),
     )
     .unwrap();
-    envelope::<PhenotypeGenes>(json!({"id":"HP:0001250","section":"genes"}), empty);
+    envelope::<PhenotypeGenes>(json!({"id":"HP:0001250","section":"genes"}), empty).unwrap();
 }
