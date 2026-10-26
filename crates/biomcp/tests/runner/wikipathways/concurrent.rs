@@ -84,13 +84,13 @@ fn writer(
     replay: &std::path::Path,
 ) -> Result<(std::process::Child, std::path::PathBuf), String> {
     use std::process::Stdio;
-    let path = recording(&replay, GET);
+    let path = recording(replay, GET);
     let mut reply: Value = serde_json::from_slice(&fs::read(&path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     *reply.pointer_mut("/exchanges/0/delay_ms").ok_or("delay")? = json!(1500);
     fs::write(path, reply.to_string()).map_err(|e| e.to_string())?;
     let observed = env.root().join("replacement-observations.jsonl");
-    let mut args = env.globals(Some(&replay), false);
+    let mut args = env.globals(Some(replay), false);
     args.extend([
         "sync".into(),
         "wikipathways".into(),
