@@ -100,6 +100,49 @@
       "max_tokens": 216,
       "full_output_bytes": true,
       "offline": true
+    },
+    {
+      "run": [
+        "author",
+        "papers",
+        "semantic-scholar:123",
+        "-l",
+        "5"
+      ],
+      "mcp": [
+        "author",
+        "papers",
+        "semantic-scholar:123",
+        "-l",
+        "5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/author": "semantic-scholar:123",
+        "/result/items/0/paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "/result/items/0/pmid": "12345678",
+        "/result/items/0/title": "Synthetic whole paper title",
+        "/next/0/kind": "pivot",
+        "/result/items/0": {
+          "equals": {
+            "paper_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pmid": "12345678",
+            "doi": "10.1234/synthetic",
+            "external_ids": [
+              {
+                "id": "CorpusId:123"
+              }
+            ],
+            "title": "Synthetic whole paper title",
+            "year": 2025,
+            "venue": "Synthetic venue"
+          }
+        },
+        "/next/1/kind": "page"
+      },
+      "max_bytes": 864,
+      "max_tokens": 216,
+      "full_output_bytes": true
     }
   ]
 }

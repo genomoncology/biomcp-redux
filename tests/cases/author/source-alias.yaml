@@ -80,6 +80,33 @@
       "full_output_bytes": true,
       "max_bytes": 1191,
       "max_tokens": 298
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Louis Williams",
+        "-l",
+        "5"
+      ],
+      "mcp": [
+        "search",
+        "author",
+        "Louis Williams",
+        "-l",
+        "5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/source": "semantic-scholar",
+        "/result/items/*/id": [
+          "semantic-scholar:2162869982",
+          "semantic-scholar:113751091"
+        ]
+      },
+      "full_output_bytes": true,
+      "max_bytes": 1191,
+      "max_tokens": 298
     }
   ]
 }
