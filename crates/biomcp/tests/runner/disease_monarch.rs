@@ -68,7 +68,11 @@ fn exact() -> Result<(), String> {
         "application/json",
         |request| {
             if !request.starts_with("GET /v3/api/association?object=MONDO%3A0019003&subject_category=biolink%3AGene&limit=5&offset=0 ") {return Err(format!("unexpected request: {request}"));}
-            Ok(json!({"limit":5,"offset":0,"total":8,"items":[association()]}).to_string())
+            let mut row = association();
+            row.as_object_mut()
+                .ok_or("missing synthetic row")?
+                .insert("subject_taxon".into(), json!("NCBITaxon:9606"));
+            Ok(json!({"limit":5,"offset":0,"total":8,"items":[row]}).to_string())
         },
         |_| 200,
     )?;
@@ -97,6 +101,7 @@ fn exact() -> Result<(), String> {
         .ok_or("missing association")?;
     for (key, expected) in [
         ("requested_id", json!("MONDO:0019003")),
+        ("subject_taxon", json!("NCBITaxon:9606")),
         (
             "object",
             json!({"id":"MONDO:0007958","label":"Synthetic child"}),

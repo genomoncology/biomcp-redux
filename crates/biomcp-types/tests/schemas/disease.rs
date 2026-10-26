@@ -3,7 +3,7 @@ use biodata::*;
 use biomcp_types::*;
 pub(super) fn registry() -> Vec<Contract> {
     contracts! {
-        DiseaseAssociation => ("disease-association", "biodata.disease-association/2"),
+        DiseaseAssociation => ("disease-association", "biodata.disease-association/3"),
         DiseaseRelation => ("disease-relation", "biodata.disease-relation/2"),
         DiseaseEndpoint => ("disease-endpoint", "biodata.disease-endpoint/1"),
         DiseaseSynonym => ("disease-synonym", "biodata.disease-synonym/1"),
@@ -16,8 +16,8 @@ pub(super) fn registry() -> Vec<Contract> {
         Envelope<DiseaseSynonyms> => ("disease-synonyms", "biomcp.disease_synonyms/2"),
         Envelope<DiseaseXrefs> => ("disease-xrefs", "biomcp.disease_xrefs/2"),
         Envelope<DiseaseHierarchy> => ("disease-hierarchy", "biomcp.disease_hierarchy/2"),
-        Envelope<DiseaseGenes> => ("disease-genes", "biomcp.disease_genes/3"),
-        Envelope<DiseasePhenotypes> => ("disease-phenotypes", "biomcp.disease_phenotypes/3"),
+        Envelope<DiseaseGenes> => ("disease-genes", "biomcp.disease_genes/4"),
+        Envelope<DiseasePhenotypes> => ("disease-phenotypes", "biomcp.disease_phenotypes/4"),
         Envelope<DiseaseSites> => ("disease-sites", "biomcp.disease_sites/2"),
         Envelope<DiseaseIncidence> => ("disease-incidence", "biomcp.disease_incidence/3"),
         Envelope<DiseaseSurvival> => ("disease-survival", "biomcp.disease_survival/3"),

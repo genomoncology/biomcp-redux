@@ -109,5 +109,7 @@ pub use pgx::*;
 mod diagnostic;
 pub use diagnostic::*;
 
+mod phenotype;
+pub use phenotype::*;
 mod study;
 pub use study::*;

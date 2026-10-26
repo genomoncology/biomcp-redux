@@ -122,3 +122,5 @@ mcp-research: Search citable source headers and fetch the same CLI record throug
 
 study-types: A public API caller preserves exact study identities, source-scoped count metadata and independent acquisition times through bounded standalone study contracts. Contracts: `biomcp-types/study_contracts` (features: `schema`).
 store-clean: Publishing removes bounded expired pools and snapshots; explicit cleanup removes expired replies and older incompatible cache files while preserving fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `tests/cases/store/clean.yaml`.
+
+phenotype-types: A public API caller preserves native phenotype fields and validates HP identities and source section pairs before adapters exist. Contracts: `biomcp-types/phenotype_contracts` (features: `schema`).

@@ -12,6 +12,7 @@ pub(super) fn row(
     let qualifiers = qualifiers(&mut raw)?;
     Ok(DiseaseAssociationItem {
         association: DiseaseAssociation {
+            subject_taxon: raw.subject_taxon,
             requested_id: requested.clone(),
             subject: Concept {
                 id: Some(raw.subject),

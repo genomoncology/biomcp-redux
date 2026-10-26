@@ -104,6 +104,9 @@ fn article_registry() -> Vec<Contract> {
     }
 }
 
+#[path = "schemas/phenotype.rs"]
+mod phenotype;
+
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
@@ -161,6 +164,7 @@ fn registry() -> Vec<Contract> {
     contracts.extend(article_registry());
     contracts.extend(research_registry());
     contracts.extend(disease::registry());
+    contracts.extend(phenotype::registry());
     contracts.extend(study_registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
