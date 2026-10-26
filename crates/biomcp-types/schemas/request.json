@@ -130,6 +130,56 @@
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
+    "AuthorPaperSection": {
+      "description": "Indexed-paper disclosure level.",
+      "enum": [
+        "details"
+      ],
+      "type": "string"
+    },
+    "AuthorPapersQuery": {
+      "additionalProperties": false,
+      "description": "One exact provider record's publication window.",
+      "properties": {
+        "full": {
+          "description": "Legacy alias for details; normalized on construction.",
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/AuthorId",
+          "description": "Exact qualified provider record.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 5,
+          "description": "Bounded row count.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native or retained collection offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained collection identity."
+        },
+        "section": {
+          "$ref": "#/$defs/AuthorPaperSection",
+          "description": "Detailed disclosure when requested.",
+          "x-positional": 1
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
     "AuthorSearchSource": {
       "description": "Author search supports one provider and its legacy spelling.",
       "enum": [
@@ -869,7 +919,7 @@
       ]
     }
   },
-  "$id": "biodata.request/25",
+  "$id": "biodata.request/26",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One checked query. Housekeeping actions are separate.",
   "oneOf": [
@@ -915,6 +965,54 @@
       "required": [
         "command",
         "query"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Page one exact provider record\u2019s native papers.",
+      "properties": {
+        "command": {
+          "const": "author_papers",
+          "type": "string"
+        },
+        "full": {
+          "description": "Legacy alias for details; normalized on construction.",
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/AuthorId",
+          "description": "Exact qualified provider record.",
+          "x-positional": 0
+        },
+        "limit": {
+          "default": 5,
+          "description": "Bounded row count.",
+          "format": "uint32",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native or retained collection offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "$ref": "#/$defs/Text",
+          "description": "Retained collection identity."
+        },
+        "section": {
+          "$ref": "#/$defs/AuthorPaperSection",
+          "description": "Detailed disclosure when requested.",
+          "x-positional": 1
+        }
+      },
+      "required": [
+        "command",
+        "id"
       ],
       "type": "object"
     },
