@@ -114,9 +114,7 @@ fn dispatch_using(
     execute(fetch, action, &parsed.globals, allow_save)
 }
 fn unsupported(action: &Action) -> Option<io::Result<Outcome>> {
-    if disease::unsupported(action)
-        || protein::unsupported(action)
-    {
+    if disease::unsupported(action) || protein::unsupported(action) {
         return Some(usage_envelope(ErrorEnvelope::arguments()));
     }
     if let Action::Run {

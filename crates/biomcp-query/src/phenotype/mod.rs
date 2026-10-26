@@ -10,7 +10,10 @@ use biomcp_types::{
 };
 /// Read a native association page or one exact source term reply.
 pub fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
-    if matches!(q.section(), Some(biomcp_types::PhenotypeSection::Diseases | biomcp_types::PhenotypeSection::Genes)) {
+    if matches!(
+        q.section(),
+        Some(biomcp_types::PhenotypeSection::Diseases | biomcp_types::PhenotypeSection::Genes)
+    ) {
         associations::get(cx, q)
     } else {
         snapshot::get(cx, q)
