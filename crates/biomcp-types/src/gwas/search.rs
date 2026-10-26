@@ -23,22 +23,52 @@ pub struct GwasSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Exact source rsID.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "RsId"))]
     variant: Option<RsId>,
     /// Literal native efo_trait label; never reported-trait prose.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     r#trait: Option<Text>,
     /// Exact native ontology identity.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "GwasTraitId"))]
     trait_id: Option<GwasTraitId>,
     /// Exact native mapped gene; legacy positional query aliases this field.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "GeneSymbol"))]
     gene: Option<GeneSymbol>,
     /// Exact source study accession.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "GwasStudyId"))]
     study: Option<GwasStudyId>,
     /// Exact source publication identity.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Pmid"))]
     pubmed: Option<Pmid>,
     /// Inclusive exact threshold under native ascending order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
