@@ -26,7 +26,10 @@ pub(super) fn invoke(env: &Environment, args: Vec<String>, exit: i32) -> Result<
                 .collect::<String>()
         ));
     }
-    let value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if let Some(kind) = value.get("local_error") {
+        println!("LOCAL_ERROR_CLI_BYTES {kind} {}", output.stdout.len());
+    }
     if args.iter().any(|word| word == "diagnostic")
         || args.windows(2).any(|words| {
             words.first().is_some_and(|word| word == "sync")

@@ -82,6 +82,17 @@ fn call(peer: &mut Peer, schemas: &Registry, args: &[&str]) -> Result<Value, Str
         .ok_or("content missing")?;
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
     schemas.validate(content, &words, false)?;
+    if let Some(kind) = content.get("local_error") {
+        let text = reply
+            .pointer("/result/content/0/text")
+            .and_then(Value::as_str)
+            .ok_or("MCP content text missing")?;
+        println!(
+            "LOCAL_ERROR_MCP_BYTES {} {kind} {}",
+            args.join(" "),
+            text.len()
+        );
+    }
     Ok(reply)
 }
 
