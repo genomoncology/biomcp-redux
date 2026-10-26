@@ -1,6 +1,7 @@
 # 0251 — Replace hand-built recording identities in the new slice runners
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 97998526a483942810d0e7e151f54d0089797e91
 
 Milestone: 4
 
