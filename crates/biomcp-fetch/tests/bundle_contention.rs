@@ -58,6 +58,14 @@ fn bundle_publication_finishes_while_another_owner_holds_the_reply_connection() 
                 // connection held while a multi-batch publication completes.
                 let body = format!("symbol\n{}", "BRAF\n".repeat(600));
                 request.respond(200, "", &body);
+                let answer = scope.spawn(|| {
+                    let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(5)));
+                    let endpoint = bundle.spec.get("/answer").fresh(Freshness::Hours(1));
+                    assert!(leg.json::<support::Answer>(&endpoint, &[]).unwrap().answer);
+                    leg.finish()
+                });
+                server.next().ok();
+                assert!(answer.join().unwrap().failures.is_empty());
                 assert_eq!(sync.join().unwrap().unwrap().rows, 600);
                 Ok(())
             })
