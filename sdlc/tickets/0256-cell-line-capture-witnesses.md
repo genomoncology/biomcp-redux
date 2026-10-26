@@ -1,6 +1,7 @@
 # 0256 — Capture the cell line reverse get, absence and projection witnesses
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 28a02c46fd84b82e9adb2815a47bc130f7c00053
 
 Milestone: 4
 

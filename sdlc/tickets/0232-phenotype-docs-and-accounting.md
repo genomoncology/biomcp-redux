@@ -1,6 +1,7 @@
 # 0232 — Document the phenotype commands and close the phenotype accounting
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 564b02cd47ebbce6baab4fd5714f31184c7067e0
 
 Milestone: 4
 
