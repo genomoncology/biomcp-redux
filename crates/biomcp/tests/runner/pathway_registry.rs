@@ -91,18 +91,18 @@ fn switches() -> Check {
         ("clinpathway", "cpic"),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        env.config(&json!({"disable_sources":[configured]}))
+        let configured_sources: Vec<&str> = if configured.is_empty() {
+            vec![]
+        } else {
+            vec![configured]
+        };
+        env.config(&json!({"disable_sources": configured_sources}))
             .map_err(|e| e.to_string())?;
-        let health = invoke(
-            &env,
-            vec![
-                "health".into(),
-                "--offline".into(),
-                "--disable-sources".into(),
-                command.into(),
-            ],
-            0,
-        )?;
+        let mut args = vec!["health".into(), "--offline".into()];
+        if !command.is_empty() {
+            args.extend(["--disable-sources".into(), command.into()]);
+        }
+        let health = invoke(&env, args, 0)?;
         let rows = health
             .pointer("/result/sources")
             .and_then(Value::as_array)
@@ -112,7 +112,10 @@ fn switches() -> Check {
                 .iter()
                 .find(|r| r.get("source") == Some(&json!(name)))
                 .ok_or("missing source")?;
-            let disabled = name == command || name == configured || configured == "open";
+            let disabled = name == command
+                || name == configured
+                || command == "open"
+                || configured == "open";
             if disabled
                 && (row.get("state") != Some(&json!("skipped"))
                     || row.get("reason") != Some(&json!("disabled")))
