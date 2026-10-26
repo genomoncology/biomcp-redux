@@ -1,7 +1,7 @@
 //! Literal native author candidates and request-checked exact provider cards.
 mod raw;
 mod papers;
-pub use papers::{PapersPage, papers};
+pub use papers::{Paper, PapersPage, papers};
 use super::SPEC;
 use biodata::{AuthorCard, SemanticScholarAuthorId};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};

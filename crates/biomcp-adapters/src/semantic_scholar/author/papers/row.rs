@@ -18,7 +18,7 @@ pub struct Paper {
     citation_count: Option<u64>,
     influential_citation_count: Option<u64>,
     is_open_access: Option<bool>,
-    open_access_pdf: Option<AuthorPaperAccess>,
+    open_access_pdf: Option<Access>,
     fields_of_study: Option<Box<[Text]>>,
     publication_types: Option<Box<[Text]>>,
     authors: Option<Box<[Byline]>>,
@@ -36,6 +36,21 @@ struct Byline {
     #[serde(rename = "authorId")]
     id: Option<biodata::SemanticScholarAuthorId>,
     name: Text,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+struct Access {
+    url: Option<String>,
+    status: Option<Text>,
+    license: Option<Text>,
+    disclaimer: Option<Text>,
+}
+impl Access {
+    fn checked(self) -> AuthorPaperAccess {
+        AuthorPaperAccess {
+            url: self.url.and_then(|s| Text::new(&s).ok()),
+            status: self.status, license: self.license, disclaimer: self.disclaimer,
+        }
+    }
 }
 impl Paper {
     /// Convert exactly the source identifiers and metadata, with no title matching.
@@ -66,7 +81,7 @@ impl Paper {
             header, abstract_text: self.abstract_text, publication_date: self.publication_date,
             reference_count: self.reference_count, citation_count: self.citation_count,
             influential_citation_count: self.influential_citation_count,
-            is_open_access: self.is_open_access, open_access_pdf: self.open_access_pdf,
+            is_open_access: self.is_open_access, open_access_pdf: self.open_access_pdf.map(Access::checked),
             fields_of_study: self.fields_of_study, publication_types: self.publication_types,
             authors: self.authors.map(|rows| rows.into_iter().map(|r| AuthorByline { id: r.id, name: r.name }).collect()),
         })
