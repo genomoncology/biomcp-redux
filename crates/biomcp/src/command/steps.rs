@@ -14,6 +14,7 @@ pub(super) fn next(
         .as_ref()
         .is_some_and(|page| u64::from(page.offset) + u64::from(page.returned) < page.total);
     match navigation(&result.body) {
+        Navigation::NativeGwas => append_network_steps(&mut steps, &result.sources),
         Navigation::BoundedPma => {
             append_network_steps(&mut steps, &result.sources);
             steps.truncate(5);
@@ -31,6 +32,7 @@ pub(super) fn next(
 
 #[derive(Debug)]
 enum Navigation<'a> {
+    NativeGwas,
     Bounded,
     Selectable,
     Nested(&'a biomcp_types::PgxPageInfo),
@@ -41,6 +43,7 @@ enum Navigation<'a> {
 fn navigation(body: &biomcp_types::QueryBody) -> Navigation<'_> {
     use biomcp_types::{PgxAnnotations, QueryBody as Body};
     match body {
+        Body::GwasPage(_) => Navigation::NativeGwas,
         Body::ProteinPage(_) => Navigation::Selectable,
         Body::ProteinCard(card) => {
             if card.items.iter().any(|item| !item.candidates.is_empty()) {

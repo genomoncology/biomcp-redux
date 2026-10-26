@@ -67,6 +67,7 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchGwas(q) => serde_json::to_value(q),
         Request::SearchProtein(q) => serde_json::to_value(q),
         Request::GetProtein(q) => serde_json::to_value(q),
         Request::SearchPhenotype(q) => serde_json::to_value(q),
@@ -189,7 +190,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchProtein(_)
+        Request::SearchGwas(_)
+        | Request::SearchProtein(_)
         | Request::SearchPhenotype(_)
         | Request::SearchPathway(_)
         | Request::SearchStudy(_)
@@ -205,6 +207,9 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
+    if matches!(request, Request::SearchGwas(_)) {
+        return "gwas";
+    }
     if matches!(request, Request::SearchProtein(_) | Request::GetProtein(_)) {
         "protein"
     } else if matches!(request, Request::SearchStudy(_) | Request::GetStudy(_)) {

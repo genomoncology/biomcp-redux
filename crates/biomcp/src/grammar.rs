@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
+mod gwas;
 mod local;
 
 pub(crate) const BUNDLE_HELP: &[&str] = &[
@@ -49,6 +50,7 @@ pub(crate) struct Parsed {
 }
 pub(crate) fn query_schema(request: &Request) -> &'static str {
     match request {
+        Request::SearchGwas(_) => "biomcp.gwas-search/1",
         Request::SearchProtein(_) => "biomcp.protein-search/1",
         Request::GetProtein(_) => "biomcp.protein-get/1",
         Request::SearchPhenotype(_) => "biomcp.phenotype-search-query/1",
@@ -90,6 +92,7 @@ pub(crate) fn query_schema(request: &Request) -> &'static str {
     }
 }
 pub(crate) const QUERIES: &[(&str, &str, &str)] = &[
+    ("search", "gwas", "biomcp.gwas-search/1"),
     ("search", "protein", "biomcp.protein-search/1"),
     ("get", "protein", "biomcp.protein-get/1"),
     ("search", "phenotype", "biomcp.phenotype-search-query/1"),
@@ -378,7 +381,11 @@ fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
             argument.value_parser(clap::builder::StringValueParser::new())
         });
     }
-    Ok(command)
+    Ok(if name == "gwas" {
+        gwas::aliases(command, schema)
+    } else {
+        command
+    })
 }
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();
@@ -482,6 +489,7 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
     let value = request_arguments(verb, entity, matches)?;
     match (verb, entity) {
+        ("search", "gwas") => gwas::request(verb, value),
         (
             "search" | "get",
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"

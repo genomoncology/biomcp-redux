@@ -69,6 +69,7 @@ const TRIAL_SEARCH: &[(&str, ErrorMessage)] = &[
     ("--offset", ErrorMessage::TrialPage),
     ("--no-alias-expand", ErrorMessage::TrialNoExpansion),
 ];
+const GWAS_SEARCH: &[(&str, ErrorMessage)] = &[("--p-value", ErrorMessage::GwasThreshold)];
 const ARTICLE_GET: &[(&str, ErrorMessage)] = &[
     ("--pdf", ErrorMessage::ArticlePdf),
     ("--outline", ErrorMessage::Fulltext),
@@ -122,7 +123,7 @@ pub(crate) fn message(args: &[OsString]) -> Option<ErrorMessage> {
         ["gene", rest @ ..] if !rest.is_empty() => {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
         }
-        ["search", "drug", ..] => words.retired_option,
+        ["search", "drug", ..] | ["search", "gwas", ..] => words.retired_option,
         ["get", "drug", input @ ..] => words
             .retired_option
             .or_else(|| drug::section(&words, input)),
@@ -271,6 +272,7 @@ fn words(args: &[OsString]) -> Option<Words<'_>> {
             .map_or((arg, None), |(key, value)| (key, Some(value)));
         let table = match result.positional.get(..2) {
             Some(["search", "drug"]) => drug::SEARCH,
+            Some(["search", "gwas"]) => GWAS_SEARCH,
             Some(["get", "drug"]) => drug::GET,
             Some(["search", "article"]) => ARTICLE_SEARCH,
             Some(["search", "trial"]) => TRIAL_SEARCH,

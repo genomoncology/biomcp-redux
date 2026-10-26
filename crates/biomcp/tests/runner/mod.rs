@@ -284,10 +284,15 @@ fn run_step(
                 .map_err(|error| error.to_string())?;
             if output.status.code() != Some(step.exit) {
                 return Err(format!(
-                    "exit: expected {}, actual {:?}; stderr: {}",
+                    "exit: expected {}, actual {:?}; command: {:?}; stderr: {}; stdout: {}",
                     step.exit,
                     output.status.code(),
-                    String::from_utf8_lossy(&output.stderr)
+                    args,
+                    String::from_utf8_lossy(&output.stderr),
+                    String::from_utf8_lossy(&output.stdout)
+                        .chars()
+                        .take(2000)
+                        .collect::<String>()
                 ));
             }
             if !output.stderr.is_empty() {
@@ -310,8 +315,10 @@ fn run_step(
             expectations,
         )?;
         answer = Some(result.clone());
-        if cli.as_ref().is_some_and(|cli| cli != &result) {
-            return Err("CLI/MCP parity: unequal results".into());
+        if let Some(cli) = cli.as_ref()
+            && let Some(diff) = assertions::difference(cli, &result, "")
+        {
+            return Err(format!("CLI/MCP parity: unequal results at {diff}"));
         }
     }
     answer.ok_or_else(|| "step requires run or mcp".into())
@@ -556,6 +563,7 @@ pub(crate) fn faers_search_examples(directory: &std::path::Path) -> Result<(), S
     faers_search::record_examples(directory)
 }
 
+mod gwas_search;
 pub(super) fn phenotype_native(path: &Path) -> Result<(), String> {
     phenotype::native(path)
 }

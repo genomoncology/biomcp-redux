@@ -228,6 +228,10 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchGwas(q) => match body {
+            QueryBody::GwasPage(body) => meta.encode(biomcp_types::GwasPageQuery::Search(q), body),
+            _ => Err(io::Error::other("gwas response mismatch")),
+        },
         Request::SearchProtein(_) | Request::GetProtein(_) => protein::encode(meta, request, body),
         Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
         Request::SearchPhenotype(_) | Request::GetPhenotype(_) => {
