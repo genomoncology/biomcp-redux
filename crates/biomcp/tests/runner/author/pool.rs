@@ -8,7 +8,7 @@ pub(super) fn run() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::super::launch::fixtures().join("replies/author/synthetic");
     let registry = super::super::schema::Registry::embedded()?;
-    let mut pool = None;
+    let mut pool: Option<String> = None;
     let mut published = None;
     for (index, mut step) in case.steps.into_iter().enumerate() {
         if index == 6 {
