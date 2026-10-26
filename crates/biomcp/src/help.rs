@@ -12,7 +12,11 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     }
     let commands = commands()?
         .into_iter()
-        .filter(|c| path.is_empty() || c.command == path)
+        .filter(|c| {
+            path.is_empty()
+                || c.command == path
+                || (path.len() == 1 && c.command.get(1) == path.first())
+        })
         .collect();
     Ok(Help { commands })
 }

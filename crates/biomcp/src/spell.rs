@@ -15,15 +15,7 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {
     match action {
-        Action::AuthorPapers(q) => Ok(vec![
-            "author".into(),
-            "papers".into(),
-            q.id().to_string(),
-            "--limit".into(),
-            q.limit().to_string(),
-            "--offset".into(),
-            q.offset().to_string(),
-        ]),
+        Action::AuthorPapers(q) => Ok(author_papers(q)),
         Action::QueryHelp(request) => Ok(std::iter::once("help".into())
             .chain(command_words(request))
             .collect()),
@@ -58,6 +50,22 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
             Ok(args)
         }
     }
+}
+fn author_papers(q: &biomcp_types::AuthorPapersQuery) -> Vec<String> {
+    let mut args = vec!["author".into(), "papers".into(), q.id().to_string()];
+    if let Some(section) = q.section() {
+        args.push(section.to_string());
+    }
+    args.extend([
+        "--limit".into(),
+        q.limit().to_string(),
+        "--offset".into(),
+        q.offset().to_string(),
+    ]);
+    if let Some(pool) = q.pool() {
+        args.extend(["--pool".into(), pool.to_string()]);
+    }
+    args
 }
 fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
     let schema: Value = serde_json::from_str(
