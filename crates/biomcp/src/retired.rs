@@ -3,8 +3,8 @@
 mod adverse_event;
 mod diagnostic;
 mod drug;
-mod pgx;
 mod pathway;
+mod pgx;
 
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;

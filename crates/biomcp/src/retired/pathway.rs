@@ -16,7 +16,9 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             }
             continue;
         }
-        let (flag, inline) = word.split_once('=').map_or((word, None), |(a, b)| (a, Some(b)));
+        let (flag, inline) = word
+            .split_once('=')
+            .map_or((word, None), |(a, b)| (a, Some(b)));
         if matches!(positional.get(..2), Some(["search", "pathway"])) {
             match flag {
                 "-q" | "--query" => return Some(ErrorMessage::PathwayText),
@@ -50,6 +52,7 @@ fn command(words: &[&str]) -> Option<ErrorMessage> {
 fn kegg(id: &str) -> bool {
     let id = id.strip_prefix("path:").unwrap_or(id);
     ["hsa", "map", "ko"].iter().any(|prefix| {
-        id.strip_prefix(prefix).is_some_and(|digits| digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit()))
+        id.strip_prefix(prefix)
+            .is_some_and(|digits| digits.len() == 5 && digits.bytes().all(|b| b.is_ascii_digit()))
     })
 }
