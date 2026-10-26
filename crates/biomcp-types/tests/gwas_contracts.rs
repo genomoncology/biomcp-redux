@@ -166,3 +166,47 @@ fn native_relation_scopes_have_valid_consumer_envelopes() -> Result<(), Box<dyn 
     )?;
     Ok(())
 }
+
+#[cfg(feature = "schema")]
+#[test]
+fn diagnostic_generated_union_shapes() -> Result<(), Box<dyn std::error::Error>> {
+    use biomcp_types::*;
+    use schemars::schema_for;
+    let mut issues = Vec::new();
+    for (name, schema) in [
+        ("page", schema_for!(Envelope<GwasPage>)),
+        ("card", schema_for!(Envelope<GwasAssociationCard>)),
+        ("loci", schema_for!(Envelope<GwasLoci>)),
+        ("study", schema_for!(Envelope<GwasStudy>)),
+        ("ancestries", schema_for!(Envelope<GwasAncestries>)),
+    ] {
+        diagnostic_unions(&serde_json::to_value(schema)?, name, &mut issues);
+    }
+    assert!(issues.is_empty(), "{}", issues.join("\n"));
+    Ok(())
+}
+#[cfg(feature = "schema")]
+fn diagnostic_unions(value: &serde_json::Value, path: &str, issues: &mut Vec<String>) {
+    use serde_json::Value;
+    if let Some(branches) = value.get("oneOf").and_then(Value::as_array) {
+        for (index, branch) in branches.iter().enumerate() {
+            if branch.get("type") != Some(&json!("object")) {
+                issues.push(format!(
+                    "{path}/oneOf/{index}: keys={:?}; type={:?}; ref={:?}",
+                    branch.as_object().map(|o| o.keys().collect::<Vec<_>>()),
+                    branch.get("type"),
+                    branch.get("$ref")
+                ));
+            }
+        }
+    }
+    if let Some(object) = value.as_object() {
+        for (key, child) in object {
+            diagnostic_unions(child, &format!("{path}/{key}"), issues);
+        }
+    } else if let Some(array) = value.as_array() {
+        for (index, child) in array.iter().enumerate() {
+            diagnostic_unions(child, &format!("{path}/{index}"), issues);
+        }
+    }
+}
