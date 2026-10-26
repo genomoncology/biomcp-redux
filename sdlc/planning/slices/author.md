@@ -85,6 +85,8 @@ No whole Semantic Scholar dataset is proposed. ORCID snapshot metadata can be in
 
 Proposed types are `AuthorId` with explicit source-qualified variants, `AuthorHeader`, `AuthorCard`, `AuthorPaperHeader`, and a separately typed `OrcidWorkGroup` with ordered assertion summaries. Source-derived counts are optional and state their scope. ORCID identifiers retain their original type and relationship before any exact article pivot. No field promises a global publication total, current employment or verified person identity.
 
+The shared biodata `ScientificPublication` holds checked PMID/PMCID/DOI identities and opaque `AuthorshipAssertion` values. Those assertions retain source order and repeated display names while declaring completeness unknown; they deliberately establish no person identity. Reuse that bibliographic meaning without forcing a Semantic Scholar author ID, source paper ID or ORCID work assertion into a publication identifier slot. Source-specific records must retain identifiers that the shared publication value cannot represent. The existing `Envelope`, `SourceOutcome`, `PageInfo`, status and typed `Step` contract remain the outer schema; candidate, card, compact papers and rich papers each need generated closed schemas once captures establish their fields. No biodata or schema edit belongs to this investigation.
+
 Each search candidate gets a `disambiguate` action before the page action. Author cards offer the papers pivot. A paper row offers an exact article pivot when its native identifier is supported. More rows offer one page action retaining all selectors. Failed sources offer `fresh`; optional-key throttling can offer `key`. All actions follow architecture 6.10 and use exact IDs.
 
 ## Delight questions
