@@ -189,3 +189,24 @@ pub(crate) static WONDER: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative serial published-catalog download policy; not a provider quota.
+pub(crate) static WIKIPATHWAYS: Quota = Quota::new(
+    SourceKey::declare("wikipathways"),
+    Rate::per_second(1),
+    None,
+    1,
+);
+
+// Conservative serial local policy; no published numeric provider quota verified.
+pub(crate) static HPO: Quota = Quota::new(SourceKey::declare("hpo"), Rate::per_second(1), None, 1);
+
+// Conservative serial local policies, not published provider limits.
+pub(crate) static INTERPRO: Quota =
+    Quota::new(SourceKey::declare("interpro"), Rate::per_second(1), None, 1);
+pub(crate) static COMPLEX_PORTAL: Quota = Quota::new(
+    SourceKey::declare("complex-portal"),
+    Rate::per_second(1),
+    None,
+    1,
+);

@@ -15,6 +15,8 @@ macro_rules! errors {
 }
 
 errors! {
+    /// A source-native study identity or timestamp failed its grammar.
+    StudyValueInvalid => "study.value.invalid",
     /// Invalid amino-acid residue text.
     ProteinResidueInvalid => "protein.residue.invalid",
     /// A protein site ends before its position.

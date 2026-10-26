@@ -182,3 +182,5 @@ pub use drug::DrugGetCommand;
 
 mod protein;
 pub use protein::*;
+mod study;
+pub use study::*;

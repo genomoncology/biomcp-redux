@@ -1,6 +1,7 @@
 # 0210 — Add the study types and generated schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 82bc85de814114e7502b427ea86831db253367cb
 
 Milestone: 4
 
