@@ -20,6 +20,13 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
             .split_once('=')
             .map_or((word, None), |(a, b)| (a, Some(b)));
         if matches!(positional.get(..2), Some(["search", "pathway"])) {
+            if flag == "-l" {
+                if inline.is_none() { args.next(); }
+                continue;
+            }
+            if flag.strip_prefix("-l").is_some_and(|v| !v.is_empty() && v.bytes().all(|b| b.is_ascii_digit())) {
+                continue;
+            }
             match flag {
                 "-q" | "--query" => return Some(ErrorMessage::PathwayText),
                 "--type" => return Some(ErrorMessage::PathwayClass),

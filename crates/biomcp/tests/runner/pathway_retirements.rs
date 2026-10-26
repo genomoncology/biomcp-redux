@@ -27,6 +27,8 @@ fn cases() -> Vec<(String, &'static str)> {
         ("search pathway -q MAPK".into(), TEXT),
         ("search pathway --query MAPK".into(), TEXT),
         ("search pathway --query=MAPK".into(), TEXT),
+        ("search pathway -l 1 --query MAPK".into(), TEXT),
+        ("search pathway -l1 --query MAPK".into(), TEXT),
         ("search pathway MAPK --type Pathway".into(), CLASS),
         ("search pathway MAPK --type=Pathway".into(), CLASS),
         ("get pathway hsa04151".into(), KEGG),
