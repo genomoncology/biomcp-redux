@@ -37,3 +37,14 @@ Added 2026-10-26 on the 0192 proposal.
 - Defer Monarch similarity. The disease slice already retired symptom-to-diagnosis ranking, and one research question does not outweigh that ruling. The 0.9 `search phenotype` HP-ID-set form gets a fixed retirement message that names term search and the association sections.
 - Accept the defaults: five term headers, five-row text and link sections, one complete association row, and whole definitions and comments. The hierarchy section returns parent and child links, not whole native nodes, and its ceiling comes from that measured output.
 - Defer translations and HPO or Monarch bundles.
+
+## GWAS
+
+Added 2026-10-26 on the 0193 proposal.
+
+- Keep the GWAS Catalog v2 API only, through the existing variant adapter. Defer every bundle; no `sync gwas`.
+- Accept the command tree: `search gwas` by `--variant`, `--trait`, `--trait-id`, `--gene`, `--study` and `--pubmed`, with `--include-child-traits` and `--extended-geneset` off by default; `get gwas` for an association or a study, with `loci`, `associations` and `ancestries` sections. The 0.9 positional query and the `-g` and `-l` aliases keep working.
+- Default page of three associations, ordered by native p value ascending, as measured.
+- `--p-value` is exact, not page-scoped. It requires the default p-value-ascending order. Rows arrive in that order, so the command returns rows until the first row above the threshold and stops; it continues to the next source page only while every row so far qualifies. It reports a qualifying total only when it reached the end. Any other sort with `--p-value` is a usage error.
+- Combined selectors use the source's own conjunction, as the FGFR2 plus trait capture proved. The 0.9 local intersection of two 50-row prefixes retires.
+- Keep the restricted source category and the existing adapter deadline.
