@@ -30,11 +30,20 @@ pub struct StudySearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Literal study ID, name or description text, without synonyms or typo repair.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     text: Option<Text>,
     /// Exact cBioPortal cancer-type code; no OncoTree conversion.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "CbioportalCancerTypeId"))]
     cancer_type: Option<CbioportalCancerTypeId>,
     /// Maximum headers per page.
     #[serde(default = "limit")]

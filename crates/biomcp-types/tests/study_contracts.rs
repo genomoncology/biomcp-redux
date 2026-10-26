@@ -67,6 +67,9 @@ fn literal_search_and_bounded_section_requests_validate_before_io()
     for v in [
         json!({}),
         json!({"text":" "}),
+        json!({"text":null}),
+        json!({"text":null,"cancer_type":"brca"}),
+        json!({"text":"breast","cancer_type":null}),
         json!({"text":"x","limit":0}),
         json!({"text":"x","limit":51}),
         json!({"text":"x","offset":-1}),
@@ -85,6 +88,7 @@ fn literal_search_and_bounded_section_requests_validate_before_io()
         }
     }
     for v in [
+        json!({"id":"brca","section_offset":1}),
         json!({"id":"brca","section":"counts"}),
         json!({"id":"brca","gene":"TP53"}),
         json!({"id":"brca","section_limit":0}),
