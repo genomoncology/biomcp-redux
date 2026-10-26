@@ -31,13 +31,8 @@ fn execute(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
     }
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let identity = key(q)?;
-    let loaded = if let Some(pool) = q.pool().filter(|_| !(cx.fresh || q.fresh())) {
-        let payload = store.source_snapshot(pool.as_str(), &identity, |s| cx.fetch.disabled(s))?;
-        let Some(payload) = payload else { expired(q, out); return Ok(()); };
-        let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
-        if saved.1.len() != q.sources().len() { return Err(CacheError::Database.into()); }
-        Some(saved)
-    } else { None };
+    let loaded = load(cx, q, &store, &identity, out)?;
+    if matches!(out.body, QueryBody::PoolError { .. }) { return Ok(()); }
     let replay = loaded.as_ref().is_some_and(|s|s.0.page.offset == q.offset());
     let mut saved = match loaded {
         Some(saved) if replay || saved.0.page.next_offset == Some(q.offset()) => saved,
@@ -47,6 +42,18 @@ fn execute(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
     if !replay { advance(cx, q, deadline, &mut saved, out); }
     let payload = serde_json::to_string(&saved).map_err(|_| CacheError::Database)?;
     let pool = if replay { q.pool().cloned().ok_or(CacheError::Database)? } else { store.save_source_snapshot(&identity, &payload, &saved.3)? };
+    present(q, saved, pool, out);
+    Ok(())
+}
+fn load(cx: &Ctx<'_>, q: &PathwaySearch, store: &Store, identity: &[u8], out: &mut Outcome) -> Result<Option<Saved>, RequestError> {
+    let Some(pool) = q.pool().filter(|_| !(cx.fresh || q.fresh())) else { return Ok(None); };
+    let payload = store.source_snapshot(pool.as_str(), identity, |s| cx.fetch.disabled(s))?;
+    let Some(payload) = payload else { expired(q, out); return Ok(None); };
+    let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+    if saved.1.len() != q.sources().len() { return Err(CacheError::Database.into()); }
+    Ok(Some(saved))
+}
+fn present(q: &PathwaySearch, saved: Saved, pool: biodata::Text, out: &mut Outcome) {
     out.sources = saved.3;
     out.problems = saved.4;
     for row in &saved.0.items {
@@ -58,7 +65,6 @@ fn execute(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
     let usable = out.sources.iter().any(|s| matches!(s.state, SourceState::Ok | SourceState::Stale));
     out.status = if !usable { Status::Failed } else if out.sources.iter().any(|s|s.state != SourceState::Ok) || !out.problems.is_empty() { Status::Partial } else if saved.0.page.total == 0 { Status::Absent } else { Status::Complete };
     out.body = QueryBody::PathwayPage(saved.0);
-    Ok(())
 }
 fn expired(q: &PathwaySearch, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch: false };
