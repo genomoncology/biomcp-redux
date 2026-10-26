@@ -115,7 +115,9 @@ pub(super) fn check(
     expectations: &Expectations<'_>,
 ) -> Result<(), String> {
     let parsed = serde_json::from_slice::<Value>(stdout);
-    let terms_bytes = if let Ok(value) = &parsed {
+    let terms_bytes = if let Ok(value) = &parsed
+        && !step.full_output_bytes
+    {
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len()
             - super::source_terms::size(value, "")?
     } else {
@@ -135,7 +137,11 @@ pub(super) fn check(
     ceiling(
         "stdout",
         "max_tokens",
-        super::source_terms::size(&value, "")?.div_ceil(4),
+        if step.full_output_bytes {
+            stdout.len().div_ceil(4)
+        } else {
+            super::source_terms::size(&value, "")?.div_ceil(4)
+        },
         step.max_tokens.map(|v| v as u64),
     )?;
     for (pointer, expected, assertions) in expectations {

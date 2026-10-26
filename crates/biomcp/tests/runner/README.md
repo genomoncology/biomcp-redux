@@ -21,7 +21,11 @@ Implemented operators:
 | `max_tokens` | Nonnegative integer | Ceiling on compact JSON bytes divided by four, rounded up |
 
 Each step also accepts `max_bytes` for raw stdout and `max_tokens` for compact
-JSON. Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
+JSON. By default, registered source policy fields are excluded from these step ceilings.
+Set `full_output_bytes: true` to count the complete emitted CLI stdout, including
+its newline, or the actual MCP content text. Its token estimate uses those same
+bytes divided by four, rounded up. RPC framing remains separate.
+Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
 explicit null is a value. Ordinary empty arrays can equal `[]`, have count zero,
 and fail membership normally. A missing rank member fails.
 

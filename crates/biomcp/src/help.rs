@@ -34,7 +34,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
         let sections = section_words(&schema);
         commands.push(HelpCommand {
             command: vec![verb.into(), entity.into()],
-            description: text(&schema, "description"),
+            description: command_description(verb, entity, &schema),
             arguments,
             section_rule: (!sections.is_empty()).then(|| {
                 text(
@@ -52,6 +52,17 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     extra_commands(&mut commands, &examples);
     Ok(commands)
 }
+const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.";
+
+fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
+    let mut description = text(schema, "description");
+    if entity == "cell-line" || verb == "cell-line" {
+        description.push(' ');
+        description.push_str(CELL_LINE_BOUNDARY);
+    }
+    description
+}
+
 fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for (command, description) in [
         (
@@ -193,6 +204,7 @@ pub(crate) fn tree() -> String {
     };
     let mut lines = vec![
         "help CMD;schema ID".into(),
+        CELL_LINE_BOUNDARY.into(),
         "protein features --position --type;domains --type;isoforms;complexes;complex-members --complex;structures;sequence".into(),
         "Human source facts;no variant effect/structure/interaction/clinical inference;no bioinformatics tool runs".into(),
         "Pages --limit --offset --pool; sections --section-limit --section-offset".into(),
@@ -242,6 +254,12 @@ pub(crate) fn tree() -> String {
         }
         if command.command == ["search", "protein"] {
             line.push_str(" --gene --reviewed");
+        }
+        if command.command == ["search", "cell-line"] {
+            line.push_str(" query --query/-q --limit/-l --offset");
+        }
+        if command.command == ["get", "cell-line"] {
+            line.push_str(" CVCL_ID|SOURCE:ID --section-limit --section-offset");
         }
         pgx_selectors(&command, &mut line);
         gwas_selectors(&command, &mut line);

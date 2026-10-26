@@ -1,0 +1,49 @@
+{
+  "feature": "cell-line-chembl",
+  "story": "Native assay totals remain separately requested counts through two parsed disclosure examples.",
+  "replay": "cell-line/assay-examples",
+  "steps": [
+    {
+      "run": [
+        "cell-line",
+        "assay-count",
+        "CHEMBL3706573"
+      ],
+      "mcp": [
+        "cell-line",
+        "assay-count",
+        "CHEMBL3706573"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": "CHEMBL3706573",
+        "/result/assay_count": 1408
+      },
+      "full_output_bytes": true,
+      "max_bytes": 433,
+      "max_tokens": 109
+    },
+    {
+      "run": [
+        "cell-line",
+        "assay-count",
+        "CHEMBL3706573",
+        "--fresh"
+      ],
+      "mcp": [
+        "cell-line",
+        "assay-count",
+        "CHEMBL3706573",
+        "--fresh"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": "CHEMBL3706573",
+        "/result/assay_count": 1408
+      },
+      "full_output_bytes": true,
+      "max_bytes": 433,
+      "max_tokens": 109
+    }
+  ]
+}

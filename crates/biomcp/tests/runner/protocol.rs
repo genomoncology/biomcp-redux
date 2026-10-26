@@ -477,6 +477,11 @@ fn discovery_description(text: &str) -> Check {
         return Err("command description exceeds budget".into());
     }
     for word in [
+        "search cell-line query --query/-q --limit/-l --offset",
+        "get cell-line CVCL_ID|SOURCE:ID --section-limit --section-offset :names|identity|xrefs|variants|chembl|all",
+        "cell-line assay-count",
+        "An assay count is not an activity or sensitivity count.",
+        "No treatment response is inferred; no bioinformatics tool runs.",
         "protein features --position --type",
         "domains --type",
         "complex-members --complex",
