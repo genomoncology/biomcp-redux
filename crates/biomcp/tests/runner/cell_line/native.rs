@@ -1,15 +1,15 @@
 use super::*;
-pub(super) fn run() -> Result<(), String> {
+pub(super) fn run(measure: bool) -> Result<(), String> {
     let stub = recorded_stub()?;
     let env = setup(&stub)?;
-    search(&env)?;
-    cards(&env)?;
-    reverse(&env)?;
+    search(&env, measure)?;
+    cards(&env, measure)?;
+    reverse(&env, measure)?;
     let requests = stub.finish()?;
     if requests.iter().any(|(_,r)| r.contains("sort=")) { return Err("native candidate order changed".into()); }
     Ok(())
 }
-fn search(env: &Environment) -> Result<(), String> {
+fn search(env: &Environment, measure: bool) -> Result<(), String> {
     for (name, query, ids, offset) in [
         ("MOLM13", "MOLM13", vec!["CVCL_2119"], 0),
         ("MV4-semicolon", "MV4;11", vec!["CVCL_0064"], 0),
@@ -22,7 +22,7 @@ fn search(env: &Environment) -> Result<(), String> {
         let mut words = vec!["search","cell-line",query];
         let offset_text = offset.to_string();
         if offset>0 { words.extend(["--offset",&offset_text]); }
-        let value = parity(&format!("native/search/{name}"), env, &words, if ids.is_empty(){1}else{0})?;
+        let value = parity(&format!("native/search/{name}"), env, &words, if ids.is_empty(){1}else{0}, measure)?;
         let items = value.pointer("/result/items").and_then(Value::as_array).ok_or("items")?;
         let actual: Vec<_> = items.iter().filter_map(|r| r.get("accession").and_then(Value::as_str)).collect();
         if actual != ids || value.get("page").is_some() { return Err(format!("{name}: source order or unknown total changed")); }
@@ -37,9 +37,9 @@ fn search(env: &Environment) -> Result<(), String> {
     }
     Ok(())
 }
-fn cards(env: &Environment) -> Result<(), String> {
+fn cards(env: &Environment, measure: bool) -> Result<(), String> {
     for (id,name) in [("CVCL_2119","MOLM-13"),("CVCL_0004","K-562"),("CVCL_0005","NB4"),("CVCL_0002","HL-60"),("CVCL_A794","HL-60(TB)"),("CVCL_0007","U-937"),("CVCL_ZZZZ","")] {
-        let value = parity(&format!("native/card/{id}"),env,&["get","cell-line",id],if name.is_empty(){1}else{0})?;
+        let value = parity(&format!("native/card/{id}"),env,&["get","cell-line",id],if name.is_empty(){1}else{0}, measure)?;
         if name.is_empty() { path(&value,"/result/status",json!("absent"))?; continue; }
         path(&value,"/result/header/accession",json!(id))?;
         path(&value,"/result/header/name",json!(name))?;
@@ -52,9 +52,9 @@ fn cards(env: &Environment) -> Result<(), String> {
     }
     Ok(())
 }
-fn reverse(env: &Environment) -> Result<(), String> {
+fn reverse(env: &Environment, measure: bool) -> Result<(), String> {
     for id in ["DepMap:ACH-000362","ChEMBL:CHEMBL3706573"] {
-        let value=parity(&format!("native/reverse/{id}"),env,&["get","cell-line",id],0)?;
+        let value=parity(&format!("native/reverse/{id}"),env,&["get","cell-line",id],0, measure)?;
         path(&value,"/result/header/accession",json!("CVCL_2119"))?;
         path(&value,"/result/input",json!(id))?;
         path(&value,"/result/candidates",json!([]))?;

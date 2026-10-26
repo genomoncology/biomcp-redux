@@ -599,3 +599,5 @@ pub(super) fn protein_native(path: &Path) -> Result<(), String> {
 }
 
 mod wikipathways_genes;
+
+pub(super) fn cell_line_measure() -> Result<(), String> { cell_line::measure() }

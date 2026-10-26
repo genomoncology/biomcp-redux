@@ -6,7 +6,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
-    let mut tests = vec![Trial::test("cell-line-identity/native-requests-order-exact-cards-and-costs", || native::run().map_err(Into::into))];
+    let mut tests = vec![Trial::test("cell-line-identity/native-requests-order-exact-cards-and-costs", || native::run(false).map_err(Into::into))];
     tests.extend(faults::trials());
     tests
 }
@@ -22,12 +22,23 @@ fn invoke(env: &Environment, words: &[&str], exit: i32) -> Result<Value, String>
     if output.status.code() != Some(exit) { return Err(format!("{words:?}: exit {:?}; stdout {}; stderr {}", output.status.code(), String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr))); }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }
-fn parity(phase: &str, env: &Environment, words: &[&str], exit: i32) -> Result<Value, String> {
+fn parity(phase: &str, env: &Environment, words: &[&str], exit: i32, measure: bool) -> Result<Value, String> {
     let recording = env.root().join("recordings").join(phase);
     let mut args = words.to_vec();
     args.extend(["--record", recording.to_str().ok_or("recording path")?]);
     let value = invoke(env, &args, exit)?;
-    for surface in ["cli", "mcp"] { budget(phase, surface, &value)?; }
+    compared(phase, env, words, exit, measure, &recording, value)
+}
+fn compared(phase: &str, env: &Environment, words: &[&str], exit: i32, measure: bool, recording: &std::path::Path, value: Value) -> Result<Value,String> {
+    let replay: Vec<String> = ["--replay".to_string(), recording.to_str().ok_or("recording path")?.into()].into();
+    let mcp = super::mcp::call_with_globals(env, &words.iter().map(|s|s.to_string()).collect::<Vec<_>>(), exit>=2, &replay)?;
+    if mcp != value { return Err(format!("{phase}: CLI/MCP mismatch")); }
+    for (surface, actual) in [("cli", &value), ("mcp", &mcp)] {
+        let bytes = serde_json::to_vec(actual).map_err(|e|e.to_string())?.len()+usize::from(surface=="cli");
+        eprintln!("CELL_LINE_MEASURE {phase} [{surface}] {bytes}");
+        if !measure { budget(phase, surface, actual)?; }
+    }
+    if measure { return Ok(value); }
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     let max_bytes = ceiling(phase, "cli")?.max(ceiling(phase, "mcp")?);
     fs::write(file.path(), serde_json::to_vec(&json!({"feature":"cell-line-identity","story":"CLI and MCP preserve the same checked Cellosaurus facts","replay":recording,"steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":value}},"max_bytes":max_bytes,"max_tokens":max_bytes.div_ceil(4)}]})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
@@ -36,7 +47,7 @@ fn parity(phase: &str, env: &Environment, words: &[&str], exit: i32) -> Result<V
 }
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
     let measured: std::collections::BTreeMap<String, usize> = serde_json::from_str(include_str!("../../../../../tests/cell-line-command-budgets.json")).map_err(|e| e.to_string())?;
-    Ok(measured.get(&format!("{phase} [{surface}]")).map(|v| (v*115).div_ceil(100)).unwrap_or(100000))
+    measured.get(&format!("{phase} [{surface}]")).map(|v| (v*115).div_ceil(100)).ok_or_else(|| format!("unknown cell line phase: {phase} [{surface}]"))
 }
 fn budget(phase: &str, surface: &str, value: &Value) -> Result<(), String> {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface=="cli");
@@ -45,7 +56,7 @@ fn budget(phase: &str, surface: &str, value: &Value) -> Result<(), String> {
     Ok(())
 }
 fn fixture(name: &str) -> Result<String, String> {
-    fs::read_to_string(super::launch::fixtures().join("cell-line/native").join(name)).map_err(|e| e.to_string())
+    fs::read_to_string(super::launch::fixtures().join("fixtures/cell-line/native").join(name)).map_err(|e| e.to_string())
 }
 fn canonical(target: &str) -> (String, Vec<&str>) {
     let (path, query) = target.split_once('?').unwrap_or((target, ""));
@@ -74,3 +85,5 @@ fn path(value: &Value, path: &str, expected: Value) -> Result<(), String> {
     if value.pointer(path)!=Some(&expected) { return Err(format!("{path}: expected {expected}, got {:?}",value.pointer(path))); }
     Ok(())
 }
+
+pub(in crate::runner) fn measure() -> Result<(), String> { native::run(true)?; faults::run(true) }

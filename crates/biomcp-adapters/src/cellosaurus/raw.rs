@@ -61,7 +61,7 @@ pub(super) struct Comment {
     pub value: Text,
 }
 impl Record {
-    pub fn accession(&self) -> Result<&CellosaurusAccession, BadReply> {
+    pub(super) fn accession(&self) -> Result<&CellosaurusAccession, BadReply> {
         let mut rows = self
             .accession_list
             .iter()
@@ -72,7 +72,7 @@ impl Record {
         }
         Ok(&first.value)
     }
-    pub fn name(&self) -> Result<&Text, BadReply> {
+    pub(super) fn name(&self) -> Result<&Text, BadReply> {
         let mut rows = self
             .name_list
             .iter()
