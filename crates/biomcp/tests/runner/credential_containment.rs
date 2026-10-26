@@ -92,7 +92,12 @@ fn invoke(env: &Environment, mut args: Vec<String>, bad: bool) -> Result<Value, 
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
-    clean(&fs::read(observed).map_err(|e| e.to_string())?)?;
+    clean(&fs::read(observed).map_err(|e| {
+        format!(
+            "missing containment trace: {e}; exit {:?}",
+            output.status.code()
+        )
+    })?)?;
     for bytes in [&output.stdout, &output.stderr] {
         clean(bytes)?;
     }
@@ -151,11 +156,12 @@ fn files(root: &Path) -> Result<Vec<PathBuf>, String> {
 }
 fn wire() -> Check {
     let (env, stub) = setup()?;
-    invoke(
-        &env,
-        args("range", "--case-cache", &env.root().join("case-cache")),
-        true,
-    )?;
+    let mut live = SEARCH
+        .iter()
+        .map(|arg| (*arg).to_owned())
+        .collect::<Vec<_>>();
+    *live.last_mut().ok_or("missing synthetic query")? = "range".into();
+    invoke(&env, live, true)?;
     for query in [
         "duplicate",
         "deep",
