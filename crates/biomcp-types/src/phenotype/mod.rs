@@ -70,17 +70,28 @@ page!(
     "biomcp.phenotype-hierarchy/1",
     "Direct source hierarchy links without graph traversal."
 );
-page!(
-    PhenotypeDiseases,
-    DiseaseAssociationItem,
-    PhenotypeGet,
-    "biomcp.phenotype-diseases/1",
-    "Complete native disease association rows, without clinical inference."
-);
-page!(
-    PhenotypeGenes,
-    DiseaseAssociationItem,
-    PhenotypeGet,
-    "biomcp.phenotype-genes/1",
-    "Complete native human gene association rows with source taxon."
-);
+macro_rules! associations {
+    ($name:ident, $schema:literal, $doc:literal) => {
+        #[doc = $doc]
+        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        pub struct $name {
+            /// Native association rows in source order, without deduplication.
+            pub items: Box<[DiseaseAssociationItem]>,
+            /// Publisher direct graph scope; this supplies no causal assertion.
+            pub direct: bool,
+            /// Applicable publisher component terms.
+            pub components: Box<[ComponentLabel]>,
+            /// Original source retrieval time, distinct from dataset release.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub fetched: Option<u64>,
+        }
+        impl ResponseBody for $name {
+            const SCHEMA: &'static str = $schema;
+            type Query = PhenotypeGet;
+        }
+    };
+}
+associations!(PhenotypeDiseases, "biomcp.phenotype-diseases/2", "Direct source disease association rows without clinical inference.");
+associations!(PhenotypeGenes, "biomcp.phenotype-genes/2", "Direct source human gene association rows with native taxon.");
