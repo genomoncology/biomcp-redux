@@ -10,10 +10,14 @@ mod mechanics;
 mod native;
 mod threshold;
 mod wire;
+mod usage;
 pub(super) fn trials() -> Vec<Trial> {
     let native_directory = super::launch::fixtures().join("gwas-native-cases");
     let absent = !native_directory.is_dir();
     vec![
+        Trial::test("gwas-search/malformed-input-guidance-before-io", || {
+            usage::run().map_err(Into::into)
+        }),
         Trial::test("gwas-search/retained-threshold-witnesses-and-costs", || {
             threshold::native(&super::launch::fixtures().join("gwas-threshold-cases"))
                 .map_err(Into::into)
