@@ -22,9 +22,10 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("pathway-sections/warm-hgnc-uniprot-index-migration", || {
             migration().map_err(Into::into)
         }),
-        Trial::test("pathway-sections/compact-and-complete-context-modes", || {
-            disclosure_modes().map_err(Into::into)
-        }),
+        Trial::test(
+            "pathway-sections/compact-and-complete-context-modes",
+            || disclosure_modes().map_err(Into::into),
+        ),
         Trial::test("pathway-sections/native-disclosure-measurements", || {
             measurements().map_err(Into::into)
         }),
@@ -318,15 +319,26 @@ fn migration() -> Check {
 }
 fn disclosure_modes() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let args = ["pathway", "genes", "R-HSA-5673001"].map(str::to_owned).to_vec();
+    let args = ["pathway", "genes", "R-HSA-5673001"]
+        .map(str::to_owned)
+        .to_vec();
     let compact = call(&env, &args, false, 0)?;
     if compact.pointer("/result/items/0/physical_context_count") != Some(&json!(29))
-        || compact.pointer("/result/items/0/participants").is_some() {
+        || compact.pointer("/result/items/0/participants").is_some()
+    {
         return Err("default membership disclosed full contexts or omitted their count".into());
     }
-    let steps = compact.get("next").and_then(Value::as_array).ok_or("steps")?;
-    let details = steps.iter().filter_map(|step| step.get("args"))
-        .find(|args| args.as_array().is_some_and(|args| args.contains(&json!("details"))))
+    let steps = compact
+        .get("next")
+        .and_then(Value::as_array)
+        .ok_or("steps")?;
+    let details = steps
+        .iter()
+        .filter_map(|step| step.get("args"))
+        .find(|args| {
+            args.as_array()
+                .is_some_and(|args| args.contains(&json!("details")))
+        })
         .ok_or("missing explicit details step")?;
     let args: Vec<String> = serde_json::from_value(details.clone()).map_err(|e| e.to_string())?;
     let full = call(&env, &args, true, 0)?;
@@ -335,21 +347,37 @@ fn disclosure_modes() -> Check {
     }
     check_context_counts(&full)?;
     let next = continuation(&full)?.ok_or("missing details continuation")?;
-    if !next.iter().any(|s| s == "details") { return Err("details mode disappeared from continuation".into()); }
+    if !next.iter().any(|s| s == "details") {
+        return Err("details mode disappeared from continuation".into());
+    }
     let page = mcp::call_with_globals(&env, &next, false, &globals(&env, true))?;
     check_context_counts(&page)?;
-    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e| e.to_string())?;
-    db.execute("UPDATE pool SET expires=0", []).map_err(|e| e.to_string())?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    db.execute("UPDATE pool SET expires=0", [])
+        .map_err(|e| e.to_string())?;
     let expired = call(&env, &next, true, 3)?;
-    let restart = expired.pointer("/next/0/args").and_then(Value::as_array).ok_or("details restart")?;
-    if !restart.contains(&json!("details")) { return Err("restart lost details mode".into()); }
+    let restart = expired
+        .pointer("/next/0/args")
+        .and_then(Value::as_array)
+        .ok_or("details restart")?;
+    if !restart.contains(&json!("details")) {
+        return Err("restart lost details mode".into());
+    }
     Ok(())
 }
 fn check_context_counts(value: &Value) -> Check {
-    let rows = value.pointer("/result/items").and_then(Value::as_array).ok_or("details rows")?;
+    let rows = value
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("details rows")?;
     for row in rows {
-        let contexts = row.get("participants").and_then(Value::as_array).ok_or("full contexts")?;
-        if row.get("physical_context_count").and_then(Value::as_u64) != Some(contexts.len() as u64) {
+        let contexts = row
+            .get("participants")
+            .and_then(Value::as_array)
+            .ok_or("full contexts")?;
+        if row.get("physical_context_count").and_then(Value::as_u64) != Some(contexts.len() as u64)
+        {
             return Err("details clipped or changed physical contexts".into());
         }
     }
@@ -366,7 +394,11 @@ fn measurements() -> Check {
         (vec!["get", "pathway", "R-HSA-5673001", "all"], 19228, 4807),
         (vec!["pathway", "genes", "R-HSA-5673001"], 11962, 2992),
         (vec!["pathway", "events", "R-HSA-5673001"], 2034, 509),
-        (vec!["pathway", "genes", "R-HSA-5673001", "details"], 12469, 3118),
+        (
+            vec!["pathway", "genes", "R-HSA-5673001", "details"],
+            12469,
+            3118,
+        ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let args: Vec<String> = args.into_iter().map(str::to_owned).collect();

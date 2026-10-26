@@ -116,12 +116,21 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
         roundtrip::<PathwayEventsQuery>(q.clone()).expect("public round-trip"),
         q
     );
-    let details: PathwayGenesQuery = serde_json::from_value(json!({"id":"R-HSA-5673001","details":"details"}))
-        .expect("explicit full-context disclosure");
+    let details: PathwayGenesQuery =
+        serde_json::from_value(json!({"id":"R-HSA-5673001","details":"details"}))
+            .expect("explicit full-context disclosure");
     assert!(details.at_offset(5).details());
     assert!(details.restart().details());
-    assert!(serde_json::from_value::<PathwayEventsQuery>(json!({"id":"R-HSA-5673001","details":"details"})).is_err());
-    assert!(serde_json::from_value::<PathwayGenesQuery>(json!({"id":"R-HSA-5673001","details":null})).is_err());
+    assert!(
+        serde_json::from_value::<PathwayEventsQuery>(
+            json!({"id":"R-HSA-5673001","details":"details"})
+        )
+        .is_err()
+    );
+    assert!(
+        serde_json::from_value::<PathwayGenesQuery>(json!({"id":"R-HSA-5673001","details":null}))
+            .is_err()
+    );
     for q in [
         json!({"id":"WP382"}),
         json!({"id":"R-HSA-5673001","limit":51}),
@@ -161,7 +170,8 @@ fn neutral_records_keep_absence_membership_and_unresolved_event_identity() {
             member
         );
     }
-    let unknown = json!({"reference":{"namespace":"chebi","value":"15377"},"physical_context_count":0});
+    let unknown =
+        json!({"reference":{"namespace":"chebi","value":"15377"},"physical_context_count":0});
     assert_eq!(
         roundtrip::<PathwayMember>(unknown.clone()).expect("public round-trip"),
         unknown

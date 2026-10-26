@@ -61,7 +61,10 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 m.reference.namespace.as_str() == namespace
                     && m.reference.value.as_str() == identifier
             }) {
-                let mut participants = existing.participants.take().map_or_else(Vec::new, Box::into_vec);
+                let mut participants = existing
+                    .participants
+                    .take()
+                    .map_or_else(Vec::new, |values| values.into_vec());
                 if !participants.iter().any(|p| p.db_id == participant.db_id) {
                     participants.push(participant.clone());
                 }

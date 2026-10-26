@@ -23,15 +23,27 @@ pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut S
         && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit)
     {
         let query = if details { query.with_details() } else { query };
-        next.push((StepKind::Page, run(Request::PathwayGenes(
-            query.at_offset(offset).with_pool(pool.id.clone())))));
-
+        next.push((
+            StepKind::Page,
+            run(Request::PathwayGenes(
+                query.at_offset(offset).with_pool(pool.id.clone()),
+            )),
+        ));
     }
-    if !details && !body.items.is_empty()
+    if !details
+        && !body.items.is_empty()
         && let Some(pool) = &body.page.pool
-        && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit) {
-        next.push((StepKind::Section, run(Request::PathwayGenes(query.with_details()
-            .at_offset(body.page.offset).with_pool(pool.id.clone())))));
+        && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit)
+    {
+        next.push((
+            StepKind::Section,
+            run(Request::PathwayGenes(
+                query
+                    .with_details()
+                    .at_offset(body.page.offset)
+                    .with_pool(pool.id.clone()),
+            )),
+        ));
     }
 }
 

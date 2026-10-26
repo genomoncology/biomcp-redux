@@ -572,11 +572,20 @@
           "description": "Native label, never interpreted as a gene symbol."
         },
         "participants": {
-          "description": "Physical source entities that carry this reference; preserve modification context.",
+          "description": "Complete physical contexts, disclosed only by the explicit details view.",
           "items": {
             "$ref": "#/$defs/PathwayParticipant"
           },
-          "type": "array"
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "physical_context_count": {
+          "description": "Number of source physical entity contexts carrying this exact reference.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         },
         "reference": {
           "$ref": "#/$defs/PathwaySourceRef",
@@ -607,7 +616,7 @@
       },
       "required": [
         "reference",
-        "participants"
+        "physical_context_count"
       ],
       "type": "object"
     },
@@ -1515,7 +1524,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pathway_card/3",
+  "$id": "biomcp.pathway_card/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1561,7 +1570,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pathway_card/3",
+      "const": "biomcp.pathway_card/4",
       "type": "string"
     },
     "sources": {

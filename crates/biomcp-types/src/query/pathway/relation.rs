@@ -82,11 +82,20 @@ macro_rules! relation {
 }
 relation!(PathwayGenesQuery, GeneFields, "GeneFields",
     "Continue exact pathway membership; details explicitly discloses full physical contexts.", details: None);
-relation!(PathwayEventsQuery, EventFields, "EventFields",
-    "Continue Reactome event objects and unresolved native integer references.");
+relation!(
+    PathwayEventsQuery,
+    EventFields,
+    "EventFields",
+    "Continue Reactome event objects and unresolved native integer references."
+);
 impl PathwayGenesQuery {
     /// Request all physical contexts of each displayed membership reference.
-    pub fn with_details(mut self) -> Self { self.0.details = Some(Details::Details); self }
+    pub fn with_details(mut self) -> Self {
+        self.0.details = Some(Details::Details);
+        self
+    }
     /// Whether full physical contexts were explicitly requested.
-    pub fn details(&self) -> bool { self.0.details.is_some() }
+    pub fn details(&self) -> bool {
+        self.0.details.is_some()
+    }
 }

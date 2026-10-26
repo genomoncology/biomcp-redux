@@ -72,7 +72,13 @@ fn restart(q: &Selection<'_>, out: &mut Outcome) {
     out.body = QueryBody::PoolError { mismatch: false };
     let request = if q.genes {
         PathwayGenesQuery::new(q.id.clone(), q.limit)
-            .map(|query| if q.details { query.with_details() } else { query })
+            .map(|query| {
+                if q.details {
+                    query.with_details()
+                } else {
+                    query
+                }
+            })
             .map(Request::PathwayGenes)
     } else {
         PathwayEventsQuery::new(q.id.clone(), q.limit).map(Request::PathwayEvents)
@@ -132,21 +138,51 @@ fn read_inner(
     }
     Ok(())
 }
-fn present_genes(cx: &Ctx<'_>, q: &Selection<'_>, deadline: Deadline<'_>,
-    mut body: biomcp_types::PathwayGenes, pool: biomcp_types::PoolInfo, out: &mut Outcome) {
-    body.items = body.items.iter().skip(q.offset as usize).take(q.limit as usize).cloned().collect();
+fn present_genes(
+    cx: &Ctx<'_>,
+    q: &Selection<'_>,
+    deadline: Deadline<'_>,
+    mut body: biomcp_types::PathwayGenes,
+    pool: biomcp_types::PoolInfo,
+    out: &mut Outcome,
+) {
+    body.items = body
+        .items
+        .iter()
+        .skip(q.offset as usize)
+        .take(q.limit as usize)
+        .cloned()
+        .collect();
     body.page = position(body.page, q, body.items.len(), pool);
     if !q.details {
-        for row in &mut body.items { row.participants = None; }
+        for row in &mut body.items {
+            row.participants = None;
+        }
     }
-    super::membership::resolve(cx, &mut body.items, deadline, &mut out.sources, &mut out.problems);
+    super::membership::resolve(
+        cx,
+        &mut body.items,
+        deadline,
+        &mut out.sources,
+        &mut out.problems,
+    );
     super::relation_steps::genes(&body, q.limit, q.details, &mut out.next);
     out.status = overall(out, body.page.total == 0);
     out.body = QueryBody::PathwayGenes(Some(body));
 }
-fn present_events(q: &Selection<'_>, mut body: biomcp_types::PathwayEvents,
-    pool: biomcp_types::PoolInfo, out: &mut Outcome) {
-    body.items = body.items.iter().skip(q.offset as usize).take(q.limit as usize).cloned().collect();
+fn present_events(
+    q: &Selection<'_>,
+    mut body: biomcp_types::PathwayEvents,
+    pool: biomcp_types::PoolInfo,
+    out: &mut Outcome,
+) {
+    body.items = body
+        .items
+        .iter()
+        .skip(q.offset as usize)
+        .take(q.limit as usize)
+        .cloned()
+        .collect();
     body.page = position(body.page, q, body.items.len(), pool);
     super::relation_steps::events(&body, q.limit, &mut out.next);
     out.status = overall(out, body.page.total == 0);
