@@ -9,7 +9,7 @@ use biomcp_types::{
     QueryBody, Reason, Request, Source, SourceState, Status, StepKind,
 };
 /// Read one exact author's native paper page and retain checked continuation state.
-pub fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
+pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(body(q, Box::default()));
