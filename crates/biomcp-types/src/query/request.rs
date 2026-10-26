@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 pub enum Request {
     /// Discover native author candidates without identity reconciliation.
     SearchAuthor(crate::AuthorSearch),
+    /// Page one exact provider record’s native papers.
+    AuthorPapers(crate::AuthorPapersQuery),
     /// Read exact provider author cards in input order.
     GetAuthor(crate::AuthorGet),
     /// Read the native assay total for one exact ChEMBL cell.

@@ -1,5 +1,7 @@
 //! Provider-record author search and independent exact cards.
 mod get;
+mod papers;
+pub use papers::papers;
 mod search;
 mod snapshot;
 use crate::{Action, Outcome};
