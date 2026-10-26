@@ -10,6 +10,21 @@ BASE = 'https://www.cbioportal.org/api/studies'
 STUDIES = ['brca_tcga_pan_can_atlas_2018', 'luad_tcga_pan_can_atlas_2018', 'msk_impact_2017']
 
 
+# Full and comparable retained CLI/MCP output ceilings, measured plus fifteen percent.
+OUTPUT_CEILINGS = [
+    (2702, 2512), (3004, 2815), (3025, 2835), (2464, 2274), (2133, 1943),
+    (2126, 1936), (2128, 1938), (3016, 2826), (2716, 2526), (2136, 1946),
+    (3597, 3407), (2165, 1975), (2407, 2218), (3334, 3145), (2675, 2486),
+    (3025, 2835), (3048, 2858), (2714, 2525), (1832, 1643), (1436, 1246),
+    (3324, 3134), (3187, 2997), (3276, 3086), (1377, 1187), (2219, 2029),
+    (2402, 2212), (1454, 1264), (3324, 3134), (3196, 3007), (2344, 2154),
+    (2212, 2022), (2302, 2112), (868, 678), (1712, 1522), (1977, 1788),
+    (1937, 1747), (1989, 1799), (2104, 1914), (1950, 1760), (2000, 1811),
+    (1969, 1780), (1931, 1742), (1968, 1778), (2051, 1861), (1911, 1721),
+    (1824, 1635),
+]
+
+
 def compact(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
 
@@ -89,7 +104,11 @@ def main(archive, out):
                         if key in row:
                             expected[f'/result/items/{n}/{key}'] = row[key]
                 steps.append(step(['get', 'study', study, section, '--section-offset', str(offset)], expected))
+    assert len(steps) == len(OUTPUT_CEILINGS)
     for n, operation in enumerate(steps):
+        full_cap, comparable_cap = OUTPUT_CEILINGS[n]
+        operation['max_bytes'] = comparable_cap
+        operation.setdefault('expect', {})[''] = {'max_bytes': full_cap}
         (cases / f'{n:03d}.yaml').write_text(compact({
             'story': 'Retained exact study metadata and complete DETAILED section walks',
             'feature': 'study-get', 'replay': str(replay),
