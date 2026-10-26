@@ -49,6 +49,7 @@ fn search_selectors_and_page_bounds_are_checked_before_io() {
     ] {
         let checked: PathwaySearch = serde_json::from_value(query).expect("valid selector");
         assert_eq!(checked.at_offset(10).offset(), 10);
+        assert_eq!(checked.reactome_leg().source(), biomcp_types::PathwaySource::Reactome);
         assert!((1..=50).contains(&checked.limit()));
     }
     for query in [

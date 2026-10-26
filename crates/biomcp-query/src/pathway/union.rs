@@ -205,7 +205,7 @@ fn refill(
             .fresh(cx.fresh || q.fresh());
         let reply = reactome::search(
             &leg,
-            &q.for_source(PathwaySource::Reactome).at_offset(offset),
+            &q.reactome_leg().at_offset(offset),
         );
         let error = reply.as_ref().err().copied();
         out.local = out.local.or_else(|| error.and_then(status::local));
