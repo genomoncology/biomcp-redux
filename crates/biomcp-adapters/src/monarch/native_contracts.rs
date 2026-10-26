@@ -5,7 +5,10 @@ use biomcp_fetch::Reply;
 #[test]
 #[ignore = "requires retained P21–P23 bodies outside Git"]
 fn retained_gene_rows_preserve_identity_taxon_and_row_publications() -> Result<(), String> {
-    #[expect(clippy::disallowed_methods, reason = "Ignored retained-source contract locates external evidence only")]
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Ignored retained-source contract locates external evidence only"
+    )]
     let directory = std::env::var_os("BIOMCP_MONARCH_MAPPING_FIXTURES")
         .ok_or("missing retained mapping directory")?;
     for (case, subject, original, total) in [
@@ -13,7 +16,10 @@ fn retained_gene_rows_preserve_identity_taxon_and_row_publications() -> Result<(
         ("P22", "HGNC:9588", "NCBIGene:5728", 85),
         ("P23", "HGNC:7765", "NCBIGene:4763", 129),
     ] {
-        #[expect(clippy::disallowed_methods, reason = "Ignored retained-source contract reads bodies kept outside Git")]
+        #[expect(
+            clippy::disallowed_methods,
+            reason = "Ignored retained-source contract reads bodies kept outside Git"
+        )]
         let bytes = std::fs::read(
             std::path::Path::new(&directory).join(format!("{case}-associations.raw")),
         )

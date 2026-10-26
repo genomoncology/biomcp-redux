@@ -4,6 +4,10 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
+        "crates/biomcp-adapters/src/monarch/native_contracts.rs",
+        "Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command.",
+    ),
+    (
         "crates/biomcp-types/tests/gwas_contracts.rs",
         "Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public library API before adapters exist.",
     ),
