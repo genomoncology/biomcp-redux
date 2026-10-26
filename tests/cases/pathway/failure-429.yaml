@@ -20,7 +20,8 @@
         "/sources/0/source": "reactome",
         "/sources/0/terms": "CC0 1.0 database data"
       },
-      "max_bytes": 7000
+      "max_bytes": 7000,
+      "is_error": true
     }
   ]
 }
