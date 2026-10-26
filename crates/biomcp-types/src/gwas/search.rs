@@ -9,10 +9,8 @@ biodata::wire_enum! {
         #[doc = "Ascending source p value."] PValueAscending => "p_value,asc"
     }
 }
-impl Default for GwasOrder {
-    fn default() -> Self {
-        Self::PValueAscending
-    }
+fn order() -> GwasOrder {
+    GwasOrder::PValueAscending
 }
 /// Checked association search selectors with native conjunction semantics.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -54,7 +52,7 @@ struct SearchFields {
     #[serde(default)]
     extended_geneset: bool,
     /// Source order; threshold requests use this same native order.
-    #[serde(default)]
+    #[serde(default = "order")]
     order: GwasOrder,
     /// Maximum association rows.
     #[serde(default = "limit")]
