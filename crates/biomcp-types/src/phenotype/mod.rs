@@ -1,0 +1,48 @@
+mod query;
+pub use query::{PhenotypeGet, PhenotypeSearch, PhenotypeSection, PhenotypeSource};
+use crate::{ComponentLabel, DiseaseAssociationItem, ResponseBody};
+use biodata::{PhenotypeCard, PhenotypeHeader, PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref};
+use serde::{Deserialize, Serialize};
+/// Independent source identity card and its available sections.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PhenotypeTermCard {
+    /// Complete source-specific native card.
+    pub term: PhenotypeCard,
+    /// Sections available on this source record.
+    pub sections: Box<[PhenotypeSection]>,
+    /// Applicable publisher component terms.
+    pub components: Box<[ComponentLabel]>,
+}
+impl ResponseBody for PhenotypeTermCard {
+    const SCHEMA: &'static str = "biomcp.phenotype-card/1";
+    type Query = PhenotypeGet;
+}
+macro_rules! page {
+    ($name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
+        #[doc = $doc]
+        #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        pub struct $name {
+            /// Native ordered rows; empty remains an empty collection.
+            pub items: Box<[$row]>,
+            /// Applicable publisher component terms.
+            pub components: Box<[ComponentLabel]>,
+            /// Original source retrieval seconds, distinct from ontology release.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            pub fetched: Option<u64>,
+        }
+        impl ResponseBody for $name {
+            const SCHEMA: &'static str = $schema;
+            type Query = $query;
+        }
+    };
+}
+page!(PhenotypePage, PhenotypeHeader, PhenotypeSearch, "biomcp.phenotype-search/1", "Native HP search header page, without local ranking.");
+page!(PhenotypeSynonyms, PhenotypeSynonym, PhenotypeGet, "biomcp.phenotype-synonyms/1", "Source synonym rows preserving publisher classes.");
+page!(PhenotypeXrefs, PhenotypeXref, PhenotypeGet, "biomcp.phenotype-xrefs/1", "Source reference rows without equivalence promotion.");
+page!(PhenotypeHierarchy, PhenotypeHierarchyLink, PhenotypeGet, "biomcp.phenotype-hierarchy/1", "Direct source hierarchy links without graph traversal.");
+page!(PhenotypeDiseases, DiseaseAssociationItem, PhenotypeGet, "biomcp.phenotype-diseases/1", "Complete native disease association rows, without clinical inference.");
+page!(PhenotypeGenes, DiseaseAssociationItem, PhenotypeGet, "biomcp.phenotype-genes/1", "Complete native human gene association rows with source taxon.");
