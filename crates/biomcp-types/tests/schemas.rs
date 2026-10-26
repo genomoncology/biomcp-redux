@@ -104,6 +104,9 @@ fn article_registry() -> Vec<Contract> {
     }
 }
 
+#[path = "schemas/phenotype.rs"]
+mod phenotype;
+
 fn registry() -> Vec<Contract> {
     let mut contracts = contracts! {
         TrialDocumentGet => ("trial-document", "biodata.trial-document/1"),
@@ -157,10 +160,12 @@ fn registry() -> Vec<Contract> {
         Strand => ("strand", "biodata.strand/1"),
     };
     contracts.extend(diagnostic_contracts());
+    contracts.extend(pathway_contracts());
     contracts.extend(common_registry());
     contracts.extend(article_registry());
     contracts.extend(research_registry());
     contracts.extend(disease::registry());
+    contracts.extend(phenotype::registry());
     contracts.extend(study_registry());
     contracts.extend(adverse_event_contracts());
     contracts.extend(variant_contracts());
@@ -402,5 +407,14 @@ fn flat_value(root: &Value, node: &Value) {
         assert!(
             ["string", "integer", "boolean"].contains(&node["type"].as_str().expect("scalar type"))
         );
+    }
+}
+
+fn pathway_contracts() -> Vec<Contract> {
+    contracts! {
+        Envelope<PathwayPage> => ("pathway-page", "biomcp.pathway_page/1"),
+        Envelope<PathwayCard> => ("pathway-card", "biomcp.pathway_card/1"),
+        Envelope<PathwayGenes> => ("pathway-genes", "biomcp.pathway_genes/1"),
+        Envelope<PathwayEvents> => ("pathway-events", "biomcp.pathway_events/1"),
     }
 }
