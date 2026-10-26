@@ -367,6 +367,12 @@ fn discovery() -> Check {
 }
 
 const DISCOVERY_WORDS: &[&str] = &[
+    "search pathway --fresh --gene --pool query --source reactome|wikipathways --top-level",
+    "get pathway --fresh id --pool section; R-HSA|WP :summary|genes|events|all",
+    "pathway genes details id --pool; Reactome|WikiPathways GPML",
+    "pathway events id --pool; Reactome",
+    "sync wikipathways",
+    "Pathway membership names source/release; no therapy, response, actionability or enrichment",
     "search study --cancer-type --pool",
     "get study :profiles|sample-lists|files|all",
     "sync cbioportal-studies",
@@ -456,8 +462,8 @@ const DISCOVERY_WORDS: &[&str] = &[
 fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
-    // Keep discovery compact; detailed options live in generated command help.
-    if text.len() > 2311 {
+    // The PM approved j14994 measured 2602 bytes plus fifteen percent.
+    if text.len() > 2993 {
         return Err("command description exceeds budget".into());
     }
     for &word in DISCOVERY_WORDS {

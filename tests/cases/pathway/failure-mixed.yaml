@@ -43,7 +43,13 @@
         "/status": "failed"
       },
       "max_bytes": 266,
-      "max_tokens": 67
+      "max_tokens": 67,
+      "mcp": [
+        "search",
+        "pathway",
+        "MAPK signaling"
+      ],
+      "is_error": true
     }
   ]
 }

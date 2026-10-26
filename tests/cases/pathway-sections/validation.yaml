@@ -18,7 +18,8 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments"
-      }
+      },
+      "max_bytes": 166
     },
     {
       "run": [
@@ -37,7 +38,8 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments"
-      }
+      },
+      "max_bytes": 166
     }
   ]
 }

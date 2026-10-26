@@ -118,7 +118,11 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
     for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
             command: vec!["sync".into(), bundle.into()],
-            description: "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.".into(),
+            description: if bundle == "wikipathways" {
+                "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated."
+            } else {
+                "Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle."
+            }.into(),
             arguments: Vec::new(),
             sections: Vec::new(),
             section_rule: None,
@@ -190,13 +194,14 @@ pub(crate) fn tree() -> String {
     let mut lines = vec![
         "help CMD;schema ID".into(),
         "Pages --limit --offset; sections --section-limit --section-offset".into(),
+        "Pathway membership names source/release; no therapy, response, actionability or enrichment".into(),
         "GWAS source associations; no personal risk, causal variant/gene or clinical statistic interpretation; --p-value requires default p-value-ascending".into(),
     ];
     for command in commands {
         if command.command.first().is_none_or(|verb| {
             !matches!(
                 verb.as_str(),
-                "search" | "get" | "article" | "trial" | "variant" | "sync"
+                "search" | "get" | "article" | "trial" | "variant" | "sync" | "pathway"
             )
         }) {
             continue;
@@ -228,6 +233,7 @@ pub(crate) fn tree() -> String {
         }
         pgx_selectors(&command, &mut line);
         gwas_selectors(&command, &mut line);
+        pathway_selectors(&command, &mut line);
         diagnostic_selectors(&command, &mut line);
         study_selectors(&command, &mut line);
         if !command.sections.is_empty() {
@@ -244,6 +250,31 @@ pub(crate) fn tree() -> String {
         lines.push(line);
     }
     lines.join("\n")
+}
+
+fn pathway_selectors(command: &HelpCommand, line: &mut String) {
+    if command.command.iter().any(|word| word == "pathway") {
+        for argument in command
+            .arguments
+            .iter()
+            .filter(|arg| discovery_argument(arg))
+        {
+            line.push_str(&format!(" {}", argument.name));
+            if argument.name == "--source" {
+                line.push_str(&format!(" {}", argument.choices.join("|")));
+            }
+        }
+        match command.command.as_slice() {
+            [verb, _] if verb == "get" => line.push_str("; R-HSA|WP"),
+            [verb, relation] if verb == "pathway" && relation == "genes" => {
+                line.push_str("; Reactome|WikiPathways GPML")
+            }
+            [verb, relation] if verb == "pathway" && relation == "events" => {
+                line.push_str("; Reactome")
+            }
+            _ => {}
+        }
+    }
 }
 
 fn pgx_selectors(command: &HelpCommand, line: &mut String) {

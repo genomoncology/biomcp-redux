@@ -27,7 +27,7 @@
           ]
         }
       },
-      "max_bytes": 88743
+      "max_bytes": 89714
     },
     {
       "run": [
@@ -246,5 +246,5 @@
       }
     }
   ],
-  "verified": "j14984 measured whole-tree stdout at 77167 UTF-8 bytes after composing GWAS and study help. The ceiling follows the standing measured-size-plus-fifteen-percent rule."
+  "verified": "The accepted j14984 whole-tree measurement is 77167 CLI bytes. Pathway schema descriptions, six parsed examples and sync documentation add 845 bytes. The combined expected 78012-byte output uses the standing measured-size-plus-fifteen-percent ceiling; the routine gate checks both transports."
 }

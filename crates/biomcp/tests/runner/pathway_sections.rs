@@ -1,9 +1,6 @@
 //! Feature pathway-reactome: retained source membership and event walks through CLI and MCP.
-use super::{
-    configuration::invoke,
-    launch::{Environment, fixtures},
-    mcp,
-};
+use super::launch::{Environment, fixtures};
+use crate::runner::pathway_budgets as budgets;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io::Write};
@@ -34,10 +31,16 @@ pub(super) fn trials() -> Vec<Trial> {
 fn globals(env: &Environment, offline: bool) -> Vec<String> {
     env.globals(Some(&fixtures().join("replies/pathway/sections")), offline)
 }
-fn call(env: &Environment, args: &[String], offline: bool, exit: i32) -> Result<Value, String> {
+fn call(
+    phase: &str,
+    env: &Environment,
+    args: &[String],
+    offline: bool,
+    exit: i32,
+) -> Result<Value, String> {
     let mut full = args.to_vec();
     full.extend(globals(env, offline));
-    invoke(env, full, exit)
+    budgets::invoke(phase, env, full, exit)
 }
 fn continuation(value: &Value) -> Result<Option<Vec<String>>, String> {
     value
@@ -64,7 +67,7 @@ fn walk(genes: bool) -> Check {
     let mut integers = 0;
     let mut joins = BTreeSet::new();
     loop {
-        let value = call(&env, &args, offset > 0, 0)?;
+        let value = call("pathway_sections/walk/1", &env, &args, offset > 0, 0)?;
         check_steps(&value, genes)?;
         let rows = value
             .pointer("/result/items")
@@ -80,7 +83,13 @@ fn walk(genes: bool) -> Check {
             break;
         };
         if offset == 0 {
-            let forwarded = mcp::call_with_globals(&env, &next, false, &globals(&env, true))?;
+            let forwarded = budgets::mcp(
+                "runner/pathway_sections/walk/1",
+                &env,
+                &next,
+                false,
+                &globals(&env, true),
+            )?;
             if forwarded.pointer("/result/page/offset") != Some(&json!(50)) {
                 return Err("MCP continuation changed offset".into());
             }
@@ -251,9 +260,9 @@ fn bindings() -> Check {
     let args = ["pathway", "events", "R-HSA-5673001"]
         .map(str::to_owned)
         .to_vec();
-    let first = call(&env, &args, false, 0)?;
+    let first = call("pathway_sections/bindings/1", &env, &args, false, 0)?;
     let next = continuation(&first)?.ok_or("missing continuation")?;
-    let continued = call(&env, &next, true, 0)?;
+    let continued = call("pathway_sections/bindings/2", &env, &next, true, 0)?;
     if first.pointer("/result/page/pool/created") != continued.pointer("/result/page/pool/created")
         || first.pointer("/result/page/pool/expires")
             != continued.pointer("/result/page/pool/expires")
@@ -263,14 +272,14 @@ fn bindings() -> Check {
     for (position, replacement) in [(1, "genes"), (2, "R-HSA-177929")] {
         let mut changed = next.clone();
         *changed.get_mut(position).ok_or("selector")? = replacement.into();
-        let value = call(&env, &changed, true, 3)?;
+        let value = call("pathway_sections/bindings/3", &env, &changed, true, 3)?;
         if value.pointer("/error/code") != Some(&json!("pool.expired")) {
             return Err("foreign selector reused pool".into());
         }
     }
     let mut disabled = next.clone();
     disabled.extend(["--disable-sources".into(), "reactome".into()]);
-    let value = call(&env, &disabled, true, 4)?;
+    let value = call("pathway_sections/bindings/4", &env, &disabled, true, 4)?;
     if value.pointer("/sources/0/state") != Some(&json!("skipped")) {
         return Err("disabled relation restored pool".into());
     }
@@ -278,7 +287,7 @@ fn bindings() -> Check {
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE pool SET expires=0", [])
         .map_err(|e| e.to_string())?;
-    let expired = call(&env, &next, true, 3)?;
+    let expired = call("pathway_sections/bindings/5", &env, &next, true, 3)?;
     if expired.pointer("/error/code") != Some(&json!("pool.expired")) {
         return Err("expired relation refetched".into());
     }
@@ -289,7 +298,7 @@ fn migration() -> Check {
     let args = ["pathway", "genes", "R-HSA-5673001"]
         .map(str::to_owned)
         .to_vec();
-    call(&env, &args, false, 0)?;
+    call("pathway_sections/migration/1", &env, &args, false, 0)?;
     let path = env.root().join("case-cache/replay.sqlite");
     {
         let db = rusqlite::Connection::open(&path).map_err(|e| e.to_string())?;
@@ -305,11 +314,11 @@ fn migration() -> Check {
         db.execute("INSERT INTO unrelated_owner VALUES ('preserve')", [])
             .map_err(|e| e.to_string())?;
     }
-    let value = call(&env, &args, true, 0)?;
+    let value = call("pathway_sections/migration/2", &env, &args, true, 0)?;
     if value.pointer("/result/items/0/gene") != Some(&json!("HGNC:1097")) {
         return Err("retained HGNC index lost native join".into());
     }
-    call(&env, &args, true, 0)?;
+    call("pathway_sections/migration/3", &env, &args, true, 0)?;
     let db = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
     let (version, preserved): (u32, String) = db.query_row("SELECT version,(SELECT value FROM unrelated_owner) FROM meta WHERE owner='biomcp-fetch'", [], |r| Ok((r.get(0)?,r.get(1)?))).map_err(|e| e.to_string())?;
     if version != 4 || preserved != "preserve" {
@@ -322,7 +331,7 @@ fn disclosure_modes() -> Check {
     let args = ["pathway", "genes", "R-HSA-5673001"]
         .map(str::to_owned)
         .to_vec();
-    let compact = call(&env, &args, false, 0)?;
+    let compact = call("pathway_sections/disclosure_modes/1", &env, &args, false, 0)?;
     if compact.pointer("/result/items/0/physical_context_count") != Some(&json!(29))
         || compact.pointer("/result/items/0/participants").is_some()
     {
@@ -341,7 +350,7 @@ fn disclosure_modes() -> Check {
         })
         .ok_or("missing explicit details step")?;
     let args: Vec<String> = serde_json::from_value(details.clone()).map_err(|e| e.to_string())?;
-    let full = call(&env, &args, true, 0)?;
+    let full = call("pathway_sections/disclosure_modes/2", &env, &args, true, 0)?;
     if full.pointer("/result/page/pool") != compact.pointer("/result/page/pool") {
         return Err("disclosure mode replaced or renewed the retained relation".into());
     }
@@ -350,13 +359,19 @@ fn disclosure_modes() -> Check {
     if !next.iter().any(|s| s == "details") {
         return Err("details mode disappeared from continuation".into());
     }
-    let page = mcp::call_with_globals(&env, &next, false, &globals(&env, true))?;
+    let page = budgets::mcp(
+        "runner/pathway_sections/disclosure_modes/1",
+        &env,
+        &next,
+        false,
+        &globals(&env, true),
+    )?;
     check_context_counts(&page)?;
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE pool SET expires=0", [])
         .map_err(|e| e.to_string())?;
-    let expired = call(&env, &next, true, 3)?;
+    let expired = call("pathway_sections/disclosure_modes/3", &env, &next, true, 3)?;
     let restart = expired
         .pointer("/next/0/args")
         .and_then(Value::as_array)
@@ -398,8 +413,14 @@ fn measurements() -> Check {
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let args: Vec<String> = args.into_iter().map(str::to_owned).collect();
-        let cli = call(&env, &args, false, 0)?;
-        let mcp = mcp::call_with_globals(&env, &args, false, &globals(&env, false))?;
+        let cli = call("pathway_sections/measurements/1", &env, &args, false, 0)?;
+        let mcp = budgets::mcp(
+            "runner/pathway_sections/measurements/1",
+            &env,
+            &args,
+            false,
+            &globals(&env, false),
+        )?;
         for (surface, value) in [("CLI", cli), ("MCP", mcp)] {
             super::schema::Registry::embedded()?.validate(&value, &args, true)?;
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();

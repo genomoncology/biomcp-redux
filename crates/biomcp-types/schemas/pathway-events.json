@@ -179,7 +179,7 @@
     },
     "PathwayEventsQuery": {
       "additionalProperties": false,
-      "description": "Continue Reactome event objects and unresolved native integer references.",
+      "description": "Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
       "properties": {
         "id": {
           "description": "Checked source-owned human pathway identity.",
