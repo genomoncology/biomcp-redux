@@ -21,6 +21,21 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def verify_remote(destination, checksum):
+    verifier = '''import hashlib,json,sys,tarfile
+p=sys.argv[1]
+assert hashlib.sha256(open(p,'rb').read()).hexdigest()==sys.argv[2]
+with tarfile.open(p) as t:
+ names=t.getnames(); manifest=json.load(t.extractfile('manifest.json'))
+ assert len(names)==len(set(names)) and set(names)==set(manifest)|{'manifest.json'}
+ assert all(m.isfile() and '/' not in m.name for m in t.getmembers())
+ for name,value in manifest.items():
+  assert hashlib.sha256(t.extractfile(name).read()).hexdigest()==value
+print('Verified exact members and hashes on Yellow')
+'''
+    subprocess.run(['ssh', 'yellow', 'python3', '-', destination, checksum], input=verifier, text=True, check=True)
+
+
 def main():
     parent = Path.home() / 'job-evidence' / 'biomcp-redux-0224'
     parent.mkdir(parents=True, exist_ok=True)
@@ -79,19 +94,7 @@ def main():
     destination = '/home/ian/workspace/data/biomcp-redux/0224-wikipathways-genes'
     subprocess.run(['ssh', 'yellow', 'mkdir', '-p', destination], check=True)
     subprocess.run(['scp', str(archive), 'yellow:' + destination + '/'], check=True)
-    verifier = '''import hashlib,json,sys,tarfile
-p=sys.argv[1]
-assert hashlib.sha256(open(p,'rb').read()).hexdigest()==sys.argv[2]
-with tarfile.open(p) as t:
- names=t.getnames(); manifest=json.load(t.extractfile('manifest.json'))
- assert len(names)==len(set(names)) and set(names)==set(manifest)|{'manifest.json'}
- assert all(m.isfile() and '/' not in m.name for m in t.getmembers())
- for name,value in manifest.items():
-  assert hashlib.sha256(t.extractfile(name).read()).hexdigest()==value
-print('Verified exact members and hashes on Yellow')
-'''
-    subprocess.run(['ssh', 'yellow', 'python3', '-', destination + '/' + archive.name,
-                    digest(archive)], input=verifier, text=True, check=True)
+    verify_remote(destination + '/' + archive.name, digest(archive))
     print(json.dumps({'archive': destination + '/' + archive.name,
                       'sha256': digest(archive), 'observations': receipts}))
     if failed:

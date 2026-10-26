@@ -11,6 +11,7 @@ import time
 import xml.etree.ElementTree as ET
 
 from source_capture import verify_archive
+from capture_wikipathways_genes import verify_remote
 
 
 STORE = '/home/ian/workspace/data/biomcp-redux/'
@@ -83,9 +84,7 @@ def main():
     destination = STORE + '0224-wikipathways-genes/' + root.name + '.tar.gz'
     subprocess.run(['scp', str(packed_path), 'yellow:' + destination], check=True)
     digest = hashlib.sha256(packed_path.read_bytes()).hexdigest()
-    output = subprocess.check_output(['ssh', 'yellow', 'sha256sum', destination], text=True)
-    if output.split()[0] != digest:
-        raise ValueError('stored native output mismatch')
+    verify_remote(destination, digest)
     print(json.dumps({'archive': destination, 'sha256': digest, 'runner_exit': result.returncode}))
     raise SystemExit(result.returncode)
 
