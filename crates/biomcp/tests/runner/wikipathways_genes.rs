@@ -77,8 +77,6 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     let env = super::variant::source_environment(&stub)?;
     let replay = env.root().join("replay");
     let record = replay.to_str().ok_or("record path")?;
-    let cache = env.root().join("case-cache");
-    let cache = cache.to_str().ok_or("cache path")?;
     invoke(
         &env,
         [
@@ -119,7 +117,7 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
     Ok((env, replay, first))
 }
 fn paging() -> Check {
-    let (env, replay, first) = seed()?;
+    let (env, _replay, first) = seed()?;
     if first.pointer("/result/genes/data/page/total") != Some(&json!(12)) {
         return Err(format!("GeneProduct data-node count changed: {first}"));
     }
@@ -161,7 +159,7 @@ fn paging() -> Check {
         };
         let mut args: Vec<String> =
             serde_json::from_value(step["args"].clone()).map_err(|e| e.to_string())?;
-        args.extend(env.globals(Some(&replay), true));
+        args.push("--offline".into());
         next = invoke(&env, args, 0)?;
     }
     if seen != (0..12).map(|n| format!("n{n}")).collect::<Vec<_>>() {
