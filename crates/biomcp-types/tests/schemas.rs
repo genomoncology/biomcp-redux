@@ -448,7 +448,7 @@ fn protein_contracts() -> Vec<Contract> {
         ProteinSearch => ("protein-search", "biomcp.protein-search/1"),
         ProteinGet => ("protein-get", "biomcp.protein-get/1"),
         Envelope<ProteinPage> => ("protein-page", "biomcp.protein_page/1"),
-        Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/2"),
+        Envelope<ProteinCard> => ("protein-card", "biomcp.protein_card/3"),
         Envelope<ProteinFeatures> => ("protein-features", "biomcp.protein_features/1"),
         Envelope<ProteinDomains> => ("protein-domains", "biomcp.protein_domains/2"),
         Envelope<ProteinIsoforms> => ("protein-isoforms", "biomcp.protein_isoforms/1"),

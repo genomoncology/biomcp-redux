@@ -97,7 +97,7 @@ pub struct ProteinCard {
     pub items: Box<[ProteinCardItem]>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein_card/2";
+    const SCHEMA: &'static str = "biomcp.protein_card/3";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.
