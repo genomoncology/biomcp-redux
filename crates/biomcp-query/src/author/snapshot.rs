@@ -5,8 +5,7 @@ use crate::{
 use biomcp_adapters::semantic_scholar::author::Page;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{AuthorSearch, QueryBody, Request, SourceOutcome, StepKind};
-use serde::{Deserialize, Serialize};
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug)]
 pub(super) struct Saved {
     pub pages: Vec<Page>,
     pub source: SourceOutcome,
@@ -21,18 +20,27 @@ pub(super) fn load(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<Option<(Saved, Pool)>, RequestError> {
-    let Some(id) = q.pool().filter(|_| !cx.fresh) else {
+    if cx.fresh {
+        if q.pool().is_some() {
+            restart(q, out, false);
+        }
         return Ok(None);
-    };
+    }
     let store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let expected = key(q)?;
-    let pool = store.find(&expected, Some(id.as_str()))?;
+    let pool = store.find(&expected, q.pool().map(biodata::Text::as_str))?;
+    if pool.is_none() && q.pool().is_none() {
+        return Ok(None);
+    }
     let mismatch = pool.as_ref().is_some_and(|pool| pool.key != expected);
     if let Some(pool) = pool.filter(|_| !mismatch) {
-        let payload =
-            store.source_snapshot(id.as_str(), &expected, |source| cx.fetch.disabled(source))?;
+        let payload = store.source_snapshot(pool.info.id.as_str(), &expected, |source| {
+            cx.fetch.disabled(source)
+        })?;
         if let Some(payload) = payload {
-            let saved: Saved = serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+            let (pages, source): (Vec<Page>, SourceOutcome) =
+                serde_json::from_str(&payload).map_err(|_| CacheError::Database)?;
+            let saved = Saved { pages, source };
             if saved.pages.iter().any(|p| q.offset() == p.offset)
                 || saved
                     .pages
@@ -43,12 +51,15 @@ pub(super) fn load(
             }
         }
     }
+    restart(q, out, mismatch);
+    Ok(None)
+}
+fn restart(q: &AuthorSearch, out: &mut Outcome, mismatch: bool) {
     out.body = QueryBody::PoolError { mismatch };
     out.next.push((
         StepKind::Restart,
         super::run(Request::SearchAuthor(q.restart())),
     ));
-    Ok(None)
 }
 pub(super) fn save(
     cx: &Ctx<'_>,
@@ -57,7 +68,8 @@ pub(super) fn save(
     saved: &Saved,
     pool: Option<Pool>,
 ) -> Result<Pool, RequestError> {
-    let payload = serde_json::to_string(saved).map_err(|_| CacheError::Database)?;
+    let payload =
+        serde_json::to_string(&(&saved.pages, &saved.source)).map_err(|_| CacheError::Database)?;
     let mut store = Store::open(cx.fetch.cache_access()?, deadline)?;
     let size = saved.pages.iter().map(|p| p.data.len() as u32).sum();
     let sources = std::slice::from_ref(&saved.source);
