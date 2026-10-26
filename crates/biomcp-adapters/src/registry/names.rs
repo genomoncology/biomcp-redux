@@ -2,7 +2,7 @@
 use biomcp_types::Source;
 
 /// Source label used beside the unchanged native ID when a native title is absent.
-pub const fn display_name(source: Source) -> &'static str {
+pub fn display_name(source: Source) -> &'static str {
     match source {
         Source::Hgnc => "HGNC",
         Source::MyGene => "MyGene.info",
@@ -71,5 +71,6 @@ pub const fn display_name(source: Source) -> &'static str {
         Source::Cpic => "CPIC",
         Source::ClinPgx => "ClinPGx",
         Source::Cbioportal => "cBioPortal",
+        _ => source.into(),
     }
 }
