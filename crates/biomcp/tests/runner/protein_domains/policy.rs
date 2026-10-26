@@ -46,6 +46,8 @@ pub(super) fn run() -> Result<(), String> {
             return Err("MCP offers an analysis tool".into());
         }
     }
+    super::card_failures::measure("P24/help", "CLI", &help)?;
+    super::card_failures::measure("P24/tools", "MCP", replies.first().ok_or("tool reply")?)?;
     if serde_json::to_vec(&help).map_err(|e| e.to_string())?.len() + 1 > CLI_HELP_BYTES
         || serde_json::to_vec(result).map_err(|e| e.to_string())?.len() > MCP_TOOLS_BYTES
     {

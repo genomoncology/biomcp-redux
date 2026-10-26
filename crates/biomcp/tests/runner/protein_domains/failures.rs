@@ -47,6 +47,8 @@ pub(super) fn run() -> Result<(), String> {
                 true,
                 &env.globals(Some(&replay), false),
             )?;
+            super::card_failures::measure(&format!("relation/{command}/{kind}"), "CLI", &value)?;
+            super::card_failures::measure(&format!("relation/{command}/{kind}"), "MCP", &mcp)?;
             if value != mcp {
                 return Err("synthetic relation CLI/MCP failures differ".into());
             }

@@ -62,6 +62,7 @@ fn run(kind: &'static str) -> Result<(), String> {
     };
     for _ in 0..2 {
         let value = call(&env, &args, 4)?;
+        super::card_failures::measure(&format!("identity/{kind}"), "CLI", &value)?;
         rejected(&value, kind)?;
     }
     let value = mcp::call_with_globals(
@@ -70,6 +71,7 @@ fn run(kind: &'static str) -> Result<(), String> {
         true,
         &[],
     )?;
+    super::card_failures::measure(&format!("identity/{kind}"), "MCP", &value)?;
     rejected(&value, kind)?;
     if stub.finish()?.len() != 3 {
         return Err("wrong returned identity entered cache".into());

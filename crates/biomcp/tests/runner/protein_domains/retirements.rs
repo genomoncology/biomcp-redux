@@ -28,6 +28,8 @@ fn check(command: &str, message: &str) -> Result<(), String> {
     let args: Vec<String> = command.split_whitespace().map(str::to_owned).collect();
     let cli = invoke(&env, args.clone(), 2)?;
     let mcp = mcp::call_with_globals(&env, &args, true, &[])?;
+    super::card_failures::measure(command, "CLI", &cli)?;
+    super::card_failures::measure(command, "MCP", &mcp)?;
     if cli != mcp
         || cli.pointer("/error/code") != Some(&json!("usage.retired"))
         || cli.pointer("/error/message") != Some(&json!(message))
@@ -98,6 +100,17 @@ fn boundaries() -> Result<(), String> {
         let value = invoke(&env, words, 2)?;
         if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
             return Err("unsupported section was accepted".into());
+        }
+        super::card_failures::measure(&format!("unsupported/{}", args.join(" ")), "CLI", &value)?;
+        let mcp = mcp::call_with_globals(
+            &env,
+            &args.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>(),
+            true,
+            &["--offline".into()],
+        )?;
+        super::card_failures::measure(&format!("unsupported/{}", args.join(" ")), "MCP", &mcp)?;
+        if value != mcp {
+            return Err("unsupported section CLI/MCP differs".into());
         }
         super::card_failures::bounded(&value, CLI_USAGE_BYTES, MCP_USAGE_BYTES)?;
     }

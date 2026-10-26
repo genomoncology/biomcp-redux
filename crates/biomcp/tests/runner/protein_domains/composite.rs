@@ -20,6 +20,8 @@ pub(super) fn run() -> Result<(), String> {
         let mcp_env = Environment::new().map_err(|e| e.to_string())?;
         let globals = mcp_env.globals(Some(&directory), false);
         let mcp = mcp::call_with_globals(&mcp_env, &args.map(str::to_owned), false, &globals)?;
+        super::card_failures::measure(&format!("disabled/{id}"), "CLI", &cli)?;
+        super::card_failures::measure(&format!("disabled/{id}"), "MCP", &mcp)?;
         for value in [&cli, &mcp] {
             check(value)?;
         }
@@ -45,7 +47,25 @@ pub(super) fn run() -> Result<(), String> {
         {
             return Err("repeated section changed shared grammar behavior".into());
         }
+        super::card_failures::measure(&format!("repeated/{id}"), "CLI", &repeated)?;
+        let repeated_mcp = mcp::call_with_globals(
+            &mcp_env,
+            &[
+                "get",
+                "protein",
+                id,
+                "features",
+                "features",
+                "--section-limit",
+                "1",
+            ]
+            .map(str::to_owned),
+            false,
+            &globals,
+        )?;
+        super::card_failures::measure(&format!("repeated/{id}"), "MCP", &repeated_mcp)?;
         super::card_failures::bounded(&repeated, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
+        super::card_failures::bounded(&repeated_mcp, CLI_ALL_BYTES, MCP_ALL_BYTES)?;
         disabled(&env, &mcp_env, &directory, id)?;
         if stub.finish()?.len() != 3 {
             return Err("all repeated a source request or a disabled source reached HTTP".into());
@@ -159,6 +179,8 @@ fn disabled(
         false,
         &mcp_env.globals(Some(replay), false),
     )?;
+    super::card_failures::measure(&format!("disabled/{id}"), "CLI", &cli)?;
+    super::card_failures::measure(&format!("disabled/{id}"), "MCP", &mcp)?;
     for value in [&cli, &mcp] {
         for name in ["domains", "complexes"] {
             if value.pointer(&format!("/result/items/0/sections/{name}/state"))

@@ -52,6 +52,8 @@ fn failure(source: &str, fault: &str) -> Result<(), String> {
     words.extend(args.clone());
     let cli = invoke(&env, words, if source == "uniprot" { 4 } else { 0 })?;
     let mcp = mcp::call_with_globals(&env, &args, source == "uniprot", &globals)?;
+    measure(&format!("card/{source}/{fault}"), "CLI", &cli)?;
+    measure(&format!("card/{source}/{fault}"), "MCP", &mcp)?;
     for value in [&cli, &mcp] {
         let expected = if source == "uniprot" {
             "failed"
@@ -142,4 +144,16 @@ fn copy(
         }
     }
     Ok(())
+}
+
+pub(super) fn measure(name: &str, surface: &str, value: &Value) -> Result<(), String> {
+    use std::io::Write;
+    let bytes =
+        serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "CLI");
+    writeln!(
+        std::io::stdout(),
+        "PROTEIN_MEASURE {}",
+        json!({"case":name,"surface":surface,"bytes":bytes})
+    )
+    .map_err(|e| e.to_string())
 }
