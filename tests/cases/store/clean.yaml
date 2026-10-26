@@ -3,15 +3,45 @@
   "story": "Explicit cleanup reports bounded local removal counts and help explains preserved fresh state.",
   "steps": [
     {
-      "run": ["store", "clean"],
-      "mcp": ["store", "clean"],
-      "expect": {"/schema": "biomcp.store-clean/1", "/status": "complete", "/result": {"replies": 0, "pools": 0, "items": 0, "snapshots": 0, "files": 0}},
+      "run": [
+        "store",
+        "clean"
+      ],
+      "mcp": [
+        "store",
+        "clean"
+      ],
+      "expect": {
+        "/schema": "biomcp.store-clean/1",
+        "/status": "complete",
+        "/result/replies": 0,
+        "/result/pools": 0,
+        "/result/items": 0,
+        "/result/snapshots": 0,
+        "/result/files": 0
+      },
       "max_bytes": 250
     },
     {
-      "run": ["help", "store", "clean"],
-      "mcp": ["help", "store", "clean"],
-      "expect": {"/result/commands/0/command": ["store", "clean"], "/result/commands": {"count": 1}},
+      "run": [
+        "help",
+        "store",
+        "clean"
+      ],
+      "mcp": [
+        "help",
+        "store",
+        "clean"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "store",
+          "clean"
+        ],
+        "/result/commands": {
+          "count": 1
+        }
+      },
       "max_bytes": 600
     }
   ]
