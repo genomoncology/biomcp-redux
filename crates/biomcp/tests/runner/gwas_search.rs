@@ -8,12 +8,27 @@ use std::{
 };
 mod mechanics;
 mod native;
+mod state;
 mod threshold;
+mod usage;
 mod wire;
 pub(super) fn trials() -> Vec<Trial> {
     let native_directory = super::launch::fixtures().join("gwas-native-cases");
     let absent = !native_directory.is_dir();
     vec![
+        Trial::test("gwas-search/stale-source-is-partial", || {
+            state::stale().map_err(Into::into)
+        }),
+        Trial::test(
+            "gwas-search/expired-threshold-restarts-original-selectors",
+            || state::expired().map_err(Into::into),
+        ),
+        Trial::test("gwas-search/native-trait-id-is-never-rewritten", || {
+            state::literal().map_err(Into::into)
+        }),
+        Trial::test("gwas-search/malformed-input-guidance-before-io", || {
+            usage::run().map_err(Into::into)
+        }),
         Trial::test("gwas-search/retained-threshold-witnesses-and-costs", || {
             threshold::native(&super::launch::fixtures().join("gwas-threshold-cases"))
                 .map_err(Into::into)

@@ -433,6 +433,9 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
             error = ErrorEnvelope::trial_facility_radius();
         }
     }
+    if let Some(message) = crate::retired::gwas_usage(args) {
+        error = ErrorEnvelope::gwas_arguments(message);
+    }
     if crate::grammar::gwas::invalid_threshold(args) {
         error = ErrorEnvelope::gwas_threshold();
     }

@@ -6,10 +6,12 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
+mod failures;
 mod native;
+mod state;
 mod synthetic;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("gwas-get/exact-identities-and-no-cache-admission", || {
             synthetic::identity().map_err(Into::into)
         }),
@@ -19,9 +21,6 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("gwas-get/loci-and-native-study-page-actions", || {
             synthetic::contexts().map_err(Into::into)
         }),
-        Trial::test("gwas-get/source-failures-and-usage", || {
-            synthetic::failures().map_err(Into::into)
-        }),
         Trial::test("gwas-get/retained-native-records-and-costs", || {
             native::run().map_err(Into::into)
         })
@@ -30,7 +29,10 @@ pub(super) fn trials() -> Vec<Trial> {
                 .join("gwas-get-native/input.json")
                 .is_file(),
         ),
-    ]
+    ];
+    trials.extend(failures::trials());
+    trials.extend(state::trials());
+    trials
 }
 const BASE: &str = "https://www.ebi.ac.uk/gwas/rest/api/v2";
 fn card() -> Value {

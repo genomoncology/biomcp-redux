@@ -42,6 +42,8 @@ singleton! {
 singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { GwasThreshold => "--p-value is not yet supported; threshold filtering is deferred", GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation", SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters", TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search", SchemaUsage => "expected schema <known artifact id>", Arguments => "expected a supported command with checked arguments", Local => "local configuration, cache or recording failed",
+        GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
+        GwasGetArguments => "use: get gwas association:<positive ID> [loci] or get gwas <exact GCST accession> [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never repaired",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         AdverseFrom => "renamed; use: --received-from",
@@ -297,6 +299,12 @@ impl ErrorEnvelope {
                 message: ErrorMessage::Arguments,
             },
         }
+    }
+    /// Explain a failed checked GWAS command without changing its usage code.
+    pub fn gwas_arguments(message: ErrorMessage) -> Self {
+        let mut error = Self::arguments();
+        error.error.message = message;
+        error
     }
     /// Explain the exact positive threshold boundary before source access.
     pub fn gwas_threshold() -> Self {
