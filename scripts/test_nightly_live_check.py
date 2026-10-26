@@ -37,6 +37,35 @@ sys.exit(result.returncode)
 '''
 
 
+def classification_case(change):
+    def request(identity, role, digest, status=200):
+        return {"identity": identity, "source": "pubmed", "role": role,
+                "status": status, "cached": False, "response_digest": digest,
+                "url": "https://example.org/" + role, "shape": {}}
+    discovery = request('search', 'discovery', 'old')
+    dependent = request('old-id', 'detail', 'detail')
+    live_discovery = dict(discovery, response_digest=(
+        'new' if change == 'discovery' else 'old'))
+    live_dependent = dict(dependent, identity='new-id')
+    drift = ['old-id: request-plan-changed']
+    if change == 'order':
+        live_dependent = dependent
+    if change in ('429', '500'):
+        live_dependent = dict(dependent, status=int(change))
+        drift = ['old-id: HTTP status Some(200) -> Some(' + change + ')']
+    if change == 'schema':
+        drift.append('output schema failure')
+    before = [discovery, dependent]
+    after = [live_discovery, live_dependent]
+    if change == 'order':
+        after.reverse()
+    witness = [{"ordinal": 1,
+                "baseline": {"requests": before}, "live": {"requests": after}}]
+    if change == 'cut':
+        witness = {"cut": True}
+    return {"case": change, "result": {"drift": drift}, "witness": witness}
+
+
 class NightlyCommand(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -122,6 +151,25 @@ class NightlyCommand(unittest.TestCase):
         copied = json.loads((self.copied() / 'report.json').read_text())
         self.assertEqual(copied, report)
         self.assertEqual(self.scratch(), [])
+
+    def classified(self, row, expected, exit_code):
+        report = {"drift_cases": 1, "error_cases": 0,
+                  "checked": 1, "omitted": 0, "case_sample": [row]}
+        result = self.run_command(FAKE_REPORT=json.dumps(report))
+        self.assertEqual(result.returncode, exit_code, result.stdout + result.stderr)
+        saved = json.loads((self.copied() / 'report.json').read_text())
+        self.assertEqual(saved['case_sample'][0]['classification'], expected)
+        self.assertEqual(saved[expected + '_cases'], 1)
+        shutil.rmtree(self.store)
+
+    def test_discovery_changes_dependents_but_not_invariants(self):
+        for change, expected, code in [
+                ('discovery', 'churn', 0), ('unchanged', 'failure', 1),
+                ('order', 'healthy', 0), ('schema', 'failure', 1),
+                ('500', 'failure', 1), ('429', 'throttled', 0),
+                ('cut', 'uncertain', 1)]:
+            with self.subTest(change=change):
+                self.classified(classification_case(change), expected, code)
 
     def test_failed_copy_or_manifest_keeps_scratch(self):
         for failure in ['fail', 'manifest']:
