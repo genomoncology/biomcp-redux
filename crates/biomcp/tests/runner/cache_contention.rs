@@ -8,8 +8,10 @@ use super::{
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
+mod store_locks;
+
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("cache/checked-gene-survives-write-contention", || {
             checked_gene().map_err(Into::into)
         }),
@@ -17,7 +19,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "cache/checked-protein-command-survives-write-contention",
             || checked_protein().map_err(Into::into),
         ),
-    ]
+    ];
+    trials.extend(store_locks::trials());
+    trials
 }
 
 fn checked_gene() -> Result<(), String> {
