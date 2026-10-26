@@ -287,7 +287,7 @@ fn surfaces() -> Check {
         vec!["help".into(), "search".into(), "study".into()],
         0,
     )?;
-    if !help.to_string().contains("cancer_type") {
+    if !help.to_string().contains("--cancer-type") {
         return Err("study executable help omitted selector".into());
     }
     Ok(())
