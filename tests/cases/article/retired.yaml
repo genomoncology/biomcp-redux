@@ -42,7 +42,7 @@
     {"run": ["variant", "articles", "AKT1 E17K"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --variant <variant>"}}}, "exit": 2, "max_bytes": 400, "mcp": ["variant", "articles", "AKT1 E17K"], "is_error": true},
     {"run": ["disease", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --disease <disease>"}}}, "exit": 2, "max_bytes": 400},
     {"run": ["drug", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article --drug <drug>"}}}, "exit": 2, "max_bytes": 400},
-    {"run": ["pathway", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "moved to the pathway entity"}}}, "exit": 2, "max_bytes": 400},
+    {"run": ["pathway", "articles", "secret-input"], "expect": {"/error": {"equals": {"code": "usage.retired", "message": "use: search article <text>; a matching title does not establish pathway article linkage."}}}, "exit": 2, "max_bytes": 400},
     {"run": ["get", "article", "assets"], "mcp": ["get", "article", "assets"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["get", "article", "33123537", "--", "assets"], "mcp": ["get", "article", "33123537", "--", "assets"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
     {"run": ["search", "article", "--author", "--date-from"], "mcp": ["search", "article", "--author", "--date-from"], "expect": {"/error/code": "usage.arguments"}, "exit": 2, "is_error": true},
