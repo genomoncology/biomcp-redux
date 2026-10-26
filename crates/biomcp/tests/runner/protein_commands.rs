@@ -5,6 +5,9 @@ use serde_json::Value;
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("protein-search/continuation-count-bound", || {
+            continuation_count().map_err(|e| e.to_string().into())
+        }),
         Trial::test(
             "protein-search/continuation-keeps-publication-lifetime",
             || continuation_lifetime().map_err(Into::into),
@@ -236,4 +239,33 @@ fn continuation_lifetime() -> Check {
         return Err("native continuation did not extend the retained window".into());
     }
     Ok(())
+}
+
+fn continuation_count() -> Result<(), Box<dyn std::error::Error>> {
+    super::response_cases::case(
+        "protein/pages",
+        &["search", "protein", "EGFR", "--limit", "25"],
+        |_, record| {
+            if record
+                .get("url")
+                .and_then(Value::as_str)
+                .is_some_and(|u| u.contains("cursor="))
+                && let Some(rows) = record
+                    .pointer_mut("/exchanges/0/body/value/results")
+                    .and_then(Value::as_array_mut)
+                && let Some(template) = rows.first().cloned()
+            {
+                for id in ["P04626", "P01133", "P22681"] {
+                    let mut row = template.clone();
+                    if let Some(accession) = row.get_mut("primaryAccession") {
+                        *accession = serde_json::json!(id);
+                    }
+                    rows.push(row);
+                }
+            }
+        },
+        serde_json::json!({"/status":"partial", "/sources/0/reason":"bad_reply",
+            "/page/returned":5, "/page/total":7}),
+        0,
+    )
 }
