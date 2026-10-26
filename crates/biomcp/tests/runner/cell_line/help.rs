@@ -34,7 +34,7 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
             std::io::stderr(),
             "CELL_LINE_HELP {phase} cli={} bare={} mcp={} rpc={}",
             output.stdout.len(),
-            serde_json::to_vec(&value["result"])
+            serde_json::to_vec(value.get("result").ok_or("help result")?)
                 .map_err(|e| e.to_string())?
                 .len(),
             text.len(),
@@ -153,7 +153,7 @@ fn discovery(env: &Environment) -> Result<(), String> {
             writeln!(
                 std::io::stderr(),
                 "CELL_LINE_DISCOVERY source-enum={}",
-                serde_json::to_vec(&schema["enum"])
+                serde_json::to_vec(schema.get("enum").ok_or("source enum")?)
                     .map_err(|e| e.to_string())?
                     .len()
             )
