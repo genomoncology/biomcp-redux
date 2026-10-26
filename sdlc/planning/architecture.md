@@ -1761,6 +1761,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
 | `crates/biomcp-types/tests/cell_line_contracts.rs` | Exercise checked cell identities, native variation members and provenance, and standalone consumer contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/gwas_contracts.rs` | Exercise checked GWAS identities, exact probabilities and standalone consumer contracts through the public library API before adapters exist. |
 | `crates/biomcp-types/tests/phenotype_contracts.rs` | Exercise neutral phenotype records and checked standalone source and section contracts before adapters exist. |

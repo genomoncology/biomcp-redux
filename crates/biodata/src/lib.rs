@@ -127,3 +127,6 @@ pub use study::*;
 
 mod cell_line;
 pub use cell_line::*;
+
+mod author;
+pub use author::*;

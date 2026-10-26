@@ -1,0 +1,81 @@
+use super::{AuthorGet, AuthorPapersQuery, AuthorSearch};
+use crate::ResponseBody;
+use biodata::{
+    AuthorCard, AuthorHeader, AuthorId, AuthorPaperDetail, AuthorPaperHeader, OrcidWorkGroup,
+};
+use serde::{Deserialize, Serialize};
+/// Native author candidates in provider order; search total counts only this query.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorPage {
+    /// Source candidates; no deduplication by display name.
+    pub items: Box<[AuthorHeader]>,
+    /// Native matching-record total, if supplied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub matching_records: Option<u64>,
+}
+/// Exact source cards in input order; outer source outcomes retain failures.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorCards {
+    /// Exact returned source cards, with no cross-source links.
+    pub items: Box<[AuthorCard]>,
+}
+macro_rules! papers {
+    ($name:ident, $row:ty, $doc:literal) => {
+        #[doc = $doc]
+        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+        pub struct $name {
+            /// Requested provider record.
+            pub author: AuthorId,
+            /// Original source order; no native corpus total is claimed.
+            pub items: Box<[$row]>,
+        }
+    };
+}
+papers!(
+    AuthorPapers,
+    AuthorPaperHeader,
+    "Compact native indexed-paper window."
+);
+papers!(
+    AuthorPaperDetails,
+    AuthorPaperDetail,
+    "Detailed metadata for the same native indexed-paper window."
+);
+/// Locally paged groups from one complete public ORCID works reply.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrcidWorks {
+    /// Requested exact ORCID record.
+    pub author: biodata::OrcidId,
+    /// Whole groups in native order, with every public assertion.
+    pub groups: Box<[OrcidWorkGroup]>,
+    /// Observed groups in the complete received reply, never a publication total.
+    pub observed_groups: u64,
+}
+impl ResponseBody for AuthorPage {
+    const SCHEMA: &'static str = "biomcp.author_page/1";
+    type Query = AuthorSearch;
+}
+impl ResponseBody for AuthorCards {
+    const SCHEMA: &'static str = "biomcp.author_card/1";
+    type Query = AuthorGet;
+}
+impl ResponseBody for AuthorPapers {
+    const SCHEMA: &'static str = "biomcp.author_papers/1";
+    type Query = AuthorPapersQuery;
+}
+impl ResponseBody for AuthorPaperDetails {
+    const SCHEMA: &'static str = "biomcp.author_paper_details/1";
+    type Query = AuthorPapersQuery;
+}
+impl ResponseBody for OrcidWorks {
+    const SCHEMA: &'static str = "biomcp.orcid_works/1";
+    type Query = AuthorPapersQuery;
+}

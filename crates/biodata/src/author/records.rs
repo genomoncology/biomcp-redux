@@ -1,0 +1,147 @@
+use super::{AuthorId, SemanticScholarAuthorId};
+use crate::{Curie, Doi, PartialDate, Pmcid, Pmid, SemanticScholarId, Text};
+use serde::{Deserialize, Serialize};
+/// Counts describe only this provider record, never a global publication corpus.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorCounts {
+    /// Native indexed paper count.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paper_count: Option<u64>,
+    /// Native citations to this record’s indexed papers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub citation_count: Option<u64>,
+    /// Native h-index for this record’s indexed papers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub h_index: Option<u32>,
+}
+/// One source candidate; absent affiliations differ from an empty source collection.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorHeader {
+    /// Exact qualified provider record.
+    pub id: AuthorId,
+    /// Source display name, never a join key.
+    pub name: Text,
+    /// Native affiliation labels; no employment claim.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub affiliations: Option<Box<[Text]>>,
+    /// Source record counts when supplied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub counts: Option<AuthorCounts>,
+}
+/// Exact source author metadata without identity reconciliation.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorCard {
+    /// Exact source candidate.
+    pub header: AuthorHeader,
+    /// Provider record link.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+}
+/// One indexed paper in source order; identifiers come only from that source.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorPaperHeader {
+    /// Native source paper ID.
+    pub paper_id: SemanticScholarId,
+    /// Exact native PMID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pmid: Option<Pmid>,
+    /// Exact native PMCID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pmcid: Option<Pmcid>,
+    /// Exact native DOI.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub doi: Option<Doi>,
+    /// Every other native paper identifier.
+    pub external_ids: Box<[AuthorPaperExternalId]>,
+    /// Whole source title.
+    pub title: Text,
+    /// Source publication year.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub year: Option<u32>,
+    /// Source venue when supplied and nonempty.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub venue: Option<Text>,
+}
+/// An open native identifier namespace and value; no identity inference.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorPaperExternalId {
+    /// Native namespace and identifier.
+    pub id: Curie,
+}
+/// One source byline row; repeated display names remain separate.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorByline {
+    /// Source author ID when supplied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<SemanticScholarAuthorId>,
+    /// Native display name.
+    pub name: Text,
+}
+/// Native access metadata; access does not establish reuse rights.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorPaperAccess {
+    /// Native PDF URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Text>,
+    /// Open native access status.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<Text>,
+    /// Native license label.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub license: Option<Text>,
+    /// Native source disclaimer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disclaimer: Option<Text>,
+}
+/// Detailed indexed paper metadata for the same native paper page.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AuthorPaperDetail {
+    /// Same compact paper identity.
+    pub header: AuthorPaperHeader,
+    /// Source abstract when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub abstract_text: Option<Text>,
+    /// Native publication date.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub publication_date: Option<PartialDate>,
+    /// Native references on this paper.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_count: Option<u64>,
+    /// Native citations to this paper.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub citation_count: Option<u64>,
+    /// Native influential citations to this paper.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub influential_citation_count: Option<u64>,
+    /// Native open-access flag.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_open_access: Option<bool>,
+    /// Native access metadata.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub open_access_pdf: Option<AuthorPaperAccess>,
+    /// Native study labels.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fields_of_study: Option<Box<[Text]>>,
+    /// Native publication type labels.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub publication_types: Option<Box<[Text]>>,
+    /// Native ordered byline; completeness is unknown.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub authors: Option<Box<[AuthorByline]>>,
+}
