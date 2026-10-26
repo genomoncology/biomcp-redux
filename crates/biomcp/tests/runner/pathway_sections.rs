@@ -22,6 +22,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("pathway-sections/warm-hgnc-uniprot-index-migration", || {
             migration().map_err(Into::into)
         }),
+        Trial::test("pathway-sections/compact-and-complete-context-modes", || {
+            disclosure_modes().map_err(Into::into)
+        }),
         Trial::test("pathway-sections/native-disclosure-measurements", || {
             measurements().map_err(Into::into)
         }),
@@ -144,16 +147,35 @@ fn observe(
     Ok((objects, integers))
 }
 fn check_steps(value: &Value, genes: bool) -> Check {
-    let rows = value.pointer("/result/items").and_then(Value::as_array).ok_or("rows")?;
+    let rows = value
+        .pointer("/result/items")
+        .and_then(Value::as_array)
+        .ok_or("rows")?;
     let steps = value.get("next").and_then(Value::as_array).ok_or("steps")?;
-    if genes { check_gene_steps(value, rows, steps) } else { check_event_steps(value, rows, steps) }
+    if genes {
+        check_gene_steps(value, rows, steps)
+    } else {
+        check_event_steps(value, rows, steps)
+    }
 }
 fn unresolved(value: &Value, row: &Value) -> Check {
-    let namespace = row.pointer("/reference/namespace").and_then(Value::as_str).ok_or("namespace")?;
-    let id = row.pointer("/reference/value").and_then(Value::as_str).ok_or("reference")?;
+    let namespace = row
+        .pointer("/reference/namespace")
+        .and_then(Value::as_str)
+        .ok_or("namespace")?;
+    let id = row
+        .pointer("/reference/value")
+        .and_then(Value::as_str)
+        .ok_or("reference")?;
     let reference = format!("{namespace}:{id}");
-    let problems = value.get("problems").and_then(Value::as_array).ok_or("problems")?;
-    if !problems.iter().any(|p| p.get("record").and_then(Value::as_str) == Some(reference.as_str())) {
+    let problems = value
+        .get("problems")
+        .and_then(Value::as_array)
+        .ok_or("problems")?;
+    if !problems
+        .iter()
+        .any(|p| p.get("record").and_then(Value::as_str) == Some(reference.as_str()))
+    {
         return Err("unresolved reference omitted its problem".into());
     }
     Ok(())
@@ -162,34 +184,63 @@ fn check_gene_steps(value: &Value, rows: &[Value], steps: &[Value]) -> Check {
     let mut expected = Vec::new();
     for row in rows {
         if let Some(id) = row.get("gene").and_then(Value::as_str) {
-            if !expected.contains(&id) { expected.push(id); }
-        } else { unresolved(value, row)?; }
+            if !expected.contains(&id) {
+                expected.push(id);
+            }
+        } else {
+            unresolved(value, row)?;
+        }
         if row.get("schema_class") == Some(&json!("ReferenceTherapeutic"))
-            && (row.get("source_url").is_none() || row.get("gene").is_some()) {
+            && (row.get("source_url").is_none() || row.get("gene").is_some())
+        {
             return Err("therapeutic reference lost URL or became a gene".into());
         }
     }
-    let actual: Vec<_> = steps.iter().filter(|s| s.get("kind") == Some(&json!("pivot")))
-        .map(|s| s.pointer("/args/2").and_then(Value::as_str).ok_or("gene pivot"))
-        .collect::<Result<_,_>>()?;
-    if actual != expected { return Err("gene pivots changed source order or multiplicity".into()); }
-    if continuation(value)?.is_some() && steps.get(expected.len()).and_then(|s| s.get("kind")) != Some(&json!("page")) {
+    let actual: Vec<_> = steps
+        .iter()
+        .filter(|s| s.get("kind") == Some(&json!("pivot")))
+        .map(|s| {
+            s.pointer("/args/2")
+                .and_then(Value::as_str)
+                .ok_or("gene pivot")
+        })
+        .collect::<Result<_, _>>()?;
+    if actual != expected {
+        return Err("gene pivots changed source order or multiplicity".into());
+    }
+    if continuation(value)?.is_some()
+        && steps.get(expected.len()).and_then(|s| s.get("kind")) != Some(&json!("page"))
+    {
         return Err("gene page step precedes or interrupts pivots".into());
     }
     Ok(())
 }
 fn check_event_steps(value: &Value, rows: &[Value], steps: &[Value]) -> Check {
-    if continuation(value)?.is_some() && steps.first().and_then(|s| s.get("kind")) != Some(&json!("page")) {
+    if continuation(value)?.is_some()
+        && steps.first().and_then(|s| s.get("kind")) != Some(&json!("page"))
+    {
         return Err("event continuation does not precede selections".into());
     }
-    for step in steps.iter().filter(|s| s.get("kind") == Some(&json!("disambiguate"))) {
+    for step in steps
+        .iter()
+        .filter(|s| s.get("kind") == Some(&json!("disambiguate")))
+    {
         let id = step.pointer("/args/2").ok_or("event get identity")?;
-        if !rows.iter().any(|r| r.get("id") == Some(id) && r.get("schema_class").and_then(Value::as_str)
-            .is_some_and(|class| matches!(class, "Pathway" | "TopLevelPathway"))) {
+        if !rows.iter().any(|r| {
+            r.get("id") == Some(id)
+                && r.get("schema_class")
+                    .and_then(Value::as_str)
+                    .is_some_and(|class| matches!(class, "Pathway" | "TopLevelPathway"))
+        }) {
             return Err("non-pathway event generated a pathway get".into());
         }
     }
-    if steps.iter().filter(|s| s.get("kind") != Some(&json!("page"))).count() > 3 {
+    if steps
+        .iter()
+        .filter(|s| s.get("kind") != Some(&json!("page")))
+        .count()
+        > 3
+    {
         return Err("events exposed too many selections".into());
     }
     Ok(())
@@ -265,13 +316,57 @@ fn migration() -> Check {
     }
     Ok(())
 }
+fn disclosure_modes() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let args = ["pathway", "genes", "R-HSA-5673001"].map(str::to_owned).to_vec();
+    let compact = call(&env, &args, false, 0)?;
+    if compact.pointer("/result/items/0/physical_context_count") != Some(&json!(29))
+        || compact.pointer("/result/items/0/participants").is_some() {
+        return Err("default membership disclosed full contexts or omitted their count".into());
+    }
+    let steps = compact.get("next").and_then(Value::as_array).ok_or("steps")?;
+    let details = steps.iter().filter_map(|step| step.get("args"))
+        .find(|args| args.as_array().is_some_and(|args| args.contains(&json!("details"))))
+        .ok_or("missing explicit details step")?;
+    let args: Vec<String> = serde_json::from_value(details.clone()).map_err(|e| e.to_string())?;
+    let full = call(&env, &args, true, 0)?;
+    if full.pointer("/result/page/pool") != compact.pointer("/result/page/pool") {
+        return Err("disclosure mode replaced or renewed the retained relation".into());
+    }
+    check_context_counts(&full)?;
+    let next = continuation(&full)?.ok_or("missing details continuation")?;
+    if !next.iter().any(|s| s == "details") { return Err("details mode disappeared from continuation".into()); }
+    let page = mcp::call_with_globals(&env, &next, false, &globals(&env, true))?;
+    check_context_counts(&page)?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e| e.to_string())?;
+    db.execute("UPDATE pool SET expires=0", []).map_err(|e| e.to_string())?;
+    let expired = call(&env, &next, true, 3)?;
+    let restart = expired.pointer("/next/0/args").and_then(Value::as_array).ok_or("details restart")?;
+    if !restart.contains(&json!("details")) { return Err("restart lost details mode".into()); }
+    Ok(())
+}
+fn check_context_counts(value: &Value) -> Check {
+    let rows = value.pointer("/result/items").and_then(Value::as_array).ok_or("details rows")?;
+    for row in rows {
+        let contexts = row.get("participants").and_then(Value::as_array).ok_or("full contexts")?;
+        if row.get("physical_context_count").and_then(Value::as_u64) != Some(contexts.len() as u64) {
+            return Err("details clipped or changed physical contexts".into());
+        }
+    }
+    Ok(())
+}
 fn measurements() -> Check {
     for (args, max_bytes, max_tokens) in [
-        (vec!["get", "pathway", "R-HSA-5673001", "genes"], 12469, 3118),
+        (
+            vec!["get", "pathway", "R-HSA-5673001", "genes"],
+            12469,
+            3118,
+        ),
         (vec!["get", "pathway", "R-HSA-5673001", "events"], 2541, 636),
         (vec!["get", "pathway", "R-HSA-5673001", "all"], 19228, 4807),
         (vec!["pathway", "genes", "R-HSA-5673001"], 11962, 2992),
         (vec!["pathway", "events", "R-HSA-5673001"], 2034, 509),
+        (vec!["pathway", "genes", "R-HSA-5673001", "details"], 12469, 3118),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let args: Vec<String> = args.into_iter().map(str::to_owned).collect();
@@ -282,7 +377,10 @@ fn measurements() -> Check {
             let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
             let comparable = super::source_terms::size(&value, "")?;
             if comparable > max_bytes || comparable.div_ceil(4) > max_tokens {
-                return Err(format!("{} exceeds its measured disclosure ceiling", args.join(" ")));
+                return Err(format!(
+                    "{} exceeds its measured disclosure ceiling",
+                    args.join(" ")
+                ));
             }
             writeln!(
                 std::io::stdout(),

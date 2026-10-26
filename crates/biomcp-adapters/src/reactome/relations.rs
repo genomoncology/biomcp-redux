@@ -61,15 +61,12 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                 m.reference.namespace.as_str() == namespace
                     && m.reference.value.as_str() == identifier
             }) {
-                if !existing
-                    .participants
-                    .iter()
-                    .any(|p| p.db_id == participant.db_id)
-                {
-                    let mut participants = existing.participants.to_vec();
+                let mut participants = existing.participants.take().map_or_else(Vec::new, Box::into_vec);
+                if !participants.iter().any(|p| p.db_id == participant.db_id) {
                     participants.push(participant.clone());
-                    existing.participants = participants.into();
                 }
+                existing.physical_context_count = participants.len() as u64;
+                existing.participants = Some(participants.into());
             } else {
                 value.items.push(PathwayMember {
                     reference: PathwaySourceRef {
@@ -80,7 +77,8 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
                     source_url: reference.url.as_deref().map(text).transpose()?,
                     gene: None,
                     schema_class: Some(text(&reference.schema_class)?),
-                    participants: vec![participant.clone()].into(),
+                    physical_context_count: 1,
+                    participants: Some(vec![participant.clone()].into()),
                 });
             }
         }

@@ -6,7 +6,7 @@ use biomcp_types::{
     PathwayGet, Request, StepKind,
 };
 type Steps = Vec<(StepKind, Action)>;
-pub(super) fn genes(body: &PathwayGenes, limit: u32, next: &mut Steps) {
+pub(super) fn genes(body: &PathwayGenes, limit: u32, details: bool, next: &mut Steps) {
     let mut seen = Vec::new();
     for row in &body.items {
         if let Some(id) = row.gene
@@ -22,14 +22,19 @@ pub(super) fn genes(body: &PathwayGenes, limit: u32, next: &mut Steps) {
         && let Some(pool) = &body.page.pool
         && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit)
     {
-        next.push((
-            StepKind::Page,
-            run(Request::PathwayGenes(
-                query.at_offset(offset).with_pool(pool.id.clone()),
-            )),
-        ));
+        let query = if details { query.with_details() } else { query };
+        next.push((StepKind::Page, run(Request::PathwayGenes(
+            query.at_offset(offset).with_pool(pool.id.clone())))));
+
+    }
+    if !details && !body.items.is_empty()
+        && let Some(pool) = &body.page.pool
+        && let Ok(query) = PathwayGenesQuery::new(body.header.id.clone(), limit) {
+        next.push((StepKind::Section, run(Request::PathwayGenes(query.with_details()
+            .at_offset(body.page.offset).with_pool(pool.id.clone())))));
     }
 }
+
 pub(super) fn events(body: &PathwayEvents, limit: u32, next: &mut Steps) {
     if let Some(offset) = body.page.next_offset
         && let Some(pool) = &body.page.pool

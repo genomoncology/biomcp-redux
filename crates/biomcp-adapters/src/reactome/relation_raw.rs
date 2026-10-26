@@ -29,11 +29,13 @@ impl Reply for Participants {
                     && biodata::Text::new(&p.schema_class).is_ok()
                     && p.ref_entities.iter().all(|r| {
                         r.st_id.split_once(':').is_some_and(|(namespace, id)| {
-                            biodata::Text::new(namespace).is_ok() && id == r.identifier
-                            && biodata::Text::new(id).is_ok()
+                            biodata::Text::new(namespace).is_ok()
+                                && id == r.identifier
+                                && biodata::Text::new(id).is_ok()
                         }) && biodata::Text::new(&r.schema_class).is_ok()
-                        && [&r.display_name, &r.url].iter().all(|v| v.as_deref()
-                            .is_none_or(|v| biodata::Text::new(v).is_ok()))
+                            && [&r.display_name, &r.url]
+                                .iter()
+                                .all(|v| v.as_deref().is_none_or(|v| biodata::Text::new(v).is_ok()))
                     })
             })
             .then_some(())

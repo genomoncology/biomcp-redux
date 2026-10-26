@@ -68,8 +68,11 @@ pub struct PathwayMember {
     /// Native reference schema class.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub schema_class: Option<Text>,
-    /// Physical source entities that carry this reference; preserve modification context.
-    pub participants: Box<[PathwayParticipant]>,
+    /// Number of source physical entity contexts carrying this exact reference.
+    pub physical_context_count: u64,
+    /// Complete physical contexts, disclosed only by the explicit details view.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub participants: Option<Box<[PathwayParticipant]>>,
 }
 /// An event object or unresolved integer reference; never the parent's inferred ID.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

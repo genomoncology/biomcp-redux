@@ -18,6 +18,7 @@ pub(super) fn attach(
         let selected = Selection {
             id: q.id(),
             genes: section == PathwaySection::Genes,
+            details: false,
             limit: q.section_limit(),
             offset: q.section_offset(),
             pool: if q.section() == Some(PathwaySection::All) {
