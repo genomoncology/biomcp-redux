@@ -68,8 +68,8 @@
         },
         "/result/commands/0/section_rule": "Omit for the default card; all returns bounded first pages without an assay count."
       },
-      "max_bytes": 1168,
-      "max_tokens": 292,
+      "max_bytes": 1976,
+      "max_tokens": 494,
       "full_output_bytes": true
     },
     {

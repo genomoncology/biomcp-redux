@@ -257,9 +257,9 @@ These are complete compact product envelopes. CLI includes its newline; MCP meas
 
 | Owning phase | Surface | Observed bytes | Ceiling bytes | Estimated token ceiling |
 | --- | --- | ---: | ---: | ---: |
-| `help/get` | cli | 1015 | 1168 | 292 |
-| `help/get` | markdown | 940 | 1081 | 271 |
-| `help/get` | mcp | 1014 | 1167 | 292 |
+| `help/get` | cli | 1718 | 1976 | 494 |
+| `help/get` | markdown | 1553 | 1786 | 447 |
+| `help/get` | mcp | 1717 | 1975 | 494 |
 | `help/search` | cli | 880 | 1012 | 253 |
 | `help/search` | markdown | 855 | 984 | 246 |
 | `help/search` | mcp | 879 | 1011 | 253 |
@@ -534,12 +534,12 @@ The `all/` keys in `tests/cell-line-command-budgets.json` own measured output si
 
 The generated help examples come from the canonical case run steps. The existing parsed-example check executes both examples for search, get and assay-count through CLI and MCP. The assay examples use the same retained exact source record with an explicit fresh read as the second spelling. They add no provider request or source interpretation. Named get sections expose their independent paging; a qualified source ID still requires exact candidate verification. Each command states that assay counts are not activity or sensitivity counts, no treatment response is inferred and no bioinformatics tool runs.
 
-Job `j15358` measured complete help output after these descriptions and examples were added. The PM approved the search and assay-count increases on 2026-10-26. Get remains within its previous stricter caps, which stay unchanged. The command budget fixture retains the original get baseline because its existing derived ceilings remain authoritative; the current emitted values below do not grant headroom.
+Job `j15387` measured complete help output after the source enum supplied its existing variant descriptions to generated help. The generated section list contains names, identity, xrefs, variants, chembl and all. The PM approved each changed help cap from its own measured surface plus fifteen percent on 2026-10-26. The checked-in query and response schemas retain their existing wire shape and identities; only description metadata changed.
 
 | Help command | CLI including newline | Bare Help result | MCP text | Markdown | Full RPC including newline |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `help search cell-line` | 880 | 792 | 879 | 855 | 2080 |
-| `help get cell-line` | 1135 | 1050 | 1134 | 1060 | 2618 |
+| `help get cell-line` | 1718 | 1633 | 1717 | 1553 | 3836 |
 | `help cell-line assay-count` | 632 | 539 | 631 | 682 | 1546 |
 
-The MCP description measured 3,359 UTF-8 bytes and keeps the existing description ceiling. Whole CLI help measured 85,535 emitted bytes and keeps its existing global ceiling. The complete compact tools/list RPC measured 7,945 bytes without its newline. The PM approved its existing full-listing cap at that measurement plus fifteen percent on 2026-10-26. Discovery includes the exact-source input, independent paging, named sections and the explicit assay-count route. Source names and their schema retain the shared source registry.
+The MCP description measured 3,401 UTF-8 bytes and keeps the existing description ceiling. Whole CLI help measured 86,118 emitted bytes and keeps its existing global ceiling. The complete compact tools/list RPC measured 7,987 bytes without its newline and stays within its approved cap. That cap retains the PM-approved `j15358` measurement plus fifteen percent. Discovery includes the exact-source input, independent paging, named sections and the explicit assay-count route. Source names and their schema retain the shared source registry. The emitted source schema measured 3,670 bytes, and the compact source enum measured 673 bytes; their existing caps remain unchanged.
