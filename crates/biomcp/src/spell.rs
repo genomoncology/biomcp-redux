@@ -223,13 +223,9 @@ pub(crate) fn command_entity(request: &Request) -> &'static str {
         Request::ProteinIsoforms(_) => "isoforms",
         Request::ProteinStructures(_) => "structures",
         Request::ProteinSequence(_) => "sequence",
+        Request::PathwayGenes(_) => "genes",
+        Request::PathwayEvents(_) => "events",
         _ => base_entity(request),
-    }
-    if matches!(request, Request::PathwayGenes(_)) {
-        return "genes";
-    }
-    if matches!(request, Request::PathwayEvents(_)) {
-        return "events";
     }
 }
 fn base_entity(request: &Request) -> &'static str {
