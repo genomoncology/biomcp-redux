@@ -1,6 +1,23 @@
 //! Cache-resilience regressions through public source legs.
 use super::*;
 
+#[derive(serde::Deserialize)]
+struct Absence {
+    absent: bool,
+}
+impl Reply for Absence {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.absent { Ok(()) } else { Err(BadReply) }
+    }
+    fn check_status(&self, status: u16) -> Result<(), BadReply> {
+        if status == 404 {
+            self.check()
+        } else {
+            Err(BadReply)
+        }
+    }
+}
+
 #[test]
 fn busy_read_is_a_miss_before_the_live_deadline() {
     let directory = tempfile::tempdir().unwrap();
@@ -54,15 +71,20 @@ fn negative_admission_and_json_absence_removal_keep_the_source_answer() {
         }
         let connection = Connection::open(&path).unwrap();
         connection.execute_batch("BEGIN IMMEDIATE").unwrap();
-        let (result, report) = exchange(&server, 404, r#"{"answer":true}"#, || {
+        let (result, report) = exchange(&server, 404, r#"{"absent":true}"#, || {
             let leg = fetch
                 .leg(spec, fetch.deadline(Duration::from_millis(500)))
                 .fresh(true);
-            let result = leg.json::<Answer>(&endpoint, &[]);
+            let result = if json_absence {
+                leg.json::<Absence>(&endpoint, &[])
+                    .map(|reply| reply.absent)
+            } else {
+                leg.json::<Answer>(&endpoint, &[]).map(|reply| reply.answer)
+            };
             (result, leg.finish())
         });
         if json_absence {
-            assert!(result.unwrap().answer);
+            assert!(result.unwrap());
         } else {
             assert_eq!(source(result.unwrap_err()).reason, Reason::NotFound);
         }
