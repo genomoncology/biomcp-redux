@@ -16,3 +16,4 @@ Every openFDA adapter, including drug labels, Drugs@FDA, FAERS, MAUDE, PMA, 510(
 - Proof: per adapter family, a keyless replay case and a keyed replay case with a synthetic key assert the request carries the key only when set and that recordings and output never contain it. Existing FDA cases pass unchanged. No source calls.
 - Changes: `secret.rs`, the FDA adapter declarations, config key names, help for `key set`, the affected cases and ROADMAP.md.
 - Defers: nothing.
+- PM ruling 2026-10-26 (m8126): pacing stays at openFDA's documented 240 requests per minute with and without a key. Daily totals of 1,000 keyless and 120,000 keyed are documented and left to openFDA, which BioMCP meets through its existing 429 handling; no daily budget mechanism. The key goes only to `api.fda.gov`, and the companion diagnostics pages on `www.fda.gov` stay credential-free.
