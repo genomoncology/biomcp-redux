@@ -73,6 +73,15 @@
       "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
+    "CacheProblem": {
+      "description": "A local cache failure that leaves the provider outcome intact.",
+      "enum": [
+        "busy",
+        "database",
+        "version"
+      ],
+      "type": "string"
+    },
     "Capped": {
       "additionalProperties": false,
       "description": "A bounded list with the total before its cap was applied.",
@@ -880,6 +889,25 @@
     "SourceNotice": {
       "description": "A provider query interpretation notice.",
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "A checked provider answer survived a local cache failure.",
+          "properties": {
+            "kind": {
+              "const": "cache_problem",
+              "type": "string"
+            },
+            "reason": {
+              "$ref": "#/$defs/CacheProblem",
+              "description": "Bounded local failure without paths or database diagnostics."
+            }
+          },
+          "required": [
+            "kind",
+            "reason"
+          ],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "description": "The source still has graph pages after the bounded fetch window.",
