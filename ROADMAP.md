@@ -375,9 +375,9 @@ Assay totals count assays. They imply no activity, sensitivity or treatment resp
 
 ### Author
 
-- [ ] Slice complete
+- [x] Slice complete (accepted retrieval scope with recorded partial and unanswered questions)
 - [x] Investigation
-- [ ] Questions accepted by clinical review
+- [x] Questions accepted by clinical review
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -391,7 +391,7 @@ Sources:
 - [x] Semantic Scholar (optional key)
 - [x] ORCID (optional key)
 
-Provider-qualified records remain separate. Native counts describe one provider record, and ORCID groups retain every public assertion. Topic-wide ranking, coauthor aggregation and cross-provider merging remain deferred because source coverage and person identity are unproved. ORCID name search is unsupported, and the new-sources ruling replaces the proposed public data file. A01, A05 and A09 remain partial in current command coverage; A13 and A23 remain unanswered. The contained 0.9 size and timing comparison belongs to milestone 5. No clinical review acceptance is asserted by this checklist.
+Provider-qualified records remain separate. Native counts describe one provider record, and ORCID groups retain every public assertion. Topic-wide ranking, coauthor aggregation and cross-provider merging remain deferred because source coverage and person identity are unproved. ORCID name search is unsupported, and the new-sources ruling replaces the proposed public data file. A01, A05 and A09 remain partial in current command coverage; A13 and A23 remain unanswered. The contained 0.9 size and timing comparison belongs to milestone 5. Clinical review accepts the implemented retrieval scope and these explicit limits. Acceptance supplies no missing byline, author identity or ranking answer.
 
 ### Phenotype
 
