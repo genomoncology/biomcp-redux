@@ -6,6 +6,7 @@ mod legacy;
 mod protocol;
 mod research;
 mod rpc;
+mod worker;
 
 use framing::Frame;
 use serde_json::Value;
@@ -149,7 +150,7 @@ impl Server {
         let worker = thread::Builder::new()
             .name("mcp-tool".into())
             .spawn(move || {
-                let outcome = research::execute(&call, &globals, &fetch, false);
+                let outcome = worker::execute(|| research::execute(&call, &globals, &fetch, false));
                 let _ = sender.send(Event::Completed(worker_key, outcome));
             })?;
         self.active.insert(
