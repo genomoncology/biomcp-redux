@@ -49,7 +49,7 @@ pub(super) fn run(root: &Path) -> Result<(), String> {
         let env = setup(&stub)?;
         let captured=env.root().join("recorded");
         let mut record = args.clone();
-        record.extend(["--record", replay.to_str().ok_or("native replay")?]);
+        record.extend(["--record", captured.to_str().ok_or("native recording")?]);
         let recorded = call(&env, &record, 0)?;
         copy_recordings(&captured,&replay)?;
         let value = super::super::run_case(&path, &registry)?;
