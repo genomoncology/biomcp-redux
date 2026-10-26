@@ -33,24 +33,10 @@ fn missing() -> Result<(), String> {
     if output.status.code() != Some(5) || !output.stderr.is_empty() {
         return Err("missing replay command failed".into());
     }
-    writeln!(
-        std::io::stderr(),
-        "replay CLI miss: {} raw bytes",
-        output.stdout.len()
-    )
-    .map_err(|e| e.to_string())?;
+    // Measured raw CLI output: 394 bytes, with fifteen percent headroom.
+    if output.stdout.len() > 454 { return Err("replay CLI output exceeded its budget".into()); }
     let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if !reply
-        .get("sources")
-        .and_then(Value::as_array)
-        .is_some_and(|sources| {
-            sources
-                .iter()
-                .any(|s| s.get("reason") == Some(&json!("replay_miss")))
-        })
-    {
-        return Err(format!("recording miss lost its source reason: {reply}"));
-    }
+    if !replay_miss(&reply) { return Err("recording miss lost its source reason".into()); }
     Ok(())
 }
 fn repeated() -> Result<(), String> {
@@ -94,11 +80,12 @@ fn repeat_calls(
     rx: &mpsc::Receiver<Result<String, String>>,
 ) -> Result<(), String> {
     let mut first = None;
-    for (id, args) in [
-        (1, vec!["get", "gene", "BRAF"]),
-        (2, vec!["get", "gene", "BRAF"]),
-        (3, vec!["get", "gene", "BRAF", "protein"]),
-        (4, vec!["get", "gene", "BRAF", "--fresh"]),
+    // Measured MCP text: 2365, 2365, 2672 and 1428 bytes, plus fifteen percent.
+    for (id, args, limit) in [
+        (1, vec!["get", "gene", "BRAF"], 2720),
+        (2, vec!["get", "gene", "BRAF"], 2720),
+        (3, vec!["get", "gene", "BRAF", "protein"], 3073),
+        (4, vec!["get", "gene", "BRAF", "--fresh"], 1643),
     ] {
         let frame = mcp::request(
             json!(id),
@@ -124,24 +111,8 @@ fn repeat_calls(
         if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *content {
             return Err("text differs from structured content".into());
         }
-        writeln!(
-            std::io::stderr(),
-            "replay MCP {id}: {} text bytes",
-            text.len()
-        )
-        .map_err(|e| e.to_string())?;
-        if id >= 3
-            && !content
-                .get("sources")
-                .and_then(Value::as_array)
-                .is_some_and(|sources| {
-                    sources
-                        .iter()
-                        .any(|s| s.get("reason") == Some(&json!("replay_miss")))
-                })
-        {
-            return Err("new or exhausted request lost replay_miss".into());
-        }
+        if text.len() > limit { return Err("replay MCP text exceeded its budget".into()); }
+        if id >= 3 && !replay_miss(content) { return Err("new or exhausted request lost replay_miss".into()); }
         if id == 1 {
             first = Some(content.clone());
         }
@@ -151,3 +122,8 @@ fn repeat_calls(
     }
     Ok(())
 }
+
+fn replay_miss(reply: &Value) -> bool {
+    reply.get("sources").and_then(Value::as_array).is_some_and(|sources| {
+        sources.iter().any(|source| source.get("reason") == Some(&json!("replay_miss")))
+    })
