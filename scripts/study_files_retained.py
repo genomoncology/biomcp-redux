@@ -35,6 +35,12 @@ def recording(replay, url, raw, status=200):
 
 
 def main(native, catalog, admission, out):
+    for path, expected in [
+        (native, '5cf07928dcea5ebd755e05864fcb0821e9be3f061b22360381569a7442106677'),
+        (catalog, '3c6c25ccc194e1822506c6caaf260403aa00a32770c0d210b1b65d135166588a'),
+        (admission, '7ce61d45a4fc89024452f5467524a0b759be6cae39ff767fc32d58e0634ecd71'),
+    ]:
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected
     source = archive(native)
     catalog = archive(catalog)
     assert out.is_absolute() and not out.exists()
