@@ -1,6 +1,8 @@
 //! Implemented source declarations are the sole registry for terms and source switches.
 
 mod component;
+/// Canonical publisher record links and explicit uncitable ID kinds.
+pub mod records;
 pub use component::Component;
 
 use biomcp_fetch::SourceSpec;
