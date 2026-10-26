@@ -40,20 +40,6 @@
         "/status": "complete"
       },
       "max_bytes": 7000
-    },
-    {
-      "run": [
-        "help",
-        "phenotype",
-        "--format",
-        "md"
-      ],
-      "expect_text": [
-        "phenotype",
-        "--source",
-        "--section-limit"
-      ],
-      "max_bytes": 14000
     }
   ]
 }

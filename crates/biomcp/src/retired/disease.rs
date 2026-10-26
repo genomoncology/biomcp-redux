@@ -74,10 +74,11 @@ pub(super) fn message(args: &[OsString]) -> Option<ErrorMessage> {
     match positional.as_slice() {
         ["list", "disease", ..] => Some(ErrorMessage::DiseaseHelp),
         ["search", "phenotype", text, ..]
-            if text
-                .split([',', ' '])
-                .filter(|s| !s.is_empty())
-                .all(|s| s.parse::<biodata::HpId>().is_ok()) =>
+            if !text.trim().is_empty()
+                && text
+                    .split([',', ' '])
+                    .filter(|s| !s.is_empty())
+                    .all(|s| s.parse::<biodata::HpId>().is_ok()) =>
         {
             Some(ErrorMessage::DiseaseRanking)
         }
