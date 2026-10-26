@@ -63,33 +63,14 @@ pub(super) fn check() -> Result<(), String> {
 
 fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
-    for command in commands.iter().filter(|c| {
-        c["command"].as_array().is_some_and(|words| {
-            words.len() == 2
-                && words.iter().any(|v| {
-                    v == "protein"
-                        || v == "adverse-event"
-                        || v == "pgx"
-                        || v == "article"
-                        || v == "gene"
-                        || v == "trial"
-                        || v == "variant"
-                        || v == "disease"
-                        || v == "drug"
-                        || v == "ema"
-                        || v == "ddinter"
-                        || v == "diagnostic"
-                        || v == "gtr"
-                        || v == "who-ivd"
-                        || v == "who-pq"
-                        || v == "fda-cdx"
-                })
-        })
-    }) {
-        let examples = command["examples"]
-            .as_array()
-            .filter(|v| v.len() == 2)
-            .ok_or("query help requires two examples")?;
+    for examples in commands
+        .iter()
+        .filter_map(|command| command.get("examples").and_then(Value::as_array))
+        .filter(|examples| !examples.is_empty())
+    {
+        if examples.len() != 2 {
+            return Err("query help requires two examples".into());
+        }
         for example in examples {
             let args: Vec<String> =
                 serde_json::from_value(example.clone()).map_err(|e| e.to_string())?;

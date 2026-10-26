@@ -17,15 +17,38 @@
       "expect": {
         "/status": "complete",
         "/result/pathway/id": {
-          "source": "reactome",
-          "id": "R-HSA-109581"
+          "equals": {
+            "source": "reactome",
+            "id": "R-HSA-109581"
+          }
         },
         "/result/pathway/name": "Apoptosis",
         "/result/pathway/species": "Homo sapiens",
         "/result/pathway/version": "R-HSA-109581.6",
         "/result/release": "97"
       },
-      "max_bytes": 5000
+      "max_bytes": 526,
+      "max_tokens": 132
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-109581",
+        "summary"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-109581",
+        "summary"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/pathway/references/0/pubmed": "15218528"
+      },
+      "max_bytes": 4648,
+      "max_tokens": 1162
     }
   ]
 }

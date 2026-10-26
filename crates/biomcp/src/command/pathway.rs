@@ -3,6 +3,7 @@ use biomcp_types::{QueryBody, Request, Status};
 use std::io;
 pub(super) fn encode(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match (request, body) {
+        (_, QueryBody::PoolError { mismatch }) => super::pool_error(mismatch, meta.next),
         (Request::SearchPathway(q), QueryBody::PathwayPage(body)) => {
             let body = (meta.status != Status::Failed).then_some(body);
             meta.encode(q, body)

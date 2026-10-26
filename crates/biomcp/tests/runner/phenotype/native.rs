@@ -19,7 +19,7 @@ fn text<'a>(row: &'a Value, key: &str) -> Result<&'a str, String> {
         .and_then(Value::as_str)
         .ok_or_else(|| format!("missing {key}"))
 }
-fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
+fn archived_body(root: &Path, row: &Value) -> Result<(Value, String), String> {
     let bytes = fs::read(root.join(text(row, "body")?)).map_err(|e| e.to_string())?;
     let hash = Sha256::digest(&bytes)
         .iter()
@@ -34,6 +34,11 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
         serde_json::from_slice(&bytes).map_err(|e| e.to_string())?
     };
     let body = String::from_utf8(bytes).map_err(|e| e.to_string())?;
+    Ok((native, body))
+}
+
+fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), String> {
+    let (native, body) = archived_body(root, row)?;
     let target = text(row, "target")?.to_string();
     let host = match text(row, "source")? {
         "hpo" => "ontology.jax.org",
@@ -80,7 +85,13 @@ fn prove(root: &Path, output: &Path, index: usize, row: &Value) -> Result<(), St
     replay.extend(["--replay", directory.to_str().ok_or("record path")?]);
     let local = invoke(&env, &replay, exit)?;
     verify(row, &native, &local)?;
-    mcp(&directory, &words, &local, exit)?;
+    mcp(
+        &directory,
+        &words,
+        &local,
+        exit,
+        Some(native_ceiling(text(row, "body")?)?),
+    )?;
     fs::write(
         output.join(format!("{index:02}.json")),
         serde_json::to_vec_pretty(&local).map_err(|e| e.to_string())?,
@@ -212,10 +223,11 @@ pub(super) fn mcp(
     words: &[&str],
     local: &Value,
     exit: i32,
+    budget: Option<usize>,
 ) -> Result<(), String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     let bytes = super::super::source_terms::size(local, "")?;
-    let ceiling = (bytes * 115).div_ceil(100);
+    let ceiling = budget.unwrap_or_else(|| (bytes * 115).div_ceil(100));
     fs::write(file.path(),serde_json::to_vec(&json!({"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,"steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":local}},"max_bytes":ceiling,"max_tokens":ceiling.div_ceil(4)}]})).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
     super::super::run_case(file.path(), &super::super::schema::Registry::embedded()?)?;
     Ok(())
@@ -301,4 +313,52 @@ fn sections(native: &Value, result: &Value, hpo: bool) -> Result<(), String> {
         return Err("card advertised a section handler before it exists".into());
     }
     Ok(())
+}
+
+// Fixed j14607/j14614 comparable CLI/MCP measurements plus fifteen percent.
+fn native_ceiling(body: &str) -> Result<usize, String> {
+    Ok(match body {
+        "00-hpo-term.raw" => 1168,
+        "01-monarch-term.raw" => 1861,
+        "02-P01-monarch-search.raw" => 1690,
+        "03-P02-monarch-search.raw" => 2286,
+        "04-P03-monarch-search.raw" => 1086,
+        "05-P04-monarch-search.raw" => 1077,
+        "06-P05-monarch-search.raw" => 2289,
+        "07-P06-monarch-search.raw" => 1686,
+        "08-P07-monarch-search.raw" => 2251,
+        "09-P08-monarch-search.raw" => 2383,
+        "10-P09-monarch-search.raw" => 742,
+        "11-P10-monarch-search.raw" => 2276,
+        "12-P11-monarch-search.raw" => 2368,
+        "13-P12-monarch-search.raw" => 1357,
+        "14-P13-monarch-search.raw" => 1073,
+        "15-P14-monarch-search.raw" => 2317,
+        "16-P15-monarch-search.raw" => 1386,
+        "17-P16-monarch-search.raw" => 2249,
+        "18-card-HP_0000957.raw" => 1242,
+        "19-card-HP_0001067.raw" => 841,
+        "20-card-HP_0009732.raw" => 778,
+        "21-card-HP_0000997.raw" => 843,
+        "22-card-HP_0000256.raw" => 1797,
+        "23-card-HP_0200008.raw" => 671,
+        "24-card-HP_0004390.raw" => 1041,
+        "25-card-HP_0012032.raw" => 728,
+        "26-card-HP_0001263.raw" => 1484,
+        "27-card-HP_0005562.raw" => 661,
+        "28-card-HP_0000107.raw" => 641,
+        "29-card-HP_0002666.raw" => 978,
+        "30-card-HP_0001737.raw" => 822,
+        "31-card-HP_0030436.raw" => 1057,
+        "32-card-HP_0005948.raw" => 1031,
+        "33-card-HP_0032445.raw" => 1472,
+        "34-card-HP_0002108.raw" => 697,
+        "35-P24-monarch-empty.raw" => 732,
+        "36-P24-hpo-absent.raw" => 203,
+        "37-P02-middle.raw" => 2248,
+        "38-P16-middle.raw" => 2207,
+        "39-P02-terminal.raw" => 1040,
+        "40-obsolete.raw" => 1049,
+        _ => return Err("unmeasured native phenotype case".into()),
+    })
 }
