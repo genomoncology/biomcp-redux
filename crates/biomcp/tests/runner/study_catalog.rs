@@ -74,12 +74,28 @@ pub(super) fn call(
             "study header page exceeds retained-catalog measurement plus fifteen percent".into(),
         );
     }
-    measured(&value)?;
+    budget(&value)?;
+    let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
+    let mcp = super::mcp::call_with_globals(env, &words, exit != 0, &env.globals(Some(replay), false))?;
+    budget(&mcp)?;
     Ok(value)
 }
-pub(super) fn measured(value: &Value) -> Check {
+pub(super) fn budget(value: &Value) -> Check {
+    // j14940 synthetic CLI maxima; MCP payloads use the same envelope without a newline.
+    let measured = match value["schema"].as_str() {
+        Some("biomcp.study_page/1") => 1877_usize,
+        Some("biomcp.sync/4") => 447,
+        Some("biomcp.study_card/2") => 6339,
+        Some("biomcp.study_files/1") => 2425,
+        Some("biomcp.error/1") => 198,
+        Some("biomcp.study_sample_lists/1") => 1563,
+        Some("biomcp.study_profiles/1") => 1991,
+        _ => return Err("study response has no measured envelope budget".into()),
+    };
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + 1;
-    eprintln!("STUDY_OUTPUT_BYTES {} {bytes}", value["schema"]);
+    if bytes > (measured * 115).div_ceil(100) {
+        return Err(format!("study envelope exceeds measured budget: {bytes}"));
+    }
     Ok(())
 }
 fn missing() -> Check {

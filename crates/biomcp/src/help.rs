@@ -197,6 +197,9 @@ pub(crate) fn tree() -> String {
         }) {
             continue;
         }
+        if command.command == ["sync", "[hgnc|clingen]"] {
+            continue;
+        }
         let mut line = command.command.join(" ");
         // Detailed options belong to help COMMAND; retain search facets
         // required for discovering checked gene and disease searches.
@@ -263,7 +266,7 @@ fn study_selectors(command: &HelpCommand, line: &mut String) {
             .iter()
             .filter(|arg| arg.position.is_none())
         {
-            line.push_str(&format!(" [{}]", argument.name));
+            line.push_str(&format!(" {}", argument.name));
         }
     }
 }
