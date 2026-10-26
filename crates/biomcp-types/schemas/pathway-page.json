@@ -218,7 +218,7 @@
     },
     "PathwaySearch": {
       "additionalProperties": false,
-      "description": "Search explicit source legs through literal text or Reactome identity discovery.",
+      "description": "Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
       "properties": {
         "fresh": {
           "default": false,

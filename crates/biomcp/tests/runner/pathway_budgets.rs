@@ -48,7 +48,7 @@ fn phase_key(phase: &str, args: &[String]) -> String {
     let mut args = args.iter();
     while let Some(word) = args.next() {
         match word.as_str() {
-            "--pool" | "--replay" | "--case-cache" => {
+            "--pool" | "--replay" | "--record" | "--case-cache" => {
                 args.next();
             }
             "--offline" => {}
