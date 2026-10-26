@@ -160,4 +160,4 @@ protein-docs-accounting: Discover every protein command, native section and sele
 
 cell-line-types: A public API caller validates exact cell identities and standalone requests while preserving native variation members, provenance and independently scoped collections before I/O. Contracts: `biomcp-types/cell_line_contracts` (features: `schema`).
 
-- `cell-line-identity`: Search literal Cellosaurus headers and retrieve exact accession or verified source-qualified cell identities.
+cell-line-identity: A caller searches literal Cellosaurus headers and retrieves exact accession or verified source-qualified cell identities. Cases: `tests/cases/cell-line/*.yaml`.
