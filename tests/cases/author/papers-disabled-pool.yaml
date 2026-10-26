@@ -58,8 +58,8 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 429,
+      "max_tokens": 108
     },
     {
       "run": [
@@ -96,8 +96,8 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 478,
+      "max_tokens": 120
     },
     {
       "run": [
@@ -126,8 +126,8 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 429,
+      "max_tokens": 108
     },
     {
       "run": [
@@ -164,8 +164,8 @@
         }
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 478,
+      "max_tokens": 120
     }
   ]
 }

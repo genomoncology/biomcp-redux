@@ -28,8 +28,8 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 1191,
-      "max_tokens": 298
+      "max_bytes": 786,
+      "max_tokens": 197
     },
     {
       "run": [
@@ -55,8 +55,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 394,
+      "max_tokens": 99
     },
     {
       "run": [
@@ -90,8 +90,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 442,
+      "max_tokens": 111
     },
     {
       "run": [
@@ -117,8 +117,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 394,
+      "max_tokens": 99
     },
     {
       "run": [
@@ -152,8 +152,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 442,
+      "max_tokens": 111
     }
   ]
 }

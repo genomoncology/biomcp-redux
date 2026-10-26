@@ -138,8 +138,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 386,
+      "max_tokens": 97
     },
     {
       "run": [
@@ -163,8 +163,8 @@
         "/sources/0/reason": "disabled"
       },
       "full_output_bytes": true,
-      "max_bytes": 700,
-      "max_tokens": 175
+      "max_bytes": 386,
+      "max_tokens": 97
     }
   ]
 }
