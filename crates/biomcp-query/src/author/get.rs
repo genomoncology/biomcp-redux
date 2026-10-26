@@ -34,7 +34,11 @@ pub fn get(cx: &Ctx<'_>, q: &AuthorGet) -> Outcome {
                 Status::Failed
             }
         };
-        let outcome = status::source(source, leg.finish(), reply.as_ref().err().copied().filter(|e| !matches!(e, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::NotFound)));
+        let outcome = status::source(
+            source,
+            leg.finish(),
+            super::source_error(reply.as_ref().err().copied()),
+        );
         if outcome.state == SourceState::Stale && state == Status::Complete {
             state = Status::Partial;
         }

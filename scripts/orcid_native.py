@@ -1,5 +1,6 @@
 """Derive exact public-field assertions from accepted ORCID captures outside Git."""
 import json
+import hashlib
 import re
 from pathlib import Path
 
@@ -56,10 +57,14 @@ def prepare(records, cases, replay):
             'steps': [group_step(identifier, len(works), 42, works[42])]}
     save(case, cases, 'orcid-native-identifiers.yaml')
     absent = '0000-0000-0000-0001'
+    absence_fault(replay, absent)
     case = {'feature': 'author-orcid', 'story': 'Native ORCID absence differs from failure',
             'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay),
             'steps': [step(['get', 'author', 'orcid:' + absent], {
-                '/status': 'absent', '/result/items/0/status': 'absent', '/sources/0/state': 'ok'}, 1)]}
+                '/status': 'absent', '/result/items/0/status': 'absent', '/sources/0/state': 'ok'}, 1),
+                      step(['author', 'papers', 'orcid:' + absent], {
+                          '/status': 'absent', '/sources/0/state': 'ok'}, 1)],
+            'live_check': 'Native person absence; derived synthetic works HTTP404 control'}
     save(case, cases, 'orcid-absent.yaml')
 
 
@@ -90,7 +95,7 @@ def controls(cases):
         case = json.loads((root / source).read_text())
         case['steps'] = [case['steps'][index] for index in indices]
         case.pop('replay', None)
-        # Measure proposed help metadata before the PM rules its canonical caps.
+        # Measure changed help metadata without certifying an existing ceiling.
         # This staging-only measurement never certifies an existing output ceiling.
         for step in case['steps']:
             step['max_bytes'] = None
@@ -131,3 +136,16 @@ def group_step(identifier, total, index, group):
     for i, args in enumerate(pivots[:5 - reserved]):
         expect[f'/next/{i}/args'] = args
     return step(['author', 'papers', 'orcid:' + identifier, '--limit', '1', '--offset', str(index)], expect)
+
+
+def absence_fault(replay, identifier):
+    # Reuse unchanged native HTTP404 body bytes only as a synthetic status fault.
+    # The works URL was not captured and this record makes no native API claim.
+    person = f'https://pub.orcid.org/v3.0/{identifier}/person'
+    key = hashlib.sha256(b'GET\0' + person.encode()).hexdigest()
+    record = json.loads((replay / 'orcid' / (key + '.json')).read_text())
+    if record['exchanges'][0]['status'] != 404:
+        raise ValueError('native absence status differs')
+    record['url'] = f'https://pub.orcid.org/v3.0/{identifier}/works'
+    key = hashlib.sha256(b'GET\0' + record['url'].encode()).hexdigest()
+    (replay / 'orcid' / (key + '.json')).write_text(json.dumps(record) + '\n')

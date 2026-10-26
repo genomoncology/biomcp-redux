@@ -77,3 +77,7 @@ fn key_step(out: &mut Outcome) {
             .push((StepKind::Key, Action::KeyHelp(Source::SemanticScholar)));
     }
 }
+
+fn source_error(error: Option<biomcp_fetch::RequestError>) -> Option<biomcp_fetch::RequestError> {
+    error.filter(|error| !matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::NotFound))
+}
