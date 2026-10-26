@@ -15,7 +15,7 @@ pub enum AuthorSearchSource {
     #[serde(rename = "semantic-scholar", alias = "semanticscholar")]
     SemanticScholar,
 }
-biodata::wire_enum! {
+biodata::wire_enum! { described
     /// Indexed-paper disclosure level.
     AuthorPaperSection {
         /// Native detailed metadata for the same paper window.

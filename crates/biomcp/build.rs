@@ -36,6 +36,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 const EXAMPLE_CASES: &[(&str, usize)] = &[
+    ("author/search.yaml", 0),
+    ("author/source-alias.yaml", 0),
+    ("author/ordered-cards.yaml", 0),
+    ("author/repeated-input.yaml", 0),
+    ("author/papers.yaml", 0),
+    ("author/papers-details.yaml", 0),
     ("cell-line/assay-examples.yaml", 0),
     ("cell-line/assay-examples.yaml", 1),
     ("cell-line/examples.yaml", 0),

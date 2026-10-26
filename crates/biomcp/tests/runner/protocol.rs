@@ -472,14 +472,21 @@ const DISCOVERY_WORDS: &[&str] = &[
 fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
-    // The PM approved j15040 measured 3098 bytes plus fifteen percent.
-    if text.len() > 3563 {
+    // The PM approved j15878 measured 3840 bytes plus fifteen percent.
+    if text.len() > 4416 {
         return Err("command description exceeds budget".into());
     }
     for word in [
         "search cell-line query --query/-q --limit/-l --offset",
         "get cell-line CVCL_ID|SOURCE:ID --section-limit --section-offset :names|identity|xrefs|variants|chembl|all",
         "cell-line assay-count",
+        "Author IDs name provider records;no ranking/merge.",
+        "Both sources noncommercial;--disable-sources noncommercial.",
+        "biomcp key set semantic-scholar (S2_API_KEY)",
+        "biomcp key set orcid (ORCID_ACCESS_TOKEN)",
+        "author papers",
+        "semantic-scholar:ID|orcid:ID",
+        "details|--full",
         "An assay count is not an activity or sensitivity count.",
         "No treatment response is inferred; no bioinformatics tool runs.",
         "protein features --position --type",
