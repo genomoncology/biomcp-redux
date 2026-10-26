@@ -82,7 +82,7 @@ fn assert_routes(fetch: &Fetch, switch: &str, absent: bool) -> Check {
 pub(super) fn run() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let stub = crate::runner::network_stub::Stub::for_sources(
-        &["www.ebi.ac.uk", "rest.uniprot.org"],
+        &["www.ebi.ac.uk", "wwwdev.ebi.ac.uk", "rest.uniprot.org"],
         |_| "application/json",
         |_| Ok(r#"{"present":true}"#.into()),
     )?;
