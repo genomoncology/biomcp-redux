@@ -83,12 +83,15 @@ fn states() -> Result<(), String> {
             return Err("synthetic state made no request".into());
         }
     }
-    if observed[0] == observed[1] || observed[0] == observed[2] || observed[1] == observed[2] {
+    let [empty, absent, failure] = observed.as_slice() else {
+        return Err("P24 state collection incomplete".into());
+    };
+    if empty == absent || empty == failure || absent == failure {
         return Err(format!("P24 states collapsed: {observed:?}"));
     }
-    if observed[0].0 != Some(json!("absent"))
-        || observed[1].0 != Some(json!("absent"))
-        || observed[2].0 != Some(json!("failed"))
+    if empty.0 != Some(json!("absent"))
+        || absent.0 != Some(json!("absent"))
+        || failure.0 != Some(json!("failed"))
     {
         return Err(format!("P24 statuses changed: {observed:?}"));
     }

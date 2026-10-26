@@ -151,19 +151,22 @@ fn identity(fault: &str) -> Result<(), String> {
         _ => "search",
     };
     let mut term = super::node();
-    term["id"] = json!(if fault == "hpo-id" || fault == "monarch-id" {
-        "HP:0000002"
-    } else if fault == "MP" {
-        "MP:0000001"
-    } else {
-        "UPHENO:0000001"
-    });
+    *term.get_mut("id").ok_or("synthetic node id")? =
+        json!(if fault == "hpo-id" || fault == "monarch-id" {
+            "HP:0000002"
+        } else if fault == "MP" {
+            "MP:0000001"
+        } else {
+            "UPHENO:0000001"
+        });
     let body = if surface == "search" {
         json!({"limit":5,"offset":0,"total":1,"items":[term]})
     } else if surface == "genes" {
         let mut row = super::associations::row();
-        row["object"] = json!("HP:0000001");
-        row["subject_taxon"] = json!("NCBITaxon:10090");
+        *row.get_mut("object")
+            .ok_or("synthetic association object")? = json!("HP:0000001");
+        *row.get_mut("subject_taxon")
+            .ok_or("synthetic association taxon")? = json!("NCBITaxon:10090");
         json!({"limit":1,"offset":0,"total":1,"items":[row]})
     } else {
         term
