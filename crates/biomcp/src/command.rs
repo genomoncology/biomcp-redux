@@ -6,6 +6,7 @@ mod drug;
 mod drug_label;
 mod maintenance;
 mod pgx;
+mod pathway;
 mod steps;
 mod variant;
 
@@ -220,6 +221,7 @@ fn response(
 }
 fn response_body(meta: ResponseMeta, request: Request, body: QueryBody) -> io::Result<Outcome> {
     match request {
+        Request::SearchPathway(_) | Request::GetPathway(_) => pathway::encode(meta, request, body),
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_) => {
             pgx::encode(meta, request, body)
         }

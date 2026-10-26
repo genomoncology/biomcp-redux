@@ -66,6 +66,8 @@ fn request_args(request: &Request) -> Result<Vec<String>, serde_json::Error> {
 
 fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     match request {
+        Request::SearchPathway(q) => serde_json::to_value(q),
+        Request::GetPathway(q) => serde_json::to_value(q),
         Request::SearchPgx(query) => serde_json::to_value(query),
         Request::GetPgx(query) => {
             let mut value = serde_json::to_value(query)?;
@@ -154,7 +156,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::ArticleText(_)
         | Request::ArticleCitations(_)
         | Request::ArticleReferences(_) => "article",
-        Request::GetPgx(_)
+        Request::GetPathway(_)
+        | Request::GetPgx(_)
         | Request::GetPgxAnnotation(_)
         | Request::GetDiagnostic(_)
         | Request::GetAdverseEvent(_)
@@ -165,7 +168,8 @@ fn command_verb(request: &Request) -> &'static str {
         | Request::GetTrial(_)
         | Request::GetGene(_)
         | Request::GetArticle(_) => "get",
-        Request::SearchPgx(_)
+        Request::SearchPathway(_)
+        | Request::SearchPgx(_)
         | Request::SearchDiagnostic(_)
         | Request::SearchAdverseEvent(_)
         | Request::SearchDisease(_)
@@ -177,7 +181,9 @@ fn command_verb(request: &Request) -> &'static str {
     }
 }
 pub(crate) fn command_entity(request: &Request) -> &'static str {
-    if matches!(
+    if matches!(request, Request::SearchPathway(_) | Request::GetPathway(_)) {
+        "pathway"
+    } else if matches!(
         request,
         Request::SearchPgx(_) | Request::GetPgx(_) | Request::GetPgxAnnotation(_)
     ) {
