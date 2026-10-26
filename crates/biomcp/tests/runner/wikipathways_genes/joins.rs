@@ -90,7 +90,7 @@ fn peer() -> Result<Stub, String> {
         &["www.wikipathways.org", "storage.googleapis.com"],
         |request| {
             if request.contains(".gpml") {
-                "application/xml"
+                "application/octet-stream"
             } else if request.contains(".txt") {
                 "text/tab-separated-values"
             } else {

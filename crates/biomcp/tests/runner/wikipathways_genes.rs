@@ -74,7 +74,7 @@ fn seed() -> Result<(Environment, std::path::PathBuf, Value), String> {
         &["www.wikipathways.org"],
         |request| {
             if request.contains(".gpml") {
-                "application/xml"
+                "application/octet-stream"
             } else {
                 "application/json"
             }
