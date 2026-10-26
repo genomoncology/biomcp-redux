@@ -1,6 +1,8 @@
 //! Schema contract for the production research projection paths.
 #[path = "../../src/mcp/research/records/paths.rs"]
 mod paths;
+use biomcp_adapters::registry::records::declaration;
+use biomcp_types::Source;
 use serde_json::{Value, json};
 
 pub(super) fn check() -> Result<(), String> {
@@ -18,6 +20,10 @@ pub(super) fn check() -> Result<(), String> {
             continue;
         };
         if !name.ends_with("Page") && !name.ends_with("Card") && !name.ends_with("Cards") {
+            continue;
+        }
+        // Pair-level guideline links do not identify a fetchable CPIC pair record.
+        if name == "PgxPage" {
             continue;
         }
         let projected = rows(&root, result, name);
@@ -41,7 +47,9 @@ pub(super) fn check() -> Result<(), String> {
                 synthetic_url,
                 matches!(name, "VariantPage" | "VariantCard"),
             ) {
-                gaps.push(format!("{id} {name}: {why}"));
+                if !declared_fallback(&root, row, id, name) {
+                    gaps.push(format!("{id} {name}: {why}"));
+                }
             }
         }
     }
@@ -133,7 +141,12 @@ fn string_path(root: &Value, row: &Value, paths: &[&str]) -> bool {
         })
     })
 }
-fn projectable(root: &Value, row: &Value, synthetic_url: bool) -> Result<(), &'static str> {
+fn projectable(
+    root: &Value,
+    row: &Value,
+    synthetic_url: bool,
+    variant: bool,
+) -> Result<(), &'static str> {
     if !string_path(
         root,
         row,
@@ -149,4 +162,74 @@ fn projectable(root: &Value, row: &Value, synthetic_url: bool) -> Result<(), &'s
         return Err("missing canonical URL path");
     }
     Ok(())
+}
+
+fn enum_strings<'a>(root: &'a Value, node: &'a Value) -> Vec<&'a str> {
+    variants(root, node)
+        .into_iter()
+        .flat_map(|v| {
+            v.get("enum")
+                .and_then(Value::as_array)
+                .map_or_else(Vec::new, |a| a.iter().filter_map(Value::as_str).collect())
+        })
+        .collect()
+}
+fn sources(root: &Value, row: &Value, name: &str) -> Vec<Source> {
+    let fixed = match name {
+        "NciTrialPage" | "NciTrialCards" => Some(Source::Nci),
+        "StudyPage" | "StudyCard" => Some(Source::Cbioportal),
+        "GwasPage" | "GwasAssociationCard" => Some(Source::Gwas),
+        "DrugWhoPage" | "DrugWhoCard" => Some(Source::WhoPq),
+        _ => match row
+            .pointer("/properties/kind/const")
+            .and_then(Value::as_str)
+        {
+            Some("who_ivd_product") => Some(Source::WhoIvd),
+            Some("clearance") => Some(Source::Fda510k),
+            _ => None,
+        },
+    };
+    if let Some(source) = fixed {
+        return vec![source];
+    }
+    at(root, root, &["query", "source"])
+        .into_iter()
+        .flat_map(|v| enum_strings(root, v))
+        .filter_map(|s| s.parse().ok())
+        .collect()
+}
+fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
+    let entity = id
+        .strip_prefix("biomcp.")
+        .and_then(|v| v.split(['_', '-']).next())
+        .unwrap_or_default();
+    let entity = if entity == "adverse" {
+        "adverse-event"
+    } else if entity == "nci" {
+        "trial"
+    } else {
+        entity
+    };
+    let Some(kind) = paths::kind(entity) else {
+        return false;
+    };
+    let sources = sources(root, row, name);
+    !sources.is_empty()
+        && sources.into_iter().all(|source| {
+            declaration(source, kind).is_some_and(|policy| {
+                // Explicit no-page declarations retain the complete row in counted metadata.
+                if policy.template.is_none() {
+                    return true;
+                }
+                let identity = paths::IDS.iter().any(|path| {
+                    !at(
+                        root,
+                        row,
+                        &path.trim_start_matches('/').split('/').collect::<Vec<_>>(),
+                    )
+                    .is_empty()
+                });
+                identity && !policy.display_name.is_empty()
+            })
+        })
 }

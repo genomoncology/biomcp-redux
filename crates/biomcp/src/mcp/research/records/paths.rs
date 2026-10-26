@@ -40,3 +40,18 @@ pub(super) const IDS: &[&str] = &[
     "/term/returned_id",
     "/association/id",
 ];
+
+use biomcp_adapters::registry::records::RecordKind;
+pub(super) fn kind(entity: &str) -> Option<RecordKind> {
+    Some(match entity {
+        "pathway" => RecordKind::Pathway,
+        "study" => RecordKind::Study,
+        "gwas" => RecordKind::Association,
+        "adverse-event" => RecordKind::AdverseEvent,
+        "trial" => RecordKind::Trial,
+        "diagnostic" => RecordKind::Diagnostic,
+        "drug" => RecordKind::Drug,
+        "pgx" => RecordKind::Gene,
+        _ => return None,
+    })
+}
