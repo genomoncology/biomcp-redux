@@ -2,6 +2,8 @@
 use super::super::{launch::Environment, live, network_stub::Stub};
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs};
+#[path = "live_input_context.rs"]
+mod input_context;
 
 pub(super) fn retained() -> Result<(), String> {
     let sample = |name: &str, changed: bool, body: Value| {
@@ -69,7 +71,10 @@ pub(super) fn retained() -> Result<(), String> {
     {
         return Err("multiple cases bypassed the total witness bound".into());
     }
-    retained_context()
+    retained_context()?;
+    discovery_context()
+        .and_then(|()| input_context::prove())
+        .map_err(|error| error.to_string())
 }
 
 fn retained_context() -> Result<(), String> {
@@ -204,6 +209,45 @@ pub(super) fn credentials() -> Result<(), String> {
                 );
             }
         }
+    }
+    Ok(())
+}
+
+fn discovery_context() -> Result<(), Box<dyn std::error::Error>> {
+    let env = Environment::new()?;
+    let replay = super::super::launch::fixtures().join("replies/article/search/live");
+    let requests = super::observe(
+        &env,
+        &replay,
+        "discovery",
+        &["search", "article", "AKT1 E17K"],
+    )?;
+    let discovery = requests
+        .iter()
+        .find_map(|request| request.provenance.discovery.as_ref())
+        .ok_or("checked discovery identities absent")?;
+    if discovery.namespace != "pmid" || discovery.ids.len() != 192 {
+        return Err("whole native discovery selection was sampled or relabeled".into());
+    }
+    let inputs = requests
+        .iter()
+        .find_map(|request| request.provenance.inputs.as_ref())
+        .ok_or("explicit dependent POST inputs absent")?;
+    if inputs.namespace != "pmid"
+        || inputs.ids.is_empty()
+        || !inputs.ids.iter().all(|id| discovery.ids.contains(id))
+        || requests
+            .iter()
+            .filter(|request| request.bytes > 0)
+            .any(|request| {
+                request
+                    .provenance
+                    .response_digest
+                    .as_ref()
+                    .is_none_or(|hash| hash.len() != 64)
+            })
+    {
+        return Err("dependent provenance or response digest lost".into());
     }
     Ok(())
 }

@@ -1,6 +1,7 @@
 # 0226 — Retire old pathway commands and options and prove pathway failure cases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1df4fcc61176dba635eed786e33aa394eb1f9a45
 
 Milestone: 4
 

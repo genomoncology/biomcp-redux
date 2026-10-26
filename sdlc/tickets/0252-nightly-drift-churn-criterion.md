@@ -1,6 +1,7 @@
 # 0252 — Report live result churn as information in the nightly live check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ca96f0e0da99ed7676c32317aa6efd46bfc4037c
 
 Milestone: 1
 
