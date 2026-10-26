@@ -198,16 +198,13 @@ fn failures() -> Result<(), String> {
             "application/json",
             move |_| {
                 let mut term = node();
+                let fields = term.as_object_mut().ok_or("node")?;
                 if kind == 0 {
-                    term.as_object_mut()
-                        .ok_or("node")?
-                        .insert("id".into(), json!("MONDO:0000001"));
+                    fields.insert("id".into(), json!("MONDO:0000001"));
                 }
                 if kind >= 5 {
                     if kind == 6 {
-                        term.as_object_mut()
-                            .ok_or("node")?
-                            .insert("id".into(), json!(null));
+                        fields.insert("id".into(), json!(null));
                     }
                     return Ok(term.to_string());
                 }

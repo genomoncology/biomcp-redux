@@ -263,11 +263,11 @@ fn phenotype_selectors(command: &HelpCommand, line: &mut String) {
         for argument in command.arguments.iter().filter(|a| a.position.is_none()) {
             line.push_str(&format!(" {}", argument.name));
             if argument.name == "--source" {
-                line.push_str(" ");
+                line.push(' ');
                 line.push_str(&argument.choices.join("|"));
             }
         }
-        if command.command[0] == "get" {
+        if command.command.first().is_some_and(|verb| verb == "get") {
             line.push_str(
                 "; terms are terminology, associations publisher assertions; neither diagnoses",
             );
