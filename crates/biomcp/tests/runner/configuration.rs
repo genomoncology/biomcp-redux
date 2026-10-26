@@ -246,7 +246,7 @@ fn boundaries() -> Check {
         vec!["get", "gene", "BRAF", "--offline", "--replay", "sensitive"],
     ] {
         let value = invoke(&env, args.iter().map(|arg| (*arg).into()).collect(), 2)?;
-        if value.to_string().contains("sensitive") {
+        if value.to_string().contains("sensitive") || value.get("local_error").is_some() {
             return Err("usage echoed caller input".into());
         }
     }
@@ -286,7 +286,7 @@ fn boundaries() -> Check {
             ],
             5,
         )?;
-        if value.to_string().contains("sensitive") {
+        if value.to_string().contains("sensitive") || value.get("local_error").is_some() {
             return Err("configuration echoed input".into());
         }
     }

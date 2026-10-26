@@ -32,7 +32,11 @@ fn locked(cdx: bool) -> Result<(), String> {
     let source = if cdx { "fda-cdx" } else { "wikipathways" };
     let sync = vec!["sync", source];
     let initial = call(&mut peer, &sync)?;
-    if initial.pointer("/result/isError") != Some(&json!(false)) {
+    if initial.pointer("/result/isError") != Some(&json!(false))
+        || initial
+            .pointer("/result/structuredContent/local_error")
+            .is_some()
+    {
         return Err(format!("initial sync failed: {initial}"));
     }
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
@@ -52,7 +56,8 @@ fn locked(cdx: bool) -> Result<(), String> {
     failure(&call(&mut peer, &sync)?)?;
     let mut args = env.globals(Some(&replay), false);
     args.extend(sync.iter().map(|word| (*word).to_owned()));
-    let startup = super::super::configuration::invoke(&env, args, 5)?;
+    let startup = super::super::configuration::invoke(&env, args.clone(), 5)?;
+    super::super::schema::Registry::embedded()?.validate(&startup, &args, false)?;
     if startup.get("local_error") != Some(&json!("busy"))
         || startup.get("status") != Some(&json!("local"))
     {
@@ -68,7 +73,13 @@ fn call(peer: &mut Peer, args: &[&str]) -> Result<Value, String> {
         "tools/call",
         json!({"name":"biomcp", "arguments":{"args":args}}),
     ))?;
-    peer.next()
+    let reply = peer.next()?;
+    let content = reply
+        .pointer("/result/structuredContent")
+        .ok_or("content missing")?;
+    let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
+    super::super::schema::Registry::embedded()?.validate(content, &words, false)?;
+    Ok(reply)
 }
 
 fn failure(reply: &Value) -> Result<(), String> {
