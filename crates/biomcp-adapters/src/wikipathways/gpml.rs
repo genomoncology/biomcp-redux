@@ -44,7 +44,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         .get("/wikipathways-assets/pathways")
         .with_path(format!("/wikipathways-assets/pathways/{id}/{id}.gpml"))?
         .once()
-        .octet_stream()
+        .application_octet_stream()
         .bytes(MAX_BYTES)
         .fresh(Freshness::Days(7));
     let (document, _) =

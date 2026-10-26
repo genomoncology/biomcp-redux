@@ -69,6 +69,13 @@ def main():
                     or ('HGNC', row['hgnc_id']) in references
                     or ('HGNC', row['symbol']) in references):
                 writer.writerow(row)
+    for path in Path('tests/replies/gene/main/hgnc').glob('*.json'):
+        recording = json.loads(path.read_text())
+        if recording['url'].endswith('/withdrawn.txt'):
+            (native / 'withdrawn.tsv').write_text(recording['exchanges'][0]['body']['value'])
+            break
+    else:
+        raise ValueError('existing HGNC withdrawn fixture is missing')
     environment = dict(os.environ, BIOMCP_TEST_FIXTURES=str(native.parent))
     result = subprocess.run(['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'cases', '--',
                              'wikipathways-genes/retained-native-measurements'], env=environment)
