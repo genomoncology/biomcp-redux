@@ -345,7 +345,9 @@ fn concurrent() -> Check {
     let finished = writer.wait_with_output().map_err(|e| e.to_string())?;
     if !finished.status.success() {
         return Err(format!(
-            "replacement failed: {}",
+            "replacement failed {:?}: stdout={} stderr={}",
+            finished.status.code(),
+            String::from_utf8_lossy(&finished.stdout),
             String::from_utf8_lossy(&finished.stderr)
         ));
     }
