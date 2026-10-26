@@ -30,13 +30,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         out.local = status::local(error);
         out.body = QueryBody::GwasPage(None);
         out.page = None;
-        if out.sources.is_empty() {
-            out.sources.push(status::source(Source::Gwas, Default::default(), Some(error)));
-        }
+        out.sources = vec![status::source(Source::Gwas, Default::default(), Some(error))];
         if out.sources.iter().any(|s| s.reason == Some(Reason::BadReply)) {
             out.problems.push(biomcp_types::Problem { source: Source::Gwas, record: None, field: "association_page".into(), code: biomcp_types::ProblemCode::ValueUnknown });
         }
-        out.next = next::search(q, None, biomcp_types::SourceState::Failed, cx.fresh);
+        out.next = next::search(&q.restart(), None, biomcp_types::SourceState::Failed, cx.fresh);
     }
     command.finish(deadline.remaining());
     out
