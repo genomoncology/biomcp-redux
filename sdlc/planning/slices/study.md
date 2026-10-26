@@ -39,7 +39,7 @@ The landed commands expose stored metadata and bounded independent sections. The
 
 A get uses only an exact study ID selected from discovery or explicitly supplied by the caller. Unsupported aliases return usage guidance or source absence, never a guessed cohort. Exact study IDs remain case-sensitive if the source treats them that way. Search filters narrow only checked fields; a cancer type such as `mixed` must not expand into cohorts inferred from sample diagnoses.
 
-The metadata bundle contains catalog metadata, not downloaded study matrices. The implementation must decide snapshot coherence before types land: catalog headers and optional remote section metadata may have different acquisition times, which must remain visible. A continuation binds its snapshot and filters; changing selectors with a continuation fails locally. Missing or expired pools offer restart without provider requests.
+The metadata bundle contains catalog metadata. Catalog search continuations bind the immutable catalog revision and selectors; changing a selector fails locally, and missing or expired pools offer a restart without provider requests. Profiles, sample lists and files use ordinary checked received-reply caches with independent acquisition times and section offsets. Their pages retain those acquisition times. They do not claim one shared snapshot across independently acquired sections.
 
 Source policy applies before any cache, bundle or transport access. Existing `cbioportal` use remains `restricted` pending study-specific reuse proof; it stays on by default and honors explicit source/group disables. A bundle may not relabel the same restricted data as open merely because it is downloaded.
 
@@ -285,7 +285,7 @@ The synthetic help/example measurements in j14944 preserve the existing full-env
 | examples 5 | 1141 | 1140 | 975 | 1122 | 1313 |
 | examples 6 | 1142 | 1141 | 976 | 1123 | 1314 |
 
-The existing synthetic study runner responses have fixed schema-scoped full-envelope budgets from j14940: page 1,877 bytes, sync 447, card including bounded all 6,339, files 2,425, usage error 198, sample lists 1,563 and profiles 1,991. Both CLI and MCP are checked against each measured maximum plus fifteen percent. This supplements the narrower native per-case ceilings without rerunning native proofs. Failure and retirement cases retain their more specific existing ceilings.
+The existing synthetic study runner responses have fixed command-phase full-envelope budgets in `study_budgets.rs`, attributed in j14953. Each call site names its phase, and each surface uses its own measured maximum plus fifteen percent. A page walk keeps its largest measured page. Unknown phases fail rather than borrowing a schema-wide allowance. This supplements the native per-case ceilings without rerunning native proofs. Failure and retirement cases retain their more specific existing ceilings.
 
 Every 0.9 timing and output-size row remains **unmeasured**: this lane has no independently verified contained legacy executable, and it installs no external baseline. The milestone 5 comparison owns those measurements. No speedup, token reduction or output-size ratio is claimed. Native source transfer sizes above remain HTTP measurements and are not product command costs. The byte-derived token approximation used by the runner is not a tokenizer benchmark. No local count, frequency or denominator is calculated.
 
