@@ -54,7 +54,7 @@ The investigation listed 16 article-family command spellings and 88 arguments, o
 
 ### Leaf-command parity accounting
 
-The historical denominator counts leaves and command-specific long option spellings; short aliases share their option's slot. Long aliases such as `--since` are distinct historical spellings. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` is accounted by the pathway slice under its retirement ruling.
+The released inventory counts leaves and their own canonical long options. Short and long aliases share their option's slot; `--since`, `--until` and `--query` add no slots. Sections, positional values, MCP tools and global flags stay outside it. The gene table owns `gene articles`. Generic `batch` owns all its entity choices, so `batch article` is mapped above without inventing another leaf. The historical CLI has no `drug articles` leaf; its fixed migration guidance is still covered above. `pathway articles` is accounted by the pathway slice under its retirement ruling.
 
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
