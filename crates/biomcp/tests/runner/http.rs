@@ -245,7 +245,20 @@ fn lifecycle() -> Check {
     connection
         .execute_batch("BEGIN IMMEDIATE")
         .map_err(|e| e.to_string())?;
-    let (status, health) = server.request("GET", "/health", "")?;
+    #[cfg(unix)]
+    let permissions = std::fs::metadata(&cache)
+        .map_err(|e| e.to_string())?
+        .permissions();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&cache, std::fs::Permissions::from_mode(0o555))
+            .map_err(|e| e.to_string())?;
+    }
+    let response = server.request("GET", "/health", "");
+    #[cfg(unix)]
+    std::fs::set_permissions(&cache, permissions).map_err(|e| e.to_string())?;
+    let (status, health) = response?;
     if status != 200 || health.get("version") != Some(&json!(env!("CARGO_PKG_VERSION"))) {
         return Err(format!("local health: {status} {health}"));
     }
