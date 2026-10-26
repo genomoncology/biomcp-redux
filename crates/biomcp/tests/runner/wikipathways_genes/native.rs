@@ -110,8 +110,8 @@ fn walk(env: &Environment, mut value: Value, count: usize, id: &str, expected: &
         let step = value
             .get("next")
             .and_then(Value::as_array)
-            .ok_or("next")?
-            .iter()
+            .into_iter()
+            .flatten()
             .find(|s| s["kind"] == "page");
         let Some(step) = step else {
             break;

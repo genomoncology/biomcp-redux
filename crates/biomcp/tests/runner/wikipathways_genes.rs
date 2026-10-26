@@ -145,8 +145,8 @@ fn paging() -> Check {
         let step = next
             .get("next")
             .and_then(Value::as_array)
-            .ok_or("next")?
-            .iter()
+            .into_iter()
+            .flatten()
             .find(|s| s.get("kind") == Some(&json!("page")));
         let Some(step) = step else {
             break;
