@@ -11,11 +11,39 @@ pub(super) fn run(directory: &Path) -> Result<(), String> {
     if paths.len() != 22 {
         return Err("expected the 22 declared native request cases".into());
     }
+    let budgets: std::collections::BTreeMap<String, [usize; 2]> =
+        serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/gwas-search-budgets.json"
+        )))
+        .map_err(|e| e.to_string())?;
+    let outputs = directory
+        .parent()
+        .ok_or("fixture root")?
+        .join("gwas-native-outputs");
+    fs::create_dir(&outputs).map_err(|e| e.to_string())?;
     for path in paths {
         let value = super::super::run_case(&path, &registry)?;
         continuation(&value)?;
         let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let comparable = super::super::source_terms::size(&value, "")?;
+        let name = path
+            .file_stem()
+            .and_then(|name| name.to_str())
+            .ok_or("case name")?;
+        let [measured_full, measured_comparable] = budgets.get(name).ok_or("case budget")?;
+        if full + 1 > (measured_full * 115).div_ceil(100)
+            || comparable > (measured_comparable * 115).div_ceil(100)
+        {
+            return Err(format!(
+                "{name}: full or comparable response exceeded its measured fifteen-percent ceiling"
+            ));
+        }
+        fs::write(
+            outputs.join(format!("{name}.json")),
+            serde_json::to_vec(&value).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(
             std::io::stdout(),
             "GWAS native {}: CLI={}, MCP={}, comparable={}, estimated_tokens={}",

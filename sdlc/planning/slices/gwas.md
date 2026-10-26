@@ -248,6 +248,37 @@ The archive is `data/biomcp-redux/0234-gwas-search/native-evidence.tar.gz`, SHA-
 
 Self links reorder query parameters and use form-encoded spaces. Admission therefore compares the exact endpoint and decoded parameter map, rejects duplicate parameters, and checks source page metadata and returned identities before cache publication. It does not use substring URL matching.
 
+### Measured command response ceilings
+
+Job `j14693` replayed all 22 retained requests through CLI and MCP at the round-trip-safe JSON parser setting. Native source bodies were unchanged. The values below include supported page, variant and publication actions; association and study get actions remain withheld until their handlers land. These outputs do not claim a pinned catalog snapshot.
+
+`tests/gwas-search-budgets.json` owns each measured pair `[full CLI bytes, comparable MCP bytes]`. Full CLI bytes include the final newline; MCP bytes are one less. Comparable bytes remove only `use`, `terms` and `terms_url` from validated source outcomes. The external case generator applies `max_bytes` to comparable CLI bytes and `max_tokens` to comparable MCP bytes; both use the measured size plus 15 percent. The retained native Trial separately guards the full response ceiling, so a full ceiling is not confused with a terms-subtracted case ceiling.
+
+| Witness | Full CLI bytes | Comparable MCP bytes | Full CLI ceiling | Comparable CLI ceiling |
+| --- | --- | --- | --- | --- |
+| `broderick` | 1056 | 932 | 1215 | 1073 |
+| `children` | 2321 | 2197 | 2670 | 2528 |
+| `extended` | 2308 | 2184 | 2655 | 2513 |
+| `gene-negative` | 491 | 367 | 565 | 424 |
+| `gene-positive` | 2289 | 2165 | 2633 | 2491 |
+| `gene-trait-positive` | 2341 | 2217 | 2693 | 2551 |
+| `pubmed-first` | 2254 | 2130 | 2593 | 2451 |
+| `pubmed-negative` | 484 | 360 | 557 | 416 |
+| `pubmed-second` | 2032 | 1908 | 2337 | 2196 |
+| `samani` | 3967 | 3843 | 4563 | 4421 |
+| `stacey` | 1555 | 1431 | 1789 | 1647 |
+| `study-negative` | 488 | 364 | 562 | 420 |
+| `study-page-one` | 2033 | 1909 | 2338 | 2197 |
+| `study-positive` | 2257 | 2133 | 2596 | 2455 |
+| `tomlinson` | 1082 | 958 | 1245 | 1103 |
+| `trait-id-negative` | 489 | 365 | 563 | 421 |
+| `trait-id-positive` | 2298 | 2174 | 2643 | 2502 |
+| `trait-text-negative` | 504 | 380 | 580 | 439 |
+| `trait-text-positive` | 2298 | 2174 | 2643 | 2502 |
+| `variant-negative` | 488 | 364 | 562 | 420 |
+| `variant-positive` | 2230 | 2106 | 2565 | 2424 |
+| `variant-publication` | 1071 | 947 | 1232 | 1091 |
+
 ## Agent questions
 
 1. **What do I ask first?** Ask for associations by the exact variant, trait, study, publication or source-defined gene selector. A literal trait query remains literal. It is never expanded into a diagnosis or inferred disease hierarchy.
