@@ -65,12 +65,12 @@ fn identities() -> Check {
     }
     for words in [&["get","pathway","WP382"][..], &["get","pathway","WP99999"][..]] {
         let absent=call(&env,&root,words,1)?;
-        if absent.get("status")!=Some(&json!("empty")) || absent.get("result").is_some_and(|v|!v.is_null())
+        if absent.get("status")!=Some(&json!("absent")) || absent.get("result").is_some_and(|v|!v.is_null())
             || absent.get("problems").and_then(Value::as_array).is_some_and(|v|!v.is_empty()) {
             return Err(format!("human-scope absence gained a card or identity conflict: {absent}"));
         }
     }
-    let found=call(&env,&root,&["search","pathway","Synthetic","--source","wikipathways"],0)?;
+    let found=call(&env,&root,&["search","pathway","Synthetic","--source","wikipathways"],1)?;
     if found.pointer("/result/page/total")!=Some(&json!(0)) || found.pointer("/result/items")!=Some(&json!([])) {
         return Err(format!("foreign species entered a result pool: {found}"));
     }

@@ -16,8 +16,8 @@ pub(super) fn run() -> Check {
     }
     fixtures::replace(&root,"/search/query",&empty.to_string(),404,0)?;
     let env=Environment::new().map_err(|e|e.to_string())?;
-    let value=call(&env,&root,&["search","pathway","Synthetic"],0)?;
-    if value.get("status")!=Some(&json!("empty")) || value.pointer("/result/page/total")!=Some(&json!(0)) {
+    let value=call(&env,&root,&["search","pathway","Synthetic"],1)?;
+    if value.get("status")!=Some(&json!("absent")) || value.pointer("/result/page/total")!=Some(&json!(0)) {
         return Err(format!("exact structured source absence did not remain empty: {value}"));
     }
     Ok(())

@@ -1,6 +1,7 @@
 //! Feature pathway-failures: synthetic source faults cannot become empty or cached answers.
 mod absence;
 mod fixtures;
+mod oversized;
 mod wikipathways;
 use super::{configuration::invoke, launch::Environment};
 use libtest_mimic::Trial;
@@ -22,6 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(Trial::test("pathway-failures/unsupported-pairings-before-io", || pairings().map_err(Into::into)));
     trials.push(Trial::test("pathway-failures/synthetic-exact-absence-versus-foreign404", || absence::run().map_err(Into::into)));
     trials.push(Trial::test("pathway-failures/kept-limit-aliases", || limits().map_err(Into::into)));
+    trials.push(Trial::test("pathway-failures/synthetic-oversized-source-admission", || oversized::run().map_err(Into::into)));
     trials.extend(wikipathways::trials());
     trials
 }
@@ -41,11 +43,9 @@ fn faults(route: &str,args: &[&str]) -> Check {
         ("timeout",200,"{}",9000,"deadline_exceeded"),
         ("invalid JSON",200,"{",0,"bad_reply"),
         ("HTML success",200,"<html>source failed</html>",0,"bad_reply"),
-        ("oversized",200,"",0,"too_large"),
+
     ] {
         let env=Environment::new().map_err(|e|e.to_string())?;
-        let huge;
-        let body=if label=="oversized" {huge=" ".repeat(8*1024*1024+1);&huge} else {body};
         fixtures::replace(&root,route,body,status,delay)?;
         let value=call(&env,&root,args,4).map_err(|e|format!("{route} {label}: {e}"))?;
         failed(&value,reason).map_err(|e|format!("{route} {label}: {e}"))?;
@@ -76,7 +76,7 @@ fn identities() -> Check {
         *card.get_mut(field).ok_or("field")?=json!(foreign);
         fixtures::replace(&root,"/data/query/",&card.to_string(),200,0)?;
         let env=Environment::new().map_err(|e|e.to_string())?;
-        let value=call(&env,&root,&["get","pathway",fixtures::ID],1)?;
+        let value=call(&env,&root,&["get","pathway",fixtures::ID],0)?;
         if value.get("result").is_some_and(|v|!v.is_null()) || !value.get("problems").and_then(Value::as_array).is_some_and(|v|v.iter().any(|p|p.get("source")==Some(&json!("reactome"))&&p.get("field")==Some(&json!("identity")))) {
             return Err(format!("foreign {field} became a card or lost problem: {value}"));
         }

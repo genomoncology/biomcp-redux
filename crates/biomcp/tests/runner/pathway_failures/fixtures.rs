@@ -11,7 +11,7 @@ pub(super) fn card() -> Value {
 pub(super) fn search() -> Value {
     json!({"results":[{"entries":[{"stId":ID,"name":"Synthetic pathway","species":["Homo sapiens"],"exactType":"Pathway"}]}],"rowCount":1,"numberOfMatches":1})
 }
-fn body(request: &str) -> Result<String, String> {
+pub(super) fn body(request: &str) -> Result<String, String> {
     Ok(if request.contains("/json/") { catalog(request.contains("findPathwaysByText")) }
     else if request.contains("/search/query?") { search() }
     else if request.contains("/database/version") { json!(97) }
