@@ -219,49 +219,24 @@ fn walk_streams(environment: &Environment, value: &Value) -> Result<(), String> 
     Ok(())
 }
 pub(super) fn civic_body(request: &str) -> Result<String, String> {
-    let evidence = json!({"totalCount":2,
-"nodes":[{"id":1409,
-"status":"ACCEPTED",
-"evidenceType":"PREDICTIVE",
-"evidenceLevel":"A",
-"evidenceDirection":"DOES_NOT_SUPPORT",
-"significance":"RESISTANCE",
-"disease":{"name":"melanoma",
-"doid":"1909"},
-"therapies":[{"name":"dabrafenib"}],
-"source":{"citationId":"25741868",
-"sourceType":"PUBMED"}}],
-"pageInfo":{"hasNextPage":true,
-"endCursor":"synthetic-e1"}});
-    let assertions = json!({"totalCount":2,
-"nodes":[{"id":7,
-"status":"ACCEPTED",
-"assertionType":"PREDICTIVE",
-"assertionDirection":"SUPPORTS",
-"significance":"SENSITIVITYRESPONSE",
-"ampLevel":"TIER_I_LEVEL_A",
-"disease":{"name":"melanoma",
-"doid":"1909"},
-"therapies":[{"name":"dabrafenib"},
-{"name":"trametinib"}],
-"variantOrigin":"SOMATIC"}],
-"pageInfo":{"hasNextPage":true,
-"endCursor":"synthetic-a1"}});
-    let mut reply = json!({"data":{"molecularProfiles":{"totalCount":1,
-"nodes":[{"id":120,
-"name":"BRAF V600E",
-"link":"/molecular-profiles/120",
-"isComplex":false,
-"variants":[{"id":12,
-"name":"V600E",
-"link":"/variants/12",
-"alleleRegistryId":"CA123643",
-"hgvsDescriptions":["NP_004324.2:p.Val600Glu"],
-"feature":{"name":"BRAF"}}],
-"evidenceItems":evidence,
-"assertions":assertions}],
-"pageInfo":{"hasNextPage":false,
-"endCursor":null}}} });
+    let evidence = json!(
+        {"totalCount":2,"nodes":[{"id":1409,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A",
+        "evidenceDirection":"DOES_NOT_SUPPORT","significance":"RESISTANCE","disease":{"name":"melanoma","doid":"1909"},
+        "therapies":[{"name":"dabrafenib"}],"source":{"citationId":"25741868","sourceType":"PUBMED"}}],"pageInfo":{"hasNextPage":true,
+        "endCursor":"synthetic-e1"}}
+    );
+    let assertions = json!(
+        {"totalCount":2,"nodes":[{"id":7,"status":"ACCEPTED","assertionType":"PREDICTIVE","assertionDirection":"SUPPORTS",
+        "significance":"SENSITIVITYRESPONSE","ampLevel":"TIER_I_LEVEL_A","disease":{"name":"melanoma","doid":"1909"},
+        "therapies":[{"name":"dabrafenib"},{"name":"trametinib"}],"variantOrigin":"SOMATIC"}],"pageInfo":{"hasNextPage":true,
+        "endCursor":"synthetic-a1"}}
+    );
+    let mut reply = json!(
+        {"data":{"molecularProfiles":{"totalCount":1,"nodes":[{"id":120,"name":"BRAF V600E","link":"/molecular-profiles/120",
+        "isComplex":false,"variants":[{"id":12,"name":"V600E","link":"/variants/12","alleleRegistryId":"CA123643",
+        "hgvsDescriptions":["NP_004324.2:p.Val600Glu"],"feature":{"name":"BRAF"}}],"evidenceItems":evidence,"assertions":assertions}],
+        "pageInfo":{"hasNextPage":false,"endCursor":null}}} }
+    );
     let evidence_base = "/data/molecularProfiles/nodes/0/evidenceItems";
     let mut second = reply
         .pointer(&format!("{evidence_base}/nodes/0"))
@@ -453,10 +428,7 @@ fn compound_body(request: &str) -> Result<String, String> {
     raw.pointer_mut(&format!("{base}/variants"))
         .and_then(Value::as_array_mut)
         .ok_or("members")?
-        .push(json!({"id":23,
-"name":"Fusion",
-"link":"/variants/23",
-"feature":{"name":"KIAA1549::BRAF"}}));
+        .push(json!({"id":23, "name":"Fusion", "link":"/variants/23", "feature":{"name":"KIAA1549::BRAF"}}));
     Ok(raw.to_string())
 }
 

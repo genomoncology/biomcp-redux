@@ -87,18 +87,11 @@ fn failures() -> Result<(), String> {
         let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
         fs::write(
             file.path(),
-            serde_json::to_vec(&json!({"feature":"trial-search",
-"story":"Unresolved exact identity stops before trial I/O",
-"replay":directory,
-"config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},
-"steps":[{"run":args,
-"mcp":args,
-"exit":4,
-"is_error":true,
-"expect":{"/status":"failed",
-"/result/request":[]},
-"max_bytes":ceiling,
-"max_tokens":(ceiling+3)/4}]}))
+            serde_json::to_vec(&json!(
+        {"feature":"trial-search","story":"Unresolved exact identity stops before trial I/O","replay":directory,
+        "config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[{"run":args,"mcp":args,"exit":4,"is_error":true,
+        "expect":{"/status":"failed","/result/request":[]},"max_bytes":ceiling,"max_tokens":(ceiling+3)/4}]}
+    ))
             .map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
@@ -110,10 +103,9 @@ fn setup(stub: &Stub) -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",
-stub.address),
-"ca_bundle":ca,
-"keys":{"nci_api_key":"synthetic-trial-condition-key"}}))
+    env.config(&json!(
+        {"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":"synthetic-trial-condition-key"}}
+    ))
         .map_err(|e| e.to_string())?;
     Ok(env)
 }

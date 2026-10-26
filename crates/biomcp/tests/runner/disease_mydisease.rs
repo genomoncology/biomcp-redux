@@ -112,30 +112,15 @@ fn measure(words: &[&str], value: &Value) -> Result<(), String> {
     .map_err(|e| e.to_string())
 }
 fn annotation() -> Value {
-    json!({"_id":"MONDO:0005061","_version":1,
-      "mondo":{"mondo":"MONDO:0005061",
-"label":"Synthetic lung concept",
-"definition":"Complete synthetic definition, including its original punctuation. [Native reference]",
-"synonym":{"exact":["first native synonym",
-"second native synonym"],
-"related":["related wording"]},
-"xrefs":{"doid":["DOID:3910",
-"DOID:0111503"],
-"efo":["EFO:0000571"],
-"icd10cm":["C34.9"],
-"oncotree":["LUAD"]},
-"parents":["MONDO:0004970",
-"MONDO:0005233"]},
-
-      "disease_ontology":{"doid":"DOID:3910",
-"name":"Different native DOID label",
-"def":"Separate native DOID definition.",
-"synonyms":{"exact":["DOID synonym"]},
-"xrefs":{"ncit":["C27745",
-"C3512"],
-"snomedct_us_2025_09_01":"254626006"},
-"parents":["DOID:299",
-"DOID:3908"]}})
+    json!(
+        {"_id":"MONDO:0005061","_version":1,"mondo":{"mondo":"MONDO:0005061","label":"Synthetic lung concept",
+        "definition":"Complete synthetic definition, including its original punctuation. [Native reference]",
+        "synonym":{"exact":["first native synonym","second native synonym"],"related":["related wording"]},"xrefs":{"doid":["DOID:3910",
+        "DOID:0111503"],"efo":["EFO:0000571"],"icd10cm":["C34.9"],"oncotree":["LUAD"]},"parents":["MONDO:0004970","MONDO:0005233"]},
+        "disease_ontology":{"doid":"DOID:3910","name":"Different native DOID label","def":"Separate native DOID definition.",
+        "synonyms":{"exact":["DOID synonym"]},"xrefs":{"ncit":["C27745","C3512"],"snomedct_us_2025_09_01":"254626006"},
+        "parents":["DOID:299","DOID:3908"]}}
+    )
 }
 fn reply(request: &str) -> Result<String, String> {
     if !request.starts_with("GET /v1/disease/DOID%3A3910?fields=mondo%2Cdisease_ontology ") {
@@ -150,19 +135,12 @@ fn exact() -> Result<(), String> {
     record(&env, &["get", "disease", "DOID:3910"], &directory, 0)?;
     replay(
         &directory,
-        json!([{"run":["get",
-"disease",
-"DOID:3910"],
-"mcp":["get",
-"disease",
-"DOID:3910"],
-"expect":{"/result/requested_id":"DOID:3910",
-"/result/returned_id":"MONDO:0005061",
-"/result/alias/object/id":"DOID:3910",
-"/result/definition":"Complete synthetic definition, including its original punctuation. [Native reference]",
-"/result/sections":["synonyms",
-"xrefs",
-"hierarchy"]}}]),
+        json!(
+            [{"run":["get","disease","DOID:3910"],"mcp":["get","disease","DOID:3910"],"expect":{"/result/requested_id":"DOID:3910",
+            "/result/returned_id":"MONDO:0005061","/result/alias/object/id":"DOID:3910",
+            "/result/definition":"Complete synthetic definition, including its original punctuation. [Native reference]",
+            "/result/sections":["synonyms","xrefs","hierarchy"]}}]
+        ),
     )?;
     for (section, total, pointer, expected) in [
         (
