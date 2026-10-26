@@ -195,7 +195,15 @@ fn a_stalled_body_keeps_its_partial_bytes_and_resumes_within_a_new_budget() {
 
 #[test]
 fn recovered_parts_reject_unowned_paths_without_touching_them() {
-    for scenario in ["outside", "nested", "wrong-name", "missing", "symlink"] {
+    for scenario in [
+        "outside",
+        "traversal",
+        "nested",
+        "wrong-name",
+        "missing",
+        "directory",
+        "symlink",
+    ] {
         let server = support::Server::new();
         let b = declared(&server);
         let dir = tempfile::tempdir().unwrap();
@@ -204,13 +212,15 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
             cache: Some(path.clone()),
             sync_budget: Duration::from_secs(1),
             ..Default::default()
-        }).unwrap();
+        })
+        .unwrap();
         let parts = path.with_extension("parts");
         std::fs::create_dir_all(parts.join("nested")).unwrap();
-        let sentinel = dir.path().join("sentinel");
+        let sentinel = dir.path().join(".tmpABC123");
         std::fs::write(&sentinel, "keep this file").unwrap();
         let prior = match scenario {
             "outside" => sentinel.clone(),
+            "traversal" => parts.join("../.tmpABC123"),
             "nested" => parts.join("nested/.tmpABC123"),
             "wrong-name" => parts.join("sentinel"),
             "missing" => parts.join(".tmpABC123"),
@@ -221,17 +231,26 @@ fn recovered_parts_reject_unowned_paths_without_touching_them() {
             std::os::unix::fs::symlink(&sentinel, &prior).unwrap();
             #[cfg(not(unix))]
             continue;
-        } else if scenario != "missing" && scenario != "outside" {
+        } else if scenario == "directory" {
+            std::fs::create_dir(&prior).unwrap();
+        } else if !["missing", "outside", "traversal"].contains(&scenario) {
             std::fs::write(&prior, "keep this file").unwrap();
         }
         let db = rusqlite::Connection::open(&path).unwrap();
         db.execute(
             "INSERT INTO bundle_sync VALUES('genes',NULL,0,?1,?2,0,NULL,NULL)",
             rusqlite::params![format!("{}/genes", server.base), prior.to_str().unwrap()],
-        ).unwrap();
+        )
+        .unwrap();
         let result = f.sync(&b);
-        assert!(matches!(result, Err(biomcp_fetch::RequestError::Cache(_))), "{scenario}: {result:?}");
-        assert_eq!(std::fs::read_to_string(&sentinel).unwrap(), "keep this file");
+        assert!(
+            matches!(result, Err(biomcp_fetch::RequestError::Cache(_))),
+            "{scenario}: {result:?}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&sentinel).unwrap(),
+            "keep this file"
+        );
         if scenario != "missing" {
             assert!(prior.symlink_metadata().is_ok(), "{scenario}");
         }

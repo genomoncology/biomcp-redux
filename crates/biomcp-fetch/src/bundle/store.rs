@@ -4,6 +4,8 @@ use crate::{
     cache::{Cache, db_error, now},
 };
 use rusqlite::{Connection, OptionalExtension, params};
+pub(super) const PART_PREFIX: &str = ".tmp";
+pub(super) const PART_RANDOM: usize = 6;
 const METADATA: &str = "SELECT b.bytes,b.rows,b.fresh_until,b.etag,b.modified,c.revision,c.retrieved_at FROM bundle b LEFT JOIN bundle_content c ON c.name=b.name WHERE b.name=?1";
 #[derive(Clone, Debug)]
 pub(super) struct Meta {
@@ -21,6 +23,29 @@ pub(super) struct Part {
     pub bytes: u64,
     pub etag: Option<String>,
     pub total: Option<u64>,
+}
+impl Part {
+    fn validate(&self, folder: &std::path::Path) -> Result<(), CacheError> {
+        let path = std::path::Path::new(&self.path);
+        let parent = path.parent().ok_or(CacheError::Database)?;
+        let name = path.file_name().and_then(|n| n.to_str());
+        let valid_name = name
+            .and_then(|n| n.strip_prefix(PART_PREFIX))
+            .is_some_and(|n| {
+                n.len() == PART_RANDOM && n.bytes().all(|b| b.is_ascii_alphanumeric())
+            });
+        if !valid_name
+            || parent.canonicalize().map_err(|_| CacheError::Database)?
+                != folder.canonicalize().map_err(|_| CacheError::Database)?
+            || !path
+                .symlink_metadata()
+                .map_err(|_| CacheError::Database)?
+                .is_file()
+        {
+            return Err(CacheError::Database);
+        }
+        Ok(())
+    }
 }
 pub(crate) fn initialize(c: &Connection) -> Result<(), CacheError> {
     c.execute_batch("CREATE TABLE IF NOT EXISTS bundle(name TEXT PRIMARY KEY,bytes INTEGER NOT NULL,rows INTEGER NOT NULL,fresh_until INTEGER NOT NULL,etag TEXT,modified TEXT);
@@ -113,6 +138,7 @@ impl Cache {
                 if u!=url { p.bytes=0; }
                 Some(p)
             });
+            if let Some(part) = &part { part.validate(&self.1)?; }
             tx.execute("INSERT INTO bundle_sync VALUES(?1,?2,?3,?4,?5,0,NULL,NULL) ON CONFLICT(name) DO UPDATE SET holder=excluded.holder,lease_until=excluded.lease_until,url=excluded.url,part=excluded.part,bytes=0,etag=NULL,total=NULL",params![name,holder,lease,url,path]).map_err(db_error)?;
             tx.commit().map_err(db_error)?; Ok(part)
         })

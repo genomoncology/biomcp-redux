@@ -48,8 +48,11 @@ impl Leg<'_> {
             return Err(self.failure(Reason::Syncing, None).into());
         }
         fs::create_dir_all(&cache.1).map_err(|_| CacheError::Database)?;
-        let mut file =
-            tempfile::NamedTempFile::new_in(&cache.1).map_err(|_| CacheError::Database)?;
+        let mut file = tempfile::Builder::new()
+            .prefix(store::PART_PREFIX)
+            .rand_bytes(store::PART_RANDOM)
+            .tempfile_in(&cache.1)
+            .map_err(|_| CacheError::Database)?;
         let holder = file
             .path()
             .file_name()
