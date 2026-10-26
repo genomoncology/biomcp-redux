@@ -225,8 +225,6 @@ The drug output budget uses measured CLI/MCP envelopes, qualified bounded 0.9 fi
 
 ### Disease
 
-- [ ] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -295,8 +293,6 @@ The cases enforce measured CLI and MCP byte ceilings. The complete measured enve
 
 ### Pharmacogenomics
 
-- [ ] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -317,7 +313,6 @@ The output budget uses complete measured CLI/MCP envelopes and states why no con
 ### Diagnostic
 
 - [x] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -338,8 +333,6 @@ The diagnostic slice preserves exact source identities, complete native rows and
 
 ### Adverse event
 
-- [ ] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -387,7 +380,6 @@ Assay totals count assays. They imply no activity, sensitivity or treatment resp
 ### Phenotype
 
 - [x] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -407,7 +399,6 @@ Term lookup answers terminology. Associations retain publisher assertions and es
 ### GWAS
 
 - [x] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
@@ -428,7 +419,6 @@ The output budget uses retained complete CLI/MCP envelopes and records why a con
 ### Study
 
 - [x] Investigation
-- [ ] Questions answered by Ian
 - [x] Biodata types and schema
 - [x] Search
 - [x] Get and sections
