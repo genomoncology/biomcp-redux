@@ -367,6 +367,12 @@ fn discovery() -> Check {
 }
 
 const DISCOVERY_WORDS: &[&str] = &[
+    "search pathway --fresh --gene --pool query --source reactome|wikipathways --top-level",
+    "get pathway --fresh id --pool section; R-HSA|WP :summary|genes|events|all",
+    "pathway genes details id --pool; Reactome|WikiPathways GPML",
+    "pathway events id --pool; Reactome",
+    "sync wikipathways",
+    "Pathway membership names source/release; no therapy, response, actionability or enrichment",
     "search study --cancer-type --pool",
     "get study :profiles|sample-lists|files|all",
     "sync cbioportal-studies",
