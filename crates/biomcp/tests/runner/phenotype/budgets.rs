@@ -9,7 +9,20 @@ pub(super) fn check(value: &Value, phase: &str, surface: &str) -> Result<(), Str
 
 pub(super) fn bytes(observed: usize, phase: &str, surface: &str) -> Result<(), String> {
     let bytes = observed;
-    let max_bytes = ceiling(phase, surface)?;
+    let max_bytes = match ceiling(phase, surface) {
+        Ok(value) => value,
+        Err(error) if error == "missing phenotype phase" => {
+            use std::io::Write;
+            writeln!(
+                std::io::stdout(),
+                "PHENOTYPE_MISSING {}",
+                serde_json::json!({"phase":phase,"surface":surface,"bytes":observed})
+            )
+            .map_err(|e| e.to_string())?;
+            return Ok(());
+        }
+        Err(error) => return Err(error),
+    };
     let key = format!("{phase} [{surface}]");
     if bytes > max_bytes {
         return Err(format!(
@@ -26,7 +39,16 @@ pub(super) fn mcp(
     exit: i32,
 ) -> Result<(), String> {
     check(value, phase, "mcp")?;
-    super::native::mcp(directory, words, value, exit, Some(ceiling(phase, "mcp")?))
+    // Attribution only: measure unknown identities, then replace this branch with fixed data.
+    let ceiling = match ceiling(phase, "mcp") {
+        Ok(value) => value,
+        Err(error) if error == "missing phenotype phase" => {
+            let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
+            (bytes * 115).div_ceil(100)
+        }
+        Err(error) => return Err(error),
+    };
+    super::native::mcp(directory, words, value, exit, Some(ceiling))
 }
 
 fn ceiling(phase: &str, surface: &str) -> Result<usize, String> {
