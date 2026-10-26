@@ -23,7 +23,9 @@
           "count": 29
         },
         "/result/items/0/participants/0/schema_class": "CandidateSet"
-      }
+      },
+      "max_bytes": 12155,
+      "max_tokens": 3040
     }
   ]
 }

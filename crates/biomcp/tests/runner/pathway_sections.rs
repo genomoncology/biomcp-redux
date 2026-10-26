@@ -387,17 +387,17 @@ fn measurements() -> Check {
     for (args, max_bytes, max_tokens) in [
         (
             vec!["get", "pathway", "R-HSA-5673001", "genes"],
-            12469,
-            3118,
+            3061,
+            766,
         ),
         (vec!["get", "pathway", "R-HSA-5673001", "events"], 2541, 636),
-        (vec!["get", "pathway", "R-HSA-5673001", "all"], 19228, 4807),
-        (vec!["pathway", "genes", "R-HSA-5673001"], 11962, 2992),
+        (vec!["get", "pathway", "R-HSA-5673001", "all"], 9820, 2456),
+        (vec!["pathway", "genes", "R-HSA-5673001"], 2553, 639),
         (vec!["pathway", "events", "R-HSA-5673001"], 2034, 509),
         (
             vec!["pathway", "genes", "R-HSA-5673001", "details"],
-            12469,
-            3118,
+            12155,
+            3040,
         ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;

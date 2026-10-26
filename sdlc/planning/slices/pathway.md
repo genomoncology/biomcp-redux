@@ -166,7 +166,7 @@ The measurement JSON is preserved on Yellow at `data/biomcp-redux/0216-reactome-
 
 #### Retained Reactome relation contract
 
-The 2026-10-26 bounded capture repeats the exact RAF/MAPK participant and contained-event requests without retries or hydration. It observes 151 physical entities, 1,010 reference occurrences and 332 distinct namespaced references. The 279 distinct UniProt references retain their complete accession and isoform spellings. Membership pages count distinct references in `page.total` with `total_kind=distinct_references`; `reference_occurrences` and `physical_entities` report the other observed counts. Each distinct reference retains every physical entity context in source order. Names never supply an identity. Native therapeutic namespaces and URLs remain visible without a drug action.
+The 2026-10-26 bounded capture repeats the exact RAF/MAPK participant and contained-event requests without retries or hydration. It observes 151 physical entities, 1,010 reference occurrences and 332 distinct namespaced references. The 279 distinct UniProt references retain their complete accession and isoform spellings. Membership pages count distinct references in `page.total` with `total_kind=distinct_references`; `reference_occurrences` and `physical_entities` report the other observed counts. The retained snapshot keeps every physical entity context in source order. Default membership rows disclose their physical-context count. The explicit `pathway genes ID details` view discloses all contexts for the requested reference page. Details uses the same retained pool and keeps its mode on page and restart steps. Names never supply an identity. Native therapeutic namespaces and URLs remain visible without a drug action.
 
 The same capture observes 81 contained events: 69 native objects and 12 unresolved integer references. The integer values remain explicit database references. Object IDs, classes and versions belong to each event. An object's publisher detail URL uses its own checked native stable identity. Only native Pathway and TopLevelPathway objects receive pathway get actions. The RAF-activation and TP53 death-receptor controls also contain integers. The approved object-only control is therefore synthetic; it proves parser and action behavior without making a native source-shape claim. No further source request replaces those observations.
 
@@ -176,17 +176,18 @@ The retained HGNC complete-set recording at `data/biomcp-redux/0102-article-shor
 
 Each complete relation has a source-bound immutable pool with the existing fixed lifetime. Continuations keep the relation kind and pathway identity, refuse foreign or expired tokens before source requests and never renew the pool lifetime. The default `all` reads the source summary plus each relation's bounded first page and performs no enrichment or therapeutic fanout.
 
-The recorded CLI and MCP section measurements agree. The comparable budget removes only the shared source terms metadata. These cases enforce measured size plus 15 percent.
+The recorded CLI and MCP section measurements agree. The existing comparable-budget normalization removes only the validated registry use label and terms fields. The M5 replay proof starts each command with an isolated case cache and reuses it for the MCP call. These cases enforce measured size plus 15 percent.
 
 | Disclosure | Measured bytes | Measured tokens | Byte ceiling | Token ceiling |
 |---|---:|---:|---:|---:|
-| `get pathway R-HSA-5673001 genes` | 10842 | 2711 | 12469 | 3118 |
+| `get pathway R-HSA-5673001 genes` | 2661 | 666 | 3061 | 766 |
 | `get pathway R-HSA-5673001 events` | 2209 | 553 | 2541 | 636 |
-| `get pathway R-HSA-5673001 all` | 16720 | 4180 | 19228 | 4807 |
-| `pathway genes R-HSA-5673001` | 10401 | 2601 | 11962 | 2992 |
+| `get pathway R-HSA-5673001 all` | 8539 | 2135 | 9820 | 2456 |
+| `pathway genes R-HSA-5673001` | 2220 | 555 | 2553 | 639 |
 | `pathway events R-HSA-5673001` | 1768 | 442 | 2034 | 509 |
+| `pathway genes R-HSA-5673001 details` | 10569 | 2643 | 12155 | 3040 |
 
-The genes page and `all` exceed the original allocation because a source reference retains all of its physical entity contexts. The first five references preserve 29, 9, 16, 16 and 2 physical entities respectively. The budget does not clip their native names or collapse isoform membership.
+The compact genes default fits its original allocation. The `all` output preserves the complete source summary and both bounded compact section pages. Complete physical contexts appear only in the explicit details view. The first five references retain 29, 9, 16, 16 and 2 physical contexts respectively. The details view does not clip their native names or collapse isoform membership.
 
 The default cards now expose the executable summary, genes and events steps. Their measured comparable byte ceilings include all three actions. The updated card cases enforce these per-record measurements plus 15 percent.
 
