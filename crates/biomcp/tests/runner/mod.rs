@@ -66,6 +66,7 @@ pub(crate) mod live;
 mod live_follow_proof;
 mod live_proof;
 mod markdown;
+mod source_text;
 mod markdown_shapes;
 mod markdown_sources;
 mod markdown_variant_sources;
@@ -370,6 +371,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
+    trials.extend(source_text::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
