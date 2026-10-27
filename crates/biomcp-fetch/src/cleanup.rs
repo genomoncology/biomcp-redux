@@ -97,6 +97,15 @@ fn owned_file(path: &Path, owners: &[SchemaOwner]) -> Result<bool, CacheError> {
         .map_err(db_error)?;
     for name in names {
         let name = name.map_err(db_error)?;
+        if name == "bundle" {
+            // No verified transfer covers obsolete layouts. Uncertain contents remain owned data.
+            match connection.query_row("SELECT EXISTS(SELECT 1 FROM bundle)", [], |r| {
+                r.get::<_, bool>(0)
+            }) {
+                Ok(false) => {}
+                Ok(true) | Err(_) => return Ok(false),
+            }
+        }
         let transport =
             declared.iter().any(|owner| owner == "biomcp-fetch") && transport_table(&name);
         let query = owners.iter().any(|owner| {

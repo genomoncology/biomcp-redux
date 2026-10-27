@@ -48,25 +48,30 @@ impl Cache {
     ) -> Result<bool, CacheError> {
         let mut uri = url::Url::from_file_path(path).map_err(|_| CacheError::Database)?;
         uri.query_pairs_mut().append_pair("mode", "ro");
-        let connection = self.owned_connection()?;
+        let mut connection = self.owned_connection()?;
         sql_deadline(&connection, deadline)?;
         check_current_owners(&connection, owners)?;
         connection
             .execute("ATTACH DATABASE ?1 AS predecessor", [uri.as_str()])
             .map_err(db_error)?;
-        if !stage(&connection, name, owners, deadline)? {
+        let Some(version) = stage(&connection, name, owners, deadline)? else {
             return Ok(false);
-        }
+        };
         connection
             .execute_batch("DETACH DATABASE predecessor")
             .map_err(db_error)?;
         self.publish_sql(deadline, || {
             sql_deadline(&connection, deadline)?;
-            let tx = connection.unchecked_transaction().map_err(db_error)?;
+            let tx = connection
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+                .map_err(db_error)?;
             check_current_owners(&tx, owners)?;
             // Current publication wins, including a concurrent publisher that finished while staging.
             if exists(&tx, "main", name)? {
                 return Ok(true);
+            }
+            if name == "hgnc" && matches!(version, 1..=3) {
+                crate::cache_hgnc::backfill_staged(&tx, deadline)?;
             }
             for table in TABLES {
                 sql_deadline(&tx, deadline)?;
@@ -99,12 +104,19 @@ fn stage(
     name: &str,
     owners: &[SchemaOwner],
     deadline: Deadline<'_>,
-) -> Result<bool, CacheError> {
+) -> Result<Option<u32>, CacheError> {
     let snapshot = connection.unchecked_transaction().map_err(db_error)?;
     check_predecessor(&snapshot, owners)?;
     if !source_table(&snapshot, "bundle")? || !exists(&snapshot, "predecessor", name)? {
-        return Ok(false);
+        return Ok(None);
     }
+    let version = snapshot
+        .query_row(
+            "SELECT version FROM predecessor.meta WHERE owner='biomcp-fetch'",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
     let bytes: u32 = snapshot
         .query_row(
             "SELECT bytes FROM predecessor.bundle WHERE name=?1",
@@ -116,14 +128,14 @@ fn stage(
         return Err(CacheError::Database);
     }
     for table in TABLES {
-        stage_table(&snapshot, *table, name, deadline)?;
+        stage_table(&snapshot, *table, name, version, deadline)?;
     }
     let complete: bool = snapshot.query_row("SELECT (SELECT rows FROM temp.stage_bundle)=(SELECT count(*) FROM temp.stage_bundle_row)", [], |r| r.get(0)).map_err(db_error)?;
     if !complete {
         return Err(CacheError::Database);
     }
     snapshot.commit().map_err(db_error)?;
-    Ok(true)
+    Ok(Some(version))
 }
 fn source_table(connection: &Connection, table: &str) -> Result<bool, CacheError> {
     connection
@@ -138,17 +150,11 @@ fn stage_table(
     connection: &Connection,
     table: Table,
     name: &str,
+    version: u32,
     deadline: Deadline<'_>,
 ) -> Result<(), CacheError> {
     let present = source_table(connection, table.name)?;
     if !present {
-        let version: u32 = connection
-            .query_row(
-                "SELECT version FROM predecessor.meta WHERE owner='biomcp-fetch'",
-                [],
-                |r| r.get(0),
-            )
-            .map_err(db_error)?;
         if table.name != "bundle_content" || version >= crate::VERSION {
             return Err(CacheError::Version);
         }
