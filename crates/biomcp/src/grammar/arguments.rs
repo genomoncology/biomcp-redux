@@ -1,10 +1,16 @@
 //! Construct query arguments from their owning schemas.
-use super::{properties, property_type, gwas};
+use super::{gwas, properties, property_type};
 use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use serde_json::Value;
 pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
     let mut command = Command::new(name)
-        .about(schema.get("description").and_then(Value::as_str).unwrap_or_default().to_owned())
+        .about(
+            schema
+                .get("description")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned(),
+        )
         .disable_help_flag(true)
         .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {
@@ -20,7 +26,13 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
             continue;
         }
         let mut argument = Arg::new(name.clone())
-            .help(property.get("description").and_then(Value::as_str).unwrap_or_default().to_owned())
+            .help(
+                property
+                    .get("description")
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_owned(),
+            )
             .allow_negative_numbers(true);
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
@@ -54,7 +66,9 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
                 move |value: String| {
                     if integer && value.parse::<u64>().is_err() {
                         Err("expected a nonnegative integer")
-                    } else { Ok(value) }
+                    } else {
+                        Ok(value)
+                    }
                 }
             }))
         });

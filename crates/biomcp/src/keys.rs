@@ -14,7 +14,12 @@ pub(crate) fn names() -> Vec<&'static str> {
     SecretName::ALL.iter().map(|name| name.source()).collect()
 }
 pub(crate) fn grammar() -> clap::Command {
-    let source = || Arg::new("source").help("Source credential name to register or remove.").required(true).value_parser(names());
+    let source = || {
+        Arg::new("source")
+            .help("Source credential name to register or remove.")
+            .required(true)
+            .value_parser(names())
+    };
     clap::Command::new("key")
         .subcommand_required(true)
         .subcommand(clap::Command::new("list"))

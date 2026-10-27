@@ -1,7 +1,7 @@
 //! Schema-fed command help shared with MCP discovery.
 
-mod source_settings;
 mod public_grammar;
+mod source_settings;
 
 use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
@@ -85,7 +85,14 @@ const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivi
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
     if entity == "author" || verb == "author" {
-        let boundary = if verb == "search" { AUTHOR_BOUNDARY.split("; papers supports").next().unwrap_or(AUTHOR_BOUNDARY) } else { AUTHOR_BOUNDARY };
+        let boundary = if verb == "search" {
+            AUTHOR_BOUNDARY
+                .split("; papers supports")
+                .next()
+                .unwrap_or(AUTHOR_BOUNDARY)
+        } else {
+            AUTHOR_BOUNDARY
+        };
         description.push_str(boundary);
     }
     if verb == "article" && entity == "references" {

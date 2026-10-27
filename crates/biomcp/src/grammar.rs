@@ -1,6 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
-mod entity;
 mod arguments;
+mod entity;
 mod errors;
 mod metadata;
 use arguments::command_for;
@@ -98,7 +98,11 @@ pub(crate) fn global_arguments() -> Command {
         root = root.arg(
             Arg::new(name)
                 .long(name)
-                .help(if name == "offline" { "Read local data without source requests." } else { "Request fresh source data instead of cached replies." })
+                .help(if name == "offline" {
+                    "Read local data without source requests."
+                } else {
+                    "Request fresh source data instead of cached replies."
+                })
                 .global(true)
                 .action(ArgAction::SetTrue)
                 .overrides_with(name),
@@ -167,18 +171,24 @@ pub(crate) fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").help("Local source bundle to synchronize; default hgnc.").value_parser([
-        "wikipathways",
-        "cbioportal-studies",
-        "hgnc",
-        "clingen",
-        "ema",
-        "ddinter",
-        "who-pq",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-    ])));
+    root = root.subcommand(
+        Command::new("sync").arg(
+            Arg::new("bundle")
+                .help("Local source bundle to synchronize; default hgnc.")
+                .value_parser([
+                    "wikipathways",
+                    "cbioportal-studies",
+                    "hgnc",
+                    "clingen",
+                    "ema",
+                    "ddinter",
+                    "who-pq",
+                    "gtr",
+                    "who-ivd",
+                    "fda-cdx",
+                ]),
+        ),
+    );
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(

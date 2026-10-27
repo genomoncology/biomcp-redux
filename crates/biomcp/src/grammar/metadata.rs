@@ -24,7 +24,12 @@ pub(super) fn describe(mut command: Command) -> Command {
     if command.get_about().is_none() && !description.is_empty() {
         command = command.about(description);
     }
-    let children: Vec<_> = command.get_subcommands().map(|child| child.get_name().to_owned()).collect();
-    for child in children { command = command.mut_subcommand(child, describe); }
+    let children: Vec<_> = command
+        .get_subcommands()
+        .map(|child| child.get_name().to_owned())
+        .collect();
+    for child in children {
+        command = command.mut_subcommand(child, describe);
+    }
     command
 }
