@@ -27,6 +27,7 @@ impl Spool {
         self.wire = self
             .wire
             .checked_add(bytes.len())
+            .and_then(|n| n.checked_add(super::FRAME_BYTES))
             .ok_or(RecordError::Limit)?;
         if bytes.len() > self.limits.message_bytes
             || self.wire > self.limits.wire_bytes
@@ -95,7 +96,10 @@ pub(super) fn frames(
         ))
         .map_err(|_| crate::BadReply)?;
         count = count.checked_add(1).ok_or(crate::BadReply)?;
-        wire = wire.checked_add(length).ok_or(crate::BadReply)?;
+        wire = wire
+            .checked_add(length)
+            .and_then(|n| n.checked_add(super::FRAME_BYTES))
+            .ok_or(crate::BadReply)?;
         if count > limits.messages || wire > limits.wire_bytes || length > limits.message_bytes {
             return Err(crate::BadReply);
         }

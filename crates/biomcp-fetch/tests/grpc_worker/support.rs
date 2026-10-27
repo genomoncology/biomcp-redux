@@ -95,7 +95,7 @@ impl Fixture {
                             accepted.fetch_add(1, Ordering::SeqCst);
                             sent.send(Seen::Tcp)?;
                             let (sent, tls, messages) = (sent.clone(), tls.clone(), messages.clone());
-                            connections.spawn(async move { serve(Box::new(stream), tls, hold, status, proxy, proxy_tls, sent, messages).await });
+                            connections.spawn(async move { serve(Box::new(stream), tls, hold, status, (proxy, proxy_tls), sent, messages).await });
                         }
                     }
                 }
@@ -198,13 +198,12 @@ async fn serve(
     tls: Arc<rustls::ServerConfig>,
     hold: Hold,
     status: u8,
-    proxy: bool,
-    proxy_tls: bool,
+    proxy: (bool, bool),
     events: mpsc::Sender<Seen>,
     messages: Arc<Vec<Vec<u8>>>,
 ) -> Check {
-    if proxy {
-        if proxy_tls {
+    if proxy.0 {
+        if proxy.1 {
             let mut outer = (*tls).clone();
             outer.alpn_protocols = vec![b"http/1.1".to_vec()];
             socket = Box::new(

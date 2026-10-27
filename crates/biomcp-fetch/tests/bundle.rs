@@ -5,6 +5,8 @@
     clippy::disallowed_types,
     reason = "Fixture failures fail the contract"
 )]
+#[path = "support/environment.rs"]
+mod child_environment;
 mod support;
 use biomcp_fetch::{
     Bundle, Fetch, FetchConfig, Find, Freshness, KeyKind, KeyUse, Keys, Quota, Rate, Row,
@@ -173,36 +175,40 @@ fn recording_replay_replaces_warm_case_rows_once_and_ignores_user_cache() {
     );
     assert!(server.requests.try_recv().is_err());
 }
-struct Child(std::process::Child);
+struct Child {
+    process: std::process::Child,
+    _environment: tempfile::TempDir,
+}
 impl Child {
     fn start(path: &std::path::Path, base: &str, expected: &str) -> Self {
-        let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+        let environment = child_environment::new().unwrap();
+        let mut command =
+            child_environment::command(&std::env::current_exe().unwrap(), environment.path(), &[]);
         command
             .args(["--exact", "bundle_sync_child", "--nocapture"])
-            .env_clear()
             .env("BUNDLE_PATH", path)
             .env("BUNDLE_BASE", base)
             .env("BUNDLE_EXPECTED", expected)
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped());
-        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
-            command.env("LLVM_PROFILE_FILE", profile);
+        Self {
+            process: command.spawn().unwrap(),
+            _environment: environment,
         }
-        Self(command.spawn().unwrap())
     }
     fn finish(&mut self) {
         let end = std::time::Instant::now() + Duration::from_secs(15);
         loop {
-            if let Some(status) = self.0.try_wait().unwrap() {
+            if let Some(status) = self.process.try_wait().unwrap() {
                 let mut output = String::new();
                 use std::io::Read;
-                self.0
+                self.process
                     .stdout
                     .take()
                     .unwrap()
                     .read_to_string(&mut output)
                     .unwrap();
-                self.0
+                self.process
                     .stderr
                     .take()
                     .unwrap()
@@ -218,8 +224,8 @@ impl Child {
 }
 impl Drop for Child {
     fn drop(&mut self) {
-        let _ = self.0.kill();
-        let _ = self.0.wait();
+        let _ = self.process.kill();
+        let _ = self.process.wait();
     }
 }
 #[test]

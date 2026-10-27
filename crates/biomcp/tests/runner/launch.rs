@@ -1,13 +1,8 @@
 use std::{fs, io, path::Path, process::Command};
 
-pub(super) const ENV_PATHS: &[(&str, &str)] = &[
-    ("HOME", "home"),
-    ("USERPROFILE", "home"),
-    ("APPDATA", "config"),
-    ("LOCALAPPDATA", "cache"),
-    ("XDG_CONFIG_HOME", "config"),
-    ("XDG_CACHE_HOME", "cache"),
-];
+#[path = "../../../biomcp-fetch/tests/support/environment.rs"]
+mod child_environment;
+pub(super) use child_environment::ENV_PATHS;
 
 #[derive(Debug)]
 pub(super) struct Environment {
@@ -16,10 +11,7 @@ pub(super) struct Environment {
 
 impl Environment {
     pub(super) fn new() -> io::Result<Self> {
-        let root = tempfile::tempdir()?;
-        for directory in ["home", "config", "cache"] {
-            fs::create_dir(root.path().join(directory))?;
-        }
+        let root = child_environment::new()?;
         Ok(Self { root })
     }
 
@@ -56,21 +48,8 @@ impl Environment {
         reason = "The launcher alone selects an explicitly installed artifact"
     )]
     pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
-        let mut command = Command::new(executable(program.as_ref()));
-        command
-            .args(args)
-            .env_clear()
-            .envs(
-                ENV_PATHS
-                    .iter()
-                    .map(|(key, path)| (key, self.root.path().join(path))),
-            )
-            .current_dir(self.root.path());
-        // Winsock needs the operating system directory in an isolated child.
-        #[cfg(windows)]
-        if let Some(root) = std::env::var_os("SystemRoot") {
-            command.env("SystemRoot", root);
-        }
+        let mut command =
+            child_environment::command(&executable(program.as_ref()), self.root.path(), args);
         if std::env::current_exe().is_ok_and(|runner| runner == program.as_ref()) {
             // Nested runner proofs must retain the selection, never falling
             // back to Cargo's binary merely because a helper cleared its env.
@@ -79,9 +58,6 @@ impl Environment {
                     command.env(key, value);
                 }
             }
-        }
-        if let Some(profile) = std::env::var_os("LLVM_PROFILE_FILE") {
-            command.env("LLVM_PROFILE_FILE", profile);
         }
         command
     }

@@ -1,5 +1,7 @@
 //! Prove that another process reads the ordinary shared checked reply cache.
 use super::*;
+#[path = "../support/environment.rs"]
+mod child_environment;
 #[test]
 #[expect(
     clippy::disallowed_methods,
@@ -18,13 +20,9 @@ fn another_process_reads_checked_cache_without_connecting() -> Check {
         Limits::default(),
     )?;
     get(&live, source, METHOD, SCHEMA, Freshness::Hours(1))?;
-    let mut process = std::process::Command::new(std::env::current_exe()?);
-    process.env_clear();
-    for name in ["PATH", "SystemRoot", "WINDIR", "TMP", "TEMP"] {
-        if let Some(value) = std::env::var_os(name) {
-            process.env(name, value);
-        }
-    }
+    let environment = child_environment::new()?;
+    let mut process =
+        child_environment::command(&std::env::current_exe()?, environment.path(), &[]);
     let result = process
         .args(["--exact", "process::offline_child", "--nocapture"])
         .env("RPC_TEST_CACHE", cache)

@@ -42,6 +42,12 @@ impl Recordings {
         let Self::Capture(capture) = self else {
             return Ok(());
         };
+        if !rpc.valid()
+            || url.len() > MAX_METADATA_BYTES
+            || post.request_content_type.len() > MAX_METADATA_BYTES
+        {
+            return Err(RecordError::Limit);
+        }
         let mut sequences = capture.sequences.lock().map_err(|_| RecordError::Io)?;
         let recording = sequences
             .entry((source, *key))
@@ -62,15 +68,7 @@ impl Recordings {
             .ok_or(RecordError::Malformed)?;
         let binary_owner =
             owner.with_file_name(format!("{stem}-grpc-{}.json", recording.exchanges.len()));
-        for index in 0..spool.messages.len() {
-            let delay_ms = spool
-                .messages
-                .get(index)
-                .ok_or(RecordError::Malformed)?
-                .delay_ms;
-            let sidecar = sidecar::publish(&binary_owner, index, &spool.message(index)?)?;
-            rpc.messages.push(Message { sidecar, delay_ms });
-        }
+        rpc.messages = publish_messages(&binary_owner, spool)?;
         recording.exchanges.push(Exchange {
             fetched: crate::cache::now(),
             status: 200,
@@ -84,7 +82,10 @@ impl Recordings {
         });
         let result = publish(&owner, recording, MAX_FILE_BYTES);
         if result.is_err() {
-            recording.exchanges.pop();
+            let exchange = recording.exchanges.pop().ok_or(RecordError::Malformed)?;
+            if let Some(rpc) = exchange.rpc {
+                rollback(&owner, &rpc.messages)?;
+            }
         }
         result
     }
@@ -100,4 +101,34 @@ impl Recordings {
         };
         sidecar::read(&path(dir, source, key), &message.sidecar, limit)
     }
+}
+
+fn publish_messages(owner: &Path, spool: &mut Spool) -> Result<Vec<Message>, RecordError> {
+    let mut messages = Vec::new();
+    for index in 0..spool.messages.len() {
+        let result = (|| {
+            let delay_ms = spool
+                .messages
+                .get(index)
+                .ok_or(RecordError::Malformed)?
+                .delay_ms;
+            let sidecar = sidecar::publish(owner, index, &spool.message(index)?)?;
+            Ok(Message { sidecar, delay_ms })
+        })();
+        match result {
+            Ok(message) => messages.push(message),
+            Err(error) => {
+                rollback(owner, &messages)?;
+                return Err(error);
+            }
+        }
+    }
+    Ok(messages)
+}
+fn rollback(owner: &Path, messages: &[Message]) -> Result<(), RecordError> {
+    let parent = owner.parent().ok_or(RecordError::Io)?;
+    for message in messages {
+        fs::remove_file(parent.join(&message.sidecar)).map_err(|_| RecordError::Io)?;
+    }
+    Ok(())
 }
