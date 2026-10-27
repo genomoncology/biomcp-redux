@@ -169,6 +169,16 @@ fn tls() -> Result<(), String> {
 }
 
 fn configuration() -> Result<(), String> {
+    offline_bypass()?;
+    named_fields()?;
+    named_environment()?;
+    duplicate_field_cause()?;
+    named_server_and_key_causes()?;
+    skipped_bypass()?;
+    automatic_sync()
+}
+
+fn offline_bypass() -> Result<(), String> {
     for rule in ["::1", "[::1]:8080", "10.0.0.0/8", "fd00::/8"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let output = env
@@ -185,6 +195,10 @@ fn configuration() -> Result<(), String> {
             ));
         }
     }
+    Ok(())
+}
+
+fn named_fields() -> Result<(), String> {
     for (config, field) in [
         (json!({"formatt":"synthetic-private"}), "formatt"),
         (json!({"":"synthetic-private"}), "config.json"),
@@ -208,6 +222,10 @@ fn configuration() -> Result<(), String> {
             ));
         }
     }
+    Ok(())
+}
+
+fn named_environment() -> Result<(), String> {
     for (variable, value) in [
         ("HTTP_PROXY", "http://[synthetic-private"),
         ("HTTPS_PROXY", "http://[synthetic-private"),
@@ -234,9 +252,10 @@ fn configuration() -> Result<(), String> {
             ));
         }
     }
-    duplicate_field_cause()?;
-    named_server_and_key_causes()?;
-    skipped_bypass()?;
+    Ok(())
+}
+
+fn automatic_sync() -> Result<(), String> {
     for limit in [1, 1_000_000] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let stub = super::network_stub::Stub::new()?;
@@ -290,7 +309,7 @@ fn skipped_bypass() -> Result<(), String> {
     {
         return Err(format!("missing bounded notice: {value}"));
     }
-    let many = vec!["synthetic-private!"; 12].join(",");
+    let many = ["synthetic-private!"; 12].join(",");
     let value = health(&many)?;
     if value
         .pointer("/result/configuration/notices")
