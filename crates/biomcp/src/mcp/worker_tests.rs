@@ -9,7 +9,7 @@ fn panicking_worker_completes_with_internal_error() {
         active: std::collections::BTreeMap::new(),
         legacy: false,
         globals: crate::grammar::Globals::default(),
-        fetch: Err(crate::config::StartupError(None)),
+        fetch: Err(crate::config::StartupError::Local),
     };
     server
         .start_call("panic".into(), json!("panic"), true, None, || {

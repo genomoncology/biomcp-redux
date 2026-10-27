@@ -165,6 +165,10 @@ impl fmt::Debug for Fetch {
 }
 
 impl Fetch {
+    /// Bounded nonfatal settings notices for local health diagnostics.
+    pub fn configuration_health(&self) -> Option<&biomcp_types::ConfigurationHealth> {
+        self.config.network.configuration()
+    }
     /// Open a client using platform TLS roots and only the supplied proxy.
     pub fn open(mut config: FetchConfig) -> Result<Self, FetchError> {
         if config.max_body == u64::MAX {

@@ -8,6 +8,9 @@ pub struct Health {
     /// Sources and carried components excluded by each supported terms group.
     #[serde(default)]
     pub disable_groups: Box<[DisableGroup]>,
+    /// Bounded local settings notices, independent of source probes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub configuration: Option<ConfigurationHealth>,
     /// Every implemented adapter, in declaration order.
     pub sources: Box<[SourceHealth]>,
 }
@@ -88,4 +91,41 @@ pub struct DisabledComponent {
     pub source: Source,
     /// Registry-owned component name.
     pub name: String,
+}
+
+/// Local configuration notices contain names and positions, never supplied entries.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ConfigurationHealth {
+    /// First skipped entries in their original comma-separated order.
+    pub notices: Vec<ConfigurationNotice>,
+    /// Remaining skipped entries omitted from this bounded section.
+    pub omitted_entries: u32,
+}
+/// One unsupported bypass entry skipped without changing other routing rules.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ConfigurationNotice {
+    /// Environment variable owning the entry.
+    pub variable: ConfigurationVariable,
+    /// One-based position in the comma-separated environment setting.
+    pub entry: u32,
+    /// Stable notice identity.
+    pub code: ConfigurationNoticeCode,
+}
+biodata::wire_enum! {
+    /// Settings whose ignored entries can be reported safely.
+    ConfigurationVariable {
+        /// Uppercase proxy bypass environment setting.
+        NoProxy => "NO_PROXY",
+    }
+}
+biodata::wire_enum! {
+    /// Nonfatal local configuration conditions.
+    ConfigurationNoticeCode {
+        /// The entry did not describe a supported host, address or range.
+        UnparseableEntry => "unparseable_entry",
+    }
 }
