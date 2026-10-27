@@ -213,3 +213,4 @@ pub use response::{
 pub use response::{
     AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
 };
+pub use response::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};

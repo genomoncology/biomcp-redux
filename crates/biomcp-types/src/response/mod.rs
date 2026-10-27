@@ -151,3 +151,5 @@ pub use diagnostic::*;
 
 mod pathway;
 pub use pathway::*;
+mod alphagenome_scalar;
+pub use alphagenome_scalar::{AlphaGenomeNonfiniteKind, AlphaGenomeScalar};

@@ -142,7 +142,7 @@ pub struct AlphaGenomeValue {
     /// Native row-major tensor coordinate; plane, row and track indices.
     pub tensor_index: [u32; 3],
     /// Exact numeric value represented by the source scalar.
-    pub value: f64,
+    pub value: super::alphagenome_scalar::AlphaGenomeScalar,
     /// Native metadata for the corresponding track.
     pub track: AlphaGenomeTrack,
     /// Native gene metadata, omitted for a nongene aggregate row.

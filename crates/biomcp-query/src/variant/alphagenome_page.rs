@@ -109,7 +109,10 @@ fn value(
     let track = index % tracks;
     Ok(AlphaGenomeValue {
         tensor_index: [plane as u32, row as u32, track as u32],
-        value: f64::from(f32::from_le_bytes(bytes.try_into().map_err(|_| BadReply)?)),
+        value: biomcp_types::AlphaGenomeScalar::from_float32(f32::from_le_bytes(
+            bytes.try_into().map_err(|_| BadReply)?,
+        ))
+        .map_err(|_| BadReply)?,
         track: group.tracks.get(track).ok_or(BadReply)?.clone(),
         gene: if group.genes.is_empty() {
             None

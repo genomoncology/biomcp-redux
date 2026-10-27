@@ -25,11 +25,6 @@ impl ScoreGroup {
             || (!metadata.genes.is_empty()
                 && shape.get(1).copied().and_then(|v| usize::try_from(v).ok())
                     != Some(metadata.genes.len()))
-            || tensor.bytes().chunks_exact(4).any(|b| {
-                !b.try_into()
-                    .map(f32::from_le_bytes)
-                    .is_ok_and(f32::is_finite)
-            })
         {
             return Err(BadReply);
         }

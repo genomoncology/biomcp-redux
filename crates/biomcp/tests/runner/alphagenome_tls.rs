@@ -51,6 +51,35 @@ fn run() -> Result<(), String> {
                 .chain(["--section-offset".into(), "3".into()])
                 .collect::<Vec<_>>();
             let later = invoke(&env, &args, 0)?;
+            if later.pointer(&format!("{SECTION}/data/scorers/0/rows/0/value"))
+                != Some(&json!({"kind":"negative_infinity"}))
+            {
+                return Err("native negative infinity was dropped or converted".into());
+            }
+            let markdown = env
+                .command(
+                    env!("CARGO_BIN_EXE_biomcp"),
+                    &[
+                        "get",
+                        "variant",
+                        id,
+                        "alphagenome",
+                        "--section-limit",
+                        "4",
+                        "--format",
+                        "md",
+                    ]
+                    .map(str::to_owned),
+                )
+                .output()
+                .map_err(|e| e.to_string())?;
+            let markdown = String::from_utf8(markdown.stdout).map_err(|e| e.to_string())?;
+            if !["NaN", "+Inf", "-Inf"]
+                .into_iter()
+                .all(|label| markdown.contains(label))
+            {
+                return Err("Markdown lost native nonfinite scalar labels".into());
+            }
             if later.pointer(&format!("{SECTION}/data/scorers/0/rows/0/tensor_index"))
                 != Some(&json!([0, 1, 1]))
                 || later.pointer(&format!("{SECTION}/data/scorers/1/page/returned"))
@@ -110,7 +139,7 @@ fn run() -> Result<(), String> {
                 _ => {}
             }
         }
-        if requests != if status == 200 { 2 } else { 1 } {
+        if requests != if status == 200 { 3 } else { 1 } {
             return Err("scoring request retried or was omitted".into());
         }
         fixture.finish().map_err(|e| e.to_string())?;
@@ -178,6 +207,9 @@ fn groups(reply: &Value) -> Result<(), String> {
         }
     }
     if rows.first().and_then(|g| g.pointer("/rows/0/value")) != Some(&json!(0.25))
+        || rows.first().and_then(|g| g.pointer("/rows/1/value")) != Some(&json!({"kind":"nan"}))
+        || rows.first().and_then(|g| g.pointer("/rows/2/value"))
+            != Some(&json!({"kind":"positive_infinity"}))
         || rows.first().and_then(|g| g.pointer("/rows/2/tensor_index")) != Some(&json!([0, 1, 0]))
         || rows
             .get(2)
@@ -255,7 +287,15 @@ fn messages() -> Vec<Vec<u8>> {
                 &field(1, &[field(1, &tensor), field(2, &metadata)].concat()),
             );
             let data = (0..usize::from(shape[0]) * usize::from(shape[1]) * usize::from(shape[2]))
-                .flat_map(|index| (index as f32 + 0.25).to_le_bytes())
+                .flat_map(|index| {
+                    match (ordinal, index) {
+                        (0, 1) => f32::NAN,
+                        (0, 2) => f32::INFINITY,
+                        (0, 3) => f32::NEG_INFINITY,
+                        _ => index as f32 + 0.25,
+                    }
+                    .to_le_bytes()
+                })
                 .collect::<Vec<_>>();
             [descriptor, field(2, &field(1, &data))]
         })
