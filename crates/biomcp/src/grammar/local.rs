@@ -21,6 +21,8 @@ pub(super) fn help_command() -> Command {
         .subcommand(Command::new("skill"))
         .subcommand(Command::new("version"))
         .subcommand(Command::new("mcp-config"))
+        .subcommand(Command::new("sources"))
+        .subcommand(Command::new("config"))
         .subcommand(
             Command::new("network").arg(
                 Arg::new("setting")

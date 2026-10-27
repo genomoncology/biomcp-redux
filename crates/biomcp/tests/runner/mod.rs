@@ -1,6 +1,7 @@
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
+mod article_recovery;
 mod article_save;
 mod assertions;
 mod author;
@@ -119,6 +120,7 @@ mod scholar;
 mod semantic_tables;
 mod skill;
 mod source_controls;
+mod source_groups;
 mod source_terms;
 mod store_clean;
 mod store_coexistence;
@@ -329,6 +331,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     }));
     trials.extend(configuration::trials());
     trials.extend(replay::trials());
+    trials.extend(article_recovery::trials());
     trials.extend(cache_contention::trials());
     trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());
@@ -339,6 +342,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
+    trials.extend(source_groups::trials());
     trials.extend(trial_groups::drug_trials());
     trials.extend(disease_trials());
 

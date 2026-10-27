@@ -13,6 +13,7 @@ mod pathway;
 mod pgx;
 mod phenotype;
 mod protein;
+mod step_sources;
 mod steps;
 mod sync;
 mod transport;
@@ -109,6 +110,15 @@ pub(crate) fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
+        Action::PubmedSearch(q) => execute(
+            fetch,
+            Action::Run {
+                request: Request::SearchArticle(q),
+                fresh: false,
+            },
+            globals,
+            allow_save,
+        ),
         Action::AuthorPapers(q) => execute(
             fetch,
             Action::Run {
@@ -135,7 +145,7 @@ pub(crate) fn execute(
         Action::Sync { bundle } => sync::run(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, globals, allow_save)?;
-            response(fetch, request, result, fresh)
+            response(fetch, request, result, fresh, globals)
         }
     }
 }
@@ -172,9 +182,11 @@ fn response(
     request: Request,
     mut result: biomcp_query::Outcome,
     fresh: bool,
+    globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    drug_label::bound(fetch, &request, &mut result, fresh)?;
-    let steps = steps::next(fetch, &result)?;
+    drug_label::bound(&request, &mut result, fresh, globals)?;
+    step_sources::filter(fetch, &mut result);
+    let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
         local_error: local::kind(result.local),
@@ -413,6 +425,7 @@ fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
     let name = match source {
         biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
         biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
+        biomcp_types::Source::AlphaGenome => biomcp_fetch::SecretName::AlphaGenomeApiKey,
         biomcp_types::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
         biomcp_types::Source::OpenfdaLabel => biomcp_fetch::SecretName::OpenfdaApiKey,
         biomcp_types::Source::Orcid => biomcp_fetch::SecretName::OrcidAccessToken,

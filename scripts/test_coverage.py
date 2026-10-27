@@ -47,6 +47,7 @@ def main():
             shutil.copyfile(ROOT / name, target)
         shutil.copytree(ROOT / "crates/biomcp-types", root / "crates/biomcp-types")
         shutil.copytree(ROOT / "crates/biomcp-fetch", root / "crates/biomcp-fetch")
+        shutil.copytree(ROOT / "crates/biomcp-adapters", root / "crates/biomcp-adapters")
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         tools = root / "fake-tools"
         tools.mkdir()

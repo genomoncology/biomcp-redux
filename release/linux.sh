@@ -4,7 +4,7 @@ set -eu
 test -n "$BUILD_IMAGE"
 revision=$(git rev-parse HEAD)
 mkdir -p .release-cache/cargo dist
-docker run --rm "$@" \
+docker run --rm "$@" --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:/source" -w /source \
   -v "$PWD/.release-cache/cargo:/cargo" -e CARGO_HOME=/cargo \
   -e CARGO_BUILD_JOBS=2 -e "BIOMCP_BUILD_REVISION=$revision" \
@@ -22,7 +22,7 @@ docker run --rm "$@" \
     python release/gate.py --prepare-only --artifacts dist --scratch /source/proof
   '
 # The install process sees the artifacts and copied proof, without the checkout.
-docker run --rm "$@" \
+docker run --rm "$@" --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD/dist:/artifacts:ro" -v "$PWD/proof:/proof:ro" \
   -v "$PWD/dist:/output" \
   "$BUILD_IMAGE" /bin/bash -c '

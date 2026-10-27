@@ -102,6 +102,20 @@ pub(super) fn search(
     partial: bool,
     out: &mut Outcome,
 ) {
+    if out.sources.iter().any(|source| {
+        source.notices.iter().any(|notice| match notice {
+            biomcp_types::SourceNotice::NotFoundWords { .. } => true,
+            biomcp_types::SourceNotice::PubmedWarning { name, phrases } => {
+                matches!(name.as_str(), "quotedphrasesnotfound" | "phrasesignored")
+                    && !phrases.is_empty()
+            }
+            _ => false,
+        })
+    }) && let Some(strict) = query.strict_pubmed()
+    {
+        out.next
+            .insert(0, (StepKind::Disambiguate, Action::PubmedSearch(strict)));
+    }
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {
             (
@@ -156,5 +170,21 @@ pub(super) fn authors(out: &mut Outcome) {
         if !out.next.contains(&step) {
             out.next.push(step);
         }
+    }
+}
+
+/// Unsearchable bodies still permit an explicit abstract read.
+pub(super) fn text(query: &biomcp_types::ArticleText, out: &mut Outcome) {
+    if matches!(&out.body, QueryBody::ArticleText(body)
+        if !matches!(body.content, biomcp_types::Section::Data { .. }))
+        && let Ok(get) = ArticleGet::new(vec![query.input().clone()].into())
+    {
+        out.next.push((
+            StepKind::Disambiguate,
+            Action::Run {
+                request: Request::GetArticle(get),
+                fresh: false,
+            },
+        ));
     }
 }

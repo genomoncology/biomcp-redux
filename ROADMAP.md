@@ -142,7 +142,7 @@ Live source checks:
 
 - [x] Successful Semantic Scholar search and native open-access filter capture
 - [x] Positive Semantic Scholar TLDR for 17611497
-- [ ] Successful LitSense2 AKT1 search; [ticket 0072](sdlc/tickets/0072-litsense-live-proof.md)
+- [x] Successful LitSense2 AKT1 search; [ticket 0072](sdlc/tickets/0072-litsense-live-proof.md)
 
 
 ## Milestone 2: variants and trials

@@ -4,7 +4,7 @@ Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0289, 0290, 0292, 0297, 0319, 0332
+Depends on: 0289, 0290, 0292, 0297, 0319, 0332, 0336
 
 ## Outcome
 
@@ -18,3 +18,13 @@ The final release candidate's artifacts install and run on every promised platfo
 - Proof: one report per platform with exact commands, versions and exits, reviewed by a fresh reviewer.
 - Changes: none expected beyond fixes the rehearsal finds, each its own ticket.
 - Defers: publication, which needs Ian.
+
+## Evidence
+
+The qualified release candidate is `release/1.0` at `ff2e9b64c8b6f205ecd60c3bc51874bfa7223b55`. Its product source is `e4b72e59f590f4b04189718d8ecdd633e4238307`. The refreshed baseline contains 275 schemas generated from that exact source. Local job `j17367` passed baseline equality, schema comparison, the six fixes, container checks and the routine gate.
+
+[Hosted run 40542150253](https://github.com/genomoncology/biomcp-redux/actions/runs/40542150253) qualified that exact release candidate through `workflow_dispatch`, attempt 1. The repository was public, and every runner label was a standard free hosted runner. All five native platform jobs passed: Linux x86_64, Linux arm64, macOS Intel, macOS arm64 and Windows x86_64. Both Linux container checks passed. Each platform's retained install report records version, isolated offline health with all 56 source IDs disabled, replayed search and get, and stdio and HTTP MCP checks for the installed channels. Both macOS platforms passed actual Homebrew installation. Homebrew was deferred on Linux and Windows. The Linux x86_64 schema step and publication payload staging passed. The release operator job was skipped. Nothing was published.
+
+The raw evidence is retained on Yellow at `/home/ian/workspace/data/biomcp-redux/0293-release-rehearsal-evidence/candidate-ff2e9b64c8b6/hosted-40542150253`. Its 132-file manifest has SHA-256 `0abc92aaebe5de95ad61504ac89256621c574688c5620f7fabf33e7d062b15b3`. The archive holds terminal API records, raw logs, exact workflow and tooling, five platform install reports, artifact download receipts, member hashes and binary identity receipts. It contains no product archives or executables.
+
+A fresh independent reviewer accepted the hosted evidence after checking all 132 manifest entries, all 79 raw log members, all six downloaded artifact ZIPs against API sizes and digests, every artifact member, 15 native executables, two container executables, and the platform reports against the raw logs. The review confirmed offline source isolation, both Homebrew installs, schema comparison, staging and the skipped release operator. The build delegate reverified the durable archive and removed its owned temporary downloads after acceptance. GitHub artifacts remain available. Publication and the history append remain deferred for Ian's approval.

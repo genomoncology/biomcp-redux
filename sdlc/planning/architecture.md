@@ -1875,6 +1875,7 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-types/tests/schemas/values.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/value_conventions.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-adapters/src/monarch/native_contracts.rs` | Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command. |
+| `crates/biomcp-adapters/tests/alphagenome_registration.rs` | Exercise restricted source registration and required-key admission before a product section exists. |
 | `crates/biomcp-adapters/tests/batch_bounds.rs` | Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits. |
 | `crates/biomcp-adapters/tests/pmc_body.rs` | Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON. |
 | `crates/biomcp-adapters/tests/pmc_limits.rs` | Reject invalid table spans and duplicate table IDs before allocation with a tiny decoder boundary table. |
@@ -1882,6 +1883,9 @@ The ratchet owns the authoritative file and reason list below and checks this ta
 | `crates/biomcp-fetch/src/grpc/dns_tests.rs` | Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
+| `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
+| `crates/biomcp-fetch/tests/alphagenome/routing.rs` | Exercise required-key admission and placeholder credential routing through a local TLS stream. |
+| `crates/biomcp-fetch/tests/score_variant.rs` | Exercise the ruled scoring request and complete scorer admission through the public protocol API. |
 | `crates/biomcp-fetch/tests/batch.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/download.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |

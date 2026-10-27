@@ -228,3 +228,11 @@ pub(crate) static CELLOSAURUS: Quota = Quota::new(
     None,
     1,
 );
+
+// Conservative serial local policy; no published numeric provider quota verified.
+pub(crate) static ALPHAGENOME: Quota = Quota::new(
+    SourceKey::declare("alphagenome"),
+    Rate::per_second(1),
+    None,
+    1,
+);

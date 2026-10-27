@@ -1,5 +1,7 @@
 //! Decode provider tensor payloads under explicit allocation limits without network access.
 pub(super) const FRAME_BYTES: usize = tonic::codec::HEADER_SIZE;
+/// Narrow AlphaGenome request encoding and complete-envelope validation.
+pub mod alphagenome;
 mod bounds;
 mod checked;
 mod persistence;

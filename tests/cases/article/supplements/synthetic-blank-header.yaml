@@ -1,6 +1,6 @@
 {
   "feature": "article-supplements",
-  "story": "Synthetic empty first row stays the empty header; later data does not become the header. Workbook response bytes alone change the captured command.",
+  "story": "Synthetic empty first row stays an empty numbered first row; later data does not replace it. Workbook response bytes alone change the captured command.",
   "replay": "article/supplements/synthetic-blank-header",
   "steps": [
     {
@@ -16,7 +16,7 @@
       ],
       "expect": {
         "/result/content/data/rows/0/row": 2,
-        "/result/content/data/rows/0/header": [],
+        "/result/content/data/rows/0/first_row": {"equals": {"row": 1, "cells": []}},
         "/result/content/data/rows/0/cells": [
           "data"
         ]

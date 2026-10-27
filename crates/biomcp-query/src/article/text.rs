@@ -60,6 +60,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
             },
         ));
     }
+    super::next::text(query, &mut out);
     super::save::Download {
         out,
         file: save.file,

@@ -3770,6 +3770,7 @@
         "nci",
         "civic",
         "hotspots",
+        "alphagenome",
         "oncokb",
         "myvariant",
         "car",
@@ -3842,6 +3843,7 @@
         " NCI Clinical Trials Search.",
         " CIViC.",
         " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
         " OncoKB.",
         " MyVariant.info aggregation.",
         " ClinGen Allele Registry.",
@@ -3925,6 +3927,52 @@
           "required": [
             "kind",
             "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar_rsid_hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "phrases"
           ],
           "type": "object"
         },

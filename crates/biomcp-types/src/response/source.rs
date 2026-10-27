@@ -63,6 +63,18 @@ pub enum SourceNotice {
         /// Default-source command offering another graph view.
         fallback: crate::Text,
     },
+    /// An empty LitVar lookup can be repeated with a caller-supplied rsID.
+    LitvarRsidHint {
+        /// Guidance that never supplies or infers an rsID.
+        message: Box<str>,
+    },
+    /// PubMed supplied a named ESearch warning without changing its phrases.
+    PubmedWarning {
+        /// Original provider warning name, including names added by PubMed later.
+        name: String,
+        /// Original provider phrases, preserving whitespace and quotes.
+        phrases: Box<[String]>,
+    },
     /// PubMed did not index these words.
     NotFoundWords {
         /// Whole source words.

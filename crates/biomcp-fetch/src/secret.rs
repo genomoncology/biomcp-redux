@@ -92,6 +92,7 @@ impl SecretName {
         Self::SemanticScholarApiKey,
         Self::OrcidAccessToken,
         Self::OncokbApiKey,
+        Self::AlphaGenomeApiKey,
         Self::NciApiKey,
         Self::OpenfdaApiKey,
     ];
@@ -103,6 +104,7 @@ impl SecretName {
             Self::SemanticScholarApiKey => "semantic-scholar",
             Self::OrcidAccessToken => "orcid",
             Self::OncokbApiKey => "oncokb",
+            Self::AlphaGenomeApiKey => "alphagenome",
             Self::NciApiKey => "nci",
         }
     }
@@ -114,6 +116,7 @@ impl SecretName {
             Self::SemanticScholarApiKey => "semantic_scholar_api_key",
             Self::OrcidAccessToken => "orcid_access_token",
             Self::OncokbApiKey => "oncokb_api_key",
+            Self::AlphaGenomeApiKey => "alphagenome_api_key",
             Self::NciApiKey => "nci_api_key",
         }
     }
@@ -125,6 +128,7 @@ impl SecretName {
             Self::SemanticScholarApiKey => "S2_API_KEY",
             Self::OrcidAccessToken => "ORCID_ACCESS_TOKEN",
             Self::OncokbApiKey => "ONCOKB_TOKEN",
+            Self::AlphaGenomeApiKey => "ALPHAGENOME_API_KEY",
             Self::NciApiKey => "NCI_API_KEY",
         }
     }
