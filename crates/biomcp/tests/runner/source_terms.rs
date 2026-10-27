@@ -269,7 +269,7 @@ fn markdown_subtraction() -> Result<(), String> {
         return Err("ordinary Markdown earned a deduction".into());
     }
     for changed in [
-        text.replace("CC0 1.0", "wrong terms"),
+        text.replace(&text::escape("CC0 1.0"), "wrong terms"),
         text.replace(" Terms ", " Missing "),
     ] {
         if markdown_bytes(&changed, &value).is_ok() {

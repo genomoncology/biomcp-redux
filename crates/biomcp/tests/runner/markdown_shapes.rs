@@ -13,7 +13,8 @@ pub(super) struct Shape {
     pub(super) required: &'static [&'static str],
     pub(super) max_bytes: usize,
 }
-// Measured Markdown plus 15%; the protein ceiling also respects the matching
+// Article card/reader ceilings use literal-text measurements from j17875 plus 15%.
+// Other measured Markdown plus 15%; the protein ceiling also respects the matching
 // 0.9 JSON baseline. Reader, supplement-row and usage shapes have no comparable old output.
 const SHAPES: &[Shape] = &[
     Shape {
@@ -138,13 +139,13 @@ const SHAPES: &[Shape] = &[
             "**status:**",
             "biomcp",
         ],
-        max_bytes: 2421,
+        max_bytes: 2803,
     },
     Shape {
         args: &["article", "text", "PMC5606870", "--part", "1"],
         replies: "article/fulltext/synthetic",
         required: &["\\#\\# Introduction", "\\*text\\*", "**state:** data"],
-        max_bytes: 650,
+        max_bytes: 786,
     },
     Shape {
         args: &[
@@ -163,7 +164,7 @@ const SHAPES: &[Shape] = &[
             "| Sheet | Row | Cells | Cells | Row |",
             concat!(
                 "| ST2 | 87 | \\[\\] | \\[\\] | 1 | 1 | true | 0 | ",
-                "Supplemental Table 2: Individual Tier 2 Variants. |"
+                "Supplemental Table 2&#58; Individual Tier 2 Variants&#46; |"
             ),
             "AXIN2",
             "p&#46;Pro245Ser",
