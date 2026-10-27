@@ -1,0 +1,53 @@
+- id: clinvar-significance
+  question: How do I get the ClinVar clinical significance of a variant?
+  source: cases
+  frequency: "use case 05; 0.9 annotate-variants how-to"
+  rank: 8
+  page: /variants/
+  reference: /reference/commands/variant-assertions/
+- id: gnomad-frequency
+  question: How do I get gnomAD allele counts for a variant?
+  source: product
+  frequency: listed from variant population
+  rank: 27
+  page: /variants/
+  reference: /reference/commands/variant-population/
+- id: hgvs-to-grch38
+  question: How do I convert HGVS c. notation to GRCh38 genomic coordinates?
+  source: cases
+  frequency: "use case 16 normalize to codes"
+  rank: 30
+  page: /variants/
+  reference: /reference/commands/variant-normalize/
+- id: rsid-to-gene
+  question: Which gene and alleles does an rsID belong to?
+  source: product
+  frequency: listed from get variant inputs
+  rank: 32
+  page: /variants/
+  reference: /reference/commands/get-variant/
+  answers_page: true
+  example: a-rsid-gene
+  answer: |
+    Run `biomcp get variant RSID`. An rsID can name several alternate alleles, so BioMCP returns one candidate per allele, each with its gene, its other identifiers and its genomic HGVS. This BioMCP 1.0 run shows the three alleles MyVariant.info records for rs113488022 in BRAF.
+  why: |
+    dbSNP rsIDs name a position and can cover more than one change. BioMCP keeps every source candidate and does not pick one. The candidate whose ClinVar ID is `clinvar:13961` is the A>T change that encodes BRAF V600E; its `next` command reads it with `--build GRCh37`.
+  limits: |
+    The HGVS here is on the build MyVariant.info used, GRCh37. `biomcp variant normalize` converts it. An rsID absent from MyVariant.info returns no candidates, which is not proof it does not exist.
+  verified: 2026-10-27
+  page_title: Look up a variant
+  reference_title: get variant
+- id: civic-evidence
+  question: How do I find CIViC evidence for a variant?
+  source: product
+  frequency: listed from the civic section
+  rank: 35
+  page: /variants/
+  reference: /reference/commands/get-variant/
+- id: indel-identifiers
+  question: Which identifiers does get variant accept?
+  source: public
+  frequency: "issue #249 (indel IDs rejected)"
+  rank: 42
+  page: /variants/
+  reference: /reference/commands/get-variant/

@@ -1,0 +1,36 @@
+---
+title: How do I count trials that have posted results?
+description: Combine `--has-results` with `--count-only`. BioMCP returns
+  ClinicalTrials.gov's own total without rows. This BioMCP 1.0 run counts
+  melanoma trials with posted results.
+goal: "Answer: How do I count trials that have posted results?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Combine `--has-results` with `--count-only`. BioMCP returns ClinicalTrials.gov's own total without rows. This BioMCP 1.0 run counts melanoma trials with posted results.
+
+## Command
+
+<Example id="a-trials-results" />
+
+## Why it works
+
+`--has-results` keeps trials with results posted to the registry. `--count-only` asks the registry for its total and returns it as the source's `count`.
+
+## Limits
+
+Posted results are those on ClinicalTrials.gov. Results published only in journals are not counted. The total changes as the registry updates.
+
+## Read next
+
+- [Find clinical trials by condition, gene or variant](/clinical-trials/)
+- [search trial](/reference/commands/search-trial/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

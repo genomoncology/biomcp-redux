@@ -1,0 +1,1 @@
+{"source":"uniprot","proteins":[{"accession":"P15056","name":"Serine/threonine-protein kinase B-raf","length":766}]}

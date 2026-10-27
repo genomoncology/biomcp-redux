@@ -1,1 +1,133 @@
-[]
+# Setup, agents and configuration. source: product = listed from the 1.0 help (long-tail method 3);
+# public = a public GitHub issue on genomoncology/biomcp (method 4); cases = the 1.0 skill's use cases (method 5).
+# frequency records the evidence; rank orders the whole list across files.
+- id: install-biomcp
+  question: How do I install BioMCP?
+  source: product
+  frequency: every new user; install page is the second spine page
+  rank: 1
+  page: /install/
+  reference: /reference/commands/version/
+- id: first-query
+  question: How do I run my first BioMCP query?
+  source: product
+  frequency: every new user
+  rank: 2
+  page: /quickstart/
+  reference: /reference/commands/get-gene/
+- id: add-to-claude
+  question: How do I add BioMCP to Claude Desktop, Claude Code, Cursor or Codex?
+  source: public
+  frequency: "issues #239, #293 and the 0.9 mcp-clients page"
+  rank: 3
+  page: /connect-an-agent/
+  reference: /reference/commands/mcp-config/
+- id: what-is-biomcp
+  question: What is BioMCP and what data can it reach?
+  source: product
+  frequency: the home page question
+  rank: 4
+  page: /
+  reference: /reference/entities/
+- id: mcp-server-for-pubmed
+  question: Is there an MCP server for PubMed?
+  source: public
+  frequency: common agent search phrase; BioMCP's PubMed source
+  rank: 9
+  page: /connect-an-agent/
+  reference: /reference/mcp-tools/
+  answers_page: true
+  example: a-pubmed-mcp
+  answer: |
+    Yes. BioMCP 1.0 is an MCP server whose `biomcp` tool runs `search article`, which searches PubMed by default. Add it to your client with the output of `biomcp mcp-config`, then call the tool with the command's words. This exchange starts the server over stdio and searches PubMed for KRAS G12C, as a client would.
+  why: |
+    `biomcp serve` speaks MCP over stdio. The `biomcp` tool takes an `args` array, the same words as the command line, and returns the same JSON reply. PubMed is the default `--source` for `search article`, so no source flag is needed. The same tool also reaches Europe PMC, PMC full text, iCite citations and Semantic Scholar.
+  limits: |
+    BioMCP sends your words to PubMed as written and returns PubMed's order. It does not summarize papers. Without an NCBI key PubMed applies its public rate limit; `biomcp key set ncbi` raises it.
+  verified: 2026-10-27
+  page_title: Connect an agent
+  reference_title: MCP tools
+- id: chatgpt-search-fetch
+  question: Does BioMCP work with ChatGPT search and fetch?
+  source: product
+  frequency: listed MCP tools search and fetch
+  rank: 19
+  page: /connect-an-agent/
+  reference: /reference/mcp-tools/
+- id: skill-install
+  question: How do I give a coding agent the BioMCP skill?
+  source: public
+  frequency: "issue #239 'turn this into a skill' (6 comments)"
+  rank: 17
+  page: /connect-an-agent/
+  reference: /reference/commands/skill-install/
+- id: set-api-key
+  question: How do I set an API key for OncoKB, NCBI or Semantic Scholar in BioMCP?
+  source: public
+  frequency: "issue #225 (Semantic Scholar without key); key commands in help"
+  rank: 13
+  page: /keys-and-configuration/
+  reference: /reference/commands/key-set/
+- id: disable-licensed-sources
+  question: How do I turn off sources that need a commercial license?
+  source: public
+  frequency: "issue #290 (3 comments)"
+  rank: 15
+  page: /sources/
+  reference: /reference/sources/
+- id: corporate-proxy-ca
+  question: How do I use BioMCP behind a corporate proxy or with a custom CA certificate?
+  source: public
+  frequency: "issue #250"
+  rank: 20
+  page: /keys-and-configuration/
+  reference: /reference/global-options/
+- id: serve-http-remote
+  question: How do I run BioMCP as a remote HTTP MCP server?
+  source: public
+  frequency: "issue #240 (4 comments)"
+  rank: 18
+  page: /run-as-a-server/
+  reference: /reference/commands/serve/
+- id: docker
+  question: How do I run BioMCP in Docker?
+  source: public
+  frequency: "issues #241, #281"
+  rank: 25
+  page: /install/
+  reference: /reference/commands/serve/
+- id: exit-codes
+  question: What do BioMCP's exit codes mean?
+  source: product
+  frequency: listed from exit codes
+  rank: 31
+  page: /results/
+  reference: /reference/exit-codes/
+- id: empty-result
+  question: Does an empty BioMCP result mean the record does not exist?
+  source: product
+  frequency: listed from statuses; skill guide warns about it
+  rank: 14
+  page: /results/
+  reference: /reference/envelope/
+- id: offline
+  question: Can BioMCP work offline?
+  source: product
+  frequency: listed from --offline
+  rank: 36
+  page: /local-data/
+  reference: /reference/global-options/
+- id: upgrade-09
+  question: How do I upgrade from BioMCP 0.9 to 1.0?
+  source: product
+  frequency: every 0.9 user
+  rank: 16
+  page: /upgrade-from-0-9/
+  reference: /reference/upgrade-map/
+- id: local-failure
+  question: What does "local.failure local configuration, cache or recording failed" mean?
+  source: product
+  frequency: listed from error codes; seen on this build machine
+  rank: 34
+  page: /troubleshooting/
+  reference: /reference/exit-codes/

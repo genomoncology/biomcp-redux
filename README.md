@@ -1,37 +1,60 @@
 # BioMCP
 
-BioMCP retrieves biomedical evidence for cancer care and human health research. It connects genes, variants, drugs, diseases, trials, articles and other entities to their source records through a command line and the Model Context Protocol (MCP). Results retain source identities, terms, problems and next commands. BioMCP does not make treatment decisions or run bioinformatics tools.
+BioMCP searches and fetches biomedical records from public sources: genes, variants, clinical trials, articles, drugs, diseases and 16 entities in all, across 56 sources. It is one program with two faces. In the shell it is the `biomcp` command. In an AI agent it is an MCP server with one `biomcp` tool that takes the same commands. It is for researchers, curators and developers who want source records with their identifiers and terms, from the shell or through an agent. This README covers BioMCP 1.0.
 
-## Install and upgrade
+Documentation: **https://biomcp.org/**
 
-Install the published package with `uv tool install biomcp-cli`. Upgrade an existing installation with `uv tool upgrade biomcp-cli`. Use the package manager or verified installer that owns your installation for updates and removal. BioMCP has no self-update command.
+## One command
 
-The [upgrade guide](sdlc/planning/upgrade.md) maps 0.9 commands to their replacements and explains retired capabilities. Confirm the installed version before using this command reference:
+```sh
+biomcp get gene BRAF
+```
+
+The reply is one JSON object. Its status, the gene and the source outcomes, filtered with `jq` from the run in the docs build:
+
+```json
+{
+  "status": "complete",
+  "gene": {
+    "symbol": "BRAF",
+    "hgnc_id": "HGNC:1097",
+    "name": "B-Raf proto-oncogene, serine/threonine kinase",
+    "location": "7q34"
+  },
+  "sources": [
+    { "source": "hgnc", "state": "ok", "reason": null },
+    { "source": "mygene", "state": "ok", "reason": null },
+    { "source": "oncokb", "state": "skipped", "reason": "no_key" }
+  ]
+}
+```
+
+Every reply names the sources it asked and whether each answered. OncoKB was skipped because it needs your own key.
+
+## Install
+
+```sh
+curl -fsSL https://biomcp.org/install.sh | bash
+```
+
+Or install the PyPI package `biomcp-cli`, which provides the `biomcp` command:
+
+```sh
+uv tool install biomcp-cli
+```
+
+Homebrew, the container image `ghcr.io/genomoncology/biomcp`, the `.mcpb` desktop extension and the Claude Code plugin are on the [install page](https://biomcp.org/install/). Check the install:
 
 ```sh
 biomcp version
 ```
 
-## Configure sources and keys
+## The smallest useful example
 
-Every source and component field is enabled by default, including noncommercial and restricted data. Publisher terms remain authoritative. Public API access grants no additional reuse rights. Commercial users must set this configuration:
-
-```json
-{"disable_sources": ["noncommercial", "restricted"]}
-```
-
-BioMCP reads `$XDG_CONFIG_HOME/biomcp/config.json` or `~/.config/biomcp/config.json` on Unix, and `%APPDATA%/biomcp/config.json` on Windows. Use `--config PATH` for another file. Source names and the `noncommercial` and `restricted` groups also work with `--disable-sources`. Configuration and command exclusions combine. Exclusions also prevent disabled data from returning through cache, replay or stored collections.
-
-Use `biomcp key set oncokb` to enter your own key at a prompt that hides input. Keys stay in the configuration folder and out of shell history. `biomcp key list` reports credential names and origins without values. Source-specific environment variables remain available; `biomcp help key oncokb` explains the supported names. A source that requires your account or license sends no request without your key. An optional key raises its source's limit; the source remains available at its public limit without it.
-
-For company networks, `ca_bundle` adds PEM certificates to platform trust and keeps verification enabled. `proxy` sets an explicit HTTP or HTTPS proxy. Otherwise BioMCP uses `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Use `biomcp help network ca_bundle` or `biomcp help network proxy` for details.
-
-## Ask a question
-
-Which source record identifies KRAS?
+Which registered trials match melanoma?
 
 ```sh
-biomcp get gene KRAS
+biomcp search trial --condition melanoma
 ```
 
 Which PubMed articles match AKT1 E17K?
@@ -40,28 +63,36 @@ Which PubMed articles match AKT1 E17K?
 biomcp search article 'AKT1 E17K'
 ```
 
-Which registered trials match melanoma?
+Add `--format md` to any command for Markdown instead of JSON. Each reply's `next` list holds the commands that page the results or fetch more of a record.
+
+To use BioMCP from Claude, Codex, Cursor, VS Code or another MCP client, print ready-to-paste configuration with:
 
 ```sh
-biomcp search trial --condition melanoma
+biomcp mcp-config
 ```
 
-These commands come from recorded cases. Live replies can change. Inspect source outcomes before interpreting a result. Follow returned next commands to page records, inspect source sections or resolve an ambiguous identity. A missing result does not establish absence.
+## Documentation and next steps
 
-JSON is the default output. Use `--format md` for readable Markdown with tables and copyable next commands, or set `"format": "md"` in configuration. MCP always returns JSON. The [command reference](docs/reference/commands.md) lists every command, option and section. The [worked commands](docs/recipes.md) provide more examples. The [source and entity cautions](docs/cautions.md) explain interpretation limits.
+- [Quickstart](https://biomcp.org/quickstart/): a search, a record and a section in five minutes.
+- [Connect an agent](https://biomcp.org/connect-an-agent/): MCP clients, the skill and the plugin.
+- [How BioMCP works](https://biomcp.org/how-biomcp-works/): the command grammar.
+- [Reference](https://biomcp.org/reference/): every command, entity, source and exit code, generated from the build.
+- [Upgrading from 0.9](https://biomcp.org/upgrade-from-0-9/).
 
-Some sources use local bundles. Missing stored bundles offer an explicit sync command. HGNC and ClinGen can synchronize missing or stale bundles within the configured read budget. Other stored sources require explicit synchronization. Offline mode never synchronizes. Stale stored rows remain readable with a stale marker.
+## What BioMCP supports and what it does not
 
-## Connect an MCP client
+- Platforms: Linux and macOS on x86_64 and arm64, and Windows on x86_64.
+- Every source is on by default, including noncommercial and restricted ones. Commercial users should set `{"disable_sources": ["noncommercial", "restricted"]}` in `config.json` and check each remaining publisher's terms. Public API access grants no extra reuse rights.
+- OncoKB and NCI need your own key: `biomcp key set oncokb`. Other keys are optional and raise rate limits. `biomcp key list` shows their state.
+- BioMCP retrieves source records. It does not rank treatments, judge trial eligibility, compute risk from report counts, or make clinical decisions. An empty result shows what one source returned for one query, not that something does not exist.
+- BioMCP has no self-update command. Upgrade with the channel that installed it.
 
-Run `biomcp mcp-config` to print ready-to-paste stdio configuration using the installed executable's absolute path. Add that configuration to your MCP client. The client starts `biomcp serve` and calls the `biomcp` tool with the same command grammar as the CLI. Read-only research clients can also use `search` and `fetch`; search returns opaque result IDs for fetch.
+## Help, bugs and contributing
 
-For native HTTP clients, `biomcp serve --http` listens at `http://127.0.0.1:8080/mcp`. Supply an address after `--http` to select another listener. A non-loopback listener requires `--allow-host HOST` or `http.allowed_hosts` in configuration. The allowlist does not authenticate callers. Restrict listener access to trusted clients. Browser origins are refused. HTTP refuses synchronization, store cleaning, fresh requests and file saves. Stdio allows new-file saves and refuses replacement. `GET /health` checks the local server and store without upstream requests.
+- Questions and bug reports: [GitHub issues](https://github.com/genomoncology/biomcp/issues). Include the command, `biomcp version`, and the reply's `error` or `sources` entries.
+- Development: the Rust code is in `crates/`. Run `make docs-generate` after command changes, `make docs-check` to check generated documentation and documented examples, and `make landing-gate` for formatting, lint, coverage and dependency checks. [ROADMAP.md](ROADMAP.md) states scope and source availability.
+- The documentation site is in `site/`. Its [README](site/README.md) explains how it builds.
 
-## Develop
+## License
 
-The documentation check does not run the exact `uv tool install biomcp-cli` or `uv tool upgrade biomcp-cli` shell instructions. Release artifact checks install and exercise the produced package in an isolated environment.
-
-Run `make docs-generate` after command changes and `make docs-check` to check generated documentation and execute documented examples against recordings. Run `make landing-gate` for the routine formatting, lint, coverage and dependency checks. See [ROADMAP.md](ROADMAP.md) for scope and source availability.
-
-`make schema-release-check` compares generated schemas with the portable snapshot named in `release/schema-baseline.json`. It uses the generator’s existing schema major-version compatibility rules and preserves the ordinary schema drift check. Missing, malformed or incomplete baselines fail the gate. The recorded 1.0.0 snapshot is a provisional candidate input. It is neither the selected final release candidate nor a published release. Final candidate selection must refresh or verify the manifest, source commit, schema inventory and archive checksum against that candidate before release. Preserve the selected 1.0.0 schema set so 1.0.1 compares against it. Future releases must record the actual last released schema set; this check never publishes or updates a baseline.
+MIT. Each data source keeps its own terms; the [sources reference](https://biomcp.org/reference/sources/) links each one.

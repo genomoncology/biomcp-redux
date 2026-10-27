@@ -1,0 +1,46 @@
+- id: gene-summary
+  question: How do I look up a gene's identifiers and summary?
+  source: cases
+  frequency: "use cases 03 and 07"
+  rank: 33
+  page: /genes-and-proteins/
+  reference: /reference/commands/get-gene/
+- id: gene-constraint-pli
+  question: How do I get the pLI and LOEUF constraint scores for a gene?
+  source: product
+  frequency: listed from the constraint section
+  rank: 38
+  page: /quickstart/
+  reference: /reference/commands/get-gene/
+- id: gene-to-uniprot
+  question: How do I find the UniProt accession for a gene?
+  source: product
+  frequency: listed from the protein section
+  rank: 40
+  page: /genes-and-proteins/
+  reference: /reference/commands/get-gene/
+  answers_page: true
+  example: a-gene-uniprot
+  answer: |
+    Request the gene's `protein` section: `biomcp get gene SYMBOL protein`. It returns the reviewed human UniProt entries for the gene. This BioMCP 1.0 run finds P15056 for BRAF, with its name and length.
+  why: |
+    BioMCP resolves the symbol against HGNC, then reads UniProt's reviewed human entries for that gene. The accession goes straight to `biomcp get protein P15056` for features, domains and sequence.
+  limits: |
+    Only reviewed (Swiss-Prot) human entries are returned. A gene with several reviewed products returns each one; BioMCP does not choose.
+  verified: 2026-10-27
+  page_title: Look up genes, proteins and pathways
+  reference_title: get gene
+- id: gene-disease-validity
+  question: How do I get ClinGen gene-disease validity for a gene?
+  source: product
+  frequency: listed from the clingen section
+  rank: 43
+  page: /genes-and-proteins/
+  reference: /reference/commands/get-gene/
+- id: pathway-members
+  question: How do I list the genes in a Reactome pathway?
+  source: cases
+  frequency: "use cases 08 and 12"
+  rank: 44
+  page: /genes-and-proteins/
+  reference: /reference/commands/pathway-genes/

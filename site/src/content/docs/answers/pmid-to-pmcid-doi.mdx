@@ -1,0 +1,37 @@
+---
+title: How do I convert a PMID to a PMCID or DOI?
+description: Pass the PMID, PMCID or DOI to `biomcp get article`; the card
+  returns all three identifiers. `get article` takes up to 20 inputs at once, so
+  one call converts a list. This BioMCP 1.0 run resolves a PMID and a DOI to the
+  same paper.
+goal: "Answer: How do I convert a PMID to a PMCID or DOI?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Pass the PMID, PMCID or DOI to `biomcp get article`; the card returns all three identifiers. `get article` takes up to 20 inputs at once, so one call converts a list. This BioMCP 1.0 run resolves a PMID and a DOI to the same paper.
+
+## Command
+
+<Example id="a-pmid-convert" />
+
+## Why it works
+
+BioMCP resolves each input through PubMed and Europe PMC and returns `pmid`, `pmcid` and `doi` on the card when the sources record them. Each input keeps its own entry, in order.
+
+## Limits
+
+`pmcid` is null when the article has no PMC copy. A DOI that PubMed does not index can return `absent` for that input.
+
+## Read next
+
+- [Search and read biomedical literature](/literature/)
+- [get article](/reference/commands/get-article/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

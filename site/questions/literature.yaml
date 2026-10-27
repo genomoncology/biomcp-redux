@@ -1,0 +1,107 @@
+- id: find-articles-gene-variant
+  question: How do I find PubMed articles about a gene and variant?
+  source: cases
+  frequency: "use case 17; 0.9 how-to find-articles"
+  rank: 5
+  page: /literature/
+  reference: /reference/commands/search-article/
+- id: full-text-pmc
+  question: How do I get the full text of a PMC article from the command line?
+  source: product
+  frequency: listed from article text and the fulltext section
+  rank: 10
+  page: /literature/
+  reference: /reference/commands/article-text/
+- id: supplementary-files
+  question: How do I search an article's supplementary tables?
+  source: product
+  frequency: 0.9 supplementary-materials page, one of its strongest
+  rank: 23
+  page: /literature/
+  reference: /reference/commands/article-supplement/
+- id: citing-papers
+  question: How do I list the papers that cite an article?
+  source: product
+  frequency: listed from article citations
+  rank: 29
+  page: /literature/
+  reference: /reference/commands/article-citations/
+- id: abstract-of-pmid
+  question: How do I get the abstract of a PubMed article by PMID?
+  source: cases
+  frequency: "use case 04 reads an article card"
+  rank: 21
+  page: /literature/
+  reference: /reference/commands/get-article/
+  answers_page: true
+  example: a-abstract
+  answer: |
+    Run `biomcp get article PMID`. The article card holds the title, authors, journal, dates, publication types and the abstract as PubMed publishes it, in `abstract_parts`. This BioMCP 1.0 run prints the title and the start of the abstract for PMID 33123537.
+  why: |
+    `get article` resolves the identifier through PubMed and returns one card per input, in input order. The abstract stays in its source parts, so a structured abstract keeps its labels.
+  limits: |
+    The abstract is the publisher's text with its rights. Some PubMed records have no abstract. For the article body, request the `fulltext` section, which needs a PMC copy.
+  verified: 2026-10-27
+  page_title: Search and read biomedical literature
+  reference_title: get article
+- id: pmid-to-pmcid-doi
+  question: How do I convert a PMID to a PMCID or DOI?
+  source: product
+  frequency: listed from get article inputs (PMID, PMCID, DOI)
+  rank: 26
+  page: /literature/
+  reference: /reference/commands/get-article/
+  answers_page: true
+  example: a-pmid-convert
+  answer: |
+    Pass the PMID, PMCID or DOI to `biomcp get article`; the card returns all three identifiers. `get article` takes up to 20 inputs at once, so one call converts a list. This BioMCP 1.0 run resolves a PMID and a DOI to the same paper.
+  why: |
+    BioMCP resolves each input through PubMed and Europe PMC and returns `pmid`, `pmcid` and `doi` on the card when the sources record them. Each input keeps its own entry, in order.
+  limits: |
+    `pmcid` is null when the article has no PMC copy. A DOI that PubMed does not index can return `absent` for that input.
+  verified: 2026-10-27
+  page_title: Search and read biomedical literature
+  reference_title: get article
+- id: article-keywords
+  question: How do I get the keywords and MeSH terms of an article?
+  source: product
+  frequency: listed from the indexing section
+  rank: 46
+  page: /literature/
+  reference: /reference/commands/get-article/
+  answers_page: true
+  example: a-keywords
+  answer: |
+    Request the `indexing` section: `biomcp get article PMID indexing`. It returns PubMed's MeSH headings, the author keywords and the author affiliations. This BioMCP 1.0 run shows the keywords of PMID 33123537; its MeSH list is empty in PubMed.
+  why: |
+    The indexing section reads the PubMed citation record. Keywords come from the authors, and MeSH headings come from NLM indexers, so each list is reported separately.
+  limits: |
+    New articles often have no MeSH headings yet, and some have no author keywords. An empty list is what PubMed holds today. BioMCP adds no terms of its own.
+  verified: 2026-10-27
+  page_title: Search and read biomedical literature
+  reference_title: get article
+- id: recent-articles
+  question: How do I find the newest articles on a topic since a given year?
+  source: product
+  frequency: help example for search article with --since and --sort date
+  rank: 28
+  page: /literature/
+  reference: /reference/commands/search-article/
+  answers_page: true
+  example: a-recent-articles
+  answer: |
+    Add `--since YEAR` and `--sort date` to `biomcp search article`. PubMed then returns matches added since that date, newest first. This BioMCP 1.0 run finds the three newest PubMed articles that match "KRAS G12C sotorasib" since 2024.
+  why: |
+    `--since` and `--until` set inclusive publication-date bounds; PubMed matches either the electronic or the print date. `--sort date` uses PubMed's date-added order, and Europe PMC's newest-first order.
+  limits: |
+    Other sources refuse `--sort date`. Date order is not relevance: add `--type review` or other filters to narrow it. Results change daily, so record the date you searched.
+  verified: 2026-10-27
+  page_title: Search and read biomedical literature
+  reference_title: search article
+- id: semantic-scholar-no-key
+  question: Does Semantic Scholar work in BioMCP without an API key?
+  source: public
+  frequency: "issue #225"
+  rank: 39
+  page: /keys-and-configuration/
+  reference: /reference/sources/semantic-scholar/

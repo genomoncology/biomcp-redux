@@ -1,0 +1,37 @@
+---
+title: When did FDA first approve a drug?
+description: "Find the drug's FDA application in Drugs@FDA, then read its
+  `approvals` section. The `ORIG` submission is the original application. This
+  BioMCP 1.0 run sorts the history of NDA202429, the Zelboraf (vemurafenib)
+  application, by date: its original approval is dated 2011-08-17."
+goal: "Answer: When did FDA first approve a drug?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Find the drug's FDA application in Drugs@FDA, then read its `approvals` section. The `ORIG` submission is the original application. This BioMCP 1.0 run sorts the history of NDA202429, the Zelboraf (vemurafenib) application, by date: its original approval is dated 2011-08-17.
+
+## Command
+
+<Example id="a-fda-approval" />
+
+## Why it works
+
+`biomcp search drug NAME --source drugsfda` returns the application number. The `approvals` section lists each submission with its kind, number, status and date as Drugs@FDA records them. `AP` means approved. `--section-limit` sets how many rows one page holds.
+
+## Limits
+
+Drugs@FDA covers FDA applications only. A drug with several applications, such as different forms, has a history for each. Dates are Drugs@FDA's submission status dates.
+
+## Read next
+
+- [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/)
+- [get drug](/reference/commands/get-drug/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

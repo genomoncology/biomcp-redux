@@ -1,0 +1,38 @@
+---
+title: Is there an MCP server for PubMed?
+description: "Yes. BioMCP 1.0 is an MCP server whose `biomcp` tool runs `search
+  article`, which searches PubMed by default. Add it to your client with the
+  output of `biomcp mcp-config`, then call the tool with the command's words.
+  This exchange starts the server over stdio and searches PubMed for KRAS G12C,
+  as a "
+goal: "Answer: Is there an MCP server for PubMed?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Yes. BioMCP 1.0 is an MCP server whose `biomcp` tool runs `search article`, which searches PubMed by default. Add it to your client with the output of `biomcp mcp-config`, then call the tool with the command's words. This exchange starts the server over stdio and searches PubMed for KRAS G12C, as a client would.
+
+## Command
+
+<Example id="a-pubmed-mcp" />
+
+## Why it works
+
+`biomcp serve` speaks MCP over stdio. The `biomcp` tool takes an `args` array, the same words as the command line, and returns the same JSON reply. PubMed is the default `--source` for `search article`, so no source flag is needed. The same tool also reaches Europe PMC, PMC full text, iCite citations and Semantic Scholar.
+
+## Limits
+
+BioMCP sends your words to PubMed as written and returns PubMed's order. It does not summarize papers. Without an NCBI key PubMed applies its public rate limit; `biomcp key set ncbi` raises it.
+
+## Read next
+
+- [Connect an agent](/connect-an-agent/)
+- [MCP tools](/reference/mcp-tools/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

@@ -1,0 +1,37 @@
+---
+title: Which gene and alleles does an rsID belong to?
+description: Run `biomcp get variant RSID`. An rsID can name several alternate
+  alleles, so BioMCP returns one candidate per allele, each with its gene, its
+  other identifiers and its genomic HGVS. This BioMCP 1.0 run shows the three
+  alleles MyVariant.info records for rs113488022 in BRAF.
+goal: "Answer: Which gene and alleles does an rsID belong to?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Run `biomcp get variant RSID`. An rsID can name several alternate alleles, so BioMCP returns one candidate per allele, each with its gene, its other identifiers and its genomic HGVS. This BioMCP 1.0 run shows the three alleles MyVariant.info records for rs113488022 in BRAF.
+
+## Command
+
+<Example id="a-rsid-gene" />
+
+## Why it works
+
+dbSNP rsIDs name a position and can cover more than one change. BioMCP keeps every source candidate and does not pick one. The candidate whose ClinVar ID is `clinvar:13961` is the A>T change that encodes BRAF V600E; its `next` command reads it with `--build GRCh37`.
+
+## Limits
+
+The HGVS here is on the build MyVariant.info used, GRCh37. `biomcp variant normalize` converts it. An rsID absent from MyVariant.info returns no candidates, which is not proof it does not exist.
+
+## Read next
+
+- [Look up a variant](/variants/)
+- [get variant](/reference/commands/get-variant/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

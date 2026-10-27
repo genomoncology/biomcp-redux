@@ -1,0 +1,36 @@
+---
+title: How do I find the UniProt accession for a gene?
+description: "Request the gene's `protein` section: `biomcp get gene SYMBOL
+  protein`. It returns the reviewed human UniProt entries for the gene. This
+  BioMCP 1.0 run finds P15056 for BRAF, with its name and length."
+goal: "Answer: How do I find the UniProt accession for a gene?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Request the gene's `protein` section: `biomcp get gene SYMBOL protein`. It returns the reviewed human UniProt entries for the gene. This BioMCP 1.0 run finds P15056 for BRAF, with its name and length.
+
+## Command
+
+<Example id="a-gene-uniprot" />
+
+## Why it works
+
+BioMCP resolves the symbol against HGNC, then reads UniProt's reviewed human entries for that gene. The accession goes straight to `biomcp get protein P15056` for features, domains and sequence.
+
+## Limits
+
+Only reviewed (Swiss-Prot) human entries are returned. A gene with several reviewed products returns each one; BioMCP does not choose.
+
+## Read next
+
+- [Look up genes, proteins and pathways](/genes-and-proteins/)
+- [get gene](/reference/commands/get-gene/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

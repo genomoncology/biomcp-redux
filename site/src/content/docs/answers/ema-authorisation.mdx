@@ -1,0 +1,36 @@
+---
+title: Is a drug authorised by the European Medicines Agency?
+description: Synchronize the EMA bundle once, search the medicine with `--source
+  ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf
+  as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
+goal: "Answer: Is a drug authorised by the European Medicines Agency?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Synchronize the EMA bundle once, search the medicine with `--source ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
+
+## Command
+
+<Example id="a-ema-status" />
+
+## Why it works
+
+EMA publishes its medicines table as a download. `biomcp sync ema` stores it, and reads answer from the stored copy. The `regulatory` section returns EMA's own status and dated events.
+
+## Limits
+
+The answer is as fresh as your last sync. Run `biomcp sync ema` again for current data. EMA's status covers the European Union only.
+
+## Read next
+
+- [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/)
+- [EMA source](/reference/sources/ema/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

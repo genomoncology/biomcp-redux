@@ -1,14 +1,100 @@
 {
   "banned": [
-    { "word": "simply", "use": "Delete it." },
-    { "word": "just", "use": "Delete it or say the condition." },
-    { "word": "coming soon", "use": "Describe only what ships." },
-    { "word": "planned", "use": "Describe only what ships." },
-    { "word": "preview", "use": "Describe only what ships." },
-    { "word": "beta", "use": "Describe only what ships." },
-    { "word": "alpha", "use": "Describe only what ships." },
-    { "word": "delve", "use": "Say what the reader does." },
-    { "word": "seamless(ly)?", "use": "Say what happens." },
-    { "word": "leverage", "use": "Write \"use\"." }
+    {
+      "word": "simply",
+      "use": "Delete it."
+    },
+    {
+      "word": "just",
+      "use": "Delete it or say the condition."
+    },
+    {
+      "word": "coming soon",
+      "use": "Describe only what ships."
+    },
+    {
+      "word": "planned",
+      "use": "Describe only what ships."
+    },
+    {
+      "word": "preview",
+      "use": "Describe only what ships."
+    },
+    {
+      "word": "beta",
+      "use": "Describe only what ships."
+    },
+    {
+      "word": "alpha",
+      "use": "Describe only what ships."
+    },
+    {
+      "word": "delve",
+      "use": "Say what the reader does."
+    },
+    {
+      "word": "seamless(ly)?",
+      "use": "Say what happens."
+    },
+    {
+      "word": "leverage",
+      "use": "Write \"use\"."
+    },
+    {
+      "word": "backend",
+      "use": "Write \"source\", the word the help text uses."
+    },
+    {
+      "word": "datasource",
+      "use": "Write \"source\"."
+    },
+    {
+      "word": "tool call(s)? to",
+      "use": "Name the command."
+    },
+    {
+      "word": "powerful",
+      "use": "Say what it does."
+    },
+    {
+      "word": "robust",
+      "use": "Say what it handles."
+    },
+    {
+      "word": "easily",
+      "use": "Delete it."
+    },
+    {
+      "word": "revolutioni[sz]e",
+      "use": "Say what changed."
+    },
+    {
+      "word": "game-changer",
+      "use": "Say what changed."
+    },
+    {
+      "word": "unleash",
+      "use": "Say what the reader does."
+    },
+    {
+      "word": "supercharge",
+      "use": "Say what the reader does."
+    },
+    {
+      "word": "cutting-edge",
+      "use": "Name the version."
+    },
+    {
+      "word": "recommended treatment",
+      "use": "BioMCP pages say how to get data, never what a patient should do."
+    },
+    {
+      "word": "you should take",
+      "use": "BioMCP pages say how to get data, never what a patient should do."
+    },
+    {
+      "word": "subcommand",
+      "use": "Write \"command\", as the help does."
+    }
   ]
 }

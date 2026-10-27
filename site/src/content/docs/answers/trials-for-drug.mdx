@@ -1,0 +1,36 @@
+---
+title: How do I find clinical trials that test a specific drug?
+description: "Use `--intervention` with the drug name: `biomcp search trial
+  --intervention sotorasib --status RECRUITING`. This BioMCP 1.0 run returns
+  recruiting trials whose registered interventions or text match sotorasib."
+goal: "Answer: How do I find clinical trials that test a specific drug?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Use `--intervention` with the drug name: `biomcp search trial --intervention sotorasib --status RECRUITING`. This BioMCP 1.0 run returns recruiting trials whose registered interventions or text match sotorasib.
+
+## Command
+
+<Example id="a-trials-intervention" />
+
+## Why it works
+
+`--intervention` sends literal text to the registry's intervention search. BioMCP adds no aliases, so search the brand name and code names too, such as an AMG number, when you need them.
+
+## Limits
+
+The registry decides what matches. A trial can mention the drug in another role, such as a diagnostic study about the same mutation. Read each record before reporting it.
+
+## Read next
+
+- [Find clinical trials by condition, gene or variant](/clinical-trials/)
+- [search trial](/reference/commands/search-trial/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

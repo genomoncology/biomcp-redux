@@ -1,0 +1,28 @@
+- id: disease-ontology-id
+  question: How do I find the MONDO identifier for a disease?
+  source: cases
+  frequency: "use cases 11 and 14"
+  rank: 52
+  page: /diseases-and-phenotypes/
+  reference: /reference/commands/search-disease/
+- id: phenotype-genes
+  question: Which genes are associated with an HPO phenotype?
+  source: cases
+  frequency: "use case 02"
+  rank: 53
+  page: /diseases-and-phenotypes/
+  reference: /reference/commands/get-phenotype/
+- id: gwas-for-snp
+  question: How do I find GWAS Catalog associations for a SNP?
+  source: product
+  frequency: listed from search gwas
+  rank: 54
+  page: /diseases-and-phenotypes/
+  reference: /reference/commands/search-gwas/
+- id: cell-line-mutation
+  question: Does a cell line carry a given mutation?
+  source: product
+  frequency: listed from the cell-line variants section
+  rank: 55
+  page: /studies-and-cell-lines/
+  reference: /reference/commands/get-cell-line/

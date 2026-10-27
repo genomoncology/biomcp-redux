@@ -1,0 +1,3 @@
+42929675	2026-10-25	Divarasib as Compared with Sotorasib or Adagrasib in KRAS G12C-Mutated NSCLC.
+42924280	2026-10	Drugging the "undruggable" p53: a structure-guided strategy against the Y220C mutation.
+42891951	2026	Dose-Dependent Intracranial Response to Sotorasib in KRAS(G12C)-Mutated Lung Cancer Brain Metastases: A Case Report.

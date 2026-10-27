@@ -1,0 +1,37 @@
+---
+title: How do I get the abstract of a PubMed article by PMID?
+description: Run `biomcp get article PMID`. The article card holds the title,
+  authors, journal, dates, publication types and the abstract as PubMed
+  publishes it, in `abstract_parts`. This BioMCP 1.0 run prints the title and
+  the start of the abstract for PMID 33123537.
+goal: "Answer: How do I get the abstract of a PubMed article by PMID?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Run `biomcp get article PMID`. The article card holds the title, authors, journal, dates, publication types and the abstract as PubMed publishes it, in `abstract_parts`. This BioMCP 1.0 run prints the title and the start of the abstract for PMID 33123537.
+
+## Command
+
+<Example id="a-abstract" />
+
+## Why it works
+
+`get article` resolves the identifier through PubMed and returns one card per input, in input order. The abstract stays in its source parts, so a structured abstract keeps its labels.
+
+## Limits
+
+The abstract is the publisher's text with its rights. Some PubMed records have no abstract. For the article body, request the `fulltext` section, which needs a PMC copy.
+
+## Read next
+
+- [Search and read biomedical literature](/literature/)
+- [get article](/reference/commands/get-article/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

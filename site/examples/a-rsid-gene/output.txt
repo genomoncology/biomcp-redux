@@ -1,0 +1,3 @@
+{"ids":["rs113488022"],"genes":["BRAF"],"hgvs":["chr7:g.140453136A>G"]}
+{"ids":["rs113488022","clinvar:13961"],"genes":["BRAF"],"hgvs":["chr7:g.140453136A>T"]}
+{"ids":["rs113488022","clinvar:40389"],"genes":["BRAF"],"hgvs":["chr7:g.140453136A>C"]}

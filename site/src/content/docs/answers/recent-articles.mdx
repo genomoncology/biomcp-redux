@@ -1,0 +1,37 @@
+---
+title: How do I find the newest articles on a topic since a given year?
+description: Add `--since YEAR` and `--sort date` to `biomcp search article`.
+  PubMed then returns matches added since that date, newest first. This BioMCP
+  1.0 run finds the three newest PubMed articles that match "KRAS G12C
+  sotorasib" since 2024.
+goal: "Answer: How do I find the newest articles on a topic since a given year?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Add `--since YEAR` and `--sort date` to `biomcp search article`. PubMed then returns matches added since that date, newest first. This BioMCP 1.0 run finds the three newest PubMed articles that match "KRAS G12C sotorasib" since 2024.
+
+## Command
+
+<Example id="a-recent-articles" />
+
+## Why it works
+
+`--since` and `--until` set inclusive publication-date bounds; PubMed matches either the electronic or the print date. `--sort date` uses PubMed's date-added order, and Europe PMC's newest-first order.
+
+## Limits
+
+Other sources refuse `--sort date`. Date order is not relevance: add `--type review` or other filters to narrow it. Results change daily, so record the date you searched.
+
+## Read next
+
+- [Search and read biomedical literature](/literature/)
+- [search article](/reference/commands/search-article/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

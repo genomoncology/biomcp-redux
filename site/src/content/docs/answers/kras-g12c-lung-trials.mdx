@@ -1,0 +1,39 @@
+---
+title: How do I find recruiting trials for KRAS G12C non-small cell lung cancer?
+description: 'Search ClinicalTrials.gov with the condition, the variant text and
+  the status: `biomcp search trial --condition "non-small cell lung cancer"
+  --variant "KRAS G12C" --status RECRUITING`. This BioMCP 1.0 run returns the
+  first three recruiting trials that mention KRAS G12C in their registry text
+  for tha'
+goal: "Answer: How do I find recruiting trials for KRAS G12C non-small cell lung
+  cancer?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+Search ClinicalTrials.gov with the condition, the variant text and the status: `biomcp search trial --condition "non-small cell lung cancer" --variant "KRAS G12C" --status RECRUITING`. This BioMCP 1.0 run returns the first three recruiting trials that mention KRAS G12C in their registry text for that condition.
+
+## Command
+
+<Example id="a-kras-g12c-trials" />
+
+## Why it works
+
+`--condition` searches the registry's condition field, `--variant` searches its text for the words you give, and `--status RECRUITING` keeps trials whose overall status is recruiting. The registry ranks the results. Each NCT identifier goes to `biomcp get trial NCT eligibility` for the eligibility text.
+
+## Limits
+
+Registry text decides the match, so trials that write "G12C" without "KRAS", or name only the drug, can be missed. Run the broader searches too: `--gene KRAS` without the variant, and `--intervention` with a drug name. BioMCP makes no eligibility judgment, and a listing is not an enrollment recommendation.
+
+## Read next
+
+- [Find clinical trials by condition, gene or variant](/clinical-trials/)
+- [search trial](/reference/commands/search-trial/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.
