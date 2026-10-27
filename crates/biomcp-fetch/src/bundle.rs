@@ -51,7 +51,10 @@ pub struct Bundle<R: Row + 'static> {
 #[derive(Clone, Copy, Debug)]
 pub enum RowFormat {
     /// Source-owned whole-document decoding, validated before publication.
-    Document,
+    Document {
+        /// Representation requested from the publisher.
+        media: DocumentMedia,
+    },
     /// Tab-separated cells with a named header.
     Tsv,
     /// Strict quoted TSV preserving all cells, optionally gzip-encoded.
@@ -79,10 +82,19 @@ pub enum RowFormat {
         max_bytes: u64,
     },
 }
+/// Publisher representation consumed by a source-owned document decoder.
+#[derive(Clone, Copy, Debug)]
+pub enum DocumentMedia {
+    /// An HTML document.
+    Html,
+    /// A JSON document.
+    Json,
+}
 impl RowFormat {
-    fn media(self) -> &'static str {
+    pub(crate) fn media(self) -> &'static str {
         match self {
-            Self::Document => "text/html",
+            Self::Document { media: DocumentMedia::Html } => "text/html",
+            Self::Document { media: DocumentMedia::Json } => "application/json",
             Self::Json { .. } => "application/json",
             Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",
