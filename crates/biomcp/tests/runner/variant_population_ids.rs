@@ -14,7 +14,35 @@ pub(super) fn trials() -> Vec<Trial> {
             "variant/population-single-id-follows-source-ca-identity",
             || single().map_err(Into::into),
         ),
+        Trial::test("variant/population-unknown-build-keeps-candidate-steps", || {
+            unknown_build().map_err(Into::into)
+        }),
     ]
+}
+fn unknown_build() -> Result<(), String> {
+    let stub = Stub::for_source("myvariant.info", "application/json", |_| {
+        Ok(json!({"total":3,"hits":[
+            {"_id":"chr10:g.114758349C>T","dbsnp":{"rsid":"rs7903146"}},
+            {"_id":"chr10:g.114758349C>G","chrom":"10","hg19":{"start":114758349,"end":114758349},"hg38":{"start":114758349,"end":114758349},"dbsnp":{"rsid":"rs7903146"}},
+            {"_id":"chr10:g.114758349del","dbsnp":{"rsid":"rs7903146"},"clingen":{"caid":"CA123643"}}
+        ]}).to_string())
+    })?;
+    let env = environment(&stub)?;
+    let output = execute(&env, &["variant", "population", "rs7903146"])?;
+    let next = output.get("next").and_then(Value::as_array).ok_or("missing next")?;
+    if next.len() != 3 {
+        return Err(format!("unknown or conflicting source build dropped candidate actions: {output}"));
+    }
+    for (step, id) in next.iter().zip([
+        "chr10:g.114758349C>T", "chr10:g.114758349C>G", "CA123643",
+    ]) {
+        let args: Vec<String> = serde_json::from_value(step["args"].clone()).map_err(|e| e.to_string())?;
+        if args.iter().any(|a| a == "--build") || !args.iter().any(|a| a.contains(id)) {
+            return Err(format!("candidate action guessed an assembly or lost identity: {step}"));
+        }
+    }
+    stub.finish()?;
+    Ok(())
 }
 fn ambiguous() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", candidates)?;
