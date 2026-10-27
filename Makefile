@@ -19,7 +19,7 @@ test:
 audit:
 	cargo deny --locked check licenses advisories
 
-coverage: ratchets
+coverage:
 	sh scripts/coverage.sh run
 
 unreached:

@@ -8,6 +8,20 @@ edition = "2024"
 rust-version = "1.95.0"
 license = "MIT"
 
+[profile.dev]
+debug = "line-tables-only"
+incremental = false
+
+[profile.dev.package."*"]
+debug = false
+
+[profile.test]
+debug = "line-tables-only"
+incremental = false
+
+[profile.test.package."*"]
+debug = false
+
 [workspace.dependencies]
 shlex = "=2.0.1"
 winnow = { version = "1.0.4", default-features = false, features = ["ascii", "alloc"] }
