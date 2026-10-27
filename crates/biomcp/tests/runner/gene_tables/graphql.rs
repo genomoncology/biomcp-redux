@@ -247,12 +247,12 @@ fn clingen() -> Check {
             expect,
             0,
         )?;
-        if mode == "validity only"
+        if matches!(mode, "validity only" | "failed dosage" | "both failed")
             && answer
                 .pointer("/result/items/0/sections/clingen/data/haploinsufficiency")
                 .is_some()
         {
-            return Err("validity-only source produced haploinsufficiency".into());
+            return Err("absent or failed dosage produced haploinsufficiency".into());
         }
     }
     // sections/local-replay-miss.yaml owns an incomplete bundle recording.

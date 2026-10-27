@@ -126,7 +126,7 @@ fn registry() -> Vec<Contract> {
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
         Request => ("request", "biodata.request/26"),
-        Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/4"),
+        Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/5"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene-page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),
         Envelope<SyncResult> => ("sync", "biomcp.sync/4"),
