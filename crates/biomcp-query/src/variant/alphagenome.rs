@@ -65,8 +65,8 @@ fn request(row: &VariantHeader) -> Option<ScoreRequest> {
                 Build::GRCh38,
                 chromosome,
                 i64::from(allele.location().span.start()) + 1,
-                allele.reference().as_str(),
-                allele.alternate().as_str(),
+                &allele.reference().to_string(),
+                &allele.alternate().to_string(),
             )
             .ok()
         });
