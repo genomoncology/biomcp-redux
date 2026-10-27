@@ -9,7 +9,7 @@ license.workspace = true
 schema = ["dep:schemars", "biodata/schema"]
 
 [dependencies]
-biodata = { version = "=1.0.0", path = "../biodata" }
+biodata = { workspace = true }
 serde.workspace = true
 schemars = { workspace = true, optional = true }
 
