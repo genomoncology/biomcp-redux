@@ -151,7 +151,17 @@
       "variables": [
         "BIOMCP_EUROPEPMC_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json",
+      "delivery_review": {
+        "release_source": [
+          "src/sources/europepmc.rs",
+          "src/sources/mod.rs::join_base_path",
+          "src/sources/mod.rs::request_from_plan",
+          "src/sources/ordinary_url_policy.rs::redirect_target_is_allowed"
+        ],
+        "scope": "Native API JSON/text bodies only. Linked publisher assets, PDF downloads and standalone spreadsheet operations are not enabled by this declaration.",
+        "confinement": "Every native API request joins the overridden base with a relative path. The released ordinary client ignores proxies and rejects cross-origin redirects. The runner retains status/content-type/body only, so recorded responses supply no Location redirect target. Every endpoint for an enabled source receives a loopback peer; missing routes reject."
+      }
     },
     "fda-orphan-designations": {
       "recording_source": "fda-orphan-designations",
@@ -399,14 +409,34 @@
       "variables": [
         "BIOMCP_PUBMED_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json",
+      "delivery_review": {
+        "release_source": [
+          "src/sources/pubmed.rs",
+          "src/sources/mod.rs::join_base_path",
+          "src/sources/mod.rs::request_from_plan",
+          "src/sources/ordinary_url_policy.rs::redirect_target_is_allowed"
+        ],
+        "scope": "Native API JSON/text bodies only. Linked publisher assets, PDF downloads and standalone spreadsheet operations are not enabled by this declaration.",
+        "confinement": "Every native API request joins the overridden base with a relative path. The released ordinary client ignores proxies and rejects cross-origin redirects. The runner retains status/content-type/body only, so recorded responses supply no Location redirect target. Every endpoint for an enabled source receives a loopback peer; missing routes reject."
+      }
     },
     "pubtator3": {
       "recording_source": "pubtator",
       "variables": [
         "BIOMCP_PUBTATOR_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json",
+      "delivery_review": {
+        "release_source": [
+          "src/sources/pubtator.rs",
+          "src/sources/mod.rs::join_base_path",
+          "src/sources/mod.rs::request_from_plan",
+          "src/sources/ordinary_url_policy.rs::redirect_target_is_allowed"
+        ],
+        "scope": "Native API JSON/text bodies only. Linked publisher assets, PDF downloads and standalone spreadsheet operations are not enabled by this declaration.",
+        "confinement": "Every native API request joins the overridden base with a relative path. The released ordinary client ignores proxies and rejects cross-origin redirects. The runner retains status/content-type/body only, so recorded responses supply no Location redirect target. Every endpoint for an enabled source receives a loopback peer; missing routes reject."
+      }
     },
     "quickgo": {
       "recording_source": "quickgo",
@@ -434,7 +464,19 @@
       "variables": [
         "BIOMCP_S2_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json",
+      "delivery_review": {
+        "release_source": [
+          "src/sources/semantic_scholar.rs",
+          "src/sources/mod.rs::join_base_path",
+          "src/sources/mod.rs::request_from_plan",
+          "src/sources/ordinary_url_policy.rs::redirect_target_is_allowed",
+          "src/sources/provider_url_policy.rs::semantic_scholar_api",
+          "src/sources/provider_url_policy.rs::unsafe_test_origins"
+        ],
+        "scope": "Native API JSON/text bodies only. Linked publisher assets, PDF downloads and standalone spreadsheet operations are not enabled by this declaration.",
+        "confinement": "All API routes, including recommendations and authors, join BIOMCP_S2_BASE. The API policy requires BIOMCP_TEST_UNPACED_ORIGIN to name that exact loopback peer for HTTP. Source recordings cannot supply redirect targets because the peer retains no Location header. API paper links and PDF URLs are values; this declaration does not enable the separate fulltext/PDF downloader."
+      }
     },
     "string": {
       "recording_source": "string",
