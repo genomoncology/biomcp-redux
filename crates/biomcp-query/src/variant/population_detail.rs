@@ -1,5 +1,5 @@
 //! Native ancestry pagination reuses the same identity and gnomAD requests.
-use crate::{Action, Ctx, Outcome};
+use crate::{Action, Ctx, Outcome, status};
 use biodata::PopulationDataType;
 use biomcp_adapters::gnomad;
 use biomcp_fetch::RequestError;
