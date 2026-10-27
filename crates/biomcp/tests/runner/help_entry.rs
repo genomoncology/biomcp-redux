@@ -1,0 +1,62 @@
+//! Public aliases preserve formatted help and unknown commands offer safe executable recovery.
+use super::launch::Environment;
+use libtest_mimic::Trial;
+use serde_json::Value;
+
+type Check = Result<(), Box<dyn std::error::Error>>;
+
+pub(super) fn trials() -> Vec<Trial> {
+    vec![Trial::test("schema-discovery/help-aliases-and-safe-recovery", || {
+        check().map_err(|error| error.to_string().into())
+    })]
+}
+
+fn check() -> Check {
+    let env = Environment::new()?;
+    for format in ["json", "md"] {
+        let help = run(&env, &["--format", format, "help"])?;
+        for alias in [vec![], vec!["-h"], vec!["--help"], vec!["help", "--help"]] {
+            let mut args = vec!["--format", format];
+            args.extend(alias);
+            if run(&env, &args)? != help {
+                return Err(format!("help alias changed {format} output: {args:?}").into());
+            }
+        }
+        if run(&env, &["--format", format, "get", "gene", "--help"])?
+            != run(&env, &["--format", format, "help", "get", "gene"])?
+        {
+            return Err("scoped help alias changed its content".into());
+        }
+    }
+    for args in [
+        vec!["discover", "SENSITIVE-input-never-echo"],
+        vec!["help", "frobnicate"],
+        vec!["serve", "--bogus"],
+    ] {
+        let words: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
+        let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words).output()?;
+        let text = std::str::from_utf8(&output.stdout)?;
+        let value: Value = serde_json::from_str(text)?;
+        if output.status.code() != Some(2)
+            || value.pointer("/error/code").and_then(Value::as_str) != Some("usage.unknown_command")
+            || text.contains("SENSITIVE-input-never-echo")
+            || !output.stderr.is_empty()
+        {
+            return Err("unknown command leaked input or lost its usage identity".into());
+        }
+        let next = value.pointer("/next/0/args").and_then(Value::as_array)
+            .ok_or("unknown command omitted executable recovery")?;
+        let next: Vec<_> = next.iter().filter_map(Value::as_str).collect();
+        run(&env, &next)?;
+    }
+    Ok(())
+}
+
+fn run(env: &Environment, args: &[&str]) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    let words: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words).output()?;
+    if !output.status.success() {
+        return Err(format!("help failed for {args:?}: {output:?}").into());
+    }
+    Ok(output.stdout)
+}

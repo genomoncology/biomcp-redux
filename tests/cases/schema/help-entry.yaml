@@ -27,6 +27,18 @@ steps:
   - run: [help, store]
     expect:
       /result/commands/0/command: [store, clean]
+  - run: [help, key]
+    expect:
+      /result/commands/0/command/0: key
+  - run: [skill, install, --help]
+    expect:
+      /result/commands/0/command: [skill, install]
+  - run: [serve, --help]
+    expect:
+      /result/commands/0/command: [serve]
+  - run: [help, --help]
+    expect:
+      /schema: biomcp.help/2
   - run: [help, frobnicate]
     exit: 2
     expect:

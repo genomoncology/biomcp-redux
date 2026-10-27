@@ -12,6 +12,11 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     {
         return Ok(source_settings::help(topic));
     }
+    if path == ["network"] {
+        let mut help = network("ca_bundle");
+        help.commands.extend(network("proxy").commands);
+        return Ok(help);
+    }
     if let [category, setting] = path
         && category == "network"
     {

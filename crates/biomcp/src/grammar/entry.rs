@@ -17,7 +17,7 @@ pub(super) fn arguments(args: &[OsString], root: &Command) -> Vec<OsString> {
         }
         if matches!(text, "-h" | "--help") {
             globals.push("help".into());
-            globals.extend(path.into_iter().map(OsString::from));
+            globals.extend(path.into_iter().filter(|name| *name != "help").map(OsString::from));
             return globals;
         }
         if text == "--version" && path.is_empty() {
