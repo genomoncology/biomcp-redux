@@ -300,12 +300,18 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
     previous.ok_or_else(|| "case requires at least one step".into())
 }
 
+fn discovery_trials() -> Vec<Trial> {
+    let mut trials = housekeeping::trials();
+    trials.extend(help_entry::trials());
+    trials.extend(skill::trials());
+    trials.extend(public_grammar::trials());
+    trials
+}
+
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(output_stream::trials());
-    trials.extend(housekeeping::trials());
-    trials.extend(help_entry::trials());
-    trials.extend(skill::trials());
+    trials.extend(discovery_trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
@@ -344,7 +350,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(openfda_key::trials());
     trials.push(openfda_website::trial());
     trials.extend(key_help::trials());
-    trials.extend(public_grammar::trials());
     trials.extend(scholar::trials());
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
