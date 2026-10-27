@@ -28,7 +28,8 @@ elif args[:2] == ['llvm-cov', 'report']:
 elif args[0] == 'metadata':
     print(json.dumps({'packages':[{'name':'biomcp-types', 'targets':[
         {'name':'drug_contracts','kind':['test']},
-        {'name':'unlisted_contract','kind':['test']}]}]}))
+        {'name':'unlisted_contract','kind':['test']}]},
+        {'name':'biomcp-fetch', 'targets':[{'name':'tensors','kind':['test']}]}]}))
 elif args[0] == 'test' and '--no-run' not in args:
     with Path(os.environ['PROOF_CALLS']).open('a') as calls:
         calls.write(' '.join(args) + '\n')
@@ -45,6 +46,7 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
         shutil.copytree(ROOT / "crates/biomcp-types", root / "crates/biomcp-types")
+        shutil.copytree(ROOT / "crates/biomcp-fetch", root / "crates/biomcp-fetch")
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         tools = root / "fake-tools"
         tools.mkdir()
@@ -62,6 +64,9 @@ def main():
         assert "unlisted contracts and library tests; excluded from floor; product source): TOTAL 100 0 100% 100 0 100% 100 0 100%" in output, output
         assert (root / "calls").read_text().count("--test drug_contracts") == 1
         assert "--test unlisted_contract" in (root / "calls").read_text()
+        calls = (root / "calls").read_text().splitlines()
+        tensor_calls = [call for call in calls if "--test tensors" in call]
+        assert len(tensor_calls) == 1 and "--features" not in tensor_calls[0], tensor_calls
         assert not list((root / "profiles").glob("library-*.profraw"))
         report = subprocess.run(["sh", "scripts/coverage.sh", "report"], cwd=root, env=env,
                                 capture_output=True, text=True, check=False)

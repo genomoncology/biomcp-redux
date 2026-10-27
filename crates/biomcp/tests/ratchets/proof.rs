@@ -295,3 +295,37 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
     )?;
     super::reasons::check(root.path())
 }
+
+#[test]
+fn generated_exception_cannot_hide_product_code() -> Check {
+    let tree = tree()?;
+    let path = "crates/biomcp-fetch/src/grpc/proto.rs";
+    let wrapper = r#"#![allow(dead_code, reason="pinned generation")]
+include!("generated/mod.rs");
+"#;
+    put(tree.path(), path, wrapper)?;
+    check(tree.path())?;
+    rejects(
+        path,
+        &(wrapper.to_owned() + "fn hidden() {}"),
+        "generated exception requires only",
+    )?;
+    for modified in [
+        wrapper.replace("dead_code", "dead_code, unused_variables"),
+        wrapper.replace("allow", "expect"),
+        format!("fn hidden() {{}}\n{wrapper}"),
+    ] {
+        rejects(path, &modified, "generated exception requires only")?;
+    }
+    rejects(
+        path,
+        &wrapper.replace("dead_code", "unused_imports"),
+        "suppressions forbidden",
+    )?;
+    rejects(
+        "crates/biodata/src/lib.rs",
+        wrapper,
+        "suppressions forbidden",
+    )?;
+    Ok(())
+}

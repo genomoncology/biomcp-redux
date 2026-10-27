@@ -204,6 +204,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
+        "crates/biomcp-fetch/tests/tensors.rs",
+        "Exercise bounded tensor decoding with synthetic protobuf payloads through its public API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/transport.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),

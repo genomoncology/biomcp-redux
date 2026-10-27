@@ -1,6 +1,7 @@
 # 0320 — Decode AlphaGenome messages and tensors within fixed limits
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f2984336564754825086a1565931064c481ac1cc
 
 Milestone: 5
 

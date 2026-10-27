@@ -16,6 +16,8 @@ const LAYERS: &[(&str, &[&str])] = &[
             "url",
             "rustls",
             "rustls-platform-verifier",
+            "prost",
+            "zstd",
             "httpdate",
             "tempfile",
             "rusqlite",
