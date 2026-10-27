@@ -17,7 +17,7 @@ pub(super) fn resolve(plan: &Plan) -> Result<Vec<Sequence>, String> {
         if !sequence.steps.is_empty() { return Ok(sequence.clone()); }
         let case = cases.get(&sequence.case).ok_or("unknown sequence case")?;
         let steps = case.steps.iter().enumerate().map(|(index, step)| {
-            declaration(&sequence.case, index, step, case, plan, &cases)
+            declaration(&sequence.case, index, step, case, plan, &cases, &root)
                 .ok_or_else(|| format!("{} step {index}: no reviewed direct declaration preserves this question", sequence.case))
         }).collect::<Result<Vec<_>, _>>()?;
         Ok(Sequence { case: sequence.case.clone(), steps })
@@ -34,7 +34,7 @@ pub(super) fn inventory(
     let mut steps = Vec::new();
     let mut gaps = Vec::new();
     for (index, step) in case.steps.iter().enumerate() {
-        match declaration(name, index, step, case, plan, cases) {
+        match declaration(name, index, step, case, plan, cases, root) {
             Some(selection) => steps.push(selection),
             None => gaps.push(json!({"step":index,"command":step.run.as_ref().or(step.mcp.as_ref()),
                 "follow":step.follow,"reason":"no reviewed direct declaration preserves this question and configuration"})),
@@ -63,6 +63,7 @@ fn declaration(
     case: &Case,
     plan: &Plan,
     cases: &BTreeMap<String, Case>,
+    root: &Path,
 ) -> Option<Selection> {
     if step.follow.is_some() || step.walk.is_some() {
         return None;
@@ -73,11 +74,21 @@ fn declaration(
             return false;
         };
         original.config == case.config
-            && original
-                .steps
-                .get(selection.step)
-                .and_then(|step| step.run.as_ref().or(step.mcp.as_ref()))
-                == Some(command)
+            && original.steps.get(selection.step).is_some_and(|original| {
+                original.exit == step.exit
+                    && original.run.as_ref().or(original.mcp.as_ref()) == Some(command)
+            })
+            && selection.recordings.iter().all(|route| {
+                case.replay.as_ref().is_some_and(|replay| {
+                    root.parent().is_some_and(|fixtures| {
+                        fixtures
+                            .join("replies")
+                            .join(replay)
+                            .join(&route.capture)
+                            .is_file()
+                    })
+                })
+            })
     })?;
     let mut selected = template.clone();
     selected.case = name.into();

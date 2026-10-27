@@ -46,6 +46,14 @@ pub(super) fn validate_from(sequence: &Sequence, root: &Path) -> Result<(), Stri
         if step.walk.is_some() != selection.baseline_items.is_some() {
             return Err("walk requires the released aggregate array pointer".into());
         }
+        if let Some(reason) = &selection.baseline_walk_once {
+            reason.validate()?;
+            if step.walk.is_none() || !selection.pages.is_empty() {
+                return Err(
+                    "one released walk response requires a walk without released pages".into(),
+                );
+            }
+        }
         for page in &selection.pages {
             let mapped = page_selection(selection, page);
             let mut current = step.clone();
@@ -108,6 +116,7 @@ pub(super) fn compare(
             old: &old,
             baseline,
             replay: &replay,
+            candidate_replay: case.replay.as_ref().map(|_| replay.as_path()),
         };
         let (mut current, released) =
             execute(selection, step, previous.as_ref(), &context, &directory)?;
@@ -129,6 +138,7 @@ struct Context<'a> {
     old: &'a Environment,
     baseline: &'a Path,
     replay: &'a Path,
+    candidate_replay: Option<&'a Path>,
 }
 fn execute(
     selection: &Selection,
@@ -153,23 +163,25 @@ fn execute(
             .cloned()
             .ok_or("candidate did not emit JSON")?;
         exchanges.push(actual);
-        released.push(if let Some(reason) = &mapped.unsupported_command {
-            json!({"unsupported_command":reason})
-        } else {
-            recording::baseline_in(
-                &mapped,
-                context.baseline,
-                context.replay,
-                out,
-                ordinal,
-                context.old,
-            )
-            .and_then(|mut output| {
-                execution::assess_exit(&mut output, mapped.baseline_exit)?;
-                Ok(output)
-            })
-            .unwrap_or_else(|reason| json!({"assessment_error":reason}))
-        });
+        if ordinal == 0 || selection.baseline_walk_once.is_none() {
+            released.push(if let Some(reason) = &mapped.unsupported_command {
+                json!({"unsupported_command":reason})
+            } else {
+                recording::baseline_in(
+                    &mapped,
+                    context.baseline,
+                    context.replay,
+                    out,
+                    ordinal,
+                    context.old,
+                )
+                .and_then(|mut output| {
+                    execution::assess_exit(&mut output, mapped.baseline_exit)?;
+                    Ok(output)
+                })
+                .unwrap_or_else(|reason| json!({"assessment_error":reason}))
+            });
+        }
         Ok(value)
     });
     let mut current = exchanges.first().cloned().unwrap_or(json!({}));
@@ -177,7 +189,7 @@ fn execute(
         Ok(value) => execution::field(&mut current, "parsed", value)?,
         Err(reason) => execution::field(&mut current, "assessment_error", json!(reason))?,
     }
-    if exchanges.len() != selection.pages.len() + 1 {
+    if selection.baseline_walk_once.is_none() && exchanges.len() != selection.pages.len() + 1 {
         execution::field(
             &mut current,
             "assessment_error",
@@ -193,7 +205,12 @@ fn execute(
         execution::field(&mut current, "mcp", reply)?;
     }
     execution::field(&mut current, "exchanges", json!(exchanges))?;
-    let baseline = aggregate(&released, selection.baseline_items.as_deref())?;
+    let mut baseline = aggregate(&released, selection.baseline_items.as_deref())?;
+    execution::field(
+        &mut baseline,
+        "walk_once",
+        json!(selection.baseline_walk_once),
+    )?;
     Ok((current, baseline))
 }
 fn mapped_command(
@@ -212,6 +229,8 @@ fn mapped_command(
         if command != expected {
             return Err("follow differs from reviewed command".into());
         }
+        Ok(selection.clone())
+    } else if selection.baseline_walk_once.is_some() {
         Ok(selection.clone())
     } else {
         let page = selection
@@ -232,7 +251,7 @@ fn candidate(
 ) -> Result<Value, String> {
     let globals = context
         .candidate
-        .globals(Some(context.replay), step.offline);
+        .globals(context.candidate_replay, step.offline);
     let mut actual = if let Some(command) = &step.run {
         execution::invoke(
             context.candidate,

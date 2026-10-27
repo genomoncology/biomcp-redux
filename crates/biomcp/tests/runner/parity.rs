@@ -49,6 +49,8 @@ struct Selection {
     #[serde(default)]
     baseline_items: Option<String>,
     #[serde(default)]
+    baseline_walk_once: Option<UnsupportedFact>,
+    #[serde(default)]
     unsupported_command: Option<UnsupportedFact>,
     spelling_table: String,
     release_source: Vec<String>,
