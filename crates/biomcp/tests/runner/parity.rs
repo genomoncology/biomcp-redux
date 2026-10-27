@@ -31,6 +31,8 @@ mod request;
 mod sequence;
 #[path = "parity_sequence_plans.rs"]
 mod sequence_plans;
+#[path = "parity_shape.rs"]
+mod shape;
 #[path = "parity_shared_proof.rs"]
 mod shared_proof;
 
@@ -39,6 +41,8 @@ mod shared_proof;
 struct Plan {
     baseline_release: String,
     cases: Vec<Selection>,
+    #[serde(default)]
+    shapes: Vec<shape::Shape>,
     #[serde(default)]
     sequences: Vec<sequence::Sequence>,
     #[serde(default)]
@@ -145,6 +149,7 @@ fn load_plan(path: &Path) -> Result<Plan, String> {
             return Err("batch must target the same release without nested batches".into());
         }
         plan.cases.extend(child.cases);
+        plan.shapes.extend(child.shapes);
         plan.sequences.extend(child.sequences);
         plan.inventory.extend(child.inventory);
     }

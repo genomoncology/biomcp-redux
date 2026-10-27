@@ -1,6 +1,7 @@
 # 0308 — Declare the common parity sequence step shapes
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9215522bfac061bb919d4c43e61423dba7fa6fe0
 
 Milestone: 5
 

@@ -17,7 +17,7 @@ pub(super) fn resolve(plan: &Plan) -> Result<Vec<Sequence>, String> {
         if !sequence.steps.is_empty() { return Ok(sequence.clone()); }
         let case = cases.get(&sequence.case).ok_or("unknown sequence case")?;
         let steps = case.steps.iter().enumerate().map(|(index, step)| {
-            declaration(&sequence.case, index, step, case, plan, &cases, &root)
+            declaration(&sequence.case, index, step, case, plan, &cases, &root)?
                 .ok_or_else(|| format!("{} step {index}: no reviewed direct declaration preserves this question", sequence.case))
         }).collect::<Result<Vec<_>, _>>()?;
         Ok(Sequence { case: sequence.case.clone(), steps })
@@ -35,9 +35,17 @@ pub(super) fn inventory(
     let mut gaps = Vec::new();
     for (index, step) in case.steps.iter().enumerate() {
         match declaration(name, index, step, case, plan, cases, root) {
-            Some(selection) => steps.push(selection),
-            None => gaps.push(json!({"step":index,"command":step.run.as_ref().or(step.mcp.as_ref()),
-                "follow":step.follow,"reason":"no reviewed direct declaration preserves this question and configuration"})),
+            Ok(Some(selection)) => steps.push(selection),
+            other => {
+                let reason = other.err().unwrap_or_else(|| {
+                    "no reviewed direct declaration preserves this question and configuration"
+                        .into()
+                });
+                gaps.push(
+                    json!({"step":index,"command":step.run.as_ref().or(step.mcp.as_ref()),
+                    "follow":step.follow,"reason":reason}),
+                );
+            }
         }
     }
     if gaps.is_empty() {
@@ -64,11 +72,15 @@ fn declaration(
     plan: &Plan,
     cases: &BTreeMap<String, Case>,
     root: &Path,
-) -> Option<Selection> {
+) -> Result<Option<Selection>, String> {
     if step.follow.is_some() || step.walk.is_some() {
-        return None;
+        return Ok(None);
     }
-    let command = step.run.as_ref().or(step.mcp.as_ref())?;
+    let command = step
+        .run
+        .as_ref()
+        .or(step.mcp.as_ref())
+        .ok_or("command missing")?;
     let template = plan
         .cases
         .iter()
@@ -97,7 +109,10 @@ fn declaration(
                         || selection.unprojectable_facts.contains_key(pointer)
                 })
         })
-        .min_by_key(|selection| (selection.case != name, selection.step != index))?;
+        .min_by_key(|selection| (selection.case != name, selection.step != index));
+    let Some(template) = template else {
+        return super::shape::resolve(&plan.shapes, &plan.cases, name, index, step, case, root);
+    };
     let mut selected = template.clone();
     selected.case = name.into();
     selected.step = index;
@@ -108,5 +123,5 @@ fn declaration(
     selected
         .unprojectable_facts
         .retain(|pointer, _| step.expect.contains_key(pointer));
-    Some(selected)
+    Ok(Some(selected))
 }
