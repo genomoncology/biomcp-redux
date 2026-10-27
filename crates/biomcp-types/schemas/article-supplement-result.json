@@ -132,7 +132,7 @@
     },
     "CellFragment": {
       "additionalProperties": false,
-      "description": "A bounded portion of one original header or data cell.",
+      "description": "A bounded portion of one original first-row or selected-row cell.",
       "properties": {
         "column": {
           "description": "Original one-based column.",
@@ -140,7 +140,7 @@
           "minimum": 0,
           "type": "integer"
         },
-        "header": {
+        "first_row": {
           "description": "Whether the cell belongs to the first source row.",
           "type": "boolean"
         },
@@ -156,10 +156,34 @@
         }
       },
       "required": [
-        "header",
+        "first_row",
         "column",
         "offset",
         "text"
+      ],
+      "type": "object"
+    },
+    "FirstSheetRow": {
+      "additionalProperties": false,
+      "description": "The first original row without interpreting its cells as column headings.",
+      "properties": {
+        "cells": {
+          "description": "Original cells, empty when represented by cell fragments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "row": {
+          "description": "Original one-based row number.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "row",
+        "cells"
       ],
       "type": "object"
     },
@@ -515,7 +539,7 @@
     },
     "SheetRow": {
       "additionalProperties": false,
-      "description": "One original sparse row, with its first source row as header.",
+      "description": "One original sparse row with its numbered first source row.",
       "properties": {
         "cells": {
           "description": "This row's cells, including empty cells before populated columns.",
@@ -523,6 +547,10 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "first_row": {
+          "$ref": "#/$defs/FirstSheetRow",
+          "description": "First original row, including empty cells; never inferred column headings."
         },
         "fragment": {
           "anyOf": [
@@ -534,13 +562,6 @@
             }
           ],
           "description": "Sparse source cell fragment when the complete row exceeds the output bound."
-        },
-        "header": {
-          "description": "First original row, including empty cells.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
         },
         "row": {
           "description": "Original one-based row number.",
@@ -556,7 +577,7 @@
       "required": [
         "sheet",
         "row",
-        "header",
+        "first_row",
         "cells"
       ],
       "type": "object"
@@ -1054,7 +1075,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.article_supplement/2",
+  "$id": "biomcp.article_supplement/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",

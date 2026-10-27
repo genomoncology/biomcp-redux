@@ -188,6 +188,8 @@ impl ArticleSupplement {
     /// Select the first bounded rows of a sheet.
     pub fn first_rows(&self, sheet: Text, last: u32) -> Self {
         let mut v = self.clone();
+        v.0.find = None;
+        v.0.variant = None;
         v.0.sheet = Some(sheet);
         v.0.rows = Some(SheetRows(1, last.clamp(1, 20)));
         v.0.offset = 0;

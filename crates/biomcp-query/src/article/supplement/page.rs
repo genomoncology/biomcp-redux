@@ -110,6 +110,22 @@ pub(super) fn select(
         pool: None,
         truncated: None,
     });
+    if !needles.is_empty() {
+        for sheet in sheets.iter().filter(|sheet| {
+            page.rows.iter().any(|row| row.sheet.as_str() == sheet.name)
+        }) {
+            out.next.push((
+                StepKind::Section,
+                Action::Run {
+                    request: Request::ArticleSupplement(query.first_rows(
+                        Text::new(&sheet.name).map_err(|_| Reason::BadReply)?,
+                        sheet.rows.last().map_or(1, |row| row.number),
+                    )),
+                    fresh: false,
+                },
+            ));
+        }
+    }
     content.rows = Some(page.rows.into());
     Ok(true)
 }
@@ -124,12 +140,9 @@ fn collect(
         if query.sheet().is_some_and(|v| v.as_str() != sheet.name) {
             continue;
         }
-        let header = sheet
-            .rows
-            .first()
-            .filter(|r| r.number == 1)
-            .map(|r| r.cells.as_slice())
-            .unwrap_or(&[]);
+        let empty_first_row = sheet::Row { number: 1, cells: Vec::new() };
+        let first_row = sheet.rows.first().filter(|row| row.number == 1)
+            .unwrap_or(&empty_first_row);
         let name = Text::new(&sheet.name).map_err(|_| Reason::BadReply)?;
         for row in &sheet.rows {
             if page.end.expired() {
@@ -141,7 +154,7 @@ fn collect(
                 row.cells.iter().any(|v| fragments::contains(v, needles))
             };
             if included {
-                fragments::push(page, name.clone(), row, header, needles, matching)?;
+                fragments::push(page, name.clone(), row, first_row, needles, matching)?;
             }
         }
     }

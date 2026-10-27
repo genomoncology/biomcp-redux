@@ -59,7 +59,7 @@ pub use response::{
     TextPartKind,
 };
 pub use response::{
-    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
+    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow, SupplementContent,
     SupplementFile, Supplements,
 };
 pub use response::{
