@@ -156,7 +156,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
             .find(|source| source.source == biomcp_types::Source::ClinGen)
             .unwrap()
             .reason,
-        Some(biomcp_types::Reason::Syncing)
+        Some(biomcp_types::Reason::ReplayMiss)
     );
     assert!(
         matches!(outcome.local, Some(RequestError::Recording(_))),
