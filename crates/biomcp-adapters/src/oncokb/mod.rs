@@ -9,7 +9,7 @@ use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,
 };
-use biomcp_types::{Oncokb, OncokbCard, Problem, ProblemCode, Source};
+use biomcp_types::{Oncokb, OncokbCard, Source};
 use std::time::Duration;
 /// Required-key source policy.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -60,14 +60,24 @@ pub fn gene(
         if row.entrez_gene_id == id {
             accepted.push(row);
         } else {
-            problem(&mut problems, id, "entrez_id");
+            crate::mapped::push_problem(
+                &mut problems,
+                Source::Oncokb,
+                Text::new(&id.to_string()).ok(),
+                "entrez_id",
+            );
         }
     }
     let value = if accepted.len() == 1 {
         accepted.pop().map(|row| row.mapped(&mut problems))
     } else {
         if accepted.len() > 1 {
-            problem(&mut problems, id, "entrez_id");
+            crate::mapped::push_problem(
+                &mut problems,
+                Source::Oncokb,
+                Text::new(&id.to_string()).ok(),
+                "entrez_id",
+            );
         }
         None
     };
@@ -77,12 +87,4 @@ pub fn gene(
 pub fn version(leg: &Leg<'_>) -> Result<Text, RequestError> {
     leg.json::<raw::Info>(&INFO, &[])
         .map(|info| info.data_version.version)
-}
-fn problem(problems: &mut Vec<Problem>, id: NcbiGeneId, field: &str) {
-    problems.push(Problem {
-        source: Source::Oncokb,
-        record: Text::new(&id.to_string()).ok(),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    });
 }

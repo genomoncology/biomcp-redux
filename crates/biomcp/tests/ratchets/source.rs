@@ -123,6 +123,7 @@ pub(super) fn check(root: &Path) -> Check {
                 return fail(&relative, "file line limit exceeded");
             }
             let tokens = tokens(&text);
+            adapter_helpers(&relative, &tokens)?;
             source_terms(root, &relative, &tokens)?;
             if relative != "crates/biomcp-types/src/response/source.rs"
                 && relative != "crates/biomcp-adapters/src/registry.rs"
@@ -405,6 +406,28 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
                 &format!("implemented source must appear in source registry: expected {expected}"),
             );
         }
+    }
+    Ok(())
+}
+
+fn adapter_helpers(path: &str, tokens: &[String]) -> Check {
+    if !path.starts_with("crates/biomcp-adapters/src/")
+        || path == "crates/biomcp-adapters/src/mapped.rs"
+    {
+        return Ok(());
+    }
+    // These decode or render text formats; they do not construct neutral Text values.
+    let format_text = matches!(
+        path,
+        "crates/biomcp-adapters/src/xml_element.rs"
+            | "crates/biomcp-adapters/src/jats/markdown.rs"
+            | "crates/biomcp-adapters/src/sheet/xlsx.rs"
+    );
+    if tokens
+        .windows(2)
+        .any(|pair| pair[0] == "fn" && (pair[1] == "problem" || pair[1] == "text" && !format_text))
+    {
+        return fail(path, "adapter mapping helpers belong in mapped.rs");
     }
     Ok(())
 }

@@ -2,9 +2,7 @@ use super::raw;
 use crate::{Mapped, raw::Field};
 use biodata::{EnsemblGeneId, Text};
 
-use biomcp_types::{
-    CancerPtpm, GeneExpression, Problem, ProblemCode, RnaAbundance, Source, TissueNtpm,
-};
+use biomcp_types::{CancerPtpm, GeneExpression, Problem, RnaAbundance, Source, TissueNtpm};
 use std::collections::BTreeMap;
 pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpression> {
     let mut map = Mapper {
@@ -12,14 +10,15 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
         problems: Vec::new(),
     };
     let value = GeneExpression {
-        rna_tissue_specificity: map.text(raw.tissue_specificity, "rna_tissue_specificity"),
-        rna_tissue_distribution: map.text(raw.tissue_distribution, "rna_tissue_distribution"),
+        rna_tissue_specificity: map.optional_text(raw.tissue_specificity, "rna_tissue_specificity"),
+        rna_tissue_distribution: map
+            .optional_text(raw.tissue_distribution, "rna_tissue_distribution"),
         rna_tissue_ntpm: map
             .numbers(raw.ntpm, "rna_tissue_ntpm")
             .into_iter()
             .map(|(tissue, ntpm)| TissueNtpm { tissue, ntpm })
             .collect(),
-        rna_cancer_specificity: map.text(raw.cancer_specificity, "rna_cancer_specificity"),
+        rna_cancer_specificity: map.optional_text(raw.cancer_specificity, "rna_cancer_specificity"),
         rna_cancer_ptpm: map
             .numbers(raw.ptpm, "rna_cancer_ptpm")
             .into_iter()
@@ -38,36 +37,37 @@ struct Mapper<'a> {
     problems: Vec<Problem>,
 }
 impl Mapper<'_> {
-    fn problem(&mut self, field: &str) {
-        self.problems.push(Problem {
+    fn optional_text(&mut self, raw: Option<Field<String>>, field: &str) -> Option<Text> {
+        let mut fields = crate::mapped::Problems {
             source: Source::Hpa,
             record: Text::new(self.id.base()).ok(),
-            field: field.into(),
-            code: ProblemCode::ValueUnknown,
-        });
+            list: std::mem::take(&mut self.problems),
+        };
+        let value = fields.optional(
+            field,
+            raw.map(|v| match v {
+                Field::Value(v) => crate::mapped::text(&v),
+                Field::Invalid(_) => Err(biomcp_fetch::BadReply),
+            }),
+        );
+        self.problems = fields.list;
+        value
     }
-    fn text(&mut self, raw: Option<Field<String>>, field: &str) -> Option<Text> {
-        let raw = raw?;
-        if let Field::Value(value) = &raw {
-            if value.is_empty() {
-                return None;
-            }
-            if let Ok(text) = Text::new(value) {
-                return Some(text);
-            }
-        }
-        self.problem(field);
-        None
-    }
+
     fn list(&mut self, raw: Option<Field<Vec<Field<String>>>>, field: &str) -> Box<[Text]> {
         match raw {
             None => Box::default(),
             Some(Field::Value(values)) => values
                 .into_iter()
-                .filter_map(|value| self.text(Some(value), field))
+                .filter_map(|value| self.optional_text(Some(value), field))
                 .collect(),
             Some(_) => {
-                self.problem(field);
+                crate::mapped::push_problem(
+                    &mut self.problems,
+                    Source::Hpa,
+                    Text::new(self.id.base()).ok(),
+                    field,
+                );
                 Box::default()
             }
         }
@@ -81,7 +81,12 @@ impl Mapper<'_> {
             return Vec::new();
         };
         let Field::Value(values) = raw else {
-            self.problem(field);
+            crate::mapped::push_problem(
+                &mut self.problems,
+                Source::Hpa,
+                Text::new(self.id.base()).ok(),
+                field,
+            );
             return Vec::new();
         };
         values
@@ -95,7 +100,12 @@ impl Mapper<'_> {
                 {
                     return Some((tissue, number));
                 }
-                self.problem(field);
+                crate::mapped::push_problem(
+                    &mut self.problems,
+                    Source::Hpa,
+                    Text::new(self.id.base()).ok(),
+                    field,
+                );
                 None
             })
             .collect()

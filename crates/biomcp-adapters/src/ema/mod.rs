@@ -41,9 +41,20 @@ pub fn sync(fetch: &Fetch) -> Result<BundleInfo, RequestError> {
     fetch.sync(&MEDICINES)
 }
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
-pub fn search(leg: &Leg<'_>, query: &str) -> Result<Vec<DrugHeader>, RequestError> {
+pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Words(query))?;
-    Ok(rows.iter().map(map::header).collect())
+    let mut problems = fields(None);
+    let value = rows
+        .iter()
+        .map(|row| {
+            problems.record = Some(row.record.clone());
+            map::header(row, &mut problems)
+        })
+        .collect();
+    Ok(crate::Mapped {
+        value,
+        problems: problems.list,
+    })
 }
 fn exact(leg: &Leg<'_>, id: &DrugId) -> Result<Option<raw::Medicine>, RequestError> {
     let (mut rows, _) = leg.stored_rows(&MEDICINES, Find::Exact(KeyKind::Id, &id.to_string()))?;
@@ -51,17 +62,28 @@ fn exact(leg: &Leg<'_>, id: &DrugId) -> Result<Option<raw::Medicine>, RequestErr
     Ok(rows.pop().filter(|row| row.id == *id))
 }
 /// Exact native EMA identity card without authorization events.
-pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugCard>, RequestError> {
-    Ok(exact(leg, id)?.as_ref().map(map::card))
+pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>>, RequestError> {
+    let mut problems = fields(Some(id));
+    let value = exact(leg, id)?
+        .as_ref()
+        .map(|row| map::card(row, &mut problems));
+    Ok(crate::Mapped {
+        value,
+        problems: problems.list,
+    })
 }
 /// Source-native dates and status for only the selected EMA application record.
-pub fn regulatory(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugRegulatory>, RequestError> {
-    Ok(exact(leg, id)?.map(|row| DrugRegulatory {
-        identity: map::header(&row),
+pub fn regulatory(
+    leg: &Leg<'_>,
+    id: &DrugId,
+) -> Result<crate::Mapped<Option<DrugRegulatory>>, RequestError> {
+    let mut problems = fields(Some(id));
+    let value = exact(leg, id)?.map(|row| DrugRegulatory {
+        identity: map::header(&row, &mut problems),
         regulatory: Section::Data {
             source: Source::Ema,
             data: DrugRecords {
-                records: vec![map::event(&row)].into(),
+                records: vec![map::event(&row, &mut problems)].into(),
                 offset: 0,
                 total: Some(1),
                 truncated: None,
@@ -69,7 +91,18 @@ pub fn regulatory(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugRegulatory>, 
                 retrieved: None,
             },
         },
-    }))
+    });
+    Ok(crate::Mapped {
+        value,
+        problems: problems.list,
+    })
+}
+fn fields(id: Option<&DrugId>) -> crate::mapped::Problems {
+    crate::mapped::Problems {
+        source: Source::Ema,
+        record: id.and_then(|id| crate::mapped::text(&id.to_string()).ok()),
+        list: Vec::new(),
+    }
 }
 
 /// Inspect this source's validated local catalog without reading rows or synchronizing.

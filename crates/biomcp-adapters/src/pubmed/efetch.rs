@@ -127,8 +127,15 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         .ok_or(BadReply)?
         .parse()
         .map_err(|_| BadReply)?;
-    let title = text(row.value(&["ArticleTitle"])?)?.ok_or(BadReply)?;
-    let journal = text(row.value(&["Journal", "Title"])?)?;
+    let title = row
+        .value(&["ArticleTitle"])?
+        .map(|s| crate::mapped::text(&s))
+        .transpose()?
+        .ok_or(BadReply)?;
+    let journal = row
+        .value(&["Journal", "Title"])?
+        .map(|s| crate::mapped::text(&s))
+        .transpose()?;
     let date = pubdate(row.at(&["Journal", "JournalIssue", "PubDate"])?)?;
     let mut doi = None;
     let mut pmcid = None;
@@ -180,11 +187,7 @@ fn electronic_date(
     }
     Ok(None)
 }
-fn text(value: Option<String>) -> Result<Option<Text>, BadReply> {
-    value
-        .map(|s| Text::new(&s).map_err(|_| BadReply))
-        .transpose()
-}
+
 fn authors(row: Element<'_>) -> Result<Vec<Text>, BadReply> {
     let mut out = Vec::new();
     if let Some(list) = row.child("AuthorList")? {
@@ -212,7 +215,10 @@ fn abstracts(row: Element<'_>) -> Result<Vec<AbstractPart>, BadReply> {
             let value = part.text()?;
             if !value.trim().is_empty() {
                 out.push(AbstractPart {
-                    label: text(part.attr("Label")?)?,
+                    label: part
+                        .attr("Label")?
+                        .map(|s| crate::mapped::text(&s))
+                        .transpose()?,
                     text: crate::jats::markdown(part.0)?,
                 });
             }

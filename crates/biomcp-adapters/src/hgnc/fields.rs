@@ -1,6 +1,6 @@
 use biodata::{HgncId, LocusGroup, LocusType, Mane, Text};
 
-use biomcp_types::{Problem, ProblemCode, Source};
+use biomcp_types::{Problem, Source};
 use std::str::FromStr;
 
 pub(super) struct Fields {
@@ -8,17 +8,14 @@ pub(super) struct Fields {
     pub problems: Vec<Problem>,
 }
 impl Fields {
-    pub(super) fn problem(&mut self, field: &str) {
-        self.problems.push(Problem {
-            source: Source::Hgnc,
-            record: self.id.and_then(|id| Text::new(&id.to_string()).ok()),
-            field: field.into(),
-            code: ProblemCode::ValueUnknown,
-        });
-    }
     pub(super) fn required<T>(&mut self, field: &str, value: Option<T>) -> Option<T> {
         if value.is_none() {
-            self.problem(field);
+            crate::mapped::push_problem(
+                &mut self.problems,
+                Source::Hgnc,
+                self.id.and_then(|id| Text::new(&id.to_string()).ok()),
+                field,
+            );
         }
         value
     }

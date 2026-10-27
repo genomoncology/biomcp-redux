@@ -111,8 +111,8 @@ pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSit
         total,
         metadata,
         problems: vec![
-            map::problem("catalog.publisher_date"),
-            map::problem("catalog.publisher_version"),
+            crate::mapped::problem(Source::Seer, None, "catalog.publisher_date"),
+            crate::mapped::problem(Source::Seer, None, "catalog.publisher_version"),
         ],
     })
 }

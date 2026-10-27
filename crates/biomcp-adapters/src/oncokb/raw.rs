@@ -32,9 +32,22 @@ pub(super) struct Gene {
 }
 impl Gene {
     pub(super) fn mapped(self, problems: &mut Vec<biomcp_types::Problem>) -> super::GeneData {
-        let mut text = |value, field| text(value, self.entrez_gene_id, field, problems);
+        let mut fields = crate::mapped::Problems {
+            source: biomcp_types::Source::Oncokb,
+            record: Text::new(&self.entrez_gene_id.to_string()).ok(),
+            list: std::mem::take(problems),
+        };
+        let mut text = |value: Option<Field<String>>, field| {
+            fields.optional(
+                field,
+                value.map(|value| match value {
+                    Field::Value(value) => crate::mapped::text(&value),
+                    Field::Invalid(_) => Err(BadReply),
+                }),
+            )
+        };
         let _symbol = self.hugo_symbol;
-        super::GeneData {
+        let result = super::GeneData {
             card: OncokbCard {
                 gene_type: self.gene_type,
                 highest_sensitive_level: text(
@@ -60,7 +73,9 @@ impl Gene {
                     refseq: text(self.grch38_refseq, "grch38.refseq"),
                 },
             },
-        }
+        };
+        *problems = fields.list;
+        result
     }
 }
 #[derive(Deserialize)]
@@ -81,19 +96,4 @@ impl Reply for Info {
 fn entrez<'de, D: serde::Deserializer<'de>>(d: D) -> Result<NcbiGeneId, D::Error> {
     let value = u32::deserialize(d)?;
     NcbiGeneId::new(value).map_err(serde::de::Error::custom)
-}
-
-fn text(
-    value: Option<Field<String>>,
-    id: NcbiGeneId,
-    field: &str,
-    problems: &mut Vec<biomcp_types::Problem>,
-) -> Option<Text> {
-    let value = value?;
-    if let Some(value) = value.value().and_then(|value| Text::new(&value).ok()) {
-        Some(value)
-    } else {
-        super::problem(problems, id, field);
-        None
-    }
 }

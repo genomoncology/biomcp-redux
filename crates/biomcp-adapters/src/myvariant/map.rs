@@ -2,7 +2,7 @@ use super::raw::{Genes, Hit, OneOrMany};
 use crate::Mapped;
 use biodata::{Build, Expression, ExpressionSyntax, Representation, Text, Variant, VariantId};
 
-use biomcp_types::{Problem, ProblemCode, Source, SourceRecord, VariantHeader};
+use biomcp_types::{Source, SourceRecord, VariantHeader};
 pub(super) fn candidates(
     hits: Vec<Hit>,
     query: &str,
@@ -22,14 +22,22 @@ pub(super) fn candidates(
             })
             .unwrap_or_default();
         if !hit.matches(query) || value.iter().any(|v: &VariantHeader| v.record.id == hit.id) {
-            problems.push(problem(hit.id, "identity"));
+            problems.push(crate::mapped::problem(
+                Source::MyVariant,
+                Some(hit.id),
+                "identity",
+            ));
             continue;
         }
         let mut ids = Vec::new();
         for alias in aliases {
             match alias.as_str().parse::<VariantId>() {
                 Ok(id) => ids.push(id),
-                Err(_) => problems.push(problem(hit.id.clone(), "ids")),
+                Err(_) => problems.push(crate::mapped::problem(
+                    Source::MyVariant,
+                    Some(hit.id.clone()),
+                    "ids",
+                )),
             }
         }
         if allow_clinvar
@@ -49,13 +57,21 @@ pub(super) fn candidates(
                 if let Some(symbol) = gene.symbol {
                     match biodata::GeneRef::new(symbol, None, None, None) {
                         Ok(g) => genes.push(g),
-                        Err(_) => problems.push(problem(hit.id.clone(), "genes")),
+                        Err(_) => problems.push(crate::mapped::problem(
+                            Source::MyVariant,
+                            Some(hit.id.clone()),
+                            "genes",
+                        )),
                     }
                 }
             }
         }
         if build.is_none() {
-            problems.push(problem(hit.id.clone(), "representations.build"));
+            problems.push(crate::mapped::problem(
+                Source::MyVariant,
+                Some(hit.id.clone()),
+                "representations.build",
+            ));
         }
         let expression = Expression::new(ExpressionSyntax::HgvsG, hit.id.clone(), None);
         let representations = match expression {
@@ -66,7 +82,11 @@ pub(super) fn candidates(
                 allele: None,
             }],
             Err(_) => {
-                problems.push(problem(hit.id.clone(), "representations"));
+                problems.push(crate::mapped::problem(
+                    Source::MyVariant,
+                    Some(hit.id.clone()),
+                    "representations",
+                ));
                 continue;
             }
         };
@@ -88,14 +108,6 @@ pub(super) fn candidates(
         });
     }
     Mapped { value, problems }
-}
-fn problem(record: Text, field: &str) -> Problem {
-    Problem {
-        source: Source::MyVariant,
-        record: Some(record),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
 }
 
 fn component_terms(ids: &[VariantId]) -> Box<[biomcp_types::ComponentLabel]> {

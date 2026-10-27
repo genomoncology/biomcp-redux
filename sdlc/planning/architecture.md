@@ -979,6 +979,10 @@ An adapter is one folder with three files:
 
 `#[serde(default)]` is banned in `raw.rs`. A field the provider may omit is an `Option`, and the top-level `check` decides whether its absence makes the reply an error. A missing result list can therefore never decode as an empty answer.
 
+Every present source field that cannot map is omitted and produces a `Problem` naming that field. The adapter returns the remaining item through `Mapped { value, problems }`. A missing optional field produces no problem. An invalid required identity still fails the item. Mapping never guesses a value from prose. Optional collection members follow the same rule individually.
+
+`mapped.rs` owns rejected-field construction, deduplication and text validation. Adapters retain source-specific parsing and pass its results to that owner. Required identity text uses the strict shared conversion. Optional text uses the shared problem context, so empty or invalid text cannot fail unrelated fields.
+
 Shared helpers live once in `biomcp-adapters/src/`:
 
 ```rust
@@ -990,8 +994,8 @@ Shared helpers live once in `biomcp-adapters/src/`:
 pub struct Mapped<T> { pub value: T, pub problems: Vec<Problem> }
 pub struct Problems { source: Source, record: Option<Text>, list: Vec<Problem> }
 impl Problems {
-    pub(crate) fn required<T, E: Into<ProblemCode>>(&mut self, field: &str, r: Result<T, E>) -> Option<T>;
-    pub(crate) fn optional<T, E: Into<ProblemCode>>(&mut self, field: &str, r: Option<Result<T, E>>) -> Option<T>;
+    pub(crate) fn required<T>(&mut self, field: &str, value: Option<T>) -> Option<T>;
+    pub(crate) fn optional<T, E>(&mut self, field: &str, value: Option<Result<T, E>>) -> Option<T>;
 }
 
 // one page from one source, before any merge

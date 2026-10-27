@@ -6,7 +6,7 @@ use biodata::{
     Term, Text, VariantRef,
 };
 
-use biomcp_types::{OncokbVariantRecord as Record, Problem, ProblemCode, Source};
+use biomcp_types::{OncokbVariantRecord as Record, Problem, Source};
 
 /// Project native fields without attaching grouped implications to the queried allele.
 pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
@@ -23,7 +23,7 @@ pub fn records(row: &Annotation) -> Mapped<Vec<Record>> {
             "Resistance" => Some(OncokbOncogenicityCode::Resistance),
             "Unknown" => Some(OncokbOncogenicityCode::Unknown),
             _ => {
-                problem(&mut out.problems, "oncogenic");
+                crate::mapped::push_problem(&mut out.problems, Source::Oncokb, None, "oncogenic");
                 None
             }
         }
@@ -234,7 +234,7 @@ fn pmids(values: &[String], problems: &mut Vec<Problem>) -> Vec<biodata::Pmid> {
         .filter_map(|s| match s.parse() {
             Ok(v) => Some(v),
             Err(_) => {
-                problem(problems, "pmids");
+                crate::mapped::push_problem(problems, Source::Oncokb, None, "pmids");
                 None
             }
         })
@@ -256,7 +256,7 @@ fn level(value: &Text, problems: &mut Vec<Problem>) -> Term {
         "LEVEL_Px2" => Some(OncokbLevelCode::LevelPx2),
         "LEVEL_Px3" => Some(OncokbLevelCode::LevelPx3),
         _ => {
-            problem(problems, "level");
+            crate::mapped::push_problem(problems, Source::Oncokb, None, "level");
             None
         }
     };
@@ -279,14 +279,6 @@ fn narrative(out: &mut Vec<Record>, field: &str, value: Option<&str>) {
             text: chunk.iter().collect::<String>().into(),
         });
     }
-}
-fn problem(out: &mut Vec<Problem>, field: &str) {
-    out.push(Problem {
-        source: Source::Oncokb,
-        record: None,
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    });
 }
 
 fn abstracts(rows: &[super::variant::Abstract]) -> Box<[biomcp_types::OncokbCitation]> {

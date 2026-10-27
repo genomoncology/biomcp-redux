@@ -111,7 +111,7 @@ impl Document {
         record: &str,
         version: &str,
     ) -> Result<VariantAssertion, RequestError> {
-        let text = super::raw::text;
+        let text = |value: &str| crate::mapped::text(value).map_err(|_| super::bad());
         let attribution = Attribution {
             source: Source::Erepo.text(),
             record: Some(text(record)?),
@@ -167,7 +167,7 @@ impl Document {
 }
 impl Assessment {
     fn map(self) -> Result<AssertionAssessment, RequestError> {
-        let text = super::raw::text;
+        let text = |value: &str| crate::mapped::text(value).map_err(|_| super::bad());
         let criterion = self.criterion.ok_or_else(super::bad)?;
         let outcome = self.outcome.ok_or_else(super::bad)?;
         Ok(AssertionAssessment {

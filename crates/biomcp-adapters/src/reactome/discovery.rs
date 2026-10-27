@@ -61,7 +61,11 @@ pub fn search(leg: &Leg<'_>, q: &PathwaySearch) -> Result<Page, RequestError> {
             for row in results.into_iter().flat_map(|g| g.entries) {
                 match map::hit(&row) {
                     Some(header) => rows.value.push(header),
-                    None => rows.problems.push(map::problem(&row.st_id, "identity")),
+                    None => rows.problems.push(crate::mapped::problem(
+                        Source::Reactome,
+                        biodata::Text::new(&row.st_id).ok(),
+                        "identity",
+                    )),
                 }
             }
             (total, count)
@@ -89,7 +93,11 @@ pub fn top_level(leg: &Leg<'_>) -> Result<Mapped<Vec<PathwayHeader>>, RequestErr
     for row in rows.0 {
         match map::header(&row) {
             Some(v) => mapped.value.push(v),
-            None => mapped.problems.push(map::problem(&row.st_id, "identity")),
+            None => mapped.problems.push(crate::mapped::problem(
+                Source::Reactome,
+                biodata::Text::new(&row.st_id).ok(),
+                "identity",
+            )),
         }
     }
     Ok(mapped)
@@ -119,7 +127,11 @@ pub fn card(
         .then(|| map::card(row, summary))
         .flatten();
     let problems = if value.is_none() {
-        vec![map::problem(id.as_str(), "identity")]
+        vec![crate::mapped::problem(
+            Source::Reactome,
+            biodata::Text::new(id.as_str()).ok(),
+            "identity",
+        )]
     } else {
         Vec::new()
     };

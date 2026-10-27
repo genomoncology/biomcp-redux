@@ -1,11 +1,10 @@
 use super::links::{native_xrefs, reference, strings};
 use super::raw::{Component, Hit, Page};
-use biodata::{DrugIdentityLevel, DrugIdentityRelation, Text};
+pub(super) use crate::mapped::text;
+use biodata::{DrugIdentityLevel, DrugIdentityRelation};
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{DrugCard, DrugHeader, DrugPage, DrugSource};
-pub(super) fn text(value: &str) -> Result<Text, BadReply> {
-    Text::new(value).map_err(|_| BadReply)
-}
+
 fn components(hit: Hit, leg: &Leg<'_>) -> (String, Option<u64>, Vec<(&'static str, Component)>) {
     let mut rows = Vec::new();
     for (name, values) in [

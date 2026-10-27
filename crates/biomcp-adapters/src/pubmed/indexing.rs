@@ -1,5 +1,5 @@
 use crate::xml_element::Element;
-use biodata::Text;
+
 use biomcp_fetch::BadReply;
 use biomcp_types::Capped;
 use biomcp_types::{Indexing, MeshHeading, MeshQualifier};
@@ -13,13 +13,13 @@ pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing,
                 .into_iter()
                 .map(|q| {
                     Ok(MeshQualifier {
-                        name: text(q)?,
+                        name: q.text().and_then(|s| crate::mapped::text(&s))?,
                         major: major(q)?,
                     })
                 })
                 .collect::<Result<Vec<_>, BadReply>>()?;
             mesh.push(MeshHeading {
-                descriptor: text(descriptor)?,
+                descriptor: descriptor.text().and_then(|s| crate::mapped::text(&s))?,
                 major: major(descriptor)?,
                 qualifiers: qualifiers.into(),
             });
@@ -28,7 +28,7 @@ pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing,
     let mut keywords = Vec::new();
     for list in citation.children("KeywordList")? {
         for keyword in list.children("Keyword")? {
-            keywords.push(text(keyword)?);
+            keywords.push(keyword.text().and_then(|s| crate::mapped::text(&s))?);
         }
     }
     let mut affiliations = Vec::new();
@@ -37,12 +37,12 @@ pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing,
         for author in list.children("Author")? {
             for info in author.children("AffiliationInfo")? {
                 for affiliation in info.children("Affiliation")? {
-                    affiliations.push(text(affiliation)?);
+                    affiliations.push(affiliation.text().and_then(|s| crate::mapped::text(&s))?);
                 }
             }
             for identifier in author.children("Identifier")? {
                 if identifier.attr("Source")?.as_deref() == Some("ORCID") {
-                    let id = text(identifier)?;
+                    let id = identifier.text().and_then(|s| crate::mapped::text(&s))?;
                     if !orcids.contains(&id) {
                         orcids.push(id);
                     }
@@ -60,9 +60,7 @@ pub(super) fn parse(citation: Element<'_>, row: Element<'_>) -> Result<Indexing,
         orcids: orcids.into(),
     })
 }
-fn text(node: Element<'_>) -> Result<Text, BadReply> {
-    Text::new(&node.text()?).map_err(|_| BadReply)
-}
+
 fn major(node: Element<'_>) -> Result<bool, BadReply> {
     match node.attr("MajorTopicYN")?.as_deref() {
         Some("Y") => Ok(true),

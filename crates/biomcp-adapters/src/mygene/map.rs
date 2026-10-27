@@ -59,17 +59,8 @@ use crate::{
 };
 use biodata::{HgncId, NcbiGeneId};
 
-use biomcp_types::{Problem, ProblemCode, Source};
+use biomcp_types::{Problem, Source};
 use std::collections::BTreeMap;
-
-fn problem(id: Option<NcbiGeneId>, field: &str) -> Problem {
-    Problem {
-        source: Source::MyGene,
-        record: id.and_then(|id| Text::new(&id.to_string()).ok()),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
-}
 
 pub(super) fn extras(
     reply: Genes,
@@ -80,18 +71,26 @@ pub(super) fn extras(
     for hit in reply.0 {
         match hit.query.parse::<NcbiGeneId>() {
             Ok(id) if ids.contains(&id) => hits.entry(id).or_default().push(hit),
-            _ => problems.push(problem(None, "query")),
+            _ => problems.push(crate::mapped::problem(Source::MyGene, None, "query")),
         }
     }
     for id in ids {
         if !hits.contains_key(id) {
-            problems.push(problem(Some(*id), "query"));
+            problems.push(crate::mapped::problem(
+                Source::MyGene,
+                Some(*id).and_then(|id| Text::new(&id.to_string()).ok()),
+                "query",
+            ));
         }
     }
     hits.into_iter()
         .filter_map(|(id, mut hits)| {
             if hits.len() != 1 {
-                problems.push(problem(Some(id), "query"));
+                problems.push(crate::mapped::problem(
+                    Source::MyGene,
+                    Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+                    "query",
+                ));
                 return None;
             }
             map_hit(hits.pop()?, id, problems)
@@ -108,7 +107,11 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
-        problems.push(problem(Some(id), "entrez_id"));
+        problems.push(crate::mapped::problem(
+            Source::MyGene,
+            Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+            "entrez_id",
+        ));
         return None;
     }
     let hgnc_present = hit.hgnc.is_some();
@@ -127,12 +130,20 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         problems: Vec::new(),
     };
     if hgnc_present && hgnc.is_none() {
-        mapped.problems.push(problem(Some(id), "hgnc_id"));
+        mapped.problems.push(crate::mapped::problem(
+            Source::MyGene,
+            Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+            "hgnc_id",
+        ));
     }
     if let Some(field) = hit.summary {
         mapped.value.summary = field.value().and_then(summary);
         if mapped.value.summary.is_none() {
-            mapped.problems.push(problem(Some(id), "summary"));
+            mapped.problems.push(crate::mapped::problem(
+                Source::MyGene,
+                Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+                "summary",
+            ));
         }
     }
     let mut spans = Vec::new();
@@ -169,12 +180,20 @@ fn positions(
         _ => "genomic_pos_hg19",
     };
     match field.value() {
-        None => problems.push(problem(Some(id), name)),
+        None => problems.push(crate::mapped::problem(
+            Source::MyGene,
+            Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+            name,
+        )),
         Some(values) => {
             for value in values.values() {
                 match value.value().and_then(|value| interval(value, build)) {
                     Some(value) => spans.push(value),
-                    None => problems.push(problem(Some(id), name)),
+                    None => problems.push(crate::mapped::problem(
+                        Source::MyGene,
+                        Some(id).and_then(|id| Text::new(&id.to_string()).ok()),
+                        name,
+                    )),
                 }
             }
         }

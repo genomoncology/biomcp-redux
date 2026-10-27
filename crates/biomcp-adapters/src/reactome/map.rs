@@ -1,15 +1,7 @@
 use super::raw;
 use biodata::{Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, Text};
-use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection, Problem, ProblemCode, Source};
+use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection, Source};
 
-pub(super) fn problem(record: &str, field: &str) -> Problem {
-    Problem {
-        source: Source::Reactome,
-        record: Text::new(record).ok(),
-        field: field.into(),
-        code: ProblemCode::ValueUnknown,
-    }
-}
 fn identity(id: &str, name: &str, species: &str, class: &str) -> Option<PathwayHeader> {
     if species != "Homo sapiens" || !matches!(class, "Pathway" | "TopLevelPathway") {
         return None;
