@@ -380,7 +380,7 @@
       "variables": [
         "BIOMCP_ORCID_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "pharmacodb": {
       "recording_source": "pharmacodb",

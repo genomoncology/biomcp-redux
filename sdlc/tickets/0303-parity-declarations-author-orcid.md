@@ -1,6 +1,7 @@
 # 0303 — Declare Author and ORCID parity plans for 0.9.3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c0a2d4b1cadde0e911d16d73469408b26c11f061
 
 Milestone: 5
 
