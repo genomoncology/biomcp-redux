@@ -13,6 +13,7 @@ The final release candidate's artifacts install and run on every promised platfo
 - Why: the release plan requires final-candidate installed proof before Ian approves publication.
 - Starts from: 0066's rehearsal recipe, `release/gate.py` and `release/matrix.sh`, release.md and the machine registry.
 - Rules: the rehearsal includes one 0289 workflow dry run, on a fork tag or workflow_dispatch with publication disabled, that builds every artifact on the five platforms and two containers; Ian approves that external run before it starts. The rehearsal publishes nothing otherwise. Machines are booked through pm job. The rehearsal verifies or refreshes the 0290 schema baseline against the selected final candidate, so the published 1.0 schema set becomes the baseline 1.0.1 is compared with; 0290's snapshot is provisional input only (PM ruling 2026-10-26, m8126 ask 31).
+- Candidate rule, PM ruling 2026-10-27 (m8126 ask 56): installed-product evidence from an earlier candidate carries forward to a later one when the diff between them touches no product source, lockfile or packaging input, shown by an exact path list with both commit hashes in the report. A release tooling fix such as 0313 or 0315 does not force a product rebuild; the external dry run qualifies the exact final workflow candidate.
 - Proof: one report per platform with exact commands, versions and exits, reviewed by a fresh reviewer.
 - Changes: none expected beyond fixes the rehearsal finds, each its own ticket.
 - Defers: publication, which needs Ian.
