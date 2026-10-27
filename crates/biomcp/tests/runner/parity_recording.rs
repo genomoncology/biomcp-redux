@@ -68,14 +68,21 @@ pub(super) fn baseline(
         .env("BIOMCP_CA_BUNDLE", &certificate);
     let mut result =
         execution::invoke_command(command, &args, &out.join(format!("{index}-baseline")))?;
-    let requests = server.finish()?;
+    let requests = match server.finish() {
+        Ok(requests) => requests,
+        Err(error) => {
+            result["assessment_error"] = json!(error);
+            return Ok(result);
+        }
+    };
     fs::write(
         out.join(format!("{index}-baseline-requests.json")),
         serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
     if requests.is_empty() {
-        return Err("baseline did not consume its declared source recording".into());
+        result["assessment_error"] =
+            json!("baseline did not consume its declared source recording");
     }
     result["recorded_requests"] = json!(requests.len());
     Ok(result)

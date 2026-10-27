@@ -28,7 +28,7 @@ struct Selection {
     facts: BTreeMap<String, String>,
 }
 
-pub(super) fn main(args: Vec<String>) -> ExitCode {
+pub(crate) fn main(args: Vec<String>) -> ExitCode {
     let result = match args.as_slice() {
         [plan, baseline, out] => run(Path::new(plan), Path::new(baseline), Path::new(out)),
         _ => Err("usage: --parity PLAN BASELINE NEW-EVIDENCE-DIRECTORY".into()),
@@ -37,7 +37,13 @@ pub(super) fn main(args: Vec<String>) -> ExitCode {
     match result {
         Ok(report) => {
             let _ = writeln!(std::io::stdout(), "{report}");
-            ExitCode::SUCCESS
+            if report.get("assessment_gaps").and_then(Value::as_u64) == Some(0)
+                && report.get("regressions").and_then(Value::as_u64) == Some(0)
+            {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::FAILURE
+            }
         }
         Err(error) => {
             let _ = writeln!(std::io::stderr(), "parity: {error}");
@@ -48,7 +54,11 @@ pub(super) fn main(args: Vec<String>) -> ExitCode {
 fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     let plan: Plan = serde_json::from_slice(&fs::read(plan).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
-    if plan.baseline_release != "0.9.3" || plan.cases.is_empty() || !baseline.is_absolute() {
+    if plan.baseline_release != "0.9.3"
+        || plan.cases.is_empty()
+        || plan.cases.len() > 1024
+        || !baseline.is_absolute()
+    {
         return Err("expected nonempty selection and absolute released 0.9.3 executable".into());
     }
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -70,14 +80,37 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     for (index, selection) in plan.cases.iter().enumerate() {
         rows.push(compare(selection, baseline, out, index)?);
     }
+    let facts = rows
+        .iter()
+        .filter_map(|r| r.get("facts").and_then(Value::as_array))
+        .flatten()
+        .collect::<Vec<_>>();
+    let gaps = facts
+        .iter()
+        .filter(|f| {
+            f.pointer("/baseline/verdict") == Some(&json!("assessment_gap"))
+                || f.pointer("/candidate/verdict") == Some(&json!("assessment_gap"))
+        })
+        .count();
+    let regressions = facts
+        .iter()
+        .filter(|f| {
+            f.pointer("/baseline/verdict") == Some(&json!("right"))
+                && f.pointer("/candidate/verdict") == Some(&json!("wrong"))
+        })
+        .count();
     let report = json!({"baseline_release":"0.9.3", "mode":"recorded-parity",
-        "cases":rows, "scope":"explicit selected facts; no whole-comparison claim"});
+        "baseline_binary":execution::fingerprint(baseline)?,
+        "candidate_binary":execution::fingerprint(Path::new(env!("CARGO_BIN_EXE_biomcp")))?,
+        "assessment_gaps":gaps,"regressions":regressions,"cases":rows, "scope":"explicit selected facts; no whole-comparison claim"});
     fs::write(
         out.join("report.json"),
         serde_json::to_vec_pretty(&report).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    Ok(json!({"report":out.join("report.json"), "cases":rows.len()}))
+    Ok(
+        json!({"report":out.join("report.json"), "cases":rows.len(),"assessment_gaps":gaps,"regressions":regressions}),
+    )
 }
 fn compare(
     selection: &Selection,
@@ -101,8 +134,13 @@ fn compare(
         .run
         .as_ref()
         .ok_or("selection requires a direct CLI step")?;
-    if selection.facts.is_empty() || selection.baseline_command.is_empty() {
-        return Err("selection requires explicit facts and baseline command".into());
+    if selection.baseline_command.is_empty() {
+        return Err("selection requires a baseline command".into());
+    }
+    if let Some(pointers) = &selection.assertion_pointers
+        && (pointers.is_empty() || pointers.iter().any(|p| !step.expect.contains_key(p)))
+    {
+        return Err("selected assertion missing from harvested case".into());
     }
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let table =
@@ -132,12 +170,16 @@ fn compare(
         &current_args,
         &out.join(format!("{index}-candidate")),
     )?;
-    let old = recording::baseline(selection, baseline, &replay, out, index)?;
+    let mut old = recording::baseline(selection, baseline, &replay, out, index)?;
+    let mut current = current;
+    execution::assess_exit(&mut old, 0);
+    execution::assess_exit(&mut current, step.exit);
     let facts = facts(step, selection, &old, &current)?;
     Ok(
         json!({"case":selection.case,"story":case.story,"step":selection.step,
         "spelling_table":selection.spelling_table,"baseline":old,"candidate":current,"facts":facts,
-        "unselected_assertion_pointers":step.expect.keys().filter(|p| !selection.facts.contains_key(*p)).collect::<Vec<_>>()}),
+        "selection":selection.assertion_pointers,
+        "unselected_assertion_pointers":step.expect.keys().filter(|p| selection.assertion_pointers.as_ref().is_some_and(|v| !v.contains(*p))).collect::<Vec<_>>()}),
     )
 }
 fn facts(
@@ -181,6 +223,9 @@ fn facts(
     Ok(result)
 }
 fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>) -> Value {
+    if let Some(error) = output.get("assessment_error") {
+        return json!({"verdict":"assessment_gap","reason":error});
+    }
     let Some(reply) = output.get("parsed") else {
         return json!({"verdict":"assessment_gap","reason":"command did not emit JSON"});
     };

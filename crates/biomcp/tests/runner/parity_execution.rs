@@ -35,3 +35,17 @@ pub(super) fn invoke_command(
     }
     Ok(result)
 }
+
+pub(super) fn assess_exit(output: &mut Value, expected: i32) {
+    if output.get("exit").and_then(Value::as_i64) != Some(i64::from(expected)) {
+        output["assessment_error"] = json!(format!(
+            "command exit {:?}, expected {expected}",
+            output.get("exit")
+        ));
+    }
+}
+pub(super) fn fingerprint(binary: &Path) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    let bytes = fs::read(binary).map_err(|e| e.to_string())?;
+    Ok(json!({"path":binary,"sha256":format!("{:x}",Sha256::digest(&bytes))}))
+}
