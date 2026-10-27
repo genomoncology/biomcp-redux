@@ -20,8 +20,8 @@
         },
         "/result/commands/0/description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller."
       },
-      "max_bytes": 4257,
-      "max_tokens": 1065
+      "max_bytes": 4303,
+      "max_tokens": 1076
     },
     {
       "run": [
@@ -58,8 +58,8 @@
           "count": 2
         }
       },
-      "max_bytes": 1438,
-      "max_tokens": 360
+      "max_bytes": 1484,
+      "max_tokens": 371
     },
     {
       "run": [
@@ -119,5 +119,5 @@
       "max_tokens": 538
     }
   ],
-  "verified": "Measured compact CLI help bytes in j11310 at 6a8478cf: get variant 3701, search variant 2603, assertions 1250, population 1287, normalize 1277, recurrence 1869. Each cap is measured bytes plus 15 percent. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains the existing 1923-byte description cap."
+  "verified": "Get variant and assertions help measured in j16526: 3741 and 1290 CLI bytes. Their caps are ceil(measured bytes * 1.15); token caps are ceil(byte cap / 4). Other help caps retain j11310. No comparable 0.9 schema-generated help baseline exists. MCP tools/list retains its existing description cap."
 }
