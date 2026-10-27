@@ -2,7 +2,7 @@
   "feature": "article-search",
   "story": "A long DOI batch uses the declared idempotent PubMed POST without changing native results",
   "replay": "article/semantic-scholar/long-pubmed-post",
-  "verified": "Actual unchanged PubMed ESearch POST and ESummary POST capture j9904. The 100 DOI term is 3588 bytes; both replies are HTTP 200. Canonical request metadata and filenames are untouched. No matching 0.9 JSON baseline is recorded for this transport boundary. Isolated replay measured 13239 bytes; ceiling adds 15 percent.",
+  "verified": "Actual unchanged PubMed ESearch POST and ESummary POST capture j9904. The 100 DOI term is 3588 bytes; both replies are HTTP 200. Canonical request metadata and filenames are untouched. The saved quotedphrasesnotfound warnings remain visible. Explicit DOI field syntax offers the original article read rather than a doubly tagged word retry. Full CLI output measured 17123 bytes in j17580; the ceiling adds fifteen percent. No provider request was made.",
   "steps": [
     {
       "run": [
@@ -19,7 +19,7 @@
         "--limit",
         "50"
       ],
-      "max_bytes": 28336,
+      "max_bytes": 19692,
       "expect": {
         "/status": "complete",
         "/sources/0/source": "pubmed",
@@ -40,7 +40,7 @@
           "29251857"
         ]
       },
-      "max_tokens": 7084,
+      "max_tokens": 4923,
       "full_output_bytes": true
     }
   ],
