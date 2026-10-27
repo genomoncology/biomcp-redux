@@ -36,8 +36,18 @@ if args[0] == 'save':
 if args[0] != 'run':
     sys.exit(0)
 if '/bin/bash' in args:
-    assert args[args.index('--user') + 1] == f'{os.getuid()}:{os.getgid()}'
-    assert 'HOME=/tmp' in args
+    user = home = None
+    for index, value in enumerate(args):
+        if value in ('--user', '-u'):
+            user = args[index + 1]
+        elif value.startswith('--user='):
+            user = value.split('=', 1)[1]
+        elif value in ('-e', '--env') and args[index + 1].startswith('HOME='):
+            home = args[index + 1].split('=', 1)[1]
+        elif value.startswith('--env=HOME='):
+            home = value.split('=', 2)[2]
+    assert user == f'{os.getuid()}:{os.getgid()}', user
+    assert home == '/tmp', home
     if '/artifacts:ro' not in ' '.join(args):
         # Docker must receive a caller-owned output directory before it creates files.
         output = pathlib.Path('dist')
@@ -124,7 +134,8 @@ class LinuxContainers(unittest.TestCase):
 
     def test_release_preserves_caller_ownership_and_forwards_container_arguments(self):
         extra = ['--label', 'example.owner=release check', '--label',
-                 'example.literal=$(touch injected);*', '--network', 'none']
+                 'example.literal=$(touch injected);*', '--network', 'none',
+                 '--user=0:0', '--env=HOME=/root']
         baseline = self.run_release([])
         supplied = self.run_release(extra)
         self.assertEqual(len(baseline), 12)
