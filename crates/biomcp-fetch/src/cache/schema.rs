@@ -80,6 +80,19 @@ const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
         "bundle_content",
     ],
 };
+pub(crate) fn check_current_owners(
+    connection: &Connection,
+    owners: &[SchemaOwner],
+) -> Result<(), CacheError> {
+    check_owners(connection, owners)?;
+    check_owners(
+        connection,
+        &[SchemaOwner {
+            migratable_versions: &[],
+            ..TRANSPORT_OWNER
+        }],
+    )
+}
 pub(crate) fn check_predecessor(
     connection: &Connection,
     owners: &[SchemaOwner],
