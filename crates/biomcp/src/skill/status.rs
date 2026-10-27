@@ -19,7 +19,12 @@ pub(super) fn manifest() -> Value {
 }
 pub(super) fn classify(target: &Path) -> io::Result<&'static str> {
     install::check(target)?;
-    if !target.join("SKILL.md").exists() {
+    if target.try_exists()? && !target.is_dir() {
+        return Err(io::Error::other("skill target must be a directory"));
+    }
+    let guide = target.join("SKILL.md");
+    install::check(&guide)?;
+    if !guide.exists() {
         return Ok("missing");
     }
     let stamp = target.join(STAMP);

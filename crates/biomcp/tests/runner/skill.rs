@@ -17,12 +17,12 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
         return Err(format!("skill command failed: {args:?}: {output:?}").into());
     }
     // Embedded text measured from the canonical UTF-8 payload; summaries are
-    // measured at the executable boundary. Keep fifteen percent headroom.
+    // measured at the executable boundary in j16298. Keep fifteen percent headroom.
     let measured: usize = match args.get(1).map(String::as_str) {
         None | Some("render") => 1824,
         Some("list") => 955,
-        Some("install") => 128,
-        Some("status") => 64,
+        Some("install") => 117,
+        Some("status") => 55,
         _ => 350,
     };
     if output.stdout.len() > (measured * 115).div_ceil(100) {
@@ -59,6 +59,7 @@ fn check() -> Check {
     if run(&env, &["skill", "1"])? != run(&env, &["skill", "treatment-lookup"])? {
         return Err("released example alias differs".into());
     }
+    help(&env)?;
     aliases(&env)?;
     state(&env, "agent", "missing")?;
     run(&env, &["skill", "install", "agent"])?;
@@ -118,6 +119,7 @@ fn boundary(env: &Environment, target: &Path) -> Check {
         fs::remove_file(&path)?;
         symlink(outside.join("sentinel"), &path)?;
         refused(env, &["skill", "install", "agent", "--force"])?;
+        refused(env, &["skill", "status", "agent"])?;
         if fs::read_to_string(outside.join("sentinel"))? != "unchanged"
             || fs::read_dir(&outside)?.count() != 1
         {
@@ -170,6 +172,33 @@ fn aliases(env: &Environment) -> Check {
     {
         if run(env, &["skill", &(index + 1).to_string()])? != run(env, &["skill", slug])? {
             return Err(format!("released example alias differs: {slug}").into());
+        }
+    }
+    Ok(())
+}
+
+fn help(env: &Environment) -> Check {
+    // j16298 measured 1348 bytes; retain fifteen percent headroom.
+    let output = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &["help".into(), "skill".into()],
+        )
+        .output()?;
+    if !output.status.success() || output.stdout.len() > (1348_usize * 115).div_ceil(100) {
+        return Err("skill help exceeds measured ceiling or failed".into());
+    }
+    let value: Value = serde_json::from_slice(&output.stdout)?;
+    let commands = value
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("missing skill help")?;
+    for leaf in ["install", "list", "render", "status"] {
+        if !commands
+            .iter()
+            .any(|command| command.get("command") == Some(&json!(["skill", leaf])))
+        {
+            return Err(format!("skill help omitted {leaf}").into());
         }
     }
     Ok(())
