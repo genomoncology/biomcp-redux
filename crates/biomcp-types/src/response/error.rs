@@ -34,6 +34,7 @@ singleton! {
     /// The stable error code for an invalid schema request.
     pub ErrorCode { SchemaUsage => "usage.schema",
  Arguments => "usage.arguments",
+ UnknownCommand => "usage.unknown_command",
  Retired => "usage.retired",
  Local => "local.failure",
  PoolExpired => "pool.expired",
@@ -55,6 +56,7 @@ singleton! {
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
+ UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
@@ -343,6 +345,13 @@ impl ErrorEnvelope {
                 message,
             },
         }
+    }
+    /// Report an unknown command with recovery supplied only from the known grammar.
+    pub fn unknown_command() -> Self {
+        let mut error = Self::arguments();
+        error.error.code = ErrorCode::UnknownCommand;
+        error.error.message = ErrorMessage::UnknownCommand;
+        error
     }
     /// Refuse invalid command arguments without echoing input.
     pub fn arguments() -> Self {
