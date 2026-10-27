@@ -49,6 +49,24 @@ fn check() -> Check {
     {
         return Err("retired list remains in public help".into());
     }
+    let commands = value.pointer("/result/commands").and_then(Value::as_array).ok_or("commands")?;
+    for command in commands {
+        for argument in command["arguments"].as_array().ok_or("arguments")? {
+            if argument["value_type"].as_str().is_none_or(str::is_empty) {
+                return Err("argument has no value type".into());
+            }
+        }
+    }
+    let phenotype = commands.iter().find(|c| c["command"] == serde_json::json!(["get", "phenotype"])).ok_or("phenotype")?;
+    if !phenotype["arguments"].as_array().ok_or("arguments")?.iter().any(|a| a["name"] == "--fresh") {
+        return Err("next-step fresh option missing from scoped help".into());
+    }
+    let author = commands.iter().find(|c| c["command"] == serde_json::json!(["search", "author"])).ok_or("author")?;
+    let limit = author["arguments"].as_array().ok_or("arguments")?.iter().find(|a| a["name"] == "--limit").ok_or("limit")?;
+    if limit.get("default").is_none() || !limit["aliases"].as_array().is_some_and(|a| a.contains(&Value::from("-l"))) {
+        return Err("help omits default or alias".into());
+    }
+    run(&env, &["help", "exit"])?;
     for args in [
         vec!["discover", "SENSITIVE-input-never-echo"],
         vec!["help", "frobnicate"],
