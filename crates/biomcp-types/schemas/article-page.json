@@ -646,11 +646,10 @@
         },
         "rsid": {
           "$ref": "#/$defs/Text",
-          "description": "Source rsID, available for exact follow-up."
+          "description": "Source rsID, when the source associates one with this variant."
         }
       },
       "required": [
-        "rsid",
         "gene",
         "name",
         "count"
