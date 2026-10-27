@@ -101,6 +101,14 @@ class Screening(unittest.TestCase):
             self.assertIn("historical-opaque.bin", findings)
             self.assertIn("historical-structure.bin", findings)
             self.assertIn("historical-valid.bin!credential.exe", findings)
+            with zipfile.ZipFile(repo / "nested-declared.bin", "w") as archive:
+                archive.writestr("corrupt.zip", b"PK\x03\x04malformed declared archive")
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Add declared archive rejection fixture")
+            rejected = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), "history", str(repo)],
+                                      cwd=ROOT, env=env, capture_output=True, text=True)
+            self.assertEqual(rejected.returncode, 2, "outer opaque history policy must not hide declared archive corruption")
+            self.assertNotIn(token, rejected.stdout + rejected.stderr)
 
     def test_scanner_refuses_unreadable_artifacts_and_never_follows_links(self):
         with tempfile.TemporaryDirectory() as temporary:

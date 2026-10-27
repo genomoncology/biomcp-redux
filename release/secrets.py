@@ -138,32 +138,38 @@ def prepare(target, mode, root, env):
                 raise ValueError("escaping archive member")
             return name + "!" + member
         if payload.startswith((b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")) or suffix.endswith((".zip", ".whl", ".mcpb")):
-            try:
-                with zipfile.ZipFile(io.BytesIO(payload)) as archive:
-                    for member in archive.infolist():
-                        members += 1
-                        if members > MAX_FILES:
-                            raise ValueError("too many archive members")
-                        nested = member_name(member.filename)
-                        if member.is_dir():
-                            if member.file_size:
-                                raise ValueError("directory member carries unscanned content")
-                            continue
-                        if member.file_size > MAX_FILE or total + member.file_size > MAX_TOTAL:
-                            raise ValueError("expanded archive exceeds screening limit")
-                        kind = stat.S_IFMT(member.external_attr >> 16)
-                        if kind not in (0, stat.S_IFREG, stat.S_IFLNK):
-                            raise ValueError("unsupported archive member")
-                        with archive.open(member) as source:
-                            add(nested + "!link-target" if kind == stat.S_IFLNK else nested,
-                                source.read(MAX_FILE + 1), depth + 1)
-            except zipfile.BadZipFile:
-                # Historical parser probes may deliberately resemble ZIP magic.
-                # Their bytes were staged above. Declared archives and current
-                # publication artifacts must still fail on malformed structure.
-                if mode == "history" and not suffix.endswith((".zip", ".whl", ".mcpb")):
-                    return
-                raise
+            def contents():
+                nonlocal members
+                try:
+                    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                        for member in archive.infolist():
+                            members += 1
+                            if members > MAX_FILES:
+                                raise ValueError("too many archive members")
+                            nested = member_name(member.filename)
+                            if member.is_dir():
+                                if member.file_size:
+                                    raise ValueError("directory member carries unscanned content")
+                                continue
+                            if member.file_size > MAX_FILE or total + member.file_size > MAX_TOTAL:
+                                raise ValueError("expanded archive exceeds screening limit")
+                            kind = stat.S_IFMT(member.external_attr >> 16)
+                            if kind not in (0, stat.S_IFREG, stat.S_IFLNK):
+                                raise ValueError("unsupported archive member")
+                            with archive.open(member) as source:
+                                yield (nested + "!link-target" if kind == stat.S_IFLNK else nested,
+                                       source.read(MAX_FILE + 1))
+                except zipfile.BadZipFile:
+                    # Historical parser probes may deliberately resemble ZIP magic.
+                    # Their bytes were staged above. Declared archives and current
+                    # publication artifacts must still fail on malformed structure.
+                    if mode == "history" and not suffix.endswith((".zip", ".whl", ".mcpb")):
+                        return
+                    raise
+            for nested, content in contents():
+                # A nested declared archive keeps its own strict error policy;
+                # its failure must not become an outer opaque-blob fallback.
+                add(nested, content, depth + 1)
         elif payload.startswith(b"\x1f\x8b") or suffix.endswith((".gz", ".tgz")):
             with gzip.GzipFile(fileobj=io.BytesIO(payload)) as source:
                 add(name + "!uncompressed.tar" if suffix.endswith((".tar.gz", ".tgz")) else name + "!uncompressed", source.read(MAX_FILE + 1), depth + 1)
