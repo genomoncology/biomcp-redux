@@ -13,6 +13,7 @@ mod query;
 // `unreachable_pub` reports a missing crate-root re-export.
 mod response;
 pub use response::{SchemaCatalog, SchemaEntry};
+pub use response::{SourceTimestamp, SourceTimestampTimezone};
 mod source;
 
 pub use predictor::{

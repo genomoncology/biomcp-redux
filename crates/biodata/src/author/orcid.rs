@@ -77,6 +77,7 @@ pub struct OrcidWorkAssertion {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<Text>,
     /// Every native assertion identifier in order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[OrcidExternalId]>,
     /// Native source and origin provenance.
     pub source: OrcidAssertionSource,
@@ -92,8 +93,10 @@ pub struct OrcidWorkAssertion {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrcidWorkGroup {
     /// Native group identifiers in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[OrcidExternalId]>,
     /// Every public summary in native source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub assertions: Box<[OrcidWorkAssertion]>,
 }
 impl std::str::FromStr for OrcidPublicVisibility {

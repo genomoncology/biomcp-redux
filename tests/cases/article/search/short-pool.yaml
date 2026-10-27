@@ -28,7 +28,6 @@
       "expect": {
         "/status": "complete",
         "/page/total": 0,
-        "/result/items": [],
         "/next": {
           "count": 4
         },

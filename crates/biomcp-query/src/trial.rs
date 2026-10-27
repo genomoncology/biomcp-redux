@@ -83,8 +83,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
-        body.request = parameters(params);
-        body.source_updated = version.ok();
+        body.source_updated = version.ok().map(Into::into);
     }
     if rejected {
         outcome.body = QueryBody::TextPositionError;
@@ -142,24 +141,13 @@ fn apply_page(
     }
     if let QueryBody::TrialPage(body) = &mut outcome.body {
         body.items = page.items.into();
-        body.count_request = page.count_request.map(parameters);
     }
-}
-fn parameters(
-    values: std::collections::BTreeMap<String, String>,
-) -> Box<[biomcp_types::TrialParameter]> {
-    values
-        .into_iter()
-        .map(|(name, value)| biomcp_types::TrialParameter { name, value })
-        .collect()
 }
 fn empty() -> Outcome {
     Outcome {
         status: Status::Failed,
         body: QueryBody::TrialPage(TrialPage {
             items: Box::default(),
-            request: Default::default(),
-            count_request: None,
             source_updated: None,
             attribution: "ClinicalTrials.gov; source-native discovery, no eligibility assessment"
                 .into(),

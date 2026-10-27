@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPage {
     /// Source candidates; no deduplication by display name.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AuthorHeader]>,
     /// Native matching-record total, if supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,6 +22,7 @@ pub struct AuthorPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCards {
     /// Exact returned source cards, with no cross-source links.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AuthorCardItem]>,
 }
 /// One exact input and its independent outcome.
@@ -77,6 +79,7 @@ pub struct OrcidWorks {
     /// Requested exact ORCID record.
     pub author: biodata::OrcidId,
     /// Whole groups in native order, with every public assertion.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub groups: Box<[OrcidWorkGroup]>,
     /// Observed groups in the complete received reply, never a publication total.
     pub observed_groups: u64,

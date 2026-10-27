@@ -13,8 +13,10 @@ pub struct PhenotypeTermCard {
     /// Complete source-specific native card.
     pub term: PhenotypeCard,
     /// Sections available on this source record.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[PhenotypeSection]>,
     /// Applicable publisher component terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for PhenotypeTermCard {

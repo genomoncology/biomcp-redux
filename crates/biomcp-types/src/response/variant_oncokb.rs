@@ -33,6 +33,7 @@ pub struct VariantOncokb {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele_exist: Option<bool>,
     /// Source claims and text in native field order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[OncokbVariantRecord]>,
     /// Disclosure bounds over the records, independent of identity paging.
     pub page: PageInfo,

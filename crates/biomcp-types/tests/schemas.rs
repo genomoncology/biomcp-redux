@@ -56,7 +56,7 @@ fn common_registry() -> Vec<Contract> {
         ExpressionSyntax => ("expression-syntax", "biodata.expression-syntax/1"),
         Representation => ("representation", "biodata.representation/3"),
         VariantId => ("variant-id", "biodata.variant-id/2"),
-        Variant => ("variant", "biodata.variant/3"),
+        Variant => ("variant", "biodata.variant/4"),
         RsId => ("rs-id", "biodata.rs-id/1"),
         CaId => ("ca-id", "biodata.ca-id/1"),
         PaId => ("pa-id", "biodata.pa-id/1"),
@@ -238,13 +238,13 @@ fn variant_contracts() -> Vec<Contract> {
         Envelope<VariantPopulationResult> => ("variant-population-result", "biomcp.variant-population/4"),
         Statement => ("statement", "biodata.statement/3"),
         VariantRecurrenceQuery => ("variant-recurrence-query", "biodata.variant-recurrence-query/2"),
-        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/4"),
+        Envelope<VariantRecurrence> => ("variant-recurrence", "biomcp.variant-recurrence/5"),
         VariantNormalize => ("variant-normalize", "biodata.variant-normalize/2"),
         Envelope<VariantNormalization> => ("variant-normalization", "biomcp.variant-normalization/3"),
         VariantSearch => ("variant-search", "biodata.variant-search/2"),
-        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/6"),
+        Envelope<VariantPage> => ("variant-page", "biomcp.variant-page/7"),
         VariantGet => ("variant-get", "biodata.variant-get/2"),
-        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/5"),
+        Envelope<VariantCard> => ("variant-card", "biomcp.variant-card/6"),
     }
 }
 
@@ -311,10 +311,10 @@ fn trial_contracts() -> Vec<Contract> {
         TrialGet => ("trial-get", "biodata.trial-get/1"),
         Envelope<NciTrialCards> => ("nci-trial-cards", "biomcp.nci-trial-cards/2"),
         Envelope<NciTrialPage> => ("nci-trial-page", "biomcp.nci-trial-page/3"),
-        Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/2"),
+        Envelope<TrialCards> => ("trial-cards", "biomcp.trial-cards/3"),
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/1"),
         TrialSearch => ("trial-search", "biodata.trial-search/2"),
-        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/5"),
+        Envelope<TrialPage> => ("trial-page", "biomcp.trial-page/6"),
         NctId => ("nct-id", "biodata.nct-id/1"),
         TrialHeader => ("trial-header", "biodata.trial_header/1"),
     }

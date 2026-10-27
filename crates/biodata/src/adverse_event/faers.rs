@@ -60,25 +60,25 @@ pub struct FaersReporter {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FaersIdentifiers {
     /// Ordered native unii strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub unii: Option<Box<[Box<str>]>>,
     /// Ordered native rxcui strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub rxcui: Option<Box<[Box<str>]>>,
     /// Ordered native product_ndc strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub product_ndc: Option<Box<[Box<str>]>>,
     /// Ordered native package_ndc strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub package_ndc: Option<Box<[Box<str>]>>,
     /// Ordered native spl_id strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub spl_id: Option<Box<[Box<str>]>>,
     /// Ordered native spl_set_id strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub spl_set_id: Option<Box<[Box<str>]>>,
     /// Ordered native application_number strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub application_number: Option<Box<[Box<str>]>>,
 }
 /// One independent native drug row; no join to a reaction row.
@@ -217,7 +217,9 @@ pub struct FaersReport {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reporter: Option<FaersReporter>,
     /// Complete ordered source drug array.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub drugs: Box<[FaersDrug]>,
     /// Complete ordered source reaction array.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub reactions: Box<[FaersReaction]>,
 }

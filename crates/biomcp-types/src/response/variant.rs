@@ -10,13 +10,14 @@ pub struct VariantCard {
     /// Responsible identity source.
     pub source: Source,
     /// All retained source identities.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub candidates: Box<[VariantHeader]>,
     /// Provider rejection text, when present, separate from unchanged query input.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rejection: Option<Text>,
 }
 impl super::ResponseBody for VariantCard {
-    const SCHEMA: &'static str = "biomcp.variant-card/5";
+    const SCHEMA: &'static str = "biomcp.variant-card/6";
     type Query = VariantGet;
 }
 
@@ -118,9 +119,10 @@ pub struct VariantPage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub build: Option<crate::Build>,
     /// Native source order, preserving every candidate including repeated source identities.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[VariantHeader]>,
 }
 impl super::ResponseBody for VariantPage {
-    const SCHEMA: &'static str = "biomcp.variant-page/6";
+    const SCHEMA: &'static str = "biomcp.variant-page/7";
     type Query = crate::VariantSearch;
 }

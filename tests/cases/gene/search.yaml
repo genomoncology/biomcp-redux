@@ -66,9 +66,6 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items": {
-          "count": 0
-        },
         "/page/total": 65
       }
     },

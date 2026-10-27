@@ -49,8 +49,10 @@ pub struct FullText {
     #[cfg_attr(feature = "schema", schemars(with = "bool"))]
     pub manuscript: Option<bool>,
     /// Bounded body parts in reading order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub parts: Box<[TextPart]>,
     /// Source figure captions in document order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub figures: Box<[FigureCaption]>,
 }
 /// One matching paragraph or table row, split when necessary to fit the text budget.
@@ -63,6 +65,7 @@ pub struct TextHit {
     /// Whole bounded source row.
     pub markdown: crate::Markdown,
     /// Section ancestry in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub heading_path: Box<[Text]>,
 }
 /// Body text response; the envelope supplies advancing reader steps.
@@ -109,10 +112,10 @@ pub struct TextContent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub markdown: Option<crate::Markdown>,
     /// Section ancestry for a selected part.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "biodata::absent_or_empty")]
     pub heading_path: Option<Box<[Text]>>,
     /// Matching source rows for a find selection.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "biodata::absent_or_empty")]
     pub hits: Option<Box<[TextHit]>>,
 }
 impl super::ResponseBody for ArticleTextResult {

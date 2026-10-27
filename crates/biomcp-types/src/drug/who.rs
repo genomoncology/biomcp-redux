@@ -30,6 +30,7 @@ pub struct DrugWhoRow {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugWhoPage {
     /// Bounded native rows in export order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[DrugWhoRow]>,
     /// Matching rows in the complete local snapshot.
     pub total: u64,
@@ -42,6 +43,7 @@ pub struct DrugWhoCard {
     /// Exact requested and source-matched reference.
     pub reference: Text,
     /// Every native row for that reference, without invented fields.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub native_rows: Box<[DrugWhoRow]>,
 }
 /// WHO exact-reference selector keeps the shared DrugId contract unchanged.

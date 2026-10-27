@@ -38,9 +38,10 @@ pub struct DiseaseAssociation {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provided_by: Option<Text>,
     /// Source evidence terms; unavailable evidence stays absent.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub evidence: Option<Box<[DiseaseAssociationReference]>>,
     /// Native qualifiers, including frequency or onset if supplied.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub qualifiers: Box<[DiseaseAssociationQualifier]>,
     /// Native publication references, without inferred links or labels.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
@@ -76,8 +77,10 @@ pub struct DiseaseAssociation {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub has_quotient: Option<FiniteNumber>,
     /// Native subject closure.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub subject_closure: Box<[Curie]>,
     /// Native object closure.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub object_closure: Box<[Curie]>,
 }
 /// A publisher relation with distinct endpoints and predicate.
@@ -134,8 +137,10 @@ pub struct DiseaseStatistic {
     /// Explicit selected native site ID.
     pub requested_site: Text,
     /// Settings sent to the publisher.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub requested_selectors: Box<[StatisticSelector]>,
     /// Settings actually returned, never filled from request.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub returned_selectors: Box<[StatisticSelector]>,
     /// Native annual row year.
     #[serde(default, skip_serializing_if = "Option::is_none")]

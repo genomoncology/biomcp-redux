@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenGene {
     /// Whole gene–disease validity records in file order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub validity: Box<[ClinGenValidity]>,
     /// Source haploinsufficiency assessment, when a dosage record exists.
     #[serde(skip_serializing_if = "Option::is_none")]

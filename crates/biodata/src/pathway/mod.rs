@@ -24,10 +24,10 @@ pub struct Pathway {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<Box<str>>,
     /// Native Reactome summation objects in source order; not concatenated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub summations: Option<Box<[PathwaySummation]>>,
     /// Native pathway-level literature references, separate from each summation.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub references: Option<Box<[PathwayLiteratureRef]>>,
     /// WikiPathways catalog citedIn cell, including a native empty cell.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -75,7 +75,7 @@ pub struct PathwayMember {
     /// Number of source physical entity contexts carrying this exact reference.
     pub physical_context_count: u64,
     /// Complete physical contexts, disclosed only by the explicit details view.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub participants: Option<Box<[PathwayParticipant]>>,
 }
 /// An event object or unresolved integer reference; never the parent's inferred ID.

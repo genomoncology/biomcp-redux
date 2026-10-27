@@ -5,6 +5,7 @@ use serde::Serialize;
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Help {
     /// Commands available at this help path.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub commands: Vec<HelpCommand>,
 }
 impl super::ResponseBody for Help {
@@ -17,20 +18,25 @@ impl super::ResponseBody for Help {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct HelpCommand {
     /// Command words after the executable name.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub command: Vec<String>,
     /// Query type documentation.
     pub description: String,
     /// Canonical reply contracts; empty for commands with no schema reply.
     #[serde(default)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub reply_schemas: Vec<String>,
     /// Positional arguments and flags.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub arguments: Vec<HelpArgument>,
     /// Accepted section words and their documentation.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sections: Vec<HelpWord>,
     /// How to disambiguate section words from inputs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub section_rule: Option<String>,
     /// Verbatim case run steps, without replay configuration.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub examples: Vec<Vec<String>>,
 }
 /// One schema argument, retaining its bounds and position.
@@ -56,6 +62,7 @@ pub struct HelpArgument {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<u64>,
     /// Allowed scalar values.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub choices: Vec<String>,
 }
 /// A documented closed vocabulary word.

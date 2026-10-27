@@ -9,14 +9,16 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialCards {
     /// One answer per requested input, including absence and failure.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[TrialCardItem]>,
     /// Registry processing timestamp, distinct from each study's update and fetch times.
-    pub source_updated: Option<crate::Text>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_updated: Option<super::SourceTimestamp>,
     /// Publisher attribution and scope.
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for TrialCards {
-    const SCHEMA: &'static str = "biomcp.trial-cards/2";
+    const SCHEMA: &'static str = "biomcp.trial-cards/3";
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.
@@ -103,6 +105,7 @@ pub struct TrialRecords<T> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<crate::TrialGet>,
     /// Complete records in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[T]>,
     /// Offset in the unchanged source collection.
     pub offset: u32,

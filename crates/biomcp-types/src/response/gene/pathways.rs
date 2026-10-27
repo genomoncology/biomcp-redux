@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Capped<T> {
     /// References in stable source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[T]>,
     /// Distinct references before capping.
     pub total: u64,

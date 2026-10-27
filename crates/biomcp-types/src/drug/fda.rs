@@ -11,6 +11,7 @@ pub struct DrugFdaProduct {
     /// Source brand wording, without inferred ingredient equivalence.
     pub brand_name: Text,
     /// Complete source-listed ingredient and strength pairs.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub active_ingredients: Box<[DrugFdaIngredient]>,
     /// Native dosage form.
     pub dosage_form: Text,
@@ -59,10 +60,10 @@ pub struct DrugFdaSubmission {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub submission_class_code_description: Option<Text>,
     /// Native property collection; missing stays missing and an empty list stays empty.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub submission_property_type: Option<Box<[DrugFdaProperty]>>,
     /// Native documents; document dates remain separate from the submission status date.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "biodata::absent_or_empty")]
     pub application_docs: Option<Box<[DrugFdaDocument]>>,
 }
 /// A source-stated submission property, without interpretation.
@@ -95,6 +96,7 @@ pub struct DrugFdaCandidate {
     /// Exact native application identity; no product has been selected.
     pub identity: super::DrugHeader,
     /// Complete native product candidates within this application.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub products: Box<[DrugFdaProduct]>,
 }
 /// A source-owned application page preserving complete product context and source order.
@@ -103,6 +105,7 @@ pub struct DrugFdaCandidate {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaPage {
     /// Native applications and products; a phrase match never establishes equivalence.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[DrugFdaCandidate]>,
     /// Native application total, independent of product count.
     pub total: u64,

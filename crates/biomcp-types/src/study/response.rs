@@ -18,6 +18,7 @@ pub struct StudySnapshot {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyPage {
     /// Whole source headers, without expanded descriptions.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudyHeader]>,
     /// Snapshot-scoped matching counts and offset.
     pub page: PageInfo,
@@ -89,6 +90,7 @@ pub struct StudyFiles {
     /// Exact study directory scope.
     pub study_id: StudyId,
     /// Source-ordered repository file references.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudyFile]>,
     /// Bounds within the complete received directory.
     pub page: PageInfo,

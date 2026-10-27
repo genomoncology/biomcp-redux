@@ -35,7 +35,7 @@ pub struct AuthorHeader {
     /// Source display name, never a join key.
     pub name: Text,
     /// Native affiliation labels; no employment claim.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub affiliations: Option<Box<[Text]>>,
     /// Source record counts when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -69,6 +69,7 @@ pub struct AuthorPaperHeader {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub doi: Option<Doi>,
     /// Every other native paper identifier.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub external_ids: Box<[AuthorPaperExternalId]>,
     /// Whole source title.
     pub title: Text,
@@ -145,12 +146,12 @@ pub struct AuthorPaperDetail {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open_access_pdf: Option<AuthorPaperAccess>,
     /// Native study labels.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub fields_of_study: Option<Box<[Text]>>,
     /// Native publication type labels.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub publication_types: Option<Box<[Text]>>,
     /// Native ordered byline; completeness is unknown.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::absent_or_empty")]
     pub authors: Option<Box<[AuthorByline]>>,
 }

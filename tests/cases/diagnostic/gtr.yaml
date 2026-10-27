@@ -257,8 +257,7 @@
       "max_tokens": 75,
       "expect": {
         "/status": "complete",
-        "/page/total": 0,
-        "/result/items": []
+        "/page/total": 0
       }
     },
     {

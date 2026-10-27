@@ -103,6 +103,7 @@ pub struct PgxDiplotype {
     /// Explicit gene and source.
     pub header: PgxHeader,
     /// Zero, one or multiple native mappings; never a selected patient phenotype.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub diplotypes: Box<[PgxDiplotypeResult]>,
 }
 impl ResponseBody for PgxDiplotype {

@@ -130,6 +130,7 @@ pub struct GtrCard {
     /// Whole original license number list, independently retained.
     pub state_license_numbers: Box<str>,
     /// Source-supported named pages.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
@@ -291,6 +292,7 @@ pub struct DiagnosticPmaCard {
     /// Exact selected source header.
     pub header: DiagnosticPmaHeader,
     /// Source-supported pages for this exact base or supplement.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
 }
 /// Dated metadata belonging only to the selected submission.

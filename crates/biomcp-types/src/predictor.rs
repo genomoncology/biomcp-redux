@@ -39,8 +39,10 @@ pub struct VariantPredictors {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub context: Box<[PredictorContext]>,
     /// Every retained source score in declared field order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub scores: Box<[PredictorScore]>,
     /// Independent component versions and licenses.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[VariantComponent]>,
 }
 /// Source conservation measurements; no local pathogenicity inference.
@@ -54,8 +56,10 @@ pub struct VariantConservation {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub context: Box<[PredictorContext]>,
     /// Every retained source measurement in declared field order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub scores: Box<[PredictorScore]>,
     /// Independent component versions and licenses.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[VariantComponent]>,
 }
 /// Historical COSMIC fields carried by MyVariant, without direct COSMIC access.
@@ -69,8 +73,10 @@ pub struct VariantCosmic {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub next: Option<crate::VariantGet>,
     /// Native historical records in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[CosmicRecord]>,
     /// Snapshot version, dates, warning and terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[VariantComponent]>,
 }
 /// One source record from MyVariant's historical COSMIC copy.
@@ -145,6 +151,7 @@ pub struct PredictorContext {
     /// Native source field path.
     pub field: Text,
     /// Every native value in source array order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub values: Box<[Text]>,
 }
 /// One source-named component upload timestamp.

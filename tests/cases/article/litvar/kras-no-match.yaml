@@ -20,9 +20,6 @@
       "max_tokens": 247,
       "expect": {
         "/status": "absent",
-        "/result/items": {
-          "count": 0
-        },
         "/result/candidates/*/rsid": [
           "rs121913529",
           "rs121913530"
@@ -105,9 +102,6 @@
       "max_tokens": 257,
       "expect": {
         "/status": "absent",
-        "/result/items": {
-          "count": 0
-        },
         "/result/candidates/*/rsid": [
           "rs121913529",
           "rs121913530"

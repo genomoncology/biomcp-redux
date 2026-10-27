@@ -142,8 +142,10 @@ pub struct PgxGuidelineReference {
     /// Native `guideline_url`; literal source value.
     pub guideline_url: Box<str>,
     /// Native `drugs`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub drugs: Box<[Box<str>]>,
     /// Native `genes`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub genes: Box<[PgxGuidelineGene]>,
 }
 /// Source-native PgxDiplotypeResult fields; no clinical interpretation.

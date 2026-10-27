@@ -83,6 +83,7 @@ pub struct ArticleHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub electronic_date: Option<PartialDate>,
     /// Clinical publication types.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub types: Box<[PublicationType]>,
     /// The provider does not supply checked publication types.
     #[serde(default, skip_serializing_if = "is_false")]

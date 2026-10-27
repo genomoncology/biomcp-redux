@@ -109,8 +109,7 @@
       "max_bytes": 313,
       "max_tokens": 79,
       "expect": {
-        "/page/total": 0,
-        "/result/items": []
+        "/page/total": 0
       }
     },
     {
@@ -133,8 +132,7 @@
       "max_bytes": 329,
       "max_tokens": 83,
       "expect": {
-        "/page/total": 0,
-        "/result/items": []
+        "/page/total": 0
       }
     }
   ]

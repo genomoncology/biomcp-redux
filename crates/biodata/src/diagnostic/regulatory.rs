@@ -11,6 +11,7 @@ pub struct WhoIvdProduct {
     /// Native product listing identity.
     pub id: WhoProductId,
     /// All original rows belonging to this exact product, without clipping.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub native_rows: Box<[WhoIvdRow]>,
 }
 /// One original WHO CSV row; each repeated field retains its own row scope.
@@ -108,6 +109,7 @@ pub struct DiagnosticCell {
     /// Original complete text, including empty strings and line breaks.
     pub text: Box<str>,
     /// Only links physically owned by this cell, in native order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub links: Box<[DiagnosticCellLink]>,
 }
 /// Source link without a name-based identity inference.

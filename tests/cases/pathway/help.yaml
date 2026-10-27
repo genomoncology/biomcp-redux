@@ -172,10 +172,7 @@
         "/result/commands/0/examples": {
           "count": 2
         },
-        "/result/commands/0/description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
-        "/result/commands/0/arguments": {
-          "count": 0
-        }
+        "/result/commands/0/description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated."
       },
       "max_bytes": 521
     }

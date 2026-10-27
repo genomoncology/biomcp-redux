@@ -409,7 +409,7 @@ fn optional_source() -> Check {
         },
         json!(
             [{"run":["get","trial","NCT02296125"],"expect":{ "/status":"partial","/result/items/0/status":"partial",
-            "/result/items/0/card/nct_id":"NCT02296125","/result/source_updated":null,"/sources/0/reason":"unavailable" }}]
+            "/result/items/0/card/nct_id":"NCT02296125","/sources/0/reason":"unavailable" }}]
         ),
     )?;
     Ok(())

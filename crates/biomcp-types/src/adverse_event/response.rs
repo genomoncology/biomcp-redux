@@ -55,10 +55,12 @@ pub struct AdverseEventPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fetched: Option<biodata::PartialDate>,
     /// Native ordered report candidates.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[AdverseEventHeader]>,
     /// Explicit reports unit for envelope page totals.
     pub unit: ReportUnit,
     /// Applicable component terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventPage {
@@ -107,8 +109,10 @@ pub struct AdverseEventFaersCard {
     /// Exact successful source request URL, never guessed.
     pub report_url: Text,
     /// Named sections available in this report.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub available_sections: Box<[AdverseEventSection]>,
     /// Applicable component terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventFaersCard {
@@ -157,8 +161,10 @@ pub struct AdverseEventMaudeCard {
     /// Exact successful source request URL, never guessed.
     pub report_url: Text,
     /// Named sections available in this report.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub available_sections: Box<[AdverseEventSection]>,
     /// Applicable component terms.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventMaudeCard {
@@ -171,6 +177,7 @@ impl ResponseBody for AdverseEventMaudeCard {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventRecords<T> {
     /// Source ordered whole rows.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[T]>,
     /// Native section offset.
     pub offset: u32,
@@ -231,6 +238,7 @@ pub struct AdverseEventIdentifierRecords {
     /// Absolute native drug-array index within this report snapshot.
     pub drug_index: u32,
     /// Published identifier strings without rewriting.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[Box<str>]>,
     /// Original array offset.
     pub offset: u32,

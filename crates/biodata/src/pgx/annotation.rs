@@ -67,19 +67,23 @@ pub struct PgxLocation {
     #[serde(rename = "copyNumber")]
     pub copy_number: Box<str>,
     /// Native `diplotypes`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub diplotypes: Box<[PgxDiplotypeReference]>,
     /// Native `displayName`; literal source value.
     #[serde(rename = "displayName")]
     pub display_name: Box<str>,
     /// Native `genes`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub genes: Box<[PgxObjectReference]>,
     /// Native `gpPosition`; literal source value.
     #[serde(rename = "gpPosition")]
     pub gp_position: i64,
     /// Native `haplotypes`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub haplotypes: Box<[PgxObjectReference]>,
     /// Native `linkedObjects`; literal source value.
     #[serde(rename = "linkedObjects")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub linked_objects: Box<[PgxObjectReference]>,
     /// Native `refSeqCrossReference` when supplied.
     #[serde(rename = "refSeqCrossReference")]
@@ -116,7 +120,7 @@ pub struct PgxEvidenceTerm {
     #[serde(rename = "termId")]
     pub term_id: Box<str>,
     /// Native `synonyms` when supplied.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
     pub synonyms: Option<Box<[PgxUnobserved]>>,
     /// Native `valid` when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -141,17 +145,21 @@ pub struct PgxAnnotationHeader {
     pub name: Box<str>,
     /// Native `relatedChemicals`; literal source value.
     #[serde(rename = "relatedChemicals")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_chemicals: Box<[PgxObjectReference]>,
     /// Native `relatedChemicalsLogic`; literal source value.
     #[serde(rename = "relatedChemicalsLogic")]
     pub related_chemicals_logic: Box<str>,
     /// Native `relatedGuidelines`; literal source value.
     #[serde(rename = "relatedGuidelines")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_guidelines: Box<[PgxObjectReference]>,
     /// Native `relatedLabels`; literal source value.
     #[serde(rename = "relatedLabels")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub related_labels: Box<[PgxObjectReference]>,
     /// Native `types`; literal source value.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub types: Box<[Box<str>]>,
 }
 /// Source-native PgxAnnotationReference fields; no clinical interpretation.
@@ -168,6 +176,7 @@ pub struct PgxAnnotationReference {
     pub name: Box<str>,
     /// Native `crossReferences`; literal source value.
     #[serde(rename = "crossReferences")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub cross_references: Box<[PgxUnobserved]>,
 }
 /// No element shape was captured for these empty arrays. Populated values require new source proof.

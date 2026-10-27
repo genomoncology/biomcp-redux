@@ -36,44 +36,6 @@
         "/status": "failed",
         "/sources/0/source": "nci",
         "/sources/0/reason": "rejected",
-        "/result/request": [
-          {
-            "name": "size",
-            "value": "1"
-          },
-          {
-            "name": "from",
-            "value": "0"
-          },
-          {
-            "name": "diseases.nci_thesaurus_concept_id",
-            "value": "C3224"
-          },
-          {
-            "name": "include",
-            "value": "nci_id"
-          },
-          {
-            "name": "include",
-            "value": "nct_id"
-          },
-          {
-            "name": "include",
-            "value": "brief_title"
-          },
-          {
-            "name": "include",
-            "value": "current_trial_status"
-          },
-          {
-            "name": "include",
-            "value": "phase"
-          },
-          {
-            "name": "include",
-            "value": "diseases"
-          }
-        ],
         "/result/condition_resolution/selected_ncit": "NCIT:C3224"
       },
       "max_bytes": 893,

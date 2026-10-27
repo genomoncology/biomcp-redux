@@ -30,7 +30,7 @@
       "max_bytes": 1186,
       "max_tokens": 297,
       "expect": {
-        "/schema": "biomcp.variant-page/6",
+        "/schema": "biomcp.variant-page/7",
         "/status": "partial",
         "/query": {
           "equals": {
@@ -49,7 +49,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs28929495",
+                    "rs:28929495",
                     "clinvar:16611"
                   ],
                   "representations": [
@@ -116,7 +116,7 @@
               {
                 "identity": {
                   "ids": [
-                    "rs28929495",
+                    "rs:28929495",
                     "clinvar:16611"
                   ],
                   "representations": [

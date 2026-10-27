@@ -13,9 +13,7 @@
       "expect": {
         "/status": "complete",
         "/sources/0/state": "ok",
-        "/result/items": {
-          "equals": []
-        },
+        "/result/items": {},
         "/page/total": 0
       },
       "max_bytes": 581,
