@@ -195,11 +195,21 @@ fn compare(
     execution::assess_exit(&mut old, 0)?;
     execution::assess_exit(&mut current, step.exit)?;
     let facts = facts(step, selection, &old, &current)?;
+    let unselected = step
+        .expect
+        .keys()
+        .filter(|pointer| {
+            selection
+                .assertion_pointers
+                .as_ref()
+                .is_some_and(|selected| !selected.contains(*pointer))
+        })
+        .collect::<Vec<_>>();
     Ok(
         json!({"case":selection.case,"story":case.story,"step":selection.step,
         "spelling_table":selection.spelling_table,"baseline":old,"candidate":current,"facts":facts,
         "selection":selection.assertion_pointers,
-        "unselected_assertion_pointers":step.expect.keys().filter(|p| selection.assertion_pointers.as_ref().is_some_and(|v| !v.contains(*p))).collect::<Vec<_>>()}),
+        "unselected_assertion_pointers":unselected}),
     )
 }
 fn facts(
