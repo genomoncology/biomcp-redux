@@ -36,6 +36,7 @@ mod drug_civic;
 mod drug_civic_fixtures;
 mod drug_ddinter;
 mod drug_ema;
+mod adapter_bad_values;
 mod drug_failures;
 mod drug_fda;
 mod drug_identity;
@@ -357,6 +358,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(variant::trials());
     trials.extend(variant_assertion_wire::trials());
+    trials.extend(adapter_bad_values::trials());
     trials.extend(variant_assertions::trials());
     trials.extend(variant_discovery::trials());
     trials.extend(variant_condition_relationship::trials());
