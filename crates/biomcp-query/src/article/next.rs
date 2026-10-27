@@ -183,15 +183,12 @@ pub(super) fn text(query: &biomcp_types::ArticleText, out: &mut Outcome) {
         if !matches!(body.content, biomcp_types::Section::Data { .. }))
         && let Ok(get) = ArticleGet::new(vec![query.input().clone()].into())
     {
-        out.next.insert(
-            0,
-            (
-                StepKind::Disambiguate,
-                Action::Run {
-                    request: Request::GetArticle(get),
-                    fresh: false,
-                },
-            ),
-        );
+        out.next.push((
+            StepKind::Disambiguate,
+            Action::Run {
+                request: Request::GetArticle(get),
+                fresh: false,
+            },
+        ));
     }
 }
