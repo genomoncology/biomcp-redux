@@ -138,7 +138,9 @@ fn search(n: usize) -> Check {
     let brand = field(&id, "brand").as_str().ok_or("brand")?;
     let (env, stub) = setup(
         page(record(&id)),
-        format!("openfda.brand_name.exact%3A%22{brand}%22"),
+        format!(
+            "openfda.brand_name.exact%3A%22{brand}%22%20OR%20openfda.generic_name.exact%3A%22{brand}%22"
+        ),
         200,
     )?;
     let args = vec![
@@ -173,7 +175,7 @@ fn absent() -> Check {
             let selector = request.lines().next().ok_or("request")?;
             if !["openfda.brand_name.exact", "openfda.brand_name"].iter().any(|field| {
                 selector == format!(
-                    "GET /drug/label.json?search={field}%3A%22Tagrisso%22&limit=1&sort=effective_time%3Adesc HTTP/1.1"
+                    "GET /drug/label.json?search={field}%3A%22Tagrisso%22%20OR%20{}%3A%22Tagrisso%22&limit=1&sort=effective_time%3Adesc HTTP/1.1", field.replace("brand_name", "generic_name")
                 )
             }) {
                 return Err(format!("unexpected absence request: {request}"));

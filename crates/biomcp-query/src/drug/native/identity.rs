@@ -3,6 +3,7 @@ use biomcp_adapters::{chembl, opentargets};
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 pub(super) fn chembl_header(row: &chembl::Molecule) -> Result<DrugHeader, Error> {
     Ok(DrugHeader {
+        matched_name: None,
         id: row.molecule_chembl_id.parse()?,
         source: DrugSource::Chembl,
         name: row.pref_name.as_deref().map(str::parse).transpose()?,
@@ -20,6 +21,7 @@ pub(super) fn chembl_header(row: &chembl::Molecule) -> Result<DrugHeader, Error>
 }
 pub(super) fn ot_header(row: opentargets::Hit) -> Result<DrugHeader, Error> {
     Ok(DrugHeader {
+        matched_name: None,
         id: row.id.parse()?,
         source: DrugSource::Opentargets,
         name: Some(row.name.parse()?),

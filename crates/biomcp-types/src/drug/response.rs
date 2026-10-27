@@ -20,6 +20,9 @@ pub struct DrugHeader {
     pub name: Option<Text>,
     /// Level established only by the endpoint or record type.
     pub identity_level: DrugIdentityLevel,
+    /// Complete native name fields matching the search input; omitted outside label searches.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub matched_name: Option<super::DrugNameMatch>,
     /// Native record type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,

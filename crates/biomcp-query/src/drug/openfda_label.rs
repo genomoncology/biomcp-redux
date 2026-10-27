@@ -20,7 +20,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             Ok((
                 page.records
                     .iter()
-                    .map(|r| r.header())
+                    .map(|r| {
+                        let mut header = r.header()?;
+                        header.matched_name = r.name_match(query.query());
+                        Ok(header)
+                    })
                     .collect::<Result<Vec<_>, _>>()?,
                 page.total,
                 page.scanned,

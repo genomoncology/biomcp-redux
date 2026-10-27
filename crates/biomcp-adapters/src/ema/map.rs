@@ -3,6 +3,7 @@ use biodata::{Attribution, AuthorizationDate, AuthorizationEvent, DrugIdentityLe
 use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
 pub(super) fn header(row: &raw::Medicine) -> DrugHeader {
     DrugHeader {
+        matched_name: None,
         id: row.id.clone(),
         source: DrugSource::Ema,
         name: Some(row.name.clone()),

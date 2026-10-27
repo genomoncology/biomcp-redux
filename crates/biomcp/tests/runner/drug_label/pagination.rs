@@ -31,7 +31,7 @@ fn walk() -> Check {
         "application/json",
         move |request| {
             let line = request.lines().next().ok_or("request")?;
-            let exact = line.contains("openfda.brand_name.exact%3A%22gleevec%22");
+            let exact = line.contains("openfda.brand_name.exact%3A%22gleevec%22%20OR%20openfda.generic_name.exact%3A%22gleevec%22");
             if exact {
                 return Ok(
                     json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string(),
@@ -143,6 +143,6 @@ fn target(offset: usize) -> String {
         format!("&skip={offset}")
     };
     format!(
-        "GET /drug/label.json?search=openfda.brand_name%3A%22gleevec%22&limit=2&sort=effective_time%3Adesc{skip} HTTP/1.1"
+        "GET /drug/label.json?search=openfda.brand_name%3A%22gleevec%22%20OR%20openfda.generic_name%3A%22gleevec%22&limit=2&sort=effective_time%3Adesc{skip} HTTP/1.1"
     )
 }
