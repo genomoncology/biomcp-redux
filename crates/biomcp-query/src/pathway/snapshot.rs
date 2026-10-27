@@ -11,7 +11,7 @@ pub(super) struct Saved {
     pub problems: Vec<Problem>,
 }
 fn key(q: &PathwaySearch) -> Result<Vec<u8>, RequestError> {
-    serde_json::to_vec(&("biomcp.pathway-snapshot/2", q.restart()))
+    serde_json::to_vec(&("biomcp.pathway_snapshot/2", q.restart()))
         .map_err(|_| CacheError::Database.into())
 }
 pub(super) fn load(

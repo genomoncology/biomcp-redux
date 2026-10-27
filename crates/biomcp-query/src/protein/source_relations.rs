@@ -58,7 +58,7 @@ impl Selection {
     }
     fn key(&self) -> Result<Vec<u8>, CacheError> {
         let mut h = Sha256::new();
-        h.update(b"biomcp.protein-source-relations/1\0");
+        h.update(b"biomcp.protein_source_relations/1\0");
         h.update(serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?);
         Ok(h.finalize().to_vec())
     }

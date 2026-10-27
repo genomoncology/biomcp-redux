@@ -63,7 +63,7 @@ pub fn search(cx: &Ctx<'_>, q: &ProteinSearch) -> Outcome {
 }
 fn key(q: &ProteinSearch) -> Vec<u8> {
     Sha256::digest(format!(
-        "biomcp.protein-pool/1\0{}\0{}\0reviewed-human-uniprot",
+        "biomcp.protein_pool/1\0{}\0{}\0reviewed-human-uniprot",
         q.query().map_or("", Text::as_str),
         q.gene().map_or("", biodata::GeneSymbol::as_str)
     ))

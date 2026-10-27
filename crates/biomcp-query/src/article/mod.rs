@@ -62,7 +62,7 @@ fn execute<'a>(
 ) -> Result<(), RequestError> {
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let bytes = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
-    let key = Sha256::digest([b"biomcp.article-page/1\0".as_slice(), &bytes].concat());
+    let key = Sha256::digest([b"biomcp.article_page/1\0".as_slice(), &bytes].concat());
     let explicit = query.pool().map(Text::as_str);
     let stored = if cx.fresh && explicit.is_none() {
         None

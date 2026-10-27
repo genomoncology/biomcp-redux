@@ -80,7 +80,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
 }
 fn key(q: &GwasSearch) -> Vec<u8> {
     Sha256::digest(format!(
-        "biomcp.gwas-threshold/1\0{}",
+        "biomcp.gwas_threshold/1\0{}",
         serde_json::to_string(&q.restart()).unwrap_or_default()
     ))
     .to_vec()

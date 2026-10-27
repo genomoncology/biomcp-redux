@@ -24,7 +24,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &AdverseEventSearch) -> Outcome {
 fn key(q: &AdverseEventSearch) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.vaers-snapshot/1\0{}\0{}",
+            "biomcp.vaers_snapshot/1\0{}\0{}",
             q.vaccine().unwrap_or(""),
             q.vaers_section().code()
         )

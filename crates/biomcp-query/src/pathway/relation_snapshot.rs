@@ -34,7 +34,7 @@ impl Saved {
 }
 pub(super) fn key(id: &biodata::PathwayId, genes: bool) -> Vec<u8> {
     format!(
-        "biomcp.pathway-relation/1\0{id}\0{}",
+        "biomcp.pathway_relation/1\0{id}\0{}",
         if genes { "genes" } else { "events" }
     )
     .into_bytes()

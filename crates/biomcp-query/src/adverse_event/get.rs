@@ -22,7 +22,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &AdverseEventGet) -> Outcome {
     out
 }
 fn key(q: &AdverseEventGet) -> Vec<u8> {
-    Sha256::digest(format!("biomcp.faers-snapshot/1\0{}", q.id()).as_bytes()).to_vec()
+    Sha256::digest(format!("biomcp.faers_snapshot/1\0{}", q.id()).as_bytes()).to_vec()
 }
 fn read(
     cx: &Ctx<'_>,

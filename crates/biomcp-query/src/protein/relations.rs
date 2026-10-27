@@ -44,7 +44,7 @@ impl Selection {
     fn key(&self) -> Result<Vec<u8>, CacheError> {
         let request = serde_json::to_vec(&self.request(None)).map_err(|_| CacheError::Database)?;
         let mut hash = Sha256::new();
-        hash.update(b"biomcp.protein-sections/1\0");
+        hash.update(b"biomcp.protein_sections/1\0");
         hash.update(request);
         Ok(hash.finalize().to_vec())
     }
