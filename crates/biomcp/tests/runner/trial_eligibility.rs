@@ -53,11 +53,11 @@ fn walk(name: &str, original: &str, expected_first: &str, continued: bool) -> Ch
             .and_then(Value::as_str)
             .is_some_and(|u| u.ends_with("NCT02296125"))
         {
-            record
-                .pointer_mut(
-                    "/exchanges/0/body/value/protocolSection/eligibilityModule/eligibilityCriteria",
-                )
-                .map(|v| *v = json!(original));
+            if let Some(value) = record.pointer_mut(
+                "/exchanges/0/body/value/protocolSection/eligibilityModule/eligibilityCriteria",
+            ) {
+                *value = json!(original);
+            }
         }
     })?;
     let mut args = ["get", "trial", "NCT02296125", "eligibility"]
