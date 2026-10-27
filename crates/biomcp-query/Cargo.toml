@@ -6,13 +6,13 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-biomcp-types = { path = "../biomcp-types" }
+biomcp-types = { version = "=1.0.0", path = "../biomcp-types" }
 rusqlite.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
-biodata = { path = "../biodata" }
-biomcp-fetch = { path = "../biomcp-fetch" }
-biomcp-adapters = { path = "../biomcp-adapters" }
+biodata = { version = "=1.0.0", path = "../biodata" }
+biomcp-fetch = { version = "=1.0.0", path = "../biomcp-fetch" }
+biomcp-adapters = { version = "=1.0.0", path = "../biomcp-adapters" }
 
 [dev-dependencies]
 tempfile.workspace = true

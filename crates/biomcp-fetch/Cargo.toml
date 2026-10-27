@@ -16,9 +16,9 @@ prost = { version = "=0.14.3", default-features = false, features = ["derive", "
 zstd = { version = "=0.14.3", default-features = false }
 csv.workspace = true
 flate2.workspace = true
-biomcp-types = { path = "../biomcp-types" }
+biomcp-types = { version = "=1.0.0", path = "../biomcp-types" }
 url.workspace = true
-biodata = { path = "../biodata" }
+biodata = { version = "=1.0.0", path = "../biodata" }
 serde.workspace = true
 serde_json = { workspace = true, features = ["raw_value"] }
 ureq.workspace = true
