@@ -133,11 +133,7 @@
         "levelOfEvidence",
         "location",
         "name",
-        "relatedChemicals",
-        "relatedChemicalsLogic",
-        "relatedGuidelines",
-        "relatedLabels",
-        "types"
+        "relatedChemicalsLogic"
       ],
       "type": "object"
     },
@@ -182,8 +178,7 @@
       "required": [
         "objCls",
         "id",
-        "name",
-        "crossReferences"
+        "name"
       ],
       "type": "object"
     },
@@ -616,12 +611,8 @@
       "required": [
         "id",
         "copyNumber",
-        "diplotypes",
         "displayName",
-        "genes",
         "gpPosition",
-        "haplotypes",
-        "linkedObjects",
         "refSeqPosition",
         "tagGene",
         "type"
@@ -1248,8 +1239,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

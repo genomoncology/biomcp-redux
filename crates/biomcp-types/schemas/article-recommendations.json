@@ -120,7 +120,6 @@
       },
       "required": [
         "title",
-        "types",
         "author_count"
       ],
       "type": "object"
@@ -406,7 +405,6 @@
         }
       },
       "required": [
-        "items",
         "scope"
       ],
       "type": "object"
@@ -464,7 +462,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -1124,8 +1121,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -15,7 +15,6 @@
           "x-positional": 0
         },
         "fulltext": {
-          "default": false,
           "description": "Include the citing paper's own explicit reference paragraphs.",
           "type": "boolean"
         },
@@ -101,7 +100,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -125,7 +123,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -1143,8 +1140,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

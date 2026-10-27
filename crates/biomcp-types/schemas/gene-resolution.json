@@ -151,11 +151,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"

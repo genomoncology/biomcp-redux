@@ -96,8 +96,7 @@
         }
       },
       "required": [
-        "header",
-        "diplotypes"
+        "header"
       ],
       "type": "object"
     },
@@ -838,8 +837,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

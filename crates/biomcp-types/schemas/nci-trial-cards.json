@@ -171,7 +171,6 @@
           "description": "Publisher NCIt identity."
         },
         "parents": {
-          "default": [],
           "description": "Original immediate ancestors.",
           "items": {
             "$ref": "#/$defs/Text"
@@ -179,7 +178,6 @@
           "type": "array"
         },
         "synonyms": {
-          "default": [],
           "description": "Original alternative labels.",
           "items": {
             "$ref": "#/$defs/Text"
@@ -187,7 +185,6 @@
           "type": "array"
         },
         "type": {
-          "default": [],
           "description": "Original concept categories.",
           "items": {
             "$ref": "#/$defs/Text"
@@ -427,9 +424,7 @@
       },
       "required": [
         "name",
-        "nci_thesaurus_concept_id",
-        "parents",
-        "synonyms"
+        "nci_thesaurus_concept_id"
       ],
       "type": "object"
     },
@@ -580,7 +575,6 @@
         }
       },
       "required": [
-        "items",
         "attribution"
       ],
       "type": "object"
@@ -1899,8 +1893,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -2012,7 +2005,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2054,7 +2046,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2096,7 +2087,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2138,7 +2128,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2180,7 +2169,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],

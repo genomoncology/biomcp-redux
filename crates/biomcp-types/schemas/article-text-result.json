@@ -882,8 +882,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1035,8 +1034,7 @@
       },
       "required": [
         "part",
-        "markdown",
-        "heading_path"
+        "markdown"
       ],
       "type": "object"
     },

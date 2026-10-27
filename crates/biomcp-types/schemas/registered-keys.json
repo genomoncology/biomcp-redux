@@ -235,9 +235,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "entries"
-      ],
       "type": "object"
     },
     "Source": {
@@ -618,8 +615,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

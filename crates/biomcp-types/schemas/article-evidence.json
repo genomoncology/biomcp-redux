@@ -26,7 +26,6 @@
       "x-positional": 0
     },
     "fulltext": {
-      "default": false,
       "description": "Include the citing paper's own explicit reference paragraphs.",
       "type": "boolean"
     },

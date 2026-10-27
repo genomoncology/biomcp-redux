@@ -21,9 +21,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "commands"
-      ],
       "type": "object"
     },
     "HelpArgument": {
@@ -85,8 +82,7 @@
         "name",
         "description",
         "value_type",
-        "required",
-        "choices"
+        "required"
       ],
       "type": "object"
     },
@@ -123,7 +119,6 @@
           "type": "array"
         },
         "reply_schemas": {
-          "default": [],
           "description": "Canonical reply contracts; empty for commands with no schema reply.",
           "items": {
             "type": "string"
@@ -146,11 +141,7 @@
         }
       },
       "required": [
-        "command",
-        "description",
-        "arguments",
-        "sections",
-        "examples"
+        "description"
       ],
       "type": "object"
     },
@@ -727,8 +718,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

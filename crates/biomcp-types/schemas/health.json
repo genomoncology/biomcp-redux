@@ -76,7 +76,6 @@
         }
       },
       "required": [
-        "notices",
         "omitted_entries"
       ],
       "type": "object"
@@ -145,9 +144,7 @@
         }
       },
       "required": [
-        "group",
-        "sources",
-        "components"
+        "group"
       ],
       "type": "object"
     },
@@ -186,7 +183,6 @@
           "description": "Bounded local settings notices, independent of source probes."
         },
         "disable_groups": {
-          "default": [],
           "description": "Sources and carried components excluded by each supported terms group.",
           "items": {
             "$ref": "#/$defs/DisableGroup"
@@ -201,9 +197,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "sources"
-      ],
       "type": "object"
     },
     "LocalBundleState": {
@@ -846,8 +839,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

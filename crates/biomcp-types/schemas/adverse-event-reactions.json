@@ -210,7 +210,6 @@
         }
       },
       "required": [
-        "records",
         "offset",
         "total"
       ],
@@ -899,8 +898,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

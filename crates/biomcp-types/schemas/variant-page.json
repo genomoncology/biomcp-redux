@@ -237,10 +237,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "source_conditions",
-        "related_conditions"
-      ],
       "type": "object"
     },
     "AssertionDetail": {
@@ -793,10 +789,8 @@
         "label",
         "compound",
         "membership",
-        "members",
         "evidence_count",
         "assertion_count",
-        "statements",
         "evidence_page",
         "assertion_page"
       ],
@@ -1620,8 +1614,6 @@
       "required": [
         "id",
         "study",
-        "traits",
-        "alleles",
         "p_value"
       ],
       "type": "object"
@@ -1746,8 +1738,7 @@
         "membership",
         "gene",
         "residue",
-        "tumor_count",
-        "alternates"
+        "tumor_count"
       ],
       "type": "object"
     },
@@ -2411,8 +2402,7 @@
         }
       },
       "required": [
-        "field",
-        "values"
+        "field"
       ],
       "type": "object"
     },
@@ -2520,6 +2510,10 @@
     },
     "ProteinQuery": {
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
+      "type": "string"
+    },
+    "QualifiedVariantId": {
+      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "Reason": {
@@ -4283,8 +4277,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -4402,7 +4395,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/VariantId"
+            "$ref": "#/$defs/QualifiedVariantId"
           },
           "type": "array"
         },
@@ -4500,7 +4493,6 @@
         }
       },
       "required": [
-        "assertions",
         "page"
       ],
       "type": "object"
@@ -4589,7 +4581,6 @@
         }
       },
       "required": [
-        "profiles",
         "page"
       ],
       "type": "object"
@@ -4699,9 +4690,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -4742,9 +4731,7 @@
         }
       },
       "required": [
-        "total",
-        "records",
-        "components"
+        "total"
       ],
       "type": "object"
     },
@@ -4892,7 +4879,6 @@
       },
       "required": [
         "rs_id",
-        "associations",
         "page"
       ],
       "type": "object"
@@ -5000,7 +4986,6 @@
         }
       },
       "required": [
-        "records",
         "page"
       ],
       "type": "object"
@@ -5111,7 +5096,6 @@
         "build",
         "tumor_type",
         "variant_exist",
-        "records",
         "page"
       ],
       "type": "object"
@@ -5166,8 +5150,7 @@
         }
       },
       "required": [
-        "source_query",
-        "items"
+        "source_query"
       ],
       "type": "object"
     },
@@ -5248,9 +5231,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -5621,7 +5602,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-page/6",
+  "$id": "biomcp.variant-page/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -5678,7 +5659,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-page/6",
+      "const": "biomcp.variant-page/7",
       "type": "string"
     },
     "sources": {

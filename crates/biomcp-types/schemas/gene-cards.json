@@ -63,7 +63,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -156,9 +155,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "validity"
-      ],
       "type": "object"
     },
     "ClinGenValidity": {
@@ -396,11 +392,6 @@
         "symbol",
         "status",
         "locus_group",
-        "previous_symbols",
-        "aliases",
-        "uniprot",
-        "omim",
-        "spans",
         "name"
       ],
       "type": "object"
@@ -417,9 +408,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "GeneExpression": {
@@ -2778,8 +2766,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -197,9 +197,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "schemas"
-      ],
       "type": "object"
     },
     "SchemaEntry": {
@@ -599,8 +596,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

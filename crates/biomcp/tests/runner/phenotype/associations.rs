@@ -144,7 +144,9 @@ fn pages() -> Result<(), String> {
         || first
             .pointer("/result/items/1/association/publications")
             .is_some()
-        || first.pointer("/result/items/1/association/qualifiers") != Some(&json!([]))
+        || first
+            .pointer("/result/items/1/association/qualifiers")
+            .is_some()
     {
         return Err(format!("native independent rows collapsed: {first}"));
     }

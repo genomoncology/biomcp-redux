@@ -563,8 +563,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -687,7 +686,6 @@
       },
       "required": [
         "study_id",
-        "items",
         "page",
         "acquired"
       ],

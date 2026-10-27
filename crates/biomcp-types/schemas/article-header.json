@@ -201,7 +201,6 @@
   },
   "required": [
     "title",
-    "types",
     "author_count"
   ],
   "title": "ArticleHeader",

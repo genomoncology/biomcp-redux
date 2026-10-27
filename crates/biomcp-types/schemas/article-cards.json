@@ -218,10 +218,7 @@
       },
       "required": [
         "title",
-        "types",
-        "corrections",
-        "authors",
-        "abstract_parts"
+        "authors"
       ],
       "type": "object"
     },
@@ -285,9 +282,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "ArticleGet": {
@@ -560,7 +554,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -584,7 +577,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -769,9 +761,7 @@
         }
       },
       "required": [
-        "license",
-        "parts",
-        "figures"
+        "license"
       ],
       "type": "object"
     },
@@ -806,10 +796,7 @@
         }
       },
       "required": [
-        "mesh",
-        "keywords",
-        "affiliations",
-        "orcids"
+        "affiliations"
       ],
       "type": "object"
     },
@@ -869,8 +856,7 @@
       },
       "required": [
         "descriptor",
-        "major",
-        "qualifiers"
+        "major"
       ],
       "type": "object"
     },
@@ -2427,8 +2413,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -2506,8 +2491,7 @@
         }
       },
       "required": [
-        "license",
-        "files"
+        "license"
       ],
       "type": "object"
     },

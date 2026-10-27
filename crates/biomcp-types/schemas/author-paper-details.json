@@ -302,7 +302,6 @@
       },
       "required": [
         "paper_id",
-        "external_ids",
         "title"
       ],
       "type": "object"
@@ -951,8 +950,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

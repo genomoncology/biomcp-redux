@@ -306,7 +306,7 @@ fn absence() -> Check {
         1,
     )?;
     if value.get("status") != Some(&json!("absent"))
-        || value.pointer("/result/items") != Some(&json!([]))
+        || value.pointer("/result/items").is_some()
         || value.pointer("/page/total") != Some(&json!(0))
         || value.pointer("/sources/0/state") != Some(&json!("ok"))
     {

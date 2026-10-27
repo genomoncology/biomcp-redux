@@ -452,7 +452,6 @@
         "label",
         "heading",
         "text",
-        "fragments",
         "offset"
       ],
       "type": "object"
@@ -1199,8 +1198,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

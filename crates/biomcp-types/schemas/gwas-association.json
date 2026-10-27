@@ -170,8 +170,6 @@
       "required": [
         "id",
         "study",
-        "traits",
-        "alleles",
         "p_value"
       ],
       "type": "object"
@@ -937,8 +935,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

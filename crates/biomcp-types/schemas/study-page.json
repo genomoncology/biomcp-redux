@@ -571,8 +571,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -670,7 +669,6 @@
         }
       },
       "required": [
-        "items",
         "page",
         "snapshot"
       ],

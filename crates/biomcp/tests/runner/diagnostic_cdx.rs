@@ -108,7 +108,9 @@ fn identities() -> Check {
         ],
         0,
     )?;
-    if mismatch.pointer("/result/items/0/drug_applications") != Some(&json!([]))
+    if mismatch
+        .pointer("/result/items/0/drug_applications")
+        .is_some()
         || mismatch.pointer("/problems/0/code") != Some(&json!("identity.conflict"))
     {
         return Err(format!("mismatched cell supplied identity: {mismatch}"));
@@ -350,7 +352,7 @@ fn paging() -> Check {
     let page = call(&env, &replay, &args, 0)?;
     if page.pointer("/page/offset") != Some(&json!(5))
         || page.pointer("/result/items/0/kind") != Some(&json!("group"))
-        || page.pointer("/result/items/0/drug_applications") != Some(&json!([]))
+        || page.pointer("/result/items/0/drug_applications").is_some()
     {
         return Err(format!("page or ambiguous group identity changed: {page}"));
     }
@@ -558,7 +560,7 @@ fn ambiguous_parameters() -> Check {
             ],
             0,
         )?;
-        if value.pointer("/result/items/0/drug_applications") != Some(&json!([]))
+        if value.pointer("/result/items/0/drug_applications").is_some()
             || !value
                 .get("problems")
                 .and_then(Value::as_array)

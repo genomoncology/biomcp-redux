@@ -121,9 +121,7 @@
         "drug_count",
         "reaction_count",
         "source_url",
-        "report_url",
-        "available_sections",
-        "components"
+        "report_url"
       ],
       "type": "object"
     },
@@ -1004,8 +1002,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

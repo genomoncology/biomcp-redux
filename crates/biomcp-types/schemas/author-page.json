@@ -113,9 +113,6 @@
           ]
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "AuthorSearch": {
@@ -729,8 +726,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

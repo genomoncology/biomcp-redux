@@ -81,9 +81,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "GeneSearch": {
@@ -768,8 +765,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

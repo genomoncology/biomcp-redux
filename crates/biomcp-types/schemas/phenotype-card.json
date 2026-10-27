@@ -476,9 +476,7 @@
         }
       },
       "required": [
-        "term",
-        "sections",
-        "components"
+        "term"
       ],
       "type": "object"
     },
@@ -988,8 +986,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -28,7 +28,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -99,9 +98,6 @@
           "description": "Independently fetched publisher release, never a result total."
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "CellLineRelease": {
@@ -788,8 +784,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

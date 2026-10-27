@@ -959,8 +959,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1056,7 +1055,6 @@
         "cnaSampleCount",
         "structuralVariantCount",
         "treatmentCount",
-        "resourceCounts",
         "importDate",
         "groups",
         "readPermission",
@@ -1224,7 +1222,6 @@
       },
       "required": [
         "study_id",
-        "items",
         "page",
         "acquired"
       ],

@@ -237,10 +237,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "source_conditions",
-        "related_conditions"
-      ],
       "type": "object"
     },
     "AssertionDetail": {
@@ -793,10 +789,8 @@
         "label",
         "compound",
         "membership",
-        "members",
         "evidence_count",
         "assertion_count",
-        "statements",
         "evidence_page",
         "assertion_page"
       ],
@@ -1620,8 +1614,6 @@
       "required": [
         "id",
         "study",
-        "traits",
-        "alleles",
         "p_value"
       ],
       "type": "object"
@@ -1746,8 +1738,7 @@
         "membership",
         "gene",
         "residue",
-        "tumor_count",
-        "alternates"
+        "tumor_count"
       ],
       "type": "object"
     },
@@ -2407,8 +2398,7 @@
         }
       },
       "required": [
-        "field",
-        "values"
+        "field"
       ],
       "type": "object"
     },
@@ -2512,6 +2502,10 @@
         "prognostic",
         "functional_impact"
       ],
+      "type": "string"
+    },
+    "QualifiedVariantId": {
+      "pattern": "^(rs:[1-9][0-9]*|clingen:(CA[0-9]{6,}|PA[1-9][0-9]*)|clinvar:(VCV[0-9]{9}(\\.[1-9][0-9]*)?|[1-9][0-9]*)|cosmic:COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$",
       "type": "string"
     },
     "Reason": {
@@ -4275,8 +4269,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -4394,7 +4387,7 @@
         "ids": {
           "description": "All source identifiers, without inferred aliases.",
           "items": {
-            "$ref": "#/$defs/VariantId"
+            "$ref": "#/$defs/QualifiedVariantId"
           },
           "type": "array"
         },
@@ -4492,7 +4485,6 @@
         }
       },
       "required": [
-        "assertions",
         "page"
       ],
       "type": "object"
@@ -4586,8 +4578,7 @@
       },
       "required": [
         "resolution",
-        "source",
-        "candidates"
+        "source"
       ],
       "type": "object"
     },
@@ -4619,7 +4610,6 @@
         }
       },
       "required": [
-        "profiles",
         "page"
       ],
       "type": "object"
@@ -4729,9 +4719,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -4772,9 +4760,7 @@
         }
       },
       "required": [
-        "total",
-        "records",
-        "components"
+        "total"
       ],
       "type": "object"
     },
@@ -4922,7 +4908,6 @@
       },
       "required": [
         "rs_id",
-        "associations",
         "page"
       ],
       "type": "object"
@@ -5030,7 +5015,6 @@
         }
       },
       "required": [
-        "records",
         "page"
       ],
       "type": "object"
@@ -5141,7 +5125,6 @@
         "build",
         "tumor_type",
         "variant_exist",
-        "records",
         "page"
       ],
       "type": "object"
@@ -5223,9 +5206,7 @@
         }
       },
       "required": [
-        "subject_qualification",
-        "scores",
-        "components"
+        "subject_qualification"
       ],
       "type": "object"
     },
@@ -5511,7 +5492,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.variant-card/5",
+  "$id": "biomcp.variant-card/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -5568,7 +5549,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant-card/5",
+      "const": "biomcp.variant-card/6",
       "type": "string"
     },
     "sources": {

@@ -109,9 +109,7 @@
       },
       "required": [
         "source_query",
-        "items",
-        "unit",
-        "components"
+        "unit"
       ],
       "type": "object"
     },
@@ -874,8 +872,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

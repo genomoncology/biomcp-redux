@@ -102,7 +102,6 @@
       },
       "required": [
         "header",
-        "items",
         "page",
         "reference_occurrences",
         "physical_entities"
@@ -951,8 +950,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

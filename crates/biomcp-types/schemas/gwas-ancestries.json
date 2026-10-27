@@ -30,8 +30,7 @@
         }
       },
       "required": [
-        "study",
-        "items"
+        "study"
       ],
       "type": "object"
     },
@@ -80,9 +79,6 @@
       },
       "required": [
         "stage",
-        "ancestry_groups",
-        "country_of_origin",
-        "country_of_recruitment",
         "source_url"
       ],
       "type": "object"
@@ -810,8 +806,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -250,9 +250,7 @@
         "requested_id",
         "returned_id",
         "concept",
-        "attribution",
-        "sections",
-        "components"
+        "attribution"
       ],
       "type": "object"
     },
@@ -1033,8 +1031,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

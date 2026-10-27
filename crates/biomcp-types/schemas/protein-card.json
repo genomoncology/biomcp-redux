@@ -776,7 +776,6 @@
         }
       },
       "required": [
-        "items",
         "native_total"
       ],
       "type": "object"
@@ -912,7 +911,6 @@
         }
       },
       "required": [
-        "items",
         "native_total"
       ],
       "type": "object"
@@ -2741,8 +2739,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

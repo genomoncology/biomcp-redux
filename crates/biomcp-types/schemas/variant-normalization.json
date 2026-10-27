@@ -134,10 +134,7 @@
       "required": [
         "source",
         "outcome",
-        "mappings",
-        "total_mappings",
-        "messages",
-        "version"
+        "total_mappings"
       ],
       "type": "object"
     },
@@ -705,8 +702,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -753,9 +749,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "results"
-      ],
       "type": "object"
     },
     "VariantNormalize": {

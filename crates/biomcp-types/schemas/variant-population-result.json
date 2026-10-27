@@ -1171,8 +1171,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1277,7 +1276,6 @@
           "description": "Explicit source assembly when required by identity input."
         },
         "detail": {
-          "default": false,
           "description": "Read source ancestry groups, preserving overlapping groups individually.",
           "type": "boolean"
         },

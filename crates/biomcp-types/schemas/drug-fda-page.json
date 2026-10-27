@@ -26,8 +26,7 @@
         }
       },
       "required": [
-        "identity",
-        "products"
+        "identity"
       ],
       "type": "object"
     },
@@ -79,7 +78,6 @@
         }
       },
       "required": [
-        "items",
         "total"
       ],
       "type": "object"
@@ -152,7 +150,6 @@
       "required": [
         "product_number",
         "brand_name",
-        "active_ingredients",
         "dosage_form",
         "marketing_status",
         "reference_drug"
@@ -881,8 +878,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

@@ -354,8 +354,6 @@
       },
       "required": [
         "requested_site",
-        "requested_selectors",
-        "returned_selectors",
         "measure",
         "attribution"
       ],
@@ -1048,8 +1046,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

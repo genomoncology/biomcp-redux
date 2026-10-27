@@ -182,8 +182,7 @@
         }
       },
       "required": [
-        "row",
-        "cells"
+        "row"
       ],
       "type": "object"
     },
@@ -577,8 +576,7 @@
       "required": [
         "sheet",
         "row",
-        "first_row",
-        "cells"
+        "first_row"
       ],
       "type": "object"
     },
@@ -989,8 +987,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

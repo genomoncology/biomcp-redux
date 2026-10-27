@@ -1459,6 +1459,33 @@
       ],
       "type": "string"
     },
+    "SourceTimestamp": {
+      "additionalProperties": false,
+      "description": "Native source timestamp and the availability of its timezone.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact source-supplied timestamp."
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in_value",
+        "source_gave_none"
+      ],
+      "type": "string"
+    },
     "Status": {
       "description": "Overall command outcome.",
       "enum": [
@@ -1486,8 +1513,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },
@@ -1598,8 +1624,7 @@
         }
       },
       "required": [
-        "label",
-        "intervention_names"
+        "label"
       ],
       "type": "object"
     },
@@ -1763,8 +1788,6 @@
         "status",
         "phases",
         "study_type",
-        "conditions",
-        "interventions",
         "updated",
         "url"
       ],
@@ -1845,7 +1868,7 @@
         "source_updated": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Text"
+              "$ref": "#/$defs/SourceTimestamp"
             },
             {
               "type": "null"
@@ -1855,7 +1878,6 @@
         }
       },
       "required": [
-        "items",
         "attribution"
       ],
       "type": "object"
@@ -2263,9 +2285,7 @@
         }
       },
       "required": [
-        "name",
-        "arm_group_labels",
-        "other_names"
+        "name"
       ],
       "type": "object"
     },
@@ -2355,9 +2375,6 @@
           ]
         }
       },
-      "required": [
-        "contacts"
-      ],
       "type": "object"
     },
     "TrialOfficial": {
@@ -2496,7 +2513,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2538,7 +2554,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2580,7 +2595,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2622,7 +2636,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2664,7 +2677,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2706,7 +2718,6 @@
         }
       },
       "required": [
-        "items",
         "offset",
         "total"
       ],
@@ -2916,7 +2927,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-cards/2",
+  "$id": "biomcp.trial-cards/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2973,7 +2984,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-cards/2",
+      "const": "biomcp.trial-cards/3",
       "type": "string"
     },
     "sources": {

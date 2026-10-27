@@ -220,9 +220,7 @@
       },
       "required": [
         "guideline_name",
-        "guideline_url",
-        "drugs",
-        "genes"
+        "guideline_url"
       ],
       "type": "object"
     },
@@ -853,8 +851,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

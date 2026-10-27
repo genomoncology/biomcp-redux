@@ -394,10 +394,7 @@
         "subject",
         "predicate",
         "object",
-        "attribution",
-        "qualifiers",
-        "subject_closure",
-        "object_closure"
+        "attribution"
       ],
       "type": "object"
     },
@@ -418,8 +415,7 @@
         }
       },
       "required": [
-        "association",
-        "components"
+        "association"
       ],
       "type": "object"
     },
@@ -1244,8 +1240,7 @@
         }
       },
       "required": [
-        "kind",
-        "args"
+        "kind"
       ],
       "type": "object"
     },

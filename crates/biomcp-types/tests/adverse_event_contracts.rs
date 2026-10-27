@@ -48,7 +48,10 @@ fn report_records_preserve_array_order_empty_strings_and_missing_reporter_qualif
         let narrative: Vec<_> = (0..length)
             .map(|n| json!({"text_type_code":"N","text":format!("Synthetic narrative {n}")}))
             .collect();
-        let device = json!({"mdr_report_key":"50952244","devices":[{"brand_name":""},{"brand_name":"synthetic"}],"narrative":narrative});
+        let mut device = json!({"mdr_report_key":"50952244","devices":[{"brand_name":""},{"brand_name":"synthetic"}],"narrative":narrative});
+        if length == 0 {
+            device.as_object_mut().unwrap().remove("narrative");
+        }
         assert_eq!(roundtrip::<MaudeReport>(device.clone()).unwrap(), device);
     }
 }
