@@ -26,8 +26,12 @@ fn closed_reader() -> Result<(), String> {
             drop(reader);
             None
         };
-        let child = env.command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
-            .stdout(writer).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
+        let child = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
+            .stdout(writer)
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())?;
         if let Some(mut reader) = reader {
             let mut prefix = [0; 10];
             reader.read_exact(&mut prefix).map_err(|e| e.to_string())?;
@@ -35,20 +39,30 @@ fn closed_reader() -> Result<(), String> {
         }
         let (status, _, stderr) = Process::new(child)?.finish()?;
         if !status.success() || !stderr.is_empty() {
-            return Err(format!("closed output reader (prefix={read_prefix}): {status}; stderr={}",
-                String::from_utf8_lossy(&stderr)));
+            return Err(format!(
+                "closed output reader (prefix={read_prefix}): {status}; stderr={}",
+                String::from_utf8_lossy(&stderr)
+            ));
         }
     }
     Ok(())
 }
 
 fn absent_query() -> Result<(), String> {
-    let output = Environment::new().map_err(|e| e.to_string())?
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["key".into(), "list".into(), "--format".into(), "md".into()])
-        .output().map_err(|e| e.to_string())?;
+    let output = Environment::new()
+        .map_err(|e| e.to_string())?
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &["key".into(), "list".into(), "--format".into(), "md".into()],
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
-    if !output.status.success() || !output.stderr.is_empty() || !text.starts_with("## Result\n")
-        || text.contains("**query:**") {
+    if !output.status.success()
+        || !output.stderr.is_empty()
+        || !text.starts_with("## Result\n")
+        || text.contains("**query:**")
+    {
         return Err(format!("key list must start with its result: {text}"));
     }
     Ok(())
