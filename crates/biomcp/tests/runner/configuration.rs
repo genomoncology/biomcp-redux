@@ -101,7 +101,7 @@ fn default_cache_migration() -> Check {
         .map(|e| e.path())
         .find(|p| p.extension().is_some_and(|v| v == "sqlite"))
         .ok_or("missing cache")?;
-    let historical = folder.join("cache-1-5.sqlite");
+    let historical = folder.join("cache-1-4.sqlite");
     if current != historical {
         fs::rename(&current, &historical).map_err(|e| e.to_string())?;
         fs::rename(
@@ -111,7 +111,7 @@ fn default_cache_migration() -> Check {
         .map_err(|e| e.to_string())?;
     }
     let connection = rusqlite::Connection::open(&historical).map_err(|e| e.to_string())?;
-    connection.execute_batch("ALTER TABLE reply DROP COLUMN pagination; ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch';")
+    connection.execute_batch("ALTER TABLE reply DROP COLUMN pagination; ALTER TABLE reply DROP COLUMN content_range; UPDATE meta SET version=1 WHERE owner='biomcp-fetch'; CREATE TABLE pool(id TEXT PRIMARY KEY); INSERT INTO pool VALUES ('obsolete-terms'); CREATE TABLE foreign_data(value TEXT); INSERT INTO foreign_data VALUES ('keep'); INSERT INTO meta VALUES ('foreign-owner',77); INSERT INTO meta(owner,version) VALUES ('biomcp-query',4) ON CONFLICT(owner) DO UPDATE SET version=4; INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES (x'01','pubmed','https://example.test/retained',200,x'7b7d',0,9223372036854775807);")
         .map_err(|e| e.to_string())?;
     drop(connection);
     let args = vec![
@@ -141,6 +141,11 @@ fn default_cache_migration() -> Check {
     )?;
     if article.get("status") != Some(&json!("failed")) {
         return Err("query owner could not open the migrated default cache".into());
+    }
+    let cx = rusqlite::Connection::open(&historical).map_err(|e| e.to_string())?;
+    let retained: bool = cx.query_row("SELECT EXISTS(SELECT 1 FROM reply WHERE key=x'01' AND body=x'7b7d') AND (SELECT version FROM meta WHERE owner='biomcp-query')=5 AND NOT EXISTS(SELECT 1 FROM pool WHERE id='obsolete-terms') AND (SELECT value FROM foreign_data)='keep' AND (SELECT version FROM meta WHERE owner='foreign-owner')=77", [], |r| r.get(0)).map_err(|e| e.to_string())?;
+    if !retained {
+        return Err("query upgrade lost reply bytes or failed to migrate".into());
     }
     if stub.finish()?.len() != 2 {
         return Err("offline migration opened HTTP".into());
@@ -397,7 +402,7 @@ fn article_owners() -> Check {
         let file = parent.join(format!(
             "cache-{}-{}.sqlite",
             biomcp_fetch::CACHE_NAMESPACE_VERSION,
-            biomcp_query::store::VERSION
+            biomcp_query::store::CACHE_NAMESPACE_VERSION
         ));
         let case = env.root().join("case");
         let replay = if owned {
@@ -498,7 +503,7 @@ pub(super) fn article_processes() -> Check {
     let file = parent.join(format!(
         "cache-{}-{}.sqlite",
         biomcp_fetch::CACHE_NAMESPACE_VERSION,
-        biomcp_query::store::VERSION
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
     ));
     // Replay and ordinary caches have the same owned schema. Copy only after
     // the seed process closes; it has checkpointed the WAL and released locks.
