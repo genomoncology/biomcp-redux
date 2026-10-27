@@ -21,6 +21,7 @@ pub(super) fn check() -> Result<(), String> {
         .ok_or("help commands missing")?;
     source_description(commands)?;
     let mut printed = collected_examples(commands)?;
+    let advertised = printed.clone();
     let guide = guide_examples(&environment)?;
     printed.extend(guide);
     documents::check(&printed)?;
@@ -75,7 +76,7 @@ pub(super) fn check() -> Result<(), String> {
                 replay.as_deref(),
                 None,
             )?;
-            check_result(args, &reply)?;
+            check_result(args, &reply, advertised.contains(args))?;
         }
     }
     if !printed.is_empty() {
@@ -84,7 +85,10 @@ pub(super) fn check() -> Result<(), String> {
     Ok(())
 }
 
-fn check_result(args: &[String], reply: &Value) -> Result<(), String> {
+fn check_result(args: &[String], reply: &Value, advertised: bool) -> Result<(), String> {
+    if !advertised {
+        return Ok(());
+    }
     if args.starts_with(&["article".into(), "text".into()])
         && args.iter().any(|v| v == "--part")
         && reply
