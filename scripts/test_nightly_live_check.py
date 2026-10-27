@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -19,6 +20,7 @@ sys.exit(int(os.environ.get('FAKE_EXIT', '0')))
 '''
 SSH = '''#!/usr/bin/env python3
 import io, os, subprocess, sys, tarfile
+assert sys.argv[-2] == os.environ.get('FAKE_HOST', 'offline-store')
 if os.environ.get('FAKE_COPY') == 'fail':
     sys.exit(23)
 payload = sys.stdin.buffer.read()
@@ -129,6 +131,7 @@ class NightlyCommand(unittest.TestCase):
             target.write_text(content)
             target.chmod(0o755)
         self.env = dict(os.environ, HOME=str(self.home),
+                        XDG_CONFIG_HOME=str(self.home / '.config'),
                         TMPDIR=str(self.root / 'tmp'),
                         BIOMCP_EVIDENCE_HOST='offline-store',
                         BIOMCP_EVIDENCE_DIR=str(self.store),
@@ -137,9 +140,11 @@ class NightlyCommand(unittest.TestCase):
                         FAKE_REPORT='{"drift_cases":0,"error_cases":0}')
         Path(self.env['TMPDIR']).mkdir()
 
-    def run_command(self, **values):
+    def run_command(self, args=(), **values):
         env = dict(self.env, **values)
-        return subprocess.run(['make', 'nightly-live-check'], cwd=self.checkout,
+        command = ([sys.executable, 'scripts/nightly_live_check.py', *args] if args
+                   else ['make', 'nightly-live-check'])
+        return subprocess.run(command, cwd=self.checkout,
                               env=env, text=True, capture_output=True, check=False)
 
     def copied(self):
@@ -156,11 +161,67 @@ class NightlyCommand(unittest.TestCase):
         return list(self.scratch_root.glob('*'))
 
     def test_missing_destination_fails_before_running_or_creating_scratch(self):
-        result = self.run_command(BIOMCP_EVIDENCE_HOST='')
+        for name in ('BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR'):
+            self.env.pop(name)
+        result = self.run_command()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('supply --host', result.stderr)
         self.assertFalse(self.scratch_root.exists())
         self.assertFalse(self.store.exists())
+
+    def local_settings(self, root):
+        settings = root / 'biomcp/nightly.json'
+        settings.parent.mkdir(parents=True)
+        settings.write_text(json.dumps({
+            'host': 'offline-store', 'evidence_dir': str(self.store),
+            'scratch_dir': str(self.scratch_root)}))
+        for name in ('BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR'):
+            self.env.pop(name)
+
+    def test_make_uses_only_local_settings_from_config_home_or_home(self):
+        for xdg in (True, False):
+            with self.subTest(xdg=xdg):
+                config = self.root / 'config' if xdg else self.home / '.config'
+                self.local_settings(config)
+                if xdg:
+                    self.env['XDG_CONFIG_HOME'] = str(config)
+                else:
+                    self.env.pop('XDG_CONFIG_HOME')
+                result = self.run_command()
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.copied()
+                self.assertEqual(self.scratch(), [])
+                shutil.rmtree(self.store)
+
+    def test_environment_overrides_local_settings(self):
+        overrides = {name: self.env[name] for name in (
+            'BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR')}
+        self.local_settings(Path(self.env['XDG_CONFIG_HOME']))
+        overrides.update(BIOMCP_EVIDENCE_HOST='environment-store',
+                         BIOMCP_EVIDENCE_DIR=str(self.root / 'environment-evidence'),
+                         BIOMCP_SCRATCH_DIR=str(self.root / 'environment-scratch'))
+        result = self.run_command(FAKE_HOST='environment-store', **overrides)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(self.store.exists())
+        self.assertFalse(self.scratch_root.exists())
+        self.store = Path(overrides['BIOMCP_EVIDENCE_DIR'])
+        self.copied()
+        self.assertEqual(list(Path(overrides['BIOMCP_SCRATCH_DIR']).iterdir()), [])
+
+    def test_arguments_override_environment_and_local_settings(self):
+        overrides = {name: self.env[name] for name in (
+            'BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR')}
+        self.local_settings(Path(self.env['XDG_CONFIG_HOME']))
+        evidence, scratch = self.root / 'argument-evidence', self.root / 'argument-scratch'
+        result = self.run_command(
+            args=('--host', 'argument-store', '--evidence-dir', str(evidence),
+                  '--scratch-dir', str(scratch)), FAKE_HOST='argument-store', **overrides)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(self.store.exists())
+        self.assertFalse(self.scratch_root.exists())
+        self.store = evidence
+        self.copied()
+        self.assertEqual(list(scratch.iterdir()), [])
 
     def test_clean_copies_and_cleans_only_owned_scratch(self):
         unowned = self.scratch_root / 'another-run'
