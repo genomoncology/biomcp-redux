@@ -1,6 +1,7 @@
 """Reproduce the private protobuf message closure from checked, pinned local inputs."""
 import argparse
 import hashlib
+import re
 from pathlib import Path
 import subprocess
 import tempfile
@@ -20,6 +21,7 @@ HEADER = (
 
 def split_generated(text):
     """Split only between top-level generated Rust items to retain the file ceiling."""
+    text = re.sub(r"(?m)^(\s*)pub ", r"\1pub(crate) ", text)
     items, current, depth = [], [], 0
     for line in text.splitlines(keepends=True):
         current.append(line)

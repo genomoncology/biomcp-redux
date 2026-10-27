@@ -2,16 +2,16 @@
 // Copyright 2024 Google LLC. Apache-2.0; see ../../../proto/LICENSE.
 /// Response message for predicting an interval.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct PredictIntervalResponse {
+pub(crate) struct PredictIntervalResponse {
     /// The payload for the response.
     #[prost(oneof = "predict_interval_response::Payload", tags = "1, 2")]
-    pub payload: ::core::option::Option<predict_interval_response::Payload>,
+    pub(crate) payload: ::core::option::Option<predict_interval_response::Payload>,
 }
 /// Nested message and enum types in `PredictIntervalResponse`.
-pub mod predict_interval_response {
+pub(crate) mod predict_interval_response {
     /// The payload for the response.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Output for a single output type.
         #[prost(message, tag = "1")]
         Output(super::Output),
@@ -23,39 +23,39 @@ pub mod predict_interval_response {
 }
 /// Request message for predicting a variant.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct PredictVariantRequest {
+pub(crate) struct PredictVariantRequest {
     /// DNA interval to make prediction for.
     #[prost(message, optional, tag = "1")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
     /// DNA variant to make prediction for.
     #[prost(message, optional, tag = "2")]
-    pub variant: ::core::option::Option<Variant>,
+    pub(crate) variant: ::core::option::Option<Variant>,
     /// Organism to use for the prediction.
     #[prost(enumeration = "Organism", tag = "3")]
-    pub organism: i32,
+    pub(crate) organism: i32,
     /// Output types to generate predictions for.
     #[prost(enumeration = "OutputType", repeated, tag = "4")]
-    pub requested_outputs: ::prost::alloc::vec::Vec<i32>,
+    pub(crate) requested_outputs: ::prost::alloc::vec::Vec<i32>,
     /// Ontology terms to generate predictions for. If empty returns all
     /// ontologies.
     #[prost(message, repeated, tag = "5")]
-    pub ontology_terms: ::prost::alloc::vec::Vec<OntologyTerm>,
+    pub(crate) ontology_terms: ::prost::alloc::vec::Vec<OntologyTerm>,
     /// Model version to use.
     #[prost(string, tag = "6")]
-    pub model_version: ::prost::alloc::string::String,
+    pub(crate) model_version: ::prost::alloc::string::String,
 }
 /// Response message for predicting a variant.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct PredictVariantResponse {
+pub(crate) struct PredictVariantResponse {
     /// The payload for the response.
     #[prost(oneof = "predict_variant_response::Payload", tags = "1, 2, 3")]
-    pub payload: ::core::option::Option<predict_variant_response::Payload>,
+    pub(crate) payload: ::core::option::Option<predict_variant_response::Payload>,
 }
 /// Nested message and enum types in `PredictVariantResponse`.
-pub mod predict_variant_response {
+pub(crate) mod predict_variant_response {
     /// The payload for the response.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Reference output for a single output type.
         #[prost(message, tag = "1")]
         ReferenceOutput(super::Output),
@@ -71,36 +71,36 @@ pub mod predict_variant_response {
 }
 /// Request message for scoring an interval.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreIntervalRequest {
+pub(crate) struct ScoreIntervalRequest {
     /// DNA interval to make prediction for.
     #[prost(message, optional, tag = "1")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
     /// Organism to use for the prediction.
     #[prost(enumeration = "Organism", tag = "2")]
-    pub organism: i32,
+    pub(crate) organism: i32,
     /// Interval scorers to use for the prediction.
     #[prost(message, repeated, tag = "3")]
-    pub interval_scorers: ::prost::alloc::vec::Vec<IntervalScorer>,
+    pub(crate) interval_scorers: ::prost::alloc::vec::Vec<IntervalScorer>,
     /// Model version to use.
     #[prost(string, tag = "4")]
-    pub model_version: ::prost::alloc::string::String,
+    pub(crate) model_version: ::prost::alloc::string::String,
     /// Optional. If True, merge stranded gene tracks into a single unstranded
     /// track.
     #[prost(bool, tag = "5")]
-    pub merge_stranded_gene_tracks: bool,
+    pub(crate) merge_stranded_gene_tracks: bool,
 }
 /// Response message for scoring an interval.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreIntervalResponse {
+pub(crate) struct ScoreIntervalResponse {
     /// The payload for the response.
     #[prost(oneof = "score_interval_response::Payload", tags = "1, 2")]
-    pub payload: ::core::option::Option<score_interval_response::Payload>,
+    pub(crate) payload: ::core::option::Option<score_interval_response::Payload>,
 }
 /// Nested message and enum types in `ScoreIntervalResponse`.
-pub mod score_interval_response {
+pub(crate) mod score_interval_response {
     /// The payload for the response.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Score interval output.
         #[prost(message, tag = "1")]
         Output(super::ScoreIntervalOutput),
@@ -113,39 +113,39 @@ pub mod score_interval_response {
 }
 /// Request message for scoring a variant.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreVariantRequest {
+pub(crate) struct ScoreVariantRequest {
     /// DNA interval to make prediction for.
     #[prost(message, optional, tag = "1")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
     /// DNA variant to make prediction for.
     #[prost(message, optional, tag = "2")]
-    pub variant: ::core::option::Option<Variant>,
+    pub(crate) variant: ::core::option::Option<Variant>,
     /// Organism to use for the prediction.
     #[prost(enumeration = "Organism", tag = "3")]
-    pub organism: i32,
+    pub(crate) organism: i32,
     /// Variant scorers to use for the prediction.
     #[prost(message, repeated, tag = "4")]
-    pub variant_scorers: ::prost::alloc::vec::Vec<VariantScorer>,
+    pub(crate) variant_scorers: ::prost::alloc::vec::Vec<VariantScorer>,
     /// Model version to use.
     #[prost(string, tag = "5")]
-    pub model_version: ::prost::alloc::string::String,
+    pub(crate) model_version: ::prost::alloc::string::String,
     /// Optional. If True, merge stranded gene tracks into a single unstranded
     /// track.
     #[prost(bool, tag = "6")]
-    pub merge_stranded_gene_tracks: bool,
+    pub(crate) merge_stranded_gene_tracks: bool,
 }
 /// Response message for scoring a variant.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreVariantResponse {
+pub(crate) struct ScoreVariantResponse {
     /// The payload for the response.
     #[prost(oneof = "score_variant_response::Payload", tags = "1, 2")]
-    pub payload: ::core::option::Option<score_variant_response::Payload>,
+    pub(crate) payload: ::core::option::Option<score_variant_response::Payload>,
 }
 /// Nested message and enum types in `ScoreVariantResponse`.
-pub mod score_variant_response {
+pub(crate) mod score_variant_response {
     /// The payload for the response.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Score variant output.
         #[prost(message, tag = "1")]
         Output(super::ScoreVariantOutput),
@@ -158,44 +158,44 @@ pub mod score_variant_response {
 }
 /// Request message for scoring an in-silico mutagenesis (ISM) interval.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreIsmVariantRequest {
+pub(crate) struct ScoreIsmVariantRequest {
     /// DNA interval to make the prediction for.
     #[prost(message, optional, tag = "1")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
     /// ISM interval to make the prediction for.
     #[prost(message, optional, tag = "2")]
-    pub ism_interval: ::core::option::Option<Interval>,
+    pub(crate) ism_interval: ::core::option::Option<Interval>,
     /// Organism to use for the prediction.
     #[prost(enumeration = "Organism", tag = "3")]
-    pub organism: i32,
+    pub(crate) organism: i32,
     /// Variant scorers to use for the prediction.
     #[prost(message, repeated, tag = "4")]
-    pub variant_scorers: ::prost::alloc::vec::Vec<VariantScorer>,
+    pub(crate) variant_scorers: ::prost::alloc::vec::Vec<VariantScorer>,
     /// Optional variant applied to the reference interval. If provided, the
     /// alternate allele is used for in-silico mutagenesis, otherwise the
     /// unaltered reference sequence is used.
     #[prost(message, optional, tag = "6")]
-    pub interval_variant: ::core::option::Option<Variant>,
+    pub(crate) interval_variant: ::core::option::Option<Variant>,
     /// Model version to use.
     #[prost(string, tag = "5")]
-    pub model_version: ::prost::alloc::string::String,
+    pub(crate) model_version: ::prost::alloc::string::String,
     /// Optional. If True, merge stranded gene tracks into a single unstranded
     /// track.
     #[prost(bool, tag = "7")]
-    pub merge_stranded_gene_tracks: bool,
+    pub(crate) merge_stranded_gene_tracks: bool,
 }
 /// Response message for scoring an in-silico mutagenesis (ISM) interval.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreIsmVariantResponse {
+pub(crate) struct ScoreIsmVariantResponse {
     /// The payload for the response.
     #[prost(oneof = "score_ism_variant_response::Payload", tags = "1, 2")]
-    pub payload: ::core::option::Option<score_ism_variant_response::Payload>,
+    pub(crate) payload: ::core::option::Option<score_ism_variant_response::Payload>,
 }
 /// Nested message and enum types in `ScoreIsmVariantResponse`.
-pub mod score_ism_variant_response {
+pub(crate) mod score_ism_variant_response {
     /// The payload for the response.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Score variant output.
         #[prost(message, tag = "1")]
         Output(super::ScoreVariantOutput),
@@ -208,15 +208,15 @@ pub mod score_ism_variant_response {
 }
 /// Request message for getting metadata for an organism.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct MetadataRequest {
+pub(crate) struct MetadataRequest {
     /// The organism we should return metadata for.
     #[prost(enumeration = "Organism", tag = "1")]
-    pub organism: i32,
+    pub(crate) organism: i32,
 }
 /// Response message for getting metadata for an organism.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MetadataResponse {
+pub(crate) struct MetadataResponse {
     /// The metadata for each output type.
     #[prost(message, repeated, tag = "1")]
-    pub output_metadata: ::prost::alloc::vec::Vec<OutputMetadata>,
+    pub(crate) output_metadata: ::prost::alloc::vec::Vec<OutputMetadata>,
 }

@@ -6,22 +6,22 @@
 /// maximum protocol buffer message size, the tensor payload may be split into
 /// multiple chunks.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Tensor {
+pub(crate) struct Tensor {
     /// The shape of the tensor. If empty, the data will be treated as a scalar.
     #[prost(int32, repeated, tag = "1")]
-    pub shape: ::prost::alloc::vec::Vec<i32>,
+    pub(crate) shape: ::prost::alloc::vec::Vec<i32>,
     /// Data type for the elements in this tensor.
     #[prost(enumeration = "DataType", tag = "2")]
-    pub data_type: i32,
+    pub(crate) data_type: i32,
     /// The payload for the tensor.
     #[prost(oneof = "tensor::Payload", tags = "3, 4")]
-    pub payload: ::core::option::Option<tensor::Payload>,
+    pub(crate) payload: ::core::option::Option<tensor::Payload>,
 }
 /// Nested message and enum types in `Tensor`.
-pub mod tensor {
+pub(crate) mod tensor {
     /// The payload for the tensor.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// The raw data for the tensor. If present, the tensor is not split into
         /// chunks.
         #[prost(message, tag = "3")]
@@ -33,19 +33,19 @@ pub mod tensor {
 }
 /// A single chunk of a tensor.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct TensorChunk {
+pub(crate) struct TensorChunk {
     /// Flattened tensor data. Data is laid out in row-major order.
     #[prost(bytes = "vec", tag = "1")]
-    pub data: ::prost::alloc::vec::Vec<u8>,
+    pub(crate) data: ::prost::alloc::vec::Vec<u8>,
     /// How the data is compressed. Compression is applied to each chunk
     /// independently.
     #[prost(enumeration = "CompressionType", tag = "2")]
-    pub compression_type: i32,
+    pub(crate) compression_type: i32,
 }
 /// The data type of the tensor.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum DataType {
+pub(crate) enum DataType {
     /// Unspecified data type.
     Unspecified = 0,
     /// 16-bit "Brain Floating Point". See
@@ -78,7 +78,7 @@ impl DataType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "DATA_TYPE_UNSPECIFIED",
             Self::Bfloat16 => "DATA_TYPE_BFLOAT16",
@@ -95,7 +95,7 @@ impl DataType {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "DATA_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "DATA_TYPE_BFLOAT16" => Some(Self::Bfloat16),
@@ -116,7 +116,7 @@ impl DataType {
 /// Compression type for the tensor data.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum CompressionType {
+pub(crate) enum CompressionType {
     /// No compression.
     None = 0,
     /// ZSTD compression.
@@ -127,14 +127,14 @@ impl CompressionType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::None => "COMPRESSION_TYPE_NONE",
             Self::Zstd => "COMPRESSION_TYPE_ZSTD",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "COMPRESSION_TYPE_NONE" => Some(Self::None),
             "COMPRESSION_TYPE_ZSTD" => Some(Self::Zstd),
@@ -144,259 +144,259 @@ impl CompressionType {
 }
 /// Message that represents a genomic interval.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Interval {
+pub(crate) struct Interval {
     /// The chromosome name, e.g., "chr1".
     #[prost(string, tag = "1")]
-    pub chromosome: ::prost::alloc::string::String,
+    pub(crate) chromosome: ::prost::alloc::string::String,
     /// 0-based start position.
     #[prost(int64, tag = "2")]
-    pub start: i64,
+    pub(crate) start: i64,
     /// 0-based end position. Must be greater than or equal to start.
     #[prost(int64, tag = "3")]
-    pub end: i64,
+    pub(crate) end: i64,
     /// The strand of the interval.
     #[prost(enumeration = "Strand", tag = "4")]
-    pub strand: i32,
+    pub(crate) strand: i32,
 }
 /// Message that represents a genomic variant/mutation.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Variant {
+pub(crate) struct Variant {
     /// The chromosome name, e.g., "chr1".
     #[prost(string, tag = "1")]
-    pub chromosome: ::prost::alloc::string::String,
+    pub(crate) chromosome: ::prost::alloc::string::String,
     /// The 1-based position of the variant on the chromosome. Must be greater than
     /// 0.
     #[prost(int64, tag = "2")]
-    pub position: i64,
+    pub(crate) position: i64,
     /// The reference base(s) at the variant position. Normally this corresponds to
     /// the sequence in the reference genome. Must only contain characters "ACGTN".
     #[prost(string, tag = "3")]
-    pub reference_bases: ::prost::alloc::string::String,
+    pub(crate) reference_bases: ::prost::alloc::string::String,
     /// The alternate base(s) that replace the reference. For example:
     /// If sequence="ACT", position=2, reference_bases="C", alternate_bases="TG",
     /// then the alternate sequence would be "ATGT'.
     #[prost(string, tag = "4")]
-    pub alternate_bases: ::prost::alloc::string::String,
+    pub(crate) alternate_bases: ::prost::alloc::string::String,
 }
 /// A single biological ontology term.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct OntologyTerm {
+pub(crate) struct OntologyTerm {
     /// The type of ontology this term belongs to.
     #[prost(enumeration = "OntologyType", tag = "1")]
-    pub ontology_type: i32,
+    pub(crate) ontology_type: i32,
     /// The ID of the term within the ontology.
     #[prost(int64, tag = "2")]
-    pub id: i64,
+    pub(crate) id: i64,
 }
 /// Message that represents a biological sample that is used in an experiment.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Biosample {
+pub(crate) struct Biosample {
     /// Biosample type matching ENCODE conventions.
     #[prost(enumeration = "BiosampleType", tag = "1")]
-    pub r#type: i32,
+    pub(crate) r#type: i32,
     /// The name of the biosample, e.g. "T-cell".
     #[prost(string, tag = "2")]
-    pub name: ::prost::alloc::string::String,
+    pub(crate) name: ::prost::alloc::string::String,
     /// Optional stage of the biosample, e.g. "adult".
     #[prost(string, optional, tag = "3")]
-    pub stage: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) stage: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Message containing metadata for a gene score.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GeneScorerMetadata {
+pub(crate) struct GeneScorerMetadata {
     /// ENSEMBL gene identifier without version number, e.g. "ENSG00000100342".
     #[prost(string, tag = "1")]
-    pub gene_id: ::prost::alloc::string::String,
+    pub(crate) gene_id: ::prost::alloc::string::String,
     /// Optional HGNC gene symbol, e.g. "APOL1".
     #[prost(string, optional, tag = "3")]
-    pub name: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) name: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional strand of the gene.
     #[prost(enumeration = "Strand", optional, tag = "2")]
-    pub strand: ::core::option::Option<i32>,
+    pub(crate) strand: ::core::option::Option<i32>,
     /// Optional gene biotype, e.g. "protein_coding" or "lncRNA".
     #[prost(string, optional, tag = "4")]
-    pub r#type: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) r#type: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional start position for junction scores.
     #[prost(int64, optional, tag = "5")]
-    pub junction_start: ::core::option::Option<i64>,
+    pub(crate) junction_start: ::core::option::Option<i64>,
     /// Optional end position for junction scores.
     #[prost(int64, optional, tag = "6")]
-    pub junction_end: ::core::option::Option<i64>,
+    pub(crate) junction_end: ::core::option::Option<i64>,
 }
 /// Message containing metadata for a track.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TrackMetadata {
+pub(crate) struct TrackMetadata {
     /// Name of the track.
     #[prost(string, tag = "1")]
-    pub name: ::prost::alloc::string::String,
+    pub(crate) name: ::prost::alloc::string::String,
     /// Strand for the track.
     #[prost(enumeration = "Strand", tag = "2")]
-    pub strand: i32,
+    pub(crate) strand: i32,
     /// Ontology term for the track.
     #[prost(message, optional, tag = "3")]
-    pub ontology_term: ::core::option::Option<OntologyTerm>,
+    pub(crate) ontology_term: ::core::option::Option<OntologyTerm>,
     /// Biosample for the track.
     #[prost(message, optional, tag = "4")]
-    pub biosample: ::core::option::Option<Biosample>,
+    pub(crate) biosample: ::core::option::Option<Biosample>,
     /// Optional assay for the track. e.g. "polyA plus RNA-seq".
     #[prost(string, optional, tag = "5")]
-    pub assay: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) assay: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional histone mark for the track.
     #[prost(string, optional, tag = "9")]
-    pub histone_mark_code: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) histone_mark_code: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional transcription factor for the track.
     #[prost(string, optional, tag = "10")]
-    pub transcription_factor_code: ::core::option::Option<
+    pub(crate) transcription_factor_code: ::core::option::Option<
         ::prost::alloc::string::String,
     >,
     /// Optional GTEx tissue for the track.
     #[prost(string, optional, tag = "8")]
-    pub gtex_tissue: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) gtex_tissue: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional data source for the track. e.g. "encode".
     #[prost(string, optional, tag = "11")]
-    pub data_source: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) data_source: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional sequence reading endedness.
     #[prost(enumeration = "Endedness", optional, tag = "12")]
-    pub endedness: ::core::option::Option<i32>,
+    pub(crate) endedness: ::core::option::Option<i32>,
     /// Optional boolean indicating whether the track is genetically modified.
     #[prost(bool, optional, tag = "13")]
-    pub genetically_modified: ::core::option::Option<bool>,
+    pub(crate) genetically_modified: ::core::option::Option<bool>,
     /// Optional mean of the non-zero values in the track.
     #[prost(float, optional, tag = "14")]
-    pub nonzero_mean: ::core::option::Option<f32>,
+    pub(crate) nonzero_mean: ::core::option::Option<f32>,
 }
 /// Container for TrackMetadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TracksMetadata {
+pub(crate) struct TracksMetadata {
     /// Ordered list of metadata for each track.
     #[prost(message, repeated, tag = "1")]
-    pub metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
+    pub(crate) metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
 }
 /// Message containing metadata for a splice junctions.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct JunctionMetadata {
+pub(crate) struct JunctionMetadata {
     /// Name of the junction track, e.g. "Brain_Cerebellum".
     #[prost(string, tag = "1")]
-    pub name: ::prost::alloc::string::String,
+    pub(crate) name: ::prost::alloc::string::String,
     /// Ontology term for the junction track.
     #[prost(message, optional, tag = "2")]
-    pub ontology_term: ::core::option::Option<OntologyTerm>,
+    pub(crate) ontology_term: ::core::option::Option<OntologyTerm>,
     /// Biosample for the junction track.
     #[prost(message, optional, tag = "3")]
-    pub biosample: ::core::option::Option<Biosample>,
+    pub(crate) biosample: ::core::option::Option<Biosample>,
     /// Optional GTEx tissue for the junction track.
     #[prost(string, optional, tag = "4")]
-    pub gtex_tissue: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) gtex_tissue: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional data source for the track. e.g. "encode".
     #[prost(string, optional, tag = "5")]
-    pub data_source: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) data_source: ::core::option::Option<::prost::alloc::string::String>,
     /// Optional assay for the track. e.g. "polyA plus RNA-seq".
     #[prost(string, optional, tag = "6")]
-    pub assay: ::core::option::Option<::prost::alloc::string::String>,
+    pub(crate) assay: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Container for list of JunctionMetadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct JunctionsMetadata {
+pub(crate) struct JunctionsMetadata {
     /// Ordered list of metadata for each junction.
     #[prost(message, repeated, tag = "1")]
-    pub metadata: ::prost::alloc::vec::Vec<JunctionMetadata>,
+    pub(crate) metadata: ::prost::alloc::vec::Vec<JunctionMetadata>,
 }
 /// Message for storing track values and metadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TrackData {
+pub(crate) struct TrackData {
     /// Values for the track.
     #[prost(message, optional, tag = "1")]
-    pub values: ::core::option::Option<Tensor>,
+    pub(crate) values: ::core::option::Option<Tensor>,
     /// Metadata for the track. The number of metadata elements must match the last
     /// dimension of the values tensor.
     #[prost(message, repeated, tag = "2")]
-    pub metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
+    pub(crate) metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
     /// Resolution of the track data in base pairs.
     #[prost(int64, optional, tag = "3")]
-    pub resolution: ::core::option::Option<i64>,
+    pub(crate) resolution: ::core::option::Option<i64>,
     /// Optional Interval representing the genomic region.
     #[prost(message, optional, tag = "4")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
 }
 /// Message for storing splice junction values and metadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct JunctionData {
+pub(crate) struct JunctionData {
     /// Values for the splice junction for each track.
     #[prost(message, optional, tag = "1")]
-    pub values: ::core::option::Option<Tensor>,
+    pub(crate) values: ::core::option::Option<Tensor>,
     /// Metadata for the splice junction. The number of elements must match the
     /// last dimension of the values tensor.
     #[prost(message, repeated, tag = "2")]
-    pub metadata: ::prost::alloc::vec::Vec<JunctionMetadata>,
+    pub(crate) metadata: ::prost::alloc::vec::Vec<JunctionMetadata>,
     /// Predicted splice junctions. The number of elements must match the first
     /// dimensions of the values tensor.
     #[prost(message, repeated, tag = "3")]
-    pub junctions: ::prost::alloc::vec::Vec<Interval>,
+    pub(crate) junctions: ::prost::alloc::vec::Vec<Interval>,
     /// Optional Interval representing the genomic region.
     #[prost(message, optional, tag = "4")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
 }
 /// Message containing metadata for an interval prediction.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct IntervalMetadata {
+pub(crate) struct IntervalMetadata {
     /// Genomic interval.
     #[prost(message, optional, tag = "1")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
     /// Track metadata for the interval prediction.
     #[prost(message, repeated, tag = "2")]
-    pub track_metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
+    pub(crate) track_metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
     /// Gene metadata for the interval prediction.
     #[prost(message, repeated, tag = "3")]
-    pub gene_metadata: ::prost::alloc::vec::Vec<GeneScorerMetadata>,
+    pub(crate) gene_metadata: ::prost::alloc::vec::Vec<GeneScorerMetadata>,
 }
 /// Message for storing interval values and metadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct IntervalData {
+pub(crate) struct IntervalData {
     /// Values for the interval.
     #[prost(message, optional, tag = "1")]
-    pub values: ::core::option::Option<Tensor>,
+    pub(crate) values: ::core::option::Option<Tensor>,
     /// Metadata for the interval.
     #[prost(message, optional, tag = "2")]
-    pub metadata: ::core::option::Option<IntervalMetadata>,
+    pub(crate) metadata: ::core::option::Option<IntervalMetadata>,
 }
 /// Message containing metadata for a variant prediction.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VariantMetadata {
+pub(crate) struct VariantMetadata {
     /// Genomic variant.
     #[prost(message, optional, tag = "1")]
-    pub variant: ::core::option::Option<Variant>,
+    pub(crate) variant: ::core::option::Option<Variant>,
     /// Track metadata for the variant prediction.
     #[prost(message, repeated, tag = "2")]
-    pub track_metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
+    pub(crate) track_metadata: ::prost::alloc::vec::Vec<TrackMetadata>,
     /// Gene metadata for the variant prediction.
     #[prost(message, repeated, tag = "3")]
-    pub gene_metadata: ::prost::alloc::vec::Vec<GeneScorerMetadata>,
+    pub(crate) gene_metadata: ::prost::alloc::vec::Vec<GeneScorerMetadata>,
 }
 /// Message for storing variant values and metadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VariantData {
+pub(crate) struct VariantData {
     /// Values for the variant.
     #[prost(message, optional, tag = "1")]
-    pub values: ::core::option::Option<Tensor>,
+    pub(crate) values: ::core::option::Option<Tensor>,
     /// Metadata for the variant.
     #[prost(message, optional, tag = "2")]
-    pub metadata: ::core::option::Option<VariantMetadata>,
+    pub(crate) metadata: ::core::option::Option<VariantMetadata>,
 }
 /// Message for storing model outputs for a single output type.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Output {
+pub(crate) struct Output {
     /// The type of output.
     #[prost(enumeration = "OutputType", tag = "1")]
-    pub output_type: i32,
+    pub(crate) output_type: i32,
     /// The payload for the output.
     #[prost(oneof = "output::Payload", tags = "2, 3, 4")]
-    pub payload: ::core::option::Option<output::Payload>,
+    pub(crate) payload: ::core::option::Option<output::Payload>,
 }
 /// Nested message and enum types in `Output`.
-pub mod output {
+pub(crate) mod output {
     /// The payload for the output.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Track data for the output. Used in all output types except
         /// OUTPUT_TYPE_SPLICE_JUNCTIONS.
         #[prost(message, tag = "2")]
@@ -412,43 +412,43 @@ pub mod output {
 }
 /// Message for storing score interval results.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreIntervalOutput {
+pub(crate) struct ScoreIntervalOutput {
     /// Score interval data.
     #[prost(message, optional, tag = "1")]
-    pub interval_data: ::core::option::Option<IntervalData>,
+    pub(crate) interval_data: ::core::option::Option<IntervalData>,
 }
 /// Message for storing score variant results.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ScoreVariantOutput {
+pub(crate) struct ScoreVariantOutput {
     /// Score variant data.
     #[prost(message, optional, tag = "1")]
-    pub variant_data: ::core::option::Option<VariantData>,
+    pub(crate) variant_data: ::core::option::Option<VariantData>,
 }
 /// Interval scorer message for gene-mask scoring.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GeneMaskIntervalScorer {
+pub(crate) struct GeneMaskIntervalScorer {
     /// Requested output type.
     #[prost(enumeration = "OutputType", tag = "1")]
-    pub requested_output: i32,
+    pub(crate) requested_output: i32,
     /// Requested width.
     #[prost(int64, optional, tag = "2")]
-    pub width: ::core::option::Option<i64>,
+    pub(crate) width: ::core::option::Option<i64>,
     /// Requested aggregation type.
     #[prost(enumeration = "IntervalAggregationType", tag = "3")]
-    pub aggregation_type: i32,
+    pub(crate) aggregation_type: i32,
 }
 /// Container message for all interval scorers.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct IntervalScorer {
+pub(crate) struct IntervalScorer {
     /// The interval scorer payload.
     #[prost(oneof = "interval_scorer::Scorer", tags = "1")]
-    pub scorer: ::core::option::Option<interval_scorer::Scorer>,
+    pub(crate) scorer: ::core::option::Option<interval_scorer::Scorer>,
 }
 /// Nested message and enum types in `IntervalScorer`.
-pub mod interval_scorer {
+pub(crate) mod interval_scorer {
     /// The interval scorer payload.
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
-    pub enum Scorer {
+    pub(crate) enum Scorer {
         /// Gene mask scorer.
         #[prost(message, tag = "1")]
         GeneMask(super::GeneMaskIntervalScorer),
@@ -456,38 +456,38 @@ pub mod interval_scorer {
 }
 /// Variant scorer message for center mask scoring.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct CenterMaskScorer {
+pub(crate) struct CenterMaskScorer {
     /// The width of the mask around the variant.
     #[prost(int64, optional, tag = "1")]
-    pub width: ::core::option::Option<i64>,
+    pub(crate) width: ::core::option::Option<i64>,
     /// The aggregation type.
     #[prost(enumeration = "AggregationType", tag = "2")]
-    pub aggregation_type: i32,
+    pub(crate) aggregation_type: i32,
     /// Requested output type.
     #[prost(enumeration = "OutputType", tag = "3")]
-    pub requested_output: i32,
+    pub(crate) requested_output: i32,
 }
 /// Variant scorer message for gene-mask scoring based on log fold change.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GeneMaskLfcScorer {
+pub(crate) struct GeneMaskLfcScorer {
     /// Requested output type.
     #[prost(enumeration = "OutputType", tag = "1")]
-    pub requested_output: i32,
+    pub(crate) requested_output: i32,
 }
 /// Variant scorer message for gene-mask scoring based on active allele counts.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GeneMaskActiveScorer {
+pub(crate) struct GeneMaskActiveScorer {
     /// Requested output type.
     #[prost(enumeration = "OutputType", tag = "1")]
-    pub requested_output: i32,
+    pub(crate) requested_output: i32,
 }
 /// Variant scorer message for gene-mask scoring for splicing.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GeneMaskSplicingScorer {
+pub(crate) struct GeneMaskSplicingScorer {
     /// The width of the mask around the variant.
     #[prost(int64, optional, tag = "1")]
-    pub width: ::core::option::Option<i64>,
+    pub(crate) width: ::core::option::Option<i64>,
     /// Requested output type.
     #[prost(enumeration = "OutputType", tag = "2")]
-    pub requested_output: i32,
+    pub(crate) requested_output: i32,
 }

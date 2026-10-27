@@ -35,6 +35,7 @@ def main():
             "tests/cases",
             "crates/biomcp/tests/runner",
             "crates/biomcp-types",
+            "crates/biomcp-fetch",
         ):
             shutil.copytree(ROOT / name, root / name)
         result = check(root)

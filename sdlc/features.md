@@ -181,4 +181,4 @@ store-coexistence: Allowed bundle reads import only names missing from the curre
 
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory. Cases: `crates/biomcp/tests/runner/skill.rs`.
 
-stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Cases: `crates/biomcp-fetch/tests/tensors.rs`.
+stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Contracts: `biomcp-fetch/tensors`.

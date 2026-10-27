@@ -12,14 +12,6 @@ pub use tensor::{DataType, Tensor, TensorStream};
     dead_code,
     reason = "Retain the complete pinned generated provider import closure"
 )]
-#[allow(
-    missing_docs,
-    reason = "Provider generation preserves upstream documentation verbatim"
-)]
-#[allow(
-    clippy::all,
-    reason = "Generated protobuf implementations follow the pinned prost generator"
-)]
 mod proto {
     include!("grpc/generated/mod.rs");
 }

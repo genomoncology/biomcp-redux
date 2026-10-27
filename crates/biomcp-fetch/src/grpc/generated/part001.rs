@@ -2,25 +2,25 @@
 // Copyright 2024 Google LLC. Apache-2.0; see ../../../proto/LICENSE.
 /// Variant scorer message for polyadenylation QTLs (paQTLs).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct PolyadenylationScorer {}
+pub(crate) struct PolyadenylationScorer {}
 /// Variant scorer message for splice junction scoring.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SpliceJunctionScorer {}
+pub(crate) struct SpliceJunctionScorer {}
 /// Variant scorer message for contact map scoring.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ContactMapScorer {}
+pub(crate) struct ContactMapScorer {}
 /// Container message for all variant scorers.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct VariantScorer {
+pub(crate) struct VariantScorer {
     /// The variant scorer payload.
     #[prost(oneof = "variant_scorer::Scorer", tags = "1, 2, 3, 4, 5, 6, 7")]
-    pub scorer: ::core::option::Option<variant_scorer::Scorer>,
+    pub(crate) scorer: ::core::option::Option<variant_scorer::Scorer>,
 }
 /// Nested message and enum types in `VariantScorer`.
-pub mod variant_scorer {
+pub(crate) mod variant_scorer {
     /// The variant scorer payload.
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
-    pub enum Scorer {
+    pub(crate) enum Scorer {
         /// Center mask scorer.
         #[prost(message, tag = "1")]
         CenterMask(super::CenterMaskScorer),
@@ -46,19 +46,19 @@ pub mod variant_scorer {
 }
 /// Message containing metadata for an output type.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct OutputMetadata {
+pub(crate) struct OutputMetadata {
     /// The output type.
     #[prost(enumeration = "OutputType", tag = "1")]
-    pub output_type: i32,
+    pub(crate) output_type: i32,
     /// The payload for the output metadata.
     #[prost(oneof = "output_metadata::Payload", tags = "2, 3")]
-    pub payload: ::core::option::Option<output_metadata::Payload>,
+    pub(crate) payload: ::core::option::Option<output_metadata::Payload>,
 }
 /// Nested message and enum types in `OutputMetadata`.
-pub mod output_metadata {
+pub(crate) mod output_metadata {
     /// The payload for the output metadata.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Track metadata for the output. Used in all output types except
         /// OUTPUT_TYPE_SPLICE_JUNCTIONS.
         #[prost(message, tag = "2")]
@@ -72,7 +72,7 @@ pub mod output_metadata {
 /// Defines the possible strands for a DNA sequence.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum Strand {
+pub(crate) enum Strand {
     /// Unspecified strand.
     Unspecified = 0,
     /// The forward strand (5' to 3')
@@ -87,7 +87,7 @@ impl Strand {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "STRAND_UNSPECIFIED",
             Self::Positive => "STRAND_POSITIVE",
@@ -96,7 +96,7 @@ impl Strand {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "STRAND_UNSPECIFIED" => Some(Self::Unspecified),
             "STRAND_POSITIVE" => Some(Self::Positive),
@@ -109,7 +109,7 @@ impl Strand {
 /// Supported ontology types.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum OntologyType {
+pub(crate) enum OntologyType {
     /// Unspecified ontology type.
     Unspecified = 0,
     /// Cell Line Ontology.
@@ -128,7 +128,7 @@ impl OntologyType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "ONTOLOGY_TYPE_UNSPECIFIED",
             Self::Clo => "ONTOLOGY_TYPE_CLO",
@@ -139,7 +139,7 @@ impl OntologyType {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "ONTOLOGY_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "ONTOLOGY_TYPE_CLO" => Some(Self::Clo),
@@ -155,7 +155,7 @@ impl OntologyType {
 /// <https://www.encodeproject.org/profiles/biosample_type.>
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum BiosampleType {
+pub(crate) enum BiosampleType {
     /// Unspecified biosample type.
     Unspecified = 0,
     /// Primary cell sample.
@@ -176,7 +176,7 @@ impl BiosampleType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "BIOSAMPLE_TYPE_UNSPECIFIED",
             Self::PrimaryCell => "BIOSAMPLE_TYPE_PRIMARY_CELL",
@@ -190,7 +190,7 @@ impl BiosampleType {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "BIOSAMPLE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "BIOSAMPLE_TYPE_PRIMARY_CELL" => Some(Self::PrimaryCell),
@@ -208,7 +208,7 @@ impl BiosampleType {
 /// Enumeration of all the available types of outputs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum OutputType {
+pub(crate) enum OutputType {
     /// Unspecified output type.
     Unspecified = 0,
     /// ATAC-seq tracks capturing chromatin accessibility.
@@ -241,7 +241,7 @@ impl OutputType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "OUTPUT_TYPE_UNSPECIFIED",
             Self::Atac => "OUTPUT_TYPE_ATAC",
@@ -258,7 +258,7 @@ impl OutputType {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "OUTPUT_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "OUTPUT_TYPE_ATAC" => Some(Self::Atac),
@@ -280,7 +280,7 @@ impl OutputType {
 /// taxonomy ID.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum Organism {
+pub(crate) enum Organism {
     /// Unspecified organism.
     Unspecified = 0,
     /// Human (Homo sapiens).
@@ -293,7 +293,7 @@ impl Organism {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "ORGANISM_UNSPECIFIED",
             Self::HomoSapiens => "ORGANISM_HOMO_SAPIENS",
@@ -301,7 +301,7 @@ impl Organism {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "ORGANISM_UNSPECIFIED" => Some(Self::Unspecified),
             "ORGANISM_HOMO_SAPIENS" => Some(Self::HomoSapiens),
@@ -313,7 +313,7 @@ impl Organism {
 /// Enum indicating the type of interval scorer aggregation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum IntervalAggregationType {
+pub(crate) enum IntervalAggregationType {
     /// Unspecified aggregation type.
     Unspecified = 0,
     /// Mean across positions.
@@ -326,7 +326,7 @@ impl IntervalAggregationType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "INTERVAL_AGGREGATION_TYPE_UNSPECIFIED",
             Self::Mean => "INTERVAL_AGGREGATION_TYPE_MEAN",
@@ -334,7 +334,7 @@ impl IntervalAggregationType {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "INTERVAL_AGGREGATION_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "INTERVAL_AGGREGATION_TYPE_MEAN" => Some(Self::Mean),
@@ -346,7 +346,7 @@ impl IntervalAggregationType {
 /// Enum indicating the type of variant scorer aggregation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum AggregationType {
+pub(crate) enum AggregationType {
     /// Unspecified aggregation type.
     Unspecified = 0,
     /// Difference of means, i.e. mean(ALT) - mean(REF).
@@ -376,7 +376,7 @@ impl AggregationType {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "AGGREGATION_TYPE_UNSPECIFIED",
             Self::DiffMean => "AGGREGATION_TYPE_DIFF_MEAN",
@@ -390,7 +390,7 @@ impl AggregationType {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "AGGREGATION_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "AGGREGATION_TYPE_DIFF_MEAN" => Some(Self::DiffMean),
@@ -408,7 +408,7 @@ impl AggregationType {
 /// Enum indicating the endedness of a track experiment.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
-pub enum Endedness {
+pub(crate) enum Endedness {
     /// Unspecified endedness.
     Unspecified = 0,
     /// Single end.
@@ -421,7 +421,7 @@ impl Endedness {
     ///
     /// The values are not transformed in any way and thus are considered stable
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
+    pub(crate) fn as_str_name(&self) -> &'static str {
         match self {
             Self::Unspecified => "ENDEDNESS_UNSPECIFIED",
             Self::Single => "ENDEDNESS_SINGLE",
@@ -429,7 +429,7 @@ impl Endedness {
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+    pub(crate) fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "ENDEDNESS_UNSPECIFIED" => Some(Self::Unspecified),
             "ENDEDNESS_SINGLE" => Some(Self::Single),
@@ -440,36 +440,36 @@ impl Endedness {
 }
 /// Request message for predicting a sequence.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct PredictSequenceRequest {
+pub(crate) struct PredictSequenceRequest {
     /// DNA sequence to make prediction for. Must only contain characters "ACGTN".
     #[prost(string, tag = "1")]
-    pub sequence: ::prost::alloc::string::String,
+    pub(crate) sequence: ::prost::alloc::string::String,
     /// Organism to use for the prediction.
     #[prost(enumeration = "Organism", tag = "2")]
-    pub organism: i32,
+    pub(crate) organism: i32,
     /// Ontology terms to generate predictions for. If empty returns all
     /// ontologies.
     #[prost(message, repeated, tag = "3")]
-    pub ontology_terms: ::prost::alloc::vec::Vec<OntologyTerm>,
+    pub(crate) ontology_terms: ::prost::alloc::vec::Vec<OntologyTerm>,
     /// Output types to generate predictions for.
     #[prost(enumeration = "OutputType", repeated, tag = "4")]
-    pub requested_outputs: ::prost::alloc::vec::Vec<i32>,
+    pub(crate) requested_outputs: ::prost::alloc::vec::Vec<i32>,
     /// Model version to use.
     #[prost(string, tag = "5")]
-    pub model_version: ::prost::alloc::string::String,
+    pub(crate) model_version: ::prost::alloc::string::String,
 }
 /// Response message for predicting a sequence.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct PredictSequenceResponse {
+pub(crate) struct PredictSequenceResponse {
     /// The payload for the response.
     #[prost(oneof = "predict_sequence_response::Payload", tags = "1, 2")]
-    pub payload: ::core::option::Option<predict_sequence_response::Payload>,
+    pub(crate) payload: ::core::option::Option<predict_sequence_response::Payload>,
 }
 /// Nested message and enum types in `PredictSequenceResponse`.
-pub mod predict_sequence_response {
+pub(crate) mod predict_sequence_response {
     /// The payload for the response.
     #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Payload {
+    pub(crate) enum Payload {
         /// Output for a single output type.
         #[prost(message, tag = "1")]
         Output(super::Output),
@@ -481,21 +481,21 @@ pub mod predict_sequence_response {
 }
 /// Request message for predicting an interval.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct PredictIntervalRequest {
+pub(crate) struct PredictIntervalRequest {
     /// DNA interval to make prediction for.
     #[prost(message, optional, tag = "1")]
-    pub interval: ::core::option::Option<Interval>,
+    pub(crate) interval: ::core::option::Option<Interval>,
     /// Organism to use for the prediction.
     #[prost(enumeration = "Organism", tag = "2")]
-    pub organism: i32,
+    pub(crate) organism: i32,
     /// Output types to generate predictions for.
     #[prost(enumeration = "OutputType", repeated, tag = "3")]
-    pub requested_outputs: ::prost::alloc::vec::Vec<i32>,
+    pub(crate) requested_outputs: ::prost::alloc::vec::Vec<i32>,
     /// Ontology terms to generate predictions for. If empty returns all
     /// ontologies.
     #[prost(message, repeated, tag = "4")]
-    pub ontology_terms: ::prost::alloc::vec::Vec<OntologyTerm>,
+    pub(crate) ontology_terms: ::prost::alloc::vec::Vec<OntologyTerm>,
     /// Model version to use.
     #[prost(string, tag = "5")]
-    pub model_version: ::prost::alloc::string::String,
+    pub(crate) model_version: ::prost::alloc::string::String,
 }
