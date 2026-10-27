@@ -280,22 +280,32 @@ def deliver(scratch, host, evidence_dir):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', default=os.environ.get('BIOMCP_EVIDENCE_HOST'))
-    parser.add_argument('--evidence-dir', type=Path,
-                        default=os.environ.get('BIOMCP_EVIDENCE_DIR'))
-    parser.add_argument('--scratch-dir', type=Path,
-                        default=os.environ.get('BIOMCP_SCRATCH_DIR'))
+    config_home = Path(os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config')
+    settings_path = config_home / 'biomcp/nightly.json'
+    try:
+        settings = json.loads(settings_path.read_text()) if settings_path.exists() else {}
+        if not isinstance(settings, dict) or any(not isinstance(value, str)
+                                                for value in settings.values()):
+            raise ValueError('expected an object of string settings')
+    except (OSError, ValueError) as error:
+        parser.error('invalid nightly settings at ' + str(settings_path) + ': ' + str(error))
+    parser.add_argument('--host', default=os.environ.get(
+        'BIOMCP_EVIDENCE_HOST', settings.get('host')))
+    parser.add_argument('--evidence-dir',
+                        default=os.environ.get('BIOMCP_EVIDENCE_DIR', settings.get('evidence_dir')))
+    parser.add_argument('--scratch-dir',
+                        default=os.environ.get('BIOMCP_SCRATCH_DIR', settings.get('scratch_dir')))
     args = parser.parse_args()
-    if not args.host or args.evidence_dir is None or args.scratch_dir is None:
+    if not args.host or not args.evidence_dir or not args.scratch_dir:
         parser.error('supply --host, --evidence-dir and --scratch-dir or their BIOMCP environment settings')
-    scratch_root = args.scratch_dir
+    scratch_root = Path(args.scratch_dir)
     scratch_root.mkdir(parents=True, exist_ok=True)
     scratch = Path(tempfile.mkdtemp(prefix=datetime.datetime.now(
         datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ-'), dir=scratch_root))
     print('Owned scratch: ' + str(scratch), flush=True)
     try:
         failed = run_check(scratch)
-        deliver(scratch, args.host, args.evidence_dir)
+        deliver(scratch, args.host, Path(args.evidence_dir))
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         print('Nightly check failed; retained scratch: ' + str(scratch) + ': ' + str(error),
               file=sys.stderr)

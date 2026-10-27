@@ -1,6 +1,7 @@
 # 0310 — Give the scheduled nightly live check its evidence settings from local config
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a50197fa4aa26533e66648c557ea3ce952737840
 
 Milestone: 5
 
