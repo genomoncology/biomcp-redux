@@ -92,7 +92,7 @@ jobs:
         if: runner.os == 'Linux'
         env:
           BUILD_IMAGE: ${{ matrix.image }}
-        run: sh release/linux.sh
+        run: make release-linux
       - name: Compare the candidate schemas with the released baseline
         if: matrix.platform == 'manylinux_2_28_x86_64'
         run: make schema-release-check

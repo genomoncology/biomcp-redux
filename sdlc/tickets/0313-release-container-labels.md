@@ -1,6 +1,7 @@
 # 0313 — Let the caller supply container labels to the Linux release build
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 718a4d70aea2fa5b27659495b121afd53123a0c0
 
 Milestone: 5
 
