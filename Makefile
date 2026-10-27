@@ -38,7 +38,7 @@ docs-check:
 	python3 -m unittest release.test_installer
 .PHONY: release-artifacts
 release-artifacts:
-	sh release/matrix.sh
+	sh release/matrix.sh $(CONTAINER_ARGS)
 
 .PHONY: nightly-live-check
 nightly-live-check:

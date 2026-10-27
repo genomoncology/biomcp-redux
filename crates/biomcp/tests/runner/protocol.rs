@@ -472,7 +472,7 @@ const DISCOVERY_WORDS: &[&str] = &[
 fn discovery_description(text: &str) -> Check {
     writeln!(std::io::stdout(), "MCP_DESCRIPTION_BYTES={}", text.len())
         .map_err(|e| e.to_string())?;
-    // The PM approved j15878 measured 3840 bytes plus fifteen percent.
+    // The output budget uses j15878 measured 3840 bytes plus fifteen percent.
     if text.len() > 4416 {
         return Err("command description exceeds budget".into());
     }

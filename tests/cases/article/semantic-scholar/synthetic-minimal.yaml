@@ -101,6 +101,6 @@
       "max_tokens": 465
     }
   ],
-  "verified": "Measured CLI output on Gator at43f22fd: 1616,1616 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",
+  "verified": "Measured CLI output at43f22fd: 1616,1616 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",
   "live_check": "synthetic or recorded failure proof; no live refresh"
 }

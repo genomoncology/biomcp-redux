@@ -3,7 +3,7 @@ use super::super::mcp;
 use super::*;
 // Complete discovery envelopes measured in j15006, with fifteen percent headroom.
 const CLI_HELP_BYTES: usize = 91228;
-// PM ruling 2026-10-26: j15358 compact RPC 7945 bytes plus fifteen percent.
+// Reviewed output budget 2026-10-26: j15358 compact RPC 7945 bytes plus fifteen percent.
 const MCP_TOOLS_BYTES: usize = 9137;
 pub(super) fn run() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
