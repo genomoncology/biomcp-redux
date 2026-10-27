@@ -270,16 +270,10 @@ fn empty_recovery() -> Check {
         };
         assert_eq!(steps.len(), expected.len());
         for (step, source) in steps.iter().zip(expected) {
-            let mut args = vec![
-                "search",
-                "article",
-                "--gene",
-                "KRAS",
-                "--source",
-                source,
-                "--variant",
-                "G12C",
-            ];
+            let mut args = vec!["search", "article", "--gene", "KRAS", "--variant", "G12C"];
+            if source != "pubmed" {
+                args.splice(4..4, ["--source", source]);
+            }
             if disabled {
                 args.splice(0..0, ["--disable-sources", "europepmc"]);
             }
