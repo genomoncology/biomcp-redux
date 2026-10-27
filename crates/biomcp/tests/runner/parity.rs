@@ -57,6 +57,8 @@ struct Selection {
     #[serde(default)]
     source_free: bool,
     #[serde(default)]
+    stored_only: bool,
+    #[serde(default)]
     baseline_exit: i32,
     #[serde(default)]
     baseline_stream: execution::JsonStream,
@@ -173,7 +175,11 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     }
     let facts = rows
         .iter()
-        .filter_map(|r| r.get("facts").and_then(Value::as_array))
+        .flat_map(|r| {
+            ["facts", "mcp_facts"]
+                .into_iter()
+                .filter_map(|name| r.get(name).and_then(Value::as_array))
+        })
         .flatten()
         .collect::<Vec<_>>();
     let gaps = facts
@@ -287,6 +293,10 @@ fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Resu
     {
         return Err("selected assertion missing from harvested case".into());
     }
+    validate_baseline(selection, step)?;
+    Ok(case)
+}
+fn validate_baseline(selection: &Selection, step: &Step) -> Result<(), String> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let table =
         fs::read_to_string(root.join(&selection.spelling_table)).map_err(|e| e.to_string())?;
@@ -302,7 +312,7 @@ fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Resu
     }
     registry::validate(selection)?;
     request::validate_command(selection, step)?;
-    Ok(case)
+    Ok(())
 }
 fn compare(
     selection: &Selection,

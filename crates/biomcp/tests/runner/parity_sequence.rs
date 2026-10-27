@@ -115,6 +115,7 @@ pub(super) fn compare(
         previous = current.get("parsed").cloned();
         rows.push(json!({"case":sequence.case,"step":selection.step,
             "evidence_directory":directory,"candidate":current,"baseline":released,
+            "mcp_facts":current.get("mcp").map(|mcp| super::facts(step, selection, &released, mcp)).transpose()?,
             "facts":super::facts(step, selection, &released, &current)?}));
     }
     match guard.finish() {
@@ -182,6 +183,14 @@ fn execute(
             "assessment_error",
             json!("not every planned page executed"),
         )?;
+    }
+    let mcp = exchanges
+        .iter()
+        .filter_map(|exchange| exchange.get("mcp").cloned())
+        .collect::<Vec<_>>();
+    if !mcp.is_empty() {
+        let reply = aggregate(&mcp, step.walk.as_ref().map(|walk| walk.items.as_str()))?;
+        execution::field(&mut current, "mcp", reply)?;
     }
     execution::field(&mut current, "exchanges", json!(exchanges))?;
     let baseline = aggregate(&released, selection.baseline_items.as_deref())?;

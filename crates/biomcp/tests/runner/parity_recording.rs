@@ -43,7 +43,7 @@ pub(super) fn baseline_in(
     env: &Environment,
 ) -> Result<Value, String> {
     let registry = registry::load()?;
-    let bodies = if selection.source_free {
+    let bodies = if selection.source_free || selection.stored_only {
         Vec::new()
     } else {
         bodies(&selection.recordings, replay, out, index)?
@@ -75,7 +75,11 @@ pub(super) fn baseline_in(
         serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    if requests.is_empty() && !selection.source_free && result.get("assessment_error").is_none() {
+    if requests.is_empty()
+        && !selection.source_free
+        && !selection.stored_only
+        && result.get("assessment_error").is_none()
+    {
         execution::field(
             &mut result,
             "assessment_error",
