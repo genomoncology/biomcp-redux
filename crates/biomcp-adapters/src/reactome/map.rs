@@ -60,14 +60,11 @@ pub(super) fn card(
         None
     };
     let references = if summary {
-        match row.literature_reference {
-            Some(rows) => Some(
-                rows.into_iter()
-                    .map(|row| literature(row, problems))
-                    .collect(),
-            ),
-            None => None,
-        }
+        row.literature_reference.map(|rows| {
+            rows.into_iter()
+                .map(|row| literature(row, problems))
+                .collect()
+        })
     } else {
         None
     };
