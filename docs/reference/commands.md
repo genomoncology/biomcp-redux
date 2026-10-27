@@ -4728,7 +4728,7 @@ Usage: biomcp key set [OPTIONS] <source>
 
 Arguments:
   <source>
-          [possible values: ncbi, semantic-scholar, orcid, oncokb, nci, openfda]
+          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
@@ -4769,7 +4769,7 @@ Usage: biomcp key remove [OPTIONS] <source>
 
 Arguments:
   <source>
-          [possible values: ncbi, semantic-scholar, orcid, oncokb, nci, openfda]
+          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
@@ -5069,7 +5069,7 @@ Usage: biomcp help key [OPTIONS] <source>
 
 Arguments:
   <source>
-          [possible values: ncbi, semantic-scholar, orcid, oncokb, nci, openfda]
+          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
@@ -7860,6 +7860,11 @@ Show credential registration and environment fallback names.
 
 
 ## biomcp help key oncokb
+
+Show credential registration and environment fallback names.
+
+
+## biomcp help key alphagenome
 
 Show credential registration and environment fallback names.
 
