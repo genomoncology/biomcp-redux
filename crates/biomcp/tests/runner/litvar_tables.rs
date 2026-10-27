@@ -31,6 +31,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("article/litvar/response-boundaries", || {
             boundaries().map_err(|e| e.to_string().into())
         }),
+        Trial::test("article/litvar/empty-recovery", || {
+            empty_recovery().map_err(|e| e.to_string().into())
+        }),
         Trial::test("article/litvar/source-failures", || {
             failures().map_err(|e| e.to_string().into())
         }),
@@ -244,4 +247,36 @@ fn boundary_edit(source: &str, record: &mut Value, kind: &str) {
             body["pmids_count"] = json!(12000);
         }
     }
+}
+
+fn empty_recovery() -> Check {
+    for disabled in [false, true] {
+        let mut args = KRAS.to_vec();
+        if disabled {
+            args.extend(["--disable-sources", "europepmc"]);
+        }
+        let output = checked_case(
+            "article/litvar/kras-g12c",
+            &args,
+            |source, record| boundary_edit(source, record, "empty"),
+            json!({"/status":"absent", "/result/items":{"count":0},
+                "/result/candidates":{"count":0}}),
+            1,
+        )?;
+        let steps = output["next"].as_array().ok_or("missing recovery steps")?;
+        let expected = if disabled { vec!["pubmed"] } else { vec!["europepmc", "pubmed"] };
+        assert_eq!(steps.len(), expected.len());
+        for (step, source) in steps.iter().zip(expected) {
+            let mut args = vec!["search", "article", "--gene", "KRAS", "--source", source,
+                "--variant", "G12C"];
+            if disabled {
+                args.splice(0..0, ["--disable-sources", "europepmc"]);
+            }
+            assert_eq!(step["args"], json!(args));
+        }
+        assert_eq!(output["sources"][1]["notices"][0]["kind"], "litvar_rsid_hint");
+        assert_eq!(output["sources"][1]["notices"][0]["message"],
+            "If you have an rsID, look it up in LitVar with --variant RSID --source litvar.");
+    }
+    Ok(())
 }
