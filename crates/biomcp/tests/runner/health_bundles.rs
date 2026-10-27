@@ -102,7 +102,7 @@ fn reachable() -> Check {
     let capture: Value =
         serde_json::from_slice(&std::fs::read(file.path()).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
-    if capture["method"] != "HEAD"
+    if capture.get("method").and_then(Value::as_str) != Some("HEAD")
         || capture.get("post").is_some()
         || capture.pointer("/exchanges/0/body/value") != Some(&json!(""))
     {
