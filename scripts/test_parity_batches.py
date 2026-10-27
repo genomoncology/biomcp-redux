@@ -101,9 +101,10 @@ def inventory(out):
     report = json.loads(destination.read_text())
     classes = report['classes']
     assert report['unsafe_plans'] == classes.get('unclassified', 0) == 0, classes
-    pending = classes.get('pending_family', 0)
-    assert pending == report['assessment_gaps']
-    assert (result.returncode != 0) == (pending > 0)
+    gaps = classes.get('pending_family', 0) + classes.get('sequence_gap', 0)
+    assert gaps == report['assessment_gaps']
+    assert gaps == sum(row['gaps'] for row in report['cases'])
+    assert (result.returncode != 0) == (gaps > 0)
     owners = {}
     for row in report['cases']:
         if row['class'] == 'pending_family':
