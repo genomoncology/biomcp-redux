@@ -245,7 +245,8 @@ fn fetch_parity(
         let cap = match args.get(1).map(String::as_str) {
             Some("article") => 6289,
             Some("trial") => 5047,
-            _ => 2451,
+            // Literal Markdown projection: j17918 measured 2459 bytes plus 15%.
+            _ => 2828,
         };
         bounded(&fetched, cap)?;
         if fetched.get("metadata") != Some(&cli_get)

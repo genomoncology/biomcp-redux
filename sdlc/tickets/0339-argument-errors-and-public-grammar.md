@@ -1,6 +1,7 @@
 # 0339 — Name bad arguments and give the public grammar complete descriptions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cf00bd804f1bcaea3eba0d5b0883baaee7d9478c
 
 Milestone: 5
 

@@ -234,7 +234,9 @@ fn measure_native(env: &Environment, globals: &[String], args: &[String]) -> Res
         });
     if !output.status.success()
         || markdown.trim().is_empty()
-        || identities.into_iter().any(|id| !markdown.contains(id))
+        || identities
+            .into_iter()
+            .any(|id| !markdown.contains(&super::source_terms::text::escape(id)))
     {
         return Err(format!("protein Markdown failed for {args:?}"));
     }

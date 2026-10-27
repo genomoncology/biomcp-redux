@@ -28,6 +28,7 @@ pub const PREDICT_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
 /// Ruled legacy scorer method, admitted only after complete checked terminal success.
 pub const SCORE_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
     .grpc(biomcp_fetch::grpc::alphagenome::SCORE_VARIANT)
+    .bounded(biomcp_fetch::grpc::alphagenome::SCORE_LIMITS)
     .checked(
         biomcp_fetch::grpc::alphagenome::SCORE_SCHEMA,
         biomcp_fetch::Freshness::Never,
