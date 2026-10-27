@@ -262,6 +262,7 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
         "fn reason(error: RequestError) -> Reason { match error { RequestError::Source(e) => e.reason, _ => Reason::Unavailable } }",
         "match reply { Err(RequestError::Source(e)) => Section::unavailable(source, e.reason), Err(_) => Section::unavailable(source, Reason::Unavailable) }",
         "match error { RequestError::Source(SourceError { reason, .. }) => reason, _ => Reason::Unavailable }",
+        "let reason = if let biomcp_fetch::RequestError::Source(e) = error { e.reason } else { Reason::Unavailable };",
     ] {
         fs::write(source.join("section.rs"), copied)?;
         if super::reasons::check(root.path()).is_ok() {
@@ -270,7 +271,7 @@ fn request_reason_mapping_cannot_be_copied() -> Check {
     }
     fs::write(
         source.join("section.rs"),
-        "if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) { absent() }",
+        "if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) { absent() }\nif let RequestError::Source(e) = error { if e.reason == Reason::NotFound { absent() } }",
     )?;
     super::reasons::check(root.path())
 }

@@ -16,15 +16,7 @@ pub(super) fn check(root: &Path) -> Check {
             let Some((binding, after)) = tail.split_once(')') else {
                 continue;
             };
-            let arm = after
-                .strip_prefix("=>")
-                .or_else(|| after.strip_prefix(")=>"));
-            if arm.is_some_and(|arm| {
-                arm.split("=>")
-                    .next()
-                    .is_some_and(|body| body.contains(&format!("{binding}.reason")))
-                    || binding.starts_with("SourceError{") && arm.starts_with("reason")
-            }) {
+            if copied_reason(binding, after) {
                 return Err(format!(
                     "{}: map request reasons through status::reason",
                     path.display()
@@ -34,4 +26,24 @@ pub(super) fn check(root: &Path) -> Check {
         }
     }
     Ok(())
+}
+
+fn copied_reason(binding: &str, after: &str) -> bool {
+    let field = format!("{binding}.reason");
+    let arm = after
+        .strip_prefix("=>")
+        .or_else(|| after.strip_prefix(")=>"));
+    if let Some(arm) = arm {
+        return arm
+            .split("=>")
+            .next()
+            .is_some_and(|body| body.contains(&field))
+            || binding.starts_with("SourceError{") && arm.starts_with("reason");
+    }
+    after
+        .strip_prefix('=')
+        .and_then(|condition| condition.split_once('{'))
+        .is_some_and(|(_, body)| {
+            body.starts_with(&field) || body.starts_with(&format!("Some({field})"))
+        })
 }
