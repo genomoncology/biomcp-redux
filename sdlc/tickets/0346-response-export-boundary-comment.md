@@ -1,6 +1,7 @@
 # 0346 — Explain the two response export sites where a developer adds a type
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ddf056e349706ae0c3a6eaa18db36553c40252f9
 
 Milestone: 5
 

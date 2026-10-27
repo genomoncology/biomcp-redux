@@ -44,8 +44,10 @@ pub(crate) fn command(
 
 pub(crate) fn bytes(bytes: &[u8]) -> io::Result<()> {
     let mut stdout = io::stdout().lock();
-    stdout.write_all(bytes)?;
-    stdout.flush()
+    match stdout.write_all(bytes).and_then(|()| stdout.flush()) {
+        Err(error) if error.kind() == io::ErrorKind::BrokenPipe => Ok(()),
+        result => result,
+    }
 }
 
 pub(crate) fn diagnostic(message: &'static [u8]) {

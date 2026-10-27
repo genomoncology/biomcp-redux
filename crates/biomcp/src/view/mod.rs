@@ -67,7 +67,7 @@ impl View<'_> {
             return;
         };
         for (name, value) in fields {
-            if name == "schema" {
+            if name == "schema" || (name == "query" && value.is_null()) {
                 continue;
             }
             let node = property(schema, name, self.root).unwrap_or(&Value::Null);
