@@ -23,7 +23,7 @@ pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
 
 fn results(registry: &Registry) -> Result<(), String> {
     let good = json!({"schema":"biomcp.error/1", "status":"usage",
-        "error":{"code":"usage.schema","message":"expected schema <known artifact id>"}});
+        "error":{"code":"usage.schema","message":"use biomcp schema to list known artifact IDs"}});
     let args = vec!["unknown".into()];
     registry.validate(&good, &args, false)?;
     let mut rows = vec![

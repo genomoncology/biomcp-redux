@@ -50,6 +50,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
             .collect();
         let sections = section_words(&schema);
         commands.push(HelpCommand {
+            reply_schemas: crate::schema::replies(id, verb, entity),
             command: vec![verb.into(), entity.into()],
             description: command_description(verb, entity, &schema),
             arguments,
@@ -68,6 +69,11 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
+    for command in &mut commands {
+        if command.reply_schemas.is_empty() {
+            command.reply_schemas = crate::schema::local_replies(&command.command);
+        }
+    }
     Ok(commands)
 }
 const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. \
@@ -108,8 +114,8 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Synchronize a local source bundle.",
         ),
         (
-            vec!["schema", "<artifact id>"],
-            "Print a checked-in schema artifact.",
+            vec!["schema", "[artifact id]"],
+            "List every schema identity and description, or print one schema artifact.",
         ),
         (
             vec!["help", "[COMMAND...]"],
@@ -135,6 +141,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         ),
     ] {
         commands.push(HelpCommand {
+            reply_schemas: Vec::new(),
             command: command.into_iter().map(String::from).collect(),
             description: description.into(),
             arguments: Vec::new(),
@@ -148,6 +155,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         biomcp_fetch::SecretName::ALL
             .iter()
             .map(|name| HelpCommand {
+                reply_schemas: Vec::new(),
                 command: vec!["help".into(), "key".into(), name.source().into()],
                 description: "Show credential registration and environment fallback names.".into(),
                 arguments: Vec::new(),
@@ -160,6 +168,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
 fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for &bundle in crate::grammar::BUNDLE_HELP {
         commands.push(HelpCommand {
+            reply_schemas: Vec::new(),
             command: vec!["sync".into(), bundle.into()],
             description: if bundle == "wikipathways" {
                 "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a \
@@ -516,6 +525,7 @@ fn network(setting: &str) -> Help {
     };
     Help {
         commands: vec![HelpCommand {
+            reply_schemas: crate::schema::local_replies(&["help".into()]),
             command: vec!["help".into(), "network".into(), setting.into()],
             description: description.into(),
             arguments: Vec::new(),

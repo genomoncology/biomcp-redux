@@ -6,7 +6,7 @@ use biomcp_types::{Reason, SourceOutcome};
 use sha2::{Digest, Sha256};
 type Saved = (biodata::MaudeReport, Vec<SourceOutcome>);
 fn key(query: &AdverseEventGet) -> Vec<u8> {
-    Sha256::digest(format!("biomcp.maude_snapshot/1\0{}", query.id()).as_bytes()).to_vec()
+    Sha256::digest(format!("biomcp.maude-snapshot/1\0{}", query.id()).as_bytes()).to_vec()
 }
 pub(super) fn load(
     cx: &Ctx<'_>,

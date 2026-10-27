@@ -1,3 +1,5 @@
+mod catalog;
+pub use catalog::{SchemaCatalog, SchemaEntry};
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{

@@ -86,7 +86,7 @@ fn execute<'a>(
     let text_disabled = cx.fetch.disabled(Source::PmcOa);
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Database)?;
-    let key = Sha256::digest([b"biomcp.article_evidence/1\0".as_slice(), &identity].concat());
+    let key = Sha256::digest([b"biomcp.article-evidence/1\0".as_slice(), &identity].concat());
     let mut restored = false;
     let mut snapshot = if let Some(id) = query.pool() {
         match store.evidence(id.as_str(), &key, |source| cx.fetch.disabled(source))? {

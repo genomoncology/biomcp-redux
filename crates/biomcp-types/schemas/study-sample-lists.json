@@ -716,7 +716,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.study_sample_lists/1",
+  "$id": "biomcp.study-sample-lists/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -773,7 +773,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.study_sample_lists/1",
+      "const": "biomcp.study-sample-lists/1",
       "type": "string"
     },
     "sources": {

@@ -1209,7 +1209,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_label/3",
+  "$id": "biomcp.drug-label/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1266,7 +1266,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_label/3",
+      "const": "biomcp.drug-label/3",
       "type": "string"
     },
     "sources": {

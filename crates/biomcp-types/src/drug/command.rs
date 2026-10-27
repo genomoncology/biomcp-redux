@@ -21,6 +21,7 @@ impl schemars::JsonSchema for DrugGetCommand {
             }
             properties.insert("input".into(), input);
         }
+        schema.insert("x-reply-query-titles".into(), serde_json::json!([<super::DrugWhoGet as schemars::JsonSchema>::schema_name()]));
         schema
     }
 }

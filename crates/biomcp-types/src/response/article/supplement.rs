@@ -144,6 +144,6 @@ pub struct ArticleSupplementResult {
     pub content: Section<SupplementContent>,
 }
 impl super::super::ResponseBody for ArticleSupplementResult {
-    const SCHEMA: &'static str = "biomcp.article_supplement/3";
+    const SCHEMA: &'static str = "biomcp.article-supplement/3";
     type Query = crate::ArticleSupplement;
 }

@@ -1373,7 +1373,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_targets/3",
+  "$id": "biomcp.drug-targets/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1430,7 +1430,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_targets/3",
+      "const": "biomcp.drug-targets/3",
       "type": "string"
     },
     "sources": {

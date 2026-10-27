@@ -40,7 +40,7 @@
       "max_bytes": 4080,
       "max_tokens": 1020,
       "expect": {
-        "/schema": "biomcp.diagnostic_page/2",
+        "/schema": "biomcp.diagnostic-page/2",
         "/page/total": 8,
         "/page/returned": 5,
         "/result/items/0/header/id": "GTR000006692.3",

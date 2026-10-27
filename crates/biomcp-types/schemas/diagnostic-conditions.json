@@ -796,7 +796,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic_conditions/2",
+  "$id": "biomcp.diagnostic-conditions/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -853,7 +853,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic_conditions/2",
+      "const": "biomcp.diagnostic-conditions/2",
       "type": "string"
     },
     "sources": {

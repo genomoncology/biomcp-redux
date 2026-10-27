@@ -848,7 +848,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx_diplotype/1",
+  "$id": "biomcp.pgx-diplotype/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -905,7 +905,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx_diplotype/1",
+      "const": "biomcp.pgx-diplotype/1",
       "type": "string"
     },
     "sources": {

@@ -53,7 +53,7 @@ singleton! {
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
- SchemaUsage => "expected schema <known artifact id>",
+ SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
  Local => "local configuration, cache or recording failed",
 

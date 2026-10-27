@@ -13,7 +13,7 @@ pub(super) struct Saved {
 }
 fn key(q: &AuthorPapersQuery) -> Result<Vec<u8>, RequestError> {
     serde_json::to_vec(&(
-        "biomcp.author_papers_snapshot/1",
+        "biomcp.author-papers-snapshot/1",
         q.id(),
         q.section(),
         q.limit(),

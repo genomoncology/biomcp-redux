@@ -41,6 +41,9 @@ fn dispatch_using(
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     )>,
 ) -> io::Result<Outcome> {
+    if args == [OsString::from("schema")] {
+        return encode(Envelope::new(Status::Complete, (), Some(crate::schema::catalog())), crate::exit::Status::Success);
+    }
     if let [command, name] = args
         && command == "schema"
         && let Some(text) = name.to_str().and_then(crate::schema::find)

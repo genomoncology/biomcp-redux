@@ -19,7 +19,7 @@
         "faers"
       ],
       "expect": {
-        "/schema": "biomcp.adverse_event_page/2",
+        "/schema": "biomcp.adverse-event-page/2",
         "/status": "failed",
         "/query/source": "faers",
         "/query/limit": 5,

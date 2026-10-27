@@ -1103,7 +1103,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas_page/3",
+  "$id": "biomcp.gwas-page/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1160,7 +1160,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas_page/3",
+      "const": "biomcp.gwas-page/3",
       "type": "string"
     },
     "sources": {

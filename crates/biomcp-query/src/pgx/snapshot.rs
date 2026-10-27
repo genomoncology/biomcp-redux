@@ -8,7 +8,7 @@ type Saved = (PgxAnnotations, Vec<SourceOutcome>);
 fn key(q: &PgxGet) -> Vec<u8> {
     Sha256::digest(
         format!(
-            "biomcp.clinpgx_annotations/1\0{}\0{}",
+            "biomcp.clinpgx-annotations/1\0{}\0{}",
             q.gene(),
             q.kind()
                 .map(PgxAnnotationKind::as_str)
