@@ -358,9 +358,12 @@ impl ErrorEnvelope {
     }
     /// Name a grammar-owned argument without retaining its rejected value.
     pub fn argument(option: Box<str>) -> Self {
-        let mut out = Self::arguments();
-        out.error.option = Some(option);
-        out
+        Self::arguments().with_argument(option)
+    }
+    /// Attach a grammar-owned identity while preserving fixed command guidance.
+    pub fn with_argument(mut self, option: Box<str>) -> Self {
+        self.error.option = Some(option);
+        self
     }
     /// Direct composite readers to independently paged named sections.
     pub fn cell_line_all_paging() -> Self {

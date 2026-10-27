@@ -32,6 +32,7 @@ fn invoke(args: &[&str], exit: i32) -> Result<Value, String> {
 fn errors() -> Result<(), String> {
     for (args, option) in [
         (vec!["get", "gene"], "input"),
+        (vec!["search", "trial", "--limit", "0"], "--limit"),
         (
             vec!["search", "trial", "--limit", "private-sentinel"],
             "--limit",
