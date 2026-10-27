@@ -115,9 +115,8 @@ fn root() -> PathBuf {
 #[test]
 fn reference_matches_grammar() -> Check {
     for (name, expected) in documents()? {
-        assert_eq!(
-            fs::read_to_string(root().join(name))?,
-            expected,
+        assert!(
+            fs::read_to_string(root().join(name))? == expected,
             "{name}: run make docs-generate"
         );
     }
