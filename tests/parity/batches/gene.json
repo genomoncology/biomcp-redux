@@ -2053,8 +2053,8 @@
     "unprojectable": [
       {
         "case": "gene/absent.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        "reason": "Released gene get has no HGNC resolution object or global source lifecycle list. A missing symbol falls through alias discovery and then a NotFound error, without a card carrying the current absent lifecycle and not_found resolution facts. Replacing that error with a fabricated resolution object would invent the asserted fields.",
+        "release_source": "src/cli/gene/dispatch.rs::render_gene_card_outcome;src/cli/shared.rs::try_alias_fallback_outcome;src/entities/gene.rs::Gene"
       },
       {
         "case": "gene/ensembl-id.yaml",
@@ -2108,8 +2108,8 @@
       },
       {
         "case": "gene/sections/expression-not-applicable.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression;src/entities/gene.rs::Gene"
+        "reason": "Released hpa returns an empty Human Protein Atlas section when Ensembl is missing; it has no HGNC-based not_applicable distinction. Released expression refers to GTEx rather than HPA. Gene cards also lack the asserted aggregate lifecycle status and global source lifecycle list, so these assertions have no equivalent released facts.",
+        "release_source": "src/entities/gene.rs::fetch_hpa_section;src/entities/gene.rs::Gene;src/entities/section_outcome.rs::SectionOutcome"
       },
       {
         "case": "gene/sections/mir21.yaml",
@@ -2118,8 +2118,8 @@
       },
       {
         "case": "gene/sections/pathways-mir21.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene_type is a MyGene type string, not the HGNC locus-group classification. No released selector derives the asserted classification. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources"
+        "reason": "Released gene pathways searches Reactome by symbol regardless of whether HGNC lists a UniProt accession. It cannot establish the asserted no-accession not_applicable state. Its MyGene gene_type is not the asserted HGNC locus_group, and Gene has neither aggregate lifecycle status nor the global source lifecycle list.",
+        "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
       },
       {
         "case": "gene/sections/protein-mir21.yaml",
