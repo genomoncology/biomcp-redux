@@ -49,6 +49,9 @@ impl Bypass {
                 port: None,
             }));
         }
+        if text.contains("://") || (!text.starts_with('[') && text.matches(':').count() > 1) {
+            return Ok(None);
+        }
         let (suffix, bare, text) = if let Some(rest) = text.strip_prefix("*.") {
             (true, false, rest)
         } else if let Some(rest) = text.strip_prefix('.') {
