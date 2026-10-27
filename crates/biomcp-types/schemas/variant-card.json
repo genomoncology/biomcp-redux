@@ -1596,6 +1596,7 @@
       "type": "object"
     },
     "Contig": {
+      "description": "A source chromosome or scaffold name without spelling normalization.",
       "pattern": "^[\\x21-\\x7e]{1,255}$",
       "type": "string"
     },
