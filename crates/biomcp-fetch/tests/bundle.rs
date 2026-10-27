@@ -314,7 +314,6 @@ fn independent_holders_contend_and_takeover_fences_the_old_publisher() {
     );
     assert!(!std::path::Path::new(&old_path).exists());
 }
-
 #[test]
 fn bundle_source_and_storage_boundaries_are_checked_before_requests() {
     let server = support::Server::<()>::new();
