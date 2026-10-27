@@ -21,8 +21,7 @@
         "/status": "usage"
       },
       "full_output_bytes": true,
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     }
   ]
 }

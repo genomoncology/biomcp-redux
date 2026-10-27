@@ -1,6 +1,7 @@
 {
   "$defs": {
     "HpId": {
+      "description": "Exact Human Phenotype Ontology identifier with seven decimal digits.",
       "pattern": "^HP:[0-9]{7}$",
       "type": "string"
     },

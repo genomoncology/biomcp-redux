@@ -1,6 +1,7 @@
 {
   "$id": "biodata.scv-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": " A ClinVar submission accession.",
   "pattern": "^SCV[0-9]{9}(\\.[1-9][0-9]*)?$",
   "title": "ScvId",
   "type": "string"

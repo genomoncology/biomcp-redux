@@ -18,8 +18,7 @@
         "/status": "complete",
         "/result/items/0/id": "HP:0000001"
       },
-      "max_bytes": 1057,
-      "max_tokens": 265
+      "max_bytes": 1057
     },
     {
       "run": [
@@ -36,8 +35,7 @@
         "/status": "complete",
         "/result/term/definition": "Complete synthetic definition"
       },
-      "max_bytes": 973,
-      "max_tokens": 244
+      "max_bytes": 973
     },
     {
       "run": [
@@ -59,8 +57,7 @@
         "/query/limit": 1,
         "/result/items/0/id": "HP:0000001"
       },
-      "max_bytes": 1057,
-      "max_tokens": 265
+      "max_bytes": 1057
     },
     {
       "run": [
@@ -82,8 +79,7 @@
         "/result/term/source": "monarch",
         "/result/term/description": "Complete synthetic description"
       },
-      "max_bytes": 1458,
-      "max_tokens": 365
+      "max_bytes": 1458
     }
   ]
 }

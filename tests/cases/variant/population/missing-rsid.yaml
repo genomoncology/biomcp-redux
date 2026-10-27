@@ -27,8 +27,7 @@
           "excludes": "gwas"
         }
       },
-      "max_bytes": 935,
-      "max_tokens": 234
+      "max_bytes": 935
     }
   ]
 }

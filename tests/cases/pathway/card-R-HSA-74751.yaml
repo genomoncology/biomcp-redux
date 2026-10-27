@@ -27,8 +27,7 @@
         "/result/pathway/version": "R-HSA-74751.5",
         "/result/release": "97"
       },
-      "max_bytes": 704,
-      "max_tokens": 176
+      "max_bytes": 704
     },
     {
       "run": [
@@ -47,8 +46,7 @@
         "/status": "complete",
         "/result/pathway/references/0/pubmed": "11282018"
       },
-      "max_bytes": 1261,
-      "max_tokens": 316
+      "max_bytes": 1261
     }
   ]
 }

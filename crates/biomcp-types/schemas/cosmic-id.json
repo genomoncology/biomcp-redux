@@ -1,6 +1,7 @@
 {
   "$id": "biodata.cosmic-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A COSMIC genomic, legacy transcript or noncoding variant identifier; its kind is retained.",
   "pattern": "^COS[VMN][1-9][0-9]*$",
   "title": "CosmicId",
   "type": "string"

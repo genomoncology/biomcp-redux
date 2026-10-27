@@ -274,5 +274,16 @@ fn cache_path_using(home: Option<PathBuf>) -> Option<PathBuf> {
     reason = "The settings boundary resolves the running executable"
 )]
 pub(crate) fn executable() -> std::io::Result<PathBuf> {
-    std::env::current_exe()
+    let executable = std::env::current_exe()?;
+    let Some(path) = variable("PATH") else {
+        return Ok(executable);
+    };
+    let identity = executable.canonicalize()?;
+    for directory in std::env::split_paths(&path) {
+        let candidate = directory.join(format!("biomcp{}", std::env::consts::EXE_SUFFIX));
+        if candidate.canonicalize().is_ok_and(|path| path == identity) {
+            return std::path::absolute(candidate);
+        }
+    }
+    Ok(executable)
 }

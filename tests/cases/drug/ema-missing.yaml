@@ -27,8 +27,7 @@
           "ema"
         ]
       },
-      "max_bytes": 263,
-      "max_tokens": 66
+      "max_bytes": 263
     }
   ],
   "replay": "drug/ema-synthetic"

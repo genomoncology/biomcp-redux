@@ -16,8 +16,7 @@
         "/status": "complete",
         "/result/rows": 9
       },
-      "max_bytes": 179,
-      "max_tokens": 45
+      "max_bytes": 179
     },
     {
       "run": [
@@ -52,8 +51,7 @@
           }
         }
       },
-      "max_bytes": 672,
-      "max_tokens": 168
+      "max_bytes": 672
     },
     {
       "run": [
@@ -84,8 +82,7 @@
           }
         }
       },
-      "max_bytes": 605,
-      "max_tokens": 152
+      "max_bytes": 605
     },
     {
       "run": [
@@ -139,8 +136,7 @@
           }
         }
       },
-      "max_bytes": 1425,
-      "max_tokens": 357
+      "max_bytes": 1425
     },
     {
       "run": [
@@ -175,8 +171,7 @@
         "/result/interactions/data/records/0/partner/id": "DDInter5",
         "/result/interactions/data/offset": 1
       },
-      "max_bytes": 1456,
-      "max_tokens": 365
+      "max_bytes": 1456
     },
     {
       "run": [
@@ -204,8 +199,7 @@
           "count": 1
         }
       },
-      "max_bytes": 1546,
-      "max_tokens": 387
+      "max_bytes": 1546
     },
     {
       "run": [
@@ -259,7 +253,6 @@
         "/sources/0/reason": "disabled"
       },
       "max_bytes": 235,
-      "max_tokens": 59,
       "exit": 4,
       "is_error": true
     },
@@ -278,8 +271,7 @@
         "/status": "complete",
         "/result/rows": 9
       },
-      "max_bytes": 179,
-      "max_tokens": 45
+      "max_bytes": 179
     }
   ]
 }
