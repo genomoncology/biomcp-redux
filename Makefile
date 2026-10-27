@@ -2,7 +2,7 @@
 
 .PHONY: landing-gate fmt lint ratchets test audit coverage unreached
 
-landing-gate: docs-check fmt lint tensor-proto-check coverage audit
+landing-gate: docs-check fmt lint tensor-proto-check coverage audit secrets
 
 fmt:
 	cargo fmt --all -- --check
@@ -17,7 +17,7 @@ test:
 	cargo test --workspace --locked
 
 audit:
-	cargo deny --locked check licenses advisories
+	cargo deny --locked check licenses advisories bans sources
 
 coverage: ratchets
 	sh scripts/coverage.sh run
@@ -38,7 +38,7 @@ docs-check:
 	python3 scripts/test_coverage.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks release.test_gate
-	python3 -m unittest release.test_workflow
+	python3 -m unittest release.test_workflow release.test_security
 .PHONY: release-linux
 release-linux:
 	sh release/linux.sh $(CONTAINER_ARGS)
@@ -73,3 +73,7 @@ parity-inventory:
 .PHONY: tensor-proto-check
 tensor-proto-check:
 	python3 scripts/regenerate_tensor_proto.py --check
+
+.PHONY: secrets
+secrets:
+	python3 release/secrets.py history .
