@@ -6,15 +6,7 @@ mod tensor;
 pub use bounds::Limits;
 pub use tensor::{DataType, Tensor, TensorStream};
 
-// The complete pinned closure is retained for future RPC adapters. Its messages
-// remain private; callers pass encoded tensor payloads through the checked codec.
-#[allow(
-    dead_code,
-    reason = "Retain the complete pinned generated provider import closure"
-)]
-mod proto {
-    include!("grpc/generated/mod.rs");
-}
+mod proto;
 
 /// A codec failure never contains provider bytes or metadata.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -1,8 +1,15 @@
 use super::{Check, dependencies, rust_files};
 use std::{collections::BTreeSet, fs, path::Path};
 
+// The sole dead-code exception contains only the private generated closure include.
+const GENERATED_PROTO: &str = "crates/biomcp-fetch/src/grpc/proto.rs";
+
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
+    (
+        GENERATED_PROTO,
+        "Retain the complete pinned generated provider import closure",
+    ),
     (
         "crates/biomcp-adapters/src/monarch/native_contracts.rs",
         "Locate and read retained external bodies only inside the ignored private mapper contract",
@@ -161,9 +168,8 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             .collect();
         let suppression = attribute.iter().any(|v| matches!(*v, "allow" | "expect"));
         if suppression
-            && attribute
-                .iter()
-                .any(|v| matches!(*v, "dead_code" | "unused_imports"))
+            && (attribute.contains(&"unused_imports")
+                || attribute.contains(&"dead_code") && path != GENERATED_PROTO)
         {
             return fail(path, "dead_code and unused_imports suppressions forbidden");
         }
@@ -171,6 +177,21 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             && (!EXCEPTIONS.iter().any(|(file, _)| *file == path) || !attribute.contains(&"reason"))
         {
             return fail(path, "lint exception requires listed location and reason");
+        }
+        if path == GENERATED_PROTO && suppression {
+            let after = tail.iter().position(|v| v == "]").map(|i| &tail[i + 1..]);
+            let only_include = ["include", "!", "(", "\"generated/mod.rs\"", ")", ";"];
+            if !attribute.contains(&"dead_code")
+                || attribute
+                    .iter()
+                    .any(|v| matches!(*v, "unused" | "warnings"))
+                || after.is_none_or(|v| v.iter().map(String::as_str).ne(only_include))
+            {
+                return fail(
+                    path,
+                    "generated exception requires only the private closure include",
+                );
+            }
         }
         if path.starts_with("crates/biomcp-adapters/")
             && path.ends_with("/raw.rs")

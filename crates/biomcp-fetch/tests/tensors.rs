@@ -2,7 +2,15 @@
 use biomcp_fetch::grpc::{CodecError, Limits, TensorStream};
 
 fn chunk(data: &[u8], compression: u8) -> Vec<u8> {
-    let mut bytes = vec![10, u8::try_from(data.len()).unwrap()];
+    let mut bytes = vec![10];
+    let mut length = data.len();
+    loop {
+        bytes.push((length & 127) as u8 | if length > 127 { 128 } else { 0 });
+        length >>= 7;
+        if length == 0 {
+            break;
+        }
+    }
     bytes.extend_from_slice(data);
     bytes.extend_from_slice(&[16, compression]);
     bytes
@@ -109,6 +117,17 @@ fn stream_tensors_caps_zstd_output_and_window() {
         data
     );
     assert!(stream.finish().is_ok());
+    // The same valid frame must fail when its declared decoding window exceeds policy.
+    let limits = Limits {
+        zstd_window_log: 10,
+        ..Limits::default()
+    };
+    let mut stream = TensorStream::new(limits).unwrap();
+    stream.descriptor(&[10, 1, 1, 16, 2, 32, 1]).unwrap();
+    assert_eq!(
+        stream.chunk(&chunk(&compressed, 1)).unwrap_err(),
+        CodecError::BadReply
+    );
 }
 
 #[test]
@@ -220,4 +239,39 @@ fn stream_tensors_refuses_duplicate_unknown_truncated_and_interleaved_messages()
         stream.descriptor(&[10, 1, 1, 16, 2, 32, 1]).unwrap();
         assert_eq!(stream.chunk(&bytes).unwrap_err(), CodecError::BadReply);
     }
+}
+
+#[test]
+fn stream_tensors_checks_all_scalar_widths_and_shape_overflow() {
+    // feature: stream-tensors
+    for (dtype, width) in [
+        (1, 2),
+        (2, 4),
+        (3, 8),
+        (4, 1),
+        (5, 4),
+        (6, 8),
+        (7, 1),
+        (8, 4),
+        (9, 8),
+        (10, 1),
+        (11, 2),
+    ] {
+        let mut stream = TensorStream::new(Limits::default()).unwrap();
+        stream.descriptor(&[10, 1, 1, 16, dtype, 32, 1]).unwrap();
+        let tensor = stream.chunk(&chunk(&vec![0; width], 0)).unwrap().unwrap();
+        assert_eq!(tensor.data_type().width(), width);
+        assert!(stream.finish().is_ok());
+    }
+    let mut bytes = vec![10, 40];
+    for _ in 0..8 {
+        bytes.extend_from_slice(&[255, 255, 255, 255, 7]);
+    }
+    bytes.extend_from_slice(&[16, 3, 32, 1]);
+    let limits = Limits {
+        dimension: i32::MAX as usize,
+        ..Limits::default()
+    };
+    let mut stream = TensorStream::new(limits).unwrap();
+    assert_eq!(stream.descriptor(&bytes).unwrap_err(), CodecError::BadReply);
 }
