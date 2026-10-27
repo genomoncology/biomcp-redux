@@ -9,14 +9,19 @@ pub(super) fn trials() -> Vec<Trial> {
         fallbacks().map_err(|error| error.to_string().into())
     })];
     if cfg!(unix) {
-        trials.push(Trial::test("housekeeping/config-survives-symlink-upgrade", || {
-            upgrade().map_err(|error| error.to_string().into())
-        }));
+        trials.push(Trial::test(
+            "housekeeping/config-survives-symlink-upgrade",
+            || upgrade().map_err(|error| error.to_string().into()),
+        ));
     }
     trials
 }
 
-fn configuration(env: &Environment, program: &Path, path: Option<&Path>) -> Check<std::path::PathBuf> {
+fn configuration(
+    env: &Environment,
+    program: &Path,
+    path: Option<&Path>,
+) -> Check<std::path::PathBuf> {
     let args = vec!["mcp-config".into(), "--offline".into()];
     let mut command = env.command(program, &args);
     if let Some(path) = path {
@@ -26,8 +31,11 @@ fn configuration(env: &Environment, program: &Path, path: Option<&Path>) -> Chec
     }
     let output = command.output()?;
     let value: Value = serde_json::from_str(success(&output)?)?;
-    Ok(value.pointer("/mcpServers/biomcp/command")
-        .and_then(Value::as_str).ok_or("missing executable")?.into())
+    Ok(value
+        .pointer("/mcpServers/biomcp/command")
+        .and_then(Value::as_str)
+        .ok_or("missing executable")?
+        .into())
 }
 
 fn fallbacks() -> Check {
@@ -42,7 +50,10 @@ fn fallbacks() -> Check {
         }
     }
     // A second installation can have identical bytes while naming a different file.
-    fs::copy(&executable, bin.join(format!("biomcp{}", std::env::consts::EXE_SUFFIX)))?;
+    fs::copy(
+        &executable,
+        bin.join(format!("biomcp{}", std::env::consts::EXE_SUFFIX)),
+    )?;
     if configuration(&env, &executable, Some(&bin))? != executable {
         return Err("a different installation replaced the running executable".into());
     }
