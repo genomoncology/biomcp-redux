@@ -172,8 +172,8 @@ fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     let mut witnesses = Vec::new();
-    for (cases, help) in [(EXAMPLE_CASES, true), (GUIDE_CASES, false)] {
-        for &(file, index) in cases {
+    for (entries, help) in [(EXAMPLE_CASES, true), (GUIDE_CASES, false)] {
+        for &(file, index) in entries {
             let path = cases.join(file);
             println!("cargo:rerun-if-changed={}", path.display());
             let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
