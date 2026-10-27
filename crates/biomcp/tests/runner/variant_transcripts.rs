@@ -5,10 +5,15 @@ use serde_json::{Value, json};
 use std::fs;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "variant-search/source-transcripts-and-matched-notation",
-        || transcripts().map_err(Into::into),
-    )]
+    vec![
+        Trial::test(
+            "variant-search/source-transcripts-and-matched-notation",
+            || transcripts().map_err(Into::into),
+        ),
+        Trial::test("variant/source-coding-transcript-match", || {
+            coding().map_err(Into::into)
+        }),
+    ]
 }
 fn transcripts() -> Result<(), String> {
     let stub = Stub::for_source("myvariant.info", "application/json", reply)?;
@@ -92,6 +97,32 @@ fn transcripts() -> Result<(), String> {
     stub.finish()?;
     Ok(())
 }
+// Feature: variant-identity. A coding request matches only the identical source transcript version.
+fn coding() -> Result<(), String> {
+    let stub = Stub::for_sources(
+        &["myvariant.info", "reg.genome.network"],
+        |_| "application/json",
+        reply,
+    )?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let ca = env.root().join("synthetic-ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
+        .map_err(|e| e.to_string())?;
+    for (notation, expected) in [
+        ("NM_001199291.2:c.1619A>G", true),
+        ("NM_001199291.3:c.1619A>G", false),
+    ] {
+        let value = run(&env, &["get", "variant", notation])?;
+        if value.pointer("/result/candidates/0/transcripts/1/matched") != Some(&json!(expected)) {
+            return Err(format!(
+                "coding source match ignored transcript version: {value}"
+            ));
+        }
+    }
+    stub.finish()?;
+    Ok(())
+}
 fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
     let args = args.iter().map(|v| (*v).into()).collect::<Vec<_>>();
     let out = env
@@ -104,6 +135,13 @@ fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
     serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())
 }
 fn reply(request: &str) -> Result<String, String> {
+    if request.starts_with("GET /allele?") {
+        // Synthetic resolver identity; genomic and transcript strings below come from the public witness.
+        return Ok(json!({"@id":"http://reg.genome.network/allele/CA99999999",
+            "genomicAlleles":[{"chromosome":"5","referenceGenome":"GRCh37",
+                "hgvs":["NC_000005.9:g.118860951A>G"],
+                "coordinates":[{"start":118860950,"end":118860951,"referenceAllele":"A","allele":"G"}]}]}).to_string());
+    }
     // Source-paired values retained by the public 0.9.3 HSD17B4 witness.
     let hit = json!({"_id":"chr5:g.118860951A>G","chrom":"5",
     "hg19":{"start":118860951,"end":118860951},
