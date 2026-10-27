@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from release.smoke import environment
 import secrets
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -158,6 +159,75 @@ class Screening(unittest.TestCase):
                 link.type, link.linkname = tarfile.SYMTYPE, "/outside/fixture"
                 archive.addfile(link)
             self.assertEqual(screen().returncode, 0, "container links must be screened without dereferencing")
+
+    def test_history_exceptions_require_the_exact_blob_rule_line_and_commit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            tools, repo = root / "tools", root / "repo"
+            tools.mkdir()
+            repo.mkdir()
+            for name in ["secrets.py", "smoke.py"]:
+                shutil.copy2(ROOT / "release" / name, tools / name)
+            env = {**environment(root), "PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1"}
+            def git(*args):
+                return subprocess.check_output(["git", "-C", str(repo), *args], env=env, stderr=subprocess.DEVNULL).decode().strip()
+            git("init", "--quiet")
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            git("commit", "--quiet", "--allow-empty", "-m", "Initial fixture")
+            empty = git("rev-parse", "HEAD")
+            token = "ghp_" + secrets.token_hex(18)
+            path = "tests/replies/credential.json"
+            file = repo / path
+            file.parent.mkdir(parents=True)
+            file.write_text('api_key = "' + token + '"\n')
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Add fixture")
+            base = {"commit": git("rev-parse", "HEAD"), "blob": git("rev-parse", "HEAD:" + path),
+                    "file": path, "line": 1, "reason": "Synthetic exact-binding refusal fixture."}
+            entries = [{**base, "rule": rule} for rule in ["github-pat", "generic-api-key"]]
+            ignore = tools / "secrets.ignore.jsonl"
+            def screen(records, expected):
+                ignore.write_text("".join(json.dumps(row) + "\n" for row in records))
+                result = subprocess.run([sys.executable, str(tools / "secrets.py"), "history", str(repo),
+                                         "--cache", str(ROOT / "target/security-tools")],
+                                        cwd=ROOT, env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, expected, "exact history binding changed behavior")
+                self.assertNotIn(token, result.stdout + result.stderr)
+            screen(entries, 0)
+            screen([{**r, "line": 2} for r in entries], 1)
+            screen([{**r, "rule": "unrelated-rule"} for r in entries], 1)
+            screen([{**r, "commit": empty} for r in entries], 2)
+            file.write_text(file.read_text() + "changed blob\n")
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Change the same path")
+            screen(entries, 1)
+
+    def test_working_tree_patterns_do_not_allow_other_fields_or_accessions(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            path = root / "tests/replies/trial/fixture.json"
+            path.parent.mkdir(parents=True)
+            cursor = secrets.token_urlsafe(29)
+            digest = secrets.token_hex(32)
+            env = {**environment(root), "PATH": os.defpath}
+            def screen(expected):
+                result = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), "artifacts", str(root)],
+                                        cwd=ROOT, env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, expected, "fixture regex changed the scanner boundary")
+                return result
+            path.write_text(json.dumps({"nextPageToken": cursor, "request_key": digest}))
+            screen(0)
+            token = "ghp_" + secrets.token_hex(18)
+            path.write_text(json.dumps({"nextPageToken": cursor, "request_key": digest, "api_key": token}))
+            rejected = screen(1)
+            self.assertNotIn(token, rejected.stdout + rejected.stderr)
+            path.unlink()
+            cell = root / "tests/fixtures/cell-line/native/portable-cellosaurus-cell-CVCL_0004.json"
+            cell.parent.mkdir(parents=True)
+            cell.write_text(json.dumps({"xref-list": [{"database": "Fixture", "accession": token}]}))
+            rejected = screen(1)
+            self.assertNotIn(token, rejected.stdout + rejected.stderr)
 
     def test_audit_denies_an_unknown_git_source_after_successful_resolution(self):
         with tempfile.TemporaryDirectory() as temporary:
