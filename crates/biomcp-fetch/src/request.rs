@@ -159,7 +159,7 @@ impl Leg<'_> {
         } else {
             format!("{}{}", self.spec.base.trim_end_matches('/'), ep.path)
         };
-        let (url, body) = if ep.method == Method::Get {
+        let (url, body) = if matches!(ep.method, Method::Get | Method::Head) {
             (
                 crate::retry::canonical(&url, params, self.spec.key),
                 Vec::new(),
@@ -390,7 +390,7 @@ impl Leg<'_> {
                 self.spec.source,
                 &prepared.identity,
                 &prepared.url,
-                prepared.post.as_ref(),
+                prepared.recording(),
                 codec.limit.unwrap_or(self.fetch.config.max_body),
             )
             .map_err(|error| {
@@ -427,7 +427,9 @@ impl Leg<'_> {
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
         let fetched = crate::cache::now();
         let recording = matches!(self.fetch.mode, crate::Mode::Record { .. });
-        let body = self.read_body(
+        let body = if prepared.method == Method::Head {
+            Vec::new()
+        } else { self.read_body(
             &mut response,
             status,
             recording
@@ -436,7 +438,7 @@ impl Leg<'_> {
                 || codec.json_rejections && matches!(status, 400 | 422)
                 || codec.json_absence && status == 404,
             codec.limit.unwrap_or(self.fetch.config.max_body),
-        )?;
+        )? };
         let wire = Wire {
             fetched,
             status,
@@ -505,7 +507,7 @@ impl Leg<'_> {
             self.spec.source,
             &prepared.identity,
             &prepared.url,
-            prepared.post.as_ref(),
+            prepared.recording(),
             exchange,
         )
     }
