@@ -88,3 +88,12 @@ fn bad() -> RequestError {
     }
     .into()
 }
+
+/// Small publisher landing page, never a validity or dosage export.
+pub(crate) const HEALTH_PATH: &str = "/kb";
+/// Both source-owned stored files are required for complete local readiness.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    Ok(leg
+        .stored_bundle_state(&VALIDITY)?
+        .with(leg.stored_bundle_state(&DOSAGE)?))
+}

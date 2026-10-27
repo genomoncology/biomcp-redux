@@ -122,6 +122,14 @@
           },
           "type": "array"
         },
+        "reply_schemas": {
+          "default": [],
+          "description": "Canonical reply contracts; empty for commands with no schema reply.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "section_rule": {
           "description": "How to disambiguate section words from inputs.",
           "type": [

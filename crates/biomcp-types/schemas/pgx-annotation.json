@@ -1158,7 +1158,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.pgx_annotation/1",
+  "$id": "biomcp.pgx-annotation/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1215,7 +1215,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.pgx_annotation/1",
+      "const": "biomcp.pgx-annotation/1",
       "type": "string"
     },
     "sources": {

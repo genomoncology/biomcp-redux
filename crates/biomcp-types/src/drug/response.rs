@@ -214,39 +214,39 @@ pub struct DrugInteractions {
     pub interactions: Section<DrugRecords<DrugInteractionClaim>>,
 }
 impl ResponseBody for DrugPage {
-    const SCHEMA: &'static str = "biomcp.drug_page/3";
+    const SCHEMA: &'static str = "biomcp.drug-page/3";
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {
-    const SCHEMA: &'static str = "biomcp.drug_card/2";
+    const SCHEMA: &'static str = "biomcp.drug-card/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug_label/3";
+    const SCHEMA: &'static str = "biomcp.drug-label/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug_targets/3";
+    const SCHEMA: &'static str = "biomcp.drug-targets/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug_indications/3";
+    const SCHEMA: &'static str = "biomcp.drug-indications/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug_civic/4";
+    const SCHEMA: &'static str = "biomcp.drug-civic/4";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug_approvals/3";
+    const SCHEMA: &'static str = "biomcp.drug-approvals/3";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug_regulatory/2";
+    const SCHEMA: &'static str = "biomcp.drug-regulatory/2";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug_interactions/3";
+    const SCHEMA: &'static str = "biomcp.drug-interactions/3";
     type Query = DrugGet;
 }
 
@@ -261,6 +261,6 @@ pub struct DrugXrefs {
     pub xrefs: Section<DrugRecords<DrugIdentityRelation>>,
 }
 impl ResponseBody for DrugXrefs {
-    const SCHEMA: &'static str = "biomcp.drug_xrefs/1";
+    const SCHEMA: &'static str = "biomcp.drug-xrefs/1";
     type Query = DrugGet;
 }

@@ -718,7 +718,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein_isoforms/1",
+  "$id": "biomcp.protein-isoforms/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -775,7 +775,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein_isoforms/1",
+      "const": "biomcp.protein-isoforms/1",
       "type": "string"
     },
     "sources": {

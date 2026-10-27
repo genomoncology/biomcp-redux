@@ -57,6 +57,70 @@
       ],
       "type": "object"
     },
+    "ConfigurationHealth": {
+      "additionalProperties": false,
+      "description": "Local configuration notices contain names and positions, never supplied entries.",
+      "properties": {
+        "notices": {
+          "description": "First skipped entries in their original comma-separated order.",
+          "items": {
+            "$ref": "#/$defs/ConfigurationNotice"
+          },
+          "type": "array"
+        },
+        "omitted_entries": {
+          "description": "Remaining skipped entries omitted from this bounded section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "notices",
+        "omitted_entries"
+      ],
+      "type": "object"
+    },
+    "ConfigurationNotice": {
+      "additionalProperties": false,
+      "description": "One unsupported bypass entry skipped without changing other routing rules.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ConfigurationNoticeCode",
+          "description": "Stable notice identity."
+        },
+        "entry": {
+          "description": "One-based position in the comma-separated environment setting.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "variable": {
+          "$ref": "#/$defs/ConfigurationVariable",
+          "description": "Environment variable owning the entry."
+        }
+      },
+      "required": [
+        "variable",
+        "entry",
+        "code"
+      ],
+      "type": "object"
+    },
+    "ConfigurationNoticeCode": {
+      "description": "Nonfatal local configuration conditions.",
+      "enum": [
+        "unparseable_entry"
+      ],
+      "type": "string"
+    },
+    "ConfigurationVariable": {
+      "description": "Settings whose ignored entries can be reported safely.",
+      "enum": [
+        "NO_PROXY"
+      ],
+      "type": "string"
+    },
     "DisableGroup": {
       "additionalProperties": false,
       "description": "The consequences of one source-disable selector, regardless of current configuration.",
@@ -110,6 +174,17 @@
       "additionalProperties": false,
       "description": "Source reachability and publisher terms, independent of local HTTP service health.",
       "properties": {
+        "configuration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConfigurationHealth"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local settings notices, independent of source probes."
+        },
         "disable_groups": {
           "default": [],
           "description": "Sources and carried components excluded by each supported terms group.",
@@ -130,6 +205,15 @@
         "sources"
       ],
       "type": "object"
+    },
+    "LocalBundleState": {
+      "description": "Local bundle availability. Persisted synchronization leases do not prove process liveness.",
+      "enum": [
+        "missing",
+        "fresh",
+        "stale"
+      ],
+      "type": "string"
     },
     "PageInfo": {
       "additionalProperties": false,
@@ -459,6 +543,17 @@
       "additionalProperties": false,
       "description": "One bounded source probe, without credentials or provider error text.",
       "properties": {
+        "bundle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalBundleState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last validated local bundle, independent of publisher reachability."
+        },
         "components": {
           "description": "Independently licensed carried components, without separate network probes.",
           "items": {

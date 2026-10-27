@@ -23,7 +23,7 @@
       "exit": 4,
       "is_error": true,
       "expect": {
-        "/schema": "biomcp.variant_population/4",
+        "/schema": "biomcp.variant-population/4",
         "/status": "failed",
         "/result/population/state": "skipped",
         "/result/population/reason": "disabled"

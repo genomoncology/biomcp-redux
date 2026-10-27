@@ -156,5 +156,8 @@
     "source"
   ],
   "title": "PgxGetCommand",
-  "type": "object"
+  "type": "object",
+  "x-reply-query-titles": [
+    "PgxAnnotationGet"
+  ]
 }

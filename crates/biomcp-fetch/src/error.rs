@@ -34,6 +34,12 @@ pub enum FetchError {
     StreamingLimits,
     /// The configured proxy could not be parsed.
     Proxy,
+    /// The HTTP proxy environment setting is invalid.
+    HttpProxy,
+    /// The HTTPS proxy environment setting is invalid.
+    HttpsProxy,
+    /// A bypass rule contains credentials or a malformed port.
+    ProxyBypass,
     /// The configured additive certificates could not be checked.
     Certificates,
     /// The body limit must allow one byte for overflow detection.
@@ -49,6 +55,9 @@ impl fmt::Display for FetchError {
         f.write_str(match self {
             Self::StreamingLimits => "fetch.streaming_limits",
             Self::Proxy => "fetch.proxy",
+            Self::HttpProxy => "fetch.http_proxy",
+            Self::HttpsProxy => "fetch.https_proxy",
+            Self::ProxyBypass => "fetch.proxy_bypass",
             Self::Certificates => "fetch.certificates",
             Self::BodyLimit => "fetch.body_limit",
             Self::Cache(error) => return error.fmt(f),

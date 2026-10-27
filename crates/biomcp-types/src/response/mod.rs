@@ -10,6 +10,8 @@ pub use alphagenome::{
 pub use alphagenome_enums::{
     AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
 };
+mod catalog;
+pub use catalog::{SchemaCatalog, SchemaEntry};
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{
@@ -72,7 +74,9 @@ pub use article_sections::{
 
 mod health;
 pub use health::{
-    ComponentHealth, DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+    ComponentHealth, ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode,
+    ConfigurationVariable, DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState,
+    SourceHealth,
 };
 
 pub use article::{

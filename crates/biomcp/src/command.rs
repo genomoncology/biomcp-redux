@@ -6,7 +6,7 @@ mod diagnostic;
 mod disease;
 mod drug;
 mod drug_label;
-mod local;
+pub(crate) mod local;
 mod maintenance;
 mod mcp_policy;
 mod pathway;
@@ -41,6 +41,14 @@ fn dispatch_using(
         &Result<std::sync::Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     )>,
 ) -> io::Result<Outcome> {
+    if let [command] = args
+        && command == "schema"
+    {
+        return encode(
+            Envelope::new(Status::Complete, (), Some(crate::schema::catalog())),
+            crate::exit::Status::Success,
+        );
+    }
     if let [command, name] = args
         && command == "schema"
         && let Some(text) = name.to_str().and_then(crate::schema::find)
@@ -475,7 +483,7 @@ fn run_request(
 ) -> io::Result<biomcp_query::Outcome> {
     let cx = biomcp_query::Ctx {
         ncbi_email: crate::config::ncbi_email(globals)
-            .map_err(|()| io::Error::other("local configuration failed"))?,
+            .map_err(|_| io::Error::other("local configuration failed"))?,
         fetch,
         budget: crate::config::BUDGET,
         fresh,

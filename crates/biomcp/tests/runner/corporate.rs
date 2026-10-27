@@ -6,6 +6,10 @@ use std::{fs, net::TcpListener};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "network/configuration-causes-and-automatic-sync-limit",
+            || configuration().map_err(Into::into),
+        ),
         Trial::test("network/proxy-environment-failure", || {
             proxy().map_err(Into::into)
         }),
@@ -160,6 +164,222 @@ fn tls() -> Result<(), String> {
         if !output.stderr.is_empty() || value.to_string().contains("synthetic-private") {
             return Err("network diagnostics leaked".into());
         }
+    }
+    Ok(())
+}
+
+fn configuration() -> Result<(), String> {
+    offline_bypass()?;
+    named_fields()?;
+    named_environment()?;
+    duplicate_field_cause()?;
+    named_server_and_key_causes()?;
+    skipped_bypass()?;
+    automatic_sync()
+}
+
+fn offline_bypass() -> Result<(), String> {
+    for rule in ["::1", "[::1]:8080", "10.0.0.0/8", "fd00::/8"] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let output = env
+            .command(
+                env!("CARGO_BIN_EXE_biomcp"),
+                &["health".into(), "--offline".into()],
+            )
+            .env("NO_PROXY", rule)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() || !output.stderr.is_empty() {
+            return Err(format!(
+                "supported bypass prevented offline command: {rule}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn named_fields() -> Result<(), String> {
+    for (config, field) in [
+        (json!({"formatt":"synthetic-private"}), "formatt"),
+        (json!({"":"synthetic-private"}), "config.json"),
+        (json!({"proxy":"http://[synthetic-private"}), "proxy"),
+        (json!({"keys":{"oncokb_api_key":9}}), "keys.oncokb_api_key"),
+        (
+            json!({"auto_sync_max_bytes":"synthetic-private"}),
+            "auto_sync_max_bytes",
+        ),
+        (json!({"http":{"allowed_hosts":9}}), "http.allowed_hosts"),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        env.config(&config).map_err(|e| e.to_string())?;
+        let value =
+            super::configuration::invoke(&env, vec!["health".into(), "--offline".into()], 5)?;
+        if value.pointer("/error/option") != Some(&json!(field))
+            || value.to_string().contains("synthetic-private")
+        {
+            return Err(format!(
+                "configuration failure lost safe field {field}: {value}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn named_environment() -> Result<(), String> {
+    for (variable, value) in [
+        ("HTTP_PROXY", "http://[synthetic-private"),
+        ("HTTPS_PROXY", "http://[synthetic-private"),
+        ("NO_PROXY", "user:synthetic-private@example.org"),
+        ("NO_PROXY", "example.org:abc"),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let output = env
+            .command(
+                env!("CARGO_BIN_EXE_biomcp"),
+                &["health".into(), "--offline".into()],
+            )
+            .env(variable, value)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if output.status.code() != Some(5)
+            || !output.stderr.is_empty()
+            || value.pointer("/error/option") != Some(&json!(variable))
+            || value.to_string().contains("synthetic-private")
+        {
+            return Err(format!(
+                "configuration failure lost safe variable {variable}: {value}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn automatic_sync() -> Result<(), String> {
+    for limit in [1, 1_000_000] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        let stub = super::network_stub::Stub::new()?;
+        let ca = env.root().join("ca.pem");
+        fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+        env.config(
+            &json!({"proxy":format!("http://{}",stub.address), "ca_bundle":ca,
+            "auto_sync_max_bytes":limit}),
+        )
+        .map_err(|e| e.to_string())?;
+        let value = super::configuration::invoke(
+            &env,
+            vec!["search".into(), "gene".into(), "BRAF".into()],
+            if limit == 1 { 4 } else { 0 },
+        )?;
+        if (limit == 1 && value.pointer("/sources/0/reason") != Some(&json!("syncing")))
+            || (limit != 1 && value.pointer("/result/items/0/symbol") != Some(&json!("BRAF")))
+        {
+            return Err(format!(
+                "automatic sync did not apply configured byte limit: {value}"
+            ));
+        }
+        stub.finish()?;
+    }
+    Ok(())
+}
+
+fn skipped_bypass() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let rules = "127.0.0.1,synthetic-private! , ,bad/entry";
+    let health = |rule: &str| -> Result<Value, String> {
+        let output = env
+            .command(
+                env!("CARGO_BIN_EXE_biomcp"),
+                &["health".into(), "--offline".into()],
+            )
+            .env("NO_PROXY", rule)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() || !output.stderr.is_empty() {
+            return Err("skipped bypass stopped health".into());
+        }
+        serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    };
+    let value = health(rules)?;
+    if value.pointer("/result/configuration")
+        != Some(&json!({"notices":[
+        {"variable":"NO_PROXY", "entry":2, "code":"unparseable_entry"},
+        {"variable":"NO_PROXY", "entry":4, "code":"unparseable_entry"}], "omitted_entries":0}))
+        || value.to_string().contains("synthetic-private")
+    {
+        return Err(format!("missing bounded notice: {value}"));
+    }
+    let many = ["synthetic-private!"; 12].join(",");
+    let value = health(&many)?;
+    if value
+        .pointer("/result/configuration/notices")
+        .and_then(Value::as_array)
+        .map(Vec::len)
+        != Some(8)
+        || value.pointer("/result/configuration/omitted_entries") != Some(&json!(4))
+    {
+        return Err("configuration notices were not bounded".into());
+    }
+    let args = [
+        "get".into(),
+        "gene".into(),
+        "BRAF".into(),
+        "--replay".into(),
+        super::configuration::root().to_string_lossy().into(),
+    ];
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .env("NO_PROXY", rules)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success()
+        || !output.stderr.is_empty()
+        || String::from_utf8_lossy(&output.stdout).contains("configuration")
+    {
+        return Err("ordinary command exposed configuration notices".into());
+    }
+    Ok(())
+}
+
+fn named_server_and_key_causes() -> Result<(), String> {
+    for (config, args, field) in [
+        (
+            json!({"formatt":"synthetic-private"}),
+            vec!["key", "list"],
+            "formatt",
+        ),
+        (
+            json!({"http":{"allowed_hosts":["synthetic-private/path"]}}),
+            vec!["serve", "--http", "127.0.0.1:0"],
+            "http.allowed_hosts",
+        ),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        env.config(&config).map_err(|e| e.to_string())?;
+        let args = args.into_iter().map(str::to_owned).collect();
+        let value = super::configuration::invoke(&env, args, 5)?;
+        if value.pointer("/error/option") != Some(&json!(field))
+            || value.to_string().contains("synthetic-private")
+        {
+            return Err("server or key command discarded its configuration cause".into());
+        }
+    }
+    Ok(())
+}
+
+fn duplicate_field_cause() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({})).map_err(|e| e.to_string())?;
+    fs::write(
+        env.root().join("config/biomcp/config.json"),
+        br#"{"proxy":null,"proxy":"http://synthetic-private"}"#,
+    )
+    .map_err(|e| e.to_string())?;
+    let value = super::configuration::invoke(&env, vec!["health".into(), "--offline".into()], 5)?;
+    if value.pointer("/error/option") != Some(&json!("proxy"))
+        || value.to_string().contains("synthetic-private")
+    {
+        return Err("duplicate field lost its safe cause".into());
     }
     Ok(())
 }

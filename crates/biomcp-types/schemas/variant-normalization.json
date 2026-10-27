@@ -816,7 +816,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant_normalization/3",
+  "$id": "biomcp.variant-normalization/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -873,7 +873,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_normalization/3",
+      "const": "biomcp.variant-normalization/3",
       "type": "string"
     },
     "sources": {

@@ -1,6 +1,7 @@
 # 0340 — Accept common NO_PROXY entries and name the cause of configuration errors
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7ed8544148516b9d76b2bc46e9c6e2a21efed2ca
 
 Milestone: 5
 

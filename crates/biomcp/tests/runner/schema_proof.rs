@@ -6,6 +6,9 @@ use std::sync::Arc;
 pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
     let raw_registry = Arc::clone(&registry);
     vec![
+        Trial::test("schema/catalog-and-help-reply-discovery", || {
+            discovery().map_err(Into::into)
+        }),
         Trial::test("runner/validates-results-before-assertions", move || {
             results(&registry).map_err(Into::into)
         }),
@@ -20,7 +23,7 @@ pub(super) fn trials(registry: Arc<Registry>) -> Vec<Trial> {
 
 fn results(registry: &Registry) -> Result<(), String> {
     let good = json!({"schema":"biomcp.error/1", "status":"usage",
-        "error":{"code":"usage.schema","message":"expected schema <known artifact id>"}});
+        "error":{"code":"usage.schema","message":"use biomcp schema to list known artifact IDs"}});
     let args = vec!["unknown".into()];
     registry.validate(&good, &args, false)?;
     let mut rows = vec![
@@ -139,4 +142,98 @@ fn rejects(
             "expected schema validation failure; actual {result:?}"
         )),
     }
+}
+
+fn discovery_reply(
+    environment: &super::launch::Environment,
+    args: &[String],
+) -> Result<Value, String> {
+    let output = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err(format!(
+            "{args:?}: {}",
+            String::from_utf8_lossy(&output.stdout)
+        ));
+    }
+    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+}
+
+fn discovery() -> Result<(), String> {
+    let environment = super::launch::Environment::new().map_err(|e| e.to_string())?;
+    let invoke = |args: &[String]| discovery_reply(&environment, args);
+    let catalog = invoke(&["schema".into()])?;
+    let rows = catalog
+        .pointer("/result/schemas")
+        .and_then(Value::as_array)
+        .ok_or("missing schema catalog")?;
+    let ids: std::collections::BTreeSet<_> = rows
+        .iter()
+        .map(|row| {
+            let id = row["id"].as_str().ok_or("missing schema ID")?;
+            if id.starts_with("biomcp.") && id.contains('_')
+                || row["description"].as_str().is_none_or(str::is_empty)
+            {
+                return Err("schema ID or description is invalid");
+            }
+            Ok(id)
+        })
+        .collect::<Result<_, _>>()?;
+    if ids != super::schema::ARTIFACTS.iter().map(|(id, _)| *id).collect() {
+        return Err("catalog differs from shipped schema inventory".into());
+    }
+    let help = invoke(&["help".into()])?;
+    let commands = help
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("missing commands")?;
+    let mut replies = std::collections::BTreeSet::new();
+    for command in commands {
+        let schemas = command["reply_schemas"]
+            .as_array()
+            .ok_or("missing reply schemas")?;
+        for (entity, reply) in [
+            ("drug", "biomcp.drug-who-card/1"),
+            ("pgx", "biomcp.pgx-annotation/1"),
+        ] {
+            if command["command"] == json!(["get", entity])
+                && !schemas.iter().any(|id| id.as_str() == Some(reply))
+            {
+                return Err(format!("missing union reply {reply} for get {entity}"));
+            }
+        }
+        if matches!(
+            command.pointer("/command/0").and_then(Value::as_str),
+            Some(
+                "get"
+                    | "search"
+                    | "article"
+                    | "trial"
+                    | "variant"
+                    | "protein"
+                    | "pathway"
+                    | "author"
+                    | "cell-line"
+            )
+        ) && schemas.is_empty()
+        {
+            return Err(format!("missing reply schemas for {}", command["command"]));
+        }
+        for id in schemas {
+            let id = id.as_str().ok_or("invalid reply ID")?;
+            if !ids.contains(id) {
+                return Err(format!("unresolvable help reply {id}"));
+            }
+            replies.insert(id);
+        }
+    }
+    for id in replies {
+        let artifact = invoke(&["schema".into(), id.into()])?;
+        if artifact.get("$id").and_then(Value::as_str) != Some(id) {
+            return Err(format!("reply schema does not resolve: {id}"));
+        }
+    }
+    Ok(())
 }

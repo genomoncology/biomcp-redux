@@ -114,9 +114,26 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     Ok(disabled)
 }
 
-/// One bounded read-only endpoint for each implemented source; never a data synchronization.
-/// Paths stay relative to the source declaration, and replies bypass the data cache.
+/// Whether the publisher was reached or has no admitted small health probe.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ProbeOutcome {
+    /// One bounded publisher request succeeded.
+    Reachable,
+    /// No safe small publisher probe is available for this release.
+    Unavailable,
+}
+/// One bounded source probe. Unavailable capability is distinct from a failed publisher.
 pub fn probe(
+    spec: &'static SourceSpec,
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<ProbeOutcome, biomcp_fetch::RequestError> {
+    if spec.source == Source::Hgnc {
+        return Ok(ProbeOutcome::Unavailable);
+    }
+    request_probe(spec, leg).map(|()| ProbeOutcome::Reachable)
+}
+/// One bounded read-only endpoint, never a data synchronization.
+fn request_probe(
     spec: &'static SourceSpec,
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<(), biomcp_fetch::RequestError> {
@@ -182,10 +199,21 @@ pub fn probe(
 type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
+    if let Some(probe) = article_probe(source) {
+        return Some(probe);
+    }
+    if let Some(probe) = pgx_probe(source) {
+        return Some(probe);
+    }
     if let Some(probe) = protein_probe(source) {
         return Some(probe);
     }
     Some(match source {
+        Source::Gtr => (crate::gtr::HEALTH_PATH, vec![]),
+        Source::WhoIvd => (crate::who_ivd::HEALTH_PATH, vec![]),
+        Source::WhoPq => (crate::who_pq::HEALTH_PATH, vec![]),
+        Source::FdaCdx => (crate::fda_cdx::HEALTH_PATH, vec![]),
+        Source::Vaers => (crate::vaers::HEALTH_PATH, vec![]),
         Source::Cellosaurus => ("/release-info", vec![("format", Arg::Text("json"))]),
         Source::Gwas => (
             "/associations",
@@ -195,9 +223,12 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
         Source::Chembl => ("/status.json", vec![]),
-        Source::OpenfdaLabel | Source::Drugsfda | Source::Faers | Source::Maude => {
-            ("", vec![("limit", Arg::Num(1))])
-        }
+        Source::OpenfdaLabel
+        | Source::Drugsfda
+        | Source::Faers
+        | Source::Maude
+        | Source::FdaPma
+        | Source::Fda510k => ("", vec![("limit", Arg::Num(1))]),
         Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),
         Source::Ddinter => ("/terms/", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
@@ -211,49 +242,11 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
             "/trials",
             vec![("size", Arg::Num(1)), ("include", Arg::Text("none"))],
         ),
-        Source::Hgnc => ("/withdrawn.txt", vec![]),
         Source::MyGene => ("/metadata", vec![]),
         Source::Reactome => ("/data/database/version", vec![]),
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
-        Source::ClinGen => ("/kb/gene-validity/download", vec![]),
-        Source::PubMed => (
-            "/einfo.fcgi",
-            vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))],
-        ),
-        Source::EuropePmc => (
-            "/search",
-            vec![
-                ("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")),
-                ("format", Arg::Text("json")),
-                ("pageSize", Arg::Num(1)),
-            ],
-        ),
-        Source::PubTator => (
-            "/publications/export/biocjson",
-            vec![("pmids", Arg::Text("17611497"))],
-        ),
-        Source::PmcOa => (
-            "/",
-            vec![
-                ("list-type", Arg::Num(2)),
-                ("prefix", Arg::Text("PMC5606870.")),
-                ("max-keys", Arg::Num(1)),
-            ],
-        ),
-        Source::Orcid => ("/0000-0002-4299-3018/person", vec![]),
-        Source::SemanticScholar => (
-            "/paper/search",
-            vec![
-                ("query", Arg::Text("EGFR")),
-                ("limit", Arg::Num(1)),
-                ("fields", Arg::Text("externalIds,title,year")),
-            ],
-        ),
-        Source::Icite => (
-            "/pubs",
-            vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
-        ),
+        Source::ClinGen => (crate::clingen::HEALTH_PATH, vec![]),
         _ => return disease_probe(source),
     })
 }
@@ -367,6 +360,86 @@ fn protein_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
                 ("number", Arg::Num(5)),
                 ("filters", Arg::Text("species_f:(\"Homo sapiens\")")),
             ],
+        ),
+        _ => return None,
+    })
+}
+
+/// Source-owned local set metadata, separate from the online publisher probe.
+pub fn bundle_state(
+    spec: &'static SourceSpec,
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
+    let state = match spec.source {
+        Source::Ema => crate::ema::bundle_state(leg)?,
+        Source::Ddinter => crate::ddinter::bundle_state(leg)?,
+        Source::Cbioportal => crate::cbioportal::bundle_state(leg)?,
+        Source::WikiPathways => crate::wikipathways::bundle_state(leg)?,
+        Source::Hgnc => crate::hgnc::bundle_state(leg)?,
+        Source::ClinGen => crate::clingen::bundle_state(leg)?,
+        Source::Gtr => crate::gtr::bundle_state(leg)?,
+        Source::WhoIvd => crate::who_ivd::bundle_state(leg)?,
+        Source::WhoPq => crate::who_pq::bundle_state(leg)?,
+        Source::FdaCdx => crate::fda_cdx::bundle_state(leg)?,
+        _ => return Ok(None),
+    };
+    Ok(Some(state))
+}
+
+fn pgx_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::Cpic => (crate::cpic::GENE_PATH, vec![("limit", Arg::Num(1))]),
+        Source::ClinPgx => (
+            crate::clinpgx::CLINICAL_PATH,
+            vec![
+                ("location.genes.symbol", Arg::Text("DPYD")),
+                ("view", Arg::Text("min")),
+            ],
+        ),
+        _ => return None,
+    })
+}
+
+fn article_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::PubMed => (
+            "/einfo.fcgi",
+            vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))],
+        ),
+        Source::EuropePmc => (
+            "/search",
+            vec![
+                ("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")),
+                ("format", Arg::Text("json")),
+                ("pageSize", Arg::Num(1)),
+            ],
+        ),
+        Source::PubTator => (
+            "/publications/export/biocjson",
+            vec![("pmids", Arg::Text("17611497"))],
+        ),
+        Source::PmcOa => (
+            "/",
+            vec![
+                ("list-type", Arg::Num(2)),
+                ("prefix", Arg::Text("PMC5606870.")),
+                ("max-keys", Arg::Num(1)),
+            ],
+        ),
+        Source::Orcid => ("/0000-0002-4299-3018/person", vec![]),
+        Source::SemanticScholar => (
+            "/paper/search",
+            vec![
+                ("query", Arg::Text("EGFR")),
+                ("limit", Arg::Num(1)),
+                ("fields", Arg::Text("externalIds,title,year")),
+            ],
+        ),
+        Source::Icite => (
+            "/pubs",
+            vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
         ),
         _ => return None,
     })

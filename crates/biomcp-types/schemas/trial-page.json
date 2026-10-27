@@ -1916,7 +1916,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial_page/5",
+  "$id": "biomcp.trial-page/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1973,7 +1973,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial_page/5",
+      "const": "biomcp.trial-page/5",
       "type": "string"
     },
     "sources": {

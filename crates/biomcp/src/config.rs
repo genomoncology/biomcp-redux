@@ -2,28 +2,14 @@
 pub(crate) mod key_file;
 use crate::grammar::Globals;
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache, Secret, SecretName, Secrets};
-use serde::Deserialize;
 use std::{ffi::OsString, fs, path::PathBuf, sync::Arc, time::Duration};
 #[cfg(test)]
 mod deferred_keys_tests;
 
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct ConfigFile {
-    format: Option<crate::grammar::Format>,
-    proxy: Option<String>,
-    http: Option<Http>,
-    disable_sources: Option<Vec<String>>,
-    ca_bundle: Option<PathBuf>,
-    ncbi_email: Option<String>,
-    keys: Option<std::collections::BTreeMap<String, String>>,
-}
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Http {
-    allowed_hosts: Vec<String>,
-}
-pub(crate) fn http_hosts(globals: &Globals) -> Result<Vec<String>, ()> {
+mod file;
+pub(crate) use file::ConfigError;
+use file::{ConfigFile, read_file};
+pub(crate) fn http_hosts(globals: &Globals) -> Result<Vec<String>, ConfigError> {
     Ok(read_file(globals.config.as_ref())?
         .and_then(|file| file.http)
         .map(|http| http.allowed_hosts)
@@ -51,16 +37,25 @@ pub(crate) fn retired_study_directory() -> bool {
 }
 
 pub(crate) const BUDGET: Duration = Duration::from_secs(20);
-#[derive(Clone, Copy, Debug)]
-pub(crate) struct StartupError(pub(crate) Option<biomcp_fetch::CacheError>);
+#[derive(Clone, Debug)]
+pub(crate) enum StartupError {
+    Cache(biomcp_fetch::CacheError),
+    Configuration(ConfigError),
+    Local,
+}
+impl From<ConfigError> for StartupError {
+    fn from(error: ConfigError) -> Self {
+        Self::Configuration(error)
+    }
+}
 impl From<()> for StartupError {
     fn from((): ()) -> Self {
-        Self(None)
+        Self::Local
     }
 }
 impl From<biomcp_fetch::CacheError> for StartupError {
     fn from(error: biomcp_fetch::CacheError) -> Self {
-        Self(Some(error))
+        Self::Cache(error)
     }
 }
 pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, StartupError> {
@@ -68,35 +63,7 @@ pub(crate) fn fetch(globals: &Globals) -> Result<Fetch, StartupError> {
     let file = read_file(globals.config.as_ref())?;
     fetch_using(globals, home, file)
 }
-fn read_file(override_path: Option<&PathBuf>) -> Result<Option<ConfigFile>, ()> {
-    let path = config_path(override_path);
-    let file = path
-        .map(|path| match fs::read(path) {
-            Ok(bytes) => serde_json::from_slice::<ConfigFile>(&bytes)
-                .map(Some)
-                .map_err(|_| ()),
-            Err(error)
-                if error.kind() == std::io::ErrorKind::NotFound && override_path.is_none() =>
-            {
-                Ok(None)
-            }
-            Err(_) => Err(()),
-        })
-        .transpose()?
-        .flatten();
-    if file
-        .as_ref()
-        .and_then(|f| f.keys.as_ref())
-        .is_some_and(|keys| {
-            keys.keys()
-                .any(|key| !SecretName::ALL.iter().any(|n| n.config() == key))
-        })
-    {
-        return Err(());
-    }
-    Ok(file)
-}
-pub(crate) fn ncbi_email(globals: &Globals) -> Result<Option<Secret>, ()> {
+pub(crate) fn ncbi_email(globals: &Globals) -> Result<Option<Secret>, ConfigError> {
     Ok(read_file(globals.config.as_ref())?
         .and_then(|file| file.ncbi_email)
         .filter(|s| !s.is_empty())
@@ -158,22 +125,26 @@ fn fetch_using(
         cache,
         mode,
         replay_cache,
+        auto_sync_max_bytes: file
+            .as_ref()
+            .and_then(|file| file.auto_sync_max_bytes)
+            .unwrap_or_else(|| FetchConfig::default().auto_sync_max_bytes),
         proxy: file.and_then(|file| file.proxy).map(Secret::new),
         ..FetchConfig::default()
     })
-    .map_err(|error| {
-        StartupError(match error {
-            biomcp_fetch::FetchError::Cache(error) => Some(error),
-            _ => None,
-        })
+    .map_err(|error| match error {
+        biomcp_fetch::FetchError::Cache(error) => error.into(),
+        biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
+        _ => ().into(),
     })
 }
 
 fn disabled_sources(
     globals: &Globals,
     file: Option<&ConfigFile>,
-) -> Result<std::collections::BTreeSet<biomcp_types::Source>, ()> {
-    biomcp_adapters::registry::disabled(&disabled_names(globals, file)).map_err(|_| ())
+) -> Result<std::collections::BTreeSet<biomcp_types::Source>, ConfigError> {
+    biomcp_adapters::registry::disabled(&disabled_names(globals, file))
+        .map_err(|_| ConfigError::field("disable_sources"))
 }
 fn disabled_names(globals: &Globals, file: Option<&ConfigFile>) -> Vec<String> {
     let mut names = globals.disable_sources.clone();
@@ -184,7 +155,7 @@ fn disabled_names(globals: &Globals, file: Option<&ConfigFile>) -> Vec<String> {
     names
 }
 
-fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
+fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ConfigError> {
     use std::io::Read;
     const MAX_PEM_BYTES: u64 = 4 * 1024 * 1024;
     let roots = file
@@ -192,14 +163,15 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
         .map(|path| {
             let mut bytes = Vec::new();
             fs::File::open(path)
-                .map_err(|_| ())?
+                .map_err(|_| ConfigError::field("ca_bundle"))?
                 .take(MAX_PEM_BYTES + 1)
                 .read_to_end(&mut bytes)
-                .map_err(|_| ())?;
+                .map_err(|_| ConfigError::field("ca_bundle"))?;
             if bytes.len() as u64 > MAX_PEM_BYTES {
-                return Err(());
+                return Err(ConfigError::field("ca_bundle"));
             }
-            biomcp_fetch::Certificates::from_pem(&bytes).map_err(|_| ())
+            biomcp_fetch::Certificates::from_pem(&bytes)
+                .map_err(|_| ConfigError::field("ca_bundle"))
         })
         .transpose()?
         .unwrap_or_default();
@@ -220,7 +192,13 @@ fn network(file: Option<&ConfigFile>) -> Result<biomcp_fetch::Network, ()> {
             .unwrap_or_default(),
         roots,
     )
-    .map_err(|_| ())
+    .map_err(|error| {
+        ConfigError::field(match error {
+            biomcp_fetch::FetchError::HttpProxy => "HTTP_PROXY",
+            biomcp_fetch::FetchError::HttpsProxy => "HTTPS_PROXY",
+            _ => "NO_PROXY",
+        })
+    })
 }
 
 pub(crate) fn format(path: Option<&PathBuf>) -> Option<crate::grammar::Format> {
@@ -236,7 +214,7 @@ pub(crate) fn config_path(override_path: Option<&PathBuf>) -> Option<PathBuf> {
         )
     })
 }
-pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ()> {
+pub(crate) fn secrets(globals: &Globals) -> Result<Secrets, ConfigError> {
     Ok(secrets_from(read_file(globals.config.as_ref())?.as_ref()))
 }
 fn secrets_from(file: Option<&ConfigFile>) -> Secrets {

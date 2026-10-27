@@ -82,3 +82,8 @@ mod sections;
 pub use sections::{Records, profiles, sample_lists};
 mod files;
 pub use files::{Directory, files};
+
+/// Inspect this source's validated local catalog without reading rows or synchronizing.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    leg.stored_bundle_state(&CATALOG)
+}

@@ -1100,7 +1100,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug_card/2",
+  "$id": "biomcp.drug-card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1157,7 +1157,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_card/2",
+      "const": "biomcp.drug-card/2",
       "type": "string"
     },
     "sources": {

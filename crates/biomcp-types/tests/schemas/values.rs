@@ -186,7 +186,7 @@ fn usage_error_round_trips_and_rejects_changed_contract_values() {
             "status": "usage",
             "error": {
                 "code": "usage.schema",
-                "message": "expected schema <known artifact id>"
+                "message": "use biomcp schema to list known artifact IDs"
             }
         })
     );
