@@ -47,3 +47,7 @@ nightly-live-check:
 .PHONY: source-capture
 source-capture:
 	python3 scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"
+
+.PHONY: parity-run
+parity-run:
+	sh scripts/parity_runner.sh "$(PLAN)" "$(BASELINE)" "$(OUT)"

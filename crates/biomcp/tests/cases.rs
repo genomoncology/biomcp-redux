@@ -9,6 +9,9 @@ use libtest_mimic::{Arguments, Trial};
 use std::{env, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
+    if env::args().nth(1).as_deref() == Some("--parity") {
+        return runner::parity::main(env::args().skip(2).collect());
+    }
     if let Some(code) = native_proof() {
         return code;
     }

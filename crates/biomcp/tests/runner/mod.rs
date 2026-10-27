@@ -6,6 +6,7 @@ mod assertions;
 mod author;
 mod execution;
 mod orcid;
+pub(super) mod parity;
 use execution::run_step;
 mod cache_contention;
 pub(super) mod cell_line;
