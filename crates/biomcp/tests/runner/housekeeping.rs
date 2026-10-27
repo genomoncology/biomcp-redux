@@ -6,10 +6,14 @@ use std::{fs, path::Path, process::Output};
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "housekeeping/offline-provenance-and-config",
-        || check().map_err(|error| error.to_string().into()),
-    )]
+    vec![
+        Trial::test("housekeeping/offline-provenance-and-config", || {
+            check().map_err(|error| error.to_string().into())
+        }),
+        Trial::test("housekeeping/invalid-globals-ignore-key-config", || {
+            invalid_globals().map_err(|error| error.to_string().into())
+        }),
+    ]
 }
 fn run(env: &Environment, args: &[&str], empty: bool) -> Check<Output> {
     let words: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
@@ -208,4 +212,37 @@ fn limit(args: &[&str], executable: &Path) -> Check<usize> {
         bytes += encoded.saturating_sub(63);
     }
     Ok((bytes * 115).div_ceil(100))
+}
+
+fn invalid_globals() -> Check {
+    let env = Environment::new()?;
+    env.config(&json!({"format":"md","keys":{"ncbi_api_key":"must-not-be-read"}}))?;
+    let config = env.root().join("config/biomcp/config.json");
+    let config = config.to_str().ok_or("invalid config path")?;
+    for root in ["version", "mcp-config"] {
+        for prefix in [
+            vec!["--format", "invalid"],
+            vec!["--config", config, "--config", config],
+            vec!["--unknown-global"],
+        ] {
+            let mut args = prefix;
+            args.push(root);
+            if root == "mcp-config" {
+                args.extend(["--client", "unknown"]);
+            }
+            let words: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
+            let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &words).output()?;
+            if output.status.code() != Some(2) || output.stdout.len() > 255 {
+                return Err(format!("invalid global error exceeded its contract: {args:?}").into());
+            }
+            let value: Value = serde_json::from_slice(&output.stdout)?;
+            if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
+                return Err(format!(
+                    "invalid globals changed the command's error: {args:?}: {value}"
+                )
+                .into());
+            }
+        }
+    }
+    Ok(())
 }
