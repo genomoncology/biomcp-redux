@@ -17,10 +17,7 @@ pub(super) fn section(cx: &Ctx<'_>, q: &StudyGet, deadline: Deadline<'_>, out: &
     if let Some(error) = error
         && let QueryBody::StudyCard(Some(card)) = &mut out.body
     {
-        let reason = match error {
-            RequestError::Source(e) => e.reason,
-            _ => biomcp_types::Reason::BadReply,
-        };
+        let reason = crate::status::reason(error).unwrap_or(biomcp_types::Reason::BadReply);
         card.files = Some(Section::unavailable(Source::Cbioportal, reason));
     }
     let partial = out.status == Status::Partial;

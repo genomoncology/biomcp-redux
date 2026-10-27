@@ -388,14 +388,14 @@ fn history_stub(mode: u8) -> Result<Stub, String> {
                 return Err(format!("unexpected historical source request: {request}"));
             }
             Ok(json!(
-        {"data":{ "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190","id":"CG-PCER-VARINT:synthetic-history",
-        "type":"VariantPathogenicityInterpretation","metadata":{"version":if mode == 1 {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
-        "variant":{"id":"CAR:CA000434"},"condition":{"label":"Synthetic historical condition"},"statementOutcome":{"label":"Pathogenic",
-        "id":"LN:LA6668-3"},"evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment",
-        "criterion":{"label":if mode == 2 {""} else {"PM2"},"id":"0030","@id":"https://obofoundry.org/sepio/clingen/0030",
-        "defaultStrength":{"label":"Pathogenic Supporting","id":"SEPIO:0000329","@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},
-        "statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}] }}
-    )
+                {"data":{ "uuid":"8d32df42-16ac-41f2-9bf1-e2b9ce206190","id":"CG-PCER-VARINT:synthetic-history",
+                "type":"VariantPathogenicityInterpretation","metadata":{"version":if mode == 1 {"1.1.0"} else {"1.0.0"},"created":"2000-01-01"},
+                "variant":{"id":"CAR:CA000434"},"condition":{"label":"Synthetic historical condition"},"statementOutcome":{"label":"Pathogenic",
+                "id":"LN:LA6668-3"},"evidenceLine":[{"evidenceItem":[{"type":"CriterionAssessment",
+                "criterion":{"label":if mode == 2 {""} else {"PM2"},"id":"0030","@id":"https://obofoundry.org/sepio/clingen/0030",
+                "defaultStrength":{"label":"Pathogenic Supporting","id":"SEPIO:0000329","@id":"https://obofoundry.org/sepio/SEPIO:0000329"}},
+                "statementOutcome":{"label":"Met","@id":"SEPIO:0000224"}}]}] }}
+            )
             .to_string())
         },
         |_| 200,

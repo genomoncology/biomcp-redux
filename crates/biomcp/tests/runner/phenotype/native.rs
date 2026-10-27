@@ -230,10 +230,10 @@ pub(super) fn mcp(
     fs::write(
         file.path(),
         serde_json::to_vec(&json!(
-        {"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,
-        "steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":local}},"max_bytes":ceiling,
-        "max_tokens":ceiling.div_ceil(4)}]}
-    ))
+            {"feature":"phenotype-identity","story":"CLI and MCP preserve the same unchanged native source facts","replay":directory,
+            "steps":[{"run":words,"mcp":words,"exit":exit,"is_error":exit>=2,"expect":{"":{"equals":local}},"max_bytes":ceiling,
+            "max_tokens":ceiling.div_ceil(4)}]}
+        ))
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;

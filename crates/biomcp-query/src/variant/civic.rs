@@ -52,10 +52,7 @@ pub(super) fn section(
         Err(error) => (
             Section::unavailable(
                 Source::Civic,
-                match error {
-                    RequestError::Source(e) => e.reason,
-                    _ => Reason::Unavailable,
-                },
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
             ),
             Vec::new(),
         ),

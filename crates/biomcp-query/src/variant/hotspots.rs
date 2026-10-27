@@ -75,10 +75,7 @@ fn disclose(
     if let Some(error) = error {
         Section::unavailable(
             Source::CancerHotspots,
-            match error {
-                RequestError::Source(e) => e.reason,
-                _ => Reason::Unavailable,
-            },
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
         )
     } else if rows.is_empty() {
         Section::Empty {

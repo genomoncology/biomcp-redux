@@ -67,8 +67,8 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         fs::write(
             output.join(format!("{name}-size.json")),
             json!(
-        {"full_bytes":full.len(),"comparable_bytes":comparable,"max_bytes":ceiling,"token_estimate":comparable.div_ceil(4)}
-    )
+                {"full_bytes":full.len(),"comparable_bytes":comparable,"max_bytes":ceiling,"token_estimate":comparable.div_ceil(4)}
+            )
             .to_string(),
         )
         .map_err(|e| e.to_string())?;
@@ -226,8 +226,8 @@ fn explicit(output: &Path) -> Result<(), String> {
     fs::write(
         output.join("nci-explicit-size.json"),
         json!(
-        {"full_bytes":full,"comparable_bytes":comparable,"max_bytes":(comparable*115).div_ceil(100),"token_estimate":comparable.div_ceil(4)}
-    )
+            {"full_bytes":full,"comparable_bytes":comparable,"max_bytes":(comparable*115).div_ceil(100),"token_estimate":comparable.div_ceil(4)}
+        )
         .to_string(),
     )
     .map_err(|e| e.to_string())?;

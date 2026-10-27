@@ -91,8 +91,8 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     fs::write(
         file.path(),
         serde_json::to_vec(&json!(
-        {"feature":"disease-seer","story":"Native site and statistic selectors retain source values","replay":directory,"steps":steps}
-    ))
+            {"feature":"disease-seer","story":"Native site and statistic selectors retain source values","replay":directory,"steps":steps}
+        ))
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;

@@ -167,9 +167,9 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
             .flatten()
         {
             rows.push(json!(
-        {"record":"arm","data":{"label":row["label"],"kind":row["type"],"description":row["description"],
-        "intervention_names":row.get("interventionNames").cloned().unwrap_or(json!([]))}}
-    ));
+                {"record":"arm","data":{"label":row["label"],"kind":row["type"],"description":row["description"],
+                "intervention_names":row.get("interventionNames").cloned().unwrap_or(json!([]))}}
+            ));
         }
         for row in raw["armsInterventionsModule"]["interventions"]
             .as_array()
@@ -177,10 +177,10 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
             .flatten()
         {
             rows.push(json!(
-        {"record":"intervention","data":{"name":row["name"],"kind":row["type"],"description":row["description"],
-        "arm_group_labels":row.get("armGroupLabels").cloned().unwrap_or(json!([])),
-        "other_names":row.get("otherNames").cloned().unwrap_or(json!([]))}}
-    ));
+                {"record":"intervention","data":{"name":row["name"],"kind":row["type"],"description":row["description"],
+                "arm_group_labels":row.get("armGroupLabels").cloned().unwrap_or(json!([])),
+                "other_names":row.get("otherNames").cloned().unwrap_or(json!([]))}}
+            ));
         }
     }
     rows

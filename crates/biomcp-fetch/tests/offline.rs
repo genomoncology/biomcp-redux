@@ -132,9 +132,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     });
     drop(capture);
     let connection = rusqlite::Connection::open(&cache).unwrap();
-    let before: Vec<u8> = connection
-        .query_row("SELECT body FROM reply", [], |r| r.get(0))
-        .unwrap();
+    let before = cached_body(&connection);
     let case = ReplayCache::temporary().unwrap();
     let replay = Fetch::open(FetchConfig {
         replay_cache: Some(case.clone()),
@@ -148,8 +146,13 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     .unwrap();
     assert!(get(&replay).is_err());
     assert!(get(&replay).unwrap().answer);
+    assert!(get(&replay).unwrap().answer);
     assert_eq!(
-        get(&replay).unwrap_err(),
+        replay
+            .leg(spec, replay.deadline(Duration::from_secs(10)))
+            .fresh(true)
+            .json::<Answer>(&ep, &[])
+            .unwrap_err(),
         RequestError::Recording(RecordError::Exhausted)
     );
     let offline = Fetch::open(FetchConfig {
@@ -160,9 +163,7 @@ fn record_bypasses_warm_cache_and_replay_ignores_user_cache_and_writes_only_owne
     drop(replay);
     assert!(get(&offline).unwrap().answer);
     assert!(!dir.path().join("must-not-open").exists());
-    let after: Vec<u8> = connection
-        .query_row("SELECT body FROM reply", [], |r| r.get(0))
-        .unwrap();
+    let after = cached_body(&connection);
     assert_eq!(before, after);
     let missing = Fetch::open(config(
         &cache,
@@ -214,4 +215,10 @@ fn replay_does_not_open_an_invalid_ordinary_cache() {
     );
     assert_eq!(std::fs::read(cache).unwrap(), b"keep");
     assert!(server.requests.try_recv().is_err());
+}
+
+fn cached_body(connection: &rusqlite::Connection) -> Vec<u8> {
+    connection
+        .query_row("SELECT body FROM reply", [], |r| r.get(0))
+        .unwrap()
 }

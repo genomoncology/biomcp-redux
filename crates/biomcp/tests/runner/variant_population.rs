@@ -60,13 +60,11 @@ fn gwas_zero() -> Result<(), String> {
     Ok(())
 }
 fn empty_gwas(_: &str) -> Result<String, String> {
-    Ok(
-        json!(
+    Ok(json!(
         {"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3"}},"page":{"size":3,
         "totalElements":0,"totalPages":0,"number":0}}
     )
-        .to_string(),
-    )
+    .to_string())
 }
 
 fn population() -> Result<(), String> {
@@ -148,10 +146,10 @@ fn population() -> Result<(), String> {
 pub(super) fn population_body(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/") {
         return Ok(json!(
-        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38",
-        "referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],
-        "coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
-    )
+            {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh38",
+            "referenceSequence":"http://reg.genome.network/refseq/RS000055","hgvs":["NC_000007.14:g.140753336A>T"],
+            "coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
+        )
         .to_string());
     }
     Ok(json!(
@@ -342,11 +340,11 @@ fn gwas_page(request: &str) -> Result<String, String> {
         .into_iter()
         .map(|id| {
             json!(
-        {"association_id":id,"accession_id":"GCST90996374","reported_trait":["Synthetic trait"],"efo_traits":[{"efo_id":"EFO_0004344",
-        "efo_trait":"Synthetic ontology label"}],"snp_allele":[{"rs_id":"rs113488022","effect_allele":"T"}],"p_value":0.0,
-        "pvalue_mantissa":2,"pvalue_exponent":-28539,"beta":"0.036833 kg decrease","risk_frequency":"NR","range":"[0.025-0.048]",
-        "pubmed_id":"40210729"}
-    )
+                {"association_id":id,"accession_id":"GCST90996374","reported_trait":["Synthetic trait"],"efo_traits":[{"efo_id":"EFO_0004344",
+                "efo_trait":"Synthetic ontology label"}],"snp_allele":[{"rs_id":"rs113488022","effect_allele":"T"}],"p_value":0.0,
+                "pvalue_mantissa":2,"pvalue_exponent":-28539,"beta":"0.036833 kg decrease","risk_frequency":"NR","range":"[0.025-0.048]",
+                "pubmed_id":"40210729"}
+            )
         })
         .collect();
     let number = if second { 1 } else { 0 };

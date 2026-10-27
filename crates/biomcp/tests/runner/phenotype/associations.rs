@@ -300,11 +300,11 @@ fn cards() -> Result<(), String> {
             move |request| {
                 if request.starts_with("GET /v3/api/entity/") {
                     return Ok(json!(
-        {"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature",
-        "association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","category":"biolink:Disease",
-        "label":"Synthetic disease associations","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","category":"biolink:Gene",
-        "label":"Synthetic gene associations","count":3}]}
-    )
+                        {"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature",
+                        "association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","category":"biolink:Disease",
+                        "label":"Synthetic disease associations","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","category":"biolink:Gene",
+                        "label":"Synthetic gene associations","count":3}]}
+                    )
                     .to_string());
                 }
                 let limit = if explicit { 2 } else { 1 };

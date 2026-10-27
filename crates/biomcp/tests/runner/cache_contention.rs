@@ -42,7 +42,13 @@ fn checked_gene() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     db.execute_batch("BEGIN IMMEDIATE")
         .map_err(|e| e.to_string())?;
-    peer.send(&frame)?;
+    let mut fresh = frame;
+    fresh
+        .pointer_mut("/params/arguments/args")
+        .and_then(Value::as_array_mut)
+        .ok_or("command args missing")?
+        .push(json!("--fresh"));
+    peer.send(&fresh)?;
     let answer = content(peer.next()?)?;
     if answer.pointer("/result/items") != initial.pointer("/result/items") {
         return Err(format!(
@@ -114,7 +120,9 @@ fn checked_protein() -> Result<(), String> {
     let db = rusqlite::Connection::open(case.join("replay.sqlite")).map_err(|e| e.to_string())?;
     db.execute_batch("BEGIN IMMEDIATE")
         .map_err(|e| e.to_string())?;
-    let answer = invoke(&env, args, 0)?;
+    let mut fresh = args;
+    fresh.push("--fresh".into());
+    let answer = invoke(&env, fresh, 0)?;
     if answer.get("result") != initial.get("result")
         || answer.get("status") != Some(&json!("complete"))
         || answer.pointer("/sources/0/state") != Some(&json!("ok"))

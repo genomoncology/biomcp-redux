@@ -236,9 +236,9 @@ fn standalone_envelopes_validate_all_eight_consumer_schemas() {
     check_envelope::<CellLineCard>(
         get.clone(),
         json!(
-        {"input":"CVCL_2119","status":"complete","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names",
-        "identity","xrefs","variants","chembl"]}
-    ),
+            {"input":"CVCL_2119","status":"complete","header":header,"dates":{},"warnings":empty,"candidates":[],"sections":{},"more":["names",
+            "identity","xrefs","variants","chembl"]}
+        ),
     )
     .unwrap();
     let page = json!({"accession":"CVCL_2119","items":empty,"offset":0});

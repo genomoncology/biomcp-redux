@@ -133,9 +133,9 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
                 .map(contact)
                 .collect();
             rows.push(json!(
-        {"facility":row["facility"],"city":row["city"],"state":row["state"],"zip":row["zip"],"country":row["country"],
-        "status":row["status"],"coordinates":coordinates,"contacts":contacts}
-    ));
+                {"facility":row["facility"],"city":row["city"],"state":row["state"],"zip":row["zip"],"country":row["country"],
+                "status":row["status"],"coordinates":coordinates,"contacts":contacts}
+            ));
         }
     } else {
         for row in module["centralContacts"].as_array().into_iter().flatten() {

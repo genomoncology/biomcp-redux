@@ -132,9 +132,7 @@ fn native_records_keep_joint_context_source_text_and_literal_not_applicable()
     ] {
         object.remove(key);
     }
-    object.extend(serde_json::from_value::<
-        serde_json::Map<String, serde_json::Value>,
-    >(json!(
+    object.extend(serde_json::from_value::<serde_json::Map<String, serde_json::Value>>(json!(
         {"comments":"synthetic comments","id":91,"guidelineid":3,"drugid":"RxNorm:10324","allelestatus":{},"version":4,
         "dosinginformation":true,"alternatedrugavailable":false,"otherprescribingguidance":false}
     ))?);
@@ -161,9 +159,7 @@ fn annotation_tiers_preserve_native_arrays_missing_locations_and_base_history()
     assert_eq!(roundtrip::<PgxAnnotationHeader>(header.clone())?, header);
     let mut detail = header.clone();
     let object = detail.as_object_mut().ok_or("object")?;
-    object.extend(serde_json::from_value::<
-        serde_json::Map<String, serde_json::Value>,
-    >(json!(
+    object.extend(serde_json::from_value::<serde_json::Map<String, serde_json::Value>>(json!(
         {"allelePhenotypes":[{"id":1,"allele":"synthetic allele","limitedEvidence":false,"phenotype":"  Synthetic text.\n"}],
         "conflictingVariantAnnotationIds":[12,13],"history":[{"id":1,"date":"2026-01-01","type":"synthetic","version":3},{"id":2,
         "date":"2026-02-01","type":"synthetic","version":4,"description":"synthetic change"}],"objCls":"ClinicalAnnotation",
@@ -293,12 +289,10 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
     detail
         .as_object_mut()
         .ok_or("object")?
-        .extend(serde_json::from_value::<
-            serde_json::Map<String, serde_json::Value>,
-        >(json!(
-        {"allelePhenotypes":[],"conflictingVariantAnnotationIds":[],"history":[],"objCls":"ClinicalAnnotation","overrideLevel":false,
-        "pediatric":false,"relatedAlleles":[],"relatedDiseases":[],"score":0.0,"scoreDetails":"synthetic"}
-    ))?);
+        .extend(serde_json::from_value::<serde_json::Map<String, serde_json::Value>>(json!(
+            {"allelePhenotypes":[],"conflictingVariantAnnotationIds":[],"history":[],"objCls":"ClinicalAnnotation","overrideLevel":false,
+            "pediatric":false,"relatedAlleles":[],"relatedDiseases":[],"score":0.0,"scoreDetails":"synthetic"}
+        ))?);
     envelope::<PgxAnnotation>(
         json!({"id":"PA1234","source":"clinpgx"}),
         json!({"header":{"id":"PA1234","source":"clinpgx"},"annotation":detail}),

@@ -72,9 +72,7 @@ fn setup(mode: &str) -> Result<(Environment, Stub), String> {
     }
     if mode == "walks" {
         let drugs: Vec<_> = (0..19)
-            .map(|n| {
-                json!({"medicinalproduct":format!("Synthetic drug {n}"), "drugcharacterization":if n%2==0 {"1"}else{"2"}})
-            })
+            .map(|n| json!({"medicinalproduct":format!("Synthetic drug {n}"), "drugcharacterization":if n%2==0 {"1"}else{"2"}}))
             .collect();
         let reactions: Vec<_> = (0..22)
             .map(|n| json!({"reactionmeddrapt":format!("Synthetic reaction {n}"),"reactionoutcome":"1"}))

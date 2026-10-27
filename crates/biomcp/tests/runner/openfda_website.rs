@@ -32,7 +32,7 @@ fn check() -> Result<(), String> {
     env.config(&json!(
         {"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"openfda_api_key":"synthetic-website-key"}}
     ))
-        .map_err(|e| e.to_string())?;
+    .map_err(|e| e.to_string())?;
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),

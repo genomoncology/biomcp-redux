@@ -65,7 +65,9 @@ fn prove() -> Result<(), String> {
 }
 fn metadata() -> Value {
     json!(
-        (0..50) .map(|i| json!({"studyId":"msk_impact_2017","sampleListId":format!("synthetic-list-{i}")})) .collect::<Vec<_>>()
+        (0..50)
+            .map(|i| json!({"studyId":"msk_impact_2017","sampleListId":format!("synthetic-list-{i}")}))
+            .collect::<Vec<_>>()
     )
 }
 fn paged(request: &str) -> Result<String, String> {

@@ -95,18 +95,18 @@ fn policy(env: &Environment) -> Result<(), String> {
 pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.contains("/uniprotkb/") {
         return Ok(json!(
-        {"primaryAccession":"P38398","uniProtkbId":"SYNTHETIC_HUMAN","entryType":"UniProtKB reviewed (Swiss-Prot)",
-        "organism":{"taxonId":9606},"proteinDescription":{"recommendedName":{"fullName":{"value":"Synthetic protein"}}},
-        "sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"features":[],"comments":[],"uniProtKBCrossReferences":[]}
-    )
+            {"primaryAccession":"P38398","uniProtkbId":"SYNTHETIC_HUMAN","entryType":"UniProtKB reviewed (Swiss-Prot)",
+            "organism":{"taxonId":9606},"proteinDescription":{"recommendedName":{"fullName":{"value":"Synthetic protein"}}},
+            "sequence":{"length":30,"value":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"features":[],"comments":[],"uniProtKBCrossReferences":[]}
+        )
         .to_string());
     }
     if request.contains("/interpro/") {
         return Ok(json!(
-        {"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro",
-        "type":"family","member_databases":{}},"proteins":[{"accession":"p38398","protein_length":30,"organism":"9606",
-        "entry_protein_locations":[]}]}]}
-    )
+            {"count":1,"next":null,"results":[{"metadata":{"accession":"IPR002117","name":"Native family","source_database":"interpro",
+            "type":"family","member_databases":{}},"proteins":[{"accession":"p38398","protein_length":30,"organism":"9606",
+            "entry_protein_locations":[]}]}]}
+        )
         .to_string());
     }
     super::complexes::reply(request)

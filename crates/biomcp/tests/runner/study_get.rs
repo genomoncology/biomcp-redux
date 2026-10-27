@@ -26,15 +26,21 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn profiles() -> Value {
     json!(
-        (0..17) .map( |n| json!({"molecularProfileId":format!("native_profile_{n}"),"studyId":"synthetic_0",
+        (0..17)
+            .map(|n| json!({"molecularProfileId":format!("native_profile_{n}"),"studyId":"synthetic_0",
         "molecularAlterationType":"MRNA_EXPRESSION","datatype":"CONTINUOUS","name":"Synthetic profile",
-        "description":"Native profile description","patientLevel":false,"showProfileInAnalysisTab":true}) ) .collect::<Vec<_>>()
+        "description":"Native profile description","patientLevel":false,"showProfileInAnalysisTab":true}))
+            .collect::<Vec<_>>()
     )
 }
 fn lists() -> Value {
     json!(
-        (0..13) .map(|n| json!({"sampleListId":format!("native_list_{n}"),"studyId":"synthetic_0","category":"all_cases_in_study",
-        "name":"Synthetic list","description":"Native list description","sampleCount":n})) .collect::<Vec<_>>()
+        (0..13)
+            .map(
+                |n| json!({"sampleListId":format!("native_list_{n}"),"studyId":"synthetic_0","category":"all_cases_in_study",
+        "name":"Synthetic list","description":"Native list description","sampleCount":n})
+            )
+            .collect::<Vec<_>>()
     )
 }
 fn record(replay: &Path, section: &str, body: Value, status: u16) -> Check {
@@ -300,7 +306,7 @@ fn admission() -> Check {
     let value = call(
         &env,
         &replay,
-        &["get", "study", "synthetic_0", "sample-lists"],
+        &["get", "study", "synthetic_0", "sample-lists", "--fresh"],
         4,
         "get/admission/2",
     )?;

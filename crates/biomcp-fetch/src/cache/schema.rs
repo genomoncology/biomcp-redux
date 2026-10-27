@@ -13,8 +13,19 @@ pub struct SchemaOwner {
     /// Tables that must not exist without this owner's metadata.
     pub tables: &'static [&'static str],
 }
-/// Validate declared owners without changing journal mode or creating tables.
+/// Validate declared owners in one snapshot without changing journal mode or tables.
+/// Existing transactions remain owned by the caller.
 pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
+    if !connection.is_autocommit() {
+        return validate_owners(connection, owners);
+    }
+    let transaction =
+        Transaction::new_unchecked(connection, TransactionBehavior::Deferred).map_err(db_error)?;
+    validate_owners(&transaction, owners)?;
+    transaction.commit().map_err(db_error)
+}
+
+fn validate_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(), CacheError> {
     let has_meta: bool = connection
         .query_row(
             "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='meta')",
@@ -31,7 +42,7 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
                     |r| r.get(0),
                 )
                 .optional()
-                .map_err(|_| CacheError::Version)?
+                .map_err(version_error)?
         } else {
             None
         };
@@ -55,6 +66,15 @@ pub fn check_owners(connection: &Connection, owners: &[SchemaOwner]) -> Result<(
     }
     Ok(())
 }
+fn version_error(error: rusqlite::Error) -> CacheError {
+    match error {
+        rusqlite::Error::FromSqlConversionFailure(..)
+        | rusqlite::Error::IntegralValueOutOfRange(..)
+        | rusqlite::Error::InvalidColumnType(..) => CacheError::Version,
+        _ => db_error(error),
+    }
+}
+
 impl Cache {
     pub(super) fn initialize(connection: &mut Connection) -> Result<(), CacheError> {
         let has_meta: bool = connection

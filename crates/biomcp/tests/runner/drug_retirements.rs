@@ -33,8 +33,8 @@ fn check() -> Result<(), String> {
         }
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
         let measured = serde_json::to_vec(&json!({"schema":"biomcp.error/1","status":"usage", "error":{"code":"usage.retired","message":message}}))
-        .map_err(|e| e.to_string())?
-        .len();
+            .map_err(|e| e.to_string())?
+            .len();
         if bytes > measured * 115 / 100 {
             return Err(format!("{words}: migration exceeds size ceiling"));
         }

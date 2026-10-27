@@ -32,11 +32,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
                 item.status = Status::Partial;
-                let reason = if let biomcp_fetch::RequestError::Source(e) = e {
-                    e.reason
-                } else {
-                    Reason::Unavailable
-                };
+                let reason = crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable);
                 Section::unavailable(Source::SemanticScholar, reason)
             }
         };

@@ -275,7 +275,7 @@ fn disabled_health() -> Check {
     env.config(&json!(
         {"disable_sources":["ols","mydisease"],"proxy":format!("http://{}",listener.local_addr().map_err(|e| e.to_string())?)}
     ))
-        .map_err(|e| e.to_string())?;
+    .map_err(|e| e.to_string())?;
     let disabled = registry::SOURCES
         .iter()
         .filter(|s| {

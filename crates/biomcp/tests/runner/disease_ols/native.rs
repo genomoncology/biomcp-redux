@@ -196,9 +196,9 @@ fn section_steps(row: &Value, steps: &mut Vec<Value>) {
                     offset.to_string(),
                 ];
                 steps.push(json!(
-        {"run":q,"mcp":q,"expect":{"/page/offset":offset},"max_bytes":match (section,offset) {("synonyms",0)=>1014,("synonyms",_)=>673,(_,
-        0)=>1194,_=>1200}}
-    ));
+                    {"run":q,"mcp":q,"expect":{"/page/offset":offset},"max_bytes":match (section,offset) {("synonyms",0)=>1014,("synonyms",_)=>673,(_,
+                    0)=>1194,_=>1200}}
+                ));
             }
         }
     }

@@ -107,6 +107,7 @@ mod publication;
 mod recurrence;
 mod recurrence_errors;
 mod recurrence_metadata;
+mod replay;
 mod research;
 mod response_cases;
 mod schema;
@@ -314,6 +315,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
         pool_tables::check().map_err(Into::into)
     }));
     trials.extend(configuration::trials());
+    trials.extend(replay::trials());
     trials.extend(cache_contention::trials());
     trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());

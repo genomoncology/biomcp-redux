@@ -110,9 +110,9 @@ fn resolved(env: &Environment, id: &str) -> Result<(), String> {
 fn reply(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/CA123643") {
         return Ok(json!(
-        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh38",
-        "hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
-    )
+            {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh38",
+            "hgvs":["NC_000007.14:g.140753336A>T"],"coordinates":[{"start":140753335,"end":140753336,"referenceAllele":"A","allele":"T"}]}]}
+        )
         .to_string());
     }
     if request.starts_with("GET /v1/query?") {

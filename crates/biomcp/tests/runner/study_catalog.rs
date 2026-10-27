@@ -45,10 +45,12 @@ mod study_get;
 mod study_retirements;
 pub(super) fn rows() -> Value {
     json!(
-        (0..12) .map(|n| json!({"studyId":format!("synthetic_{n}"),"name":format!("Synthetic Atlas {n}"),
+        (0..12)
+            .map(|n| json!({"studyId":format!("synthetic_{n}"),"name":format!("Synthetic Atlas {n}"),
         "description":"Literal mixed metadata","cancerTypeId":if n < 8 {"brca"} else {"mixed"},"allSampleCount":n,"referenceGenome":"hg19",
         "sequencedSampleCount":n,"cnaSampleCount":0,"structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],
-        "importDate":"2026-08-20 21:46:46","groups":"","readPermission":true,"publicStudy":true})) .collect::<Vec<_>>()
+        "importDate":"2026-08-20 21:46:46","groups":"","readPermission":true,"publicStudy":true}))
+            .collect::<Vec<_>>()
     )
 }
 pub(super) fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {

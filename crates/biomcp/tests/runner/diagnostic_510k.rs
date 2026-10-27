@@ -38,11 +38,11 @@ fn run(mode: &'static str) -> Result<(), String> {
                 json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}})
             } else {
                 json!(
-        {"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{ "k_number":if mode == "foreign" {"K080653"} else {"K173492"},
-        "device_name":"Synthetic device","applicant":"Synthetic applicant","decision_code":"SESD","decision_description":"Unknown",
-        "decision_date":"2017-12-22","date_received":"2017-11-13","product_code":"OYX","openfda":{"device_name":"Unrelated harmonized name",
-        "gmdn":"Do not project"} }]}
-    )
+                    {"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[{ "k_number":if mode == "foreign" {"K080653"} else {"K173492"},
+                    "device_name":"Synthetic device","applicant":"Synthetic applicant","decision_code":"SESD","decision_description":"Unknown",
+                    "decision_date":"2017-12-22","date_received":"2017-11-13","product_code":"OYX","openfda":{"device_name":"Unrelated harmonized name",
+                    "gmdn":"Do not project"} }]}
+                )
             }
             .to_string())
         },

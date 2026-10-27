@@ -173,8 +173,8 @@ fn replay(directory: &Path, mut steps: Value) -> Result<Value, String> {
     fs::write(
         file.path(),
         serde_json::to_vec(&json!(
-        {"feature":"disease-monarch","story":"Selected association rows preserve native context","replay":directory,"steps":steps}
-    ))
+            {"feature":"disease-monarch","story":"Selected association rows preserve native context","replay":directory,"steps":steps}
+        ))
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
@@ -466,9 +466,9 @@ fn defaults() -> Result<(), String> {
         fs::write(
             file.path(),
             serde_json::to_vec(&json!(
-        {"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,
-        "is_error":true,"expect":{"/status":"usage"},"max_bytes":165}]}
-    ))
+                {"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,
+                "is_error":true,"expect":{"/status":"usage"},"max_bytes":165}]}
+            ))
             .map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;

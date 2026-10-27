@@ -160,10 +160,10 @@ fn who() -> Value {
     let rows: Vec<_> = (0..9)
         .map(|i| {
             json!(
-        {"product_name":"Synthetic product","product_code":format!("code-{i}"),"assay_format":"Synthetic format",
-        "manufacturer":"Synthetic manufacturer","marker":format!("native marker {i}"),"regulatory_version":"Uninterpreted source prose",
-        "prequalification_year":"2024"}
-    )
+                {"product_name":"Synthetic product","product_code":format!("code-{i}"),"assay_format":"Synthetic format",
+                "manufacturer":"Synthetic manufacturer","marker":format!("native marker {i}"),"regulatory_version":"Uninterpreted source prose",
+                "prequalification_year":"2024"}
+            )
         })
         .collect();
     json!({"id":"0466-046-00","native_rows":rows})

@@ -220,17 +220,17 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     envelope::<PhenotypePage>(
         json!({"text":"seizure"}),
         json!(
-        {"items":[{"id":"HP:0001250","label":"Seizure","match_score":1.5,"matched_field":"name","match_type":"exact",
-        "attribution":{"source":"synthetic"}}],"components":[]}
-    ),
+            {"items":[{"id":"HP:0001250","label":"Seizure","match_score":1.5,"matched_field":"name","match_type":"exact",
+            "attribution":{"source":"synthetic"}}],"components":[]}
+        ),
     )
     .unwrap();
     envelope::<PhenotypeTermCard>(
         get.clone(),
         json!(
-        {"term":{"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"",
-        "publication_references":[],"attribution":{"source":"synthetic"}},"sections":["synonyms","xrefs"],"components":[]}
-    ),
+            {"term":{"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"",
+            "publication_references":[],"attribution":{"source":"synthetic"}},"sections":["synonyms","xrefs"],"components":[]}
+        ),
     )
     .unwrap();
     envelope::<PhenotypeSynonyms>(

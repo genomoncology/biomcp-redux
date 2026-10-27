@@ -174,9 +174,9 @@ fn cards() -> Result<(), String> {
                     node()
                 } else {
                     json!(
-        {"id":"HP:0000001","name":"Synthetic term","definition":"","comment":"Complete synthetic comment",
-        "publicationReferences":["PMID:1"],"descendantCount":2,"synonyms":[],"xrefs":[]}
-    )
+                        {"id":"HP:0000001","name":"Synthetic term","definition":"","comment":"Complete synthetic comment",
+                        "publicationReferences":["PMID:1"],"descendantCount":2,"synonyms":[],"xrefs":[]}
+                    )
                 }
                 .to_string())
             },

@@ -165,15 +165,15 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
             member("P38398".into(), " protein ")
         };
         return Ok(json!(
-        {"complexAc":id,"name":"Hostile participant identity","species":"Homo sapiens; 9606","predictedComplex":false,"participants":[row]}
-    )
+            {"complexAc":id,"name":"Hostile participant identity","species":"Homo sapiens; 9606","predictedComplex":false,"participants":[row]}
+        )
         .to_string());
     }
     if request.contains("/complex/") {
         return Ok(json!(
-        {"complexAc":"CPX-715","name":"Exact complex","species":"Homo sapiens; 9606","predictedComplex":false,
-        "participants":[member("P38398".into(),"protein"),member("Q99728".into(),"protein")]}
-    )
+            {"complexAc":"CPX-715","name":"Exact complex","species":"Homo sapiens; 9606","predictedComplex":false,
+            "participants":[member("P38398".into(),"protein"),member("Q99728".into(),"protein")]}
+        )
         .to_string());
     }
     let mut members = vec![

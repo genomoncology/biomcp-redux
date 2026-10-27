@@ -58,17 +58,13 @@ fn check(row: &Value, present: bool) -> Result<(), String> {
         "detail":{"conditions":[{"label":"Dabrafenib response"}],"origins":["somatic"]} }
     );
     if present {
-        expected
-            .get_mut("detail")
-            .and_then(Value::as_object_mut)
-            .ok_or("synthetic detail")?
-            .insert(
-                "condition_relationships".into(),
-                json!(
-        [{ "relationship_type":"DrugResponseAndDisease","source_conditions":[{"label":"Dabrafenib response"}],
-        "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}] }]
-    ),
-            );
+        expected.get_mut("detail").and_then(Value::as_object_mut).ok_or("synthetic detail")?.insert(
+            "condition_relationships".into(),
+            json!(
+                [{ "relationship_type":"DrugResponseAndDisease","source_conditions":[{"label":"Dabrafenib response"}],
+                "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}] }]
+            ),
+        );
     }
     if row != &expected {
         return Err(format!(

@@ -11,7 +11,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 ### 1. Close milestone 4 and harden the server
 
 - Finish the native concurrency diagnosis (0287).
-- MCP server robustness (0283), store upgrades that keep bundles (0284, then coexisting generations in 0295), replay miss reasons through one mapping (0285) and check hardening (0286).
+- MCP server robustness (0283), store upgrades that keep bundles (0284, then coexisting generations in 0295), one-snapshot ownership checks (0296), replay miss reasons through one mapping (0285) and check hardening (0286).
 - Port `version` and `mcp-config` (0288).
 - Remove private infrastructure and vendor names from public text (0279).
 

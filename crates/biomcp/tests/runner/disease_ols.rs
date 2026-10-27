@@ -84,8 +84,8 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     fs::write(
         file.path(),
         serde_json::to_vec(&json!(
-        {"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps}
-    ))
+            {"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps}
+        ))
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
@@ -147,9 +147,9 @@ fn search_reply(request: &str) -> Result<String, String> {
     let rows = (offset..(offset + limit).min(total))
         .map(|i| {
             json!(
-        {"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,
-        "iri":format!("http://example.org/{i}"),"is_obsolete":i==3}
-    )
+                {"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,
+                "iri":format!("http://example.org/{i}"),"is_obsolete":i==3}
+            )
         })
         .collect::<Vec<_>>();
     Ok(json!({"response":{"numFound":total,"start":offset,"docs":rows}}).to_string())
