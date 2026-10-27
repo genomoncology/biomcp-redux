@@ -5,6 +5,8 @@ mod dependencies;
 mod placement;
 #[path = "ratchets/proof.rs"]
 mod proof;
+#[path = "ratchets/reasons.rs"]
+mod reasons;
 #[path = "ratchets/source.rs"]
 mod source;
 
@@ -14,6 +16,7 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 fn check(root: &Path) -> Check {
     dependencies::check(root)?;
+    reasons::check(root)?;
     source::check(root)
 }
 

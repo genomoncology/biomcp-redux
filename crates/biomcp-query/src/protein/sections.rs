@@ -106,10 +106,7 @@ pub(super) fn alternative_sequence(
             None
         }
         Err(error) => {
-            let reason = match error {
-                biomcp_fetch::RequestError::Source(e) => e.reason,
-                _ => Reason::Unavailable,
-            };
+            let reason = crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable);
             sections.sequence = Some(Section::unavailable(Source::UniProt, reason));
             if reason == Reason::BadReply {
                 out.problems.push(biomcp_types::Problem {

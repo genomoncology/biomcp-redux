@@ -209,15 +209,28 @@ fn mixed_cached_and_live_replies_keep_their_own_fetch_times() {
         get(&fetch, spec, &endpoint, &[("id", Arg::Num(1))])
     })
     .unwrap();
-    Connection::open(&path)
-        .unwrap()
-        .execute("UPDATE reply SET fetched_at=1234567890", [])
-        .unwrap();
+    assert_eq!(
+        Connection::open(&path)
+            .unwrap()
+            .execute("UPDATE reply SET fetched_at=1234567890", [])
+            .unwrap(),
+        1
+    );
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+    let cached_ready = std::sync::Barrier::new(2);
     thread::scope(|scope| {
         let worker = scope.spawn(|| {
             leg.batch(&[1, 2], |child, id| {
-                child.json::<Answer>(&endpoint, &[("id", Arg::Num(*id))])
+                // Live cache reads are opportunistic; keep the live miss from
+                // contending with the cached read whose timestamp this checks.
+                if *id == 2 {
+                    cached_ready.wait();
+                }
+                let reply = child.json::<Answer>(&endpoint, &[("id", Arg::Num(*id))]);
+                if *id == 1 {
+                    cached_ready.wait();
+                }
+                reply
             })
         });
         let request = server.next();

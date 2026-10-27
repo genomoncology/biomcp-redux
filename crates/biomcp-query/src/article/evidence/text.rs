@@ -20,7 +20,7 @@ pub(super) fn read<'a>(
             Err(error) => {
                 snapshot.fulltext = Some(Section::unavailable(
                     Source::PmcOa,
-                    super::graph::reason(error),
+                    crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
                 ));
                 return Ok(());
             }
@@ -34,7 +34,7 @@ pub(super) fn read<'a>(
         Err(error) => {
             snapshot.fulltext = Some(Section::unavailable(
                 Source::PmcOa,
-                super::graph::reason(error),
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
             ));
             return Ok(());
         }
@@ -50,7 +50,10 @@ pub(super) fn read<'a>(
     snapshot.fulltext = Some(match result {
         Err(error) => {
             out.local = out.local.or(status::local(error));
-            Section::unavailable(Source::PmcOa, super::graph::reason(error))
+            Section::unavailable(
+                Source::PmcOa,
+                crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            )
         }
         Ok(None) => Section::unavailable(Source::PmcOa, biomcp_types::Reason::NotOpen),
         Ok(Some(document)) => paragraphs(&document, &target)?,

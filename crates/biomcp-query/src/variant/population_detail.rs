@@ -92,9 +92,9 @@ fn read(
         if let Ok((candidates, None)) = found {
             rows = candidates;
         }
-        if let Some(RequestError::Source(error)) = error {
+        if let Some(reason) = error.and_then(status::reason) {
             return (
-                Section::unavailable(Source::Gnomad, error.reason),
+                Section::unavailable(Source::Gnomad, reason),
                 Vec::new(),
                 sources,
                 problems,
@@ -163,10 +163,7 @@ fn load(
         },
         Err(error) => Section::unavailable(
             Source::Gnomad,
-            match error {
-                RequestError::Source(e) => e.reason,
-                _ => Reason::Unavailable,
-            },
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
         ),
     };
     (section, groups, source, error.and_then(status::local))

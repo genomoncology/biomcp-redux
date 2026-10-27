@@ -94,10 +94,7 @@ pub(super) fn fulltext<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut 
                 item.status = Status::Partial;
                 Section::unavailable(
                     Source::EuropePmc,
-                    match e {
-                        biomcp_fetch::RequestError::Source(e) => e.reason,
-                        _ => biomcp_types::Reason::Unavailable,
-                    },
+                    crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
                 )
             }
         });

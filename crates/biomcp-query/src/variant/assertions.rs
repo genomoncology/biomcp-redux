@@ -1,7 +1,7 @@
 //! Source assertions with independent row paging and exact record selection.
 use crate::{Action, Ctx, Outcome, status};
 use biodata::VariantId;
-use biomcp_fetch::{Deadline, RequestError};
+use biomcp_fetch::Deadline;
 use biomcp_types::{
     AssertionSource, PageInfo, QueryBody, Reason, Request, Section, Status, StepKind,
     VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
@@ -129,8 +129,10 @@ fn read(
                 }
             }
         }
-        Err(RequestError::Source(e)) => Section::unavailable(spec.source, e.reason),
-        Err(_) => Section::unavailable(spec.source, Reason::Unavailable),
+        Err(error) => Section::unavailable(
+            spec.source,
+            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
     };
     (
         section,

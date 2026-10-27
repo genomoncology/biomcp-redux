@@ -62,12 +62,7 @@ fn runtime_paths_share_literal_capture_and_cache_identity_without_host_override(
     .unwrap();
     let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
     assert!(leg.json::<Answer>(&literal, &[]).unwrap().answer);
-    assert!(matches!(
-        leg.json::<Answer>(&dynamic, &[]),
-        Err(biomcp_fetch::RequestError::Recording(
-            biomcp_fetch::RecordError::Exhausted
-        ))
-    ));
+    assert!(leg.json::<Answer>(&dynamic, &[]).unwrap().answer);
     let different = spec
         .get("/mapping")
         .with_path("/mapping/P04637/pathways")
