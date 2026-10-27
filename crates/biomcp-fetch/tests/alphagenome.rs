@@ -49,7 +49,7 @@ fn interval() -> Vec<u8> {
 }
 fn output(allele: u8, tracks: usize) -> Vec<u8> {
     // A synthetic [2,1] UINT8 tensor in one chunk; no provider shape is assumed.
-    let tensor = [field(1, &[2, 1]), number(2, 2), number(4, 1)].concat();
+    let tensor = [field(1, &[2, 1]), number(2, 7), number(4, 1)].concat();
     let mut track = field(1, &tensor);
     for _ in 0..tracks {
         track.extend(field(2, &field(1, b"synthetic label")));
@@ -63,6 +63,10 @@ fn chunk() -> Vec<u8> {
 }
 #[test]
 fn canonical_request_preserves_one_based_variant_and_zero_based_interval() -> Check {
+    assert_eq!(
+        biomcp_fetch::grpc::alphagenome::PREDICT_VARIANT,
+        "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/PredictVariant"
+    );
     let variant = [
         field(1, b"chr7"),
         number(2, 140753336),
