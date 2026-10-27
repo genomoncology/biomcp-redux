@@ -2,34 +2,27 @@ use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 use biomcp_adapters::clingen;
-use biomcp_fetch::Deadline;
-use biomcp_types::{ClinGenGene, Section, Source};
+use biomcp_fetch::{Deadline, Leg, LegReport, RequestError};
+use biomcp_types::{ClinGenGene, Section, Source, SourceOutcome};
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
+    let leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
     let mut local = None;
-    let mut source = None;
+    let mut error = None;
+    let mut report = LegReport::default();
     let values = genes
         .iter()
         .map(|(id, _)| {
-            let validity_leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
-            let dosage_leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
-            let validity = clingen::validity(&validity_leg, *id);
-            let dosage = clingen::dosage(&dosage_leg, *id);
+            let validity = clingen::validity(&leg, *id);
             let validity_error = validity.as_ref().err().copied();
+            let validity_status = part_status(&leg, validity_error, &mut report);
+            let dosage = clingen::dosage(&leg, *id);
             let dosage_error = dosage.as_ref().err().copied();
+            let dosage_status = part_status(&leg, dosage_error, &mut report);
+            error = dosage_error.or(validity_error).or(error);
             local = local
                 .or(validity_error.and_then(status::local))
                 .or(dosage_error.and_then(status::local));
-            let validity_status =
-                status::source(Source::ClinGen, validity_leg.finish(), validity_error);
-            let dosage_status = status::source(Source::ClinGen, dosage_leg.finish(), dosage_error);
-            for outcome in [&validity_status, &dosage_status] {
-                if let Some(source) = &mut source {
-                    status::retain_source_state(source, outcome);
-                } else {
-                    source = Some(outcome.clone());
-                }
-            }
             let dosage = dosage.unwrap_or_default();
             let data = ClinGenGene {
                 validity_status,
@@ -50,10 +43,22 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         .collect();
     SectionResult {
         values,
-        source: source.unwrap_or_else(|| {
-            biomcp_adapters::registry::outcome(Source::ClinGen, biomcp_types::SourceState::Ok, None)
-        }),
+        source: status::source(Source::ClinGen, report, error),
         problems: Vec::new(),
         local,
     }
+}
+
+fn part_status(
+    leg: &Leg<'_>,
+    error: Option<RequestError>,
+    combined: &mut LegReport,
+) -> SourceOutcome {
+    let report = leg.take_report();
+    combined.stale |= report.stale;
+    combined.failures.extend(report.failures.iter().copied());
+    combined
+        .cache_problems
+        .extend(report.cache_problems.iter().copied());
+    status::source(Source::ClinGen, report, error)
 }

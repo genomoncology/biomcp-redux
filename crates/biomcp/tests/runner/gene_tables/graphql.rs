@@ -225,7 +225,7 @@ fn clingen() -> Check {
         };
         let answer = checked_case(
             "gene/clingen",
-            &["get", "gene", "TP53", "clingen"],
+            &["get", "gene", "TP53", "MLH1", "clingen"],
             |source, record| {
                 if source != "clingen" {
                     return;
@@ -258,6 +258,14 @@ fn clingen() -> Check {
             expect,
             0,
         )?;
+        if matches!(mode, "duplicate" | "missing classification") {
+            for field in ["validity_status", "dosage_status"] {
+                let pointer = format!("/result/items/1/sections/clingen/data/{field}/state");
+                if answer.pointer(&pointer) != Some(&json!("ok")) {
+                    return Err(format!("malformed TP53 record affected MLH1 {field}").into());
+                }
+            }
+        }
         if matches!(mode, "validity only" | "failed dosage" | "both failed")
             && answer
                 .pointer("/result/items/0/sections/clingen/data/haploinsufficiency")

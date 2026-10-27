@@ -293,7 +293,8 @@ pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
         };
         if !matches!(value, SectionValue::Oncokb(..))
             && (value.unavailable()
-                || result.source.state == SourceState::Stale
+                || (result.source.state == SourceState::Stale
+                    && !matches!(value, SectionValue::ClinGen(_)))
                 || result
                     .problems
                     .iter()
