@@ -20,7 +20,11 @@ fn invoke(args: &[&str], exit: i32) -> Result<Value, String> {
         .output()
         .map_err(|e| e.to_string())?;
     if output.status.code() != Some(exit) {
-        return Err(format!("wrong exit: {:?}", output.status));
+        return Err(format!(
+            "wrong exit: {:?}: {}",
+            output.status,
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
     if String::from_utf8_lossy(&output.stdout).contains("private-sentinel")
         || String::from_utf8_lossy(&output.stderr).contains("private-sentinel")

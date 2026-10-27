@@ -25,15 +25,13 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
             }
             continue;
         }
-        let mut argument = Arg::new(name.clone())
-            .help(
-                property
-                    .get("description")
-                    .and_then(Value::as_str)
-                    .unwrap_or_default()
-                    .to_owned(),
-            )
-            .allow_negative_numbers(true);
+        let mut argument = Arg::new(name.clone()).help(
+            property
+                .get("description")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned(),
+        );
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
         } else {
@@ -61,22 +59,25 @@ pub(super) fn command_for(name: &'static str, schema: &Value) -> Result<Command,
         command = command.arg(if property_type(property) == Some("boolean") {
             argument.action(ArgAction::SetTrue)
         } else {
-            argument.value_parser(clap::builder::StringValueParser::new().try_map({
-                let integer = property_type(property) == Some("integer");
-                let minimum = property.get("minimum").and_then(Value::as_u64);
-                let maximum = property.get("maximum").and_then(Value::as_u64);
-                move |value: String| {
-                    if integer
-                        && !value.parse::<u64>().is_ok_and(|n| {
-                            minimum.is_none_or(|min| n >= min) && maximum.is_none_or(|max| n <= max)
-                        })
-                    {
-                        Err("expected an integer within the supported range")
-                    } else {
-                        Ok(value)
+            argument.allow_negative_numbers(true).value_parser(
+                clap::builder::StringValueParser::new().try_map({
+                    let integer = property_type(property) == Some("integer");
+                    let minimum = property.get("minimum").and_then(Value::as_u64);
+                    let maximum = property.get("maximum").and_then(Value::as_u64);
+                    move |value: String| {
+                        if integer
+                            && !value.parse::<u64>().is_ok_and(|n| {
+                                minimum.is_none_or(|min| n >= min)
+                                    && maximum.is_none_or(|max| n <= max)
+                            })
+                        {
+                            Err("expected an integer within the supported range")
+                        } else {
+                            Ok(value)
+                        }
                     }
-                }
-            }))
+                }),
+            )
         });
     }
     if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
