@@ -146,7 +146,7 @@ pub(super) async fn establish(
         .max_header_list_size(limits.metadata_bytes as u32)
         .header_table_size(limits.metadata_bytes as u32)
         .max_concurrent_streams(1)
-        .max_send_buffer_size(limits.request_bytes.saturating_add(5))
+        .max_send_buffer_size(limits.request_bytes.saturating_add(super::FRAME_BYTES))
         .handshake::<_, Bytes>(socket)
         .await?;
     Ok((Single { sender, limits }, connection))

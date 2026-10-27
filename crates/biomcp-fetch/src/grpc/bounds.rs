@@ -70,6 +70,8 @@ impl Limits {
             self.in_flight_streams,
         ];
         if values.iter().any(|v| *v == 0 || *v > isize::MAX as usize)
+            || self.queued_calls > tokio::sync::Semaphore::MAX_PERMITS
+            || self.request_bytes > (u32::MAX as usize).saturating_sub(super::FRAME_BYTES)
             || self.h2_window == 0
             || self.h2_window > 16 * 1024 * 1024
             || self.metadata_bytes > u32::MAX as usize

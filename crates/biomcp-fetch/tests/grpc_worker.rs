@@ -128,7 +128,7 @@ fn stream_worker_routes_explicit_environment_and_bypass_proxies() -> Check {
                     proxy.clone()
                 }))
             },
-            if bypass { "localhost" } else { "" },
+            if bypass { "127.0.0.1" } else { "" },
         )?;
         let fetch = Fetch::open(FetchConfig {
             network,
@@ -277,6 +277,166 @@ fn stream_worker_refuses_interrupted_stream_without_resending() -> Check {
         leg.grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
             .is_err()
     );
+    assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
+    fixture.finish()
+}
+
+#[test]
+fn stream_worker_rejects_unrepresentable_bounds_without_allocating_payloads() {
+    use biomcp_fetch::grpc::Limits;
+    let request_max = (u32::MAX as usize).saturating_sub(tonic::codec::HEADER_SIZE);
+    for limits in [
+        Limits {
+            queued_calls: tokio::sync::Semaphore::MAX_PERMITS + 1,
+            ..Default::default()
+        },
+        Limits {
+            request_bytes: request_max + 1,
+            ..Default::default()
+        },
+    ] {
+        assert!(matches!(
+            Fetch::open(FetchConfig {
+                grpc_limits: limits,
+                ..Default::default()
+            }),
+            Err(biomcp_fetch::FetchError::StreamingLimits)
+        ));
+    }
+    assert!(
+        Fetch::open(FetchConfig {
+            grpc_limits: Limits {
+                queued_calls: tokio::sync::Semaphore::MAX_PERMITS,
+                request_bytes: request_max,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .is_ok()
+    );
+}
+
+#[test]
+fn stream_worker_holds_the_shared_permit_until_stream_cancellation() -> Check {
+    let first = Fixture::new(Hold::Trailers, 0, false, false)?;
+    let second = Fixture::new(Hold::None, 0, false, false)?;
+    let roots = biomcp_fetch::Certificates::from_pem(
+        format!("{}{}", first.certificate, second.certificate).as_bytes(),
+    )?;
+    let network = biomcp_fetch::Network::new(None, None, "", roots)?;
+    let fetch = Fetch::open(FetchConfig {
+        network,
+        ..Default::default()
+    })?;
+    let first_source = first.source(false, KeyUse::None);
+    let second_source = second.source(false, KeyUse::None);
+    let end = fetch.deadline(Duration::from_secs(2));
+    std::thread::scope(|scope| -> Check {
+        let first_call = scope.spawn(|| {
+            fetch.leg(first_source, end).grpc(
+                &first_source.grpc("/synthetic.Tensor/Exchange"),
+                &[],
+                |_| Ok(()),
+            )
+        });
+        first.wait_message()?;
+        fetch
+            .leg(second_source, fetch.deadline(Duration::from_secs(4)))
+            .grpc(
+                &second_source.grpc("/synthetic.Tensor/Exchange"),
+                &[],
+                |_| {
+                    assert!(
+                        end.expired(),
+                        "second stream bypassed the first stream's permit"
+                    );
+                    Ok(())
+                },
+            )?;
+        let error = first_call.join().unwrap().unwrap_err();
+        assert!(
+            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+        );
+        Ok(())
+    })?;
+    first.finish()?;
+    second.finish()
+}
+
+#[test]
+fn stream_worker_shutdown_cancels_and_joins_active_network_work() -> Check {
+    let fixture = Fixture::new(Hold::Headers, 0, false, false)?;
+    let fetch = Fetch::open(FetchConfig {
+        network: fixture.network(None, "")?,
+        ..Default::default()
+    })?;
+    let source = fixture.source(false, KeyUse::None);
+    std::thread::scope(|scope| -> Check {
+        let call = scope.spawn(|| {
+            fetch
+                .leg(source, fetch.deadline(Duration::from_secs(5)))
+                .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+        });
+        fixture.wait_request()?;
+        fetch.shutdown_grpc();
+        assert!(call.join().unwrap().is_err());
+        assert!(
+            fetch
+                .leg(source, fetch.deadline(Duration::from_secs(1)))
+                .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+                .is_err()
+        );
+        Ok(())
+    })?;
+    assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
+    fixture.finish()
+}
+
+static QUEUE_QUOTA: Quota = Quota::new(
+    SourceKey::declare("grpc-queue"),
+    Rate::per_second(100),
+    None,
+    1,
+);
+#[test]
+fn stream_worker_queue_deadlines_return_without_waiting_for_another_stream() -> Check {
+    let fixture = Fixture::new(Hold::Trailers, 0, false, false)?;
+    let fetch = Fetch::open(FetchConfig {
+        network: fixture.network(None, "")?,
+        grpc_limits: biomcp_fetch::grpc::Limits {
+            queued_calls: 1,
+            in_flight_streams: 1,
+            ..Default::default()
+        },
+        ..Default::default()
+    })?;
+    let (first_fetch, cancel) = fetch.cancellable()?;
+    let source = fixture.source(false, KeyUse::None);
+    let queued = fixture.with_quota(false, KeyUse::None, &QUEUE_QUOTA);
+    std::thread::scope(|scope| -> Check {
+        let first = scope.spawn(|| {
+            first_fetch
+                .leg(source, first_fetch.deadline(Duration::from_secs(5)))
+                .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+        });
+        fixture.wait_message()?;
+        for _ in 0..2 {
+            let error = fetch
+                .leg(queued, fetch.deadline(Duration::from_millis(100)))
+                .grpc(&queued.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+                .unwrap_err();
+            assert!(
+                matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+            );
+            assert!(
+                !first.is_finished(),
+                "queued caller waited for the unrelated active stream"
+            );
+        }
+        cancel.cancel();
+        assert!(first.join().unwrap().is_err());
+        Ok(())
+    })?;
     assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
     fixture.finish()
 }

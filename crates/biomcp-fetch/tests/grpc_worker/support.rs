@@ -45,8 +45,11 @@ impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
 type Socket = Box<dyn Io>;
 impl Fixture {
     pub(super) fn new(hold: Hold, status: u8, proxy: bool, proxy_tls: bool) -> Check<Self> {
-        let pair =
-            rcgen::generate_simple_self_signed(vec!["localhost".into(), "synthetic.test".into()])?;
+        let pair = rcgen::generate_simple_self_signed(vec![
+            "localhost".into(),
+            "synthetic.test".into(),
+            "127.0.0.1".into(),
+        ])?;
         let certificate = pair.cert.pem();
         let key = rustls::pki_types::PrivatePkcs8KeyDer::from(pair.key_pair.serialize_der());
         let mut tls = rustls::ServerConfig::builder_with_provider(Arc::new(
@@ -112,10 +115,18 @@ impl Fixture {
         )?)
     }
     pub(super) fn source(&self, proxy: bool, key: KeyUse) -> &'static SourceSpec {
+        self.with_quota(proxy, key, &super::QUOTA)
+    }
+    pub(super) fn with_quota(
+        &self,
+        proxy: bool,
+        key: KeyUse,
+        quota: &'static biomcp_fetch::Quota,
+    ) -> &'static SourceSpec {
         let base = if proxy {
             "https://synthetic.test:443".to_owned()
         } else {
-            format!("https://localhost:{}", self.address.port())
+            format!("https://127.0.0.1:{}", self.address.port())
         };
         Box::leak(Box::new(SourceSpec {
             source: biomcp_types::Source::MyGene,
@@ -127,12 +138,26 @@ impl Fixture {
             },
             base: Box::leak(base.into_boxed_str()),
             key,
-            quota: &super::QUOTA,
+            quota,
             deadline: Duration::from_secs(5),
         }))
     }
     pub(super) fn received(&self) -> Check<Seen> {
         Ok(self.events.recv_timeout(Duration::from_secs(5))?)
+    }
+    pub(super) fn wait_message(&self) -> Check {
+        loop {
+            if matches!(self.received()?, Seen::Message) {
+                return Ok(());
+            }
+        }
+    }
+    pub(super) fn wait_request(&self) -> Check {
+        loop {
+            if matches!(self.received()?, Seen::Request(_, _)) {
+                return Ok(());
+            }
+        }
     }
     pub(super) fn finish(mut self) -> Check {
         self.stop();

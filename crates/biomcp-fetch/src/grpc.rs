@@ -1,4 +1,5 @@
 //! Decode provider tensor payloads under explicit allocation limits without network access.
+pub(super) const FRAME_BYTES: usize = tonic::codec::HEADER_SIZE;
 mod bounds;
 mod connect;
 mod control;
