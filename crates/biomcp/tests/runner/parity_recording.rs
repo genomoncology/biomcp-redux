@@ -99,7 +99,19 @@ fn peers(
             ));
     }
     let mut peers = Vec::new();
-    for endpoint in registry.active_endpoints(&selection.recordings)? {
+    let endpoints = registry.active_endpoints(&selection.recordings)?;
+    if endpoints
+        .iter()
+        .filter(|e| requires_fixture_origin(&e.variable))
+        .count()
+        > 1
+    {
+        return Err(
+            "assessment gap: released fixture policy accepts only one S2 or ORCID peer origin"
+                .into(),
+        );
+    }
+    for endpoint in endpoints {
         let routes = grouped.remove(&endpoint.variable).unwrap_or_default();
         let expected_host = endpoint.host.clone();
         let peer = super::super::network_stub::Stub::loopback(
@@ -126,9 +138,19 @@ fn peers(
             },
         )?;
         command.env(&endpoint.variable, endpoint.local_url(peer.address));
+        if requires_fixture_origin(&endpoint.variable) {
+            // Released S2 and ORCID policies accept HTTP only for this exact fixture origin.
+            command.env(
+                "BIOMCP_TEST_UNPACED_ORIGIN",
+                format!("http://{}", peer.address),
+            );
+        }
         peers.push(peer);
     }
     Ok(peers)
+}
+fn requires_fixture_origin(variable: &str) -> bool {
+    matches!(variable, "BIOMCP_S2_BASE" | "BIOMCP_ORCID_BASE")
 }
 fn bodies(
     routes: &[Route],
