@@ -40,7 +40,7 @@ struct Selection {
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
     #[serde(default)]
-    command_selectors: BTreeMap<String, String>,
+    command_selectors: BTreeMap<String, request::CommandSelector>,
     recordings: Vec<recording::Route>,
     #[serde(default)]
     source_free: bool,
