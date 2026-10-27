@@ -24,11 +24,11 @@ BioMCP <Fact k="version" /> serves MCP over stdio with `biomcp serve` and over H
 biomcp serve --http 127.0.0.1:8080
 ```
 
-The server prints the address it listens on as one JSON line. This run, from the build, starts a server on a free port, initializes an MCP session over HTTP, and then sends a request with a browser `Origin` header:
+The server prints the address it listens on as one JSON line. This run, from the build, starts a server on a free port, initializes an MCP session over HTTP, lists the tools with two `MCP-Protocol-Version` headers, and then sends a request with a browser `Origin` header:
 
 <Example id="server-mcp-http" />
 
-The server refuses requests from browser origins with HTTP 403.
+The server answers `initialize` with protocol version 2025-11-25. Every later request must carry the `MCP-Protocol-Version` header with a version the server supports: 2026-07-28 or 2025-11-25. Any other version gets JSON-RPC error -32022, and the error names the supported versions. The server refuses requests from browser origins with HTTP 403.
 
 ## 2. Check health
 
