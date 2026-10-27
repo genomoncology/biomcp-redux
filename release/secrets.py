@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import platform
+import re
 import stat
 import subprocess
 import tarfile
@@ -63,6 +64,14 @@ MAX_FILES = 200000
 ARCHIVE_SUFFIXES = (".zip", ".whl", ".mcpb", ".tar", ".gz", ".tgz", ".7z", ".rar", ".bz2", ".xz", ".zst")
 
 
+HISTORY_IGNORE = Path(__file__).with_name("secrets.ignore.jsonl")
+
+
+def git(target, env, *args):
+    return subprocess.check_output(["git", "--no-replace-objects", "-C", str(target), *args],
+                                   env=env, stderr=subprocess.DEVNULL)
+
+
 def inputs(mode, target, env):
     if mode != "history":
         def unreadable(error):
@@ -76,20 +85,17 @@ def inputs(mode, target, env):
                     with path.open("rb") as source:
                         yield path.relative_to(target).as_posix(), source.read(MAX_FILE + 1)
         return
-    def git(*args):
-        return subprocess.check_output(["git", "--no-replace-objects", "-C", str(target), *args],
-                                       env=env, stderr=subprocess.DEVNULL)
-    if git("rev-parse", "--is-shallow-repository").strip() != b"false":
+    if git(target, env, "rev-parse", "--is-shallow-repository").strip() != b"false":
         raise ValueError("secret history scan requires a complete checkout")
     # Enumerate actual reachable blobs, not patches: merge-only additions, binary
     # attributes and default diff suppression must not hide historical content.
-    objects = git("rev-list", "--objects", "--all", "HEAD").splitlines()
+    objects = git(target, env, "rev-list", "--objects", "--all", "HEAD").splitlines()
     names = {}
     for row in objects:
         oid, _, name = row.partition(b" ")
         if len(oid) == 40:
             names.setdefault(oid, name.decode("utf-8", errors="replace"))
-    ids = git("rev-list", "--objects", "--all", "HEAD", "--no-object-names")
+    ids = git(target, env, "rev-list", "--objects", "--all", "HEAD", "--no-object-names")
     types = subprocess.check_output(["git", "--no-replace-objects", "-C", str(target), "cat-file", "--batch-check"],
                                     input=ids, env=env, stderr=subprocess.DEVNULL)
     with subprocess.Popen(["git", "--no-replace-objects", "-C", str(target), "cat-file", "--batch"],
@@ -217,6 +223,55 @@ def prepare(target, mode, root, env):
     return directory, mapping
 
 
+def history_ignores(target, env, mapping, staging):
+    if not HISTORY_IGNORE.exists():
+        return []
+    index = {}
+    for key, item in mapping.items():
+        index.setdefault((item["blob"], item["file"]), []).append(key)
+    translated, reachable = [], None
+    for line in HISTORY_IGNORE.read_text().splitlines():
+        row = json.loads(line)
+        if (set(row) != {"commit", "file", "blob", "rule", "line", "reason"}
+                or not all(re.fullmatch("[a-f0-9]{40}", row[k]) for k in ["commit", "blob"])
+                or type(row["line"]) is not int or row["line"] < 1
+                or not isinstance(row["reason"], str) or not row["reason"].strip()):
+            raise ValueError("invalid reviewed history exception")
+        keys = index.get((row["blob"], row["file"]), [])
+        if not keys:
+            continue
+        if reachable is None:
+            reachable = set(git(target, env, "rev-list", "--all", "HEAD").decode().splitlines())
+        if row["commit"] not in reachable or git(target, env, "rev-parse", row["commit"] + ":" + row["file"]).decode().strip() != row["blob"]:
+            raise ValueError("history exception does not match its reachable commit")
+        for key in keys:
+            if mapping[key]["git_file"] != row["file"]:
+                raise ValueError("history exception must name its actual Git path")
+            translated.append(str(staging / key) + ":" + row["rule"] + ":" + str(row["line"] + 1))
+    return translated
+
+
+def scanner_config(mode, mapping, staging):
+    text = '[extend]\nuseDefault = true\n'
+    if mode == "history":
+        return text
+    # Match-specific rules cannot exempt another finding on the same line.
+    # History uses immutable reviewed bindings instead of these fixture forms.
+    groups = [
+        (lambda p: p == "tests/parity/sequences.json" or p.startswith("tests/replies/trial/"),
+         [r'^(?:nextPageToken|pageToken)"\s*:\s*"[A-Za-z0-9_-]{39}"$', r'^pageToken=[A-Za-z0-9_-]{39}["\s;]?$']),
+        (lambda p: p == "crates/biomcp/tests/runner/study_catalog.rs", [r'^key\s*=\s*"[a-f0-9]{64}"$']),
+        (lambda p: p.startswith(("tests/fixtures/", "tests/replies/")),
+         [r'^(?:request_key|request_sha256|capture_digest|body_sha256)"\s*:\s*"[a-f0-9]{64}"$']),
+    ]
+    for selected, patterns in groups:
+        paths = ["^" + re.escape(str(staging / key)) + "$" for key, item in mapping.items() if selected(item["file"])]
+        if paths:
+            text += '\n[[rules]]\nid = "generic-api-key"\n[[rules.allowlists]]\ncondition = "AND"\nregexTarget = "match"\n'
+            text += "paths = " + json.dumps(paths) + "\nregexes = " + json.dumps(patterns) + "\n"
+    return text
+
+
 def findings(report, mapping, staging):
     # This report contains coordinates and identities only, never source lines,
     # matches or captured secrets. Public output remains file plus rule.
@@ -246,9 +301,9 @@ def scan(mode, target, cache):
         binary = scanner(cache.resolve(), root)
         staging, mapping = prepare(target, mode, root, env)
         config, template, ignore, report = [root / name for name in ["config.toml", "report.tmpl", "ignore", "report.txt"]]
-        config.write_text('[extend]\nuseDefault = true\n')
+        config.write_text(scanner_config(mode, mapping, staging))
         template.write_text(r'{{range .}}{{printf "%s\t%s\t%d\t%d\t%d\t%d\n" .File .RuleID .StartLine .EndLine .StartColumn .EndColumn}}{{end}}')
-        ignore.touch()
+        ignore.write_text("\n".join(history_ignores(target, env, mapping, staging)) if mode == "history" else "")
         command = [str(binary), "dir", str(staging), "--config", str(config), "--gitleaks-ignore-path", str(ignore),
                    "--ignore-gitleaks-allow", "--redact=100", "--no-banner", "--no-color", "--log-level", "error",
                    "--report-format", "template", "--report-template", str(template), "--report-path", str(report)]
