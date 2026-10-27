@@ -71,7 +71,9 @@
       "spelling_table": "sdlc/planning/slices/adverse-event.md",
       "release_source": [
         "src/cli/adverse_event/dispatch.rs:194-204,229-262,521",
-        "src/entities/adverse_event.rs:1027-1047,1137-1144"
+        "src/entities/adverse_event.rs:1027-1047,1137-1144",
+        "src/entities/section_outcome.rs:330-339",
+        "src/entities/source_state_registry.rs:903-922"
       ],
       "baseline_globals": [
         "--json"
@@ -81,7 +83,8 @@
       "facts": {
         "/query/source": "/source",
         "/query/limit": "/pagination/limit",
-        "": ""
+        "": "",
+        "/sources/0/reason": "/section_outcomes/faers/outcome"
       },
       "unprojectable_facts": {
         "/schema": {
@@ -93,12 +96,8 @@
           "release_source": "src/entities/adverse_event.rs:1027-1047,1137-1144;src/cli/adverse_event/dispatch.rs:229-262,521"
         },
         "/sources/0/state": {
-          "reason": "Released FAERS unavailability records a section outcome and empty rows, with no current per-source policy state.",
-          "release_source": "src/entities/adverse_event.rs:1037-1047;src/cli/adverse_event/dispatch.rs:194-204,229-262"
-        },
-        "/sources/0/reason": {
-          "reason": "Released optional FAERS failures collapse to Unavailable and lose the disabled-policy reason; the response has no sources reason field.",
-          "release_source": "src/entities/adverse_event.rs:1027-1047;src/cli/adverse_event/dispatch.rs:194-204,229-262"
+          "reason": "Released SectionOutcomes::complete restores the disabled policy outcome through the source-state registry and serializes section_outcomes/faers/outcome=disabled. That outcome projects the disabled reason separately; it has no skipped lifecycle state corresponding to the current sources entry.",
+          "release_source": "src/entities/section_outcome.rs:330-339;src/entities/source_state_registry.rs:903-922;src/cli/adverse_event/dispatch.rs:194-204,251-262"
         }
       },
       "command_selectors": {
