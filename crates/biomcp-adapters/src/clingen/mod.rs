@@ -58,6 +58,7 @@ pub fn validity(leg: &Leg<'_>, id: HgncId) -> Result<Box<[ClinGenValidity]>, Req
         .collect()
 }
 /// Checked dosage fields from the independent dosage summary.
+#[derive(Debug)]
 pub struct Dosage {
     /// Published haploinsufficiency assessment.
     pub haploinsufficiency: biodata::Text,
