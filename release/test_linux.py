@@ -36,21 +36,30 @@ if args[0] == 'save':
 if args[0] != 'run':
     sys.exit(0)
 if '/bin/bash' in args:
+    user = home = None
+    for index, value in enumerate(args):
+        if value in ('--user', '-u'):
+            user = args[index + 1]
+        elif value.startswith('--user='):
+            user = value.split('=', 1)[1]
+        elif value in ('-e', '--env') and args[index + 1].startswith('HOME='):
+            home = args[index + 1].split('=', 1)[1]
+        elif value.startswith('--env=HOME='):
+            home = value.split('=', 2)[2]
+    assert user == f'{os.getuid()}:{os.getgid()}', user
+    assert home == '/tmp', home
     if '/artifacts:ro' not in ' '.join(args):
         # Docker must receive a caller-owned output directory before it creates files.
         output = pathlib.Path('dist')
         assert output.is_dir(), 'caller must create dist before the first bind mount'
         assert output.stat().st_uid == os.getuid()
-        assert '--user' not in args and '-u' not in args
         pathlib.Path('dist/release.json').write_text('{"version":"1.0.0"}')
         with tarfile.open('dist/biomcp-linux-x86_64.tar.gz', 'w:gz') as archive:
             info = tarfile.TarInfo('biomcp')
             info.size = 9
             archive.addfile(info, io.BytesIO(b'candidate'))
-        # Model default root-owned container contents without requiring a daemon.
-        # The host can add an archive but cannot rewrite these artifact files.
-        for artifact in output.iterdir():
-            artifact.chmod(0o444)
+        pathlib.Path('target/debug').mkdir(parents=True)
+        pathlib.Path('target/debug/container-output').touch()
         pathlib.Path('proof/fixtures').mkdir(parents=True)
         pathlib.Path('proof/case-runner').touch()
         gate = pathlib.Path('proof/tools/release/gate.py')
@@ -113,16 +122,20 @@ class LinuxContainers(unittest.TestCase):
             self.assertFalse((root / 'injected').exists())
             self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
                              b'container archive')
-            self.assertEqual((root / 'dist/release.json').stat().st_mode & 0o222, 0)
+            for output in ('dist', 'target/debug'):
+                (root / output / 'host-output').write_text('caller can write')
+            self.assertEqual([str(path.relative_to(root)) for path in root.rglob('*')
+                              if (path.lstat().st_uid, path.lstat().st_gid) != (os.getuid(), os.getgid())], [])
             # The Docker process removed its temporary installation tree before returning.
             report = root / 'dist/install-report.json'
             self.assertEqual(json.loads(report.read_text()), REPORT)
             self.assertGreater(len(report.read_text().splitlines()), 2)
             return [json.loads(line) for line in record.read_text().splitlines()]
 
-    def test_every_started_container_receives_only_the_callers_extra_arguments(self):
+    def test_release_preserves_caller_ownership_and_forwards_container_arguments(self):
         extra = ['--label', 'example.owner=release check', '--label',
-                 'example.literal=$(touch injected);*', '--network', 'none']
+                 'example.literal=$(touch injected);*', '--network', 'none',
+                 '--user=0:0', '--env=HOME=/root']
         baseline = self.run_release([])
         supplied = self.run_release(extra)
         self.assertEqual(len(baseline), 12)
