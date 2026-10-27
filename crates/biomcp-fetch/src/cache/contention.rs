@@ -5,6 +5,10 @@ use super::{Cache, CacheError, Connection, Duration};
 use crate::{Deadline, deadline::VirtualClock};
 
 #[test]
+#[expect(
+    clippy::print_stderr,
+    reason = "Report measured SQLite admission without asserting machine speed"
+)]
 fn replay_admission_preserves_rows_under_an_external_writer() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("cache.sqlite");
@@ -27,10 +31,6 @@ fn replay_admission_preserves_rows_under_an_external_writer() {
         cache.sql(deadline, replace),
         Err(CacheError::Busy)
     ));
-    #[expect(
-        clippy::print_stderr,
-        reason = "Report measured SQLite admission without asserting machine speed"
-    )]
     eprintln!(
         "SQLite held-writer admission: budget={:?}, elapsed={:?}; replay time unchanged",
         deadline.remaining(),
