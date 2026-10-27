@@ -708,6 +708,9 @@
           "baseline_gap": {
             "reason": "The native eight-file CSV bundle is retained, but released drug interactions resolves the anchor through MyChem before DdinterClient::ready. This synthetic-only case has no retained MyChem identity response for the exact native anchor name. The baseline needs that recording; its absence is not unsupported DDInter interaction semantics.",
             "release_source": "src/entities/drug/get.rs::resolve_drug_identity"
+          },
+          "command_selectors": {
+            "--limit": "--section-limit"
           }
         },
         {
@@ -738,6 +741,10 @@
           "baseline_gap": {
             "reason": "The native eight-file CSV bundle is retained, but released drug interactions resolves the anchor through MyChem before DdinterClient::ready. This synthetic-only case has no retained MyChem identity response for the exact native anchor name. The baseline needs that recording; its absence is not unsupported DDInter interaction semantics.",
             "release_source": "src/entities/drug/get.rs::resolve_drug_identity"
+          },
+          "command_selectors": {
+            "--limit": "--section-limit",
+            "--offset": "--section-offset"
           }
         },
         {
@@ -891,7 +898,9 @@
           "baseline_command": [
             "search",
             "protein",
-            "EGFR"
+            "EGFR",
+            "--limit",
+            "1"
           ],
           "spelling_table": "sdlc/planning/slices/protein.md",
           "release_source": [
@@ -908,7 +917,10 @@
             "reason": "The two unchanged UniProt source bodies and native pagination metadata are retained, but the baseline peer does not yet replay Link and X-Total-Results. Released UniProt follows full native Link URLs, which bypass endpoint overrides. This native-header isolation gap requires a reviewed confined adapter; source fields and cursor data must not be fabricated.",
             "release_source": "src/sources/uniprot.rs::search_plan"
           },
-          "baseline_items": "/results"
+          "baseline_items": "/results",
+          "command_selectors": {
+            "--limit": "--limit"
+          }
         },
         {
           "case": "protein/paging.yaml",
@@ -916,7 +928,9 @@
           "baseline_command": [
             "search",
             "protein",
-            "EGFR"
+            "EGFR",
+            "--limit",
+            "25"
           ],
           "spelling_table": "sdlc/planning/slices/protein.md",
           "release_source": [
@@ -932,6 +946,9 @@
           "baseline_gap": {
             "reason": "The two unchanged UniProt source bodies and native pagination metadata are retained, but the baseline peer does not yet replay Link and X-Total-Results. Released UniProt follows full native Link URLs, which bypass endpoint overrides. This native-header isolation gap requires a reviewed confined adapter; source fields and cursor data must not be fabricated.",
             "release_source": "src/sources/uniprot.rs::search_plan"
+          },
+          "command_selectors": {
+            "--limit": "--limit"
           }
         }
       ]
