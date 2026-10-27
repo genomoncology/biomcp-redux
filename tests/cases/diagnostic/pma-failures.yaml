@@ -20,7 +20,6 @@
       ],
       "exit": 4,
       "max_bytes": 355,
-      "max_tokens": 89,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-pma",
@@ -47,7 +46,6 @@
       ],
       "exit": 4,
       "max_bytes": 354,
-      "max_tokens": 89,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-pma",
@@ -74,7 +72,6 @@
       ],
       "exit": 4,
       "max_bytes": 360,
-      "max_tokens": 90,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-pma",
@@ -101,7 +98,6 @@
       ],
       "exit": 4,
       "max_bytes": 351,
-      "max_tokens": 88,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "fda-pma",

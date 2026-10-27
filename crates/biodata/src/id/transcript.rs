@@ -13,8 +13,8 @@ fn split_version(value: &str) -> Option<(&str, Option<NonZeroU32>)> {
     }
 }
 macro_rules! versioned {
-    ($(#[$doc:meta])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
-        $(#[$doc])*
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $schema:literal, $pattern:literal, $check:expr) => {
+        $(#[doc = $doc])*
         #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub struct $name { base: Box<str>, version: Option<NonZeroU32> }
         impl $name {
@@ -37,7 +37,7 @@ macro_rules! versioned {
                 Ok(())
             }
         }
-        text_value!($name, $schema, $pattern);
+        text_value!($name, $schema, $pattern, concat!($($doc),*));
     };
 }
 fn ensembl(value: &str, prefix: &str) -> bool {

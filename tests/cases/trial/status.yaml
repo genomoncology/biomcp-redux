@@ -40,8 +40,7 @@
         },
         "/result/source_updated": "2026-10-23T09:00:04"
       },
-      "max_bytes": 5638,
-      "max_tokens": 1410
+      "max_bytes": 5638
     }
   ],
   "harvest": "Required-provenance exception measured by j10455: 4902 bytes minus 1939 bytes for exact source parameters, processing timestamp, attribution, row URLs, update dates and intervention names leaves 2963 bytes; comparable 0.9 output was 4639 bytes. Preserve every required fact."

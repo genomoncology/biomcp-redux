@@ -18,8 +18,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 725,
-      "max_tokens": 182
+      "max_bytes": 725
     },
     {
       "run": [
@@ -39,8 +38,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 725,
-      "max_tokens": 182
+      "max_bytes": 725
     },
     {
       "run": [
@@ -56,8 +54,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 672,
-      "max_tokens": 168
+      "max_bytes": 672
     },
     {
       "run": [
@@ -77,8 +74,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 672,
-      "max_tokens": 168
+      "max_bytes": 672
     },
     {
       "run": [
@@ -94,8 +90,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 487,
-      "max_tokens": 122
+      "max_bytes": 487
     },
     {
       "run": [
@@ -115,8 +110,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 487,
-      "max_tokens": 122
+      "max_bytes": 487
     },
     {
       "run": [
@@ -132,8 +126,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 776,
-      "max_tokens": 194
+      "max_bytes": 776
     },
     {
       "run": [
@@ -153,8 +146,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 776,
-      "max_tokens": 194
+      "max_bytes": 776
     },
     {
       "run": [
@@ -174,8 +166,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 682,
-      "max_tokens": 171
+      "max_bytes": 682
     },
     {
       "run": [
@@ -199,8 +190,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 682,
-      "max_tokens": 171
+      "max_bytes": 682
     },
     {
       "run": [
@@ -216,8 +206,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 458,
-      "max_tokens": 115
+      "max_bytes": 458
     },
     {
       "run": [
@@ -237,8 +226,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 458,
-      "max_tokens": 115
+      "max_bytes": 458
     },
     {
       "run": [
@@ -254,8 +242,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 255,
-      "max_tokens": 64
+      "max_bytes": 255
     },
     {
       "run": [
@@ -273,8 +260,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 255,
-      "max_tokens": 64
+      "max_bytes": 255
     }
   ]
 }

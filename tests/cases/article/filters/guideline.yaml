@@ -13,7 +13,6 @@
         "guideline"
       ],
       "max_bytes": 1439,
-      "max_tokens": 360,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "next-generation sequencing advanced cancer ESMO AND (guideline[pt] OR \"practice guideline\"[pt])",

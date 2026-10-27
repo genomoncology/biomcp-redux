@@ -64,9 +64,11 @@ pub struct StudyFile {
     /// Exact native repository path.
     pub path: Text,
     /// Publisher browser link.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub html_url: Text,
     /// Native download link, absent for directory entries.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub download_url: Option<Text>,
     /// Repository blob or tree revision, not a data-content checksum.
     pub sha: StudyBlobSha,

@@ -75,7 +75,7 @@ macro_rules! id {
                 f.write_str(&self.0)
             }
         }
-        crate::text_value!($name, stringify!($name), $pattern);
+        crate::text_value!($name, stringify!($name), $pattern, $doc);
     };
 }
 id!(
