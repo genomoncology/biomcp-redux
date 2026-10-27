@@ -17,7 +17,10 @@ pub(super) fn filter(fetch: &biomcp_fetch::Fetch, result: &mut Outcome) {
     });
     for (kind, source) in removed {
         if !result.next.iter().any(|(kept, _)| *kept == kind)
-            && !result.sources.iter().any(|outcome| outcome.source == source)
+            && !result
+                .sources
+                .iter()
+                .any(|outcome| outcome.source == source)
         {
             result.sources.push(biomcp_adapters::registry::outcome(
                 source,
@@ -53,23 +56,31 @@ fn sources(action: &Action) -> Vec<Source> {
             ArticleInput::EuropePmc(_) => Source::EuropePmc,
             _ => Source::PmcOa,
         }],
-        Request::SearchArticle(query) => query.sources().iter().map(|source| match source {
-            biomcp_types::ArticleSource::Pubmed => Source::PubMed,
-            biomcp_types::ArticleSource::Europepmc => Source::EuropePmc,
-            biomcp_types::ArticleSource::LitVar => Source::LitVar,
-            biomcp_types::ArticleSource::SemanticScholar => Source::SemanticScholar,
-            biomcp_types::ArticleSource::LitSense => Source::LitSense,
-            biomcp_types::ArticleSource::Pubtator => Source::PubTator,
-        }).collect(),
+        Request::SearchArticle(query) => query
+            .sources()
+            .iter()
+            .map(|source| match source {
+                biomcp_types::ArticleSource::Pubmed => Source::PubMed,
+                biomcp_types::ArticleSource::Europepmc => Source::EuropePmc,
+                biomcp_types::ArticleSource::LitVar => Source::LitVar,
+                biomcp_types::ArticleSource::SemanticScholar => Source::SemanticScholar,
+                biomcp_types::ArticleSource::LitSense => Source::LitSense,
+                biomcp_types::ArticleSource::Pubtator => Source::PubTator,
+            })
+            .collect(),
         _ => Vec::new(),
     }
 }
 
 fn article(query: &biomcp_types::ArticleGet) -> Vec<Source> {
-    let mut sources = query.input().iter().map(|input| match input {
-        ArticleInput::EuropePmc(_) => Source::EuropePmc,
-        _ => Source::PubMed,
-    }).collect::<Vec<_>>();
+    let mut sources = query
+        .input()
+        .iter()
+        .map(|input| match input {
+            ArticleInput::EuropePmc(_) => Source::EuropePmc,
+            _ => Source::PubMed,
+        })
+        .collect::<Vec<_>>();
     for section in query.sections() {
         match section {
             Section::Annotations => sources.push(Source::PubTator),
@@ -80,9 +91,12 @@ fn article(query: &biomcp_types::ArticleGet) -> Vec<Source> {
                 ArticleInput::EuropePmc(_) => Source::EuropePmc,
                 _ => Source::PmcOa,
             })),
-            Section::Indexing => {},
+            Section::Indexing => {}
             Section::All => sources.extend([
-                Source::PubTator, Source::Icite, Source::SemanticScholar, Source::PmcOa,
+                Source::PubTator,
+                Source::Icite,
+                Source::SemanticScholar,
+                Source::PmcOa,
             ]),
         }
     }

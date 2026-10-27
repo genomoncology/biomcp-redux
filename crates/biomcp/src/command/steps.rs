@@ -89,10 +89,7 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
     }
 }
 
-fn source_steps(
-    exclusions: &[String],
-    steps: Vec<biomcp_types::Step>,
-) -> Vec<biomcp_types::Step> {
+fn source_steps(exclusions: &[String], steps: Vec<biomcp_types::Step>) -> Vec<biomcp_types::Step> {
     let disabled = exclusions.join(",");
     if disabled.is_empty() {
         return steps;

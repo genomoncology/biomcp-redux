@@ -13,8 +13,8 @@ mod pathway;
 mod pgx;
 mod phenotype;
 mod protein;
-mod steps;
 mod step_sources;
+mod steps;
 mod sync;
 mod transport;
 mod unsupported;
@@ -175,9 +175,9 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    drug_label::bound( &request, &mut result, fresh, globals)?;
+    drug_label::bound(&request, &mut result, fresh, globals)?;
     step_sources::filter(fetch, &mut result);
-    let steps = steps::next( &result, globals)?;
+    let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
         local_error: local::kind(result.local),

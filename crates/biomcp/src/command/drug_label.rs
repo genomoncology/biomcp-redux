@@ -25,7 +25,7 @@ pub(super) fn bound(
             .cloned()
             .map(biomcp_adapters::registry::restore_outcome)
             .collect();
-        envelope.next = super::steps::next( out, globals)?;
+        envelope.next = super::steps::next(out, globals)?;
         envelope.problems = out.problems.clone();
         envelope.page = out.page.clone();
         if serde_json::to_vec(&envelope)?.len() < LABEL_BYTES {
