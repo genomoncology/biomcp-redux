@@ -6,20 +6,23 @@
       "recording_source": "alphagenome",
       "variables": [
         "BIOMCP_ALPHAGENOME_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "cancerhotspots": {
       "recording_source": "cancerhotspots",
       "variables": [
         "BIOMCP_CANCERHOTSPOTS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "cbioportal": {
       "recording_source": "cbioportal",
       "variables": [
         "BIOMCP_CBIOPORTAL_BASE",
         "BIOMCP_CBIOPORTAL_DATAHUB_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "cdc-cvx": {
       "recording_source": "cvx",
@@ -27,382 +30,445 @@
         "BIOMCP_CVX_URL",
         "BIOMCP_MVX_URL",
         "BIOMCP_CVX_TRADENAME_URL"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "cellosaurus": {
       "recording_source": "cellosaurus",
       "variables": [
         "BIOMCP_CELLOSAURUS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "chembl": {
       "recording_source": "chembl",
       "variables": [
         "BIOMCP_CHEMBL_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "civic": {
       "recording_source": "civic",
       "variables": [
         "BIOMCP_CIVIC_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "clingen": {
       "recording_source": "clingen",
       "variables": [
         "BIOMCP_CLINGEN_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "clingen_car": {
       "recording_source": "car",
       "variables": [
         "BIOMCP_CLINGEN_CAR_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "clingen_erepo": {
       "recording_source": "erepo",
       "variables": [
         "BIOMCP_CLINGEN_EREPO_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "clingen_ldh": {
       "recording_source": "clingen_ldh",
       "variables": [
         "BIOMCP_CLINGEN_LDH_FIXTURE_ORIGIN"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "clinicaltrials-gov": {
       "recording_source": "ctgov",
       "variables": [
         "BIOMCP_CTGOV_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "clinvar": {
       "recording_source": "clinvar",
       "variables": [
         "BIOMCP_CLINVAR_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "complexportal": {
       "recording_source": "complex-portal",
       "variables": [
         "BIOMCP_COMPLEXPORTAL_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "cpic": {
       "recording_source": "cpic",
       "variables": [
         "BIOMCP_CPIC_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "dbsnp": {
       "recording_source": "dbsnp",
       "variables": [
         "BIOMCP_DBSNP_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "dgidb": {
       "recording_source": "dgidb",
       "variables": [
         "BIOMCP_DGIDB_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "disgenet": {
       "recording_source": "disgenet",
       "variables": [
         "BIOMCP_DISGENET_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "ema": {
       "recording_source": "ema",
       "variables": [
         "BIOMCP_EMA_REPORT_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "enrichr": {
       "recording_source": "enrichr",
       "variables": [
         "BIOMCP_ENRICHR_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "europe-pmc": {
       "recording_source": "europepmc",
       "variables": [
         "BIOMCP_EUROPEPMC_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "fda-orphan-designations": {
       "recording_source": "fda-orphan-designations",
       "variables": [
         "BIOMCP_FDA_ORPHAN_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "figshare": {
       "recording_source": "figshare",
       "variables": [
         "BIOMCP_FIGSHARE_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "gnomad": {
       "recording_source": "gnomad",
       "variables": [
         "BIOMCP_GNOMAD_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "gprofiler": {
       "recording_source": "gprofiler",
       "variables": [
         "BIOMCP_GPROFILER_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "gtex": {
       "recording_source": "gtex",
       "variables": [
         "BIOMCP_GTEX_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "gtr": {
       "recording_source": "gtr",
       "variables": [
         "BIOMCP_GTR_CONDITION_GENE_URL",
         "BIOMCP_GTR_TEST_VERSION_URL"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "gwas-catalog": {
       "recording_source": "gwas",
       "variables": [
         "BIOMCP_GWAS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "hpo-jax-api": {
       "recording_source": "hpo",
       "variables": [
         "BIOMCP_HPO_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "human-protein-atlas": {
       "recording_source": "hpa",
       "variables": [
         "BIOMCP_HPA_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "interpro": {
       "recording_source": "interpro",
       "variables": [
         "BIOMCP_INTERPRO_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "kegg": {
       "recording_source": "kegg",
       "variables": [
         "BIOMCP_KEGG_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "litsense2": {
       "recording_source": "litsense",
       "variables": [
         "BIOMCP_LITSENSE2_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "litvar2": {
       "recording_source": "litvar",
       "variables": [
         "BIOMCP_LITVAR_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "medlineplus": {
       "recording_source": "medlineplus",
       "variables": [
         "BIOMCP_MEDLINEPLUS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "monarch-initiative": {
       "recording_source": "monarch",
       "variables": [
         "BIOMCP_MONARCH_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "mutalyzer": {
       "recording_source": "mutalyzer",
       "variables": [
         "BIOMCP_MUTALYZER_BASE_URL"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "mychem-info": {
       "recording_source": "mychem",
       "variables": [
         "BIOMCP_MYCHEM_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "mydisease-info": {
       "recording_source": "mydisease",
       "variables": [
         "BIOMCP_MYDISEASE_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "mygene-info": {
       "recording_source": "mygene",
       "variables": [
         "BIOMCP_MYGENE_BASE"
-      ]
+      ],
+      "delivery": "reviewed_json"
     },
     "myvariant-info": {
       "recording_source": "myvariant",
       "variables": [
         "BIOMCP_MYVARIANT_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "ncbi-e-utilities": {
       "recording_source": "pubmed",
       "variables": [
         "BIOMCP_CLINVAR_BASE",
         "BIOMCP_PUBMED_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "ncbi-id-converter": {
       "recording_source": "pubmed",
       "variables": [
         "BIOMCP_NCBI_IDCONV_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "nci-cts": {
       "recording_source": "nci",
       "variables": [
         "BIOMCP_NCI_CTS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "nih-reporter": {
       "recording_source": "nih-reporter",
       "variables": [
         "BIOMCP_NIH_REPORTER_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "ols4": {
       "recording_source": "ols4",
       "variables": [
         "BIOMCP_OLS4_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "oncokb": {
       "recording_source": "oncokb",
       "variables": [
         "BIOMCP_ONCOKB_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "opencitations": {
       "recording_source": "opencitations",
       "variables": [
         "BIOMCP_OPENCITATIONS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "openfda": {
       "recording_source": "faers",
       "variables": [
         "BIOMCP_OPENFDA_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "opentargets": {
       "recording_source": "opentargets",
       "variables": [
         "BIOMCP_OPENTARGETS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "orcid": {
       "recording_source": "orcid",
       "variables": [
         "BIOMCP_ORCID_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "pharmacodb": {
       "recording_source": "pharmacodb",
       "variables": [
         "BIOMCP_PHARMACODB_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "pharmgkb": {
       "recording_source": "clinpgx",
       "variables": [
         "BIOMCP_PHARMGKB_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "pmc-oa": {
       "recording_source": "pmc-oa",
       "variables": [
         "BIOMCP_PMC_HTML_BASE",
         "BIOMCP_PMC_OA_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "pubmed": {
       "recording_source": "pubmed",
       "variables": [
         "BIOMCP_PUBMED_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "pubtator3": {
       "recording_source": "pubtator",
       "variables": [
         "BIOMCP_PUBTATOR_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "quickgo": {
       "recording_source": "quickgo",
       "variables": [
         "BIOMCP_QUICKGO_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "reactome": {
       "recording_source": "reactome",
       "variables": [
         "BIOMCP_REACTOME_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "seer-explorer": {
       "recording_source": "seer",
       "variables": [
         "BIOMCP_SEER_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "semantic-scholar": {
       "recording_source": "semantic-scholar",
       "variables": [
         "BIOMCP_S2_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "string": {
       "recording_source": "string",
       "variables": [
         "BIOMCP_STRING_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "umls": {
       "recording_source": "umls",
       "variables": [
         "BIOMCP_UMLS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "uniprot": {
       "recording_source": "uniprot",
       "variables": [
         "BIOMCP_UNIPROT_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "vaers": {
       "recording_source": "vaers",
       "variables": [
         "BIOMCP_VAERS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "variantvalidator": {
       "recording_source": "variantvalidator",
       "variables": [
         "BIOMCP_VARIANTVALIDATOR_BASE_URL"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "who-ivd": {
       "recording_source": "who-ivd",
       "variables": [
         "BIOMCP_WHO_IVD_URL"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "who-prequalification": {
       "recording_source": "who-pq",
@@ -410,13 +476,15 @@
         "BIOMCP_WHO_PQ_API_URL",
         "BIOMCP_WHO_PQ_URL",
         "BIOMCP_WHO_VACCINES_URL"
-      ]
+      ],
+      "delivery": "declaration_only"
     },
     "wikipathways": {
       "recording_source": "wikipathways",
       "variables": [
         "BIOMCP_WIKIPATHWAYS_BASE"
-      ]
+      ],
+      "delivery": "declaration_only"
     }
   },
   "endpoints": {
@@ -1341,6 +1409,13 @@
         "https://cspec.clinicalgenome.org"
       ],
       "reason": "Released client has no reviewed general endpoint override; source must remain disabled until denied-network delivery is proved."
+    },
+    "ema": {
+      "source_path": "src/sources/ema.rs",
+      "urls": [
+        "https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format"
+      ],
+      "reason": "The fixed EMA index precedes report downloads and has no general endpoint override. BIOMCP_EMA_REPORT_BASE does not isolate it."
     }
   }
 }

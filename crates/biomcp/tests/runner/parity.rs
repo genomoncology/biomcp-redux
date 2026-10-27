@@ -36,8 +36,26 @@ struct Selection {
     #[serde(default)]
     assertion_pointers: Option<Vec<String>>,
     facts: BTreeMap<String, String>,
+    #[serde(default)]
+    unprojectable_facts: BTreeMap<String, UnsupportedFact>,
 }
 
+#[derive(Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+struct UnsupportedFact {
+    reason: String,
+    release_source: String,
+}
+impl UnsupportedFact {
+    fn validate(&self) -> Result<(), String> {
+        if self.reason.trim().is_empty() || !self.release_source.starts_with("src/") {
+            return Err(
+                "unsupported fact requires a reason grounded in released serialization".into(),
+            );
+        }
+        Ok(())
+    }
+}
 pub(crate) fn main(args: Vec<String>) -> ExitCode {
     let result = match args.as_slice() {
         [plan, baseline, out] => run(Path::new(plan), Path::new(baseline), Path::new(out)),
@@ -156,6 +174,12 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
         projection.expect = BTreeMap::from([(baseline_pointer.clone(), expected.clone())]);
         assertions::prepare(&projection)?;
     }
+    for (pointer, reason) in &selection.unprojectable_facts {
+        if !step.expect.contains_key(pointer) || selection.facts.contains_key(pointer) {
+            return Err("unsupported fact is unknown or also projected".into());
+        }
+        reason.validate()?;
+    }
     if selection.baseline_command.is_empty() {
         return Err("selection requires a baseline command".into());
     }
@@ -241,6 +265,12 @@ fn facts(
         let prepared = assertions::prepare(&fact)?;
         for (_, _, assertions) in prepared {
             for assertion in assertions {
+                if let Some(reason) = selection.unprojectable_facts.get(pointer) {
+                    result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
+                        "baseline":{"verdict":"unprojectable","reason":reason.reason,"release_source":reason.release_source},
+                        "candidate":verdict(current, pointer, &assertion)}));
+                    continue;
+                }
                 let Some(old_pointer) = selection.facts.get(pointer) else {
                     result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
                         "baseline":{"verdict":"assessment_gap","reason":format!("missing baseline projection for {pointer}")},

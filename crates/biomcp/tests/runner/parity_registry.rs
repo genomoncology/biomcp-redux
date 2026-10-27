@@ -30,6 +30,13 @@ struct Declarations {
 struct Source {
     recording_source: String,
     variables: Vec<String>,
+    delivery: Delivery,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum Delivery {
+    DeclarationOnly,
+    ReviewedJson,
 }
 #[derive(Deserialize)]
 struct Proof {
@@ -154,6 +161,12 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
             return Err("routed source missing from released registry".into());
         }
         let source = registry.source(route)?;
+        if !matches!(source.delivery, Delivery::ReviewedJson) {
+            return Err(format!(
+                "assessment gap: {} delivery containment is not reviewed",
+                route.source
+            ));
+        }
         // Every override for an enabled source must terminate locally. Missing
         // delivery support is an assessment gap, never a live fallback.
         if source.variables.iter().any(|variable| {

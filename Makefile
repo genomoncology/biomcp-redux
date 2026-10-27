@@ -59,4 +59,4 @@ parity-run:
 
 .PHONY: parity-inventory
 parity-inventory:
-	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(PLAN)" tests/cases "$(OUT)"
+	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"

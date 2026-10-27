@@ -222,7 +222,7 @@ fn direct(
         .keys()
         .filter(|pointer| {
             selection.is_none_or(|s| {
-                !s.facts.contains_key(*pointer)
+                (!s.facts.contains_key(*pointer) && !s.unprojectable_facts.contains_key(*pointer))
                     || s.assertion_pointers
                         .as_ref()
                         .is_some_and(|p| !p.contains(*pointer))
@@ -238,7 +238,7 @@ fn direct(
     Ok(
         json!({"case":name, "class":if gaps == 0 && unsafe_reason.is_none() {"direct"} else {"unclassified"},
         "surfaces":surfaces,"missing_projections":missing,"gaps":gaps,
-        "unsafe_reason":unsafe_reason}),
+        "unsafe_reason":unsafe_reason,"unprojectable_facts":selection.map(|s| &s.unprojectable_facts)}),
     )
 }
 fn covered(
@@ -271,7 +271,7 @@ fn covered(
         .find(|s| s.case == link.by_case && s.step == 0)
         .ok_or("coverage target requires a direct plan")?;
     if target.expect.keys().any(|p| {
-        !selection.facts.contains_key(p)
+        (!selection.facts.contains_key(p) && !selection.unprojectable_facts.contains_key(p))
             || selection
                 .assertion_pointers
                 .as_ref()
