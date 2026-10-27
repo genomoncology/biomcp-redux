@@ -237,7 +237,8 @@ impl FromStr for Accession {
 text_value!(
     Accession,
     "Accession",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[1-9][0-9]*|ENS[GTP][0-9]{11}\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$"
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\.[1-9][0-9]*|ENS[GTP][0-9]{11}\.[1-9][0-9]*|LRG_[0-9]+([tp][0-9]+)?)$",
+    "A reference sequence accession: RefSeq or Ensembl with its version, or LRG."
 );
 
 /// An accession whose source states no version; never used for an allele location.
@@ -271,5 +272,6 @@ impl fmt::Display for AccessionBase {
 text_value!(
     AccessionBase,
     "AccessionBase",
-    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})|ENS[GTP][0-9]{11}|LRG_[0-9]+([tp][0-9]+)?)$"
+    r"^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})|ENS[GTP][0-9]{11}|LRG_[0-9]+([tp][0-9]+)?)$",
+    "An accession whose source states no version; never used for an allele location."
 );

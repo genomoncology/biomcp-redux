@@ -54,7 +54,8 @@ impl fmt::Display for Contig {
 text_value!(
     Contig,
     "Contig",
-    format!(r"^[\x21-\x7e]{{1,{}}}$", Self::MAX_LEN)
+    format!(r"^[\x21-\x7e]{{1,{}}}$", Self::MAX_LEN),
+    "A source chromosome or scaffold name without spelling normalization."
 );
 
 /// An assembly-qualified zero-based half-open source interval.

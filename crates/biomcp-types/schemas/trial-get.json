@@ -1,6 +1,7 @@
 {
   "$defs": {
     "NctId": {
+      "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },

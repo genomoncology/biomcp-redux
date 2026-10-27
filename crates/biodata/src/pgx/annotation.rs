@@ -31,6 +31,7 @@ pub struct PgxCrossReference {
     #[serde(rename = "resourceId")]
     pub resource_id: Box<str>,
     /// Native `_url`; literal source value.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub _url: Box<str>,
     /// Native `name` when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]

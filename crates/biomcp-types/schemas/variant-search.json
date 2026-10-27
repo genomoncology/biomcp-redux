@@ -13,14 +13,17 @@
       ]
     },
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
     "MyVariantQuery": {
+      "description": "A validated canonical MyVariantQuery string.",
       "pattern": "\\S",
       "type": "string"
     },
     "ProteinQuery": {
+      "description": "A validated canonical ProteinQuery string.",
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
@@ -30,6 +33,7 @@
       "type": "string"
     },
     "VariantRegion": {
+      "description": "A validated canonical VariantRegion string.",
       "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },

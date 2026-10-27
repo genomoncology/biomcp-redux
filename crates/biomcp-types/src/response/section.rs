@@ -9,6 +9,7 @@ pub struct SourceRecord {
     pub id: Text,
     /// Link to that entry.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// A requested section has exactly one state.
