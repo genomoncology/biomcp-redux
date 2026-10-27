@@ -26,6 +26,10 @@ def run(plan, baseline, out, expected, env=None):
     row = report['cases'][0]
     for label in ('baseline', 'candidate'):
         command = row[label]
+        if 'stdout' not in command:
+            assert label == 'baseline' and set(command) == {'assessment_error'}, command
+            assert command['assessment_error'], 'an unlaunched baseline needs its assessment gap'
+            continue
         raw = (out / command['stdout']).read_bytes()
         assert len(raw) == command['stdout_bytes'] > 0
         assert len((out / command['stderr']).read_bytes()) == command['stderr_bytes']
