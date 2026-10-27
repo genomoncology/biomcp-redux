@@ -234,8 +234,9 @@ def history_ignores(target, env, mapping, staging):
         row = json.loads(line)
         if (set(row) != {"commit", "file", "blob", "rule", "line", "reason"}
                 or not all(re.fullmatch("[a-f0-9]{40}", row[k]) for k in ["commit", "blob"])
+                or not re.fullmatch("[A-Za-z0-9_-]+", row["rule"])
                 or type(row["line"]) is not int or row["line"] < 1
-                or not isinstance(row["reason"], str) or not row["reason"].strip()):
+                or not isinstance(row["reason"], str) or not row["reason"].strip() or "\n" in row["reason"]):
             raise ValueError("invalid reviewed history exception")
         keys = index.get((row["blob"], row["file"]), [])
         if not keys:
@@ -264,10 +265,14 @@ def scanner_config(mode, mapping, staging):
         (lambda p: p.startswith(("tests/fixtures/", "tests/replies/")),
          [r'^(?:request_key|request_sha256|capture_digest|body_sha256)"\s*:\s*"[a-f0-9]{64}"$']),
     ]
+    rule_added = False
     for selected, patterns in groups:
         paths = ["^" + re.escape(str(staging / key)) + "$" for key, item in mapping.items() if selected(item["file"])]
         if paths:
-            text += '\n[[rules]]\nid = "generic-api-key"\n[[rules.allowlists]]\ncondition = "AND"\nregexTarget = "match"\n'
+            if not rule_added:
+                text += '\n[[rules]]\nid = "generic-api-key"\n'
+                rule_added = True
+            text += '[[rules.allowlists]]\ncondition = "AND"\nregexTarget = "match"\n'
             text += "paths = " + json.dumps(paths) + "\nregexes = " + json.dumps(patterns) + "\n"
     return text
 
@@ -329,5 +334,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     try:
         raise SystemExit(scan(args.mode, args.target, args.cache))
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError, tarfile.TarError, zipfile.BadZipFile, RuntimeError, EOFError):
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError, tarfile.TarError, zipfile.BadZipFile, RuntimeError, EOFError, TypeError):
         parser.exit(2, "Secret screening failed; diagnostic output was suppressed\n")
