@@ -285,7 +285,14 @@ async fn serve(
             .ok_or("unexpected HTTP source request")?
             .1;
         events.send(Seen::Http(request))?;
-        socket.write_all(format!("HTTP/1.1 200 Synthetic\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", reply.len()).as_bytes()).await?;
+        let header = format!(
+            concat!(
+                "HTTP/1.1 200 Synthetic\r\nContent-Type: application/json\r\n",
+                "Content-Length: {}\r\nConnection: close\r\n\r\n"
+            ),
+            reply.len()
+        );
+        socket.write_all(header.as_bytes()).await?;
         socket.write_all(reply).await?;
         socket.shutdown().await?;
         return Ok(());
