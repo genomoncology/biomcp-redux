@@ -182,6 +182,9 @@ pub fn probe(
 type ProbeParams = Vec<(&'static str, biomcp_fetch::Arg<'static>)>;
 fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
+    if let Some(probe) = article_probe(source) {
+        return Some(probe);
+    }
     if let Some(probe) = pgx_probe(source) {
         return Some(probe);
     }
@@ -228,43 +231,6 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
         Source::ClinGen => ("/kb/gene-validity/download", vec![]),
-        Source::PubMed => (
-            "/einfo.fcgi",
-            vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))],
-        ),
-        Source::EuropePmc => (
-            "/search",
-            vec![
-                ("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")),
-                ("format", Arg::Text("json")),
-                ("pageSize", Arg::Num(1)),
-            ],
-        ),
-        Source::PubTator => (
-            "/publications/export/biocjson",
-            vec![("pmids", Arg::Text("17611497"))],
-        ),
-        Source::PmcOa => (
-            "/",
-            vec![
-                ("list-type", Arg::Num(2)),
-                ("prefix", Arg::Text("PMC5606870.")),
-                ("max-keys", Arg::Num(1)),
-            ],
-        ),
-        Source::Orcid => ("/0000-0002-4299-3018/person", vec![]),
-        Source::SemanticScholar => (
-            "/paper/search",
-            vec![
-                ("query", Arg::Text("EGFR")),
-                ("limit", Arg::Num(1)),
-                ("fields", Arg::Text("externalIds,title,year")),
-            ],
-        ),
-        Source::Icite => (
-            "/pubs",
-            vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
-        ),
         _ => return disease_probe(source),
     })
 }
@@ -408,6 +374,50 @@ fn pgx_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
                 ("location.genes.symbol", Arg::Text("DPYD")),
                 ("view", Arg::Text("min")),
             ],
+        ),
+        _ => return None,
+    })
+}
+
+fn article_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
+    use biomcp_fetch::Arg;
+    Some(match source {
+        Source::PubMed => (
+            "/einfo.fcgi",
+            vec![("db", Arg::Text("pubmed")), ("retmode", Arg::Text("json"))],
+        ),
+        Source::EuropePmc => (
+            "/search",
+            vec![
+                ("query", Arg::Text("EXT_ID:17611497 AND SRC:MED")),
+                ("format", Arg::Text("json")),
+                ("pageSize", Arg::Num(1)),
+            ],
+        ),
+        Source::PubTator => (
+            "/publications/export/biocjson",
+            vec![("pmids", Arg::Text("17611497"))],
+        ),
+        Source::PmcOa => (
+            "/",
+            vec![
+                ("list-type", Arg::Num(2)),
+                ("prefix", Arg::Text("PMC5606870.")),
+                ("max-keys", Arg::Num(1)),
+            ],
+        ),
+        Source::Orcid => ("/0000-0002-4299-3018/person", vec![]),
+        Source::SemanticScholar => (
+            "/paper/search",
+            vec![
+                ("query", Arg::Text("EGFR")),
+                ("limit", Arg::Num(1)),
+                ("fields", Arg::Text("externalIds,title,year")),
+            ],
+        ),
+        Source::Icite => (
+            "/pubs",
+            vec![("pmids", Arg::Text("17611497")), ("fl", Arg::Text("pmid"))],
         ),
         _ => return None,
     })
