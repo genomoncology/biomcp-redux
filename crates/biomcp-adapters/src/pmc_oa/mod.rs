@@ -14,6 +14,7 @@ use std::time::Duration;
 pub use supplement::{Download, Supplement, download, download_bytes};
 /// Conservative application policy; no numeric provider limit is claimed.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "PMC copyright; article-specific licenses",

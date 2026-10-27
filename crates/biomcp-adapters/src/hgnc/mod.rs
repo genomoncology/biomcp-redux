@@ -15,6 +15,7 @@ use std::{marker::PhantomData, time::Duration};
 
 /// HGNC source declaration for published TSV bundles.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "CC0 1.0",

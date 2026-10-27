@@ -234,6 +234,7 @@ fn bundle_sync_child() {
     };
     let base = Box::leak(std::env::var("BUNDLE_BASE").unwrap().into_boxed_str());
     let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         terms: biomcp_fetch::Terms {
             name: "Synthetic test data",

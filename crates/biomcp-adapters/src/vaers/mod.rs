@@ -6,6 +6,7 @@ use std::time::Duration;
 /// Registry-owned restricted statistical use only; no re-identification.
 /// This compatibility setting applies only to CDC WONDER.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: Some("Wget/1.21.4"),
     source: Source::Vaers,
     base: "https://wonder.cdc.gov",

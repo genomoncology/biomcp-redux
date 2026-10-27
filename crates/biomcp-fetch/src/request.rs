@@ -249,6 +249,7 @@ impl Leg<'_> {
         mut prepared: Prepared,
         codec: Decoder<T>,
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
+        self.spec.admit(&prepared.url, ep.publisher)?;
         prepared.identity_encoding = ep.identity_encoding;
         prepared.exact_count = ep.exact_count;
         if ep.exact_count {
@@ -404,9 +405,12 @@ impl Leg<'_> {
             return self.replayed_wire(prepared, exchange);
         }
         let started = Instant::now();
-        let mut response = self
-            .wire_call(prepared, codec.name(), &[])
-            .map_err(Failure::Transport)?;
+        let mut response = if prepared.publisher {
+            self.publisher_call(&prepared.url, codec.name())?
+        } else {
+            self.wire_call(prepared, codec.name(), &[])
+                .map_err(Failure::Transport)?
+        };
         let status = response.status().as_u16();
         let content_type = response
             .headers()

@@ -72,6 +72,15 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::maude::SPEC,
     &crate::vaers::SPEC,
 ];
+/// Additional request declarations share a source identity with its primary API.
+pub const AUXILIARY: &[&SourceSpec] = &[
+    &crate::semantic_scholar::recommend::RECOMMEND_SPEC,
+    &crate::semantic_scholar::pdf::PUBLISHER,
+];
+/// Enumerate every request declaration, including auxiliary APIs and publisher policy.
+pub fn requests() -> impl Iterator<Item = &'static SourceSpec> {
+    SOURCES.iter().chain(AUXILIARY).copied()
+}
 /// Independently labeled fields from every implemented aggregator.
 pub fn components() -> impl Iterator<Item = &'static Component> {
     crate::myvariant::components::all()

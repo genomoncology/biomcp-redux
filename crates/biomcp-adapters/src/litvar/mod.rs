@@ -10,6 +10,7 @@ use serde::Deserialize;
 use std::time::Duration;
 /// Public NCBI LitVar2 policy, independent of E-utilities credentials.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI public-domain metadata policy",

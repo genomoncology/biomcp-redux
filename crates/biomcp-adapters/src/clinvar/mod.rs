@@ -11,6 +11,7 @@ use biomcp_types::{Source, VariantAssertion};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     terms: biomcp_fetch::Terms {
         name: "NCBI policy; submission rights remain source-specific",

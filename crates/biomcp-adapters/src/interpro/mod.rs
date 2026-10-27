@@ -4,6 +4,7 @@ use biomcp_types::{Source, Use};
 use std::time::Duration;
 /// One publisher declaration owns admission, terms and keyless request policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::InterPro,
     base: "https://www.ebi.ac.uk/interpro/api",

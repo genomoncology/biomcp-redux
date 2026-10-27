@@ -11,6 +11,7 @@ use std::time::Duration;
 
 /// One declaration owns publisher terms, admission and bundle download policy.
 pub static SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::WikiPathways,
     base: "https://www.wikipathways.org",

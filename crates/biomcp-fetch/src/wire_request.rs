@@ -8,9 +8,6 @@ impl Leg<'_> {
         accept: &str,
         headers: &[(&str, String)],
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
-        if prepared.publisher {
-            return self.publisher_call(&prepared.url, accept);
-        }
         let agent = self.fetch.agents.for_url(
             &self.fetch.config.network,
             self.fetch.config.proxy.is_some(),

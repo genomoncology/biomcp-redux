@@ -142,6 +142,10 @@ impl Leg<'_> {
     }
     pub(super) fn bundle_source<R: Row>(&self, bundle: &Bundle<R>) -> Result<(), RequestError> {
         self.check_source()?;
+        self.spec.admit(
+            &format!("{}{}", self.spec.base.trim_end_matches('/'), bundle.path),
+            false,
+        )?;
         if self.budget().expired() {
             return Err(self
                 .failure(biomcp_types::Reason::DeadlineExceeded, None)
