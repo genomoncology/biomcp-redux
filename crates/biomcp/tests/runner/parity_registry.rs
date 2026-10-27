@@ -148,11 +148,23 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
             "baseline source disables are derived from routes; omit --disable-sources".into(),
         );
     }
-    if selection.recordings.is_empty() {
-        return Err("assessment gap: baseline endpoint routes missing".into());
+    if selection.recordings.is_empty() != selection.source_free {
+        return Err(
+            "source-free plans require no routes; other plans require reviewed routes".into(),
+        );
     }
     for route in &selection.recordings {
         registry.endpoint(route)?;
+        if route
+            .recording_gap
+            .as_ref()
+            .is_some_and(|reason| reason.trim().is_empty() || !route.capture.is_empty())
+            || route.recording_gap.is_none() && route.capture.is_empty()
+        {
+            return Err(
+                "route requires either a retained capture or an explicit recording gap".into(),
+            );
+        }
         if !registry
             .catalog
             .iter()

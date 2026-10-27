@@ -18,6 +18,12 @@ pub(super) struct Exceptions {
     #[serde(default)]
     covered: Vec<Covered>,
 }
+impl Exceptions {
+    pub(super) fn extend(&mut self, other: Self) {
+        self.unprojectable.extend(other.unprojectable);
+        self.covered.extend(other.covered);
+    }
+}
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Unsupported {
@@ -54,8 +60,7 @@ pub(super) fn main(args: Vec<String>) -> ExitCode {
     }
 }
 fn run(plan_path: &Path, root: &Path, output: &Path) -> Result<Value, String> {
-    let plan: Plan = serde_json::from_slice(&fs::read(plan_path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let plan = super::load_plan(plan_path)?;
     if plan.baseline_release != "0.9.3" {
         return Err("expected released 0.9.3 plan".into());
     }
@@ -238,7 +243,8 @@ fn direct(
     Ok(
         json!({"case":name, "class":if gaps == 0 && unsafe_reason.is_none() {"direct"} else {"unclassified"},
         "surfaces":surfaces,"missing_projections":missing,"gaps":gaps,
-        "unsafe_reason":unsafe_reason,"unprojectable_facts":selection.map(|s| &s.unprojectable_facts)}),
+        "unsafe_reason":unsafe_reason,"unprojectable_facts":selection.map(|s| &s.unprojectable_facts),
+        "recording_gaps":selection.map(|s| s.recordings.iter().filter_map(|route| route.recording_gap.as_ref()).collect::<Vec<_>>())}),
     )
 }
 fn covered(

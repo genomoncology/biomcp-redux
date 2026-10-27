@@ -1,4 +1,8 @@
 {
   "baseline_release": "0.9.3",
-  "cases": []
+  "cases": [],
+  "batches": [
+    "batches/trial.json",
+    "batches/pathway.json"
+  ]
 }

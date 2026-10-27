@@ -24,6 +24,8 @@ struct Plan {
     baseline_release: String,
     cases: Vec<Selection>,
     #[serde(default)]
+    batches: Vec<String>,
+    #[serde(default)]
     inventory: inventory::Exceptions,
 }
 #[derive(Deserialize)]
@@ -36,6 +38,8 @@ struct Selection {
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
     recordings: Vec<recording::Route>,
+    #[serde(default)]
+    source_free: bool,
     #[serde(default)]
     assertion_pointers: Option<Vec<String>>,
     facts: BTreeMap<String, projection::Projection>,
@@ -82,9 +86,31 @@ pub(crate) fn main(args: Vec<String>) -> ExitCode {
         }
     }
 }
+fn load_plan(path: &Path) -> Result<Plan, String> {
+    let read = |path: &Path| -> Result<Plan, String> {
+        serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())
+    };
+    let mut plan = read(path)?;
+    for batch in std::mem::take(&mut plan.batches) {
+        let name = Path::new(&batch);
+        if name
+            .components()
+            .any(|part| !matches!(part, std::path::Component::Normal(_)))
+        {
+            return Err("batch must be a relative path without traversal".into());
+        }
+        let child = read(&path.parent().ok_or("plan parent missing")?.join(name))?;
+        if child.baseline_release != plan.baseline_release || !child.batches.is_empty() {
+            return Err("batch must target the same release without nested batches".into());
+        }
+        plan.cases.extend(child.cases);
+        plan.inventory.extend(child.inventory);
+    }
+    Ok(plan)
+}
 fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
-    let plan: Plan = serde_json::from_slice(&fs::read(plan).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let plan = load_plan(plan)?;
     if plan.baseline_release != "0.9.3"
         || plan.cases.is_empty()
         || plan.cases.len() > 1024
@@ -234,11 +260,21 @@ fn compare(
         .ok_or("selection requires a direct CLI step")?;
     let replay = super::launch::fixtures()
         .join("replies")
-        .join(case.replay.as_ref().ok_or("recording required")?);
+        .join(case.replay.as_deref().unwrap_or("parity-empty"));
+    let replay = if case.replay.is_some() {
+        replay
+    } else {
+        let empty = out.join(format!("{index}-empty-replay"));
+        fs::create_dir(&empty).map_err(|e| e.to_string())?;
+        empty
+    };
     let current = execution::candidate(case, step, command, &replay, out, index)?;
-    let mut old = recording::baseline(selection, baseline, &replay, out, index)?;
+    let mut old = recording::baseline(selection, baseline, &replay, out, index)
+        .unwrap_or_else(|error| json!({"assessment_error":error}));
     let mut current = current;
-    execution::assess_exit(&mut old, 0)?;
+    if old.get("assessment_error").is_none() {
+        execution::assess_exit(&mut old, 0)?;
+    }
     execution::assess_exit(&mut current, step.exit)?;
     let facts = facts(step, selection, &old, &current)?;
     let unselected = step
@@ -253,7 +289,8 @@ fn compare(
         .collect::<Vec<_>>();
     Ok(
         json!({"case":selection.case,"story":case.story,"step":selection.step,
-        "spelling_table":selection.spelling_table,"baseline":old,"candidate":current,"facts":facts,
+        "spelling_table":selection.spelling_table,"release_source":selection.release_source,
+        "baseline_routes":selection.recordings,"baseline":old,"candidate":current,"facts":facts,
         "selection":selection.assertion_pointers,
         "unselected_assertion_pointers":unselected}),
     )

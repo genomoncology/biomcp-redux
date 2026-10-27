@@ -1,10 +1,10 @@
 //! Recorded source payloads reach released clients through explicit local endpoints.
 use super::{Environment, Selection, execution, registry};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct Route {
     pub(super) source: String,
@@ -12,7 +12,9 @@ pub(super) struct Route {
     pub(super) host: String,
     request_prefix: String,
     request_contains: String,
-    capture: String,
+    pub(super) capture: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) recording_gap: Option<String>,
     envelope: Option<String>,
     #[serde(default)]
     count_field: Option<String>,
@@ -25,7 +27,11 @@ pub(super) fn baseline(
     index: usize,
 ) -> Result<Value, String> {
     let registry = registry::load()?;
-    let bodies = bodies(&selection.recordings, replay, out, index)?;
+    let bodies = if selection.source_free {
+        Vec::new()
+    } else {
+        bodies(&selection.recordings, replay, out, index)?
+    };
     let env = Environment::new().map_err(|e| e.to_string())?;
     let mut args = selection.baseline_globals.clone();
     args.extend([
@@ -49,7 +55,7 @@ pub(super) fn baseline(
         serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    if requests.is_empty() {
+    if requests.is_empty() && !selection.source_free {
         execution::field(
             &mut result,
             "assessment_error",
@@ -121,6 +127,12 @@ fn bodies(
         .iter()
         .enumerate()
         .map(|(ordinal, route)| {
+            if let Some(reason) = &route.recording_gap {
+                return Err(format!(
+                    "assessment gap: {} recording: {reason}",
+                    route.source
+                ));
+            }
             let capture: Value = serde_json::from_slice(
                 &fs::read(replay.join(&route.capture)).map_err(|e| e.to_string())?,
             )

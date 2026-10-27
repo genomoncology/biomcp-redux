@@ -88,7 +88,7 @@
         "BIOMCP_CTGOV_BASE",
         "BIOMCP_CTGOV_CDN_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "clinvar": {
       "recording_source": "clinvar",
