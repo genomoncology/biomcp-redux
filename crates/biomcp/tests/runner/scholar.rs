@@ -84,6 +84,7 @@ fn outgoing_with_key(configured: bool) -> Result<(), String> {
         |_| Ok(r#"{"total":0,"data":[]}"#.into()),
     )?;
     let certificate = env.root().join("ca.pem");
+    stub.retain(&env);
     std::fs::write(&certificate, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({
         "ca_bundle":certificate,"proxy":format!("http://{}",stub.address),

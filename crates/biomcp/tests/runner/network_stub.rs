@@ -23,9 +23,14 @@ pub(super) struct Stub {
     pub(super) address: std::net::SocketAddr,
     pub(super) certificate: String,
     stop: mpsc::Sender<()>,
+    evidence: Arc<super::fixture_evidence::Evidence>,
     worker: Option<thread::JoinHandle<Result<Requests, String>>>,
 }
 impl Stub {
+    pub(super) fn retain(&self, env: &super::launch::Environment) {
+        self.evidence.attach(env);
+    }
+
     pub(super) fn new() -> Result<Self, String> {
         Self::for_source(
             "storage.googleapis.com",
@@ -115,6 +120,8 @@ impl Stub {
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
         let (certificate, config) = identity(hosts)?;
+        let evidence = super::fixture_evidence::Evidence::new(address, hosts);
+        let observed = Arc::clone(&evidence);
         let hosts = hosts.iter().map(|s| s.to_string()).collect::<Vec<_>>();
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
@@ -122,42 +129,34 @@ impl Stub {
                 if stopping.try_recv().is_ok() {
                     break;
                 }
-                let mut socket = stream.map_err(|e| format!("source stub accept: {e}"))?;
-                socket
-                    .set_read_timeout(Some(Duration::from_secs(10)))
-                    .map_err(|e| e.to_string())?;
-                socket
-                    .set_write_timeout(Some(Duration::from_secs(10)))
-                    .map_err(|e| e.to_string())?;
-                let connect =
-                    header(&mut socket).map_err(|e| format!("source stub CONNECT header: {e}"))?;
+                let mut socket = observed.accept(stream)?;
+                let connect = observed.check("CONNECT header", header(&mut socket))?;
                 if !hosts
                     .iter()
                     .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
                 {
                     return Err("wrong CONNECT destination".into());
                 }
-                socket
-                    .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n")
-                    .map_err(|e| format!("source stub CONNECT reply: {e}"))?;
+                observed.check(
+                    "CONNECT reply",
+                    socket.write_all(b"HTTP/1.1 200 Connection established\r\n\r\n"),
+                )?;
                 let connection =
                     ServerConnection::new(config.clone()).map_err(|e| e.to_string())?;
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
-                if let Ok(request) = source_request(&mut tls) {
+                if let Ok(request) = observed.check("TLS request", source_request(&mut tls)) {
                     let body = reply(&request)?;
                     let content_type = content_type(&request);
                     let status = status(&request);
-                    write!(
+                    observed.check("TLS reply", write!(
                         tls,
                         "HTTP/1.1 {status} Synthetic\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\n{}Connection: \
                         close\r\n\r\n{body}",
                         length(&request, body.len()),
                         range(&request)
-                    )
-                    .map_err(|e| format!("source stub TLS reply: {e}"))?;
-                    tls.flush()
-                        .map_err(|e| format!("source stub TLS flush: {e}"))?;
+                    ))?;
+                    observed.check("TLS flush", tls.flush())?;
                     requests.push((connect, request));
                 }
             }
@@ -167,6 +166,7 @@ impl Stub {
             address,
             certificate,
             stop,
+            evidence,
             worker: Some(worker),
         })
     }
@@ -179,20 +179,16 @@ impl Stub {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
         let address = listener.local_addr().map_err(|e| e.to_string())?;
         let (stop, stopping) = mpsc::channel();
+        let evidence = super::fixture_evidence::Evidence::new(address, &[&host]);
+        let observed = Arc::clone(&evidence);
         let worker = thread::spawn(move || {
             let mut requests = Vec::new();
             for stream in listener.incoming() {
                 if stopping.try_recv().is_ok() {
                     break;
                 }
-                let mut socket = stream.map_err(|e| e.to_string())?;
-                socket
-                    .set_read_timeout(Some(Duration::from_secs(10)))
-                    .map_err(|e| e.to_string())?;
-                socket
-                    .set_write_timeout(Some(Duration::from_secs(10)))
-                    .map_err(|e| e.to_string())?;
-                let request = source_request(&mut socket)?;
+                let mut socket = observed.accept(stream)?;
+                let request = observed.check("HTTP request", source_request(&mut socket))?;
                 let recorded = reply(&host, &request)?;
                 if !(100..=599).contains(&recorded.status)
                     || recorded.content_type.chars().any(char::is_control)
@@ -200,12 +196,10 @@ impl Stub {
                     return Err("invalid recorded HTTP status or content type".into());
                 }
                 thread::sleep(Duration::from_millis(recorded.delay_ms));
-                write!(socket, "HTTP/1.1 {} Recorded\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
-                    recorded.status, recorded.content_type, recorded.body.len()).map_err(|e| e.to_string())?;
-                socket
-                    .write_all(&recorded.body)
-                    .map_err(|e| e.to_string())?;
-                socket.flush().map_err(|e| e.to_string())?;
+                observed.check("HTTP reply", write!(socket, "HTTP/1.1 {} Recorded\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                    recorded.status, recorded.content_type, recorded.body.len()))?;
+                observed.check("HTTP body", socket.write_all(&recorded.body))?;
+                observed.check("HTTP flush", socket.flush())?;
                 requests.push((host.clone(), request));
             }
             Ok(requests)
@@ -214,17 +208,21 @@ impl Stub {
             address,
             certificate: String::new(),
             stop,
+            evidence,
             worker: Some(worker),
         })
     }
     pub(super) fn finish(mut self) -> Result<Vec<(String, String)>, String> {
         let _ = self.stop.send(());
         let _ = TcpStream::connect(self.address);
-        self.worker
+        let result = self
+            .worker
             .take()
             .ok_or("missing worker")?
             .join()
-            .map_err(|_| "TLS worker panicked")?
+            .map_err(|_| "TLS worker panicked".to_owned())
+            .and_then(|result| result);
+        result.map_err(|error| format!("{error}; {}", self.evidence.preserve("worker failed")))
     }
 }
 impl Drop for Stub {
@@ -232,7 +230,15 @@ impl Drop for Stub {
         let _ = self.stop.send(());
         let _ = TcpStream::connect(self.address);
         if let Some(worker) = self.worker.take() {
-            let _ = worker.join();
+            match worker.join() {
+                Ok(Err(_)) | Err(_) => {
+                    self.evidence.preserve("worker failed during cleanup");
+                }
+                Ok(Ok(requests)) if !requests.is_empty() => {
+                    self.evidence.preserve("case ended before fixture finish");
+                }
+                Ok(Ok(_)) => {}
+            }
         }
     }
 }

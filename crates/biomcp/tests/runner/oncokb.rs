@@ -69,6 +69,7 @@ fn wire() -> Result<(), String> {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
     env.config(&config).map_err(|e| e.to_string())?;
@@ -310,6 +311,7 @@ fn reload() -> Result<(), String> {
         let assets = Environment::new().map_err(|e| e.to_string())?;
         let stub = Stub::for_source("www.oncokb.org", "application/json", reload_reply)?;
         let ca = assets.root().join("ca.pem");
+        stub.retain(&assets);
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         let mut client = super::key_reload::start(
             http,
@@ -420,6 +422,7 @@ fn echo() -> Result<(), String> {
     let stub = Stub::for_source("www.oncokb.org", "application/json", echo_reply)?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let ca = env.root().join("ca.pem");
+    stub.retain(&env);
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"oncokb_api_key":KEY}}))
         .map_err(|e| e.to_string())?;
@@ -469,6 +472,7 @@ fn environment_key() -> Result<(), String> {
         let stub = Stub::for_source("www.oncokb.org", "application/json", reply)?;
         let env = Environment::new().map_err(|e| e.to_string())?;
         let ca = env.root().join("ca.pem");
+        stub.retain(&env);
         fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
         let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
         if configured {

@@ -29,6 +29,7 @@ pub(super) fn run() -> Check {
         },
     )?;
     let cert = env.root().join("private-ca.pem");
+    stub.retain(&env);
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"ca_bundle":cert,"proxy":format!("http://{}",stub.address)}))
         .map_err(|e| e.to_string())?;
