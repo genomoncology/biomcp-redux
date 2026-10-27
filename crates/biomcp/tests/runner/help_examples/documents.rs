@@ -56,7 +56,10 @@ pub(super) fn local(args: &[String]) -> Check {
     }
     let replay = environment.root().join("empty-recordings");
     std::fs::create_dir(&replay).map_err(|e| e.to_string())?;
-    let mut globals = environment.globals(Some(&replay), false);
+    let mut globals = environment.globals(
+        (!args.iter().any(|v| v == "--offline")).then_some(replay.as_path()),
+        false,
+    );
     globals.extend_from_slice(args);
     let child = environment
         .command(env!("CARGO_BIN_EXE_biomcp"), &globals)

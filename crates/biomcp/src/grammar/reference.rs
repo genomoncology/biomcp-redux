@@ -186,6 +186,22 @@ fn refresh_help_cases(directory: &std::path::Path) -> Check {
             );
             if let Some(expect) = step["expect"].as_object_mut() {
                 for (pointer, expected) in expect {
+                    if pointer.ends_with("/arguments/*/name")
+                        && expected.is_array()
+                        && let Some(arguments) = pointer
+                            .strip_suffix("/*/name")
+                            .and_then(|path| reply.value.pointer(path))
+                            .and_then(serde_json::Value::as_array)
+                    {
+                        let actual: serde_json::Value = arguments
+                            .iter()
+                            .filter_map(|a| a.get("name").cloned())
+                            .collect();
+                        if *expected != actual {
+                            *expected = actual;
+                            changed = true;
+                        }
+                    }
                     if pointer.ends_with("/description")
                         && expected.is_string()
                         && let Some(actual) = reply.value.pointer(pointer)
