@@ -81,7 +81,10 @@ pub fn components() -> impl Iterator<Item = &'static Component> {
 }
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
-    groups::USES.iter().copied().find(|usage| usage.as_ref() == name)
+    groups::USES
+        .iter()
+        .copied()
+        .find(|usage| usage.as_ref() == name)
 }
 /// Preserve group restrictions for independently labeled aggregator components.
 pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
@@ -92,14 +95,7 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
         if let Some(usage) = group(name) {
-            disabled.extend(
-                SOURCES
-                    .iter()
-                    .filter(|s| {
-                        s.terms.usage == usage && !components().any(|c| c.source == s.source)
-                    })
-                    .map(|s| s.source),
-            );
+            disabled.extend(groups::sources(usage));
         } else {
             let source = SOURCES
                 .iter()

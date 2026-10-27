@@ -10,16 +10,32 @@ pub(super) fn help(topic: &str) -> Help {
         restricted means each publisher's terms need checking. Group consequences follow. ",
     );
     for group in registry::disable_groups() {
-        let sources = group.sources.iter().map(|&source| {
-            format!("{} ({source})", registry::display_name(source))
-        }).collect::<Vec<_>>().join(", ");
-        let components = group.components.iter().map(|c| format!("{}:{}", c.source, c.name))
-            .collect::<Vec<_>>().join(", ");
-        description.push_str(&format!("{} turns off sources: {sources}. Carried fields: {components}. ", group.group));
+        let sources = group
+            .sources
+            .iter()
+            .map(|&source| format!("{} ({source})", registry::display_name(source)))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let components = group
+            .components
+            .iter()
+            .map(|c| format!("{}:{}", c.source, c.name))
+            .collect::<Vec<_>>()
+            .join(", ");
+        description.push_str(&format!(
+            "{} turns off sources: {sources}. Carried fields: {components}. ",
+            group.group
+        ));
     }
     description.push_str("Carried-field exclusions leave the aggregator's other fields available. PMC Open Access (pmc-oa) supplies PMC reading.");
-    Help { commands: vec![HelpCommand {
-        command: vec!["help".into(), topic.into()], description,
-        arguments: Vec::new(), sections: Vec::new(), section_rule: None, examples: Vec::new(),
-    }] }
+    Help {
+        commands: vec![HelpCommand {
+            command: vec!["help".into(), topic.into()],
+            description,
+            arguments: Vec::new(),
+            sections: Vec::new(),
+            section_rule: None,
+            examples: Vec::new(),
+        }],
+    }
 }
