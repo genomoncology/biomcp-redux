@@ -31,16 +31,26 @@ DOCKER = r'''import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tar
 args = sys.argv[1:]
 with open(os.environ['DOCKER_RECORD'], 'a') as stream:
     stream.write(json.dumps(args) + '\n')
+if args[0] == 'save':
+    pathlib.Path(args[args.index('-o') + 1]).write_bytes(b'container archive')
 if args[0] != 'run':
     sys.exit(0)
 if '/bin/bash' in args:
     if '/artifacts:ro' not in ' '.join(args):
-        pathlib.Path('dist').mkdir()
+        # Docker must receive a caller-owned output directory before it creates files.
+        output = pathlib.Path('dist')
+        assert output.is_dir(), 'caller must create dist before the first bind mount'
+        assert output.stat().st_uid == os.getuid()
+        assert '--user' not in args and '-u' not in args
         pathlib.Path('dist/release.json').write_text('{"version":"1.0.0"}')
         with tarfile.open('dist/biomcp-linux-x86_64.tar.gz', 'w:gz') as archive:
             info = tarfile.TarInfo('biomcp')
             info.size = 9
             archive.addfile(info, io.BytesIO(b'candidate'))
+        # Model default root-owned container contents without requiring a daemon.
+        # The host can add an archive but cannot rewrite these artifact files.
+        for artifact in output.iterdir():
+            artifact.chmod(0o444)
         pathlib.Path('proof/fixtures').mkdir(parents=True)
         pathlib.Path('proof/case-runner').touch()
         gate = pathlib.Path('proof/tools/release/gate.py')
@@ -101,6 +111,9 @@ class LinuxContainers(unittest.TestCase):
                                     cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertFalse((root / 'injected').exists())
+            self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
+                             b'container archive')
+            self.assertEqual((root / 'dist/release.json').stat().st_mode & 0o222, 0)
             # The Docker process removed its temporary installation tree before returning.
             report = root / 'dist/install-report.json'
             self.assertEqual(json.loads(report.read_text()), REPORT)

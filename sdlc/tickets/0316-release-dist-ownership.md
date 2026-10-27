@@ -1,6 +1,7 @@
 # 0316 — Create the Linux release output directory before the container mounts it
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b187218acaaca16bcb169ded18cd78b8763a1b17
 
 Milestone: 5
 
