@@ -5,7 +5,7 @@
 )]
 use super::{
     Limits,
-    control::{CallGuard, Stop},
+    control::{CallGuard, CallState, Stop},
     rpc_call::{self, Event},
 };
 use crate::{LocalDeadline, Network, Secret};
@@ -27,6 +27,7 @@ pub(super) struct Command {
     pub(super) stop: Arc<Stop>,
     pub(super) events: mpsc::SyncSender<Event>,
     pub(super) done: mpsc::SyncSender<()>,
+    pub(super) state: Arc<CallState>,
 }
 struct Running {
     sender: tokio::sync::mpsc::Sender<Command>,
@@ -74,7 +75,12 @@ impl Worker {
     pub(super) fn submit(
         &self,
         deadline: &LocalDeadline,
-        make: impl FnOnce(mpsc::SyncSender<Event>, mpsc::SyncSender<()>, Arc<Stop>) -> Command,
+        make: impl FnOnce(
+            mpsc::SyncSender<Event>,
+            mpsc::SyncSender<()>,
+            Arc<Stop>,
+            Arc<CallState>,
+        ) -> Command,
     ) -> Result<(mpsc::Receiver<Event>, CallGuard), Reason> {
         let sender = self.sender()?;
         loop {
@@ -89,12 +95,14 @@ impl Worker {
                     let (events, receiver) = mpsc::sync_channel(1);
                     let (done, completed) = mpsc::sync_channel(1);
                     let stop = Arc::new(Stop::default());
-                    slot.send(make(events, done, stop.clone()));
+                    let state = Arc::new(CallState::default());
+                    slot.send(make(events, done, stop.clone(), state.clone()));
                     return Ok((
                         receiver,
                         CallGuard {
                             stop,
                             done: completed,
+                            state,
                         },
                     ));
                 }
@@ -173,6 +181,9 @@ async fn run(
     while calls.join_next().await.is_some() {}
 }
 async fn run_call(command: Command, stop: Arc<Stop>, tls: Arc<rustls::ClientConfig>) {
+    if !command.state.begin() {
+        return;
+    }
     let result = tokio::select! {
         biased;
         _ = command.stop.wait() => Err(Reason::DeadlineExceeded),
@@ -186,6 +197,7 @@ async fn run_call(command: Command, stop: Arc<Stop>, tls: Arc<rustls::ClientConf
         _ = super::control::deadline(&command.deadline) => {},
         _ = rpc_call::deliver(&command.events, Event::End(result)) => {},
     }
+    command.state.finish();
     if command.done.send(()).is_err() {
         command.stop.cancel();
     }

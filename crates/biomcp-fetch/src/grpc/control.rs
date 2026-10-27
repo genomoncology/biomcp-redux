@@ -2,7 +2,7 @@
 use crate::LocalDeadline;
 use std::sync::{
     Arc,
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, AtomicU8, Ordering},
 };
 
 #[derive(Debug, Default)]
@@ -39,13 +39,36 @@ pub(super) async fn deadline(deadline: &LocalDeadline) {
         .await;
     }
 }
+#[derive(Debug, Default)]
+pub(super) struct CallState(AtomicU8);
+impl CallState {
+    pub(super) fn begin(&self) -> bool {
+        self.0
+            .compare_exchange(0, 1, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+    }
+    pub(super) fn finish(&self) {
+        self.0.store(2, Ordering::Release);
+    }
+    fn cancel_queued(&self) -> bool {
+        matches!(
+            self.0
+                .compare_exchange(0, 2, Ordering::AcqRel, Ordering::Acquire),
+            Ok(_) | Err(2)
+        )
+    }
+}
 pub(super) struct CallGuard {
     pub(super) stop: Arc<Stop>,
     pub(super) done: std::sync::mpsc::Receiver<()>,
+    pub(super) state: Arc<CallState>,
 }
 impl Drop for CallGuard {
     fn drop(&mut self) {
         self.stop.cancel();
+        if self.state.cancel_queued() {
+            return;
+        }
         // The worker acknowledges only after its stream future and connection driver drop.
         // A running system resolver is the sole documented exception.
         if self.done.recv().is_err() {

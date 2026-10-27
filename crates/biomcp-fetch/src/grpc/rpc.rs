@@ -64,7 +64,7 @@ impl Leg<'_> {
         let (events, _guard) = self
             .fetch
             .grpc_worker
-            .submit(&deadline, |events, done, stop| Command {
+            .submit(&deadline, |events, done, stop, state| Command {
                 uri,
                 path,
                 proxy,
@@ -75,6 +75,7 @@ impl Leg<'_> {
                 stop,
                 events,
                 done,
+                state,
             })
             .map_err(|reason| self.failure(reason, None))?;
         loop {
