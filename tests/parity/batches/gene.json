@@ -1,0 +1,1643 @@
+{
+  "baseline_release": "0.9.3",
+  "cases": [
+    {
+      "case": "gene/fam46c.yaml",
+      "step": 0,
+      "baseline_command": [
+        "gene",
+        "definition",
+        "FAM46C"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"FAM46C\"",
+            "species": "human"
+          },
+          "recording_gap": "Released lookup first queries symbol:\"FAM46C\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/resolution": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/hgnc_id": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/match/kind": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/gene/location": {
+          "reason": "Released location is a chromosome from genomic_pos.chr, not the asserted HGNC cytoband.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/match/text": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/0/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/1/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/2": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/next/*/kind": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/her2.yaml",
+      "step": 0,
+      "baseline_command": [
+        "gene",
+        "definition",
+        "HER2"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"HER2\"",
+            "species": "human"
+          },
+          "recording_gap": "Released lookup first queries symbol:\"HER2\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/resolution": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/hgnc_id": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/match/kind": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/match/text": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/location": {
+          "reason": "Released location is a chromosome from genomic_pos.chr, not the asserted HGNC cytoband.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/0/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/1/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/2": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/next/*/kind": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/kras.yaml",
+      "step": 0,
+      "baseline_command": [
+        "gene",
+        "definition",
+        "KRAS"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"KRAS\"",
+            "species": "human"
+          },
+          "capture": "mygene/d403c85a791fe6c8cdc60de10e5739ba85d15f845bad92a8606bad24b2f767de.json",
+          "envelope": "hits",
+          "count_field": "total"
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol",
+        "/result/items/0/answer/gene/entrez_id": "/entrez_id",
+        "/result/items/0/answer/gene/ensembl_id": "/ensembl_id"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/resolution": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/hgnc_id": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/match/kind": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/gene/location": {
+          "reason": "Released location is a chromosome from genomic_pos.chr, not the asserted HGNC cytoband.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/previous_symbols": {
+          "reason": "Released Gene has no MANE or HGNC previous-symbol fields. Its filtered and capped MyGene aliases are not HGNC previous symbols.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/match/text": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/mane/0/refseq": {
+          "reason": "Released Gene has no MANE or HGNC previous-symbol fields. Its filtered and capped MyGene aliases are not HGNC previous symbols.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/mane/0/ensembl": {
+          "reason": "Released Gene has no MANE or HGNC previous-symbol fields. Its filtered and capped MyGene aliases are not HGNC previous symbols.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/0/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/1/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/2": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/next/*/kind": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/gene/mane/0/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/mll.yaml",
+      "step": 0,
+      "baseline_command": [
+        "gene",
+        "definition",
+        "MLL"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"MLL\"",
+            "species": "human"
+          },
+          "recording_gap": "Released lookup first queries symbol:\"MLL\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/resolution": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/hgnc_id": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/match/kind": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/match/text": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/sources/0/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/1/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/2": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/next/*/kind": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/problems/0": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/gene/spans/*/chromosome": {
+          "reason": "Released genomic_coordinates is one GRCh38 coordinate string, not the asserted ordered GRCh38 and GRCh37 chromosome span list.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/civic-data.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "ERBB2",
+        "civic"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/civic.rs::CivicContext"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"ERBB2\"",
+            "species": "human"
+          },
+          "capture": "mygene/9e6092d6465327a82997870c353b4933ad5c8830286184f014cd4e6c84b86128.json",
+          "envelope": "hits",
+          "count_field": "total"
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/civic": "/civic"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/civic/state": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/result/items/0/sections/civic/data/id": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/result/items/0/sections/civic/data/variant_count": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/civic-empty.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "VISTA",
+        "civic"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/civic.rs::CivicContext"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"VISTA\"",
+            "species": "human"
+          },
+          "recording_gap": "Released lookup first queries symbol:\"VISTA\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/civic/state": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/result/items/0/sections/civic/record/id": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/result/items/0/sections/civic/record/url": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/civic-no-join.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "AKAP2",
+        "civic"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/civic.rs::CivicContext"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"AKAP2\"",
+            "species": "human"
+          },
+          "recording_gap": "The harvested gene/civic/synthetic-no-join recording has no retained MyGene symbol query response for AKAP2; the released getter and any alias fallback need their original source values. No baseline-only response is substituted."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/civic/state": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/result/items/0/sections/civic/reason": {
+          "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+          "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+        },
+        "/problems/0/field": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/clingen-combined.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "clingen"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/gnomad.rs::gene_constraint_plan",
+        "src/sources/clingen.rs::GeneClinGen"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"TP53\"",
+            "species": "human"
+          },
+          "capture": "mygene/2893f22417b1e4c1c3ee4f1a17d6cceb20c9a2861ef234e81a197501a1bcb8ab.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "gnomad",
+          "endpoint_env": "BIOMCP_GNOMAD_BASE",
+          "host": "gnomad.broadinstitute.org",
+          "request_prefix": "POST /api",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/clingen recording does not retain the released constraint request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        },
+        {
+          "source": "clingen",
+          "endpoint_env": "BIOMCP_CLINGEN_BASE",
+          "host": "search.clinicalgenome.org",
+          "request_prefix": "GET /kb/gene-validity/download",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/clingen recording does not retain the released clingen request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/constraint/data/version": "/constraint/source_version",
+        "/result/items/0/sections/clingen/data/validity/0/classification": "/clingen/validity/0/classification",
+        "/result/items/0/sections/clingen/data/validity/0/disease": "/clingen/validity/0/disease",
+        "/result/items/0/sections/clingen/data/haploinsufficiency": "/clingen/haploinsufficiency"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/clingen/data/validity/0/mondo_id": {
+          "reason": "Released ClinGenValidity serializes disease text and classification without a MONDO identifier.",
+          "release_source": "src/sources/clingen.rs::ClinGenValidity"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/constraint.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/gnomad.rs::gene_constraint_plan"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"TP53\"",
+            "species": "human"
+          },
+          "capture": "mygene/2893f22417b1e4c1c3ee4f1a17d6cceb20c9a2861ef234e81a197501a1bcb8ab.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "gnomad",
+          "endpoint_env": "BIOMCP_GNOMAD_BASE",
+          "host": "gnomad.broadinstitute.org",
+          "request_prefix": "POST /api",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/constraint recording does not retain the released constraint request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/constraint/state": "/section_outcomes/constraint/outcome",
+        "/result/items/0/sections/constraint/data/version": "/constraint/source_version",
+        "/result/items/0/sections/constraint/data/loeuf": "/constraint/loeuf",
+        "/result/items/0/sections/constraint/data/transcript": "/constraint/transcript",
+        "/result/items/0/sections/constraint": "/constraint"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/expression-cldn18.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CLDN18",
+        "hpa"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/hpa.rs::GeneHpa"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CLDN18\"",
+            "species": "human"
+          },
+          "capture": "mygene/68b4fbfe133df26aa9f990470915580308c01b45c75be49ea2b706491020fa9a.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "hpa",
+          "endpoint_env": "BIOMCP_HPA_BASE",
+          "host": "www.proteinatlas.org",
+          "request_prefix": "GET /",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/expression recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol",
+        "/result/items/0/sections/expression/state": "/section_outcomes/hpa/outcome",
+        "/result/items/0/sections/expression": "/hpa"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm/*/tissue": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm/0/ntpm": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/result/items/0/sections/expression/data/rna_cancer_ptpm/0/ptpm": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/expression-mapping.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CLDN18",
+        "hpa"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/hpa.rs::GeneHpa"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CLDN18\"",
+            "species": "human"
+          },
+          "capture": "mygene/68b4fbfe133df26aa9f990470915580308c01b45c75be49ea2b706491020fa9a.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "hpa",
+          "endpoint_env": "BIOMCP_HPA_BASE",
+          "host": "www.proteinatlas.org",
+          "request_prefix": "GET /",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/expression/synthetic-mapping recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/answer/gene/symbol": "/symbol",
+        "/result/items/0/sections/expression/state": "/section_outcomes/hpa/outcome",
+        "/result/items/0/sections/expression/data/subcellular_main": "/hpa/subcellular_main_location"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm/*/tissue": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm/0/ntpm": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/result/items/0/sections/expression/data/rna_cancer_ptpm/0/ptpm": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/result/items/0/sections/expression/data/rna_tissue_ntpm": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/result/items/0/sections/expression/data/rna_cancer_ptpm": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/problems/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/problems/*/field": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/expression-mir21.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "MIR21",
+        "hpa"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/hpa.rs::GeneHpa"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"MIR21\"",
+            "species": "human"
+          },
+          "capture": "mygene/a8373ec38683d33f0b3de0d90ebc3a5bcf147b1164c3f1d3ef40758d898135c4.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "hpa",
+          "endpoint_env": "BIOMCP_HPA_BASE",
+          "host": "www.proteinatlas.org",
+          "request_prefix": "GET /",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/expression recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/expression/state": "/section_outcomes/hpa/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/expression-wrong-identity.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CLDN18",
+        "hpa"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/hpa.rs::GeneHpa"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CLDN18\"",
+            "species": "human"
+          },
+          "capture": "mygene/68b4fbfe133df26aa9f990470915580308c01b45c75be49ea2b706491020fa9a.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "hpa",
+          "endpoint_env": "BIOMCP_HPA_BASE",
+          "host": "www.proteinatlas.org",
+          "request_prefix": "GET /",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/expression/synthetic-wrong-identity recording does not retain the released expression request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/expression/state": "/section_outcomes/hpa/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/gene/hgnc_id": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/summary/source": {
+          "reason": "Released summary is a trimmed string with two sentences; it has no separately serialized attribution or date.",
+          "release_source": "src/transform/gene.rs::normalize_summary"
+        },
+        "/result/items/0/sections/expression/reason": {
+          "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+          "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/next/0/kind": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/local-replay-miss.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/sources/gnomad.rs::gene_constraint_plan"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"TP53\"",
+            "species": "human"
+          },
+          "capture": "mygene/2893f22417b1e4c1c3ee4f1a17d6cceb20c9a2861ef234e81a197501a1bcb8ab.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "gnomad",
+          "endpoint_env": "BIOMCP_GNOMAD_BASE",
+          "host": "gnomad.broadinstitute.org",
+          "request_prefix": "POST /api",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/constraint/synthetic-replay-miss recording does not retain the released constraint request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/constraint/state": "/section_outcomes/constraint/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/answer/gene/hgnc_id": {
+          "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+          "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+        },
+        "/result/items/0/answer/gene/summary/source": {
+          "reason": "Released summary is a trimmed string with two sentences; it has no separately serialized attribution or date.",
+          "release_source": "src/transform/gene.rs::normalize_summary"
+        },
+        "/sources/*/source": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-data.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome",
+        "/result/items/0/sections/protein": "/protein"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-duplicate.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-duplicate recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-empty.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-empty recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome",
+        "/result/items/0/sections/protein/source": {
+          "released_source": "/section_outcomes/protein/sources/0"
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/problems/*/field": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-foreign.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-foreign recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-missing.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-missing recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-optional.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-optional recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        },
+        "/problems/*/field": {
+          "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-reordered.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-reordered recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        }
+      }
+    },
+    {
+      "case": "gene/sections/protein-mapping-unreviewed.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "capture": "mygene/cf275c2c06d1739e42ae95d6cb92766644ed006e1aae3ce61510ef649a64eb8f.json",
+          "envelope": "hits",
+          "count_field": "total"
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/",
+          "request_contains": "",
+          "recording_gap": "The harvested gene/protein/synthetic-unreviewed recording does not retain the released protein request set and decoder response format. Source routes require review before execution; no synthetic baseline-only reply is supplied."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/result/items/0/sections/protein/data/*/accession": {
+          "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+          "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+        }
+      }
+    }
+  ],
+  "inventory": {
+    "unprojectable": [
+      {
+        "case": "gene/absent.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+      },
+      {
+        "case": "gene/ensembl-id.yaml",
+        "reason": "Released gene get treats ENSG00000157764 as a symbol and constructs symbol:\"ENSG00000157764\"; it has no exact HGNC, Ensembl or Entrez ID getter. Replacing this input with BRAF would change the question. The current identity and source assertions require that exact ID resolution.",
+        "release_source": "src/sources/mygene.rs::MyGeneClient::get_plan;src/cli/gene/dispatch.rs::handle_get"
+      },
+      {
+        "case": "gene/entrez-id.yaml",
+        "reason": "Released gene get treats 673 as a symbol and constructs symbol:\"673\"; it has no exact HGNC, Ensembl or Entrez ID getter. Replacing this input with BRAF would change the question. The current identity and source assertions require that exact ID resolution.",
+        "release_source": "src/sources/mygene.rs::MyGeneClient::get_plan;src/cli/gene/dispatch.rs::handle_get"
+      },
+      {
+        "case": "gene/hgnc-id.yaml",
+        "reason": "Released gene get treats HGNC:1097 as a symbol and constructs symbol:\"HGNC:1097\"; it has no exact HGNC, Ensembl or Entrez ID getter. Replacing this input with BRAF would change the question. The current identity and source assertions require that exact ID resolution.",
+        "release_source": "src/sources/mygene.rs::MyGeneClient::get_plan;src/cli/gene/dispatch.rs::handle_get"
+      },
+      {
+        "case": "gene/join-mismatch-hgnc.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+      },
+      {
+        "case": "gene/join-missing-hgnc.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+      },
+      {
+        "case": "gene/mll2.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+      },
+      {
+        "case": "gene/p16.yaml",
+        "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+        "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+      },
+      {
+        "case": "gene/sections/civic-description.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section;src/entities/gene.rs::Gene"
+      },
+      {
+        "case": "gene/sections/civic-mismatch.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released summary is a trimmed string with two sentences; it has no separately serialized attribution or date. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/transform/gene.rs::normalize_summary;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+      },
+      {
+        "case": "gene/sections/civic-mixed.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+      },
+      {
+        "case": "gene/sections/civic-null.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+      },
+      {
+        "case": "gene/sections/civic-shared-id.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+      },
+      {
+        "case": "gene/sections/clingen-empty.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released ClinGen outcomes retain empty/data and a ClinGen provider name. The current section object requires an explicit provider and outcome spelling projection. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene/clingen.rs::section_outcome;src/entities/section_outcome.rs::SectionOutcome;src/entities/gene.rs::Gene"
+      },
+      {
+        "case": "gene/sections/expression-not-applicable.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression;src/entities/gene.rs::Gene"
+      },
+      {
+        "case": "gene/sections/mir21.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene_type is a MyGene type string, not the HGNC locus-group classification. No released selector derives the asserted classification. Released section outcomes do not encode the asserted current identity-based applicability or bad-reply reason. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/section_outcome.rs::SectionOutcome;src/entities/gene.rs"
+      },
+      {
+        "case": "gene/sections/pathways-empty.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources"
+      },
+      {
+        "case": "gene/sections/pathways-mir21.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene_type is a MyGene type string, not the HGNC locus-group classification. No released selector derives the asserted classification. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources"
+      },
+      {
+        "case": "gene/sections/pathways-tp53.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources;src/entities/gene.rs::Gene"
+      },
+      {
+        "case": "gene/sections/pathways-union.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources;src/entities/gene.rs::Gene"
+      },
+      {
+        "case": "gene/sections/protein-deduplicate.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+      },
+      {
+        "case": "gene/sections/protein-mir21.yaml",
+        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene_type is a MyGene type string, not the HGNC locus-group classification. No released selector derives the asserted classification. Released section outcomes do not encode the asserted current identity-based applicability or bad-reply reason. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions. Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks. Released uniprot_id is the first MyGene Swiss-Prot string and is omitted when absent, not an HGNC accession array.",
+        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/section_outcome.rs::SectionOutcome;src/entities/gene.rs;src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+      },
+      {
+        "case": "gene/withdrawn.yaml",
+        "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+        "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+      }
+    ]
+  }
+}
