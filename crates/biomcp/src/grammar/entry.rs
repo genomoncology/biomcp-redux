@@ -72,12 +72,12 @@ pub(super) fn arguments(args: &[OsString], root: &Command) -> Vec<OsString> {
             if is_global {
                 globals.push(word.clone());
             }
-            if takes_value(argument, &mut words) && !inline {
-                if let Some(value) = words.next() {
-                    if is_global {
-                        globals.push(value.clone());
-                    }
-                }
+            if takes_value(argument, &mut words)
+                && !inline
+                && let Some(value) = words.next()
+                && is_global
+            {
+                globals.push(value.clone());
             }
         }
     }
@@ -160,19 +160,22 @@ pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<S
 
 // Bound comparisons of untrusted text while keeping allocation proportional to known names.
 fn distance(input: &str, known: &str) -> usize {
-    let mut row: Vec<_> = (0..=known.len()).collect();
+    let mut row: Vec<_> = (1..=known.len()).collect();
+    let mut result = known.len();
     for (index, left) in input.chars().take(128).enumerate() {
-        let mut diagonal = row[0];
-        row[0] = index + 1;
-        for (column, right) in known.bytes().enumerate() {
-            let prior = row[column + 1];
-            row[column + 1] = (row[column] + 1)
-                .min(prior + 1)
+        let mut diagonal = index;
+        let mut previous = index + 1;
+        for (cell, right) in row.iter_mut().zip(known.bytes()) {
+            let next = (previous + 1)
+                .min(*cell + 1)
                 .min(diagonal + usize::from(left != char::from(right)));
-            diagonal = prior;
+            diagonal = *cell;
+            *cell = next;
+            previous = next;
         }
+        result = previous;
     }
-    row[known.len()]
+    result
 }
 
 pub(super) fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
