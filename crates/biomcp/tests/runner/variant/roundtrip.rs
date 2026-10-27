@@ -30,10 +30,7 @@ pub(super) fn check() -> Result<(), String> {
             "printed repeat spelling has no exact assembly-qualified get: {next:?}"
         ));
     }
-    for step in next
-        .iter()
-        .filter(|step| step.get("kind") == Some(&json!("disambiguate")))
-    {
+    for step in next {
         let args: Vec<String> = serde_json::from_value(
             step.get("args")
                 .cloned()
@@ -42,7 +39,9 @@ pub(super) fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         let followed = invoke(&env, args.clone(), 0)?;
         identity(&followed)?;
-        bounded("repeat", &followed, 717)?;
+        if step.get("kind") == Some(&json!("disambiguate")) {
+            bounded("repeat", &followed, 717)?;
+        }
         if followed
             .get("next")
             .and_then(Value::as_array)

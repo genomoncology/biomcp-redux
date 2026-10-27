@@ -47,8 +47,9 @@ fn card() -> Result<(), String> {
     if !next.iter().any(|n| {
         n.get("kind") == Some(&json!("section"))
             && n.get("args")
-                .and_then(Value::as_array)
-                .is_some_and(|args| args.iter().any(|arg| arg == "clinvar"))
+                == Some(&json!([
+                    "get", "variant", "chr7:g.140753336A>T", "clinvar", "--build", "GRCh38"
+                ]))
     }) {
         return Err(format!("card lacks ClinVar section step: {value}"));
     }
