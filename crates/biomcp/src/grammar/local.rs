@@ -36,8 +36,10 @@ pub(super) fn help_command(root: &Command) -> Command {
     )
     .subcommand(Command::new("sources"))
     .subcommand(Command::new("config"))
-    .subcommand(Command::new("exit"))
-    .subcommand(Command::new("relations"))
+    .subcommand(Command::new("exit").about("Explain process exit and error codes."))
+    .subcommand(
+        Command::new("relations").about("Map entities through sections and search filters."),
+    )
 }
 
 fn help_tree(command: &Command) -> Command {

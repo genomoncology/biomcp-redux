@@ -30,4 +30,12 @@ An exact variant search is a starting point. Run the broader gene and program se
 ## Exit codes and errors
 
 <!-- exit-reference:start -->
+Process exit codes:
+0: complete or partial reply
+1: no matching record
+2: invalid command or arguments
+3: expired result pool
+4: source request failed
+5: local configuration, storage or output failed
+Error codes: usage.schema, usage.arguments, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
 <!-- exit-reference:end -->

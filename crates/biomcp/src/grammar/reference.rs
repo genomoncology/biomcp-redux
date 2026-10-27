@@ -34,7 +34,11 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
         .iter()
         .filter(|entry| !entry.examples.is_empty())
     {
-        writeln!(recipes, "## {}\n\n```sh", entry.command.join(" "))?;
+        let name = std::iter::once("biomcp")
+            .chain(entry.command.iter().map(String::as_str))
+            .collect::<Vec<_>>()
+            .join(" ");
+        writeln!(recipes, "## {name}\n\n```sh")?;
         for args in &entry.examples {
             writeln!(
                 recipes,

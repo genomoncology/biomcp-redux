@@ -4,6 +4,12 @@ Generated from harvested case run steps through the shipped help examples. The d
 
 Choose a command below, inspect its source outcomes and follow its returned next commands. Stored sources require the explicit synchronization shown by their command.
 
+## 
+
+```sh
+biomcp help
+```
+
 ## author papers
 
 ```sh
@@ -295,7 +301,7 @@ biomcp article pdf 41351423 --save second.pdf --replace
 
 ```sh
 biomcp article text PMC5606870 --find AXIN2
-biomcp article text PMC5606870 --variant Pro245Ser
+biomcp article text PMC5606870 --part 1
 ```
 
 ## article citations
@@ -389,6 +395,115 @@ biomcp variant normalize --source mutalyzer --hgvs 'NM_004333.4:c.1799T>A'
 biomcp variant normalize --source variantvalidator --hgvs 'NM_004333.4:c.1799T>A' --build GRCh38
 ```
 
+## skill
+
+```sh
+biomcp skill list
+```
+
+## skill list
+
+```sh
+biomcp skill list
+```
+
+## skill render
+
+```sh
+biomcp skill render
+```
+
+## skill status
+
+```sh
+biomcp skill status biomcp-guidance
+```
+
+## skill install
+
+```sh
+biomcp skill install biomcp-guidance
+```
+
+## version
+
+```sh
+biomcp version
+```
+
+## mcp-config
+
+```sh
+biomcp mcp-config
+```
+
+## store clean
+
+```sh
+biomcp store clean
+```
+
+## health
+
+```sh
+biomcp health --offline
+```
+
+## sync
+
+```sh
+biomcp sync hgnc
+```
+
+## schema
+
+```sh
+biomcp schema
+```
+
+## help
+
+```sh
+biomcp help
+```
+
+## key list
+
+```sh
+biomcp key list
+```
+
+## key set
+
+```sh
+biomcp key set oncokb
+```
+
+## key remove
+
+```sh
+biomcp key remove oncokb
+```
+
+## serve
+
+```sh
+biomcp serve
+biomcp help serve
+```
+
+## sync hgnc
+
+```sh
+biomcp sync hgnc
+```
+
+## sync clingen
+
+```sh
+biomcp sync clingen
+```
+
 ## sync wikipathways
 
 ```sh
@@ -443,5 +558,137 @@ biomcp sync who-ivd --fresh
 ```sh
 biomcp sync fda-cdx
 biomcp sync fda-cdx --fresh
+```
+
+## help key ncbi
+
+```sh
+biomcp help key ncbi
+```
+
+## help key semantic-scholar
+
+```sh
+biomcp help key semantic-scholar
+```
+
+## help key orcid
+
+```sh
+biomcp help key orcid
+```
+
+## help key oncokb
+
+```sh
+biomcp help key oncokb
+```
+
+## help key alphagenome
+
+```sh
+biomcp help key alphagenome
+```
+
+## help key nci
+
+```sh
+biomcp help key nci
+```
+
+## help key openfda
+
+```sh
+biomcp help key openfda
+```
+
+## help network ca_bundle
+
+```sh
+biomcp help network ca_bundle
+```
+
+## help network proxy
+
+```sh
+biomcp help network proxy
+```
+
+## help exit
+
+```sh
+biomcp help exit
+```
+
+## author
+
+```sh
+biomcp author papers semantic-scholar:123
+```
+
+## search
+
+```sh
+biomcp search author 'Louis Williams'
+```
+
+## get
+
+```sh
+biomcp get author semanticscholar:456 semantic-scholar:123 semantic-scholar:999
+```
+
+## cell-line
+
+```sh
+biomcp cell-line assay-count CHEMBL3706573
+```
+
+## protein
+
+```sh
+biomcp protein features P00533
+```
+
+## pathway
+
+```sh
+biomcp pathway genes R-HSA-5673001
+```
+
+## article
+
+```sh
+biomcp article supplement 28944238 MGG3-5-553-s002.xlsx
+```
+
+## trial
+
+```sh
+biomcp trial document NCT04303780 SAP_001.pdf --save protocol.pdf --replace
+```
+
+## variant
+
+```sh
+biomcp variant assertions clinvar:13961 --source clinvar
+```
+
+## store
+
+```sh
+biomcp store clean
+```
+
+## key
+
+```sh
+biomcp key list
+```
+
+## help relations
+
+```sh
+biomcp help relations
 ```
 

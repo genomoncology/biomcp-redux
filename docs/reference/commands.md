@@ -12,7 +12,7 @@ Retrieve source records for biomedical evidence questions.
 Usage: biomcp [OPTIONS] <COMMAND>
 
 Commands:
-  author      Read papers attributed to a provider author record.
+  author      Read papers attributed to a source author record.
   search      Search source records by entity and checked filters.
   get         Retrieve one entity and its source sections.
   cell-line   Read source cell line assay counts.
@@ -33,8 +33,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -54,9 +55,26 @@ Options:
 
 ```
 
-Retrieve source records for biomedical evidence questions.
+author: Read papers attributed to a source author record.
+search: Search source records by entity and checked filters.
+get: Retrieve one entity and its source sections.
+cell-line: Read source cell line assay counts.
+protein: Read protein sequences, features and source relationships.
+pathway: Read pathway genes and source events.
+article: Read article text, references, citations and files.
+trial: Read trial groups and public documents.
+variant: Read source variant assertions, populations and recurrence.
+sync: Synchronize a local source bundle.
+skill: Read embedded guidance and worked examples
+version: Print version; --verbose adds build, schema and path provenance
+mcp-config: Print MCP configuration with this executable’s absolute path
+health: Report source terms and bounded reachability.
+store: Manage local cached replies and snapshots.
+key: Register and manage source credentials without showing values.
+serve: Serve MCP over standard input or HTTP.
+help: Describe commands and their arguments.
 
-- `--format`: Choose JSON or Markdown output.
+- `--format`: Choose JSON or Markdown output; configuration can change the default.
 - `--disable-sources`: Exclude source names or source terms groups.
 - `--config`: Read configuration from this file.
 - `--offline`: Read local data without source requests.
@@ -67,7 +85,7 @@ Retrieve source records for biomedical evidence questions.
 ## biomcp author
 
 ```text
-Read papers attributed to a provider author record.
+Read papers attributed to a source author record.
 
 Usage: biomcp author [OPTIONS] <COMMAND>
 
@@ -76,8 +94,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -94,7 +113,7 @@ Options:
 
 ```
 
-Read papers attributed to a provider author record.
+Read papers attributed to a source author record.
 
 
 ## biomcp author papers
@@ -113,8 +132,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --full
@@ -143,18 +163,18 @@ Options:
 
 ```
 
-One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
+One exact source record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
 
 - `--full`: Legacy alias for details; normalized on construction.
-- `id`: Exact qualified provider record.
+- `id`: Exact qualified source record.
 - `--limit`: Bounded row count.
-- `--offset`: Native or retained collection offset.
+- `--offset`: Source or retained collection offset.
 - `--pool`: Retained collection identity.
 - `section`: Detailed disclosure when requested.
 
 Detailed disclosure when requested.
 
-- `details`: Native detailed metadata for the same paper window.
+- `details`: Source detailed metadata for the same paper window.
 
 ## biomcp search
 
@@ -184,8 +204,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -218,8 +239,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
   -l, --limit <limit>
@@ -251,13 +273,14 @@ Options:
 
 ```
 
-Literal author name query and native window; positional text maps to query. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l
+Exact author name query and source window; positional text maps to query. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l
 
 - `--limit`: Bounded source page size.
-- `--offset`: Native offset.
+- `--offset`: Source offset.
 - `--pool`: Retained page identity.
-- `query`: Literal query from the positional argument or --query.
-- `--source`: Native author source.
+- `query`: Exact query from the positional argument or --query.
+- `--source`: Source author source.
+- `--query`: 
 
 ## biomcp search cell-line
 
@@ -272,8 +295,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
   -l, --limit <limit>
@@ -299,11 +323,12 @@ Options:
 
 ```
 
-One literal cell line search, with native order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+One exact cell line search, with source order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
 
-- `--limit`: Native page size.
-- `--offset`: Native start offset.
-- `query`: Literal source query; positional spelling and --query use the same field.
+- `--limit`: Source page size.
+- `--offset`: Source start offset.
+- `query`: Exact source query; positional spelling and --query use the same field.
+- `--query`: 
 
 ## biomcp search gwas
 
@@ -321,8 +346,9 @@ Options:
           Source extended gene set; requires gene.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -375,17 +401,17 @@ Options:
 Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 
 - `--extended-geneset`: Source extended gene set; requires gene.
-- `--gene`: Exact native mapped gene; legacy positional query aliases this field.
+- `--gene`: Exact source mapped gene; legacy positional query aliases this field.
 - `--include-child-traits`: Source child-trait expansion; requires trait_id.
 - `--limit`: Maximum association rows.
-- `--offset`: Native association offset.
+- `--offset`: Source association offset.
 - `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end.
 - `--pool`: Retained threshold walk identity; requires a threshold.
 - `--pubmed`: Exact source publication identity.
-- `query`: Exact native mapped gene; legacy positional query aliases this field.
+- `query`: Exact source mapped gene; legacy positional query aliases this field.
 - `--study`: Exact source study accession.
-- `--trait`: Literal native efo_trait label; never searches reported_trait prose.
-- `--trait-id`: Exact native ontology identity.
+- `--trait`: Exact source efo_trait label; never searches reported_trait prose.
+- `--trait-id`: Exact source ontology identity.
 - `--variant`: Exact source rsID.
 
 ## biomcp search protein
@@ -402,8 +428,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --gene <gene>
@@ -435,14 +462,14 @@ Options:
 
 ```
 
-Search five reviewed human UniProt headers by literal text or exact gene.
+Search five reviewed human UniProt headers by exact text or exact gene.
 No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 
-- `--gene`: Exact native gene field, without identifier inference.
+- `--gene`: Exact source gene field, without identifier inference.
 - `--limit`: Five rows by default; no more than 25.
 - `--offset`: Source/retained result offset.
 - `--pool`: Exact retained collection identity.
-- `query`: Literal text, exclusive with gene.
+- `query`: Exact text, exclusive with gene.
 - `--reviewed`: Reviewed human scope stays enabled; unreviewed search is deferred.
 
 ## biomcp search phenotype
@@ -458,8 +485,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
   -l, --limit <limit>
@@ -485,12 +513,12 @@ Options:
 
 ```
 
-Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+Search exact human HP term candidates through Monarch with bounded source pages. A term lookup answers terminology and does not establish a diagnosis.
 
-- `--limit`: Maximum native headers, default five.
-- `--offset`: Native source row offset.
+- `--limit`: Maximum source headers, default five.
+- `--offset`: Source source row offset.
 - `--source`: Monarch only; HPO search is unsupported.
-- `text`: Unchanged literal term search text.
+- `text`: Unchanged exact term search text.
 
 ## biomcp search pathway
 
@@ -505,8 +533,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --fresh
@@ -546,11 +575,11 @@ Search Reactome (default) or WikiPathways human pathways. Membership names a sou
 - `--fresh`: Request a new retained observation.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only.
 - `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill.
-- `--offset`: Native Reactome Start row or retained WikiPathways catalog offset.
+- `--offset`: Source Reactome Start row or retained WikiPathways catalog offset.
 - `--pool`: Retained snapshot identity for deterministic continuation.
-- `query`: Literal source query; exclusive with gene and top-level discovery.
+- `query`: Exact source query; exclusive with gene and top-level discovery.
 - `--source`: Sources in caller order; repeated sources take turns without title joins.
-- `--top-level`: Native human Reactome top-level discovery, exclusive with text and gene.
+- `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene.
 
 ## biomcp search study
 
@@ -568,8 +597,9 @@ Options:
           Exact cBioPortal cancer-type code; no OncoTree conversion.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -595,13 +625,13 @@ Options:
 
 ```
 
-Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
+Exact stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.
 
 - `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion.
 - `--limit`: Maximum headers per page.
 - `--offset`: Zero-based offset in the checked snapshot.
 - `--pool`: Opaque continuation retaining the catalog revision and selectors.
-- `text`: Literal study ID, name or description text, without synonyms or typo repair.
+- `text`: Exact study ID, name or description text, without synonyms or typo repair.
 
 ## biomcp search pgx
 
@@ -615,8 +645,9 @@ Options:
           Literal native level, including compound levels such as B/C.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -647,10 +678,10 @@ Options:
 
 Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
 
-- `--cpic-level`: Literal native level, including compound levels such as B/C.
+- `--cpic-level`: Exact source level, including compound levels such as B/C.
 - `--gene`: Explicit source gene symbol.
-- `--limit`: Rows per native page.
-- `--offset`: Native source offset.
+- `--limit`: Rows per source page.
+- `--offset`: Source source offset.
 - `--source`: Required CPIC source; ClinPGx is not supported for search.
 
 ## biomcp search diagnostic
@@ -665,8 +696,9 @@ Options:
           Exact table-0 biomarker cell; unsupported in the group table.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --bundle-revision <bundle_revision>
@@ -724,16 +756,16 @@ Search one diagnostic source. A listing is not authorization; a companion row is
 - `--biomarker`: Exact table-0 biomarker cell; unsupported in the group table.
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
 - `--condition-id`: Exact MedGen:CUI identifier only.
-- `--device-id`: Exact PMA application, application/supplement or native K identity.
+- `--device-id`: Exact PMA application, application/supplement or source K identity.
 - `--drug-application`: Cell-owned typed NDA/BLA application.
 - `--gene`: Exact source gene_symbol field, without alias expansion.
 - `--gene-id`: Exact source GeneID, exclusive with gene symbol.
 - `--limit`: Five results by default; at most fifty source rows or product headers.
-- `--manufacturer`: Literal whole-word phrase in WHO's Manufacturer name cell.
-- `--marker`: Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
+- `--manufacturer`: Exact whole-word phrase in WHO's Manufacturer name cell.
+- `--marker`: Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell.
 - `--offset`: Zero-based source result offset.
-- `--source`: Explicit native GTR, WHO IVD or FDA companion discovery.
-- `--type`: Exact native test_type value.
+- `--source`: Explicit source GTR, WHO IVD or FDA companion discovery.
+- `--type`: Exact source test_type value.
 
 ## biomcp search adverse-event
 
@@ -751,8 +783,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -793,24 +826,24 @@ Options:
 
 ```
 
-Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
 
-- `--limit`: Native report headers or VAERS rows per page; default five.
-- `--offset`: Native row offset. VAERS continuation requires its retained snapshot.
+- `--limit`: Source report headers or VAERS rows per page; default five.
+- `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
 - `--reaction`: FAERS MedDRA term phrase match, not exact equality.
 - `--received-from`: Inclusive first FDA receipt lower bound, YYYY-MM-DD.
 - `--received-to`: Inclusive first FDA receipt upper bound, YYYY-MM-DD.
 - `section`: Independent VAERS table; omitted means reported symptoms.
 - `--serious`: FAERS report flag: death or hospitalization; never a reaction outcome.
-- `--snapshot`: Retained VAERS table for provider-free continuation.
+- `--snapshot`: Retained VAERS table for source-free continuation.
 - `--source`: FAERS by default; VAERS accepts only exact supported vaccine names.
-- `text`: Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
+- `text`: Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
 Independent VAERS table; omitted means reported symptoms.
 
-- `symptoms`: Native reported symptom rows.
-- `seriousness`: Reports classified by native seriousness.
-- `age`: Native age groups.
+- `symptoms`: Source reported symptom rows.
+- `seriousness`: Reports classified by source seriousness.
+- `age`: Source age groups.
 
 ## biomcp search disease
 
@@ -825,8 +858,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -855,13 +889,13 @@ Options:
 
 ```
 
-Literal discovery text or an explicit SEER catalog page.
+Exact discovery text or an explicit SEER catalog page.
 
 - `--limit`: Maximum source rows on one page.
-- `--offset`: Native row offset.
+- `--offset`: Source row offset.
 - `--ontology`: Exactly one ontology, default MONDO.
 - `--source`: One explicit source, default OLS.
-- `text`: Literal source search text; absent for the SEER site catalog.
+- `text`: Exact source search text; absent for the SEER site catalog.
 
 ## biomcp search drug
 
@@ -876,8 +910,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -906,12 +941,12 @@ Options:
 
 ```
 
-Literal single-source candidate discovery, without an implicit identity selection.
+Exact single-source candidate discovery, without an implicit identity selection.
 
-- `--limit`: Native candidate rows per page.
-- `--name-selector`: Explicit ChEMBL native name selector; omitted means preferred name.
-- `--offset`: Native rows to skip.
-- `query`: Literal source name selector, unchanged by the consumer.
+- `--limit`: Source candidate rows per page.
+- `--name-selector`: Explicit ChEMBL source name selector; omitted means preferred name.
+- `--offset`: Source rows to skip.
+- `query`: Exact source name selector, unchanged by the consumer.
 - `--source`: Exactly one source; default MyChem never fans out.
 
 ## biomcp search gene
@@ -930,8 +965,9 @@ Options:
           A cytoband prefix.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -981,8 +1017,9 @@ Options:
           Author words sent to PubMed's author field.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -1068,19 +1105,19 @@ Checked search selectors and pool cursor.
 - `--gene`: Gene input; PubMed resolves it through HGNC.
 - `--journal`: Journal words sent to PubMed's journal field.
 - `--limit`: Maximum page length.
-- `--no-preprints`: Exclude preprints using the source's native filter.
+- `--no-preprints`: Exclude preprints using the source's source filter.
 - `--offset`: Number of pool items to skip.
-- `--open-access`: Require the source's native open-access filter; Semantic Scholar means a public PDF.
+- `--open-access`: Require the source's source open-access filter; Semantic Scholar means a public PDF.
 - `--pool`: Stable snapshot from an earlier response.
-- `--exclude-retracted`: Include retracted papers by default, or exclude them using a native filter.
-- `--include-retracted`: Include retracted papers by default, or exclude them using a native filter.
+- `--exclude-retracted`: Include retracted papers by default, or exclude them using a source filter.
+- `--include-retracted`: Include retracted papers by default, or exclude them using a source filter.
 - `--since`: Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
-- `--sort`: rank (default): native provider order; several sources take turns; native search cost.
-date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
+- `--sort`: rank (default): source order; several sources take turns; source search cost.
+date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
 citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
 All sources support citations.
 - `--source`: Sources to search in caller order, comma separated. Default: pubmed.
-Several sources take turns, remove duplicates and show every native rank.
+Several sources take turns, remove duplicates and show every source rank.
 pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
 europepmc: words in open full text and preprints; incidental mentions are possible.
 litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
@@ -1108,8 +1145,9 @@ Options:
           Age in years; unstated source bounds count as no limit.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --condition <condition>
@@ -1201,19 +1239,19 @@ Options:
 
 ```
 
-Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
+Search one source with bounded pages and source counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
 - `--condition`: Registry condition text, or an NCIt code for NCI; use --keyword for NCI free text.
 - `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 - `--count-only`: Source total only; no returned study rows.
-- `--criteria`: Search literal registry eligibility text for discovery only; no eligibility judgment.
+- `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
 - `--distance`: Source distance with explicit mi or km units.
 - `--facility`: Exact registry facility field; cannot combine with radius.
 - `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
 - `--has-results`: Require posted source results.
 - `--id`: Exact NCT identity in a conjunction with other filters.
-- `--intervention`: Literal source intervention text.
+- `--intervention`: Exact source intervention text.
 - `--keyword`: NCI free text; explicit keyword mode never substitutes for a disease identity.
 - `--lat`: Radius center latitude in degrees.
 - `--limit`: Headers per page; NCI applies its own lower publisher limit.
@@ -1222,14 +1260,14 @@ Search one provider with bounded pages and source-native counts; default Clinica
 - `--phase`: Registry phase: 1, 2, 3, 4, early-1, not-applicable, 1/2 or 2/3.
 - `query`: General registry discovery text.
 - `--sex`: Registry sex facet.
-- `--source`: Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+- `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back.
 - `--sponsor`: Exact lead sponsor field.
 - `--sponsor-type`: Registry sponsor funding facet.
 - `--status`: Exact registry overall status.
 - `--study-type`: Exact registry study type.
 - `--updated-since`: First included registry update date.
 - `--updated-until`: Last included registry update date.
-- `--variant`: Literal variant text for registry discovery only; no eligibility judgment.
+- `--variant`: Exact variant text for registry discovery only; no eligibility judgment.
 
 ## biomcp search variant
 
@@ -1243,8 +1281,9 @@ Options:
           Optional caller assembly sent to MyVariant; regions require it explicitly.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --condition <condition>
@@ -1294,15 +1333,15 @@ Options:
 Discover source candidates using one declared selector, without interpreting free text.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly.
-- `--condition`: Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
+- `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 - `--gene`: Exact checked gene symbol for the fixed dbNSFP gene/protein field query; obeys component terms switches.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered.
-- `--limit`: Native candidates per page, default 10, maximum 50; all candidates remain candidates.
-- `--offset`: Native offset within this command's bounded result window; larger native totals remain visible.
+- `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates.
+- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible.
 - `--protein`: Explicit substitution using checked one-letter or three-letter amino-acid codes.
 - `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
-- `--review-status`: Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
+- `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
 - `--source`: Explicit source language; required for a raw query.
 
 ## biomcp get
@@ -1334,8 +1373,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -1368,8 +1408,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -1386,7 +1427,7 @@ Options:
 
 ```
 
-Exact qualified records in caller order, with no name reconciliation. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
+Exact qualified records in caller order, with no name reconciliation. Author IDs identify source records, not resolved people. Counts cover that source record. Missing metadata is unavailable. Topic-wide author ranking and cross-source merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
 
 - `ids`: One or more exact qualified IDs.
 
@@ -1406,8 +1447,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section-limit <section_limit>
@@ -1434,15 +1476,15 @@ One exact identity and an optional bounded named section. An assay count is not 
 
 - `id`: One exact primary accession or qualified source ID.
 - `section`: Omit for the default card; all returns bounded first pages without an assay count.
-- `--section-limit`: Explicit row limit for each requested collection; native variation defaults to three.
+- `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three.
 - `--section-offset`: Offset within each independently requested collection.
 
 Omit for the default card; all returns bounded first pages without an assay count.
 
-- `names`: Native display names.
+- `names`: Source display names.
 - `identity`: Independent species, diseases and qualified warnings.
 - `xrefs`: Complete source cross-reference rows.
-- `variants`: Complete native variation rows.
+- `variants`: Complete source variation rows.
 - `chembl`: Exact accession-linked ChEMBL cell metadata.
 - `all`: Bounded first page of every named section.
 
@@ -1462,8 +1504,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section-limit <section_limit>
@@ -1489,19 +1532,19 @@ Options:
 
 ```
 
-Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
+Source association or study and source context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 
 - `id`: Qualified association ID or exact GCST study accession.
 - `section`: Association loci or study associations and ancestries.
-- `--section-limit`: Maximum native relation rows.
-- `--section-offset`: Native relation row offset.
+- `--section-limit`: Maximum source relation rows.
+- `--section-offset`: Source relation row offset.
 - `--snapshot`: Retained ancestry reply for a local page.
 
 Association loci or study associations and ancestries.
 
-- `loci`: Native association loci.
-- `associations`: Native study association pages.
-- `ancestries`: Native study ancestry rows.
+- `loci`: Source association loci.
+- `associations`: Source study association pages.
+- `ancestries`: Source study ancestry rows.
 
 ## biomcp get protein
 
@@ -1518,8 +1561,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section <section>
@@ -1543,21 +1587,21 @@ Options:
 ```
 
 Read source protein cards; a symbol returns candidates without choosing a protein.
-Sections disclose native facts with independent row bounds; function keeps all paragraphs.
+Sections disclose source facts with independent row bounds; function keeps all paragraphs.
 No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
-- `--section`: Select native sections or all bounded first pages; function keeps one whole text record.
-- `--section-limit`: First-page row limit; function keeps one whole native text record and does not page its paragraphs.
+- `--section`: Select source sections or all bounded first pages; function keeps one whole text record.
+- `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs.
 
-Select native sections or all bounded first pages; function keeps one whole text record.
+Select source sections or all bounded first pages; function keeps one whole text record.
 
-- `features`: Native UniProt features.
-- `domains`: Native InterPro entry matches.
-- `isoforms`: Native alternative products.
+- `features`: Source UniProt features.
+- `domains`: Source InterPro entry matches.
+- `isoforms`: Source alternative products.
 - `complexes`: Exact participant-admitted complex headers.
-- `structures`: Native structure cross-reference links.
-- `function`: One whole native function text record with all source paragraphs.
+- `structures`: Source structure cross-reference links.
+- `function`: One whole source function text record with all source paragraphs.
 - `sequence`: Direct exact-identity sequence and audit metadata.
 - `all`: Bounded first page of every named section.
 
@@ -1577,8 +1621,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section-limit <section_limit>
@@ -1607,22 +1652,22 @@ Options:
 
 ```
 
-Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
+Read an exact HP term from HPO or Monarch, or page source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
 
 - `id`: Exact HP identifier.
 - `section`: Absent means the source identity card.
 - `--section-limit`: Default five text/link rows or one complete association row.
-- `--section-offset`: Native section row offset.
+- `--section-offset`: Source section row offset.
 - `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes.
 - `--source`: HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
 Absent means the source identity card.
 
-- `synonyms`: Native synonyms.
-- `xrefs`: Native cross references.
-- `hierarchy`: Native direct parent and child links.
-- `diseases`: Native disease association rows.
-- `genes`: Native human gene association rows.
+- `synonyms`: Source synonyms.
+- `xrefs`: Source cross references.
+- `hierarchy`: Source direct parent and child links.
+- `diseases`: Source disease association rows.
+- `genes`: Source human gene association rows.
 
 ## biomcp get pathway
 
@@ -1640,8 +1685,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --fresh
@@ -1674,13 +1720,13 @@ Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, g
 - `--pool`: Retained snapshot, when continuing a source relation.
 - `section`: Omit for the card; WikiPathways has summary and genes sections.
 - `--section-limit`: Bounded initial section size; each all section has its own first page.
-- `--section-offset`: Native relation offset for a selected genes or events section.
+- `--section-offset`: Source relation offset for a selected genes or events section.
 
 Omit for the card; WikiPathways has summary and genes sections.
 
-- `summary`: Complete native source description.
-- `genes`: Namespaced native participants with exact resolved gene joins.
-- `events`: Native Reactome event objects and unresolved database references.
+- `summary`: Complete source description.
+- `genes`: Namespaced source participants with exact resolved gene joins.
+- `events`: Source Reactome event objects and unresolved database references.
 - `all`: Each source-supported section's bounded first page.
 
 ## biomcp get study
@@ -1699,8 +1745,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section-limit <section_limit>
@@ -1723,7 +1770,7 @@ Options:
 
 ```
 
-Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
+Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.
 
 - `id`: Exact source study ID; no default or repair.
 - `section`: Omit for the card; all returns bounded first pages only.
@@ -1732,7 +1779,7 @@ Exact case-sensitive study card or bounded metadata section. No frequency, denom
 
 Omit for the card; all returns bounded first pages only.
 
-- `profiles`: Five exact native molecular profile references.
+- `profiles`: Five exact source molecular profile references.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
 - `files`: Five repository file references; no automatic download.
 - `all`: Each named section's bounded first page; never a gene aggregate request.
@@ -1753,8 +1800,9 @@ Options:
           Checked ClinPGx accession, never a shared PaId.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --diplotype <diplotype>
@@ -1810,8 +1858,8 @@ PGx card or section. No phenotype, phase or dose is calculated.
 
 One named section; omitted means the CPIC gene card.
 
-- `recommendations`: Complete native recommendation contexts.
-- `guidelines`: Native guideline references.
+- `recommendations`: Complete source recommendation contexts.
+- `guidelines`: Source guideline references.
 - `diplotype`: Declared source diplotype lookup.
 - `annotations`: One ClinPGx annotation kind.
 
@@ -1834,8 +1882,9 @@ Options:
           Immutable stored bundle revision retained by a continuation.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -1867,18 +1916,18 @@ Options:
 Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
-- `id`: Exact native identity, including version for GTR.
+- `id`: Exact source identity, including version for GTR.
 - `section`: gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
-- `--section-limit`: Maximum native rows; omitted means five rows, or one regulatory fragment.
-- `--section-offset`: Zero-based native row or fragment offset.
+- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment.
+- `--section-offset`: Zero-based source row or fragment offset.
 - `--source`: Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number.
-- `--supplement`: Exact native PMA supplement; absent selects the base row.
+- `--supplement`: Exact source PMA supplement; absent selects the base row.
 
 gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card.
 
-- `genes`: GTR native gene rows; five per page.
-- `conditions`: GTR native condition rows; five per page.
-- `methods`: GTR native method entries; five per page.
+- `genes`: GTR source gene rows; five per page.
+- `conditions`: GTR source condition rows; five per page.
+- `methods`: GTR source method entries; five per page.
 - `regulatory`: Selected PMA submission statement; one fragment per page.
 - `supplements`: PMA base application supplement headers; five per page.
 
@@ -1901,8 +1950,9 @@ Options:
           Absolute source-array index; required only for identifier sections.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -1931,29 +1981,29 @@ Options:
 
 ```
 
-Exact native report identity and an optional independently paged section.
+Exact source report identity and an optional independently paged section.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections.
 - `id`: Published report ID with no source prefix.
 - `section`: FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 - `--section-limit`: Whole source rows per section page.
-- `--section-offset`: Offset within the selected native section.
-- `--snapshot`: Checked retained report snapshot for provider-free continuation.
+- `--section-offset`: Offset within the selected source section.
+- `--snapshot`: Checked retained report snapshot for source-free continuation.
 - `--source`: FAERS by default; MAUDE is explicit.
 
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
-- `drugs`: Independent native drug rows.
-- `reactions`: Independent native reaction rows.
-- `unii`: Native UNII strings.
-- `rxcui`: Native RxCUI strings.
-- `product-ndc`: Native product NDC strings.
-- `package-ndc`: Native package NDC strings.
-- `spl-id`: Native SPL IDs.
-- `spl-set-id`: Native SPL set IDs.
-- `application-number`: Native application numbers.
-- `devices`: Native device rows.
-- `narrative`: Complete native narrative rows.
+- `drugs`: Independent source drug rows.
+- `reactions`: Independent source reaction rows.
+- `unii`: Source UNII strings.
+- `rxcui`: Source RxCUI strings.
+- `product-ndc`: Source product NDC strings.
+- `package-ndc`: Source package NDC strings.
+- `spl-id`: Source SPL IDs.
+- `spl-set-id`: Source SPL set IDs.
+- `application-number`: Source application numbers.
+- `devices`: Source device rows.
+- `narrative`: Complete source narrative rows.
 
 ## biomcp get disease
 
@@ -1974,8 +2024,9 @@ Options:
           Native age-range code.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --dataset <dataset>
@@ -2019,29 +2070,29 @@ Options:
 
 ```
 
-Exact concept or native SEER site with independently paged section.
+Exact concept or source SEER site with independently paged section.
 
-- `--age-range`: Native age-range code.
-- `--dataset`: Requested native dataset selector, not proof of returned membership.
+- `--age-range`: Source age-range code.
+- `--dataset`: Requested source dataset selector, not proof of returned membership.
 - `id`: Exact ontology CURIE or an explicit SEER catalog site ID.
 - `--interval`: Survival-only interval code.
 - `--ontology`: One OLS ontology.
-- `--period`: Incidence-only native period code.
-- `--race`: Native race code.
+- `--period`: Incidence-only source period code.
+- `--race`: Source race code.
 - `section`: One named section; absent means identity card only.
-- `--section-limit`: Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
-- `--section-offset`: Native row offset within the selected section.
-- `--sex`: Native sex code.
+- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
+- `--section-offset`: Source row offset within the selected section.
+- `--sex`: Source sex code.
 - `--source`: Default MyDisease; no automatic fallback.
 
 One named section; absent means identity card only.
 
 - `synonyms`: Publisher scoped synonyms.
-- `xrefs`: Native cross references.
-- `hierarchy`: Native parent relations.
-- `genes`: Native gene association rows.
-- `phenotypes`: Native phenotype association rows.
-- `incidence`: Native stage incidence rows.
+- `xrefs`: Source cross references.
+- `hierarchy`: Source parent relations.
+- `genes`: Source gene association rows.
+- `phenotypes`: Source phenotype association rows.
+- `incidence`: Source stage incidence rows.
 - `survival`: Annual survival rows.
 
 ## biomcp get drug
@@ -2063,8 +2114,9 @@ Options:
           Native continuation cursor for that exact drug, profile and claim collection.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --civic-kind <civic_kind>
@@ -2102,14 +2154,14 @@ Options:
 
 ```
 
-Exact native ID retrieval with an explicitly selected source.
+Exact source ID retrieval with an explicitly selected source.
 
-- `--civic-cursor`: Native continuation cursor for that exact drug, profile and claim collection.
-- `--civic-kind`: Independent native evidence or assertion collection within the selected profile.
-- `--civic-profile`: Selected native CIViC molecular profile for a drug-scoped claim stream.
-- `input`: Exact source-native ID; WHO references retain native spaces. No name or alias resolution.
-- `--label-section`: Exact native label heading, required only for the label section.
-- `--product-number`: Explicit native application product number, only for approvals.
+- `--civic-cursor`: Source continuation cursor for that exact drug, profile and claim collection.
+- `--civic-kind`: Independent source evidence or assertion collection within the selected profile.
+- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream.
+- `input`: Exact source ID; WHO references retain source spaces. No name or alias resolution.
+- `--label-section`: Exact source label heading, required only for the label section.
+- `--product-number`: Explicit source application product number, only for approvals.
 - `section`: Explicit named disclosures; empty means identity only.
 - `--section-limit`: Named section page size, refused on an identity-only card.
 - `--section-offset`: Named section continuation, refused on an identity-only card.
@@ -2117,14 +2169,14 @@ Exact native ID retrieval with an explicitly selected source.
 
 Explicit named disclosures; empty means identity only.
 
-- `xrefs`: All native identity cross-references and product links, mechanically paged.
-- `targets`: Native target and mechanism relations.
-- `indications`: Native indication wording.
-- `civic`: Native CIViC therapy evidence and profile context.
-- `label`: One exact native label heading.
-- `approvals`: Native application and product history rows.
+- `xrefs`: All source identity cross-references and product links, mechanically paged.
+- `targets`: Source target and mechanism relations.
+- `indications`: Source indication wording.
+- `civic`: Source CIViC therapy evidence and profile context.
+- `label`: One exact source label heading.
+- `approvals`: Source application and product history rows.
 - `regulatory`: Source-scoped regulator events.
-- `interactions`: Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
+- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
 
 ## biomcp get gene
 
@@ -2139,8 +2191,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section <section>
@@ -2192,8 +2245,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --section <section>
@@ -2242,8 +2296,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -2282,7 +2337,7 @@ Retrieve exact trial cards in input order; request bounded intact source section
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
 - `--pool`: Checked stored source record, supplied by a continuation.
 - `--section`: Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
-- `--source`: Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+- `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
@@ -2291,10 +2346,10 @@ Optional intact source sections. Default cards only; diseases and summary requir
 - `arms`: Arms and interventions with original relationships.
 - `locations`: Whole source sites with their attached contacts.
 - `contacts`: Central contacts and overall officials in their original roles.
-- `references`: Registry publication identities and native reference types.
+- `references`: Registry publication identities and source reference types.
 - `documents`: Posted document metadata and source URLs.
 - `all`: Every implemented trial section, each with independent continuations.
-- `diseases`: Native NCI disease concepts, including source enrichment metadata.
+- `diseases`: Source NCI disease concepts, including source enrichment metadata.
 - `summary`: Complete NCI summary, paged by original character offsets.
 
 ## biomcp get variant
@@ -2316,8 +2371,9 @@ Options:
           Required for chromosome notation; no assembly is guessed.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --civic-cursor <civic_cursor>
@@ -2364,26 +2420,26 @@ Options:
 Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. Use search variant --gene BRAF --protein V600E for shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 - `--build`: Required for chromosome notation; no assembly is guessed.
-- `--civic-cursor`: Native CIViC cursor, retained unchanged.
-- `--civic-kind`: Native CIViC claim collection within the selected profile.
-- `--civic-profile`: Selected CIViC molecular profile for native claim paging.
+- `--civic-cursor`: Source CIViC cursor, retained unchanged.
+- `--civic-kind`: Source CIViC claim collection within the selected profile.
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging.
 - `input`: Published rsID, CAid, ClinVar Variation ID or reference-qualified HGVS.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands.
 - `--offset`: Candidate rows to skip in source order.
 - `--resolver`: Resolver for reference-qualified notation; never repairs the input locally.
 - `section`: Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
-- `--section-limit`: Rows per named source section page; omitted uses the native source default.
+- `--section-limit`: Rows per named source section page; omitted uses the source default.
 - `--section-offset`: Source rows to skip independently of identity candidate paging.
 - `--tumor-type`: Explicit tumor context for keyed OncoKB annotation.
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
-- `clinvar`: ClinVar native assertions.
-- `erepo`: ClinGen native assertions.
+- `clinvar`: ClinVar source assertions.
+- `erepo`: ClinGen source assertions.
 - `population`: gnomAD population observations.
 - `gwas`: GWAS Catalog associations.
 - `civic`: CIViC molecular-profile evidence.
-- `alphagenome`: Keyed AlphaGenome native numeric scorer values.
+- `alphagenome`: Keyed AlphaGenome source numeric scorer values.
 - `oncokb`: Keyed OncoKB annotation with explicit tumor context and build.
 - `hotspots`: Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.
 - `predict`: MyVariant source predictor scores.
@@ -2403,8 +2459,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -2437,8 +2494,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -2478,8 +2536,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -2512,8 +2571,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -2545,14 +2605,14 @@ Options:
 
 ```
 
-Page five native UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source UniProt features by exact type and displayed residue. No variant effect or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
-- `--offset`: Native or retained page offset.
+- `--offset`: Source or retained page offset.
 - `--pool`: Retained collection identity.
-- `--position`: Native one-based residue; zero fails during deserialization.
-- `--type`: Exact UniProt native label, without an alias map.
+- `--position`: Source one-based residue; zero fails during deserialization.
+- `--type`: Exact UniProt source label, without an alias map.
 
 ## biomcp protein isoforms
 
@@ -2567,8 +2627,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -2598,7 +2659,7 @@ Page five source isoforms, exact-participant complexes or PDB links. Source iden
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
-- `--offset`: Native or retained page offset.
+- `--offset`: Source or retained page offset.
 - `--pool`: Retained collection identity.
 
 ## biomcp protein domains
@@ -2614,8 +2675,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -2644,13 +2706,13 @@ Options:
 
 ```
 
-Page five native InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source InterPro matches with original types and fragments. No structure or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
-- `--offset`: Native or retained page offset.
+- `--offset`: Source or retained page offset.
 - `--pool`: Retained collection identity.
-- `--type`: Exact native InterPro type, not a normalized domain label.
+- `--type`: Exact source InterPro type, not a normalized domain label.
 
 ## biomcp protein complexes
 
@@ -2665,8 +2727,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -2696,7 +2759,7 @@ Page five source isoforms, exact-participant complexes or PDB links. Source iden
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
-- `--offset`: Native or retained page offset.
+- `--offset`: Source or retained page offset.
 - `--pool`: Retained collection identity.
 
 ## biomcp protein complex-members
@@ -2715,8 +2778,9 @@ Options:
           Exact complex whose native participants contain the anchor.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -2742,12 +2806,12 @@ Options:
 
 ```
 
-Page five native participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
+Page five source participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `accession`: Exact source protein sequence identity.
-- `--complex`: Exact complex whose native participants contain the anchor.
+- `--complex`: Exact complex whose source participants contain the anchor.
 - `--limit`: Five rows by default, at most 25.
-- `--offset`: Native or retained page offset.
+- `--offset`: Source or retained page offset.
 - `--pool`: Retained collection identity.
 
 ## biomcp protein structures
@@ -2763,8 +2827,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -2794,7 +2859,7 @@ Page five source isoforms, exact-participant complexes or PDB links. Source iden
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
-- `--offset`: Native or retained page offset.
+- `--offset`: Source or retained page offset.
 - `--pool`: Retained collection identity.
 
 ## biomcp protein sequence
@@ -2811,8 +2876,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -2829,7 +2895,7 @@ Options:
 
 ```
 
-Read one complete native sequence for an exact source accession.
+Read one complete source sequence for an exact source accession.
 No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
 
 - `isoform`: Exact isoform or base accession; no canonical suffix is synthesized.
@@ -2847,8 +2913,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -2884,8 +2951,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
   -l, --limit <limit>
@@ -2932,8 +3000,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
   -l, --limit <limit>
@@ -2959,7 +3028,7 @@ Options:
 
 ```
 
-Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty.
@@ -2984,8 +3053,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3024,8 +3094,9 @@ Options:
           Literal case-insensitive needle.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3063,7 +3134,7 @@ Options:
 Read a checked supplement file or page its original rows.
 
 - `file`: Exact file name from the supplements section.
-- `--find`: Literal case-insensitive needle.
+- `--find`: Exact case-insensitive needle.
 - `input`: PubMed or PMC identity.
 - `--offset`: Matching-row or text-fragment offset.
 - `--replace`: Replace an existing destination only when explicitly requested with save.
@@ -3085,8 +3156,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --replace
@@ -3131,8 +3203,9 @@ Options:
           Case-insensitive literal text to find.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3166,7 +3239,7 @@ Options:
 
 Read one bounded body part, find matching rows, or save the complete Markdown document.
 
-- `--find`: Case-insensitive literal text to find.
+- `--find`: Case-insensitive exact text to find.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
 - `--offset`: Number of matching rows already returned.
 - `--part`: One-based outline part number.
@@ -3187,8 +3260,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -3223,7 +3297,7 @@ Page the citing or referenced PubMed papers of one checked PMID.
 - `--offset`: Number of pool items to skip.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 - `--pool`: Fixed snapshot from an earlier page.
-- `--source`: Graph provider; iCite remains the default.
+- `--source`: Graph source; iCite remains the default.
 
 ## biomcp article references
 
@@ -3238,8 +3312,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -3274,7 +3349,7 @@ Page the PubMed papers referenced by one checked article identifier.
 - `--offset`: Number of pool items to skip.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 - `--pool`: Fixed snapshot from an earlier page.
-- `--source`: Graph provider; iCite remains the default.
+- `--source`: Graph source; iCite remains the default.
 
 ## biomcp article citation-evidence
 
@@ -3292,8 +3367,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --fulltext
@@ -3344,8 +3420,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --limit <limit>
@@ -3374,9 +3451,9 @@ Options:
 
 ```
 
-Recommendations in the provider's recent-paper pool order.
+Recommendations in the source's recent-paper pool order.
 
-- `--limit`: Maximum recommendations requested, in native order.
+- `--limit`: Maximum recommendations requested, in source order.
 - `--negative`: Up to ten negative paper identities.
 - `--offset`: Number of stored recommendations to skip.
 - `--pool`: Fixed recommendation pool.
@@ -3394,8 +3471,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3431,8 +3509,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --replace
@@ -3477,8 +3556,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3514,8 +3594,9 @@ Options:
           Native assertion accession or document ID.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3546,12 +3627,12 @@ Options:
 
 Page assertions from one explicitly selected evidence source.
 
-- `--assertion`: Native assertion accession or document ID.
+- `--assertion`: Source assertion accession or document ID.
 - `input`: Checked Variation ID for ClinVar, or CAid for ERepo.
-- `--limit`: Assertions per page; omitted uses the native source default.
+- `--limit`: Assertions per page; omitted uses the source default.
 - `--offset`: Assertions to skip in source order.
-- `--source`: One native source; no fallback or text search.
-- `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
+- `--source`: One source; no fallback or text search.
+- `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version.
 
 ## biomcp variant population
 
@@ -3569,8 +3650,9 @@ Options:
           Explicit source assembly when required by identity input.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --detail
@@ -3605,7 +3687,7 @@ Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
 - `--limit`: Maximum rows per page.
-- `--offset`: Native rows to skip.
+- `--offset`: Source rows to skip.
 - `--resolver`: Resolver for reference-qualified input.
 
 ## biomcp variant recurrence
@@ -3621,8 +3703,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --gene <gene>
@@ -3665,7 +3748,7 @@ Observe exact-allele samples within one caller-selected source page.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier.
 - `input`: Published variant identity; ambiguous identities are never selected silently.
 - `--limit`: Source mutation rows per page, including excluded alleles.
-- `--page`: Zero-based native source page.
+- `--page`: Zero-based source page.
 - `--profile`: Explicit mutation molecular profile.
 - `--sample-set`: Explicit sample list; selected size is never an allele denominator.
 - `--source`: Explicit cohort source.
@@ -3683,8 +3766,9 @@ Options:
           Caller assembly; required when VariantValidator is selected.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3730,14 +3814,16 @@ Usage: biomcp sync [OPTIONS] [bundle]
 
 Arguments:
   [bundle]
-          Local source bundle to synchronize; default hgnc.
+          Local source bundle to synchronize.
           
-          [possible values: wikipathways, cbioportal-studies, hgnc, clingen, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
+          [default: hgnc]
+          [possible values: hgnc, clingen, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3756,7 +3842,7 @@ Options:
 
 Synchronize a local source bundle.
 
-- `bundle`: Local source bundle to synchronize; default hgnc.
+- `bundle`: Local source bundle to synchronize.
 
 ## biomcp skill
 
@@ -3773,8 +3859,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3788,6 +3875,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp skill list
 
 ```
 
@@ -3803,8 +3892,9 @@ Usage: biomcp skill list [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3818,6 +3908,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp skill list
 
 ```
 
@@ -3833,8 +3925,9 @@ Usage: biomcp skill render [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3848,6 +3941,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp skill render
 
 ```
 
@@ -3867,8 +3962,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3882,6 +3978,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp skill status biomcp-guidance
 
 ```
 
@@ -3905,8 +4003,9 @@ Options:
           Repair managed files; retain unrelated files.
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -3920,6 +4019,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp skill install biomcp-guidance
 
 ```
 
@@ -3937,8 +4038,9 @@ Usage: biomcp version [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --verbose
@@ -3955,6 +4057,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp version
 
 ```
 
@@ -3977,8 +4081,9 @@ Options:
           [possible values: mcp-servers, servers, codex]
 
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --absolute-path
@@ -3996,6 +4101,8 @@ Options:
       --fresh
           Request fresh source data instead of cached replies.
 
+Example: biomcp mcp-config
+
 ```
 
 Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
@@ -4012,8 +4119,9 @@ Usage: biomcp health [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4027,6 +4135,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp health --offline
 
 ```
 
@@ -4045,8 +4155,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4073,8 +4184,9 @@ Usage: biomcp store clean [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4088,6 +4200,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp store clean
 
 ```
 
@@ -4108,8 +4222,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4123,6 +4238,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp key list
 
 ```
 
@@ -4138,8 +4255,9 @@ Usage: biomcp key list [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4153,6 +4271,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp key list
 
 ```
 
@@ -4172,8 +4292,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --replace
@@ -4190,6 +4311,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp key set oncokb
 
 ```
 
@@ -4211,8 +4334,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4226,6 +4350,8 @@ Options:
 
       --fresh
           Request fresh source data instead of cached replies.
+
+Example: biomcp key remove oncokb
 
 ```
 
@@ -4242,8 +4368,9 @@ Usage: biomcp serve [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --http [<http>]
@@ -4264,6 +4391,9 @@ Options:
       --fresh
           Request fresh source data instead of cached replies.
 
+Example: biomcp serve
+Example: biomcp help serve
+
 ```
 
 Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.
@@ -4279,7 +4409,7 @@ Describe commands and their arguments.
 Usage: biomcp help [OPTIONS] [COMMAND]
 
 Commands:
-  author      Read papers attributed to a provider author record.
+  author      Read papers attributed to a source author record.
   search      Search source records by entity and checked filters.
   get         Retrieve one entity and its source sections.
   cell-line   Read source cell line assay counts.
@@ -4299,11 +4429,14 @@ Commands:
   network     
   sources     
   config      
+  exit        
+  relations   
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4327,7 +4460,7 @@ Print generated command help.
 ## biomcp help author
 
 ```text
-Read papers attributed to a provider author record.
+Read papers attributed to a source author record.
 
 Usage: biomcp help author [OPTIONS] [COMMAND]
 
@@ -4336,8 +4469,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4361,8 +4495,9 @@ Usage: biomcp help author papers [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4387,7 +4522,7 @@ Search source records by entity and checked filters.
 Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
-  author         Read papers attributed to a provider author record.
+  author         Read papers attributed to a source author record.
   cell-line      Read source cell line assay counts.
   gwas           
   protein        Read protein sequences, features and source relationships.
@@ -4406,8 +4541,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4427,14 +4563,15 @@ Options:
 ## biomcp help search author
 
 ```text
-Read papers attributed to a provider author record.
+Read papers attributed to a source author record.
 
 Usage: biomcp help search author [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4460,8 +4597,9 @@ Usage: biomcp help search cell-line [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4485,8 +4623,9 @@ Usage: biomcp help search gwas [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4512,8 +4651,9 @@ Usage: biomcp help search protein [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4537,8 +4677,9 @@ Usage: biomcp help search phenotype [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4564,8 +4705,9 @@ Usage: biomcp help search pathway [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4589,8 +4731,9 @@ Usage: biomcp help search study [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4614,8 +4757,9 @@ Usage: biomcp help search pgx [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4639,8 +4783,9 @@ Usage: biomcp help search diagnostic [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4664,8 +4809,9 @@ Usage: biomcp help search adverse-event [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4689,8 +4835,9 @@ Usage: biomcp help search disease [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4714,8 +4861,9 @@ Usage: biomcp help search drug [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4739,8 +4887,9 @@ Usage: biomcp help search gene [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4766,8 +4915,9 @@ Usage: biomcp help search article [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4793,8 +4943,9 @@ Usage: biomcp help search trial [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4820,8 +4971,9 @@ Usage: biomcp help search variant [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4846,7 +4998,7 @@ Retrieve one entity and its source sections.
 Usage: biomcp help get [OPTIONS] [COMMAND]
 
 Commands:
-  author         Read papers attributed to a provider author record.
+  author         Read papers attributed to a source author record.
   cell-line      Read source cell line assay counts.
   gwas           
   protein        Read protein sequences, features and source relationships.
@@ -4865,8 +5017,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4886,14 +5039,15 @@ Options:
 ## biomcp help get author
 
 ```text
-Read papers attributed to a provider author record.
+Read papers attributed to a source author record.
 
 Usage: biomcp help get author [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4919,8 +5073,9 @@ Usage: biomcp help get cell-line [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4944,8 +5099,9 @@ Usage: biomcp help get gwas [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4971,8 +5127,9 @@ Usage: biomcp help get protein [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -4996,8 +5153,9 @@ Usage: biomcp help get phenotype [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5023,8 +5181,9 @@ Usage: biomcp help get pathway [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5048,8 +5207,9 @@ Usage: biomcp help get study [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5073,8 +5233,9 @@ Usage: biomcp help get pgx [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5098,8 +5259,9 @@ Usage: biomcp help get diagnostic [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5123,8 +5285,9 @@ Usage: biomcp help get adverse-event [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5148,8 +5311,9 @@ Usage: biomcp help get disease [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5173,8 +5337,9 @@ Usage: biomcp help get drug [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5198,8 +5363,9 @@ Usage: biomcp help get gene [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5225,8 +5391,9 @@ Usage: biomcp help get article [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5252,8 +5419,9 @@ Usage: biomcp help get trial [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5279,8 +5447,9 @@ Usage: biomcp help get variant [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5309,8 +5478,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5334,8 +5504,9 @@ Usage: biomcp help cell-line assay-count [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5370,8 +5541,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5395,8 +5567,9 @@ Usage: biomcp help protein features [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5420,8 +5593,9 @@ Usage: biomcp help protein isoforms [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5445,8 +5619,9 @@ Usage: biomcp help protein domains [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5470,8 +5645,9 @@ Usage: biomcp help protein complexes [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5495,8 +5671,9 @@ Usage: biomcp help protein complex-members [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5520,8 +5697,9 @@ Usage: biomcp help protein structures [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5545,8 +5723,9 @@ Usage: biomcp help protein sequence [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5576,8 +5755,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5601,8 +5781,9 @@ Usage: biomcp help pathway genes [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5626,8 +5807,9 @@ Usage: biomcp help pathway events [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5662,8 +5844,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5687,8 +5870,9 @@ Usage: biomcp help article supplement [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5712,8 +5896,9 @@ Usage: biomcp help article pdf [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5737,8 +5922,9 @@ Usage: biomcp help article text [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5762,8 +5948,9 @@ Usage: biomcp help article citations [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5787,8 +5974,9 @@ Usage: biomcp help article references [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5812,8 +6000,9 @@ Usage: biomcp help article citation-evidence [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5837,8 +6026,9 @@ Usage: biomcp help article recommendations [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5867,8 +6057,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5892,8 +6083,9 @@ Usage: biomcp help trial document [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5925,8 +6117,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5950,8 +6143,9 @@ Usage: biomcp help variant assertions [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -5975,8 +6169,9 @@ Usage: biomcp help variant population [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6000,8 +6195,9 @@ Usage: biomcp help variant recurrence [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6025,8 +6221,9 @@ Usage: biomcp help variant normalize [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6051,6 +6248,8 @@ Synchronize a local source bundle.
 Usage: biomcp help sync [OPTIONS] [COMMAND]
 
 Commands:
+  hgnc                
+  clingen             
   wikipathways        
   cbioportal-studies  
   ema                 
@@ -6062,8 +6261,61 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help sync hgnc
+
+```text
+Usage: biomcp help sync hgnc [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help sync clingen
+
+```text
+Usage: biomcp help sync clingen [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6087,8 +6339,9 @@ Usage: biomcp help sync wikipathways [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6112,8 +6365,9 @@ Usage: biomcp help sync cbioportal-studies [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6137,8 +6391,9 @@ Usage: biomcp help sync ema [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6162,8 +6417,9 @@ Usage: biomcp help sync ddinter [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6187,8 +6443,9 @@ Usage: biomcp help sync who-pq [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6212,8 +6469,9 @@ Usage: biomcp help sync gtr [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6237,8 +6495,9 @@ Usage: biomcp help sync who-ivd [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6262,8 +6521,9 @@ Usage: biomcp help sync fda-cdx [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6293,8 +6553,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6320,8 +6581,9 @@ Usage: biomcp help skill list [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6345,8 +6607,9 @@ Usage: biomcp help skill render [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6370,8 +6633,9 @@ Usage: biomcp help skill status [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6395,8 +6659,9 @@ Usage: biomcp help skill install [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6420,8 +6685,9 @@ Usage: biomcp help version [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6445,8 +6711,9 @@ Usage: biomcp help mcp-config [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6472,8 +6739,9 @@ Usage: biomcp help health [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6502,8 +6770,9 @@ Commands:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6527,8 +6796,9 @@ Usage: biomcp help store clean [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6563,8 +6833,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6590,8 +6861,9 @@ Usage: biomcp help key list [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6615,8 +6887,9 @@ Usage: biomcp help key set [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6640,8 +6913,9 @@ Usage: biomcp help key remove [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6667,8 +6941,9 @@ Usage: biomcp help serve [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6696,8 +6971,9 @@ Arguments:
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6721,8 +6997,9 @@ Usage: biomcp help sources [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6746,8 +7023,9 @@ Usage: biomcp help config [OPTIONS]
 
 Options:
       --format <format>
-          Choose JSON or Markdown output.
+          Choose JSON or Markdown output; configuration can change the default.
           
+          [default: json]
           [possible values: json, md]
 
       --disable-sources <disable-sources>
@@ -6764,11 +7042,99 @@ Options:
 
 ```
 
+## biomcp help exit
+
+```text
+Usage: biomcp help exit [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+Process exit codes:
+0: complete or partial reply
+1: no matching record
+2: invalid command or arguments
+3: expired result pool
+4: source request failed
+5: local configuration, storage or output failed
+Error codes: usage.schema, usage.arguments, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
+
+
+## biomcp help relations
+
+```text
+Usage: biomcp help relations [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+          
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+Follow source relationships through a named get section or a search filter. These links retrieve source records without deciding their clinical meaning.
+adverse-event -> drug (get section drugs)
+author -> article (search --author)
+cell-line -> variant (get section variants)
+diagnostic -> gene (get section genes)
+disease -> article (search --disease), gene (get section genes), phenotype (get section phenotypes)
+drug -> article (search --drug)
+gene -> article (search --gene), diagnostic (search --gene), diagnostic (search --gene-id), gwas (search --gene), pathway (get section pathways), pathway (search --gene), pgx (search --gene), protein (get section protein), protein (search --gene), trial (search --gene), variant (search --gene)
+pathway -> gene (get section genes)
+phenotype -> disease (get section diseases), gene (get section genes)
+protein -> variant (search --protein)
+study -> gwas (search --study)
+trial -> disease (get section diseases)
+variant -> article (search --variant), gwas (get section gwas), gwas (search --variant), trial (search --variant)
+
+
 ## biomcp schema
 
 List every schema identity and description, or print one schema artifact.
 
 - `artifact-id`: Artifact ID to print; omit it to list available schemas.
+
+## biomcp sync hgnc
+
+Synchronize a local source bundle.
+
+
+## biomcp sync clingen
+
+Synchronize a local source bundle.
+
 
 ## biomcp sync wikipathways
 
@@ -6843,5 +7209,15 @@ Show credential registration and environment fallback names.
 ## biomcp help key openfda
 
 Show credential registration and environment fallback names.
+
+
+## biomcp help network ca_bundle
+
+Set ca_bundle in config.json to a PEM certificate file. These roots add to platform trust for every source. Keep certificate verification enabled.
+
+
+## biomcp help network proxy
+
+Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, CIDR ranges, .domain, *.domain, optional ports, or *. Bare IPv6 is accepted. Unsupported entries are skipped and health reports configuration notices. Malformed ports and credentials refuse with the variable name. An explicit proxy overrides proxy environment settings.
 
 
