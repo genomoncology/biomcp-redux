@@ -2,7 +2,7 @@ use super::{SPEC, map, raw};
 use crate::Mapped;
 use biodata::{ReactomeId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
-use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch};
+use biomcp_types::{PathwayCard, PathwayHeader, PathwaySearch, Source};
 /// One native page; rejected rows do not change its native position or total.
 #[derive(Debug)]
 pub struct Page {

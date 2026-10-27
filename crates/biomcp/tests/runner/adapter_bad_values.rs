@@ -5,6 +5,10 @@ use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test(
+            "pathway-reactome/invalid-optional-fields-keep-records",
+            || reactome().map_err(Into::into),
+        ),
         Trial::test("variant/empty-clinvar-text-keeps-assertion", || {
             clinvar().map_err(Into::into)
         }),
@@ -104,5 +108,41 @@ fn ema() -> Result<(), Box<dyn std::error::Error>> {
         "therapeutic_indication",
         "/result/regulatory/data/records/0/indication",
     )?;
+    Ok(())
+}
+
+fn reactome() -> Result<(), String> {
+    for (section, field, absent, present) in [
+        (
+            "summary",
+            "references.title",
+            "/result/pathway/references/0/title",
+            "/result/pathway/references/0/db_id",
+        ),
+        (
+            "events",
+            "events.name",
+            "/result/items/0/name",
+            "/result/items/0/db_id",
+        ),
+    ] {
+        let stub = Stub::for_source("reactome.org", "application/json", |request| {
+            Ok(if request.contains("/database/version") { json!(97) }
+            else if request.contains("/containedEvents") { json!([{"dbId":123,"displayName":""}]) }
+            else { json!({"stId":"R-HSA-5673001","displayName":"Synthetic pathway","speciesName":"Homo sapiens","schemaClass":"Pathway","stIdVersion":"R-HSA-5673001.1","literatureReference":[{"dbId":123,"title":""}]}) }.to_string())
+        })?;
+        let env = super::variant::source_environment(&stub)?;
+        let args = if section == "summary" {
+            vec!["get", "pathway", "R-HSA-5673001", "summary"]
+        } else {
+            vec!["pathway", "events", "R-HSA-5673001"]
+        };
+        let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
+        if value.pointer(present) != Some(&json!(123)) {
+            return Err(format!("record lost: {value}"));
+        }
+        check(&value, field, absent)?;
+        stub.finish()?;
+    }
     Ok(())
 }
