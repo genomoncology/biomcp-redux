@@ -154,6 +154,12 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
     let globals = env.globals(Some(&recording), false);
     let args = args.into_iter().map(str::to_owned).collect::<Vec<_>>();
     let cli = command(&env, &args, &globals, 0)?;
+    if capture == "protein/synthetic" {
+        let main = call(&env, "biomcp", json!({"args":args}), &globals)?;
+        if main != cli {
+            return Err("main tool schema result differs from CLI".into());
+        }
+    }
     let wrapped = call(&env, "search", json!({"query":query}), &globals)?;
     if wrapped.pointer("/metadata/envelope") != Some(&cli) {
         return Err(format!("search metadata lost CLI fields: {wrapped}"));

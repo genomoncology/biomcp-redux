@@ -39,10 +39,11 @@ pub(super) fn for_tool(name: &str) -> io::Result<Value> {
         if selected.contains_key(&name) {
             continue;
         }
-        if let Some(value) = definitions.and_then(|defs| defs.get(&name)) {
-            references(value, &mut pending);
-            selected.insert(name, value.clone());
-        }
+        let value = definitions
+            .and_then(|defs| defs.get(&name))
+            .ok_or_else(|| io::Error::other(format!("missing schema definition {name}")))?;
+        references(value, &mut pending);
+        selected.insert(name, value.clone());
     }
     Ok(
         json!({"$schema":"https://json-schema.org/draft/2020-12/schema", "type":"object", "anyOf":branches, "$defs":selected}),
