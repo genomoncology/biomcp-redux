@@ -77,6 +77,8 @@ pub trait Reply: serde::de::DeserializeOwned {
 /// Explicit transport configuration. Construction reads no environment settings.
 #[derive(Debug)]
 pub struct FetchConfig {
+    /// Bounded streaming RPC resources, independent of blocking HTTP requests.
+    pub grpc_limits: grpc::Limits,
     /// Explicit bounded wire summaries, disabled by default.
     pub observations: Option<std::sync::Arc<Observations>>,
     /// Other schema owners checked before any cache mutation.
@@ -112,6 +114,7 @@ pub struct FetchConfig {
 impl Default for FetchConfig {
     fn default() -> Self {
         Self {
+            grpc_limits: grpc::Limits::default(),
             observations: None,
             cache_owners: Vec::new(),
             disabled_sources: Default::default(),
@@ -140,6 +143,7 @@ impl Default for FetchConfig {
 pub struct Fetch {
     secrets: std::sync::Arc<Secrets>,
     agents: std::sync::Arc<network::Agents>,
+    grpc_worker: std::sync::Arc<grpc::Worker>,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     mode: Mode,
     limiters: std::sync::Arc<quota::Limiters>,
@@ -166,6 +170,10 @@ impl Fetch {
         if config.max_body == u64::MAX {
             return Err(FetchError::BodyLimit);
         }
+        let grpc_worker = std::sync::Arc::new(grpc::Worker::new(
+            config.network.clone(),
+            config.grpc_limits,
+        )?);
         let agents = network::Agents::new(&config.network, config.proxy.as_ref())?;
         if matches!(config.mode, Mode::Replay { .. }) && config.replay_cache.is_none() {
             config.replay_cache = Some(
@@ -194,6 +202,7 @@ impl Fetch {
         Ok(Self {
             secrets: std::sync::Arc::new(std::mem::take(&mut config.secrets)),
             agents: std::sync::Arc::new(agents),
+            grpc_worker,
             cancelled: None,
             mode: std::mem::take(&mut config.mode),
             cache,

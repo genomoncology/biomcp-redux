@@ -1,6 +1,7 @@
 # 0321 — Run AlphaGenome streams through one bounded gRPC worker
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3510752bc9d89c389e24849ceb72d3732f2c8bd7
 
 Milestone: 5
 

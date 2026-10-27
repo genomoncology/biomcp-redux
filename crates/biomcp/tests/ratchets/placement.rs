@@ -136,6 +136,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Cover public DNS address and redirect rejection tables without contacting private destinations.",
     ),
     (
+        "crates/biomcp-fetch/src/grpc/dns_tests.rs",
+        "Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration.",
+    ),
+    (
         "crates/biomcp-fetch/src/retry_tests.rs",
         "Cover Retry-After forms and backoff boundaries without one recording per table row.",
     ),
@@ -174,6 +178,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/tests/cache/storage.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/grpc_worker.rs",
+        "Exercise blocking streaming RPC admission, local TLS HTTP/2, proxy routing, deadlines and cancellation through the public transport API.",
     ),
     (
         "crates/biomcp-fetch/tests/offline.rs",

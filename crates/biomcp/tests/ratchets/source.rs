@@ -7,6 +7,10 @@ const GENERATED_PROTO: &str = "crates/biomcp-fetch/src/grpc/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/grpc/worker.rs",
+        "Serialize lazy runtime initialization and join its sole worker thread",
+    ),
+    (
         GENERATED_PROTO,
         "Retain the complete pinned generated provider import closure",
     ),

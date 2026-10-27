@@ -182,3 +182,5 @@ store-coexistence: Allowed bundle reads import only names missing from the curre
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory. Cases: `crates/biomcp/tests/runner/skill.rs`.
 
 stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Contracts: `biomcp-fetch/tensors`.
+
+stream-worker: Blocking source legs make one bounded streaming RPC over their checked TLS and proxy route within the shared quota and absolute deadline. Contracts: `biomcp-fetch/grpc_worker`.

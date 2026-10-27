@@ -48,17 +48,40 @@ impl fmt::Debug for Network {
 }
 impl Network {
     pub(crate) fn requires_proxy(&self, explicit: bool, uri: &ureq::http::Uri) -> bool {
-        if explicit {
-            return true;
-        }
-        if self.bypass.iter().any(|rule| rule.matches(uri)) {
-            return false;
+        !matches!(self.route(explicit, uri), Route::Direct)
+    }
+    fn route(&self, explicit: bool, uri: &ureq::http::Uri) -> Route {
+        if !explicit && self.bypass.iter().any(|rule| rule.matches(uri)) {
+            return Route::Direct;
         }
         if uri.scheme_str() == Some("https") {
-            self.https.is_some()
+            if explicit || self.https.is_some() {
+                Route::Https
+            } else {
+                Route::Direct
+            }
+        } else if explicit || self.http.is_some() {
+            Route::Http
         } else {
-            self.http.is_some()
+            Route::Direct
         }
+    }
+    pub(crate) fn rpc_proxy(
+        &self,
+        explicit: Option<&Secret>,
+        uri: &ureq::http::Uri,
+    ) -> Result<Option<ureq::Proxy>, FetchError> {
+        if explicit.is_some() {
+            return proxy(explicit);
+        }
+        Ok(match self.route(false, uri) {
+            Route::Direct => None,
+            Route::Http => self.http.clone(),
+            Route::Https => self.https.clone(),
+        })
+    }
+    pub(crate) fn rpc_tls(&self) -> Result<rustls::ClientConfig, FetchError> {
+        crate::tls::configuration(self.roots.0.clone())
     }
 
     /// Check HTTP/HTTPS proxy URLs, comma-separated bypass rules and additive roots.
@@ -240,12 +263,17 @@ impl Agents {
         let Ok(uri) = url.parse::<ureq::http::Uri>() else {
             return &self.direct;
         };
-        if !explicit && network.bypass.iter().any(|rule| rule.matches(&uri)) {
-            &self.direct
-        } else if uri.scheme_str() == Some("https") {
-            &self.https
-        } else {
-            &self.http
+        match network.route(explicit, &uri) {
+            Route::Direct => &self.direct,
+            Route::Http => &self.http,
+            Route::Https => &self.https,
         }
     }
+}
+
+#[derive(Clone, Copy)]
+enum Route {
+    Direct,
+    Http,
+    Https,
 }
