@@ -31,6 +31,7 @@ pub(super) enum Seen {
     Connect(String),
     Request(http::HeaderMap, Vec<u8>),
     Message,
+    Trailers,
 }
 pub(super) struct Fixture {
     pub(super) address: std::net::SocketAddr,
@@ -282,6 +283,7 @@ async fn reply(
     trailers.insert("grpc-status", status.to_string().parse()?);
     trailers.insert("grpc-message", "echo-synthetic-secret".parse()?);
     stream.send_trailers(trailers)?;
+    events.send(Seen::Trailers)?;
     Ok(())
 }
 

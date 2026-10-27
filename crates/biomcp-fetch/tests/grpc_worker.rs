@@ -421,3 +421,30 @@ fn stream_worker_queue_deadlines_return_without_waiting_for_another_stream() -> 
     assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
     fixture.finish()
 }
+
+#[test]
+fn stream_worker_rejects_success_received_after_the_absolute_deadline() -> Check {
+    let fixture = Fixture::new(Hold::None, 0, false, false)?;
+    let source = fixture.source(false, KeyUse::None);
+    let fetch = Fetch::open(FetchConfig {
+        network: fixture.network(None, "")?,
+        ..Default::default()
+    })?;
+    let leg = fetch.leg(source, fetch.deadline(Duration::from_secs(1)));
+    let mut received = false;
+    let error = leg
+        .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| {
+            received = true;
+            // The fixture supplies successful trailers while the caller still owns its callback.
+            while !matches!(fixture.received().unwrap(), Seen::Trailers) {}
+            std::thread::sleep(leg.remaining() + Duration::from_millis(1));
+            Ok(())
+        })
+        .unwrap_err();
+    assert!(received);
+    assert!(
+        matches!(&error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded),
+        "received {error:?}"
+    );
+    fixture.finish()
+}
