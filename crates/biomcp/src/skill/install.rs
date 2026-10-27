@@ -47,6 +47,9 @@ pub(super) fn check(path: &Path) -> io::Result<()> {
     Ok(())
 }
 pub(super) fn target(directory: &Path) -> io::Result<PathBuf> {
+    if directory.as_os_str().is_empty() {
+        return Err(io::Error::other("skill directory must not be empty"));
+    }
     check(directory)?;
     let target = match directory.file_name().and_then(|part| part.to_str()) {
         Some("biomcp") => directory.to_path_buf(),

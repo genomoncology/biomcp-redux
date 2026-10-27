@@ -5,7 +5,10 @@ use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, io, path::Path};
 pub(super) const STAMP: &str = ".biomcp-skill.json";
 pub(super) fn digest(text: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(text))
+    Sha256::digest(text)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 pub(super) fn manifest() -> Value {
     let files: BTreeMap<_, _> = ASSETS

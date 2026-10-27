@@ -16,7 +16,6 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     if !output.status.success() {
         return Err(format!("skill command failed: {output:?}").into());
     }
-    println!("skill-output {args:?}: {} bytes", output.stdout.len());
     Ok(output.stdout)
 }
 fn state(env: &Environment, directory: &str, expected: &str) -> Check {
@@ -69,6 +68,7 @@ fn check() -> Check {
     state(&env, "agent", "stale")?;
     fs::remove_file(&stamp)?;
     state(&env, "agent", "unmanaged")?;
+    manifest_boundary(&env, &target)?;
     boundary(&env, &target)?;
     Ok(())
 }
@@ -105,5 +105,23 @@ fn boundary(env: &Environment, target: &Path) -> Check {
             return Err("install escaped the named directory".into());
         }
     }
+    Ok(())
+}
+
+fn manifest_boundary(env: &Environment, target: &Path) -> Check {
+    for path in [
+        "../sentinel",
+        "/sentinel",
+        "use-cases/../../sentinel",
+        "use-cases\\sentinel",
+    ] {
+        let stamp = json!({"schema_version":1,"biomcp_version":"1.0.0","managed_files":{path:"a".repeat(64)}});
+        fs::write(
+            target.join(".biomcp-skill.json"),
+            serde_json::to_vec(&stamp)?,
+        )?;
+        refused(env, &["skill", "status", "agent"])?;
+    }
+    fs::remove_file(target.join(".biomcp-skill.json"))?;
     Ok(())
 }

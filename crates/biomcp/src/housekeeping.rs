@@ -93,7 +93,7 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
                     }
                     .into(),
                     required: arg.is_required_set(),
-                    position: arg.get_index().map(|index| index - 1),
+                    position: arg.get_index().map(|index| (index - 1) as u64),
                     minimum: None,
                     maximum: None,
                     choices: arg
