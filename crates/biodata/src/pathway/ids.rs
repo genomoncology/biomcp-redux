@@ -31,7 +31,12 @@ impl std::fmt::Display for ReactomeId {
         f.write_str(self.as_str())
     }
 }
-text_value!(ReactomeId, "ReactomeId", "^R-HSA-[1-9][0-9]*$");
+text_value!(
+    ReactomeId,
+    "ReactomeId",
+    "^R-HSA-[1-9][0-9]*$",
+    "A checked human Reactome stable pathway identifier."
+);
 /// An identifier outside the canonical human Reactome namespace.
 #[derive(Clone, Copy, Debug)]
 pub struct ReactomeIdInvalid;
@@ -85,7 +90,12 @@ impl std::fmt::Display for WikiPathwaysId {
         f.write_str(self.as_str())
     }
 }
-text_value!(WikiPathwaysId, "WikiPathwaysId", "^WP[1-9][0-9]*$");
+text_value!(
+    WikiPathwaysId,
+    "WikiPathwaysId",
+    "^WP[1-9][0-9]*$",
+    "A checked WikiPathways identity without its revision."
+);
 /// Invalid pathway identity codes.
 #[derive(Clone, Copy, Debug)]
 pub enum PathwayIdInvalid {

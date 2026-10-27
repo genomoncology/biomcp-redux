@@ -118,6 +118,7 @@ pub struct SupplementContent {
     pub sha256: Option<Text>,
     /// Unsupported file URL, returned without downloading it.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Typed unsupported reason.
     #[serde(skip_serializing_if = "Option::is_none")]

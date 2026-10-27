@@ -11,8 +11,7 @@
       "expect": {
         "/result/rows": 10
       },
-      "max_bytes": 179,
-      "max_tokens": 45
+      "max_bytes": 179
     },
     {
       "run": [
@@ -32,7 +31,6 @@
         "hIv"
       ],
       "max_bytes": 2366,
-      "max_tokens": 592,
       "expect": {
         "/page/total": 7,
         "/page/returned": 5,
@@ -57,7 +55,6 @@
         "north"
       ],
       "max_bytes": 1415,
-      "max_tokens": 354,
       "expect": {
         "/page/total": 3
       }
@@ -84,7 +81,6 @@
         "north"
       ],
       "max_bytes": 720,
-      "max_tokens": 180,
       "expect": {
         "/page/total": 1
       }
@@ -107,7 +103,6 @@
         "missing"
       ],
       "max_bytes": 313,
-      "max_tokens": 79,
       "expect": {
         "/page/total": 0
       }
@@ -130,7 +125,6 @@
         "North Synthetic"
       ],
       "max_bytes": 329,
-      "max_tokens": 83,
       "expect": {
         "/page/total": 0
       }

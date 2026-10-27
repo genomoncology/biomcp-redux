@@ -28,6 +28,7 @@ pub struct SourceOutcome {
     /// Publisher terms name from the source registry.
     pub terms: Box<str>,
     /// Publisher page documenting the terms.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub terms_url: Box<str>,
     /// Retained state.
     pub state: SourceState,

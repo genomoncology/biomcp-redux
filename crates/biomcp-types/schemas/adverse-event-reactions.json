@@ -296,7 +296,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Publisher terms page."
+          "description": "Publisher terms page.",
+          "format": "uri"
         },
         "usage": {
           "$ref": "#/$defs/Use",
@@ -336,6 +337,7 @@
       "type": "object"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
@@ -516,6 +518,7 @@
       ]
     },
     "ReportId": {
+      "description": "Opaque published digits with source carried separately, never a prefixed wrapper.",
       "pattern": "^[0-9]+$",
       "type": "string"
     },
@@ -841,6 +844,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

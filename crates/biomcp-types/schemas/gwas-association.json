@@ -189,6 +189,7 @@
       "type": "object"
     },
     "GwasAssociationId": {
+      "description": "A positive Catalog association ID qualified by resource kind.",
       "pattern": "^association:[1-9][0-9]*$",
       "type": "string"
     },
@@ -325,6 +326,7 @@
       ]
     },
     "GwasStudyId": {
+      "description": "Exact Catalog study accession; case and leading zeros survive.",
       "pattern": "^GCST[0-9]{6,}$",
       "type": "string"
     },
@@ -879,6 +881,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

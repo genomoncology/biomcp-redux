@@ -13,6 +13,7 @@ pub struct VariantComponent {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
     /// Component license URL, without any inferred grant.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license: Text,
     /// Aggregator build version.
     pub aggregator_build: Text,
@@ -140,6 +141,7 @@ pub struct ComponentTerms {
     /// Publisher terms name.
     pub name: Text,
     /// Publisher terms page.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 

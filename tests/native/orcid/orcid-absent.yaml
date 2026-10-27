@@ -11,7 +11,6 @@
       "is_error": false,
       "full_output_bytes": true,
       "max_bytes": 408,
-      "max_tokens": 103,
       "run": [
         "get",
         "author",
@@ -41,8 +40,7 @@
       "exit": 1,
       "is_error": false,
       "full_output_bytes": true,
-      "max_bytes": 340,
-      "max_tokens": 86
+      "max_bytes": 340
     }
   ],
   "live_check": "Native person absence; derived synthetic works HTTP404 control"

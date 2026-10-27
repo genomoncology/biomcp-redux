@@ -38,8 +38,7 @@
         "/sources/0/reason": "rejected",
         "/result/condition_resolution/selected_ncit": "NCIT:C3224"
       },
-      "max_bytes": 893,
-      "max_tokens": 224
+      "max_bytes": 893
     }
   ]
 }

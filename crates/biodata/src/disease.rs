@@ -214,6 +214,7 @@ pub struct DiseaseAssociationReference {
     pub label: Option<Text>,
     /// Unchanged native link when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// A named native qualifier without an inferred role.

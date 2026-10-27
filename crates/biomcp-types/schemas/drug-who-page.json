@@ -61,6 +61,7 @@
       "type": "object"
     },
     "DrugSource": {
+      "description": "A supported drug data source.",
       "enum": [
         "who-pq",
         "mychem",
@@ -644,6 +645,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {

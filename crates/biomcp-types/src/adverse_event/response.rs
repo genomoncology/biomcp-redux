@@ -105,8 +105,10 @@ pub struct AdverseEventFaersCard {
     /// Actual reaction-array length, never causal pairs.
     pub reaction_count: u32,
     /// Publisher overview, never a next step.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Text,
     /// Exact successful source request URL, never guessed.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub report_url: Text,
     /// Named sections available in this report.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -157,8 +159,10 @@ pub struct AdverseEventMaudeCard {
     /// Actual narrative-array length.
     pub narrative_count: u32,
     /// Publisher overview, never a next step.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Text,
     /// Exact successful source request URL, never guessed.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub report_url: Text,
     /// Named sections available in this report.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

@@ -118,6 +118,7 @@ pub struct DiagnosticCell {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiagnosticCellLink {
     /// Original source URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri-reference")))]
     pub href: Box<str>,
     /// Native label when the capture supplies one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -131,6 +132,7 @@ pub struct DiagnosticDrugApplication {
     /// Published NDA/BLA prefix and six digits.
     pub id: FdaDrugApplication,
     /// The same cell’s owned source URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Box<str>,
 }
 /// A physical companion-table row; the two table layouts cannot acquire each other’s cells.

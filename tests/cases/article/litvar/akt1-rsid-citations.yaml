@@ -17,7 +17,6 @@
         "citations"
       ],
       "max_bytes": 4675,
-      "max_tokens": 1169,
       "expect": {
         "/status": "complete",
         "/page/total": 1590
@@ -47,7 +46,6 @@
         "30"
       ],
       "max_bytes": 12869,
-      "max_tokens": 3218,
       "expect": {
         "/status": "complete",
         "/result/items/*/pmid": {

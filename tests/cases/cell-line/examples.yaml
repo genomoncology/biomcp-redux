@@ -19,7 +19,6 @@
         "/result/items/0/accession": "CVCL_2119"
       },
       "max_bytes": 1828,
-      "max_tokens": 457,
       "full_output_bytes": true
     },
     {
@@ -40,7 +39,6 @@
         "/result/items/0/accession": "CVCL_0064"
       },
       "max_bytes": 1562,
-      "max_tokens": 391,
       "full_output_bytes": true
     },
     {
@@ -59,7 +57,6 @@
         "/result/header/accession": "CVCL_2119"
       },
       "max_bytes": 2392,
-      "max_tokens": 598,
       "full_output_bytes": true
     },
     {
@@ -78,7 +75,6 @@
         "/result/header/accession": "CVCL_0004"
       },
       "max_bytes": 2143,
-      "max_tokens": 536,
       "full_output_bytes": true
     }
   ]

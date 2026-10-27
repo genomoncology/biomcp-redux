@@ -507,6 +507,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -624,6 +625,7 @@
       "type": "object"
     },
     "StudyId": {
+      "description": "Opaque case-sensitive cBioPortal study identity, without repair.",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },
@@ -688,6 +690,7 @@
       "type": "object"
     },
     "StudyProfileId": {
+      "description": "Exact cBioPortal molecular profile identity.",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },

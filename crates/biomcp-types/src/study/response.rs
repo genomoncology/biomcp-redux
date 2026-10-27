@@ -35,6 +35,7 @@ impl ResponseBody for StudyPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyCard {
     /// Exact publisher study page for this checked source identity.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Text,
     /// Native card metadata, preserving all source count distinctions.
     pub study: Study,
@@ -99,6 +100,7 @@ pub struct StudyFiles {
     pub acquired: u64,
     /// Native LICENSE publisher link, independent of the current file page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub license_notice: Option<Text>,
 }
 impl ResponseBody for StudyFiles {

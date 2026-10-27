@@ -65,6 +65,7 @@ pub struct PathwayMember {
     pub name: Option<Text>,
     /// Native reference URL, including therapeutic references without a drug action.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Option<Text>,
     /// Exact resolved gene identifier, absent when no checked join exists.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -97,6 +98,7 @@ pub enum PathwayEventRef {
         id: Option<ReactomeId>,
         /// Publisher record URL for the event's own stable identity, never the parent pathway.
         #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
         source_url: Option<Text>,
         /// Whole native stIdVersion, separate from the event stable identity.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -135,6 +137,7 @@ pub struct PathwayLiteratureRef {
     pub title: Option<Text>,
     /// Source record URL when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// One native physical entity carrying a membership reference.

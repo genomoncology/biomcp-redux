@@ -21,6 +21,7 @@ biodata::canonical_enum! {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PdfLink {
     /// Source publisher URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
     /// Source access status.
     pub status: OpenAccessStatus,

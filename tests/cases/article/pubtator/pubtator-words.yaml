@@ -14,7 +14,6 @@
         "pubtator"
       ],
       "max_bytes": 5763,
-      "max_tokens": 1441,
       "expect": {
         "/status": "complete",
         "/page/total": 100,
@@ -53,7 +52,6 @@
         "pubmed"
       ],
       "max_bytes": 5763,
-      "max_tokens": 1441,
       "expect": {
         "/result/items/*/pmid": {
           "equals_file": "pubtator-words-ids.json",

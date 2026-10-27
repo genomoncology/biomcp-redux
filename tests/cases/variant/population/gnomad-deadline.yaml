@@ -24,8 +24,7 @@
         "/result/population/state": "unavailable",
         "/result/population/reason": "deadline_exceeded"
       },
-      "max_bytes": 446,
-      "max_tokens": 112
+      "max_bytes": 446
     },
     {
       "run": [
@@ -40,8 +39,7 @@
         "/status": "failed",
         "/result/population/reason": "offline"
       },
-      "max_bytes": 423,
-      "max_tokens": 106
+      "max_bytes": 423
     }
   ]
 }

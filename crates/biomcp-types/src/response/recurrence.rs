@@ -60,6 +60,7 @@ pub struct RecurrenceTerms {
     /// Source warning about possible commercial restrictions.
     pub notice: Box<str>,
     /// Publisher FAQ explaining study-specific terms.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Box<str>,
 }
 

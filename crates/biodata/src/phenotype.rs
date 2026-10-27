@@ -5,7 +5,12 @@ use std::{fmt, str::FromStr};
 /// Exact Human Phenotype Ontology identifier with seven decimal digits.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct HpId(Box<str>);
-crate::text_value!(HpId, "HpId", "^HP:[0-9]{7}$");
+crate::text_value!(
+    HpId,
+    "HpId",
+    "^HP:[0-9]{7}$",
+    "Exact Human Phenotype Ontology identifier with seven decimal digits."
+);
 /// Invalid published HP identifier spelling.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct HpIdInvalid;

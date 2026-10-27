@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AccessionBase": {
+      "description": "An accession whose source states no version; never used for an allele location.",
       "pattern": "^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})|ENS[GTP][0-9]{11}|LRG_[0-9]+([tp][0-9]+)?)$",
       "type": "string"
     },
@@ -68,6 +69,7 @@
       "type": "object"
     },
     "Chromosome": {
+      "description": "A primary chromosome in the caller's reference build.",
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
       "type": "string"
     },
@@ -94,7 +96,8 @@
         },
         "url": {
           "$ref": "#/$defs/Text",
-          "description": "Link to the source entry."
+          "description": "Link to the source entry.",
+          "format": "uri"
         },
         "variant_count": {
           "description": "Number of curated variants reported by the source.",
@@ -187,7 +190,8 @@
         },
         "report_url": {
           "$ref": "#/$defs/Text",
-          "description": "Source report URL."
+          "description": "Source report URL.",
+          "format": "uri"
         }
       },
       "required": [
@@ -253,10 +257,12 @@
       "type": "object"
     },
     "Cytoband": {
+      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
     },
     "EnsemblGeneId": {
+      "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -563,6 +569,7 @@
       "type": "object"
     },
     "GeneInput": {
+      "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },
@@ -868,6 +875,7 @@
       ]
     },
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
@@ -913,6 +921,7 @@
       "type": "object"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
@@ -1086,10 +1095,12 @@
       ]
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "OmimId": {
+      "description": " A six-digit OMIM identifier, preserving all six digits.",
       "pattern": "^[0-9]{6}$",
       "type": "string"
     },
@@ -1288,6 +1299,7 @@
       "type": "object"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -1435,6 +1447,7 @@
       "type": "object"
     },
     "ReactomeId": {
+      "description": "A checked human Reactome stable pathway identifier.",
       "pattern": "^R-HSA-[1-9][0-9]*$",
       "type": "string"
     },
@@ -2660,6 +2673,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -2693,7 +2707,8 @@
               "type": "null"
             }
           ],
-          "description": "Link to that entry."
+          "description": "Link to that entry.",
+          "format": "uri"
         }
       },
       "required": [
@@ -2859,6 +2874,7 @@
       "type": "object"
     },
     "UniProtAcc": {
+      "description": " A whole UniProt base accession, without an isoform suffix.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$",
       "type": "string"
     },

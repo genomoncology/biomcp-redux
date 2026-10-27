@@ -23,6 +23,7 @@ pub struct OrcidExternalId {
     pub relationship: Text,
     /// Native identifier URL.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
 /// Source and assertion origin remain distinct provider claims.
@@ -75,6 +76,7 @@ pub struct OrcidWorkAssertion {
     pub journal_title: Option<Text>,
     /// Native work URL.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Every native assertion identifier in order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

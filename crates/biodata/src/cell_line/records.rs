@@ -16,6 +16,7 @@ pub struct CellLineXref {
     pub label: Option<Text>,
     /// Native source URL when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Native source category when supplied.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -35,7 +35,8 @@
           "type": "null"
         }
       ],
-      "description": "Source reference link, when supplied."
+      "description": "Source reference link, when supplied.",
+      "format": "uri"
     }
   },
   "required": [

@@ -10,6 +10,7 @@
       "type": "string"
     },
     "HgncId": {
+      "description": "An HGNC identifier with canonical namespace and positive numeric value.",
       "pattern": "^HGNC:[1-9][0-9]*$",
       "type": "string"
     },
@@ -282,7 +283,8 @@
                   "type": "null"
                 }
               ],
-              "description": "Publisher record URL for the event's own stable identity, never the parent pathway."
+              "description": "Publisher record URL for the event's own stable identity, never the parent pathway.",
+              "format": "uri"
             },
             "version": {
               "anyOf": [
@@ -542,7 +544,8 @@
               "type": "null"
             }
           ],
-          "description": "Source record URL when supplied."
+          "description": "Source record URL when supplied.",
+          "format": "uri"
         }
       },
       "required": [
@@ -627,7 +630,8 @@
               "type": "null"
             }
           ],
-          "description": "Native reference URL, including therapeutic references without a drug action."
+          "description": "Native reference URL, including therapeutic references without a drug action.",
+          "format": "uri"
         }
       },
       "required": [
@@ -793,6 +797,7 @@
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -881,6 +886,7 @@
       ]
     },
     "ReactomeId": {
+      "description": "A checked human Reactome stable pathway identifier.",
       "pattern": "^R-HSA-[1-9][0-9]*$",
       "type": "string"
     },
@@ -1492,6 +1498,7 @@
         },
         "terms_url": {
           "description": "Publisher page documenting the terms.",
+          "format": "uri",
           "type": "string"
         },
         "use": {
@@ -1525,7 +1532,8 @@
               "type": "null"
             }
           ],
-          "description": "Link to that entry."
+          "description": "Link to that entry.",
+          "format": "uri"
         }
       },
       "required": [
@@ -1607,6 +1615,7 @@
       "type": "string"
     },
     "WikiPathwaysId": {
+      "description": "A checked WikiPathways identity without its revision.",
       "pattern": "^WP[1-9][0-9]*$",
       "type": "string"
     }

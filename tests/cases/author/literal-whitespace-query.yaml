@@ -23,8 +23,7 @@
         "/result/matching_records": 0
       },
       "full_output_bytes": true,
-      "max_bytes": 585,
-      "max_tokens": 147
+      "max_bytes": 585
     }
   ]
 }

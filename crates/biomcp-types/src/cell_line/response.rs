@@ -62,6 +62,7 @@ pub struct CellLineCard {
     pub warnings: Option<Capped<CellLineWarning>>,
     /// Publisher URL for the selected identity.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
     /// Only explicitly requested sections carry a state.
     pub sections: CellLineSections,

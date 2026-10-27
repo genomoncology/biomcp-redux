@@ -35,6 +35,7 @@ pub struct GtrHeader {
     /// Native laboratory context.
     pub laboratory: DiagnosticLaboratory,
     /// Source record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// A conflict is visible once without a selected name or card.
@@ -283,6 +284,7 @@ pub struct DiagnosticPmaHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_code: Option<Box<str>>,
     /// Exact source record URL.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 /// Selected PMA card; statement text stays behind its bounded regulatory page.

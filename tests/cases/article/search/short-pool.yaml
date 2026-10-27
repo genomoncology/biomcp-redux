@@ -48,8 +48,7 @@
           "K322"
         ]
       },
-      "max_bytes": 1337,
-      "max_tokens": 335
+      "max_bytes": 1337
     },
     {
       "run": [
@@ -81,8 +80,7 @@
         ],
         "/result/items/0/pmid": "33984142"
       },
-      "max_bytes": 5358,
-      "max_tokens": 1340
+      "max_bytes": 5358
     }
   ],
   "verified": "PubMed warning names and phrases are now retained, including empty entries. The changed reply measured 1162 comparable bytes in the focused local replay; its ceiling adds fifteen percent. No provider request was made."

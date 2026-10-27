@@ -41,8 +41,7 @@
         "/result/source_updated/value": "2026-10-23T09:00:04",
         "/result/source_updated/timezone": "source_gave_none"
       },
-      "max_bytes": 5692,
-      "max_tokens": 1423
+      "max_bytes": 5692
     }
   ]
 }

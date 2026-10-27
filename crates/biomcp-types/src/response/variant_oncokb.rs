@@ -61,6 +61,7 @@ pub enum OncokbVariantRecord {
         text: Option<Box<str>>,
         /// Source link.
         #[serde(skip_serializing_if = "Option::is_none")]
+        #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
         link: Option<Text>,
     },
     /// Native narrative, split only at checked character boundaries.
@@ -146,5 +147,6 @@ pub struct OncokbCitation {
     pub text: Option<Box<str>>,
     /// Native citation link.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub link: Option<Text>,
 }
