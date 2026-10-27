@@ -245,6 +245,7 @@ fn enrich(
                     for row in found.value {
                         candidate.myvariant = Some(row.identity);
                         candidate.transcripts = row.transcripts;
+                        candidate.component_terms = row.component_terms;
                     }
                 }
                 Err(e) => {

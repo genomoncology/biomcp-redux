@@ -115,7 +115,10 @@ fn coding() -> Result<(), String> {
         ("NM_001199291.3:c.1619A>G", false),
     ] {
         let value = run(&env, &["get", "variant", notation])?;
-        if value.pointer("/result/candidates/0/transcripts/0/matched") != Some(&json!(expected)) {
+        if value.pointer("/result/candidates/0/component_terms/1/component")
+            != Some(&json!("snpeff"))
+            || value.pointer("/result/candidates/0/transcripts/0/matched") != Some(&json!(expected))
+        {
             return Err(format!(
                 "coding source match ignored transcript version: {value}"
             ));
