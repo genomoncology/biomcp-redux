@@ -16,6 +16,7 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     if !output.status.success() {
         return Err(format!("skill command failed: {output:?}").into());
     }
+    println!("skill-output {args:?}: {} bytes", output.stdout.len());
     Ok(output.stdout)
 }
 fn state(env: &Environment, directory: &str, expected: &str) -> Check {

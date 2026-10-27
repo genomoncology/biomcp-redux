@@ -12,6 +12,7 @@ mod paths;
 mod retired;
 mod save;
 mod schema;
+mod skill;
 mod spell;
 mod view;
 

@@ -3,6 +3,7 @@ use std::io;
 
 #[derive(Debug)]
 pub(crate) enum Command {
+    Skill(crate::skill::Skill),
     Version { verbose: bool },
     McpConfig { client: Client },
 }
@@ -17,6 +18,7 @@ pub(crate) enum Client {
 impl Command {
     pub(crate) fn render(&self, globals: &crate::grammar::Globals) -> io::Result<Vec<u8>> {
         let text = match self {
+            Self::Skill(command) => command.render()?,
             Self::Version { verbose } => version(*verbose, globals),
             Self::McpConfig { client } => mcp_config(*client)?,
         };
@@ -61,8 +63,18 @@ fn display_path(path: Option<std::path::PathBuf>) -> String {
 pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
     crate::grammar::housekeeping_commands()
         .into_iter()
-        .map(|command| biomcp_types::HelpCommand {
-            command: vec![command.get_name().into()],
+        .flat_map(|command| {
+            let name = command.get_name().to_owned();
+            let mut entries = vec![(vec![name.clone()], command.clone())];
+            entries.extend(
+                command
+                    .get_subcommands()
+                    .map(|child| (vec![name.clone(), child.get_name().into()], child.clone())),
+            );
+            entries
+        })
+        .map(|(path, command)| biomcp_types::HelpCommand {
+            command: path,
             description: command
                 .get_about()
                 .map(ToString::to_string)
@@ -70,7 +82,9 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
             arguments: command
                 .get_arguments()
                 .map(|arg| biomcp_types::HelpArgument {
-                    name: format!("--{}", arg.get_long().unwrap_or_default()),
+                    name: arg
+                        .get_long()
+                        .map_or_else(|| arg.get_id().to_string(), |name| format!("--{name}")),
                     description: arg.get_help().map(ToString::to_string).unwrap_or_default(),
                     value_type: if arg.get_action().takes_values() {
                         "string"
@@ -78,8 +92,8 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
                         "boolean"
                     }
                     .into(),
-                    required: false,
-                    position: None,
+                    required: arg.is_required_set(),
+                    position: arg.get_index().map(|index| index - 1),
                     minimum: None,
                     maximum: None,
                     choices: arg
