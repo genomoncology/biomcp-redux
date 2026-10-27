@@ -134,7 +134,11 @@ fn local() -> Check {
         let v = invoke(&env, args.clone(), 0)?;
         for source in BUNDLES {
             let r = row(&v, source)?;
-            if r["bundle"] != expected || r["state"] == "syncing" {
+            if r["bundle"] != expected
+                || r["state"] != if expected == "fresh" { "ok" } else { "stale" }
+                || r.get("latency_ms").is_some()
+                || r.get("reason").is_some()
+            {
                 return Err(format!("wrong local bundle state {r}"));
             }
         }
