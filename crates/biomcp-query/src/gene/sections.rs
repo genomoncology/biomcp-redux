@@ -226,7 +226,12 @@ impl SectionValue {
             Self::ClinGen(Section::Data { data, .. }) => {
                 [&data.validity_status, &data.dosage_status]
                     .into_iter()
-                    .any(|outcome| outcome.state != SourceState::Ok)
+                    .any(|outcome| {
+                        matches!(
+                            outcome.state,
+                            SourceState::Failed | SourceState::Stale | SourceState::Syncing
+                        )
+                    })
             }
             Self::ClinGen(value) => matches!(value, Section::Unavailable { .. }),
             Self::Constraint(value) => matches!(value, Section::Unavailable { .. }),
