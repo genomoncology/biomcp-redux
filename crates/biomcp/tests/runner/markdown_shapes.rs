@@ -160,7 +160,7 @@ const SHAPES: &[Shape] = &[
         replies: "article/supplements/live",
         required: &[
             "Rows",
-            "| Sheet | Row | Header | Cells |",
+            "| Sheet | Row | Cells | Cells | Row |",
             "AXIN2",
             "p.Pro245Ser",
             "biomcp article supplement 28944238 MGG3-5-553-s002.xlsx",
