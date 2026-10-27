@@ -142,7 +142,8 @@ fn target(offset: usize) -> String {
     } else {
         format!("&skip={offset}")
     };
+    let selector = "openfda.brand_name%3A%22gleevec%22%20OR%20openfda.generic_name%3A%22gleevec%22";
     format!(
-        "GET /drug/label.json?search=openfda.brand_name%3A%22gleevec%22%20OR%20openfda.generic_name%3A%22gleevec%22&limit=2&sort=effective_time%3Adesc{skip} HTTP/1.1"
+        "GET /drug/label.json?search={selector}&limit=2&sort=effective_time%3Adesc{skip} HTTP/1.1"
     )
 }

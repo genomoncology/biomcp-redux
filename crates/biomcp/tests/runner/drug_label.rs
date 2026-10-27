@@ -174,8 +174,10 @@ fn absent() -> Check {
         |request| {
             let selector = request.lines().next().ok_or("request")?;
             if !["openfda.brand_name.exact", "openfda.brand_name"].iter().any(|field| {
+                let generic = field.replace("brand_name", "generic_name");
+                let names = format!("{field}%3A%22Tagrisso%22%20OR%20{generic}%3A%22Tagrisso%22");
                 selector == format!(
-                    "GET /drug/label.json?search={field}%3A%22Tagrisso%22%20OR%20{}%3A%22Tagrisso%22&limit=1&sort=effective_time%3Adesc HTTP/1.1", field.replace("brand_name", "generic_name")
+                    "GET /drug/label.json?search={names}&limit=1&sort=effective_time%3Adesc HTTP/1.1"
                 )
             }) {
                 return Err(format!("unexpected absence request: {request}"));
