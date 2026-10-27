@@ -115,7 +115,7 @@ class LinuxContainers(unittest.TestCase):
             for output in ('dist', 'target/debug'):
                 (root / output / 'host-output').write_text('caller can write')
             self.assertEqual([str(path.relative_to(root)) for path in root.rglob('*')
-                              if path.stat().st_uid != os.getuid()], [])
+                              if (path.lstat().st_uid, path.lstat().st_gid) != (os.getuid(), os.getgid())], [])
             # The Docker process removed its temporary installation tree before returning.
             report = root / 'dist/install-report.json'
             self.assertEqual(json.loads(report.read_text()), REPORT)
