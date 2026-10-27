@@ -1488,9 +1488,14 @@
     "ema": {
       "source_path": "src/sources/ema.rs",
       "urls": [
-        "https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format"
+        "https://www.ema.europa.eu/en/documents/report/medicines-output-medicines_json-report_en.json",
+        "https://www.ema.europa.eu/en/documents/report/medicines-output-post_authorisation_json-report_en.json",
+        "https://www.ema.europa.eu/en/documents/report/referrals-output-json-report_en.json",
+        "https://www.ema.europa.eu/en/documents/report/medicines-output-periodic_safety_update_report_single_assessments-output-json-report_en.json",
+        "https://www.ema.europa.eu/en/documents/report/dhpc-output-json-report_en.json",
+        "https://www.ema.europa.eu/en/documents/report/shortages-output-json-report_en.json"
       ],
-      "reason": "The fixed EMA index precedes report downloads and has no general endpoint override. BIOMCP_EMA_REPORT_BASE does not isolate it."
+      "reason": "Released EMA synchronizes six report feeds through BIOMCP_EMA_REPORT_BASE; there is no discovery-index request. Current EMA recordings retain medicines.json only. Native post_authorisation.json, referrals.json, psusas.json, dhpcs.json and shortages.json report responses are missing, so delivery remains declaration_only. Source: src/sources/ema.rs:46-89,749-755."
     }
   },
   "conditional_overrides": {

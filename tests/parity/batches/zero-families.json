@@ -10,7 +10,7 @@
         "--gene",
         "DPYD"
       ],
-      "spelling_table": "sdlc/planning/slices/pgx.md",
+      "spelling_table": "sdlc/planning/slices/pharmacogenomics.md",
       "release_source": [
         "src/cli/pgx/dispatch.rs:18-27,58-91",
         "src/entities/pgx.rs:328-329,386-387,419-421,569-610",
@@ -39,7 +39,7 @@
         "pgx",
         "DPYD"
       ],
-      "spelling_table": "sdlc/planning/slices/pgx.md",
+      "spelling_table": "sdlc/planning/slices/pharmacogenomics.md",
       "release_source": [
         "src/cli/pgx/dispatch.rs:18-27,58-91",
         "src/entities/pgx.rs:328-329,386-387,419-421,569-610",
@@ -69,7 +69,7 @@
         "TPMT",
         "recommendations"
       ],
-      "spelling_table": "sdlc/planning/slices/pgx.md",
+      "spelling_table": "sdlc/planning/slices/pharmacogenomics.md",
       "release_source": [
         "src/cli/pgx/dispatch.rs:18-27,58-91",
         "src/entities/pgx.rs:328-329,386-387,419-421,569-610",
