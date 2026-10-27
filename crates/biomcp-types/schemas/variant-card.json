@@ -4470,8 +4470,7 @@
           "x-positional": 0
         },
         "limit": {
-          "default": 3,
-          "description": "Assertions per page.",
+          "description": "Assertions per page; omitted uses the native source default.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -4812,8 +4811,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "default": 3,
-          "description": "Rows per named source section page.",
+          "description": "Rows per named source section page; omitted uses the native source default.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,

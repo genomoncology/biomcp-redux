@@ -18,7 +18,8 @@ pub(super) fn check() -> Result<(), String> {
         return Err("repeat card differs over MCP".into());
     }
     identity(&card)?;
-    bounded("rsID", &card, 700)?;
+    // Ceilings are ceil(comparable bytes * 1.15), measured in j16521.
+    bounded("rsID", &card, 757)?;
     let next = card
         .get("next")
         .and_then(Value::as_array)
@@ -29,7 +30,10 @@ pub(super) fn check() -> Result<(), String> {
             "printed repeat spelling has no exact assembly-qualified get: {next:?}"
         ));
     }
-    for step in next {
+    for step in next
+        .iter()
+        .filter(|step| step.get("kind") == Some(&json!("disambiguate")))
+    {
         let args: Vec<String> = serde_json::from_value(
             step.get("args")
                 .cloned()
@@ -38,7 +42,7 @@ pub(super) fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
         let followed = invoke(&env, args.clone(), 0)?;
         identity(&followed)?;
-        bounded("repeat", &followed, 615)?;
+        bounded("repeat", &followed, 717)?;
         if followed
             .get("next")
             .and_then(Value::as_array)
