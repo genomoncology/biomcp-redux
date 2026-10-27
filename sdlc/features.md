@@ -21,7 +21,7 @@ article-citations: A caller sorts by iCite citation counts and walks citing or r
 article-fulltext: A caller reads available full text through semantic parts, tables, outlines and checked continuations. Cases: `tests/cases/article/fulltext/*.yaml`.
 article-retired: A caller using a retired article spelling receives its fixed replacement or removal explanation. Cases: `tests/cases/article/retired.yaml`.
 mcp-parity: A caller sends the CLI argument array through the MCP tool and receives the same command result. Cases: `tests/cases/mcp/*.yaml`.
-schema-discovery: A caller retrieves versioned schemas and receives a fixed usage envelope for invalid requests. Cases: `tests/cases/schema/*.yaml`.
+schema-discovery: A caller retrieves versioned schemas, discovers scoped commands through help aliases and follows safe guidance for unknown commands. Cases: `tests/cases/schema/*.yaml`, `crates/biomcp/tests/runner/help_entry.rs`.
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures. Cases: `crates/biomcp/tests/runner/corporate.rs`.
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP. Cases: `crates/biomcp/tests/runner/markdown_shapes.rs`.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar. Cases: `tests/cases/article/tldr/*.yaml`, `tests/cases/article/edges/*.yaml`.

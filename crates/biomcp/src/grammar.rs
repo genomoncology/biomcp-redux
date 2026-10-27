@@ -216,7 +216,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             http: None,
         });
     }
-    let help = help_path(verb, matches)?;
+    let help = entry::help_path(verb, matches)?;
     let action = if verb == "store" {
         Action::StoreClean
     } else if verb == "health" {
@@ -255,32 +255,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         help,
     })
 }
-fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
-    Ok(if verb == "help" {
-        match matches.subcommand() {
-            Some(("key", matches)) if matches.get_one::<String>("source").is_some() => None,
-            Some((name @ ("version" | "mcp-config" | "skill" | "sources" | "config"), _)) => {
-                Some(vec![name.into()])
-            }
-            Some(("author", matches)) if matches.subcommand().is_none() => {
-                Some(vec!["author".into()])
-            }
-            Some(("network", matches)) => Some(
-                std::iter::once("network".into())
-                    .chain(matches.get_one::<String>("setting").cloned())
-                    .collect(),
-            ),
-            Some((verb, matches)) => {
-                Some(std::iter::once(verb.into())
-                    .chain(matches.subcommand().map(|(name, _)| name.into()))
-                    .collect())
-            }
-            None => Some(Vec::new()),
-        }
-    } else {
-        None
-    })
-}
+
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     let globals = Globals {
         config: matches.get_one::<PathBuf>("config").cloned(),
