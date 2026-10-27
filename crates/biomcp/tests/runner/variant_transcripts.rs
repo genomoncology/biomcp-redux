@@ -1,5 +1,5 @@
 //! Feature: variant-search. Source-paired rows expose numbering differences through the CLI.
-use super::{launch::Environment, network_stub::Stub};
+use super::super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
@@ -151,7 +151,8 @@ fn reply(request: &str) -> Result<String, String> {
                 "coordinates":[{"start":118860950,"end":118860951,"referenceAllele":"A","allele":"G"}]}]}).to_string());
     }
     let fixture = fs::read(
-        super::launch::fixtures().join("fixtures/variant/transcripts/myvariant-hsd17b4.json"),
+        super::super::launch::fixtures()
+            .join("fixtures/variant/transcripts/myvariant-hsd17b4.json"),
     )
     .map_err(|e| e.to_string())?;
     let hit: Value = serde_json::from_slice(&fixture).map_err(|e| e.to_string())?;

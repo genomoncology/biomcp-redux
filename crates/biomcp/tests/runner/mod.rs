@@ -150,7 +150,6 @@ mod variant_hotspots;
 mod variant_population;
 mod variant_population_release;
 mod variant_search;
-mod variant_transcripts;
 mod wikipathways;
 
 // Approved complete CLI help ceiling; entity and MCP budgets remain separate.
@@ -398,7 +397,6 @@ fn variant_trials() -> Vec<Trial> {
     trials.extend(recurrence_metadata::trials());
     trials.extend(normalization::trials());
     trials.extend(variant_search::trials());
-    trials.extend(variant_transcripts::trials());
     trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
     trials
