@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 
+@unittest.skipIf(sys.platform == "win32", "the local executable stubs use POSIX shebangs")
 class OptimizedSmoke(unittest.TestCase):
     def test_reports_checks_from_completed_installed_commands(self):
         with tempfile.TemporaryDirectory() as directory:
