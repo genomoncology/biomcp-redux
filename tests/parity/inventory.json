@@ -3,7 +3,8 @@
   "cases": [],
   "batches": [
     "batches/trial.json",
-    "batches/pathway.json"
+    "batches/pathway.json",
+    "batches/variant.json"
   ],
   "inventory": {
     "pending": [
@@ -876,71 +877,6 @@
         "case": "orcid/translated-title.yaml",
         "ticket": "0303",
         "reason": "orcid direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/assertions-domains.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/assertions-erepo-current.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/help-assertions-clinvar.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/help-assertions-erepo.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/help-normalize-mutalyzer.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/help-normalize-variantvalidator.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/help-recurrence.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/normalization.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/population/catalog-data.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/population/catalog-zero.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/population/missing-rsid.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/population/policy.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "variant/recurrence-source-query.yaml",
-        "ticket": "0302",
-        "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
       },
       {
         "case": "adverse-event/search-policy.yaml",
