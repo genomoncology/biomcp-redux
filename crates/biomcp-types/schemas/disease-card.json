@@ -1070,7 +1070,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_card/2",
+  "$id": "biomcp.disease-card/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1127,7 +1127,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_card/2",
+      "const": "biomcp.disease-card/2",
       "type": "string"
     },
     "sources": {

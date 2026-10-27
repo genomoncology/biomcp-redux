@@ -1,6 +1,7 @@
 # 0341 — Use one schema ID spelling and list schema IDs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 11e6244a9c96e20bbbf60ae8e3c5afd98d301d8b
 
 Milestone: 5
 

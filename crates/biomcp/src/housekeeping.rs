@@ -74,6 +74,7 @@ pub(crate) fn help() -> Vec<biomcp_types::HelpCommand> {
             entries
         })
         .map(|(path, command)| biomcp_types::HelpCommand {
+            reply_schemas: Vec::new(),
             command: path,
             description: command
                 .get_about()

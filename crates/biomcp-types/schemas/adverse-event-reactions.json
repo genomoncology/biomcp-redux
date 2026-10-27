@@ -936,7 +936,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.adverse_event_reactions/1",
+  "$id": "biomcp.adverse-event-reactions/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -993,7 +993,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.adverse_event_reactions/1",
+      "const": "biomcp.adverse-event-reactions/1",
       "type": "string"
     },
     "sources": {

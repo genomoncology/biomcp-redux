@@ -82,22 +82,22 @@ pub struct OrcidWorks {
     pub observed_groups: u64,
 }
 impl ResponseBody for AuthorPage {
-    const SCHEMA: &'static str = "biomcp.author_page/2";
+    const SCHEMA: &'static str = "biomcp.author-page/2";
     type Query = AuthorSearch;
 }
 impl ResponseBody for AuthorCards {
-    const SCHEMA: &'static str = "biomcp.author_card/3";
+    const SCHEMA: &'static str = "biomcp.author-card/3";
     type Query = AuthorGet;
 }
 impl ResponseBody for AuthorPapers {
-    const SCHEMA: &'static str = "biomcp.author_papers/1";
+    const SCHEMA: &'static str = "biomcp.author-papers/1";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for AuthorPaperDetails {
-    const SCHEMA: &'static str = "biomcp.author_paper_details/1";
+    const SCHEMA: &'static str = "biomcp.author-paper-details/1";
     type Query = AuthorPapersQuery;
 }
 impl ResponseBody for OrcidWorks {
-    const SCHEMA: &'static str = "biomcp.orcid_works/2";
+    const SCHEMA: &'static str = "biomcp.orcid-works/2";
     type Query = AuthorPapersQuery;
 }

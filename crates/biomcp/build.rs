@@ -5,6 +5,9 @@
 )]
 use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
+#[path = "build/schema_metadata.rs"]
+mod schema_metadata;
+
 fn main() -> Result<(), Box<dyn Error>> {
     embed_build()?;
     let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../biomcp-types/schemas");
@@ -27,6 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err("duplicate schema artifact $id".into());
         }
     }
+    schema_metadata::write(&schemas, &PathBuf::from(env::var("OUT_DIR")?))?;
     let entries = schemas
         .iter()
         .map(|(id, text)| format!("({id:?}, {text:?}),\n"))

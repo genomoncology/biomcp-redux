@@ -264,7 +264,7 @@ fn declared_fallback(root: &Value, row: &Value, id: &str, name: &str) -> bool {
         .strip_prefix("biomcp.")
         .and_then(|v| v.split(['_', '-']).next())
         .unwrap_or_default();
-    let entity = if id.starts_with("biomcp.cell_line_") {
+    let entity = if id.starts_with("biomcp.cell-line-") {
         "cell-line"
     } else if entity == "adverse" {
         "adverse-event"

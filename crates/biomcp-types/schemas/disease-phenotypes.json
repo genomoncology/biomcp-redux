@@ -1281,7 +1281,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.disease_phenotypes/5",
+  "$id": "biomcp.disease-phenotypes/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1338,7 +1338,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.disease_phenotypes/5",
+      "const": "biomcp.disease-phenotypes/5",
       "type": "string"
     },
     "sources": {

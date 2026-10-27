@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 // Pair each new public response export here with a crate-root re-export in `lib.rs`.
 // `unreachable_pub` reports a missing crate-root re-export.
+=======
+mod catalog;
+pub use catalog::{SchemaCatalog, SchemaEntry};
+>>>>>>> 11e6244a9c96e20bbbf60ae8e3c5afd98d301d8b
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{

@@ -28,7 +28,7 @@
         "no assertion criteria provided"
       ],
       "expect": {
-        "/schema": "biomcp.variant_page/6",
+        "/schema": "biomcp.variant-page/6",
         "/status": "partial",
         "/query": {
           "equals": {
