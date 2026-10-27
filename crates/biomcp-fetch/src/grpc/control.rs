@@ -1,7 +1,7 @@
 //! Wake cancellable stream work without detaching its network tasks.
 use crate::LocalDeadline;
 use std::sync::{
-    Arc,
+    Arc, OnceLock,
     atomic::{AtomicBool, AtomicU8, Ordering},
 };
 
@@ -40,19 +40,28 @@ pub(super) async fn deadline(deadline: &LocalDeadline) {
     }
 }
 #[derive(Debug, Default)]
-pub(super) struct CallState(AtomicU8);
+pub(super) struct CallState {
+    phase: AtomicU8,
+    outcome: OnceLock<Result<(), biomcp_types::Reason>>,
+}
 impl CallState {
     pub(super) fn begin(&self) -> bool {
-        self.0
+        self.phase
             .compare_exchange(0, 1, Ordering::AcqRel, Ordering::Acquire)
             .is_ok()
     }
+    pub(super) fn record(&self, result: Result<(), biomcp_types::Reason>) {
+        self.outcome.get_or_init(|| result);
+    }
+    pub(super) fn outcome(&self) -> Option<Result<(), biomcp_types::Reason>> {
+        self.outcome.get().copied()
+    }
     pub(super) fn finish(&self) {
-        self.0.store(2, Ordering::Release);
+        self.phase.store(2, Ordering::Release);
     }
     fn cancel_queued(&self) -> bool {
         matches!(
-            self.0
+            self.phase
                 .compare_exchange(0, 2, Ordering::AcqRel, Ordering::Acquire),
             Ok(_) | Err(2)
         )

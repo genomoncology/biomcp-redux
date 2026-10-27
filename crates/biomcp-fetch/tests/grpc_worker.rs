@@ -247,7 +247,8 @@ fn stream_worker_uses_one_absolute_deadline_in_each_response_phase() -> Check {
             )
             .unwrap_err();
         assert!(
-            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+            matches!(&error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded),
+            "received {error:?}"
         );
         let seen = fixture.events.try_iter().collect::<Vec<_>>();
         assert!(seen.iter().any(|event| matches!(event, Seen::Tcp)));
@@ -349,7 +350,8 @@ fn stream_worker_holds_the_shared_permit_until_stream_cancellation() -> Check {
         )?;
     let error = first_call.finish()?.unwrap_err();
     assert!(
-        matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+        matches!(&error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded),
+        "received {error:?}"
     );
     first.finish()?;
     second.finish()
@@ -406,7 +408,8 @@ fn stream_worker_queue_deadlines_return_without_waiting_for_another_stream() -> 
             .grpc(&queued.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
             .unwrap_err();
         assert!(
-            matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
+            matches!(&error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded),
+            "received {error:?}"
         );
         assert!(
             !first.is_finished(),

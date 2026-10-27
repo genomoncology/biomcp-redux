@@ -94,7 +94,11 @@ impl Leg<'_> {
                 }
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
                 Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
-                    return Err(self.failure(Reason::Unavailable, None).into());
+                    return _guard
+                        .state
+                        .outcome()
+                        .unwrap_or(Err(Reason::Unavailable))
+                        .map_err(|reason| self.failure(reason, None).into());
                 }
             }
         }

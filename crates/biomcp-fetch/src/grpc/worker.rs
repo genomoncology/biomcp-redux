@@ -191,6 +191,9 @@ async fn run_call(command: Command, stop: Arc<Stop>, tls: Arc<rustls::ClientConf
         rpc_call::execute(&command, tls),
     )
     .await;
+    // Retain the terminal reason even when the absolute deadline prevents event delivery.
+    // Completion remains separate so the caller still waits for network cleanup.
+    command.state.record(result);
     tokio::select! {
         _ = command.stop.wait() => {},
         _ = stop.wait() => {},
