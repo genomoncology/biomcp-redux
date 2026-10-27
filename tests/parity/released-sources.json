@@ -1718,15 +1718,5 @@
       "reviewed_on": "2026-09-28",
       "notes": "Verified against the live terms page 2026-09-28: WikiPathways adopts the CC0 waiver for its content; the classic site is retired."
     }
-  ],
-  "endpoints": {
-    "mygene-info": {
-      "variable": "BIOMCP_MYGENE_BASE",
-      "host": "mygene.info",
-      "base_path": "/v3",
-      "recording_source": "mygene",
-      "source_path": "src/sources/mygene.rs",
-      "source_declaration": "const MYGENE_BASE: &str = \"https://mygene.info/v3\";\nconst MYGENE_BASE_ENV: &str = \"BIOMCP_MYGENE_BASE\";"
-    }
-  }
+  ]
 }

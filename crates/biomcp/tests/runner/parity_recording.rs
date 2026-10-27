@@ -73,7 +73,7 @@ fn peers(
     let mut grouped = BTreeMap::new();
     for (route, body) in selection.recordings.iter().zip(bodies) {
         grouped
-            .entry(route.source.clone())
+            .entry(route.endpoint_env.clone())
             .or_insert_with(Vec::new)
             .push((
                 route.request_prefix.clone(),
@@ -82,11 +82,13 @@ fn peers(
             ));
     }
     let mut peers = Vec::new();
-    for (source, routes) in grouped {
-        let endpoint = registry
-            .endpoints
-            .get(&source)
+    for (variable, routes) in grouped {
+        let route = selection
+            .recordings
+            .iter()
+            .find(|route| route.endpoint_env == variable)
             .ok_or("unreviewed endpoint")?;
+        let endpoint = registry.endpoint(route)?;
         let expected_host = endpoint.host.clone();
         let peer = super::super::network_stub::Stub::loopback(
             expected_host.clone(),
@@ -132,11 +134,9 @@ fn bodies(
             )
             .map_err(|e| e.to_string())?;
             let registry = registry::load()?;
-            let endpoint = registry
-                .endpoints
-                .get(&route.source)
-                .ok_or("unreviewed source")?;
-            if capture.get("source").and_then(Value::as_str) != Some(&endpoint.recording_source) {
+            if capture.get("source").and_then(Value::as_str)
+                != Some(registry.recording_source(route)?)
+            {
                 return Err("capture does not belong to routed source".into());
             }
             let exchanges = capture

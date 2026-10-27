@@ -1,4 +1,4 @@
-//! Exact released registry plus reviewed source endpoint declarations.
+//! Exact released registry plus source-grounded endpoint ownership.
 use super::{Selection, recording::Route};
 use serde::Deserialize;
 use serde_json::Value;
@@ -6,26 +6,50 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
 };
+
+const RELEASE: &str = "0.9.3";
+const REVISION: &str = "5641de7d7b79b53872f8599dbb4dba22e611dcaf";
+
 #[derive(Deserialize)]
 pub(super) struct Registry {
     release: String,
     source_revision: String,
     catalog: Vec<Value>,
-    pub(super) endpoints: BTreeMap<String, Endpoint>,
+    #[serde(skip)]
+    declarations: Declarations,
+}
+#[derive(Default, Deserialize)]
+struct Declarations {
+    release: String,
+    source_revision: String,
+    sources: BTreeMap<String, Source>,
+    endpoints: BTreeMap<String, Endpoint>,
+}
+#[derive(Deserialize)]
+struct Source {
+    recording_source: String,
+    variables: Vec<String>,
 }
 #[derive(Deserialize)]
 pub(super) struct Endpoint {
     pub(super) variable: String,
     pub(super) host: String,
     pub(super) base_path: String,
-    pub(super) recording_source: String,
 }
 pub(super) fn load() -> Result<Registry, String> {
-    let path = super::super::launch::fixtures().join("parity/released-sources.json");
-    let registry: Registry = serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
-    if registry.release != "0.9.3"
-        || registry.source_revision != "5641de7d7b79b53872f8599dbb4dba22e611dcaf"
+    let root = super::super::launch::fixtures().join("parity");
+    let mut registry: Registry = serde_json::from_slice(
+        &fs::read(root.join("released-sources.json")).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    registry.declarations = serde_json::from_slice(
+        &fs::read(root.join("released-endpoints.json")).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    if registry.release != RELEASE
+        || registry.source_revision != REVISION
+        || registry.declarations.release != RELEASE
+        || registry.declarations.source_revision != REVISION
     {
         return Err("expected pinned released source registry".into());
     }
@@ -46,18 +70,7 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
         return Err("assessment gap: baseline endpoint routes missing".into());
     }
     for route in &selection.recordings {
-        let endpoint = registry.endpoints.get(&route.source).ok_or_else(|| {
-            format!(
-                "assessment gap: no reviewed endpoint declaration for {}",
-                route.source
-            )
-        })?;
-        if route.endpoint_env != endpoint.variable || route.host != endpoint.host {
-            return Err(format!(
-                "endpoint variable or host does not belong to source {}",
-                route.source
-            ));
-        }
+        registry.endpoint(route)?;
         if !registry
             .catalog
             .iter()
@@ -65,10 +78,53 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
         {
             return Err("routed source missing from released registry".into());
         }
+        let source = registry.source(route)?;
+        // Every override for an enabled source must terminate locally. Missing
+        // delivery support is an assessment gap, never a live fallback.
+        if source.variables.iter().any(|variable| {
+            !selection
+                .recordings
+                .iter()
+                .any(|r| r.source == route.source && &r.endpoint_env == variable)
+        }) {
+            return Err(format!(
+                "assessment gap: not every released endpoint of {} is routed",
+                route.source
+            ));
+        }
     }
     Ok(())
 }
 impl Registry {
+    fn source(&self, route: &Route) -> Result<&Source, String> {
+        self.declarations.sources.get(&route.source).ok_or_else(|| {
+            format!(
+                "assessment gap: no reviewed endpoint declaration for {}",
+                route.source
+            )
+        })
+    }
+    pub(super) fn recording_source(&self, route: &Route) -> Result<&str, String> {
+        self.source(route)
+            .map(|source| source.recording_source.as_str())
+    }
+    pub(super) fn endpoint(&self, route: &Route) -> Result<&Endpoint, String> {
+        let source = self.source(route)?;
+        let endpoint = self
+            .declarations
+            .endpoints
+            .get(&route.endpoint_env)
+            .filter(|endpoint| {
+                source.variables.contains(&endpoint.variable) && route.host == endpoint.host
+            })
+            .ok_or_else(|| {
+                format!(
+                    "endpoint variable or host does not belong to source {}",
+                    route.source
+                )
+            })?;
+        Ok(endpoint)
+    }
     pub(super) fn disabled(&self, routes: &[Route]) -> Result<String, String> {
         let active = routes
             .iter()

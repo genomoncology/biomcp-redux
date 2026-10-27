@@ -7,6 +7,7 @@ mod author;
 mod execution;
 mod orcid;
 pub(super) mod parity;
+mod parity_inventory_proof;
 use execution::run_step;
 mod cache_contention;
 pub(super) mod cell_line;
@@ -224,6 +225,7 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
     if include_proof {
         trials.extend(schema_proof::trials(registry));
         trials.extend(parity::trials());
+        trials.push(parity_inventory_proof::trial());
     }
     Ok(trials)
 }
