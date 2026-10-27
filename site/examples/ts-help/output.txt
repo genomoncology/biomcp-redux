@@ -1,0 +1,5 @@
+{"schema":"biomcp.error/1","status":"usage","error":{"code":"usage.schema","message":"expected schema <known artifact id>"}}
+exit code 2
+"usage.schema"
+"usage.schema"
+{"status":"complete","command":["get","gene"]}

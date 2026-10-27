@@ -1,0 +1,3 @@
+{"status":"local","error":{"code":"local.failure","message":"local configuration, cache or recording failed"}}
+exit code 5
+{"status":"complete","sources":56}
