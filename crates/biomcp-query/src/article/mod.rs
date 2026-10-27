@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 mod edges;
+mod empty_litvar;
 pub mod evidence;
 mod fold;
 pub mod get;

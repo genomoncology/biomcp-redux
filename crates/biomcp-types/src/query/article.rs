@@ -424,6 +424,12 @@ impl ArticleSearch {
         value.0.variant = Some(variant);
         value
     }
+    /// Restart with one source while retaining the request selectors.
+    pub fn with_source(&self, source: ArticleSource) -> Self {
+        let mut value = self.page(0, None);
+        value.0.source = Box::new([source]);
+        value
+    }
     /// Restart with the approved PubMed and LitVar discovery sources.
     pub fn with_litvar(&self) -> Self {
         let mut value = self.page(0, None);

@@ -263,19 +263,52 @@ fn empty_recovery() -> Check {
             1,
         )?;
         let steps = output["next"].as_array().ok_or("missing recovery steps")?;
-        let expected = if disabled { vec!["pubmed"] } else { vec!["europepmc", "pubmed"] };
+        let expected = if disabled {
+            vec!["pubmed"]
+        } else {
+            vec!["europepmc", "pubmed"]
+        };
         assert_eq!(steps.len(), expected.len());
         for (step, source) in steps.iter().zip(expected) {
-            let mut args = vec!["search", "article", "--gene", "KRAS", "--source", source,
-                "--variant", "G12C"];
+            let mut args = vec![
+                "search",
+                "article",
+                "--gene",
+                "KRAS",
+                "--source",
+                source,
+                "--variant",
+                "G12C",
+            ];
             if disabled {
                 args.splice(0..0, ["--disable-sources", "europepmc"]);
             }
             assert_eq!(step["args"], json!(args));
         }
-        assert_eq!(output["sources"][1]["notices"][0]["kind"], "litvar_rsid_hint");
-        assert_eq!(output["sources"][1]["notices"][0]["message"],
-            "If you have an rsID, look it up in LitVar with --variant RSID --source litvar.");
+        assert_eq!(
+            output["sources"][1]["notices"][0]["kind"],
+            "litvar_rsid_hint"
+        );
+        assert_eq!(
+            output["sources"][1]["notices"][0]["message"],
+            "If you have an rsID, look it up in LitVar with --variant RSID --source litvar."
+        );
     }
+    let directory = tempfile::tempdir()?;
+    super::response_cases::copy_capture(
+        "article/litvar/kras-g12c",
+        directory.path(),
+        |source, record| boundary_edit(source, record, "empty"),
+    )?;
+    let environment = super::launch::Environment::new()?;
+    let mut args = environment.globals(Some(directory.path()), false);
+    args.extend(KRAS.iter().map(|arg| (*arg).to_owned()));
+    args.extend(["--format".to_owned(), "md".to_owned()]);
+    let output = environment
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()?;
+    assert_eq!(output.status.code(), Some(1));
+    let text = String::from_utf8(output.stdout)?;
+    assert!(text.contains("If you have an rsID, look it up in LitVar"));
     Ok(())
 }

@@ -282,6 +282,9 @@ fn prepare_litvar<'a>(
             out.status = Status::Absent;
             out.sources
                 .push(status::source(Source::LitVar, leg.finish(), None));
+            if candidates.is_empty() {
+                super::empty_litvar::recover(query, out);
+            }
             for candidate in &candidates {
                 for variant in [&candidate.rsid, &candidate.name] {
                     if query.variant() == Some(variant) {
