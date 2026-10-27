@@ -23,7 +23,11 @@ fn check() -> Check {
                 return Err(format!("help alias changed {format} output: {args:?}").into());
             }
         }
-        for path in [vec!["get", "gene"], vec!["version"], vec!["skill", "install"]] {
+        for path in [
+            vec!["get", "gene"],
+            vec!["version"],
+            vec!["skill", "install"],
+        ] {
             let mut alias = vec!["--format", format];
             alias.extend(path.iter().copied());
             alias.push("--help");
@@ -36,10 +40,12 @@ fn check() -> Check {
     }
     let plain = run(&env, &["help"])?;
     let value: Value = serde_json::from_slice(&plain)?;
-    if value.pointer("/result/commands").and_then(Value::as_array)
-        .ok_or("missing help commands")?.iter().any(|command| {
-            command.pointer("/command/0").and_then(Value::as_str) == Some("list")
-        })
+    if value
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("missing help commands")?
+        .iter()
+        .any(|command| command.pointer("/command/0").and_then(Value::as_str) == Some("list"))
     {
         return Err("retired list remains in public help".into());
     }

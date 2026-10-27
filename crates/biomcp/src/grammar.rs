@@ -63,9 +63,13 @@ pub(crate) fn global_arguments() -> Command {
         .disable_help_flag(true)
         .disable_help_subcommand(true)
         .disable_version_flag(true)
-        .after_help(entry_aliases().iter().map(|alias| {
-            format!("{}: {}", alias.flags().join(", "), alias.description())
-        }).collect::<Vec<_>>().join("\n"))
+        .after_help(
+            entry_aliases()
+                .iter()
+                .map(|alias| format!("{}: {}", alias.flags().join(", "), alias.description()))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
         .arg_required_else_help(true)
         .subcommand_required(true);
     root = root.arg(

@@ -55,6 +55,10 @@ Options:
           
 
       --fresh
+          
+
+-h, --help: Print scoped command help without source requests.
+--version: Print the installed version without source requests.
 
 ```
 
