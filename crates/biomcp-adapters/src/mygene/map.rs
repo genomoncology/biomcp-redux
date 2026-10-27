@@ -78,21 +78,13 @@ pub(super) fn extras(
     }
     for id in ids {
         if !hits.contains_key(id) {
-            problems.push(problem(
-                Source::MyGene,
-                Some(*id).and_then(record_text),
-                "query",
-            ));
+            problems.push(problem(Source::MyGene, record_text(*id), "query"));
         }
     }
     hits.into_iter()
         .filter_map(|(id, mut hits)| {
             if hits.len() != 1 {
-                problems.push(problem(
-                    Source::MyGene,
-                    Some(id).and_then(record_text),
-                    "query",
-                ));
+                problems.push(problem(Source::MyGene, record_text(id), "query"));
                 return None;
             }
             map_hit(hits.pop()?, id, problems)
@@ -109,11 +101,7 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         .and_then(Field::value)
         .and_then(|value| value.parse::<NcbiGeneId>().ok());
     if returned != Some(id) {
-        problems.push(problem(
-            Source::MyGene,
-            Some(id).and_then(record_text),
-            "entrez_id",
-        ));
+        problems.push(problem(Source::MyGene, record_text(id), "entrez_id"));
         return None;
     }
     let hgnc_present = hit.hgnc.is_some();
@@ -132,20 +120,16 @@ fn map_hit(hit: Hit, id: NcbiGeneId, problems: &mut Vec<Problem>) -> Option<Mapp
         problems: Vec::new(),
     };
     if hgnc_present && hgnc.is_none() {
-        mapped.problems.push(problem(
-            Source::MyGene,
-            Some(id).and_then(record_text),
-            "hgnc_id",
-        ));
+        mapped
+            .problems
+            .push(problem(Source::MyGene, record_text(id), "hgnc_id"));
     }
     if let Some(field) = hit.summary {
         mapped.value.summary = field.value().and_then(summary);
         if mapped.value.summary.is_none() {
-            mapped.problems.push(problem(
-                Source::MyGene,
-                Some(id).and_then(record_text),
-                "summary",
-            ));
+            mapped
+                .problems
+                .push(problem(Source::MyGene, record_text(id), "summary"));
         }
     }
     let mut spans = Vec::new();
@@ -182,20 +166,12 @@ fn positions(
         _ => "genomic_pos_hg19",
     };
     match field.value() {
-        None => problems.push(problem(
-            Source::MyGene,
-            Some(id).and_then(record_text),
-            name,
-        )),
+        None => problems.push(problem(Source::MyGene, record_text(id), name)),
         Some(values) => {
             for value in values.values() {
                 match value.value().and_then(|value| interval(value, build)) {
                     Some(value) => spans.push(value),
-                    None => problems.push(problem(
-                        Source::MyGene,
-                        Some(id).and_then(record_text),
-                        name,
-                    )),
+                    None => problems.push(problem(Source::MyGene, record_text(id), name)),
                 }
             }
         }

@@ -71,43 +71,52 @@ fn clinvar() -> Result<(), String> {
     Ok(())
 }
 fn ema() -> Result<(), Box<dyn std::error::Error>> {
-    let value = checked_steps(
-        "drug/ema-synthetic",
-        |source, capture| {
-            if source != "ema" {
-                return;
-            }
-            let Some(body) = capture.pointer_mut("/exchanges/0/body/value") else {
-                return;
-            };
-            let Some(text) = body.as_str() else {
-                return;
-            };
-            let Ok(mut rows) = serde_json::from_str::<Value>(text) else {
-                return;
-            };
-            if let Some(rows) = rows.get_mut("data").and_then(Value::as_array_mut) {
-                for row in rows {
-                    if row.get("ema_product_number") == Some(&json!("EMEA/H/C/004124")) {
-                        if let Some(fields) = row.as_object_mut() {
-                            fields.insert("therapeutic_indication".into(), json!(""));
+    for (field, invalid, absent) in [
+        (
+            "therapeutic_indication",
+            "",
+            "/result/regulatory/data/records/0/indication",
+        ),
+        (
+            "marketing_authorisation_date",
+            "31/02/2016",
+            "/result/regulatory/data/records/0/dates/1",
+        ),
+    ] {
+        let value = checked_steps(
+            "drug/ema-synthetic",
+            |source, capture| {
+                if source != "ema" {
+                    return;
+                }
+                let Some(body) = capture.pointer_mut("/exchanges/0/body/value") else {
+                    return;
+                };
+                let Some(text) = body.as_str() else {
+                    return;
+                };
+                let Ok(mut rows) = serde_json::from_str::<Value>(text) else {
+                    return;
+                };
+                if let Some(rows) = rows.get_mut("data").and_then(Value::as_array_mut) {
+                    for row in rows {
+                        if row.get("ema_product_number") == Some(&json!("EMEA/H/C/004124")) {
+                            if let Some(fields) = row.as_object_mut() {
+                                fields.insert(field.into(), json!(invalid));
+                            }
                         }
                     }
                 }
-            }
-            *body = json!(rows.to_string());
-        },
-        json!([
-            {"run":["sync","ema"], "exit":0},
-            {"run":["get","drug","EMEA/H/C/004124","regulatory","--source","ema"], "exit":0,
-             "expect":{"/result/identity/id":"EMEA/H/C/004124"}}
-        ]),
-    )?;
-    check(
-        &value,
-        "therapeutic_indication",
-        "/result/regulatory/data/records/0/indication",
-    )?;
+                *body = json!(rows.to_string());
+            },
+            json!([
+                {"run":["sync","ema"], "exit":0},
+                {"run":["get","drug","EMEA/H/C/004124","regulatory","--source","ema"], "exit":0,
+                 "expect":{"/result/identity/id":"EMEA/H/C/004124"}}
+            ]),
+        )?;
+        check(&value, field, absent)?;
+    }
     Ok(())
 }
 
@@ -127,9 +136,19 @@ fn reactome() -> Result<(), String> {
         ),
     ] {
         let stub = Stub::for_source("reactome.org", "application/json", |request| {
-            Ok(if request.contains("/database/version") { json!(97) }
-            else if request.contains("/containedEvents") { json!([{"dbId":123,"displayName":""}]) }
-            else { json!({"stId":"R-HSA-5673001","displayName":"Synthetic pathway","speciesName":"Homo sapiens","schemaClass":"Pathway","stIdVersion":"R-HSA-5673001.1","literatureReference":[{"dbId":123,"title":""}]}) }.to_string())
+            Ok(if request.contains("/database/version") {
+                json!(97)
+            } else if request.contains("/containedEvents") {
+                json!([{"dbId":123,"displayName":""}])
+            } else {
+                json!({
+                    "stId":"R-HSA-5673001", "displayName":"Synthetic pathway",
+                    "speciesName":"Homo sapiens", "schemaClass":"Pathway",
+                    "stIdVersion":"R-HSA-5673001.1",
+                    "literatureReference":[{"dbId":123,"title":""}]
+                })
+            }
+            .to_string())
         })?;
         let env = super::variant::source_environment(&stub)?;
         let args = if section == "summary" {

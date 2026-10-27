@@ -15,7 +15,7 @@ impl Fields {
             push_problem(
                 &mut self.problems,
                 Source::Hgnc,
-                self.id.and_then(|id| record_text(id)),
+                self.id.and_then(record_text),
                 field,
             );
         }
