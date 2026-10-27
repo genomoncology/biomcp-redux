@@ -206,13 +206,14 @@ class Screening(unittest.TestCase):
     def test_working_tree_patterns_do_not_allow_other_fields_or_accessions(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
-            path = root / "tests/replies/trial/fixture.json"
+            artifacts = root / "artifacts"
+            path = artifacts / "tests/replies/trial/fixture.json"
             path.parent.mkdir(parents=True)
             cursor = secrets.token_urlsafe(29)
             digest = secrets.token_hex(32)
             env = {**environment(root), "PATH": os.defpath}
             def screen(expected):
-                result = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), "artifacts", str(root)],
+                result = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), "artifacts", str(artifacts)],
                                         cwd=ROOT, env=env, capture_output=True, text=True)
                 self.assertEqual(result.returncode, expected, "fixture regex changed the scanner boundary")
                 return result
@@ -223,7 +224,7 @@ class Screening(unittest.TestCase):
             rejected = screen(1)
             self.assertNotIn(token, rejected.stdout + rejected.stderr)
             path.unlink()
-            cell = root / "tests/fixtures/cell-line/native/portable-cellosaurus-cell-CVCL_0004.json"
+            cell = artifacts / "tests/fixtures/cell-line/native/portable-cellosaurus-cell-CVCL_0004.json"
             cell.parent.mkdir(parents=True)
             cell.write_text(json.dumps({"xref-list": [{"database": "Fixture", "accession": token}]}))
             rejected = screen(1)
