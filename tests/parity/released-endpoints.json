@@ -455,7 +455,7 @@
       "variables": [
         "BIOMCP_UNIPROT_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "vaers": {
       "recording_source": "vaers",
