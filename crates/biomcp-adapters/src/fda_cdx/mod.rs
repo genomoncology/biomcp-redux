@@ -6,8 +6,8 @@ mod raw;
 mod search;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
-pub use bundle::sync;
 pub(crate) use bundle::state as bundle_state;
+pub use bundle::sync;
 pub use search::{Search, search};
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.

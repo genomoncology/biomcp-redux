@@ -187,7 +187,13 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     }
     Some(match source {
         Source::Cpic => (crate::cpic::HEALTH_PATH, vec![("limit", Arg::Num(1))]),
-        Source::ClinPgx => (crate::clinpgx::HEALTH_PATH, vec![("location.genes.symbol", Arg::Text("DPYD")), ("view", Arg::Text("min"))]),
+        Source::ClinPgx => (
+            crate::clinpgx::HEALTH_PATH,
+            vec![
+                ("location.genes.symbol", Arg::Text("DPYD")),
+                ("view", Arg::Text("min")),
+            ],
+        ),
         Source::Gtr => (crate::gtr::HEALTH_PATH, vec![]),
         Source::WhoIvd => (crate::who_ivd::HEALTH_PATH, vec![]),
         Source::WhoPq => (crate::who_pq::HEALTH_PATH, vec![]),
@@ -202,9 +208,12 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::Cbioportal => ("/studies", vec![("pageSize", Arg::Num(1))]),
         Source::MyVariant | Source::Mychem | Source::MyDisease => ("/metadata", vec![]),
         Source::Chembl => ("/status.json", vec![]),
-        Source::OpenfdaLabel | Source::Drugsfda | Source::Faers | Source::Maude | Source::FdaPma | Source::Fda510k => {
-            ("", vec![("limit", Arg::Num(1))])
-        }
+        Source::OpenfdaLabel
+        | Source::Drugsfda
+        | Source::Faers
+        | Source::Maude
+        | Source::FdaPma
+        | Source::Fda510k => ("", vec![("limit", Arg::Num(1))]),
         Source::Ema => ("/en/about-us/about-website/legal-notice", vec![]),
         Source::Ddinter => ("/terms/", vec![]),
         Source::AlleleRegistry => ("/allele/CA123643", vec![]),
@@ -380,7 +389,10 @@ fn protein_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
 }
 
 /// Source-owned local set metadata, separate from the online publisher probe.
-pub fn bundle_state(spec: &'static SourceSpec, leg: &biomcp_fetch::Leg<'_>) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
+pub fn bundle_state(
+    spec: &'static SourceSpec,
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
     let state = match spec.source {
         Source::Gtr => crate::gtr::bundle_state(leg)?,
         Source::WhoIvd => crate::who_ivd::bundle_state(leg)?,

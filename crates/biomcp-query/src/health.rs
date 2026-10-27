@@ -23,7 +23,11 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                         }
                     };
                     let leg = fetch.leg(spec, deadline.child(PROBE_BUDGET)).fresh(true);
-                    let bundle = if skip.is_none() { registry::bundle_state(spec, &leg)? } else { None };
+                    let bundle = if skip.is_none() {
+                        registry::bundle_state(spec, &leg)?
+                    } else {
+                        None
+                    };
                     let (state, reason, latency_ms) = if let Some(reason) = skip {
                         (SourceState::Skipped, Some(reason), None)
                     } else {
@@ -51,9 +55,15 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                         )
                     };
                     let (state, reason, latency_ms) = match (reason, bundle) {
-                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Fresh)) => (SourceState::Ok, None, None),
-                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Stale)) => (SourceState::Stale, None, None),
-                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Missing)) => (SourceState::Skipped, Some(Reason::Offline), None),
+                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Fresh)) => {
+                            (SourceState::Ok, None, None)
+                        }
+                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Stale)) => {
+                            (SourceState::Stale, None, None)
+                        }
+                        (Some(Reason::Offline), Some(biomcp_types::LocalBundleState::Missing)) => {
+                            (SourceState::Skipped, Some(Reason::Offline), None)
+                        }
                         _ => (state, reason, latency_ms),
                     };
                     Ok(SourceHealth {

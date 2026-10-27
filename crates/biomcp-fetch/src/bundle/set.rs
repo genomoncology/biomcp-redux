@@ -48,7 +48,10 @@ impl<R: Row> Row for SetRow<R> {
 }
 impl<R: Row> BundleSet<R> {
     /// Inspect the complete stored set without downloading any part.
-    pub fn state(&self, leg: &crate::Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    pub fn state(
+        &self,
+        leg: &crate::Leg<'_>,
+    ) -> Result<biomcp_types::LocalBundleState, RequestError> {
         leg.stored_bundle_state(&self.stored())
     }
 
