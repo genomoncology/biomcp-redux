@@ -312,12 +312,13 @@
           "host": "reactome.org",
           "request_prefix": "GET /ContentService/search/query",
           "request_contains": "",
-          "capture": "reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json",
+          "capture": "",
           "request_query": {
             "query": "MAPK",
             "species": "Homo sapiens"
           },
-          "exchange": 0
+          "exchange": 0,
+          "recording_gap": "Released search_with_filters constructs WikiPathwaysClient before Reactome requests. Its disabled shared client aborts preflight. The retained Reactome capture reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json does not supply that additional required source input; no WikiPathways response is invented or live source enabled. Common input for that prerequisite is a later recording assessment gap."
         }
       ],
       "facts": {
@@ -363,12 +364,13 @@
           "host": "reactome.org",
           "request_prefix": "GET /ContentService/search/query",
           "request_contains": "",
-          "capture": "reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json",
+          "capture": "",
           "request_query": {
             "query": "MAPK",
             "species": "Homo sapiens"
           },
-          "exchange": 0
+          "exchange": 0,
+          "recording_gap": "Released search_with_filters constructs WikiPathwaysClient before Reactome requests. Its disabled shared client aborts preflight. The retained Reactome capture reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json does not supply that additional required source input; no WikiPathways response is invented or live source enabled. Common input for that prerequisite is a later recording assessment gap."
         }
       ],
       "facts": {
@@ -414,11 +416,12 @@
           "host": "reactome.org",
           "request_prefix": "GET /ContentService/search/query",
           "request_contains": "",
-          "capture": "reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json",
+          "capture": "",
           "request_query": {
             "query": "MAPK",
             "species": "Homo sapiens"
-          }
+          },
+          "recording_gap": "Released search_with_filters constructs WikiPathwaysClient before Reactome requests. Its disabled shared client aborts preflight. The retained Reactome capture reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json does not supply that additional required source input; no WikiPathways response is invented or live source enabled. Common input for that prerequisite is a later recording assessment gap."
         }
       ],
       "facts": {
@@ -464,11 +467,12 @@
           "host": "reactome.org",
           "request_prefix": "GET /ContentService/search/query",
           "request_contains": "",
-          "capture": "reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json",
+          "capture": "",
           "request_query": {
             "query": "MAPK",
             "species": "Homo sapiens"
-          }
+          },
+          "recording_gap": "Released search_with_filters constructs WikiPathwaysClient before Reactome requests. Its disabled shared client aborts preflight. The retained Reactome capture reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json does not supply that additional required source input; no WikiPathways response is invented or live source enabled. Common input for that prerequisite is a later recording assessment gap."
         }
       ],
       "facts": {
@@ -514,11 +518,12 @@
           "host": "reactome.org",
           "request_prefix": "GET /ContentService/search/query",
           "request_contains": "",
-          "capture": "reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json",
+          "capture": "",
           "request_query": {
             "query": "MAPK",
             "species": "Homo sapiens"
-          }
+          },
+          "recording_gap": "Released search_with_filters constructs WikiPathwaysClient before Reactome requests. Its disabled shared client aborts preflight. The retained Reactome capture reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json does not supply that additional required source input; no WikiPathways response is invented or live source enabled. Common input for that prerequisite is a later recording assessment gap."
         }
       ],
       "facts": {
@@ -564,11 +569,12 @@
           "host": "reactome.org",
           "request_prefix": "GET /ContentService/search/query",
           "request_contains": "",
-          "capture": "reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json",
+          "capture": "",
           "request_query": {
             "query": "MAPK",
             "species": "Homo sapiens"
-          }
+          },
+          "recording_gap": "Released search_with_filters constructs WikiPathwaysClient before Reactome requests. Its disabled shared client aborts preflight. The retained Reactome capture reactome/9e41ac9b9cd9d116ebc8bb039bd9c0f1cfbdc32673abfae9722ee9a078997b9e.json does not supply that additional required source input; no WikiPathways response is invented or live source enabled. Common input for that prerequisite is a later recording assessment gap."
         }
       ],
       "facts": {

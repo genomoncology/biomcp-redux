@@ -47,6 +47,7 @@ def guards(baseline, out):
     row['recordings'][0]['request_query']['query.term'] = 'AREA[Phase]PHASE2'
     report, result = execute(row, 'query-mismatch', baseline, out, False)
     assert report['assessment_gaps'] > 0
+    assert 'unmapped baseline source request: GET /api/v2/studies?' in result['baseline']['assessment_error']
     assert all(f['baseline']['verdict'] in ('assessment_gap', 'unprojectable') for f in result['facts'])
     row = selection('pathway.json', 'pathway/card-R-HSA-157118.yaml')
     pointer = '/result/pathway/id'
@@ -73,13 +74,19 @@ def main():
     witnesses('pathway.json', 'pathway/card-R-HSA-157118.yaml',
               '/result/pathway/name', '/id', 'pathway', baseline, out)
     row = selection('pathway.json', 'pathway/failure-broken.yaml')
-    report, result = execute(row, 'pathway-error', baseline, out)
+    report, result = execute(row, 'pathway-error-gap', baseline, out, False)
+    fact = verdict(result, '/sources/0/source')
+    assert fact['baseline']['verdict'] == 'assessment_gap', fact
+    assert fact['candidate']['verdict'] == 'right', fact
+    assert 'WikiPathways' in result['baseline']['assessment_error']
+    row = selection('pathway.json', 'pathway-sections/failure-broken.yaml')
+    report, result = execute(row, 'pathway-section-error', baseline, out)
     fact = verdict(result, '/sources/0/source')
     assert fact['baseline']['verdict'] == fact['candidate']['verdict'] == 'right', fact
-    assert result['baseline']['exit'] == 1 and result['candidate']['exit'] == 4
-    assert result['baseline']['json_stream'] == 'stdout'
-    source = json.loads((out / 'pathway-error/0-source-0.json').read_text())
-    assert source['status'] == 200 and isinstance(source['adapted_body'], str)
+    assert result['baseline']['exit'] == 0 and result['candidate']['exit'] == 4
+    source = next(json.loads(p.read_text()) for p in (out / 'pathway-section-error').glob('0-source-*.json')
+                  if isinstance(json.loads(p.read_text())['adapted_body'], str))
+    assert source['status'] == 200
     assert source['adapted_body'] == source['capture']['exchanges'][source['exchange']]['body']['value']
     guards(baseline, out)
     sys.stdout.write('Trial and Pathway positive, wrong-value, source-error and guard witnesses passed: ' + str(out) + '\n')

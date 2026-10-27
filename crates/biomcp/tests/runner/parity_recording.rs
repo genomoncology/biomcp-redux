@@ -65,7 +65,7 @@ pub(super) fn baseline(
         serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    if requests.is_empty() && !selection.source_free {
+    if requests.is_empty() && !selection.source_free && result.get("assessment_error").is_none() {
         execution::field(
             &mut result,
             "assessment_error",
@@ -117,9 +117,12 @@ fn peers(
                         matched = Some(body);
                     }
                 }
-                matched
-                    .cloned()
-                    .ok_or("unmapped baseline source request".into())
+                matched.cloned().ok_or_else(|| {
+                    format!(
+                        "unmapped baseline source request: {}",
+                        request.lines().next().unwrap_or("<missing>")
+                    )
+                })
             },
         )?;
         command.env(&endpoint.variable, endpoint.local_url(peer.address));
