@@ -1,5 +1,5 @@
 //! Borrow protobuf fields before allocating provider messages.
-use super::super::super::preflight;
+use super::super::preflight;
 use crate::BadReply;
 #[derive(Debug)]
 pub(super) enum Value<'a> {

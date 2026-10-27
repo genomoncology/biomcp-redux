@@ -92,7 +92,10 @@ fn canonical_request_preserves_legacy_interval_scorers_and_provider_default_chec
             .is_err()
     );
     // At the chromosome start the constant width follows the released request contract.
-    assert_eq!(request(1)?.interval(), 0..524288);
+    assert!(request(1)?.bytes().starts_with(&field(
+        1,
+        &[field(1, b"chr7"), number(3, 524288), number(4, 3)].concat()
+    )));
     Ok(())
 }
 #[test]
@@ -135,8 +138,16 @@ fn scorer_admission_requires_exact_outputs_variant_echo_and_descriptor_chunk_ord
             descriptor(140753336),
             chunk(),
             descriptor(140753336),
+            chunk(),
         ],
-        vec![descriptor(140753335), chunk()],
+        vec![
+            descriptor(140753335),
+            chunk(),
+            descriptor(140753336),
+            chunk(),
+            descriptor(140753336),
+            chunk(),
+        ],
         vec![vec![10, 255]],
     ] {
         let mut decoder = req
