@@ -85,18 +85,6 @@ fn reachable() -> Check {
         )?;
         for source in SOURCES {
             let r = row(&v, source)?;
-            if *source == "hgnc" {
-                if r["state"] != "skipped"
-                    || r["reason"] != "unavailable"
-                    || r["bundle"] != "missing"
-                    || r.get("latency_ms").is_some()
-                {
-                    return Err(format!(
-                        "HGNC invented publisher reachability or downloaded a bundle: {r}"
-                    ));
-                }
-                continue;
-            }
             if r["state"] != "ok"
                 || r.get("reason").is_some()
                 || BUNDLES.iter().any(|(name, _)| name == source) && r["bundle"] != "missing"
@@ -105,7 +93,7 @@ fn reachable() -> Check {
             }
         }
     }
-    if stub.finish()?.len() != SOURCES.len() - 1 {
+    if stub.finish()?.len() != SOURCES.len() {
         return Err("probe retried or replay reached publisher".into());
     }
     Ok(())
@@ -235,6 +223,7 @@ fn publisher_stub() -> Result<Stub, String> {
             "ddinter.scbdd.com",
             "www.cbioportal.org",
             "www.wikipathways.org",
+            "storage.googleapis.com",
         ],
         |_| "text/plain",
         |request| {
@@ -254,12 +243,19 @@ fn publisher_stub() -> Result<Stub, String> {
                 "/terms/",
                 "/api/studies?pageSize=1",
                 "/help.html",
+                "/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
             ]
             .contains(&path)
             {
                 return Err(format!(
                     "health fetched undeclared endpoint or bundle: {request}"
                 ));
+            }
+            if path.ends_with("hgnc_complete_set.txt") {
+                if !request.starts_with("HEAD ") {
+                    return Err(format!("HGNC health downloaded its bundle: {request}"));
+                }
+                return Ok(String::new());
             }
             Ok("publisher reachable".into())
         },
