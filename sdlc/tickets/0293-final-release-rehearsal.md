@@ -12,7 +12,7 @@ The final release candidate's artifacts install and run on every promised platfo
 
 - Why: the release plan requires final-candidate installed proof before Ian approves publication.
 - Starts from: 0066's rehearsal recipe, `release/gate.py` and `release/matrix.sh`, release.md and the machine registry.
-- Rules: the rehearsal publishes nothing. Machines are booked through pm job.
+- Rules: the rehearsal publishes nothing. Machines are booked through pm job. The rehearsal verifies or refreshes the 0290 schema baseline against the selected final candidate, so the published 1.0 schema set becomes the baseline 1.0.1 is compared with; 0290's snapshot is provisional input only (PM ruling 2026-10-26, m8126 ask 31).
 - Proof: one report per platform with exact commands, versions and exits, reviewed by a fresh reviewer.
 - Changes: none expected beyond fixes the rehearsal finds, each its own ticket.
 - Defers: publication, which needs Ian.
