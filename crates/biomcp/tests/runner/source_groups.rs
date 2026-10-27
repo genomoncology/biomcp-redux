@@ -49,12 +49,11 @@ fn check() -> Result<(), String> {
             if group["sources"] != serde_json::json!(sources) {
                 return Err(format!("health has wrong {name} sources"));
             }
-            for source in expected {
-                let label = format!("{} ({source})", registry::display_name(source));
-                if !description.contains(&label) {
-                    return Err(format!("{topic} omits {name}: {label}"));
-                }
-            }
+            let labels = expected
+                .into_iter()
+                .map(|source| format!("{} ({source})", registry::display_name(source)))
+                .collect::<Vec<_>>()
+                .join(", ");
             let components: Vec<_> = registry::components()
                 .filter(|c| c.terms.usage == usage)
                 .map(|c| serde_json::json!({"source": c.source, "name": c.name}))
@@ -62,11 +61,15 @@ fn check() -> Result<(), String> {
             if group["components"] != serde_json::json!(components) {
                 return Err(format!("health has wrong {name} components"));
             }
-            for component in registry::components().filter(|c| c.terms.usage == usage) {
-                let label = format!("{}:{}", component.source, component.name);
-                if !description.contains(&label) {
-                    return Err(format!("{topic} omits {name} component {label}"));
-                }
+            let fields = registry::components()
+                .filter(|c| c.terms.usage == usage)
+                .map(|c| format!("{}:{}", c.source, c.name))
+                .collect::<Vec<_>>()
+                .join(", ");
+            if !description.contains(&format!(
+                "{name} turns off sources: {labels}. Carried fields: {fields}."
+            )) {
+                return Err(format!("{topic} has wrong {name} consequences"));
             }
         }
     }
