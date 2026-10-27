@@ -175,7 +175,7 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
                 missing = true;
             }
         }
-        if missing && next.iter().any(|value| !value.is_array()) {
+        if missing && (next.is_empty() || next.iter().any(|value| !value.is_array())) {
             return Err("<missing>".into());
         }
         if next.is_empty() {
