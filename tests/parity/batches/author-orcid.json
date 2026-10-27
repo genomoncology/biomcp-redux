@@ -15,7 +15,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -76,7 +78,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -123,7 +127,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -184,7 +190,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -235,7 +243,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -285,7 +295,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -335,7 +347,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -394,7 +408,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -445,7 +461,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -496,7 +514,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -566,7 +586,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -618,7 +640,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -673,7 +697,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
       ],
       "baseline_globals": [
         "--json"
@@ -740,7 +766,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/orcid.rs",
+        "src/sources/provider_url_policy.rs::orcid_api"
       ],
       "baseline_globals": [
         "--json"
@@ -798,7 +826,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/orcid.rs",
+        "src/sources/provider_url_policy.rs::orcid_api"
       ],
       "baseline_globals": [
         "--json"
@@ -856,7 +886,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/orcid.rs",
+        "src/sources/provider_url_policy.rs::orcid_api"
       ],
       "baseline_globals": [
         "--json"
@@ -915,7 +947,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/orcid.rs",
+        "src/sources/provider_url_policy.rs::orcid_api"
       ],
       "baseline_globals": [
         "--json"
@@ -974,7 +1008,9 @@
         "src/cli/author/search.rs",
         "src/entities/author/search.rs",
         "src/entities/author/papers.rs",
-        "src/render/json.rs::to_error_json"
+        "src/render/json.rs::to_error_json",
+        "src/sources/orcid.rs",
+        "src/sources/provider_url_policy.rs::orcid_api"
       ],
       "baseline_globals": [
         "--json"
