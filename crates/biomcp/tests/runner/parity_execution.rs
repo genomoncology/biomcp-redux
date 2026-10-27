@@ -29,7 +29,8 @@ pub(super) fn invoke_command(
     fs::write(&stderr_path, &stderr).map_err(|e| e.to_string())?;
     let mut result = json!({"command":args,"exit":status.code(),"stdout_bytes":stdout.len(),
         "stderr_bytes":stderr.len(),"elapsed_us":elapsed,
-        "stdout":stdout_path.file_name(),"stderr":stderr_path.file_name()});
+        "stdout":stdout_path.file_name().and_then(|name| name.to_str()).ok_or("stdout filename must be UTF-8")?,
+        "stderr":stderr_path.file_name().and_then(|name| name.to_str()).ok_or("stderr filename must be UTF-8")?});
     if let Ok(parsed) = serde_json::from_slice::<Value>(&stdout) {
         field(&mut result, "parsed", parsed)?;
     }
