@@ -1,6 +1,7 @@
 mod adverse_event_failures;
 mod adverse_event_registry;
 mod adverse_event_retirements;
+mod article_recovery;
 mod article_save;
 mod assertions;
 mod author;
@@ -329,6 +330,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     }));
     trials.extend(configuration::trials());
     trials.extend(replay::trials());
+    trials.extend(article_recovery::trials());
     trials.extend(cache_contention::trials());
     trials.extend(credential_containment::trials());
     trials.extend(key_registration::trials());
