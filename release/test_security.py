@@ -98,6 +98,8 @@ class Screening(unittest.TestCase):
             encrypted[6] |= 1
             encrypted[encrypted.index(b"PK\x01\x02") + 8] |= 1
             (repo / "historical-encrypted.bin").write_bytes(encrypted)
+            directory_size = next((ROOT / "tests/replies/article/supplements/synthetic-bound-directory-size").rglob("*.bin")).read_bytes()
+            (repo / "historical-directory-size.bin").write_bytes(directory_size + ("\naccess_token = " + token + "\n").encode())
             git("add", ".")
             tree = git("write-tree")
             merged = git("commit-tree", tree, "-p", first, "-p", second, data=b"Merge fixture\n")
@@ -105,6 +107,8 @@ class Screening(unittest.TestCase):
             findings = screen("history", repo)
             self.assertIn("historical-opaque.bin", findings)
             self.assertIn("historical-structure.bin", findings)
+            self.assertTrue(any(row["file"] == "historical-directory-size.bin" and row["rule"] == "opaque-history-blob-decoded-coverage-unavailable" for row in map(json.loads, findings.splitlines())))
+            self.assertTrue(any(row["file"] == "historical-directory-size.bin" and row["rule"] == "github-pat" for row in map(json.loads, findings.splitlines())))
             self.assertTrue(any(row["file"].endswith("historical-encrypted.bin") and row["rule"] == "opaque-history-blob-decoded-coverage-unavailable" for row in map(json.loads, findings.splitlines())))
             self.assertIn("historical-valid.bin!credential.exe", findings)
             with zipfile.ZipFile(repo / "nested-declared.bin", "w") as archive:
@@ -128,6 +132,8 @@ class Screening(unittest.TestCase):
             candidate = artifacts / "candidate.zip"
             candidate.write_bytes(b"PK\x03\x04broken archive")
             self.assertNotEqual(screen().returncode, 0, "corrupt archive must fail closed")
+            candidate.write_bytes(next((ROOT / "tests/replies/article/supplements/synthetic-bound-directory-size").rglob("*.bin")).read_bytes())
+            self.assertEqual(screen().returncode, 2, "malformed directory size in a staged archive must fail closed")
             with zipfile.ZipFile(candidate, "w") as archive:
                 archive.writestr("../escape.txt", "fixture")
             self.assertNotEqual(screen().returncode, 0, "escaping member must fail closed")

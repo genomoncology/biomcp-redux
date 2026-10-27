@@ -150,7 +150,18 @@ def prepare(target, mode, root, env):
             def contents():
                 nonlocal members
                 try:
-                    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                    try:
+                        archive = zipfile.ZipFile(io.BytesIO(payload))
+                    except ValueError:
+                        # Python 3.9 reports an impossible central-directory
+                        # offset as ValueError rather than BadZipFile. Limit
+                        # this compatibility case to construction, never our
+                        # member, escape or expansion-limit checks below.
+                        if mode == "history" and not suffix.endswith(ARCHIVE_SUFFIXES):
+                            opaque()
+                            return
+                        raise
+                    with archive:
                         for member in archive.infolist():
                             members += 1
                             if members > MAX_FILES:
