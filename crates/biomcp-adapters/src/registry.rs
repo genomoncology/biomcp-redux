@@ -230,7 +230,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::Reactome => ("/data/database/version", vec![]),
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
-        Source::ClinGen => ("/kb/gene-validity/download", vec![]),
+        Source::ClinGen => (crate::clingen::HEALTH_PATH, vec![]),
         _ => return disease_probe(source),
     })
 }
@@ -355,6 +355,8 @@ pub fn bundle_state(
     leg: &biomcp_fetch::Leg<'_>,
 ) -> Result<Option<biomcp_types::LocalBundleState>, biomcp_fetch::RequestError> {
     let state = match spec.source {
+        Source::Hgnc => crate::hgnc::bundle_state(leg)?,
+        Source::ClinGen => crate::clingen::bundle_state(leg)?,
         Source::Gtr => crate::gtr::bundle_state(leg)?,
         Source::WhoIvd => crate::who_ivd::bundle_state(leg)?,
         Source::WhoPq => crate::who_pq::bundle_state(leg)?,

@@ -6,8 +6,16 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 const SOURCES: &[&str] = &[
     "cpic", "clinpgx", "gtr", "who-ivd", "who-pq", "fda-cdx", "fda-pma", "fda-510k", "vaers",
+    "clingen",
 ];
-const BUNDLES: &[&str] = &["gtr", "who-ivd", "who-pq", "fda-cdx"];
+const BUNDLES: &[(&str, &[&str])] = &[
+    ("gtr", &["gtr"]),
+    ("who-ivd", &["who-ivd"]),
+    ("who-pq", &["who-pq"]),
+    ("fda-cdx", &["fda-cdx"]),
+    ("hgnc", &["hgnc", "hgnc-withdrawn"]),
+    ("clingen", &["clingen-validity", "clingen-dosage"]),
+];
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test("sources/health-publisher-probes-record-and-replay", || {
@@ -52,6 +60,7 @@ fn reachable() -> Check {
             "www.fda.gov",
             "api.fda.gov",
             "wonder.cdc.gov",
+            "search.clinicalgenome.org",
         ],
         |_| "text/plain",
         |request| {
@@ -66,6 +75,7 @@ fn reachable() -> Check {
                 "/device/pma.json?limit=1",
                 "/device/510k.json?limit=1",
                 "/datause.html",
+                "/kb",
             ]
             .contains(&path)
             {
@@ -94,7 +104,7 @@ fn reachable() -> Check {
             let r = row(&v, source)?;
             if r["state"] != "ok"
                 || r.get("reason").is_some()
-                || BUNDLES.contains(source) && r["bundle"] != "missing"
+                || BUNDLES.iter().any(|(name, _)| name == source) && r["bundle"] != "missing"
             {
                 return Err(format!("wrong health {r}"));
             }
@@ -116,23 +126,30 @@ fn local() -> Check {
     args.extend([
         "health".into(),
         "--disable-sources".into(),
-        disabled(BUNDLES),
+        disabled(
+            &BUNDLES
+                .iter()
+                .map(|(source, _)| *source)
+                .collect::<Vec<_>>(),
+        ),
     ]);
     invoke(&env, args.clone(), 0)?;
     let cache = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    for source in BUNDLES {
-        cache
-            .execute(
-                "INSERT INTO bundle VALUES(?1,10,1,9223372036854775807,NULL,NULL)",
-                [source],
-            )
-            .map_err(|e| e.to_string())?;
-        cache.execute("INSERT INTO bundle_sync VALUES(?1,'finished-process',0,'https://unused.invalid','unused',0,NULL,NULL)", [source]).map_err(|e|e.to_string())?;
+    for (_, names) in BUNDLES {
+        for name in *names {
+            cache
+                .execute(
+                    "INSERT INTO bundle VALUES(?1,10,1,9223372036854775807,NULL,NULL)",
+                    [name],
+                )
+                .map_err(|e| e.to_string())?;
+            cache.execute("INSERT INTO bundle_sync VALUES(?1,'finished-process',0,'https://unused.invalid','unused',0,NULL,NULL)", [name]).map_err(|e|e.to_string())?;
+        }
     }
     for expected in ["fresh", "stale"] {
         let v = invoke(&env, args.clone(), 0)?;
-        for source in BUNDLES {
+        for (source, _) in BUNDLES {
             let r = row(&v, source)?;
             if r["bundle"] != expected
                 || r["state"] != if expected == "fresh" { "ok" } else { "stale" }

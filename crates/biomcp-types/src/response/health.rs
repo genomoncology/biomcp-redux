@@ -104,3 +104,14 @@ LocalBundleState {
     Stale => "stale",
 }
 }
+
+impl LocalBundleState {
+    /// Source readiness needs every declared bundle; absent data wins over stale data.
+    pub const fn with(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Missing, _) | (_, Self::Missing) => Self::Missing,
+            (Self::Stale, _) | (_, Self::Stale) => Self::Stale,
+            _ => Self::Fresh,
+        }
+    }
+}
