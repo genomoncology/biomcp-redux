@@ -7,6 +7,7 @@ type Check = Result<(), String>;
 mod capture;
 mod errors;
 mod fallback;
+mod pagination;
 mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
@@ -27,6 +28,7 @@ pub(super) fn trials() -> Vec<Trial> {
         headings().map_err(Into::into)
     }));
     trials.extend(fallback::trials());
+    trials.extend(pagination::trials());
     trials.extend(walk::trials());
     trials.extend(errors::trials());
     trials.extend(capture::trials());
