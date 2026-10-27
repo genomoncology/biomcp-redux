@@ -76,7 +76,7 @@ pub use response::{
 };
 pub use response::{
     ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,
-    DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+    DisableGroup, DisabledComponent, Health, HttpHealth, LocalBundleState, SourceHealth,
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{

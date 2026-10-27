@@ -61,3 +61,6 @@ pub fn read(
     )?;
     Ok(reply.0)
 }
+
+/// Small read-only publisher probe; never an export or synchronization.
+pub(crate) const HEALTH_PATH: &str = "/datause.html";

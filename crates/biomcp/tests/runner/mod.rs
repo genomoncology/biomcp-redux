@@ -51,6 +51,7 @@ mod evidence;
 mod faers_get;
 mod faers_search;
 mod gene_tables;
+mod health_bundles;
 mod held_proxy;
 mod help_examples;
 mod housekeeping;
@@ -344,6 +345,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
+    trials.extend(health_bundles::trials());
     trials.extend(source_groups::trials());
     trials.extend(trial_groups::drug_trials());
     trials.extend(disease_trials());

@@ -23,6 +23,9 @@ impl super::ResponseBody for Health {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SourceHealth {
+    /// Last validated local bundle, independent of publisher reachability.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle: Option<LocalBundleState>,
     /// Independently licensed carried components, without separate network probes.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub components: Box<[ComponentHealth]>,
@@ -127,5 +130,28 @@ biodata::wire_enum! {
     ConfigurationNoticeCode {
         /// The entry did not describe a supported host, address or range.
         UnparseableEntry => "unparseable_entry",
+    }
+}
+
+biodata::wire_enum! {
+/// Local bundle availability. Persisted synchronization leases do not prove process liveness.
+LocalBundleState {
+    /// No validated local bundle is stored.
+    Missing => "missing",
+    /// Stored data is within its source-owned freshness period.
+    Fresh => "fresh",
+    /// Stored data remains readable after its freshness period.
+    Stale => "stale",
+}
+}
+
+impl LocalBundleState {
+    /// Source readiness needs every declared bundle; absent data wins over stale data.
+    pub const fn with(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Missing, _) | (_, Self::Missing) => Self::Missing,
+            (Self::Stale, _) | (_, Self::Stale) => Self::Stale,
+            _ => Self::Fresh,
+        }
     }
 }
