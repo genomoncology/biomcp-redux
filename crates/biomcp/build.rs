@@ -166,31 +166,37 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("variant/help-recurrence.yaml", 0),
 ];
 
+const GUIDE_CASES: &[(&str, usize)] = &[("trial/wider-zero.yaml", 0), ("trial/wider-zero.yaml", 1)];
+
 fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     let mut witnesses = Vec::new();
-    for &(file, index) in EXAMPLE_CASES {
-        let path = cases.join(file);
-        println!("cargo:rerun-if-changed={}", path.display());
-        let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
-        let steps = case
-            .get("steps")
-            .and_then(serde_json::Value::as_array)
-            .ok_or("case steps required")?;
-        let run: Vec<String> = serde_json::from_value(
-            steps
-                .get(index)
-                .and_then(|step| step.get("run"))
-                .ok_or("missing example step")?
-                .clone(),
-        )?;
-        let command = run
-            .get(..2)
-            .ok_or("example needs a verb and entity")?
-            .join(" ");
-        examples.entry(command).or_default().push(run);
-        witnesses.push((file, index));
+    for (entries, help) in [(EXAMPLE_CASES, true), (GUIDE_CASES, false)] {
+        for &(file, index) in entries {
+            let path = cases.join(file);
+            println!("cargo:rerun-if-changed={}", path.display());
+            let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
+            let steps = case
+                .get("steps")
+                .and_then(serde_json::Value::as_array)
+                .ok_or("case steps required")?;
+            let run: Vec<String> = serde_json::from_value(
+                steps
+                    .get(index)
+                    .and_then(|step| step.get("run"))
+                    .ok_or("missing example step")?
+                    .clone(),
+            )?;
+            let command = run
+                .get(..2)
+                .ok_or("example needs a verb and entity")?
+                .join(" ");
+            if help {
+                examples.entry(command).or_default().push(run);
+            }
+            witnesses.push((file, index));
+        }
     }
     fs::write(
         PathBuf::from(env::var("OUT_DIR")?).join("examples.json"),

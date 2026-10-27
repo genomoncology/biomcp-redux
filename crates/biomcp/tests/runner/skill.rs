@@ -19,7 +19,8 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     // Embedded text measured from the canonical UTF-8 payload; summaries are
     // measured at the executable boundary in j16298. Keep fifteen percent headroom.
     let measured: usize = match args.get(1).map(String::as_str) {
-        None | Some("render") => 1824,
+        None | Some("render") => 2284,
+        Some("9" | "trial-recruitment") => 1166,
         Some("list") => 955,
         Some("install") => 117,
         Some("status") => 55,
@@ -51,6 +52,19 @@ fn check() -> Check {
             .contains("Adverse-event report counts do not establish risk")
     {
         return Err("canonical guide or report-count boundary differs".into());
+    }
+    let overview = String::from_utf8(run(&env, &["skill", "render"])?)?;
+    let trial = String::from_utf8(run(&env, &["skill", "trial-recruitment"])?)?;
+    for text in [&overview, &trial] {
+        for instruction in [
+            "An exact variant search is a starting point",
+            "broader gene and program searches BioMCP suggests",
+            "before reporting a trial screen as complete",
+        ] {
+            if !text.contains(instruction) {
+                return Err(format!("trial screening guidance omitted: {instruction}").into());
+            }
+        }
     }
     let list = String::from_utf8(run(&env, &["skill", "list"])?)?;
     if !list.contains("exact-variant-literature") || list.contains("_TEMPLATE") {

@@ -1,6 +1,7 @@
 # 0317 — Page trial eligibility text at line boundaries and mark a split criterion
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 697e51b08f5644d60e27589872772af70b29d5eb
 
 Milestone: 5
 
