@@ -54,3 +54,4 @@ Each waits for a consumer or for Ian. None has tickets.
 - Python and TypeScript bindings for `biodata`.
 - A merge of `biodata` with another biodata crate into one open-source crate.
 - Bounded reading of PDF supplements and appendices, which experiment 497 showed hold variant evidence that BioMCP can only link today. Its 2026-10-27 rerun confirmed the gap remains.
+- A 1.0 update from the 2026-10-27 docs findings: help defaults, value types, examples, aliases, an exit code topic, Markdown help layout and a short help index; real MCP `outputSchema`; one adapter rule that records every bad source value as a problem, with shared helpers; omitting empty lists such as `previous_symbols`, consistent variant ID prefixes and source timezones; schema `format` and descriptions; a bounded diagnosis of the GWAS, InterPro and VAERS live failures. Closed vocabularies as enums and remaining typed IDs wait for the next schema major.
