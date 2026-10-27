@@ -1,15 +1,21 @@
 //! Inspect protobuf lengths without allocating before invoking the generated decoder.
 use super::{CodecError, Limits};
 type Result<T> = std::result::Result<T, CodecError>;
-fn bad() -> CodecError { CodecError::BadReply }
+fn bad() -> CodecError {
+    CodecError::BadReply
+}
 fn varint(bytes: &mut &[u8]) -> Result<u64> {
     let mut value = 0u64;
     for shift in (0..70).step_by(7) {
         let (byte, rest) = bytes.split_first().ok_or_else(bad)?;
         *bytes = rest;
-        if shift == 63 && *byte > 1 { return Err(bad()); }
+        if shift == 63 && *byte > 1 {
+            return Err(bad());
+        }
         value |= u64::from(byte & 127) << shift;
-        if byte & 128 == 0 { return Ok(value); }
+        if byte & 128 == 0 {
+            return Ok(value);
+        }
     }
     Err(bad())
 }
@@ -24,11 +30,21 @@ pub(super) fn chunk(mut bytes: &[u8]) -> Result<()> {
     while !bytes.is_empty() {
         let key = varint(&mut bytes)?;
         let bit = match key {
-            10 => { length(&mut bytes)?; 1 },
-            16 => { if varint(&mut bytes)? > 1 { return Err(bad()); } 2 },
+            10 => {
+                length(&mut bytes)?;
+                1
+            }
+            16 => {
+                if varint(&mut bytes)? > 1 {
+                    return Err(bad());
+                }
+                2
+            }
             _ => return Err(bad()),
         };
-        if seen & bit != 0 { return Err(bad()); }
+        if seen & bit != 0 {
+            return Err(bad());
+        }
         seen |= bit;
     }
     Ok(())
@@ -39,25 +55,47 @@ pub(super) fn descriptor(mut bytes: &[u8], limits: Limits) -> Result<()> {
     while !bytes.is_empty() {
         let key = varint(&mut bytes)?;
         let bit = match key {
-            8 => { dimension(&mut bytes, &mut rank, limits)?; 0 },
+            8 => {
+                dimension(&mut bytes, &mut rank, limits)?;
+                0
+            }
             10 => {
                 let mut packed = length(&mut bytes)?;
-                while !packed.is_empty() { dimension(&mut packed, &mut rank, limits)?; }
+                while !packed.is_empty() {
+                    dimension(&mut packed, &mut rank, limits)?;
+                }
                 0
-            },
-            16 => { if varint(&mut bytes)? > i32::MAX as u64 { return Err(bad()); } 1 },
-            26 => { chunk(length(&mut bytes)?)?; 2 },
-            32 => { varint(&mut bytes)?; 2 },
+            }
+            16 => {
+                if varint(&mut bytes)? > i32::MAX as u64 {
+                    return Err(bad());
+                }
+                1
+            }
+            26 => {
+                chunk(length(&mut bytes)?)?;
+                2
+            }
+            32 => {
+                varint(&mut bytes)?;
+                2
+            }
             _ => return Err(bad()),
         };
-        if seen & bit != 0 { return Err(bad()); }
+        if seen & bit != 0 {
+            return Err(bad());
+        }
         seen |= bit;
     }
-    if seen != 3 { return Err(bad()); }
+    if seen != 3 {
+        return Err(bad());
+    }
     Ok(())
 }
 fn dimension(bytes: &mut &[u8], rank: &mut usize, limits: Limits) -> Result<()> {
     *rank = rank.checked_add(1).ok_or_else(bad)?;
-    if *rank > limits.rank || varint(bytes)? > limits.dimension as u64 { return Err(bad()); }
+    if *rank > limits.rank || varint(bytes)? > limits.dimension as u64 {
+        return Err(bad());
+    }
     Ok(())
 }

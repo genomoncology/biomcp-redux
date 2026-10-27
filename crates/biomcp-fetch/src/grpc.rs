@@ -8,9 +8,18 @@ pub use tensor::{DataType, Tensor, TensorStream};
 
 // The complete pinned closure is retained for future RPC adapters. Its messages
 // remain private; callers pass encoded tensor payloads through the checked codec.
-#[allow(dead_code, reason = "Retain the complete pinned generated provider import closure")]
-#[allow(missing_docs, reason = "Provider generation preserves upstream documentation verbatim")]
-#[allow(clippy::all, reason = "Generated protobuf implementations follow the pinned prost generator")]
+#[allow(
+    dead_code,
+    reason = "Retain the complete pinned generated provider import closure"
+)]
+#[allow(
+    missing_docs,
+    reason = "Provider generation preserves upstream documentation verbatim"
+)]
+#[allow(
+    clippy::all,
+    reason = "Generated protobuf implementations follow the pinned prost generator"
+)]
 mod proto {
     include!("grpc/generated/mod.rs");
 }

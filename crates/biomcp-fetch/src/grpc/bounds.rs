@@ -40,8 +40,16 @@ impl Default for Limits {
 }
 impl Limits {
     pub(super) fn check(self) -> Result<Self, CodecError> {
-        let values = [self.request_bytes, self.message_bytes, self.wire_bytes,
-            self.messages, self.rank, self.dimension, self.chunks, self.expanded_bytes];
+        let values = [
+            self.request_bytes,
+            self.message_bytes,
+            self.wire_bytes,
+            self.messages,
+            self.rank,
+            self.dimension,
+            self.chunks,
+            self.expanded_bytes,
+        ];
         if values.iter().any(|v| *v == 0 || *v > isize::MAX as usize)
             || self.dimension > i32::MAX as usize
             || !(10..=30).contains(&self.zstd_window_log)
@@ -53,7 +61,9 @@ impl Limits {
     /// Reject an encoded request before ownership or queue admission.
     pub fn check_request(&self, bytes: &[u8]) -> Result<(), CodecError> {
         self.check()?;
-        if bytes.len() > self.request_bytes { return Err(CodecError::BadReply); }
+        if bytes.len() > self.request_bytes {
+            return Err(CodecError::BadReply);
+        }
         Ok(())
     }
 }
