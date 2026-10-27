@@ -38,7 +38,7 @@ fn identity(command: &Command, spellings: &[&str]) -> Option<String> {
 }
 
 /// Report the checked assembly vocabulary without retaining a rejected value.
-pub(super) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::ErrorEnvelope> {
+pub(crate) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::ErrorEnvelope> {
     if args.first()?.to_str()? != "variant" || args.get(1)?.to_str()? != "normalize" {
         return None;
     }
@@ -50,7 +50,7 @@ pub(super) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::Err
         .subcommand_matches("variant")?
         .subcommand_matches("normalize")?;
     let build = matches.get_one::<String>("build")?;
-    if build.parse::<biomcp_types::Build>().is_ok_and(|build| {
+    if build.parse::<biodata::Build>().is_ok_and(|build| {
         matches
             .get_one::<String>("hgvs")
             .is_none_or(|hgvs| biomcp_types::VariantNormalize::supports_build(hgvs, build))
@@ -63,7 +63,7 @@ pub(super) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::Err
         .pointer("/$defs/Build/enum")?
         .as_array()?
         .iter()
-        .map(|value| biomcp_types::Text::new(value.as_str()?).ok())
+        .map(|value| biodata::Text::new(value.as_str()?).ok())
         .collect::<Option<Vec<_>>>()?;
     Some(biomcp_types::ErrorEnvelope::argument_values(
         "--build".into(),
