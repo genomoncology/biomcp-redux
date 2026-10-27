@@ -6,6 +6,7 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         super::operation::trial(),
+        super::indexing_proof::trial(),
         Trial::test("parity/closed-projection-shapes", || {
             projections().map_err(Into::into)
         }),

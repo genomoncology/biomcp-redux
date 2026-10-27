@@ -1050,6 +1050,170 @@
         }
       },
       "baseline_exit": 1
+    },
+    {
+      "case": "author/papers-bad-id.yaml",
+      "step": 0,
+      "baseline_command": [
+        "author",
+        "papers",
+        "semanticscholar:123",
+        "--limit",
+        "5",
+        "--offset",
+        "0"
+      ],
+      "spelling_table": "sdlc/planning/slices/author.md",
+      "release_source": [
+        "src/cli/author/mod.rs",
+        "src/cli/author/search.rs",
+        "src/entities/author/search.rs",
+        "src/entities/author/papers.rs",
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/author/123/papers",
+          "request_contains": "",
+          "capture": "semantic-scholar/394680db12347075c7211b69e53994e0fcc10758e714073666cc4e7305f1bb4b.json"
+        }
+      ],
+      "facts": {
+        "/sources/0/source": {
+          "released_source": "/_meta/source_status/0/source"
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
+        },
+        "/sources/0/reason": {
+          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
+        },
+        "/sources/0/use": {
+          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
+        }
+      },
+      "baseline_exit": 0
+    },
+    {
+      "case": "author/papers-wrong-offset.yaml",
+      "step": 0,
+      "baseline_command": [
+        "author",
+        "papers",
+        "semanticscholar:123",
+        "--limit",
+        "5",
+        "--offset",
+        "0"
+      ],
+      "spelling_table": "sdlc/planning/slices/author.md",
+      "release_source": [
+        "src/cli/author/mod.rs",
+        "src/cli/author/search.rs",
+        "src/entities/author/search.rs",
+        "src/entities/author/papers.rs",
+        "src/render/json.rs::to_error_json",
+        "src/sources/semantic_scholar.rs",
+        "src/sources/provider_url_policy.rs::semantic_scholar_api"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/author/123/papers",
+          "request_contains": "",
+          "capture": "semantic-scholar/394680db12347075c7211b69e53994e0fcc10758e714073666cc4e7305f1bb4b.json"
+        }
+      ],
+      "facts": {
+        "/sources/0/source": {
+          "released_source": "/error/source"
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
+        },
+        "/sources/0/reason": {
+          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
+        },
+        "/sources/0/use": {
+          "reason": "Released compact author papers accepts a nonnumeric PubMed external ID as a string and serializes papers and _meta.source_status on success. Released error serialization has no current lifecycle, source reason or use fields. The successful source status uses semantic_scholar, not the current source spelling. No current envelope fact is inferred from provider success or failure.",
+          "release_source": "src/entities/author/papers.rs::map_paper;src/entities/author/papers.rs::finish_compact;src/render/json.rs::to_error_json"
+        }
+      },
+      "baseline_exit": 1
+    },
+    {
+      "case": "orcid/wrong-works.yaml",
+      "step": 0,
+      "baseline_command": [
+        "author",
+        "papers",
+        "orcid:0000-0002-4299-3018",
+        "--limit",
+        "5",
+        "--offset",
+        "0"
+      ],
+      "spelling_table": "sdlc/planning/slices/author.md",
+      "release_source": [
+        "src/cli/author/mod.rs",
+        "src/cli/author/search.rs",
+        "src/entities/author/search.rs",
+        "src/entities/author/papers.rs",
+        "src/render/json.rs::to_error_json",
+        "src/sources/orcid.rs",
+        "src/sources/provider_url_policy.rs::orcid_api"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "orcid",
+          "endpoint_env": "BIOMCP_ORCID_BASE",
+          "host": "pub.orcid.org",
+          "request_prefix": "GET /v3.0/0000-0002-4299-3018/works",
+          "request_contains": "",
+          "capture": "orcid/7dec36201f77fc00836b70243b764f321ffb21da411326e0760b089e00e0e601.json"
+        }
+      ],
+      "facts": {
+        "/problems/0/source": {
+          "released_source": "/error/source"
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released ORCID works validates the returned works path against the requested ID. Its error envelope retains the actual provider source but no current lifecycle status or source reason.",
+          "release_source": "src/sources/orcid.rs::OrcidWorksResponse;src/render/json.rs::to_error_json"
+        },
+        "/sources/0/reason": {
+          "reason": "Released ORCID works validates the returned works path against the requested ID. Its error envelope retains the actual provider source but no current lifecycle status or source reason.",
+          "release_source": "src/sources/orcid.rs::OrcidWorksResponse;src/render/json.rs::to_error_json"
+        }
+      },
+      "baseline_exit": 1
     }
   ],
   "inventory": {
