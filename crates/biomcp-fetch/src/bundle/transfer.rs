@@ -3,9 +3,8 @@ use crate::{
     CacheError, Deadline, SchemaOwner,
     cache::{Cache, check_owners, check_predecessor, db_error, sql_deadline},
 };
-use rusqlite::{Connection, params};
+use rusqlite::Connection;
 use std::path::Path;
-const BATCH: usize = 256;
 #[derive(Clone, Copy)]
 struct Table {
     name: &'static str,
@@ -155,26 +154,49 @@ fn stage_table(
         }
     }
     let source = if present { "predecessor" } else { "main" };
-    connection.execute_batch(&format!("CREATE TEMP TABLE stage_{} AS SELECT rowid AS original_rowid,{} FROM {source}.{} WHERE 0", table.name, table.columns, table.name)).map_err(db_error)?;
+    connection
+        .execute_batch(&format!(
+            "CREATE TEMP TABLE stage_{} AS SELECT {} FROM {source}.{} WHERE 0",
+            table.name, table.columns, table.name
+        ))
+        .map_err(db_error)?;
     if !present {
         return Ok(());
     }
-    let mut cursor: Option<i64> = None;
-    loop {
-        sql_deadline(connection, deadline)?;
-        let changed = connection.execute(&format!("INSERT INTO temp.stage_{} SELECT rowid,{} FROM predecessor.{} WHERE {}=?1 AND (?2 IS NULL OR rowid>?2) ORDER BY rowid LIMIT ?3", table.name, table.columns, table.name, table.key), params![name, cursor, BATCH]).map_err(db_error)?;
-        if changed == 0 {
-            return Ok(());
+    sql_deadline(connection, deadline)?;
+    let mut select = connection
+        .prepare(&format!(
+            "SELECT {} FROM predecessor.{} WHERE {}=?1",
+            table.columns, table.name, table.key
+        ))
+        .map_err(db_error)?;
+    let columns = select.column_count();
+    let placeholders = (1..=columns)
+        .map(|n| format!("?{n}"))
+        .collect::<Vec<_>>()
+        .join(",");
+    let mut insert = connection
+        .prepare(&format!(
+            "INSERT INTO temp.stage_{} VALUES ({placeholders})",
+            table.name
+        ))
+        .map_err(db_error)?;
+    let mut rows = select.query([name]).map_err(db_error)?;
+    while let Some(row) = rows.next().map_err(db_error)? {
+        if deadline.expired() {
+            return Err(CacheError::Busy);
         }
-        cursor = connection
-            .query_row(
-                &format!("SELECT max(original_rowid) FROM temp.stage_{}", table.name),
-                [],
-                |r| r.get(0),
-            )
+        let values = (0..columns)
+            .map(|n| row.get_ref(n))
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(db_error)?;
+        insert
+            .execute(rusqlite::params_from_iter(values))
             .map_err(db_error)?;
     }
+    Ok(())
 }
+
 fn verify(connection: &Connection, name: &str, deadline: Deadline<'_>) -> Result<(), CacheError> {
     for table in TABLES {
         sql_deadline(connection, deadline)?;
