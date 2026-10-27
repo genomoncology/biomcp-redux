@@ -63,14 +63,19 @@ fn card() -> Result<(), String> {
     Ok(())
 }
 fn page() -> Result<(), String> {
-    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
-        let xml = super::variant_assertion_wire::clinvar_body(request)?;
-        let rows = (0..11).map(|i| format!("<ClinicalAssertion><ClinVarAccession Accession=\"SCV{:09}\" Version=\"1\"/><Classification><GermlineClassification>Pathogenic</GermlineClassification></Classification></ClinicalAssertion>", 900000000+i)).collect::<String>();
-        Ok(xml.replace(
-            "</ClinicalAssertionList>",
-            &format!("{rows}</ClinicalAssertionList>"),
-        ))
-    })?;
+    let stub =
+        Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
+            let xml = super::variant_assertion_wire::clinvar_body(request)?;
+            let rows = (0..11).map(|i| format!(
+            "<ClinicalAssertion><ClinVarAccession Accession=\"SCV{:09}\" Version=\"1\"/>\
+            <Classification><GermlineClassification>Pathogenic</GermlineClassification>\
+            </Classification></ClinicalAssertion>", 900000000+i,
+        )).collect::<String>();
+            Ok(xml.replace(
+                "</ClinicalAssertionList>",
+                &format!("{rows}</ClinicalAssertionList>"),
+            ))
+        })?;
     let env = environment(&stub)?;
     for args in [
         vec!["get", "variant", "clinvar:128042", "clinvar"],
