@@ -1,10 +1,13 @@
 ---
-// Adds structured data for search engines to Starlight's own head.
+// Adds the social card and structured data for search engines to Starlight's own head.
 import Default from '@astrojs/starlight/components/Head.astro';
 import site from '../data/site.json';
 const { entry } = Astro.locals.starlightRoute;
 const d = entry.data;
 const url = new URL(Astro.url.pathname, Astro.site).href;
+// public/social-card.png, made by scripts/social-card.mjs from the brand marks.
+const card = new URL('/social-card.png', Astro.site).href;
+const cardAlt = `${site.product}: ${d.title}`;
 let ld;
 if (!d.kind) {
   ld = undefined;
@@ -54,4 +57,10 @@ if (!d.kind) {
 }
 ---
 <Default />
+<meta property="og:image" content={card} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={cardAlt} />
+<meta name="twitter:image" content={card} />
+<meta name="twitter:image:alt" content={cardAlt} />
 {ld && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}

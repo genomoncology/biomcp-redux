@@ -15,6 +15,7 @@ import path from 'node:path';
 import YAML from 'yaml';
 import product from '../product.config.mjs';
 import site from '../src/data/site.json' with { type: 'json' };
+import { VERIFIED, same, stamp } from '../src/lib/verified.mjs';
 
 const check = process.argv.includes('--check');
 const OUT = path.resolve('src/content/docs/reference');
@@ -71,7 +72,7 @@ const name = (c) => words(c).join(' ');
 const slug = (c) => words(c).join('-');
 const route = (c) => `/reference/commands/${slug(c)}/`;
 const quote = (a) => (/^[A-Za-z0-9_.:\/@=,+-]+$/.test(a) ? a : `'${a.replace(/'/g, "'\\''")}'`);
-const fm = (o) => `---\n${YAML.stringify({ ...o, kind: 'reference', verified: site.verified }).trim()}\n---\n\n`;
+const fm = (o) => `---\n${YAML.stringify({ ...o, kind: 'reference', verified: VERIFIED }).trim()}\n---\n\n`;
 const write = (rel, text) => files.set(path.join(OUT, rel), text.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
 const firstSentence = (s) => (s.split(/(?<=\.)\s/)[0] ?? s).trim();
 const ENTITY_OF = (c) => (['search', 'get'].includes(c.command[0]) ? c.command[1] : c.command[0]);
@@ -428,7 +429,7 @@ for (const [k, v] of Object.entries({ entities: entities.length, sources: regist
 const existing = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).map((f) => path.join(dir, f)).filter((f) => fs.statSync(f).isFile()) : []);
 if (check) {
   const diffs = [];
-  for (const [f, text] of files) if (!fs.existsSync(f) || fs.readFileSync(f, 'utf8') !== text) diffs.push(path.relative('.', f));
+  for (const [f, text] of files) if (!fs.existsSync(f) || !same(fs.readFileSync(f, 'utf8'), text)) diffs.push(path.relative('.', f));
   for (const f of [...existing(OUT), ...existing(SOURCES_OUT).filter((f) => !f.endsWith('index.mdx'))]) if (!files.has(f)) diffs.push(`${path.relative('.', f)} (stale)`);
   if (diffs.length) {
     console.error(`reference: ${diffs.length} page(s) differ from the build; run npm run reference\n` + diffs.slice(0, 20).join('\n'));
@@ -436,11 +437,12 @@ if (check) {
   }
   console.log(`reference: ${files.size} files match the build`);
 } else {
+  const before = new Map([...files.keys()].filter((f) => fs.existsSync(f)).map((f) => [f, fs.readFileSync(f, 'utf8')]));
   fs.rmSync(OUT, { recursive: true, force: true });
   for (const f of existing(SOURCES_OUT)) if (!f.endsWith('index.mdx')) fs.rmSync(f);
   for (const [f, text] of files) {
     fs.mkdirSync(path.dirname(f), { recursive: true });
-    fs.writeFileSync(f, text);
+    fs.writeFileSync(f, stamp(text, before.get(f) ?? null));
   }
   console.log(`reference: wrote ${files.size} files`);
 }

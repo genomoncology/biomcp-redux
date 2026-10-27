@@ -8,13 +8,18 @@
     "reference": "node scripts/gen-reference.mjs",
     "answers": "node scripts/gen-answers.mjs",
     "dev": "astro dev",
-    "build": "node scripts/run-examples.mjs --check && node scripts/readme.mjs && node scripts/gen-reference.mjs --check && node scripts/gen-answers.mjs && node scripts/astro-build.mjs && node scripts/agent-files.mjs && node scripts/check.mjs",
+    "build": "node scripts/run-examples.mjs --check && node scripts/readme.mjs --check && node scripts/gen-reference.mjs --check && node scripts/gen-answers.mjs && node scripts/astro-build.mjs && node scripts/agent-files.mjs && node scripts/host-files.mjs && node scripts/check.mjs",
     "preview": "astro preview",
-    "readme": "node scripts/readme.mjs"
+    "readme": "node scripts/readme.mjs",
+    "check:publish": "node scripts/check.mjs --publish",
+    "social-card": "node scripts/social-card.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.6",
     "astro": "7.3.8",
-    "yaml": "2.8.1"
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

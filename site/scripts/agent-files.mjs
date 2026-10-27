@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import product from '../product.config.mjs';
 import site from '../src/data/site.json' with { type: 'json' };
+import redirects from '../src/data/redirects.json' with { type: 'json' };
 import { pages, bodyMarkdown } from './pages.mjs';
 
 const dist = path.resolve('dist');
@@ -15,6 +16,22 @@ for (const p of all) {
   const out = path.join(dist, p.twin);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, md);
+}
+
+// Each redirected old page address also served a Markdown twin (/a/b/ -> /a/b.md). Where the
+// build has no twin at that address, write one that names the new address and holds its page.
+let moved = 0;
+for (const [from, to] of Object.entries(redirects)) {
+  if (!from.endsWith('/')) continue;
+  const twin = from === '/' ? '/index.md' : `${from.replace(/\/$/, '')}.md`;
+  const out = path.join(dist, twin);
+  if (fs.existsSync(out)) continue;
+  const target = all.find((p) => p.route === to.split('#')[0]);
+  if (!target) continue; // scripts/check.mjs reports a redirect to a missing page
+  const md = `---\nmoved_to: ${abs(target.twin)}\n---\n\nThis address moved. The page is now at ${abs(target.route)} and its Markdown at ${abs(target.twin)}.\n\n# ${target.data.title}\n\n${bodyMarkdown(target.body)}\n`;
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, md);
+  moved++;
 }
 
 const bySlug = new Map(all.map((p) => [p.slug, p]));
@@ -38,7 +55,7 @@ fs.writeFileSync(
   `# ${product.name} ${site.version}: full documentation\n\n` +
     ordered.map((p) => `<page url="${abs(p.route)}">\n\n# ${p.data.title}\n\n${bodyMarkdown(p.body)}\n\n</page>`).join('\n\n') + '\n',
 );
-console.log(`agent files: ${all.length} Markdown twins, llms.txt, llms-full.txt`);
+console.log(`agent files: ${all.length} Markdown twins, ${moved} moved-page twins, llms.txt, llms-full.txt`);
 
 // Static hosts serve /404.html for a missing address.
 if (fs.existsSync(path.join(dist, '404/index.html'))) fs.copyFileSync(path.join(dist, '404/index.html'), path.join(dist, '404.html'));

@@ -4,11 +4,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
 import site from '../src/data/site.json' with { type: 'json' };
+import { ranOn } from '../src/lib/verified.mjs';
 
 const qdir = path.resolve('questions');
 const out = path.resolve('src/content/docs/answers');
+// The question list writes the version as {version}; site.json holds it.
+const withFacts = (v) => (typeof v === 'string' ? v.replaceAll('{version}', site.version) : v);
 const questions = fs.readdirSync(qdir).filter((f) => f.endsWith('.yaml')).flatMap((f) =>
-  (YAML.parse(fs.readFileSync(path.join(qdir, f), 'utf8')) ?? []).map((q) => ({ ...q, area: f.replace(/\.yaml$/, '') })),
+  (YAML.parse(fs.readFileSync(path.join(qdir, f), 'utf8')) ?? []).map((q) => ({ ...Object.fromEntries(Object.entries(q).map(([k, v]) => [k, withFacts(v)])), area: f.replace(/\.yaml$/, '') })),
 );
 const seen = new Set();
 for (const q of questions) {
@@ -19,9 +22,12 @@ const answered = questions.filter((q) => q.answers_page).sort((a, b) => a.rank -
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 
+// An answer is verified on the day its example last ran (examples/<id>/ran), not on a typed date.
+for (const q of answered) q.verified = ranOn(q.example);
+const lastRun = answered.map((q) => q.verified).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
 const fm = (o) => `---\n${YAML.stringify(o).trim()}\n---\n`;
 for (const q of answered) {
-  for (const k of ['question', 'answer', 'example', 'why', 'limits', 'page', 'reference', 'verified']) if (!q[k]) throw new Error(`questions/${q.area}.yaml: ${q.id} lacks ${k}`);
+  for (const k of ['question', 'answer', 'example', 'why', 'limits', 'page', 'reference']) if (!q[k]) throw new Error(`questions/${q.area}.yaml: ${q.id} lacks ${k}`);
   const body = [
     "import Example from '../../../components/Example.astro';",
     '',
@@ -64,6 +70,6 @@ const index = [
 ].join('\n');
 fs.writeFileSync(
   path.join(out, 'index.mdx'),
-  fm({ title: 'Answers', description: `Short answers to common ${site.product} questions, each with a command and its real output.`, goal: 'List every answers page so a reader or agent can find one question.', reader: 'Anyone with one specific question', kind: 'index', verified: site.verified }) + '\n' + index,
+  fm({ title: 'Answers', description: `Short answers to common ${site.product} questions, each with a command and its real output.`, goal: 'List every answers page so a reader or agent can find one question.', reader: 'Anyone with one specific question', kind: 'index', verified: lastRun }) + '\n' + index,
 );
 console.log(`answers: ${answered.length} pages from ${questions.length} questions`);
