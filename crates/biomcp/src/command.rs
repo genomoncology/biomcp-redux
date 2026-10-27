@@ -42,7 +42,10 @@ fn dispatch_using(
     )>,
 ) -> io::Result<Outcome> {
     if args == [OsString::from("schema")] {
-        return encode(Envelope::new(Status::Complete, (), Some(crate::schema::catalog())), crate::exit::Status::Success);
+        return encode(
+            Envelope::new(Status::Complete, (), Some(crate::schema::catalog())),
+            crate::exit::Status::Success,
+        );
     }
     if let [command, name] = args
         && command == "schema"

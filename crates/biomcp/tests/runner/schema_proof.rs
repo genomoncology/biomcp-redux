@@ -147,30 +147,51 @@ fn rejects(
 fn discovery() -> Result<(), String> {
     let environment = super::launch::Environment::new().map_err(|e| e.to_string())?;
     let invoke = |args: &[String]| -> Result<Value, String> {
-        let output = environment.command(env!("CARGO_BIN_EXE_biomcp"), args)
-            .output().map_err(|e| e.to_string())?;
-        if !output.status.success() { return Err(format!("{args:?}: {}", String::from_utf8_lossy(&output.stdout))); }
+        let output = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), args)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err(format!(
+                "{args:?}: {}",
+                String::from_utf8_lossy(&output.stdout)
+            ));
+        }
         serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
     };
     let catalog = invoke(&["schema".into()])?;
-    let rows = catalog.pointer("/result/schemas").and_then(Value::as_array).ok_or("missing schema catalog")?;
-    let ids: std::collections::BTreeSet<_> = rows.iter().map(|row| {
-        let id = row["id"].as_str().ok_or("missing schema ID")?;
-        if id.contains('_') || row["description"].as_str().is_none_or(str::is_empty) {
-            return Err("schema ID or description is invalid");
-        }
-        Ok(id)
-    }).collect::<Result<_, _>>()?;
+    let rows = catalog
+        .pointer("/result/schemas")
+        .and_then(Value::as_array)
+        .ok_or("missing schema catalog")?;
+    let ids: std::collections::BTreeSet<_> = rows
+        .iter()
+        .map(|row| {
+            let id = row["id"].as_str().ok_or("missing schema ID")?;
+            if id.starts_with("biomcp.") && id.contains('_') || row["description"].as_str().is_none_or(str::is_empty) {
+                return Err("schema ID or description is invalid");
+            }
+            Ok(id)
+        })
+        .collect::<Result<_, _>>()?;
     if ids != super::schema::ARTIFACTS.iter().map(|(id, _)| *id).collect() {
         return Err("catalog differs from shipped schema inventory".into());
     }
     let help = invoke(&["help".into()])?;
-    let commands = help.pointer("/result/commands").and_then(Value::as_array).ok_or("missing commands")?;
+    let commands = help
+        .pointer("/result/commands")
+        .and_then(Value::as_array)
+        .ok_or("missing commands")?;
     let mut replies = std::collections::BTreeSet::new();
     for command in commands {
-        for id in command["reply_schemas"].as_array().ok_or("missing reply schemas")? {
+        for id in command["reply_schemas"]
+            .as_array()
+            .ok_or("missing reply schemas")?
+        {
             let id = id.as_str().ok_or("invalid reply ID")?;
-            if !ids.contains(id) { return Err(format!("unresolvable help reply {id}")); }
+            if !ids.contains(id) {
+                return Err(format!("unresolvable help reply {id}"));
+            }
             replies.insert(id);
         }
     }
