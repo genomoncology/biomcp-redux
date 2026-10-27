@@ -1,6 +1,7 @@
 # 0292 — Rewrite the user docs for 1.0
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e9f034b5beeb526e442dba1b9978ec669eefb2be
 
 Milestone: 5
 

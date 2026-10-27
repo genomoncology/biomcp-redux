@@ -3,6 +3,8 @@ mod entity;
 pub(crate) mod gwas;
 mod local;
 mod queries;
+#[cfg(test)]
+mod reference;
 pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
