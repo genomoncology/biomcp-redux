@@ -1,6 +1,7 @@
 # 0333 — Register AlphaGenome as a keyed source with a narrow request encoder
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8a1cea78c309fd12d1dc0dad52cdb763b11728c9
 
 Milestone: 5
 

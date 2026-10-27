@@ -31,6 +31,7 @@ pub fn display_name(source: Source) -> &'static str {
         Source::Nci => "NCI Clinical Trials Search",
         Source::Civic => "CIViC",
         Source::CancerHotspots => "Cancer Hotspots",
+        Source::AlphaGenome => "AlphaGenome",
         Source::Oncokb => "OncoKB",
         Source::MyVariant => "MyVariant.info",
         Source::AlleleRegistry => "ClinGen Allele Registry",

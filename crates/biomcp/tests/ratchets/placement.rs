@@ -120,6 +120,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command.",
     ),
     (
+        "crates/biomcp-adapters/tests/alphagenome_registration.rs",
+        "Exercise restricted source registration and required-key admission before a product section exists.",
+    ),
+    (
         "crates/biomcp-adapters/tests/batch_bounds.rs",
         "Exercise literal indexed lookup inputs outside command validation and empty/oversized batches or chunks beyond command limits.",
     ),
@@ -146,6 +150,14 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp-fetch/src/xml_tests.rs",
         "Cover inline XML markup and decoder limits with many tiny inputs.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/alphagenome.rs",
+        "Exercise the selected request encoding and complete bounded envelopes through the public protocol API.",
+    ),
+    (
+        "crates/biomcp-fetch/tests/alphagenome/routing.rs",
+        "Exercise required-key admission and placeholder credential routing through a local TLS stream.",
     ),
     (
         "crates/biomcp-fetch/tests/batch.rs",

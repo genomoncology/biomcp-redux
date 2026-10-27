@@ -185,3 +185,7 @@ stream-tensors: Decode serialized provider tensor payloads within explicit wire 
 
 stream-worker: Blocking source legs make one bounded streaming RPC over their checked TLS and proxy route within the shared quota and absolute deadline. Contracts: `biomcp-fetch/grpc_worker`.
 stream-persistence: Complete checked RPC streams enter the ordinary cache and replay from bounded recordings without connections. Contracts: `biomcp-fetch/grpc_persistence`.
+
+alphagenome-protocol: Encode the reviewed human DNASE request and admit only complete bounded reference and alternate envelopes. Contracts: `biomcp-fetch/alphagenome`.
+
+alphagenome-registration: Discover the restricted AlphaGenome service and require its own user key before source admission. Contracts: `biomcp-adapters/alphagenome_registration`.

@@ -123,6 +123,8 @@ pub enum SecretName {
     OrcidAccessToken,
     /// OncoKB API key.
     OncokbApiKey,
+    /// AlphaGenome API key.
+    AlphaGenomeApiKey,
     /// NCI Clinical Trials Search API key.
     NciApiKey,
 }

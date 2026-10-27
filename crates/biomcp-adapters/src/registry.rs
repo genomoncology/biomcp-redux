@@ -32,6 +32,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::hgnc::SPEC,
     &crate::mygene::SPEC,
     &crate::oncokb::SPEC,
+    &crate::alphagenome::SPEC,
     &crate::gnomad::SPEC,
     &crate::uniprot::SPEC,
     &crate::interpro::SPEC,

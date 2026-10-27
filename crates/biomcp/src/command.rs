@@ -416,6 +416,7 @@ fn key_help(source: biomcp_types::Source) -> io::Result<Outcome> {
     let name = match source {
         biomcp_types::Source::SemanticScholar => biomcp_fetch::SecretName::SemanticScholarApiKey,
         biomcp_types::Source::PubMed => biomcp_fetch::SecretName::NcbiApiKey,
+        biomcp_types::Source::AlphaGenome => biomcp_fetch::SecretName::AlphaGenomeApiKey,
         biomcp_types::Source::Nci => biomcp_fetch::SecretName::NciApiKey,
         biomcp_types::Source::OpenfdaLabel => biomcp_fetch::SecretName::OpenfdaApiKey,
         biomcp_types::Source::Orcid => biomcp_fetch::SecretName::OrcidAccessToken,
