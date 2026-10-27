@@ -189,8 +189,8 @@ fn compare(
     let current = execution::candidate(case, step, command, &replay, out, index)?;
     let mut old = recording::baseline(selection, baseline, &replay, out, index)?;
     let mut current = current;
-    execution::assess_exit(&mut old, 0);
-    execution::assess_exit(&mut current, step.exit);
+    execution::assess_exit(&mut old, 0)?;
+    execution::assess_exit(&mut current, step.exit)?;
     let facts = facts(step, selection, &old, &current)?;
     Ok(
         json!({"case":selection.case,"story":case.story,"step":selection.step,

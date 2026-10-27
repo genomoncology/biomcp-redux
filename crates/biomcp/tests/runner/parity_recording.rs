@@ -12,6 +12,8 @@ pub(super) struct Route {
     request_contains: String,
     capture: String,
     envelope: Option<String>,
+    #[serde(default)]
+    count_field: Option<String>,
 }
 
 pub(super) fn baseline(
@@ -74,7 +76,7 @@ pub(super) fn baseline(
     let requests = match server.finish() {
         Ok(requests) => requests,
         Err(error) => {
-            result["assessment_error"] = json!(error);
+            execution::field(&mut result, "assessment_error", json!(error))?;
             return Ok(result);
         }
     };
@@ -84,10 +86,13 @@ pub(super) fn baseline(
     )
     .map_err(|e| e.to_string())?;
     if requests.is_empty() {
-        result["assessment_error"] =
-            json!("baseline did not consume its declared source recording");
+        execution::field(
+            &mut result,
+            "assessment_error",
+            json!("baseline did not consume its declared source recording"),
+        )?;
     }
-    result["recorded_requests"] = json!(requests.len());
+    execution::field(&mut result, "recorded_requests", json!(requests.len()))?;
     Ok(result)
 }
 fn bodies(
@@ -111,19 +116,36 @@ fn bodies(
                 .get("exchanges")
                 .and_then(Value::as_array)
                 .ok_or("missing exchanges")?;
-            if exchanges.len() != 1 || exchanges[0].get("status") != Some(&json!(200)) {
+            let [exchange] = exchanges.as_slice() else {
+                return Err("assessment gap: source route needs one recorded exchange".into());
+            };
+            if exchange.get("status") != Some(&json!(200)) {
                 return Err(
                     "assessment gap: source route needs one successful recorded exchange".into(),
                 );
             }
-            let body = exchanges[0]
+            let body = exchange
                 .pointer("/body/value")
                 .ok_or("missing JSON source body")?;
-            let adapted = if let Some(envelope) = &route.envelope {
+            let mut adapted = if let Some(envelope) = &route.envelope {
                 json!({envelope:body})
             } else {
                 body.clone()
             };
+            if let Some(field) = &route.count_field {
+                if route.envelope.as_ref() == Some(field) || route.envelope.is_none() {
+                    return Err("count field requires a distinct envelope field".into());
+                }
+                execution::field(
+                    &mut adapted,
+                    field,
+                    json!(
+                        body.as_array()
+                            .ok_or("count field requires recorded array")?
+                            .len()
+                    ),
+                )?;
+            }
             fs::write(
                 out.join(format!("{index}-source-{ordinal}.json")),
                 serde_json::to_vec_pretty(&json!({

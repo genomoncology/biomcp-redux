@@ -27,7 +27,8 @@
           "request_prefix": "GET /v3/query?",
           "request_contains": "q=symbol%3A%22BRAF%22",
           "capture": "mygene/8aa9d0c50b2160fe408060117585443273e942c86e6c77d0f58a1865b8441692.json",
-          "envelope": "hits"
+          "envelope": "hits",
+          "count_field": "total"
         }
       ]
     }
