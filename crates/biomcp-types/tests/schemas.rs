@@ -9,7 +9,6 @@ mod release;
 #[path = "schemas/values.rs"]
 mod values;
 
-use biodata::*;
 use biomcp_types::*;
 use schemars::{JsonSchema, generate::SchemaSettings};
 #[path = "../schema_registry/mod.rs"]

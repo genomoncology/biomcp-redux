@@ -15,7 +15,10 @@ pub(super) fn generated_schemas_preserve_release_contracts() -> Check<()> {
     };
     let mut old = read_baseline(Path::new(&baseline))?;
     for contract in registry() {
-        let mut new = (contract.generate)();
+        let mut new = serde_json::Value::from((contract.generate)(
+            &mut schemars::generate::SchemaSettings::draft2020_12().into_generator(),
+            true,
+        ));
         new.as_object_mut()
             .ok_or("generated schema is not an object")?
             .insert("$id".into(), contract.id.into());
