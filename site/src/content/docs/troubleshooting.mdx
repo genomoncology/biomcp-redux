@@ -84,7 +84,7 @@ Cloud and company machines often set `NO_PROXY` to entries such as `::1`, `::` o
 
 ## A source shows skipped with reason no_key
 
-**Cause.** The source needs your key: OncoKB, or NCI for `--source nci`.
+**Cause.** The source needs your key: OncoKB, or NCI for `--source nci`. AlphaGenome also needs a key, but no command in this release sends it a request, so it never reports `no_key`.
 
 **Fix.** `biomcp key set oncokb` or `biomcp key set nci`. The reply's `next` list includes `help key SOURCE`. See [keys and configuration](/getting-started/api-keys/#set-a-key).
 

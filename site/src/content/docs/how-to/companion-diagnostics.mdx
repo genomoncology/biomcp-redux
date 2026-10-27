@@ -16,7 +16,7 @@ A listing is the FDA's or the laboratory's statement. A companion diagnostic row
 ## Requirements
 
 - BioMCP installed; see [install](/getting-started/installation/).
-- The `fda-cdx` bundle, and the `gtr` bundle for step 3. [Local data](/local-data/#bundle-sizes) shows their sizes.
+- The `fda-cdx` bundle, and the `gtr` bundle for step 4. [Local data](/local-data/#bundle-sizes) shows their sizes.
 
 ## 1. Synchronize the list
 
@@ -28,15 +28,23 @@ Search commands read the stored copy and never download it. Before the first syn
 
 ## 2. List the rows for a biomarker
 
-`--biomarker` matches the list's biomarker cell. The list has one row per device, indication and drug:
+`--biomarker` matches the whole biomarker cell of the list's device table, exactly as written. The list has one row per device, indication and drug:
 
 <Example id="task-cdx-search" />
 
-The FDA list holds 15 KRAS rows. The same device appears once for each drug and indication it covers: the therascreen KRAS RGQ PCR Kit appears with cetuximab, panitumumab, sotorasib and adagrasib. The drug column carries the drug's NDA or BLA number, which [`get drug NDA... --source drugsfda`](/drugs-and-safety/#3-read-the-fda-approval-record) reads.
+15 rows have a biomarker cell of exactly `KRAS`. The same device appears once for each drug and indication it covers: the therascreen KRAS RGQ PCR Kit appears with cetuximab, panitumumab, sotorasib and adagrasib. The drug column carries the drug's NDA or BLA number, which [`get drug NDA... --source drugsfda`](/drugs-and-safety/#3-read-the-fda-approval-record) reads.
 
-The reply's status is `partial` because one cell of the list did not match the shape BioMCP checks; the reply's `problems` list names the field. The rows shown are complete.
+The reply's status is `partial`. The list has a second table, of tests for a group of drugs, and `--biomarker` cannot read that table. The source state is `ok` with reason `unsupported`, and `problems` names the field `table_1.biomarker`.
 
-## 3. Find genetic tests in GTR
+## 3. Count every row that names the biomarker
+
+An exact match leaves out cells that name more than one biomarker, such as `KRAS and NRAS`, and a cell that ends in a no-break space. Read every row of the device table and count the biomarker cells that contain `KRAS`:
+
+<Example id="task-cdx-cells" />
+
+21 rows name KRAS, and `--biomarker KRAS` returned the 15 that read exactly `KRAS`. Search without `--biomarker` and read the `Biomarker(s)` cell when you need every row.
+
+## 4. Find genetic tests in GTR
 
 GTR lists tests that laboratories register. `--gene` matches GTR's gene symbol exactly:
 
@@ -51,7 +59,7 @@ Step 2 prints a row count above zero and the cobas KRAS Mutation Test among the 
 ## If it fails
 
 - The status is `failed` with source state `syncing`: the bundle is missing. Run `biomcp sync fda-cdx` or `biomcp sync gtr`.
-- No rows: `--biomarker` matches the list's biomarker cell as written. Try the gene symbol alone, such as `KRAS`, not `KRAS G12C`.
+- No rows, or fewer than you expect: `--biomarker` matches the whole cell as written. Try the gene symbol alone, such as `KRAS`, not `KRAS G12C`, and count the cells as step 3 does.
 - The list looks out of date: the source state is `stale`. Run the sync again.
 
 ## Limits

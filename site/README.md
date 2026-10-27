@@ -32,9 +32,12 @@ The documentation site, built with Astro and Starlight. It builds to `site/dist/
   - `expect-status` names a top-level reply status the example shows on purpose, such as `failed` for a missing key or bundle. The run must produce it.
   - `unverified` holds the reason, for readers, that the build does not run this example. The page shows the command and the reason. `npm run examples -- ID` still runs it when named.
   - `needs` lists example ids that must run before this one, one per line.
+  - `exact` marks an example whose output reads no live source: help, keys, usage errors, offline health, skill and MCP configuration output. The build compares its output and exit byte for byte with the saved run, so a program change that alters it fails the build until the example is rerun and its page reviewed. Mark every such example.
 - `src/data/site.json` holds each fact that appears on more than one page, such as the version and the install lines. Pages read it with `<Fact k="..." />` and `<InstallLine />`. Prose never types the version.
 - `questions/` holds the question list. `npm run answers` writes one answers page per entry marked `answers_page: true`. An answers page is verified on the day its example last ran.
 - `scripts/gen-reference.mjs` writes the reference pages and the source pages from the program's help. Fix a wrong reference sentence in the help text, never in the page. A page's `verified` date changes when its text changes.
+- `npm run schema-calls` (`scripts/map-schemas.mjs`) runs the help examples and every command in `examples/`, each `get` once per section, against the live sources, and writes `src/data/schema-calls.json`: the calls that return each reply schema. The reference generator names those calls on each schema page and fails when a reply schema has no call, unless `src/data/schema-notes.yaml` says why no command returns it. Rerun it with `SITE_EXAMPLE_CONFIG` set when the program's commands, sections or schemas change.
+- `scripts/pages.mjs` writes each page's Markdown twin and `llms-full.txt` text. It renders every component outside code; the shared ones are there, and this site's own (`TerminalHero`, `InstallLine`, `EnvelopeTable`, `SourceTable`, `CommandTable`, `KeyTable`) are in `src/lib/markdown-components.mjs`. A component without a Markdown form fails the build, and the check fails on a raw component tag in a twin or `llms-full.txt`.
 - `WRITING.md` holds the word list's reasons and the rules a check can't see. `src/data/words.json` holds the words the build rejects.
 - `public/social-card.png` is the link-preview card of every page. After a brand change, run `NODE_PATH=$(npm root -g) npm run social-card` (it needs Playwright with Chromium) and commit the PNG.
 
@@ -46,7 +49,7 @@ The examples of one build share a fresh environment: a temporary `HOME`, `XDG_CA
 
 Examples that run `biomcp sync`, and every example another one `needs`, run one at a time before the rest start, so no read races a bundle download. Keyless requests to some sources are rate limited, so a failed example runs up to twice more after a pause. An example that runs longer than its limit is stopped with every process it started.
 
-`npm run build` reruns every example and writes the fresh output to `.example-runs/`, which git ignores. It fails when an exit code differs from the saved run, or when the shape of the replies changes: the schema and status of each reply, or the keys of each JSON object. It also stops when `src/data/site.json` `version` differs from the version that `biomcp version --verbose` prints.
+`npm run build` reruns every example and writes the fresh output to `.example-runs/`, which git ignores. It fails when an exit code differs from the saved run, when the shape of the replies changes (the schema and status of each reply, or the keys of each JSON object), or when the output of an `exact` example differs at all. It also stops when `src/data/site.json` `version` differs from the version that `biomcp version --verbose` prints.
 
 ## Checks
 
@@ -60,7 +63,8 @@ Examples that run `biomcp sync`, and every example another one `needs`, run one 
 - two source files make the same page;
 - front matter is incomplete;
 - a rejected word appears in prose (quoted words and blockquotes are exempt), or prose, a title or a description types the version;
-- the agent files miss a page;
+- the agent files miss a page, or a Markdown twin or `llms-full.txt` holds a raw component tag;
+- a page runs an example that reads a file from its folder, and neither the page nor a page it links shows that file;
 - an old address in `src/data/old-addresses.txt`, or the `.md` twin of an old page address, no longer resolves, or a redirect in `src/data/redirects.json` lands on anything but a built page;
 - `robots.txt`, `sitemap.xml`, `version.json`, the social card, or a page's `og:image` is missing.
 

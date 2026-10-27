@@ -8,6 +8,7 @@ verified: 2026-10-27
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import KeyTable from '../../../components/KeyTable.astro';
 
 BioMCP <Fact k="version" /> reads one JSON configuration file and the environment. This page sets a source key, then covers every setting in `config.json`. None of it is needed for a first run.
 
@@ -22,7 +23,7 @@ BioMCP <Fact k="version" /> reads one JSON configuration file and the environmen
 
 ## Set a key
 
-<Fact k="counts.keys" /> sources accept a key. List them and their state:
+BioMCP accepts <Fact k="counts.keys" /> keys. List them and their state:
 
 <Example id="key-list" />
 
@@ -30,22 +31,17 @@ BioMCP <Fact k="version" /> reads one JSON configuration file and the environmen
 
 <Example id="key-set-demo" />
 
-The stored key is plain text in `config.json`. BioMCP writes the file readable by your user only (`-rw-------`); protect it like any other secret. The state is `stored` for a key in the file, `environment` for a key in its environment variable, and `none` otherwise. `biomcp key remove SOURCE` deletes a stored key. Setting a key that is already stored needs `--replace`.
+BioMCP also writes an empty `.config.lock` file beside a configuration file it changes; the run removes both. The stored key is plain text in `config.json`. BioMCP writes the file readable by your user only (`-rw-------`); protect it like any other secret. The state is `stored` for a key in the file, `environment` for a key in its environment variable, and `none` otherwise. `biomcp key remove SOURCE` deletes a stored key. Setting a key that is already stored needs `--replace`.
 
 `biomcp help key SOURCE` names the configuration field and the environment variable:
 
 <Example id="help-key" />
 
-| Source | Key name | Environment variable | Needed? |
-| --- | --- | --- | --- |
-| OncoKB | `oncokb` | `ONCOKB_TOKEN` | Required for OncoKB sections |
-| NCI Clinical Trials Search | `nci` | `NCI_API_KEY` | Required for `--source nci` |
-| NCBI (PubMed, PMC) | `ncbi` | `NCBI_API_KEY` | Optional; raises the rate limit |
-| Semantic Scholar | `semantic-scholar` | `S2_API_KEY` | Optional; raises the rate limit |
-| ORCID | `orcid` | `ORCID_ACCESS_TOKEN` | Optional |
-| openFDA | `openfda` | `OPENFDA_API_KEY` | Optional; raises the rate limit |
+Every key, its environment variable and the sources that take it:
 
-Get each key from its publisher under the publisher's terms. A source that needs your key sends no request without it and reports `skipped` with reason `no_key`.
+<KeyTable />
+
+A source marked Required sends no request without its key and reports `skipped` with reason `no_key`. No command in this release sends a request to AlphaGenome, so its key changes no output. Get each key from its publisher under the publisher's terms.
 
 ## Settings in config.json
 

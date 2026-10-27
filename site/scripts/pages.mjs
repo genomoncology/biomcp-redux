@@ -2,11 +2,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
-import { exampleMarkdown } from '../src/lib/examples.mjs';
+import { exampleMarkdown, fileMarkdown } from '../src/lib/examples.mjs';
+import productComponents from '../src/lib/markdown-components.mjs';
 import { fact } from '../src/lib/facts.mjs';
-import { envelopeMarkdown } from '../src/lib/envelope.mjs';
-import { sourceTableMarkdown } from '../src/lib/sources.mjs';
-import { commandTableMarkdown } from '../src/lib/commands.mjs';
 
 export const DOCS = path.resolve('src/content/docs');
 
@@ -33,17 +31,57 @@ function page(file) {
   return { file, slug, route: slug ? `/${slug}/` : '/', twin: slug ? `/${slug}.md` : '/index.md', data, body, frontmatter: m ? m[1] : '' };
 }
 
-// The page body as plain Markdown: components become their text.
+// The page body as plain Markdown: each component becomes its text. Code blocks and inline code
+// pass through unchanged. A component with no handler fails, so the Markdown twins and
+// llms-full.txt never carry a raw tag; give a new component a handler in
+// src/lib/markdown-components.mjs (product components) or here (shared components).
+const wrapper = (title) => (a) => (a[title] ? `**${a[title]}**\n\n` : '');
+const SHARED = {
+  Example: (a) => exampleMarkdown(a.id, a.lines ? Number(a.lines) : undefined),
+  ExampleFile: (a) => fileMarkdown(a.id, a.file, a.lang),
+  Fact: (a) => fact(a.k),
+  // Starlight's layout components keep their titles and drop their frames.
+  Aside: wrapper('title'), Tabs: wrapper(), TabItem: wrapper('label'), Steps: wrapper(), CardGrid: wrapper(), Card: wrapper('title'), Hero: wrapper('title'),
+  LinkCard: (a) => `[${a.title}](${a.href})${a.description ? `: ${a.description}` : ''}\n\n`,
+  Badge: (a) => a.text ?? '',
+};
+const HANDLERS = { ...SHARED, ...productComponents };
+
+// The attributes of one tag: name="text", name='text', name={expression} or a bare name.
+function attributes(text) {
+  const out = {};
+  for (const m of text.matchAll(/([A-Za-z_][\w-]*)(?:=(?:"([^"]*)"|'([^']*)'|\{([^}]*)\}))?/g)) {
+    let v = m[2] ?? m[3] ?? m[4] ?? true;
+    if (m[4] !== undefined) v = v.trim().replace(/^(['"`])([\s\S]*)\1$/, '$2');
+    out[m[1]] = v;
+  }
+  return out;
+}
+
+const TAG = /<(\/?)([A-Z][A-Za-z0-9]*)((?:\s+[A-Za-z_][\w-]*(?:=(?:"[^"]*"|'[^']*'|\{[^}]*\}))?)*)\s*(\/?)>/g;
+
+function renderComponents(text) {
+  return text.replace(TAG, (tag, close, name, attrs, _selfClose, offset) => {
+    const h = HANDLERS[name];
+    if (!h) throw new Error(`no Markdown form for <${name}>: add a handler in src/lib/markdown-components.mjs`);
+    if (close) return '';
+    // A tag indented inside a list item keeps its rendered lines inside that item.
+    const indent = text.slice(text.lastIndexOf('\n', offset - 1) + 1, offset);
+    const out = h(attributes(attrs));
+    return /^[ \t]+$/.test(indent) ? out.replace(/\n(?=.)/g, `\n${indent}`) : out;
+  });
+}
+
+// Splits Markdown into code (fenced blocks and inline code) and the rest.
+export function splitCode(text) {
+  return text.split(/(^[ \t]*(?:```|~~~)[^\n]*\n[\s\S]*?^[ \t]*(?:```|~~~)[ \t]*$|`[^`\n]+`)/m);
+}
+
 export function bodyMarkdown(body) {
-  return body
-    .replace(/^import .*$\n?/gm, '')
-    .replace(/<(?:Example|TerminalHero)\s+id="([^"]+)"(?:\s+title="[^"]*")?(?:\s+lines=\{(\d+)\})?(?:\s+caption="[^"]*")?\s*\/>/g, (_, id, lines) => exampleMarkdown(id, lines ? Number(lines) : undefined))
-    .replace(/<InstallLine(?:\s+k="([^"]+)")?\s*\/>/g, (_, k) => '```sh\n' + fact(k ?? 'install.script') + '\n```')
-    .replace(/<Fact\s+k="([^"]+)"\s*\/>/g, (_, k) => fact(k))
-    .replace(/<EnvelopeTable\s+field="([^"]+)"\s*\/>/g, (_, f) => envelopeMarkdown(f))
-    .replace(/<SourceTable(?:\s+field="([^"]+)")?(?:\s+group="([^"]+)")?\s*\/>/g, (_, f, g) => sourceTableMarkdown(f, g))
-    .replace(/<CommandTable\s+entity="([^"]+)"\s*\/>/g, (_, e) => commandTableMarkdown(e))
-    .replace(/<\/?(Hero|CardGrid|Card|LinkCard|Tabs|TabItem|Aside|Steps|FunctionTable|Badge)[^>]*>/g, '')
+  const parts = splitCode(body.replace(/^import .*$\n?/gm, ''));
+  return parts
+    .map((part, i) => (i % 2 ? part : renderComponents(part)))
+    .join('')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }

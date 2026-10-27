@@ -7,6 +7,7 @@ kind: explanation
 verified: 2026-10-27
 ---
 import Example from '../../../components/Example.astro';
+import EnvelopeTable from '../../../components/EnvelopeTable.astro';
 import Fact from '../../../components/Fact.astro';
 
 How do you ask BioMCP <Fact k="version" /> for something new without reading every reference page? You use one grammar. Every data command has the same shape, every reply says what to run next, and every source is chosen by you, never by a fallback.
@@ -45,7 +46,9 @@ Other relation commands include `article citations`, `pathway genes`, `variant p
 
 ## Next commands
 
-Every reply ends with `next`: commands you can run as they are. Each has a `kind` that says why it is there. `page` fetches the next page. `section` fetches sections. `disambiguate` picks one record when a name matched several. `sync` downloads a missing local bundle. `key` explains a missing key.
+Every reply ends with `next`: commands you can run as they are. Each has a `kind` that says why it is there:
+
+<EnvelopeTable field="kind" />
 
 A variant search returns the exact command that reads its one match:
 
@@ -83,7 +86,7 @@ Question: which recruiting trials mention BRAF V600E in melanoma, and what does 
 2. `biomcp get trial NCT06887088` reads one record.
 3. `biomcp get trial NCT06887088 eligibility` adds its eligibility text.
 
-[Clinical trials](/how-to/find-trials/) runs these commands with their output.
+[Find clinical trials by condition, gene or variant](/how-to/find-trials/) runs these commands with their output.
 
 ## Read next
 

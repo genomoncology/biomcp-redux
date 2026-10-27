@@ -1,7 +1,7 @@
 # Meanings of the reply values that the guide pages explain in prose.
 # gen-reference.mjs reads the value lists from the reply schemas and fails when a value
 # here is missing from the schema or a schema value has no meaning here.
-# Pages render these tables with <EnvelopeTable field="status" /> and <EnvelopeTable field="state" />.
+# Pages render these tables with <EnvelopeTable field="status" />, field="state" and field="kind" (next[].kind).
 status:
   complete: Every source the command needed answered.
   partial: Some sources answered and others failed, or a value a source sent failed its check (`problems`). Read `sources`.
@@ -13,3 +13,14 @@ state:
   syncing: The source reads a local bundle that is not ready. The reply's `next` list names the `sync` command.
   failed: BioMCP asked the source and it did not answer. The `reason` says why.
   skipped: BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why.
+kind:
+  restart: Runs the query again to make a new pool or snapshot, for example after one expired.
+  section: Fetches sections this card left out.
+  sort: Reads the same search in another order the source supports.
+  page: Reads another page.
+  fresh: Runs the command again without the cached reply.
+  disambiguate: Picks one record when a name matched several.
+  pivot: Follows an exact linked record in another entity.
+  sync: Downloads a missing or stale local bundle.
+  key: Explains how to set a source key.
+  configure: Explains a network setting that needs attention, such as the proxy.

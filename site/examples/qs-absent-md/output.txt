@@ -1,0 +1,23 @@
+## Query
+
+### Input
+
+- NOTAREALGENEXYZ
+
+## Result
+
+### Items
+
+| Resolution | Input | Status |
+| --- | --- | --- |
+| not\_found | NOTAREALGENEXYZ | absent |
+
+## Sources
+
+| Source | State | Terms | Terms url | Use |
+| --- | --- | --- | --- | --- |
+| hgnc | ok | CC0 1.0 | https://www.genenames.org/about/license/ | open |
+
+**status:** absent
+
+exit code 1

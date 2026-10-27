@@ -1,0 +1,1 @@
+cBioPortal can refuse automated downloads. When it does, the sync reports source state failed with reason rejected, and the search keeps failing with state syncing. Run it from a network that cBioPortal accepts.

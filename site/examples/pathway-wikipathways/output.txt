@@ -1,0 +1,4 @@
+{"status":"complete","sources":[{"source":"wikipathways","state":"ok"}]}
+WP382	MAPK signaling
+WP3849	MAPK and NFkB signaling inhibited by Yersinia YopJ
+WP400	p38 MAPK signaling

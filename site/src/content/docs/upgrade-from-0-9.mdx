@@ -22,7 +22,7 @@ This page moves a BioMCP 0.9 setup to BioMCP <Fact k="version" />. The package n
 | Area | 0.9 | 1.0 |
 | --- | --- | --- |
 | Default output | Markdown | JSON. Add `--format md` or set `"format": "md"` in `config.json`. |
-| MCP tools | Several typed tools | One `biomcp` tool that takes the command's words, plus `search` and `fetch`. |
+| MCP tools | Several typed tools | <Fact k="counts.mcp_tools" /> tools: <Fact k="mcp_tools" />. |
 | Grammar | Helper commands such as `variant articles` and `disease drugs` | `search ENTITY`, `get ENTITY ID [section...]`, `ENTITY RELATION ID`. Helpers became search filters. |
 | Sources | Fallbacks between sources | `--source` is explicit and never falls back. |
 | Bundles | `X sync`, such as `ema sync` | `sync X`, such as `biomcp sync ema`. |
@@ -85,4 +85,4 @@ See [troubleshooting](/troubleshooting/#usageschema-expected-schema-known-artifa
 
 ## Next
 
-Look up the details of any command in the [reference](/reference/).
+Look up the details of any command in the [reference](/reference/). To keep using 0.9 for now, read the [BioMCP 0.9 documentation](/archive-0-9/).

@@ -4,7 +4,9 @@
 //   --check                     the build check, which never writes a tracked file:
 //                               exact mode compares output and exit byte for byte;
 //                               live mode writes fresh output to .example-runs/<id>/ and
-//                               compares its exit and shape with the saved run
+//                               compares its exit and shape with the saved run, and compares
+//                               output and exit byte for byte for an example with an `exact`
+//                               file (one whose output reads no live source)
 //
 // Each example runs as `bash -o pipefail run.sh` with stdout and stderr merged, so a failed
 // command anywhere in a pipe fails it. An example also fails when its output holds `jq: error`
@@ -124,6 +126,8 @@ function outputProblems(id, r) {
   for (const dir of [bin, sandbox, path.resolve('..')]) if (r.out.includes(dir)) p.push(`output holds the machine path ${dir}; replace it with an example path`);
   if (product.exampleFailedStatus) {
     const statuses = jsonValues(r.out).filter((v) => v && typeof v === 'object' && !Array.isArray(v) && typeof v.status === 'string').map((v) => v.status);
+    // A Markdown reply ends with its status line.
+    for (const m of r.out.matchAll(/^\*\*status:\*\* (\w+)$/gm)) statuses.push(m[1]);
     const expected = list(file(id, 'expect-status'));
     if (statuses.includes('failed') && !expected.includes('failed')) p.push('a reply has status "failed"; fix the example, or add an expect-status file that names failed when the page shows a failure');
     for (const s of expected) if (!statuses.includes(s)) p.push(`expect-status names "${s}", but no reply has that status`);
@@ -148,8 +152,9 @@ function judge(id, r) {
   const problems = outputProblems(id, r);
   if (!check) return problems;
   const want = Number((file(id, 'exit') ?? '0').trim());
-  if (product.exampleMode === 'exact') {
-    if (file(id, 'output.txt') !== r.out || want !== r.exit) problems.push(`output or exit differs from the saved run; run npm run examples -- ${id} and review the diff`);
+  // An example marked exact reads no live source, so any change in its output is a change in the program.
+  if (product.exampleMode === 'exact' || file(id, 'exact') !== null) {
+    if (file(id, 'output.txt') !== r.out || want !== r.exit) problems.push(`output or exit differs from the saved run; run npm run examples -- ${id}, review the diff against the page's prose, and commit both`);
     return problems;
   }
   if (r.exit !== want) problems.push(`exit ${r.exit}, saved ${want}`);
@@ -199,7 +204,8 @@ async function one(id) {
   for (let attempt = 0; ; attempt++) {
     r = await run(id);
     problems = judge(id, r);
-    if (!problems.length || attempt >= (product.exampleRetries ?? 0)) break;
+    // An exact example reads no live source, so a rerun cannot change its output.
+    if (!problems.length || attempt >= (product.exampleRetries ?? 0) || file(id, 'exact') !== null) break;
     console.log(`retry ${id}: ${problems[0]}`);
     await new Promise((ok) => setTimeout(ok, product.exampleRetryDelayMs ?? 15000));
   }

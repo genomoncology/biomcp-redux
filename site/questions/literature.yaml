@@ -41,8 +41,6 @@
     `get article` resolves the identifier through PubMed and returns one card per input, in input order. The abstract stays in its source parts, so a structured abstract keeps its labels.
   limits: |
     The abstract is the publisher's text with its rights. Some PubMed records have no abstract. For the article body, request the `fulltext` section, which needs a PMC copy.
-  page_title: Search and read biomedical literature
-  reference_title: get article
 - id: pmid-to-pmcid-doi
   question: How do I convert a PMID to a PMCID or DOI?
   source: product
@@ -58,8 +56,6 @@
     BioMCP resolves each input through PubMed and Europe PMC and returns `pmid`, `pmcid` and `doi` on the card when the sources record them. Each input keeps its own entry, in order.
   limits: |
     `pmcid` is null when the article has no PMC copy. A DOI that PubMed does not index can return `absent` for that input.
-  page_title: Search and read biomedical literature
-  reference_title: get article
 - id: article-keywords
   question: How do I get the keywords and MeSH terms of an article?
   source: product
@@ -75,8 +71,6 @@
     The indexing section reads the PubMed citation record. Keywords come from the authors, and MeSH headings come from NLM indexers, so each list is reported separately.
   limits: |
     New articles often have no MeSH headings yet, and some have no author keywords. An empty list is what PubMed holds today. BioMCP adds no terms of its own.
-  page_title: Search and read biomedical literature
-  reference_title: get article
 - id: recent-articles
   question: How do I find the newest articles on a topic since a given year?
   source: product
@@ -92,8 +86,6 @@
     `--since` and `--until` set inclusive publication-date bounds; PubMed matches either the electronic or the print date. `--sort date` uses PubMed's date-added order, and Europe PMC's newest-first order.
   limits: |
     Other sources refuse `--sort date`. Date order is not relevance: add `--type review` or other filters to narrow it. Results change daily, so record the date you searched.
-  page_title: Search and read biomedical literature
-  reference_title: search article
 - id: semantic-scholar-no-key
   question: Does Semantic Scholar work in BioMCP without an API key?
   source: public

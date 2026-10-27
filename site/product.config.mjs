@@ -61,7 +61,7 @@ export default {
     { label: 'Start', items: ['getting-started/installation', 'getting-started/first-query', 'getting-started/mcp-clients'] },
     { label: 'Understand', items: ['concepts/progressive-disclosure', 'results'] },
     { label: 'Capabilities', items: ['how-to/find-articles', 'how-to/find-trials', 'how-to/annotate-variants', 'genes-and-proteins', 'drugs-and-safety', 'diseases-and-phenotypes', 'studies-and-cell-lines'] },
-    { label: 'Set up and run', items: ['sources', 'getting-started/api-keys', 'local-data', 'getting-started/remote-http', 'troubleshooting', 'upgrade-from-0-9', 'changes'] },
+    { label: 'Set up and run', items: ['sources', 'getting-started/api-keys', 'local-data', 'getting-started/remote-http', 'troubleshooting', 'upgrade-from-0-9', 'changes', 'archive-0-9'] },
     { label: 'Entities', collapsed: true, items: [{ autogenerate: { directory: 'user-guide' } }] },
     { label: 'Sources', collapsed: true, items: [{ autogenerate: { directory: 'sources' } }] },
     { label: 'Reference', collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },

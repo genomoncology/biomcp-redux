@@ -27,8 +27,6 @@
     `biomcp search drug NAME --source drugsfda` returns the application number. The `approvals` section lists each submission with its kind, number, status and date as Drugs@FDA records them. `AP` means approved. `--section-limit` sets how many rows one page holds.
   limits: |
     Drugs@FDA covers FDA applications only. A drug with several applications, such as different forms, has a history for each. Dates are Drugs@FDA's submission status dates.
-  page_title: Look up drugs, labels, safety reports and pharmacogenomics
-  reference_title: get drug
 - id: ema-authorisation
   question: Is a drug authorised by the European Medicines Agency?
   source: public
@@ -44,8 +42,6 @@
     EMA publishes its medicines table as a download. `biomcp sync ema` stores it, and reads answer from the stored copy. The `regulatory` section returns EMA's own status and dated events.
   limits: |
     The answer is as fresh as your last sync. Run `biomcp sync ema` again for current data. EMA's status covers the European Union only.
-  page_title: Look up drugs, labels, safety reports and pharmacogenomics
-  reference_title: EMA source
 - id: drug-interactions
   question: How do I list drug-drug interactions for a drug?
   source: public

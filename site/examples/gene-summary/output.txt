@@ -1,0 +1,1 @@
+{"source":"refseq","dated":"2017-08","text":"This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This protein plays a role in regulating the MAP kinase/ERK signalin..."}

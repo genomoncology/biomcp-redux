@@ -43,6 +43,48 @@
         "value": "skipped",
         "meaning": "BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why."
       }
+    ],
+    "kind": [
+      {
+        "value": "restart",
+        "meaning": "Runs the query again to make a new pool or snapshot, for example after one expired."
+      },
+      {
+        "value": "section",
+        "meaning": "Fetches sections this card left out."
+      },
+      {
+        "value": "sort",
+        "meaning": "Reads the same search in another order the source supports."
+      },
+      {
+        "value": "page",
+        "meaning": "Reads another page."
+      },
+      {
+        "value": "fresh",
+        "meaning": "Runs the command again without the cached reply."
+      },
+      {
+        "value": "disambiguate",
+        "meaning": "Picks one record when a name matched several."
+      },
+      {
+        "value": "pivot",
+        "meaning": "Follows an exact linked record in another entity."
+      },
+      {
+        "value": "sync",
+        "meaning": "Downloads a missing or stale local bundle."
+      },
+      {
+        "value": "key",
+        "meaning": "Explains how to set a source key."
+      },
+      {
+        "value": "configure",
+        "meaning": "Explains a network setting that needs attention, such as the proxy."
+      }
     ]
   },
   "commands": 86,

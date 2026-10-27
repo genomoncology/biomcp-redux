@@ -68,7 +68,7 @@ The reply pages 12 hits at a time; its `next` command reads the rest.
 
 <Example id="lit-supplements" />
 
-`biomcp article supplement` reads one file and finds rows in spreadsheets:
+`biomcp article supplement` reads one file. In a spreadsheet, `--variant` returns the rows that name one protein substitution. Here the authors' table lists AXIN2 Pro245Ser once:
 
 <Example id="lit-supplement-find" />
 
@@ -88,6 +88,8 @@ Add `--save PATH` to `article text`, `article supplement` or `article pdf` to wr
 
 <Example id="lit-save-rules" />
 
+The first command writes the whole text, and its reply reports the bytes written. The other two show the refusals.
+
 ## Verify
 
 You succeeded when the search returns PMIDs, `get article` returns a card with `"status": "complete"`, and the fulltext section reports `source: pmc-oa` with a license.
@@ -104,4 +106,4 @@ A search returns what the source returned for those words. An empty search is no
 
 ## Next
 
-Find trials for the same variant in [clinical trials](/how-to/find-trials/).
+[Find clinical trials by condition, gene or variant](/how-to/find-trials/) searches trials for the same variant.

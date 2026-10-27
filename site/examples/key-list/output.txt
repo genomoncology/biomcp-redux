@@ -10,6 +10,7 @@
 | keys.semantic\_scholar\_api\_key | S2\_API\_KEY | semantic-scholar | none |
 | keys.orcid\_access\_token | ORCID\_ACCESS\_TOKEN | orcid | none |
 | keys.oncokb\_api\_key | ONCOKB\_TOKEN | oncokb | none |
+| keys.alphagenome\_api\_key | ALPHAGENOME\_API\_KEY | alphagenome | none |
 | keys.nci\_api\_key | NCI\_API\_KEY | nci | none |
 | keys.openfda\_api\_key | OPENFDA\_API\_KEY | openfda | none |
 

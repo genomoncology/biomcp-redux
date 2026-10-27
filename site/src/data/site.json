@@ -15,6 +15,7 @@
     "use_cases": 17,
     "keys": 7
   },
+  "mcp_tools": "a `biomcp` tool that takes the same commands as the shell, plus `search` and `fetch`",
   "install": {
     "script": "curl -fsSL https://biomcp.org/install.sh | bash",
     "script_version": "curl -fsSL https://biomcp.org/install.sh | bash -s -- --version 1.0.0",

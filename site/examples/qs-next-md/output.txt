@@ -1,0 +1,13 @@
+## Next
+
+**key:**
+
+```sh
+biomcp help key oncokb
+```
+
+**section:**
+
+```sh
+biomcp get gene HGNC:1097 protein civic clingen constraint expression pathways
+```

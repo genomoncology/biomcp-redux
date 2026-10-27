@@ -1,4 +1,4 @@
-pairs: 27
+pairs: 27, more pages: false
 amitriptyline	A	1A
 citalopram	A	1A
 clopidogrel	A	1A

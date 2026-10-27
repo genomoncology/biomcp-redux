@@ -40,7 +40,7 @@ Pick this source with `--source fda-cdx` on these commands:
 
 ## Limits
 
-BioMCP reads a local copy, current as of your last `biomcp sync fda-cdx`. Cells keep the FDA list's own text. The search below returned `partial` with reason `unsupported`, which the reply schema defines as a format the local reader does not support.
+BioMCP reads a local copy, current as of your last `biomcp sync fda-cdx`. Cells keep the FDA list's own text. `--biomarker` matches the whole biomarker cell of the device table, so a cell such as `KRAS and NRAS` does not match `KRAS`. The list's second table, of tests for a group of drugs, has no biomarker cell that `--biomarker` can read. So the search above returns `partial`: the source state is `ok` with reason `unsupported`, and `problems` names `table_1.biomarker`. Every row it returns is complete. [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/#3-count-every-row-that-names-the-biomarker) counts every row that names a biomarker.
 
 ## Turn it off
 
@@ -48,6 +48,6 @@ Leave this source out of one command with `--disable-sources fda-cdx`, or add `"
 
 ## Next
 
-[Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/) shows FDA companion diagnostics list in a worked task. [Data sources](/sources/) lists every source.
+The task guide for FDA companion diagnostics list is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

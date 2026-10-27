@@ -26,10 +26,12 @@ BioMCP <Fact k="version" /> entity `drug`. A drug as one source records it. Each
 
 [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [who-pq](/sources/who-prequalification/), [ddinter](/sources/ddinter/).
 
+`ema`, `who-pq` and `ddinter` read local bundles. Run `biomcp sync ema`, `biomcp sync who-pq` or `biomcp sync ddinter` once before the first read; before the sync the source's state is `syncing` and the exit code is 4. [Local data](/local-data/) lists the bundle sizes.
+
 ## Example
 
 <Example id="drug-targets" />
 
 ## Next
 
-[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

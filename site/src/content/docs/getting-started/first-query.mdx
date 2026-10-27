@@ -14,7 +14,9 @@ By the end of this page you will have searched for the BRAF gene with BioMCP <Fa
 
 ## Before you start
 
-You need a shell and a network connection. The examples filter JSON with `jq`; install it from your package manager, or use the `--format md` command shown under each `jq` step.
+You need a shell and a network connection. The examples filter JSON with `jq`; install it from your package manager, or use the `--format md` command shown under each `jq` step. On Windows, run the commands in an MSYS, MINGW or Cygwin shell, as [install](/getting-started/installation/#install-with-the-script) explains, or install from PyPI.
+
+The output on this page comes from live public sources, so your rows, counts and dates can differ as the sources update.
 
 Each command sends its words and identifiers over the network to the public sources it names, such as HGNC, MyGene.info and gnomAD. Do not put names, record numbers or other identifying patient data in a query.
 
@@ -62,7 +64,9 @@ The [get gene reference](/reference/commands/get-gene/) lists every section word
 
 <Example id="qs-next" />
 
-In Markdown, the same commands sit under **Next** at the top of the reply, as in step 2.
+Without `jq`, the same commands sit under **Next** at the top of the Markdown reply:
+
+<Example id="qs-next-md" />
 
 An agent can run those `args` as they are. That is how BioMCP keeps replies short and lets the caller ask for more.
 
@@ -85,6 +89,10 @@ Check the command's arguments with `biomcp help get gene` or on its [reference p
 An identifier no source knows returns status `absent` and exit code 1:
 
 <Example id="qs-absent" />
+
+Without `jq`, the Markdown reply shows the same status:
+
+<Example id="qs-absent-md" />
 
 Absent means the sources returned no matching record for that input. It does not prove the thing does not exist. [Results](/results/) explains each status.
 

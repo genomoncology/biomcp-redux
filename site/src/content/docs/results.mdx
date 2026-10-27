@@ -29,7 +29,7 @@ A trial search with its rows removed shows the envelope:
 | `query` | Your request as BioMCP understood it, with defaults filled in. |
 | `result` | The rows or the record. Its shape depends on the schema. |
 | `sources` | One entry per source the command asked: its use group, terms, terms page, state, and a reason when it did not answer. Search sources add `count`, the source's own total, and `fetched`. |
-| `problems` | Present when a source sent a value BioMCP could not check, such as an unknown field value. Each names the source, record, field and a code. The [variants guide](/how-to/annotate-variants/#3-read-population-counts) shows a `partial` reply with problems. |
+| `problems` | Present when a source sent a value BioMCP could not check, such as an unknown field value. Each names the source, record, field and a code. [Look up a variant](/how-to/annotate-variants/#3-read-population-counts) shows a `partial` reply with problems. |
 | `next` | Commands to run next, each with a `kind` and complete `args`. |
 
 The [reply envelope reference](/reference/envelope/) lists every value of every field.
@@ -76,4 +76,4 @@ JSON is the default. `--format md` renders the same reply as Markdown with table
 
 ## Read next
 
-The capability guides apply this to real questions. Start with [literature](/how-to/find-articles/).
+The capability guides apply this to real questions. Start with [Search and read biomedical literature](/how-to/find-articles/).

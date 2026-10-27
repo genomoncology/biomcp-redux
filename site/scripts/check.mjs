@@ -1,7 +1,8 @@
 // The site checks that run on the built site:
 //   front matter is complete, no two files make one page, the word list holds, prose never
 //   types the version, the README's install lines match, no broken internal link or anchor,
-//   every page has an incoming link, the agent and host files exist, every old address
+//   every page has an incoming link, the agent and host files exist (with no raw component
+//   tag in a Markdown twin or llms-full.txt), every old address
 //   (and its Markdown twin) still resolves, and each redirect lands on a built page.
 // The other checks run earlier in npm run build: examples, generated reference, astro warnings.
 //   node scripts/check.mjs             the build check
@@ -14,7 +15,8 @@ import product from '../product.config.mjs';
 import site from '../src/data/site.json' with { type: 'json' };
 import words from '../src/data/words.json' with { type: 'json' };
 import redirects from '../src/data/redirects.json' with { type: 'json' };
-import { pages } from './pages.mjs';
+import { pages, splitCode } from './pages.mjs';
+import { EXAMPLES, inputFiles, readExample } from '../src/lib/examples.mjs';
 
 const publish = process.argv.includes('--publish');
 const dist = path.resolve('dist');
@@ -81,6 +83,34 @@ if (product.readmeInstallLines && fs.existsSync(readme)) {
   for (const [k, line] of Object.entries(site.install ?? {})) if (typeof line === 'string' && !text.includes(line)) errors.push(`README.md: install line install.${k} differs from src/data/site.json`);
 }
 
+// Example inputs: every file an example reads from its own folder shows on each page that runs
+// the example, through <ExampleFile>, a shown script or output that holds it, or a link to a
+// page that shows it. A reader who lands on one page can then rerun what the page shows.
+const content = (id, f) => {
+  const b = fs.readFileSync(path.join(EXAMPLES, id, f));
+  return /\.xlsx$/i.test(f) ? `xlsx:${b.toString('base64')}` : b.toString('utf8').trimEnd();
+};
+const attr = (tag, name) => tag.match(new RegExp(`\\b${name}="([^"]+)"`))?.[1];
+const shows = new Map();
+const runsOn = new Map();
+for (const p of all) {
+  const files = new Set([...p.body.matchAll(/<ExampleFile\b[^>]*>/g)].map((m) => content(attr(m[0], 'id'), attr(m[0], 'file'))));
+  const ids = [...new Set([...p.body.matchAll(/<Example\b[^>]*>/g)].map((m) => attr(m[0], 'id')))];
+  const texts = ids.map((id) => { const ex = readExample(id); return `${ex.show}\n${ex.output ?? ''}`; });
+  shows.set(p.route, (c) => files.has(c) || (!c.startsWith('xlsx:') && texts.some((t) => t.includes(c))));
+  runsOn.set(p, ids);
+}
+for (const [p, ids] of runsOn) {
+  const links = new Set([...p.body.matchAll(/\]\((\/[^)#\s]*)/g)].map((m) => (m[1].endsWith('/') ? m[1] : `${m[1]}/`)));
+  for (const id of ids) {
+    for (const f of inputFiles(id)) {
+      const c = content(id, f);
+      if (shows.get(p.route)(c) || [...links].some((r) => shows.get(r)?.(c))) continue;
+      errors.push(`${path.relative('.', p.file)}: example ${id} reads ${f}, which the page neither shows nor links to a page that shows; add <ExampleFile id="${id}" file="${f}" />`);
+    }
+  }
+}
+
 // Links and anchors, read from each page's main content in the built site.
 const fileFor = (target) => {
   const clean = decodeURIComponent(target.split('#')[0].split('?')[0]) || '/';
@@ -130,6 +160,15 @@ else {
   for (const p of all) {
     if (!fs.existsSync(path.join(dist, p.twin))) errors.push(`${p.twin}: Markdown twin missing`);
     if (!text.includes(p.twin)) errors.push(`llms.txt: does not list ${p.twin}`);
+  }
+  // A raw component tag outside code means an agent reads a tag where the HTML page shows content.
+  const mdFiles = [];
+  const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, f.name); if (f.isDirectory()) walk(p); else if (f.name.endsWith('.md')) mdFiles.push(p); } };
+  walk(dist);
+  for (const f of [...mdFiles, path.join(dist, 'llms-full.txt')]) {
+    const prose = splitCode(fs.readFileSync(f, 'utf8')).filter((_, i) => i % 2 === 0).join('');
+    const tag = prose.match(/<[A-Z][A-Za-z]+[ />]/);
+    if (tag) errors.push(`${path.relative(dist, f)}: holds the raw component tag ${tag[0].trim()}; give it a Markdown form in scripts/pages.mjs`);
   }
 }
 

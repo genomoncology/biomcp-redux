@@ -155,26 +155,59 @@ const target = (p, defs) => {
   const ref = p?.$ref ?? (p?.anyOf ?? p?.oneOf ?? []).find((x) => x.$ref)?.$ref;
   return ref ? { name: refName(ref), def: defs[refName(ref)] } : null;
 };
+// Type names that have a section on the page become links to it (the heading's anchor).
+let linkTypes = new Map();
+const linked = (text) => text.replace(/\b[A-Z][A-Za-z0-9]*\b/g, (n) => (linkTypes.has(n) ? `[${n}](#${linkTypes.get(n)})` : n));
 const fieldTable = (def) => {
   const props = Object.entries(def?.properties ?? {});
   if (!props.length) return null;
   const req = def.required ?? [];
-  return ['| Field | Type | Required | Description |', '| --- | --- | --- | --- |', ...props.map(([k, v]) => `| ${code(k)} | ${cell(typeOf(v))} | ${req.includes(k) ? 'yes' : 'no'} | ${cell(v.description ?? '')} |`)].join('\n');
+  return ['| Field | Type | Required | Description |', '| --- | --- | --- | --- |', ...props.map(([k, v]) => `| ${code(k)} | ${linked(cell(typeOf(v)))} | ${req.includes(k) ? 'yes' : 'no'} | ${cell(v.description ?? '')} |`)].join('\n');
+};
+// Every definition a schema node refers to, directly or through other definitions.
+const refsIn = (node, defs, seen = new Set()) => {
+  const walk = (n) => {
+    if (!n || typeof n !== 'object') return;
+    if (Array.isArray(n)) { n.forEach(walk); return; }
+    if (typeof n.$ref === 'string') {
+      const r = refName(n.$ref);
+      if (!seen.has(r) && defs[r]) { seen.add(r); walk(defs[r]); }
+    }
+    for (const [k, v] of Object.entries(n)) if (k !== '$ref') walk(v);
+  };
+  walk(node);
+  return seen;
 };
 const variantsList = (def) => {
   const vs = def?.oneOf ?? def?.anyOf;
   if (!vs) return null;
   return vs.map((v) => `- ${cell(typeOf(v.$ref ? v : (v.properties ? { type: 'object' } : v)))}${v.description ? `: ${cell(v.description)}` : ''}`).join('\n');
 };
+// A schema description as prose: Rust doc tests in a description are not for readers.
+const descText = (d) => esc(String(d ?? '').replace(/```[\s\S]*?```/g, '').trim());
 const describeDef = (label, t) => {
   if (!t?.def) return [];
-  const out = [`## ${label}: ${t.name}`, '', esc(t.def.description ?? ''), ''];
+  const out = [`## ${label}: ${t.name}`, '', descText(t.def.description), ''];
   const ft = fieldTable(t.def);
   if (ft) out.push(ft, '');
-  else if (variantsList(t.def)) out.push('One of:', '', variantsList(t.def), '');
-  else out.push(`Type: ${cell(typeOf(t.def))}.`, '');
+  else if (variantsList(t.def)) out.push('One of:', '', linked(variantsList(t.def)), '');
+  else out.push(`Type: ${linked(cell(typeOf(t.def)))}.`, '');
   return out;
 };
+// One section per named type, so every type a table names is defined on the page.
+const describeType = (name, def) => {
+  const out = [`### ${name}`, '', descText(def.description), ''];
+  const ft = fieldTable(def);
+  if (ft) out.push(ft, '');
+  else if (def.enum) out.push(`Values: ${def.enum.map((v) => code(v)).join(', ')}.`, '');
+  else if (variantsList(def)) out.push('One of:', '', linked(variantsList(def)), '');
+  else out.push(`Type: ${linked(cell(typeOf(def)))}.`, '');
+  return out;
+};
+// The commands that return each reply schema, found by scripts/map-schemas.mjs against the live sources.
+const SCHEMA_CALLS = path.resolve('src/data/schema-calls.json');
+const schemaCalls = fs.existsSync(SCHEMA_CALLS) ? JSON.parse(fs.readFileSync(SCHEMA_CALLS, 'utf8')) : {};
+const schemaNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/schema-notes.yaml'), 'utf8')) ?? {};
 
 // ---------- one page per command ----------
 const usage = (c) => {
@@ -264,12 +297,22 @@ for (const c of [...help, ...topics]) {
     const result = target(schema.properties.result, defs);
     const query = target(schema.properties.query, defs);
     const by = returnedBy(id);
+    const calls = schemaCalls[id] ?? [];
+    const note = schemaNotes[id];
+    if (!by.length && !calls.length && !note) { console.error(`reference: no command returns ${id}; run npm run schema-calls, or explain why in src/data/schema-notes.yaml`); process.exit(1); }
+    if (note && (by.length || calls.length)) { console.error(`reference: ${id} has a command now; remove it from src/data/schema-notes.yaml`); process.exit(1); }
+    const commandOf = (args) => [...help, ...topics].filter((c) => c.command.every((w, i) => args[i] === w)).sort((a, b) => b.command.length - a.command.length)[0];
+    const callLines = calls.map((a) => { const c = commandOf(a); return `- ${code(['biomcp', ...a.map(quote)].join(' '))}${c ? ` ([${code('biomcp ' + name(c))}](${route(c)}))` : ''}`; });
+    const shown = new Set([result?.name, query?.name].filter(Boolean));
+    const types = [...refsIn(schema.properties, defs)].filter((n) => !shown.has(n)).sort();
+    linkTypes = new Map([...types.map((n) => [n, n.toLowerCase()]), ...(result ? [[result.name, `result-${result.name.toLowerCase()}`]] : []), ...(query ? [[query.name, `query-${query.name.toLowerCase()}`]] : [])]);
     const lines = [
       fm({ title: id, description: `The ${site.product} ${site.version} reply schema ${id}: its envelope fields, its result type${result ? ` ${result.name}` : ''} and the commands that return it.`, goal: `Look up the fields of a ${id} reply.`, reader: 'A developer or agent parsing BioMCP JSON', sidebar: { label: id } }),
       `${site.product} ${site.version} reply schema ${code(id)}. Every reply names its schema in ${code('schema')}. Print this one as JSON Schema with ${code('biomcp schema ' + id)}.`,
       '',
-      by.length ? `These commands return it: ${by.map((c) => `[${code('biomcp ' + name(c))}](${route(c)})`).join(', ')}.` : 'No help example returns this schema; the reply carries it in its `schema` field.',
+      by.length ? `These commands return it: ${by.map((c) => `[${code('biomcp ' + name(c))}](${route(c)})`).join(', ')}.` : calls.length ? `${calls.length > 1 ? 'These calls return' : 'This call returns'} it.` : note,
       '',
+      ...(calls.length ? [by.length ? 'Calls that returned it:' : '', '', ...callLines, ''].filter((l, i) => i || l) : []),
       '## Envelope',
       '',
       esc(schema.description ?? ''),
@@ -278,21 +321,26 @@ for (const c of [...help, ...topics]) {
       '',
       ...describeDef('Result', result),
       ...describeDef('Query', query),
+      ...(types.length ? ['## Types', '', 'Every other type this schema uses.', '', ...types.flatMap((n) => describeType(n, defs[n]))] : []),
       `[Reply envelope](/reference/envelope/) gives the values of ${code('status')}, ${code('sources[].state')} and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.`,
       '',
       `This page is generated from ${code('biomcp schema ' + id)} in ${site.product} ${site.version}. Fix a wrong description in the schema, then regenerate.`,
     ];
     write(`schemas/${schemaSlug(id)}.md`, lines.join('\n'));
   }
+  linkTypes = new Map();
   const lines = [
     fm({ title: 'Reply schemas', description: `Every reply schema in ${site.product} ${site.version}, with its result type and the commands that return it.`, goal: 'Find the JSON schema of a BioMCP reply and the commands that return it.', reader: 'A developer or agent parsing BioMCP JSON' }),
     `${site.product} ${site.version} has ${replySchemas.length} reply schemas. Every reply names one in its ${code('schema')} field, such as ${code('biomcp.gene_cards/4')}. ${code('biomcp schema ID')} prints one as JSON Schema, and ${code('biomcp version --verbose')} lists every schema ID, including the types the replies share.`,
     '',
     '| Schema | Result type | Returned by |',
     '| --- | --- | --- |',
-    ...replySchemas.map(({ id, schema }) => `| [${code(id)}](${schemaRoute(id)}) | ${target(schema.properties.result, schema.$defs ?? {})?.name ?? ''} | ${returnedBy(id).map((c) => `[${code(name(c))}](${route(c)})`).join(', ')} |`),
+    ...replySchemas.map(({ id, schema }) => {
+      const cmds = [...new Set([...returnedBy(id).map(name), ...(schemaCalls[id] ?? []).map((a) => { const c = [...help, ...topics].filter((h) => h.command.every((w, i) => a[i] === w)).sort((x, y) => y.command.length - x.command.length)[0]; return c ? name(c) : null; }).filter(Boolean)])];
+      return `| [${code(id)}](${schemaRoute(id)}) | ${target(schema.properties.result, schema.$defs ?? {})?.name ?? ''} | ${cmds.map((n) => { const c = [...help, ...topics].find((h) => name(h) === n); return `[${code(n)}](${route(c)})`; }).join(', ')} |`;
+    }),
     '',
-    `The commands come from running each command's help examples, or one plain call when it has none, with ${code('--offline')}. A command whose sections change the reply can return a schema its examples do not show.`,
+    `The commands come from running each command's help examples with ${code('--offline')}, and from live calls of every command the site's examples run, with each section of each ${code('get')} (${code('npm run schema-calls')}). Each schema page lists the calls that returned it.`,
     '',
     genFooter,
   ];
@@ -382,7 +430,7 @@ for (const r of registry) {
   if (!selectable.length && !reading.length) lines.push(`No command takes ${code('--source ' + r.source)}. The example above shows the command that reads it.`, '');
   lines.push('## Limits', '', mdx(n.limits), '',
     '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. The group ${code(r.usage)} switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).`, '',
-    '## Next', '', `[${mdx(pageTitle(n.guide))}](${n.guide}) shows ${mdx(label)} in a worked task. [Data sources](/sources/) lists every source.`, '',
+    '## Next', '', `The task guide for ${mdx(label)} is [${mdx(pageTitle(n.guide))}](${n.guide}). [Data sources](/sources/) lists every source.`, '',
     genFooter);
   files.set(path.join(SOURCES_OUT, `${srcSlug(r.source)}.mdx`), lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
 }
@@ -471,7 +519,7 @@ const envelopeFacts = {};
   };
   const list = (d) => d.enum.filter((v) => !HIDE.includes(v)).map(code).join(', ');
   // status and sources[].state: the schema gives the values, src/data/envelope.yaml their meanings.
-  for (const [field, def] of [['status', defs.Status], ['state', defs.SourceState]]) {
+  for (const [field, def] of [['status', defs.Status], ['state', defs.SourceState], ['kind', defs.StepKind]]) {
     const want = def.enum.filter((v) => !HIDE.includes(v));
     const have = Object.keys(meanings[field] ?? {});
     const missing = want.filter((v) => !have.includes(v));
@@ -481,7 +529,8 @@ const envelopeFacts = {};
   const exitOf = (v) => exitCodes.find((e) => e.status.toLowerCase() === v)?.code ?? 0;
   envelopeFacts.status = defs.Status.enum.map((v) => ({ value: v, meaning: meanings.status[v], exit: exitOf(v) }));
   envelopeFacts.state = defs.SourceState.enum.filter((v) => !HIDE.includes(v)).map((v) => ({ value: v, meaning: meanings.state[v] }));
-  const meaningTable = (field) => [field === 'status' ? '| Status | Meaning | Exit code |' : '| State | Meaning |', field === 'status' ? '| --- | --- | --- |' : '| --- | --- |',
+  envelopeFacts.kind = defs.StepKind.enum.map((v) => ({ value: v, meaning: meanings.kind[v] }));
+  const meaningTable = (field) => [field === 'status' ? '| Status | Meaning | Exit code |' : `| ${field === 'kind' ? 'Kind' : 'State'} | Meaning |`, field === 'status' ? '| --- | --- | --- |' : '| --- | --- |',
     ...envelopeFacts[field].map((r) => `| ${code(r.value)} | ${cell(r.meaning)} |${field === 'status' ? ` ${r.exit} |` : ''}`)].join('\n');
   write('envelope.md', [
     fm({ title: 'Reply envelope', description: `The values a ${site.product} ${site.version} reply uses for status, source state, failure reason, use group, next-command kind and error code.`, goal: 'Look up the exact values of the fields every BioMCP reply carries.', reader: 'A developer or agent parsing BioMCP JSON' }),
@@ -516,6 +565,8 @@ const envelopeFacts = {};
     '## next[].kind',
     '',
     `${esc(defs.StepKind.description)} Values: ${list(defs.StepKind)}. Each entry's ${code('args')} is a complete command without the leading ${code('biomcp')}.`,
+    '',
+    meaningTable('kind'),
     '',
     '## error.code',
     '',
@@ -575,6 +626,9 @@ files.set(path.resolve('src/data/reference.json'), JSON.stringify(facts, null, 2
 for (const [k, v] of Object.entries({ entities: entities.length, sources: registry.length, commands: help.length, mcp_tools: tools.length, keys: keys.length })) {
   if (site.counts?.[k] !== v) { console.error(`reference: site.json counts.${k} is ${site.counts?.[k]}, the build has ${v}`); process.exit(1); }
 }
+
+// The tools sentence in site.json names every tool the server lists.
+for (const t of tools) if (!String(site.mcp_tools ?? '').includes(`\`${t.name}\``)) { console.error(`reference: site.json mcp_tools does not name the tool ${t.name}`); process.exit(1); }
 
 // ---------- write or check ----------
 const existing = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).map((f) => path.join(dir, f)).filter((f) => fs.statSync(f).isFile()) : []);

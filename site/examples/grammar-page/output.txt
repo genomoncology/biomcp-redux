@@ -1,1 +1,1 @@
-{"page":{"returned":5,"total":11},"next":["protein domains P15056 --offset 5 --pool 9a43de0acd9a4305fd2a1e37159537da"]}
+{"page":{"returned":5,"total":11},"next":["protein domains P15056 --offset 5 --pool 1645c8e20a5e1db4a2d2d1cca0b97e3d"]}

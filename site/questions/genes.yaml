@@ -20,8 +20,6 @@
     BioMCP resolves the symbol against HGNC and reads gnomAD's constraint record for the gene. pLI is gnomAD's probability that the gene is intolerant of loss-of-function variants. LOEUF is the upper bound of the observed-to-expected ratio of loss-of-function variants; a lower value means fewer such variants than expected. The section also carries `oe_lof`, `mis_z` and `syn_z`.
   limits: |
     The scores describe variation in the people gnomAD sequenced, for one transcript and one gnomAD version. They are population statistics about the gene, not a classification of any variant.
-  page_title: Run your first query
-  reference_title: get gene
 - id: gene-to-uniprot
   question: How do I find the UniProt accession for a gene?
   source: product
@@ -37,8 +35,6 @@
     BioMCP resolves the symbol against HGNC, then reads UniProt's reviewed human entries for that gene. The accession goes straight to `biomcp get protein P15056` for features, domains and sequence.
   limits: |
     Only reviewed (Swiss-Prot) human entries are returned. A gene with several reviewed products returns each one; BioMCP does not choose.
-  page_title: Look up genes, proteins and pathways
-  reference_title: get gene
 - id: gene-disease-validity
   question: How do I get ClinGen gene-disease validity for a gene?
   source: product

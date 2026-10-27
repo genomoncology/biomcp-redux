@@ -1,6 +1,6 @@
 # BioMCP
 
-BioMCP searches and fetches biomedical records from public sources: genes, variants, clinical trials, articles, drugs, diseases and <!--fact:counts.entities-->16<!--/fact--> entities in all, across <!--fact:counts.sources-->57<!--/fact--> sources. It is one program with two faces. In the shell it is the `biomcp` command. In an AI agent it is an MCP server with one `biomcp` tool that takes the same commands. It is for researchers, curators and developers who want source records with their identifiers and terms, from the shell or through an agent. This README covers BioMCP <!--fact:version-->1.0.0<!--/fact-->.
+BioMCP searches and fetches biomedical records from public sources: genes, variants, clinical trials, articles, drugs, diseases and <!--fact:counts.entities-->16<!--/fact--> entities in all, across <!--fact:counts.sources-->57<!--/fact--> sources. It is one program with two faces. In the shell it is the `biomcp` command. In an AI agent it is an MCP server with <!--fact:counts.mcp_tools-->3<!--/fact--> tools: <!--fact:mcp_tools-->a `biomcp` tool that takes the same commands as the shell, plus `search` and `fetch`<!--/fact-->. It is for researchers, curators and developers who want source records with their identifiers and terms, from the shell or through an agent. This README covers BioMCP <!--fact:version-->1.0.0<!--/fact-->.
 
 Each command sends its words and identifiers over the network to the public sources it names, such as HGNC, PubMed or ClinicalTrials.gov. Do not put names, record numbers or other identifying patient data in a query.
 
@@ -103,7 +103,7 @@ biomcp mcp-config
 
 - Platforms: <!--fact:platforms_detail-->Linux and macOS on x86_64 and arm64, and Windows on x86_64<!--/fact-->.
 - Every source is on by default, including noncommercial and restricted ones. Commercial users should set `{"disable_sources": ["noncommercial", "restricted"]}` in `config.json` and check each remaining publisher's terms. Public API access grants no extra reuse rights.
-- OncoKB and NCI need your own key: `biomcp key set oncokb`. Other keys are optional and raise rate limits. `biomcp key list` shows their state.
+- OncoKB, NCI and AlphaGenome need your own key: `biomcp key set oncokb`. No command in this release sends a request to AlphaGenome. Other keys are optional and raise rate limits. `biomcp key list` shows all <!--fact:counts.keys-->7<!--/fact--> keys and their state.
 - BioMCP retrieves source records. It does not rank treatments, judge trial eligibility, compute risk from report counts, or make clinical decisions. An empty result shows what one source returned for one query, not that something does not exist.
 - BioMCP has no self-update command. Upgrade with the channel that installed it.
 
@@ -115,4 +115,4 @@ biomcp mcp-config
 
 ## License
 
-MIT. Each data source keeps its own terms; the [sources reference](https://biomcp.org/reference/data-sources/) links each one.
+<!--fact:license-->MIT<!--/fact-->, as `Cargo.toml` declares. Each data source keeps its own terms; the [sources reference](https://biomcp.org/reference/data-sources/) links each one.

@@ -1,5 +1,7 @@
 ---
+// One fact from src/data/site.json. Backticks in a fact's text render as inline code.
 import { fact } from '../lib/facts.mjs';
 const { k } = Astro.props;
+const parts = fact(k).split(/`([^`]+)`/);
 ---
-{fact(k)}
+{parts.map((p, i) => (i % 2 ? <code>{p}</code> : p))}

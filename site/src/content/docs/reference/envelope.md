@@ -69,6 +69,19 @@ A stable code for a rejected field value. Values: `value.unknown`, `collection.i
 
 Purpose of an available next command. Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`. Each entry's `args` is a complete command without the leading `biomcp`.
 
+| Kind | Meaning |
+| --- | --- |
+| `restart` | Runs the query again to make a new pool or snapshot, for example after one expired. |
+| `section` | Fetches sections this card left out. |
+| `sort` | Reads the same search in another order the source supports. |
+| `page` | Reads another page. |
+| `fresh` | Runs the command again without the cached reply. |
+| `disambiguate` | Picks one record when a name matched several. |
+| `pivot` | Follows an exact linked record in another entity. |
+| `sync` | Downloads a missing or stale local bundle. |
+| `key` | Explains how to set a source key. |
+| `configure` | Explains a network setting that needs attention, such as the proxy. |
+
 ## error.code
 
 The stable error code for an invalid schema request. Values: `usage.schema`, `usage.arguments`, `usage.retired`, `local.failure`, `pool.expired`, `usage.pool_mismatch`, `usage.too_many_pmids`, `usage.unsupported_filter`. [Exit codes](/reference/error-codes/) maps each status to a process exit code.

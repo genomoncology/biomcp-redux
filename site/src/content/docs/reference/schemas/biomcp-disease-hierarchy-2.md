@@ -13,7 +13,10 @@ verified: 2026-10-27
 
 BioMCP 1.0.0 reply schema `biomcp.disease_hierarchy/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.disease_hierarchy/2`.
 
-No help example returns this schema; the reply carries it in its `schema` field.
+These calls return it.
+
+- `biomcp get disease MONDO:0005105 hierarchy` ([`biomcp get disease`](/reference/commands/get-disease/))
+- `biomcp get disease MONDO:0005105 hierarchy --source mydisease` ([`biomcp get disease`](/reference/commands/get-disease/))
 
 ## Envelope
 
@@ -21,15 +24,15 @@ One versioned command response; schema identity comes only from its body type.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `local_error` | CacheProblem or null | no | Bounded local cache failure, independent of provider outcomes. |
-| `next` | array of Step | no | Available next commands. |
-| `page` | PageInfo or null | no | Search page metadata. |
-| `problems` | array of Problem | no | Rejected source fields. |
-| `query` | DiseaseGet | yes | Parsed query. |
-| `result` | DiseaseHierarchy or null | no | Answer when available. |
+| `local_error` | [CacheProblem](#cacheproblem) or null | no | Bounded local cache failure, independent of provider outcomes. |
+| `next` | array of [Step](#step) | no | Available next commands. |
+| `page` | [PageInfo](#pageinfo) or null | no | Search page metadata. |
+| `problems` | array of [Problem](#problem) | no | Rejected source fields. |
+| `query` | [DiseaseGet](#query-diseaseget) | yes | Parsed query. |
+| `result` | [DiseaseHierarchy](#result-diseasehierarchy) or null | no | Answer when available. |
 | `schema` | "biomcp.disease_hierarchy/2" | yes |  |
-| `sources` | array of SourceOutcome | no | Sources actually asked. |
-| `status` | Status | yes | Overall outcome. |
+| `sources` | array of [SourceOutcome](#sourceoutcome) | no | Sources actually asked. |
+| `status` | [Status](#status) | yes | Overall outcome. |
 
 ## Result: DiseaseHierarchy
 
@@ -37,8 +40,8 @@ Native parent relations with both endpoints.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `components` | array of ComponentLabel | yes | Applicable component use terms, independent of row provenance. |
-| `items` | array of DiseaseRelation | yes | Native source rows; totals in the envelope count rows, not distinct entities. |
+| `components` | array of [ComponentLabel](#componentlabel) | yes | Applicable component use terms, independent of row provenance. |
+| `items` | array of [DiseaseRelation](#diseaserelation) | yes | Native source rows; totals in the envelope count rows, not distinct entities. |
 
 ## Query: DiseaseGet
 
@@ -46,18 +49,228 @@ Exact concept or native SEER site with independently paged section.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `age_range` | Text or null | no | Native age-range code. |
-| `dataset` | Text or null | no | Requested native dataset selector, not proof of returned membership. |
-| `id` | Text | yes | Exact ontology CURIE or an explicit SEER catalog site ID. |
-| `interval` | Text or null | no | Survival-only interval code. |
-| `ontology` | DiseaseOntology | no | One OLS ontology. |
-| `period` | Text or null | no | Incidence-only native period code. |
-| `race` | Text or null | no | Native race code. |
-| `section` | DiseaseSection or null | no | One named section; absent means identity card only. |
+| `age_range` | [Text](#text) or null | no | Native age-range code. |
+| `dataset` | [Text](#text) or null | no | Requested native dataset selector, not proof of returned membership. |
+| `id` | [Text](#text) | yes | Exact ontology CURIE or an explicit SEER catalog site ID. |
+| `interval` | [Text](#text) or null | no | Survival-only interval code. |
+| `ontology` | [DiseaseOntology](#diseaseontology) | no | One OLS ontology. |
+| `period` | [Text](#text) or null | no | Incidence-only native period code. |
+| `race` | [Text](#text) or null | no | Native race code. |
+| `section` | [DiseaseSection](#diseasesection) or null | no | One named section; absent means identity card only. |
 | `section_limit` | integer (uint32) | no | Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. |
 | `section_offset` | integer (uint32) | no | Native row offset within the selected section. |
-| `sex` | Text or null | no | Native sex code. |
-| `source` | DiseaseSource | no | Default MyDisease; no automatic fallback. |
+| `sex` | [Text](#text) or null | no | Native sex code. |
+| `source` | [DiseaseSource](#diseasesource) | no | Default MyDisease; no automatic fallback. |
+
+## Types
+
+Every other type this schema uses.
+
+### Attribution
+
+Provenance for one source record.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `evaluated` | [PartialDate](#partialdate) or null | no | Source evaluation date. |
+| `record` | [Text](#text) or null | no | Native assertion record. |
+| `release` | [Text](#text) or null | no | Dataset release. |
+| `source` | [Text](#text) | yes | Source responsible for the claim. |
+| `submitter` | [Text](#text) or null | no | Source submitter or panel. |
+| `url` | [Text](#text) or null | no | Source record link. |
+| `version` | [Text](#text) or null | no | Record version. |
+
+### CacheProblem
+
+A local cache failure that leaves the provider outcome intact.
+
+Values: `busy`, `database`, `version`.
+
+### ComponentLabel
+
+Terms attached to a named carried component on a consumer response.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `component` | [Text](#text) | yes | Native component name. |
+| `terms` | [ComponentTerms](#componentterms) | yes | Canonical publisher terms. |
+
+### ComponentTerms
+
+Terms attached to one independently licensed source component.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | [Text](#text) | yes | Publisher terms name. |
+| `url` | [Text](#text) | yes | Publisher terms page. |
+| `usage` | [Use](#use) | yes | Publisher use category. |
+
+### Curie
+
+Type: string.
+
+### DiseaseEndpoint
+
+One native endpoint with an identifier and an optional source label.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | [Curie](#curie) | yes | Exact source identifier. |
+| `label` | [Text](#text) or null | no | Source label when supplied. |
+
+### DiseaseOntology
+
+One explicit OLS ontology.
+
+Values: `mondo`, `doid`, `ncit`.
+
+### DiseaseRelation
+
+A publisher relation with distinct endpoints and predicate.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribution` | [Attribution](#attribution) | yes | Publisher record and version. |
+| `description` | string or null | no | Unchanged native cross-reference description when supplied. |
+| `object` | [DiseaseEndpoint](#diseaseendpoint) | yes | Native object. |
+| `predicate` | [Curie](#curie) | yes | Publisher predicate, without equivalence promotion. |
+| `subject` | [DiseaseEndpoint](#diseaseendpoint) | yes | Native subject. |
+
+### DiseaseSection
+
+One named disease page.
+
+Values: `synonyms`, `xrefs`, `hierarchy`, `genes`, `phenotypes`, `incidence`, `survival`.
+
+### DiseaseSource
+
+An explicit disease source without fallback.
+
+Values: `ols`, `mydisease`, `monarch`, `seer`.
+
+### PageInfo
+
+Search counts after filtering and deduplication.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `offset` | integer (uint32) | yes | Skipped results. |
+| `pool` | [PoolInfo](#poolinfo) or null | no | Optional pooled snapshot. |
+| `returned` | integer (uint32) | yes | Results returned on this page. |
+| `total` | integer (uint64) | yes | Total matching identities held by this snapshot. |
+| `truncated` | boolean or null | no | Matching source count exceeded the retrieved window. |
+
+### PartialDate
+
+Type: string.
+
+### PoolInfo
+
+Fixed lifetime and size of a stored search snapshot.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `created` | integer (uint64) | yes | Publication wall time in Unix seconds. |
+| `expires` | integer (uint64) | yes | Fixed expiry wall time in Unix seconds. |
+| `id` | [Text](#text) | yes | Opaque snapshot identifier. |
+| `size` | integer (uint32) | yes | Number of ordered identities. |
+
+### Problem
+
+A field that could not be accepted from a source record.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
+| `field` | string | yes | The biodata field name. |
+| `record` | [Text](#text) or null | no | The record's canonical identifier, when known. |
+| `source` | [Source](#source) | yes | The source that supplied the record. |
+
+### ProblemCode
+
+A stable code for a rejected field value.
+
+Values: `value.unknown`, `collection.incomplete`, `identity.conflict`.
+
+### Reason
+
+Why a source could not supply data.
+
+Values: `not_found`, `not_open`, `not_pdf`, `unsupported`, `too_large`, `rate_limited`, `unavailable`, `tls`, `proxy`, `rejected`, `bad_reply`, `deadline_exceeded`, `offline`, `no_key`, `disabled`, `replay_miss`, `syncing`, `no_join_id`.
+
+### Source
+
+A source of BioMCP data, identified by its canonical short name.
+
+Values: `hgnc`, `mygene`, `reactome`, `wikipathways`, `hpa`, `uniprot`, `interpro`, `complex-portal`, `gnomad`, `clinvar`, `erepo`, `gwas`, `clingen`, `pubmed`, `europepmc`, `litvar`, `litsense`, `semantic-scholar`, `orcid`, `pmc-oa`, `icite`, `pubtator`, `ctgov`, `nci`, `civic`, `hotspots`, `alphagenome`, `oncokb`, `myvariant`, `car`, `mutalyzer`, `variantvalidator`, `mychem`, `chembl`, `opentargets`, `openfda-label`, `drugsfda`, `ema`, `who-pq`, `ddinter`, `drugbank-open`, `drugcentral`, `gtopdb`, `unii`, `ndc`, `openfda-xref`, `ols`, `mydisease`, `monarch`, `seer`, `mondo`, `doid`, `ncit`, `hpo`, `orphanet`, `omim`, `faers`, `vaers`, `maude`, `meddra`, `gmdn`, `gtr`, `who-ivd`, `fda-cdx`, `fda-pma`, `fda-510k`, `cpic`, `clinpgx`, `cbioportal`, `cellosaurus`.
+
+### SourceNotice
+
+A provider query interpretation notice.
+
+One of:
+
+- object: A checked provider answer survived a local cache failure.
+- object: The source still has graph pages after the bounded fetch window.
+- object: An empty LitVar lookup can be repeated with a caller-supplied rsID.
+- object: PubMed supplied a named ESearch warning without changing its phrases.
+- object: PubMed did not index these words.
+
+### SourceOutcome
+
+One source's outcome, without provider text.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer or null | no | Provider matching count. |
+| `fetched` | integer or null | no | Retrieved identity depth. |
+| `notices` | array of [SourceNotice](#sourcenotice) | no | Provider query notices that do not indicate failure. |
+| `reason` | [Reason](#reason) or null | no | Failure or stale-fallback reason. |
+| `source` | [Source](#source) | yes | Asked source. |
+| `state` | [SourceState](#sourcestate) | yes | Retained state. |
+| `term` | [Text](#text) or null | no | Exact provider search term. |
+| `terms` | string | yes | Publisher terms name from the source registry. |
+| `terms_url` | string | yes | Publisher page documenting the terms. |
+| `use` | [Use](#use) | yes | Reviewed source use category; publisher terms remain authoritative. |
+
+### SourceState
+
+State of a source actually asked by the command.
+
+Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
+
+### Status
+
+Overall command outcome.
+
+Values: `complete`, `partial`, `absent`, `failed`.
+
+### Step
+
+A command argument list spelled from a typed action.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `args` | array of string | yes | CLI and MCP arguments. |
+| `kind` | [StepKind](#stepkind) | yes | Purpose of the action. |
+
+### StepKind
+
+Purpose of an available next command.
+
+Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`.
+
+### Text
+
+Nonempty text with surrounding Unicode whitespace removed.
+
+Type: string.
+
+### Use
+
+Reviewed source-use category, without inferring rights in individual records.
+
+Values: `open`, `attribution`, `noncommercial`, `restricted`.
 
 [Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
 

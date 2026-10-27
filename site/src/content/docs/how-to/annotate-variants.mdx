@@ -41,7 +41,7 @@ biomcp get variant 'chr7:g.140453136A>T' --build GRCh37
 
 <Example id="variant-population" />
 
-`ac` is the allele count and `an` the allele number, as gnomAD reports them for the named release. BioMCP does not compute a frequency, and exome and genome counts stay separate. This reply is `partial` because the allele registry sent fields BioMCP could not check; `problems` lists them. `--detail` adds the ancestry rows.
+`ac` is the allele count and `an` the allele number, as gnomAD reports them for the named release. BioMCP does not compute a frequency, and exome and genome counts stay separate. This reply is `partial` because the allele registry (`car`) sent fields BioMCP could not check. Every entry in `problems` names `car` and a `representations` field, the other spellings of the allele. gnomAD answered with state `ok` and no problems, so `ac` and `an` are the values gnomAD sent. `--detail` adds the ancestry rows.
 
 ## 4. Read ClinVar assertions
 

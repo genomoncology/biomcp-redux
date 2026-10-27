@@ -1,0 +1,5 @@
+# Reply schemas that no command returned when scripts/map-schemas.mjs last ran, with the reason
+# a reader sees on the schema page. gen-reference.mjs fails for any other schema with no command,
+# and for a schema listed here that a command now returns.
+biomcp.adverse_event_identifiers/1: "The identifier sections of `get adverse-event`, such as `unii` and `rxcui`, are listed in the help, but BioMCP refuses them with `usage.arguments`, so no command returns this schema."
+biomcp.protein_function/2: "`get protein ID function` returns the function text inside `biomcp.protein_card/3`, so no command returns this schema as a whole reply."

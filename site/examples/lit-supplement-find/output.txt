@@ -1,4 +1,2 @@
-4 of 24 rows
-ST2	80	AXIN2	c.158C>G	p.Ser53Cys
-ST2	81	AXIN2	c.203G>A	p.Arg68Gln
-ST2	82	AXIN2	c.365T>G	p.Leu122Arg
+1 of 1 rows
+ST2	85	AXIN2	c.733C>T	p.Pro245Ser

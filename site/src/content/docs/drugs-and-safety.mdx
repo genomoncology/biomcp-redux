@@ -14,7 +14,7 @@ BioMCP <Fact k="version" /> has four entities for drugs and their safety: `drug`
 ## Requirements
 
 - BioMCP installed. No key is needed. An openFDA key raises openFDA's rate limit.
-- DDInter, EMA, WHO and the FDA companion diagnostics list read local bundles. Run `biomcp sync ddinter` once before step 5; see [local data](/local-data/).
+- DDInter, EMA, WHO and the FDA companion diagnostics list read local bundles. Each source answers only after its sync: `biomcp sync ddinter` before step 5, `biomcp sync fda-cdx` before step 8, and `biomcp sync ema` or `biomcp sync who-pq` before step 1 searches those sources. Before the sync the reply is `failed`, the source's state is `syncing`, the exit code is 4, and `next` names the sync. See [local data](/local-data/) for sizes.
 
 ## 1. Search a drug
 
@@ -74,11 +74,11 @@ The `recommendations` section returns CPIC's recommendation rows, and `diplotype
 
 ## 8. Find companion diagnostics
 
-The FDA companion diagnostics list matches a biomarker word in its rows:
+`--biomarker` matches the whole biomarker cell of the FDA companion diagnostics list:
 
 <Example id="diagnostic-cdx" />
 
-The list has one row per device, indication and drug, so a device appears once per row. `--source gtr` searches the Genetic Testing Registry, and `--source who-ivd` searches WHO prequalified diagnostics. `get diagnostic P-NUMBER --source fda-pma` and `get diagnostic K-NUMBER --source fda-510k` read FDA device records. [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/) walks through one biomarker.
+The list has one row per device, indication and drug, so a device appears once per row. A cell that names more than one biomarker, such as `KRAS and NRAS`, does not match. `--source gtr` searches the Genetic Testing Registry, and `--source who-ivd` searches WHO prequalified diagnostics. `get diagnostic P-NUMBER --source fda-pma` and `get diagnostic K-NUMBER --source fda-510k` read FDA device records. [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/) walks through one biomarker.
 
 ## Verify
 

@@ -15,8 +15,8 @@ BioMCP <Fact k="version" /> keeps two kinds of local data. Bundles are whole dow
 
 | Bundle | Sync command | Synchronizes during a read? |
 | --- | --- | --- |
-| HGNC | `biomcp sync hgnc` | Yes, when missing or stale and within a size limit |
-| ClinGen gene validity and dosage | `biomcp sync clingen` | Yes, when missing or stale and within a size limit |
+| HGNC | `biomcp sync hgnc` | Yes, when missing or stale and at most 32 MiB |
+| ClinGen gene validity and dosage | `biomcp sync clingen` | Yes, when missing or stale and at most 32 MiB |
 | WikiPathways | `biomcp sync wikipathways` | No |
 | cBioPortal studies | `biomcp sync cbioportal-studies` | No |
 | EMA medicines | `biomcp sync ema` | No |
@@ -25,6 +25,8 @@ BioMCP <Fact k="version" /> keeps two kinds of local data. Bundles are whole dow
 | WHO diagnostics | `biomcp sync who-ivd` | No |
 | NCBI Genetic Testing Registry | `biomcp sync gtr` | No |
 | FDA companion diagnostics list | `biomcp sync fda-cdx` | No |
+
+A read synchronizes HGNC or ClinGen itself when the bundle is missing or stale and its download is at most 32 MiB (33,554,432 bytes). A larger download stops, and the source reports state `syncing`; run `biomcp sync` for that bundle. The limit is fixed in this release, and `config.json` has no setting for it. Every other bundle needs its sync command before the first read.
 
 ## Bundle sizes
 

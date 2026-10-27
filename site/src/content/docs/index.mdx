@@ -24,7 +24,7 @@ import TerminalHero from '../../components/TerminalHero.astro';
 import InstallLine from '../../components/InstallLine.astro';
 import Fact from '../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> is one program with two faces. In the shell it is the `biomcp` command. In an agent it is an MCP server with one `biomcp` tool that takes the same commands. It reaches genes, variants, trials, articles, drugs, diseases and <Fact k="counts.entities" /> entities in all, across <Fact k="counts.sources" /> public sources, and it says which source answered.
+BioMCP <Fact k="version" /> is one program with two faces. In the shell it is the `biomcp` command. In an agent it is an MCP server with <Fact k="counts.mcp_tools" /> tools: <Fact k="mcp_tools" />. It reaches genes, variants, trials, articles, drugs, diseases and <Fact k="counts.entities" /> entities in all, across <Fact k="counts.sources" /> public sources, and it says which source answered.
 
 Each command sends its words and identifiers over the network to the public sources it names. Do not put names, record numbers or other identifying patient data in a query.
 
@@ -36,9 +36,9 @@ Each row is one capability guide. The entities are the nouns of the command line
 
 | Capability | Entities | First command |
 | --- | --- | --- |
-| [Literature](/how-to/find-articles/) | article, author | `biomcp search article --gene BRAF --variant V600E` |
-| [Clinical trials](/how-to/find-trials/) | trial | `biomcp search trial --condition melanoma` |
-| [Variants](/how-to/annotate-variants/) | variant | `biomcp search variant --gene BRAF --protein V600E` |
+| [Search and read biomedical literature](/how-to/find-articles/) | article, author | `biomcp search article --gene BRAF --variant V600E` |
+| [Find clinical trials by condition, gene or variant](/how-to/find-trials/) | trial | `biomcp search trial --condition melanoma` |
+| [Look up a variant](/how-to/annotate-variants/) | variant | `biomcp search variant --gene BRAF --protein V600E` |
 | [Genes and proteins](/genes-and-proteins/) | gene, protein, pathway | `biomcp get gene BRAF` |
 | [Drugs and safety](/drugs-and-safety/) | drug, adverse-event, pgx, diagnostic | `biomcp search drug vemurafenib` |
 | [Diseases and phenotypes](/diseases-and-phenotypes/) | disease, phenotype, gwas | `biomcp search disease melanoma` |

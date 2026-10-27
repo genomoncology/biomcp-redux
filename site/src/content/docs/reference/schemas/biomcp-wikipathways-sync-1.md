@@ -15,21 +15,25 @@ BioMCP 1.0.0 reply schema `biomcp.wikipathways_sync/1`. Every reply names its sc
 
 These commands return it: [`biomcp sync wikipathways`](/reference/commands/sync-wikipathways/).
 
+Calls that returned it:
+
+- `biomcp sync wikipathways` ([`biomcp sync wikipathways`](/reference/commands/sync-wikipathways/))
+
 ## Envelope
 
 One versioned command response; schema identity comes only from its body type.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `local_error` | CacheProblem or null | no | Bounded local cache failure, independent of provider outcomes. |
-| `next` | array of Step | no | Available next commands. |
-| `page` | PageInfo or null | no | Search page metadata. |
-| `problems` | array of Problem | no | Rejected source fields. |
-| `query` | SyncQuery | yes | Parsed query. |
-| `result` | WikiPathwaysSync or null | no | Answer when available. |
+| `local_error` | [CacheProblem](#cacheproblem) or null | no | Bounded local cache failure, independent of provider outcomes. |
+| `next` | array of [Step](#step) | no | Available next commands. |
+| `page` | [PageInfo](#pageinfo) or null | no | Search page metadata. |
+| `problems` | array of [Problem](#problem) | no | Rejected source fields. |
+| `query` | [SyncQuery](#query-syncquery) | yes | Parsed query. |
+| `result` | [WikiPathwaysSync](#result-wikipathwayssync) or null | no | Answer when available. |
 | `schema` | "biomcp.wikipathways_sync/1" | yes |  |
-| `sources` | array of SourceOutcome | no | Sources actually asked. |
-| `status` | Status | yes | Overall outcome. |
+| `sources` | array of [SourceOutcome](#sourceoutcome) | no | Sources actually asked. |
+| `status` | [Status](#status) | yes | Overall outcome. |
 
 ## Result: WikiPathwaysSync
 
@@ -37,8 +41,8 @@ Two independently validated metadata catalogs; no catalog body in stdout.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `get` | WikiPathwaysCatalogReceipt | yes | Exact-get metadata catalog receipt. |
-| `search` | WikiPathwaysCatalogReceipt | yes | Search metadata catalog receipt. |
+| `get` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | yes | Exact-get metadata catalog receipt. |
+| `search` | [WikiPathwaysCatalogReceipt](#wikipathwayscatalogreceipt) | yes | Search metadata catalog receipt. |
 
 ## Query: SyncQuery
 
@@ -46,7 +50,149 @@ Explicit source synchronization selector.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `source` | Source | yes | Source whose complete identity data is synchronized. |
+| `source` | [Source](#source) | yes | Source whose complete identity data is synchronized. |
+
+## Types
+
+Every other type this schema uses.
+
+### CacheProblem
+
+A local cache failure that leaves the provider outcome intact.
+
+Values: `busy`, `database`, `version`.
+
+### PageInfo
+
+Search counts after filtering and deduplication.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `offset` | integer (uint32) | yes | Skipped results. |
+| `pool` | [PoolInfo](#poolinfo) or null | no | Optional pooled snapshot. |
+| `returned` | integer (uint32) | yes | Results returned on this page. |
+| `total` | integer (uint64) | yes | Total matching identities held by this snapshot. |
+| `truncated` | boolean or null | no | Matching source count exceeded the retrieved window. |
+
+### PoolInfo
+
+Fixed lifetime and size of a stored search snapshot.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `created` | integer (uint64) | yes | Publication wall time in Unix seconds. |
+| `expires` | integer (uint64) | yes | Fixed expiry wall time in Unix seconds. |
+| `id` | [Text](#text) | yes | Opaque snapshot identifier. |
+| `size` | integer (uint32) | yes | Number of ordered identities. |
+
+### Problem
+
+A field that could not be accepted from a source record.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
+| `field` | string | yes | The biodata field name. |
+| `record` | [Text](#text) or null | no | The record's canonical identifier, when known. |
+| `source` | [Source](#source) | yes | The source that supplied the record. |
+
+### ProblemCode
+
+A stable code for a rejected field value.
+
+Values: `value.unknown`, `collection.incomplete`, `identity.conflict`.
+
+### Reason
+
+Why a source could not supply data.
+
+Values: `not_found`, `not_open`, `not_pdf`, `unsupported`, `too_large`, `rate_limited`, `unavailable`, `tls`, `proxy`, `rejected`, `bad_reply`, `deadline_exceeded`, `offline`, `no_key`, `disabled`, `replay_miss`, `syncing`, `no_join_id`.
+
+### Source
+
+A source of BioMCP data, identified by its canonical short name.
+
+Values: `hgnc`, `mygene`, `reactome`, `wikipathways`, `hpa`, `uniprot`, `interpro`, `complex-portal`, `gnomad`, `clinvar`, `erepo`, `gwas`, `clingen`, `pubmed`, `europepmc`, `litvar`, `litsense`, `semantic-scholar`, `orcid`, `pmc-oa`, `icite`, `pubtator`, `ctgov`, `nci`, `civic`, `hotspots`, `alphagenome`, `oncokb`, `myvariant`, `car`, `mutalyzer`, `variantvalidator`, `mychem`, `chembl`, `opentargets`, `openfda-label`, `drugsfda`, `ema`, `who-pq`, `ddinter`, `drugbank-open`, `drugcentral`, `gtopdb`, `unii`, `ndc`, `openfda-xref`, `ols`, `mydisease`, `monarch`, `seer`, `mondo`, `doid`, `ncit`, `hpo`, `orphanet`, `omim`, `faers`, `vaers`, `maude`, `meddra`, `gmdn`, `gtr`, `who-ivd`, `fda-cdx`, `fda-pma`, `fda-510k`, `cpic`, `clinpgx`, `cbioportal`, `cellosaurus`.
+
+### SourceNotice
+
+A provider query interpretation notice.
+
+One of:
+
+- object: A checked provider answer survived a local cache failure.
+- object: The source still has graph pages after the bounded fetch window.
+- object: An empty LitVar lookup can be repeated with a caller-supplied rsID.
+- object: PubMed supplied a named ESearch warning without changing its phrases.
+- object: PubMed did not index these words.
+
+### SourceOutcome
+
+One source's outcome, without provider text.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer or null | no | Provider matching count. |
+| `fetched` | integer or null | no | Retrieved identity depth. |
+| `notices` | array of [SourceNotice](#sourcenotice) | no | Provider query notices that do not indicate failure. |
+| `reason` | [Reason](#reason) or null | no | Failure or stale-fallback reason. |
+| `source` | [Source](#source) | yes | Asked source. |
+| `state` | [SourceState](#sourcestate) | yes | Retained state. |
+| `term` | [Text](#text) or null | no | Exact provider search term. |
+| `terms` | string | yes | Publisher terms name from the source registry. |
+| `terms_url` | string | yes | Publisher page documenting the terms. |
+| `use` | [Use](#use) | yes | Reviewed source use category; publisher terms remain authoritative. |
+
+### SourceState
+
+State of a source actually asked by the command.
+
+Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
+
+### Status
+
+Overall command outcome.
+
+Values: `complete`, `partial`, `absent`, `failed`.
+
+### Step
+
+A command argument list spelled from a typed action.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `args` | array of string | yes | CLI and MCP arguments. |
+| `kind` | [StepKind](#stepkind) | yes | Purpose of the action. |
+
+### StepKind
+
+Purpose of an available next command.
+
+Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`.
+
+### Text
+
+Nonempty text with surrounding Unicode whitespace removed.
+
+Type: string.
+
+### Use
+
+Reviewed source-use category, without inferring rights in individual records.
+
+Values: `open`, `attribution`, `noncommercial`, `restricted`.
+
+### WikiPathwaysCatalogReceipt
+
+Receipt for one independently validated WikiPathways metadata catalog.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `bytes` | integer (uint64) | yes | Bytes in this catalog, not the other catalog or a GPML archive. |
+| `human_rows` | integer (uint64) | yes | Source-stated human rows in this catalog. |
+| `revision` | [Text](#text) | yes | This catalog's retained revision. |
+| `sha256` | [Text](#text) | yes | Hash of this catalog's retained native bytes. |
+| `total_rows` | integer (uint64) | yes | All native rows in this catalog before human filtering. |
 
 [Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
 

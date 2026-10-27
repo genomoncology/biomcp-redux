@@ -22,7 +22,8 @@
     },
     {
       "word": "beta",
-      "use": "Describe only what ships."
+      "use": "Describe only what ships. Generated schema pages may quote it: GWAS replies carry a source `beta` value.",
+      "generated": true
     },
     {
       "word": "alpha",

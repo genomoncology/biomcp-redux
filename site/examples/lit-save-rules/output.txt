@@ -1,3 +1,5 @@
+command line, save the whole text:
+{"status":"complete","bytes":37465}
 command line, --save with --part:
 {"status":"usage","code":"usage.arguments"}
 stdio MCP, save a new file:

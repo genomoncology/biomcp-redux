@@ -5,6 +5,7 @@ import path from 'node:path';
 import YAML from 'yaml';
 import site from '../src/data/site.json' with { type: 'json' };
 import { ranOn } from '../src/lib/verified.mjs';
+import { pages } from './pages.mjs';
 
 const qdir = path.resolve('questions');
 const out = path.resolve('src/content/docs/answers');
@@ -25,6 +26,13 @@ fs.mkdirSync(out, { recursive: true });
 // An answer is verified on the day its example last ran (examples/<id>/ran), not on a typed date.
 for (const q of answered) q.verified = ranOn(q.example);
 const lastRun = answered.map((q) => q.verified).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
+// Link text is the target page's own title, so a link never names a page differently from the page.
+const titles = new Map(pages().filter((p) => !p.route.startsWith('/answers/')).map((p) => [p.route, p.data.title]));
+const titleOf = (q, k) => {
+  const t = titles.get(q[k].split('#')[0]);
+  if (!t) throw new Error(`questions/${q.area}.yaml: ${q.id} ${k} ${q[k]} is not a page`);
+  return t;
+};
 const fm = (o) => `---\n${YAML.stringify(o).trim()}\n---\n`;
 for (const q of answered) {
   for (const k of ['question', 'answer', 'example', 'why', 'limits', 'page', 'reference']) if (!q[k]) throw new Error(`questions/${q.area}.yaml: ${q.id} lacks ${k}`);
@@ -47,8 +55,8 @@ for (const q of answered) {
     '',
     '## Read next',
     '',
-    `- [${q.page_title ?? 'Main guide'}](${q.page})`,
-    `- [${q.reference_title ?? 'Reference'}](${q.reference})`,
+    `- [${titleOf(q, 'page')}](${q.page})`,
+    `- [${titleOf(q, 'reference')}](${q.reference})`,
     '',
     `Verified on ${q.verified} with ${site.product} ${site.version}.`,
     '',

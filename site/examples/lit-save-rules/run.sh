@@ -1,5 +1,7 @@
 dir=$(mktemp -d)
 trap 'rm -rf "$dir"' EXIT
+echo "command line, save the whole text:"
+biomcp article text PMC7573235 --save "$dir/whole.md" | jq -c '{status, bytes: .result.content.data.saved.bytes}'
 echo "command line, --save with --part:"
 biomcp article text PMC7573235 --save "$dir/part.md" --part 3 | jq -c '{status, code: .error.code}'
 mcp() {

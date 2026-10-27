@@ -26,10 +26,12 @@ BioMCP <Fact k="version" /> entity `diagnostic`. A genetic test or diagnostic de
 
 [gtr](/sources/gtr/), [who-ivd](/sources/who-ivd/), [fda-cdx](/sources/fda-cdx/), [fda-pma](/sources/fda-pma/), [fda-510k](/sources/fda-510k/).
 
+`gtr`, `who-ivd` and `fda-cdx` read local bundles. Run `biomcp sync gtr`, `biomcp sync who-ivd` or `biomcp sync fda-cdx` once before the first search; before the sync the source's state is `syncing` and the exit code is 4. The example's first line syncs `fda-cdx`. [Local data](/local-data/) lists the bundle sizes.
+
 ## Example
 
 <Example id="diagnostic-cdx" />
 
 ## Next
 
-[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

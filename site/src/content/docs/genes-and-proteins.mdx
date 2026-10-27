@@ -14,6 +14,7 @@ BioMCP <Fact k="version" /> resolves genes against HGNC and reads gene sections 
 ## Requirements
 
 - BioMCP installed. No key is needed except for the `oncokb` section.
+- WikiPathways reads a local bundle; step 4 runs `biomcp sync wikipathways` first.
 
 ## 1. Read the gene card
 
@@ -60,7 +61,11 @@ Protein sections are `features`, `domains`, `isoforms`, `complexes`, `structures
 
 <Example id="pathway-genes" />
 
-WikiPathways reads from a local bundle; run `biomcp sync wikipathways` once. `pathway events` lists a Reactome pathway's events.
+WikiPathways reads from a local bundle. `biomcp sync wikipathways` downloads it once, and `--source wikipathways` then searches it:
+
+<Example id="pathway-wikipathways" />
+
+`biomcp pathway events R-HSA-5674135` lists a Reactome pathway's events; the [pathway events reference](/reference/commands/pathway-events/) gives its options.
 
 ## Verify
 

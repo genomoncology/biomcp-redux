@@ -1,13 +1,13 @@
 ---
-// The status or source-state table, rendered from src/data/reference.json, which
+// The status, source-state or next-kind table, rendered from src/data/reference.json, which
 // gen-reference.mjs writes from the reply schemas and src/data/envelope.yaml.
 import { envelopeRows, inlineCode } from '../lib/envelope.mjs';
-interface Props { field: 'status' | 'state' }
+interface Props { field: 'status' | 'state' | 'kind' }
 const { field } = Astro.props;
 const rows = envelopeRows(field);
 ---
 <table>
-  <thead><tr><th>{field === 'status' ? 'Status' : 'State'}</th><th>Meaning</th>{field === 'status' && <th>Exit code</th>}</tr></thead>
+  <thead><tr><th>{field === 'status' ? 'Status' : field === 'kind' ? 'Kind' : 'State'}</th><th>Meaning</th>{field === 'status' && <th>Exit code</th>}</tr></thead>
   <tbody>
     {rows.map((r) => (
       <tr><td><code>{r.value}</code></td><td set:html={inlineCode(r.meaning)} />{field === 'status' && <td>{r.exit}</td>}</tr>
