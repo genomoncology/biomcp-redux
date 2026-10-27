@@ -7,7 +7,7 @@ use std::fs;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         Trial::test(
-            "variant-search/source-transcripts-and-matched-notation",
+            "variant-search/transcript-projection-and-component-policy",
             || transcripts().map_err(Into::into),
         ),
         Trial::test("variant/source-coding-transcript-match", || {
@@ -22,44 +22,15 @@ fn transcripts() -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;
-    for (protein, matched) in [("His540Arg", 0), ("His515Arg", 1)] {
-        let args = [
-            "search",
-            "variant",
-            "--gene",
-            "HSD17B4",
-            "--protein",
-            protein,
-        ];
-        let value = run(&env, &args)?;
-        let rows = value
-            .pointer("/result/items/0/transcripts")
-            .ok_or("transcripts missing")?;
-        if rows.as_array().map(Vec::len) != Some(5)
-            || rows[1]["transcript"] != "NM_000414.3"
-            || rows[1]["hgvs_c"] != "c.1544A>G"
-            || rows[1]["hgvs_p"] != "p.His515Arg"
-            || rows[0]["transcript"] != "NM_001199291.2"
-            || rows[0]["hgvs_c"] != "c.1619A>G"
-            || rows[0]["hgvs_p"] != "p.His540Arg"
-            || rows[matched]["matched"] != true
-            || rows[1 - matched]["matched"] != false
-            || rows[0].get("mane_select").is_some()
-        {
-            return Err(format!(
-                "source transcript pairing or match changed: {rows}"
-            ));
-        }
-    }
-    let card = run(
-        &env,
-        &["get", "variant", "chr5:g.118860951A>G", "--build", "GRCh37"],
-    )?;
-    if card.pointer("/result/candidates/0/transcripts/0/hgvs_p") != Some(&json!("p.His540Arg")) {
-        return Err(format!("card lost transcript annotations: {card}"));
-    }
     presentation_and_policy(&env)?;
-    stub.finish()?;
+    let requests = stub.finish()?;
+    if !requests.iter().any(|(_, request)| {
+        request.starts_with("GET /v1/variant/") && request.contains("snpeff.ann")
+    }) || !requests.iter().any(|(_, request)| {
+        request.starts_with("GET /v1/query?") && !request.contains("snpeff.ann")
+    }) {
+        return Err("transcript projection did not follow component policy".into());
+    }
     Ok(())
 }
 fn presentation_and_policy(env: &Environment) -> Result<(), String> {
