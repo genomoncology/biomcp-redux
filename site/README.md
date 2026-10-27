@@ -21,7 +21,7 @@ The documentation site, built with Astro and Starlight. It builds to `site/dist/
 
 ## Environment variables
 
-- `SITE_EXAMPLE_CONFIG`: the path of a BioMCP `config.json` that the examples use. The runner copies it to `biomcp/config.json` in the examples' own config folder. Use it for machine settings such as `proxy` and `ca_bundle`, never for keys. Keep the file outside the repository; never commit a machine's config.
+- `SITE_EXAMPLE_CONFIG`: the path of a BioMCP `config.json` that the examples and the reference generator use. Each copies it to `biomcp/config.json` in its own temporary config folder. Use it for machine settings such as `proxy` and `ca_bundle`, never for keys. Keep the file outside the repository; never commit a machine's config.
 
 ## How the site is made
 

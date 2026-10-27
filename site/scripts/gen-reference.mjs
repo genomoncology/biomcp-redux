@@ -11,6 +11,7 @@
 // Hand-written notes about each source live in src/data/sources.yaml and are merged in.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import YAML from 'yaml';
 import product from '../product.config.mjs';
@@ -28,12 +29,31 @@ const SLUG_09 = { ctgov: 'clinicaltrials-gov', car: 'clingen-allele-registry', e
 const srcSlug = (s) => SLUG_09[s] ?? s;
 const srcRoute = (s) => `/sources/${srcSlug(s)}/`;
 
-function run(args, input) {
-  const r = spawnSync(bin, args, { input, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' }, timeout: 60000 });
+// SITE_EXAMPLE_CONFIG, the machine's config file for the examples, applies here too: the help and
+// health replies need no network, but a proxy setting changes whether BioMCP starts at all.
+const baseEnv = { ...process.env, NO_COLOR: '1' };
+if (process.env.SITE_EXAMPLE_CONFIG) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'biomcp-reference-'));
+  fs.mkdirSync(path.join(dir, path.dirname(product.exampleConfig)), { recursive: true });
+  fs.copyFileSync(path.resolve(process.env.SITE_EXAMPLE_CONFIG), path.join(dir, product.exampleConfig));
+  baseEnv.XDG_CONFIG_HOME = dir;
+  process.on('exit', () => fs.rmSync(dir, { recursive: true, force: true }));
+}
+function run(args, input, env = baseEnv) {
+  const r = spawnSync(bin, args, { input, encoding: 'utf8', env, timeout: 60000 });
   if (r.error) throw r.error;
   return r.stdout;
 }
-const json = (args) => JSON.parse(run(args));
+// A reply BioMCP could not give (status usage or local) stops the script with BioMCP's own message.
+function json(args, input, env) {
+  const reply = JSON.parse(run(args, input, env));
+  if (reply.status === 'usage' || reply.status === 'local') {
+    console.error(`reference: biomcp ${args.join(' ')} replied ${reply.status}: ${reply.error?.code ?? ''} ${reply.error?.message ?? JSON.stringify(reply)}`);
+    console.error('On a network that needs a proxy, set SITE_EXAMPLE_CONFIG to a BioMCP config with proxy and ca_bundle (see site/README.md).');
+    process.exit(1);
+  }
+  return reply;
+}
 
 // ---------- inputs ----------
 const help = json(['help']).result.commands;
@@ -176,9 +196,8 @@ for (const c of help) {
 // without keys. Every other source that a key belongs to takes it as optional.
 const KEY_VARS = keys.map((k) => k.environment);
 const requiredKey = (() => {
-  const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !KEY_VARS.includes(k)));
-  const r = spawnSync(bin, ['--offline', 'health'], { encoding: 'utf8', env: { ...env, NO_COLOR: '1' }, timeout: 60000 });
-  return new Set(JSON.parse(r.stdout).result.sources.filter((x) => x.reason === 'no_key').map((x) => x.source));
+  const env = Object.fromEntries(Object.entries(baseEnv).filter(([k]) => !KEY_VARS.includes(k)));
+  return new Set(json(['--offline', 'health'], undefined, env).result.sources.filter((x) => x.reason === 'no_key').map((x) => x.source));
 })();
 const keyNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/keys.yaml'), 'utf8'));
 const keyOf = (s) => keys.find((k) => k.source === s || k.name === s || k.name === notes[s]?.key);
