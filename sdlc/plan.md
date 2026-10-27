@@ -34,7 +34,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 ### 5. Close every known gap
 
-- Docs findings, first pass: help entry points (0338), argument errors and grammar (0339), configuration and proxy (0340), schema IDs (0341), health (0342), output pipe (0343), help reference (0357), MCP output schemas (0358), schema formats (0359), adapter bad values (0360), enums and typed IDs (0361), output consistency (0362), live failures (0363), use case how-tos (0369).
+- Docs findings, first pass: help entry points (0338), argument errors and grammar (0339), configuration and proxy (0340), schema IDs (0341), health (0342), output pipe (0343), help reference (0357), MCP output schemas (0358), schema formats (0359), adapter bad values (0360, then 0371), enums and typed IDs (0361), output consistency (0362), live failures (0363), use case how-tos (0369).
 - Docs findings, second pass: MCP config path (0352), HTTP MCP revisions (0353), openFDA generic names (0354), cBioPortal sync (0355), MCP refusals (0356), variant population (0364), GRCh37 normalize (0365), store size (0366), drugsfda items (0367).
 - Security: screening (0347), inert source text (0348), outbound host registry (0349), signed release provenance (0370).
 - Split-off and hygiene: PubMed warnings (0334), semantic argument names (0345), HGNC reachability (0368), build cost and check order (0344), export comment (0346), output budgets (0350), local fixture abort (0351).
