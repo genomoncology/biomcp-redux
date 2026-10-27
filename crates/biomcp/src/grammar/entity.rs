@@ -5,7 +5,7 @@ pub(super) fn request(
     entity: &str,
     value: Value,
 ) -> Result<Request, biomcp_types::QueryInvalid> {
-    let result = match (verb, entity) {
+    match (verb, entity) {
         ("author", "papers") => super::validation::decode(value).map(Request::AuthorPapers),
         ("cell-line", "assay-count") => {
             super::validation::decode(value).map(Request::CellLineAssayCount)
@@ -61,7 +61,6 @@ pub(super) fn request(
             super::validation::decode(value).map(Request::GetWhoMedicine)
         }
         ("get", "drug") => super::validation::decode(value).map(Request::GetDrug),
-        _ => return Err(biomcp_types::QueryInvalid::default()),
-    };
-    result
+        _ => Err(biomcp_types::QueryInvalid::default()),
+    }
 }
