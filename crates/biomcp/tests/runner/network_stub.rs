@@ -129,8 +129,8 @@ impl Stub {
                 socket
                     .set_write_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
-                let connect = header(&mut socket)
-                    .map_err(|e| format!("source stub CONNECT header: {e}"))?;
+                let connect =
+                    header(&mut socket).map_err(|e| format!("source stub CONNECT header: {e}"))?;
                 if !hosts
                     .iter()
                     .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
