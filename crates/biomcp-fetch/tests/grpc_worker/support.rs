@@ -26,6 +26,10 @@ pub(super) enum Hold {
     NoAlpn,
 }
 #[derive(Debug)]
+#[allow(
+    dead_code,
+    reason = "Consumers read different events from this shared transport and CLI fixture"
+)]
 pub(super) enum Seen {
     Tcp,
     Http(String),

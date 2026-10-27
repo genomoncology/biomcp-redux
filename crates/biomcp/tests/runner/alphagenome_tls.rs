@@ -2,6 +2,8 @@
 use super::{alphagenome::invoke, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+#[path = "alphagenome_capture.rs"]
+mod capture;
 #[path = "../../../biomcp-fetch/tests/grpc_worker/support.rs"]
 #[allow(
     dead_code,
@@ -17,14 +19,16 @@ static QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
 const SECTION: &str = "/result/candidates/0/sections/alphagenome";
 const KEY: &str = "synthetic-alphagenome-cli-placeholder";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("variant/alphagenome-native-groups-local-tls", || {
             run().map_err(Into::into)
         }),
         Trial::test("variant/alphagenome-source-identity-refusals", || {
             refusals().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(capture::trials());
+    trials
 }
 fn run() -> Result<(), String> {
     for (status, id) in [
@@ -103,46 +107,49 @@ fn run() -> Result<(), String> {
                 ));
             }
         }
-        let mut resolved = false;
-        let mut requests = 0;
-        while let Ok(event) = fixture.events.try_recv() {
-            match event {
-                support::Seen::Http(request) => {
-                    if request.starts_with("GET /v1/query?") && request.contains("assembly=hg38") {
-                        continue;
-                    }
-                    if !request.starts_with("GET /allele/CA123643?")
-                        && !request.starts_with("GET /allele?hgvs=NC_000007.14%3Ag.140753336A%3ET")
-                    {
-                        return Err("unexpected resolver request".into());
-                    }
-                    resolved = true;
-                }
-                support::Seen::Path(path) => {
-                    if path
-                        != "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant"
-                    {
-                        return Err("section dispatched the wrong scoring method".into());
-                    }
-                }
-                support::Seen::Request(headers, body) => {
-                    if !resolved
-                        || headers.get("x-goog-api-key").and_then(|v| v.to_str().ok()) != Some(KEY)
-                        || body.get(5..) != Some(expected_request().as_slice())
-                    {
-                        return Err(
-                            "scoring preceded resolution or changed keyed request mapping".into(),
-                        );
-                    }
-                    requests += 1;
-                }
-                _ => {}
-            }
-        }
-        if requests != if status == 200 { 3 } else { 1 } {
-            return Err("scoring request retried or was omitted".into());
-        }
+        routed(&fixture, if status == 200 { 3 } else { 1 })?;
         fixture.finish().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+fn routed(fixture: &support::Fixture, expected: usize) -> Result<(), String> {
+    let mut resolved = false;
+    let mut requests = 0;
+    while let Ok(event) = fixture.events.try_recv() {
+        match event {
+            support::Seen::Http(request) => {
+                if request.starts_with("GET /v1/query?") && request.contains("assembly=hg38") {
+                    continue;
+                }
+                if !request.starts_with("GET /allele/CA123643?")
+                    && !request.starts_with("GET /allele?hgvs=NC_000007.14%3Ag.140753336A%3ET")
+                {
+                    return Err("unexpected resolver request".into());
+                }
+                resolved = true;
+            }
+            support::Seen::Path(path) => {
+                if path != "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant"
+                {
+                    return Err("section dispatched the wrong scoring method".into());
+                }
+            }
+            support::Seen::Request(headers, body) => {
+                if !resolved
+                    || headers.get("x-goog-api-key").and_then(|v| v.to_str().ok()) != Some(KEY)
+                    || body.get(5..) != Some(expected_request().as_slice())
+                {
+                    return Err(
+                        "scoring preceded resolution or changed keyed request mapping".into(),
+                    );
+                }
+                requests += 1;
+            }
+            _ => {}
+        }
+    }
+    if requests != expected {
+        return Err("scoring request retried or was omitted".into());
     }
     Ok(())
 }
