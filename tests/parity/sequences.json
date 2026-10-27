@@ -565,6 +565,376 @@
           }
         }
       ]
+    },
+    {
+      "case": "drug/ddinter.yaml",
+      "steps": [
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 0,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [
+            "ddinter",
+            "sync"
+          ],
+          "baseline_gap": {
+            "reason": "Released ddinter sync exists but forces NoStore downloads from eight fixed native URLs. It has no endpoint override, so the baseline replay cannot isolate this command. All eight unchanged retained CSV bodies remain available; this is an isolation gap, not an unsupported command.",
+            "release_source": "src/sources/ddinter.rs::sync_export"
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 1,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [],
+          "unsupported_command": {
+            "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+            "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/total": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/items/0/id": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/page/returned": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/items/0": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            }
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 2,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [],
+          "unsupported_command": {
+            "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+            "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/header/id": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/header/identity_level": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/available_sections/0": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/result/header": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            }
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 3,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [
+            "drug",
+            "interactions",
+            "Synthetic Anchor One",
+            "--limit",
+            "1"
+          ],
+          "baseline_gap": {
+            "reason": "The native eight-file CSV bundle is retained, but released drug interactions resolves the anchor through MyChem before DdinterClient::ready. This synthetic-only case has no retained MyChem identity response for the exact native anchor name. The baseline needs that recording; its absence is not unsupported DDInter interaction semantics.",
+            "release_source": "src/entities/drug/get.rs::resolve_drug_identity"
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 4,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [
+            "drug",
+            "interactions",
+            "Synthetic Anchor One",
+            "--limit",
+            "1",
+            "--offset",
+            "1"
+          ],
+          "baseline_gap": {
+            "reason": "The native eight-file CSV bundle is retained, but released drug interactions resolves the anchor through MyChem before DdinterClient::ready. This synthetic-only case has no retained MyChem identity response for the exact native anchor name. The baseline needs that recording; its absence is not unsupported DDInter interaction semantics.",
+            "release_source": "src/entities/drug/get.rs::resolve_drug_identity"
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 5,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [
+            "drug",
+            "interactions",
+            "Synthetic Anchor Three"
+          ],
+          "baseline_gap": {
+            "reason": "The native eight-file CSV bundle is retained, but released drug interactions resolves the anchor through MyChem before DdinterClient::ready. This synthetic-only case has no retained MyChem identity response for the exact native anchor name. The baseline needs that recording; its absence is not unsupported DDInter interaction semantics.",
+            "release_source": "src/entities/drug/get.rs::resolve_drug_identity"
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 6,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [],
+          "unsupported_command": {
+            "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+            "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            }
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 7,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [],
+          "unsupported_command": {
+            "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+            "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/sources/0/state": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            },
+            "/sources/0/reason": {
+              "reason": "Released DDInter exposes sync and interaction enrichment after MyChem drug identity resolution. It has no native DDInter-only drug catalog search or get-by-DDInter-ID card; DrugSearchArgs has no source selector.",
+              "release_source": "src/cli/drug/mod.rs::DrugSearchArgs"
+            }
+          }
+        },
+        {
+          "case": "drug/ddinter.yaml",
+          "step": 8,
+          "spelling_table": "sdlc/planning/slices/drug.md",
+          "release_source": [
+            "src/cli/system/dispatch.rs::handle_ddinter",
+            "src/sources/ddinter.rs::sync_export",
+            "src/entities/drug/interactions.rs::interaction_report",
+            "src/entities/drug/get.rs::resolve_drug_identity"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_command": [
+            "ddinter",
+            "sync"
+          ],
+          "baseline_gap": {
+            "reason": "Released ddinter sync exists but forces NoStore downloads from eight fixed native URLs. It has no endpoint override, so the baseline replay cannot isolate this command. All eight unchanged retained CSV bodies remain available; this is an isolation gap, not an unsupported command.",
+            "release_source": "src/sources/ddinter.rs::sync_export"
+          }
+        }
+      ]
+    },
+    {
+      "case": "protein/paging.yaml",
+      "steps": [
+        {
+          "case": "protein/paging.yaml",
+          "step": 0,
+          "baseline_command": [
+            "search",
+            "protein",
+            "EGFR"
+          ],
+          "spelling_table": "sdlc/planning/slices/protein.md",
+          "release_source": [
+            "src/sources/uniprot.rs::decode_search_response",
+            "src/sources/uniprot.rs::search_plan"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_gap": {
+            "reason": "The two unchanged UniProt source bodies and native pagination metadata are retained, but the baseline peer does not yet replay Link and X-Total-Results. Released UniProt follows full native Link URLs, which bypass endpoint overrides. This native-header isolation gap requires a reviewed confined adapter; source fields and cursor data must not be fabricated.",
+            "release_source": "src/sources/uniprot.rs::search_plan"
+          },
+          "baseline_items": "/results"
+        },
+        {
+          "case": "protein/paging.yaml",
+          "step": 1,
+          "baseline_command": [
+            "search",
+            "protein",
+            "EGFR"
+          ],
+          "spelling_table": "sdlc/planning/slices/protein.md",
+          "release_source": [
+            "src/sources/uniprot.rs::decode_search_response",
+            "src/sources/uniprot.rs::search_plan"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_gap": {
+            "reason": "The two unchanged UniProt source bodies and native pagination metadata are retained, but the baseline peer does not yet replay Link and X-Total-Results. Released UniProt follows full native Link URLs, which bypass endpoint overrides. This native-header isolation gap requires a reviewed confined adapter; source fields and cursor data must not be fabricated.",
+            "release_source": "src/sources/uniprot.rs::search_plan"
+          },
+          "baseline_items": "/results"
+        },
+        {
+          "case": "protein/paging.yaml",
+          "step": 2,
+          "baseline_command": [
+            "search",
+            "protein",
+            "EGFR"
+          ],
+          "spelling_table": "sdlc/planning/slices/protein.md",
+          "release_source": [
+            "src/sources/uniprot.rs::decode_search_response",
+            "src/sources/uniprot.rs::search_plan"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "facts": {},
+          "baseline_gap": {
+            "reason": "The two unchanged UniProt source bodies and native pagination metadata are retained, but the baseline peer does not yet replay Link and X-Total-Results. Released UniProt follows full native Link URLs, which bypass endpoint overrides. This native-header isolation gap requires a reviewed confined adapter; source fields and cursor data must not be fabricated.",
+            "release_source": "src/sources/uniprot.rs::search_plan"
+          }
+        }
+      ]
     }
   ]
 }

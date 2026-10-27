@@ -49,9 +49,9 @@ struct Selection {
     #[serde(default)]
     baseline_items: Option<String>,
     #[serde(default)]
-    baseline_walk_once: Option<UnsupportedFact>,
-    #[serde(default)]
     unsupported_command: Option<UnsupportedFact>,
+    #[serde(default)]
+    baseline_gap: Option<UnsupportedFact>,
     spelling_table: String,
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
@@ -306,6 +306,15 @@ fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Resu
         }
         return Ok(case);
     }
+    if let Some(reason) = &selection.baseline_gap {
+        reason.validate()?;
+        if !setup
+            || selection.baseline_command.is_empty()
+            || selection.unsupported_command.is_some()
+        {
+            return Err("released recording gap requires an existing sequence command".into());
+        }
+    }
     if selection.baseline_command.is_empty() {
         return Err("selection requires a baseline command".into());
     }
@@ -407,6 +416,12 @@ fn facts(
         let prepared = assertions::prepare(&fact)?;
         for (_, _, assertions) in prepared {
             for assertion in assertions {
+                if let Some(reason) = &selection.baseline_gap {
+                    result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
+                        "baseline":{"verdict":"assessment_gap","reason":reason},
+                        "candidate":verdict(current, pointer, &assertion)}));
+                    continue;
+                }
                 if let Some(reason) = selection.unprojectable_facts.get(pointer) {
                     result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
                         "baseline":{"verdict":"unprojectable","reason":reason.reason,"release_source":reason.release_source},

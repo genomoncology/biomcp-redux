@@ -36,23 +36,17 @@ pub(super) fn validate_from(sequence: &Sequence, root: &Path) -> Result<(), Stri
             return Err("sequence requires every harvested step in order".into());
         }
         let step = case.steps.get(index).ok_or("sequence step missing")?;
-        if step.expect.keys().any(|pointer| {
-            !selection.facts.contains_key(pointer)
-                && !selection.unprojectable_facts.contains_key(pointer)
-        }) || selection.assertion_pointers.is_some()
+        if selection.baseline_gap.is_none()
+            && step.expect.keys().any(|pointer| {
+                !selection.facts.contains_key(pointer)
+                    && !selection.unprojectable_facts.contains_key(pointer)
+            })
+            || selection.assertion_pointers.is_some()
         {
             return Err("sequence must assess every harvested assertion".into());
         }
         if step.walk.is_some() != selection.baseline_items.is_some() {
             return Err("walk requires the released aggregate array pointer".into());
-        }
-        if let Some(reason) = &selection.baseline_walk_once {
-            reason.validate()?;
-            if step.walk.is_none() || !selection.pages.is_empty() {
-                return Err(
-                    "one released walk response requires a walk without released pages".into(),
-                );
-            }
         }
         for page in &selection.pages {
             let mapped = page_selection(selection, page);
@@ -163,8 +157,10 @@ fn execute(
             .cloned()
             .ok_or("candidate did not emit JSON")?;
         exchanges.push(actual);
-        if ordinal == 0 || selection.baseline_walk_once.is_none() {
-            released.push(if let Some(reason) = &mapped.unsupported_command {
+        if ordinal == 0 || selection.baseline_gap.is_none() {
+            released.push(if let Some(reason) = &mapped.baseline_gap {
+                json!({"assessment_error":reason})
+            } else if let Some(reason) = &mapped.unsupported_command {
                 json!({"unsupported_command":reason})
             } else {
                 recording::baseline_in(
@@ -189,7 +185,7 @@ fn execute(
         Ok(value) => execution::field(&mut current, "parsed", value)?,
         Err(reason) => execution::field(&mut current, "assessment_error", json!(reason))?,
     }
-    if selection.baseline_walk_once.is_none() && exchanges.len() != selection.pages.len() + 1 {
+    if selection.baseline_gap.is_none() && exchanges.len() != selection.pages.len() + 1 {
         execution::field(
             &mut current,
             "assessment_error",
@@ -205,12 +201,7 @@ fn execute(
         execution::field(&mut current, "mcp", reply)?;
     }
     execution::field(&mut current, "exchanges", json!(exchanges))?;
-    let mut baseline = aggregate(&released, selection.baseline_items.as_deref())?;
-    execution::field(
-        &mut baseline,
-        "walk_once",
-        json!(selection.baseline_walk_once),
-    )?;
+    let baseline = aggregate(&released, selection.baseline_items.as_deref())?;
     Ok((current, baseline))
 }
 fn mapped_command(
@@ -230,7 +221,7 @@ fn mapped_command(
             return Err("follow differs from reviewed command".into());
         }
         Ok(selection.clone())
-    } else if selection.baseline_walk_once.is_some() {
+    } else if selection.baseline_gap.is_some() {
         Ok(selection.clone())
     } else {
         let page = selection
@@ -291,6 +282,8 @@ fn aggregate(exchanges: &[Value], pointer: Option<&str>) -> Result<Value, String
         .unwrap_or(json!({"assessment_error":"no command executed"}));
     if let Some(failed) = exchanges.iter().find_map(|e| e.get("assessment_error")) {
         execution::field(&mut result, "assessment_error", failed.clone())?;
+        execution::field(&mut result, "exchanges", json!(exchanges))?;
+        return Ok(result);
     }
     if let Some(pointer) = pointer {
         let mut items = Vec::new();
