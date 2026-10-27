@@ -11,6 +11,8 @@ pub(super) enum Projection {
     Length(Length),
     ReleasedSource(ReleasedSource),
     AuthorIds(AuthorIds),
+    Indexing(super::indexing::Indexing),
+    ArticleKey(super::article_key::ArticleKey),
 }
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -61,6 +63,8 @@ impl Member {
 impl Projection {
     pub(super) fn pointers(&self) -> Vec<&str> {
         match self {
+            Self::Indexing(indexing) => vec![&indexing.article_indexing],
+            Self::ArticleKey(key) => vec![&key.article_key],
             Self::Pointer(pointer) => vec![pointer],
             Self::Length(length) => vec![&length.array_length],
             Self::ReleasedSource(source) => vec![&source.released_source],
@@ -70,6 +74,8 @@ impl Projection {
     }
     pub(super) fn select(&self, value: &Value) -> Result<Value, String> {
         match self {
+            Self::Indexing(indexing) => indexing.select(value),
+            Self::ArticleKey(key) => key.select(value),
             Self::Pointer(pointer) => super::super::assertions::select(value, pointer),
             Self::Length(length) => {
                 let selected = super::super::assertions::select(value, &length.array_length)?;
@@ -138,7 +144,7 @@ fn project_object(object: &Object, value: &Value) -> Result<Value, String> {
 fn released_source(raw: &Value) -> Result<Value, String> {
     match raw.as_str().ok_or("released provider requires a string")? {
         "Reactome" => Ok(json!("reactome")),
-        "Semantic Scholar" => Ok(json!("semantic-scholar")),
+        "Semantic Scholar" | "semantic_scholar" => Ok(json!("semantic-scholar")),
         "UniProt" => Ok(json!("uniprot")),
         "ORCID" => Ok(json!("orcid")),
         "ClinGen" => Ok(json!("clingen")),

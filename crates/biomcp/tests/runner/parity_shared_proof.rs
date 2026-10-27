@@ -6,6 +6,7 @@ use serde_json::{Value, json};
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         super::operation::trial(),
+        super::indexing_proof::trial(),
         Trial::test("parity/closed-projection-shapes", || {
             projections().map_err(Into::into)
         }),
@@ -20,6 +21,16 @@ fn project(shape: Value, value: Value) -> Result<Value, String> {
 }
 fn fixed_shapes() -> Result<(), String> {
     for (shape, input, expected) in [
+        (
+            json!({"article_key":"/row","field":"namespace"}),
+            json!({"row":{"pmid":"", "pmcid":"PMC123", "semantic_scholar_id":"abc"}}),
+            json!("pmc"),
+        ),
+        (
+            json!({"article_key":"/row","field":"item"}),
+            json!({"row":{"pmid":"", "semantic_scholar_id":"abc", "title":""}}),
+            json!({"key":{"namespace":"semantic_scholar","id":"abc"}}),
+        ),
         (
             json!({"released_source":"/source"}),
             json!({"source":"clingen_erepo"}),
@@ -54,6 +65,21 @@ fn fixed_shapes() -> Result<(), String> {
 }
 fn projections() -> Result<(), String> {
     fixed_shapes()?;
+    for row in [
+        json!({"title":"has a header", "semantic_scholar_id":"abc"}),
+        json!({"title":"", "date":"2020", "semantic_scholar_id":"abc"}),
+        json!({"title":""}),
+        json!({"title":"", "pmid":false}),
+    ] {
+        if project(
+            json!({"article_key":"/row","field":"item"}),
+            json!({"row":row}),
+        )
+        .is_ok()
+        {
+            return Err("key-only projection erased a header or invented an identifier".into());
+        }
+    }
     let source = json!({"released_source":"/source"});
     for value in [
         json!(false),

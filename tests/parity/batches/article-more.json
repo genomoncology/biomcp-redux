@@ -1050,10 +1050,115 @@
         }
       ],
       "facts": {
-        "/result/items/0/sections/indexing/data/mesh": "/items/0/result/indexing/mesh_headings",
-        "/result/items/0/sections/indexing/state": "/items/0/result/section_outcomes/indexing/outcome"
+        "/result/items/0/sections/indexing/data/mesh": {
+          "article_indexing": "/items/0/result/indexing",
+          "field": "mesh"
+        },
+        "/result/items/0/sections/indexing/state": "/items/0/result/section_outcomes/indexing/outcome",
+        "/result/items/0/sections/indexing/data/affiliations/total": {
+          "article_indexing": "/items/0/result/indexing",
+          "field": "affiliations_total"
+        },
+        "/result/items/1/sections/indexing/data/affiliations/items": {
+          "article_indexing": "/items/1/result/indexing",
+          "field": "affiliations_items"
+        },
+        "/result/items/1/sections/indexing/data/affiliations/total": {
+          "article_indexing": "/items/1/result/indexing",
+          "field": "affiliations_total"
+        },
+        "/result/items/1/sections/indexing/data/mesh": {
+          "article_indexing": "/items/1/result/indexing",
+          "field": "mesh"
+        },
+        "/result/items/1/sections/indexing/data/orcids": {
+          "article_indexing": "/items/1/result/indexing",
+          "field": "orcids"
+        }
       },
       "unprojectable_facts": {}
+    },
+    {
+      "case": "article/semantic-scholar/synthetic-minimal.yaml",
+      "step": 0,
+      "baseline_command": [
+        "search",
+        "article",
+        "EGFR T790M osimertinib",
+        "--source",
+        "semanticscholar",
+        "--include-retracted"
+      ],
+      "spelling_table": "sdlc/planning/slices/article.md",
+      "release_source": [
+        "src/entities/article/mod.rs",
+        "src/cli/article/dispatch.rs",
+        "src/entities/article/detail.rs",
+        "src/cli/system/batch.rs"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "semantic-scholar",
+          "endpoint_env": "BIOMCP_S2_BASE",
+          "host": "api.semanticscholar.org",
+          "request_prefix": "GET /graph/v1/paper/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EGFR T790M osimertinib"
+          },
+          "capture": "semantic-scholar/b00f1b0a9d042627c6fecc1a0b75ab3a1c0a4c88e11a3df78131194d042cd22f.json"
+        }
+      ],
+      "facts": {
+        "/result/items/0/key/namespace": {
+          "article_key": "/results/0",
+          "field": "namespace"
+        },
+        "/result/items/0/header/date": "/results/0/date",
+        "/result/items/1/header/date": "/results/1/date",
+        "/result/items/2/key/namespace": {
+          "article_key": "/results/2",
+          "field": "namespace"
+        },
+        "/result/items/3/key/id": "/results/3/semantic_scholar_id",
+        "/result/items/3": {
+          "article_key": "/results/3",
+          "field": "item"
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        },
+        "/page/total": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        },
+        "/result/items/0/header/author_count": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        },
+        "/result/items/1/header/author_count": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        },
+        "/result/items/1/header/first_author": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        },
+        "/result/items/4": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        },
+        "/result/items/5": {
+          "reason": "Released ArticleSearchResult omits authors, author count, first author and publication types. It serializes only year-derived date, title and separate identifiers, without the current header-only row shape or lifecycle status. Semantic Scholar source-global total is discarded. No missing current header field is inferred from those retained values.",
+          "release_source": "src/entities/article/mod.rs::ArticleSearchResult;src/entities/article/backends.rs::semantic_scholar_rows_from_response"
+        }
+      }
     }
   ]
 }

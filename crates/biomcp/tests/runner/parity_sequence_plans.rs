@@ -69,27 +69,35 @@ fn declaration(
         return None;
     }
     let command = step.run.as_ref().or(step.mcp.as_ref())?;
-    let template = plan.cases.iter().find(|selection| {
-        let Some(original) = cases.get(&selection.case) else {
-            return false;
-        };
-        original.config == case.config
-            && original.steps.get(selection.step).is_some_and(|original| {
-                original.exit == step.exit
-                    && original.run.as_ref().or(original.mcp.as_ref()) == Some(command)
-            })
-            && selection.recordings.iter().all(|route| {
-                case.replay.as_ref().is_some_and(|replay| {
-                    root.parent().is_some_and(|fixtures| {
-                        fixtures
-                            .join("replies")
-                            .join(replay)
-                            .join(&route.capture)
-                            .is_file()
+    let template = plan
+        .cases
+        .iter()
+        .filter(|selection| {
+            let Some(original) = cases.get(&selection.case) else {
+                return false;
+            };
+            original.config == case.config
+                && original.steps.get(selection.step).is_some_and(|original| {
+                    original.exit == step.exit
+                        && original.run.as_ref().or(original.mcp.as_ref()) == Some(command)
+                })
+                && selection.recordings.iter().all(|route| {
+                    case.replay.as_ref().is_some_and(|replay| {
+                        root.parent().is_some_and(|fixtures| {
+                            fixtures
+                                .join("replies")
+                                .join(replay)
+                                .join(&route.capture)
+                                .is_file()
+                        })
                     })
                 })
-            })
-    })?;
+                && step.expect.keys().all(|pointer| {
+                    selection.facts.contains_key(pointer)
+                        || selection.unprojectable_facts.contains_key(pointer)
+                })
+        })
+        .min_by_key(|selection| (selection.case != name, selection.step != index))?;
     let mut selected = template.clone();
     selected.case = name.into();
     selected.step = index;

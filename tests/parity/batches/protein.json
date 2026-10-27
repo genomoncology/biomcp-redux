@@ -245,6 +245,96 @@
           "release_source": "src/entities/protein.rs::Protein;src/render/json.rs::EntityJsonResponse;src/render/json.rs::EntityMeta"
         }
       }
+    },
+    {
+      "case": "protein/wrong-accession.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "spelling_table": "sdlc/planning/slices/protein.md",
+      "release_source": [
+        "src/sources/uniprot.rs::get_json",
+        "src/sources/uniprot.rs::decode_json_response",
+        "src/error.rs::public_projection",
+        "src/error.rs::exit_code",
+        "src/render/json.rs::to_error_json"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "baseline_exit": 0,
+      "baseline_stream": "stdout",
+      "recordings": [
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/P00533.json",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "uniprot/fcb933bb1832fa80fd0fe52eb58b7ff7104506b9941552f00448711403bbb9da.json",
+          "exchange": 0
+        }
+      ],
+      "facts": {},
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released protein get transforms the returned UniProt record without enforcing requested accession or human taxon identity. A successful Protein card has neither lifecycle status nor source problem records. A missing error does not supply the asserted current rejection.",
+          "release_source": "src/entities/protein.rs::get_with_structure_limit;src/transform/protein.rs::from_uniprot_record_base"
+        },
+        "/problems/0/source": {
+          "reason": "Released protein get transforms the returned UniProt record without enforcing requested accession or human taxon identity. A successful Protein card has neither lifecycle status nor source problem records. A missing error does not supply the asserted current rejection.",
+          "release_source": "src/entities/protein.rs::get_with_structure_limit;src/transform/protein.rs::from_uniprot_record_base"
+        }
+      }
+    },
+    {
+      "case": "protein/wrong-taxon.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "protein",
+        "P00533"
+      ],
+      "spelling_table": "sdlc/planning/slices/protein.md",
+      "release_source": [
+        "src/sources/uniprot.rs::get_json",
+        "src/sources/uniprot.rs::decode_json_response",
+        "src/error.rs::public_projection",
+        "src/error.rs::exit_code",
+        "src/render/json.rs::to_error_json"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "baseline_exit": 0,
+      "baseline_stream": "stdout",
+      "recordings": [
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/P00533.json",
+          "request_contains": "",
+          "request_query": {},
+          "capture": "uniprot/fcb933bb1832fa80fd0fe52eb58b7ff7104506b9941552f00448711403bbb9da.json",
+          "exchange": 0
+        }
+      ],
+      "facts": {},
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released protein get transforms the returned UniProt record without enforcing requested accession or human taxon identity. A successful Protein card has neither lifecycle status nor source problem records. A missing error does not supply the asserted current rejection.",
+          "release_source": "src/entities/protein.rs::get_with_structure_limit;src/transform/protein.rs::from_uniprot_record_base"
+        },
+        "/problems/0/source": {
+          "reason": "Released protein get transforms the returned UniProt record without enforcing requested accession or human taxon identity. A successful Protein card has neither lifecycle status nor source problem records. A missing error does not supply the asserted current rejection.",
+          "release_source": "src/entities/protein.rs::get_with_structure_limit;src/transform/protein.rs::from_uniprot_record_base"
+        }
+      }
     }
   ],
   "inventory": {
