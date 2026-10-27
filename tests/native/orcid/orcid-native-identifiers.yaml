@@ -28,8 +28,7 @@
       "exit": 0,
       "is_error": false,
       "full_output_bytes": true,
-      "max_bytes": 2014,
-      "max_tokens": 504
+      "max_bytes": 2014
     }
   ]
 }

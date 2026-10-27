@@ -19,8 +19,7 @@
         "/result/items/*/pmid": {
           "includes": "27959700"
         }
-      },
-      "max_tokens": 474
+      }
     },
     {
       "run": [
@@ -35,8 +34,7 @@
       "expect": {
         "/status": "partial",
         "/sources/1/reason": "deadline_exceeded"
-      },
-      "max_tokens": 474
+      }
     }
   ],
   "verified": "Measured CLI output at43f22fd: 1647,1647 bytes by step; ceilings are ceil(actual*1.15). These synthetic boundary replies and named-source responses have no matching0.9 JSON baseline. Actual canonical captures: j9693, j9708 and j9753. Successful keyless source verification remains0061.",

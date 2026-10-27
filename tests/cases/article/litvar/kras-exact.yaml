@@ -17,7 +17,6 @@
         "litvar"
       ],
       "max_bytes": 5348,
-      "max_tokens": 1338,
       "expect": {
         "/status": "complete",
         "/sources/1/term": "rs121913530",
@@ -60,7 +59,6 @@
         "litvar"
       ],
       "max_bytes": 5348,
-      "max_tokens": 1338,
       "expect": {
         "/page/total": 8915
       }

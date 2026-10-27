@@ -18,7 +18,6 @@
         "Nature \"Medicine\"\\Reports"
       ],
       "max_bytes": 1200,
-      "max_tokens": 300,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "AKT1 AND AUTH:\"Smith J\" AND JOURNAL:\"Nature \\\"Medicine\\\"\\\\Reports\"",

@@ -27,7 +27,6 @@
         "/sources/0/reason": "no_key"
       },
       "max_bytes": 900,
-      "max_tokens": 225,
       "is_error": true
     },
     {
@@ -53,8 +52,7 @@
       "expect": {
         "/status": "usage"
       },
-      "max_bytes": 350,
-      "max_tokens": 88
+      "max_bytes": 350
     },
     {
       "run": [
@@ -83,8 +81,7 @@
       "expect": {
         "/status": "usage"
       },
-      "max_bytes": 350,
-      "max_tokens": 88
+      "max_bytes": 350
     }
   ]
 }
