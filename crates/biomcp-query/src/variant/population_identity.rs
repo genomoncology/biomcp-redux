@@ -3,7 +3,8 @@
 use crate::{Ctx, status};
 use biomcp_adapters::allele_registry;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader, VariantId};
+use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader};
+use biodata::VariantId;
 
 #[derive(Default)]
 pub(super) struct Identity {
