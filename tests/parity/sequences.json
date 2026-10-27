@@ -1,0 +1,379 @@
+{
+  "baseline_release": "0.9.3",
+  "cases": [],
+  "sequences": [
+    {
+      "case": "trial/condition.yaml",
+      "steps": [
+        {
+          "case": "trial/condition.yaml",
+          "step": 0,
+          "baseline_command": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma"
+          ],
+          "spelling_table": "sdlc/planning/slices/trial.md",
+          "release_source": [
+            "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
+            "src/cli/trial/mod.rs::TrialSearchArgs",
+            "src/entities/trial/mod.rs::Trial",
+            "src/sources/clinicaltrials.rs::search_plan",
+            "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+            "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [
+            {
+              "source": "clinicaltrials-gov",
+              "endpoint_env": "BIOMCP_CTGOV_BASE",
+              "host": "clinicaltrials.gov",
+              "request_prefix": "GET /api/v2/studies",
+              "request_contains": "",
+              "request_query": {
+                "query.cond": "melanoma"
+              },
+              "capture": "ctgov/cd5ba2b6d81e5f817294444c0b1767941556d5c25f2b92a2d624e7b9fff17a1c.json"
+            }
+          ],
+          "facts": {
+            "/page/total": "/pagination/total",
+            "/result/items/*/nct_id": "/results/*/nct_id"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released trial JSON does not serialize the current lifecycle status enum.",
+              "release_source": "src/cli/trial/dispatch.rs"
+            },
+            "/result/source_updated": {
+              "reason": "Released trial search does not fetch or serialize the /version data timestamp.",
+              "release_source": "src/cli/trial/dispatch.rs"
+            }
+          },
+          "command_selectors": {
+            "--condition": "--condition"
+          }
+        },
+        {
+          "case": "trial/condition.yaml",
+          "step": 1,
+          "baseline_command": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma"
+          ],
+          "spelling_table": "sdlc/planning/slices/trial.md",
+          "release_source": [
+            "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
+            "src/cli/trial/mod.rs::TrialSearchArgs",
+            "src/entities/trial/mod.rs::Trial",
+            "src/sources/clinicaltrials.rs::search_plan",
+            "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+            "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [
+            {
+              "source": "clinicaltrials-gov",
+              "endpoint_env": "BIOMCP_CTGOV_BASE",
+              "host": "clinicaltrials.gov",
+              "request_prefix": "GET /api/v2/studies",
+              "request_contains": "",
+              "request_query": {
+                "query.cond": "melanoma"
+              },
+              "capture": "ctgov/cd5ba2b6d81e5f817294444c0b1767941556d5c25f2b92a2d624e7b9fff17a1c.json"
+            }
+          ],
+          "facts": {
+            "/page/total": "/pagination/total"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released trial JSON does not serialize the current lifecycle status enum.",
+              "release_source": "src/cli/trial/dispatch.rs"
+            }
+          },
+          "command_selectors": {
+            "--condition": "--condition"
+          }
+        }
+      ]
+    },
+    {
+      "case": "trial/walk.yaml",
+      "steps": [
+        {
+          "case": "trial/walk.yaml",
+          "step": 0,
+          "baseline_command": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma"
+          ],
+          "spelling_table": "sdlc/planning/slices/trial.md",
+          "release_source": [
+            "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
+            "src/cli/trial/mod.rs::TrialSearchArgs",
+            "src/entities/trial/mod.rs::Trial",
+            "src/sources/clinicaltrials.rs::search_plan",
+            "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+            "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [
+            {
+              "source": "clinicaltrials-gov",
+              "endpoint_env": "BIOMCP_CTGOV_BASE",
+              "host": "clinicaltrials.gov",
+              "request_prefix": "GET /api/v2/studies",
+              "request_contains": "",
+              "request_query": {
+                "query.cond": "melanoma"
+              },
+              "capture": "ctgov/cd5ba2b6d81e5f817294444c0b1767941556d5c25f2b92a2d624e7b9fff17a1c.json"
+            }
+          ],
+          "facts": {
+            "/page/total": "/pagination/total"
+          },
+          "unprojectable_facts": {},
+          "command_selectors": {
+            "--condition": "--condition"
+          }
+        },
+        {
+          "case": "trial/walk.yaml",
+          "step": 1,
+          "baseline_command": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma",
+            "--next-page",
+            "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"
+          ],
+          "spelling_table": "sdlc/planning/slices/trial.md",
+          "release_source": [
+            "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
+            "src/cli/trial/mod.rs::TrialSearchArgs",
+            "src/entities/trial/mod.rs::Trial",
+            "src/sources/clinicaltrials.rs::search_plan",
+            "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+            "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [
+            {
+              "source": "clinicaltrials-gov",
+              "endpoint_env": "BIOMCP_CTGOV_BASE",
+              "host": "clinicaltrials.gov",
+              "request_prefix": "GET /api/v2/studies",
+              "request_contains": "",
+              "request_query": {
+                "query.cond": "melanoma",
+                "pageToken": "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"
+              },
+              "capture": "ctgov/8d9405b6814845e38902d810ea627436d1c808ef5d60b1de4dab0dff6f9ef718.json"
+            }
+          ],
+          "facts": {
+            "/page/total": "/pagination/total",
+            "/result/items/*/nct_id": "/results/*/nct_id"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released trial JSON does not serialize the current lifecycle status enum.",
+              "release_source": "src/cli/trial/dispatch.rs"
+            },
+            "/result/count_request": {
+              "reason": "Released trial JSON does not serialize the diagnostic count_request trace from the current count-recovery request.",
+              "release_source": "src/cli/trial/dispatch.rs"
+            }
+          },
+          "command_selectors": {
+            "--condition": "--condition",
+            "--next-page": "--next-page"
+          },
+          "candidate_command": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma",
+            "--next-page",
+            "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"
+          ]
+        },
+        {
+          "case": "trial/walk.yaml",
+          "step": 2,
+          "baseline_command": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma",
+            "--next-page",
+            "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"
+          ],
+          "spelling_table": "sdlc/planning/slices/trial.md",
+          "release_source": [
+            "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
+            "src/cli/trial/mod.rs::TrialSearchArgs",
+            "src/entities/trial/mod.rs::Trial",
+            "src/sources/clinicaltrials.rs::search_plan",
+            "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+            "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [
+            {
+              "source": "clinicaltrials-gov",
+              "endpoint_env": "BIOMCP_CTGOV_BASE",
+              "host": "clinicaltrials.gov",
+              "request_prefix": "GET /api/v2/studies",
+              "request_contains": "",
+              "request_query": {
+                "query.cond": "melanoma",
+                "pageToken": "ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxuZPGs2Pg"
+              },
+              "capture": "ctgov/8d9405b6814845e38902d810ea627436d1c808ef5d60b1de4dab0dff6f9ef718.json"
+            }
+          ],
+          "facts": {
+            "/page/total": "/pagination/total",
+            "/result/items/*/nct_id": "/results/*/nct_id"
+          },
+          "unprojectable_facts": {
+            "/status": {
+              "reason": "Released trial JSON does not serialize the current lifecycle status enum.",
+              "release_source": "src/cli/trial/dispatch.rs"
+            }
+          },
+          "command_selectors": {
+            "--condition": "--condition",
+            "--next-page": "--next-page"
+          }
+        }
+      ]
+    },
+    {
+      "case": "pathway/wikipathways-missing.yaml",
+      "steps": [
+        {
+          "case": "pathway/wikipathways-missing.yaml",
+          "step": 0,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/pathway.md",
+          "release_source": [
+            "src/entities/pathway.rs::search"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released pathway search uses the WikiPathways online client and has no missing local metadata-bundle state or explicit WikiPathways sync command.",
+            "release_source": "src/entities/pathway.rs::search"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/sources/0/source": {
+              "reason": "Released pathway search uses the WikiPathways online client and has no missing local metadata-bundle state or explicit WikiPathways sync command.",
+              "release_source": "src/entities/pathway.rs::search"
+            },
+            "/sources/0/reason": {
+              "reason": "Released pathway search uses the WikiPathways online client and has no missing local metadata-bundle state or explicit WikiPathways sync command.",
+              "release_source": "src/entities/pathway.rs::search"
+            },
+            "/next/0/args": {
+              "reason": "Released pathway search uses the WikiPathways online client and has no missing local metadata-bundle state or explicit WikiPathways sync command.",
+              "release_source": "src/entities/pathway.rs::search"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "pathway/wikipathways-genes-missing.yaml",
+      "steps": [
+        {
+          "case": "pathway/wikipathways-genes-missing.yaml",
+          "step": 0,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/pathway.md",
+          "release_source": [
+            "src/entities/pathway.rs::get"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "Released WikiPathways genes uses WikiPathwaysClient::new and its online record/genes methods; it has no missing local metadata-bundle state.",
+            "release_source": "src/entities/pathway.rs::get"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/sources/0/source": {
+              "reason": "Released WikiPathways genes uses WikiPathwaysClient::new and its online record/genes methods; it has no missing local metadata-bundle state.",
+              "release_source": "src/entities/pathway.rs::get"
+            },
+            "/sources/0/reason": {
+              "reason": "Released WikiPathways genes uses WikiPathwaysClient::new and its online record/genes methods; it has no missing local metadata-bundle state.",
+              "release_source": "src/entities/pathway.rs::get"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "schema/errors.yaml",
+      "steps": [
+        {
+          "case": "schema/errors.yaml",
+          "step": 0,
+          "baseline_command": [],
+          "spelling_table": "sdlc/planning/slices/gene.md",
+          "release_source": [
+            "src/cli/commands.rs::Commands"
+          ],
+          "baseline_globals": [
+            "--json"
+          ],
+          "recordings": [],
+          "source_free": true,
+          "unsupported_command": {
+            "reason": "The released Commands enum has no schema command or named JSON Schema artifact query.",
+            "release_source": "src/cli/commands.rs::Commands"
+          },
+          "facts": {},
+          "unprojectable_facts": {
+            "/$id": {
+              "reason": "The released Commands enum has no schema command or named JSON Schema artifact query.",
+              "release_source": "src/cli/commands.rs::Commands"
+            },
+            "/type": {
+              "reason": "The released Commands enum has no schema command or named JSON Schema artifact query.",
+              "release_source": "src/cli/commands.rs::Commands"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
