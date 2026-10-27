@@ -24,6 +24,8 @@ def witness(commit, batch, case, pointer, wrong, label, baseline, out):
     plan = declared(commit, 'tests/parity/batches/' + batch)
     row = copy.deepcopy(next(row for row in plan['cases'] if row['case'] == case))
     row['assertion_pointers'] = [pointer]
+    if label == 'author':
+        row['recordings'][0]['request_query'].update(limit='5', offset='0')
     if label == 'limit':
         row['command_selectors'] = {'--limit': {'effective_adverse_event_limit': True}}
     fixtures = out / (label + '-fixtures')
