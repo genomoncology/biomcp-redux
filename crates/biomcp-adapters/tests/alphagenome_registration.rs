@@ -22,13 +22,12 @@ fn restricted_source_requires_its_own_key_before_any_provider_request()
         mode: biomcp_fetch::Mode::Offline,
         ..Default::default()
     })?;
-    let request = biomcp_fetch::grpc::alphagenome::DnaseRequest::human_all_folds(
+    let request = biomcp_fetch::grpc::alphagenome::DnaseRequest::human_lung_all_folds(
         "chr7",
         140745143..140761527,
         140753336,
         "A",
         "T",
-        2048,
     )?;
     let leg = fetch.leg(&SPEC, fetch.deadline(std::time::Duration::from_secs(1)));
     let result = leg.grpc_checked(

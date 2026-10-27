@@ -13,7 +13,7 @@ pub const SCHEMA: &str =
     "alphagenome-55943112b83439e0c2512110f1ae607d4b5b492a-predict-variant-dnase";
 
 /// A validated explicit request, with one-based variant and zero-based half-open interval.
-/// This request selects human DNASE, one UBERON term and the ALL_FOLDS checkpoint.
+/// This request selects human DNASE, UBERON:0002048 (lung) and the ALL_FOLDS checkpoint.
 #[derive(Debug)]
 pub struct DnaseRequest {
     request: proto::PredictVariantRequest,
@@ -22,13 +22,12 @@ pub struct DnaseRequest {
 impl DnaseRequest {
     /// Encode the selected request shape. Coordinates and alleles are supplied unchanged.
     /// The caller retains its assembly provenance; the publisher has no build request field.
-    pub fn human_all_folds(
+    pub fn human_lung_all_folds(
         chromosome: &str,
         interval: std::ops::Range<i64>,
         position: i64,
         reference: &str,
         alternate: &str,
-        uberon: i64,
     ) -> Result<Self, InputError> {
         let width = interval
             .end
@@ -45,7 +44,7 @@ impl DnaseRequest {
                 .saturating_add(alternate.len())
                 > 4096
             || interval.start < 0
-            || ![16384, 131072, 524288, 1048576].contains(&width)
+            || width != 16384
             || position <= interval.start
             || variant_end.is_none_or(|end| end > interval.end)
             || reference.is_empty()
@@ -54,7 +53,6 @@ impl DnaseRequest {
                 .bytes()
                 .chain(alternate.bytes())
                 .all(|b| b"ACGTN".contains(&b))
-            || uberon <= 0
         {
             return Err(InputError::Path);
         }
@@ -75,7 +73,7 @@ impl DnaseRequest {
             requested_outputs: vec![proto::OutputType::Dnase as i32],
             ontology_terms: vec![proto::OntologyTerm {
                 ontology_type: proto::OntologyType::Uberon as i32,
-                id: uberon,
+                id: 2048,
             }],
             model_version: "ALL_FOLDS".into(),
         };

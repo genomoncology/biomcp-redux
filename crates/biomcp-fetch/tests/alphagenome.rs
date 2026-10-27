@@ -16,7 +16,7 @@ static QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
 );
 type Check = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 fn request() -> Result<DnaseRequest, biomcp_fetch::InputError> {
-    DnaseRequest::human_all_folds("chr7", 140745143..140761527, 140753336, "A", "T", 2048)
+    DnaseRequest::human_lung_all_folds("chr7", 140745143..140761527, 140753336, "A", "T")
 }
 fn varint(mut value: u64) -> Vec<u8> {
     let mut bytes = Vec::new();
@@ -86,8 +86,7 @@ fn canonical_request_preserves_one_based_variant_and_zero_based_interval() -> Ch
         (140745143..140761527, 140753336, "?"),
     ] {
         assert!(
-            DnaseRequest::human_all_folds("chr7", interval, position, reference, "T", 2048)
-                .is_err()
+            DnaseRequest::human_lung_all_folds("chr7", interval, position, reference, "T").is_err()
         );
     }
     Ok(())
