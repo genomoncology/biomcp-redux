@@ -297,7 +297,7 @@
       "release_source": [
         "src/entities/pathway.rs::search_with_filters",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -349,7 +349,7 @@
       "release_source": [
         "src/entities/pathway.rs::search_with_filters",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -401,7 +401,7 @@
       "release_source": [
         "src/entities/pathway.rs::search_with_filters",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -452,7 +452,7 @@
       "release_source": [
         "src/entities/pathway.rs::search_with_filters",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -503,7 +503,7 @@
       "release_source": [
         "src/entities/pathway.rs::search_with_filters",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -554,7 +554,7 @@
       "release_source": [
         "src/entities/pathway.rs::search_with_filters",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -647,7 +647,7 @@
       "release_source": [
         "src/entities/pathway.rs::get",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -706,7 +706,7 @@
       "release_source": [
         "src/entities/pathway.rs::get",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -765,7 +765,7 @@
       "release_source": [
         "src/entities/pathway.rs::get",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -824,7 +824,7 @@
       "release_source": [
         "src/entities/pathway.rs::get",
         "src/render/json.rs::to_error_json",
-        "src/cli/outcome.rs::error_outcome",
+        "src/cli/outcome.rs::run_outcome_on_current_stack",
         "src/error.rs::exit_code"
       ],
       "baseline_globals": [
@@ -876,17 +876,17 @@
       {
         "case": "pathway-sections/all.yaml",
         "reason": "Released Pathway retains bounded gene-symbol and event-display-name arrays, with no source-global relation counts, distinct-reference count kind, physical-entity occurrences or structured publication references. Its serialized fields are source/id/name/species/summary/genes/events/enrichment/section_outcomes; none of this case's asserted biomedical facts survives that serialization.",
-        "release_source": "src/entities/pathway.rs::Pathway;src/sources/reactome.rs::get_contained_events"
+        "release_source": "src/entities/pathway.rs::Pathway;src/sources/reactome.rs::contained_events"
       },
       {
         "case": "pathway-sections/details.yaml",
         "reason": "Released pathway genes retain only display-symbol strings. No details query echo, participants, physical-context count or participant schema_class is serialized.",
-        "release_source": "src/entities/pathway.rs::Pathway;src/sources/reactome.rs::get_contained_events"
+        "release_source": "src/entities/pathway.rs::Pathway;src/sources/reactome.rs::contained_events"
       },
       {
         "case": "pathway-sections/synthetic-object-only.yaml",
         "reason": "Released contained events retain display-name strings and truncate at the requested limit; event stable identifiers and typed navigation arguments are discarded. Pathway has no complete relation total or pagination total, so its bounded event-array length cannot project the asserted source-global total.",
-        "release_source": "src/entities/pathway.rs::Pathway;src/sources/reactome.rs::get_contained_events"
+        "release_source": "src/entities/pathway.rs::Pathway;src/sources/reactome.rs::contained_events"
       }
     ],
     "sequences": [

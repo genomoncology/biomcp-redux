@@ -628,7 +628,7 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/design.rs::ReferenceWire",
+        "src/entities/trial/design.rs::ClinicalTrialReference",
         "src/entities/trial/mod.rs::Trial"
       ],
       "baseline_globals": [
@@ -646,7 +646,7 @@
       ],
       "facts": {
         "/result/items/0/sections/references/data/items/5/pmid": "/references/5/pmid",
-        "/result/items/0/sections/references/data/items/5/kind": "/references/5/type/code"
+        "/result/items/0/sections/references/data/items/5/kind": "/references/5/source_type/code"
       },
       "unprojectable_facts": {
         "/status": {
