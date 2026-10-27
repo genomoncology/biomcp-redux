@@ -398,11 +398,18 @@ fn source_terms(root: &Path, path: &str, tokens: &[String]) -> Check {
             .strip_suffix("/mod")
             .unwrap_or(module)
             .replace('/', "::");
-        let name = tokens[..i]
+        let Some(position) = tokens[..i].iter().rposition(|token| token == "static") else {
+            return fail(path, "source declarations require named statics");
+        };
+        if tokens[position..i]
             .iter()
-            .rposition(|token| token == "static")
-            .and_then(|position| tokens.get(position + 1))
-            .map_or("SPEC", String::as_str);
+            .any(|token| matches!(token.as_str(), ";" | "{" | "}"))
+        {
+            return fail(path, "source declarations require named statics");
+        }
+        let name = tokens
+            .get(position + 1)
+            .ok_or("source static lacks a name")?;
         let expected = format!("&crate::{module}::{name}");
         let registry = fs::read_to_string(root.join("crates/biomcp-adapters/src/registry.rs"))?;
         if !registry.contains(&expected) {

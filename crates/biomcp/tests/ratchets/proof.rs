@@ -238,7 +238,7 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         put(
             tree.path(),
             &format!("crates/biomcp-adapters/src/{path}"),
-            declaration,
+            &format!("pub static SPEC: SourceSpec = {declaration};"),
         )?;
     }
     check(tree.path())?;
@@ -262,8 +262,32 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         "&crate::directory::SPEC, &crate::single_file::SPEC, &crate::directory::other::EXTRA",
     )?;
     check(tree.path())?;
+    put(
+        tree.path(),
+        auxiliary,
+        &format!(
+            "pub static EXTRA: SourceSpec = {declaration}; fn hidden() {{ let other = {declaration}; }}"
+        ),
+    )?;
+    let failure = check(tree.path())
+        .err()
+        .ok_or("dynamic source escaped the registry")?
+        .to_string();
+    assert!(
+        failure.contains("source declarations require named statics"),
+        "{failure}"
+    );
+    put(
+        tree.path(),
+        auxiliary,
+        &format!("pub static EXTRA: SourceSpec = {declaration};"),
+    )?;
     let path = "crates/biomcp-adapters/src/missing.rs";
-    put(tree.path(), path, declaration)?;
+    put(
+        tree.path(),
+        path,
+        &format!("pub static SPEC: SourceSpec = {declaration};"),
+    )?;
     let failure = check(tree.path())
         .err()
         .ok_or("unregistered single-file source accepted")?
