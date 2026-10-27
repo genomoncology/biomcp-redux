@@ -9,6 +9,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "pathway-reactome/invalid-optional-fields-keep-records",
             || reactome().map_err(Into::into),
         ),
+        Trial::test("variant/invalid-clinvar-condition-id-is-disclosed", || {
+            clinvar_condition_id().map_err(Into::into)
+        }),
         Trial::test("variant/invalid-rcv-condition-names-own-record", || {
             clinvar_rcv().map_err(Into::into)
         }),
@@ -183,6 +186,25 @@ fn clinvar_rcv() -> Result<(), String> {
         || value.pointer("/result/assertions/0/statement/attribution/record") != Some(&json!("RCV000123456"))
     {
         return Err(format!("RCV field problem lost its record: {value}"));
+    }
+    stub.finish()?;
+    Ok(())
+}
+
+fn clinvar_condition_id() -> Result<(), String> {
+    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
+        super::variant_assertion_wire::clinvar_body(request).map(|xml| {
+            xml.replace("ID=\"114480\"", "ID=\"invalid:\"")
+        })
+    })?;
+    let env = super::variant::source_environment(&stub)?;
+    let args = ["variant", "assertions", "clinvar:128042", "--source", "clinvar", "--assertion", "SCV000611258", "--version", "1"];
+    let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
+    check(&value, "conditions.id", "/result/assertions/0/detail/conditions/0/id")?;
+    if value.pointer("/problems/0/record") != Some(&json!("SCV000611258"))
+        || value.pointer("/result/assertions/0/statement/attribution/record") != Some(&json!("SCV000611258"))
+    {
+        return Err(format!("condition identity problem lost its record: {value}"));
     }
     stub.finish()?;
     Ok(())
