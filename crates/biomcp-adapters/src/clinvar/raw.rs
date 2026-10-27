@@ -63,6 +63,11 @@ impl XmlReply for Records {
         if let Some(rcvs) = classified.child("RCVList")? {
             for rcv in rcvs.children("RCVAccession")? {
                 if let Some(class) = rcv.child("RCVClassifications")? {
+                    problems.record = rcv
+                        .attr("Accession")?
+                        .as_deref()
+                        .map(crate::mapped::text)
+                        .transpose()?;
                     rows.extend(super::map::aggregate(
                         rcv,
                         class,

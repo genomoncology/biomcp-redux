@@ -179,11 +179,26 @@ fn clinvar_rcv() -> Result<(), String> {
         })
     })?;
     let env = super::variant::source_environment(&stub)?;
-    let args = ["variant", "assertions", "clinvar:128042", "--source", "clinvar", "--assertion", "RCV000123456", "--version", "1"];
+    let args = [
+        "variant",
+        "assertions",
+        "clinvar:128042",
+        "--source",
+        "clinvar",
+        "--assertion",
+        "RCV000123456",
+        "--version",
+        "1",
+    ];
     let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
-    check(&value, "conditions.label", "/result/assertions/0/detail/conditions/0/label")?;
+    check(
+        &value,
+        "conditions.label",
+        "/result/assertions/0/detail/conditions/0/label",
+    )?;
     if value.pointer("/problems/0/record") != Some(&json!("RCV000123456"))
-        || value.pointer("/result/assertions/0/statement/attribution/record") != Some(&json!("RCV000123456"))
+        || value.pointer("/result/assertions/0/statement/attribution/record")
+            != Some(&json!("RCV000123456"))
     {
         return Err(format!("RCV field problem lost its record: {value}"));
     }
@@ -193,18 +208,34 @@ fn clinvar_rcv() -> Result<(), String> {
 
 fn clinvar_condition_id() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
-        super::variant_assertion_wire::clinvar_body(request).map(|xml| {
-            xml.replace("ID=\"114480\"", "ID=\"invalid:\"")
-        })
+        super::variant_assertion_wire::clinvar_body(request)
+            .map(|xml| xml.replace("ID=\"114480\"", "ID=\"invalid:\""))
     })?;
     let env = super::variant::source_environment(&stub)?;
-    let args = ["variant", "assertions", "clinvar:128042", "--source", "clinvar", "--assertion", "SCV000611258", "--version", "1"];
+    let args = [
+        "variant",
+        "assertions",
+        "clinvar:128042",
+        "--source",
+        "clinvar",
+        "--assertion",
+        "SCV000611258",
+        "--version",
+        "1",
+    ];
     let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
-    check(&value, "conditions.id", "/result/assertions/0/detail/conditions/0/id")?;
+    check(
+        &value,
+        "conditions.id",
+        "/result/assertions/0/detail/conditions/0/id",
+    )?;
     if value.pointer("/problems/0/record") != Some(&json!("SCV000611258"))
-        || value.pointer("/result/assertions/0/statement/attribution/record") != Some(&json!("SCV000611258"))
+        || value.pointer("/result/assertions/0/statement/attribution/record")
+            != Some(&json!("SCV000611258"))
     {
-        return Err(format!("condition identity problem lost its record: {value}"));
+        return Err(format!(
+            "condition identity problem lost its record: {value}"
+        ));
     }
     stub.finish()?;
     Ok(())
