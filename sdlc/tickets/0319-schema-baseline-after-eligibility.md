@@ -1,6 +1,7 @@
 # 0319 — Refresh the 1.0 schema baseline after the eligibility paging fix
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0f802db6b683574eb0477f99e564c7f10b18d6fe
 
 Milestone: 5
 
