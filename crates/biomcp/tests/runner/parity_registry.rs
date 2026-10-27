@@ -118,7 +118,7 @@ fn audit(registry: &Registry) -> Result<(), String> {
                 .default_url
                 .starts_with(&format!("https://{}", endpoint.host))
             || endpoint.provenance.iter().any(|proof| {
-                !proof.source_path.starts_with("src/sources/")
+                !proof.source_path.starts_with("src/")
                     || !proof.declaration.contains(variable)
                     || !proof.declaration.contains(&endpoint.default_url)
             })

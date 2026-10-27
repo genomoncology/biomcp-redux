@@ -85,7 +85,8 @@
     "clinicaltrials-gov": {
       "recording_source": "ctgov",
       "variables": [
-        "BIOMCP_CTGOV_BASE"
+        "BIOMCP_CTGOV_BASE",
+        "BIOMCP_CTGOV_CDN_BASE"
       ],
       "delivery": "declaration_only"
     },
@@ -163,6 +164,13 @@
       "recording_source": "figshare",
       "variables": [
         "BIOMCP_FIGSHARE_BASE"
+      ],
+      "delivery": "declaration_only"
+    },
+    "gencc": {
+      "recording_source": "gencc",
+      "variables": [
+        "BIOMCP_GENCC_BASE"
       ],
       "delivery": "declaration_only"
     },
@@ -668,6 +676,18 @@
         }
       ]
     },
+    "BIOMCP_CTGOV_CDN_BASE": {
+      "variable": "BIOMCP_CTGOV_CDN_BASE",
+      "host": "cdn.clinicaltrials.gov",
+      "base_path": "",
+      "default_url": "https://cdn.clinicaltrials.gov",
+      "provenance": [
+        {
+          "source_path": "src/entities/trial/documents.rs",
+          "declaration": "const CTGOV_CDN_BASE: &str = \"https://cdn.clinicaltrials.gov\";\nconst CTGOV_CDN_BASE_ENV: &str = \"BIOMCP_CTGOV_CDN_BASE\";"
+        }
+      ]
+    },
     "BIOMCP_CVX_TRADENAME_URL": {
       "variable": "BIOMCP_CVX_TRADENAME_URL",
       "host": "www2.cdc.gov",
@@ -785,6 +805,18 @@
         {
           "source_path": "src/sources/figshare.rs",
           "declaration": "const FIGSHARE_BASE: &str = \"https://api.figshare.com\";\nconst FIGSHARE_BASE_ENV: &str = \"BIOMCP_FIGSHARE_BASE\";"
+        }
+      ]
+    },
+    "BIOMCP_GENCC_BASE": {
+      "variable": "BIOMCP_GENCC_BASE",
+      "host": "thegencc.org",
+      "base_path": "/download/action/submissions-export-csv",
+      "default_url": "https://thegencc.org/download/action/submissions-export-csv?format=new",
+      "provenance": [
+        {
+          "source_path": "src/sources/gencc.rs",
+          "declaration": "pub(crate) const ENDPOINT: &str =\n    \"https://thegencc.org/download/action/submissions-export-csv?format=new\";\nfn endpoint() -> String {\n    if let Ok(value) = std::env::var(\"BIOMCP_GENCC_BASE\")\n        && (cfg!(debug_assertions) || fixture_override_allowed(&value))\n    {\n        return value;\n    }\n    ENDPOINT.to_string()\n}\n"
         }
       ]
     },
@@ -1401,14 +1433,15 @@
       "urls": [
         "https://thegencc.org/download/action/submissions-export-csv?format=new"
       ],
-      "reason": "Released client has no reviewed general endpoint override; source must remain disabled until denied-network delivery is proved."
+      "reason": "The released override is conditional: debug builds accept BIOMCP_GENCC_BASE; release builds require BIOMCP_TEST_UNPACED_ORIGIN to match an exact loopback origin. A lone base override does not isolate a release binary."
     },
     "clingen_cspec": {
       "source_path": "src/sources/clingen_cspec.rs",
       "urls": [
-        "https://cspec.clinicalgenome.org"
+        "https://cspec.clinicalgenome.org",
+        "https://cspec.genome.network"
       ],
-      "reason": "Released client has no reviewed general endpoint override; source must remain disabled until denied-network delivery is proved."
+      "reason": "Released manifest and linked document URL delivery requires the exact-loopback BIOMCP_CSPEC_FIXTURE_ORIGIN guard in provider_url_policy.rs; no ordinary env_base override exists."
     },
     "ema": {
       "source_path": "src/sources/ema.rs",
@@ -1416,6 +1449,28 @@
         "https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format"
       ],
       "reason": "The fixed EMA index precedes report downloads and has no general endpoint override. BIOMCP_EMA_REPORT_BASE does not isolate it."
+    }
+  },
+  "conditional_overrides": {
+    "BIOMCP_GENCC_BASE": {
+      "source": "gencc",
+      "source_path": "src/sources/gencc.rs",
+      "guard": "fixture_override_allowed requires the matching BIOMCP_TEST_UNPACED_ORIGIN on release builds"
+    },
+    "BIOMCP_CSPEC_FIXTURE_ORIGIN": {
+      "source": "clingen_cspec",
+      "source_path": "src/sources/provider_url_policy.rs",
+      "guard": "cspec_fixture_origin requires an exact pathless loopback origin; CspecClient applies it to manifest and linked document URLs"
+    },
+    "BIOMCP_S2_PDF_FIXTURE_ORIGIN": {
+      "source": "semantic-scholar",
+      "source_path": "src/sources/provider_url_policy.rs",
+      "guard": "s2_pdf_fixture_origin requires an exact pathless loopback origin for a provider-supplied PDF URL"
+    },
+    "BIOMCP_TEST_UNPACED_ORIGIN": {
+      "source": "pmc-oa",
+      "source_path": "src/sources/pmc_article.rs",
+      "guard": "validate_article_destination accepts an exact loopback test origin; this does not replace arbitrary publisher assets"
     }
   }
 }
