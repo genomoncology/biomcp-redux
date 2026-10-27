@@ -1,4 +1,5 @@
 """Security boundaries exercised through the real scanner and audit commands."""
+import io
 import json
 import os
 from pathlib import Path
@@ -50,6 +51,78 @@ class Screening(unittest.TestCase):
                 self.assertTrue(findings)
                 self.assertTrue(all(set(row) == {"file", "rule"} for row in findings))
                 self.assertIn("github-pat", {row["rule"] for row in findings})
+
+    def test_scanner_covers_binary_members_and_merge_only_history(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            token = "ghp_" + secrets.token_hex(18)
+            payload = b"MZ" + bytes(128) + ("access_token = " + token + "\n").encode()
+            artifacts = root / "artifacts"
+            artifacts.mkdir()
+            env = {**environment(root), "PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1"}
+            def screen(mode, target):
+                result = subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), mode, str(target)],
+                                        cwd=ROOT, env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 1, "planted binary or merge fixture must fail screening")
+                self.assertNotIn(token, result.stdout + result.stderr)
+                self.assertTrue(all(set(json.loads(line)) == {"file", "rule"} for line in result.stdout.splitlines()))
+                return result.stdout
+            for name in ["biomcp.exe", "package.dist-info/release.json"]:
+                with zipfile.ZipFile(artifacts / "candidate.whl", "w") as archive:
+                    archive.writestr(name, payload)
+                self.assertIn(name, screen("artifacts", artifacts))
+            repo = root / "repo"
+            repo.mkdir()
+            def git(*args, data=None):
+                return subprocess.run(["git", "-C", str(repo), *args], input=data, env=env,
+                                      check=True, capture_output=True).stdout.decode().strip()
+            git("init", "--quiet")
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            git("commit", "--allow-empty", "--quiet", "-m", "Initial fixture")
+            first = git("rev-parse", "HEAD")
+            git("commit", "--allow-empty", "--quiet", "-m", "Second fixture")
+            second = git("rev-parse", "HEAD")
+            (repo / "merge-only.txt").write_text("access_token = " + token + "\n")
+            git("add", ".")
+            tree = git("write-tree")
+            merged = git("commit-tree", tree, "-p", first, "-p", second, data=b"Merge fixture\n")
+            git("update-ref", "HEAD", merged)
+            screen("history", repo)
+
+    def test_scanner_refuses_unreadable_artifacts_and_never_follows_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            artifacts = root / "artifacts"
+            artifacts.mkdir()
+            env = {**environment(root), "PATH": os.defpath}
+            def screen():
+                return subprocess.run([sys.executable, str(ROOT / "release/secrets.py"), "artifacts", str(artifacts)],
+                                      cwd=ROOT, env=env, capture_output=True, text=True)
+            candidate = artifacts / "candidate.zip"
+            candidate.write_bytes(b"PK\x03\x04broken archive")
+            self.assertNotEqual(screen().returncode, 0, "corrupt archive must fail closed")
+            with zipfile.ZipFile(candidate, "w") as archive:
+                archive.writestr("../escape.txt", "fixture")
+            self.assertNotEqual(screen().returncode, 0, "escaping member must fail closed")
+            candidate.unlink()
+            candidate.symlink_to(root / "absent")
+            self.assertNotEqual(screen().returncode, 0, "filesystem links must not be skipped")
+            candidate.unlink()
+            payload = b"fixture"
+            for _ in range(18):
+                buffer = io.BytesIO()
+                with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+                    archive.writestr("nested.zip", payload)
+                payload = buffer.getvalue()
+            candidate.write_bytes(payload)
+            self.assertNotEqual(screen().returncode, 0, "depth limits must fail closed")
+            candidate.unlink()
+            with tarfile.open(artifacts / "layer.tar", "w") as archive:
+                link = tarfile.TarInfo("usr/bin/fixture")
+                link.type, link.linkname = tarfile.SYMTYPE, "/outside/fixture"
+                archive.addfile(link)
+            self.assertEqual(screen().returncode, 0, "container links must be screened without dereferencing")
 
     def test_audit_denies_an_unknown_git_source_after_successful_resolution(self):
         with tempfile.TemporaryDirectory() as temporary:
