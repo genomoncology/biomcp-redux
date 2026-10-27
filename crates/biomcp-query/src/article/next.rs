@@ -103,12 +103,13 @@ pub(super) fn search(
     out: &mut Outcome,
 ) {
     if out.sources.iter().any(|source| {
-        source.notices.iter().any(|notice| {
-            matches!(
-                notice,
-                biomcp_types::SourceNotice::NotFoundWords { .. }
-                    | biomcp_types::SourceNotice::PubmedWarning { .. }
-            )
+        source.notices.iter().any(|notice| match notice {
+            biomcp_types::SourceNotice::NotFoundWords { .. } => true,
+            biomcp_types::SourceNotice::PubmedWarning { name, phrases } => {
+                matches!(name.as_str(), "quotedphrasesnotfound" | "phrasesignored")
+                    && !phrases.is_empty()
+            }
+            _ => false,
         })
     }) && let Some(strict) = query.strict_pubmed()
     {

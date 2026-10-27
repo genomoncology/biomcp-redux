@@ -13,19 +13,31 @@
         "pubmed"
       ],
       "expect": {
-        "/sources/0/notices/0/kind": "pubmed_warning",
-        "/sources/0/notices/0/name": "quotedphrasesnotfound",
-        "/sources/0/notices/0/phrases": [
-          "\"ERCC2 Ala717Gly\""
-        ],
         "/next/0/args": [
           "search",
           "article",
           "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
           "--source",
           "pubmed"
-        ]
-      }
+        ],
+        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/name": "quotedphrasesnotfound",
+        "/sources/0/notices/2/phrases": [
+          "\"ERCC2 Ala717Gly\""
+        ],
+        "/sources/0/notices/0/name": "outputmessages",
+        "/sources/0/notices/0/phrases": [],
+        "/sources/0/notices/1/name": "phrasesignored",
+        "/sources/0/notices/1/phrases": []
+      },
+      "full_output_bytes": true,
+      "mcp": [
+        "search",
+        "article",
+        "\"ERCC2 Ala717Gly\"",
+        "--source",
+        "pubmed"
+      ]
     },
     {
       "run": [
@@ -52,7 +64,15 @@
           "unchanged phrase"
         ],
         "/page/total": 0
-      }
+      },
+      "full_output_bytes": true,
+      "mcp": [
+        "search",
+        "article",
+        "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
+        "--source",
+        "pubmed"
+      ]
     },
     {
       "run": [
@@ -63,19 +83,31 @@
         "pubmed"
       ],
       "expect": {
-        "/sources/0/notices/0/kind": "pubmed_warning",
-        "/sources/0/notices/0/name": "quotedphrasesnotfound",
-        "/sources/0/notices/0/phrases": [
-          "\"GATA2 Thr176Pro\""
-        ],
         "/next/0/args": [
           "search",
           "article",
           "GATA2[Title/Abstract] AND Thr176Pro[Title/Abstract]",
           "--source",
           "pubmed"
-        ]
-      }
+        ],
+        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/name": "quotedphrasesnotfound",
+        "/sources/0/notices/2/phrases": [
+          "\"GATA2 Thr176Pro\""
+        ],
+        "/sources/0/notices/0/name": "outputmessages",
+        "/sources/0/notices/0/phrases": [],
+        "/sources/0/notices/1/name": "phrasesignored",
+        "/sources/0/notices/1/phrases": []
+      },
+      "full_output_bytes": true,
+      "mcp": [
+        "search",
+        "article",
+        "\"GATA2 Thr176Pro\"",
+        "--source",
+        "pubmed"
+      ]
     },
     {
       "run": [
@@ -86,19 +118,31 @@
         "pubmed"
       ],
       "expect": {
-        "/sources/0/notices/0/kind": "pubmed_warning",
-        "/sources/0/notices/0/name": "quotedphrasesnotfound",
-        "/sources/0/notices/0/phrases": [
-          "\"POT1 Gly404Val\""
-        ],
         "/next/0/args": [
           "search",
           "article",
           "POT1[Title/Abstract] AND Gly404Val[Title/Abstract]",
           "--source",
           "pubmed"
-        ]
-      }
+        ],
+        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/name": "quotedphrasesnotfound",
+        "/sources/0/notices/2/phrases": [
+          "\"POT1 Gly404Val\""
+        ],
+        "/sources/0/notices/0/name": "outputmessages",
+        "/sources/0/notices/0/phrases": [],
+        "/sources/0/notices/1/name": "phrasesignored",
+        "/sources/0/notices/1/phrases": []
+      },
+      "full_output_bytes": true,
+      "mcp": [
+        "search",
+        "article",
+        "\"POT1 Gly404Val\"",
+        "--source",
+        "pubmed"
+      ]
     },
     {
       "run": [
@@ -109,19 +153,31 @@
         "pubmed"
       ],
       "expect": {
-        "/sources/0/notices/0/kind": "pubmed_warning",
-        "/sources/0/notices/0/name": "quotedphrasesnotfound",
-        "/sources/0/notices/0/phrases": [
-          "\"GALC Thr109Ala\""
-        ],
         "/next/0/args": [
           "search",
           "article",
           "GALC[Title/Abstract] AND Thr109Ala[Title/Abstract]",
           "--source",
           "pubmed"
-        ]
-      }
+        ],
+        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/name": "quotedphrasesnotfound",
+        "/sources/0/notices/2/phrases": [
+          "\"GALC Thr109Ala\""
+        ],
+        "/sources/0/notices/0/name": "outputmessages",
+        "/sources/0/notices/0/phrases": [],
+        "/sources/0/notices/1/name": "phrasesignored",
+        "/sources/0/notices/1/phrases": []
+      },
+      "full_output_bytes": true,
+      "mcp": [
+        "search",
+        "article",
+        "\"GALC Thr109Ala\"",
+        "--source",
+        "pubmed"
+      ]
     },
     {
       "run": [
@@ -132,19 +188,31 @@
         "pubmed"
       ],
       "expect": {
-        "/sources/0/notices/0/kind": "pubmed_warning",
-        "/sources/0/notices/0/name": "quotedphrasesnotfound",
-        "/sources/0/notices/0/phrases": [
-          "\"ACD Pro457=\""
-        ],
         "/next/0/args": [
           "search",
           "article",
           "ACD[Title/Abstract] AND Pro457=[Title/Abstract]",
           "--source",
           "pubmed"
-        ]
-      }
+        ],
+        "/sources/0/notices/2/kind": "pubmed_warning",
+        "/sources/0/notices/2/name": "quotedphrasesnotfound",
+        "/sources/0/notices/2/phrases": [
+          "\"ACD Pro457=\""
+        ],
+        "/sources/0/notices/0/name": "outputmessages",
+        "/sources/0/notices/0/phrases": [],
+        "/sources/0/notices/1/name": "phrasesignored",
+        "/sources/0/notices/1/phrases": []
+      },
+      "full_output_bytes": true,
+      "mcp": [
+        "search",
+        "article",
+        "\"ACD Pro457=\"",
+        "--source",
+        "pubmed"
+      ]
     }
   ]
 }

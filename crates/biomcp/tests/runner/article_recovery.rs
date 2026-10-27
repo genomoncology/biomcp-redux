@@ -63,7 +63,8 @@ fn warnings() -> Result<(), String> {
             .map_err(|e| e.to_string())?;
         let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
         if !output.status.success()
-            || !text.starts_with("**PubMed warning quotedphrasesnotfound:**")
+            || !text.starts_with("**PubMed warning ")
+            || !text.contains("**PubMed warning quotedphrasesnotfound:**")
             || !text.contains(phrase)
         {
             return Err(format!(
