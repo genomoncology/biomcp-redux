@@ -94,7 +94,12 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
                 format!(
                     "{}: {}",
                     c.get_name(),
-                    c.get_about().map(ToString::to_string).unwrap_or_default()
+                    c.get_about()
+                        .map(ToString::to_string)
+                        .unwrap_or_default()
+                        .split(". ")
+                        .next()
+                        .unwrap_or_default()
                 )
             })
             .collect::<Vec<_>>()

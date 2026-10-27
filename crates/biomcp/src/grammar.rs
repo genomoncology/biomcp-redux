@@ -188,7 +188,9 @@ pub(crate) fn root() -> Result<Command, ()> {
             Arg::new("bundle")
                 .help("Local source bundle to synchronize.")
                 .default_value("hgnc")
-                .value_parser(BUNDLE_HELP),
+                .value_parser(clap::builder::PossibleValuesParser::new(
+                    BUNDLE_HELP.iter().copied(),
+                )),
         ),
     );
     root = root.subcommands(local::housekeeping_commands());
