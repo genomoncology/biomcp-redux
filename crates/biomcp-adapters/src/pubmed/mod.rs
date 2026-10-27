@@ -91,11 +91,8 @@ pub fn search_ids(
         })
         .into_iter()
         .collect();
-    notices.extend(raw.warninglist.into_iter().filter_map(|(name, phrases)| {
-        (!phrases.is_empty()).then_some(SourceNotice::PubmedWarning {
-            name,
-            phrases: phrases.into(),
-        })
+    notices.extend(raw.warninglist.into_iter().map(|(name, phrases)| {
+        SourceNotice::PubmedWarning { name, phrases: phrases.into() }
     }));
     Ok(SearchIds {
         ids: raw.idlist,

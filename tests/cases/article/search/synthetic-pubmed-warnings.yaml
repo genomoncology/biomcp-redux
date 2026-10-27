@@ -37,7 +37,6 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/total": 0,
         "/result/items": [],
         "/sources/0/term": "ERCC2[Title/Abstract] AND Ala717Gly[Title/Abstract]",
         "/sources/0/notices/0/name": "futurewarning",
@@ -51,7 +50,8 @@
         "/sources/0/notices/2/name": "phrasesignored",
         "/sources/0/notices/2/phrases": [
           "unchanged phrase"
-        ]
+        ],
+        "/page/total": 0
       }
     },
     {

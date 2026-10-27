@@ -1365,6 +1365,33 @@
         },
         {
           "additionalProperties": false,
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed_warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "phrases"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "description": "PubMed did not index these words.",
           "properties": {
             "kind": {

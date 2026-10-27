@@ -103,19 +103,17 @@ pub(super) fn search(
     out: &mut Outcome,
 ) {
     if out.sources.iter().any(|source| {
-        source
-            .notices
-            .iter()
-            .any(|notice| matches!(notice, biomcp_types::SourceNotice::NotFoundWords { .. } | biomcp_types::SourceNotice::PubmedWarning { .. }))
+        source.notices.iter().any(|notice| {
+            matches!(
+                notice,
+                biomcp_types::SourceNotice::NotFoundWords { .. }
+                    | biomcp_types::SourceNotice::PubmedWarning { .. }
+            )
+        })
     }) && let Some(strict) = query.strict_pubmed()
     {
-        out.next.insert(
-            0,
-            (
-                StepKind::Disambiguate,
-                Action::PubmedSearch(strict),
-            ),
-        );
+        out.next
+            .insert(0, (StepKind::Disambiguate, Action::PubmedSearch(strict)));
     }
     if !partial && total < u64::from(query.limit()) {
         out.next.extend(query.term_drops().into_iter().map(|query| {

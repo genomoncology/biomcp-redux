@@ -112,7 +112,10 @@ pub(crate) fn execute(
     match action {
         Action::PubmedSearch(q) => execute(
             fetch,
-            Action::Run { request: Request::SearchArticle(q), fresh: false },
+            Action::Run {
+                request: Request::SearchArticle(q),
+                fresh: false,
+            },
             globals,
             allow_save,
         ),
