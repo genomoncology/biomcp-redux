@@ -115,7 +115,7 @@ fn peers(
                 route.request_prefix.clone(),
                 route.request_contains.clone(),
                 route.request_query.clone(),
-                Replies::new(body),
+                Replies::new(body, route.exchange_order.is_empty()),
             ));
     }
     let mut peers = Vec::new();
@@ -157,9 +157,9 @@ struct Replies {
     repeat: bool,
 }
 impl Replies {
-    fn new(replies: Vec<RecordedReply>) -> Self {
+    fn new(replies: Vec<RecordedReply>, repeat: bool) -> Self {
         Self {
-            repeat: replies.len() == 1,
+            repeat,
             replies: replies.into(),
         }
     }
