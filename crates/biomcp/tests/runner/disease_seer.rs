@@ -90,10 +90,9 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(
         file.path(),
-        serde_json::to_vec(&json!({"feature":"disease-seer",
-"story":"Native site and statistic selectors retain source values",
-"replay":directory,
-"steps":steps}))
+        serde_json::to_vec(&json!(
+        {"feature":"disease-seer","story":"Native site and statistic selectors retain source values","replay":directory,"steps":steps}
+    ))
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
@@ -151,41 +150,13 @@ fn catalog() -> Result<(), String> {
     record(&env, &words, &directory, 0)?;
     replay(
         &directory,
-        json!([
-            {"run":words,
-        "mcp":words,
-        "expect":{"/status":"partial",
-        "/page/total":2,
-        "/result/items/0":{"equals":{"code":"55",
-        "label":"Example site",
-        "active":true}},
-        "/problems/0/field":"catalog.publisher_date",
-        "/problems/1/field":"catalog.publisher_version",
-        "/next/0/kind":"page"},
-        "max_bytes":644},
-
-            {"run":["search",
-        "disease",
-        "--source",
-        "seer",
-        "--limit",
-        "1",
-        "--offset",
-        "1"],
-        "mcp":["search",
-        "disease",
-        "--source",
-        "seer",
-        "--limit",
-        "1",
-        "--offset",
-        "1"],
-        "offline":true,
-        "expect":{"/page/offset":1,
-        "/result/items/0/code":"47",
-        "/result/items/0/active":false},
-        "max_bytes":532}
-        ]),
+        json!(
+            [ {"run":words,"mcp":words,"expect":{"/status":"partial","/page/total":2,"/result/items/0":{"equals":{"code":"55",
+            "label":"Example site","active":true}},"/problems/0/field":"catalog.publisher_date","/problems/1/field":"catalog.publisher_version",
+            "/next/0/kind":"page"},"max_bytes":644},{"run":["search","disease","--source","seer","--limit","1","--offset","1"],"mcp":["search",
+            "disease","--source","seer","--limit","1","--offset","1"],"offline":true,"expect":{"/page/offset":1,"/result/items/0/code":"47",
+            "/result/items/0/active":false},"max_bytes":532} ]
+        ),
     )?;
     markdown(
         &env,
@@ -219,40 +190,13 @@ fn incidence() -> Result<(), String> {
     record(&env, &words, &directory, 0)?;
     replay(
         &directory,
-        json!([
-            {"run":words,
-        "mcp":words,
-        "expect":{"/query/sex":"1",
-        "/query/race":"1",
-        "/query/age_range":"1",
-        "/page/total":2,
-        "/result/items/0/measure":"rate",
-        "/result/items/0/observed/count":100,
-        "/result/items/0/returned_selectors/3/code":"104",
-        "/next/0/kind":"page"},
-        "max_bytes":1889},
-
-            {"run":["get",
-        "disease",
-        "47",
-        "incidence",
-        "--source",
-        "seer",
-        "--dataset",
-        "4",
-        "--period",
-        "5",
-        "--section-offset",
-        "2"],
-        "offline":true,
-        "expect":{"/page/returned":0,
-        "/page/total":2,
-        "/next/0/args":["search",
-        "disease",
-        "--source",
-        "seer"]},
-        "max_bytes":862}
-        ]),
+        json!(
+            [ {"run":words,"mcp":words,"expect":{"/query/sex":"1","/query/race":"1","/query/age_range":"1","/page/total":2,
+            "/result/items/0/measure":"rate","/result/items/0/observed/count":100,"/result/items/0/returned_selectors/3/code":"104",
+            "/next/0/kind":"page"},"max_bytes":1889},{"run":["get","disease","47","incidence","--source","seer","--dataset","4","--period","5",
+            "--section-offset","2"],"offline":true,"expect":{"/page/returned":0,"/page/total":2,"/next/0/args":["search","disease","--source",
+            "seer"]},"max_bytes":862} ]
+        ),
     )?;
     markdown(
         &env,
@@ -299,24 +243,12 @@ fn survival() -> Result<(), String> {
     next.extend(["--section-offset".into(), "1".into()]);
     let last = replay(
         &directory,
-        json!([
-            {"run":words,
-        "mcp":words,
-        "expect":{"/result/items/0/year":2018,
-        "/result/items/0/observed/value":90.0,
-        "/result/items/0/modeled/value":90.5,
-        "/result/items/0/returned_selectors/5/code":"31"},
-        "max_bytes":2024},
-
-            {"run":next,
-        "mcp":next,
-        "offline":true,
-        "expect":{"/result/items/0/year":2022,
-        "/result/items/0/modeled/value":93.5,
-        "/page/offset":1,
-        "/page/total":2},
-        "max_bytes":1694}
-        ]),
+        json!(
+            [ {"run":words,"mcp":words,"expect":{"/result/items/0/year":2018,"/result/items/0/observed/value":90.0,
+            "/result/items/0/modeled/value":90.5,"/result/items/0/returned_selectors/5/code":"31"},"max_bytes":2024},{"run":next,"mcp":next,
+            "offline":true,"expect":{"/result/items/0/year":2022,"/result/items/0/modeled/value":93.5,"/page/offset":1,"/page/total":2},
+            "max_bytes":1694} ]
+        ),
     )?;
     if last.pointer("/result/items/0/observed").is_some() {
         return Err("model-only row acquired an observation".into());

@@ -13,7 +13,7 @@ fn json_file(dir: &Path) -> std::path::PathBuf {
 }
 fn record_binary_replies(capture: &Fetch, server: &Server, spec: &'static SourceSpec) {
     thread::scope(|scope| {
-        let worker = scope.spawn(|| [bytes(&capture, spec), bytes(&capture, spec)]);
+        let worker = scope.spawn(|| [bytes(capture, spec), bytes(capture, spec)]);
         for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
             let mut response = format!(
                 "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\nConnection: \

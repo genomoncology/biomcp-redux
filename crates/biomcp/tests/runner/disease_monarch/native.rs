@@ -103,17 +103,12 @@ fn prove_row(
     measure(&words, &result)?;
     replay(
         &directory,
-        json!([{"run":words,
-"mcp":words,
-"exit":exit,
-"expect":{"/status":if expected.get("total") == Some(&json!(0)) {"absent"} else {"complete"},
-"/page/offset":expected.get("offset").ok_or("missing offset")?,
-"/page/total":expected.get("total").ok_or("missing total")?,
-"/page/returned":expected.get("items").and_then(Value::as_array).ok_or("missing source items")?.len()},
-"max_bytes":if projected {default_ceiling(id,
-section)?} else {ceiling(id,
-section,
-&offset)?}}]),
+        json!(
+            [{"run":words,"mcp":words,"exit":exit,"expect":{"/status":if expected.get("total") == Some(&json!(0)) {"absent"} else {"complete"},
+            "/page/offset":expected.get("offset").ok_or("missing offset")?,"/page/total":expected.get("total").ok_or("missing total")?,
+            "/page/returned":expected.get("items").and_then(Value::as_array).ok_or("missing source items")?.len()},
+            "max_bytes":if projected {default_ceiling(id,section)?} else {ceiling(id,section,&offset)?}}]
+        ),
     )?;
     fs::write(
         output.join(format!("{index:02}-original-date.json")),

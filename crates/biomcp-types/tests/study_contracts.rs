@@ -9,27 +9,17 @@ fn roundtrip<T: serde::Serialize + serde::de::DeserializeOwned>(
     serde_json::to_value(serde_json::from_value::<T>(v)?)
 }
 fn header() -> Value {
-    json!({"studyId":"brca_tcga_pan_can_atlas_2018",
-"name":"Synthetic study",
-"cancerTypeId":"brca",
-"allSampleCount":1084,
-"pmids":["29625048",
-"29596782",
-"29625048"],
-"referenceGenome":"hg19"})
+    json!(
+        {"studyId":"brca_tcga_pan_can_atlas_2018","name":"Synthetic study","cancerTypeId":"brca","allSampleCount":1084,"pmids":["29625048",
+        "29596782","29625048"],"referenceGenome":"hg19"}
+    )
 }
 fn study() -> Value {
-    json!({"header":header(),
-"description":"Synthetic source description",
-"sequencedSampleCount":1066,
-"cnaSampleCount":1080,
-"structuralVariantCount":0,
-"treatmentCount":0,
-"resourceCounts":[],
-"importDate":"2026-08-20 21:46:46",
-"groups":"",
-"readPermission":true,
-"publicStudy":true})
+    json!(
+        {"header":header(),"description":"Synthetic source description","sequencedSampleCount":1066,"cnaSampleCount":1080,
+        "structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],"importDate":"2026-08-20 21:46:46","groups":"",
+        "readPermission":true,"publicStudy":true}
+    )
 }
 #[test]
 fn exact_ids_roundtrip_without_case_or_punctuation_repair() -> Result<(), Box<dyn std::error::Error>>
@@ -57,12 +47,10 @@ fn native_counts_and_publication_multiplicity_survive_without_member_ids()
     let mut zero = v;
     zero["patientCount"] = json!(0);
     assert_eq!(roundtrip::<Study>(zero.clone())?, zero);
-    let list = json!({"sampleListId":"brca_tcga_pan_can_atlas_2018_all",
-"studyId":"brca_tcga_pan_can_atlas_2018",
-"name":"Synthetic list",
-"description":"Synthetic description",
-"category":"all_cases_in_study",
-"sampleCount":1084});
+    let list = json!(
+        {"sampleListId":"brca_tcga_pan_can_atlas_2018_all","studyId":"brca_tcga_pan_can_atlas_2018","name":"Synthetic list",
+        "description":"Synthetic description","category":"all_cases_in_study","sampleCount":1084}
+    );
     assert_eq!(roundtrip::<StudySampleList>(list.clone())?, list);
     let mut absent = list.clone();
     absent
@@ -125,15 +113,11 @@ fn literal_search_and_bounded_section_requests_validate_before_io()
 fn exact_profile_resource_and_file_metadata_keep_their_native_scope()
 -> Result<(), Box<dyn std::error::Error>> {
     use biodata::*;
-    let profile = json!({"molecularProfileId":"brca_tcga_pan_can_atlas_2018_armlevel_cna",
-"studyId":"brca_tcga_pan_can_atlas_2018",
-"molecularAlterationType":"GENERIC_ASSAY",
-"genericAssayType":"ARMLEVEL_CNA",
-"datatype":"CATEGORICAL",
-"name":"Synthetic profile",
-"description":"Synthetic description",
-"patientLevel":false,
-"showProfileInAnalysisTab":true});
+    let profile = json!(
+        {"molecularProfileId":"brca_tcga_pan_can_atlas_2018_armlevel_cna","studyId":"brca_tcga_pan_can_atlas_2018",
+        "molecularAlterationType":"GENERIC_ASSAY","genericAssayType":"ARMLEVEL_CNA","datatype":"CATEGORICAL","name":"Synthetic profile",
+        "description":"Synthetic description","patientLevel":false,"showProfileInAnalysisTab":true}
+    );
     assert_eq!(roundtrip::<StudyProfile>(profile.clone())?, profile);
     let mut absent = profile;
     absent
@@ -141,25 +125,18 @@ fn exact_profile_resource_and_file_metadata_keep_their_native_scope()
         .ok_or("object")?
         .remove("genericAssayType");
     assert_eq!(roundtrip::<StudyProfile>(absent.clone())?, absent);
-    let resource = json!({"resourceId":"IDC_OHIF_CT",
-"displayName":"Synthetic resource",
-"description":"Synthetic resource description",
-"resourceType":"PATIENT",
-"priority":"1",
-"openByDefault":true,
-"cancerStudyIdentifier":"brca_tcga_pan_can_atlas_2018",
-"sampleCount":7,
-"patientCount":6});
+    let resource = json!(
+        {"resourceId":"IDC_OHIF_CT","displayName":"Synthetic resource","description":"Synthetic resource description",
+        "resourceType":"PATIENT","priority":"1","openByDefault":true,"cancerStudyIdentifier":"brca_tcga_pan_can_atlas_2018","sampleCount":7,
+        "patientCount":6}
+    );
     let mut card = study();
     card["resourceCounts"] = json!([resource]);
     assert_eq!(roundtrip::<Study>(card.clone())?, card);
-    let file = json!({"name":"LICENSE",
-"path":"public/brca_tcga_pan_can_atlas_2018/LICENSE",
-"htmlUrl":"https://example.invalid/blob",
-"downloadUrl":"https://example.invalid/raw",
-"sha":"db7b143aab711f10d0349d3f7d56ded293a44c63",
-"repositoryBlobSize":446,
-"kind":"file"});
+    let file = json!(
+        {"name":"LICENSE","path":"public/brca_tcga_pan_can_atlas_2018/LICENSE","htmlUrl":"https://example.invalid/blob",
+        "downloadUrl":"https://example.invalid/raw","sha":"db7b143aab711f10d0349d3f7d56ded293a44c63","repositoryBlobSize":446,"kind":"file"}
+    );
     assert_eq!(roundtrip::<StudyFile>(file.clone())?, file);
     let mut directory = file;
     directory["kind"] = json!("dir");
@@ -230,15 +207,11 @@ fn five_envelopes_keep_catalog_and_live_acquisition_times_independent()
     }
     let v = envelope::<StudyCard>(
         json!({"id":"brca_tcga_pan_can_atlas_2018","section":"all"}),
-        json!({"source_url":"https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018",
-"study":study(),
-"snapshot":snapshot,
-"profiles":{"state":"data",
-"source":"cbioportal",
-"data":scope},
-"sample_lists":{"state":"skipped",
-"source":"cbioportal",
-"reason":"disabled"}}),
+        json!(
+            {"source_url":"https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018","study":study(),"snapshot":snapshot,
+            "profiles":{"state":"data","source":"cbioportal","data":scope},"sample_lists":{"state":"skipped","source":"cbioportal",
+            "reason":"disabled"}}
+        ),
     )?;
     assert_ne!(
         v["result"]["snapshot"]["acquired"],

@@ -51,18 +51,12 @@ fn relationship() -> Result<(), String> {
     Ok(())
 }
 fn check(row: &Value, present: bool) -> Result<(), String> {
-    let mut expected = json!({
-           "kind":"scv", "domain":"germline", "statement_unmapped":true,
-           "unmapped": {"classification":"drug response", "attribution":{
-               "source":"clinvar",
-    "record":"SCV000965609",
-    "version":"1",
-    "submitter":"Synthetic submitter",
-    "evaluated":"2019-05-21",
-    "url":"https://www.ncbi.nlm.nih.gov/clinvar/?term=SCV000965609.1"
-           },"conditions":[{"label":"Dabrafenib response"}]},
-           "detail":{"conditions":[{"label":"Dabrafenib response"}],"origins":["somatic"]}
-       });
+    let mut expected = json!(
+        { "kind":"scv","domain":"germline","statement_unmapped":true,"unmapped": {"classification":"drug response",
+        "attribution":{ "source":"clinvar","record":"SCV000965609","version":"1","submitter":"Synthetic submitter","evaluated":"2019-05-21",
+        "url":"https://www.ncbi.nlm.nih.gov/clinvar/?term=SCV000965609.1" },"conditions":[{"label":"Dabrafenib response"}]},
+        "detail":{"conditions":[{"label":"Dabrafenib response"}],"origins":["somatic"]} }
+    );
     if present {
         expected
             .get_mut("detail")
@@ -70,11 +64,10 @@ fn check(row: &Value, present: bool) -> Result<(), String> {
             .ok_or("synthetic detail")?
             .insert(
                 "condition_relationships".into(),
-                json!([{
-                    "relationship_type":"DrugResponseAndDisease",
-                    "source_conditions":[{"label":"Dabrafenib response"}],
-                    "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}]
-                }]),
+                json!(
+        [{ "relationship_type":"DrugResponseAndDisease","source_conditions":[{"label":"Dabrafenib response"}],
+        "related_conditions":[{"label":"Pancreatic Adenocarcinoma"}] }]
+    ),
             );
     }
     if row != &expected {

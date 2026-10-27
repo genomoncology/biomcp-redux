@@ -79,76 +79,33 @@ fn roundtrip<T: serde::Serialize + serde::de::DeserializeOwned>(
     serde_json::to_value(serde_json::from_value::<T>(value)?)
 }
 fn recommendation() -> serde_json::Value {
-    json!({"recommendationid":42,
-"lookupkey":{"TPMT":"synthetic first",
-"NUDT15":"synthetic second"},
-"drugname":"synthetic drug",
-"guidelinename":"synthetic guide",
-"guidelineurl":"https://example.invalid/guide",
-"implications":{"TPMT":"synthetic implication"},
-"drugrecommendation":"  Synthetic source text.\n",
-"classification":"synthetic classification",
-"phenotypes":{"TPMT":"synthetic phenotype"},
-"activityscore":{"TPMT":"n/a",
-"NUDT15":"0.5"},
-"population":"synthetic population",
-"comments":null})
+    json!(
+        {"recommendationid":42,"lookupkey":{"TPMT":"synthetic first","NUDT15":"synthetic second"},"drugname":"synthetic drug",
+        "guidelinename":"synthetic guide","guidelineurl":"https://example.invalid/guide","implications":{"TPMT":"synthetic implication"},
+        "drugrecommendation":"  Synthetic source text.\n","classification":"synthetic classification",
+        "phenotypes":{"TPMT":"synthetic phenotype"},"activityscore":{"TPMT":"n/a","NUDT15":"0.5"},"population":"synthetic population",
+        "comments":null}
+    )
 }
 fn diplotype() -> serde_json::Value {
-    json!({"genesymbol":"TPMT",
-"diplotype":"*3A/*1",
-"function1":"synthetic",
-"function2":"synthetic",
-"activityvalue1":"n/a",
-"activityvalue2":"n/a",
-"totalactivityscore":"n/a",
-"description":"synthetic",
-"diplotypekey":{"TPMT":{"*3A":1,
-"*1":1}},
-"generesult":"synthetic result",
-"ehrpriority":"synthetic priority",
-"consultationtext":"  Synthetic consultation.\n",
-"lookupkey":{"TPMT":"synthetic"}})
+    json!(
+        {"genesymbol":"TPMT","diplotype":"*3A/*1","function1":"synthetic","function2":"synthetic","activityvalue1":"n/a",
+        "activityvalue2":"n/a","totalactivityscore":"n/a","description":"synthetic","diplotypekey":{"TPMT":{"*3A":1,"*1":1}},
+        "generesult":"synthetic result","ehrpriority":"synthetic priority","consultationtext":"  Synthetic consultation.\n",
+        "lookupkey":{"TPMT":"synthetic"}}
+    )
 }
 fn annotation() -> serde_json::Value {
-    json!({"id":42,
-"accessionId":"PA1234",
-"levelOfEvidence":{"id":3,
-"resource":"synthetic",
-"term":"synthetic evidence",
-"termId":"synthetic-term"},
-"location":{"id":7,
-"copyNumber":"synthetic",
-"diplotypes":[{"id":99}],
-"displayName":"synthetic location",
-"genes":[{"objCls":"Gene",
-"id":"PA1",
-"symbol":"TPMT",
-"name":"synthetic"}],
-"gpPosition":-1,
-"haplotypes":[{"objCls":"Haplotype",
-"id":"PA2",
-"symbol":"*3A",
-"name":"synthetic"}],
-"linkedObjects":[{"objCls":"Haplotype",
-"id":"PA2",
-"symbol":"*3A",
-"name":"synthetic"}],
-"refSeqPosition":-1,
-"tagGene":false,
-"type":"synthetic"},
-"name":"synthetic annotation",
-"relatedChemicals":[{"objCls":"Chemical",
-"id":"PA3",
-"name":"synthetic first"},
-{"objCls":"Chemical",
-"id":"PA4",
-"name":"synthetic second"}],
-"relatedChemicalsLogic":"synthetic relation",
-"relatedGuidelines":[],
-"relatedLabels":[],
-"types":["synthetic first",
-"synthetic second"]})
+    json!(
+        {"id":42,"accessionId":"PA1234","levelOfEvidence":{"id":3,"resource":"synthetic","term":"synthetic evidence",
+        "termId":"synthetic-term"},"location":{"id":7,"copyNumber":"synthetic","diplotypes":[{"id":99}],"displayName":"synthetic location",
+        "genes":[{"objCls":"Gene","id":"PA1","symbol":"TPMT","name":"synthetic"}],"gpPosition":-1,"haplotypes":[{"objCls":"Haplotype",
+        "id":"PA2","symbol":"*3A","name":"synthetic"}],"linkedObjects":[{"objCls":"Haplotype","id":"PA2","symbol":"*3A",
+        "name":"synthetic"}],"refSeqPosition":-1,"tagGene":false,"type":"synthetic"},"name":"synthetic annotation",
+        "relatedChemicals":[{"objCls":"Chemical","id":"PA3","name":"synthetic first"},{"objCls":"Chemical","id":"PA4",
+        "name":"synthetic second"}],"relatedChemicalsLogic":"synthetic relation","relatedGuidelines":[],"relatedLabels":[],
+        "types":["synthetic first","synthetic second"]}
+    )
 }
 #[test]
 fn native_records_keep_joint_context_source_text_and_literal_not_applicable()
@@ -177,37 +134,22 @@ fn native_records_keep_joint_context_source_text_and_literal_not_applicable()
     }
     object.extend(serde_json::from_value::<
         serde_json::Map<String, serde_json::Value>,
-    >(json!({"comments":"synthetic comments",
-"id":91,
-"guidelineid":3,
-"drugid":"RxNorm:10324",
-"allelestatus":{},
-"version":4,
-"dosinginformation":true,
-"alternatedrugavailable":false,
-"otherprescribingguidance":false}))?);
+    >(json!(
+        {"comments":"synthetic comments","id":91,"guidelineid":3,"drugid":"RxNorm:10324","allelestatus":{},"version":4,
+        "dosinginformation":true,"alternatedrugavailable":false,"otherprescribingguidance":false}
+    ))?);
     assert_eq!(roundtrip::<PgxDrugRecommendation>(table.clone())?, table);
     assert!(serde_json::from_value::<PgxRecommendation>(table).is_err());
-    let pair = json!({"pairid":3,
-"drugid":"RxNorm:10324",
-"drugname":"synthetic",
-"genesymbol":"TPMT",
-"guidelinename":null,
-"guidelineurl":null,
-"cpiclevel":"B/C",
-"clinpgxlevel":"synthetic distinct level",
-"pgxtesting":null,
-"pmids":null,
-"usedforrecommendation":"No",
-"provisional":false});
+    let pair = json!(
+        {"pairid":3,"drugid":"RxNorm:10324","drugname":"synthetic","genesymbol":"TPMT","guidelinename":null,"guidelineurl":null,
+        "cpiclevel":"B/C","clinpgxlevel":"synthetic distinct level","pgxtesting":null,"pmids":null,"usedforrecommendation":"No",
+        "provisional":false}
+    );
     assert_eq!(roundtrip::<PgxPair>(pair.clone())?, pair);
-    let guide = json!({"guideline_name":"synthetic",
-"guideline_url":"https://example.invalid/guide",
-"drugs":["second",
-"first",
-"second"],
-"genes":[{"url":"https://example.invalid/gene",
-"symbol":"TPMT"}]});
+    let guide = json!(
+        {"guideline_name":"synthetic","guideline_url":"https://example.invalid/guide","drugs":["second","first","second"],
+        "genes":[{"url":"https://example.invalid/gene","symbol":"TPMT"}]}
+    );
     assert_eq!(roundtrip::<PgxGuidelineReference>(guide.clone())?, guide);
     Ok(())
 }
@@ -221,31 +163,13 @@ fn annotation_tiers_preserve_native_arrays_missing_locations_and_base_history()
     let object = detail.as_object_mut().ok_or("object")?;
     object.extend(serde_json::from_value::<
         serde_json::Map<String, serde_json::Value>,
-    >(json!({"allelePhenotypes":[{"id":1,
-"allele":"synthetic allele",
-"limitedEvidence":false,
-"phenotype":"  Synthetic text.\n"}],
-"conflictingVariantAnnotationIds":[12,
-13],
-"history":[{"id":1,
-"date":"2026-01-01",
-"type":"synthetic",
-"version":3},
-{"id":2,
-"date":"2026-02-01",
-"type":"synthetic",
-"version":4,
-"description":"synthetic change"}],
-"objCls":"ClinicalAnnotation",
-"overrideLevel":false,
-"pediatric":false,
-"relatedAlleles":[{"objCls":"Haplotype",
-"id":"PA2",
-"name":"synthetic",
-"symbol":"*1"}],
-"relatedDiseases":[],
-"score":1.5,
-"scoreDetails":"synthetic details"}))?);
+    >(json!(
+        {"allelePhenotypes":[{"id":1,"allele":"synthetic allele","limitedEvidence":false,"phenotype":"  Synthetic text.\n"}],
+        "conflictingVariantAnnotationIds":[12,13],"history":[{"id":1,"date":"2026-01-01","type":"synthetic","version":3},{"id":2,
+        "date":"2026-02-01","type":"synthetic","version":4,"description":"synthetic change"}],"objCls":"ClinicalAnnotation",
+        "overrideLevel":false,"pediatric":false,"relatedAlleles":[{"objCls":"Haplotype","id":"PA2","name":"synthetic","symbol":"*1"}],
+        "relatedDiseases":[],"score":1.5,"scoreDetails":"synthetic details"}
+    ))?);
     assert_eq!(roundtrip::<PgxAnnotationDetail>(detail.clone())?, detail);
     assert!(serde_json::from_value::<PgxAnnotationHeader>(detail).is_err());
     let reference =
@@ -343,14 +267,10 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
     envelope::<PgxPage>(q.clone(), json!({"header":header,"items":[],"page":scope}))?;
     envelope::<PgxCard>(
         q.clone(),
-        json!({"header":header,
-"identity":{"symbol":"TPMT",
-"hgncid":"HGNC:12014",
-"ncbiid":"7172",
-"ensemblid":"ENSG00000137364",
-"clinpgxid":"PA356",
-"lookupmethod":"synthetic method",
-"version":42}}),
+        json!(
+            {"header":header,"identity":{"symbol":"TPMT","hgncid":"HGNC:12014","ncbiid":"7172","ensemblid":"ENSG00000137364",
+            "clinpgxid":"PA356","lookupmethod":"synthetic method","version":42}}
+        ),
     )?;
     envelope::<PgxGuidelines>(
         json!({"gene":"TPMT","source":"cpic","section":"guidelines"}),
@@ -375,16 +295,10 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
         .ok_or("object")?
         .extend(serde_json::from_value::<
             serde_json::Map<String, serde_json::Value>,
-        >(json!({"allelePhenotypes":[],
-"conflictingVariantAnnotationIds":[],
-"history":[],
-"objCls":"ClinicalAnnotation",
-"overrideLevel":false,
-"pediatric":false,
-"relatedAlleles":[],
-"relatedDiseases":[],
-"score":0.0,
-"scoreDetails":"synthetic"}))?);
+        >(json!(
+        {"allelePhenotypes":[],"conflictingVariantAnnotationIds":[],"history":[],"objCls":"ClinicalAnnotation","overrideLevel":false,
+        "pediatric":false,"relatedAlleles":[],"relatedDiseases":[],"score":0.0,"scoreDetails":"synthetic"}
+    ))?);
     envelope::<PgxAnnotation>(
         json!({"id":"PA1234","source":"clinpgx"}),
         json!({"header":{"id":"PA1234","source":"clinpgx"},"annotation":detail}),
@@ -397,14 +311,10 @@ fn all_consumer_envelopes_validate_with_independent_source_or_observed_totals()
         };
         envelope::<PgxAnnotations>(
             json!({"gene":"TPMT","source":"clinpgx","section":"annotations","kind":kind}),
-            json!({"annotationkind":kind,
-"header":{"gene":"TPMT",
-"source":"clinpgx"},
-"items":items,
-"page":{"offset":0,
-"returned":1,
-"total":1,
-"total_kind":"observed"}}),
+            json!(
+                {"annotationkind":kind,"header":{"gene":"TPMT","source":"clinpgx"},"items":items,"page":{"offset":0,"returned":1,"total":1,
+                "total_kind":"observed"}}
+            ),
         )?;
     }
     Ok(())

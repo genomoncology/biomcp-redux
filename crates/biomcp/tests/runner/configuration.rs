@@ -86,14 +86,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ]
 }
-fn default_cache_migration() -> Check {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let stub = super::network_stub::Stub::new()?;
-    let ca = env.root().join("ca.pem");
-    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
-        .map_err(|e| e.to_string())?;
-    invoke(&env, vec!["sync".into(), "hgnc".into()], 0)?;
+fn seed_legacy_cache(env: &Environment) -> Result<std::path::PathBuf, String> {
     let folder = env.root().join("cache/biomcp");
     let current = fs::read_dir(&folder)
         .map_err(|e| e.to_string())?
@@ -123,6 +116,17 @@ fn default_cache_migration() -> Check {
         )
         .map_err(|e| e.to_string())?;
     drop(connection);
+    Ok(historical)
+}
+fn default_cache_migration() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let stub = super::network_stub::Stub::new()?;
+    let ca = env.root().join("ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))
+        .map_err(|e| e.to_string())?;
+    invoke(&env, vec!["sync".into(), "hgnc".into()], 0)?;
+    let historical = seed_legacy_cache(&env)?;
     let args = vec![
         "get".into(),
         "gene".into(),

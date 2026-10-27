@@ -164,34 +164,26 @@ fn unsupported() -> Result<(), String> {
     Ok(())
 }
 fn insertion(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643",
-"genomicAlleles":[{"referenceGenome":"GRCh37",
-"hgvs":["NC_000007.13:g.140453135_140453136insT"],
-"coordinates":[{"start":140453135,
-"end":140453135,
-"referenceAllele":"",
-"allele":"T"}]}]})
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh37",
+        "hgvs":["NC_000007.13:g.140453135_140453136insT"],"coordinates":[{"start":140453135,"end":140453135,"referenceAllele":"",
+        "allele":"T"}]}]}
+    )
     .to_string())
 }
 fn deletion(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643",
-"genomicAlleles":[{"referenceGenome":"GRCh37",
-"hgvs":["NC_000007.13:g.140453136del"],
-"coordinates":[{"start":140453135,
-"end":140453136,
-"referenceAllele":"A",
-"allele":""}]}]})
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh37",
+        "hgvs":["NC_000007.13:g.140453136del"],"coordinates":[{"start":140453135,"end":140453136,"referenceAllele":"A","allele":""}]}]}
+    )
     .to_string())
 }
 
 fn nonchromosomal(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643",
-"genomicAlleles":[{"referenceGenome":"GRCh37",
-"hgvs":["NG_007873.3:g.2A>T"],
-"coordinates":[{"start":1,
-"end":2,
-"referenceAllele":"A",
-"allele":"T"}]}]})
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"referenceGenome":"GRCh37","hgvs":["NG_007873.3:g.2A>T"],
+        "coordinates":[{"start":1,"end":2,"referenceAllele":"A","allele":"T"}]}]}
+    )
     .to_string())
 }
 fn empty() -> Result<(), String> {

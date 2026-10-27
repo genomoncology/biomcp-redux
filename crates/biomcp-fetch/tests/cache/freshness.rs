@@ -165,15 +165,10 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
-        let recording = serde_json::json!({"method":"GET",
-"source":"pubmed",
-"url":url,
-"exchanges":[{"status":200,
-"content_type":"application/json",
-"delay_ms":0,
-"retry_after_ms":null,
-"body":{"kind":"json",
-"value":{"answer":true}}}]});
+        let recording = serde_json::json!(
+            {"method":"GET","source":"pubmed","url":url,"exchanges":[{"status":200,"content_type":"application/json","delay_ms":0,
+            "retry_after_ms":null,"body":{"kind":"json","value":{"answer":true}}}]}
+        );
         std::fs::write(
             records.join(format!("{key}.json")),
             serde_json::to_vec(&recording).unwrap(),

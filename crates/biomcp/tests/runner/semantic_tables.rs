@@ -44,10 +44,9 @@ fn fields() -> Check {
                 if source != "semantic-scholar" {
                     return;
                 }
-                let mut edge = json!({"citedPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567",
-"externalIds":{},
-"title":"Invented article title.",
-"year":2020}});
+                let mut edge = json!(
+                    {"citedPaper":{"paperId":"0123456789abcdef0123456789abcdef01234567","externalIds":{},"title":"Invented article title.","year":2020}}
+                );
                 if let Some(value) = &contexts
                     && let Some(edge) = edge.as_object_mut()
                 {

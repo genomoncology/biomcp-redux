@@ -71,37 +71,25 @@ fn all_ten_synthetic_response_envelopes_follow_their_generated_schema() {
     envelope::<DiseasePage>(search, empty.clone()).unwrap();
     envelope::<DiseaseCard>(
         get.clone(),
-        json!({"requested_id":"MONDO:0007254",
-"returned_id":"MONDO:0007254",
-"concept":{"id":"MONDO:0007254",
-"label":"synthetic cancer"},
-"definition":"Complete synthetic definition.",
-"obsolete":true,
-"consider":["MONDO:0800444",
-"MONDO:0800445"],
-"attribution":{"source":"synthetic"},
-"sections":["synonyms",
-"xrefs",
-"hierarchy"],
-"components":[]}),
+        json!(
+        {"requested_id":"MONDO:0007254","returned_id":"MONDO:0007254","concept":{"id":"MONDO:0007254","label":"synthetic cancer"},
+        "definition":"Complete synthetic definition.","obsolete":true,"consider":["MONDO:0800444","MONDO:0800445"],
+        "attribution":{"source":"synthetic"},"sections":["synonyms","xrefs","hierarchy"],"components":[]}
+    ),
     )
     .unwrap();
     envelope::<DiseaseSynonyms>(
         get.clone(),
-        json!({"items":[{"value":"synthetic synonym",
-"scope":"oboInOwl:hasExactSynonym",
-"language":"en",
-"attribution":{"source":"synthetic"}}],
-"components":[]}),
+        json!(
+        {"items":[{"value":"synthetic synonym","scope":"oboInOwl:hasExactSynonym","language":"en","attribution":{"source":"synthetic"}}],
+        "components":[]}
+    ),
     )
     .unwrap();
-    let relations = json!({"items":[{"subject":{"id":"MONDO:0007254",
-"label":"synthetic"},
-"predicate":"skos:closeMatch",
-"object":{"id":"DOID:1612",
-"label":"native target"},
-"attribution":{"source":"synthetic"}}],
-"components":[]});
+    let relations = json!(
+        {"items":[{"subject":{"id":"MONDO:0007254","label":"synthetic"},"predicate":"skos:closeMatch","object":{"id":"DOID:1612",
+        "label":"native target"},"attribution":{"source":"synthetic"}}],"components":[]}
+    );
     envelope::<DiseaseXrefs>(get.clone(), relations.clone()).unwrap();
     envelope::<DiseaseHierarchy>(get.clone(), relations).unwrap();
     envelope::<DiseaseGenes>(get.clone(), empty.clone()).unwrap();

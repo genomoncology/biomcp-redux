@@ -142,28 +142,14 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.starts_with("GET /v1/variant/") {
         return Ok(json!({"_id":INPUT,"dbsnp":{"rsid":"rs113488022","gene":{"symbol":"BRAF"}},"clinvar":{"variant_id":13961}}).to_string());
     }
-    Ok(json!({"query":{"hgvs":"7:g.140753336A>T",
-"referenceGenome":"GRCh38",
-"tumorType":"Synthetic tumor",
-"hugoSymbol":"BRAF",
-"alteration":"V600E"},
-"variantExist":false,
-"alleleExist":false,
-"oncogenic":"Oncogenic",
-"mutationEffect":{"knownEffect":"Neutral",
-"description":"Synthetic mutation effect.",
-"citations":{"pmids":["17611497"]}},
-"variantSummary":" Synthetic source text Ω ",
-"dataVersion":"synthetic-v1",
-"lastUpdate":"10/24/2026",
-"treatments":[{"level":"LEVEL_1",
-"alterations":["V600E",
-"V600K"],
-"drugs":[{"drugName":"Synthetic drug",
-"ncitCode":"C0000"}],
-"pmids":["17611497"]}],
-"diagnosticImplications":[],
-"prognosticImplications":[]})
+    Ok(json!(
+        {"query":{"hgvs":"7:g.140753336A>T","referenceGenome":"GRCh38","tumorType":"Synthetic tumor","hugoSymbol":"BRAF",
+        "alteration":"V600E"},"variantExist":false,"alleleExist":false,"oncogenic":"Oncogenic","mutationEffect":{"knownEffect":"Neutral",
+        "description":"Synthetic mutation effect.","citations":{"pmids":["17611497"]}},"variantSummary":" Synthetic source text Ω ",
+        "dataVersion":"synthetic-v1","lastUpdate":"10/24/2026","treatments":[{"level":"LEVEL_1","alterations":["V600E","V600K"],
+        "drugs":[{"drugName":"Synthetic drug","ncitCode":"C0000"}],"pmids":["17611497"]}],"diagnosticImplications":[],
+        "prognosticImplications":[]}
+    )
     .to_string())
 }
 

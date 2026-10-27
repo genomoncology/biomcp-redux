@@ -269,8 +269,7 @@ fn protocols() -> Check {
     let init = legacy(
         7,
         "initialize",
-        json!({"protocolVersion":"2025-11-25", "capabilities":{},
-        "clientInfo":{"name":"local-proof", "version":"1"}}),
+        json!({"protocolVersion":"2025-11-25", "capabilities":{}, "clientInfo":{"name":"local-proof", "version":"1"}}),
     );
     let (_, initialized, headers) = server.raw(
         "POST",

@@ -24,18 +24,11 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 fn entries() -> Value {
     json!(
-        (0..12)
-            .map(|n| {
-                let name = if n == 11 { "LICENSE".into() } else { format!("data_{n}.txt") };
-                json!({"name":name,
-"path":format!("public/synthetic_0/{name}"),
-"html_url":format!("https://github.com/cBioPortal/datahub/blob/master/public/synthetic_0/{name}"),
-"download_url":format!("https://raw.githubusercontent.com/cBioPortal/datahub/master/public/synthetic_0/{name}"),
-"sha":"0123456789012345678901234567890123456789",
-"size":131,
-"type":"file"})
-            })
-            .collect::<Vec<_>>()
+        (0..12) .map(|n| { let name = if n == 11 { "LICENSE".into() } else { format!("data_{n}.txt") }; json!({"name":name,
+        "path":format!("public/synthetic_0/{name}"),
+        "html_url":format!("https://github.com/cBioPortal/datahub/blob/master/public/synthetic_0/{name}"),
+        "download_url":format!("https://raw.githubusercontent.com/cBioPortal/datahub/master/public/synthetic_0/{name}"),
+        "sha":"0123456789012345678901234567890123456789","size":131,"type":"file"}) }) .collect::<Vec<_>>()
     )
 }
 pub(super) fn seed_files(replay: &Path) -> Check {
@@ -50,13 +43,10 @@ pub(super) fn record_raw(replay: &Path, body: &str, status: u16, delay: u64) -> 
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect::<String>();
-    let exchange = json!({"status":status,
-"fetched":42,
-"content_type":"application/json",
-"delay_ms":delay,
-"retry_after_ms":null,
-"body":{"kind":"text",
-"value":body}});
+    let exchange = json!(
+        {"status":status,"fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,"body":{"kind":"text",
+        "value":body}}
+    );
     let exchanges = if matches!(status, 429 | 500) {
         vec![exchange; 3]
     } else {

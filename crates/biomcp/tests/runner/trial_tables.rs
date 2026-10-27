@@ -154,19 +154,10 @@ fn policy() -> Check {
     let output = checked_steps(
         "trial/condition",
         |_, _| {},
-        json!([
-            {"run":args,"expect":{"/status":"complete","/page/total":3780}},
-            {"run":["--disable-sources",
-        "ctgov",
-        "search",
-        "trial",
-        "--condition",
-        "melanoma"],
-        "exit":4,
-        "expect":{"/status":"failed",
-        "/sources/0/state":"skipped",
-        "/sources/0/reason":"disabled"}}
-        ]),
+        json!(
+            [ {"run":args,"expect":{"/status":"complete","/page/total":3780}},{"run":["--disable-sources","ctgov","search","trial",
+            "--condition","melanoma"],"exit":4,"expect":{"/status":"failed","/sources/0/state":"skipped","/sources/0/reason":"disabled"}} ]
+        ),
     )?;
     if output.get("page").is_some() || output.get("result").is_some() {
         return Err("disabled cached source returned a result".into());
@@ -218,12 +209,10 @@ fn count_failure() -> Check {
                 record["exchanges"] = json!([exchange.clone(), exchange.clone(), exchange]);
             }
         },
-        json!([{"run":args,
-"mcp":args,
-"expect":{"/status":"partial",
-"/result/items":{"count":10},
-"/sources/0/reason":"unavailable",
-"/result/count_request":{"count":4}}}]),
+        json!(
+            [{"run":args,"mcp":args,"expect":{"/status":"partial","/result/items":{"count":10},"/sources/0/reason":"unavailable",
+            "/result/count_request":{"count":4}}}]
+        ),
     )?;
     if output.get("page").is_some() || output["sources"][0].get("count").is_some() {
         return Err("failed native count asserted a total".into());

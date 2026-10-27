@@ -42,11 +42,10 @@ fn missing_reply(request: &str) -> Result<String, String> {
             json!(["MONDO:0800444", "MONDO:0800445"]),
         )?;
     }
-    Ok(json!({"_id":id,
-"mondo":mondo,
-"disease_ontology":{"doid":"DOID:3910",
-"name":"Different component",
-"def":"This must never become the MONDO definition."}})
+    Ok(json!(
+        {"_id":id,"mondo":mondo,"disease_ontology":{"doid":"DOID:3910","name":"Different component",
+        "def":"This must never become the MONDO definition."}}
+    )
     .to_string())
 }
 fn missing() -> Result<(), String> {
@@ -70,21 +69,10 @@ fn missing() -> Result<(), String> {
         }
         replay(
             &directory,
-            json!([{"run":words,
-"mcp":words,
-"expect":expected},
- {"run":["get",
-"disease",
-id,
-"hierarchy"],
-"mcp":["get",
-"disease",
-id,
-"hierarchy"],
-"exit":1,
-"expect":{"/status":"absent",
-"/page/total":0,
-"/result/items":[]}}]),
+            json!(
+                [{"run":words,"mcp":words,"expect":expected},{"run":["get","disease",id,"hierarchy"],"mcp":["get","disease",id,"hierarchy"],
+                "exit":1,"expect":{"/status":"absent","/page/total":0,"/result/items":[]}}]
+            ),
         )?;
     }
     if stub.finish()?.len() != 2 {
@@ -161,14 +149,10 @@ fn failures() -> Result<(), String> {
         stub.finish()?;
         replay(
             &directory,
-            json!([{"run":words,
-"mcp":words,
-"exit":4,
-"is_error":true,
-"expect":{"/status":"failed",
-"/sources/0/source":"mydisease",
-"/sources/0/state":"failed",
-"/sources/0/terms":"MyDisease source-specific terms"}}]),
+            json!(
+                [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"mydisease",
+                "/sources/0/state":"failed","/sources/0/terms":"MyDisease source-specific terms"}}]
+            ),
         )?;
     }
     Ok(())
@@ -196,13 +180,10 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,
-"mcp":words,
-"exit":4,
-"is_error":true,
-"expect":{"/status":"failed",
-"/sources/0/reason":"deadline_exceeded",
-"/sources/0/terms":"MyDisease source-specific terms"}}]),
+        json!(
+            [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/reason":"deadline_exceeded",
+            "/sources/0/terms":"MyDisease source-specific terms"}}]
+        ),
     )?;
     Ok(())
 }

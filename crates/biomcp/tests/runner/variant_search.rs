@@ -112,12 +112,10 @@ fn body(request: &str) -> Result<String, String> {
     } else {
         "chr7:g.55259515T>G"
     };
-    Ok(json!({"total":2,
-"hits":[{"_id":id,
-"chrom":"7",
-"hg19":{"start":if id.ends_with("15T>G") {55259515} else {55259516},
-"end":if id.ends_with("15T>G") {55259515} else {55259516}},
-"dbsnp":{"gene":{"symbol":"EGFR"}}}]})
+    Ok(json!(
+        {"total":2,"hits":[{"_id":id,"chrom":"7","hg19":{"start":if id.ends_with("15T>G") {55259515} else {55259516},
+        "end":if id.ends_with("15T>G") {55259515} else {55259516}},"dbsnp":{"gene":{"symbol":"EGFR"}}}]}
+    )
     .to_string())
 }
 
@@ -191,15 +189,10 @@ fn selectors_body(request: &str) -> Result<String, String> {
     {
         return Err(format!("raw/region query changed: {request}"));
     }
-    Ok(json!({"total":2,
-"hits":[{"_id":"chr7:g.140753336A>T",
-"chrom":"7",
-"hg38":{"start":140753336,
-"end":140753336}},
-{"_id":"chr7:g.140753336A>T",
-"chrom":"7",
-"hg38":{"start":140753336,
-"end":140753336}}]})
+    Ok(json!(
+        {"total":2,"hits":[{"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}},
+        {"_id":"chr7:g.140753336A>T","chrom":"7","hg38":{"start":140753336,"end":140753336}}]}
+    )
     .to_string())
 }
 fn zero_and_failed() -> Result<(), String> {

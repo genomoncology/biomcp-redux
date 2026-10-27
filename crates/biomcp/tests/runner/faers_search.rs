@@ -77,13 +77,11 @@ fn encoded(value: &str) -> String {
 fn body(limit: u32, offset: u32) -> Value {
     let rows: Vec<_> = (0..limit)
         .map(|n| {
-            json!({"safetyreportid":(100+offset+n).to_string(),
-"safetyreportversion":"1",
-"receivedate":"20240102",
-"serious":"1",
-"patient":{"drug":[{"medicinalproduct":"Synthetic A"},
-{"medicinalproduct":"Synthetic B"}],
-"reaction":[{"reactionmeddrapt":"Synthetic term"}]}})
+            json!(
+        {"safetyreportid":(100+offset+n).to_string(),"safetyreportversion":"1","receivedate":"20240102","serious":"1",
+        "patient":{"drug":[{"medicinalproduct":"Synthetic A"},{"medicinalproduct":"Synthetic B"}],
+        "reaction":[{"reactionmeddrapt":"Synthetic term"}]}}
+    )
         })
         .collect();
     json!({"meta":{"last_updated":"2024-09-01","results":{"skip":offset,"limit":limit,"total":20}},"results":rows})

@@ -125,14 +125,10 @@ fn wire() -> Result<(), String> {
     Ok(())
 }
 fn car(_: &str) -> Result<String, String> {
-    Ok(json!({"@id":"http://reg.genome.network/allele/CA123643",
-"genomicAlleles":[{"chromosome":"7",
-"referenceGenome":"GRCh37",
-"hgvs":["NC_000007.13:g.140453136A>T"],
-"coordinates":[{"start":140453135,
-"end":140453136,
-"referenceAllele":"A",
-"allele":"T"}]}]})
+    Ok(json!(
+        {"@id":"http://reg.genome.network/allele/CA123643","genomicAlleles":[{"chromosome":"7","referenceGenome":"GRCh37",
+        "hgvs":["NC_000007.13:g.140453136A>T"],"coordinates":[{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}]}]}
+    )
     .to_string())
 }
 fn hgnc(_: &str) -> Result<String, String> {
@@ -142,16 +138,10 @@ fn hgnc(_: &str) -> Result<String, String> {
         .into())
 }
 pub(super) fn row(sample: &str, alternate: &str) -> Value {
-    json!({"molecularProfileId":"msk_impact_2017_mutations",
-"studyId":"msk_impact_2017",
-"sampleId":sample,
-"entrezGeneId":673,
-"chr":"7",
-"startPosition":140453136,
-"endPosition":140453136,
-"referenceAllele":"A",
-"variantAllele":alternate,
-"ncbiBuild":"GRCh37"})
+    json!(
+        {"molecularProfileId":"msk_impact_2017_mutations","studyId":"msk_impact_2017","sampleId":sample,"entrezGeneId":673,"chr":"7",
+        "startPosition":140453136,"endPosition":140453136,"referenceAllele":"A","variantAllele":alternate,"ncbiBuild":"GRCh37"}
+    )
 }
 pub(super) fn cbio(request: &str) -> Result<String, String> {
     if request.starts_with("GET /allele/") {

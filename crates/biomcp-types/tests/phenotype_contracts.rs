@@ -97,22 +97,15 @@ fn source_and_section_pairings_validate_before_any_adapter() {
 #[test]
 fn native_cards_keep_empty_values_independent_sources_and_count_scopes() {
     use biodata::{PhenotypeCard, PhenotypeSynonym};
-    let hpo = json!({"source":"hpo",
-"requested_id":"HP:0001250",
-"returned_id":"HP:0001250",
-"label":"Seizure",
-"definition":"",
-"comment":"",
-"publication_references":[],
-"hpo_descendant_count":346,
-"attribution":{"source":"hpo"}});
+    let hpo = json!(
+        {"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"","comment":"",
+        "publication_references":[],"hpo_descendant_count":346,"attribution":{"source":"hpo"}}
+    );
     let card: PhenotypeCard = serde_json::from_value(hpo.clone()).unwrap();
     assert_eq!(serde_json::to_value(card).unwrap(), hpo);
-    let absent: PhenotypeCard = serde_json::from_value(json!({"source":"hpo",
-"requested_id":"HP:0001250",
-"returned_id":"HP:0001250",
-"label":"Seizure",
-"attribution":{"source":"hpo"}}))
+    let absent: PhenotypeCard = serde_json::from_value(json!(
+        {"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","attribution":{"source":"hpo"}}
+    ))
     .unwrap();
     assert!(
         serde_json::to_value(absent)
@@ -120,18 +113,12 @@ fn native_cards_keep_empty_values_independent_sources_and_count_scopes() {
             .get("definition")
             .is_none()
     );
-    let monarch = json!({"source":"monarch",
-"requested_id":"HP:0001676",
-"returned_id":"HP:0001676",
-"label":"obsolete source label",
-"deprecated":true,
-"monarch_descendant_count":1,
-"association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation",
-"category":"biolink:DiseaseToPhenotypicFeatureAssociation",
-"label":"Disease to Phenotype",
-"count":5350,
-"count_direct":2561}],
-"attribution":{"source":"monarch"}});
+    let monarch = json!(
+        {"source":"monarch","requested_id":"HP:0001676","returned_id":"HP:0001676","label":"obsolete source label","deprecated":true,
+        "monarch_descendant_count":1,"association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation",
+        "category":"biolink:DiseaseToPhenotypicFeatureAssociation","label":"Disease to Phenotype","count":5350,"count_direct":2561}],
+        "attribution":{"source":"monarch"}}
+    );
     assert_eq!(
         serde_json::to_value(serde_json::from_value::<PhenotypeCard>(monarch.clone()).unwrap())
             .unwrap(),
@@ -167,18 +154,11 @@ fn native_cards_keep_empty_values_independent_sources_and_count_scopes() {
 #[test]
 fn associations_reuse_native_endpoints_and_never_deserialize_as_statements() {
     use biodata::{DiseaseAssociation, Statement};
-    let row = json!({"requested_id":"HP:0001250",
-"subject":{"id":"HGNC:29529",
-"label":"synthetic gene"},
-"subject_taxon":"NCBITaxon:9606",
-"object":{"id":"HP:0001250",
-"label":"synthetic term"},
-"predicate":"biolink:has_phenotype",
-"attribution":{"source":"synthetic"},
-"evidence":[],
-"qualifiers":[],
-"subject_closure":[],
-"object_closure":[]});
+    let row = json!(
+        {"requested_id":"HP:0001250","subject":{"id":"HGNC:29529","label":"synthetic gene"},"subject_taxon":"NCBITaxon:9606",
+        "object":{"id":"HP:0001250","label":"synthetic term"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},
+        "evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":[]}
+    );
     let association: DiseaseAssociation = serde_json::from_value(row.clone()).unwrap();
     assert_eq!(serde_json::to_value(association).unwrap(), row);
     assert!(serde_json::from_value::<Statement>(row).is_err());
@@ -239,27 +219,18 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     let get = json!({"id":"HP:0001250"});
     envelope::<PhenotypePage>(
         json!({"text":"seizure"}),
-        json!({"items":[{"id":"HP:0001250",
-"label":"Seizure",
-"match_score":1.5,
-"matched_field":"name",
-"match_type":"exact",
-"attribution":{"source":"synthetic"}}],
-"components":[]}),
+        json!(
+        {"items":[{"id":"HP:0001250","label":"Seizure","match_score":1.5,"matched_field":"name","match_type":"exact",
+        "attribution":{"source":"synthetic"}}],"components":[]}
+    ),
     )
     .unwrap();
     envelope::<PhenotypeTermCard>(
         get.clone(),
-        json!({"term":{"source":"hpo",
-"requested_id":"HP:0001250",
-"returned_id":"HP:0001250",
-"label":"Seizure",
-"definition":"",
-"publication_references":[],
-"attribution":{"source":"synthetic"}},
-"sections":["synonyms",
-"xrefs"],
-"components":[]}),
+        json!(
+        {"term":{"source":"hpo","requested_id":"HP:0001250","returned_id":"HP:0001250","label":"Seizure","definition":"",
+        "publication_references":[],"attribution":{"source":"synthetic"}},"sections":["synonyms","xrefs"],"components":[]}
+    ),
     )
     .unwrap();
     envelope::<PhenotypeSynonyms>(

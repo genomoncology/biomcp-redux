@@ -147,13 +147,10 @@ fn rejected(env: &Environment) -> Result<(), String> {
 }
 
 fn member(id: String, kind: &str) -> Value {
-    json!({"identifier":id,
-"interactorType":kind,
-"organismName":if kind=="protein"{"Homo sapiens; 9606"}else{"chemical synthesis; -2"},
-"name":"Native participant",
-"stochiometry":"minValue: 1, maxValue: 2",
-"xrefs":[{"database":"native",
-"identifier":"identifier"}]})
+    json!(
+        {"identifier":id,"interactorType":kind,"organismName":if kind=="protein"{"Homo sapiens; 9606"}else{"chemical synthesis; -2"},
+        "name":"Native participant","stochiometry":"minValue: 1, maxValue: 2","xrefs":[{"database":"native","identifier":"identifier"}]}
+    )
 }
 pub(super) fn reply(request: &str) -> Result<String, String> {
     if request.contains("/complex/CPX-716") || request.contains("/complex/CPX-717") {
@@ -167,22 +164,16 @@ pub(super) fn reply(request: &str) -> Result<String, String> {
         } else {
             member("P38398".into(), " protein ")
         };
-        return Ok(json!({"complexAc":id,
-"name":"Hostile participant identity",
-"species":"Homo sapiens; 9606",
-"predictedComplex":false,
-"participants":[row]})
+        return Ok(json!(
+        {"complexAc":id,"name":"Hostile participant identity","species":"Homo sapiens; 9606","predictedComplex":false,"participants":[row]}
+    )
         .to_string());
     }
     if request.contains("/complex/") {
-        return Ok(json!({"complexAc":"CPX-715",
-"name":"Exact complex",
-"species":"Homo sapiens; 9606",
-"predictedComplex":false,
-"participants":[member("P38398".into(),
-"protein"),
-member("Q99728".into(),
-"protein")]})
+        return Ok(json!(
+        {"complexAc":"CPX-715","name":"Exact complex","species":"Homo sapiens; 9606","predictedComplex":false,
+        "participants":[member("P38398".into(),"protein"),member("Q99728".into(),"protein")]}
+    )
         .to_string());
     }
     let mut members = vec![
@@ -192,24 +183,12 @@ member("Q99728".into(),
     for n in 1..92 {
         members.push(member(format!("P{n:05}"), "protein"));
     }
-    Ok(json!({"size":3,"totalNumberOfResults":3,"elements":[
-            {"complexAC":"CPX-100","complexName":"Native predicted complex","organismName":"Homo sapiens; 9606","predictedComplex":true,"interactors":members},
-            {"complexAC":"CPX-715",
-    "complexName":"Exact complex",
-    "organismName":"Homo sapiens; 9606",
-    "predictedComplex":false,
-    "interactors":[member("P38398".into(),
-    "protein"),
-    member("Q99728".into(),
-    "protein")]},
-
-            {"complexAC":"CPX-26353",
-    "complexName":"Mentions BRCA1",
-    "description":"P38398",
-    "organismName":"Homo sapiens; 9606",
-    "predictedComplex":false,
-    "interactors":[member("P15056".into(),
-    "protein")]}
-        ]})
+    Ok(json!(
+        {"size":3,"totalNumberOfResults":3,"elements":[ {"complexAC":"CPX-100","complexName":"Native predicted complex",
+        "organismName":"Homo sapiens; 9606","predictedComplex":true,"interactors":members},{"complexAC":"CPX-715",
+        "complexName":"Exact complex","organismName":"Homo sapiens; 9606","predictedComplex":false,"interactors":[member("P38398".into(),
+        "protein"),member("Q99728".into(),"protein")]},{"complexAC":"CPX-26353","complexName":"Mentions BRCA1","description":"P38398",
+        "organismName":"Homo sapiens; 9606","predictedComplex":false,"interactors":[member("P15056".into(),"protein")]} ]}
+    )
     .to_string())
 }

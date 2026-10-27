@@ -22,8 +22,7 @@ fn restricted_page() -> Result<(), String> {
     let ca = env.root().join("synthetic-ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(
-        &json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,
-        "disable_sources":["noncommercial"]}),
+        &json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca, "disable_sources":["noncommercial"]}),
     )
     .map_err(|e| e.to_string())?;
     let initial = command(

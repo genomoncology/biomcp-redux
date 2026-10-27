@@ -15,14 +15,11 @@ pub(super) fn trials() -> Vec<Trial> {
     })]
 }
 fn reply(request: &str) -> Result<String, String> {
-    let card = json!({"nci_id":"NCI-2026-00001",
-"nct_id":"NCT02296125",
-"brief_title":"Synthetic trial",
-"current_trial_status":"Temporarily Closed to Accrual",
-"phase":"II/III",
-"brief_summary":"Original source summary Ω",
-"diseases":[{"name":"Synthetic disease",
-"nci_thesaurus_concept_id":"C3224"}]});
+    let card = json!(
+        {"nci_id":"NCI-2026-00001","nct_id":"NCT02296125","brief_title":"Synthetic trial",
+        "current_trial_status":"Temporarily Closed to Accrual","phase":"II/III","brief_summary":"Original source summary Ω",
+        "diseases":[{"name":"Synthetic disease","nci_thesaurus_concept_id":"C3224"}]}
+    );
     Ok(if request.starts_with("GET /api/v2/trials/NCT02296125 ") {
         card
     } else {

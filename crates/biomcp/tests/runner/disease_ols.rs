@@ -83,10 +83,9 @@ fn replay(directory: &Path, steps: Value) -> Result<Value, String> {
     let file = tempfile::NamedTempFile::new().map_err(|e| e.to_string())?;
     fs::write(
         file.path(),
-        serde_json::to_vec(&json!({"feature":"disease-ols",
-"story":"Source disease facts retain identity, order and pagination",
-"replay":directory,
-"steps":steps}))
+        serde_json::to_vec(&json!(
+        {"feature":"disease-ols","story":"Source disease facts retain identity, order and pagination","replay":directory,"steps":steps}
+    ))
         .map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
@@ -147,12 +146,10 @@ fn search_reply(request: &str) -> Result<String, String> {
     };
     let rows = (offset..(offset + limit).min(total))
         .map(|i| {
-            json!({"obo_id":format!("{prefix}:{:07}",
-i+1),
-"label":format!("Synthetic cancer {i}"),
-"ontology_name":ontology,
-"iri":format!("http://example.org/{i}"),
-"is_obsolete":i==3})
+            json!(
+        {"obo_id":format!("{prefix}:{:07}",i+1),"label":format!("Synthetic cancer {i}"),"ontology_name":ontology,
+        "iri":format!("http://example.org/{i}"),"is_obsolete":i==3}
+    )
         })
         .collect::<Vec<_>>();
     Ok(json!({"response":{"numFound":total,"start":offset,"docs":rows}}).to_string())
@@ -172,17 +169,11 @@ fn search() -> Result<(), String> {
         record(&env, &words, &directory)?;
         let result = replay(
             &directory,
-            json!([{"run":words,
-"mcp":words,
-"expect":{"/query/text":"  literal MF : cancer  ",
-"/query/ontology":ontology,
-"/page/total":11,
-"/result/items/0/concept/id":format!("{}:0000001",
-ontology.to_uppercase()),
-"/next/5/kind":"page"},
-"max_bytes":match *ontology {"mondo"=>2129,
-"doid"=>2244,
-_=>2263}}]),
+            json!(
+                [{"run":words,"mcp":words,"expect":{"/query/text":"  literal MF : cancer  ","/query/ontology":ontology,"/page/total":11,
+                "/result/items/0/concept/id":format!("{}:0000001",ontology.to_uppercase()),"/next/5/kind":"page"},
+                "max_bytes":match *ontology {"mondo"=>2129,"doid"=>2244,_=>2263}}]
+            ),
         )?;
         if result
             .pointer("/result/items")
@@ -206,25 +197,14 @@ _=>2263}}]),
     Ok(())
 }
 fn term(id: &str) -> Value {
-    json!({"obo_id":id,
-"label":"Synthetic obsolete cancer",
-"ontology_name":"mondo",
-"iri":"http://purl.obolibrary.org/obo/MONDO_0007607",
-"description":["Complete synthetic definition."],
-"is_obsolete":true,
-"term_replaced_by":null,
-"annotation":{"consider":["http://purl.obolibrary.org/obo/MONDO_0800444",
-"http://purl.obolibrary.org/obo/MONDO_0800445"]},
-"synonyms":["native one",
-"native two"],
-"obo_synonym":[{"name":"native one",
-"scope":"hasExactSynonym"}],
-"obo_xref":[{"database":"DOID",
-"id":"3910",
-"description":"native text without inferred equivalence"},
-{"database":"NCI",
-"id":"C3512",
-"description":null}]})
+    json!(
+        {"obo_id":id,"label":"Synthetic obsolete cancer","ontology_name":"mondo","iri":"http://purl.obolibrary.org/obo/MONDO_0007607",
+        "description":["Complete synthetic definition."],"is_obsolete":true,"term_replaced_by":null,
+        "annotation":{"consider":["http://purl.obolibrary.org/obo/MONDO_0800444","http://purl.obolibrary.org/obo/MONDO_0800445"]},
+        "synonyms":["native one","native two"],"obo_synonym":[{"name":"native one","scope":"hasExactSynonym"}],
+        "obo_xref":[{"database":"DOID","id":"3910","description":"native text without inferred equivalence"},{"database":"NCI","id":"C3512",
+        "description":null}]}
+    )
 }
 fn exact_reply(_: &str) -> Result<String, String> {
     Ok(json!({"_embedded":{"terms":[term("MONDO:0007607")]}}).to_string())
@@ -248,16 +228,11 @@ fn exact() -> Result<(), String> {
             "biomcp get disease",
         ],
     )?;
-    let mut steps = vec![json!({"run":words,
-"mcp":words,
-"expect":{"/result/requested_id":"MONDO:0007607",
-"/result/replaced_by":null,
-"/result/consider":["MONDO:0800444",
-"MONDO:0800445"],
-"/result/obsolete":true,
-"/result/sections":["synonyms",
-"xrefs"]},
-"max_bytes":1086})];
+    let mut steps = vec![json!(
+        {"run":words,"mcp":words,"expect":{"/result/requested_id":"MONDO:0007607","/result/replaced_by":null,
+        "/result/consider":["MONDO:0800444","MONDO:0800445"],"/result/obsolete":true,"/result/sections":["synonyms","xrefs"]},
+        "max_bytes":1086}
+    )];
     for section in ["synonyms", "xrefs"] {
         let command = [
             "get",
@@ -369,14 +344,10 @@ fn failures() -> Result<(), String> {
         }
         replay(
             &directory,
-            json!([{"run":words,
-"mcp":words,
-"exit":exit,
-"is_error":!absent,
-"expect":expect,
-"max_bytes":if absent {454} else {match status {429=>234,
-500=>233,
-_=>230}}}]),
+            json!(
+                [{"run":words,"mcp":words,"exit":exit,"is_error":!absent,"expect":expect,"max_bytes":if absent {454} else {match status {429=>234,
+                500=>233,_=>230}}}]
+            ),
         )?;
     }
     Ok(())
@@ -405,15 +376,10 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,
-"mcp":words,
-"exit":4,
-"is_error":true,
-"expect":{"/status":"failed",
-"/sources/0/source":"ols",
-"/sources/0/state":"failed",
-"/sources/0/reason":"deadline_exceeded"},
-"max_bytes":244}]),
+        json!(
+            [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"ols",
+            "/sources/0/state":"failed","/sources/0/reason":"deadline_exceeded"},"max_bytes":244}]
+        ),
     )?;
     Ok(())
 }
@@ -446,14 +412,10 @@ fn maximum() -> Result<(), String> {
     record(&env, &words, &directory)?;
     replay(
         &directory,
-        json!([{"run":words,
-"mcp":words,
-"expect":{"/page/returned":50,
-"/page/total":51,
-"/next":{"count":51},
-"/next/49/kind":"disambiguate",
-"/next/50/kind":"page"},
-"max_bytes":16130}]),
+        json!(
+            [{"run":words,"mcp":words,"expect":{"/page/returned":50,"/page/total":51,"/next":{"count":51},"/next/49/kind":"disambiguate",
+            "/next/50/kind":"page"},"max_bytes":16130}]
+        ),
     )?;
     invoke(
         &env,
@@ -490,32 +452,17 @@ fn literal_zero() -> Result<(), String> {
     )?;
     replay(
         &directory,
-        json!([{"run":["search",
-"disease",
-"MONDO:0007607"],
-"mcp":["search",
-"disease",
-"MONDO:0007607"],
-"exit":1,
-"expect":{"/status":"absent",
-"/page/total":0,
-"/result/items":[]},
-"max_bytes":463}]),
+        json!(
+            [{"run":["search","disease","MONDO:0007607"],"mcp":["search","disease","MONDO:0007607"],"exit":1,"expect":{"/status":"absent",
+            "/page/total":0,"/result/items":[]},"max_bytes":463}]
+        ),
     )?;
     replay(
         &exact_dir,
-        json!([{"run":["get",
-"disease",
-"MONDO:0007607",
-"--source",
-"ols"],
-"mcp":["get",
-"disease",
-"MONDO:0007607",
-"--source",
-"ols"],
-"expect":{"/result/concept/id":"MONDO:0007607"},
-"max_bytes":1087}]),
+        json!(
+            [{"run":["get","disease","MONDO:0007607","--source","ols"],"mcp":["get","disease","MONDO:0007607","--source","ols"],
+            "expect":{"/result/concept/id":"MONDO:0007607"},"max_bytes":1087}]
+        ),
     )?;
     let requests = stub.finish()?;
     if !matches!(requests.as_slice(), [(_, search), (_, get)] if search.contains("/search?") && get.contains("/terms?obo_id="))

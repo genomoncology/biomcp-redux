@@ -81,12 +81,11 @@ fn setup() -> Result<(Environment, Stub), String> {
     )?;
     let ca = env.root().join("ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",
-stub.address),
-"ca_bundle":ca,
-"keys":{"nci_api_key":KEY,
-"semantic_scholar_api_key":"synthetic-unrelated-config-key"}}))
-        .map_err(|e| e.to_string())?;
+    env.config(&json!(
+        {"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"keys":{"nci_api_key":KEY,
+        "semantic_scholar_api_key":"synthetic-unrelated-config-key"}}
+    ))
+    .map_err(|e| e.to_string())?;
     Ok((env, stub))
 }
 fn invoke(env: &Environment, mut args: Vec<String>, bad: bool) -> Result<Value, String> {

@@ -103,14 +103,12 @@ fn walk() -> Result<(), String> {
     Ok(())
 }
 fn normalized(_: &str) -> Result<String, String> {
-    Ok(json!({"input_description":"NM_004333.4:c.1799T>A",
-"normalized_description":"NM_004333.4:c.1799T>A",
-"corrected_description":"NM_004333.4:c.1799T>A",
-"protein":{"description":"NP_004324.2:p.(Val600Glu)"},
-"rna":{"description":"NM_004333.4:r.(1799u>a)"},
-"equivalent_descriptions":{"g":[{"description":"NC_000007.14:g.140753336A>T"}]},
-"infos":[{"code":"ISOURCE",
-"details":"  native whitespace  "}]})
+    Ok(json!(
+        {"input_description":"NM_004333.4:c.1799T>A","normalized_description":"NM_004333.4:c.1799T>A",
+        "corrected_description":"NM_004333.4:c.1799T>A","protein":{"description":"NP_004324.2:p.(Val600Glu)"},
+        "rna":{"description":"NM_004333.4:r.(1799u>a)"},"equivalent_descriptions":{"g":[{"description":"NC_000007.14:g.140753336A>T"}]},
+        "infos":[{"code":"ISOURCE","details":"  native whitespace  "}]}
+    )
     .to_string())
 }
 fn warning() -> Result<(), String> {

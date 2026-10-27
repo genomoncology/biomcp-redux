@@ -128,13 +128,10 @@ fn reply(request: &str) -> Result<String, String> {
     }
     Ok(annotation().to_string())
 }
-fn exact() -> Result<(), String> {
-    let stub = Stub::for_source("mydisease.info", "application/json", reply)?;
-    let env = setup(&stub)?;
-    let directory = env.root().join("exact");
-    record(&env, &["get", "disease", "DOID:3910"], &directory, 0)?;
+fn record_exact_card(env: &Environment, directory: &std::path::Path) -> Result<(), String> {
+    record(env, &["get", "disease", "DOID:3910"], directory, 0)?;
     replay(
-        &directory,
+        directory,
         json!(
             [{"run":["get","disease","DOID:3910"],"mcp":["get","disease","DOID:3910"],"expect":{"/result/requested_id":"DOID:3910",
             "/result/returned_id":"MONDO:0005061","/result/alias/object/id":"DOID:3910",
@@ -142,6 +139,13 @@ fn exact() -> Result<(), String> {
             "/result/sections":["synonyms","xrefs","hierarchy"]}}]
         ),
     )?;
+    Ok(())
+}
+fn exact() -> Result<(), String> {
+    let stub = Stub::for_source("mydisease.info", "application/json", reply)?;
+    let env = setup(&stub)?;
+    let directory = env.root().join("exact");
+    record_exact_card(&env, &directory)?;
     for (section, total, pointer, expected) in [
         (
             "synonyms",

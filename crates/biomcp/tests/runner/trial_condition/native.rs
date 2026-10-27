@@ -53,11 +53,10 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
             _ => 996,
         };
         let step = json!({"run":words,"mcp":words,"exit":exit,"is_error":exit != 0,"expect":expect,"max_bytes":ceiling,"max_tokens":ceiling.div_ceil(4)});
-        let case = json!({"feature":"trial-search",
-"story":"Exact captured concept determines only the literal source filter",
-"replay":output.join(name),
-"config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},
-"steps":[step]});
+        let case = json!(
+            {"feature":"trial-search","story":"Exact captured concept determines only the literal source filter","replay":output.join(name),
+            "config":{"keys":{"nci_api_key":"synthetic-trial-condition-key"}},"steps":[step]}
+        );
         let file = output.join(format!("{name}-case.json"));
         fs::write(
             &file,
@@ -67,10 +66,9 @@ pub(in crate::runner) fn run(root: &Path) -> Result<(), String> {
         crate::runner::run_case(&file, &crate::runner::schema::Registry::embedded()?)?;
         fs::write(
             output.join(format!("{name}-size.json")),
-            json!({"full_bytes":full.len(),
-"comparable_bytes":comparable,
-"max_bytes":ceiling,
-"token_estimate":comparable.div_ceil(4)})
+            json!(
+        {"full_bytes":full.len(),"comparable_bytes":comparable,"max_bytes":ceiling,"token_estimate":comparable.div_ceil(4)}
+    )
             .to_string(),
         )
         .map_err(|e| e.to_string())?;
@@ -86,39 +84,33 @@ fn cases() -> Vec<(&'static str, &'static str, &'static str, i32, Value)> {
             "MONDO:0005105",
             "ctgov",
             0,
-            json!({"/status":"complete",
-"/query/condition_id":"MONDO:0005105",
-"/result/condition_resolution/resolver":"mydisease",
-"/result/condition_resolution/concept/id":"MONDO:0005105",
-"/result/condition_resolution/concept/label":"melanoma",
-"/result/request/3/name":"query.cond",
-"/result/request/3/value":"melanoma",
-"/page/total":3780}),
+            json!(
+                {"/status":"complete","/query/condition_id":"MONDO:0005105","/result/condition_resolution/resolver":"mydisease",
+                "/result/condition_resolution/concept/id":"MONDO:0005105","/result/condition_resolution/concept/label":"melanoma",
+                "/result/request/3/name":"query.cond","/result/request/3/value":"melanoma","/page/total":3780}
+            ),
         ),
         (
             "nci-unique",
             "MONDO:0005105",
             "nci",
             0,
-            json!({"/status":"complete",
-"/result/condition_resolution/concept/label":"melanoma",
-"/result/condition_resolution/selected_ncit":"NCIT:C3224",
-"/result/condition_resolution/ncit_candidates":{"count":2},
-"/result/request/2/name":"diseases.nci_thesaurus_concept_id",
-"/result/request/2/value":"C3224",
-"/page/total":1203}),
+            json!(
+                {"/status":"complete","/result/condition_resolution/concept/label":"melanoma",
+                "/result/condition_resolution/selected_ncit":"NCIT:C3224","/result/condition_resolution/ncit_candidates":{"count":2},
+                "/result/request/2/name":"diseases.nci_thesaurus_concept_id","/result/request/2/value":"C3224","/page/total":1203}
+            ),
         ),
         (
             "nci-alias-ambiguous",
             "DOID:3910",
             "nci",
             4,
-            json!({"/status":"failed",
-"/result/request":[],
-"/result/condition_resolution/concept/id":"MONDO:0005061",
-"/result/condition_resolution/alias/object/id":"DOID:3910",
-"/result/condition_resolution/ncit_candidates":{"count":3},
-"/problems/0/field":"ncit_mapping"}),
+            json!(
+                {"/status":"failed","/result/request":[],"/result/condition_resolution/concept/id":"MONDO:0005061",
+                "/result/condition_resolution/alias/object/id":"DOID:3910","/result/condition_resolution/ncit_candidates":{"count":3},
+                "/problems/0/field":"ncit_mapping"}
+            ),
         ),
         (
             "nci-missing",
@@ -233,10 +225,9 @@ fn explicit(output: &Path) -> Result<(), String> {
     let full = serde_json::to_vec(&value).map_err(|e| e.to_string())?.len();
     fs::write(
         output.join("nci-explicit-size.json"),
-        json!({"full_bytes":full,
-"comparable_bytes":comparable,
-"max_bytes":(comparable*115).div_ceil(100),
-"token_estimate":comparable.div_ceil(4)})
+        json!(
+        {"full_bytes":full,"comparable_bytes":comparable,"max_bytes":(comparable*115).div_ceil(100),"token_estimate":comparable.div_ceil(4)}
+    )
         .to_string(),
     )
     .map_err(|e| e.to_string())?;

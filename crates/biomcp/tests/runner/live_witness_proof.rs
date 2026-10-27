@@ -7,10 +7,9 @@ mod input_context;
 
 pub(super) fn retained() -> Result<(), String> {
     let sample = |name: &str, changed: bool, body: Value| {
-        json!({
-            "case": name, "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
-            "witness": body
-        })
+        json!({ "case": name,
+ "result": {"drift": if changed { vec!["field removed"] } else { vec![] }},
+ "witness": body })
     };
     let report = live::summary(
         vec![

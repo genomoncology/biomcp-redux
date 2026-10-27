@@ -108,13 +108,11 @@ fn url(pairs: &[(&str, &str)]) -> String {
 fn body(url: &str, page: u32, total: u32) -> Value {
     let rows = (page * 3..(page * 3 + 3).min(total))
         .map(|n| {
-            json!({
-                "association_id":6110+n,"accession_id":"GCST000035","reported_trait":["Synthetic reported trait"],
-                "efo_traits":[{"efo_id":"MONDO_0004989","efo_trait":"breast carcinoma"}],
-                "snp_allele":[{"rs_id":"rs2981582","effect_allele":"A"}],
-                "p_value":4e-254,"pvalue_mantissa":4,"pvalue_exponent":-254,
-                "or_per_copy_num":1.26,"pubmed_id":"17529967","risk_frequency":"NR"
-            })
+            json!(
+        { "association_id":6110+n,"accession_id":"GCST000035","reported_trait":["Synthetic reported trait"],
+        "efo_traits":[{"efo_id":"MONDO_0004989","efo_trait":"breast carcinoma"}],"snp_allele":[{"rs_id":"rs2981582","effect_allele":"A"}],
+        "p_value":4e-254,"pvalue_mantissa":4,"pvalue_exponent":-254,"or_per_copy_num":1.26,"pubmed_id":"17529967","risk_frequency":"NR" }
+    )
         })
         .collect::<Vec<_>>();
     json!({"_embedded":{"associations":rows},"_links":{"self":{"href":url}},

@@ -32,20 +32,12 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 pub(super) fn row() -> Value {
-    json!({"id":"synthetic-first",
-"subject":"HGNC:9910",
-"subject_label":"RBMX",
-"subject_taxon":"NCBITaxon:9606",
-"object":"HP:0001250",
-"object_label":"Seizure",
-"predicate":"biolink:has_phenotype",
-"original_subject":"NCBIGene:27316",
-"has_evidence":null,
-"publications":["PMID:1"],
-"negated":false,
-"frequency_qualifier":"HP:0040282",
-"subject_closure":["HGNC:9910"],
-"object_closure":["HP:0001250"]})
+    json!(
+        {"id":"synthetic-first","subject":"HGNC:9910","subject_label":"RBMX","subject_taxon":"NCBITaxon:9606","object":"HP:0001250",
+        "object_label":"Seizure","predicate":"biolink:has_phenotype","original_subject":"NCBIGene:27316","has_evidence":null,
+        "publications":["PMID:1"],"negated":false,"frequency_qualifier":"HP:0040282","subject_closure":["HGNC:9910"],
+        "object_closure":["HP:0001250"]}
+    )
 }
 fn exact() -> Result<(), String> {
     let stub = Stub::for_source(
@@ -307,17 +299,12 @@ fn cards() -> Result<(), String> {
             |_| "application/json",
             move |request| {
                 if request.starts_with("GET /v3/api/entity/") {
-                    return Ok(json!({"id":"HP:0001250",
-"name":"Seizure",
-"category":"biolink:PhenotypicFeature",
-"association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation",
-"category":"biolink:Disease",
-"label":"Synthetic disease associations",
-"count":3},
-{"key":"biolink:GeneToPhenotypicFeatureAssociation",
-"category":"biolink:Gene",
-"label":"Synthetic gene associations",
-"count":3}]})
+                    return Ok(json!(
+        {"id":"HP:0001250","name":"Seizure","category":"biolink:PhenotypicFeature",
+        "association_counts":[{"key":"biolink:DiseaseToPhenotypicFeatureAssociation","category":"biolink:Disease",
+        "label":"Synthetic disease associations","count":3},{"key":"biolink:GeneToPhenotypicFeatureAssociation","category":"biolink:Gene",
+        "label":"Synthetic gene associations","count":3}]}
+    )
                     .to_string());
                 }
                 let limit = if explicit { 2 } else { 1 };

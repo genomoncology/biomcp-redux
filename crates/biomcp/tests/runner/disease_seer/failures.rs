@@ -25,16 +25,11 @@ pub(super) fn selectors() -> Result<(), String> {
         words.extend(extras);
         replay(
             env.root(),
-            json!([{"run":words,"mcp":words,"exit":2,"is_error":true,
-            "expect":{"/status":"usage",
-"/error/option":selector,
-"/error/valid_values":valid,
-"/error/source":"seer",
-"/next/0/args":["search",
-"disease",
-"--source",
-"seer"]},
-"max_bytes":if selector=="--period" {406} else if selector=="--dataset" {319} else {314}}]),
+            json!(
+                [{"run":words,"mcp":words,"exit":2,"is_error":true,"expect":{"/status":"usage","/error/option":selector,"/error/valid_values":valid,
+                "/error/source":"seer","/next/0/args":["search","disease","--source","seer"]},
+                "max_bytes":if selector=="--period" {406} else if selector=="--dataset" {319} else {314}}]
+            ),
         )?;
     }
     Ok(())
@@ -123,18 +118,11 @@ pub(super) fn run() -> Result<(), String> {
         stub.finish()?;
         replay(
             &directory,
-            json!([{"run":words,
-"mcp":words,
-"exit":4,
-"is_error":true,
-"expect":{"/status":"failed",
-"/sources/0/source":"seer",
-"/sources/0/state":"failed",
-"/sources/0/reason":reason,
-"/sources/0/terms":"SEER/NCI Using This Website"},
-"max_bytes":match status {429=>197,
-500=>196,
-_=>194}}]),
+            json!(
+                [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/status":"failed","/sources/0/source":"seer",
+                "/sources/0/state":"failed","/sources/0/reason":reason,"/sources/0/terms":"SEER/NCI Using This Website"},
+                "max_bytes":match status {429=>197,500=>196,_=>194}}]
+            ),
         )?;
     }
     timeout()?;
@@ -225,13 +213,10 @@ fn timeout() -> Result<(), String> {
     }
     replay(
         &directory,
-        json!([{"run":words,
-"mcp":words,
-"exit":4,
-"is_error":true,
-"expect":{"/sources/0/reason":"deadline_exceeded",
-"/sources/0/source":"seer"},
-"max_bytes":203}]),
+        json!(
+            [{"run":words,"mcp":words,"exit":4,"is_error":true,"expect":{"/sources/0/reason":"deadline_exceeded","/sources/0/source":"seer"},
+            "max_bytes":203}]
+        ),
     )?;
     Ok(())
 }
@@ -243,27 +228,11 @@ pub(super) fn disabled() -> Result<(), String> {
     record(&env, &words, &directory, 0)?;
     let result = replay(
         &directory,
-        json!([
-            {"run":words,"expect":{"/page/total":2},"max_bytes":590},
-            {"run":["search",
-        "disease",
-        "--source",
-        "seer",
-        "--disable-sources",
-        "seer"],
-        "mcp":["search",
-        "disease",
-        "--source",
-        "seer",
-        "--disable-sources",
-        "seer"],
-        "offline":true,
-        "exit":4,
-        "is_error":true,
-        "expect":{"/sources/0/state":"skipped",
-        "/sources/0/reason":"disabled"},
-        "max_bytes":194}
-        ]),
+        json!(
+            [ {"run":words,"expect":{"/page/total":2},"max_bytes":590},{"run":["search","disease","--source","seer","--disable-sources","seer"],
+            "mcp":["search","disease","--source","seer","--disable-sources","seer"],"offline":true,"exit":4,"is_error":true,
+            "expect":{"/sources/0/state":"skipped","/sources/0/reason":"disabled"},"max_bytes":194} ]
+        ),
     )?;
     if result.get("result").is_some() {
         return Err("disabled SEER returned stored rows".into());

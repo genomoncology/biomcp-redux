@@ -90,17 +90,11 @@ fn step(value: &Value, kind: &str, index: usize) -> Result<Vec<String>, String> 
 }
 fn monarch() -> Result<(), String> {
     let stub = Stub::for_source("api-v3.monarchinitiative.org", "application/json", |_| {
-        Ok(json!({
-            "id":"HP:0000001","name":"Synthetic term","category":"biolink:PhenotypicFeature",
-            "synonym":["Unclassified"],
-        "exact_synonym":["Exact"],
-        "broad_synonym":["Broad"],
-        "narrow_synonym":[],
-        "related_synonym":["Related"],
-        "xref":["UMLS:C0000001"],
-
-            "node_hierarchy":{"super_classes":[{"id":"HP:0000002","name":"Parent"}],"sub_classes":[{"id":"HP:0000003","name":"Child"}]}
-        })
+        Ok(json!(
+        { "id":"HP:0000001","name":"Synthetic term","category":"biolink:PhenotypicFeature","synonym":["Unclassified"],
+        "exact_synonym":["Exact"],"broad_synonym":["Broad"],"narrow_synonym":[],"related_synonym":["Related"],"xref":["UMLS:C0000001"],
+        "node_hierarchy":{"super_classes":[{"id":"HP:0000002","name":"Parent"}],"sub_classes":[{"id":"HP:0000003","name":"Child"}]} }
+    )
         .to_string())
     })?;
     let env = setup(&stub)?;

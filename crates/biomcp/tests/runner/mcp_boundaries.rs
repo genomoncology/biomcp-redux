@@ -39,8 +39,7 @@ fn http() -> Check {
     let certificate = env.root().join("source.pem");
     fs::write(&certificate, &source.certificate)?;
     let server = Server::keys(
-        json!({"proxy":format!("http://{}", source.address),
-        "ca_bundle":certificate}),
+        json!({"proxy":format!("http://{}", source.address), "ca_bundle":certificate}),
         None,
     )?;
     let directory = server.environment().root().join("cache/biomcp");
@@ -86,8 +85,7 @@ fn stdio() -> Check {
     let env = Environment::new()?;
     let certificate = env.root().join("source.pem");
     fs::write(&certificate, &source.certificate)?;
-    env.config(&json!({"proxy":format!("http://{}", source.address),
-        "ca_bundle":certificate}))?;
+    env.config(&json!({"proxy":format!("http://{}", source.address), "ca_bundle":certificate}))?;
     let path = env.root().join("owned.md");
     fs::write(&path, b"caller content")?;
     for words in [

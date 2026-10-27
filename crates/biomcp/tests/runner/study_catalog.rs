@@ -45,38 +45,20 @@ mod study_get;
 mod study_retirements;
 pub(super) fn rows() -> Value {
     json!(
-        (0..12)
-            .map(|n| json!({"studyId":format!("synthetic_{n}"),
-"name":format!("Synthetic Atlas {n}"),
-"description":"Literal mixed metadata",
-"cancerTypeId":if n < 8 {"brca"} else {"mixed"},
-"allSampleCount":n,
-"referenceGenome":"hg19",
-"sequencedSampleCount":n,
-"cnaSampleCount":0,
-"structuralVariantCount":0,
-"treatmentCount":0,
-"resourceCounts":[],
-"importDate":"2026-08-20 21:46:46",
-"groups":"",
-"readPermission":true,
-"publicStudy":true}))
-            .collect::<Vec<_>>()
+        (0..12) .map(|n| json!({"studyId":format!("synthetic_{n}"),"name":format!("Synthetic Atlas {n}"),
+        "description":"Literal mixed metadata","cancerTypeId":if n < 8 {"brca"} else {"mixed"},"allSampleCount":n,"referenceGenome":"hg19",
+        "sequencedSampleCount":n,"cnaSampleCount":0,"structuralVariantCount":0,"treatmentCount":0,"resourceCounts":[],
+        "importDate":"2026-08-20 21:46:46","groups":"","readPermission":true,"publicStudy":true})) .collect::<Vec<_>>()
     )
 }
 pub(super) fn seed(env: &Environment, body: Value, status: u16) -> Result<PathBuf, String> {
     let dir = env.root().join("replay/cbioportal");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let key = "6a22562d8dcf66701258cac4800e9ad4d5275fdfd1ac5eee038c0e4c9d651085";
-    let recording = json!({"source":"cbioportal",
-"method":"GET",
-"url":URL,
-"exchanges":[{"status":status,
-"content_type":"application/json",
-"delay_ms":0,
-"retry_after_ms":null,
-"body":{"kind":"text",
-"value":body.to_string()}}]});
+    let recording = json!(
+        {"source":"cbioportal","method":"GET","url":URL,"exchanges":[{"status":status,"content_type":"application/json","delay_ms":0,
+        "retry_after_ms":null,"body":{"kind":"text","value":body.to_string()}}]}
+    );
     fs::write(dir.join(format!("{key}.json")), recording.to_string()).map_err(|e| e.to_string())?;
     Ok(env.root().join("replay"))
 }

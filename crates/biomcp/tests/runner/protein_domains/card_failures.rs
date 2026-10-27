@@ -132,8 +132,7 @@ fn copy(
                     _ => {
                         exchange.insert(
                             "body".into(),
-                            json!({"kind":"text",
-"value":if fault == "broken" { "{" } else { "{\"error\":\"synthetic source error\"}" }}),
+                            json!({"kind":"text", "value":if fault == "broken" { "{" } else { "{\"error\":\"synthetic source error\"}" }}),
                         );
                     }
                 }

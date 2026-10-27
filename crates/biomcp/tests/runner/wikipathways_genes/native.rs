@@ -170,12 +170,9 @@ fn measure(env: &Environment, id: &str, outputs: &mut Vec<Value>) -> Check {
             writeln!(
                 std::io::stdout(),
                 "GPML_MEASURE {}",
-                json!({"id":id,
-"section":section,
-"surface":surface,
-"full_bytes":full,
-"comparable_bytes":bytes,
-"tokens":bytes.div_ceil(4)})
+                json!(
+        {"id":id,"section":section,"surface":surface,"full_bytes":full,"comparable_bytes":bytes,"tokens":bytes.div_ceil(4)}
+    )
             )
             .map_err(|e| e.to_string())?;
             outputs.push(json!({"id":id,"section":section,"surface":surface,"output":value}));
