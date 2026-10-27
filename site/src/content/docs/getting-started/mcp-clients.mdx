@@ -10,7 +10,7 @@ import Example from '../../../components/Example.astro';
 import InstallLine from '../../../components/InstallLine.astro';
 import Fact from '../../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`. It offers <Fact k="counts.mcp_tools" /> tools: `biomcp`, which runs any read-only BioMCP command, and `search` and `fetch`, which follow the shape ChatGPT research clients expect. This page adds the server to a client, or gives a shell agent the BioMCP skill instead.
+BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`. It offers <Fact k="counts.mcp_tools" /> tools: `biomcp`, which runs a BioMCP command, and `search` and `fetch`, which follow the shape ChatGPT research clients expect. The `biomcp` tool is not read-only: over stdio it can download bundles and clean the store; [what the tool can change](#what-the-tool-can-change) lists the limits. This page adds the server to a client, or gives a shell agent the BioMCP skill instead.
 
 ## Requirements
 
@@ -57,6 +57,21 @@ Restart the client and ask it to run a BioMCP command, such as "use biomcp to ge
 
 The tool returns the same JSON envelope as the command line. MCP replies are always JSON; `--format md` has no effect there.
 
+## What the tool can change
+
+Over stdio, the `biomcp` tool runs the same commands as your shell, with your cache and your configuration. These commands change local state:
+
+- `sync` downloads a bundle into the store.
+- `store clean` removes expired local state and older cache files.
+- `--fresh` sends a request again in place of a cached reply.
+- Saving commands, such as `article text --save`, write new files. They never replace an existing file over MCP.
+
+Over HTTP, the server refuses `sync`, `store clean`, `--fresh` and file saves. Over both, the tool refuses the `key` commands, so an agent cannot read, set or remove your keys. This exchange calls `store clean`, `sync hgnc` and `key list` over stdio, then over HTTP:
+
+<Example id="mcp-writes" />
+
+A refused call returns status `usage` with error code `usage.arguments`. The `search` and `fetch` tools only read; the [MCP tools reference](/reference/mcp-server/) shows their `readOnlyHint` annotations.
+
 ## Use search and fetch from ChatGPT-style clients
 
 Research clients that expect `search` and `fetch` tools can use those two. `search` takes an entity and its arguments, such as `gene BRAF --limit 2`, or plain article text. Each result has an `id` that `fetch` accepts.
@@ -90,7 +105,7 @@ Point the directory at your agent's skills folder, such as `~/.claude`. Existing
 
 ## Run the server over HTTP
 
-Clients that connect over HTTP use `biomcp serve --http`. HTTP refuses file saves and source synchronization. [Run as a server](/getting-started/remote-http/) covers addresses, allowed hosts and the health check.
+Clients that connect over HTTP use `biomcp serve --http`. HTTP refuses the commands that change local state, as [above](#what-the-tool-can-change). [Run as a server](/getting-started/remote-http/) covers addresses, allowed hosts and the health check.
 
 ## If the client shows no tools
 

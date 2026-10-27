@@ -1,0 +1,8 @@
+stdio:
+{"command":"store clean","status":"complete","error":null}
+{"command":"sync hgnc","status":"complete","error":null}
+{"command":"key list","status":"usage","error":"usage.arguments"}
+http:
+{"command":"store clean","status":"usage","error":"usage.arguments"}
+{"command":"sync hgnc","status":"usage","error":"usage.arguments"}
+{"command":"key list","status":"usage","error":"usage.arguments"}
