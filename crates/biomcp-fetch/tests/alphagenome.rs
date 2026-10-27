@@ -1,6 +1,20 @@
 //! Feature alphagenome-protocol: one documented request and complete bounded DNASE envelopes.
 use biomcp_fetch::grpc::{Limits, StreamDecoder, alphagenome::DnaseRequest};
-type Check = Result<(), Box<dyn std::error::Error>>;
+#[path = "alphagenome/routing.rs"]
+mod routing;
+#[path = "grpc_worker/support.rs"]
+#[allow(
+    dead_code,
+    reason = "Reuse the local TLS fixture without provider traffic"
+)]
+mod support;
+static QUOTA: biomcp_fetch::Quota = biomcp_fetch::Quota::new(
+    biomcp_fetch::SourceKey::declare("alphagenome-synthetic"),
+    biomcp_fetch::Rate::per_second(1000),
+    None,
+    1,
+);
+type Check = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 fn request() -> Result<DnaseRequest, biomcp_fetch::InputError> {
     DnaseRequest::human_all_folds("chr7", 140745143..140761527, 140753336, "A", "T", 2048)
 }

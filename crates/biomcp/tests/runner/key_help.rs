@@ -44,6 +44,9 @@ fn check(source: &str, identity: &str, config: &str, environment: &str) -> Resul
     {
         return Err("key help omitted source-owned registration or settings".into());
     }
+    if source == "alphagenome" {
+        alphagenome_precedence(&env)?;
+    }
     if source == "openfda" {
         measure(&env)?;
     }
@@ -64,4 +67,38 @@ fn measure(env: &Environment) -> Result<(), String> {
         help.stdout.len()
     )
     .map_err(|e| e.to_string())
+}
+
+fn alphagenome_precedence(env: &Environment) -> Result<(), String> {
+    for (stored, fallback, expected) in [
+        (true, true, "stored"),
+        (false, true, "environment"),
+        (false, false, "none"),
+    ] {
+        env.config(&if stored {
+            json!({"keys":{"alphagenome_api_key":"synthetic-alphagenome-config"}})
+        } else {
+            json!({})
+        })
+        .map_err(|e| e.to_string())?;
+        let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &["key".into(), "list".into()]);
+        if fallback {
+            command.env("ALPHAGENOME_API_KEY", "synthetic-alphagenome-env");
+        }
+        let output = command.output().map_err(|e| e.to_string())?;
+        let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        let state = value
+            .pointer("/result/entries")
+            .and_then(Value::as_array)
+            .and_then(|rows| rows.iter().find(|row| row["source"] == "alphagenome"))
+            .and_then(|row| row.get("state"))
+            .and_then(Value::as_str);
+        if !output.status.success()
+            || state != Some(expected)
+            || value.to_string().contains("synthetic-alphagenome")
+        {
+            return Err("AlphaGenome credential precedence or secrecy failed".into());
+        }
+    }
+    Ok(())
 }
