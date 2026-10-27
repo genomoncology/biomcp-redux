@@ -12,7 +12,22 @@ import unittest
 from release.smoke import environment
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCKER = r'''import hashlib, io, json, os, pathlib, sys, tarfile
+REPORT = [
+    {"artifact": "wheel", "result": "pass", "checks": ["candidate-bytes", "schemas"]},
+    {"artifact": "homebrew-formula", "result": "deferred", "reason": "Homebrew is unavailable"},
+]
+GATE = r'''import argparse, json, pathlib
+parser = argparse.ArgumentParser()
+parser.add_argument('--scratch', type=pathlib.Path)
+parser.add_argument('--report', type=pathlib.Path)
+args, _ = parser.parse_known_args()
+report = json.dumps(ROWS, indent=2) + '\n'
+(args.report or args.scratch / 'report.json').write_text(report)
+print('installed checks completed')
+print(report, end='')
+print('gate complete')
+'''
+DOCKER = r'''import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tarfile, tempfile
 args = sys.argv[1:]
 with open(os.environ['DOCKER_RECORD'], 'a') as stream:
     stream.write(json.dumps(args) + '\n')
@@ -28,8 +43,19 @@ if '/bin/bash' in args:
             archive.addfile(info, io.BytesIO(b'candidate'))
         pathlib.Path('proof/fixtures').mkdir(parents=True)
         pathlib.Path('proof/case-runner').touch()
+        gate = pathlib.Path('proof/tools/release/gate.py')
+        gate.parent.mkdir(parents=True)
+        gate.write_text(os.environ['GATE_FIXTURE'])
     else:
-        print('[]')
+        # Execute the installation shell with mounted paths and disposable storage.
+        with tempfile.TemporaryDirectory() as container:
+            script = args[-1].replace('/tmp/check', container + '/check')
+            mounts = [args[index + 1] for index, value in enumerate(args) if value == '-v']
+            for mount in mounts:
+                host, target, *options = mount.split(':')
+                script = script.replace(target, host)
+            subprocess.run(['/bin/bash', '-c', script], check=True)
+        assert not pathlib.Path(container).exists()
 elif '/usr/bin/sha256sum' in args:
     print(hashlib.sha256(b'candidate').hexdigest(), '/usr/local/bin/biomcp')
 elif args[-2:] == ['schema', 'biodata.problem/1']:
@@ -68,11 +94,16 @@ class LinuxContainers(unittest.TestCase):
             record = root / 'docker.jsonl'
             env = environment(root)
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
-                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record))
+                       BUILD_IMAGE='build-image', DOCKER_RECORD=str(record),
+                       GATE_FIXTURE='ROWS = ' + repr(REPORT) + '\n' + GATE)
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertFalse((root / 'injected').exists())
+            # The Docker process removed its temporary installation tree before returning.
+            report = root / 'dist/install-report.json'
+            self.assertEqual(json.loads(report.read_text()), REPORT)
+            self.assertGreater(len(report.read_text().splitlines()), 2)
             return [json.loads(line) for line in record.read_text().splitlines()]
 
     def test_every_started_container_receives_only_the_callers_extra_arguments(self):
