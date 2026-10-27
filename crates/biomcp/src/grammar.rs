@@ -1,7 +1,12 @@
 //! Schema-fed command parsing shared by CLI and MCP.
+mod arguments;
 mod entity;
 mod entry;
 pub(crate) use entry::entry_aliases;
+mod errors;
+mod metadata;
+use arguments::command_for;
+pub(crate) use errors::argument_error;
 pub(crate) mod gwas;
 mod local;
 mod queries;
@@ -75,12 +80,14 @@ pub(crate) fn global_arguments() -> Command {
     root = root.arg(
         Arg::new("format")
             .long("format")
+            .help("Choose JSON or Markdown output.")
             .global(true)
             .value_parser(["json", "md"]),
     );
     root = root.arg(
         Arg::new("disable-sources")
             .long("disable-sources")
+            .help("Exclude source names or source terms groups.")
             .global(true)
             .num_args(1)
             .value_delimiter(',')
@@ -90,6 +97,8 @@ pub(crate) fn global_arguments() -> Command {
         root = root.arg(
             Arg::new(name)
                 .long(name)
+                .hide(name != "config")
+                .help("Read configuration from this file.")
                 .global(true)
                 .value_parser(clap::value_parser!(PathBuf)),
         );
@@ -98,6 +107,11 @@ pub(crate) fn global_arguments() -> Command {
         root = root.arg(
             Arg::new(name)
                 .long(name)
+                .help(if name == "offline" {
+                    "Read local data without source requests."
+                } else {
+                    "Request fresh source data instead of cached replies."
+                })
                 .global(true)
                 .action(ArgAction::SetTrue)
                 .overrides_with(name),
@@ -148,7 +162,7 @@ fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterato
     words.filter_map(|arg| arg.to_str())
 }
 
-fn root() -> Result<Command, ()> {
+pub(crate) fn root() -> Result<Command, ()> {
     let mut root = global_arguments();
     for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
         if QUERIES
@@ -166,18 +180,24 @@ fn root() -> Result<Command, ()> {
         }
         root = root.subcommand(command);
     }
-    root = root.subcommand(Command::new("sync").arg(Arg::new("bundle").value_parser([
-        "wikipathways",
-        "cbioportal-studies",
-        "hgnc",
-        "clingen",
-        "ema",
-        "ddinter",
-        "who-pq",
-        "gtr",
-        "who-ivd",
-        "fda-cdx",
-    ])));
+    root = root.subcommand(
+        Command::new("sync").arg(
+            Arg::new("bundle")
+                .help("Local source bundle to synchronize; default hgnc.")
+                .value_parser([
+                    "wikipathways",
+                    "cbioportal-studies",
+                    "hgnc",
+                    "clingen",
+                    "ema",
+                    "ddinter",
+                    "who-pq",
+                    "gtr",
+                    "who-ivd",
+                    "fda-cdx",
+                ]),
+        ),
+    );
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
@@ -189,7 +209,7 @@ fn root() -> Result<Command, ()> {
     root = root.subcommand(local::serve_command());
     let help = local::help_command(&root);
     root = root.subcommand(help);
-    Ok(root)
+    Ok(metadata::describe(root))
 }
 
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
@@ -292,79 +312,6 @@ fn properties(schema: &Value) -> Result<&Map<String, Value>, ()> {
         .get("properties")
         .and_then(Value::as_object)
         .ok_or(())
-}
-fn command_for(name: &'static str, schema: &Value) -> Result<Command, ()> {
-    let mut command = Command::new(name)
-        .disable_help_flag(true)
-        .disable_help_subcommand(true);
-    for (name, property) in properties(schema)? {
-        if let Some(flags) = property.get("x-cli-flags").and_then(Value::as_object) {
-            for flag in flags.keys() {
-                command = command.arg(
-                    Arg::new(flag.clone())
-                        .long(flag.clone())
-                        .action(ArgAction::SetTrue)
-                        .conflicts_with_all(flags.keys().filter(|other| *other != flag).cloned()),
-                );
-            }
-            continue;
-        }
-        let mut argument = Arg::new(name.clone());
-        if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
-            argument = argument.index(position as usize + 1);
-        } else {
-            argument = argument.long(name.replace('_', "-"));
-        }
-        if schema
-            .get("required")
-            .and_then(Value::as_array)
-            .is_some_and(|required| required.contains(&Value::String(name.clone())))
-        {
-            argument = argument.required(true);
-        }
-        if property_type(property) == Some("array") {
-            argument = if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
-                argument
-                    .num_args(1)
-                    .value_delimiter(',')
-                    .action(ArgAction::Append)
-            } else if property.get("x-trailing-section").is_some() {
-                argument.num_args(1).action(ArgAction::Append)
-            } else {
-                argument.num_args(1..).action(ArgAction::Append)
-            };
-        }
-        command = command.arg(if property_type(property) == Some("boolean") {
-            argument.action(ArgAction::SetTrue)
-        } else {
-            argument.value_parser(clap::builder::StringValueParser::new())
-        });
-    }
-    if matches!(name, "cell-line" | "author") && properties(schema)?.contains_key("query") {
-        command = command
-            .mut_arg("query", |arg| {
-                arg.required(false).required_unless_present("query_option")
-            })
-            .mut_arg("limit", |arg| arg.short('l'))
-            .arg(
-                Arg::new("query_option")
-                    .long("query")
-                    .short('q')
-                    .conflicts_with("query"),
-            );
-    }
-    Ok(if name == "gwas" {
-        gwas::aliases(command, schema)
-    } else if schema.get("$id").and_then(Value::as_str).is_some_and(|id| {
-        id.starts_with("biomcp.pathway-")
-            || id.starts_with("biomcp.author-")
-            || id == "biomcp.phenotype-search-query/1"
-    }) && properties(schema)?.contains_key("limit")
-    {
-        command.mut_arg("limit", |argument| argument.short('l'))
-    } else {
-        command
-    })
 }
 fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ()> {
     let mut result = Map::new();

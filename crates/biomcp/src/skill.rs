@@ -13,6 +13,12 @@ pub(crate) enum Skill {
     Status(PathBuf),
 }
 pub(crate) fn grammar() -> Command {
+    let directory = || {
+        Arg::new("directory")
+            .help("Directory to inspect or install BioMCP guidance.")
+            .required(true)
+            .value_parser(clap::value_parser!(PathBuf))
+    };
     Command::new("skill")
         .about("Read embedded guidance and worked examples. No source requests. \
             Overview and catalog are bounded by the embedded payload; install and status return one summary. \
@@ -21,10 +27,10 @@ pub(crate) fn grammar() -> Command {
         .subcommand(Command::new("render").about("Print the canonical agent guide."))
         .subcommand(Command::new("status")
             .about("Report missing, unmanaged, locally_modified, stale or current guidance.")
-            .arg(Arg::new("directory").required(true).value_parser(clap::value_parser!(PathBuf))))
+            .arg(directory()))
         .subcommand(Command::new("install").about("Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. \
             Existing files remain unchanged without --force.")
-            .arg(Arg::new("directory").required(true).value_parser(clap::value_parser!(PathBuf)))
+            .arg(directory())
             .arg(Arg::new("force").long("force").action(ArgAction::SetTrue).help("Repair managed files; retain unrelated files.")))
         .allow_external_subcommands(true)
 }

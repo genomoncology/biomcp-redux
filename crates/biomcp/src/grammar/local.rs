@@ -5,12 +5,14 @@ pub(super) fn serve_command() -> Command {
         .arg(
             Arg::new("http")
                 .long("http")
+                .help("Listen on an HTTP address; omit its value for the loopback default.")
                 .num_args(0..=1)
                 .default_missing_value("127.0.0.1:8080"),
         )
         .arg(
             Arg::new("allow-host")
                 .long("allow-host")
+                .help("Allow an HTTP Host authority; required for non-loopback listeners.")
                 .action(ArgAction::Append)
                 .requires("http"),
         )
