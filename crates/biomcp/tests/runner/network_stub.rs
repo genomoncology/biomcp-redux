@@ -122,14 +122,15 @@ impl Stub {
                 if stopping.try_recv().is_ok() {
                     break;
                 }
-                let mut socket = stream.map_err(|e| e.to_string())?;
+                let mut socket = stream.map_err(|e| format!("source stub accept: {e}"))?;
                 socket
                     .set_read_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
                 socket
                     .set_write_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
-                let connect = header(&mut socket)?;
+                let connect =
+                    header(&mut socket).map_err(|e| format!("source stub CONNECT header: {e}"))?;
                 if !hosts
                     .iter()
                     .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
@@ -138,7 +139,7 @@ impl Stub {
                 }
                 socket
                     .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n")
-                    .map_err(|e| e.to_string())?;
+                    .map_err(|e| format!("source stub CONNECT reply: {e}"))?;
                 let connection =
                     ServerConnection::new(config.clone()).map_err(|e| e.to_string())?;
                 let mut tls = StreamOwned::new(connection, socket);
@@ -154,8 +155,9 @@ impl Stub {
                         length(&request, body.len()),
                         range(&request)
                     )
-                    .map_err(|e| e.to_string())?;
-                    tls.flush().map_err(|e| e.to_string())?;
+                    .map_err(|e| format!("source stub TLS reply: {e}"))?;
+                    tls.flush()
+                        .map_err(|e| format!("source stub TLS flush: {e}"))?;
                     requests.push((connect, request));
                 }
             }

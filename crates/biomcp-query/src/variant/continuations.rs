@@ -42,6 +42,15 @@ pub(super) fn collect(candidates: &[VariantHeader], next: &mut Vec<(StepKind, Ac
                 }
             }
         }
+        if let Some(alphagenome) = data(&sections.alphagenome) {
+            for query in alphagenome
+                .scorers
+                .iter()
+                .filter_map(|scorer| scorer.next.as_ref())
+            {
+                push(next, StepKind::Page, Request::GetVariant(query.clone()));
+            }
+        }
     }
 }
 fn data<T>(section: &Option<Section<T>>) -> Option<&T> {
