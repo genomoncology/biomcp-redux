@@ -207,16 +207,16 @@
       ],
       "spelling_table": "sdlc/planning/slices/protein.md",
       "release_source": [
-        "src/sources/uniprot.rs::get_json",
-        "src/sources/uniprot.rs::decode_json_response",
-        "src/error.rs::public_projection",
-        "src/error.rs::exit_code",
-        "src/render/json.rs::to_error_json"
+        "src/entities/protein.rs::Protein",
+        "src/entities/protein.rs::get",
+        "src/render/provenance.rs::protein_section_sources",
+        "src/render/json.rs::EntityJsonResponse",
+        "src/render/json.rs::EntityMeta"
       ],
       "baseline_globals": [
         "--json"
       ],
-      "baseline_exit": 1,
+      "baseline_exit": 0,
       "baseline_stream": "stdout",
       "recordings": [
         {
@@ -232,17 +232,17 @@
       ],
       "facts": {
         "/sources/0/source": {
-          "released_source": "/error/source"
+          "released_source": "/_meta/section_sources/0/sources/0"
         }
       },
       "unprojectable_facts": {
         "/status": {
-          "reason": "Released error JSON serializes error code, message, source and recovery plus not_found metadata. It has no lifecycle status or source license terms. The actual provider identity is compared separately.",
-          "release_source": "src/render/json.rs::to_error_json"
+          "reason": "Released protein success JSON serializes Protein fields and section-source metadata after this delayed HTTP 200 reply. Its success envelope has no current top-level lifecycle status or source license terms. The actual identity-section provider is compared separately.",
+          "release_source": "src/entities/protein.rs::Protein;src/render/json.rs::EntityJsonResponse;src/render/json.rs::EntityMeta"
         },
         "/sources/0/terms": {
-          "reason": "Released error JSON serializes error code, message, source and recovery plus not_found metadata. It has no lifecycle status or source license terms. The actual provider identity is compared separately.",
-          "release_source": "src/render/json.rs::to_error_json"
+          "reason": "Released protein success JSON serializes Protein fields and section-source metadata after this delayed HTTP 200 reply. Its success envelope has no current top-level lifecycle status or source license terms. The actual identity-section provider is compared separately.",
+          "release_source": "src/entities/protein.rs::Protein;src/render/json.rs::EntityJsonResponse;src/render/json.rs::EntityMeta"
         }
       }
     }

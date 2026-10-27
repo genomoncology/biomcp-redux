@@ -68,6 +68,16 @@ def main():
     assert fact['candidate']['verdict'] == 'right', fact
     assert fact['baseline']['actual'] == result['baseline']['parsed']['error']['code']
     source_evidence(out, 'wrong-pointer', result)
+    row = selection('protein.json', 'protein/timeout.yaml')
+    report, result = execute(row, 'timeout', baseline, out)
+    fact = verdict(result, '/sources/0/source')
+    assert report['assessment_gaps'] == 0
+    assert result['baseline']['exit'] == 0 and result['candidate']['exit'] == 4
+    assert fact['baseline']['verdict'] == fact['candidate']['verdict'] == 'right', fact
+    assert result['baseline']['parsed']['_meta']['section_sources'][0]['sources'][0] == 'UniProt'
+    exchange = source_evidence(out, 'timeout', result)
+    assert exchange['status'] == 200 and exchange['delay_ms'] == 9000
+    assert result['baseline']['elapsed_us'] >= exchange['delay_ms'] * 1000
     summary.update(positive=['right', 'right'], wrong_pointer=['wrong', 'right'],
                    baseline_exit=1, candidate_exit=4, evidence=str(out))
     sys.stdout.write(json.dumps(summary) + '\n')
