@@ -613,11 +613,21 @@
           "host": "www.ncbi.nlm.nih.gov",
           "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
           "request_contains": "",
+          "request_query": {},
+          "capture": "",
+          "recording_gap": "Released detail constructs a PubTator client and resolves a DOI/PMCID through Europe PMC before exporting its PMID. The replay has no released PubTator export body for that resolved record (src/entities/article/detail.rs::get_article_base; src/entities/article/detail.rs::get_article_base_with_clients)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
           "request_query": {
-            "pmids": "10.1002/mgg3.317"
+            "query": "DOI:10.1002/mgg3.317"
           },
           "capture": "",
-          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
         }
       ],
       "facts": {
@@ -657,11 +667,93 @@
           "host": "www.ncbi.nlm.nih.gov",
           "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
           "request_contains": "",
+          "request_query": {},
+          "capture": "",
+          "recording_gap": "Released detail constructs a PubTator client and resolves a DOI/PMCID through Europe PMC before exporting its PMID. The replay has no released PubTator export body for that resolved record (src/entities/article/detail.rs::get_article_base; src/entities/article/detail.rs::get_article_base_with_clients)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
           "request_query": {
-            "pmids": "33123537,35440569,28944238,35061708,99999999,PMC5606870,10.1002/mgg3.317"
+            "query": "EXT_ID:33123537 AND SRC:MED"
           },
           "capture": "",
-          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EXT_ID:35440569 AND SRC:MED"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EXT_ID:28944238 AND SRC:MED"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EXT_ID:35061708 AND SRC:MED"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EXT_ID:99999999 AND SRC:MED"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "PMCID:PMC5606870"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "DOI:10.1002/mgg3.317"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
         }
       ],
       "facts": {
@@ -718,6 +810,18 @@
           },
           "capture": "",
           "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
+          "request_query": {
+            "query": "EXT_ID:35440569 AND SRC:MED"
+          },
+          "capture": "",
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
         }
       ],
       "facts": {
@@ -756,11 +860,21 @@
           "host": "www.ncbi.nlm.nih.gov",
           "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
           "request_contains": "",
+          "request_query": {},
+          "capture": "",
+          "recording_gap": "Released detail constructs a PubTator client and resolves a DOI/PMCID through Europe PMC before exporting its PMID. The replay has no released PubTator export body for that resolved record (src/entities/article/detail.rs::get_article_base; src/entities/article/detail.rs::get_article_base_with_clients)."
+        },
+        {
+          "source": "europe-pmc",
+          "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+          "host": "www.ebi.ac.uk",
+          "request_prefix": "GET /europepmc/webservices/rest/search",
+          "request_contains": "",
           "request_query": {
-            "pmids": "PMC5606870"
+            "query": "PMCID:PMC5606870"
           },
           "capture": "",
-          "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+          "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
         }
       ],
       "facts": {
