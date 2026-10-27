@@ -30,9 +30,19 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Carry the 0.9 release pipeline over, with publication gated on Ian's approval (0289).
 - Compare schemas with the last released copy (0290).
-- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323), source and key registration (0333), the ScoreVariant encoder (0337); then the variant section with one clinically chosen capture (0198). It joins 1.0 if ready with the rest, otherwise a 1.0 update.
+- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323), source and key registration (0333), the ScoreVariant encoder (0337); then the variant section with one clinically chosen capture (0198). It ships in 1.0, as `decisions/2026-10-27-1-0-ships-every-known-fix.md` says.
 
-### 5. Rehearse and release
+### 5. Close every known gap
+
+- Docs findings, first pass: help entry points (0338), argument errors and grammar (0339), configuration and proxy (0340), schema IDs (0341), health (0342), output pipe (0343), help reference (0357), MCP output schemas (0358), schema formats (0359), adapter bad values (0360, then 0371 to 0375 by adapter family), enums and typed IDs (0361), output consistency (0362), live failures (0363), use case how-tos (0369).
+- Docs findings, second pass: MCP config path (0352), HTTP MCP revisions (0353), openFDA generic names (0354), cBioPortal sync (0355), MCP refusals (0356), variant population (0364), GRCh37 normalize (0365), store size (0366), drugsfda items (0367).
+- Security: screening (0347), inert source text (0348), outbound host registry (0349), signed release provenance (0370).
+- Split-off and hygiene: PubMed warnings (0334), semantic argument names (0345), HGNC reachability (0368), build cost and check order (0344), export comment (0346), output budgets (0350), local fixture abort (0351).
+- Order: schema-changing tickets (0341, then 0358, 0359, 0361, 0362) early, because each regenerates the baseline.
+
+### 6. Rehearse and release
+
+- Cut the release candidate from main once every ticket above lands (0336).
 
 - Rehearse the final candidate on every platform (0293).
 - Ian approves the release, and the release operators publish.

@@ -162,7 +162,7 @@ pub(super) fn markdown() -> Check {
     }
     let text = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
     for expected in [
-        "GTR000006692.3",
+        "GTR000006692&#46;3",
         "Synthetic test",
         r#"Synthetic "quoted" laboratory"#,
         "2026-10-22",

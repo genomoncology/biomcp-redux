@@ -13,4 +13,4 @@ Output budget fixtures whose token ceiling only restates their byte ceiling, inc
 - Rules: fixtures only; no new runner syntax, checker or job.
 - Proof: the landing gate passes; each removed token ceiling was at or above the token count its byte ceiling allows.
 - Changes: output budget fixtures.
-- Defers: nothing. Main only; not cherry-picked onto `release/1.0`.
+- Defers: nothing.

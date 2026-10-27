@@ -21,7 +21,7 @@ article-citations: A caller sorts by iCite citation counts and walks citing or r
 article-fulltext: A caller reads available full text through semantic parts, tables, outlines and checked continuations. Cases: `tests/cases/article/fulltext/*.yaml`.
 article-retired: A caller using a retired article spelling receives its fixed replacement or removal explanation. Cases: `tests/cases/article/retired.yaml`.
 mcp-parity: A caller sends the CLI argument array through the MCP tool and receives the same command result. Cases: `tests/cases/mcp/*.yaml`.
-schema-discovery: A caller lists every versioned schema with a description, discovers resolvable command reply contracts, retrieves one schema and receives listing guidance for invalid requests. Cases: `tests/cases/schema/*.yaml`, `crates/biomcp/tests/runner/schema_proof.rs`.
+schema-discovery: A caller lists versioned schemas with descriptions, discovers resolvable command reply contracts and scoped help aliases, and follows safe guidance for invalid schema requests and unknown commands. Cases: `tests/cases/schema/*.yaml`, `crates/biomcp/tests/runner/schema_proof.rs`, `crates/biomcp/tests/runner/help_entry.rs`.
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures. Cases: `crates/biomcp/tests/runner/corporate.rs`.
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP. Cases: `crates/biomcp/tests/runner/markdown_shapes.rs`.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar. Cases: `tests/cases/article/tldr/*.yaml`, `tests/cases/article/edges/*.yaml`.
@@ -191,3 +191,5 @@ alphagenome-protocol: Encode the reviewed human DNASE request and admit only com
 alphagenome-registration: Discover the restricted AlphaGenome service and require its own user key before source admission. Contracts: `biomcp-adapters/alphagenome_registration`.
 
 alphagenome-score-protocol: Encode the ruled human scoring request and admit exactly the requested complete scorer groups by request position. Contracts: `biomcp-fetch/score_variant`.
+
+variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Cases: `crates/biomcp/tests/runner/alphagenome.rs`, `crates/biomcp/tests/runner/alphagenome_tls.rs`, `crates/biomcp/tests/runner/alphagenome_capture.rs`.

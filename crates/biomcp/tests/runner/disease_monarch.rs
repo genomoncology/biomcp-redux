@@ -467,7 +467,7 @@ fn defaults() -> Result<(), String> {
             file.path(),
             serde_json::to_vec(&json!(
                 {"feature":"disease-monarch","story":"Invalid explicit limits fail before source access","steps":[{"run":words,"mcp":words,"exit":2,
-                "is_error":true,"expect":{"/status":"usage"},"max_bytes":165}]}
+                "is_error":true,"expect":{"/status":"usage","/error/code":"usage.arguments","/error/option":"--section-limit"},"max_bytes":171}]}
             ))
             .map_err(|e| e.to_string())?,
         )
