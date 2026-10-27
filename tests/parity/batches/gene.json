@@ -1456,6 +1456,66 @@
       }
     },
     {
+      "case": "gene/sections/protein-deduplicate.yaml",
+      "step": 0,
+      "baseline_command": [
+        "batch",
+        "gene",
+        "CDKN2A,CDKN2A",
+        "--sections",
+        "protein"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_command",
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/entities/section_outcome.rs::SectionOutcome",
+        "src/entities/gene.rs::fetch_protein_section",
+        "src/cli/system/batch.rs::settle_batch"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"CDKN2A\"",
+            "species": "human"
+          },
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
+        },
+        {
+          "source": "uniprot",
+          "endpoint_env": "BIOMCP_UNIPROT_BASE",
+          "host": "rest.uniprot.org",
+          "request_prefix": "GET /uniprotkb/search",
+          "request_contains": "",
+          "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+          "request_query": {
+            "query": "CDKN2A"
+          },
+          "capture": ""
+        }
+      ],
+      "facts": {
+        "/result/items/*/sections/protein/data/*/accession": "/items/*/result/protein/accession"
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released batch serializes succeeded/failed counters and per-item status ok/error; these do not encode aggregate current section completeness.",
+          "release_source": "src/cli/system/batch.rs::settle_batch"
+        }
+      }
+    },
+    {
       "case": "gene/sections/protein-mapping-duplicate.yaml",
       "step": 0,
       "baseline_command": [
@@ -1973,11 +2033,6 @@
         "case": "gene/sections/pathways-mir21.yaml",
         "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene_type is a MyGene type string, not the HGNC locus-group classification. No released selector derives the asserted classification. Released pathways uses symbol text search limited to 12 Reactome rows plus carried KEGG annotations, not the complete HGNC accession union, its order or pre-cap total. Empty search results cannot establish an empty accession mapping. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
         "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get;src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::merge_pathway_sources"
-      },
-      {
-        "case": "gene/sections/protein-deduplicate.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
       },
       {
         "case": "gene/sections/protein-mir21.yaml",
