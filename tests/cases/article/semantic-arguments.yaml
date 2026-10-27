@@ -1,0 +1,73 @@
+{
+  "feature": "article-commands",
+  "live_check": "synthetic",
+  "story": "Semantic argument errors name checked identities without rejected values",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--id",
+        "secret-id"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--id",
+        "secret-id"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--id"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--since",
+        "2025",
+        "--until",
+        "2024"
+      ],
+      "mcp": [
+        "search",
+        "article",
+        "--since",
+        "2025",
+        "--until",
+        "2024"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--since, --until"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "KRAS",
+        "--limit",
+        "51"
+      ],
+      "mcp": [
+        "search",
+        "gene",
+        "KRAS",
+        "--limit",
+        "51"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--limit"
+      }
+    }
+  ]
+}
