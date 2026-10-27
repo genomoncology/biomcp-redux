@@ -19,7 +19,7 @@ The final release candidate's artifacts install and run on every promised platfo
 - Changes: none expected beyond fixes the rehearsal finds, each its own ticket.
 - Defers: publication, which needs Ian.
 
-## Delivered evidence
+## Evidence
 
 The qualified release candidate is `release/1.0` at `ff2e9b64c8b6f205ecd60c3bc51874bfa7223b55`. Its product source is `e4b72e59f590f4b04189718d8ecdd633e4238307`. The refreshed baseline contains 275 schemas generated from that exact source. Local job `j17367` passed baseline equality, schema comparison, the six fixes, container checks and the routine gate.
 
