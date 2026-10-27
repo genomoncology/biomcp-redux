@@ -1,0 +1,16 @@
+rows: 15
+Guardant360® Liquid CDx (Guardant Health, Inc.)	LUMAKRAS™ (sotorasib) NDA 214665	Non-small cell lung cancer (NSCLC) - Plasma
+cobas KRAS Mutation Test (Roche Molecular Systems, Inc.)	Erbitux (cetuximab) BLA 125084	Colorectal Cancer - Tissue
+cobas KRAS Mutation Test (Roche Molecular Systems, Inc.)	Vectibix (panitumumab) BLA 125147	Colorectal Cancer - Tissue
+FoundationOne CDx (Foundation Medicine, Inc.)	Erbitux (cetuximab) BLA 125084	Colorectal Cancer - Tissue
+Guardant360 CDx (Guardant Health, Inc.)	Lumakras (sotorasib) NDA 214665	Non-Small Cell Lung Cancer (NSCLC) - Plasma
+ONCO/Reveal Dx Lung & Colon Cancer Assay (O/RDx-LCCA) (Pillar Biosciences, Inc.)	Erbitux (cetuximab) BLA 125084	Colorectal Cancer - Tissue
+ONCO/Reveal Dx Lung & Colon Cancer Assay (O/RDx-LCCA) (Pillar Biosciences, Inc.)	Vectibix (panitumumab) BLA 125147	Colorectal Cancer - Tissue
+therascreen KRAS RGQ PCR Kit (Qiagen Manchester, Ltd.)	Vectibix (panitumumab) BLA 125147	Colorectal Cancer - Tissue
+therascreen KRAS RGQ PCR Kit (Qiagen Manchester, Ltd.)	Lumakras (sotorasib) NDA 214665	Non-Small Cell Lung Cancer (NSCLC) - Tissue
+therascreen KRAS RGQ PCR Kit (Qiagen Manchester, Ltd.)	Erbitux (cetuximab) BLA 125084	Colorectal Cancer - Tissue
+Agilent Resolution ctDx FIRST assay (Resolution Bioscience, Inc.)	Krazati (adagrasib) NDA 216340	Non-Small Cell Lung Cancer (NSCLC) - Plasma
+therascreen KRAS RGQ PCR Kit (Qiagen Manchester, Ltd.)	Erbitux (cetuximab) BLA 125084	Colorectal Cancer - Tissue
+therascreen KRAS RGQ PCR Kit (Qiagen Manchester, Ltd.)	Krazati (adagrasib) NDA 216340	Non-Small Cell Lung Cancer (NSCLC) - Tissue
+xT CDx (Tempus Labs, Inc.)	Erbitux (cetuximab) BLA 125084	Colorectal Cancer (CRC) - Tissue (Matching Blood/Saliva)
+therascreen KRAS RGQ PCR Kit (Qiagen Manchester, Ltd.)	Krazati (adagrasib) in combination with Erbitux (cetuximab) – NDA 216340	Colorectal Cancer - Tissue

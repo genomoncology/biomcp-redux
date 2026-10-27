@@ -1,0 +1,68 @@
+---
+title: Find FDA companion diagnostics for a biomarker
+description: List FDA-cleared or approved companion diagnostic devices for a biomarker with BioMCP 1.0, with the drug and indication each row names, then find registered genetic tests for the gene in GTR.
+goal: The reader synchronizes the FDA companion diagnostics list, lists the rows for one biomarker with their drug and indication, and lists genetic tests for the gene in the Genetic Testing Registry.
+reader: A researcher, regulatory analyst or agent builder who needs which tests the FDA lists for a biomarker
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> reads the FDA's list of cleared or approved companion diagnostic devices from a local bundle, and the NCBI Genetic Testing Registry (GTR) from another. Use this page to find which devices the FDA lists for a biomarker, with the drug and indication of each row, and which laboratories register a test for the gene. The example biomarker is KRAS.
+
+A listing is the FDA's or the laboratory's statement. A companion diagnostic row is not a treatment recommendation, and a GTR registration is not FDA authorization.
+
+## Requirements
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- The `fda-cdx` bundle, and the `gtr` bundle for step 3. [Local data](/local-data/#bundle-sizes) shows their sizes.
+
+## 1. Synchronize the list
+
+```sh
+biomcp sync fda-cdx
+```
+
+Search commands read the stored copy and never download it. Before the first sync, a search fails and names this command in `next`. [Local data](/local-data/#1-synchronize-a-bundle) shows the sync reply.
+
+## 2. List the rows for a biomarker
+
+`--biomarker` matches the list's biomarker cell. The list has one row per device, indication and drug:
+
+<Example id="task-cdx-search" />
+
+The FDA list holds 15 KRAS rows. The same device appears once for each drug and indication it covers: the therascreen KRAS RGQ PCR Kit appears with cetuximab, panitumumab, sotorasib and adagrasib. The drug column carries the drug's NDA or BLA number, which [`get drug NDA... --source drugsfda`](/drugs-and-safety/#3-read-the-fda-approval-record) reads.
+
+The reply's status is `partial` because one cell of the list did not match the shape BioMCP checks; the reply's `problems` list names the field. The rows shown are complete.
+
+## 3. Find genetic tests in GTR
+
+GTR lists tests that laboratories register. `--gene` matches GTR's gene symbol exactly:
+
+<Example id="task-cdx-gtr" />
+
+GTR holds 456 tests that name KRAS. Each row gives the GTR test ID, the test's name, the laboratory and the test type. `get diagnostic GTR000305704.1 --source gtr` reads one test.
+
+## Verify
+
+Step 2 prints a row count above zero and the cobas KRAS Mutation Test among the rows.
+
+## If it fails
+
+- The status is `failed` with source state `syncing`: the bundle is missing. Run `biomcp sync fda-cdx` or `biomcp sync gtr`.
+- No rows: `--biomarker` matches the list's biomarker cell as written. Try the gene symbol alone, such as `KRAS`, not `KRAS G12C`.
+- The list looks out of date: the source state is `stale`. Run the sync again.
+
+## Limits
+
+The FDA list describes devices and their labeled uses on the date of your last sync. BioMCP reads the list and GTR as published and does not judge whether a test suits a case. `--source who-ivd --marker HIV` searches WHO-prequalified diagnostics by marker.
+
+## Related
+
+- [Drugs and safety](/drugs-and-safety/#8-find-companion-diagnostics) shows the list for BRAF and the FDA device records.
+- Reference: [search diagnostic](/reference/commands/search-diagnostic/), [get diagnostic](/reference/commands/get-diagnostic/), [FDA companion diagnostics source](/sources/fda-cdx/), [GTR source](/sources/gtr/).
+
+## Next
+
+Look up the drugs those rows name in [find CPIC guidelines and gene-drug pairs for a gene](/how-to/pgx-guidelines/) or [drugs and safety](/drugs-and-safety/).

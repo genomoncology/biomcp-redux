@@ -65,7 +65,7 @@ export default {
     { label: 'Entities', collapsed: true, items: [{ autogenerate: { directory: 'user-guide' } }] },
     { label: 'Sources', collapsed: true, items: [{ autogenerate: { directory: 'sources' } }] },
     { label: 'Reference', collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },
-    { label: 'How-to', collapsed: true, items: ['how-to', 'how-to/clinvar-classification', 'how-to/gnomad-frequency', 'how-to/faers-reports', 'how-to/guide-workflows'] },
+    { label: 'How-to', collapsed: true, items: ['how-to', 'how-to/clinvar-classification', 'how-to/gnomad-frequency', 'how-to/faers-reports', 'how-to/pgx-guidelines', 'how-to/companion-diagnostics', 'how-to/guide-workflows'] },
     { label: 'Answers', link: '/answers/' },
     { label: 'Blog', collapsed: true, items: [{ autogenerate: { directory: 'blog' } }] },
     { label: 'Articles', collapsed: true, items: [{ autogenerate: { directory: 'articles' } }] },

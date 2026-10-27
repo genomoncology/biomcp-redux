@@ -58,12 +58,12 @@
   source: cases
   frequency: "use case 10"
   rank: 50
-  page: /drugs-and-safety/
+  page: /how-to/pgx-guidelines/
   reference: /reference/commands/get-pgx/
 - id: companion-diagnostics
   question: How do I find FDA companion diagnostics for a biomarker?
   source: product
   frequency: listed from search diagnostic --source fda-cdx
   rank: 51
-  page: /drugs-and-safety/
+  page: /how-to/companion-diagnostics/
   reference: /reference/commands/search-diagnostic/

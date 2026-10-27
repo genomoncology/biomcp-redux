@@ -70,7 +70,7 @@ CPIC lists the guidelines for a gene and the drugs each covers:
 
 <Example id="pgx-get" />
 
-The `recommendations` section returns CPIC's recommendation rows, and `diplotype` looks up a declared diplotype. `--source clinpgx` with `annotations --kind clinical|guideline|label` reads ClinPGx annotations.
+The `recommendations` section returns CPIC's recommendation rows, and `diplotype` looks up a declared diplotype. `--source clinpgx` with `annotations --kind clinical|guideline|label` reads ClinPGx annotations. [Find CPIC guidelines and gene-drug pairs for a gene](/how-to/pgx-guidelines/) adds CPIC levels and a diplotype lookup.
 
 ## 8. Find companion diagnostics
 
@@ -78,7 +78,7 @@ The FDA companion diagnostics list matches a biomarker word in its rows:
 
 <Example id="diagnostic-cdx" />
 
-The list has one row per device, indication and drug, so a device appears once per row. `--source gtr` searches the Genetic Testing Registry, and `--source who-ivd` searches WHO prequalified diagnostics. `get diagnostic P-NUMBER --source fda-pma` and `get diagnostic K-NUMBER --source fda-510k` read FDA device records.
+The list has one row per device, indication and drug, so a device appears once per row. `--source gtr` searches the Genetic Testing Registry, and `--source who-ivd` searches WHO prequalified diagnostics. `get diagnostic P-NUMBER --source fda-pma` and `get diagnostic K-NUMBER --source fda-510k` read FDA device records. [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/) walks through one biomarker.
 
 ## Verify
 

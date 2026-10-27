@@ -1,0 +1,5 @@
+CYP2C19 and Clopidogrel	https://www.clinpgx.org/guideline/PA166251443
+CYP2C19 and Proton Pump Inhibitors	https://www.clinpgx.org/guideline/PA166251441
+CYP2C19 and Voriconazole	https://www.clinpgx.org/guideline/PA166251456
+CYP2D6, CYP2C19 and Tricyclic Antidepressants	https://www.clinpgx.org/guideline/PA166251445
+CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants	https://www.clinpgx.org/guideline/PA166251452

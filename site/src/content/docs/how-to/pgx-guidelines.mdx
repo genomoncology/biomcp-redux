@@ -1,0 +1,67 @@
+---
+title: Find CPIC guidelines and gene-drug pairs for a gene
+description: List CPIC's gene-drug pairs and guidelines for a pharmacogene with BioMCP 1.0, filter them by CPIC level, and look up the function CPIC assigns to a declared diplotype.
+goal: The reader lists a gene's CPIC gene-drug pairs with their levels, lists the CPIC guidelines that cover the gene, and reads CPIC's lookup for one diplotype.
+reader: A researcher, pharmacist-informaticist or agent builder who needs CPIC's published pharmacogenomic data for a gene
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> reads the Clinical Pharmacogenetics Implementation Consortium (CPIC) database with `search pgx` and `get pgx`. Use this page to see which drugs CPIC pairs with a gene, which guidelines cover them, and what CPIC's tables say about one diplotype. The example gene is CYP2C19.
+
+Every row on this page is CPIC's published statement. BioMCP calculates no phenotype, dose or drug choice, and this page reads no one's genotype.
+
+## Requirements
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches the CPIC API. No key is needed.
+- CPIC is in the `noncommercial` use group; see [data sources](/sources/#use-groups).
+
+## 1. List the gene-drug pairs
+
+`search pgx` lists CPIC's pairs for one gene. This filter prints the pairs at CPIC level A:
+
+<Example id="task-pgx-pairs" />
+
+CPIC lists 27 pairs for CYP2C19. The second column is the CPIC level and the third the ClinPGx level, both as CPIC publishes them. `--cpic-level A` asks CPIC for one level directly, and compound levels such as `B/C` match as written.
+
+## 2. List the guidelines
+
+The `guidelines` section lists each CPIC guideline that covers the gene, with its page on ClinPGx:
+
+<Example id="task-pgx-guidelines" />
+
+One guideline can cover several genes and many drugs, such as the guideline for serotonin reuptake inhibitor antidepressants. Read the guideline itself for its recommendations; the `recommendations` section returns CPIC's recommendation rows, and `--drug-id` narrows them to one drug.
+
+## 3. Look up a declared diplotype
+
+The `diplotype` section returns CPIC's lookup for a diplotype you supply, written as CPIC writes it:
+
+<Example id="task-pgx-diplotype" />
+
+CPIC assigns each `*2` allele "No function" and the `*2/*2` diplotype the gene result "Poor Metabolizer". That label is CPIC's table entry for the declared diplotype. BioMCP does not call diplotypes from sequence data.
+
+## Verify
+
+Step 1 lists clopidogrel at level A, and step 3 returns one row for `*2/*2`.
+
+## If it fails
+
+- `usage.arguments`: `search pgx` and `get pgx` both need `--source`, and `--gene` takes the exact symbol, such as `CYP2C19`.
+- An empty diplotype result: the diplotype is not in CPIC's table as written. Check the star-allele spelling and the order CPIC uses.
+- The source is skipped: CPIC is `noncommercial`, and `--disable-sources noncommercial` or your `config.json` turns it off.
+
+## Limits
+
+CPIC levels rate the evidence for a gene-drug pair; they are not a recommendation for anyone. A gene without CPIC pairs has no CPIC guideline, and other bodies may publish guidance BioMCP does not read.
+
+## Related
+
+- [Drugs and safety](/drugs-and-safety/#7-read-pharmacogenomic-guidelines) shows the DPYD guidelines and ClinPGx annotations.
+- Reference: [search pgx](/reference/commands/search-pgx/), [get pgx](/reference/commands/get-pgx/), [CPIC source](/sources/cpic/).
+
+## Next
+
+Find tests that detect a biomarker in [find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/).

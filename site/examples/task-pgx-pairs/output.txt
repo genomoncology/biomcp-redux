@@ -1,0 +1,10 @@
+pairs: 27
+amitriptyline	A	1A
+citalopram	A	1A
+clopidogrel	A	1A
+escitalopram	A	1A
+lansoprazole	A	1A
+omeprazole	A	1A
+pantoprazole	A	1A
+voriconazole	A	1A
+sertraline	A	1A
