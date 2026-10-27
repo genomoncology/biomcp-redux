@@ -119,9 +119,9 @@ def inputs(mode, target, env):
 def prepare(target, mode, root, env):
     directory = root / "inputs"
     directory.mkdir()
-    mapping, total = {}, 0
+    mapping, total, members = {}, 0, 0
     def add(name, payload, depth=0):
-        nonlocal total
+        nonlocal total, members
         total += len(payload)
         if len(payload) > MAX_FILE or total > MAX_TOTAL or depth > MAX_DEPTH or len(mapping) >= MAX_FILES:
             raise ValueError("artifact screening limit exceeded")
@@ -140,8 +140,13 @@ def prepare(target, mode, root, env):
         if payload.startswith((b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")) or suffix.endswith((".zip", ".whl", ".mcpb")):
             with zipfile.ZipFile(io.BytesIO(payload)) as archive:
                 for member in archive.infolist():
+                    members += 1
+                    if members > MAX_FILES:
+                        raise ValueError("too many archive members")
                     nested = member_name(member.filename)
                     if member.is_dir():
+                        if member.file_size:
+                            raise ValueError("directory member carries unscanned content")
                         continue
                     if member.file_size > MAX_FILE or total + member.file_size > MAX_TOTAL:
                         raise ValueError("expanded archive exceeds screening limit")
@@ -157,8 +162,13 @@ def prepare(target, mode, root, env):
         elif suffix.endswith(".tar") or (len(payload) > 262 and payload[257:262] == b"ustar"):
             with tarfile.open(fileobj=io.BytesIO(payload), mode="r:") as archive:
                 for member in archive:
+                    members += 1
+                    if members > MAX_FILES:
+                        raise ValueError("too many archive members")
                     nested = member_name(member.name)
                     if member.isdir():
+                        if member.size:
+                            raise ValueError("directory member carries unscanned content")
                         continue
                     if member.issym() or member.islnk():
                         # Container layers contain links. Scan their metadata,

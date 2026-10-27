@@ -105,6 +105,9 @@ class Screening(unittest.TestCase):
             with zipfile.ZipFile(candidate, "w") as archive:
                 archive.writestr("../escape.txt", "fixture")
             self.assertNotEqual(screen().returncode, 0, "escaping member must fail closed")
+            with zipfile.ZipFile(candidate, "w", zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("hidden/", "directory content")
+            self.assertNotEqual(screen().returncode, 0, "directory payload must not be skipped")
             candidate.unlink()
             candidate.symlink_to(root / "absent")
             self.assertNotEqual(screen().returncode, 0, "filesystem links must not be skipped")
