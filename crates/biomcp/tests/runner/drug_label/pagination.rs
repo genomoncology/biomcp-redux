@@ -110,7 +110,7 @@ fn check_page(
         if value.pointer("/result/items/0/id") != Some(id) {
             return Err("fallback repeated or skipped an accepted native row".into());
         }
-    } else if field(&value, "status") != "absent" {
+    } else if field(value, "status") != "absent" {
         return Err("rejected page returned a label".into());
     }
     let continuation = value
