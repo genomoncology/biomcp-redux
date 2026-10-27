@@ -251,7 +251,7 @@ pub(super) fn lifecycle() -> Check {
         "io.modelcontextprotocol/clientCapabilities":{}}}});
     let (status, reply) = server.request("POST", "/mcp", &request.to_string())?;
     if status != 200
-        || reply.pointer("/result/supportedVersions") != Some(&json!(["2026-07-28", "2025-11-25"]))
+        || reply.pointer("/result/supportedVersions") != Some(&json!(["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"]))
     {
         return Err(format!("HTTP discover: {status} {reply}"));
     }
@@ -266,26 +266,7 @@ fn legacy_headers() -> &'static str {
 }
 fn protocols() -> Check {
     let server = Server::start()?;
-    let init = legacy(
-        7,
-        "initialize",
-        json!({"protocolVersion":"2025-11-25", "capabilities":{}, "clientInfo":{"name":"local-proof", "version":"1"}}),
-    );
-    let (_, initialized, headers) = server.raw(
-        "POST",
-        "/mcp",
-        &server.address.to_string(),
-        legacy_headers(),
-        &init.to_string(),
-    )?;
-    if initialized
-        .as_ref()
-        .and_then(|v| v.pointer("/result/protocolVersion"))
-        != Some(&json!("2025-11-25"))
-        || headers.to_ascii_lowercase().contains("session-id")
-    {
-        return Err("legacy initialization or minted session".into());
-    }
+    legacy_versions(&server)?;
     let discover = super::mcp::request(json!(7), "server/discover", json!({}));
     server.request("POST", "/mcp", &discover.to_string())?;
     let list = legacy(7, "tools/list", json!({}));
@@ -320,6 +301,35 @@ fn protocols() -> Check {
         return Err("replayed HTTP call lost stdio parity".into());
     }
     concurrent(&server, &globals)
+}
+fn legacy_versions(server: &Server) -> Check {
+    let base = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n";
+    for revision in ["2025-11-25", "2025-06-18", "2025-03-26"] {
+        for version_header in [format!("MCP-Protocol-Version: {revision}\r\n"), String::new()] {
+            let headers = format!("{base}{version_header}");
+            let init = legacy(7, "initialize", json!({"protocolVersion":revision,
+                "capabilities":{}, "clientInfo":{"name":"local-proof","version":"1"}}));
+            let call = legacy(8, "tools/call", json!({"name":"biomcp","arguments":{"args":["help"]}}));
+            for (request, pointer, expected) in [
+                (init, "/result/protocolVersion", json!(revision)),
+                (call, "/result/isError", json!(false)),
+            ] {
+                let (status, reply, response) = server.raw("POST", "/mcp",
+                    &server.address.to_string(), &headers, &request.to_string())?;
+                if status != 200 || reply.as_ref().and_then(|v| v.pointer(pointer)) != Some(&expected)
+                    || response.to_ascii_lowercase().contains("session-id") {
+                    return Err(format!("legacy {revision}, header {version_header:?}: {status} {reply:?}"));
+                }
+            }
+        }
+    }
+    let headers = format!("{base}MCP-Protocol-Version: 2099-01-01\r\n");
+    let (status, reply, _) = server.raw("POST", "/mcp", &server.address.to_string(),
+        &headers, &legacy(9, "tools/list", json!({})).to_string())?;
+    if status != 400 || reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32022)) {
+        return Err(format!("unsupported revision: {status} {reply:?}"));
+    }
+    Ok(())
 }
 fn concurrent(server: &Server, globals: &[String]) -> Check {
     // Distinct replies expose cross-client ID and protocol state mistakes.
