@@ -13,9 +13,9 @@ enum Kind {
 #[serde(deny_unknown_fields)]
 struct Fields {
     kind: Kind,
-    id: Text,
+    id: String,
     #[serde(default)]
-    section: Option<Text>,
+    section: Option<String>,
     #[serde(default = "super::limit")]
     section_limit: u32,
     #[serde(default)]
@@ -53,7 +53,7 @@ impl TryFrom<Fields> for GwasGet {
         }
     }
 }
-fn section<'de, T: Deserialize<'de>>(value: Option<Text>) -> Result<Option<T>, QueryInvalid> {
+fn section<'de, T: Deserialize<'de>>(value: Option<String>) -> Result<Option<T>, QueryInvalid> {
     value
         .map(|text| {
             T::deserialize(serde::de::value::StringDeserializer::<QueryInvalid>::new(
