@@ -127,7 +127,7 @@ def prepare(target, mode, root, env):
         if len(payload) > MAX_FILE or total > MAX_TOTAL or depth > MAX_DEPTH or len(mapping) >= MAX_FILES:
             raise ValueError("artifact screening limit exceeded")
         key = str(len(mapping)) + ".txt"
-        mapping[key] = name
+        mapping[key] = {"file": name, **origin}
         # Neutral names remove default path allowlists; a plain-text prefix also
         # prevents MIME detection from silently skipping executable bytes. UTF-8
         # replacement preserves every ASCII credential byte and its boundaries.
@@ -211,8 +211,20 @@ def prepare(target, mode, root, env):
                 return
             raise ValueError("unsupported archive compression")
     for name, payload in inputs(mode, target, env):
+        blob = hashlib.sha1(b"blob " + str(len(payload)).encode() + b"\0" + payload).hexdigest() if mode == "history" else ""
+        origin = {"blob": blob, "git_file": name}
         add(name, payload)
     return directory, mapping
+
+
+def findings(report, mapping, staging):
+    # This report contains coordinates and identities only, never source lines,
+    # matches or captured secrets. Public output remains file plus rule.
+    for row in report.read_text().splitlines():
+        file, rule, first, last, column, end = row.split("\t")
+        key = Path(file).name
+        yield ({**mapping[key], "rule": rule, "line": int(first) - 1},
+               staging / key, (int(first), int(last), int(column), int(end)))
 
 
 def scan(mode, target, cache):
@@ -235,7 +247,7 @@ def scan(mode, target, cache):
         staging, mapping = prepare(target, mode, root, env)
         config, template, ignore, report = [root / name for name in ["config.toml", "report.tmpl", "ignore", "report.txt"]]
         config.write_text('[extend]\nuseDefault = true\n')
-        template.write_text(r'{{range .}}{{printf "%s\t%s\n" .File .RuleID}}{{end}}')
+        template.write_text(r'{{range .}}{{printf "%s\t%s\t%d\t%d\t%d\t%d\n" .File .RuleID .StartLine .EndLine .StartColumn .EndColumn}}{{end}}')
         ignore.touch()
         command = [str(binary), "dir", str(staging), "--config", str(config), "--gitleaks-ignore-path", str(ignore),
                    "--ignore-gitleaks-allow", "--redact=100", "--no-banner", "--no-color", "--log-level", "error",
@@ -245,9 +257,8 @@ def scan(mode, target, cache):
         if result.stderr:
             raise ValueError("secret scanner could not screen every input")
         if result.returncode == 1 and report.is_file():
-            for line in report.read_text().splitlines():
-                path, rule = line.split("\t", 1)
-                print(json.dumps({"file": mapping[Path(path).name], "rule": rule}))
+            for finding, _, _ in findings(report, mapping, staging):
+                print(json.dumps({"file": finding["file"], "rule": finding["rule"]}))
             return 1
         if result.returncode:
             raise ValueError("secret scanner failed; diagnostic output was suppressed")
