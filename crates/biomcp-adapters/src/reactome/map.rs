@@ -1,6 +1,6 @@
 use super::raw;
 use biodata::{Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, Text};
-use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection, Source};
+use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection};
 
 fn identity(id: &str, name: &str, species: &str, class: &str) -> Option<PathwayHeader> {
     if species != "Homo sapiens" || !matches!(class, "Pathway" | "TopLevelPathway") {
