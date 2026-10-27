@@ -1,6 +1,7 @@
 # 0288 — Add the version and mcp-config housekeeping commands
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: dc04141bdc25ce34cd62a5380d228e763a57a950
 
 Milestone: 5
 
