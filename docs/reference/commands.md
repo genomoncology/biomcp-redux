@@ -26,11 +26,10 @@ Commands:
   version     Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
   mcp-config  Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
   health      Report source terms and bounded reachability.
-  list        List supported discovery topics.
   store       Manage local cached replies and snapshots.
   key         Register and manage source credentials without showing values.
-  help        Describe commands and their arguments.
   serve       Serve MCP over standard input or HTTP.
+  help        Describe commands and their arguments.
 
 Options:
       --format <format>
@@ -50,6 +49,9 @@ Options:
       --fresh
           Request fresh source data instead of cached replies.
 
+-h, --help: Print scoped command help without source requests.
+--version: Print the installed version without source requests.
+
 ```
 
 Retrieve source records for biomedical evidence questions.
@@ -59,6 +61,8 @@ Retrieve source records for biomedical evidence questions.
 - `--config`: Read configuration from this file.
 - `--offline`: Read local data without source requests.
 - `--fresh`: Request fresh source data instead of cached replies.
+- `-h, --help`: Print scoped command help without source requests.
+- `--version`: Print the installed version without source requests.
 
 ## biomcp author
 
@@ -4028,66 +4032,6 @@ Options:
 Report publisher terms and bounded source reachability; at most one page for each implemented source.
 
 
-## biomcp list
-
-```text
-List supported discovery topics.
-
-Usage: biomcp list [OPTIONS] <COMMAND>
-
-Commands:
-  author  Read papers attributed to a provider author record.
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-List supported discovery topics.
-
-
-## biomcp list author
-
-```text
-Read papers attributed to a provider author record.
-
-Usage: biomcp list author [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
 ## biomcp store
 
 ```text
@@ -4288,6 +4232,44 @@ Remove a stored credential while preserving other settings.
 
 - `source`: Source credential name to register or remove.
 
+## biomcp serve
+
+```text
+Serve MCP over standard input or HTTP.
+
+Usage: biomcp serve [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --http [<http>]
+          Listen on an HTTP address; omit its value for the loopback default.
+
+      --allow-host <allow-host>
+          Allow an HTTP Host authority; required for non-loopback listeners.
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.
+
+- `--http`: Listen on an HTTP address; omit its value for the loopback default.
+- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
+
 ## biomcp help
 
 ```text
@@ -4296,24 +4278,26 @@ Describe commands and their arguments.
 Usage: biomcp help [OPTIONS] [COMMAND]
 
 Commands:
+  author      Read papers attributed to a provider author record.
+  search      Search source records by entity and checked filters.
+  get         Retrieve one entity and its source sections.
+  cell-line   Read source cell line assay counts.
+  protein     Read protein sequences, features and source relationships.
+  pathway     Read pathway genes and source events.
+  article     Read article text, references, citations and files.
+  trial       Read trial groups and public documents.
+  variant     Read source variant assertions, populations and recurrence.
+  sync        Synchronize a local source bundle.
   skill       
   version     
   mcp-config  
+  health      Report source terms and bounded reachability.
+  store       Manage local cached replies and snapshots.
+  key         Register and manage source credentials without showing values.
+  serve       Serve MCP over standard input or HTTP.
+  network     
   sources     
   config      
-  network     
-  key         Register and manage source credentials without showing values.
-  store       Manage local cached replies and snapshots.
-  article     Read article text, references, citations and files.
-  author      Read papers attributed to a provider author record.
-  cell-line   Read source cell line assay counts.
-  get         Retrieve one entity and its source sections.
-  pathway     Read pathway genes and source events.
-  protein     Read protein sequences, features and source relationships.
-  search      Search source records by entity and checked filters.
-  sync        Synchronize a local source bundle.
-  trial       Read trial groups and public documents.
-  variant     Read source variant assertions, populations and recurrence.
 
 Options:
       --format <format>
@@ -4338,457 +4322,6 @@ Options:
 Print generated command help.
 
 - `command`: Command path or discovery topic to describe.
-
-## biomcp help skill
-
-```text
-Usage: biomcp help skill [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help version
-
-```text
-Usage: biomcp help version [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help mcp-config
-
-```text
-Usage: biomcp help mcp-config [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help sources
-
-```text
-Usage: biomcp help sources [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help config
-
-```text
-Usage: biomcp help config [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help network
-
-```text
-Usage: biomcp help network [OPTIONS] <setting>
-
-Arguments:
-  <setting>
-          [possible values: ca_bundle, proxy]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help key
-
-```text
-Register and manage source credentials without showing values.
-
-Usage: biomcp help key [OPTIONS] <source>
-
-Arguments:
-  <source>
-          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help store
-
-```text
-Manage local cached replies and snapshots.
-
-Usage: biomcp help store [OPTIONS] <COMMAND>
-
-Commands:
-  clean  
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help store clean
-
-```text
-Usage: biomcp help store clean [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article
-
-```text
-Read article text, references, citations and files.
-
-Usage: biomcp help article [OPTIONS] <COMMAND>
-
-Commands:
-  supplement         
-  pdf                
-  text               
-  citations          
-  references         
-  citation-evidence  
-  recommendations    
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article supplement
-
-```text
-Usage: biomcp help article supplement [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article pdf
-
-```text
-Usage: biomcp help article pdf [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article text
-
-```text
-Usage: biomcp help article text [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article citations
-
-```text
-Usage: biomcp help article citations [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article references
-
-```text
-Usage: biomcp help article references [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article citation-evidence
-
-```text
-Usage: biomcp help article citation-evidence [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help article recommendations
-
-```text
-Usage: biomcp help article recommendations [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
 
 ## biomcp help author
 
@@ -4845,818 +4378,12 @@ Options:
 
 ```
 
-## biomcp help cell-line
-
-```text
-Read source cell line assay counts.
-
-Usage: biomcp help cell-line [OPTIONS] <COMMAND>
-
-Commands:
-  assay-count  
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help cell-line assay-count
-
-```text
-Usage: biomcp help cell-line assay-count [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get
-
-```text
-Retrieve one entity and its source sections.
-
-Usage: biomcp help get [OPTIONS] <COMMAND>
-
-Commands:
-  author         Read papers attributed to a provider author record.
-  cell-line      Read source cell line assay counts.
-  gwas           
-  protein        Read protein sequences, features and source relationships.
-  phenotype      
-  pathway        Read pathway genes and source events.
-  study          
-  pgx            
-  diagnostic     
-  adverse-event  
-  disease        
-  drug           
-  gene           
-  article        Read article text, references, citations and files.
-  trial          Read trial groups and public documents.
-  variant        Read source variant assertions, populations and recurrence.
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get author
-
-```text
-Read papers attributed to a provider author record.
-
-Usage: biomcp help get author [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get cell-line
-
-```text
-Read source cell line assay counts.
-
-Usage: biomcp help get cell-line [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get gwas
-
-```text
-Usage: biomcp help get gwas [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get protein
-
-```text
-Read protein sequences, features and source relationships.
-
-Usage: biomcp help get protein [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get phenotype
-
-```text
-Usage: biomcp help get phenotype [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get pathway
-
-```text
-Read pathway genes and source events.
-
-Usage: biomcp help get pathway [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get study
-
-```text
-Usage: biomcp help get study [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get pgx
-
-```text
-Usage: biomcp help get pgx [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get diagnostic
-
-```text
-Usage: biomcp help get diagnostic [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get adverse-event
-
-```text
-Usage: biomcp help get adverse-event [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get disease
-
-```text
-Usage: biomcp help get disease [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get drug
-
-```text
-Usage: biomcp help get drug [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get gene
-
-```text
-Usage: biomcp help get gene [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get article
-
-```text
-Read article text, references, citations and files.
-
-Usage: biomcp help get article [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get trial
-
-```text
-Read trial groups and public documents.
-
-Usage: biomcp help get trial [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help get variant
-
-```text
-Read source variant assertions, populations and recurrence.
-
-Usage: biomcp help get variant [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help pathway
-
-```text
-Read pathway genes and source events.
-
-Usage: biomcp help pathway [OPTIONS] <COMMAND>
-
-Commands:
-  genes   
-  events  
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help pathway genes
-
-```text
-Usage: biomcp help pathway genes [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help pathway events
-
-```text
-Usage: biomcp help pathway events [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein
-
-```text
-Read protein sequences, features and source relationships.
-
-Usage: biomcp help protein [OPTIONS] <COMMAND>
-
-Commands:
-  features         
-  isoforms         
-  domains          
-  complexes        
-  complex-members  
-  structures       
-  sequence         
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein features
-
-```text
-Usage: biomcp help protein features [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein isoforms
-
-```text
-Usage: biomcp help protein isoforms [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein domains
-
-```text
-Usage: biomcp help protein domains [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein complexes
-
-```text
-Usage: biomcp help protein complexes [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein complex-members
-
-```text
-Usage: biomcp help protein complex-members [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein structures
-
-```text
-Usage: biomcp help protein structures [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
-## biomcp help protein sequence
-
-```text
-Usage: biomcp help protein sequence [OPTIONS]
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output.
-          
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
-
-      --config <config>
-          Read configuration from this file.
-
-      --offline
-          Read local data without source requests.
-
-      --fresh
-          Request fresh source data instead of cached replies.
-
-```
-
 ## biomcp help search
 
 ```text
 Search source records by entity and checked filters.
 
-Usage: biomcp help search [OPTIONS] <COMMAND>
+Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
   author         Read papers attributed to a provider author record.
@@ -6110,12 +4837,1217 @@ Options:
 
 ```
 
+## biomcp help get
+
+```text
+Retrieve one entity and its source sections.
+
+Usage: biomcp help get [OPTIONS] [COMMAND]
+
+Commands:
+  author         Read papers attributed to a provider author record.
+  cell-line      Read source cell line assay counts.
+  gwas           
+  protein        Read protein sequences, features and source relationships.
+  phenotype      
+  pathway        Read pathway genes and source events.
+  study          
+  pgx            
+  diagnostic     
+  adverse-event  
+  disease        
+  drug           
+  gene           
+  article        Read article text, references, citations and files.
+  trial          Read trial groups and public documents.
+  variant        Read source variant assertions, populations and recurrence.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get author
+
+```text
+Read papers attributed to a provider author record.
+
+Usage: biomcp help get author [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get cell-line
+
+```text
+Read source cell line assay counts.
+
+Usage: biomcp help get cell-line [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get gwas
+
+```text
+Usage: biomcp help get gwas [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get protein
+
+```text
+Read protein sequences, features and source relationships.
+
+Usage: biomcp help get protein [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get phenotype
+
+```text
+Usage: biomcp help get phenotype [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get pathway
+
+```text
+Read pathway genes and source events.
+
+Usage: biomcp help get pathway [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get study
+
+```text
+Usage: biomcp help get study [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get pgx
+
+```text
+Usage: biomcp help get pgx [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get diagnostic
+
+```text
+Usage: biomcp help get diagnostic [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get adverse-event
+
+```text
+Usage: biomcp help get adverse-event [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get disease
+
+```text
+Usage: biomcp help get disease [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get drug
+
+```text
+Usage: biomcp help get drug [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get gene
+
+```text
+Usage: biomcp help get gene [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get article
+
+```text
+Read article text, references, citations and files.
+
+Usage: biomcp help get article [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get trial
+
+```text
+Read trial groups and public documents.
+
+Usage: biomcp help get trial [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help get variant
+
+```text
+Read source variant assertions, populations and recurrence.
+
+Usage: biomcp help get variant [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help cell-line
+
+```text
+Read source cell line assay counts.
+
+Usage: biomcp help cell-line [OPTIONS] [COMMAND]
+
+Commands:
+  assay-count  
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help cell-line assay-count
+
+```text
+Usage: biomcp help cell-line assay-count [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein
+
+```text
+Read protein sequences, features and source relationships.
+
+Usage: biomcp help protein [OPTIONS] [COMMAND]
+
+Commands:
+  features         
+  isoforms         
+  domains          
+  complexes        
+  complex-members  
+  structures       
+  sequence         
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein features
+
+```text
+Usage: biomcp help protein features [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein isoforms
+
+```text
+Usage: biomcp help protein isoforms [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein domains
+
+```text
+Usage: biomcp help protein domains [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein complexes
+
+```text
+Usage: biomcp help protein complexes [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein complex-members
+
+```text
+Usage: biomcp help protein complex-members [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein structures
+
+```text
+Usage: biomcp help protein structures [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help protein sequence
+
+```text
+Usage: biomcp help protein sequence [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help pathway
+
+```text
+Read pathway genes and source events.
+
+Usage: biomcp help pathway [OPTIONS] [COMMAND]
+
+Commands:
+  genes   
+  events  
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help pathway genes
+
+```text
+Usage: biomcp help pathway genes [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help pathway events
+
+```text
+Usage: biomcp help pathway events [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article
+
+```text
+Read article text, references, citations and files.
+
+Usage: biomcp help article [OPTIONS] [COMMAND]
+
+Commands:
+  supplement         
+  pdf                
+  text               
+  citations          
+  references         
+  citation-evidence  
+  recommendations    
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article supplement
+
+```text
+Usage: biomcp help article supplement [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article pdf
+
+```text
+Usage: biomcp help article pdf [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article text
+
+```text
+Usage: biomcp help article text [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article citations
+
+```text
+Usage: biomcp help article citations [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article references
+
+```text
+Usage: biomcp help article references [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article citation-evidence
+
+```text
+Usage: biomcp help article citation-evidence [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help article recommendations
+
+```text
+Usage: biomcp help article recommendations [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help trial
+
+```text
+Read trial groups and public documents.
+
+Usage: biomcp help trial [OPTIONS] [COMMAND]
+
+Commands:
+  document  
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help trial document
+
+```text
+Usage: biomcp help trial document [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help variant
+
+```text
+Read source variant assertions, populations and recurrence.
+
+Usage: biomcp help variant [OPTIONS] [COMMAND]
+
+Commands:
+  assertions  
+  population  
+  recurrence  
+  normalize   
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help variant assertions
+
+```text
+Usage: biomcp help variant assertions [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help variant population
+
+```text
+Usage: biomcp help variant population [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help variant recurrence
+
+```text
+Usage: biomcp help variant recurrence [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help variant normalize
+
+```text
+Usage: biomcp help variant normalize [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
 ## biomcp help sync
 
 ```text
 Synchronize a local source bundle.
 
-Usage: biomcp help sync [OPTIONS] <COMMAND>
+Usage: biomcp help sync [OPTIONS] [COMMAND]
 
 Commands:
   wikipathways        
@@ -6347,15 +6279,16 @@ Options:
 
 ```
 
-## biomcp help trial
+## biomcp help skill
 
 ```text
-Read trial groups and public documents.
-
-Usage: biomcp help trial [OPTIONS] <COMMAND>
+Usage: biomcp help skill [OPTIONS] [COMMAND]
 
 Commands:
-  document  
+  list     List supported discovery topics.
+  render   
+  status   
+  install  
 
 Options:
       --format <format>
@@ -6377,10 +6310,12 @@ Options:
 
 ```
 
-## biomcp help trial document
+## biomcp help skill list
 
 ```text
-Usage: biomcp help trial document [OPTIONS]
+List supported discovery topics.
+
+Usage: biomcp help skill list [OPTIONS]
 
 Options:
       --format <format>
@@ -6402,18 +6337,167 @@ Options:
 
 ```
 
-## biomcp help variant
+## biomcp help skill render
 
 ```text
-Read source variant assertions, populations and recurrence.
+Usage: biomcp help skill render [OPTIONS]
 
-Usage: biomcp help variant [OPTIONS] <COMMAND>
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help skill status
+
+```text
+Usage: biomcp help skill status [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help skill install
+
+```text
+Usage: biomcp help skill install [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help version
+
+```text
+Usage: biomcp help version [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help mcp-config
+
+```text
+Usage: biomcp help mcp-config [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help health
+
+```text
+Report source terms and bounded reachability.
+
+Usage: biomcp help health [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help store
+
+```text
+Manage local cached replies and snapshots.
+
+Usage: biomcp help store [OPTIONS] [COMMAND]
 
 Commands:
-  assertions  
-  population  
-  recurrence  
-  normalize   
+  clean  
 
 Options:
       --format <format>
@@ -6435,10 +6519,10 @@ Options:
 
 ```
 
-## biomcp help variant assertions
+## biomcp help store clean
 
 ```text
-Usage: biomcp help variant assertions [OPTIONS]
+Usage: biomcp help store clean [OPTIONS]
 
 Options:
       --format <format>
@@ -6460,10 +6544,21 @@ Options:
 
 ```
 
-## biomcp help variant population
+## biomcp help key
 
 ```text
-Usage: biomcp help variant population [OPTIONS]
+Register and manage source credentials without showing values.
+
+Usage: biomcp help key [OPTIONS] [source] [COMMAND]
+
+Commands:
+  list    List supported discovery topics.
+  set     
+  remove  
+
+Arguments:
+  [source]
+          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
@@ -6485,10 +6580,12 @@ Options:
 
 ```
 
-## biomcp help variant recurrence
+## biomcp help key list
 
 ```text
-Usage: biomcp help variant recurrence [OPTIONS]
+List supported discovery topics.
+
+Usage: biomcp help key list [OPTIONS]
 
 Options:
       --format <format>
@@ -6510,10 +6607,10 @@ Options:
 
 ```
 
-## biomcp help variant normalize
+## biomcp help key set
 
 ```text
-Usage: biomcp help variant normalize [OPTIONS]
+Usage: biomcp help key set [OPTIONS]
 
 Options:
       --format <format>
@@ -6535,24 +6632,43 @@ Options:
 
 ```
 
-## biomcp serve
+## biomcp help key remove
+
+```text
+Usage: biomcp help key remove [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help serve
 
 ```text
 Serve MCP over standard input or HTTP.
 
-Usage: biomcp serve [OPTIONS]
+Usage: biomcp help serve [OPTIONS]
 
 Options:
       --format <format>
           Choose JSON or Markdown output.
           
           [possible values: json, md]
-
-      --http [<http>]
-          Listen on an HTTP address; omit its value for the loopback default.
-
-      --allow-host <allow-host>
-          Allow an HTTP Host authority; required for non-loopback listeners.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -6568,14 +6684,88 @@ Options:
 
 ```
 
-Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.
+## biomcp help network
 
-- `--http`: Listen on an HTTP address; omit its value for the loopback default.
-- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners.
+```text
+Usage: biomcp help network [OPTIONS] [setting]
+
+Arguments:
+  [setting]
+          [possible values: ca_bundle, proxy]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help sources
+
+```text
+Usage: biomcp help sources [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
+
+## biomcp help config
+
+```text
+Usage: biomcp help config [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output.
+          
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups.
+
+      --config <config>
+          Read configuration from this file.
+
+      --offline
+          Read local data without source requests.
+
+      --fresh
+          Request fresh source data instead of cached replies.
+
+```
 
 ## biomcp schema
 
-Print a checked-in schema artifact.
+List every schema identity and description, or print one schema artifact.
 
 - `artifact-id`: Artifact ID to print; omit it to list available schemas.
 
