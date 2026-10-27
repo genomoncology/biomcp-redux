@@ -39,5 +39,6 @@ impl fmt::Display for DrugId {
 crate::text_value!(
     DrugId,
     "DrugId",
-    "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$"
+    "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+    "A published native drug record identifier, without a consumer source prefix."
 );

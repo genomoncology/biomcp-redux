@@ -21,8 +21,7 @@
         "/sources/0/terms": "CC0 1.0 database data"
       },
       "max_bytes": 268,
-      "is_error": true,
-      "max_tokens": 67
+      "is_error": true
     },
     {
       "run": [
@@ -37,7 +36,6 @@
         "/sources/0/reason": "offline"
       },
       "max_bytes": 266,
-      "max_tokens": 67,
       "mcp": [
         "search",
         "pathway",

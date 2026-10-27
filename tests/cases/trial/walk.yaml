@@ -14,8 +14,7 @@
       "expect": {
         "/page/total": 3780
       },
-      "max_bytes": 5501,
-      "max_tokens": 1376
+      "max_bytes": 5501
     },
     {
       "follow": "page",
@@ -40,8 +39,7 @@
           "count": 4
         }
       },
-      "max_bytes": 5790,
-      "max_tokens": 1448
+      "max_bytes": 5790
     },
     {
       "mcp": [
@@ -70,8 +68,7 @@
           ]
         }
       },
-      "max_bytes": 5790,
-      "max_tokens": 1448
+      "max_bytes": 5790
     }
   ]
 }

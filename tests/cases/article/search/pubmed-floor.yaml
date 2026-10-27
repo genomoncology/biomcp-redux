@@ -83,7 +83,6 @@
         "max_pages": 32
       },
       "max_bytes": 5228,
-      "max_tokens": 1307,
       "expect": {
         "/result/items/*/pmid": {
           "unique": true,
@@ -108,7 +107,6 @@
         "max_pages": 32
       },
       "max_bytes": 5228,
-      "max_tokens": 1307,
       "expect": {
         "/result/items/*/pmid": {
           "equals_file": "akt1-floor.json"

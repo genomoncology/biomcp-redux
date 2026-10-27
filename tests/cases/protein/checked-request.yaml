@@ -13,8 +13,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -29,8 +28,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -45,8 +43,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -61,8 +58,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -77,8 +73,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -92,8 +87,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 203,
-      "max_tokens": 51
+      "max_bytes": 203
     },
     {
       "run": [
@@ -105,8 +99,7 @@
       "expect": {
         "/schema": "biomcp.error/1"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 166
     },
     {
       "run": [
@@ -122,8 +115,7 @@
         "/error/code": "pool.expired",
         "/next/0/kind": "restart"
       },
-      "max_bytes": 216,
-      "max_tokens": 54
+      "max_bytes": 216
     },
     {
       "run": [
@@ -139,8 +131,7 @@
         "/error/code": "pool.expired",
         "/next/0/kind": "restart"
       },
-      "max_bytes": 216,
-      "max_tokens": 54
+      "max_bytes": 216
     }
   ]
 }

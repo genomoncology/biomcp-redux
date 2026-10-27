@@ -87,6 +87,6 @@ impl schemars::JsonSchema for DrugSource {
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let names = Self::ALL.map(Self::as_str);
-        schemars::json_schema!({"type":"string", "enum":names})
+        schemars::json_schema!({"description":"A supported drug data source.", "type":"string", "enum":names})
     }
 }

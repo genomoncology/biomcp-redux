@@ -73,7 +73,12 @@ impl HgvsText {
         LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|\
         [A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$";
 }
-text_value!(HgvsText, "HgvsText", Self::PATTERN);
+text_value!(
+    HgvsText,
+    "HgvsText",
+    Self::PATTERN,
+    "Reference-qualified notation with its original text, without a molecular parse."
+);
 crate::canonical_enum! {
     /// Published syntax label for a source-preserved expression.
     ExpressionSyntax, ExpressionSyntaxUnknown {
