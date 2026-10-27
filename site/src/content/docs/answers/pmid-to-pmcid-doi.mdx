@@ -15,11 +15,20 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Pass the PMID, PMCID or DOI to `biomcp get article`; the card returns all three identifiers. `get article` takes up to 20 inputs at once, so one call converts a list. This BioMCP 1.0 run resolves a PMID and a DOI to the same paper.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Pass the PMID, PMCID or DOI to `biomcp get article`; the card returns all three identifiers. `get article` takes up to 20 inputs at once, so one call converts a list. This BioMCP 1.0 run resolves a PMID and a DOI to the same paper.
 
 ## Command
 
 <Example id="a-pmid-convert" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `input` | `33123537` | The identifier you gave. |
+| `pmid` | `33123537` | The PubMed ID. |
+| `pmcid` | `PMC7573235` | The PubMed Central ID, when the article is in PMC. |
+| `doi` | `10.3389/fcell.2020.573599` | The article's DOI. |
 
 ## Why it works
 

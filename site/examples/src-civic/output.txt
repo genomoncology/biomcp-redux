@@ -1,2 +1,14 @@
-{"status":"complete","sources":[{"source":"civic","state":"ok","reason":null}]}
-{"label":"BRAF V600E","id":"12"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "civic",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "label": "BRAF V600E",
+  "id": "12"
+}

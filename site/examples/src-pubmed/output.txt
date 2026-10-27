@@ -1,3 +1,23 @@
-{"status":"complete","sources":[{"source":"hgnc","state":"ok","reason":null},{"source":"pubmed","state":"ok","reason":null}]}
-{"pmid":"36428683","title":"BRAF V600E Mutation in Ameloblastoma: A Systematic Review and Meta-Analysis."}
-{"pmid":"41368991","title":"BRAF V600E in thyroid cancer: navigating prognostic uncertainty and therapeutic opportunity."}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "hgnc",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "pubmed",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "pmid": "36428683",
+  "title": "BRAF V600E Mutation in Ameloblastoma: A Systematic Revie…"
+}
+{
+  "pmid": "41368991",
+  "title": "BRAF V600E in thyroid cancer: navigating prognostic unce…"
+}

@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"interpro","state":"ok","reason":null}]}
-{"id":"IPR000719","name":"Protein kinase domain","entry_type":"domain"}
-{"id":"IPR001245","name":"Serine-threonine/tyrosine-protein kinase, catalytic domain","entry_type":"domain"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "interpro",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "IPR000719",
+  "name": "Protein kinase domain",
+  "entry_type": "domain"
+}
+{
+  "id": "IPR001245",
+  "name": "Serine-threonine/tyrosine-protein kinase, catalytic domain",
+  "entry_type": "domain"
+}

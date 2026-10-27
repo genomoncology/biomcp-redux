@@ -1,7 +1,8 @@
 ---
 title: biomcp search gwas
-description: "Reference for the BioMCP 1.0.0 command biomcp search gwas: Source
-  associations in default p-value-ascending order."
+description: "The BioMCP 1.0.0 command biomcp search gwas: Finds GWAS Catalog
+  associations by trait, gene, variant, study or PubMed ID, smallest p-value
+  first."
 goal: Look up the arguments, sections and examples of biomcp search gwas.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search gwas`.
+`biomcp search gwas` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first. This page lists its arguments, examples and reply.
 
-Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
+The program's help describes it:
+
+> Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 
 ## Usage
 
@@ -40,21 +43,20 @@ biomcp search gwas [OPTIONS] [query]
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search gwas --pubmed 17529967
+```
+
+```sh
 biomcp search gwas --variant rs2981582
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.gwas_page/3`](/reference/schemas/biomcp-gwas-page-3/). Print the full JSON schema with `biomcp schema biomcp.gwas_page/3`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.gwas_page/3`](/reference/schemas/biomcp-gwas-page-3/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [gwas entity](/user-guide/gwas/) page lists every gwas command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [gwas guide](/user-guide/gwas/) shows every gwas command at work.

@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"clinvar","state":"ok","reason":null}]}
-{"kind":"vcv","domain":"germline","classification":"Conflicting classifications of pathogenicity"}
-{"kind":"vcv","domain":"somatic_clinical_impact","classification":"Tier I - Strong"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "clinvar",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "kind": "vcv",
+  "domain": "germline",
+  "classification": "Conflicting classifications of pathogenicity"
+}
+{
+  "kind": "vcv",
+  "domain": "somatic_clinical_impact",
+  "classification": "Tier I - Strong"
+}

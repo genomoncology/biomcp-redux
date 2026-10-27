@@ -8,7 +8,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 sets the process exit code from the reply's status. Scripts can branch on it without reading the output.
+BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources, sets each command's exit code from the reply's `status`. A script can branch on the exit code without reading the output.
 
 | Exit code | Status | Meaning |
 | --- | --- | --- |
@@ -20,5 +20,3 @@ BioMCP 1.0.0 sets the process exit code from the reply's status. Scripts can bra
 | 5 | Local | A local step failed: the configuration file, the cache, a saved file or writing the output. The error code is `local.failure`. |
 
 Read [results](/results/) for the reply envelope and [troubleshooting](/troubleshooting/) for the common failures.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

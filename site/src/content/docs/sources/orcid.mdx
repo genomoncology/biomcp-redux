@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `orcid`. BioMCP reads one ORCID record and its public works.
+ORCID is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads one ORCID record and its public works. Replies name it `orcid`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `orcid`. BioMCP reads one ORCID record and its pu
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-orcid" />
 
@@ -35,8 +35,8 @@ These commands read ORCID as part of their reply. They do not take `--source orc
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get author`](/reference/commands/get-author/) | Exact qualified records in caller order, with no name reconciliation. |
-| [`biomcp author papers`](/reference/commands/author-papers/) | One exact provider record's publication window. |
+| [`biomcp get author`](/reference/commands/get-author/) | Reads author records by their Semantic Scholar or ORCID ID, in the order you give. |
+| [`biomcp author papers`](/reference/commands/author-papers/) | Lists the papers of one author record from Semantic Scholar or ORCID, a page at a time. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources orcid`, or add `"or
 ## Next
 
 The task guide for ORCID is [Search and read biomedical literature](/how-to/find-articles/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -1,1 +1,2 @@
-biomcp search trial --condition melanoma --has-results --count-only | jq -c '{status, sources: [.sources[] | {source, count}]}'
+biomcp search trial --condition melanoma --has-results --count-only \
+  | jq '{status, sources: [.sources[] | {source, count}]}'

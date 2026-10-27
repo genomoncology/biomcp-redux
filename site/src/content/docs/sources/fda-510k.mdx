@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `fda-510k`. BioMCP reads one 510(k) clearance record.
+openFDA 510(k) is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads one 510(k) clearance record. Replies name it `fda-510k`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `fda-510k`. BioMCP reads one 510(k) clearance rec
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-fda-510k" />
 
@@ -35,7 +35,7 @@ Pick this source with `--source fda-510k` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) | Get one exact source record or supported section. |
+| [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) | Reads one diagnostic test record, and optionally one section such as its genes or conditions. |
 
 ## Limits
 
@@ -48,5 +48,3 @@ Leave this source out of one command with `--disable-sources fda-510k`, or add `
 ## Next
 
 The task guide for openFDA 510(k) is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

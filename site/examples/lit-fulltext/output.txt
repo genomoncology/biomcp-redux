@@ -5,13 +5,13 @@ source: pmc-oa  license: cc_by
 4	section	Molecular Mechanism of E17K Mutation Carcinogenesis
 5	section	Stimulation of the PI3K-AKT Signal Pathway
 6	section	Oncogenic Factor P27KIP1 (P27) De-localization
-7	section	Mutants Protect Cancer Cells From Radiation-Induced DNA Damage
+7	section	Mutants Protect Cancer Cells From Radiation-Induced DNA …
 8	section	Anti-apoptotic Effect in Collaboration With Abl Oncogene
-9	section	Possible Molecular Mechanisms by Which the E17K Mutation Improves Tumor Prognosis
-10	section	E17K Mutation Ultimately Blocks AKT Upstream of the AKT Signal Cascade, Activating the Feedback Loop Pathway
+9	section	Possible Molecular Mechanisms by Which the E17K Mutation…
+10	section	E17K Mutation Ultimately Blocks AKT Upstream of the AKT …
 11	section	Ubiquitination and Phosphorylation
 12	section	Mechanisms That Disrupt Cellular Post-transcription
-13	section	Patients With Mutant Tumors Produce Fewer Slow-Growing, Quiescent Cancer Cells (QCC)
+13	section	Patients With Mutant Tumors Produce Fewer Slow-Growing, …
 14	section	Specifically Targeted Drug AZD5363
 15	section	Conclusion
 16	section	Author Contributions

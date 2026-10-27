@@ -1,1 +1,1 @@
-biomcp get gene
+biomcp get gene | jq

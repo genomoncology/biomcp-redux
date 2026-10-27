@@ -1,2 +1,25 @@
-{"status":"complete","sources":[{"source":"hgnc","state":"ok","reason":null},{"source":"mygene","state":"ok","reason":null},{"source":"oncokb","state":"skipped","reason":"no_key"}]}
-{"source":"refseq","dated":"2017-08","text":"This gene encodes a protein belonging to the RAF family of serine/threonine protein kinases. This pr"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "hgnc",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "mygene",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "oncokb",
+      "state": "skipped",
+      "reason": "no_key"
+    }
+  ]
+}
+{
+  "source": "refseq",
+  "dated": "2017-08",
+  "text": "This gene encodes a protein belonging to the RAF family …"
+}

@@ -1,2 +1,22 @@
-{"name":"daraxonrasib","status":"absent","total":0,"sources":[{"source":"faers","state":"ok"}]}
-{"name":"RASONQUE","status":"absent","total":0,"sources":[{"source":"faers","state":"ok"}]}
+{
+  "name": "daraxonrasib",
+  "status": "absent",
+  "total": 0,
+  "sources": [
+    {
+      "source": "faers",
+      "state": "ok"
+    }
+  ]
+}
+{
+  "name": "RASONQUE",
+  "status": "absent",
+  "total": 0,
+  "sources": [
+    {
+      "source": "faers",
+      "state": "ok"
+    }
+  ]
+}

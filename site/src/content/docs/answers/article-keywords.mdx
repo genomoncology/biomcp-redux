@@ -15,11 +15,19 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Request the `indexing` section: `biomcp get article PMID indexing`. It returns PubMed's MeSH headings, the author keywords and the author affiliations. This BioMCP 1.0 run shows the keywords of PMID 33123537; its MeSH list is empty in PubMed.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Request the `indexing` section: `biomcp get article PMID indexing`. It returns PubMed's MeSH headings, the author keywords and the author affiliations. This BioMCP 1.0 run shows the keywords of PMID 33123537; its MeSH list is empty in PubMed.
 
 ## Command
 
 <Example id="a-keywords" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `source` | `pubmed` | The source: `pubmed`. |
+| `keywords` | `["AKT1","E17K","cancer","mutation","pro…` | The author keywords PubMed lists, spelled as the authors wrote them. |
+| `mesh` | `[]` | The MeSH headings PubMed indexed. Empty means PubMed has not indexed this article with MeSH yet. |
 
 ## Why it works
 

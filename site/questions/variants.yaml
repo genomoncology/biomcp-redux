@@ -27,6 +27,10 @@
     The registry stores each allele once and lists every description of it: transcripts, GRCh37 and GRCh38. BioMCP sends your text unchanged and returns the registry's mappings; it never edits the description to make it match.
   limits: |
     The description needs a versioned reference sequence, such as `NM_004985.5`. A description the registry cannot place returns an outcome other than `resolved`. `--source mutalyzer` and `--source variantvalidator` check the same description with other services.
+  explain:
+    outcome: "`resolved` means the Allele Registry knows the variant."
+    field: "The Allele Registry field: `@id` is the allele's registry link, `genomicAlleles.GRCh38.hgvs` a GRCh38 genomic HGVS."
+    value: "The value of that field."
 - id: rsid-to-gene
   question: Which gene and alleles does an rsID belong to?
   source: product
@@ -42,6 +46,10 @@
     dbSNP rsIDs name a position and can cover more than one change. BioMCP keeps every source candidate and does not pick one. The candidate whose ClinVar ID is `clinvar:13961` is the A>T change that encodes BRAF V600E; its `next` command reads it with `--build GRCh37`.
   limits: |
     The HGVS here is on the build MyVariant.info used, GRCh37. `biomcp variant normalize` converts it. An rsID absent from MyVariant.info returns no candidates, which is not proof it does not exist.
+  explain:
+    ids: "The identifiers of one candidate allele: the rsID, and a ClinVar ID when ClinVar has the allele."
+    genes: "The gene the allele lies in."
+    hgvs: "The allele's genomic HGVS on GRCh37 (chr7)."
 - id: civic-evidence
   question: How do I find CIViC evidence for a variant?
   source: product

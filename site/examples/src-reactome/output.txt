@@ -1,3 +1,18 @@
-{"status":"complete","sources":[{"source":"reactome","state":"ok","reason":null}]}
-{"id":"R-HSA-9652817","name":"Signaling by MAPK mutants"}
-{"id":"R-HSA-5674135","name":"MAP2K and MAPK activation"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "reactome",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "R-HSA-9652817",
+  "name": "Signaling by MAPK mutants"
+}
+{
+  "id": "R-HSA-5674135",
+  "name": "MAP2K and MAPK activation"
+}

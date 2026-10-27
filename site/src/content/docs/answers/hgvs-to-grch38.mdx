@@ -16,11 +16,19 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Resolve the description with the ClinGen Allele Registry: `biomcp variant normalize --source car --hgvs 'NM_004985.5:c.35G>A'`. The reply maps the transcript change to its ClinGen allele ID and its GRCh38 genomic descriptions. KRAS c.35G>A, the change behind G12D, resolves to CA122538 and NC_000012.12:g.25245350C>T.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Resolve the description with the ClinGen Allele Registry: `biomcp variant normalize --source car --hgvs 'NM_004985.5:c.35G>A'`. The reply maps the transcript change to its ClinGen allele ID and its GRCh38 genomic descriptions. KRAS c.35G>A, the change behind G12D, resolves to CA122538 and NC_000012.12:g.25245350C>T.
 
 ## Command
 
 <Example id="a-hgvs-grch38" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `outcome` | `resolved` | `resolved` means the Allele Registry knows the variant. |
+| `field` | `@id` | The Allele Registry field: `@id` is the allele's registry link, `genomicAlleles.GRCh38.hgvs` a GRCh38 genomic HGVS. |
+| `value` | `http://reg.genome.network/allele/CA1225…` | The value of that field. |
 
 ## Why it works
 

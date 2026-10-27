@@ -1,7 +1,7 @@
 ---
 title: biomcp skill list
-description: "Reference for the BioMCP 1.0.0 command biomcp skill list: List
-  embedded worked examples."
+description: "The BioMCP 1.0.0 command biomcp skill list: Lists the worked
+  examples built into BioMCP."
 goal: Look up the arguments, sections and examples of biomcp skill list.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp skill list`.
+`biomcp skill list` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the worked examples built into BioMCP. This page lists its usage.
 
-List embedded worked examples.
+The program's help describes it:
+
+> List embedded worked examples.
 
 ## Usage
 
@@ -22,18 +24,8 @@ biomcp skill list
 
 ## Arguments
 
-The help lists no arguments for this command.
-
-## Examples
-
-The help lists no examples for this command.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The command takes no arguments beyond those in its usage line.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

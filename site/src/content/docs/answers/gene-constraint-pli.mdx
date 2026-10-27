@@ -15,11 +15,21 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Request the gene's `constraint` section: `biomcp get gene SYMBOL constraint`. It returns gnomAD's loss-of-function constraint for the gene's canonical transcript. For TP53 this run returns gnomAD v4 values for transcript ENST00000269305, with pLI near 1 and LOEUF about 0.42.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Request the gene's `constraint` section: `biomcp get gene SYMBOL constraint`. It returns gnomAD's loss-of-function constraint for the gene's canonical transcript. For TP53 this run returns gnomAD v4 values for transcript ENST00000269305, with pLI near 1 and LOEUF about 0.42.
 
 ## Command
 
 <Example id="a-gene-constraint" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `source` | `gnomad` | The source: `gnomad`. |
+| `version` | `v4` | The gnomAD release the values come from. |
+| `transcript` | `ENST00000269305` | The transcript the constraint values describe. |
+| `pli` | `0.999595868281925` | Probability of loss-of-function intolerance, from 0 to 1. |
+| `loeuf` | `0.4183620979251529` | Loss-of-function observed/expected upper bound fraction. Lower values mean fewer loss-of-function variants than expected. |
 
 ## Why it works
 

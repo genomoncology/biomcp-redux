@@ -1,2 +1,40 @@
-{"status":"complete","sources":[{"source":"mychem","state":"ok","reason":null},{"source":"drugbank-open","state":"ok","reason":null},{"source":"chembl","state":"ok","reason":null},{"source":"gtopdb","state":"ok","reason":null},{"source":"unii","state":"ok","reason":null},{"source":"ndc","state":"ok","reason":null}]}
-{"id":"GPXBXXGIAQBQNI-UHFFFAOYSA-N","name":"Vemurafenib","type":"Small molecule"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "mychem",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "drugbank-open",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "chembl",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "gtopdb",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "unii",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "ndc",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "GPXBXXGIAQBQNI-UHFFFAOYSA-N",
+  "name": "Vemurafenib",
+  "type": "Small molecule"
+}

@@ -14,11 +14,19 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Combine `--has-results` with `--count-only`. BioMCP returns ClinicalTrials.gov's own total without rows. This BioMCP 1.0 run counts melanoma trials with posted results.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Combine `--has-results` with `--count-only`. BioMCP returns ClinicalTrials.gov's own total without rows. This BioMCP 1.0 run counts melanoma trials with posted results.
 
 ## Command
 
 <Example id="a-trials-results" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `status` | `complete` | `complete` means ClinicalTrials.gov answered. |
+| `source` | `ctgov` | The registry asked: `ctgov` is ClinicalTrials.gov. |
+| `count` | `806` | The registry's own total of matching trials with posted results. |
 
 ## Why it works
 

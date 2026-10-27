@@ -1,4 +1,17 @@
-outcome: resolved
-@id	http://reg.genome.network/allele/CA122538
-genomicAlleles.GRCh38.hgvs	NC_000012.12:g.25245350C>T
-genomicAlleles.GRCh38.hgvs	CM000674.2:g.25245350C>T
+{
+  "outcome": "resolved",
+  "mappings": [
+    {
+      "field": "@id",
+      "value": "http://reg.genome.network/allele/CA122538"
+    },
+    {
+      "field": "genomicAlleles.GRCh38.hgvs",
+      "value": "NC_000012.12:g.25245350C>T"
+    },
+    {
+      "field": "genomicAlleles.GRCh38.hgvs",
+      "value": "CM000674.2:g.25245350C>T"
+    }
+  ]
+}

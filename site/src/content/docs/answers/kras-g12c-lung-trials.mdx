@@ -17,11 +17,18 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Search ClinicalTrials.gov with the condition, the variant text and the status: `biomcp search trial --condition "non-small cell lung cancer" --variant "KRAS G12C" --status RECRUITING`. This BioMCP 1.0 run returns the first three recruiting trials that mention KRAS G12C in their registry text for that condition.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Search ClinicalTrials.gov with the condition, the variant text and the status: `biomcp search trial --condition "non-small cell lung cancer" --variant "KRAS G12C" --status RECRUITING`. This BioMCP 1.0 run returns the first three recruiting trials that mention KRAS G12C in their registry text for that condition.
 
 ## Command
 
 <Example id="a-kras-g12c-trials" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `nct_id` | `NCT05254184` | The trial's ClinicalTrials.gov identifier. `biomcp get trial` takes it. |
+| `title` | `KRAS-Targeted Vaccine With Chemoimmunot…` | The registered title. The `cut` filter shortens it to 56 characters and adds …. |
 
 ## Why it works
 

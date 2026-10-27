@@ -1,7 +1,7 @@
 ---
 title: biomcp get gwas
-description: "Reference for the BioMCP 1.0.0 command biomcp get gwas: Source
-  association or study and native context."
+description: "The BioMCP 1.0.0 command biomcp get gwas: Reads one GWAS Catalog
+  association or study, and optionally its loci, associations or ancestries."
 goal: Look up the arguments, sections and examples of biomcp get gwas.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get gwas`.
+`biomcp get gwas` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
+The program's help describes it:
+
+> Source association or study and native context. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
 
 ## Usage
 
@@ -42,21 +44,20 @@ Association loci or study associations and ancestries.
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get gwas association:6114
+```
+
+```sh
 biomcp get gwas GCST000035
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.gwas_association/1`](/reference/schemas/biomcp-gwas-association-1/), [`biomcp.gwas_study/1`](/reference/schemas/biomcp-gwas-study-1/). Print the full JSON schema with `biomcp schema biomcp.gwas_association/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is one of [`biomcp.gwas_association/1`](/reference/schemas/biomcp-gwas-association-1/), [`biomcp.gwas_study/1`](/reference/schemas/biomcp-gwas-study-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [gwas entity](/user-guide/gwas/) page lists every gwas command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [gwas guide](/user-guide/gwas/) shows every gwas command at work.

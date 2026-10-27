@@ -1,8 +1,7 @@
 ---
 title: biomcp search variant
-description: "Reference for the BioMCP 1.0.0 command biomcp search variant:
-  Discover source candidates using one declared selector, without interpreting
-  free text."
+description: "The BioMCP 1.0.0 command biomcp search variant: Finds variants by
+  gene, protein change, region or another single selector."
 goal: Look up the arguments, sections and examples of biomcp search variant.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search variant`.
+`biomcp search variant` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds variants by gene, protein change, region or another single selector. This page lists its arguments, examples and reply.
 
-Discover source candidates using one declared selector, without interpreting free text.
+The program's help describes it:
+
+> Discover source candidates using one declared selector, without interpreting free text.
 
 ## Usage
 
@@ -39,25 +40,24 @@ biomcp search variant [OPTIONS]
 
 ## Sources
 
-`--source` accepts these sources: [myvariant](/sources/myvariant/).
+`--source` picks the source to ask: [myvariant](/sources/myvariant/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search variant --gene EGFR --protein L858R --build GRCh37
+```
+
+```sh
 biomcp search variant --gene CHEK2 --protein Arg117Gly --build GRCh37
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.variant_page/6`](/reference/schemas/biomcp-variant-page-6/). Print the full JSON schema with `biomcp schema biomcp.variant_page/6`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.variant_page/6`](/reference/schemas/biomcp-variant-page-6/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [variant guide](/user-guide/variant/) shows every variant command at work.

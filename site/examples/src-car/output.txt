@@ -1,2 +1,15 @@
-{"status":"complete","sources":[{"source":"car","state":"ok","reason":null}]}
-{"source":"car","outcome":"resolved","grch38":"NC_000007.14:g.140753336A>T"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "car",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "source": "car",
+  "outcome": "resolved",
+  "grch38": "NC_000007.14:g.140753336A>T"
+}

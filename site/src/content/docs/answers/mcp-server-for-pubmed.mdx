@@ -15,12 +15,24 @@ pagefind: true
 ---
 
 import Example from '../../../components/Example.astro';
+import ExampleFile from '../../../components/ExampleFile.astro';
 
-Yes. BioMCP 1.0 is an MCP server whose `biomcp` tool runs `search article`, which searches PubMed by default. Add it to your client with the output of `biomcp mcp-config`, then call the tool with the command's words. This exchange starts the server over stdio and searches PubMed for KRAS G12C, as a client would.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Yes. BioMCP 1.0 is an MCP server whose `biomcp` tool runs `search article`, which searches PubMed by default. Add it to your client with the output of `biomcp mcp-config`, then call the tool with the command's words. This exchange starts the server over stdio and searches PubMed for KRAS G12C, as a client would.
 
 ## Command
 
+The example reads `messages.json`:
+
+<ExampleFile id="a-pubmed-mcp" file="messages.json" />
+
 <Example id="a-pubmed-mcp" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `pmid` | `37683526` | The PubMed ID of each article the `biomcp` tool returned. |
+| `title` | `KRAS G12C in advanced NSCLC: Prevalence…` | The title, cut to 56 characters by the `cut` filter. |
 
 ## Why it works
 

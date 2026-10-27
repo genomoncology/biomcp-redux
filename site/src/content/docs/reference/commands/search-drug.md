@@ -1,7 +1,7 @@
 ---
 title: biomcp search drug
-description: "Reference for the BioMCP 1.0.0 command biomcp search drug: Literal
-  single-source candidate discovery, without an implicit identity selection."
+description: "The BioMCP 1.0.0 command biomcp search drug: Finds drugs by name
+  in one source."
 goal: Look up the arguments, sections and examples of biomcp search drug.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search drug`.
+`biomcp search drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds drugs by name in one source. This page lists its arguments, examples and reply.
 
-Literal single-source candidate discovery, without an implicit identity selection.
+The program's help describes it:
+
+> Literal single-source candidate discovery, without an implicit identity selection.
 
 ## Usage
 
@@ -32,25 +34,24 @@ biomcp search drug [OPTIONS] <query>
 
 ## Sources
 
-`--source` accepts these sources: [who-pq](/sources/who-prequalification/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
+`--source` picks the source to ask: [who-pq](/sources/who-prequalification/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search drug Tibsovo --source ema --limit 1
+```
+
+```sh
 biomcp search drug Tibsovo --source ema --limit 1 --offset 1 --fresh
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/). Print the full JSON schema with `biomcp schema biomcp.drug_page/3`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [drug entity](/user-guide/drug/) page lists every drug command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [drug guide](/user-guide/drug/) shows every drug command at work.

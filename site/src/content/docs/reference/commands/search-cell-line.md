@@ -1,7 +1,7 @@
 ---
 title: biomcp search cell-line
-description: "Reference for the BioMCP 1.0.0 command biomcp search cell-line:
-  One literal cell line search, with native order and no total claim."
+description: "The BioMCP 1.0.0 command biomcp search cell-line: Finds cell lines
+  by name in Cellosaurus."
 goal: Look up the arguments, sections and examples of biomcp search cell-line.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search cell-line`.
+`biomcp search cell-line` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cell lines by name in Cellosaurus. This page lists its arguments, examples and reply.
 
-One literal cell line search, with native order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+The program's help describes it:
+
+> One literal cell line search, with native order and no total claim. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
 
 ## Usage
 
@@ -30,21 +32,20 @@ biomcp search cell-line [OPTIONS] <query>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search cell-line MOLM13
+```
+
+```sh
 biomcp search cell-line --query 'MV4;11'
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.cell_line_page/2`](/reference/schemas/biomcp-cell-line-page-2/). Print the full JSON schema with `biomcp schema biomcp.cell_line_page/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.cell_line_page/2`](/reference/schemas/biomcp-cell-line-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [cell-line entity](/user-guide/cell-line/) page lists every cell-line command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [cell-line guide](/user-guide/cell-line/) shows every cell-line command at work.

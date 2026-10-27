@@ -1,8 +1,9 @@
 ---
 title: Is a drug authorised by the European Medicines Agency?
-description: Synchronize the EMA bundle once, search the medicine with `--source
-  ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf
-  as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
+description: Download EMA's medicines list once with `biomcp sync ema`, search
+  the medicine with `--source ema`, then read its `regulatory` section. This
+  BioMCP 1.0 run finds Zelboraf as EMEA/H/C/002409 and reports EMA's status and
+  marketing authorisation date.
 goal: "Answer: Is a drug authorised by the European Medicines Agency?"
 reader: Someone who searched for this question
 kind: answer
@@ -14,11 +15,29 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Synchronize the EMA bundle once, search the medicine with `--source ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Download EMA's medicines list once with `biomcp sync ema`, search the medicine with `--source ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
 
-## Command
+## Commands
+
+Download the EMA [bundle](/local-data/), a local copy of EMA's medicines list, once:
+
+<Example id="a-ema-sync" />
+
+Find the medicine's EMA product number:
+
+<Example id="a-ema-search" />
+
+Read the regulatory section of that product:
 
 <Example id="a-ema-status" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `id` | `EMEA/H/C/002409` | The EMA product number, which `get drug` takes. |
+| `status` | `Authorised` | The authorisation status that EMA reports. |
+| `authorised` | `2012-02-17` | The marketing authorisation date, the row with role `marketing_authorisation_date`. |
 
 ## Why it works
 

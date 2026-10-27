@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `ddinter`. BioMCP reads drug-drug interaction partners and levels from a local bundle.
+DDInter is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads drug-drug interaction partners and levels from a local [bundle](/local-data/). A [bundle](/local-data/) is a local copy of the source that `biomcp sync ddinter` downloads. Replies name it `ddinter`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -26,7 +26,7 @@ BioMCP 1.0.0 names this source `ddinter`. BioMCP reads drug-drug interaction par
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-ddinter" />
 
@@ -36,8 +36,8 @@ Pick this source with `--source ddinter` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search drug`](/reference/commands/search-drug/) | Literal single-source candidate discovery, without an implicit identity selection. |
-| [`biomcp get drug`](/reference/commands/get-drug/) | Exact native ID retrieval with an explicitly selected source. |
+| [`biomcp search drug`](/reference/commands/search-drug/) | Finds drugs by name in one source. |
+| [`biomcp get drug`](/reference/commands/get-drug/) | Reads one drug record by its ID in one source, and optionally a section such as its label or approvals. |
 
 ## Limits
 
@@ -50,5 +50,3 @@ Leave this source out of one command with `--disable-sources ddinter`, or add `"
 ## Next
 
 The task guide for DDInter is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

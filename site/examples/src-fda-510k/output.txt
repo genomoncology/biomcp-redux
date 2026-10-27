@@ -1,2 +1,16 @@
-{"status":"complete","sources":[{"source":"fda-510k","state":"ok","reason":null}]}
-{"k_number":"K193046","device_name":"Straumann® Retentive System  Novaloc TiN Abutments","decision_description":"Substantially Equivalent","decision_date":"2020-08-13"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "fda-510k",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "k_number": "K193046",
+  "device_name": "Straumann® Retentive System  Novaloc TiN Abutments",
+  "decision_description": "Substantially Equivalent",
+  "decision_date": "2020-08-13"
+}

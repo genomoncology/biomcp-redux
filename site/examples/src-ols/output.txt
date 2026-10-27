@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"ols","state":"ok","reason":null}]}
-{"id":"MONDO:0005105","label":"melanoma","ontology":"mondo"}
-{"id":"MONDO:0005012","label":"cutaneous melanoma","ontology":"mondo"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "ols",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "MONDO:0005105",
+  "label": "melanoma",
+  "ontology": "mondo"
+}
+{
+  "id": "MONDO:0005012",
+  "label": "cutaneous melanoma",
+  "ontology": "mondo"
+}

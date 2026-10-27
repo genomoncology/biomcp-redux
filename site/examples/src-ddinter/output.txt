@@ -1,3 +1,18 @@
-{"status":"complete","sources":[{"source":"ddinter","state":"ok","reason":null}]}
-{"partner":"Famotidine","level":"Moderate"}
-{"partner":"Pioglitazone","level":"Moderate"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "ddinter",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "partner": "Famotidine",
+  "level": "Moderate"
+}
+{
+  "partner": "Pioglitazone",
+  "level": "Moderate"
+}

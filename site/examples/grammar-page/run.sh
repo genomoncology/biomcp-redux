@@ -1,1 +1,3 @@
-biomcp protein domains P15056 | jq -c '{page: (.page | {returned, total}), next: [.next[].args | join(" ")]}'
+biomcp protein domains P15056 \
+  | jq '{page: (.page | {returned, total}),
+    next: [.next[].args | join(" ")]}'

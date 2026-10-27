@@ -1,7 +1,7 @@
 ---
 title: biomcp get protein
-description: "Reference for the BioMCP 1.0.0 command biomcp get protein: Read
-  source protein cards; a symbol returns candidates without choosing a protein."
+description: "The BioMCP 1.0.0 command biomcp get protein: Reads UniProt protein
+  records by accession, and optionally sections such as domains or sequence."
 goal: Look up the arguments, sections and examples of biomcp get protein.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,11 +10,13 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get protein`.
+`biomcp get protein` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads UniProt protein records by accession, and optionally sections such as domains or sequence. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Read source protein cards; a symbol returns candidates without choosing a protein.
-Sections disclose native facts with independent row bounds; function keeps all paragraphs.
-No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
+The program's help describes it:
+
+> Read source protein cards; a symbol returns candidates without choosing a protein.
+> Sections disclose native facts with independent row bounds; function keeps all paragraphs.
+> No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
 
 ## Usage
 
@@ -47,21 +49,20 @@ Select native sections or all bounded first pages; function keeps one whole text
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get protein P00533 Q9UIF7 P38398-2
+```
+
+```sh
 biomcp get protein EGFR
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.protein_card/3`](/reference/schemas/biomcp-protein-card-3/). Print the full JSON schema with `biomcp schema biomcp.protein_card/3`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.protein_card/3`](/reference/schemas/biomcp-protein-card-3/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [protein entity](/user-guide/protein/) page lists every protein command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [protein guide](/user-guide/protein/) shows every protein command at work.

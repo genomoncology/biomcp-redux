@@ -24,7 +24,7 @@ BioMCP <Fact k="version" /> serves MCP over stdio with `biomcp serve` and over H
 biomcp serve --http 127.0.0.1:8080
 ```
 
-The server prints the address it listens on as one JSON line. This run, from the build, starts a server on a free port, initializes an MCP session over HTTP, lists the tools with two `MCP-Protocol-Version` headers, and then sends a request with a browser `Origin` header:
+The server prints the address it listens on as one JSON line. The example below starts a server on a free port, initializes an MCP session over HTTP, lists the tools with two `MCP-Protocol-Version` headers, and then sends a request with a browser `Origin` header:
 
 <Example id="server-mcp-http" />
 
@@ -32,7 +32,7 @@ The server answers `initialize` with protocol version 2025-11-25. Every later re
 
 ## 2. Check health
 
-`GET /health` checks the local server and its store. It sends no request to any source.
+`GET /health` checks the local server and its store. It sends no request to the data sources.
 
 <Example id="server-health" />
 
@@ -65,10 +65,11 @@ The HTTP server refuses `sync`, `store clean`, `--fresh` and file saves such as 
 ## Run the container as a server
 
 ```sh
-docker run --rm -p 8080:8080 ghcr.io/genomoncology/biomcp serve --http 0.0.0.0:8080 --allow-host localhost
+docker run --rm -p 8080:8080 ghcr.io/genomoncology/biomcp \
+  serve --http 0.0.0.0:8080 --allow-host localhost
 ```
 
-This fragment was not run in the build. Pass source keys with `-e`.
+This command is a fragment with no output shown. It needs Docker and the published image. Pass source keys with `-e`, such as `-e NCBI_API_KEY`.
 
 ## Verify
 

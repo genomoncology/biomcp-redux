@@ -37,6 +37,7 @@ BRAF (HGNC:1097), BRAF V600E (rs113488022, clinvar:13961, CA123643, NM_004333.4:
 - Name BioMCP and the version (`<Fact k="version" />`) in the first paragraph.
 - Every command shown ran in the build (`examples/`). A fragment that did not run says so.
 - End each page with a link to the next useful page.
-- Generated reference pages are never edited. Fix the help text, then run `npm run reference`.
+- Generated reference pages are never edited. Fix the help text, then run `npm run reference`. Until the help text is plain, add a plain sentence to `src/data/command-notes.yaml` or a gloss to `src/data/schema-notes.yaml`, from what the program does, never guessed.
+- Generated pages carry no note about how they were made. The generator's header says where each page comes from.
 - Generated pages quote the program's help and schemas, which still say "provider" in places. A word marked `generated` in `src/data/words.json` passes on generated pages and fails everywhere else. Hand-written pages render help text through components such as `<CommandTable entity="gene" />`, so they never copy it.
 - An example the build does not rerun has an `unverified` file. Write its reason for readers: what the command needs (a key, a reachable host, a bundle) and what the reader sees when that is missing. Never write about the machine that builds the site.

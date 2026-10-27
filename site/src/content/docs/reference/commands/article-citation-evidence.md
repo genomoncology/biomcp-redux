@@ -1,8 +1,8 @@
 ---
 title: biomcp article citation-evidence
-description: "Reference for the BioMCP 1.0.0 command biomcp article
-  citation-evidence: Read every source context and optional explicit full-text
-  citation paragraph."
+description: "The BioMCP 1.0.0 command biomcp article citation-evidence: Shows
+  where and how one article cites another, with the citing passage when the full
+  text is open."
 goal: Look up the arguments, sections and examples of biomcp article
   citation-evidence.
 reader: A BioMCP user or agent checking one command
@@ -12,9 +12,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp article citation-evidence`.
+`biomcp article citation-evidence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows where and how one article cites another, with the citing passage when the full text is open. This page lists its arguments, examples and reply.
 
-Read every source context and optional explicit full-text citation paragraph.
+The program's help describes it:
+
+> Read every source context and optional explicit full-text citation paragraph.
 
 ## Usage
 
@@ -35,21 +37,20 @@ biomcp article citation-evidence [OPTIONS] <citing> <cited>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp article citation-evidence 33123537 17611497
+```
+
+```sh
 biomcp article citation-evidence 33123537 17611497 --fulltext
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.article_evidence/2`](/reference/schemas/biomcp-article-evidence-2/). Print the full JSON schema with `biomcp schema biomcp.article_evidence/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.article_evidence/2`](/reference/schemas/biomcp-article-evidence-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [article guide](/user-guide/article/) shows every article command at work.

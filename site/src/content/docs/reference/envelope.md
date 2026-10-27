@@ -29,7 +29,7 @@ State of a source actually asked by the command. Values: `ok`, `stale`, `syncing
 | --- | --- |
 | `ok` | The source answered. |
 | `stale` | The source answered from an older local copy. |
-| `syncing` | The source reads a local bundle that is not ready. The reply's `next` list names the `sync` command. |
+| `syncing` | The source reads a local copy that is still downloading. The reply's `next` list names the `sync` command. |
 | `failed` | BioMCP asked the source and it did not answer. The `reason` says why. |
 | `skipped` | BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why. |
 
@@ -77,13 +77,11 @@ Purpose of an available next command. Values: `restart`, `section`, `sort`, `pag
 | `page` | Reads another page. |
 | `fresh` | Runs the command again without the cached reply. |
 | `disambiguate` | Picks one record when a name matched several. |
-| `pivot` | Follows an exact linked record in another entity. |
-| `sync` | Downloads a missing or stale local bundle. |
+| `pivot` | Follows an exact link to a record of another kind, such as from a variant to its gene. |
+| `sync` | Downloads a missing or stale local copy of a source. |
 | `key` | Explains how to set a source key. |
 | `configure` | Explains a network setting that needs attention, such as the proxy. |
 
 ## error.code
 
 The stable error code for an invalid schema request. Values: `usage.schema`, `usage.arguments`, `usage.retired`, `local.failure`, `pool.expired`, `usage.pool_mismatch`, `usage.too_many_pmids`, `usage.unsupported_filter`. [Exit codes](/reference/error-codes/) maps each status to a process exit code.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

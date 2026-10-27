@@ -1,7 +1,7 @@
 ---
 title: biomcp mcp-config
-description: "Reference for the BioMCP 1.0.0 command biomcp mcp-config: Print
-  MCP configuration with this executable’s absolute path."
+description: "The BioMCP 1.0.0 command biomcp mcp-config: Prints the
+  configuration an MCP client needs to start BioMCP."
 goal: Look up the arguments, sections and examples of biomcp mcp-config.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp mcp-config`.
+`biomcp mcp-config` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the configuration an MCP client needs to start BioMCP. This page lists its arguments.
 
-Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
+The program's help describes it:
+
+> Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
 
 ## Usage
 
@@ -27,16 +29,6 @@ biomcp mcp-config [OPTIONS]
 | `--absolute-path` | boolean | no |  |  | Retained compatibility flag; executable paths are always absolute. |
 | `--client` | string | no |  | `mcp-servers`, `json`, `claude-desktop`, `claude-code`, `cursor`, `cline`, `servers`, `vscode`, `codex` | Choose a JSON client or the codex shell registration command; default mcp-servers. |
 
-## Examples
-
-The help lists no examples for this command.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

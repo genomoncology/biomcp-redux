@@ -1,1 +1,5 @@
-biomcp get gene BRAF | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.items[0].answer.gene.summary | {source, dated, text: .text[0:100]})'
+biomcp get gene BRAF \
+  | jq 'def cut: if length > 56 then .[:56] + "…" else . end;
+    {status, sources: [.sources[] | {source, state, reason}]},
+    (.result.items[0].answer.gene.summary
+      | {source, dated, text: (.text[0:100] | cut)})'

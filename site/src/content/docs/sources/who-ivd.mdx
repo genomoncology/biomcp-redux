@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `who-ivd`. BioMCP reads WHO prequalified diagnostic products from a local copy of the WHO export.
+WHO prequalified in vitro diagnostics is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads WHO prequalified diagnostic products from a local copy of the WHO export. A [bundle](/local-data/) is a local copy of the source that `biomcp sync who-ivd` downloads. Replies name it `who-ivd`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -26,7 +26,7 @@ BioMCP 1.0.0 names this source `who-ivd`. BioMCP reads WHO prequalified diagnost
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-who-ivd" />
 
@@ -36,8 +36,8 @@ Pick this source with `--source who-ivd` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search diagnostic`](/reference/commands/search-diagnostic/) | Search one diagnostic source. |
-| [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) | Get one exact source record or supported section. |
+| [`biomcp search diagnostic`](/reference/commands/search-diagnostic/) | Finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests. |
+| [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) | Reads one diagnostic test record, and optionally one section such as its genes or conditions. |
 
 ## Limits
 
@@ -50,5 +50,3 @@ Leave this source out of one command with `--disable-sources who-ivd`, or add `"
 ## Next
 
 The task guide for WHO prequalified in vitro diagnostics is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

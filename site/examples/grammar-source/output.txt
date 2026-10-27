@@ -1,1 +1,19 @@
-{"status":"complete","sources":[{"source":"europepmc","state":"ok","count":31165},{"source":"pubmed","state":"ok","count":null}],"pmids":["42782943","42862772"]}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "europepmc",
+      "state": "ok",
+      "count": 31169
+    },
+    {
+      "source": "pubmed",
+      "state": "ok",
+      "count": null
+    }
+  ],
+  "pmids": [
+    "42782943",
+    "42862772"
+  ]
+}

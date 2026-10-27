@@ -1,3 +1,3 @@
-BAP1	biolink:gene_associated_with_condition	familial melanoma	infores:orphanet
-MITF	biolink:gene_associated_with_condition	familial melanoma	infores:orphanet
-ACD	biolink:gene_associated_with_condition	familial melanoma	infores:orphanet
+BAP1	gene_associated_with_condition	familial melanoma	orphanet
+MITF	gene_associated_with_condition	familial melanoma	orphanet
+ACD	gene_associated_with_condition	familial melanoma	orphanet

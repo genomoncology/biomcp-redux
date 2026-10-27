@@ -1,1 +1,16 @@
-{"status":"complete","sources":["mychem","drugbank-open","chembl","gtopdb","unii","ndc"],"drug":{"id":"FVICRBSEYSHKFY-JYQNNKODSA-N","name":"Daraxonrasib","type":"synthetic organic"}}
+{
+  "status": "complete",
+  "sources": [
+    "mychem",
+    "drugbank-open",
+    "chembl",
+    "gtopdb",
+    "unii",
+    "ndc"
+  ],
+  "drug": {
+    "id": "FVICRBSEYSHKFY-JYQNNKODSA-N",
+    "name": "Daraxonrasib",
+    "type": "synthetic organic"
+  }
+}

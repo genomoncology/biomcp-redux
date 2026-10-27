@@ -15,11 +15,18 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Run `biomcp get article PMID`. The article card holds the title, authors, journal, dates, publication types and the abstract as PubMed publishes it, in `abstract_parts`. This BioMCP 1.0 run prints the title and the start of the abstract for PMID 33123537.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Run `biomcp get article PMID`. The article card holds the title, authors, journal, dates, publication types and the abstract as PubMed publishes it, in `abstract_parts`. This BioMCP 1.0 run prints the title and the start of the abstract for PMID 33123537.
 
 ## Command
 
 <Example id="a-abstract" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `title` | `Effect of AKT1 (p. E17K) Hotspot Mutati…` | The article title from PubMed, wrapped at 78 characters by `fold`. |
+| `abstract` | `The substitution of the seventeenth ami…` | The first part of the abstract, as PubMed stores it. `head -8` keeps the first lines. |
 
 ## Why it works
 

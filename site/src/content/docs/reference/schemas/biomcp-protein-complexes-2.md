@@ -1,9 +1,9 @@
 ---
-title: biomcp.protein_complexes/2
-description: "The BioMCP 1.0.0 reply schema biomcp.protein_complexes/2: its
-  envelope fields, its result type ProteinComplexes and the commands that return
-  it."
-goal: Look up the fields of a biomcp.protein_complexes/2 reply.
+title: Reply of biomcp protein complexes (biomcp.protein_complexes/2)
+description: "The JSON reply BioMCP 1.0.0 prints for biomcp protein complexes: a
+  real example and the fields of schema biomcp.protein_complexes/2."
+goal: "Parse the biomcp.protein_complexes/2 reply: see a real example and what
+  each field means."
 reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: biomcp.protein_complexes/2
@@ -11,203 +11,82 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 reply schema `biomcp.protein_complexes/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.protein_complexes/2`.
-
-These commands return it: [`biomcp protein complexes`](/reference/commands/protein-complexes/).
-
-Calls that returned it:
-
-- `biomcp protein complexes P15056 --limit 2` ([`biomcp protein complexes`](/reference/commands/protein-complexes/))
-- `biomcp protein complexes P00533` ([`biomcp protein complexes`](/reference/commands/protein-complexes/))
-
-## Envelope
-
-One versioned command response; schema identity comes only from its body type.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `local_error` | [CacheProblem](#cacheproblem) or null | no | Bounded local cache failure, independent of provider outcomes. |
-| `next` | array of [Step](#step) | no | Available next commands. |
-| `page` | [PageInfo](#pageinfo) or null | no | Search page metadata. |
-| `problems` | array of [Problem](#problem) | no | Rejected source fields. |
-| `query` | [ProteinRelationQuery](#query-proteinrelationquery) | yes | Parsed query. |
-| `result` | [ProteinComplexes](#result-proteincomplexes) or null | no | Answer when available. |
-| `schema` | "biomcp.protein_complexes/2" | yes |  |
-| `sources` | array of [SourceOutcome](#sourceoutcome) | no | Sources actually asked. |
-| `status` | [Status](#status) | yes | Overall outcome. |
-
-## Result: ProteinComplexes
-
-Whole native rows with the independent unfiltered source count.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `items` | array of [ProteinComplexHeader](#proteincomplexheader) | yes | Bounded retained rows in source order. |
-| `native_total` | integer (uint64) | yes | Native source total before type selection or exact participant admission. |
-
-## Query: ProteinRelationQuery
-
-Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `accession` | [UniProtIsoform](#uniprotisoform) | yes | Exact source protein sequence identity. |
-| `limit` | integer (uint32) | no | Five rows by default, at most 25. |
-| `offset` | integer (uint32) | no | Native or retained page offset. |
-| `pool` | [Text](#text) | no | Retained collection identity. |
-
-## Types
-
-Every other type this schema uses.
-
-### CacheProblem
-
-A local cache failure that leaves the provider outcome intact.
-
-Values: `busy`, `database`, `version`.
-
-### ComplexPortalId
-
-Type: string.
-
-### PageInfo
-
-Search counts after filtering and deduplication.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Skipped results. |
-| `pool` | [PoolInfo](#poolinfo) or null | no | Optional pooled snapshot. |
-| `returned` | integer (uint32) | yes | Results returned on this page. |
-| `total` | integer (uint64) | yes | Total matching identities held by this snapshot. |
-| `truncated` | boolean or null | no | Matching source count exceeded the retrieved window. |
-
-### PoolInfo
-
-Fixed lifetime and size of a stored search snapshot.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `created` | integer (uint64) | yes | Publication wall time in Unix seconds. |
-| `expires` | integer (uint64) | yes | Fixed expiry wall time in Unix seconds. |
-| `id` | [Text](#text) | yes | Opaque snapshot identifier. |
-| `size` | integer (uint32) | yes | Number of ordered identities. |
-
-### Problem
-
-A field that could not be accepted from a source record.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
-| `field` | string | yes | The biodata field name. |
-| `record` | [Text](#text) or null | no | The record's canonical identifier, when known. |
-| `source` | [Source](#source) | yes | The source that supplied the record. |
-
-### ProblemCode
-
-A stable code for a rejected field value.
-
-Values: `value.unknown`, `collection.incomplete`, `identity.conflict`.
-
-### ProteinComplexHeader
-
-Exact source complex header admitted by a native participant identity.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | [ComplexPortalId](#complexportalid) | yes | Native complex accession. |
-| `matched_participant` | [Text](#text) | yes | Exact native participant identifier supporting admission. |
-| `name` | [Text](#text) | yes | Native source name. |
-| `participant_total` | integer (uint64) | yes | Actual participants in this exact complex, never a complex search total. |
-| `predicted` | boolean | yes | Literal native predictedComplex flag. |
-| `taxon` | integer (uint32) | yes | Source taxonomy identifier. |
-| `url` | [Text](#text) | yes | Native complex record URL. |
-
-### Reason
-
-Why a source could not supply data.
-
-Values: `not_found`, `not_open`, `not_pdf`, `unsupported`, `too_large`, `rate_limited`, `unavailable`, `tls`, `proxy`, `rejected`, `bad_reply`, `deadline_exceeded`, `offline`, `no_key`, `disabled`, `replay_miss`, `syncing`, `no_join_id`.
-
-### Source
-
-A source of BioMCP data, identified by its canonical short name.
-
-Values: `hgnc`, `mygene`, `reactome`, `wikipathways`, `hpa`, `uniprot`, `interpro`, `complex-portal`, `gnomad`, `clinvar`, `erepo`, `gwas`, `clingen`, `pubmed`, `europepmc`, `litvar`, `litsense`, `semantic-scholar`, `orcid`, `pmc-oa`, `icite`, `pubtator`, `ctgov`, `nci`, `civic`, `hotspots`, `alphagenome`, `oncokb`, `myvariant`, `car`, `mutalyzer`, `variantvalidator`, `mychem`, `chembl`, `opentargets`, `openfda-label`, `drugsfda`, `ema`, `who-pq`, `ddinter`, `drugbank-open`, `drugcentral`, `gtopdb`, `unii`, `ndc`, `openfda-xref`, `ols`, `mydisease`, `monarch`, `seer`, `mondo`, `doid`, `ncit`, `hpo`, `orphanet`, `omim`, `faers`, `vaers`, `maude`, `meddra`, `gmdn`, `gtr`, `who-ivd`, `fda-cdx`, `fda-pma`, `fda-510k`, `cpic`, `clinpgx`, `cbioportal`, `cellosaurus`.
-
-### SourceNotice
-
-A provider query interpretation notice.
-
-One of:
-
-- object: A checked provider answer survived a local cache failure.
-- object: The source still has graph pages after the bounded fetch window.
-- object: An empty LitVar lookup can be repeated with a caller-supplied rsID.
-- object: PubMed supplied a named ESearch warning without changing its phrases.
-- object: PubMed did not index these words.
-
-### SourceOutcome
-
-One source's outcome, without provider text.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `count` | integer or null | no | Provider matching count. |
-| `fetched` | integer or null | no | Retrieved identity depth. |
-| `notices` | array of [SourceNotice](#sourcenotice) | no | Provider query notices that do not indicate failure. |
-| `reason` | [Reason](#reason) or null | no | Failure or stale-fallback reason. |
-| `source` | [Source](#source) | yes | Asked source. |
-| `state` | [SourceState](#sourcestate) | yes | Retained state. |
-| `term` | [Text](#text) or null | no | Exact provider search term. |
-| `terms` | string | yes | Publisher terms name from the source registry. |
-| `terms_url` | string | yes | Publisher page documenting the terms. |
-| `use` | [Use](#use) | yes | Reviewed source use category; publisher terms remain authoritative. |
-
-### SourceState
-
-State of a source actually asked by the command.
-
-Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
-
-### Status
-
-Overall command outcome.
-
-Values: `complete`, `partial`, `absent`, `failed`.
-
-### Step
-
-A command argument list spelled from a typed action.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `args` | array of string | yes | CLI and MCP arguments. |
-| `kind` | [StepKind](#stepkind) | yes | Purpose of the action. |
-
-### StepKind
-
-Purpose of an available next command.
-
-Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`.
-
-### Text
-
-Nonempty text with surrounding Unicode whitespace removed.
-
-Type: string.
-
-### UniProtIsoform
-
-Type: string.
-
-### Use
-
-Reviewed source-use category, without inferring rights in individual records.
-
-Values: `open`, `attribution`, `noncommercial`, `restricted`.
-
-[Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
-
-This page is generated from `biomcp schema biomcp.protein_complexes/2` in BioMCP 1.0.0. Fix a wrong description in the schema, then regenerate.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp protein complexes`](/reference/commands/protein-complexes/) replies with `schema` set to `biomcp.protein_complexes/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
+
+## Commands that return it
+
+These commands returned this reply:
+
+```sh
+biomcp protein complexes P15056 --limit 2
+biomcp protein complexes P00533
+```
+
+`biomcp schema biomcp.protein_complexes/2` prints the full JSON Schema.
+
+## Example reply
+
+`biomcp protein complexes P15056 --limit 2` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+
+```json
+{
+  "schema": "biomcp.protein_complexes/2",
+  "status": "complete",
+  "query": {"accession": "P15056", "limit": 2, "offset": 0},
+  "result": {
+    "items": [
+      {
+        "id": "CPX-10863",
+        "name": "LNP1:FOXO3:PFKFB2:SRGAP2:SASH1:BRAF:TFEB:PTPN3:CDC25B:HDAC4:…",
+        "taxon": 9606,
+        "predicted": true,
+        "participant_total": 29,
+        "matched_participant": "P15056",
+        "url": "https://www.ebi.ac.uk/complexportal/complex/CPX-10863"
+      },
+      … 1 more
+    ],
+    "native_total": 18
+  },
+  "page": {
+    "offset": 0,
+    "returned": 2,
+    "total": 12,
+    "pool": {
+      "id": "de6422a12e88e963a5bd5b11ce2c052a",
+      "size": 12,
+      "created": 1793140311,
+      "expires": 1793226711
+    }
+  },
+  "sources": [
+    {
+      "source": "complex-portal",
+      "use": "open",
+      "terms": "CC0",
+      "terms_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11701666/",
+      "state": "ok"
+    }
+  ],
+  "next": [
+    {
+      "kind": "section",
+      "args": [
+        "protein", "complex-members", "P15056", "--complex", "CPX-10863",
+        "--pool", "05e5d93feb81dda9c8e73e637aa0e5f8"
+      ]
+    },
+    … 2 more
+  ]
+}
+```
+
+## Fields
+
+`result` holds [ProteinComplexes](/reference/schemas/types/#proteincomplexes), a shared type. `query` holds [ProteinRelationQuery](/reference/schemas/types/#proteinrelationquery), a shared type. `query` repeats the request as BioMCP read it.
+
+Every type this reply uses is shared with other replies, so its fields are on the shared types page.
+
+## Next
+
+[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp protein complexes`](/reference/commands/protein-complexes/) gives the command's arguments.

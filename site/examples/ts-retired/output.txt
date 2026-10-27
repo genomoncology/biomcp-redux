@@ -1,2 +1,9 @@
-{"schema":"biomcp.error/1","status":"usage","error":{"code":"usage.retired","message":"retired; use: --variant for explicit discovery text"}}
+{
+  "schema": "biomcp.error/1",
+  "status": "usage",
+  "error": {
+    "code": "usage.retired",
+    "message": "retired; use: --variant for explicit discovery text"
+  }
+}
 exit code 2

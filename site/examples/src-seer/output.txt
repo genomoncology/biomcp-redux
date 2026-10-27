@@ -1,3 +1,18 @@
-{"status":"partial","sources":[{"source":"seer","state":"ok","reason":null}]}
-{"code":"1","label":"All Cancer Sites Combined"}
-{"code":"34","label":"Anus, Anal Canal & Anorectum"}
+{
+  "status": "partial",
+  "sources": [
+    {
+      "source": "seer",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "code": "1",
+  "label": "All Cancer Sites Combined"
+}
+{
+  "code": "34",
+  "label": "Anus, Anal Canal & Anorectum"
+}

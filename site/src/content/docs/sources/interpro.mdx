@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `interpro`. BioMCP reads InterPro domain and family matches for a protein.
+InterPro is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads InterPro domain and family matches for a protein. Replies name it `interpro`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `interpro`. BioMCP reads InterPro domain and fami
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-interpro" />
 
@@ -35,8 +35,8 @@ These commands read InterPro as part of their reply. They do not take `--source 
 
 | Command | Description |
 | --- | --- |
-| [`biomcp protein domains`](/reference/commands/protein-domains/) | Page five native InterPro matches with original types and fragments. |
-| [`biomcp get protein`](/reference/commands/get-protein/) | Read source protein cards; a symbol returns candidates without choosing a protein. |
+| [`biomcp protein domains`](/reference/commands/protein-domains/) | Lists the InterPro domains of one protein, five at a time. |
+| [`biomcp get protein`](/reference/commands/get-protein/) | Reads UniProt protein records by accession, and optionally sections such as domains or sequence. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources interpro`, or add `
 ## Next
 
 The task guide for InterPro is [Look up genes, proteins and pathways](/genes-and-proteins/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

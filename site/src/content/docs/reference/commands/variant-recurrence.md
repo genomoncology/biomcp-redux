@@ -1,7 +1,7 @@
 ---
 title: biomcp variant recurrence
-description: "Reference for the BioMCP 1.0.0 command biomcp variant recurrence:
-  Observe exact-allele samples within one caller-selected source page."
+description: "The BioMCP 1.0.0 command biomcp variant recurrence: Counts the
+  samples that carry one variant in one cBioPortal study."
 goal: Look up the arguments, sections and examples of biomcp variant recurrence.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp variant recurrence`.
+`biomcp variant recurrence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It counts the samples that carry one variant in one cBioPortal study. This page lists its arguments, examples and reply.
 
-Observe exact-allele samples within one caller-selected source page.
+The program's help describes it:
+
+> Observe exact-allele samples within one caller-selected source page.
 
 ## Usage
 
@@ -35,25 +37,28 @@ biomcp variant recurrence [OPTIONS] <input>
 
 ## Sources
 
-`--source` accepts these sources: [cbioportal](/sources/cbioportal/).
+`--source` picks the source to ask: [cbioportal](/sources/cbioportal/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
-biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal --gene BRAF --study msk_impact_2017 --profile msk_impact_2017_mutations --sample-set msk_impact_2017_all --limit 3
-biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal --gene BRAF --study msk_impact_2017 --profile msk_impact_2017_mutations --sample-set msk_impact_2017_all --limit 3 --page 0
+biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal \
+  --gene BRAF --study msk_impact_2017 --profile msk_impact_2017_mutations \
+  --sample-set msk_impact_2017_all --limit 3
 ```
 
-## Reply schema
+```sh
+biomcp variant recurrence 'NC_000007.13:g.140494253G>A' --source cbioportal \
+  --gene BRAF --study msk_impact_2017 --profile msk_impact_2017_mutations \
+  --sample-set msk_impact_2017_all --limit 3 --page 0
+```
 
-The help examples of this command return [`biomcp.variant_recurrence/4`](/reference/schemas/biomcp-variant-recurrence-4/). Print the full JSON schema with `biomcp schema biomcp.variant_recurrence/4`.
+## Reply
 
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.variant_recurrence/4`](/reference/schemas/biomcp-variant-recurrence-4/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [variant guide](/user-guide/variant/) shows every variant command at work.

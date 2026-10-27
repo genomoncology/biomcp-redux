@@ -1,2 +1,15 @@
-{"status":"complete","sources":[{"source":"uniprot","state":"ok","reason":null}]}
-{"accession":"P15056","name":"Serine/threonine-protein kinase B-raf","length":766}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "uniprot",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "accession": "P15056",
+  "name": "Serine/threonine-protein kinase B-raf",
+  "length": 766
+}

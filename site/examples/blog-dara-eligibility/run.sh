@@ -1,2 +1,5 @@
 biomcp get trial NCT06625320 eligibility \
-  | jq '.result.items[0].sections.eligibility.data | {minimum_age: .minimum_age.raw, sex, ras_lines: (.criteria | split("\n") | map(select(test("RAS"))))}'
+  | jq -r '.result.items[0].sections.eligibility.data
+    | "minimum_age: \(.minimum_age.raw)", "sex: \(.sex)",
+    (.criteria | split("\n") | map(select(test("RAS"))) | .[])' \
+  | fold -s -w 80

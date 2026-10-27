@@ -1,3 +1,18 @@
-{"status":"complete","sources":[{"source":"opentargets","state":"ok","reason":null}]}
-{"indication":"digestive system neoplasm","stage":"PHASE_2"}
-{"indication":"thyroid cancer","stage":"PHASE_2"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "opentargets",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "indication": "digestive system neoplasm",
+  "stage": "PHASE_2"
+}
+{
+  "indication": "thyroid cancer",
+  "stage": "PHASE_2"
+}

@@ -1,7 +1,7 @@
 ---
 title: biomcp search disease
-description: "Reference for the BioMCP 1.0.0 command biomcp search disease:
-  Literal discovery text or an explicit SEER catalog page."
+description: "The BioMCP 1.0.0 command biomcp search disease: Finds disease
+  concepts by text, or lists SEER cancer sites."
 goal: Look up the arguments, sections and examples of biomcp search disease.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search disease`.
+`biomcp search disease` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds disease concepts by text, or lists SEER cancer sites. This page lists its arguments, examples and reply.
 
-Literal discovery text or an explicit SEER catalog page.
+The program's help describes it:
+
+> Literal discovery text or an explicit SEER catalog page.
 
 ## Usage
 
@@ -32,25 +34,24 @@ biomcp search disease [OPTIONS] [text]
 
 ## Sources
 
-`--source` accepts these sources: [ols](/sources/ols/), [mydisease](/sources/mydisease/), [monarch](/sources/monarch-initiative/), [seer](/sources/seer/).
+`--source` picks the source to ask: [ols](/sources/ols/), [mydisease](/sources/mydisease/), [monarch](/sources/monarch-initiative/), [seer](/sources/seer/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search disease --source seer --limit 1
+```
+
+```sh
 biomcp search disease --source seer --limit 1 --offset 1
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.disease_sites/2`](/reference/schemas/biomcp-disease-sites-2/). Print the full JSON schema with `biomcp schema biomcp.disease_sites/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.disease_sites/2`](/reference/schemas/biomcp-disease-sites-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [disease entity](/user-guide/disease/) page lists every disease command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [disease guide](/user-guide/disease/) shows every disease command at work.

@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `fda-cdx`. BioMCP reads the FDA list of cleared or approved companion diagnostic devices from a local bundle.
+FDA companion diagnostics list is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads the FDA list of cleared or approved companion diagnostic devices from a local [bundle](/local-data/). A [bundle](/local-data/) is a local copy of the source that `biomcp sync fda-cdx` downloads. Replies name it `fda-cdx`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -26,7 +26,7 @@ BioMCP 1.0.0 names this source `fda-cdx`. BioMCP reads the FDA list of cleared o
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-fda-cdx" />
 
@@ -36,7 +36,7 @@ Pick this source with `--source fda-cdx` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search diagnostic`](/reference/commands/search-diagnostic/) | Search one diagnostic source. |
+| [`biomcp search diagnostic`](/reference/commands/search-diagnostic/) | Finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources fda-cdx`, or add `"
 ## Next
 
 The task guide for FDA companion diagnostics list is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

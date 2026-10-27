@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"hgnc","state":"ok","reason":null}]}
-{"hgnc_id":"HGNC:1097","symbol":"BRAF","name":"B-Raf proto-oncogene, serine/threonine kinase"}
-{"hgnc_id":"HGNC:43877","symbol":"BANCR","name":"BRAF-activated non-protein coding RNA"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "hgnc",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "hgnc_id": "HGNC:1097",
+  "symbol": "BRAF",
+  "name": "B-Raf proto-oncogene, serine/threonine kinase"
+}
+{
+  "hgnc_id": "HGNC:43877",
+  "symbol": "BANCR",
+  "name": "BRAF-activated non-protein coding RNA"
+}

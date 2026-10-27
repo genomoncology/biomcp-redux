@@ -3,7 +3,7 @@
     "command": "author papers",
     "entity": "author",
     "route": "/reference/commands/author-papers/",
-    "description": "One exact provider record's publication window.",
+    "description": "Lists the papers of one author record from Semantic Scholar or ORCID, a page at a time.",
     "schemas": [
       "biomcp.author_papers/1",
       "biomcp.author_paper_details/1"
@@ -13,7 +13,7 @@
     "command": "search author",
     "entity": "author",
     "route": "/reference/commands/search-author/",
-    "description": "Literal author name query and native window; positional text maps to query.",
+    "description": "Finds author records by name in Semantic Scholar.",
     "schemas": [
       "biomcp.author_page/2"
     ]
@@ -22,7 +22,7 @@
     "command": "get author",
     "entity": "author",
     "route": "/reference/commands/get-author/",
-    "description": "Exact qualified records in caller order, with no name reconciliation.",
+    "description": "Reads author records by their Semantic Scholar or ORCID ID, in the order you give.",
     "schemas": [
       "biomcp.author_card/3"
     ]
@@ -31,7 +31,7 @@
     "command": "cell-line assay-count",
     "entity": "cell-line",
     "route": "/reference/commands/cell-line-assay-count/",
-    "description": "A separate assay-count request, never implicit in metadata or all.",
+    "description": "Counts the ChEMBL assays recorded for one cell line.",
     "schemas": [
       "biomcp.cell_line_assay_count/2"
     ]
@@ -40,7 +40,7 @@
     "command": "search cell-line",
     "entity": "cell-line",
     "route": "/reference/commands/search-cell-line/",
-    "description": "One literal cell line search, with native order and no total claim.",
+    "description": "Finds cell lines by name in Cellosaurus.",
     "schemas": [
       "biomcp.cell_line_page/2"
     ]
@@ -49,7 +49,7 @@
     "command": "get cell-line",
     "entity": "cell-line",
     "route": "/reference/commands/get-cell-line/",
-    "description": "One exact identity and an optional bounded named section.",
+    "description": "Reads one cell line by its ID, and optionally one named section such as its variants.",
     "schemas": [
       "biomcp.cell_line_card/3"
     ]
@@ -58,7 +58,7 @@
     "command": "get gwas",
     "entity": "gwas",
     "route": "/reference/commands/get-gwas/",
-    "description": "Source association or study and native context.",
+    "description": "Reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries.",
     "schemas": [
       "biomcp.gwas_association/1",
       "biomcp.gwas_study/1"
@@ -68,7 +68,7 @@
     "command": "search gwas",
     "entity": "gwas",
     "route": "/reference/commands/search-gwas/",
-    "description": "Source associations in default p-value-ascending order.",
+    "description": "Finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first.",
     "schemas": [
       "biomcp.gwas_page/3"
     ]
@@ -77,7 +77,7 @@
     "command": "protein features",
     "entity": "protein",
     "route": "/reference/commands/protein-features/",
-    "description": "Page five native UniProt features by exact type and displayed residue.",
+    "description": "Lists UniProt features of one protein, five at a time, filtered by type or residue.",
     "schemas": [
       "biomcp.protein_features/1"
     ]
@@ -86,7 +86,7 @@
     "command": "protein isoforms",
     "entity": "protein",
     "route": "/reference/commands/protein-isoforms/",
-    "description": "Page five source isoforms, exact-participant complexes or PDB links.",
+    "description": "Lists the isoforms of one protein, five at a time.",
     "schemas": [
       "biomcp.protein_isoforms/1"
     ]
@@ -95,7 +95,7 @@
     "command": "protein domains",
     "entity": "protein",
     "route": "/reference/commands/protein-domains/",
-    "description": "Page five native InterPro matches with original types and fragments.",
+    "description": "Lists the InterPro domains of one protein, five at a time.",
     "schemas": [
       "biomcp.protein_domains/2"
     ]
@@ -104,7 +104,7 @@
     "command": "protein complexes",
     "entity": "protein",
     "route": "/reference/commands/protein-complexes/",
-    "description": "Page five source isoforms, exact-participant complexes or PDB links.",
+    "description": "Lists the Complex Portal complexes that hold one protein, five at a time.",
     "schemas": [
       "biomcp.protein_complexes/2"
     ]
@@ -113,7 +113,7 @@
     "command": "protein complex-members",
     "entity": "protein",
     "route": "/reference/commands/protein-complex-members/",
-    "description": "Page five native participants of an exact Complex Portal complex containing the anchor.",
+    "description": "Lists the members of one Complex Portal complex that holds the protein, five at a time.",
     "schemas": [
       "biomcp.protein_complex_members/1"
     ]
@@ -122,7 +122,7 @@
     "command": "protein structures",
     "entity": "protein",
     "route": "/reference/commands/protein-structures/",
-    "description": "Page five source isoforms, exact-participant complexes or PDB links.",
+    "description": "Lists the PDB structures of one protein, five at a time.",
     "schemas": [
       "biomcp.protein_structures/1"
     ]
@@ -131,7 +131,7 @@
     "command": "protein sequence",
     "entity": "protein",
     "route": "/reference/commands/protein-sequence/",
-    "description": "Read one complete native sequence for an exact source accession.",
+    "description": "Prints the whole amino-acid sequence of one UniProt protein or isoform.",
     "schemas": [
       "biomcp.protein_sequence/1"
     ]
@@ -140,7 +140,7 @@
     "command": "search protein",
     "entity": "protein",
     "route": "/reference/commands/search-protein/",
-    "description": "Search five reviewed human UniProt headers by literal text or exact gene.",
+    "description": "Finds reviewed human UniProt proteins by text or by gene, five at a time.",
     "schemas": [
       "biomcp.protein_page/1"
     ]
@@ -149,7 +149,7 @@
     "command": "get protein",
     "entity": "protein",
     "route": "/reference/commands/get-protein/",
-    "description": "Read source protein cards; a symbol returns candidates without choosing a protein.",
+    "description": "Reads UniProt protein records by accession, and optionally sections such as domains or sequence.",
     "schemas": [
       "biomcp.protein_card/3"
     ]
@@ -158,7 +158,7 @@
     "command": "search phenotype",
     "entity": "phenotype",
     "route": "/reference/commands/search-phenotype/",
-    "description": "Search literal human HP term candidates through Monarch with bounded native pages.",
+    "description": "Finds Human Phenotype Ontology (HP) terms by text in HPO or Monarch.",
     "schemas": [
       "biomcp.phenotype-search/1"
     ]
@@ -167,7 +167,7 @@
     "command": "get phenotype",
     "entity": "phenotype",
     "route": "/reference/commands/get-phenotype/",
-    "description": "Read an exact HP term from HPO or Monarch, or page native source sections.",
+    "description": "Reads one HP term from HPO or Monarch, and optionally its synonyms, links, related diseases or genes.",
     "schemas": [
       "biomcp.phenotype-card/1"
     ]
@@ -176,7 +176,7 @@
     "command": "search pathway",
     "entity": "pathway",
     "route": "/reference/commands/search-pathway/",
-    "description": "Search Reactome (default) or WikiPathways human pathways.",
+    "description": "Finds human pathways in Reactome, the default, or WikiPathways.",
     "schemas": [
       "biomcp.pathway_page/3"
     ]
@@ -185,7 +185,7 @@
     "command": "get pathway",
     "entity": "pathway",
     "route": "/reference/commands/get-pathway/",
-    "description": "Get an exact human Reactome R-HSA or WikiPathways WP card.",
+    "description": "Reads one Reactome or WikiPathways pathway, and optionally its summary, genes or events.",
     "schemas": [
       "biomcp.pathway_card/5"
     ]
@@ -194,7 +194,7 @@
     "command": "pathway genes",
     "entity": "pathway",
     "route": "/reference/commands/pathway-genes/",
-    "description": "Read Reactome exact references or WikiPathways GeneProduct data nodes.",
+    "description": "Lists the genes and gene products of one pathway.",
     "schemas": [
       "biomcp.pathway_genes/4"
     ]
@@ -203,7 +203,7 @@
     "command": "pathway events",
     "entity": "pathway",
     "route": "/reference/commands/pathway-events/",
-    "description": "Read Reactome event objects and unresolved native integer references in source order.",
+    "description": "Lists the events, such as reactions, of one Reactome pathway.",
     "schemas": [
       "biomcp.pathway_events/2"
     ]
@@ -212,7 +212,7 @@
     "command": "search study",
     "entity": "study",
     "route": "/reference/commands/search-study/",
-    "description": "Literal stored metadata search; text is never parsed as a query language.",
+    "description": "Finds cBioPortal studies by text in a downloaded copy of the study list.",
     "schemas": [
       "biomcp.study_page/1"
     ]
@@ -221,7 +221,7 @@
     "command": "get study",
     "entity": "study",
     "route": "/reference/commands/get-study/",
-    "description": "Exact case-sensitive study card or bounded metadata section.",
+    "description": "Reads one cBioPortal study, and optionally its profiles, sample lists or files.",
     "schemas": [
       "biomcp.study_card/2"
     ]
@@ -230,7 +230,7 @@
     "command": "search pgx",
     "entity": "pgx",
     "route": "/reference/commands/search-pgx/",
-    "description": "Checked gene-keyed CPIC pair search.",
+    "description": "Finds CPIC gene-drug pairs for a gene.",
     "schemas": [
       "biomcp.pgx_page/2"
     ]
@@ -239,7 +239,7 @@
     "command": "get pgx",
     "entity": "pgx",
     "route": "/reference/commands/get-pgx/",
-    "description": "PGx card or section.",
+    "description": "Reads pharmacogenomic records from CPIC or ClinPGx, such as guidelines, recommendations or annotations.",
     "schemas": [
       "biomcp.pgx_card/1",
       "biomcp.pgx_diplotype/1"
@@ -249,7 +249,7 @@
     "command": "search diagnostic",
     "entity": "diagnostic",
     "route": "/reference/commands/search-diagnostic/",
-    "description": "Search one diagnostic source.",
+    "description": "Finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests.",
     "schemas": [
       "biomcp.diagnostic_page/2"
     ]
@@ -258,7 +258,7 @@
     "command": "get diagnostic",
     "entity": "diagnostic",
     "route": "/reference/commands/get-diagnostic/",
-    "description": "Get one exact source record or supported section.",
+    "description": "Reads one diagnostic test record, and optionally one section such as its genes or conditions.",
     "schemas": [
       "biomcp.diagnostic_card/1"
     ]
@@ -267,7 +267,7 @@
     "command": "search adverse-event",
     "entity": "adverse-event",
     "route": "/reference/commands/search-adverse-event/",
-    "description": "Search five report headers by default.",
+    "description": "Finds adverse event reports in FAERS, VAERS or MAUDE, five at a time.",
     "schemas": [
       "biomcp.adverse_event_page/2"
     ]
@@ -276,7 +276,7 @@
     "command": "get adverse-event",
     "entity": "adverse-event",
     "route": "/reference/commands/get-adverse-event/",
-    "description": "Exact native report identity and an optional independently paged section.",
+    "description": "Reads one adverse event report by its ID, and optionally one section such as its drugs or reactions.",
     "schemas": [
       "biomcp.adverse_event_faers_card/1"
     ]
@@ -285,7 +285,7 @@
     "command": "search disease",
     "entity": "disease",
     "route": "/reference/commands/search-disease/",
-    "description": "Literal discovery text or an explicit SEER catalog page.",
+    "description": "Finds disease concepts by text, or lists SEER cancer sites.",
     "schemas": [
       "biomcp.disease_sites/2"
     ]
@@ -294,7 +294,7 @@
     "command": "get disease",
     "entity": "disease",
     "route": "/reference/commands/get-disease/",
-    "description": "Exact concept or native SEER site with independently paged section.",
+    "description": "Reads one disease concept or SEER cancer site, and optionally a section such as its genes or incidence.",
     "schemas": [
       "biomcp.disease_incidence/3",
       "biomcp.disease_survival/3"
@@ -304,7 +304,7 @@
     "command": "search drug",
     "entity": "drug",
     "route": "/reference/commands/search-drug/",
-    "description": "Literal single-source candidate discovery, without an implicit identity selection.",
+    "description": "Finds drugs by name in one source.",
     "schemas": [
       "biomcp.drug_page/3"
     ]
@@ -313,7 +313,7 @@
     "command": "get drug",
     "entity": "drug",
     "route": "/reference/commands/get-drug/",
-    "description": "Exact native ID retrieval with an explicitly selected source.",
+    "description": "Reads one drug record by its ID in one source, and optionally a section such as its label or approvals.",
     "schemas": [
       "biomcp.drug_card/2",
       "biomcp.drug_regulatory/2"
@@ -323,7 +323,7 @@
     "command": "get gene",
     "entity": "gene",
     "route": "/reference/commands/get-gene/",
-    "description": "Get one to twenty human gene inputs in their original order.",
+    "description": "Reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression.",
     "schemas": [
       "biomcp.gene_cards/4"
     ]
@@ -332,7 +332,7 @@
     "command": "search gene",
     "entity": "gene",
     "route": "/reference/commands/search-gene/",
-    "description": "Search genes by text, cytoband, or their intersection.",
+    "description": "Finds human genes by text, by cytoband, or both.",
     "schemas": [
       "biomcp.gene_page/3"
     ]
@@ -341,7 +341,7 @@
     "command": "search article",
     "entity": "article",
     "route": "/reference/commands/search-article/",
-    "description": "Checked search selectors and pool cursor.",
+    "description": "Finds articles by text, gene, disease, drug, variant, author, journal or date.",
     "schemas": [
       "biomcp.article_page/3"
     ]
@@ -350,7 +350,7 @@
     "command": "get article",
     "entity": "article",
     "route": "/reference/commands/get-article/",
-    "description": "Get one to twenty article inputs in caller order.",
+    "description": "Reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text.",
     "schemas": [
       "biomcp.article_cards/3"
     ]
@@ -359,7 +359,7 @@
     "command": "article supplement",
     "entity": "article",
     "route": "/reference/commands/article-supplement/",
-    "description": "Read a checked supplement file or page its original rows.",
+    "description": "Reads one supplementary file of an article, or the rows of it that match a search, or saves the file.",
     "schemas": [
       "biomcp.article_supplement/3"
     ]
@@ -368,7 +368,7 @@
     "command": "article pdf",
     "entity": "article",
     "route": "/reference/commands/article-pdf/",
-    "description": "Download one publisher PDF to an explicit file or existing folder.",
+    "description": "Downloads an article's PDF from its publisher to a file you name.",
     "schemas": [
       "biomcp.article_pdf/2"
     ]
@@ -377,7 +377,7 @@
     "command": "article text",
     "entity": "article",
     "route": "/reference/commands/article-text/",
-    "description": "Read one bounded body part, find matching rows, or save the complete Markdown document.",
+    "description": "Reads one part of an article's full text, finds matching passages, or saves the text as Markdown.",
     "schemas": [
       "biomcp.article_text/3"
     ]
@@ -386,7 +386,7 @@
     "command": "article citations",
     "entity": "article",
     "route": "/reference/commands/article-citations/",
-    "description": "Page the citing or referenced PubMed papers of one checked PMID.",
+    "description": "Lists the papers that cite one PubMed article, a page at a time.",
     "schemas": [
       "biomcp.article_edges/4"
     ]
@@ -395,7 +395,7 @@
     "command": "article references",
     "entity": "article",
     "route": "/reference/commands/article-references/",
-    "description": "Page the citing or referenced PubMed papers of one checked PMID.",
+    "description": "Lists the papers one PubMed article cites, a page at a time.",
     "schemas": [
       "biomcp.article_edges/4"
     ]
@@ -404,7 +404,7 @@
     "command": "article citation-evidence",
     "entity": "article",
     "route": "/reference/commands/article-citation-evidence/",
-    "description": "Read every source context and optional explicit full-text citation paragraph.",
+    "description": "Shows where and how one article cites another, with the citing passage when the full text is open.",
     "schemas": [
       "biomcp.article_evidence/2"
     ]
@@ -413,7 +413,7 @@
     "command": "article recommendations",
     "entity": "article",
     "route": "/reference/commands/article-recommendations/",
-    "description": "Recommendations in the provider's recent-paper pool order.",
+    "description": "Lists papers that Semantic Scholar recommends from one or more seed papers.",
     "schemas": [
       "biomcp.article_recommendations/3"
     ]
@@ -422,7 +422,7 @@
     "command": "search trial",
     "entity": "trial",
     "route": "/reference/commands/search-trial/",
-    "description": "Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.",
+    "description": "Finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more.",
     "schemas": [
       "biomcp.trial_page/5"
     ]
@@ -431,7 +431,7 @@
     "command": "get trial",
     "entity": "trial",
     "route": "/reference/commands/get-trial/",
-    "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
+    "description": "Reads clinical trials by NCT ID, and optionally sections such as eligibility or locations.",
     "schemas": [
       "biomcp.trial_cards/2"
     ]
@@ -440,7 +440,7 @@
     "command": "trial document",
     "entity": "trial",
     "route": "/reference/commands/trial-document/",
-    "description": "Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text.",
+    "description": "Downloads one document a trial posted on ClinicalTrials.gov, such as its protocol PDF, to a file you name.",
     "schemas": [
       "biomcp.trial_document/2"
     ]
@@ -449,7 +449,7 @@
     "command": "variant assertions",
     "entity": "variant",
     "route": "/reference/commands/variant-assertions/",
-    "description": "Page assertions from one explicitly selected evidence source.",
+    "description": "Lists the assertions one source, such as ClinVar, makes about a variant, a page at a time.",
     "schemas": [
       "biomcp.variant_assertions/3"
     ]
@@ -458,7 +458,7 @@
     "command": "get variant",
     "entity": "variant",
     "route": "/reference/commands/get-variant/",
-    "description": "Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build.",
+    "description": "Reads a variant by rsID, ClinVar ID, ClinGen allele ID or HGVS, and optionally sections such as ClinVar or population.",
     "schemas": [
       "biomcp.variant_card/5"
     ]
@@ -467,7 +467,7 @@
     "command": "variant population",
     "entity": "variant",
     "route": "/reference/commands/variant-population/",
-    "description": "Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.",
+    "description": "Lists gnomAD population frequency details for one variant.",
     "schemas": [
       "biomcp.variant_population/4"
     ]
@@ -476,7 +476,7 @@
     "command": "search variant",
     "entity": "variant",
     "route": "/reference/commands/search-variant/",
-    "description": "Discover source candidates using one declared selector, without interpreting free text.",
+    "description": "Finds variants by gene, protein change, region or another single selector.",
     "schemas": [
       "biomcp.variant_page/6"
     ]
@@ -485,7 +485,7 @@
     "command": "variant recurrence",
     "entity": "variant",
     "route": "/reference/commands/variant-recurrence/",
-    "description": "Observe exact-allele samples within one caller-selected source page.",
+    "description": "Counts the samples that carry one variant in one cBioPortal study.",
     "schemas": [
       "biomcp.variant_recurrence/4"
     ]
@@ -494,7 +494,7 @@
     "command": "variant normalize",
     "entity": "variant",
     "route": "/reference/commands/variant-normalize/",
-    "description": "Send unchanged reference-qualified notation to explicitly named services.",
+    "description": "Sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it.",
     "schemas": [
       "biomcp.variant_normalization/3"
     ]
@@ -503,56 +503,56 @@
     "command": "skill",
     "entity": "skill",
     "route": "/reference/commands/skill/",
-    "description": "Read embedded guidance and worked examples.",
+    "description": "Shows the agent guide and worked examples built into BioMCP.",
     "schemas": []
   },
   {
     "command": "skill list",
     "entity": "skill",
     "route": "/reference/commands/skill-list/",
-    "description": "List embedded worked examples.",
+    "description": "Lists the worked examples built into BioMCP.",
     "schemas": []
   },
   {
     "command": "skill render",
     "entity": "skill",
     "route": "/reference/commands/skill-render/",
-    "description": "Print the canonical agent guide.",
+    "description": "Prints the whole agent guide.",
     "schemas": []
   },
   {
     "command": "skill status",
     "entity": "skill",
     "route": "/reference/commands/skill-status/",
-    "description": "Report missing, unmanaged, locally_modified, stale or current guidance.",
+    "description": "Reports whether the guide installed in a folder is missing, changed, out of date or current.",
     "schemas": []
   },
   {
     "command": "skill install",
     "entity": "skill",
     "route": "/reference/commands/skill-install/",
-    "description": "Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly.",
+    "description": "Installs the agent guide into a folder.",
     "schemas": []
   },
   {
     "command": "version",
     "entity": "version",
     "route": "/reference/commands/version/",
-    "description": "Print version; --verbose adds build, schema and path provenance.",
+    "description": "Prints the version; --verbose adds the commit it was built from, the schema IDs and the paths BioMCP uses.",
     "schemas": []
   },
   {
     "command": "mcp-config",
     "entity": "mcp-config",
     "route": "/reference/commands/mcp-config/",
-    "description": "Print MCP configuration with this executable’s absolute path.",
+    "description": "Prints the configuration an MCP client needs to start BioMCP.",
     "schemas": []
   },
   {
     "command": "store clean",
     "entity": "store",
     "route": "/reference/commands/store-clean/",
-    "description": "Remove expired replies, pools and snapshots and older incompatible cache files.",
+    "description": "Removes expired replies and stored searches from the local cache.",
     "schemas": [
       "biomcp.store-clean/1"
     ]
@@ -561,7 +561,7 @@
     "command": "health",
     "entity": "health",
     "route": "/reference/commands/health/",
-    "description": "Report publisher terms and bounded source reachability; at most one page for each implemented source.",
+    "description": "Lists every source with its terms and checks that each one answers.",
     "schemas": [
       "biomcp.health/2"
     ]
@@ -570,7 +570,7 @@
     "command": "sync",
     "entity": "sync",
     "route": "/reference/commands/sync/",
-    "description": "Synchronize a local source bundle.",
+    "description": "Downloads a source's bundle, a local copy that commands read.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -579,14 +579,14 @@
     "command": "schema",
     "entity": "schema",
     "route": "/reference/commands/schema/",
-    "description": "Print a checked-in schema artifact.",
+    "description": "Prints one reply schema as JSON Schema.",
     "schemas": []
   },
   {
     "command": "help",
     "entity": "help",
     "route": "/reference/commands/help/",
-    "description": "Print generated command help.",
+    "description": "Prints the help for every command, or for one, as JSON.",
     "schemas": [
       "biomcp.help/2"
     ]
@@ -595,7 +595,7 @@
     "command": "key list",
     "entity": "key",
     "route": "/reference/commands/key-list/",
-    "description": "List supported credential names and their origin without values.",
+    "description": "Lists the keys BioMCP supports and where each one is set, without showing values.",
     "schemas": [
       "biomcp.registered-keys/2"
     ]
@@ -604,28 +604,28 @@
     "command": "key set",
     "entity": "key",
     "route": "/reference/commands/key-set/",
-    "description": "Register one credential from a no-echo prompt or one standard-input line.",
+    "description": "Stores a key for one source, read from a hidden prompt or standard input.",
     "schemas": []
   },
   {
     "command": "key remove",
     "entity": "key",
     "route": "/reference/commands/key-remove/",
-    "description": "Remove a stored credential while preserving other settings.",
+    "description": "Removes a stored key.",
     "schemas": []
   },
   {
     "command": "serve",
     "entity": "serve",
     "route": "/reference/commands/serve/",
-    "description": "Serve MCP over stdio or --http [ADDR].",
+    "description": "Runs BioMCP as an MCP server over standard input and output, or over HTTP.",
     "schemas": []
   },
   {
     "command": "sync wikipathways",
     "entity": "sync",
     "route": "/reference/commands/sync-wikipathways/",
-    "description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync.",
+    "description": "Downloads the WikiPathways bundle that pathway searches read.",
     "schemas": [
       "biomcp.wikipathways_sync/1"
     ]
@@ -634,7 +634,7 @@
     "command": "sync cbioportal-studies",
     "entity": "sync",
     "route": "/reference/commands/sync-cbioportal-studies/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the cBioPortal study list bundle that study commands read.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -643,7 +643,7 @@
     "command": "sync ema",
     "entity": "sync",
     "route": "/reference/commands/sync-ema/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the European Medicines Agency bundle that EMA drug commands read.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -652,7 +652,7 @@
     "command": "sync ddinter",
     "entity": "sync",
     "route": "/reference/commands/sync-ddinter/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the DDInter drug interaction bundle.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -661,7 +661,7 @@
     "command": "sync who-pq",
     "entity": "sync",
     "route": "/reference/commands/sync-who-pq/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the WHO prequalified medicines bundle.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -670,7 +670,7 @@
     "command": "sync gtr",
     "entity": "sync",
     "route": "/reference/commands/sync-gtr/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the Genetic Testing Registry bundle that diagnostic commands read.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -679,7 +679,7 @@
     "command": "sync who-ivd",
     "entity": "sync",
     "route": "/reference/commands/sync-who-ivd/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the WHO prequalified diagnostics bundle.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -688,7 +688,7 @@
     "command": "sync fda-cdx",
     "entity": "sync",
     "route": "/reference/commands/sync-fda-cdx/",
-    "description": "Replace the complete validated local bundle atomically.",
+    "description": "Downloads the FDA companion diagnostics bundle.",
     "schemas": [
       "biomcp.sync/4"
     ]
@@ -697,7 +697,7 @@
     "command": "help key ncbi",
     "entity": "help",
     "route": "/reference/commands/help-key-ncbi/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the NCBI key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]
@@ -706,7 +706,7 @@
     "command": "help key semantic-scholar",
     "entity": "help",
     "route": "/reference/commands/help-key-semantic-scholar/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the Semantic Scholar key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]
@@ -715,7 +715,7 @@
     "command": "help key orcid",
     "entity": "help",
     "route": "/reference/commands/help-key-orcid/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the ORCID key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]
@@ -724,7 +724,7 @@
     "command": "help key oncokb",
     "entity": "help",
     "route": "/reference/commands/help-key-oncokb/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the OncoKB key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]
@@ -733,7 +733,7 @@
     "command": "help key alphagenome",
     "entity": "help",
     "route": "/reference/commands/help-key-alphagenome/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the AlphaGenome key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]
@@ -742,7 +742,7 @@
     "command": "help key nci",
     "entity": "help",
     "route": "/reference/commands/help-key-nci/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the NCI key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]
@@ -751,7 +751,7 @@
     "command": "help key openfda",
     "entity": "help",
     "route": "/reference/commands/help-key-openfda/",
-    "description": "Show credential registration and environment fallback names.",
+    "description": "Shows how to set the openFDA key: the key name and its environment variable.",
     "schemas": [
       "biomcp.key/2"
     ]

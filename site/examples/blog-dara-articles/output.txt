@@ -1,6 +1,11 @@
-40056080	Discovery of Daraxonrasib (RMC-6236), a Potent and Orally Bioavailable RAS(ON) Multi-selective, Noncovalent Tri-complex Inhibitor for the Treatment of Patients with Multiple RAS-Addicted Cancers.
-42581230	Acquired resistance to the RAS(ON) multi-selective inhibitor daraxonrasib guides rational combination therapy strategies in pancreatic cancer.
-42223072	Daraxonrasib or Chemotherapy in Previously Treated Metastatic Pancreatic Cancer.
+40056080	Discovery of Daraxonrasib (R…
+42685317	Daraxonrasib for Previously …
+42581230	Acquired resistance to the R…
 --type randomized:
-42223072	Daraxonrasib or Chemotherapy in Previously Treated Metastatic Pancreatic Cancer.	The New England journal of medicine
-{"pmid":"42223072","doi":"10.1056/NEJMoa2605555","journal":"The New England journal of medicine","published":"2026-07-23"}
+42223072	Daraxonrasib or Chemotherapy…	The New England journal of m…
+{
+  "pmid": "42223072",
+  "doi": "10.1056/NEJMoa2605555",
+  "journal": "The New England journal of medicine",
+  "published": "2026-07-23"
+}

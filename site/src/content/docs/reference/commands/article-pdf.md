@@ -1,7 +1,7 @@
 ---
 title: biomcp article pdf
-description: "Reference for the BioMCP 1.0.0 command biomcp article pdf:
-  Download one publisher PDF to an explicit file or existing folder."
+description: "The BioMCP 1.0.0 command biomcp article pdf: Downloads an
+  article's PDF from its publisher to a file you name."
 goal: Look up the arguments, sections and examples of biomcp article pdf.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp article pdf`.
+`biomcp article pdf` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads an article's PDF from its publisher to a file you name. This page lists its arguments, examples and reply.
 
-Download one publisher PDF to an explicit file or existing folder.
+The program's help describes it:
+
+> Download one publisher PDF to an explicit file or existing folder.
 
 ## Usage
 
@@ -30,21 +32,20 @@ biomcp article pdf [OPTIONS] <input>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp article pdf 41351423 --save owned.pdf --replace
+```
+
+```sh
 biomcp article pdf 41351423 --save second.pdf --replace
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.article_pdf/2`](/reference/schemas/biomcp-article-pdf-2/). Print the full JSON schema with `biomcp schema biomcp.article_pdf/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.article_pdf/2`](/reference/schemas/biomcp-article-pdf-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [article guide](/user-guide/article/) shows every article command at work.

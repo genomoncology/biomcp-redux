@@ -1,8 +1,8 @@
 ---
-title: biomcp.help/2
-description: "The BioMCP 1.0.0 reply schema biomcp.help/2: its envelope fields,
-  its result type Help and the commands that return it."
-goal: Look up the fields of a biomcp.help/2 reply.
+title: Reply of biomcp help (biomcp.help/2)
+description: "The JSON reply BioMCP 1.0.0 prints for biomcp help: a real example
+  and the fields of schema biomcp.help/2."
+goal: "Parse the biomcp.help/2 reply: see a real example and what each field means."
 reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: biomcp.help/2
@@ -10,55 +10,92 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 reply schema `biomcp.help/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.help/2`.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp help`](/reference/commands/help/), [`biomcp help network proxy`](/reference/commands/help-network-proxy/) and [`biomcp help network ca_bundle`](/reference/commands/help-network-ca_bundle/) reply with `schema` set to `biomcp.help/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
 
-These commands return it: [`biomcp help`](/reference/commands/help/), [`biomcp help network proxy`](/reference/commands/help-network-proxy/), [`biomcp help network ca_bundle`](/reference/commands/help-network-ca_bundle/).
+## Commands that return it
 
-Calls that returned it:
+These commands returned this reply:
 
-- `biomcp help get gene`
+```sh
+biomcp help get gene
+```
 
-## Envelope
+`biomcp schema biomcp.help/2` prints the full JSON Schema.
 
-One versioned command response; schema identity comes only from its body type.
+## Example reply
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `local_error` | [CacheProblem](#cacheproblem) or null | no | Bounded local cache failure, independent of provider outcomes. |
-| `next` | array of [Step](#step) | no | Available next commands. |
-| `page` | [PageInfo](#pageinfo) or null | no | Search page metadata. |
-| `problems` | array of [Problem](#problem) | no | Rejected source fields. |
-| `query` | array of string | yes | Parsed query. |
-| `result` | [Help](#result-help) or null | no | Answer when available. |
-| `schema` | "biomcp.help/2" | yes |  |
-| `sources` | array of [SourceOutcome](#sourceoutcome) | no | Sources actually asked. |
-| `status` | [Status](#status) | yes | Overall outcome. |
+`biomcp help get gene` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
 
-## Result: Help
+```json
+{
+  "schema": "biomcp.help/2",
+  "status": "complete",
+  "query": ["get", "gene"],
+  "result": {
+    "commands": [
+      {
+        "command": ["get", "gene"],
+        "description": "Get one to twenty human gene inputs in their original…",
+        "arguments": [
+          {
+            "name": "input",
+            "description": "Gene symbols or checked identifiers, in input ord…",
+            "value_type": "array",
+            "required": true,
+            "position": 0,
+            "minimum": 1,
+            "maximum": 20,
+            "choices": []
+          },
+          {
+            "name": "--section",
+            "description": "Requested section words, preserving caller order…",
+            "value_type": "array",
+            "required": false,
+            "choices": [
+              "protein", "civic", "clingen", "constraint", "expression",
+              "pathways", "oncokb", "all"
+            ]
+          }
+        ],
+        "sections": [
+          {
+            "word": "protein",
+            "description": "Reviewed human proteins."
+          },
+          {
+            "word": "civic",
+            "description": "CIViC gene curation."
+          },
+          … 6 more
+        ],
+        "section_rule": "Requested section words, preserving caller order and…",
+        "examples": [["get", "gene", "KRAS"], ["get", "gene", "BRAF"]]
+      }
+    ]
+  }
+}
+```
+
+## Fields
+
+`result` holds [Help](#help). `query` repeats the request as BioMCP read it.
+
+### Help
 
 Generated command reference from the shipped query schemas and cases.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
-| `commands` | array of [HelpCommand](#helpcommand) | yes | Commands available at this help path. |
-
-## Types
-
-Every other type this schema uses.
-
-### CacheProblem
-
-A local cache failure that leaves the provider outcome intact.
-
-Values: `busy`, `database`, `version`.
+| `commands` | list of [HelpCommand](#helpcommand) | yes | Commands available at this help path. |
 
 ### HelpArgument
 
 One schema argument, retaining its bounds and position.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
-| `choices` | array of string | yes | Allowed scalar values. |
+| `choices` | list of string | yes | Allowed scalar values. |
 | `description` | string | yes | Field documentation. |
 | `maximum` | integer or null | no | Upper numeric or array length bound. |
 | `minimum` | integer or null | no | Lower numeric or array length bound. |
@@ -71,144 +108,24 @@ One schema argument, retaining its bounds and position.
 
 One command and its generated arguments.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
-| `arguments` | array of [HelpArgument](#helpargument) | yes | Positional arguments and flags. |
-| `command` | array of string | yes | Command words after the executable name. |
+| `arguments` | list of [HelpArgument](#helpargument) | yes | Positional arguments and flags. |
+| `command` | list of string | yes | Command words after the executable name. |
 | `description` | string | yes | Query type documentation. |
-| `examples` | array of array of string | yes | Verbatim case run steps, without replay configuration. |
-| `section_rule` | string or null | no | How to disambiguate section words from inputs. |
-| `sections` | array of [HelpWord](#helpword) | yes | Accepted section words and their documentation. |
+| `examples` | list of list of string | yes | Verbatim case run steps, without replay configuration. |
+| `section_rule` | string or null | no | How to disambiguate [section words](/concepts/progressive-disclosure/) from inputs. |
+| `sections` | list of [HelpWord](#helpword) | yes | Accepted section words and their documentation. |
 
 ### HelpWord
 
 A documented closed vocabulary word.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
 | `description` | string | yes | Type variant documentation. |
 | `word` | string | yes | Accepted spelling. |
 
-### PageInfo
+## Next
 
-Search counts after filtering and deduplication.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Skipped results. |
-| `pool` | [PoolInfo](#poolinfo) or null | no | Optional pooled snapshot. |
-| `returned` | integer (uint32) | yes | Results returned on this page. |
-| `total` | integer (uint64) | yes | Total matching identities held by this snapshot. |
-| `truncated` | boolean or null | no | Matching source count exceeded the retrieved window. |
-
-### PoolInfo
-
-Fixed lifetime and size of a stored search snapshot.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `created` | integer (uint64) | yes | Publication wall time in Unix seconds. |
-| `expires` | integer (uint64) | yes | Fixed expiry wall time in Unix seconds. |
-| `id` | [Text](#text) | yes | Opaque snapshot identifier. |
-| `size` | integer (uint32) | yes | Number of ordered identities. |
-
-### Problem
-
-A field that could not be accepted from a source record.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
-| `field` | string | yes | The biodata field name. |
-| `record` | [Text](#text) or null | no | The record's canonical identifier, when known. |
-| `source` | [Source](#source) | yes | The source that supplied the record. |
-
-### ProblemCode
-
-A stable code for a rejected field value.
-
-Values: `value.unknown`, `collection.incomplete`, `identity.conflict`.
-
-### Reason
-
-Why a source could not supply data.
-
-Values: `not_found`, `not_open`, `not_pdf`, `unsupported`, `too_large`, `rate_limited`, `unavailable`, `tls`, `proxy`, `rejected`, `bad_reply`, `deadline_exceeded`, `offline`, `no_key`, `disabled`, `replay_miss`, `syncing`, `no_join_id`.
-
-### Source
-
-A source of BioMCP data, identified by its canonical short name.
-
-Values: `hgnc`, `mygene`, `reactome`, `wikipathways`, `hpa`, `uniprot`, `interpro`, `complex-portal`, `gnomad`, `clinvar`, `erepo`, `gwas`, `clingen`, `pubmed`, `europepmc`, `litvar`, `litsense`, `semantic-scholar`, `orcid`, `pmc-oa`, `icite`, `pubtator`, `ctgov`, `nci`, `civic`, `hotspots`, `alphagenome`, `oncokb`, `myvariant`, `car`, `mutalyzer`, `variantvalidator`, `mychem`, `chembl`, `opentargets`, `openfda-label`, `drugsfda`, `ema`, `who-pq`, `ddinter`, `drugbank-open`, `drugcentral`, `gtopdb`, `unii`, `ndc`, `openfda-xref`, `ols`, `mydisease`, `monarch`, `seer`, `mondo`, `doid`, `ncit`, `hpo`, `orphanet`, `omim`, `faers`, `vaers`, `maude`, `meddra`, `gmdn`, `gtr`, `who-ivd`, `fda-cdx`, `fda-pma`, `fda-510k`, `cpic`, `clinpgx`, `cbioportal`, `cellosaurus`.
-
-### SourceNotice
-
-A provider query interpretation notice.
-
-One of:
-
-- object: A checked provider answer survived a local cache failure.
-- object: The source still has graph pages after the bounded fetch window.
-- object: An empty LitVar lookup can be repeated with a caller-supplied rsID.
-- object: PubMed supplied a named ESearch warning without changing its phrases.
-- object: PubMed did not index these words.
-
-### SourceOutcome
-
-One source's outcome, without provider text.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `count` | integer or null | no | Provider matching count. |
-| `fetched` | integer or null | no | Retrieved identity depth. |
-| `notices` | array of [SourceNotice](#sourcenotice) | no | Provider query notices that do not indicate failure. |
-| `reason` | [Reason](#reason) or null | no | Failure or stale-fallback reason. |
-| `source` | [Source](#source) | yes | Asked source. |
-| `state` | [SourceState](#sourcestate) | yes | Retained state. |
-| `term` | [Text](#text) or null | no | Exact provider search term. |
-| `terms` | string | yes | Publisher terms name from the source registry. |
-| `terms_url` | string | yes | Publisher page documenting the terms. |
-| `use` | [Use](#use) | yes | Reviewed source use category; publisher terms remain authoritative. |
-
-### SourceState
-
-State of a source actually asked by the command.
-
-Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
-
-### Status
-
-Overall command outcome.
-
-Values: `complete`, `partial`, `absent`, `failed`.
-
-### Step
-
-A command argument list spelled from a typed action.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `args` | array of string | yes | CLI and MCP arguments. |
-| `kind` | [StepKind](#stepkind) | yes | Purpose of the action. |
-
-### StepKind
-
-Purpose of an available next command.
-
-Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`.
-
-### Text
-
-Nonempty text with surrounding Unicode whitespace removed.
-
-Type: string.
-
-### Use
-
-Reviewed source-use category, without inferring rights in individual records.
-
-Values: `open`, `attribution`, `noncommercial`, `restricted`.
-
-[Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
-
-This page is generated from `biomcp schema biomcp.help/2` in BioMCP 1.0.0. Fix a wrong description in the schema, then regenerate.
+[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp help`](/reference/commands/help/) gives the command's arguments.

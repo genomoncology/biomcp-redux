@@ -1,9 +1,9 @@
 ---
-title: biomcp.diagnostic_methods/2
-description: "The BioMCP 1.0.0 reply schema biomcp.diagnostic_methods/2: its
-  envelope fields, its result type DiagnosticMethods and the commands that
-  return it."
-goal: Look up the fields of a biomcp.diagnostic_methods/2 reply.
+title: Reply of biomcp get diagnostic methods section (biomcp.diagnostic_methods/2)
+description: "The JSON reply BioMCP 1.0.0 prints for biomcp get diagnostic
+  methods: a real example and the fields of schema biomcp.diagnostic_methods/2."
+goal: "Parse the biomcp.diagnostic_methods/2 reply: see a real example and what
+  each field means."
 reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: biomcp.diagnostic_methods/2
@@ -11,225 +11,88 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 reply schema `biomcp.diagnostic_methods/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.diagnostic_methods/2`.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get diagnostic methods`](/reference/commands/get-diagnostic/) replies with `schema` set to `biomcp.diagnostic_methods/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
 
-This call returns it.
+## Commands that return it
 
-- `biomcp get diagnostic GTR000006692.3 methods --source gtr` ([`biomcp get diagnostic`](/reference/commands/get-diagnostic/))
+These commands returned this reply:
 
-## Envelope
+```sh
+biomcp get diagnostic GTR000006692.3 methods --source gtr
+```
 
-One versioned command response; schema identity comes only from its body type.
+`biomcp schema biomcp.diagnostic_methods/2` prints the full JSON Schema.
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `local_error` | [CacheProblem](#cacheproblem) or null | no | Bounded local cache failure, independent of provider outcomes. |
-| `next` | array of [Step](#step) | no | Available next commands. |
-| `page` | [PageInfo](#pageinfo) or null | no | Search page metadata. |
-| `problems` | array of [Problem](#problem) | no | Rejected source fields. |
-| `query` | [DiagnosticGet](#query-diagnosticget) | yes | Parsed query. |
-| `result` | [DiagnosticMethods](#result-diagnosticmethods) or null | no | Answer when available. |
-| `schema` | "biomcp.diagnostic_methods/2" | yes |  |
-| `sources` | array of [SourceOutcome](#sourceoutcome) | no | Sources actually asked. |
-| `status` | [Status](#status) | yes | Overall outcome. |
+## Example reply
 
-## Result: DiagnosticMethods
+`biomcp get diagnostic GTR000006692.3 methods --source gtr` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
+
+```json
+{
+  "schema": "biomcp.diagnostic_methods/2",
+  "status": "complete",
+  "query": {
+    "id": "GTR000006692.3",
+    "source": "gtr",
+    "section": "methods",
+    "section_offset": 0
+  },
+  "result": {
+    "items": [
+      {
+        "test_id": "GTR000006692.3",
+        "list": "method_categories",
+        "index": 0,
+        "value": "Deletion/duplication analysis"
+      },
+      {
+        "test_id": "GTR000006692.3",
+        "list": "method_categories",
+        "index": 1,
+        "value": "Sequence analysis of the entire coding region"
+      },
+      … 3 more
+    ],
+    "count_unit": "native_method_entries"
+  },
+  "page": {"offset": 0, "returned": 5, "total": 6},
+  "sources": [
+    {
+      "source": "gtr",
+      "use": "open",
+      "terms": "NCBI usage policies; submitter and third-party rights retained",
+      "terms_url": "https://www.ncbi.nlm.nih.gov/home/about/policies/",
+      "state": "ok"
+    }
+  ],
+  "next": [
+    {
+      "kind": "page",
+      "args": [
+        "get", "diagnostic", "GTR000006692.3", "methods", "--bundle-revision",
+        "sha256:421cbbba145a93789b4dd2020dd4f64a0e7fa4b51e2a3cf2c0c184d4bf55e…",
+        "--section-offset", "5",
+        … 2 more
+      ]
+    }
+  ]
+}
+```
+
+## Fields
+
+`result` holds [DiagnosticMethods](#diagnosticmethods). `query` holds [DiagnosticGet](/reference/schemas/types/#diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
+
+### DiagnosticMethods
 
 Independent native method entries without positional pairing.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
-| `count_unit` | [DiagnosticCountUnit](#diagnosticcountunit) or null | no | Exact meaning of the envelope total; supplied by the owning source command. |
+| `count_unit` | [DiagnosticCountUnit](/reference/schemas/types/#diagnosticcountunit) or null | no | Exact meaning of the envelope total; supplied by the owning source command. |
 | `distinct_id_total` | integer or null | no | Distinct complete native IDs across the selected relation collection. |
-| `items` | array of [GtrMethod](#gtrmethod) | yes | Complete source-owned rows in native order; envelope totals count native rows. |
+| `items` | list of [GtrMethod](/reference/schemas/types/#gtrmethod) | yes | Complete source-owned rows in native order; envelope totals count native rows. |
 
-## Query: DiagnosticGet
+## Next
 
-Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `bundle_revision` | [Text](#text) or null | no | Immutable stored bundle revision retained by a continuation. |
-| `id` | [Text](#text) | yes | Exact native identity, including version for GTR. |
-| `section` | [DiagnosticSection](#diagnosticsection) or null | no | gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k) have no sections; omit for the card. |
-| `section_limit` | integer (uint32) | no | Maximum native rows; omitted means five rows, or one regulatory fragment. |
-| `section_offset` | integer (uint32) | no | Zero-based native row or fragment offset. |
-| `source` | [DiagnosticGetSource](#diagnosticgetsource) | yes | Explicit source; gtr needs accession/version, who-ivd a known Product ID, fda-pma a P number, fda-510k a K number. |
-| `supplement` | [PmaSupplement](#pmasupplement) or null | no | Exact native PMA supplement; absent selects the base row. |
-
-## Types
-
-Every other type this schema uses.
-
-### CacheProblem
-
-A local cache failure that leaves the provider outcome intact.
-
-Values: `busy`, `database`, `version`.
-
-### DiagnosticCountUnit
-
-Meaning of the envelope's total for a source-owned diagnostic page.
-
-Values: `product_identities`, `test_identities`, `native_relation_rows`, `native_method_entries`.
-
-### DiagnosticGetSource
-
-One explicit exact diagnostic record source.
-
-Values: `gtr`, `who-ivd`, `fda-pma`, `fda-510k`.
-
-### DiagnosticSection
-
-Source-supported diagnostic sections; no all section.
-
-Values: `genes`, `conditions`, `methods`, `regulatory`, `supplements`.
-
-### GtrMethod
-
-One entry from one independent native method list.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `index` | integer (uint32) | yes | Zero-based native list position. |
-| `list` | [GtrMethodList](#gtrmethodlist) | yes | Independent source list; lists are never positionally paired. |
-| `test_id` | [GtrTestId](#gtrtestid) | yes | Complete owning test accession/version. |
-| `value` | string | yes | Complete unmodified source entry. |
-
-### GtrMethodList
-
-Independent native GTR method lists.
-
-Values: `method_categories`, `methods`, `platforms`.
-
-### GtrTestId
-
-Type: string.
-
-### PageInfo
-
-Search counts after filtering and deduplication.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Skipped results. |
-| `pool` | [PoolInfo](#poolinfo) or null | no | Optional pooled snapshot. |
-| `returned` | integer (uint32) | yes | Results returned on this page. |
-| `total` | integer (uint64) | yes | Total matching identities held by this snapshot. |
-| `truncated` | boolean or null | no | Matching source count exceeded the retrieved window. |
-
-### PmaSupplement
-
-Type: string.
-
-### PoolInfo
-
-Fixed lifetime and size of a stored search snapshot.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `created` | integer (uint64) | yes | Publication wall time in Unix seconds. |
-| `expires` | integer (uint64) | yes | Fixed expiry wall time in Unix seconds. |
-| `id` | [Text](#text) | yes | Opaque snapshot identifier. |
-| `size` | integer (uint32) | yes | Number of ordered identities. |
-
-### Problem
-
-A field that could not be accepted from a source record.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
-| `field` | string | yes | The biodata field name. |
-| `record` | [Text](#text) or null | no | The record's canonical identifier, when known. |
-| `source` | [Source](#source) | yes | The source that supplied the record. |
-
-### ProblemCode
-
-A stable code for a rejected field value.
-
-Values: `value.unknown`, `collection.incomplete`, `identity.conflict`.
-
-### Reason
-
-Why a source could not supply data.
-
-Values: `not_found`, `not_open`, `not_pdf`, `unsupported`, `too_large`, `rate_limited`, `unavailable`, `tls`, `proxy`, `rejected`, `bad_reply`, `deadline_exceeded`, `offline`, `no_key`, `disabled`, `replay_miss`, `syncing`, `no_join_id`.
-
-### Source
-
-A source of BioMCP data, identified by its canonical short name.
-
-Values: `hgnc`, `mygene`, `reactome`, `wikipathways`, `hpa`, `uniprot`, `interpro`, `complex-portal`, `gnomad`, `clinvar`, `erepo`, `gwas`, `clingen`, `pubmed`, `europepmc`, `litvar`, `litsense`, `semantic-scholar`, `orcid`, `pmc-oa`, `icite`, `pubtator`, `ctgov`, `nci`, `civic`, `hotspots`, `alphagenome`, `oncokb`, `myvariant`, `car`, `mutalyzer`, `variantvalidator`, `mychem`, `chembl`, `opentargets`, `openfda-label`, `drugsfda`, `ema`, `who-pq`, `ddinter`, `drugbank-open`, `drugcentral`, `gtopdb`, `unii`, `ndc`, `openfda-xref`, `ols`, `mydisease`, `monarch`, `seer`, `mondo`, `doid`, `ncit`, `hpo`, `orphanet`, `omim`, `faers`, `vaers`, `maude`, `meddra`, `gmdn`, `gtr`, `who-ivd`, `fda-cdx`, `fda-pma`, `fda-510k`, `cpic`, `clinpgx`, `cbioportal`, `cellosaurus`.
-
-### SourceNotice
-
-A provider query interpretation notice.
-
-One of:
-
-- object: A checked provider answer survived a local cache failure.
-- object: The source still has graph pages after the bounded fetch window.
-- object: An empty LitVar lookup can be repeated with a caller-supplied rsID.
-- object: PubMed supplied a named ESearch warning without changing its phrases.
-- object: PubMed did not index these words.
-
-### SourceOutcome
-
-One source's outcome, without provider text.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `count` | integer or null | no | Provider matching count. |
-| `fetched` | integer or null | no | Retrieved identity depth. |
-| `notices` | array of [SourceNotice](#sourcenotice) | no | Provider query notices that do not indicate failure. |
-| `reason` | [Reason](#reason) or null | no | Failure or stale-fallback reason. |
-| `source` | [Source](#source) | yes | Asked source. |
-| `state` | [SourceState](#sourcestate) | yes | Retained state. |
-| `term` | [Text](#text) or null | no | Exact provider search term. |
-| `terms` | string | yes | Publisher terms name from the source registry. |
-| `terms_url` | string | yes | Publisher page documenting the terms. |
-| `use` | [Use](#use) | yes | Reviewed source use category; publisher terms remain authoritative. |
-
-### SourceState
-
-State of a source actually asked by the command.
-
-Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
-
-### Status
-
-Overall command outcome.
-
-Values: `complete`, `partial`, `absent`, `failed`.
-
-### Step
-
-A command argument list spelled from a typed action.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `args` | array of string | yes | CLI and MCP arguments. |
-| `kind` | [StepKind](#stepkind) | yes | Purpose of the action. |
-
-### StepKind
-
-Purpose of an available next command.
-
-Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`.
-
-### Text
-
-Nonempty text with surrounding Unicode whitespace removed.
-
-Type: string.
-
-### Use
-
-Reviewed source-use category, without inferring rights in individual records.
-
-Values: `open`, `attribution`, `noncommercial`, `restricted`.
-
-[Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
-
-This page is generated from `biomcp schema biomcp.diagnostic_methods/2` in BioMCP 1.0.0. Fix a wrong description in the schema, then regenerate.
+[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp get diagnostic`](/reference/commands/get-diagnostic/) gives the command's arguments.

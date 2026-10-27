@@ -1,1 +1,5 @@
-{"target":"CHEMBL5145","relation":"INHIBITOR","mechanism":"Serine/threonine-protein kinase B-raf inhibitor"}
+{
+  "target": "CHEMBL5145",
+  "relation": "INHIBITOR",
+  "mechanism": "Serine/threonine-protein kinase B-raf inhibitor"
+}

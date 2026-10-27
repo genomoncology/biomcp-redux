@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `hpa`. BioMCP reads tissue expression for a gene from the Human Protein Atlas.
+Human Protein Atlas is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads tissue expression for a gene from the Human Protein Atlas. Replies name it `hpa`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `hpa`. BioMCP reads tissue expression for a gene 
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-hpa" />
 
@@ -35,7 +35,7 @@ These commands read Human Protein Atlas as part of their reply. They do not take
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
+| [`biomcp get gene`](/reference/commands/get-gene/) | Reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. |
 
 ## Limits
 
@@ -48,5 +48,3 @@ Leave this source out of one command with `--disable-sources hpa`, or add `"hpa"
 ## Next
 
 The task guide for Human Protein Atlas is [Look up genes, proteins and pathways](/genes-and-proteins/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

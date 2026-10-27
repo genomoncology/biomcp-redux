@@ -27,6 +27,12 @@
     `biomcp search drug NAME --source drugsfda` returns the application number. The `approvals` section lists each submission with its kind, number, status and date as Drugs@FDA records them. `AP` means approved. `--section-limit` sets how many rows one page holds.
   limits: |
     Drugs@FDA covers FDA applications only. A drug with several applications, such as different forms, has a history for each. Dates are Drugs@FDA's submission status dates.
+  explain:
+    total: "How many submissions Drugs@FDA lists for the application."
+    kind: "`ORIG` is the original application; `SUPPL` is a supplement."
+    submission_number: "The submission's number within the application."
+    status: "`AP` means approved."
+    date: "The date of the action. The earliest `ORIG` row is the first approval."
 - id: ema-authorisation
   question: Is a drug authorised by the European Medicines Agency?
   source: public
@@ -36,12 +42,23 @@
   reference: /sources/ema/
   answers_page: true
   example: a-ema-status
+  steps:
+    - example: a-ema-sync
+      says: "Download the EMA [bundle](/local-data/), a local copy of EMA's medicines list, once:"
+    - example: a-ema-search
+      says: "Find the medicine's EMA product number:"
+    - example: a-ema-status
+      says: "Read the regulatory section of that product:"
   answer: |
-    Synchronize the EMA bundle once, search the medicine with `--source ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
+    Download EMA's medicines list once with `biomcp sync ema`, search the medicine with `--source ema`, then read its `regulatory` section. This BioMCP 1.0 run finds Zelboraf as EMEA/H/C/002409 and reports EMA's status and marketing authorisation date.
   why: |
     EMA publishes its medicines table as a download. `biomcp sync ema` stores it, and reads answer from the stored copy. The `regulatory` section returns EMA's own status and dated events.
   limits: |
     The answer is as fresh as your last sync. Run `biomcp sync ema` again for current data. EMA's status covers the European Union only.
+  explain:
+    id: "The EMA product number, which `get drug` takes."
+    status: "The authorisation status that EMA reports."
+    authorised: "The marketing authorisation date, the row with role `marketing_authorisation_date`."
 - id: drug-interactions
   question: How do I list drug-drug interactions for a drug?
   source: public

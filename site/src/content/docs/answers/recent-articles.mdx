@@ -15,11 +15,19 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Add `--since YEAR` and `--sort date` to `biomcp search article`. PubMed then returns matches published in or after that year, with the most recently added first. This BioMCP 1.0 run finds the three newest PubMed articles that match "KRAS G12C sotorasib" since 2024.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Add `--since YEAR` and `--sort date` to `biomcp search article`. PubMed then returns matches published in or after that year, with the most recently added first. This BioMCP 1.0 run finds the three newest PubMed articles that match "KRAS G12C sotorasib" since 2024.
 
 ## Command
 
 <Example id="a-recent-articles" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `pmid` | `42945155` | The PubMed ID. |
+| `date` | `2026-10-27` | The publication date, as precise as PubMed gives it. |
+| `title` | `Divarasib Bests 1st-Generation KRASG12C…` | The title, cut to 56 characters by the `cut` filter. |
 
 ## Why it works
 

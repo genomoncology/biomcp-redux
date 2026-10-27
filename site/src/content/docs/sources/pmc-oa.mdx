@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `pmc-oa`. BioMCP reads licensed full text, supplements and PDFs from the PMC Open Access subset.
+PMC Open Access is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads licensed full text, supplements and PDFs from the PMC Open Access subset. Replies name it `pmc-oa`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `pmc-oa`. BioMCP reads licensed full text, supple
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-pmc-oa" />
 
@@ -35,10 +35,10 @@ These commands read PMC Open Access as part of their reply. They do not take `--
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get article`](/reference/commands/get-article/) | Get one to twenty article inputs in caller order. |
-| [`biomcp article text`](/reference/commands/article-text/) | Read one bounded body part, find matching rows, or save the complete Markdown document. |
-| [`biomcp article supplement`](/reference/commands/article-supplement/) | Read a checked supplement file or page its original rows. |
-| [`biomcp article pdf`](/reference/commands/article-pdf/) | Download one publisher PDF to an explicit file or existing folder. |
+| [`biomcp get article`](/reference/commands/get-article/) | Reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text. |
+| [`biomcp article text`](/reference/commands/article-text/) | Reads one part of an article's full text, finds matching passages, or saves the text as Markdown. |
+| [`biomcp article supplement`](/reference/commands/article-supplement/) | Reads one supplementary file of an article, or the rows of it that match a search, or saves the file. |
+| [`biomcp article pdf`](/reference/commands/article-pdf/) | Downloads an article's PDF from its publisher to a file you name. |
 
 ## Limits
 
@@ -51,5 +51,3 @@ Leave this source out of one command with `--disable-sources pmc-oa`, or add `"p
 ## Next
 
 The task guide for PMC Open Access is [Search and read biomedical literature](/how-to/find-articles/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

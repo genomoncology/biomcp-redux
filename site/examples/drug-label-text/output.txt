@@ -1,3 +1,5 @@
 revised: 2026-08-28
 characters: 929
-1 INDICATIONS AND USAGE ZELBORAF ® is a kinase inhibitor indicated for the treatment of patients with unresectable or metastatic melanoma with BRAF V600E mutation as detected by an FDA-approved test.
+1 INDICATIONS AND USAGE ZELBORAF ® is a kinase inhibitor indicated for the
+treatment of patients with unresectable or metastatic melanoma with BRAF V600E
+mutation as detected by an FDA-approved test.

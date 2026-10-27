@@ -1,7 +1,7 @@
 ---
 title: biomcp sync cbioportal-studies
-description: "Reference for the BioMCP 1.0.0 command biomcp sync
-  cbioportal-studies: Replace the complete validated local bundle atomically."
+description: "The BioMCP 1.0.0 command biomcp sync cbioportal-studies: Downloads
+  the cBioPortal study list bundle that study commands read."
 goal: Look up the arguments, sections and examples of biomcp sync cbioportal-studies.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp sync cbioportal-studies`.
+`biomcp sync cbioportal-studies` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the cBioPortal study list [bundle](/local-data/) that study commands read. This page lists its examples and reply.
 
-Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
+The program's help describes it:
+
+> Replace the complete validated local bundle atomically. Reads use stored data and never synchronize. Failed replacement preserves the last usable bundle.
 
 ## Usage
 
@@ -22,25 +24,24 @@ biomcp sync cbioportal-studies
 
 ## Arguments
 
-The help lists no arguments for this command.
+The command takes no arguments beyond those in its usage line.
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp sync cbioportal-studies
+```
+
+```sh
 biomcp sync cbioportal-studies --fresh
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/). Print the full JSON schema with `biomcp schema biomcp.sync/4`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

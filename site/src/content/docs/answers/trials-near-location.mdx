@@ -1,10 +1,8 @@
 ---
 title: How do I find clinical trials near a location?
-description: "Add `--lat=`, `--lon=` and `--distance=` with units to `biomcp
-  search trial`. Write each with an equals sign: a negative longitude such as
-  `-74.0060` is read as an option otherwise, and the command stops with
-  `usage.arguments`. This BioMCP 1.0 run finds recruiting melanoma trials with a
-  site within "
+description: Add `--lat`, `--lon` and `--distance` with units to `biomcp search
+  trial`. This BioMCP 1.0 run finds recruiting melanoma trials with a site
+  within 50 miles of New York City.
 goal: "Answer: How do I find clinical trials near a location?"
 reader: Someone who searched for this question
 kind: answer
@@ -16,11 +14,20 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Add `--lat=`, `--lon=` and `--distance=` with units to `biomcp search trial`. Write each with an equals sign: a negative longitude such as `-74.0060` is read as an option otherwise, and the command stops with `usage.arguments`. This BioMCP 1.0 run finds recruiting melanoma trials with a site within 50 miles of New York City.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Add `--lat`, `--lon` and `--distance` with units to `biomcp search trial`. This BioMCP 1.0 run finds recruiting melanoma trials with a site within 50 miles of New York City.
 
 ## Command
 
-<Example id="a-trials-near" lines={5} />
+<Example id="a-trials-near" />
+
+Write each of the three options with an equals sign, as in `--lon=-74.0060`. Without it, a negative longitude such as `-74.0060` reads as an option, and the command stops with `usage.arguments`.
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `nct_id` | `NCT04752826` | The trial's ClinicalTrials.gov identifier. `biomcp get trial NCT locations` lists its sites. |
+| `title` | `BI-1808 as a Single Agent and With Pemb…` | The registered title, cut to 56 characters by the `cut` filter. |
 
 ## Why it works
 

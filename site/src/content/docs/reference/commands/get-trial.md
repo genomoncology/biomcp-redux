@@ -1,8 +1,7 @@
 ---
 title: biomcp get trial
-description: "Reference for the BioMCP 1.0.0 command biomcp get trial: Retrieve
-  exact trial cards in input order; request bounded intact source sections with
-  independent continuations."
+description: "The BioMCP 1.0.0 command biomcp get trial: Reads clinical trials
+  by NCT ID, and optionally sections such as eligibility or locations."
 goal: Look up the arguments, sections and examples of biomcp get trial.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get trial`.
+`biomcp get trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads clinical trials by NCT ID, and optionally sections such as eligibility or locations. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
+The program's help describes it:
+
+> Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
 
 ## Usage
 
@@ -51,25 +52,24 @@ Optional intact source sections. Default cards only; diseases and summary requir
 
 ## Sources
 
-`--source` accepts these sources: [ctgov](/sources/clinicaltrials-gov/), [nci](/sources/nci/).
+`--source` picks the source to ask: [ctgov](/sources/clinicaltrials-gov/), [nci](/sources/nci/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get trial NCT04303780
+```
+
+```sh
 biomcp get trial NCT04303780 documents
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.trial_cards/2`](/reference/schemas/biomcp-trial-cards-2/). Print the full JSON schema with `biomcp schema biomcp.trial_cards/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.trial_cards/2`](/reference/schemas/biomcp-trial-cards-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [trial entity](/user-guide/trial/) page lists every trial command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [trial guide](/user-guide/trial/) shows every trial command at work.

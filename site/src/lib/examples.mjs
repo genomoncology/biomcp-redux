@@ -30,10 +30,10 @@ export function readExample(id) {
   };
 }
 
-// The label of an example the build does not rerun: the saved run's day when it has one, then the reason.
+// The label of an example marked unverified: the day of its last run when it has output, then the
+// reason, written for readers (what the command needs and what they see without it).
 export function unverifiedLabel(ex) {
-  const head = ex.output && ex.ran ? `Output saved from a run on ${ex.ran}; the build does not rerun this example.` : 'The build does not run this example, and no output is shown.';
-  return `${head} ${ex.unverifiedReason}`;
+  return ex.output && ex.ran ? `Output from a run on ${ex.ran}. ${ex.unverifiedReason}` : ex.unverifiedReason;
 }
 
 // Trim long output to the first `lines` lines, marking the cut.

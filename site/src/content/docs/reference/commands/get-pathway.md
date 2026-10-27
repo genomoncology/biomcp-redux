@@ -1,7 +1,7 @@
 ---
 title: biomcp get pathway
-description: "Reference for the BioMCP 1.0.0 command biomcp get pathway: Get an
-  exact human Reactome R-HSA or WikiPathways WP card."
+description: "The BioMCP 1.0.0 command biomcp get pathway: Reads one Reactome or
+  WikiPathways pathway, and optionally its summary, genes or events."
 goal: Look up the arguments, sections and examples of biomcp get pathway.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get pathway`.
+`biomcp get pathway` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one Reactome or WikiPathways pathway, and optionally its summary, genes or events. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+The program's help describes it:
+
+> Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 ## Usage
 
@@ -44,21 +46,20 @@ Omit for the card; WikiPathways has summary and genes sections.
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get pathway R-HSA-9652817
+```
+
+```sh
 biomcp get pathway R-HSA-177929
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.pathway_card/5`](/reference/schemas/biomcp-pathway-card-5/). Print the full JSON schema with `biomcp schema biomcp.pathway_card/5`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.pathway_card/5`](/reference/schemas/biomcp-pathway-card-5/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [pathway entity](/user-guide/pathway/) page lists every pathway command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [pathway guide](/user-guide/pathway/) shows every pathway command at work.

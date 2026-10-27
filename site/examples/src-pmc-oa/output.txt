@@ -1,2 +1,15 @@
-{"status":"complete","sources":[{"source":"pmc-oa","state":"ok","reason":null}]}
-{"source":"pmc-oa","license":"cc_by","matches":12}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "pmc-oa",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "source": "pmc-oa",
+  "license": "cc_by",
+  "matches": 12
+}

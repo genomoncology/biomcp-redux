@@ -1,5 +1,102 @@
-# Reply schemas that no command returned when scripts/map-schemas.mjs last ran, with the reason
-# a reader sees on the schema page. gen-reference.mjs fails for any other schema with no command,
-# and for a schema listed here that a command now returns.
-biomcp.adverse_event_identifiers/1: "The identifier sections of `get adverse-event`, such as `unii` and `rxcui`, are listed in the help, but BioMCP refuses them with `usage.arguments`, so no command returns this schema."
-biomcp.protein_function/2: "`get protein ID function` returns the function text inside `biomcp.protein_card/3`, so no command returns this schema as a whole reply."
+# Read by scripts/gen-reference.mjs for the reply schema pages.
+#
+# no_command: reply schemas that no command returned when scripts/map-schemas.mjs last ran, with
+# the reason a reader sees on the schema page. gen-reference.mjs fails for any other schema with
+# no command, and for a schema listed here that a command now returns.
+no_command:
+  biomcp.adverse_event_identifiers/1: "The identifier sections of `get adverse-event`, such as `unii` and `rxcui`, are listed in the help, but BioMCP refuses them with `usage.arguments`, so no command returns this schema."
+  biomcp.protein_function/2: "`get protein ID function` returns the function text inside `biomcp.protein_card/3`, so no command returns this schema as a whole reply."
+
+# words: the fixed senses of words the program's field descriptions use. The shared types page
+# lists them. Each meaning comes from the program's types and its cautions text.
+words:
+  native: "As the source gives it: the source's own value, name or order, not one BioMCP made."
+  literal: "Taken character for character. BioMCP does not interpret or correct it."
+  whole: "Not cut. A whole text, row or record holds everything the source sent."
+  complete: "Not cut, as whole."
+  exact: "Matched or kept character for character, with no fuzzy matching."
+  checked: "BioMCP has validated the value's form, such as an identifier's pattern."
+  bounded: "Has a fixed maximum size; a longer list or file is cut or refused."
+  retained: "Kept from an earlier reply, such as a stored search or report, so later pages read the same data."
+  opaque: "An identifier to pass back to BioMCP as it is. It has no meaning to parse."
+  provider: "The source: the service or bundle the data comes from."
+  typed: "One value from a fixed list, such as a reason code."
+
+# glosses: plain words for a field or type description of the program's schemas, keyed by the
+# exact description. The page shows the gloss in place of the description. Each one restates what
+# the program's types do; the program's own description is the product fix.
+glosses:
+  "One versioned command response; schema identity comes only from its body type.": "One reply to one command. `schema` names the reply schema and its version, which decide the types of `result` and `query`."
+  "Overall outcome.": "How the command went: `complete`, `partial`, `absent` or `failed`."
+  "Bounded local cache failure, independent of provider outcomes.": "A problem with BioMCP's local cache: `busy`, `database` or `version`. The sources may still have answered."
+  "Parsed query.": "The request as BioMCP read it from the command's arguments."
+  "Answer when available.": "The data the command found. Missing when there is none to return."
+  "Search page metadata.": "For a search page: how many results it skipped, returned and matched in all."
+  "Sources actually asked.": "One entry for each source the command asked, with what happened."
+  "Rejected source fields.": "Fields BioMCP could not accept from a source record, each with its reason."
+  "Available next commands.": "Commands you can run next, such as the next page or another section."
+  "A local cache failure that leaves the provider outcome intact.": "A problem with BioMCP's local cache. The sources' answers still stand."
+  "Search counts after filtering and deduplication.": "Counts for one search page, after BioMCP removes duplicates and applies filters."
+  "Skipped results.": "How many results come before this page."
+  "Optional pooled snapshot.": "The stored search this page comes from, when BioMCP kept one."
+  "Results returned on this page.": "How many results this page holds."
+  "Total matching identities held by this snapshot.": "How many matching records the search holds in all."
+  "Matching source count exceeded the retrieved window.": "True when the source had more matches than BioMCP fetched."
+  "Fixed lifetime and size of a stored search snapshot.": "A search BioMCP stored so later pages read the same results: its ID, size, and when it was made and expires."
+  "Publication wall time in Unix seconds.": "When the stored search was made, in Unix seconds."
+  "Fixed expiry wall time in Unix seconds.": "When the stored search expires, in Unix seconds."
+  "Opaque snapshot identifier.": "The stored search's ID. Pass it back to BioMCP as it is."
+  "Number of ordered identities.": "How many records the stored search holds."
+  "The biodata field name.": "The name of the rejected field."
+  "The record's canonical identifier, when known.": "The record's identifier, when known."
+  "A command argument list spelled from a typed action.": "A command you can run next. `args` is the command without the leading `biomcp`; `kind` says what it does."
+  "CLI and MCP arguments.": "The command's words without the leading `biomcp`. The same list works as the MCP tool's arguments."
+  "Purpose of the action.": "What the command does, such as `page` or `section`."
+  "Purpose of an available next command.": "What a next command does."
+  "One source's outcome, without provider text.": "What happened when BioMCP asked one source."
+  "Asked source.": "The source BioMCP asked."
+  "Reviewed source use category; publisher terms remain authoritative.": "The source's use group: `open`, `attribution`, `noncommercial` or `restricted`. The publisher's terms decide what you may do with the data."
+  "Retained state.": "What happened: `ok`, `stale`, `syncing`, `failed` or `skipped`."
+  "Failure or stale-fallback reason.": "Why the source failed, or why BioMCP answered with older stored data."
+  "Exact provider search term.": "The search term BioMCP sent to the source."
+  "Provider matching count.": "How many records matched at the source."
+  "Retrieved identity depth.": "How many matching records BioMCP retrieved from the source."
+  "Provider query notices that do not indicate failure.": "Notes from the source about the query, such as words it did not index. They are not failures."
+  "A provider query interpretation notice.": "A note from the source about how it read the query."
+  "Publisher terms name from the source registry.": "The name of the publisher's terms."
+  "Publisher page documenting the terms.": "The publisher's page with those terms."
+  "Reviewed source-use category, without inferring rights in individual records.": "The source's use group. It describes the source, not the rights in any one record."
+  "Nonempty text with surrounding Unicode whitespace removed.": "Text that is never empty, with spaces removed from both ends."
+  "A stable code for a rejected field value.": "Why a field value was rejected."
+  "A requested section has exactly one state.": "One section of a record. `state` says whether the source returned data (`data`), answered with nothing (`empty`), failed (`unavailable`), was turned off (`skipped`), or the section does not apply to this record."
+  "The source returned data.": "The source returned data for the section."
+  "Whole section data.": "The section's data, not cut."
+  "Source identity.": "The source that holds the section."
+  "The source answered with no data.": "The source answered, with no data for this section."
+  "Native entry, if any.": "The source's entry for the record, when it has one."
+  "A requested source failed.": "The source failed to answer."
+  "Typed reason.": "Why, as one reason code."
+  "User settings prevented the source request.": "Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it."
+  "Entity facts rule this section out.": "The section does not apply to this record."
+  "A bounded list with the total before its cap was applied.": "A list cut to a maximum length. `total` counts the items before the cut."
+  "References in stable source order.": "The items, in the source's order."
+  "Distinct references before capping.": "How many distinct items there were before the cut."
+  "Checked request for the next intact records, absent when complete.": "The request that reads the next records. Missing when there are no more."
+  "Complete records in source order.": "Whole records, in the source's order."
+  "Offset in the unchanged source collection.": "How many of the source's records come before this page."
+  "Original collection size.": "How many records the source's list holds."
+  "Whole-record page retaining collection order.": "One page of whole records, in the source's order."
+  "Retained collection identity.": "The ID of a stored list, from an earlier reply, so later pages read the same data."
+  "Native source rows; totals in the envelope count rows, not distinct entities.": "Rows as the source gives them. Totals in `page` count rows, not distinct records."
+  "Native source paper ID.": "The paper's ID at the source (Semantic Scholar)."
+  "Indexed-paper disclosure level.": "How much to show for each paper. `details` adds the paper's full metadata."
+  "Literal case-insensitive needle.": "Text to find, matched as typed, ignoring case."
+  "Bounded local failure without paths or database diagnostics.": "Which kind of local cache problem it was."
+  "Native collection exceeds the admitted complete source page.": "The source's list was longer than BioMCP accepts in one page."
+  "A source repeats one exact identity with incompatible records.": "The source sent two different records with the same identifier."
+
+# gloss_patterns: the same, for descriptions that follow a pattern. match is a regular
+# expression on the whole description; plain may use $1.
+gloss_patterns:
+  - match: "^Native `([^`]+)`; literal source value\\.$"
+    plain: "The source's own `$1` value, unchanged."

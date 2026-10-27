@@ -1,3 +1,25 @@
-{"status":"complete","sources":[{"source":"icite","state":"ok","reason":null},{"source":"pubmed","state":"ok","reason":null}]}
-{"pmid":"35402264","cited_by":683,"title":"PI3K/Akt/mTOR Pathway and Its Role in Cancer Therapeutics: Are We Making Headway?"}
-{"pmid":"34175443","cited_by":647,"title":"Attacking the PI3K/Akt/mTOR signaling pathway for targeted therapeutic treatment in human cancer."}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "icite",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "pubmed",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "pmid": "35402264",
+  "cited_by": 683,
+  "title": "PI3K/Akt/mTOR Pathway and Its Role in Cancer Thera…"
+}
+{
+  "pmid": "34175443",
+  "cited_by": 647,
+  "title": "Attacking the PI3K/Akt/mTOR signaling pathway for …"
+}

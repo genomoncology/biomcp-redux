@@ -1,1 +1,11 @@
-{"source":"pubmed","keywords":["AKT1","E17K","cancer","mutation","prognisis"],"mesh":[]}
+{
+  "source": "pubmed",
+  "keywords": [
+    "AKT1",
+    "E17K",
+    "cancer",
+    "mutation",
+    "prognisis"
+  ],
+  "mesh": []
+}

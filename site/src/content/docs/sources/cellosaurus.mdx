@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `cellosaurus`. BioMCP reads cell-line cards, names, identity, cross-references and variants from Cellosaurus.
+Cellosaurus is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads cell-line cards, names, identity, cross-references and variants from Cellosaurus. Replies name it `cellosaurus`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `cellosaurus`. BioMCP reads cell-line cards, name
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-cellosaurus" />
 
@@ -35,8 +35,8 @@ These commands read Cellosaurus as part of their reply. They do not take `--sour
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search cell-line`](/reference/commands/search-cell-line/) | One literal cell line search, with native order and no total claim. |
-| [`biomcp get cell-line`](/reference/commands/get-cell-line/) | One exact identity and an optional bounded named section. |
+| [`biomcp search cell-line`](/reference/commands/search-cell-line/) | Finds cell lines by name in Cellosaurus. |
+| [`biomcp get cell-line`](/reference/commands/get-cell-line/) | Reads one cell line by its ID, and optionally one named section such as its variants. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources cellosaurus`, or ad
 ## Next
 
 The task guide for Cellosaurus is [Look up cell lines and cancer studies](/studies-and-cell-lines/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

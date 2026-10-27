@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"faers","state":"ok","reason":null}]}
-{"id":"26907716","serious":"1","first_received":"20260622"}
-{"id":"26906541","serious":"1","first_received":"20260621"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "faers",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "26907716",
+  "serious": "1",
+  "first_received": "20260622"
+}
+{
+  "id": "26906541",
+  "serious": "1",
+  "first_received": "20260621"
+}

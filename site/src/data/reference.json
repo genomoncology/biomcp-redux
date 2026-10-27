@@ -33,7 +33,7 @@
       },
       {
         "value": "syncing",
-        "meaning": "The source reads a local bundle that is not ready. The reply's `next` list names the `sync` command."
+        "meaning": "The source reads a local copy that is still downloading. The reply's `next` list names the `sync` command."
       },
       {
         "value": "failed",
@@ -71,11 +71,11 @@
       },
       {
         "value": "pivot",
-        "meaning": "Follows an exact linked record in another entity."
+        "meaning": "Follows an exact link to a record of another kind, such as from a variant to its gene."
       },
       {
         "value": "sync",
-        "meaning": "Downloads a missing or stale local bundle."
+        "meaning": "Downloads a missing or stale local copy of a source."
       },
       {
         "value": "key",

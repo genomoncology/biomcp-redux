@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"complex-portal","state":"ok","reason":null}]}
-{"id":"CPX-10863","participant_total":29,"predicted":true}
-{"id":"CPX-12671","participant_total":93,"predicted":true}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "complex-portal",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "CPX-10863",
+  "participant_total": 29,
+  "predicted": true
+}
+{
+  "id": "CPX-12671",
+  "participant_total": 93,
+  "predicted": true
+}

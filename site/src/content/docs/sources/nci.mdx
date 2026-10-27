@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `nci`. BioMCP searches the NCI Clinical Trials Search API and reads NCI trial records with your NCI key.
+NCI Clinical Trials Search is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP searches the NCI Clinical Trials Search API and reads NCI trial records with your NCI key. Replies name it `nci`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `nci`. BioMCP searches the NCI Clinical Trials Se
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-nci" />
 
@@ -37,8 +37,8 @@ Pick this source with `--source nci` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search trial`](/reference/commands/search-trial/) | Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback. |
-| [`biomcp get trial`](/reference/commands/get-trial/) | Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations. |
+| [`biomcp search trial`](/reference/commands/search-trial/) | Finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more. |
+| [`biomcp get trial`](/reference/commands/get-trial/) | Reads clinical trials by NCT ID, and optionally sections such as eligibility or locations. |
 
 ## Limits
 
@@ -51,5 +51,3 @@ Leave this source out of one command with `--disable-sources nci`, or add `"nci"
 ## Next
 
 The task guide for NCI Clinical Trials Search is [Find clinical trials by condition, gene or variant](/how-to/find-trials/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -1,6 +1,8 @@
 ---
 title: biomcp get pgx
-description: "Reference for the BioMCP 1.0.0 command biomcp get pgx: PGx card or section."
+description: "The BioMCP 1.0.0 command biomcp get pgx: Reads pharmacogenomic
+  records from CPIC or ClinPGx, such as guidelines, recommendations or
+  annotations."
 goal: Look up the arguments, sections and examples of biomcp get pgx.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -9,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get pgx`.
+`biomcp get pgx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads pharmacogenomic records from CPIC or ClinPGx, such as guidelines, recommendations or annotations. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-PGx card or section. No phenotype, phase or dose is calculated.
+The program's help describes it:
+
+> PGx card or section. No phenotype, phase or dose is calculated.
 
 ## Usage
 
@@ -47,25 +51,24 @@ One named section; omitted means the CPIC gene card.
 
 ## Sources
 
-`--source` accepts these sources: [cpic](/sources/cpic/), [clinpgx](/sources/pharmgkb/).
+`--source` picks the source to ask: [cpic](/sources/cpic/), [clinpgx](/sources/pharmgkb/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get pgx --gene DPYD --source cpic
+```
+
+```sh
 biomcp get pgx --gene DPYD --source cpic diplotype --diplotype '*1/*2A'
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.pgx_card/1`](/reference/schemas/biomcp-pgx-card-1/), [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/). Print the full JSON schema with `biomcp schema biomcp.pgx_card/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is one of [`biomcp.pgx_card/1`](/reference/schemas/biomcp-pgx-card-1/), [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [pgx entity](/user-guide/pgx/) page lists every pgx command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [pgx guide](/user-guide/pgx/) shows every pgx command at work.

@@ -1,7 +1,6 @@
 ---
 title: biomcp skill render
-description: "Reference for the BioMCP 1.0.0 command biomcp skill render: Print
-  the canonical agent guide."
+description: "The BioMCP 1.0.0 command biomcp skill render: Prints the whole agent guide."
 goal: Look up the arguments, sections and examples of biomcp skill render.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +9,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp skill render`.
+`biomcp skill render` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the whole agent guide. This page lists its usage.
 
-Print the canonical agent guide.
+The program's help describes it:
+
+> Print the canonical agent guide.
 
 ## Usage
 
@@ -22,18 +23,8 @@ biomcp skill render
 
 ## Arguments
 
-The help lists no arguments for this command.
-
-## Examples
-
-The help lists no examples for this command.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The command takes no arguments beyond those in its usage line.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

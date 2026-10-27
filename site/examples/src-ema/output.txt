@@ -1,2 +1,14 @@
-{"status":"complete","sources":[{"source":"ema","state":"ok","reason":null}]}
-{"id":"EMEA/H/C/002409","name":"Zelboraf"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "ema",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "EMEA/H/C/002409",
+  "name": "Zelboraf"
+}

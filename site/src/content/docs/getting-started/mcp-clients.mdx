@@ -10,7 +10,7 @@ import Example from '../../../components/Example.astro';
 import InstallLine from '../../../components/InstallLine.astro';
 import Fact from '../../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`. It offers <Fact k="counts.mcp_tools" /> tools: `biomcp`, which runs a BioMCP command, and `search` and `fetch`, which follow the shape ChatGPT research clients expect. The `biomcp` tool is not read-only: over stdio it can download bundles and clean the store; [what the tool can change](#what-the-tool-can-change) lists the limits. This page adds the server to a client, or gives a shell agent the BioMCP skill instead.
+BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`. It offers <Fact k="counts.mcp_tools" /> tools: `biomcp`, which runs a BioMCP command, and `search` and `fetch`, which follow the shape ChatGPT research clients expect. The `biomcp` tool is not read-only: over stdio it can download [bundles](/local-data/), local copies of sources, and clean the store; [what the tool can change](#what-the-tool-can-change) lists the limits. This page adds the server to a client, or gives a shell agent the BioMCP skill instead.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`. It offers
 
 <Example id="mcp-config" />
 
-The build replaced its own path with `/home/you/.local/bin/biomcp`. Your output names your path.
+The output above shows `/home/you/.local/bin/biomcp`; yours names the path where you installed BioMCP.
 
 Choose another shape with `--client`:
 
@@ -38,7 +38,7 @@ Each client keeps its MCP settings in its own place. These locations come from e
 | Client | Where the settings live | Top-level key |
 | --- | --- | --- |
 | Claude Desktop | macOS `~/Library/Application Support/Claude/claude_desktop_config.json`, Windows `%APPDATA%\Claude\claude_desktop_config.json`. Settings, Developer, Edit Config opens it. ([MCP quickstart](https://modelcontextprotocol.io/quickstart/user)) | `mcpServers` |
-| Claude Code | `.mcp.json` at the project root for a project server, or add it with `claude mcp add biomcp -- PATH serve`, where `PATH` is the `command` path that `biomcp mcp-config` prints; this command was not run in the build. ([Claude Code MCP docs](https://code.claude.com/docs/en/mcp)) | `mcpServers` |
+| Claude Code | `.mcp.json` at the project root for a project server, or add it with `claude mcp add biomcp -- PATH serve`, where `PATH` is the `command` path that `biomcp mcp-config` prints. This command is a fragment with no output shown. ([Claude Code MCP docs](https://code.claude.com/docs/en/mcp)) | `mcpServers` |
 | Cursor | `~/.cursor/mcp.json` for every project, or `.cursor/mcp.json` in one project. ([Cursor MCP docs](https://cursor.com/docs/context/mcp)) | `mcpServers` |
 | VS Code | `.vscode/mcp.json` in the workspace. ([VS Code MCP docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)) | `servers` |
 | Codex | `~/.codex/config.toml`, under `[mcp_servers.biomcp]`. The command below writes it. ([Codex MCP docs](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)) | none |
@@ -51,11 +51,11 @@ Codex registers the server with one command:
 
 ## Check the server answers
 
-Restart the client and ask it to run a BioMCP command, such as "use biomcp to get gene BRAF". The client sends the command's words as the `args` array of the `biomcp` tool. This exchange, run in the build, starts the server over stdio and calls the tool the way a client does:
+Restart the client and ask it to run a BioMCP command, such as "use biomcp to get gene BRAF". The client sends the command's words as the `args` array of the `biomcp` tool. This exchange starts the server over stdio and calls the tool the way a client does:
 
 <Example id="mcp-call" />
 
-The tool returns the same JSON envelope as the command line. MCP replies are always JSON; `--format md` has no effect there.
+The tool returns the same JSON reply, with the same [envelope](/results/), as the command line. MCP replies are always JSON; `--format md` has no effect there.
 
 ## What the tool can change
 
@@ -74,7 +74,7 @@ A refused call returns status `usage` with error code `usage.arguments`. The `se
 
 ## Use search and fetch from ChatGPT-style clients
 
-Research clients that expect `search` and `fetch` tools can use those two. `search` takes an entity and its arguments, such as `gene BRAF --limit 2`, or plain article text. Each result has an `id` that `fetch` accepts.
+Research clients that expect `search` and `fetch` tools can use those two. `search` takes an [entity](/reference/entities/), the kind of record, and its arguments, such as `gene BRAF --limit 2`, or plain article text. Each result has an `id` that `fetch` accepts.
 
 <Example id="mcp-search-tool" />
 

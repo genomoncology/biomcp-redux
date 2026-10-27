@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `complex-portal`. BioMCP reads the protein complexes a protein takes part in and their members.
+Complex Portal is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads the protein complexes a protein takes part in and their members. Replies name it `complex-portal`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `complex-portal`. BioMCP reads the protein comple
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-complex-portal" />
 
@@ -35,9 +35,9 @@ These commands read Complex Portal as part of their reply. They do not take `--s
 
 | Command | Description |
 | --- | --- |
-| [`biomcp protein complexes`](/reference/commands/protein-complexes/) | Page five source isoforms, exact-participant complexes or PDB links. |
-| [`biomcp protein complex-members`](/reference/commands/protein-complex-members/) | Page five native participants of an exact Complex Portal complex containing the anchor. |
-| [`biomcp get protein`](/reference/commands/get-protein/) | Read source protein cards; a symbol returns candidates without choosing a protein. |
+| [`biomcp protein complexes`](/reference/commands/protein-complexes/) | Lists the Complex Portal complexes that hold one protein, five at a time. |
+| [`biomcp protein complex-members`](/reference/commands/protein-complex-members/) | Lists the members of one Complex Portal complex that holds the protein, five at a time. |
+| [`biomcp get protein`](/reference/commands/get-protein/) | Reads UniProt protein records by accession, and optionally sections such as domains or sequence. |
 
 ## Limits
 
@@ -50,5 +50,3 @@ Leave this source out of one command with `--disable-sources complex-portal`, or
 ## Next
 
 The task guide for Complex Portal is [Look up genes, proteins and pathways](/genes-and-proteins/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

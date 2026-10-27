@@ -1,7 +1,8 @@
 ---
 title: biomcp get drug
-description: "Reference for the BioMCP 1.0.0 command biomcp get drug: Exact
-  native ID retrieval with an explicitly selected source."
+description: "The BioMCP 1.0.0 command biomcp get drug: Reads one drug record by
+  its ID in one source, and optionally a section such as its label or
+  approvals."
 goal: Look up the arguments, sections and examples of biomcp get drug.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get drug`.
+`biomcp get drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one drug record by its ID in one source, and optionally a section such as its label or approvals. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Exact native ID retrieval with an explicitly selected source.
+The program's help describes it:
+
+> Exact native ID retrieval with an explicitly selected source.
 
 ## Usage
 
@@ -52,25 +55,24 @@ Explicit named disclosures; empty means identity only.
 
 ## Sources
 
-`--source` accepts these sources: [who-pq](/sources/who-prequalification/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
+`--source` picks the source to ask: [who-pq](/sources/who-prequalification/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get drug EMEA/H/C/000406 --source ema
+```
+
+```sh
 biomcp get drug EMEA/H/C/000406 regulatory --source ema
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.drug_card/2`](/reference/schemas/biomcp-drug-card-2/), [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/). Print the full JSON schema with `biomcp schema biomcp.drug_card/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is one of [`biomcp.drug_card/2`](/reference/schemas/biomcp-drug-card-2/), [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [drug entity](/user-guide/drug/) page lists every drug command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [drug guide](/user-guide/drug/) shows every drug command at work.

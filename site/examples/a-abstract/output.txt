@@ -1,2 +1,8 @@
-Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis.
-[{"text":"The substitution of the seventeenth amino acid glutamate by lysine in the homologous structural domain of the Akt1 gene pleckstrin is a somatic cellular mutation found in breast, colorectal, and ovarian cancers, named p. Glu17Lys
+title: Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis
+and Prognosis.
+abstract: The substitution of the seventeenth amino acid glutamate by lysine
+in the homologous structural domain of the Akt1 gene pleckstrin is a somatic
+cellular mutation found in breast, colorectal, and ovarian cancers, named p.
+Glu17Lys or E17K. In recent years, a growing number of studies have suggested
+that this mutation may play a unique role in the development of tumors. In
+this review article, we describe how AKT1(E17K) mutations stimulate

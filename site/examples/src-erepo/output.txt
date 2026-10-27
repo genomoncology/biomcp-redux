@@ -1,2 +1,16 @@
-{"status":"complete","sources":[{"source":"erepo","state":"ok","reason":null}]}
-{"gene":"TP53","condition":"Li-Fraumeni syndrome","classification":"Pathogenic","panel":"TP53 VCEP"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "erepo",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "gene": "TP53",
+  "condition": "Li-Fraumeni syndrome",
+  "classification": "Pathogenic",
+  "panel": "TP53 VCEP"
+}

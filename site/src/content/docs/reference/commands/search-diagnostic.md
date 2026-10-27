@@ -1,7 +1,8 @@
 ---
 title: biomcp search diagnostic
-description: "Reference for the BioMCP 1.0.0 command biomcp search diagnostic:
-  Search one diagnostic source."
+description: "The BioMCP 1.0.0 command biomcp search diagnostic: Finds
+  diagnostic tests in one source, such as GTR, the FDA companion diagnostic list
+  or WHO's prequalified tests."
 goal: Look up the arguments, sections and examples of biomcp search diagnostic.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search diagnostic`.
+`biomcp search diagnostic` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests. This page lists its arguments, examples and reply.
 
-Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
+The program's help describes it:
+
+> Search one diagnostic source. A listing is not authorization; a companion row is not a treatment recommendation.
 
 ## Usage
 
@@ -25,7 +28,7 @@ biomcp search diagnostic [OPTIONS]
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
 | `--biomarker` | value | no |  |  | Exact table-0 biomarker cell; unsupported in the group table. |
-| `--bundle-revision` | value | no |  |  | Immutable stored bundle revision retained by a continuation. |
+| `--bundle-revision` | value | no |  |  | Immutable stored [bundle](/local-data/) revision retained by a continuation. |
 | `--condition-id` | value | no |  |  | Exact MedGen:CUI identifier only. |
 | `--device-id` | value | no |  |  | Exact PMA application, application/supplement or native K identity. |
 | `--drug-application` | value | no |  |  | Cell-owned typed NDA/BLA application. |
@@ -40,25 +43,24 @@ biomcp search diagnostic [OPTIONS]
 
 ## Sources
 
-`--source` accepts these sources: [gtr](/sources/gtr/), [fda-cdx](/sources/fda-cdx/), [who-ivd](/sources/who-ivd/).
+`--source` picks the source to ask: [gtr](/sources/gtr/), [fda-cdx](/sources/fda-cdx/), [who-ivd](/sources/who-ivd/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search diagnostic --source gtr --gene BRCA1
+```
+
+```sh
 biomcp search diagnostic --source gtr --condition-id MedGen:C2676676
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.diagnostic_page/2`](/reference/schemas/biomcp-diagnostic-page-2/). Print the full JSON schema with `biomcp schema biomcp.diagnostic_page/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.diagnostic_page/2`](/reference/schemas/biomcp-diagnostic-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [diagnostic entity](/user-guide/diagnostic/) page lists every diagnostic command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [diagnostic guide](/user-guide/diagnostic/) shows every diagnostic command at work.

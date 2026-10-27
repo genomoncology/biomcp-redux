@@ -1,3 +1,12 @@
-NCT05254184	KRAS-Targeted Vaccine With Chemoimmunotherapy, Nivolumab and Ipilimumab for Patients With NSCLC
-NCT05276726	A Study of JAB-21822 in Advanced or Metastatic NSCLC With KRAS p.G12C and STK11 Co-mutation and Wild-type KEAP1
-NCT07190248	A Clinical Study of Calderasib (MK-1084) and Other Treatments for Participants With Non-Small Cell Lung Cancer (MK-1084-007/KANDLELIT-007)
+{
+  "nct_id": "NCT05254184",
+  "title": "KRAS-Targeted Vaccine With Chemoimmunotherapy, Nivolumab…"
+}
+{
+  "nct_id": "NCT05276726",
+  "title": "A Study of JAB-21822 in Advanced or Metastatic NSCLC Wit…"
+}
+{
+  "nct_id": "NCT07190248",
+  "title": "A Clinical Study of Calderasib (MK-1084) and Other Treat…"
+}

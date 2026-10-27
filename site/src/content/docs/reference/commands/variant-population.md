@@ -1,8 +1,7 @@
 ---
 title: biomcp variant population
-description: "Reference for the BioMCP 1.0.0 command biomcp variant population:
-  Read a bounded ancestry-detail page from the exact source-given GRCh38
-  allele."
+description: "The BioMCP 1.0.0 command biomcp variant population: Lists gnomAD
+  population frequency details for one variant."
 goal: Look up the arguments, sections and examples of biomcp variant population.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp variant population`.
+`biomcp variant population` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists gnomAD population frequency details for one variant. This page lists its arguments, examples and reply.
 
-Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
+The program's help describes it:
+
+> Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
 
 ## Usage
 
@@ -34,21 +35,20 @@ biomcp variant population [OPTIONS] <input>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp variant population CA123643 --detail
+```
+
+```sh
 biomcp variant population CA123643 --detail --offset 10
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.variant_population/4`](/reference/schemas/biomcp-variant-population-4/). Print the full JSON schema with `biomcp schema biomcp.variant_population/4`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.variant_population/4`](/reference/schemas/biomcp-variant-population-4/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [variant entity](/user-guide/variant/) page lists every variant command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [variant guide](/user-guide/variant/) shows every variant command at work.

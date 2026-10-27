@@ -1,7 +1,8 @@
 ---
 title: biomcp version
-description: "Reference for the BioMCP 1.0.0 command biomcp version: Print
-  version; --verbose adds build, schema and path provenance."
+description: "The BioMCP 1.0.0 command biomcp version: Prints the version;
+  --verbose adds the commit it was built from, the schema IDs and the paths
+  BioMCP uses."
 goal: Look up the arguments, sections and examples of biomcp version.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp version`.
+`biomcp version` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the version; --verbose adds the commit it was built from, the schema IDs and the paths BioMCP uses. This page lists its arguments.
 
-Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
+The program's help describes it:
+
+> Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
 
 ## Usage
 
@@ -26,16 +29,6 @@ biomcp version [OPTIONS]
 | --- | --- | --- | --- | --- | --- |
 | `--verbose` | boolean | no |  |  | Include commit, target, schema versions, config and cache paths. |
 
-## Examples
-
-The help lists no examples for this command.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

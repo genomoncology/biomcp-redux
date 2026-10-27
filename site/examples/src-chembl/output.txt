@@ -1,2 +1,14 @@
-{"status":"complete","sources":[{"source":"chembl","state":"ok","reason":null}]}
-{"mechanism":"Serine/threonine-protein kinase B-raf inhibitor","target":"CHEMBL5145"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "chembl",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "mechanism": "Serine/threonine-protein kinase B-raf inhibitor",
+  "target": "CHEMBL5145"
+}

@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"maude","state":"ok","reason":null}]}
-{"id":"50941416","event_type":"Malfunction","first_received":"20260930"}
-{"id":"50941438","event_type":"Injury","first_received":"20260930"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "maude",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "50941416",
+  "event_type": "Malfunction",
+  "first_received": "20260930"
+}
+{
+  "id": "50941438",
+  "event_type": "Injury",
+  "first_received": "20260930"
+}

@@ -1,4 +1,4 @@
 tests: 456
-GTR000305704.1	Cardiofaciocutaneous Syndrome	Center for Human Genetics, Inc	Clinical
-GTR000305706.2	Cardio-facio-cutaneous syndrome	Center for Human Genetics, Inc	Clinical
-GTR000305737.1	Noonan syndrome 3 (KRAS)	Center for Human Genetics, Inc	Clinical
+GTR000305704.1	Cardiofaciocutaneous Syn…	Center for Human Genetic…	Clinical
+GTR000305706.2	Cardio-facio-cutaneous s…	Center for Human Genetic…	Clinical
+GTR000305737.1	Noonan syndrome 3 (KRAS)	Center for Human Genetic…	Clinical

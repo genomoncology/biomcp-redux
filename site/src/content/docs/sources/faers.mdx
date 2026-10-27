@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `faers`. BioMCP searches and reads FAERS drug adverse event reports through openFDA. It is the default adverse event source.
+FDA Adverse Event Reporting System is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP searches and reads FAERS drug adverse event reports through openFDA. It is the default adverse event source. Replies name it `faers`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `faers`. BioMCP searches and reads FAERS drug adv
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-faers" />
 
@@ -35,8 +35,8 @@ Pick this source with `--source faers` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search adverse-event`](/reference/commands/search-adverse-event/) | Search five report headers by default. |
-| [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) | Exact native report identity and an optional independently paged section. |
+| [`biomcp search adverse-event`](/reference/commands/search-adverse-event/) | Finds adverse event reports in FAERS, VAERS or MAUDE, five at a time. |
+| [`biomcp get adverse-event`](/reference/commands/get-adverse-event/) | Reads one adverse event report by its ID, and optionally one section such as its drugs or reactions. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources faers`, or add `"fa
 ## Next
 
 The task guide for FDA Adverse Event Reporting System is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

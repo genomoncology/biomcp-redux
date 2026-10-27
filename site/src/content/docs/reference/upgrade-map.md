@@ -8,7 +8,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or renamed, 38 dropped by ruling, 5 deferred by ruling. It is generated from the release's parity ledger. [Upgrading from 0.9](/upgrade-from-0-9/) explains the main changes.
+This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or renamed, 38 dropped by ruling, 5 deferred by ruling. [Upgrading from 0.9](/upgrade-from-0-9/) explains the main changes.
 
 | 0.9 command | Outcome in 1.0 | Dropped options | Deferred options |
 | --- | --- | --- | --- |
@@ -122,5 +122,3 @@ This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or 
 | `variant erepo` | Ported or renamed | `--gene` | — |
 | `variant normalize` | Ported or renamed | — | — |
 | `gene cspec document` | Deferred by ruling | — | — |
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -1,7 +1,7 @@
 ---
 title: biomcp search article
-description: "Reference for the BioMCP 1.0.0 command biomcp search article:
-  Checked search selectors and pool cursor."
+description: "The BioMCP 1.0.0 command biomcp search article: Finds articles by
+  text, gene, disease, drug, variant, author, journal or date."
 goal: Look up the arguments, sections and examples of biomcp search article.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search article`.
+`biomcp search article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds articles by text, gene, disease, drug, variant, author, journal or date. This page lists its arguments, examples and reply.
 
-Checked search selectors and pool cursor.
+The program's help describes it:
+
+> Checked search selectors and pool cursor.
 
 ## Usage
 
@@ -46,25 +48,24 @@ biomcp search article [OPTIONS] [text]
 
 ## Sources
 
-`--source` accepts these sources: [pubmed](/sources/pubmed/), [europepmc](/sources/europepmc/), [litvar](/sources/litvar/), [semantic-scholar](/sources/semantic-scholar/), [litsense](/sources/litsense/), [pubtator](/sources/pubtator/).
+`--source` picks the source to ask: [pubmed](/sources/pubmed/), [europepmc](/sources/europepmc/), [litvar](/sources/litvar/), [semantic-scholar](/sources/semantic-scholar/), [litsense](/sources/litsense/), [pubtator](/sources/pubtator/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search article 'AKT1 E17K'
+```
+
+```sh
 biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/). Print the full JSON schema with `biomcp schema biomcp.article_page/3`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [article entity](/user-guide/article/) page lists every article command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [article guide](/user-guide/article/) shows every article command at work.

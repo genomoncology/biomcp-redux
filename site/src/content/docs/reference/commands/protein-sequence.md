@@ -1,7 +1,7 @@
 ---
 title: biomcp protein sequence
-description: "Reference for the BioMCP 1.0.0 command biomcp protein sequence:
-  Read one complete native sequence for an exact source accession."
+description: "The BioMCP 1.0.0 command biomcp protein sequence: Prints the whole
+  amino-acid sequence of one UniProt protein or isoform."
 goal: Look up the arguments, sections and examples of biomcp protein sequence.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,10 +10,12 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp protein sequence`.
+`biomcp protein sequence` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the whole amino-acid sequence of one UniProt protein or isoform. This page lists its arguments, examples and reply.
 
-Read one complete native sequence for an exact source accession.
-No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
+The program's help describes it:
+
+> Read one complete native sequence for an exact source accession.
+> No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs.
 
 ## Usage
 
@@ -29,21 +31,20 @@ biomcp protein sequence <isoform>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp protein sequence P00533
+```
+
+```sh
 biomcp protein sequence P00533 --fresh
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.protein_sequence/1`](/reference/schemas/biomcp-protein-sequence-1/). Print the full JSON schema with `biomcp schema biomcp.protein_sequence/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.protein_sequence/1`](/reference/schemas/biomcp-protein-sequence-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [protein entity](/user-guide/protein/) page lists every protein command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [protein guide](/user-guide/protein/) shows every protein command at work.

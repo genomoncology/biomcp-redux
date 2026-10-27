@@ -1,3 +1,12 @@
-NCT04752826	BI-1808 as a Single Agent and With Pembrolizumab (KEYTRUDA® ) in Treatment of Advanced Malignancies(Keynote-D20)
-NCT06743126	SUPRAME-ACTengine® IMA203 vs. Investigator's Choice of Treatment in Previously Treated, Unresectable or Metastatic Cutaneous Melanoma
-NCT04913285	A Study to Evaluate KIN-2787 in Participants With BRAF and/or NRAS Mutation Positive Solid Tumors
+{
+  "nct_id": "NCT04752826",
+  "title": "BI-1808 as a Single Agent and With Pembrolizumab (KEYTRU…"
+}
+{
+  "nct_id": "NCT06743126",
+  "title": "SUPRAME-ACTengine® IMA203 vs. Investigator's Choice of T…"
+}
+{
+  "nct_id": "NCT04913285",
+  "title": "A Study to Evaluate KIN-2787 in Participants With BRAF a…"
+}

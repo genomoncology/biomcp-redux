@@ -7,7 +7,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 registers 57 sources. This table comes from `biomcp --offline health`, which reports the registry without sending requests. The [data sources guide](/sources/) explains use groups and how to turn sources off. Each source has its own page under [/sources/](/sources/).
+BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources, reads 57 sources. Each belongs to one use group, a label for its terms: 21 `open`, 9 `attribution`, 6 `noncommercial`, 21 `restricted`. The table lists every source with its use group, key and publisher terms, as `biomcp --offline health` reports them without sending a request. The [data sources guide](/sources/) explains use groups and how to turn sources off, and each source links to its own page.
 
 | Source | Use group | Key | Terms |
 | --- | --- | --- | --- |
@@ -69,13 +69,6 @@ BioMCP 1.0.0 registers 57 sources. This table comes from `biomcp --offline healt
 | [maude](/sources/maude/) | open | optional, `OPENFDA_API_KEY` | [openFDA terms and license; third-party exceptions](https://open.fda.gov/terms/) |
 | [vaers](/sources/vaers/) | restricted |  | [CDC WONDER data use restrictions](https://wonder.cdc.gov/datause.html) |
 
-## Counts by use group
+## Next
 
-| Use group | Sources |
-| --- | --- |
-| `open` | 21 |
-| `attribution` | 9 |
-| `noncommercial` | 6 |
-| `restricted` | 21 |
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+The [data sources guide](/sources/) shows how to check that sources answer and how to turn a use group off.

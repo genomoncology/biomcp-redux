@@ -14,11 +14,20 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Request the gene's `protein` section: `biomcp get gene SYMBOL protein`. It returns the reviewed human UniProt entries for the gene. This BioMCP 1.0 run finds P15056 for BRAF, with its name and length.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Request the gene's `protein` section: `biomcp get gene SYMBOL protein`. It returns the reviewed human UniProt entries for the gene. This BioMCP 1.0 run finds P15056 for BRAF, with its name and length.
 
 ## Command
 
 <Example id="a-gene-uniprot" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `source` | `uniprot` | The source: `uniprot`. |
+| `accession` | `P15056` | The UniProt accession of the reviewed human protein. |
+| `name` | `Serine/threonine-protein kinase B-raf` | UniProt's recommended protein name. |
+| `length` | `766` | The protein's length in amino acids. |
 
 ## Why it works
 

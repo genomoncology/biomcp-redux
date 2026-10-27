@@ -1,19 +1,11 @@
 {
-  "about": "Read by scripts/check-landing.mjs (rule L8). Each term's first use on a page must link to its page or be defined there. pattern is a case-insensitive regular expression for the term's forms; it defaults to the term with an optional s.",
+  "about": "Read by scripts/check-landing.mjs (rule L8). Each term's first use on a page must link to its page or be defined there. pattern is a case-insensitive regular expression for the term's forms; it defaults to the term with an optional s. Only terms a newcomer would not know are listed, each in the sense BioMCP gives it: everyday words such as source, status and section stay out, and a word with a BioMCP sense is matched only in that phrasing.",
   "terms": {
     "envelope": {
       "page": [
+        "/reference/schemas/types/",
         "/results/",
         "/reference/envelope/"
-      ]
-    },
-    "section": {
-      "page": "/concepts/progressive-disclosure/"
-    },
-    "source": {
-      "page": [
-        "/sources/",
-        "/reference/data-sources/"
       ]
     },
     "bundle": {
@@ -26,19 +18,20 @@
       ],
       "pattern": "\\bentit(y|ies)\\b"
     },
-    "relation": {
-      "page": "/concepts/progressive-disclosure/"
-    },
-    "next": {
+    "section word": {
       "page": "/concepts/progressive-disclosure/",
-      "pattern": "\\bnext (commands?|list|steps|suggestions?)\\b"
+      "pattern": "\\bsection words?\\b"
     },
-    "status": {
+    "relation command": {
+      "page": "/concepts/progressive-disclosure/",
+      "pattern": "\\brelation commands?\\b"
+    },
+    "next list": {
       "page": [
-        "/results/",
-        "/reference/envelope/"
+        "/concepts/progressive-disclosure/",
+        "/results/"
       ],
-      "pattern": "\\bstatus(es)?\\b"
+      "pattern": "\\bnext list\\b"
     }
   }
 }

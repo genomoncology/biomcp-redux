@@ -1,8 +1,9 @@
 ---
-title: biomcp.author_page/2
-description: "The BioMCP 1.0.0 reply schema biomcp.author_page/2: its envelope
-  fields, its result type AuthorPage and the commands that return it."
-goal: Look up the fields of a biomcp.author_page/2 reply.
+title: Reply of biomcp search author (biomcp.author_page/2)
+description: "The JSON reply BioMCP 1.0.0 prints for biomcp search author: a
+  real example and the fields of schema biomcp.author_page/2."
+goal: "Parse the biomcp.author_page/2 reply: see a real example and what each
+  field means."
 reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: biomcp.author_page/2
@@ -10,87 +11,104 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 reply schema `biomcp.author_page/2`. Every reply names its schema in `schema`. Print this one as JSON Schema with `biomcp schema biomcp.author_page/2`.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp search author`](/reference/commands/search-author/) replies with `schema` set to `biomcp.author_page/2`. Read this page when your code parses that reply. It shows a real reply, then the fields that only this schema has. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/).
 
-These commands return it: [`biomcp search author`](/reference/commands/search-author/).
+## Commands that return it
 
-Calls that returned it:
+These commands returned this reply:
 
-- `biomcp search author 'Louis Williams' --limit 3` ([`biomcp search author`](/reference/commands/search-author/))
-- `biomcp search author 'Louis Williams'` ([`biomcp search author`](/reference/commands/search-author/))
+```sh
+biomcp search author 'Louis Williams' --limit 3
+biomcp search author 'Louis Williams'
+```
 
-## Envelope
+`biomcp schema biomcp.author_page/2` prints the full JSON Schema.
 
-One versioned command response; schema identity comes only from its body type.
+## Example reply
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `local_error` | [CacheProblem](#cacheproblem) or null | no | Bounded local cache failure, independent of provider outcomes. |
-| `next` | array of [Step](#step) | no | Available next commands. |
-| `page` | [PageInfo](#pageinfo) or null | no | Search page metadata. |
-| `problems` | array of [Problem](#problem) | no | Rejected source fields. |
-| `query` | [AuthorSearch](#query-authorsearch) | yes | Parsed query. |
-| `result` | [AuthorPage](#result-authorpage) or null | no | Answer when available. |
-| `schema` | "biomcp.author_page/2" | yes |  |
-| `sources` | array of [SourceOutcome](#sourceoutcome) | no | Sources actually asked. |
-| `status` | [Status](#status) | yes | Overall outcome. |
+`biomcp search author 'Louis Williams' --limit 3` returned this reply on 2026-10-27. Lists show their first items, and a line that starts with … counts the items left out. Text that ends in … is cut.
 
-## Result: AuthorPage
+```json
+{
+  "schema": "biomcp.author_page/2",
+  "status": "complete",
+  "query": {
+    "query": "Louis Williams",
+    "source": "semantic-scholar",
+    "limit": 3,
+    "offset": 0
+  },
+  "result": {
+    "items": [
+      {
+        "id": "semantic-scholar:2162869982",
+        "name": "L. Williams",
+        "affiliations": [],
+        "counts": {
+          "scope": "provider_record",
+          "paper_count": 97,
+          "citation_count": 269,
+          "h_index": 7
+        }
+      },
+      … 2 more
+    ],
+    "matching_records": 58
+  },
+  "page": {
+    "offset": 0,
+    "returned": 3,
+    "total": 58,
+    "pool": {
+      "id": "1579697d96634dab0785dbe527d54ccb",
+      "size": 3,
+      "created": 1793140296,
+      "expires": 1793226696
+    }
+  },
+  "sources": [
+    {
+      "source": "semantic-scholar",
+      "use": "noncommercial",
+      "terms": "Semantic Scholar API License Agreement",
+      "terms_url": "https://api.semanticscholar.org/license/",
+      "state": "ok"
+    }
+  ],
+  "next": [
+    {
+      "kind": "disambiguate",
+      "args": ["get", "author", "semantic-scholar:2162869982"]
+    },
+    … 3 more
+  ]
+}
+```
+
+## Fields
+
+`result` holds [AuthorPage](#authorpage). `query` holds [AuthorSearch](#authorsearch). `query` repeats the request as BioMCP read it.
+
+### AuthorPage
 
 Native author candidates in provider order; search total counts only this query.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
-| `items` | array of [AuthorHeader](#authorheader) | yes | Source candidates; no deduplication by display name. |
+| `items` | list of [AuthorHeader](/reference/schemas/types/#authorheader) | yes | Source candidates; no deduplication by display name. |
 | `matching_records` | integer or null | no | Native matching-record total, if supplied. |
 
-## Query: AuthorSearch
+### AuthorSearch
 
 Literal author name query and native window; positional text maps to query.
 
-| Field | Type | Required | Description |
+| Field | Type | Always present | Meaning |
 | --- | --- | --- | --- |
 | `limit` | integer (uint32) | no | Bounded source page size. |
 | `offset` | integer (uint32) | no | Native offset. |
-| `pool` | [Text](#text) | no | Retained page identity. |
+| `pool` | [Text](/reference/schemas/types/#text) | no | Retained page identity. |
 | `query` | string | yes | Literal query from the positional argument or --query. |
 | `source` | [AuthorSearchSource](#authorsearchsource) | no | Native author source. |
-
-## Types
-
-Every other type this schema uses.
-
-### AuthorCountScope
-
-Scope of source-reported bibliographic counts.
-
-Values: `provider_record`.
-
-### AuthorCounts
-
-Counts describe only this provider record, never a global publication corpus.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `citation_count` | integer or null | no | Native citations to this record’s indexed papers. |
-| `h_index` | integer or null | no | Native h-index for this record’s indexed papers. |
-| `paper_count` | integer or null | no | Native indexed paper count. |
-| `scope` | [AuthorCountScope](#authorcountscope) | yes | Counts apply only to this provider record. |
-
-### AuthorHeader
-
-One source candidate; absent affiliations differ from an empty source collection.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `affiliations` | array or null | no | Native affiliation labels; no employment claim. |
-| `counts` | [AuthorCounts](#authorcounts) or null | no | Source record counts when supplied. |
-| `id` | [AuthorId](#authorid) | yes | Exact qualified provider record. |
-| `name` | [Text](#text) | yes | Source display name, never a join key. |
-
-### AuthorId
-
-Type: string.
 
 ### AuthorSearchSource
 
@@ -98,132 +116,6 @@ Author search supports one provider and its legacy spelling.
 
 Values: `semantic-scholar`, `semanticscholar`.
 
-### CacheProblem
+## Next
 
-A local cache failure that leaves the provider outcome intact.
-
-Values: `busy`, `database`, `version`.
-
-### PageInfo
-
-Search counts after filtering and deduplication.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `offset` | integer (uint32) | yes | Skipped results. |
-| `pool` | [PoolInfo](#poolinfo) or null | no | Optional pooled snapshot. |
-| `returned` | integer (uint32) | yes | Results returned on this page. |
-| `total` | integer (uint64) | yes | Total matching identities held by this snapshot. |
-| `truncated` | boolean or null | no | Matching source count exceeded the retrieved window. |
-
-### PoolInfo
-
-Fixed lifetime and size of a stored search snapshot.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `created` | integer (uint64) | yes | Publication wall time in Unix seconds. |
-| `expires` | integer (uint64) | yes | Fixed expiry wall time in Unix seconds. |
-| `id` | [Text](#text) | yes | Opaque snapshot identifier. |
-| `size` | integer (uint32) | yes | Number of ordered identities. |
-
-### Problem
-
-A field that could not be accepted from a source record.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `code` | [ProblemCode](#problemcode) | yes | Why the field value was not accepted. |
-| `field` | string | yes | The biodata field name. |
-| `record` | [Text](#text) or null | no | The record's canonical identifier, when known. |
-| `source` | [Source](#source) | yes | The source that supplied the record. |
-
-### ProblemCode
-
-A stable code for a rejected field value.
-
-Values: `value.unknown`, `collection.incomplete`, `identity.conflict`.
-
-### Reason
-
-Why a source could not supply data.
-
-Values: `not_found`, `not_open`, `not_pdf`, `unsupported`, `too_large`, `rate_limited`, `unavailable`, `tls`, `proxy`, `rejected`, `bad_reply`, `deadline_exceeded`, `offline`, `no_key`, `disabled`, `replay_miss`, `syncing`, `no_join_id`.
-
-### Source
-
-A source of BioMCP data, identified by its canonical short name.
-
-Values: `hgnc`, `mygene`, `reactome`, `wikipathways`, `hpa`, `uniprot`, `interpro`, `complex-portal`, `gnomad`, `clinvar`, `erepo`, `gwas`, `clingen`, `pubmed`, `europepmc`, `litvar`, `litsense`, `semantic-scholar`, `orcid`, `pmc-oa`, `icite`, `pubtator`, `ctgov`, `nci`, `civic`, `hotspots`, `alphagenome`, `oncokb`, `myvariant`, `car`, `mutalyzer`, `variantvalidator`, `mychem`, `chembl`, `opentargets`, `openfda-label`, `drugsfda`, `ema`, `who-pq`, `ddinter`, `drugbank-open`, `drugcentral`, `gtopdb`, `unii`, `ndc`, `openfda-xref`, `ols`, `mydisease`, `monarch`, `seer`, `mondo`, `doid`, `ncit`, `hpo`, `orphanet`, `omim`, `faers`, `vaers`, `maude`, `meddra`, `gmdn`, `gtr`, `who-ivd`, `fda-cdx`, `fda-pma`, `fda-510k`, `cpic`, `clinpgx`, `cbioportal`, `cellosaurus`.
-
-### SourceNotice
-
-A provider query interpretation notice.
-
-One of:
-
-- object: A checked provider answer survived a local cache failure.
-- object: The source still has graph pages after the bounded fetch window.
-- object: An empty LitVar lookup can be repeated with a caller-supplied rsID.
-- object: PubMed supplied a named ESearch warning without changing its phrases.
-- object: PubMed did not index these words.
-
-### SourceOutcome
-
-One source's outcome, without provider text.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `count` | integer or null | no | Provider matching count. |
-| `fetched` | integer or null | no | Retrieved identity depth. |
-| `notices` | array of [SourceNotice](#sourcenotice) | no | Provider query notices that do not indicate failure. |
-| `reason` | [Reason](#reason) or null | no | Failure or stale-fallback reason. |
-| `source` | [Source](#source) | yes | Asked source. |
-| `state` | [SourceState](#sourcestate) | yes | Retained state. |
-| `term` | [Text](#text) or null | no | Exact provider search term. |
-| `terms` | string | yes | Publisher terms name from the source registry. |
-| `terms_url` | string | yes | Publisher page documenting the terms. |
-| `use` | [Use](#use) | yes | Reviewed source use category; publisher terms remain authoritative. |
-
-### SourceState
-
-State of a source actually asked by the command.
-
-Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
-
-### Status
-
-Overall command outcome.
-
-Values: `complete`, `partial`, `absent`, `failed`.
-
-### Step
-
-A command argument list spelled from a typed action.
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `args` | array of string | yes | CLI and MCP arguments. |
-| `kind` | [StepKind](#stepkind) | yes | Purpose of the action. |
-
-### StepKind
-
-Purpose of an available next command.
-
-Values: `restart`, `section`, `sort`, `page`, `fresh`, `disambiguate`, `pivot`, `sync`, `key`, `configure`.
-
-### Text
-
-Nonempty text with surrounding Unicode whitespace removed.
-
-Type: string.
-
-### Use
-
-Reviewed source-use category, without inferring rights in individual records.
-
-Values: `open`, `attribution`, `noncommercial`, `restricted`.
-
-[Reply envelope](/reference/envelope/) gives the values of `status`, `sources[].state` and the other shared fields. [Reply schemas](/reference/schemas/) lists every schema.
-
-This page is generated from `biomcp schema biomcp.author_page/2` in BioMCP 1.0.0. Fix a wrong description in the schema, then regenerate.
+[Reply envelope and shared types](/reference/schemas/types/) defines `status`, `sources`, `next` and every shared type. [Reply schemas](/reference/schemas/) lists every reply. [`biomcp search author`](/reference/commands/search-author/) gives the command's arguments.

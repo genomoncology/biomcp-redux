@@ -1,7 +1,7 @@
 ---
 title: biomcp store clean
-description: "Reference for the BioMCP 1.0.0 command biomcp store clean: Remove
-  expired replies, pools and snapshots and older incompatible cache files."
+description: "The BioMCP 1.0.0 command biomcp store clean: Removes expired
+  replies and stored searches from the local cache."
 goal: Look up the arguments, sections and examples of biomcp store clean.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp store clean`.
+`biomcp store clean` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It removes expired replies and stored searches from the local cache. This page lists its reply.
 
-Remove expired replies, pools and snapshots and older incompatible cache files. Return removal counts in one bounded reply. Fresh state and bundles remain.
+The program's help describes it:
+
+> Remove expired replies, pools and snapshots and older incompatible cache files. Return removal counts in one bounded reply. Fresh state and [bundles](/local-data/) remain.
 
 ## Usage
 
@@ -22,22 +24,12 @@ biomcp store clean
 
 ## Arguments
 
-The help lists no arguments for this command.
+The command takes no arguments beyond those in its usage line.
 
-## Examples
+## Reply
 
-The help lists no examples for this command.
-
-## Reply schema
-
-This command returns [`biomcp.store-clean/1`](/reference/schemas/biomcp-store-clean-1/). Print the full JSON schema with `biomcp schema biomcp.store-clean/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.store-clean/1`](/reference/schemas/biomcp-store-clean-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

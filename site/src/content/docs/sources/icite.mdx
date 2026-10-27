@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `icite`. BioMCP reads citation counts and citation links from NIH iCite. It is the default citation source.
+NIH iCite is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads citation counts and citation links from NIH iCite. It is the default citation source. Replies name it `icite`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `icite`. BioMCP reads citation counts and citatio
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-icite" />
 
@@ -35,14 +35,14 @@ Pick this source with `--source icite` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp article citations`](/reference/commands/article-citations/) | Page the citing or referenced PubMed papers of one checked PMID. |
-| [`biomcp article references`](/reference/commands/article-references/) | Page the citing or referenced PubMed papers of one checked PMID. |
+| [`biomcp article citations`](/reference/commands/article-citations/) | Lists the papers that cite one PubMed article, a page at a time. |
+| [`biomcp article references`](/reference/commands/article-references/) | Lists the papers one PubMed article cites, a page at a time. |
 
 These commands read NIH iCite as part of their reply. They do not take `--source icite`:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get article`](/reference/commands/get-article/) | Get one to twenty article inputs in caller order. |
+| [`biomcp get article`](/reference/commands/get-article/) | Reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text. |
 
 ## Limits
 
@@ -55,5 +55,3 @@ Leave this source out of one command with `--disable-sources icite`, or add `"ic
 ## Next
 
 The task guide for NIH iCite is [Search and read biomedical literature](/how-to/find-articles/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

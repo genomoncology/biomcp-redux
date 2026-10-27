@@ -1,2 +1,11 @@
-{"status":"failed","sources":[{"source":"cbioportal","state":"syncing","reason":"syncing"}]}
+{
+  "status": "failed",
+  "sources": [
+    {
+      "source": "cbioportal",
+      "state": "syncing",
+      "reason": "syncing"
+    }
+  ]
+}
 "sync cbioportal-studies"

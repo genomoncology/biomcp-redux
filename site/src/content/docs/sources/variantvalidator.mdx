@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `variantvalidator`. BioMCP sends reference-qualified HGVS to VariantValidator with a genome build.
+VariantValidator is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP sends reference-qualified HGVS to VariantValidator with a genome build. Replies name it `variantvalidator`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `variantvalidator`. BioMCP sends reference-qualif
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-variantvalidator" />
 
@@ -35,7 +35,7 @@ Pick this source with `--source variantvalidator` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp variant normalize`](/reference/commands/variant-normalize/) | Send unchanged reference-qualified notation to explicitly named services. |
+| [`biomcp variant normalize`](/reference/commands/variant-normalize/) | Sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it. |
 
 ## Limits
 
@@ -48,5 +48,3 @@ Leave this source out of one command with `--disable-sources variantvalidator`, 
 ## Next
 
 The task guide for VariantValidator is [Look up a variant](/how-to/annotate-variants/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

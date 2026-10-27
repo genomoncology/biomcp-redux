@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `reactome`. BioMCP searches Reactome pathways and reads their genes and events, and the pathways section of a gene.
+Reactome is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP searches Reactome pathways and reads their genes and events, and the pathways section of a gene. Replies name it `reactome`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `reactome`. BioMCP searches Reactome pathways and
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-reactome" />
 
@@ -35,16 +35,16 @@ Pick this source with `--source reactome` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search pathway`](/reference/commands/search-pathway/) | Search Reactome (default) or WikiPathways human pathways. |
+| [`biomcp search pathway`](/reference/commands/search-pathway/) | Finds human pathways in Reactome, the default, or WikiPathways. |
 
 These commands read Reactome as part of their reply. They do not take `--source reactome`:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get pathway`](/reference/commands/get-pathway/) | Get an exact human Reactome R-HSA or WikiPathways WP card. |
-| [`biomcp pathway genes`](/reference/commands/pathway-genes/) | Read Reactome exact references or WikiPathways GeneProduct data nodes. |
-| [`biomcp pathway events`](/reference/commands/pathway-events/) | Read Reactome event objects and unresolved native integer references in source order. |
-| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
+| [`biomcp get pathway`](/reference/commands/get-pathway/) | Reads one Reactome or WikiPathways pathway, and optionally its summary, genes or events. |
+| [`biomcp pathway genes`](/reference/commands/pathway-genes/) | Lists the genes and gene products of one pathway. |
+| [`biomcp pathway events`](/reference/commands/pathway-events/) | Lists the events, such as reactions, of one Reactome pathway. |
+| [`biomcp get gene`](/reference/commands/get-gene/) | Reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. |
 
 ## Limits
 
@@ -57,5 +57,3 @@ Leave this source out of one command with `--disable-sources reactome`, or add `
 ## Next
 
 The task guide for Reactome is [Look up genes, proteins and pathways](/genes-and-proteins/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

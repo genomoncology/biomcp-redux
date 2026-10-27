@@ -6,6 +6,9 @@
 // them once per section word, in a fresh cache and home after synchronizing every bundle, with no keys (as the examples run).
 // Rerun it when the program's commands, sections or schemas change; the build fails while
 // a reply schema has no recorded command.
+// It also writes src/data/schema-replies.json: one real reply per schema, from the first call
+// that answered, cut to a few list items and short text, for the example on each schema page.
+//   npm run schema-calls -- --replies   rerun only the recorded calls and rewrite the replies
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -21,6 +24,7 @@ if (process.env.SITE_EXAMPLE_CONFIG) {
   fs.mkdirSync(path.join(tmp, 'config', 'biomcp'), { recursive: true });
   fs.copyFileSync(path.resolve(process.env.SITE_EXAMPLE_CONFIG), path.join(tmp, 'config', 'biomcp', 'config.json'));
 }
+const repliesOnly = process.argv.includes('--replies');
 const json = (args) => JSON.parse(spawnSync(bin, args, { env, cwd: tmp, encoding: 'utf8' }).stdout);
 const call = (args) => new Promise((resolve) => {
   // Commands that save a file write it in the temporary folder.
@@ -36,6 +40,20 @@ const replyIds = new Set(schemaIds.filter((id) => json(['schema', id]).propertie
 
 const found = new Map();
 const fallback = new Map();
+// One answered reply per schema, cut to two list items (eight for a list of plain values) and
+// 240 characters of text; a cut list ends with {"…": N}, the number of items left out.
+const replies = new Map();
+const cut = (v) => {
+  if (typeof v === 'string') return v.length > 240 ? v.slice(0, 240) + '…' : v;
+  if (Array.isArray(v)) {
+    const n = v.every((x) => x === null || typeof x !== 'object') ? 8 : 2;
+    return [...v.slice(0, n).map(cut), ...(v.length > n ? [{ '…': v.length - n }] : [])];
+  }
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, cut(x)]));
+  return v;
+};
+const keep = (id, args, r, failed = false) => { if (!replies.has(id) && (failed || r.status !== 'failed')) replies.set(id, { args, ran: new Date().toISOString().slice(0, 10), reply: cut(r) }); };
+const writeReplies = () => fs.writeFileSync(path.resolve('src/data/schema-replies.json'), JSON.stringify(Object.fromEntries([...replies].sort(([a], [b]) => a.localeCompare(b))), null, 2) + '\n');
 const record = (map, id, args) => {
   if (!map.has(id)) map.set(id, []);
   const have = map.get(id);
@@ -43,10 +61,24 @@ const record = (map, id, args) => {
 };
 for (const b of ['hgnc', 'clingen', 'wikipathways', 'ema', 'ddinter', 'who-pq', 'who-ivd', 'gtr', 'fda-cdx']) {
   const r = json(['sync', b]);
-  if (replyIds.has(r.schema) && r.status !== 'failed') record(found, r.schema, ['sync', b]);
+  if (replyIds.has(r.schema) && r.status !== 'failed') { record(found, r.schema, ['sync', b]); keep(r.schema, ['sync', b], r); }
   console.log(`sync ${b}: ${r.status}`);
 }
-for (const args of [['store', 'clean']]) { const r = json(args); if (replyIds.has(r.schema)) record(found, r.schema, args); }
+for (const args of [['store', 'clean']]) { const r = json(args); if (replyIds.has(r.schema)) { record(found, r.schema, args); keep(r.schema, args, r); } }
+
+if (repliesOnly) {
+  const recorded = JSON.parse(fs.readFileSync(path.resolve('src/data/schema-calls.json'), 'utf8'));
+  const todo = Object.entries(recorded).flatMap(([id, calls]) => calls.map((args) => [id, args]));
+  let i = 0;
+  const work = async () => { while (i < todo.length) { const [id, args] = todo[i++]; if (replies.has(id)) continue; const r = await call(args); if (r?.schema === id) keep(id, args, r); } };
+  await Promise.all(Array.from({ length: 4 }, work));
+  // A schema whose every recorded call failed shows its failed reply.
+  for (const [id, calls] of Object.entries(recorded)) if (!replies.has(id)) { const r = await call(calls[0]); if (r?.schema === id) keep(id, calls[0], r, true); }
+  writeReplies();
+  const none = Object.keys(recorded).filter((id) => !replies.has(id));
+  console.log(`schema-replies: ${replies.size} of ${Object.keys(recorded).length} schemas have a reply${none.length ? `; none answered for ${none.join(', ')}` : ''}`);
+  process.exit(0);
+}
 
 const help = json(['help']).result.commands;
 const SKIP = ['serve', 'skill', 'key set', 'key remove', 'mcp-config', 'sync'];
@@ -122,6 +154,7 @@ async function worker() {
     // A failed reply still names the schema its command returns, but a failed section can fall
     // back to its card's schema; failed replies only fill schemas no answered call reached.
     record(r.status === 'failed' ? fallback : found, id, args);
+    keep(id, args, r);
   }
 }
 await Promise.all(Array.from({ length: 4 }, worker));
@@ -129,5 +162,6 @@ await Promise.all(Array.from({ length: 4 }, worker));
 for (const [id, calls] of fallback) if (!found.has(id)) found.set(id, calls);
 const out = Object.fromEntries([...found].sort(([a], [b]) => a.localeCompare(b)));
 fs.writeFileSync(path.resolve('src/data/schema-calls.json'), JSON.stringify(out, null, 2) + '\n');
+writeReplies();
 const missing = [...replyIds].filter((id) => id !== 'biomcp.error/1' && !found.has(id));
 console.log(`schema-calls: ${queue.length} calls, ${found.size} of ${replyIds.size} reply schemas found${missing.length ? `; none for ${missing.join(', ')}` : ''}`);

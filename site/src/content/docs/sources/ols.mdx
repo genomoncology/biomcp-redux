@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `ols`. BioMCP searches MONDO, DOID and NCIt disease terms through OLS. It is the default disease source.
+EMBL-EBI Ontology Lookup Service is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP searches MONDO, DOID and NCIt disease terms through OLS. It is the default disease source. Replies name it `ols`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `ols`. BioMCP searches MONDO, DOID and NCIt disea
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-ols" />
 
@@ -35,8 +35,8 @@ Pick this source with `--source ols` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search disease`](/reference/commands/search-disease/) | Literal discovery text or an explicit SEER catalog page. |
-| [`biomcp get disease`](/reference/commands/get-disease/) | Exact concept or native SEER site with independently paged section. |
+| [`biomcp search disease`](/reference/commands/search-disease/) | Finds disease concepts by text, or lists SEER cancer sites. |
+| [`biomcp get disease`](/reference/commands/get-disease/) | Reads one disease concept or SEER cancer site, and optionally a section such as its genes or incidence. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources ols`, or add `"ols"
 ## Next
 
 The task guide for EMBL-EBI Ontology Lookup Service is [Look up diseases, phenotypes and GWAS associations](/diseases-and-phenotypes/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

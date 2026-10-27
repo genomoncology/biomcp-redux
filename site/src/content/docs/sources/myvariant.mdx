@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `myvariant`. BioMCP searches variants and reads predictor, conservation and historical COSMIC fields through MyVariant.info.
+MyVariant.info is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP searches variants and reads predictor, conservation and historical COSMIC fields through MyVariant.info. Replies name it `myvariant`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `myvariant`. BioMCP searches variants and reads p
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-myvariant" />
 
@@ -35,13 +35,13 @@ Pick this source with `--source myvariant` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search variant`](/reference/commands/search-variant/) | Discover source candidates using one declared selector, without interpreting free text. |
+| [`biomcp search variant`](/reference/commands/search-variant/) | Finds variants by gene, protein change, region or another single selector. |
 
 These commands read MyVariant.info as part of their reply. They do not take `--source myvariant`:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp get variant`](/reference/commands/get-variant/) | Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. |
+| [`biomcp get variant`](/reference/commands/get-variant/) | Reads a variant by rsID, ClinVar ID, ClinGen allele ID or HGVS, and optionally sections such as ClinVar or population. |
 
 ## Limits
 
@@ -54,5 +54,3 @@ Leave this source out of one command with `--disable-sources myvariant`, or add 
 ## Next
 
 The task guide for MyVariant.info is [Look up a variant](/how-to/annotate-variants/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

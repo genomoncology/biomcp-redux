@@ -1,7 +1,7 @@
 ---
 title: biomcp get study
-description: "Reference for the BioMCP 1.0.0 command biomcp get study: Exact
-  case-sensitive study card or bounded metadata section."
+description: "The BioMCP 1.0.0 command biomcp get study: Reads one cBioPortal
+  study, and optionally its profiles, sample lists or files."
 goal: Look up the arguments, sections and examples of biomcp get study.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get study`.
+`biomcp get study` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one cBioPortal study, and optionally its profiles, sample lists or files. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
+The program's help describes it:
+
+> Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
 
 ## Usage
 
@@ -42,21 +44,20 @@ Omit for the card; all returns bounded first pages only.
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get study synthetic_0
+```
+
+```sh
 biomcp get study synthetic_1
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.study_card/2`](/reference/schemas/biomcp-study-card-2/). Print the full JSON schema with `biomcp schema biomcp.study_card/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.study_card/2`](/reference/schemas/biomcp-study-card-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [study entity](/user-guide/study/) page lists every study command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [study guide](/user-guide/study/) shows every study command at work.

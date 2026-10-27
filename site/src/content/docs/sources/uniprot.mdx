@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `uniprot`. BioMCP reads reviewed human protein records, features, isoforms, function text and sequences from UniProt.
+UniProt is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads reviewed human protein records, features, isoforms, function text and sequences from UniProt. Replies name it `uniprot`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `uniprot`. BioMCP reads reviewed human protein re
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-uniprot" />
 
@@ -35,13 +35,13 @@ These commands read UniProt as part of their reply. They do not take `--source u
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search protein`](/reference/commands/search-protein/) | Search five reviewed human UniProt headers by literal text or exact gene. |
-| [`biomcp get protein`](/reference/commands/get-protein/) | Read source protein cards; a symbol returns candidates without choosing a protein. |
-| [`biomcp protein features`](/reference/commands/protein-features/) | Page five native UniProt features by exact type and displayed residue. |
-| [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) | Page five source isoforms, exact-participant complexes or PDB links. |
-| [`biomcp protein sequence`](/reference/commands/protein-sequence/) | Read one complete native sequence for an exact source accession. |
-| [`biomcp protein structures`](/reference/commands/protein-structures/) | Page five source isoforms, exact-participant complexes or PDB links. |
-| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
+| [`biomcp search protein`](/reference/commands/search-protein/) | Finds reviewed human UniProt proteins by text or by gene, five at a time. |
+| [`biomcp get protein`](/reference/commands/get-protein/) | Reads UniProt protein records by accession, and optionally sections such as domains or sequence. |
+| [`biomcp protein features`](/reference/commands/protein-features/) | Lists UniProt features of one protein, five at a time, filtered by type or residue. |
+| [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) | Lists the isoforms of one protein, five at a time. |
+| [`biomcp protein sequence`](/reference/commands/protein-sequence/) | Prints the whole amino-acid sequence of one UniProt protein or isoform. |
+| [`biomcp protein structures`](/reference/commands/protein-structures/) | Lists the PDB structures of one protein, five at a time. |
+| [`biomcp get gene`](/reference/commands/get-gene/) | Reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. |
 
 ## Limits
 
@@ -54,5 +54,3 @@ Leave this source out of one command with `--disable-sources uniprot`, or add `"
 ## Next
 
 The task guide for UniProt is [Look up genes, proteins and pathways](/genes-and-proteins/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

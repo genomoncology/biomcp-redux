@@ -1,2 +1,11 @@
-{"status":"failed","sources":[{"source":"nci","state":"skipped","reason":"no_key"}]}
+{
+  "status": "failed",
+  "sources": [
+    {
+      "source": "nci",
+      "state": "skipped",
+      "reason": "no_key"
+    }
+  ]
+}
 "help key nci"

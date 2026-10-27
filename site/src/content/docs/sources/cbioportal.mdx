@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `cbioportal`. BioMCP reads cBioPortal study metadata from a local bundle and counts samples with a variant in one study.
+cBioPortal is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads cBioPortal study metadata from a local [bundle](/local-data/) and counts samples with a variant in one study. A [bundle](/local-data/) is a local copy of the source that `biomcp sync cbioportal-studies` downloads. Replies name it `cbioportal`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -26,7 +26,7 @@ BioMCP 1.0.0 names this source `cbioportal`. BioMCP reads cBioPortal study metad
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-cbioportal" />
 
@@ -38,14 +38,14 @@ Pick this source with `--source cbioportal` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp variant recurrence`](/reference/commands/variant-recurrence/) | Observe exact-allele samples within one caller-selected source page. |
+| [`biomcp variant recurrence`](/reference/commands/variant-recurrence/) | Counts the samples that carry one variant in one cBioPortal study. |
 
 These commands read cBioPortal as part of their reply. They do not take `--source cbioportal`:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search study`](/reference/commands/search-study/) | Literal stored metadata search; text is never parsed as a query language. |
-| [`biomcp get study`](/reference/commands/get-study/) | Exact case-sensitive study card or bounded metadata section. |
+| [`biomcp search study`](/reference/commands/search-study/) | Finds cBioPortal studies by text in a downloaded copy of the study list. |
+| [`biomcp get study`](/reference/commands/get-study/) | Reads one cBioPortal study, and optionally its profiles, sample lists or files. |
 
 ## Limits
 
@@ -58,5 +58,3 @@ Leave this source out of one command with `--disable-sources cbioportal`, or add
 ## Next
 
 The task guide for cBioPortal is [Look up cell lines and cancer studies](/studies-and-cell-lines/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

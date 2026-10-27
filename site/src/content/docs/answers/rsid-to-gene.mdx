@@ -15,11 +15,19 @@ pagefind: true
 
 import Example from '../../../components/Example.astro';
 
-Run `biomcp get variant RSID`. An rsID can name several alternate alleles, so BioMCP returns one candidate per allele, each with its gene, its other identifiers and its genomic HGVS. This BioMCP 1.0 run shows the three alleles MyVariant.info records for rs113488022 in BRAF.
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Run `biomcp get variant RSID`. An rsID can name several alternate alleles, so BioMCP returns one candidate per allele, each with its gene, its other identifiers and its genomic HGVS. This BioMCP 1.0 run shows the three alleles MyVariant.info records for rs113488022 in BRAF.
 
 ## Command
 
 <Example id="a-rsid-gene" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `ids` | `["rs113488022"]` | The identifiers of one candidate allele: the rsID, and a ClinVar ID when ClinVar has the allele. |
+| `genes` | `["BRAF"]` | The gene the allele lies in. |
+| `hgvs` | `["chr7:g.140453136A>G"]` | The allele's genomic HGVS on GRCh37 (chr7). |
 
 ## Why it works
 

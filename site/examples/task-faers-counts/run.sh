@@ -1,4 +1,5 @@
-count() { biomcp search adverse-event vemurafenib --limit 1 "$@" | jq -r --arg f "${*:-none}" '[$f, .page.total] | @tsv'; }
+count() { biomcp search adverse-event vemurafenib --limit 1 "$@" | jq -r \
+  --arg f "${*:-none}" '[$f, .page.total] | @tsv'; }
 printf 'filter\treports\n'
 count
 count --serious death

@@ -1,2 +1,30 @@
-{"status":"complete","sources":[{"source":"hgnc","state":"ok","reason":null},{"source":"mygene","state":"ok","reason":null},{"source":"gnomad","state":"ok","reason":null},{"source":"oncokb","state":"skipped","reason":"no_key"}]}
-{"source":"gnomad","pli":0.999999999999986,"loeuf":0.23234095358685583}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "hgnc",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "mygene",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "gnomad",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "oncokb",
+      "state": "skipped",
+      "reason": "no_key"
+    }
+  ]
+}
+{
+  "source": "gnomad",
+  "pli": 0.999999999999986,
+  "loeuf": 0.23234095358685583
+}

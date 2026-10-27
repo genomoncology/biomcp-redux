@@ -1,2 +1,21 @@
-{"status":"partial","sources":[{"source":"myvariant","state":"ok","reason":null},{"source":"hotspots","state":"ok","reason":null}]}
-{"gene":"BRAF","residue":"V600","tumor_count":897,"membership":"candidate"}
+{
+  "status": "partial",
+  "sources": [
+    {
+      "source": "myvariant",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "hotspots",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "gene": "BRAF",
+  "residue": "V600",
+  "tumor_count": 897,
+  "membership": "candidate"
+}

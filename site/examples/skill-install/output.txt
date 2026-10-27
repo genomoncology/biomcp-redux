@@ -1,4 +1,12 @@
-{"action":"install","changed":true,"kind":"skill","skill_status":{"state":"current"},"status":"installed"}
+{
+  "action": "install",
+  "changed": true,
+  "kind": "skill",
+  "skill_status": {
+    "state": "current"
+  },
+  "status": "installed"
+}
 demo-agent/skills/biomcp/SKILL.md
 demo-agent/skills/biomcp/use-cases/01-treatment-lookup.md
 demo-agent/skills/biomcp/use-cases/02-symptom-phenotype.md

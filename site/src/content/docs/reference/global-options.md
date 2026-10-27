@@ -8,7 +8,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-Every BioMCP 1.0.0 command accepts these options. They come from the command grammar's root options. The help gives them no descriptions, so the meanings below link to the guide that verified each one.
+Every command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources accepts these options, placed before or after the command. Each row links to the guide that shows the option at work.
 
 | Option | Value | Choices | Guide |
 | --- | --- | --- | --- |
@@ -17,5 +17,3 @@ Every BioMCP 1.0.0 command accepts these options. They come from the command gra
 | `--config` | `config` |  | [Keys and configuration](/getting-started/api-keys/) |
 | `--offline` | none |  | [Local data](/local-data/) |
 | `--fresh` | none |  | [Local data](/local-data/) |
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

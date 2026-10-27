@@ -1,8 +1,7 @@
 ---
 title: biomcp cell-line assay-count
-description: "Reference for the BioMCP 1.0.0 command biomcp cell-line
-  assay-count: A separate assay-count request, never implicit in metadata or
-  all."
+description: "The BioMCP 1.0.0 command biomcp cell-line assay-count: Counts the
+  ChEMBL assays recorded for one cell line."
 goal: Look up the arguments, sections and examples of biomcp cell-line assay-count.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp cell-line assay-count`.
+`biomcp cell-line assay-count` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It counts the ChEMBL assays recorded for one cell line. This page lists its arguments, examples and reply.
 
-A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+The program's help describes it:
+
+> A separate assay-count request, never implicit in metadata or all. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
 
 ## Usage
 
@@ -29,21 +30,20 @@ biomcp cell-line assay-count <id>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp cell-line assay-count CHEMBL3706573
+```
+
+```sh
 biomcp cell-line assay-count CHEMBL3706573 --fresh
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.cell_line_assay_count/2`](/reference/schemas/biomcp-cell-line-assay-count-2/). Print the full JSON schema with `biomcp schema biomcp.cell_line_assay_count/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.cell_line_assay_count/2`](/reference/schemas/biomcp-cell-line-assay-count-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [cell-line entity](/user-guide/cell-line/) page lists every cell-line command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [cell-line guide](/user-guide/cell-line/) shows every cell-line command at work.

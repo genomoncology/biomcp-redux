@@ -1,3 +1,20 @@
-{"status":"complete","sources":[{"source":"who-ivd","state":"ok","reason":null}]}
-{"id":"13641-013-00","product_name":"Determine Syphilis Advanced","marker":"Syphilis"}
-{"id":"10304-118-00","product_name":"cobas MTB-RIF/INH","marker":"Mycobacterium tuberculosis complex (MTBC)"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "who-ivd",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "id": "13641-013-00",
+  "product_name": "Determine Syphilis Advanced",
+  "marker": "Syphilis"
+}
+{
+  "id": "10304-118-00",
+  "product_name": "cobas MTB-RIF/INH",
+  "marker": "Mycobacterium tuberculosis complex (MTBC)"
+}

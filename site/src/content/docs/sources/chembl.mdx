@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `chembl`. BioMCP reads ChEMBL drug targets and indications, and ChEMBL cell metadata and assay counts.
+ChEMBL is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads ChEMBL drug targets and indications, and ChEMBL cell metadata and assay counts. Replies name it `chembl`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `chembl`. BioMCP reads ChEMBL drug targets and in
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-chembl" />
 
@@ -35,15 +35,15 @@ Pick this source with `--source chembl` on these commands:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search drug`](/reference/commands/search-drug/) | Literal single-source candidate discovery, without an implicit identity selection. |
-| [`biomcp get drug`](/reference/commands/get-drug/) | Exact native ID retrieval with an explicitly selected source. |
+| [`biomcp search drug`](/reference/commands/search-drug/) | Finds drugs by name in one source. |
+| [`biomcp get drug`](/reference/commands/get-drug/) | Reads one drug record by its ID in one source, and optionally a section such as its label or approvals. |
 
 These commands read ChEMBL as part of their reply. They do not take `--source chembl`:
 
 | Command | Description |
 | --- | --- |
-| [`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) | A separate assay-count request, never implicit in metadata or all. |
-| [`biomcp get cell-line`](/reference/commands/get-cell-line/) | One exact identity and an optional bounded named section. |
+| [`biomcp cell-line assay-count`](/reference/commands/cell-line-assay-count/) | Counts the ChEMBL assays recorded for one cell line. |
+| [`biomcp get cell-line`](/reference/commands/get-cell-line/) | Reads one cell line by its ID, and optionally one named section such as its variants. |
 
 ## Limits
 
@@ -56,5 +56,3 @@ Leave this source out of one command with `--disable-sources chembl`, or add `"c
 ## Next
 
 The task guide for ChEMBL is [Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

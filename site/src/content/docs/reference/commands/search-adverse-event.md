@@ -1,7 +1,7 @@
 ---
 title: biomcp search adverse-event
-description: "Reference for the BioMCP 1.0.0 command biomcp search
-  adverse-event: Search five report headers by default."
+description: "The BioMCP 1.0.0 command biomcp search adverse-event: Finds
+  adverse event reports in FAERS, VAERS or MAUDE, five at a time."
 goal: Look up the arguments, sections and examples of biomcp search adverse-event.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search adverse-event`.
+`biomcp search adverse-event` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds adverse event reports in FAERS, VAERS or MAUDE, five at a time. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+The program's help describes it:
+
+> Search five report headers by default. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
 
 ## Usage
 
@@ -47,25 +49,25 @@ Independent VAERS table; omitted means reported symptoms.
 
 ## Sources
 
-`--source` accepts these sources: [faers](/sources/faers/), [maude](/sources/maude/), [vaers](/sources/vaers/).
+`--source` picks the source to ask: [faers](/sources/faers/), [maude](/sources/maude/), [vaers](/sources/vaers/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search adverse-event pembrolizumab
-biomcp search adverse-event pembrolizumab --received-from 2024-01-01 --received-to 2024-12-31
 ```
 
-## Reply schema
+```sh
+biomcp search adverse-event pembrolizumab --received-from 2024-01-01 \
+  --received-to 2024-12-31
+```
 
-The help examples of this command return [`biomcp.adverse_event_page/2`](/reference/schemas/biomcp-adverse-event-page-2/). Print the full JSON schema with `biomcp schema biomcp.adverse_event_page/2`.
+## Reply
 
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.adverse_event_page/2`](/reference/schemas/biomcp-adverse-event-page-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [adverse-event entity](/user-guide/adverse-event/) page lists every adverse-event command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [adverse-event guide](/user-guide/adverse-event/) shows every adverse-event command at work.

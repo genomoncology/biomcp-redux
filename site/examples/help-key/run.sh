@@ -1,1 +1,1 @@
-biomcp help key oncokb
+biomcp help key oncokb | jq

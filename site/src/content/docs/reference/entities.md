@@ -8,7 +8,7 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 has 16 entities. Each row lists the entity's commands and the section words its `get` command accepts.
+BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources, groups its commands by [entity](/concepts/progressive-disclosure/). An **entity** is a kind of record, such as a gene, a trial or an article. BioMCP has 16. Each row lists the entity's commands and the [section words](/concepts/progressive-disclosure/) its `get` command accepts. A section word asks for one more part of the record.
 
 | Entity | Commands | Sections of get |
 | --- | --- | --- |
@@ -28,5 +28,3 @@ BioMCP 1.0.0 has 16 entities. Each row lists the entity's commands and the secti
 | article | [search article](/reference/commands/search-article/)<br/>[get article](/reference/commands/get-article/)<br/>[article supplement](/reference/commands/article-supplement/)<br/>[article pdf](/reference/commands/article-pdf/)<br/>[article text](/reference/commands/article-text/)<br/>[article citations](/reference/commands/article-citations/)<br/>[article references](/reference/commands/article-references/)<br/>[article citation-evidence](/reference/commands/article-citation-evidence/)<br/>[article recommendations](/reference/commands/article-recommendations/) | `annotations` `fulltext` `supplements` `tldr` `citations` `indexing` `pdf` `all` |
 | trial | [search trial](/reference/commands/search-trial/)<br/>[get trial](/reference/commands/get-trial/)<br/>[trial document](/reference/commands/trial-document/) | `eligibility` `outcomes` `arms` `locations` `contacts` `references` `documents` `all` `diseases` `summary` |
 | variant | [variant assertions](/reference/commands/variant-assertions/)<br/>[get variant](/reference/commands/get-variant/)<br/>[variant population](/reference/commands/variant-population/)<br/>[search variant](/reference/commands/search-variant/)<br/>[variant recurrence](/reference/commands/variant-recurrence/)<br/>[variant normalize](/reference/commands/variant-normalize/) | `clinvar` `erepo` `population` `gwas` `civic` `oncokb` `hotspots` `predict` `conservation` `cosmic` `all` |
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

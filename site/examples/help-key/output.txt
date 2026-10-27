@@ -1,1 +1,11 @@
-{"schema":"biomcp.key/2","status":"complete","query":null,"result":{"guidance":"biomcp key set oncokb","source":"oncokb","config":"keys.oncokb_api_key","environment":"ONCOKB_TOKEN"}}
+{
+  "schema": "biomcp.key/2",
+  "status": "complete",
+  "query": null,
+  "result": {
+    "guidance": "biomcp key set oncokb",
+    "source": "oncokb",
+    "config": "keys.oncokb_api_key",
+    "environment": "ONCOKB_TOKEN"
+  }
+}

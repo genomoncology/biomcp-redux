@@ -1,1 +1,10 @@
-{"status":"partial","variant":"10-112998590-C-T","release":"4.1.0","genome":{"ac":41622,"an":151914},"exome":null}
+{
+  "status": "partial",
+  "variant": "10-112998590-C-T",
+  "release": "4.1.0",
+  "genome": {
+    "ac": 41622,
+    "an": 151914
+  },
+  "exome": null
+}

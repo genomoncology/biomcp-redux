@@ -12,6 +12,11 @@
       "route": "/answers/*",
       "match": "the build MyVariant.info used",
       "reason": "\"the build\" here is the genome build (GRCh37) MyVariant.info reports, not the site build."
+    },
+    {
+      "rule": "L5",
+      "route": "/reference/schemas/types/",
+      "reason": "The one home of every type that more than one reply schema uses (over 300). Readers reach it by an anchor link from a schema page, not by reading it through; its opening says so. Splitting it would define the shared types on more than one page."
     }
   ]
 }

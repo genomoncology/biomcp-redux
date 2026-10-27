@@ -1,1 +1,4 @@
-biomcp get drug CHEMBL1229517 targets --source chembl | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.targets.data.records[0:2][] | {mechanism, target: .native_target.id})'
+biomcp get drug CHEMBL1229517 targets --source chembl \
+  | jq '{status, sources: [.sources[] | {source, state, reason}]},
+    (.result.targets.data.records[0:2][]
+      | {mechanism, target: .native_target.id})'

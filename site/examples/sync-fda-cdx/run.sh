@@ -1,1 +1,1 @@
-biomcp sync fda-cdx
+biomcp sync fda-cdx | jq

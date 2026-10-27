@@ -1,3 +1,4 @@
-EMEA/H/C/002409	Zelboraf
-status: Authorised
-marketing_authorisation_date: 2012-02-17
+{
+  "status": "Authorised",
+  "authorised": "2012-02-17"
+}

@@ -1,7 +1,7 @@
 ---
 title: biomcp help network proxy
-description: "Reference for the BioMCP 1.0.0 command biomcp help network proxy:
-  Set proxy in config.json to an HTTP or HTTPS proxy URL."
+description: "The BioMCP 1.0.0 command biomcp help network proxy: Shows how to
+  make BioMCP reach the sources through a proxy."
 goal: Look up the arguments, sections and examples of biomcp help network proxy.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp help network proxy`.
+`biomcp help network proxy` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows how to make BioMCP reach the sources through a proxy. This page lists its reply.
 
-Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional ports, or *. An explicit proxy overrides proxy environment settings.
+The program's help describes it:
+
+> Set proxy in config.json to an HTTP or HTTPS proxy URL. Otherwise HTTPS_PROXY and HTTP_PROXY select routes for their schemes; NO_PROXY bypasses exact hosts/IPs, .domain, *.domain, optional ports, or *. An explicit proxy overrides proxy environment settings.
 
 ## Usage
 
@@ -22,22 +24,12 @@ biomcp help network proxy
 
 ## Arguments
 
-The help lists no arguments for this command.
+The command takes no arguments beyond those in its usage line.
 
-## Examples
+## Reply
 
-The help lists no examples for this command.
-
-## Reply schema
-
-This command returns [`biomcp.help/2`](/reference/schemas/biomcp-help-2/). Print the full JSON schema with `biomcp schema biomcp.help/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.help/2`](/reference/schemas/biomcp-help-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

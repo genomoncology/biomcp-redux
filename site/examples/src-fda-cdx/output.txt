@@ -1,3 +1,18 @@
-{"status":"partial","sources":[{"source":"fda-cdx","state":"ok","reason":"unsupported"}]}
-{"diagnostic":"Guardant360 CDx (Guardant Health, Inc.)","indication":"Colorectal Cancer (CRC) - Plasma"}
-{"diagnostic":"cobas 4800 BRAF V600 Mutation Test (Roche Molecular Systems, Inc.)","indication":"Melanoma - Tissue"}
+{
+  "status": "partial",
+  "sources": [
+    {
+      "source": "fda-cdx",
+      "state": "ok",
+      "reason": "unsupported"
+    }
+  ]
+}
+{
+  "diagnostic": "Guardant360 CDx (Guardant Health, Inc.)",
+  "indication": "Colorectal Cancer (CRC) - Plasma"
+}
+{
+  "diagnostic": "cobas 4800 BRAF V600 Mutation Test (Roche Molecular Syst…",
+  "indication": "Melanoma - Tissue"
+}

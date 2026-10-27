@@ -1,8 +1,7 @@
 ---
 title: biomcp skill install
-description: "Reference for the BioMCP 1.0.0 command biomcp skill install:
-  Install into DIR/skills/biomcp; a skills or biomcp directory is accepted
-  directly."
+description: "The BioMCP 1.0.0 command biomcp skill install: Installs the agent
+  guide into a folder."
 goal: Look up the arguments, sections and examples of biomcp skill install.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp skill install`.
+`biomcp skill install` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It installs the agent guide into a folder. This page lists its arguments.
 
-Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
+The program's help describes it:
+
+> Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
 
 ## Usage
 
@@ -28,16 +29,6 @@ biomcp skill install [OPTIONS]
 | `--force` | boolean | no |  |  | Repair managed files; retain unrelated files. |
 | `directory` | string | yes |  |  |  |
 
-## Examples
-
-The help lists no examples for this command.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
-
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

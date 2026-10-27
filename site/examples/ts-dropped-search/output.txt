@@ -1,2 +1,9 @@
-{"schema":"biomcp.error/1","status":"usage","error":{"code":"usage.arguments","message":"expected a supported command with checked arguments"}}
+{
+  "schema": "biomcp.error/1",
+  "status": "usage",
+  "error": {
+    "code": "usage.arguments",
+    "message": "expected a supported command with checked arguments"
+  }
+}
 exit code 2

@@ -1,8 +1,7 @@
 ---
 title: biomcp sync wikipathways
-description: "Reference for the BioMCP 1.0.0 command biomcp sync wikipathways:
-  Replace WikiPathways search/get metadata catalogs atomically; reads never
-  sync."
+description: "The BioMCP 1.0.0 command biomcp sync wikipathways: Downloads the
+  WikiPathways bundle that pathway searches read."
 goal: Look up the arguments, sections and examples of biomcp sync wikipathways.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp sync wikipathways`.
+`biomcp sync wikipathways` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It downloads the WikiPathways [bundle](/local-data/) that pathway searches read. This page lists its examples and reply.
 
-Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+The program's help describes it:
+
+> Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 ## Usage
 
@@ -23,25 +24,24 @@ biomcp sync wikipathways
 
 ## Arguments
 
-The help lists no arguments for this command.
+The command takes no arguments beyond those in its usage line.
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp sync wikipathways
+```
+
+```sh
 biomcp sync wikipathways --fresh
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.wikipathways_sync/1`](/reference/schemas/biomcp-wikipathways-sync-1/). Print the full JSON schema with `biomcp schema biomcp.wikipathways_sync/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.wikipathways_sync/1`](/reference/schemas/biomcp-wikipathways-sync-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [commands index](/reference/commands/) lists every command.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [commands index](/reference/commands/) lists every command.

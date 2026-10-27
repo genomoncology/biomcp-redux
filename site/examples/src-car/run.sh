@@ -1,1 +1,6 @@
-biomcp variant normalize --source car --hgvs 'NM_004333.4:c.1799T>A' | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.results[] | {source, outcome, grch38: [.mappings[] | select(.field == "genomicAlleles.GRCh38.hgvs") | .value][0]})'
+biomcp variant normalize --source car --hgvs 'NM_004333.4:c.1799T>A' \
+  | jq '{status, sources: [.sources[] | {source, state, reason}]},
+    (.result.results[]
+      | {source, outcome,
+         grch38: [.mappings[]
+           | select(.field == "genomicAlleles.GRCh38.hgvs") | .value][0]})'

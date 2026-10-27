@@ -1,8 +1,8 @@
 ---
 title: biomcp search trial
-description: "Reference for the BioMCP 1.0.0 command biomcp search trial: Search
-  one provider with bounded pages and source-native counts; default
-  ClinicalTrials.gov, explicit keyed NCI, never a fallback."
+description: "The BioMCP 1.0.0 command biomcp search trial: Finds clinical
+  trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene,
+  location and more."
 goal: Look up the arguments, sections and examples of biomcp search trial.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search trial`.
+`biomcp search trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more. This page lists its arguments, examples and reply.
 
-Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
+The program's help describes it:
+
+> Search one provider with bounded pages and source-native counts; default ClinicalTrials.gov, explicit keyed NCI, never a fallback.
 
 ## Usage
 
@@ -55,25 +57,24 @@ biomcp search trial [OPTIONS] [query]
 
 ## Sources
 
-`--source` accepts these sources: [ctgov](/sources/clinicaltrials-gov/), [nci](/sources/nci/).
+`--source` picks the source to ask: [ctgov](/sources/clinicaltrials-gov/), [nci](/sources/nci/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search trial --condition melanoma
+```
+
+```sh
 biomcp search trial --condition melanoma --intervention pembrolizumab
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.trial_page/5`](/reference/schemas/biomcp-trial-page-5/). Print the full JSON schema with `biomcp schema biomcp.trial_page/5`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.trial_page/5`](/reference/schemas/biomcp-trial-page-5/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [trial entity](/user-guide/trial/) page lists every trial command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [trial guide](/user-guide/trial/) shows every trial command at work.

@@ -1,1 +1,1 @@
-biomcp get gene BRAF | jq -c '.next[]'
+biomcp get gene BRAF | jq '.next[]'

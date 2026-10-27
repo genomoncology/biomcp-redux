@@ -1,7 +1,8 @@
 ---
 title: biomcp get gene
-description: "Reference for the BioMCP 1.0.0 command biomcp get gene: Get one to
-  twenty human gene inputs in their original order."
+description: "The BioMCP 1.0.0 command biomcp get gene: Reads one to twenty
+  human genes, in the order you give, and optionally sections such as constraint
+  or expression."
 goal: Look up the arguments, sections and examples of biomcp get gene.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get gene`.
+`biomcp get gene` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Get one to twenty human gene inputs in their original order.
+The program's help describes it:
+
+> Get one to twenty human gene inputs in their original order.
 
 ## Usage
 
@@ -45,21 +48,20 @@ Trailing section words select sections. Use --section WORD to keep inputs that e
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get gene KRAS
+```
+
+```sh
 biomcp get gene BRAF
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/). Print the full JSON schema with `biomcp schema biomcp.gene_cards/4`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [gene entity](/user-guide/gene/) page lists every gene command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [gene guide](/user-guide/gene/) shows every gene command at work.

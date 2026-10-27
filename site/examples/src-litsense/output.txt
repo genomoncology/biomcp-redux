@@ -1,3 +1,23 @@
-{"status":"complete","sources":[{"source":"litsense","state":"ok","reason":null},{"source":"pubmed","state":"ok","reason":null}]}
-{"pmid":"39268146","sentence":"The combination therapy of osimertinib with dabrafenib and trametinib has demonstrated responses in some patients being "}
-{"pmid":"40114941","sentence":"Validation through PDOs revealed that this treatment was highly effective, with significantly lower half-maximal inhibit"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "litsense",
+      "state": "ok",
+      "reason": null
+    },
+    {
+      "source": "pubmed",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "pmid": "39268146",
+  "sentence": "The combination therapy of osimertinib with dabrafenib a…"
+}
+{
+  "pmid": "40114941",
+  "sentence": "Validation through PDOs revealed that this treatment was…"
+}

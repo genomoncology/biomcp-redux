@@ -1,5 +1,4 @@
-printf '%s\n' \
-  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"demo","version":"1"}}}' \
-  '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
-  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":["search","article","--gene","KRAS","--variant","G12C","--limit","3"]}}}' \
-  | biomcp serve | jq -r 'select(.id == 2) | .result.structuredContent.result.items[] | "\(.pmid)  \(.header.title)"'
+jq -c . messages.json | biomcp serve \
+  | jq 'def cut: if length > 56 then .[:56] + "…" else . end;
+    select(.id == 2) | .result.structuredContent.result.items[]
+    | {pmid, title: (.header.title | cut)}'

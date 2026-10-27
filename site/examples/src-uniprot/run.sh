@@ -1,1 +1,5 @@
-biomcp get protein P15056 | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.items[0].header | {accession: .protein.accession, name: .protein.name, length: .protein.length})'
+biomcp get protein P15056 \
+  | jq '{status, sources: [.sources[] | {source, state, reason}]},
+    (.result.items[0].header
+      | {accession: .protein.accession, name: .protein.name,
+        length: .protein.length})'

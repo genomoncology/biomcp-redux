@@ -1,7 +1,7 @@
 ---
 title: biomcp search study
-description: "Reference for the BioMCP 1.0.0 command biomcp search study:
-  Literal stored metadata search; text is never parsed as a query language."
+description: "The BioMCP 1.0.0 command biomcp search study: Finds cBioPortal
+  studies by text in a downloaded copy of the study list."
 goal: Look up the arguments, sections and examples of biomcp search study.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp search study`.
+`biomcp search study` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cBioPortal studies by text in a downloaded copy of the study list. This page lists its arguments, examples and reply.
 
-Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
+The program's help describes it:
+
+> Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
 
 ## Usage
 
@@ -32,21 +34,20 @@ biomcp search study [OPTIONS] [text]
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp search study Atlas
+```
+
+```sh
 biomcp search study --cancer-type mixed --limit 1
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.study_page/1`](/reference/schemas/biomcp-study-page-1/). Print the full JSON schema with `biomcp schema biomcp.study_page/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.study_page/1`](/reference/schemas/biomcp-study-page-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [study entity](/user-guide/study/) page lists every study command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [study guide](/user-guide/study/) shows every study command at work.

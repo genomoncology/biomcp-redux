@@ -13,7 +13,7 @@ verified: 2026-10-27
 
 import Example from '../../../components/Example.astro';
 
-BioMCP 1.0.0 names this source `gwas`. BioMCP reads GWAS Catalog studies, associations, loci and ancestries, and the gwas section of a variant.
+GWAS Catalog is one of the data sources of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. BioMCP reads GWAS Catalog studies, associations, loci and ancestries, and the gwas section of a variant. Replies name it `gwas`, and so do `--source` and `--disable-sources`.
 
 | Field | Value |
 | --- | --- |
@@ -25,7 +25,7 @@ BioMCP 1.0.0 names this source `gwas`. BioMCP reads GWAS Catalog studies, associ
 
 ## Example
 
-The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+The command pipes the reply through `jq` to keep its `status`, the state of each source it asked, and a few fields of the result. Leave out the `jq` step to see the whole reply.
 
 <Example id="src-gwas" />
 
@@ -35,8 +35,8 @@ These commands read GWAS Catalog as part of their reply. They do not take `--sou
 
 | Command | Description |
 | --- | --- |
-| [`biomcp search gwas`](/reference/commands/search-gwas/) | Source associations in default p-value-ascending order. |
-| [`biomcp get gwas`](/reference/commands/get-gwas/) | Source association or study and native context. |
+| [`biomcp search gwas`](/reference/commands/search-gwas/) | Finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first. |
+| [`biomcp get gwas`](/reference/commands/get-gwas/) | Reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries. |
 
 ## Limits
 
@@ -49,5 +49,3 @@ Leave this source out of one command with `--disable-sources gwas`, or add `"gwa
 ## Next
 
 The task guide for GWAS Catalog is [Look up diseases, phenotypes and GWAS associations](/diseases-and-phenotypes/). [Data sources](/sources/) lists every source.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

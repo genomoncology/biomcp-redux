@@ -1,2 +1,15 @@
-{"status":"complete","sources":[{"source":"cellosaurus","state":"ok","reason":null}]}
-{"accession":"CVCL_0132","name":"A-375","category":"Cancer cell line"}
+{
+  "status": "complete",
+  "sources": [
+    {
+      "source": "cellosaurus",
+      "state": "ok",
+      "reason": null
+    }
+  ]
+}
+{
+  "accession": "CVCL_0132",
+  "name": "A-375",
+  "category": "Cancer cell line"
+}

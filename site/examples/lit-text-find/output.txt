@@ -1,1 +1,26 @@
-{"page":{"returned":12,"total":37},"first_hits":[{"part":1,"heading_path":["Introduction"]},{"part":1,"heading_path":["Introduction"]},{"part":1,"heading_path":["Introduction"]}]}
+{
+  "page": {
+    "returned": 12,
+    "total": 37
+  },
+  "first_hits": [
+    {
+      "part": 1,
+      "heading_path": [
+        "Introduction"
+      ]
+    },
+    {
+      "part": 1,
+      "heading_path": [
+        "Introduction"
+      ]
+    },
+    {
+      "part": 1,
+      "heading_path": [
+        "Introduction"
+      ]
+    }
+  ]
+}

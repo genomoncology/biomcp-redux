@@ -1,8 +1,7 @@
 ---
 title: biomcp pathway events
-description: "Reference for the BioMCP 1.0.0 command biomcp pathway events: Read
-  Reactome event objects and unresolved native integer references in source
-  order."
+description: "The BioMCP 1.0.0 command biomcp pathway events: Lists the events,
+  such as reactions, of one Reactome pathway."
 goal: Look up the arguments, sections and examples of biomcp pathway events.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -11,9 +10,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp pathway events`.
+`biomcp pathway events` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the events, such as reactions, of one Reactome pathway. This page lists its arguments, examples and reply.
 
-Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+The program's help describes it:
+
+> Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 ## Usage
 
@@ -32,21 +33,20 @@ biomcp pathway events [OPTIONS] <id>
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp pathway events R-HSA-5673001
+```
+
+```sh
 biomcp pathway events R-HSA-5673001 --limit 50
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.pathway_events/2`](/reference/schemas/biomcp-pathway-events-2/). Print the full JSON schema with `biomcp schema biomcp.pathway_events/2`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.pathway_events/2`](/reference/schemas/biomcp-pathway-events-2/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [pathway entity](/user-guide/pathway/) page lists every pathway command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [pathway guide](/user-guide/pathway/) shows every pathway command at work.

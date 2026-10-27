@@ -1,7 +1,8 @@
 ---
 title: biomcp get phenotype
-description: "Reference for the BioMCP 1.0.0 command biomcp get phenotype: Read
-  an exact HP term from HPO or Monarch, or page native source sections."
+description: "The BioMCP 1.0.0 command biomcp get phenotype: Reads one HP term
+  from HPO or Monarch, and optionally its synonyms, links, related diseases or
+  genes."
 goal: Look up the arguments, sections and examples of biomcp get phenotype.
 reader: A BioMCP user or agent checking one command
 sidebar:
@@ -10,9 +11,11 @@ kind: reference
 verified: 2026-10-27
 ---
 
-BioMCP 1.0.0 command `biomcp get phenotype`.
+`biomcp get phenotype` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one HP term from HPO or Monarch, and optionally its synonyms, links, related diseases or genes. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
-Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
+The program's help describes it:
+
+> Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
 
 ## Usage
 
@@ -45,25 +48,24 @@ Absent means the source identity card.
 
 ## Sources
 
-`--source` accepts these sources: [hpo](/sources/hpo/), [monarch](/sources/monarch-initiative/).
+`--source` picks the source to ask: [hpo](/sources/hpo/), [monarch](/sources/monarch-initiative/).
 
 ## Examples
 
+The program's help gives these examples.
+
 ```sh
 biomcp get phenotype HP:0000001
+```
+
+```sh
 biomcp get phenotype HP:0000001 --source monarch
 ```
 
-## Reply schema
+## Reply
 
-The help examples of this command return [`biomcp.phenotype-card/1`](/reference/schemas/biomcp-phenotype-card-1/). Print the full JSON schema with `biomcp schema biomcp.phenotype-card/1`.
-
-## Exit codes
-
-See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+The reply is one JSON object. Its schema is [`biomcp.phenotype-card/1`](/reference/schemas/biomcp-phenotype-card-1/), whose page shows a real reply and its fields.
 
 ## Next
 
-The [phenotype entity](/user-guide/phenotype/) page lists every phenotype command and links to a worked guide.
-
-This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.
+[Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes. The [phenotype guide](/user-guide/phenotype/) shows every phenotype command at work.

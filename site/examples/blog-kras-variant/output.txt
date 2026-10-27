@@ -1,1 +1,7 @@
-{"ids":["rs121913530","clinvar:12578"],"next":"get variant chr12:g.25398285C>A --build GRCh37"}
+{
+  "ids": [
+    "rs121913530",
+    "clinvar:12578"
+  ],
+  "next": "get variant chr12:g.25398285C>A --build GRCh37"
+}

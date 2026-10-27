@@ -1,1 +1,8 @@
-{"pmid":"12068308","pmcid":null,"doi":"10.1038/nature00766","title":"Mutations of the BRAF gene in human cancer.","journal":"Nature","date":"2002-06-27"}
+{
+  "pmid": "12068308",
+  "pmcid": null,
+  "doi": "10.1038/nature00766",
+  "title": "Mutations of the BRAF gene in human cancer.",
+  "journal": "Nature",
+  "date": "2002-06-27"
+}
