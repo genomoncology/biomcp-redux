@@ -228,6 +228,7 @@ fn timestamp() -> Check {
         ("2026-10-23T09:00:04", "source_gave_none"),
         ("2026-10-23T09:00:04Z", "in_value"),
         ("2026-10-23T09:00:04+03:00", "in_value"),
+        ("2026-10-23T09:00:04-04:00", "in_value"),
     ] {
         let output = checked_case(
             "trial/condition",

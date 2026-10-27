@@ -26,9 +26,12 @@ impl From<crate::Text> for SourceTimestamp {
     fn from(value: crate::Text) -> Self {
         let zoned = value.as_str().split_once('T').is_some_and(|(_, time)| {
             time.ends_with('Z')
-                || time
-                    .char_indices()
-                    .any(|(index, ch)| index > 0 && matches!(ch, '+' | '-'))
+                || matches!(
+                    time.as_bytes().get(time.len().saturating_sub(6)..),
+                    Some([b'+' | b'-', h1, h2, b':', m1, m2])
+                        if h1.is_ascii_digit() && h2.is_ascii_digit()
+                            && m1.is_ascii_digit() && m2.is_ascii_digit()
+                )
         });
         Self {
             value,
