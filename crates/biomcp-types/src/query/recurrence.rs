@@ -34,18 +34,26 @@ struct Fields {
 fn limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(VariantRecurrenceQuery, Fields);
 impl TryFrom<Fields> for VariantRecurrenceQuery {
     type Error = super::gene::QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        if !(1..=100).contains(&v.limit)
-            || v.page.checked_mul(v.limit).is_none()
-            || [&v.study, &v.profile, &v.sample_set].iter().any(|s| {
-                !s.as_str()
-                    .bytes()
-                    .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))
-            })
-        {
-            return Err(super::gene::QueryInvalid);
+        if !(1..=100).contains(&v.limit) {
+            return Err(super::gene::QueryInvalid::new(&["limit"]));
+        }
+        if v.page.checked_mul(v.limit).is_none() {
+            return Err(super::gene::QueryInvalid::new(&["page", "limit"]));
+        }
+        if [&v.study, &v.profile, &v.sample_set].iter().any(|s| {
+            !s.as_str()
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.'))
+        }) {
+            return Err(super::gene::QueryInvalid::new(&[
+                "study",
+                "profile",
+                "sample_set",
+            ]));
         }
         Ok(Self(v))
     }

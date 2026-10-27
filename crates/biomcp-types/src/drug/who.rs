@@ -60,11 +60,12 @@ struct Fields {
     /// Explicit source who-pq; prequalification is source-scoped.
     source: DrugSource,
 }
+crate::query::validation::checked_query!(DrugWhoGet, Fields);
 impl TryFrom<Fields> for DrugWhoGet {
     type Error = QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         if fields.source != DrugSource::WhoPq {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source"]));
         }
         Ok(Self(fields))
     }

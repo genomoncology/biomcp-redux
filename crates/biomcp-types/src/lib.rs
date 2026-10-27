@@ -151,7 +151,7 @@ pub use drug::{
     DrugWhoRow, DrugXrefs,
 };
 
-pub use query::QueryInvalid;
+pub use query::{CheckedQuery, QueryInvalid};
 
 mod adverse_event;
 pub use adverse_event::{

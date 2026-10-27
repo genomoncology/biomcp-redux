@@ -5,15 +5,7 @@ const MAX_INPUTS: usize = 20;
 const MIN_LIMIT: u32 = 1;
 const MAX_LIMIT: u32 = 50;
 
-/// A query failed its structural bounds.
-#[derive(Debug, Clone, Copy)]
-pub struct QueryInvalid;
-impl std::fmt::Display for QueryInvalid {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("query.invalid")
-    }
-}
-impl std::error::Error for QueryInvalid {}
+pub use super::validation::QueryInvalid;
 
 /// Get one to twenty human gene inputs in their original order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,6 +26,7 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[GeneSectionWord]>,
 }
+crate::query::validation::checked_query!(GeneGet, GetFields);
 impl TryFrom<GetFields> for GeneGet {
     type Error = QueryInvalid;
     fn try_from(fields: GetFields) -> Result<Self, Self::Error> {
@@ -51,7 +44,7 @@ impl GeneGet {
         section: Box<[GeneSectionWord]>,
     ) -> Result<Self, QueryInvalid> {
         if !(MIN_INPUTS..=MAX_INPUTS).contains(&input.len()) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["input"]));
         }
         Ok(Self(GetFields { input, section }))
     }
@@ -109,6 +102,7 @@ struct SearchFields {
 fn default_limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(GeneSearch, SearchFields);
 impl TryFrom<SearchFields> for GeneSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
@@ -139,8 +133,11 @@ impl GeneSearch {
         limit: u32,
         offset: u32,
     ) -> Result<Self, QueryInvalid> {
-        if query.is_none() && band.is_none() || !(MIN_LIMIT..=MAX_LIMIT).contains(&limit) {
-            return Err(QueryInvalid);
+        if query.is_none() && band.is_none() {
+            return Err(QueryInvalid::new(&["query", "band"]));
+        }
+        if !(MIN_LIMIT..=MAX_LIMIT).contains(&limit) {
+            return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(SearchFields {
             query,

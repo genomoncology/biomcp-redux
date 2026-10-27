@@ -38,6 +38,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     bundle_revision: Option<Text>,
 }
+crate::query::validation::checked_query!(DiagnosticGet, GetFields);
 impl TryFrom<GetFields> for DiagnosticGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
@@ -80,8 +81,11 @@ impl TryFrom<GetFields> for DiagnosticGet {
                         && v.section == Some(DiagnosticSection::Supplements))
             }
         };
-        if !valid || v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
-            return Err(QueryInvalid);
+        if !valid {
+            return Err(QueryInvalid::new(&["source", "id", "section"]));
+        }
+        if v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
+            return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self(v))
     }

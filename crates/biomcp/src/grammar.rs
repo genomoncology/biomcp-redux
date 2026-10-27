@@ -5,6 +5,7 @@ mod entry;
 pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
+mod validation;
 use arguments::command_for;
 pub(crate) use errors::argument_error;
 pub(crate) mod gwas;
@@ -212,7 +213,16 @@ pub(crate) fn root() -> Result<Command, ()> {
     Ok(metadata::describe(root))
 }
 
-pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
+#[derive(Debug, Default)]
+pub(crate) struct ParseInvalid {
+    pub(crate) argument: Option<String>,
+}
+impl From<()> for ParseInvalid {
+    fn from(_: ()) -> Self {
+        Self::default()
+    }
+}
+pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let mut root = root()?;
     root.build();
     let args = entry::arguments(args, &root);
@@ -268,7 +278,9 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or(())?;
-        let request = request(verb, entity, matches)?;
+        let request = request(verb, entity, matches).map_err(|cause| ParseInvalid {
+            argument: validation::argument_names(verb, entity, &cause),
+        })?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -412,8 +424,13 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
     Ok(())
 }
 
-fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ()> {
-    let value = request_arguments(verb, entity, matches)?;
+fn request(
+    verb: &str,
+    entity: &str,
+    matches: &clap::ArgMatches,
+) -> Result<Request, biomcp_types::QueryInvalid> {
+    let value = request_arguments(verb, entity, matches)
+        .map_err(|_| biomcp_types::QueryInvalid::default())?;
     match (verb, entity) {
         ("search" | "get", "gwas") => gwas::request(verb, value),
         ("cell-line", "assay-count") => entity::request(verb, entity, value),
@@ -424,73 +441,58 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
             "pgx" | "adverse-event" | "disease" | "drug" | "diagnostic" | "pathway" | "phenotype"
             | "protein" | "study" | "cell-line" | "author",
         ) => entity::request(verb, entity, value),
-        ("variant", "assertions") => serde_json::from_value::<VariantAssertionsGet>(value)
-            .map(Request::VariantAssertions)
-            .map_err(|_| ()),
-        ("variant", "population") => serde_json::from_value::<VariantPopulationQuery>(value)
-            .map(Request::VariantPopulation)
-            .map_err(|_| ()),
-        ("variant", "normalize") => serde_json::from_value::<biomcp_types::VariantNormalize>(value)
-            .map(Request::VariantNormalize)
-            .map_err(|_| ()),
-        ("search", "variant") => serde_json::from_value::<biomcp_types::VariantSearch>(value)
-            .map(Request::SearchVariant)
-            .map_err(|_| ()),
-        ("variant", "recurrence") => serde_json::from_value::<VariantRecurrenceQuery>(value)
-            .map(Request::VariantRecurrence)
-            .map_err(|_| ()),
-        ("get", "variant") => serde_json::from_value::<biomcp_types::VariantGet>(value)
-            .map(Request::GetVariant)
-            .map_err(|_| ()),
-        ("get", "trial") => serde_json::from_value::<biomcp_types::TrialGet>(value)
-            .map(Request::GetTrial)
-            .map_err(|_| ()),
-        ("search", "trial") => serde_json::from_value::<biomcp_types::TrialSearch>(value)
-            .map(Request::SearchTrial)
-            .map_err(|_| ()),
-        ("trial", "document") => serde_json::from_value::<biomcp_types::TrialDocumentGet>(value)
-            .map(Request::TrialDocument)
-            .map_err(|_| ()),
-        ("article", "pdf") => serde_json::from_value::<biomcp_types::ArticlePdf>(value)
-            .map(Request::ArticlePdf)
-            .map_err(|_| ()),
+        ("variant", "assertions") => {
+            validation::decode::<VariantAssertionsGet>(value).map(Request::VariantAssertions)
+        }
+        ("variant", "population") => {
+            validation::decode::<VariantPopulationQuery>(value).map(Request::VariantPopulation)
+        }
+        ("variant", "normalize") => validation::decode::<biomcp_types::VariantNormalize>(value)
+            .map(Request::VariantNormalize),
+        ("search", "variant") => {
+            validation::decode::<biomcp_types::VariantSearch>(value).map(Request::SearchVariant)
+        }
+        ("variant", "recurrence") => {
+            validation::decode::<VariantRecurrenceQuery>(value).map(Request::VariantRecurrence)
+        }
+        ("get", "variant") => {
+            validation::decode::<biomcp_types::VariantGet>(value).map(Request::GetVariant)
+        }
+        ("get", "trial") => {
+            validation::decode::<biomcp_types::TrialGet>(value).map(Request::GetTrial)
+        }
+        ("search", "trial") => {
+            validation::decode::<biomcp_types::TrialSearch>(value).map(Request::SearchTrial)
+        }
+        ("trial", "document") => {
+            validation::decode::<biomcp_types::TrialDocumentGet>(value).map(Request::TrialDocument)
+        }
+        ("article", "pdf") => {
+            validation::decode::<biomcp_types::ArticlePdf>(value).map(Request::ArticlePdf)
+        }
         ("article", "citation-evidence") => {
-            serde_json::from_value::<biomcp_types::ArticleEvidence>(value)
-                .map(Request::ArticleEvidence)
-                .map_err(|_| ())
+            validation::decode::<biomcp_types::ArticleEvidence>(value).map(Request::ArticleEvidence)
         }
         ("article", "recommendations") => {
-            serde_json::from_value::<biomcp_types::ArticleRecommend>(value)
+            validation::decode::<biomcp_types::ArticleRecommend>(value)
                 .map(Request::ArticleRecommend)
-                .map_err(|_| ())
         }
-        ("article", "supplement") => {
-            serde_json::from_value::<biomcp_types::ArticleSupplement>(value)
-                .map(Request::ArticleSupplement)
-                .map_err(|_| ())
+        ("article", "supplement") => validation::decode::<biomcp_types::ArticleSupplement>(value)
+            .map(Request::ArticleSupplement),
+        ("article", "text") => validation::decode::<ArticleText>(value).map(Request::ArticleText),
+        ("article", "citations") => {
+            validation::decode::<ArticleEdges>(value).map(Request::ArticleCitations)
         }
-        ("article", "text") => serde_json::from_value::<ArticleText>(value)
-            .map(Request::ArticleText)
-            .map_err(|_| ()),
-        ("article", "citations") => serde_json::from_value::<ArticleEdges>(value)
-            .map(Request::ArticleCitations)
-            .map_err(|_| ()),
-        ("article", "references") => serde_json::from_value::<ArticleEdges>(value)
-            .map(Request::ArticleReferences)
-            .map_err(|_| ()),
-        ("get", "article") => serde_json::from_value::<ArticleGet>(value)
-            .map(Request::GetArticle)
-            .map_err(|_| ()),
-        ("search", "article") => serde_json::from_value::<ArticleSearch>(value)
-            .map(Request::SearchArticle)
-            .map_err(|_| ()),
-        ("get", "gene") => serde_json::from_value::<GeneGet>(value)
-            .map(Request::GetGene)
-            .map_err(|_| ()),
-        ("search", "gene") => serde_json::from_value::<GeneSearch>(value)
-            .map(Request::SearchGene)
-            .map_err(|_| ()),
-        _ => Err(()),
+        ("article", "references") => {
+            validation::decode::<ArticleEdges>(value).map(Request::ArticleReferences)
+        }
+        ("get", "article") => validation::decode::<ArticleGet>(value).map(Request::GetArticle),
+        ("search", "article") => {
+            validation::decode::<ArticleSearch>(value).map(Request::SearchArticle)
+        }
+        ("get", "gene") => validation::decode::<GeneGet>(value).map(Request::GetGene),
+        ("search", "gene") => validation::decode::<GeneSearch>(value).map(Request::SearchGene),
+        _ => Err(biomcp_types::QueryInvalid::default()),
     }
 }
 

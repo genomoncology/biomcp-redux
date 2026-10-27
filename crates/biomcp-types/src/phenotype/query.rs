@@ -55,17 +55,20 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(PhenotypeSearch, SearchFields);
 impl TryFrom<SearchFields> for PhenotypeSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if v.source != PhenotypeSource::Monarch
-            || v.text.trim().is_empty()
-            || !(1..=50).contains(&v.limit)
-        {
-            Err(QueryInvalid)
-        } else {
-            Ok(Self(v))
+        if v.source != PhenotypeSource::Monarch {
+            return Err(QueryInvalid::new(&["source"]));
         }
+        if v.text.trim().is_empty() {
+            return Err(QueryInvalid::new(&["text"]));
+        }
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        Ok(Self(v))
     }
 }
 #[doc = " Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup \
@@ -120,18 +123,23 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     snapshot: Option<Text>,
 }
+crate::query::validation::checked_query!(PhenotypeGet, GetFields);
 impl TryFrom<GetFields> for PhenotypeGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
         let (source, _) = defaults(v.section);
-        if (source == PhenotypeSource::Monarch && v.source == Some(PhenotypeSource::Hpo))
-            || v.section_limit.is_some_and(|n| !(1..=50).contains(&n))
-            || (matches!(
-                v.section,
-                Some(PhenotypeSection::Diseases | PhenotypeSection::Genes)
-            ) && v.snapshot.is_some())
+        if source == PhenotypeSource::Monarch && v.source == Some(PhenotypeSource::Hpo) {
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if v.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
+            return Err(QueryInvalid::new(&["section_limit"]));
+        }
+        if (matches!(
+            v.section,
+            Some(PhenotypeSection::Diseases | PhenotypeSection::Genes)
+        ) && v.snapshot.is_some())
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["section", "snapshot"]));
         }
         v.source.get_or_insert(source);
         Ok(Self(v))

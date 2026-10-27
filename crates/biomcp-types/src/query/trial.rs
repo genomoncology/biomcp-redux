@@ -225,6 +225,7 @@ struct Fields {
 fn default_limit() -> u32 {
     10
 }
+crate::query::validation::checked_query!(TrialSearch, Fields);
 impl TryFrom<Fields> for TrialSearch {
     type Error = QueryInvalid;
     fn try_from(mut f: Fields) -> Result<Self, Self::Error> {
@@ -234,7 +235,7 @@ impl TryFrom<Fields> for TrialSearch {
             .and_then(|q| q.as_str().parse::<NctId>().ok())
         {
             if f.id.is_some_and(|explicit| explicit != id) {
-                return Err(QueryInvalid);
+                return Err(QueryInvalid::new(&["query", "id"]));
             }
             f.id = Some(id);
             f.query = None;
@@ -242,40 +243,64 @@ impl TryFrom<Fields> for TrialSearch {
         if f.condition_id.as_ref().is_some_and(|id| {
             f.condition.is_some() || f.keyword.is_some() || !valid_condition_id(id, f.source)
         }) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&[
+                "condition_id",
+                "condition",
+                "keyword",
+                "source",
+            ]));
         }
-        if !(1..=100).contains(&f.limit)
-            || f.age.is_some_and(|v| v > 150)
-            || f.updated_since
-                .zip(f.updated_until)
-                .is_some_and(|(a, b)| a.to_string() > b.to_string())
-            || (f.facility.is_some()
-                && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()))
-            || [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
-                .iter()
-                .filter(|v| **v)
-                .count()
-                % 3
-                != 0
+        if !(1..=100).contains(&f.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if f.age.is_some_and(|v| v > 150) {
+            return Err(QueryInvalid::new(&["age"]));
+        }
+        if f.updated_since
+            .zip(f.updated_until)
+            .is_some_and(|(a, b)| a.to_string() > b.to_string())
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["updated_since", "updated_until"]));
+        }
+        if (f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some())) {
+            return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"]));
+        }
+        if [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
+            .iter()
+            .filter(|v| **v)
+            .count()
+            % 3
+            != 0
+        {
+            return Err(QueryInvalid::new(&["lat", "lon", "distance"]));
         }
         if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
-            let lat = lat.as_str().parse::<f64>().map_err(|_| QueryInvalid)?;
-            let lon = lon.as_str().parse::<f64>().map_err(|_| QueryInvalid)?;
+            let lat = lat
+                .as_str()
+                .parse::<f64>()
+                .map_err(|_| QueryInvalid::new(&["lat"]))?;
+            let lon = lon
+                .as_str()
+                .parse::<f64>()
+                .map_err(|_| QueryInvalid::new(&["lon"]))?;
             let distance = distance
                 .as_str()
                 .strip_suffix("mi")
                 .or_else(|| distance.as_str().strip_suffix("km"))
-                .ok_or(QueryInvalid)?
+                .ok_or_else(|| QueryInvalid::new(&["distance"]))?
                 .parse::<f64>()
-                .map_err(|_| QueryInvalid)?;
-            if !(-90.0..=90.0).contains(&lat)
-                || !(-180.0..=180.0).contains(&lon)
-                || !distance.is_finite()
-                || distance <= 0.0
-            {
-                return Err(QueryInvalid);
+                .map_err(|_| QueryInvalid::new(&["distance"]))?;
+            if !(-90.0..=90.0).contains(&lat) {
+                return Err(QueryInvalid::new(&["lat"]));
+            }
+            if !(-180.0..=180.0).contains(&lon) {
+                return Err(QueryInvalid::new(&["lon"]));
+            }
+            if !distance.is_finite() {
+                return Err(QueryInvalid::new(&["distance"]));
+            }
+            if distance <= 0.0 {
+                return Err(QueryInvalid::new(&["distance"]));
             }
         }
         Ok(Self(Box::new(f)))

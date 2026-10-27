@@ -55,23 +55,31 @@ struct SearchFields {
     #[serde(default)]
     fresh: bool,
 }
+crate::query::validation::checked_query!(PathwaySearch, SearchFields);
 impl TryFrom<SearchFields> for PathwaySearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
         let selectors = usize::from(v.query.is_some())
             + usize::from(v.gene.is_some())
             + usize::from(v.top_level);
-        if selectors != 1
-            || !valid_limit(v.limit)
-            || v.source.is_empty()
-            || v.source
-                .iter()
-                .enumerate()
-                .any(|(i, s)| v.source.iter().take(i).any(|p| p == s))
-            || (v.source.contains(&PathwaySource::Wikipathways)
-                && (v.gene.is_some() || v.top_level))
+        if selectors != 1 {
+            return Err(QueryInvalid::new(&["query", "gene", "top_level"]));
+        }
+        if !valid_limit(v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.source.is_empty() {
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if v.source
+            .iter()
+            .enumerate()
+            .any(|(i, s)| v.source.iter().take(i).any(|p| p == s))
         {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["source"]));
+        }
+        if (v.source.contains(&PathwaySource::Wikipathways) && (v.gene.is_some() || v.top_level)) {
+            return Err(QueryInvalid::new(&["source", "gene", "top_level"]));
         }
         Ok(Self(v))
     }

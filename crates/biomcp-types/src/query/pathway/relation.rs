@@ -47,10 +47,12 @@ macro_rules! relation {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = $wire))]
         pub struct $name($fields);
+        crate::query::validation::checked_query!($name, $fields);
         impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, Self::Error> {
-                if !valid_limit(v.limit) || !$check(&v) { return Err(QueryInvalid); }
+                if !valid_limit(v.limit) { return Err(QueryInvalid::new(&["limit"])); }
+        if !$check(&v) { return Err(QueryInvalid::new(&["id"])); }
                 Ok(Self(v))
             }
         }

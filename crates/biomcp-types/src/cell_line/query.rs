@@ -59,11 +59,12 @@ struct SearchFields {
     #[serde(default)]
     offset: u32,
 }
+crate::query::validation::checked_query!(CellLineSearch, SearchFields);
 impl TryFrom<SearchFields> for CellLineSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
         if !(1..=25).contains(&v.limit) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(v))
     }
@@ -121,11 +122,12 @@ struct GetFields {
     #[serde(default)]
     section_offset: u32,
 }
+crate::query::validation::checked_query!(CellLineGet, GetFields);
 impl TryFrom<GetFields> for CellLineGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
         if v.section_limit.is_some_and(|n| !(1..=25).contains(&n)) {
-            return Err(QueryInvalid);
+            return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self(v))
     }
@@ -177,3 +179,5 @@ pub struct CellLineAssayCountQuery {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub id: ChemblCellId,
 }
+
+crate::query::validation::checked_query!(CellLineAssayCountQuery);

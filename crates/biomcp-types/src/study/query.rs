@@ -57,11 +57,15 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pool: Option<Text>,
 }
+crate::query::validation::checked_query!(StudySearch, SearchFields);
 impl TryFrom<SearchFields> for StudySearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if (v.text.is_none() && v.cancer_type.is_none()) || !(1..=50).contains(&v.limit) {
-            return Err(QueryInvalid);
+        if v.text.is_none() && v.cancer_type.is_none() {
+            return Err(QueryInvalid::new(&["text", "cancer_type"]));
+        }
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(v))
     }
@@ -126,13 +130,15 @@ struct GetFields {
     #[serde(default)]
     section_offset: u32,
 }
+crate::query::validation::checked_query!(StudyGet, GetFields);
 impl TryFrom<GetFields> for StudyGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&v.section_limit)
-            || (matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0)
-        {
-            return Err(QueryInvalid);
+        if !(1..=50).contains(&v.section_limit) {
+            return Err(QueryInvalid::new(&["section_limit"]));
+        }
+        if matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0 {
+            return Err(QueryInvalid::new(&["section", "section_offset"]));
         }
         Ok(Self(v))
     }
