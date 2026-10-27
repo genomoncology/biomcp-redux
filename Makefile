@@ -52,3 +52,7 @@ source-capture:
 .PHONY: schema-release-check
 schema-release-check:
 	python3 scripts/schema_release.py
+
+.PHONY: parity-run
+parity-run:
+	sh scripts/parity_runner.sh "$(PLAN)" "$(BASELINE)" "$(OUT)"

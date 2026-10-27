@@ -6,6 +6,7 @@ mod assertions;
 mod author;
 mod execution;
 mod orcid;
+pub(super) mod parity;
 use execution::run_step;
 mod cache_contention;
 pub(super) mod cell_line;
@@ -222,6 +223,7 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
         .collect::<Result<Vec<_>, String>>()?;
     if include_proof {
         trials.extend(schema_proof::trials(registry));
+        trials.extend(parity::trials());
     }
     Ok(trials)
 }
