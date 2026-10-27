@@ -30,18 +30,22 @@ pub(super) fn baseline(
     let routes = selection
         .recordings
         .iter()
-        .map(|r| (r.request_prefix.clone(), r.request_contains.clone()))
+        .map(|r| {
+            (
+                r.host.clone(),
+                r.request_prefix.clone(),
+                r.request_contains.clone(),
+            )
+        })
         .collect::<Vec<_>>();
     // This peer never opens a provider connection. Unknown hosts or targets fail closed.
-    let server = super::super::network_stub::Stub::for_sources(
-        &hosts,
-        |_| "application/json",
-        move |request| {
+    let server =
+        super::super::network_stub::Stub::for_sources_with_host(&hosts, move |host, request| {
             let matching = routes
                 .iter()
                 .enumerate()
-                .filter(|(_, (prefix, contains))| {
-                    request.starts_with(prefix) && request.contains(contains)
+                .filter(|(_, (source_host, prefix, contains))| {
+                    host == source_host && request.starts_with(prefix) && request.contains(contains)
                 })
                 .map(|(i, _)| i)
                 .collect::<Vec<_>>();
@@ -52,8 +56,7 @@ pub(super) fn baseline(
                 .get(*index)
                 .cloned()
                 .ok_or("missing recorded body".into())
-        },
-    )?;
+        })?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let certificate = env.root().join("source.pem");
     fs::write(&certificate, &server.certificate).map_err(|e| e.to_string())?;

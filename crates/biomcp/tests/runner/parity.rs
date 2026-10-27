@@ -61,6 +61,11 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     {
         return Err("expected nonempty selection and absolute released 0.9.3 executable".into());
     }
+    let cases = plan
+        .cases
+        .iter()
+        .map(load_selection)
+        .collect::<Result<Vec<_>, _>>()?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let version = env
         .command(baseline, &["--version".into()])
@@ -77,8 +82,8 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     fs::create_dir(out).map_err(|e| e.to_string())?;
     fs::write(out.join("baseline-version.stdout"), version.stdout).map_err(|e| e.to_string())?;
     let mut rows = Vec::new();
-    for (index, selection) in plan.cases.iter().enumerate() {
-        rows.push(compare(selection, baseline, out, index)?);
+    for (index, (selection, case)) in plan.cases.iter().zip(&cases).enumerate() {
+        rows.push(compare(selection, case, baseline, out, index)?);
     }
     let facts = rows
         .iter()
@@ -112,12 +117,7 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
         json!({"report":out.join("report.json"), "cases":rows.len(),"assessment_gaps":gaps,"regressions":regressions}),
     )
 }
-fn compare(
-    selection: &Selection,
-    baseline: &Path,
-    out: &Path,
-    index: usize,
-) -> Result<Value, String> {
+fn load_selection(selection: &Selection) -> Result<Case, String> {
     let path = super::launch::fixtures()
         .join("cases")
         .join(&selection.case);
@@ -130,10 +130,21 @@ fn compare(
         .get(selection.step)
         .ok_or("selected step missing")?;
     assertions::prepare(step)?;
-    let command = step
-        .run
+    step.run
         .as_ref()
         .ok_or("selection requires a direct CLI step")?;
+    if step.expect.is_empty() {
+        return Err("selection has no fact assertions".into());
+    }
+    for (pointer, baseline_pointer) in &selection.facts {
+        let expected = step
+            .expect
+            .get(pointer)
+            .ok_or("projection names an unknown harvested assertion")?;
+        let mut projection = step.clone();
+        projection.expect = BTreeMap::from([(baseline_pointer.clone(), expected.clone())]);
+        assertions::prepare(&projection)?;
+    }
     if selection.baseline_command.is_empty() {
         return Err("selection requires a baseline command".into());
     }
@@ -155,21 +166,27 @@ fn compare(
     if !table.contains("0.9") || !table.contains(&leaf) {
         return Err("missing spelling-table provenance".into());
     }
+    Ok(case)
+}
+fn compare(
+    selection: &Selection,
+    case: &Case,
+    baseline: &Path,
+    out: &Path,
+    index: usize,
+) -> Result<Value, String> {
+    let step = case
+        .steps
+        .get(selection.step)
+        .ok_or("selected step missing")?;
+    let command = step
+        .run
+        .as_ref()
+        .ok_or("selection requires a direct CLI step")?;
     let replay = super::launch::fixtures()
         .join("replies")
         .join(case.replay.as_ref().ok_or("recording required")?);
-    let current_env = Environment::new().map_err(|e| e.to_string())?;
-    if let Some(config) = &case.config {
-        current_env.config(config).map_err(|e| e.to_string())?;
-    }
-    let mut current_args = command.clone();
-    current_args.extend(current_env.globals(Some(&replay), step.offline));
-    let current = execution::invoke(
-        &current_env,
-        Path::new(env!("CARGO_BIN_EXE_biomcp")),
-        &current_args,
-        &out.join(format!("{index}-candidate")),
-    )?;
+    let current = execution::candidate(case, step, command, &replay, out, index)?;
     let mut old = recording::baseline(selection, baseline, &replay, out, index)?;
     let mut current = current;
     execution::assess_exit(&mut old, 0);

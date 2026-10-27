@@ -101,6 +101,36 @@ impl Stub {
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         length: fn(&str, usize) -> usize,
+        status: impl FnMut(&str) -> u16 + Send + 'static,
+        range: impl FnMut(&str) -> String + Send + 'static,
+    ) -> Result<Self, String> {
+        Self::with_host_headers(
+            hosts,
+            content_type,
+            move |_, request| reply(request),
+            length,
+            status,
+            range,
+        )
+    }
+    pub(super) fn for_sources_with_host(
+        hosts: &[&str],
+        reply: impl FnMut(&str, &str) -> Result<String, String> + Send + 'static,
+    ) -> Result<Self, String> {
+        Self::with_host_headers(
+            hosts,
+            |_| "application/json",
+            reply,
+            |_, bytes| bytes,
+            |_| 200,
+            |_| String::new(),
+        )
+    }
+    fn with_host_headers(
+        hosts: &[&str],
+        content_type: impl Fn(&str) -> &'static str + Send + 'static,
+        mut reply: impl FnMut(&str, &str) -> Result<String, String> + Send + 'static,
+        length: fn(&str, usize) -> usize,
         mut status: impl FnMut(&str) -> u16 + Send + 'static,
         mut range: impl FnMut(&str) -> String + Send + 'static,
     ) -> Result<Self, String> {
@@ -123,12 +153,10 @@ impl Stub {
                     .set_write_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
                 let connect = header(&mut socket)?;
-                if !hosts
+                let host = hosts
                     .iter()
-                    .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
-                {
-                    return Err("wrong CONNECT destination".into());
-                }
+                    .find(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
+                    .ok_or("wrong CONNECT destination")?;
                 socket
                     .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n")
                     .map_err(|e| e.to_string())?;
@@ -137,7 +165,7 @@ impl Stub {
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
                 if let Ok(request) = source_request(&mut tls) {
-                    let body = reply(&request)?;
+                    let body = reply(host, &request)?;
                     let content_type = content_type(&request);
                     let status = status(&request);
                     write!(

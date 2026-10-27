@@ -46,10 +46,43 @@ pub(super) fn assess_exit(output: &mut Value, expected: i32) {
 }
 pub(super) fn fingerprint(binary: &Path) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
-    let bytes = fs::read(binary).map_err(|e| e.to_string())?;
+    let binary = super::super::launch::executable(binary);
+    let bytes = fs::read(&binary).map_err(|e| e.to_string())?;
     let digest = Sha256::digest(&bytes)
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect::<String>();
     Ok(json!({"path":binary,"sha256":digest}))
+}
+
+pub(super) fn candidate(
+    case: &super::Case,
+    step: &super::Step,
+    args: &[String],
+    replay: &Path,
+    out: &Path,
+    index: usize,
+) -> Result<Value, String> {
+    let guard = super::super::network_stub::Stub::for_source(
+        "replay-only.invalid",
+        "application/json",
+        |_| Err("candidate attempted a provider connection".into()),
+    )?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let mut config = case.config.clone().unwrap_or(json!({}));
+    config["proxy"] = json!(format!("http://{}", guard.address));
+    env.config(&config).map_err(|e| e.to_string())?;
+    let globals = env.globals(Some(replay), step.offline);
+    let args = super::super::launch::arguments(args, &globals);
+    let mut result = invoke(
+        &env,
+        Path::new(env!("CARGO_BIN_EXE_biomcp")),
+        &args,
+        &out.join(format!("{index}-candidate")),
+    )?;
+    match guard.finish() {
+        Ok(requests) if requests.is_empty() => result["provider_connections"] = json!(0),
+        other => result["assessment_error"] = json!(format!("offline replay guard: {other:?}")),
+    }
+    Ok(result)
 }

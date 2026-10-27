@@ -3,7 +3,10 @@
 Run separately from the routine suite: python3 scripts/test_parity_runner.py
 /absolute/released-0.9.3 /absolute/new-evidence-root. Prints one summary.
 """
+import copy
 import json
+import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -13,10 +16,10 @@ from source_capture import outside_git, write_json
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(plan, baseline, out, expected):
+def run(plan, baseline, out, expected, env=None):
     result = subprocess.run(['make', 'parity-run', 'PLAN=' + str(plan),
                              'BASELINE=' + str(baseline), 'OUT=' + str(out)],
-                            cwd=ROOT, capture_output=True)
+                            cwd=ROOT, capture_output=True, env=env)
     (out.parent / (out.name + '.log')).write_bytes(result.stdout + result.stderr)
     assert (result.returncode == 0) == expected, result.stderr.decode(errors='replace')
     report = json.loads((out / 'report.json').read_text())
@@ -26,7 +29,7 @@ def run(plan, baseline, out, expected):
         raw = (out / command['stdout']).read_bytes()
         assert len(raw) == command['stdout_bytes'] > 0
         assert len((out / command['stderr']).read_bytes()) == command['stderr_bytes']
-        assert command['elapsed_us'] > 0 and command['exit'] == 0
+        assert command['elapsed_us'] > 0
         assert json.loads(raw) == command['parsed']
     return report
 
@@ -44,6 +47,8 @@ def main():
     assert fact['baseline']['actual'] == row['baseline']['parsed']['summary']
     assert fact['candidate']['actual'] == row['candidate']['parsed']['result']['items'][0]['answer']['gene']['summary']['text']
     assert fact['baseline']['actual'] != fact['candidate']['actual']
+    assert row['candidate']['provider_connections'] == 0
+    assert row['baseline']['exit'] == row['candidate']['exit'] == 0
     assert row['baseline']['command'][-3:] == ['gene', 'definition', 'BRAF']
     assert row['candidate']['command'][:3] == ['get', 'gene', 'BRAF']
     source = json.loads((out / 'sample/0-source-0.json').read_text())
@@ -60,7 +65,51 @@ def main():
     fact, = gap['cases'][0]['facts']
     assert fact['baseline']['verdict'] == fact['candidate']['verdict'] == 'assessment_gap'
     assert 'missing baseline projection' in fact['baseline']['reason']
-    print('Recorded parity sample and missing-projection refusal passed; evidence: ' + str(out))
+    separator = copy.deepcopy(plan)
+    grammar = json.loads((ROOT / 'tests/cases/gene/sections/grammar.yaml').read_text())
+    ordinal, step = next((i, step) for i, step in enumerate(grammar['steps']) if '--' in step.get('run', []))
+    selection = separator['cases'][0]
+    selection.update(case='gene/sections/grammar.yaml', step=ordinal, facts={}, assertion_pointers=['/query/input'])
+    selection['recordings'][0]['capture'] = '../main/' + selection['recordings'][0]['capture']
+    write_json(out / 'separator.json', separator)
+    separated = run(out / 'separator.json', baseline, out / 'separator', False)
+    command = separated['cases'][0]['candidate']
+    assert command['parsed']['query']['input'] == step['expect']['/query/input']
+    assert command['command'].index('--replay') < command['command'].index('--')
+    assert command['provider_connections'] == 0
+    overlap = json.loads(sample.read_text())
+    other = copy.deepcopy(overlap['cases'][0]['recordings'][0])
+    other['host'] = 'unrelated.invalid'
+    overlap['cases'][0]['recordings'].insert(0, other)
+    write_json(out / 'hosts.json', overlap)
+    hosted = run(out / 'hosts.json', baseline, out / 'hosts', True)
+    assert hosted['cases'][0]['facts'][0]['baseline']['verdict'] == 'wrong'
+    installed = out / 'installed-biomcp'
+    shutil.copy2(Path(report['candidate_binary']['path']), installed)
+    environment = dict(os.environ, BIOMCP_TEST_EXECUTABLE=str(installed))
+    installed_report = run(sample, baseline, out / 'installed', True, env=environment)
+    assert Path(installed_report['candidate_binary']['path']) == installed
+    assert installed_report['candidate_binary']['sha256'] == report['candidate_binary']['sha256']
+    malformed = json.loads(sample.read_text())
+    pointer = next(iter(malformed['cases'][0]['facts']))
+    malformed['cases'][0]['facts'][pointer] = 'summary'
+    reject(malformed, baseline, out, 'pointer', 'expected a JSON pointer')
+    empty = json.loads(sample.read_text())
+    empty['cases'][0].update(case='article/evidence/checked.yaml', step=0, facts={}, assertion_pointers=None)
+    reject(empty, baseline, out, 'no-facts', 'selection has no fact assertions')
+    print('Recorded parity sample, isolation and assessment-gap checks passed; evidence: ' + str(out))
+
+
+def reject(plan, baseline, out, name, diagnostic):
+    path = out / (name + '.json')
+    destination = out / name
+    write_json(path, plan)
+    result = subprocess.run(['make', 'parity-run', 'PLAN=' + str(path),
+                             'BASELINE=' + str(baseline), 'OUT=' + str(destination)],
+                            cwd=ROOT, capture_output=True)
+    (out / (name + '.log')).write_bytes(result.stdout + result.stderr)
+    assert result.returncode != 0 and diagnostic in result.stderr.decode(errors='replace')
+    assert not destination.exists(), 'invalid mappings must fail before either binary runs'
 
 
 if __name__ == '__main__':
