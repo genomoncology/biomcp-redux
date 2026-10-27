@@ -91,13 +91,13 @@ fn article(query: &biomcp_types::ArticleGet) -> Vec<Source> {
                 ArticleInput::EuropePmc(_) => Source::EuropePmc,
                 _ => Source::PmcOa,
             })),
-            _ => {}
             Section::All => sources.extend([
                 Source::PubTator,
                 Source::Icite,
                 Source::SemanticScholar,
                 Source::PmcOa,
             ]),
+            _ => {}
         }
     }
     sources
