@@ -28,7 +28,9 @@ pub(crate) fn grammar() -> Command {
         .subcommand(Command::new("status").after_help("Example: biomcp skill status biomcp-guidance")
             .about("Report missing, unmanaged, locally_modified, stale or current guidance.")
             .arg(directory()))
-        .subcommand(Command::new("install").after_help("Example: biomcp skill install biomcp-guidance").about("Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. \
+        .subcommand(Command::new("install")
+            .after_help("Example: biomcp skill install biomcp-guidance")
+            .about("Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. \
             Existing files remain unchanged without --force.")
             .arg(directory())
             .arg(Arg::new("force").long("force").action(ArgAction::SetTrue).help("Repair managed files; retain unrelated files.")))

@@ -38,6 +38,9 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         for argument in &mut command.arguments {
             argument.description = plain(&argument.description);
         }
+        if let Some(rule) = &mut command.section_rule {
+            *rule = plain(rule);
+        }
         for section in &mut command.sections {
             section.description = plain(&section.description);
         }
