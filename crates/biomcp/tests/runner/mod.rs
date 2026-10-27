@@ -126,6 +126,7 @@ mod study_catalog;
 mod supplement_tables;
 mod trial_condition;
 mod trial_documents;
+mod trial_eligibility;
 mod trial_get;
 mod trial_group;
 mod trial_groups;

@@ -2065,6 +2065,11 @@
           "description": "Exact original text fragment, including whitespace.",
           "type": "string"
         },
+        "criterion_continues": {
+          "default": false,
+          "description": "The page ends within a criterion whose lines exceed the page budget.",
+          "type": "boolean"
+        },
         "healthy_volunteers": {
           "description": "Source healthy-volunteer field.",
           "type": [
