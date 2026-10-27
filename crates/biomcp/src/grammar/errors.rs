@@ -4,7 +4,7 @@ use clap::{
     error::{ContextKind, ContextValue},
 };
 use std::ffi::OsString;
-pub(super) fn argument_error(args: &[OsString]) -> Option<String> {
+pub(crate) fn argument_error(args: &[OsString]) -> Option<String> {
     let mut parser = super::root().ok()?;
     parser.build();
     let error = parser
