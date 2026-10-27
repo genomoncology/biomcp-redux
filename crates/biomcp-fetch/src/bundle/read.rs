@@ -74,10 +74,7 @@ impl Leg<'_> {
                 .stale = true;
         }
         let rows = cache.bundle_rows(bundle.name, find, self.budget())?;
-        let rows = rows
-            .into_iter()
-            .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
-            .collect::<Result<_, RequestError>>()?;
+        let rows = decode(rows)?;
         Ok(rows)
     }
     /// Read only the last validated local bundle, even when fresh or replay is selected.
@@ -93,10 +90,7 @@ impl Leg<'_> {
         let (meta, rows) = cache
             .stored_bundle(bundle.name, find, self.budget())?
             .ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
-        let rows = rows
-            .into_iter()
-            .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
-            .collect::<Result<_, RequestError>>()?;
+        let rows = decode(rows)?;
         if meta.fresh_until <= crate::cache::now() {
             self.report
                 .lock()
@@ -147,4 +141,10 @@ impl Leg<'_> {
             .as_deref()
             .ok_or(crate::CacheError::Database.into())
     }
+}
+
+fn decode<R: Row>(rows: Vec<String>) -> Result<Vec<R>, RequestError> {
+    rows.into_iter()
+        .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Database.into()))
+        .collect()
 }

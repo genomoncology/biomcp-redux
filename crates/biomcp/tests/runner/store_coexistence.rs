@@ -14,6 +14,7 @@ const ID: &str = "0466-046-00";
 pub(super) fn trials() -> Vec<Trial> {
     [
         ("imports-after-safe-cleanup", imports as fn() -> Check),
+        ("legacy-hgnc-index-upgrades", legacy_index),
         ("current-published-bundle-wins", current),
         ("interrupted-transfer-retains-both-files", interrupted),
         ("owner-refusal-preserves-both-files", ownership),
@@ -212,6 +213,31 @@ fn admission() -> Check {
     read(&env, &["--disable-sources", "who-ivd"], 4)?;
     if count(&current, "bundle")? != 0 || fs::read(&old)? != before {
         return Err("health or disabled source transferred data".into());
+    }
+    Ok(())
+}
+
+fn legacy_index() -> Check {
+    let env = Environment::new()?;
+    let (old, current) = files(&env)?;
+    let replay = super::launch::fixtures().join("replies/pathway/sections");
+    let mut args = vec!["pathway".into(), "genes".into(), "R-HSA-5673001".into()];
+    let mut seed = args.clone();
+    seed.extend(env.globals(Some(&replay), false));
+    invoke(&env, seed, 0)?;
+    let cache = env.root().join("case-cache/replay.sqlite");
+    fs::copy(&cache, &old)?;
+    fs::copy(&cache, &current)?;
+    Connection::open(&old)?.execute_batch("DELETE FROM bundle_key WHERE bundle='hgnc' AND kind=4 AND key LIKE 'uniprot:%'; UPDATE meta SET version=3 WHERE owner='biomcp-fetch';")?;
+    Connection::open(&current)?.execute_batch("DELETE FROM bundle WHERE name='hgnc'; DELETE FROM bundle_row WHERE bundle='hgnc'; DELETE FROM bundle_key WHERE bundle='hgnc'; DELETE FROM bundle_words WHERE bundle='hgnc';")?;
+    let before = fs::read(&old)?;
+    args.push("--offline".into());
+    let value = invoke(&env, args, 0)?;
+    if value.pointer("/result/items/0/gene") != Some(&json!("HGNC:1097")) {
+        return Err(format!("legacy transfer lost the UniProt gene join: {value}").into());
+    }
+    if fs::read(&old)? != before {
+        return Err("legacy index upgrade rewrote its source".into());
     }
     Ok(())
 }

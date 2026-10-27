@@ -121,7 +121,7 @@ diagnostic-who-search: Search stored WHO product headers by literal marker and m
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools. Cases: `crates/biomcp/tests/runner/research.rs`.
 
 study-types: A public API caller preserves exact study identities, source-scoped count metadata and independent acquisition times through bounded standalone study contracts. Contracts: `biomcp-types/study_contracts` (features: `schema`).
-store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `tests/cases/store/clean.yaml`.
+store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, fresh state and foreign tables. Cases: `crates/biomcp/tests/runner/store_clean.rs`, `crates/biomcp/tests/runner/store_coexistence.rs`, `tests/cases/store/clean.yaml`.
 gwas-types: A public API caller validates Catalog identities, exact scientific probabilities, native association context and standalone source-scoped consumer contracts before adapters exist. Contracts: `biomcp-types/gwas_contracts` (features: `schema`).
 
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order. Cases: `crates/biomcp/tests/runner/study_catalog.rs`, `tests/cases/study/*.yaml`.
@@ -177,3 +177,4 @@ author-papers: Exact Semantic Scholar author papers preserve native order, IDs a
 cache-resilience: Checked provider replies and absences survive cache admission failures, and busy reads leave time for the source. Cases: `crates/biomcp/tests/runner/cache_contention.rs`.
 
 housekeeping: Print build provenance and ready-to-paste local MCP configuration without reading keys or contacting sources. Cases: `crates/biomcp/tests/runner/housekeeping.rs`.
+store-coexistence: Allowed bundle reads import only names missing from the current generation through a verified atomic transfer, preserve both files, and retain current published bundles on conflicts. Cases: `crates/biomcp/tests/runner/store_coexistence.rs`.
