@@ -7,6 +7,8 @@ use std::{collections::BTreeMap, fs, path::Path};
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct Shape {
+    #[serde(default)]
+    name: String,
     command: Vec<String>,
     config: Option<Value>,
     exit: i32,
@@ -25,6 +27,7 @@ pub(super) fn resolve(
         .as_ref()
         .or(step.mcp.as_ref())
         .ok_or("shape command missing")?;
+    let mut incomplete = None;
     for shape in shapes {
         if shape.config != case.config || shape.exit != step.exit {
             continue;
@@ -36,6 +39,10 @@ pub(super) fn resolve(
             shape.declaration.facts.contains_key(p)
                 || shape.declaration.unprojectable_facts.contains_key(p)
         }) {
+            incomplete = Some(format!(
+                "{}: harvested assertions need reviewed projections",
+                shape.name
+            ));
             continue;
         }
         let mut selected = shape.declaration.clone();
@@ -59,36 +66,12 @@ pub(super) fn resolve(
             *arg = expand(arg, &bindings)?;
         }
         super::operation::validate(&selected.baseline_command)?;
-        for route in &mut selected.recordings {
-            if route.request_prefix.contains('{')
-                && bindings.values().any(|value| {
-                    !value
-                        .bytes()
-                        .all(|b| b.is_ascii_alphanumeric() || b"-_.~".contains(&b))
-                })
-            {
-                return Err("shape path value needs a reviewed native encoding".into());
-            }
-            route.request_prefix = expand(&route.request_prefix, &bindings)?;
-            route.request_contains = expand(&route.request_contains, &bindings)?;
-            for value in route.request_query.values_mut() {
-                *value = expand(value, &bindings)?;
-            }
-            let replay = case
-                .replay
-                .as_ref()
-                .ok_or("shape requires current-case recordings")?;
-            let replay = root
-                .parent()
-                .ok_or("fixture parent missing")?
-                .join("replies")
-                .join(replay);
-            route.capture = capture(route, &replay)?;
-        }
+        bind_routes(&mut selected.recordings, &bindings, case, root)
+            .map_err(|reason| format!("{}: {reason}", shape.name))?;
         super::registry::validate(&selected)?;
         return Ok(Some(selected));
     }
-    Ok(None)
+    incomplete.map_or(Ok(None), Err)
 }
 fn bind(
     pattern: &[String],
@@ -175,6 +158,12 @@ fn capture(route: &Route, replay: &Path) -> Result<String, String> {
         else {
             continue;
         };
+        let query_len = target.split_once('?').map_or(0, |(_, query)| {
+            query.split('&').filter(|pair| !pair.is_empty()).count()
+        });
+        if query_len != route.request_query.len() {
+            continue;
+        }
         if super::request::matches(
             &route.request_prefix,
             &route.request_contains,
@@ -202,4 +191,45 @@ fn capture(route: &Route, replay: &Path) -> Result<String, String> {
         },
         Ok,
     )
+}
+
+fn bind_routes(
+    routes: &mut [Route],
+    bindings: &BTreeMap<String, String>,
+    case: &Case,
+    root: &Path,
+) -> Result<(), String> {
+    for route in routes {
+        if let Some(reason) = &route.recording_gap {
+            return Err(format!(
+                "held native recording: {}",
+                expand(reason, bindings)?
+            ));
+        }
+        if route.request_prefix.contains('{')
+            && bindings.values().any(|value| {
+                !value
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b"-_.~".contains(&b))
+            })
+        {
+            return Err("shape path value needs a reviewed native encoding".into());
+        }
+        route.request_prefix = expand(&route.request_prefix, &bindings)?;
+        route.request_contains = expand(&route.request_contains, &bindings)?;
+        for value in route.request_query.values_mut() {
+            *value = expand(value, &bindings)?;
+        }
+        let replay = case
+            .replay
+            .as_ref()
+            .ok_or("shape requires current-case recordings")?;
+        let replay = root
+            .parent()
+            .ok_or("fixture parent missing")?
+            .join("replies")
+            .join(replay);
+        route.capture = capture(route, &replay)?;
+    }
+    Ok(())
 }

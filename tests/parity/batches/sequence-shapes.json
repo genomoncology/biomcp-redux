@@ -1,0 +1,1173 @@
+{
+  "baseline_release": "0.9.3",
+  "cases": [],
+  "shapes": [
+    {
+      "name": "S0005",
+      "command": [
+        "get",
+        "gene",
+        "{value}",
+        "constraint"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "gene/sections/constraint.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "gene",
+          "{value}",
+          "constraint"
+        ],
+        "spelling_table": "sdlc/planning/slices/gene.md",
+        "release_source": [
+          "src/cli/gene/dispatch.rs::handle_command",
+          "src/cli/gene/dispatch.rs::handle_get",
+          "src/entities/gene.rs::Gene",
+          "src/transform/gene.rs::from_mygene_get",
+          "src/entities/section_outcome.rs::SectionOutcome",
+          "src/sources/gnomad.rs::gene_constraint_plan"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "mygene-info",
+            "endpoint_env": "BIOMCP_MYGENE_BASE",
+            "host": "mygene.info",
+            "request_prefix": "GET /v3/query?",
+            "request_contains": "",
+            "request_query": {
+              "q": "symbol:\"{value}\"",
+              "species": "human"
+            },
+            "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+            "capture": ""
+          },
+          {
+            "source": "gnomad",
+            "endpoint_env": "BIOMCP_GNOMAD_BASE",
+            "host": "gnomad.broadinstitute.org",
+            "request_prefix": "POST /api",
+            "request_contains": "",
+            "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data.",
+            "capture": ""
+          }
+        ],
+        "facts": {
+          "/result/items/0/sections/constraint/state": "/section_outcomes/constraint/outcome",
+          "/result/items/0/sections/constraint/data/version": "/constraint/source_version",
+          "/result/items/0/sections/constraint/data/loeuf": "/constraint/loeuf",
+          "/result/items/0/sections/constraint/data/transcript": "/constraint/transcript",
+          "/result/items/0/sections/constraint": "/constraint"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+            "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/sources/*/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/answer/gene/hgnc_id": {
+            "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/gene/summary/source": {
+            "reason": "Released summary is a trimmed string with two sentences; it has no separately serialized attribution or date.",
+            "release_source": "src/transform/gene.rs::normalize_summary"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0007",
+      "command": [
+        "get",
+        "article",
+        "{value}",
+        "tldr"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "article/tldr/empty.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "article",
+          "{value}",
+          "tldr"
+        ],
+        "spelling_table": "sdlc/planning/slices/article.md",
+        "release_source": [
+          "src/entities/article/mod.rs",
+          "src/cli/article/dispatch.rs",
+          "src/entities/article/detail.rs",
+          "src/cli/system/batch.rs"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "pubtator3",
+            "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+            "host": "www.ncbi.nlm.nih.gov",
+            "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+            "request_contains": "",
+            "request_query": {
+              "pmids": "{value}"
+            },
+            "capture": "",
+            "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+          },
+          {
+            "source": "europe-pmc",
+            "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+            "host": "www.ebi.ac.uk",
+            "request_prefix": "GET /europepmc/webservices/rest/search",
+            "request_contains": "",
+            "request_query": {
+              "query": "EXT_ID:{value} AND SRC:MED"
+            },
+            "capture": "",
+            "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+          },
+          {
+            "source": "semantic-scholar",
+            "endpoint_env": "BIOMCP_S2_BASE",
+            "host": "api.semanticscholar.org",
+            "request_prefix": "GET /graph/v1/paper/PMID:{value}",
+            "request_contains": "",
+            "capture": "",
+            "recording_gap": "Released get enriches through paper_detail with metadata plus TLDR fields. Its exact released enrichment request has not been matched to a retained replay body (src/entities/article/detail.rs::enrich_article_with_semantic_scholar)."
+          }
+        ],
+        "facts": {
+          "/result/items/0/sections/tldr/state": "/section_outcomes/tldr/outcome",
+          "/result/items/0/answer/card/pmid": "/pmid"
+        },
+        "unprojectable_facts": {}
+      }
+    },
+    {
+      "name": "S0009",
+      "command": [
+        "article",
+        "references",
+        "{value}",
+        "--source",
+        "semantic-scholar"
+      ],
+      "exit": 4,
+      "config": null,
+      "declaration": {
+        "case": "article/edges/pmc.yaml",
+        "step": 0,
+        "baseline_command": [
+          "article",
+          "references",
+          "{value}"
+        ],
+        "spelling_table": "sdlc/planning/slices/article.md",
+        "release_source": [
+          "src/entities/article/mod.rs",
+          "src/cli/article/dispatch.rs",
+          "src/entities/article/detail.rs",
+          "src/cli/system/batch.rs"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "semantic-scholar",
+            "endpoint_env": "BIOMCP_S2_BASE",
+            "host": "api.semanticscholar.org",
+            "request_prefix": "POST /graph/v1/paper/batch",
+            "request_contains": "",
+            "capture": "",
+            "recording_gap": "Released graph/evidence resolves seed metadata through paper_batch before fetching graph edges by native paperId. This replay retains PMID-addressed edge responses but no required release seed batch body (src/entities/article/graph.rs::resolve_semantic_scholar_seed)."
+          }
+        ],
+        "facts": {
+          "/result/items/0/pmid": "/edges/0/paper/pmid"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released graph serialization has bounded edges, pagination offsets and provider contexts. It has no exact graph total, current header object, no-context notice or current next-action envelope.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/page/total": {
+            "reason": "Released Semantic Scholar search discards the provider total; array length cannot supply a source-global total.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/query/pmid": {
+            "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+            "release_source": "src/entities/article/mod.rs"
+          }
+        },
+        "baseline_exit": 1
+      }
+    },
+    {
+      "name": "S0010",
+      "command": [
+        "get",
+        "gene",
+        "{value}"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "gene/fam46c.yaml",
+        "step": 0,
+        "baseline_command": [
+          "gene",
+          "definition",
+          "{value}"
+        ],
+        "spelling_table": "sdlc/planning/slices/gene.md",
+        "release_source": [
+          "src/cli/gene/dispatch.rs::handle_command",
+          "src/cli/gene/dispatch.rs::handle_get",
+          "src/entities/gene.rs::Gene",
+          "src/transform/gene.rs::from_mygene_get",
+          "src/entities/section_outcome.rs::SectionOutcome"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "mygene-info",
+            "endpoint_env": "BIOMCP_MYGENE_BASE",
+            "host": "mygene.info",
+            "request_prefix": "GET /v3/query?",
+            "request_contains": "",
+            "request_query": {
+              "q": "symbol:\"{value}\"",
+              "species": "human"
+            },
+            "recording_gap": "Released lookup first queries symbol:\"{value}\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution.",
+            "capture": ""
+          }
+        ],
+        "facts": {
+          "/result/items/0/answer/gene/symbol": "/symbol",
+          "/result/items/0/answer/gene/entrez_id": "/entrez_id",
+          "/result/items/0/answer/gene/ensembl_id": "/ensembl_id",
+          "/result/items/0/answer/resolution": "/_meta/alias_resolution/kind",
+          "/result/items/0/answer/candidates/0": "/_meta/alias_resolution/candidates/0",
+          "/result/items/0/answer/candidates/1": "/_meta/alias_resolution/candidates/1"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+            "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/answer/gene/hgnc_id": {
+            "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/match/kind": {
+            "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/sources/*/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/answer/gene/location": {
+            "reason": "Released location is a chromosome from genomic_pos.chr, not the asserted HGNC cytoband.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/match/text": {
+            "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/sources/0/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/sources/1/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/sources/2": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/next/*/kind": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/answer/gene/previous_symbols": {
+            "reason": "Released Gene has no MANE or HGNC previous-symbol fields. Its filtered and capped MyGene aliases are not HGNC previous symbols.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/gene/mane/0/refseq": {
+            "reason": "Released Gene has no MANE or HGNC previous-symbol fields. Its filtered and capped MyGene aliases are not HGNC previous symbols.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/gene/mane/0/ensembl": {
+            "reason": "Released Gene has no MANE or HGNC previous-symbol fields. Its filtered and capped MyGene aliases are not HGNC previous symbols.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/gene/mane/0/status": {
+            "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+            "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/problems/0": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/answer/gene/spans/*/chromosome": {
+            "reason": "Released genomic_coordinates is one GRCh38 coordinate string, not the asserted ordered GRCh38 and GRCh37 chromosome span list.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/candidates/*/hgnc_id": {
+            "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+            "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+          },
+          "/result/items/0/answer/candidates/*/match/kind": {
+            "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+            "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+          },
+          "/next/*/args": {
+            "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+            "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+          },
+          "/result/items/0/answer/candidates/0/symbol": {
+            "reason": "Released alias suggestions provide generic concept labels and namespace-dependent primary IDs, without the HGNC previous-symbol/alias match classification, guaranteed HGNC identity list, or typed current next actions.",
+            "release_source": "src/entities/discover.rs::alias_candidates;src/render/json.rs::to_alias_suggestion_json"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0011",
+      "command": [
+        "search",
+        "article",
+        "{value}"
+      ],
+      "exit": 4,
+      "config": null,
+      "declaration": {
+        "case": "article/search/window.yaml",
+        "step": 0,
+        "baseline_command": [
+          "search",
+          "article",
+          "{value}",
+          "--source",
+          "pubmed",
+          "--include-retracted"
+        ],
+        "spelling_table": "sdlc/planning/slices/article.md",
+        "release_source": [
+          "src/entities/article/mod.rs",
+          "src/cli/article/dispatch.rs",
+          "src/entities/article/detail.rs",
+          "src/cli/system/batch.rs"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "pubmed",
+            "endpoint_env": "BIOMCP_PUBMED_BASE",
+            "host": "eutils.ncbi.nlm.nih.gov",
+            "request_prefix": "GET /entrez/eutils/esearch.fcgi",
+            "request_contains": "",
+            "request_query": {
+              "db": "pubmed",
+              "term": "{value}"
+            },
+            "capture": "",
+            "recording_gap": "The {value} ESearch capture 48cabd9639ce9f74133a22ddb429e9cb80ad0856bba26e5fad838d5078fe1e6f.json returns 9999 IDs from the current relevance window. Released search requests 100 IDs without that sort. This retained window cannot supply the released native source page (src/entities/article/mod.rs::PUBMED_PAGE_SIZE; src/sources/pubmed.rs::esearch_plan)."
+          },
+          {
+            "source": "pubmed",
+            "endpoint_env": "BIOMCP_PUBMED_BASE",
+            "host": "eutils.ncbi.nlm.nih.gov",
+            "request_prefix": "GET /entrez/eutils/esummary.fcgi",
+            "request_contains": "",
+            "request_query": {
+              "db": "pubmed"
+            },
+            "capture": "",
+            "recording_gap": "Released ESummary IDs must come from the released EGFR ESearch page. That native page is absent, so its exact summary ID selector and matching source body cannot be reviewed. Unrelated queries and summary pages in the shared replay do not supply this dependency (src/entities/article/backends.rs::search_pubmed_page_with_context)."
+          }
+        ],
+        "facts": {
+          "/page/total": "/pagination/total",
+          "/sources/0/count": "/pagination/total",
+          "/result/items": "/results",
+          "/result/items/*/pmid": "/results/*/pmid"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/page/truncated": {
+            "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/query/source": {
+            "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/query/sort": {
+            "reason": "Released search metadata uses a different source-plan/status schema and does not retain this current per-source term/count/notice or query shape.",
+            "release_source": "src/entities/article/mod.rs"
+          }
+        },
+        "baseline_exit": 1
+      }
+    },
+    {
+      "name": "S0012",
+      "command": [
+        "get",
+        "article",
+        "{value}",
+        "annotations"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "article/sections/annotations.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "article",
+          "{value}",
+          "annotations"
+        ],
+        "spelling_table": "sdlc/planning/slices/article.md",
+        "release_source": [
+          "src/entities/article/mod.rs",
+          "src/cli/article/dispatch.rs",
+          "src/entities/article/detail.rs",
+          "src/cli/system/batch.rs"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "pubtator3",
+            "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+            "host": "www.ncbi.nlm.nih.gov",
+            "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+            "request_contains": "",
+            "request_query": {
+              "pmids": "{value}"
+            },
+            "capture": ""
+          },
+          {
+            "source": "europe-pmc",
+            "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+            "host": "www.ebi.ac.uk",
+            "request_prefix": "GET /europepmc/webservices/rest/search",
+            "request_contains": "",
+            "request_query": {
+              "query": "EXT_ID:{value} AND SRC:MED"
+            },
+            "capture": "",
+            "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+          }
+        ],
+        "facts": {
+          "/result/items/0/sections/annotations/data/items/0/count": "/annotations/mutations/0/count",
+          "/result/items/0/sections/annotations/data/items/2/entrez_id": "/annotations/genes/0/identifier",
+          "/result/items/0/sections/annotations/data/items/2/count": "/annotations/genes/0/count",
+          "/result/items/0/sections/annotations/data/items/0/name": "/annotations/genes/0/text",
+          "/result/items/0/sections/annotations/data/items": "/annotations/genes",
+          "/result/items/0/answer/card/pmid": "/pmid",
+          "/result/items/0/sections/annotations/data/items/0/mesh": "/annotations/diseases/0/identifier"
+        },
+        "unprojectable_facts": {
+          "/result/items/0/sections/annotations/state": {
+            "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/sections/annotations/data/items/0/hgvs": {
+            "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/sections/annotations/data/items/0/rsid": {
+            "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/sections/annotations": {
+            "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/status": {
+            "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/problems/0/field": {
+            "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/sections/annotations/data/total": {
+            "reason": "Released annotations retain separate per-kind rows, with text/count/namespace/identifier. They do not serialize pooled totals, typed mutation fields, pooled kind ordering or current section outcomes.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/sections/annotations/data/items/0/entrez_id": {
+            "reason": "Released mutation rows expose a typed-back HGVS/rsID identifier, not the mutation gene_id as an independent entrez_id field.",
+            "release_source": "src/transform/article/annotations.rs::mutation_identity"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0014",
+      "command": [
+        "get",
+        "article",
+        "{value}"
+      ],
+      "exit": 4,
+      "config": null,
+      "declaration": {
+        "case": "article/get/phase-two.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "article",
+          "{value}"
+        ],
+        "spelling_table": "sdlc/planning/slices/article.md",
+        "release_source": [
+          "src/entities/article/mod.rs",
+          "src/cli/article/dispatch.rs",
+          "src/entities/article/detail.rs",
+          "src/cli/system/batch.rs"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "pubtator3",
+            "endpoint_env": "BIOMCP_PUBTATOR_BASE",
+            "host": "www.ncbi.nlm.nih.gov",
+            "request_prefix": "GET /research/pubtator3-api/publications/export/biocjson",
+            "request_contains": "",
+            "request_query": {
+              "pmids": "{value}"
+            },
+            "capture": "",
+            "recording_gap": "Released detail starts with PubTator export; this harvested replay retains PubMed efetch instead and has no equivalent PubTator body (src/entities/article/detail.rs::resolve_article_from_pmid_with_context)."
+          },
+          {
+            "source": "europe-pmc",
+            "endpoint_env": "BIOMCP_EUROPEPMC_BASE",
+            "host": "www.ebi.ac.uk",
+            "request_prefix": "GET /europepmc/webservices/rest/search",
+            "request_contains": "",
+            "request_query": {
+              "query": "EXT_ID:{value} AND SRC:MED"
+            },
+            "capture": "",
+            "recording_gap": "Released detail constructs Europe PMC alongside PubTator and requests identifier resolution or PMID metadata. This harvested replay lacks that Europe PMC native response (src/entities/article/detail.rs::get_article_base; src/sources/europepmc.rs::search_by_doi/search_by_pmcid/search_by_pmid)."
+          }
+        ],
+        "facts": {
+          "/result/items/0/answer/card/authors/total": "/author_count",
+          "/result/items/0/answer/card/authors/items": "/authors",
+          "/result/items/0/answer/card/pmid": "/pmid",
+          "/result/items/0/answer/card/doi": "/doi",
+          "/result/items/*/answer/card/pmid": "/items/*/result/pmid"
+        },
+        "unprojectable_facts": {
+          "/result/items/0/answer/card/types": {
+            "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/answer/match/kind": {
+            "reason": "Released Article JSON has no current lifecycle/status, action, resolution or source-problem envelope; these values cannot be inferred from source presence or complete.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/answer/card/abstract_parts/*/label": {
+            "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/answer/card/corrections/0/kind": {
+            "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/answer/card/corrections/0/relation": {
+            "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+            "release_source": "src/entities/article/mod.rs"
+          },
+          "/result/items/0/answer/card/corrections/0/pmid": {
+            "reason": "Released Article retains one publication_type and plain abstract_text. It does not serialize current type arrays, structured abstract parts, electronic dates, correction relations or match metadata.",
+            "release_source": "src/entities/article/mod.rs"
+          }
+        },
+        "baseline_exit": 1
+      }
+    },
+    {
+      "name": "S0015",
+      "command": [
+        "get",
+        "gene",
+        "{value}",
+        "protein"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "gene/sections/protein-data.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "gene",
+          "{value}",
+          "protein"
+        ],
+        "spelling_table": "sdlc/planning/slices/gene.md",
+        "release_source": [
+          "src/cli/gene/dispatch.rs::handle_command",
+          "src/cli/gene/dispatch.rs::handle_get",
+          "src/entities/gene.rs::Gene",
+          "src/transform/gene.rs::from_mygene_get",
+          "src/entities/section_outcome.rs::SectionOutcome",
+          "src/entities/gene.rs::fetch_protein_section"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "mygene-info",
+            "endpoint_env": "BIOMCP_MYGENE_BASE",
+            "host": "mygene.info",
+            "request_prefix": "GET /v3/query?",
+            "request_contains": "",
+            "request_query": {
+              "q": "symbol:\"{value}\"",
+              "species": "human"
+            },
+            "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+            "capture": ""
+          },
+          {
+            "source": "uniprot",
+            "endpoint_env": "BIOMCP_UNIPROT_BASE",
+            "host": "rest.uniprot.org",
+            "request_prefix": "GET /uniprotkb/search",
+            "request_contains": "",
+            "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
+            "request_query": {
+              "query": "{value}"
+            },
+            "capture": ""
+          }
+        ],
+        "facts": {
+          "/result/items/0/sections/protein/state": "/section_outcomes/protein/outcome",
+          "/result/items/0/sections/protein": "/protein",
+          "/result/items/0/sections/protein/source": {
+            "released_source": "/section_outcomes/protein/sources/0"
+          }
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+            "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/sections/protein/data/*/accession": {
+            "reason": "Released gene protein returns one MyGene Swiss-Prot accession, not the complete ordered HGNC accession collection or its per-accession identity checks.",
+            "release_source": "src/entities/gene.rs::fetch_protein_section;src/transform/gene.rs::extract_uniprot_id"
+          },
+          "/problems/*/field": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0016",
+      "command": [
+        "get",
+        "gene",
+        "{value}",
+        "expression"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "gene/sections/expression-cldn18.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "gene",
+          "{value}",
+          "hpa"
+        ],
+        "spelling_table": "sdlc/planning/slices/gene.md",
+        "release_source": [
+          "src/cli/gene/dispatch.rs::handle_command",
+          "src/cli/gene/dispatch.rs::handle_get",
+          "src/entities/gene.rs::Gene",
+          "src/transform/gene.rs::from_mygene_get",
+          "src/entities/section_outcome.rs::SectionOutcome",
+          "src/sources/hpa.rs::GeneHpa"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "mygene-info",
+            "endpoint_env": "BIOMCP_MYGENE_BASE",
+            "host": "mygene.info",
+            "request_prefix": "GET /v3/query?",
+            "request_contains": "",
+            "request_query": {
+              "q": "symbol:\"{value}\"",
+              "species": "human"
+            },
+            "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+            "capture": ""
+          },
+          {
+            "source": "human-protein-atlas",
+            "endpoint_env": "BIOMCP_HPA_BASE",
+            "host": "www.proteinatlas.org",
+            "request_prefix": "GET /ENSG00000066405.xml",
+            "request_contains": "",
+            "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture.",
+            "capture": ""
+          }
+        ],
+        "facts": {
+          "/result/items/0/answer/gene/symbol": "/symbol",
+          "/result/items/0/sections/expression/state": "/section_outcomes/hpa/outcome",
+          "/result/items/0/sections/expression": "/hpa",
+          "/result/items/0/sections/expression/data/subcellular_main": "/hpa/subcellular_main_location"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+            "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/sections/expression/data/rna_tissue_ntpm/*/tissue": {
+            "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+            "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+          },
+          "/sources/*/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/sections/expression/data/rna_tissue_ntpm/0/ntpm": {
+            "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+            "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+          },
+          "/result/items/0/sections/expression/data/rna_cancer_ptpm/0/ptpm": {
+            "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+            "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+          },
+          "/result/items/0/sections/expression/data/rna_tissue_ntpm": {
+            "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+            "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+          },
+          "/result/items/0/sections/expression/data/rna_cancer_ptpm": {
+            "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+            "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+          },
+          "/problems/*/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/problems/*/field": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/answer/gene/hgnc_id": {
+            "reason": "Released Gene serializes no HGNC identity, resolution, match provenance or ambiguity candidate objects. Its getter uses MyGene symbol queries and alias fallback.",
+            "release_source": "src/entities/gene.rs::Gene;src/transform/gene.rs::from_mygene_get"
+          },
+          "/result/items/0/answer/gene/summary/source": {
+            "reason": "Released summary is a trimmed string with two sentences; it has no separately serialized attribution or date.",
+            "release_source": "src/transform/gene.rs::normalize_summary"
+          },
+          "/result/items/0/sections/expression/reason": {
+            "reason": "Released expression uses GTEx; released hpa uses XML protein tissue levels and locations. Neither serializes the asserted HPA RNA tissue nTPM or cancer pTPM values and row collections.",
+            "release_source": "src/sources/hpa.rs::GeneHpa;src/sources/gtex.rs::GeneExpression"
+          },
+          "/next/0/kind": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0017",
+      "command": [
+        "get",
+        "gene",
+        "{value}",
+        "civic"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "gene/sections/civic-data.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "gene",
+          "{value}",
+          "civic"
+        ],
+        "spelling_table": "sdlc/planning/slices/gene.md",
+        "release_source": [
+          "src/cli/gene/dispatch.rs::handle_command",
+          "src/cli/gene/dispatch.rs::handle_get",
+          "src/entities/gene.rs::Gene",
+          "src/transform/gene.rs::from_mygene_get",
+          "src/entities/section_outcome.rs::SectionOutcome",
+          "src/sources/civic.rs::CivicContext"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "mygene-info",
+            "endpoint_env": "BIOMCP_MYGENE_BASE",
+            "host": "mygene.info",
+            "request_prefix": "GET /v3/query?",
+            "request_contains": "",
+            "request_query": {
+              "q": "symbol:\"{value}\"",
+              "species": "human"
+            },
+            "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+            "capture": ""
+          },
+          {
+            "source": "civic",
+            "endpoint_env": "BIOMCP_CIVIC_BASE",
+            "host": "civicdb.org",
+            "request_prefix": "POST /api/graphql",
+            "request_contains": "",
+            "capture": "",
+            "recording_gap": "The released CIViC section requests assertion and evidence item connections. The harvested feature lookup reply contains gene feature identity, description and variant count, without those released connection fields. No response to the released evidence query is retained."
+          }
+        ],
+        "facts": {
+          "/result/items/0/sections/civic": "/civic",
+          "/result/items/0/answer/gene/symbol": "/symbol"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness.",
+            "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/sections/civic/state": {
+            "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+            "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+          },
+          "/result/items/0/sections/civic/data/id": {
+            "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+            "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+          },
+          "/result/items/0/sections/civic/data/variant_count": {
+            "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+            "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+          },
+          "/result/items/0/sections/civic/record/id": {
+            "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+            "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+          },
+          "/result/items/0/sections/civic/record/url": {
+            "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+            "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+          },
+          "/sources/*/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          },
+          "/result/items/0/sections/civic/reason": {
+            "reason": "Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
+            "release_source": "src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
+          },
+          "/problems/0/field": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
+            "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0018",
+      "command": [
+        "get",
+        "gene",
+        "{value}",
+        "pathways"
+      ],
+      "exit": 0,
+      "config": null,
+      "declaration": {
+        "case": "gene/sections/pathways-tp53.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "gene",
+          "{value}",
+          "pathways"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "spelling_table": "sdlc/planning/slices/gene.md",
+        "release_source": [
+          "src/cli/gene/dispatch.rs::handle_get",
+          "src/entities/gene.rs::fetch_pathways_section",
+          "src/entities/gene.rs::complete_gene_section_outcomes"
+        ],
+        "recordings": [
+          {
+            "source": "mygene-info",
+            "endpoint_env": "BIOMCP_MYGENE_BASE",
+            "host": "mygene.info",
+            "request_prefix": "GET /v3/query?",
+            "request_contains": "",
+            "request_query": {
+              "q": "symbol:\"{value}\"",
+              "species": "human"
+            },
+            "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted.",
+            "capture": ""
+          },
+          {
+            "source": "reactome",
+            "endpoint_env": "BIOMCP_REACTOME_BASE",
+            "host": "reactome.org",
+            "request_prefix": "GET /ContentService/search/query",
+            "request_contains": "",
+            "request_query": {
+              "query": "{value}"
+            },
+            "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap.",
+            "capture": ""
+          }
+        ],
+        "facts": {
+          "/result/items/0/sections/pathways/state": "/section_outcomes/pathways/outcome",
+          "/result/items/0/sections/pathways": "/pathways",
+          "/result/items/0/sections/pathways/data/items": "/pathways",
+          "/result/items/0/sections/pathways/data/items/*/id": "/pathways/*/id"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+            "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+          },
+          "/result/items/0/sections/pathways/data/total": {
+            "reason": "Released Reactome gene pathways discards the upstream search total after a symbol text search capped at 12; it has no complete accession-union total.",
+            "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+          },
+          "/sources/*/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+            "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+          },
+          "/problems/0/source": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+            "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+          },
+          "/problems/0/record": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+            "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+          },
+          "/problems/0/field": {
+            "reason": "Released gene cards do not serialize the current global source lifecycle, aggregate status or field-level join problems.",
+            "release_source": "src/entities/gene.rs::fetch_pathways_section;src/entities/gene.rs::Gene"
+          }
+        }
+      }
+    },
+    {
+      "name": "S0019",
+      "command": [
+        "get",
+        "variant",
+        "{value}",
+        "erepo"
+      ],
+      "exit": 4,
+      "config": null,
+      "declaration": {
+        "case": "variant/assertions-erepo-current.yaml",
+        "step": 0,
+        "baseline_command": [
+          "variant",
+          "erepo",
+          "{value}"
+        ],
+        "spelling_table": "sdlc/planning/slices/variant.md",
+        "release_source": [
+          "src/cli/variant/erepo.rs",
+          "src/entities/variant/erepo.rs::summary",
+          "src/sources/clingen_erepo.rs::summary_plan"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "clingen_erepo",
+            "endpoint_env": "BIOMCP_CLINGEN_EREPO_BASE",
+            "host": "erepo.clinicalgenome.org",
+            "request_prefix": "GET /evrepo/api/summary/classifications",
+            "request_contains": "",
+            "capture": "",
+            "request_query": {
+              "columns": "caId",
+              "values": "{value}",
+              "matchTypes": "exact",
+              "pgSize": "25",
+              "pg": "1"
+            },
+            "recording_gap": "Released summary_plan requests pgSize=25; the retained erepo/1337f10f476a2da88b508b4b042c1bf8981e4b4d9dc129f582c2b11e651d9960.json records pgSize=3. A matching released page is absent; no source rows or pagination are invented."
+          }
+        ],
+        "facts": {
+          "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/record": "/items/0/assertions/0/pcer_doc_id",
+          "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/version": "/items/0/assertions/0/doc_version",
+          "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution/submitter": "/items/0/assertions/0/vcep",
+          "/result/candidates/0/sections/erepo/data/assertions/0/statement/classification/label": "/items/0/assertions/0/classification"
+        },
+        "unprojectable_facts": {
+          "/status": {
+            "reason": "Released ERepo serializes assertion summaries without current lifecycle status, resolution envelope or statement proposition. Native record, version, submitter and classification fields are compared separately.",
+            "release_source": "src/entities/variant/erepo.rs::ERepoAssertion"
+          },
+          "/result/resolution": {
+            "reason": "Released ERepo serializes assertion summaries without current lifecycle status, resolution envelope or statement proposition. Native record, version, submitter and classification fields are compared separately.",
+            "release_source": "src/entities/variant/erepo.rs::ERepoAssertion"
+          },
+          "/result/candidates/0/sections/erepo/data/assertions/0/statement/proposition": {
+            "reason": "Released ERepo serializes assertion summaries without current lifecycle status, resolution envelope or statement proposition. Native record, version, submitter and classification fields are compared separately.",
+            "release_source": "src/entities/variant/erepo.rs::ERepoAssertion"
+          }
+        },
+        "baseline_exit": 1
+      }
+    },
+    {
+      "name": "S0020",
+      "command": [
+        "get",
+        "variant",
+        "{value}",
+        "gwas"
+      ],
+      "exit": 4,
+      "config": null,
+      "declaration": {
+        "case": "variant/population/catalog-data.yaml",
+        "step": 0,
+        "baseline_command": [
+          "get",
+          "variant",
+          "{value}",
+          "gwas"
+        ],
+        "spelling_table": "sdlc/planning/slices/variant.md",
+        "release_source": [
+          "src/entities/variant/get.rs::get",
+          "src/entities/variant/gwas.rs::add_gwas_section",
+          "src/sources/gwas.rs::associations_by_rsid_plan"
+        ],
+        "baseline_globals": [
+          "--json"
+        ],
+        "recordings": [
+          {
+            "source": "gwas-catalog",
+            "endpoint_env": "BIOMCP_GWAS_BASE",
+            "host": "www.ebi.ac.uk",
+            "request_prefix": "GET /gwas/rest/api/singleNucleotidePolymorphisms/{value}/associations",
+            "request_contains": "",
+            "capture": "",
+            "request_query": {
+              "projection": "associationByStudy",
+              "page": "0",
+              "size": "20"
+            },
+            "recording_gap": "Released add_gwas_section requests the legacy associationByStudy endpoint with size=20 after MyVariant identity lookup. The retained gwas/544c8cdc84c5ddc84f8d3b267b38d9d9deb9a5160cff74990237cfb19f8fec0f.json records the v2 rs_id endpoint with size=3 and lacks the prerequisite MyVariant exchange. No legacy response or identity join is synthesized."
+          }
+        ],
+        "facts": {
+          "/result/candidates/0/sections/gwas/data/associations/0/study": "/gwas/0/study_accession",
+          "/result/candidates/0/sections/gwas/state": "/section_outcomes/gwas/outcome"
+        },
+        "unprojectable_facts": {
+          "/result/resolution": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          },
+          "/result/candidates/0/sections/gwas/data/page/returned": {
+            "reason": "Released add_gwas_section deduplicates and truncates to ten rows; it lacks the current source page total and returned count.",
+            "release_source": "src/entities/variant/gwas.rs::add_gwas_section"
+          },
+          "/result/candidates/0/sections/gwas/data/page/total": {
+            "reason": "Released add_gwas_section deduplicates and truncates to ten rows; it lacks the current source page total and returned count.",
+            "release_source": "src/entities/variant/gwas.rs::add_gwas_section"
+          },
+          "/result/candidates/0/sections/gwas/data/associations/*/id": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          },
+          "/result/candidates/0/sections/gwas/data/associations/0/beta": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          },
+          "/result/candidates/0/sections/gwas/data/associations/0/ontology_traits/0/id": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          },
+          "/result/candidates/0/sections/gwas/data/associations/0/alleles/0/allele": {
+            "reason": "Released association_risk_allele retains the complete strongestRiskAlleles riskAlleleName token, not the current allele-only value. No rsID-token split or allele identity equivalence is declared.",
+            "release_source": "src/entities/variant/gwas.rs::association_risk_allele"
+          },
+          "/status": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          },
+          "/result/candidates/0/requested": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          },
+          "/result/candidates/0/identity": {
+            "reason": "Released VariantGwasAssociation does not retain native association IDs, ontology trait IDs, allele objects or literal beta labels. Released Variant also lacks the current resolution, requested-input and candidate identity envelope. Study accession and empty section outcome remain separately projected.",
+            "release_source": "src/entities/variant/mod.rs::VariantGwasAssociation"
+          }
+        },
+        "baseline_exit": 1
+      }
+    }
+  ]
+}

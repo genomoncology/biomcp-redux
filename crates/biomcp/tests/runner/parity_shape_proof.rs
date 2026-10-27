@@ -131,42 +131,7 @@ fn capture_guards(
         )
         .map_err(|e| e.to_string())?;
     }
-    for (label, capture, complete) in [
-        ("native", capture.clone(), true),
-        (
-            "wrong-question",
-            json!({"source":"mygene","method":"GET",
-            "url":"https://mygene.info/v3/query?q=symbol%3A%22BRAF%22&species=human"}),
-            false,
-        ),
-        (
-            "wrong-host",
-            json!({"source":"mygene","method":"GET",
-            "url":"https://foreign.invalid/v3/query?q=symbol%3A%22TP53%22&species=human"}),
-            false,
-        ),
-        (
-            "wrong-method",
-            json!({"source":"mygene","method":"POST","url":capture.get("url")}),
-            false,
-        ),
-        (
-            "wrong-source",
-            json!({"source":"pubmed","method":"GET","url":capture.get("url")}),
-            false,
-        ),
-        (
-            "wrong-type",
-            json!({"source":"mygene","method":"GET","url":17}),
-            false,
-        ),
-        (
-            "duplicate-selector",
-            json!({"source":"mygene","method":"GET",
-            "url":"https://mygene.info/v3/query?q=symbol%3A%22TP53%22&q=other&species=human"}),
-            false,
-        ),
-    ] {
+    for (label, capture, complete) in capture_cases(&capture) {
         fs::write(
             fixtures.join("replies/current/mygene/one.json"),
             serde_json::to_vec(&capture).map_err(|e| e.to_string())?,
@@ -280,4 +245,49 @@ fn extra_guards(
     )
     .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+fn capture_cases(capture: &Value) -> Vec<(&'static str, Value, bool)> {
+    vec![
+        ("native", capture.clone(), true),
+        (
+            "different-window",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://mygene.info/v3/query?q=symbol%3A%22TP53%22&species=human&retmax=9999"}),
+            false,
+        ),
+        (
+            "wrong-question",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://mygene.info/v3/query?q=symbol%3A%22BRAF%22&species=human"}),
+            false,
+        ),
+        (
+            "wrong-host",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://foreign.invalid/v3/query?q=symbol%3A%22TP53%22&species=human"}),
+            false,
+        ),
+        (
+            "wrong-method",
+            json!({"source":"mygene","method":"POST","url":capture.get("url")}),
+            false,
+        ),
+        (
+            "wrong-source",
+            json!({"source":"pubmed","method":"GET","url":capture.get("url")}),
+            false,
+        ),
+        (
+            "wrong-type",
+            json!({"source":"mygene","method":"GET","url":17}),
+            false,
+        ),
+        (
+            "duplicate-selector",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://mygene.info/v3/query?q=symbol%3A%22TP53%22&q=other&species=human"}),
+            false,
+        ),
+    ]
 }
