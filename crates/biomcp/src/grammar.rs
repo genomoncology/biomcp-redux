@@ -1,6 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
 mod entry;
+pub(crate) use entry::entry_aliases;
 pub(crate) mod gwas;
 mod local;
 mod queries;
@@ -62,6 +63,9 @@ pub(crate) fn global_arguments() -> Command {
         .disable_help_flag(true)
         .disable_help_subcommand(true)
         .disable_version_flag(true)
+        .after_help(entry_aliases().iter().map(|alias| {
+            format!("{}: {}", alias.flags().join(", "), alias.description())
+        }).collect::<Vec<_>>().join("\n"))
         .arg_required_else_help(true)
         .subcommand_required(true);
     root = root.arg(

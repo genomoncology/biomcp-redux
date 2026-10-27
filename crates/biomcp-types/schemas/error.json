@@ -14,6 +14,7 @@
       "enum": [
         "usage.schema",
         "usage.arguments",
+        "usage.unknown_command",
         "usage.retired",
         "local.failure",
         "pool.expired",
@@ -92,6 +93,7 @@
         "citation ordering exceeds the PMID limit; narrow the search",
         "expected schema <known artifact id>",
         "expected a supported command with checked arguments",
+        "unknown command; use the suggested help command",
         "local configuration, cache or recording failed",
         "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",
         "use: get gwas association:<positive ID> [loci] or get gwas <exact GCST accession> [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never repaired",

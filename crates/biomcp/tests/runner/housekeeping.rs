@@ -47,10 +47,10 @@ fn check() -> Check {
     fs::write(&config, b"invalid config must never be read")?;
     for empty in [false, true] {
         for args in [["version", "--offline"], ["--version", "--offline"]] {
-        let output = run(&env, &args, empty)?;
-        if success(&output)? != format!("biomcp {}\n", env!("CARGO_PKG_VERSION")) {
-            return Err("wrong version".into());
-        }
+            let output = run(&env, &args, empty)?;
+            if success(&output)? != format!("biomcp {}\n", env!("CARGO_PKG_VERSION")) {
+                return Err("wrong version".into());
+            }
         }
         let output = run(&env, &["version", "--verbose", "--offline"], empty)?;
         let text = success(&output)?;

@@ -2,6 +2,33 @@
 use clap::Command;
 use std::ffi::OsString;
 
+#[derive(Clone, Copy)]
+pub(crate) enum EntryAlias {
+    Help,
+    Version,
+}
+impl EntryAlias {
+    pub(crate) fn flags(self) -> &'static [&'static str] {
+        match self {
+            Self::Help => &["-h", "--help"],
+            Self::Version => &["--version"],
+        }
+    }
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::Help => "Print scoped command help without source requests.",
+            Self::Version => "Print the installed version without source requests.",
+        }
+    }
+    fn parse(word: &str) -> Option<Self> {
+        entry_aliases().iter().copied().find(|alias| alias.flags().contains(&word))
+    }
+}
+
+pub(crate) fn entry_aliases() -> &'static [EntryAlias] {
+    &[EntryAlias::Help, EntryAlias::Version]
+}
+
 pub(super) fn arguments(args: &[OsString], root: &Command) -> Vec<OsString> {
     if args.is_empty() {
         return vec!["help".into()];
@@ -15,12 +42,12 @@ pub(super) fn arguments(args: &[OsString], root: &Command) -> Vec<OsString> {
         if text == "--" {
             break;
         }
-        if matches!(text, "-h" | "--help") {
+        if matches!(EntryAlias::parse(text), Some(EntryAlias::Help)) {
             globals.push("help".into());
             globals.extend(path.into_iter().filter(|name| *name != "help").map(OsString::from));
             return globals;
         }
-        if text == "--version" && path.is_empty() {
+        if matches!(EntryAlias::parse(text), Some(EntryAlias::Version)) && path.is_empty() {
             globals.push("version".into());
             globals.extend(words.cloned());
             return globals;
@@ -131,7 +158,7 @@ pub(super) fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option
     Ok(if verb == "help" {
         match matches.subcommand() {
             Some(("key", matches)) if matches.get_one::<String>("source").is_some() => None,
-            Some((name @ ("version" | "mcp-config" | "skill" | "sources" | "config"), _)) => {
+            Some((name @ ("version" | "mcp-config" | "sources" | "config"), _)) => {
                 Some(vec![name.into()])
             }
             Some(("author", matches)) if matches.subcommand().is_none() => {

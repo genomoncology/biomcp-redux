@@ -6,9 +6,10 @@ use serde_json::Value;
 type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test("schema-discovery/help-aliases-and-safe-recovery", || {
-        check().map_err(|error| error.to_string().into())
-    })]
+    vec![Trial::test(
+        "schema-discovery/help-aliases-and-safe-recovery",
+        || check().map_err(|error| error.to_string().into()),
+    )]
 }
 
 fn check() -> Check {
@@ -58,7 +59,9 @@ fn check() -> Check {
         {
             return Err("unknown command leaked input or lost its usage identity".into());
         }
-        let next = value.pointer("/next/0/args").and_then(Value::as_array)
+        let next = value
+            .pointer("/next/0/args")
+            .and_then(Value::as_array)
             .ok_or("unknown command omitted executable recovery")?;
         let next: Vec<_> = next.iter().filter_map(Value::as_str).collect();
         run(&env, &next)?;
