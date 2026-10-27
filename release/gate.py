@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -43,10 +44,43 @@ def install_wheel(wheel, venv, root, host_python, name="biomcp"):
     return venv / (("Scripts/" + name + ".exe") if os.name == "nt" else ("bin/" + name))
 
 
+def cli_checks(binary, record):
+    """Run literal CLI commands with every source group disabled and no host keys."""
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory).resolve()
+        env = environment(root)
+        config = root / "config/biomcp/config.json"
+        config.parent.mkdir(parents=True)
+        config.write_text(json.dumps({"disable_sources": ["open", "noncommercial", "restricted"]}))
+        rows = []
+        for command in [["version"], ["health", "--offline"]]:
+            result = subprocess.run([str(binary.resolve())] + command, env=env, cwd=root,
+                                    capture_output=True, text=True, timeout=60)
+            if result.returncode or result.stderr:
+                raise ValueError("installed CLI command failed: " + result.stdout + result.stderr)
+            if command == ["version"]:
+                output = result.stdout
+                if output != "biomcp " + record["version"] + "\n":
+                    raise ValueError("installed CLI version differs")
+            else:
+                output = json.loads(result.stdout)
+                sources = output["result"]["sources"]
+                if output["status"] != "complete" or not sources or any(
+                    row.get("disabled") is not True or row.get("state") != "skipped"
+                    or row.get("reason") != "disabled" or "latency_ms" in row for row in sources
+                ):
+                    raise ValueError("installed CLI health did not skip every source")
+            rows.append({"command": command, "output": output, "result": "pass",
+                         "binary_sha256": record["binary_sha256"], "revision": record["revision"]})
+        return rows
+
+
 def installed(args):
     output = args.artifacts.resolve()
     wheel = next(output.glob("*.whl"))
     record = inspect(wheel)  # All distributions must match these Cargo candidate bytes.
+    if not re.fullmatch(r"[0-9a-f]{40}", record["revision"]):
+        raise ValueError("candidate revision must be a full Git commit")
     root = args.scratch.resolve()
     root.mkdir(parents=True, exist_ok=True)
     fixtures = root / "fixtures"
@@ -68,6 +102,9 @@ def installed(args):
     def check(kind, binary, server_args=("serve",), declared_tools=None):
         if hashlib.sha256(binary.read_bytes()).hexdigest() != record["binary_sha256"]:
             raise ValueError(kind + " installed bytes differ from the candidate")
+        for row in cli_checks(binary, record):
+            results.append({"artifact": kind, "platform": record["platform"], **row})
+            print(json.dumps(results[-1]), flush=True)
         completed = smoke(binary, executable, fixtures, record["version"], server_args)
         if declared_tools is not None and sorted(completed["tools"]) != sorted(declared_tools):
             raise ValueError("desktop manifest tools differ from installed server")
