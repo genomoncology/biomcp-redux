@@ -1,6 +1,7 @@
 # 0329 — Say which sources each disable group turns off
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 37bc7ec5961dfe5823c6ecb2ed69f74e52fecc77
 
 Milestone: 5
 

@@ -4809,6 +4809,8 @@ Commands:
   skill       
   version     
   mcp-config  
+  sources     
+  config      
   network     
   key         
   store       
@@ -4924,6 +4926,74 @@ Options:
 
 ```text
 Usage: biomcp help mcp-config [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help sources
+
+```text
+Usage: biomcp help sources [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help config
+
+```text
+Usage: biomcp help config [OPTIONS]
 
 Options:
       --format <format>

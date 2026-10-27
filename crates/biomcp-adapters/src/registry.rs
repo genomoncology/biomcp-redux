@@ -1,6 +1,8 @@
 //! Implemented source declarations are the sole registry for terms and source switches.
 
 mod component;
+mod groups;
+pub use groups::disable_groups;
 mod names;
 pub use names::display_name;
 /// Canonical publisher record links and explicit uncitable ID kinds.
@@ -79,12 +81,10 @@ pub fn components() -> impl Iterator<Item = &'static Component> {
 }
 /// Resolve one supported terms group.
 pub fn group(name: &str) -> Option<Use> {
-    match name {
-        "open" => Some(Use::Open),
-        "noncommercial" => Some(Use::Noncommercial),
-        "restricted" => Some(Use::Restricted),
-        _ => None,
-    }
+    groups::USES
+        .iter()
+        .copied()
+        .find(|usage| usage.as_str() == name)
 }
 /// Preserve group restrictions for independently labeled aggregator components.
 pub fn disabled_uses(names: &[String]) -> BTreeSet<Use> {
@@ -95,14 +95,7 @@ pub fn disabled(names: &[String]) -> Result<BTreeSet<Source>, biodata::Error> {
     let mut disabled = BTreeSet::new();
     for name in names {
         if let Some(usage) = group(name) {
-            disabled.extend(
-                SOURCES
-                    .iter()
-                    .filter(|s| {
-                        s.terms.usage == usage && !components().any(|c| c.source == s.source)
-                    })
-                    .map(|s| s.source),
-            );
+            disabled.extend(groups::sources(usage));
         } else {
             let source = SOURCES
                 .iter()
