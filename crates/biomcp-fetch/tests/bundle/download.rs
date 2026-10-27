@@ -95,17 +95,7 @@ fn interrupted_download_resumes_only_the_same_representation() {
             }
             let result = call.join().unwrap();
             if ["safe", "ignored", "412"].contains(&scenario) {
-                let info = result.unwrap();
-                assert_eq!(info.rows, 1);
-                assert_eq!(info.bytes, TSV.len() as u64);
-                assert_eq!(
-                    info.downloaded_bytes,
-                    if scenario == "safe" {
-                        (TSV.len() - cut) as u64
-                    } else {
-                        TSV.len() as u64
-                    }
-                );
+                assert_download(result.unwrap(), scenario, cut);
             } else {
                 assert!(result.is_err());
             }
@@ -129,6 +119,17 @@ fn interrupted_download_resumes_only_the_same_representation() {
             0
         );
     }
+}
+
+fn assert_download(info: biomcp_fetch::BundleInfo, scenario: &str, cut: usize) {
+    assert_eq!(info.rows, 1);
+    assert_eq!(info.bytes, TSV.len() as u64);
+    let received = if scenario == "safe" {
+        TSV.len() - cut
+    } else {
+        TSV.len()
+    };
+    assert_eq!(info.downloaded_bytes, received as u64);
 }
 
 #[test]
