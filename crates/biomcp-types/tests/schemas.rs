@@ -125,7 +125,7 @@ fn registry() -> Vec<Contract> {
         ErrorEnvelope => ("error", "biomcp.error/1"),
         GeneGet => ("gene-get", "biodata.gene-get/1"),
         GeneSearch => ("gene-search", "biodata.gene-search/1"),
-        Request => ("request", "biodata.request/26"),
+        Request => ("request", "biodata.request/27"),
         Envelope<GeneCards> => ("gene-cards", "biomcp.gene-cards/4"),
         Envelope<GenePage> => ("gene-page", "biomcp.gene-page/3"),
         Envelope<StoreClean> => ("store-clean", "biomcp.store-clean/1"),

@@ -42,23 +42,31 @@ pub(super) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::Err
     if args.first()?.to_str()? != "variant" || args.get(1)?.to_str()? != "normalize" {
         return None;
     }
-    let matches = super::root().ok()?.try_get_matches_from(
-        std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()),
-    ).ok()?;
-    let matches = matches.subcommand_matches("variant")?.subcommand_matches("normalize")?;
+    let matches = super::root()
+        .ok()?
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .ok()?;
+    let matches = matches
+        .subcommand_matches("variant")?
+        .subcommand_matches("normalize")?;
     let build = matches.get_one::<String>("build")?;
     if build.parse::<biomcp_types::Build>().is_ok_and(|build| {
-        matches.get_one::<String>("hgvs").is_none_or(|hgvs| {
-            biomcp_types::VariantNormalize::supports_build(hgvs, build)
-        })
+        matches
+            .get_one::<String>("hgvs")
+            .is_none_or(|hgvs| biomcp_types::VariantNormalize::supports_build(hgvs, build))
     }) {
         return None;
     }
-    let schema: serde_json::Value = serde_json::from_str(
-        crate::schema::find("biodata.variant-normalize/3")?,
-    ).ok()?;
-    let values = schema.pointer("/$defs/Build/enum")?.as_array()?.iter()
+    let schema: serde_json::Value =
+        serde_json::from_str(crate::schema::find("biodata.variant-normalize/3")?).ok()?;
+    let values = schema
+        .pointer("/$defs/Build/enum")?
+        .as_array()?
+        .iter()
         .map(|value| biomcp_types::Text::new(value.as_str()?).ok())
         .collect::<Option<Vec<_>>>()?;
-    Some(biomcp_types::ErrorEnvelope::argument_values("--build".into(), values.into()))
+    Some(biomcp_types::ErrorEnvelope::argument_values(
+        "--build".into(),
+        values.into(),
+    ))
 }

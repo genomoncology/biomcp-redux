@@ -35,7 +35,8 @@ impl TryFrom<Fields> for VariantNormalize {
         if !(1..=50).contains(&f.limit)
             || f.hgvs.as_str().len() > 2048
             || !valid_hgvs(&f)
-            || f.build.is_some_and(|build| !Self::supports_build(&f.hgvs, build))
+            || f.build
+                .is_some_and(|build| !Self::supports_build(&f.hgvs, build))
             || matches!(
                 f.source,
                 NormalizationSource::All | NormalizationSource::Variantvalidator
@@ -66,10 +67,17 @@ fn hgvs_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
 impl VariantNormalize {
     /// Refuse only a provable primary-reference conflict; never assign an unknown accession.
     pub fn supports_build(input: &str, build: Build) -> bool {
-        let Ok(accession) = input.parse::<HgvsText>().and_then(|value| value.accession()) else {
+        let Ok(accession) = input
+            .parse::<HgvsText>()
+            .and_then(|value| value.accession())
+        else {
             return true;
         };
-        let other = if build == Build::GRCh37 { Build::GRCh38 } else { Build::GRCh37 };
+        let other = if build == Build::GRCh37 {
+            Build::GRCh38
+        } else {
+            Build::GRCh37
+        };
         biodata::Chromosome::from_accession(accession, build).is_ok()
             || biodata::Chromosome::from_accession(accession, other).is_err()
     }
