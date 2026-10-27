@@ -1,6 +1,7 @@
 # 0284 — Keep synced bundles and cached replies across query store upgrades
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a9893ff35df0e894a9b8321ccbcf4c280f0cbf85
 
 Milestone: 5
 

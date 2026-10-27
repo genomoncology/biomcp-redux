@@ -355,36 +355,16 @@ fn tool_using(
     dispatch_using(args, allow_save, Some((globals, fetch)))
 }
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
-    let mut words = args.iter().filter_map(|arg| arg.to_str());
-    let root = loop {
-        match words.next() {
-            Some(
-                "--format" | "--config" | "--replay" | "--record" | "--case-cache"
-                | "--disable-sources",
-            ) => {
-                words.next();
-            }
-            Some("--fresh" | "--offline") => {}
-            Some(word)
-                if [
-                    "--format=",
-                    "--config=",
-                    "--replay=",
-                    "--record=",
-                    "--case-cache=",
-                    "--disable-sources=",
-                ]
-                .iter()
-                .any(|prefix| word.starts_with(prefix)) => {}
-            word => break word,
-        }
-    };
-    let mut error = if matches!(root, Some("sync" | "key" | "store"))
-        || root.is_some_and(|root| {
-            crate::grammar::QUERIES
-                .iter()
-                .any(|(verb, _, _)| *verb == root)
-        }) {
+    let mut words = crate::grammar::command_words(args);
+    let root = words.next();
+    let mut error = if matches!(
+        root,
+        Some("sync" | "key" | "store" | "version" | "mcp-config")
+    ) || root.is_some_and(|root| {
+        crate::grammar::QUERIES
+            .iter()
+            .any(|(verb, _, _)| *verb == root)
+    }) {
         ErrorEnvelope::arguments()
     } else {
         ErrorEnvelope::schema_usage()
@@ -411,6 +391,12 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     }
     if crate::grammar::gwas::invalid_threshold(args) {
         error = ErrorEnvelope::gwas_threshold();
+    }
+    if root == Some("mcp-config") {
+        error.next = vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: vec!["mcp-config".into(), "--client".into(), "mcp-servers".into()].into(),
+        }];
     }
     if root == Some("key") {
         error.next = biomcp_fetch::SecretName::ALL

@@ -1,8 +1,8 @@
 //! Feature protein-domains-complexes: P24 offers retrieval without analysis execution.
 use super::super::mcp;
 use super::*;
-// Complete discovery envelopes measured in j15006, with fifteen percent headroom.
-const CLI_HELP_BYTES: usize = 91228;
+// The complete command help includes local housekeeping.
+const CLI_HELP_BYTES: usize = 106000;
 // Reviewed output budget 2026-10-26: j15358 compact RPC 7945 bytes plus fifteen percent.
 const MCP_TOOLS_BYTES: usize = 9137;
 pub(super) fn run() -> Result<(), String> {

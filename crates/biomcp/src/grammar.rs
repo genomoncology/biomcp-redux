@@ -3,6 +3,7 @@ mod entity;
 pub(crate) mod gwas;
 mod local;
 mod queries;
+pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
 
@@ -47,6 +48,7 @@ pub(crate) enum Format {
 #[derive(Debug)]
 pub(crate) struct Parsed {
     pub(crate) key: Option<crate::keys::Command>,
+    pub(crate) housekeeping: Option<crate::housekeeping::Command>,
     pub(crate) action: Option<Action>,
     pub(crate) globals: Globals,
     pub(crate) help: Option<Vec<String>>,
@@ -92,6 +94,49 @@ pub(crate) fn global_arguments() -> Command {
     }
     root
 }
+pub(crate) fn is_housekeeping(args: &[OsString]) -> bool {
+    scan_command_words(args, true).next().is_some_and(|name| {
+        housekeeping_commands()
+            .iter()
+            .any(|command| command.get_name() == name)
+    })
+}
+
+// Root recognition must also work when global values or repetitions are invalid.
+pub(crate) fn command_words(args: &[OsString]) -> impl Iterator<Item = &str> {
+    scan_command_words(args, is_housekeeping(args))
+}
+
+fn scan_command_words(args: &[OsString], tolerate_unknown: bool) -> impl Iterator<Item = &str> {
+    let globals = global_arguments();
+    let mut words = args.iter().peekable();
+    while let Some(word) = words.peek().and_then(|word| word.to_str()) {
+        if word == "--" {
+            words.next();
+            break;
+        }
+        let Some(flag) = word.strip_prefix('-') else {
+            break;
+        };
+        let flag = flag.strip_prefix('-').unwrap_or(flag);
+        let (name, inline) = flag
+            .split_once('=')
+            .map_or((flag, false), |(name, _)| (name, true));
+        let argument = globals
+            .get_arguments()
+            .find(|arg| arg.get_long() == Some(name));
+        if argument.is_none() && !tolerate_unknown {
+            break;
+        }
+        let takes_value = argument.is_some_and(|arg| arg.get_action().takes_values());
+        words.next();
+        if takes_value && !inline {
+            words.next();
+        }
+    }
+    words.filter_map(|arg| arg.to_str())
+}
+
 fn root() -> Result<Command, ()> {
     let mut root = global_arguments();
     for (index, &(verb, _, _)) in QUERIES.iter().enumerate() {
@@ -122,6 +167,7 @@ fn root() -> Result<Command, ()> {
         "who-ivd",
         "fda-cdx",
     ])));
+    root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
         Command::new("list")
@@ -146,31 +192,26 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
     if verb == "serve" {
+        return Ok(local::serve(matches, globals));
+    }
+    if verb == "key" {
         return Ok(Parsed {
-            key: None,
-            http: matches.get_one::<String>("http").map(|address| {
-                (
-                    address.clone(),
-                    matches
-                        .get_many::<String>("allow-host")
-                        .into_iter()
-                        .flatten()
-                        .cloned()
-                        .collect(),
-                )
-            }),
+            key: Some(crate::keys::parse(matches)?),
+            housekeeping: None,
+            http: None,
             action: None,
             globals,
             help: None,
         });
     }
-    if verb == "key" {
+    if let Some(command) = local::housekeeping(verb, matches) {
         return Ok(Parsed {
-            key: Some(crate::keys::parse(matches)?),
-            http: None,
+            key: None,
+            housekeeping: Some(command),
             action: None,
             globals,
             help: None,
+            http: None,
         });
     }
     let help = help_path(verb, matches)?;
@@ -205,6 +246,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
     };
     Ok(Parsed {
         key: None,
+        housekeeping: None,
         http: None,
         action: Some(action),
         globals,
@@ -217,6 +259,7 @@ fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String
     } else if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
+            Some((name @ ("version" | "mcp-config"), _)) => Some(vec![name.into()]),
             Some(("author", matches)) if matches.subcommand().is_none() => {
                 Some(vec!["author".into()])
             }

@@ -49,6 +49,7 @@ mod faers_search;
 mod gene_tables;
 mod held_proxy;
 mod help_examples;
+mod housekeeping;
 mod hpo_registry;
 mod http;
 mod http_limits;
@@ -282,6 +283,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(housekeeping::trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)

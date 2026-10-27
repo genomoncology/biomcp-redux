@@ -6,3 +6,7 @@ pub(crate) fn find(name: &str) -> Option<&'static str> {
         .iter()
         .find_map(|(id, text)| (*id == name).then_some(*text))
 }
+
+pub(crate) fn versions() -> Vec<&'static str> {
+    SCHEMAS.iter().map(|(id, _)| *id).collect()
+}
