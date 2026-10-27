@@ -5,6 +5,10 @@ use serde_json::{Value, json};
 #[path = "alphagenome_capture.rs"]
 mod capture;
 #[path = "../../../biomcp-fetch/tests/grpc_worker/support.rs"]
+#[expect(
+    clippy::disallowed_types,
+    reason = "The shared local TLS test fixture counts accepted sockets across its worker thread"
+)]
 #[allow(
     dead_code,
     reason = "One shared TLS fixture serves transport and CLI contracts"
@@ -155,11 +159,11 @@ fn routed(fixture: &support::Fixture, expected: usize) -> Result<(), String> {
                 }
                 resolved = true;
             }
-            support::Seen::Path(path) => {
-                if path != "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant"
-                {
-                    return Err("section dispatched the wrong scoring method".into());
-                }
+            support::Seen::Path(path)
+                if path
+                    != "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant" =>
+            {
+                return Err("section dispatched the wrong scoring method".into());
             }
             support::Seen::Request(headers, body) => {
                 if !resolved
