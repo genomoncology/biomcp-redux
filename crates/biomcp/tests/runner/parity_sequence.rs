@@ -114,7 +114,9 @@ pub(super) fn compare(
         };
         let (mut current, released) =
             execute(selection, step, previous.as_ref(), &context, &directory)?;
-        execution::assess_exit(&mut current, step.exit)?;
+        if current.get("exit").is_some() {
+            execution::assess_exit(&mut current, step.exit)?;
+        }
         previous = current.get("parsed").cloned();
         rows.push(json!({"case":sequence.case,"step":selection.step,
             "evidence_directory":directory,"candidate":current,"baseline":released,
@@ -251,9 +253,11 @@ fn candidate(
             &out.join(format!("{ordinal}-candidate")),
         )?
     } else {
-        json!({"exit":step.exit})
+        json!({"surface":"mcp"})
     };
-    execution::assess_exit(&mut actual, step.exit)?;
+    if step.run.is_some() {
+        execution::assess_exit(&mut actual, step.exit)?;
+    }
     if let Some(command) = &step.mcp {
         let directory = out.join(format!("{ordinal}-mcp"));
         fs::create_dir(&directory).map_err(|e| e.to_string())?;
