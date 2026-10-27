@@ -32,7 +32,10 @@
         "/result/items/0/transcripts/1/hgvs_c": "c.1544A>G",
         "/result/items/0/transcripts/1/hgvs_p": "p.His515Arg",
         "/result/items/0/transcripts/0/matched": true,
-        "/result/items/0/transcripts/1/matched": false
+        "/result/items/0/transcripts/1/matched": false,
+        "/result/items/0/transcripts": {
+          "count": 5
+        }
       }
     },
     {

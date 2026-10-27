@@ -51,7 +51,10 @@ fn presentation_and_policy(env: &Environment) -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let markdown = String::from_utf8_lossy(&markdown.stdout);
-    if !markdown.contains("001199291&#46;2") || !markdown.contains("p&#46;His515Arg") {
+    if !markdown.contains("001199291&#46;2")
+        || !markdown.contains("p&#46;His515Arg")
+        || markdown.to_ascii_lowercase().contains("mane")
+    {
         return Err(format!("readable card lost transcript rows: {markdown}"));
     }
     let excluded = run(
