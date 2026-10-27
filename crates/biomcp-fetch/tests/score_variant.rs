@@ -159,6 +159,11 @@ fn scorer_admission_requires_exact_outputs_variant_echo_and_descriptor_chunk_ord
             .is_ok();
         assert!(!accepted || decoder.finish().is_err());
     }
+    Ok(())
+}
+#[test]
+fn scoring_stream_refuses_cumulative_envelope_and_tensor_limits() -> Check {
+    let req = request(140753336)?;
     for limits in [
         Limits {
             message_bytes: 1,
