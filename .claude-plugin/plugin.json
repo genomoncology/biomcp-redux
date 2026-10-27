@@ -1,0 +1,7 @@
+{
+  "name": "biomcp",
+  "description": "Biomedical search and evidence retrieval MCP server",
+  "author": {
+    "name": "GenomOncology"
+  }
+}

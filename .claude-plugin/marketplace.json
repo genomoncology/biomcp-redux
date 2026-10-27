@@ -1,0 +1,24 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "biomcp",
+  "owner": {
+    "name": "GenomOncology",
+    "email": "support@genomoncology.com"
+  },
+  "plugins": [
+    {
+      "name": "biomcp",
+      "source": "./",
+      "description": "Read-only biomedical search and evidence retrieval through BioMCP.",
+      "homepage": "https://biomcp.org",
+      "repository": "https://github.com/genomoncology/biomcp",
+      "license": "MIT",
+      "mcpServers": {
+        "biomcp": {
+          "command": "biomcp",
+          "args": ["serve"]
+        }
+      }
+    }
+  ]
+}
