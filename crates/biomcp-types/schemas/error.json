@@ -10,7 +10,7 @@
       "type": "string"
     },
     "ErrorCode": {
-      "description": "The stable error code for an invalid schema request.",
+      "description": "Stable error codes for command usage, local failures and expired results.",
       "enum": [
         "usage.schema",
         "usage.arguments",
@@ -64,7 +64,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "format": "uri"
         },
         "valid_values": {
           "items": {

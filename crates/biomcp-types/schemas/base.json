@@ -1,6 +1,7 @@
 {
   "$id": "biodata.base/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One nucleotide: the four DNA bases and the IUPAC ambiguity codes. It renders as its upper-case letter.",
   "pattern": "^[ACGTNRYSWKMBDHV]$",
   "title": "Base",
   "type": "string"
