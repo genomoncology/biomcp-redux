@@ -80,6 +80,7 @@ fn check() -> Result<(), String> {
             return Err("shape changed question, configuration or command layout".into());
         }
     }
+    capture_guards(&env, &fixtures, selection)?;
     Ok(())
 }
 
@@ -96,4 +97,125 @@ fn setup(env: &Environment) -> Result<std::path::PathBuf, String> {
         .map_err(|e| e.to_string())?;
     }
     Ok(fixtures)
+}
+
+fn capture_guards(
+    env: &Environment,
+    fixtures: &std::path::Path,
+    mut selection: Value,
+) -> Result<(), String> {
+    selection["source_free"] = json!(false);
+    selection["recordings"] = json!([{"source":"mygene-info", "endpoint_env":"BIOMCP_MYGENE_BASE",
+        "host":"mygene.info", "request_prefix":"GET /v3/query?", "request_contains":"",
+        "request_query":{"q":"symbol:\"{symbol}\"","species":"human"}, "capture":""}]);
+    let plan = json!({"baseline_release":"0.9.3","cases":[],"shapes":[{
+        "command":["get","gene","{symbol}"],"exit":0,"config":null,"declaration":selection}]});
+    let case = json!({"story":"Keep source request identity in the current replay", "replay":"current", "steps":[
+        {"run":["get","gene","TP53"],"expect":{"/result/symbol":"TP53"}},
+        {"run":["get","gene","TP53"],"expect":{"/result/symbol":"TP53"}}]});
+    let path = fixtures.join("cases/shape.yaml");
+    fs::write(path, serde_json::to_vec(&case).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    let capture = json!({"source":"mygene","method":"GET",
+        "url":"https://mygene.info/v3/query?q=symbol%3A%22TP53%22&species=human","exchanges":[]});
+    for replay in ["current", "other-question"] {
+        let directory = fixtures.join("replies").join(replay).join("mygene");
+        fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
+        fs::write(
+            directory.join("one.json"),
+            serde_json::to_vec(&capture).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    for (label, capture, complete) in [
+        ("native", capture.clone(), true),
+        (
+            "wrong-question",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://mygene.info/v3/query?q=symbol%3A%22BRAF%22&species=human"}),
+            false,
+        ),
+        (
+            "wrong-host",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://foreign.invalid/v3/query?q=symbol%3A%22TP53%22&species=human"}),
+            false,
+        ),
+        (
+            "wrong-method",
+            json!({"source":"mygene","method":"POST","url":capture["url"]}),
+            false,
+        ),
+        (
+            "wrong-source",
+            json!({"source":"pubmed","method":"GET","url":capture["url"]}),
+            false,
+        ),
+        (
+            "wrong-type",
+            json!({"source":"mygene","method":"GET","url":17}),
+            false,
+        ),
+        (
+            "duplicate-selector",
+            json!({"source":"mygene","method":"GET",
+            "url":"https://mygene.info/v3/query?q=symbol%3A%22TP53%22&q=other&species=human"}),
+            false,
+        ),
+    ] {
+        fs::write(
+            fixtures.join("replies/current/mygene/one.json"),
+            serde_json::to_vec(&capture).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+        captured_inventory(env, fixtures, &plan, label, complete)?;
+    }
+    fs::write(fixtures.join("replies/current/mygene/one.json"), b"{broken")
+        .map_err(|e| e.to_string())?;
+    captured_inventory(env, fixtures, &plan, "malformed", false)?;
+    Ok(())
+}
+fn captured_inventory(
+    env: &Environment,
+    fixtures: &std::path::Path,
+    plan: &Value,
+    label: &str,
+    complete: bool,
+) -> Result<(), String> {
+    let path = env.root().join(format!("capture-{label}.json"));
+    fs::write(&path, serde_json::to_vec(plan).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    let report = env.root().join(format!("capture-{label}-report.json"));
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Invoke the actual public inventory entry point"
+    )]
+    let runner = std::env::current_exe().map_err(|e| e.to_string())?;
+    let output = env
+        .command(
+            runner,
+            &[
+                "--parity-inventory".into(),
+                path.display().to_string(),
+                fixtures.join("cases").display().to_string(),
+                report.display().to_string(),
+            ],
+        )
+        .env("BIOMCP_TEST_FIXTURES", fixtures)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if output.status.success() != complete {
+        return Err(format!(
+            "capture binding {label}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    let value: Value = serde_json::from_slice(&fs::read(report).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
+    if value.pointer("/cases/0/declaration_reuse/reused_steps")
+        != Some(&json!(if complete { 2 } else { 0 }))
+    {
+        return Err(format!("capture identity escaped: {label}"));
+    }
+    Ok(())
 }

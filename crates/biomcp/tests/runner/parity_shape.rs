@@ -92,6 +92,9 @@ fn bind(
     for (index, (token, actual)) in pattern.iter().zip(command).enumerate() {
         if let Some(name) = token.strip_prefix('{').and_then(|s| s.strip_suffix('}')) {
             if index < 2
+                || pattern
+                    .get(index.saturating_sub(1))
+                    .is_some_and(|previous| previous.starts_with('-'))
                 || name.is_empty()
                 || !name.bytes().all(|b| b.is_ascii_lowercase() || b == b'_')
             {
