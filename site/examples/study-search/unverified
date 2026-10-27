@@ -1,1 +1,0 @@
-cBioPortal study metadata comes from a bundle that biomcp sync cbioportal-studies downloads. From the build machine the sync fails with source state rejected, so this example has not run.

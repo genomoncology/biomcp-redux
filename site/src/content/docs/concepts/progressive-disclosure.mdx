@@ -67,6 +67,8 @@ Each entity has a default source, and `--source` picks another. BioMCP never fal
 
 <Example id="grammar-source" />
 
+Europe PMC ran the search: its entry carries the search `count`. PubMed appears because BioMCP asks it for the title, journal and date of each returned PMID that came back without them. PubMed did not search, and it has no `count`. A source listed this way does a named job for the source you chose; it never answers in that source's place.
+
 Some sections read a fixed source, such as gnomAD for gene constraint. The [sources reference](/reference/data-sources/) lists which commands reach each source.
 
 ## What BioMCP does not do

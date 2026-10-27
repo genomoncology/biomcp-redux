@@ -1,0 +1,2 @@
+{"status":"complete","sources":[{"source":"myvariant","state":"ok","reason":null}]}
+{"id":"chr7:g.140453136A>T","ids":["rs113488022","clinvar:13961"]}

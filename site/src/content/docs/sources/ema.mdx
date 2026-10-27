@@ -1,0 +1,54 @@
+---
+title: European Medicines Agency (ema)
+description: "How BioMCP 1.0.0 uses European Medicines Agency: what it reads, an
+  example, the key, the use group, terms and limits."
+goal: Find what BioMCP reads from European Medicines Agency, which commands
+  reach it, its key, its terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: ema
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `ema`. BioMCP reads EMA medicine records and regulatory events from a local bundle.
+
+| Field | Value |
+| --- | --- |
+| Source name | `ema` |
+| Use group | `attribution` |
+| Terms | EMA reproduction and attribution terms; third-party exceptions |
+| Terms page | [https://www.ema.europa.eu/en/about-us/about-website/legal-notice](https://www.ema.europa.eu/en/about-us/about-website/legal-notice) |
+| Key | None. |
+| Local bundle | `biomcp sync ema` |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-ema" />
+
+## Commands
+
+Pick this source with `--source ema` on these commands:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search drug`](/reference/commands/search-drug/) | Literal single-source candidate discovery, without an implicit identity selection. |
+| [`biomcp get drug`](/reference/commands/get-drug/) | Exact native ID retrieval with an explicitly selected source. |
+
+## Limits
+
+BioMCP reads a local copy, current as of your last `biomcp sync ema`. Records cover centrally authorised medicines.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources ema`, or add `"ema"` to `disable_sources` in `config.json`. The group `attribution` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Look up drugs, labels, safety reports and pharmacogenomics](/drugs-and-safety/) shows European Medicines Agency in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

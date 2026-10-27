@@ -1,0 +1,53 @@
+---
+title: ClinGen gene validity and dosage (clingen)
+description: "How BioMCP 1.0.0 uses ClinGen gene validity and dosage: what it
+  reads, an example, the key, the use group, terms and limits."
+goal: Find what BioMCP reads from ClinGen gene validity and dosage, which
+  commands reach it, its key, its terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: clingen
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `clingen`. BioMCP reads ClinGen gene-disease validity and dosage curation from a local bundle that it can synchronize when a read needs it.
+
+| Field | Value |
+| --- | --- |
+| Source name | `clingen` |
+| Use group | `open` |
+| Terms | CC0 1.0 |
+| Terms page | [https://clinicalgenome.org/docs/terms-of-use/](https://clinicalgenome.org/docs/terms-of-use/) |
+| Key | None. |
+| Local bundle | `biomcp sync clingen` |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-clingen" />
+
+## Commands
+
+These commands read ClinGen gene validity and dosage as part of their reply. They do not take `--source clingen`:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
+
+## Limits
+
+BioMCP synchronizes the ClinGen bundle when a read needs it. Each classification keeps its expert panel and date.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources clingen`, or add `"clingen"` to `disable_sources` in `config.json`. The group `open` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Look up genes, proteins and pathways](/genes-and-proteins/) shows ClinGen gene validity and dosage in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

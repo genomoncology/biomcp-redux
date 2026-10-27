@@ -1,0 +1,58 @@
+---
+title: UniProt (uniprot)
+description: "How BioMCP 1.0.0 uses UniProt: what it reads, an example, the key,
+  the use group, terms and limits."
+goal: Find what BioMCP reads from UniProt, which commands reach it, its key, its
+  terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: uniprot
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `uniprot`. BioMCP reads reviewed human protein records, features, isoforms, function text and sequences from UniProt.
+
+| Field | Value |
+| --- | --- |
+| Source name | `uniprot` |
+| Use group | `attribution` |
+| Terms | CC BY 4.0 |
+| Terms page | [https://www.uniprot.org/help/license](https://www.uniprot.org/help/license) |
+| Key | None. |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-uniprot" />
+
+## Commands
+
+These commands read UniProt as part of their reply. They do not take `--source uniprot`:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search protein`](/reference/commands/search-protein/) | Search five reviewed human UniProt headers by literal text or exact gene. |
+| [`biomcp get protein`](/reference/commands/get-protein/) | Read source protein cards; a symbol returns candidates without choosing a protein. |
+| [`biomcp protein features`](/reference/commands/protein-features/) | Page five native UniProt features by exact type and displayed residue. |
+| [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) | Page five source isoforms, exact-participant complexes or PDB links. |
+| [`biomcp protein sequence`](/reference/commands/protein-sequence/) | Read one complete native sequence for an exact source accession. |
+| [`biomcp protein structures`](/reference/commands/protein-structures/) | Page five source isoforms, exact-participant complexes or PDB links. |
+| [`biomcp get gene`](/reference/commands/get-gene/) | Get one to twenty human gene inputs in their original order. |
+
+## Limits
+
+BioMCP reads reviewed human entries. A missing record or an empty section describes this source for this input. It is not a negative finding.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources uniprot`, or add `"uniprot"` to `disable_sources` in `config.json`. The group `attribution` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Look up genes, proteins and pathways](/genes-and-proteins/) shows UniProt in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

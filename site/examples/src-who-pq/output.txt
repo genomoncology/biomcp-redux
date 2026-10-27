@@ -1,0 +1,3 @@
+{"status":"complete","sources":[{"source":"who-pq","state":"ok","reason":null}]}
+{"reference":"EMA Art 58 H-W-2319-2","inn_dosage_form_strength":"Artesunate/Pyronaridine (phosphate) Tablet, Film-coated 60mg/180mg"}
+{"reference":"EMA Art 58 H-W-2319-3","inn_dosage_form_strength":"Artesunate/Pyronaridine (phosphate) Granules for Oral suspension 20mg/60mg"}

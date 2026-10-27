@@ -48,7 +48,7 @@ The assay count is a count of ChEMBL assays that used the cell line. It is not a
 
 <Example id="study-search" />
 
-After `biomcp sync cbioportal-studies`, the same search returns study headers. `get study ID` reads one study with its `profiles`, `sample-lists` and `files` sections. `biomcp variant recurrence` counts samples with a variant in one study; see [variants](/how-to/annotate-variants/#other-sections).
+The source state is `syncing` and the status is `failed` until the bundle exists. After `biomcp sync cbioportal-studies`, the same search returns study headers. That last step is not verified: from the machine that builds this site, the sync fails with source state `rejected`, so no post-sync reply is shown. `get study ID` reads one study with its `profiles`, `sample-lists` and `files` sections. `biomcp variant recurrence` counts samples with a variant in one study; see [variants](/how-to/annotate-variants/#other-sections).
 
 ## Verify
 

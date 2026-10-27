@@ -1,0 +1,58 @@
+---
+title: ClinVar (clinvar)
+description: "How BioMCP 1.0.0 uses ClinVar: what it reads, an example, the key,
+  the use group, terms and limits."
+goal: Find what BioMCP reads from ClinVar, which commands reach it, its key, its
+  terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: clinvar
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `clinvar`. BioMCP reads ClinVar assertions for a variant.
+
+| Field | Value |
+| --- | --- |
+| Source name | `clinvar` |
+| Use group | `restricted` |
+| Terms | NCBI policy; submission rights remain source-specific |
+| Terms page | [https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/) |
+| Key | Optional; raises the rate limit. Set it with `biomcp key set ncbi` or the environment variable `NCBI_API_KEY`. See [`help key ncbi`](/reference/commands/help-key-ncbi/). |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-clinvar" />
+
+## Commands
+
+Pick this source with `--source clinvar` on these commands:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp variant assertions`](/reference/commands/variant-assertions/) | Page assertions from one explicitly selected evidence source. |
+
+These commands read ClinVar as part of their reply. They do not take `--source clinvar`:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp get variant`](/reference/commands/get-variant/) | Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation requires --build. |
+
+## Limits
+
+Each assertion keeps its submitter's classification. Conflicting classifications stay as ClinVar reports them.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources clinvar`, or add `"clinvar"` to `disable_sources` in `config.json`. The group `restricted` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Look up a variant](/how-to/annotate-variants/) shows ClinVar in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -1,0 +1,15 @@
+# Meanings of the reply values that the guide pages explain in prose.
+# gen-reference.mjs reads the value lists from the reply schemas and fails when a value
+# here is missing from the schema or a schema value has no meaning here.
+# Pages render these tables with <EnvelopeTable field="status" /> and <EnvelopeTable field="state" />.
+status:
+  complete: Every source the command needed answered.
+  partial: Some sources answered and others failed, or a value a source sent failed its check (`problems`). Read `sources`.
+  absent: The sources answered and found no record for the input.
+  failed: No source the command needed answered. Each one failed or was skipped.
+state:
+  ok: The source answered.
+  stale: The source answered from an older local copy.
+  syncing: The source reads a local bundle that is not ready. The reply's `next` list names the `sync` command.
+  failed: BioMCP asked the source and it did not answer. The `reason` says why.
+  skipped: BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why.

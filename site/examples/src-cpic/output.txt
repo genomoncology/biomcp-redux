@@ -1,0 +1,2 @@
+{"status":"complete","sources":[{"source":"cpic","state":"ok","reason":null}]}
+{"guideline_name":"DPYD and Fluoropyrimidines","drugs":["capecitabine","fluorouracil","tegafur"]}

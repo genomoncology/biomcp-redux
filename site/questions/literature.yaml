@@ -90,7 +90,7 @@
   answers_page: true
   example: a-recent-articles
   answer: |
-    Add `--since YEAR` and `--sort date` to `biomcp search article`. PubMed then returns matches added since that date, newest first. This BioMCP 1.0 run finds the three newest PubMed articles that match "KRAS G12C sotorasib" since 2024.
+    Add `--since YEAR` and `--sort date` to `biomcp search article`. PubMed then returns matches published in or after that year, with the most recently added first. This BioMCP 1.0 run finds the three newest PubMed articles that match "KRAS G12C sotorasib" since 2024.
   why: |
     `--since` and `--until` set inclusive publication-date bounds; PubMed matches either the electronic or the print date. `--sort date` uses PubMed's date-added order, and Europe PMC's newest-first order.
   limits: |

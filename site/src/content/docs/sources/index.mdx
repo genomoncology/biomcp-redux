@@ -8,8 +8,9 @@ verified: 2026-10-27
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import SourceTable from '../../../components/SourceTable.astro';
 
-Where does BioMCP <Fact k="version" /> get its data, and may you reuse it? BioMCP reads <Fact k="counts.sources" /> public sources. It stores none of their data on a server of its own. Each reply names the sources it asked and their terms. The [sources reference](/reference/data-sources/) lists every source with its terms page, key and commands.
+Where does BioMCP <Fact k="version" /> get its data, and may you reuse it? BioMCP reads <Fact k="counts.sources" /> public sources. It stores none of their data on a server of its own. Each reply names the sources it asked and their terms. The [table below](#every-source) lists every source with its use group, key and terms, and links to its page.
 
 ## The short answer
 
@@ -23,6 +24,10 @@ Every source is on by default. Each source belongs to one use group. If you use 
 | `attribution` | Reuse requires attribution, such as CC BY. |
 | `noncommercial` | Commercial use needs separate permission from the publisher. |
 | `restricted` | Source-specific or mixed rights. Check the publisher's terms before reuse. |
+
+The sources fall into the groups like this:
+
+<SourceTable field="groups" />
 
 A group describes the source's terms as reviewed for BioMCP. It does not grant rights. Public API access grants no extra reuse rights, and many sources carry records with their own licenses, such as an article's license in PMC.
 
@@ -50,11 +55,17 @@ The command option and the configuration combine. A disabled source sends no req
 
 ## Sources that need a key
 
-OncoKB and NCI need your own key. NCBI, Semantic Scholar, ORCID and openFDA work without a key at a public rate limit, and a key raises it. BioMCP never buys a license or a key for you, and a source that needs your account sends nothing without it. [Keys and configuration](/getting-started/api-keys/#set-a-key) shows how to set one.
+OncoKB and NCI need your own key. NCBI, Semantic Scholar and openFDA work without a key at a public rate limit, and a key raises it. ORCID takes an optional token. BioMCP never buys a license or a key for you, and a source that needs your account sends nothing without it. [Keys and configuration](/getting-started/api-keys/#set-a-key) shows how to set one.
 
 ## Sources that read local bundles
 
 HGNC, ClinGen, WikiPathways, cBioPortal studies, EMA, DDInter, WHO finished products, WHO diagnostics, GTR and the FDA companion diagnostics list come as downloadable bundles. [Local data](/local-data/) explains them.
+
+## Every source
+
+Each row links to the source's page, which shows a built example, the commands that reach the source, and its limits. A key marked Required means the source sends no request without it.
+
+<SourceTable />
 
 ## Read next
 

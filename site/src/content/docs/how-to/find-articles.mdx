@@ -84,7 +84,9 @@ The columns are the sheet, the row number and the first cells of the row as the 
 
 ## Save text, a supplement or a PDF
 
-Add `--save PATH` to `article text`, `article supplement` or `article pdf` to write the file. An existing file needs `--replace`. Saves work from the command line and over stdio MCP. The HTTP server refuses them.
+Add `--save PATH` to `article text`, `article supplement` or `article pdf` to write the file. `article text --save` writes the whole document, so it does not take `--part`. On the command line, an existing file needs `--replace`. Over stdio MCP, a save writes a new file only, and `--replace` is refused. The HTTP server refuses every save; see [run as a server](/getting-started/remote-http/).
+
+<Example id="lit-save-rules" />
 
 ## Verify
 

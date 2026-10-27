@@ -1,0 +1,3 @@
+{"status":"complete","sources":[{"source":"litvar","state":"ok","reason":null},{"source":"pubmed","state":"ok","reason":null}]}
+{"pmid":"32768003","title":"The Unmet Needs of the Diagnosis, Staging, and Treatment of Gastrointestinal Tumors."}
+{"pmid":"34865163","title":"Heterogeneity and excitability of BRAFV600E-induced tumors is determined by Akt/mTOR-signaling state and Trp53-loss."}

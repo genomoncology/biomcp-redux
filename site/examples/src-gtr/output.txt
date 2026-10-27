@@ -1,0 +1,3 @@
+{"status":"complete","sources":[{"source":"gtr","state":"ok","reason":null}]}
+{"id":"GTR000273063.3","name":"BRAF-Related Cardiofaciocutaneous Syndrome","lab":"Molecular Diagnostics Lab"}
+{"id":"GTR000305704.1","name":"Cardiofaciocutaneous Syndrome","lab":"Center for Human Genetics, Inc"}

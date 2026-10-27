@@ -1,0 +1,60 @@
+---
+title: WikiPathways (wikipathways)
+description: "How BioMCP 1.0.0 uses WikiPathways: what it reads, an example, the
+  key, the use group, terms and limits."
+goal: Find what BioMCP reads from WikiPathways, which commands reach it, its
+  key, its terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: wikipathways
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `wikipathways`. BioMCP searches WikiPathways and reads pathway members from a local bundle.
+
+| Field | Value |
+| --- | --- |
+| Source name | `wikipathways` |
+| Use group | `open` |
+| Terms | CC0 1.0 waiver |
+| Terms page | [https://www.wikipathways.org/help.html](https://www.wikipathways.org/help.html) |
+| Key | None. |
+| Local bundle | `biomcp sync wikipathways` |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-wikipathways" />
+
+## Commands
+
+Pick this source with `--source wikipathways` on these commands:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search pathway`](/reference/commands/search-pathway/) | Search Reactome (default) or WikiPathways human pathways. |
+
+These commands read WikiPathways as part of their reply. They do not take `--source wikipathways`:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp get pathway`](/reference/commands/get-pathway/) | Get an exact human Reactome R-HSA or WikiPathways WP card. |
+| [`biomcp pathway genes`](/reference/commands/pathway-genes/) | Read Reactome exact references or WikiPathways GeneProduct data nodes. |
+
+## Limits
+
+BioMCP reads a local copy, current as of your last `biomcp sync wikipathways`.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources wikipathways`, or add `"wikipathways"` to `disable_sources` in `config.json`. The group `open` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Look up genes, proteins and pathways](/genes-and-proteins/) shows WikiPathways in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -23,7 +23,7 @@ This page covers BioMCP <Fact k="version" />. Find the text you see in a heading
 
 <Example id="qs-usage-error" />
 
-**Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. Exit code 2. The message does not say which.
+**Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. A dropped 0.9 command whose first word still exists, such as `search all`, returns this error too. Exit code 2. The message does not say which.
 
 **Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before section words and that `--source` names a source the command lists.
 
@@ -33,7 +33,7 @@ This page covers BioMCP <Fact k="version" />. Find the text you see in a heading
 
 <Example id="ts-unknown-command" />
 
-**Cause.** The first word is not a BioMCP command. This is the error for a misspelled command and for 0.9 commands that 1.0 dropped, such as `discover`, `list` and `search all`.
+**Cause.** The first word is not a BioMCP command. This is the error for a misspelled command and for 0.9 commands that 1.0 dropped, such as `discover` and `list`. A dropped command under an existing first word, such as `search all`, returns `usage.arguments` instead.
 
 **Fix.** Run `biomcp help` for the command list. [Upgrading from 0.9](/upgrade-from-0-9/) maps old commands to new ones.
 

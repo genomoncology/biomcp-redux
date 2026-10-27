@@ -1,0 +1,1 @@
+biomcp search diagnostic --source fda-cdx --biomarker BRAF --limit 2 | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.items[] | .cells | {diagnostic: .["Diagnostic Name (Manufacturer)"].text, indication: .["Indication - Sample Type"].text})'

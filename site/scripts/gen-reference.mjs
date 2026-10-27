@@ -50,6 +50,7 @@ const tools = (() => {
   return reply.result.tools;
 })();
 const notes = YAML.parse(fs.readFileSync(path.resolve('src/data/sources.yaml'), 'utf8')) ?? {};
+const meanings = YAML.parse(fs.readFileSync(path.resolve('src/data/envelope.yaml'), 'utf8'));
 
 const grammar = fs.readFileSync(path.resolve('../docs/reference/commands.md'), 'utf8');
 const rootBlock = grammar.split('\n## biomcp author')[0];
@@ -170,41 +171,74 @@ for (const c of help) {
 }
 
 // ---------- sources ----------
-const keyOf = (s) => keys.find((k) => k.source === s || k.name === s);
+// Key use: a source whose key is required reports reason no_key in an offline health check run
+// without keys. Every other source that a key belongs to takes it as optional.
+const KEY_VARS = keys.map((k) => k.environment);
+const requiredKey = (() => {
+  const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !KEY_VARS.includes(k)));
+  const r = spawnSync(bin, ['--offline', 'health'], { encoding: 'utf8', env: { ...env, NO_COLOR: '1' }, timeout: 60000 });
+  return new Set(JSON.parse(r.stdout).result.sources.filter((x) => x.reason === 'no_key').map((x) => x.source));
+})();
+const keyNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/keys.yaml'), 'utf8'));
+const keyOf = (s) => keys.find((k) => k.source === s || k.name === s || k.name === notes[s]?.key);
+const keyUse = (s) => (requiredKey.has(s) ? 'Required' : keyNotes[keyOf(s)?.name]?.optional ?? 'Optional');
 const commandsFor = (s) => help.filter((c) => sourcesFor(c).includes(s));
+const mdx = (s) => String(s ?? '').split(/(`[^`]*`)/).map((part, i) => (i % 2 ? part : part.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\{/g, '&#123;').replace(/\}/g, '&#125;'))).join('');
+const mcell = (s) => mdx(s).replace(/\|/g, '\\|').replace(/\n+/g, ' ');
+const pageTitle = (route) => {
+  for (const ext of ['.mdx', '.md']) {
+    const f = path.resolve('src/content/docs', route.replace(/^\/|\/$/g, '') + ext);
+    if (fs.existsSync(f)) return YAML.parse(fs.readFileSync(f, 'utf8').split('---')[1]).title;
+  }
+  throw new Error(`reference: no page for guide ${route}`);
+};
+const sourceRows = [];
 for (const r of registry) {
   const n = notes[r.source] ?? {};
-  const cs = [...new Set([...commandsFor(r.source), ...(n.commands ?? []).map((w) => help.find((c) => name(c) === w)).filter(Boolean)])];
+  const label = n.name ?? r.source;
+  const selectable = commandsFor(r.source);
+  const reading = (n.commands ?? []).map((w) => help.find((c) => name(c) === w)).filter((c) => c && !selectable.includes(c));
   const key = keyOf(r.source);
-  const title = n.name ? `${n.name} (${r.source})` : r.source;
+  const use = key ? keyUse(r.source) : null;
+  const exampleId = `src-${r.source}`;
+  if (!fs.existsSync(path.resolve('examples', exampleId, 'run.sh'))) { console.error(`reference: source ${r.source} has no example; add examples/${exampleId}/run.sh`); process.exit(1); }
+  if (!n.limits || !n.guide) { console.error(`reference: src/data/sources.yaml ${r.source} needs limits and guide`); process.exit(1); }
+  sourceRows.push({ source: r.source, name: label, use: r.usage, key: key ? `${use}: ${key.name}` : '', keyUse: use, keyName: key?.name ?? null, terms: r.terms, terms_url: r.terms_url, route: srcRoute(r.source) });
   const lines = [
-    fm({ title, description: `How ${site.product} ${site.version} uses ${n.name ?? r.source}: commands, key, use group and publisher terms.`, goal: `Find what BioMCP reads from ${n.name ?? r.source}, which commands reach it, and its terms.`, reader: 'A BioMCP user checking one data source', sidebar: { label: r.source } }),
-    `${site.product} ${site.version} names this source ${code(r.source)}.${n.what ? ' ' + esc(n.what) : ''}`,
+    fm({ title: n.name ? `${n.name} (${r.source})` : r.source, description: `How ${site.product} ${site.version} uses ${label}: what it reads, an example, the key, the use group, terms and limits.`, goal: `Find what BioMCP reads from ${label}, which commands reach it, its key, its terms and its limits.`, reader: 'A BioMCP user checking one data source', sidebar: { label: r.source } }),
+    "import Example from '../../../components/Example.astro';",
+    '',
+    `${site.product} ${site.version} names this source ${code(r.source)}.${n.what ? ' ' + mdx(n.what) : ''}`,
     '',
     '| Field | Value |',
     '| --- | --- |',
     `| Source name | ${code(r.source)} |`,
     `| Use group | ${code(r.usage)} |`,
-    `| Terms | ${cell(r.terms)} |`,
-    `| Terms page | <${r.terms_url}> |`,
-    `| Key | ${key ? `optional or required key: ${code('biomcp key set ' + key.name)}, environment ${code(key.environment)}, configuration ${code(key.config)}. See [${code('help key ' + key.name)}](/reference/commands/help-key-${key.name}/).` : 'none'} |`,
+    `| Terms | ${mcell(r.terms)} |`,
+    `| Terms page | [${r.terms_url}](${r.terms_url}) |`,
+    `| Key | ${key ? `${use}. Set it with ${code('biomcp key set ' + key.name)} or the environment variable ${code(key.environment)}. See [${code('help key ' + key.name)}](/reference/commands/help-key-${key.name}/).` : 'None.'} |`,
     ...(n.bundle ? [`| Local bundle | ${code('biomcp sync ' + n.bundle)} |`] : []),
+    '',
+    '## Example',
+    '',
+    `The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.`,
+    '',
+    `<Example id="${exampleId}" />`,
     '',
     '## Commands',
     '',
   ];
-  if (cs.length) {
-    lines.push('| Command | Description |', '| --- | --- |');
-    for (const c of cs) lines.push(`| [${code('biomcp ' + name(c))}](${route(c)}) | ${cell(firstSentence(c.description))} |`);
-    if (commandsFor(r.source).length) lines.push('', `Select this source with ${code('--source ' + r.source)} on the commands that list it.`);
-  } else lines.push('No command takes this source as a choice of `--source`. Sections of other entities read it, as the notes above say.');
-  lines.push('', '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. The group ${code(r.usage)} switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).`, '');
-  if (n.example && fs.existsSync(path.resolve('examples', n.example, 'run.sh'))) {
-    lines.push('## Example', '', `See the worked example on [${esc(n.example_page_title ?? 'the guide page')}](${n.example_page}).`, '');
-  }
-  lines.push(genFooter);
-  files.set(path.join(SOURCES_OUT, `${srcSlug(r.source)}.md`), lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
+  const table = (cs) => ['| Command | Description |', '| --- | --- |', ...cs.map((c) => `| [${code('biomcp ' + name(c))}](${route(c)}) | ${mcell(firstSentence(c.description))} |`)];
+  if (selectable.length) lines.push(`Pick this source with ${code('--source ' + r.source)} on these commands:`, '', ...table(selectable), '');
+  if (reading.length) lines.push(`These commands read ${mdx(label)} as part of their reply. They do not take ${code('--source ' + r.source)}:`, '', ...table(reading), '');
+  if (!selectable.length && !reading.length) lines.push(`No command takes ${code('--source ' + r.source)}. The example above shows the command that reads it.`, '');
+  lines.push('## Limits', '', mdx(n.limits), '',
+    '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. The group ${code(r.usage)} switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).`, '',
+    '## Next', '', `[${mdx(pageTitle(n.guide))}](${n.guide}) shows ${mdx(label)} in a worked task. [Data sources](/sources/) lists every source.`, '',
+    genFooter);
+  files.set(path.join(SOURCES_OUT, `${srcSlug(r.source)}.mdx`), lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
 }
+files.set(path.resolve('src/data/sources.json'), JSON.stringify(sourceRows, null, 2) + '\n');
 {
   const groups = ['open', 'attribution', 'noncommercial', 'restricted'];
   const lines = [
@@ -213,7 +247,7 @@ for (const r of registry) {
     '',
     '| Source | Use group | Key | Terms |',
     '| --- | --- | --- | --- |',
-    ...registry.map((r) => `| [${r.source}](${srcRoute(r.source)}) | ${r.usage} | ${keyOf(r.source) ? code(keyOf(r.source).environment) : ''} | [${cell(r.terms)}](${r.terms_url}) |`),
+    ...registry.map((r) => `| [${r.source}](${srcRoute(r.source)}) | ${r.usage} | ${keyOf(r.source) ? `${keyUse(r.source).split(';')[0].toLowerCase()}, ${code(keyOf(r.source).environment)}` : ''} | [${cell(r.terms)}](${r.terms_url}) |`),
     '',
     '## Counts by use group',
     '',
@@ -244,7 +278,7 @@ const MEANING = {
   Absent: 'The command finished and the sources returned no matching record. Status `absent`. This is the answer for that source, query and filters, not proof that the thing does not exist.',
   Usage: 'The arguments were wrong, a selector is retired, or a pool cursor does not match its search. The error names a code such as `usage.arguments` and often the replacement command. Nothing was sent to a source.',
   Expired: 'A retained pool or snapshot expired. The reply carries the command that restarts the search.',
-  Failed: 'Every source the command needed failed. Status `failed`. Each source outcome names its reason, such as `deadline_exceeded` or `rejected`.',
+  Failed: 'No source the command needed answered: each failed or was skipped. Status `failed`. Each source outcome names its reason, such as `deadline_exceeded` or `rejected`.',
   Local: 'A local step failed: the configuration file, the cache, a saved file or writing the output. The error code is `local.failure`.',
 };
 write('error-codes.md', [
@@ -279,6 +313,7 @@ write('error-codes.md', [
 }
 
 // ---------- reply envelope: the enums every reply uses, from the JSON schemas ----------
+const envelopeFacts = {};
 {
   const defs = { ...json(['schema', 'biomcp.gene_cards/4'])['$defs'], ...json(['schema', 'biomcp.error/1'])['$defs'] };
   const HIDE = ['replay_miss'];
@@ -287,6 +322,19 @@ write('error-codes.md', [
     return [`| ${head} | Meaning |`, '| --- | --- |', ...d.enum.map((v, i) => [v, (xs[i] ?? '').trim()]).filter(([v]) => !HIDE.includes(v)).map(([v, m]) => `| ${code(v)} | ${cell(m)} |`)].join('\n');
   };
   const list = (d) => d.enum.filter((v) => !HIDE.includes(v)).map(code).join(', ');
+  // status and sources[].state: the schema gives the values, src/data/envelope.yaml their meanings.
+  for (const [field, def] of [['status', defs.Status], ['state', defs.SourceState]]) {
+    const want = def.enum.filter((v) => !HIDE.includes(v));
+    const have = Object.keys(meanings[field] ?? {});
+    const missing = want.filter((v) => !have.includes(v));
+    const extra = have.filter((v) => !want.includes(v));
+    if (missing.length || extra.length) { console.error(`reference: src/data/envelope.yaml ${field} differs from the schema: missing ${missing.join(', ') || 'none'}, extra ${extra.join(', ') || 'none'}`); process.exit(1); }
+  }
+  const exitOf = (v) => exitCodes.find((e) => e.status.toLowerCase() === v)?.code ?? 0;
+  envelopeFacts.status = defs.Status.enum.map((v) => ({ value: v, meaning: meanings.status[v], exit: exitOf(v) }));
+  envelopeFacts.state = defs.SourceState.enum.filter((v) => !HIDE.includes(v)).map((v) => ({ value: v, meaning: meanings.state[v] }));
+  const meaningTable = (field) => [field === 'status' ? '| Status | Meaning | Exit code |' : '| State | Meaning |', field === 'status' ? '| --- | --- | --- |' : '| --- | --- |',
+    ...envelopeFacts[field].map((r) => `| ${code(r.value)} | ${cell(r.meaning)} |${field === 'status' ? ` ${r.exit} |` : ''}`)].join('\n');
   write('envelope.md', [
     fm({ title: 'Reply envelope', description: `The values a ${site.product} ${site.version} reply uses for status, source state, failure reason, use group, next-command kind and error code.`, goal: 'Look up the exact values of the fields every BioMCP reply carries.', reader: 'A developer or agent parsing BioMCP JSON' }),
     `Every ${site.product} ${site.version} reply is one JSON object. Data replies carry ${code('schema')}, ${code('status')}, ${code('query')}, ${code('result')}, ${code('sources')} and ${code('next')}, and pages add ${code('page')}. Errors carry ${code('schema')} ${code('biomcp.error/1')}, ${code('status')} and ${code('error')}. The values below come from the reply schemas; ${code('biomcp schema ID')} prints a full schema. [Results](/results/) explains how to read them.`,
@@ -295,9 +343,13 @@ write('error-codes.md', [
     '',
     `${esc(defs.Status.description)} Values: ${list(defs.Status)}. Error replies use ${list(defs.ErrorStatus ?? { enum: [] }) || code('usage') + ' or ' + code('local')}.`,
     '',
+    meaningTable('status'),
+    '',
     '## sources[].state',
     '',
     `${esc(defs.SourceState.description)} Values: ${list(defs.SourceState)}.`,
+    '',
+    meaningTable('state'),
     '',
     '## sources[].reason',
     '',
@@ -364,7 +416,7 @@ write('index.md', [
 ].join('\n'));
 
 // ---------- facts for the guide pages ----------
-const facts = { commands: help.length, entities: entities.length, entity_names: entities, sources: registry.length, tools: tools.length, keys: keys.map((k) => ({ source: k.name, environment: k.environment, config: k.config })) };
+const facts = { envelope: envelopeFacts, commands: help.length, entities: entities.length, entity_names: entities, sources: registry.length, tools: tools.length, keys: keys.map((k) => ({ source: k.name, environment: k.environment, config: k.config })) };
 files.set(path.resolve('src/data/reference.json'), JSON.stringify(facts, null, 2) + '\n');
 
 // ---------- the counts in site.json must match the build ----------

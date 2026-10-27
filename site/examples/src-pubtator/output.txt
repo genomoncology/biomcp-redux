@@ -1,0 +1,4 @@
+{"status":"partial","sources":[{"source":"pubmed","state":"ok","reason":null},{"source":"pubtator","state":"ok","reason":null}]}
+{"kind":"variant","name":"p.E17K","count":8}
+{"kind":"disease","name":"Neoplasms","count":4}
+{"kind":"gene","name":"AKT1","count":2}

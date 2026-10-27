@@ -14,9 +14,24 @@ Every BioMCP 1.0.0 reply is one JSON object. Data replies carry `schema`, `statu
 
 Overall command outcome. Values: `complete`, `partial`, `absent`, `failed`. Error replies use `usage`, `local`, `expired`.
 
+| Status | Meaning | Exit code |
+| --- | --- | --- |
+| `complete` | Every source the command needed answered. | 0 |
+| `partial` | Some sources answered and others failed, or a value a source sent failed its check (`problems`). Read `sources`. | 0 |
+| `absent` | The sources answered and found no record for the input. | 1 |
+| `failed` | No source the command needed answered. Each one failed or was skipped. | 4 |
+
 ## sources[].state
 
 State of a source actually asked by the command. Values: `ok`, `stale`, `syncing`, `failed`, `skipped`.
+
+| State | Meaning |
+| --- | --- |
+| `ok` | The source answered. |
+| `stale` | The source answered from an older local copy. |
+| `syncing` | The source reads a local bundle that is not ready. The reply's `next` list names the `sync` command. |
+| `failed` | BioMCP asked the source and it did not answer. The `reason` says why. |
+| `skipped` | BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why. |
 
 ## sources[].reason
 

@@ -1,0 +1,1 @@
+biomcp search article 'BRAF V600E resistance' --source litsense --limit 2 | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.items[] | {pmid, sentence: .sentence.text[0:120]})'

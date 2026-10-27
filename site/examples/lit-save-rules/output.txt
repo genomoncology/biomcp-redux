@@ -1,0 +1,6 @@
+command line, --save with --part:
+{"status":"usage","code":"usage.arguments"}
+stdio MCP, save a new file:
+{"status":"complete","code":null,"bytes":37465}
+stdio MCP, the same file with --replace:
+{"status":"usage","code":"usage.arguments","bytes":null}

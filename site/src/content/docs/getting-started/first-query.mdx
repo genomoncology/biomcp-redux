@@ -14,7 +14,9 @@ By the end of this page you will have searched for the BRAF gene with BioMCP <Fa
 
 ## Before you start
 
-You need a shell and a network connection. The examples filter JSON with `jq`; install it from your package manager, or add `--format md` to any command and read Markdown instead.
+You need a shell and a network connection. The examples filter JSON with `jq`; install it from your package manager, or use the `--format md` command shown under each `jq` step.
+
+Each command sends its words and identifiers over the network to the public sources it names, such as HGNC, MyGene.info and gnomAD. Do not put names, record numbers or other identifying patient data in a query.
 
 ## 1. Install
 
@@ -32,13 +34,17 @@ Every search starts with `biomcp search` and an entity. Search for genes named B
 
 <Example id="qs-search-gene" />
 
-The reply has four parts. **Next** lists commands to run after this one. **Query** echoes what you asked. **Result** holds the rows. **Sources** names each source, its terms and its state. Here HGNC answered with state `ok`.
+The reply has five parts. **Next** lists commands to run after this one. **Page** counts the rows returned and the total. **Query** echoes what you asked. **Result** holds the rows. **Sources** names each source, its terms and its state. Here HGNC answered with state `ok`.
 
 ## 3. Get one record
 
 `biomcp get` fetches one record by its name or identifier. JSON is the default output, so this command uses `jq` to show the gene and the source outcomes:
 
 <Example id="qs-get-gene" />
+
+Without `jq`, ask for Markdown and print its Sources part:
+
+<Example id="qs-get-gene-md" />
 
 Read the `sources` list before the record. HGNC and MyGene.info answered. OncoKB was `skipped` with reason `no_key`, because OncoKB needs your own key. The reply is still `complete`: a skipped source is reported, never hidden.
 
@@ -48,9 +54,15 @@ A record comes back small. Add a section word after the identifier to get more. 
 
 <Example id="qs-section" />
 
+The same section as Markdown:
+
+<Example id="qs-section-md" />
+
 The [get gene reference](/reference/commands/get-gene/) lists every section word. You do not need to memorize them. Each reply's `next` list names the commands that fetch them:
 
 <Example id="qs-next" />
+
+In Markdown, the same commands sit under **Next** at the top of the reply, as in step 2.
 
 An agent can run those `args` as they are. That is how BioMCP keeps replies short and lets the caller ask for more.
 

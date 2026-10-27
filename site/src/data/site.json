@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "verified": "2026-10-27",
   "platforms": "Linux, macOS, Windows",
+  "platforms_detail": "Linux and macOS on x86_64 and arm64, and Windows on x86_64",
   "repo": "https://github.com/genomoncology/biomcp",
   "issues": "https://github.com/genomoncology/biomcp/issues",
   "license": "MIT",

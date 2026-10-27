@@ -35,9 +35,17 @@ export function trimOutput(out, lines) {
   return all.length > lines ? [...all.slice(0, lines), '…'].join('\n') : out;
 }
 
+// A Markdown code fence longer than any backtick run in the text, so output that holds
+// its own fences (Markdown replies) stays one block.
+export function fenced(text, lang = '') {
+  const longest = Math.max(2, ...[...text.matchAll(/`+/g)].map((m) => m[0].length));
+  const fence = '`'.repeat(longest + 1);
+  return `${fence}${lang}\n${text}\n${fence}`;
+}
+
 export function exampleMarkdown(id, lines) {
   const ex = readExample(id);
-  if (ex.unverified) return `\`\`\`${ex.lang}\n${ex.show}\n\`\`\`\n\nNot run in the build: ${ex.unverifiedReason}\n`;
+  if (ex.unverified) return `${fenced(ex.show, ex.lang)}\n\nNot run in the build: ${ex.unverifiedReason}\n`;
   const exit = ex.exit === 0 ? '' : `\nExit code ${ex.exit}.\n`;
-  return `\`\`\`${ex.lang}\n${ex.show}\n\`\`\`\n\nOutput:\n\n\`\`\`text\n${trimOutput(ex.output, lines)}\n\`\`\`\n${exit}`;
+  return `${fenced(ex.show, ex.lang)}\n\nOutput:\n\n${fenced(trimOutput(ex.output, lines), 'text')}\n${exit}`;
 }

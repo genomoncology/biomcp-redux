@@ -1,0 +1,3 @@
+{"status":"complete","sources":[{"source":"monarch","state":"ok","reason":null}]}
+{"gene":"BAP1","disease":"familial melanoma"}
+{"gene":"MITF","disease":"familial melanoma"}

@@ -1,0 +1,2 @@
+{"status":"complete","sources":[{"source":"orcid","state":"ok","reason":null}]}
+{"id":"orcid:0000-0002-1825-0097","name":"Josiah Carberry"}

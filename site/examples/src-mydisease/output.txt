@@ -1,0 +1,2 @@
+{"status":"complete","sources":[{"source":"mydisease","state":"ok","reason":null}]}
+{"id":"MONDO:0005105","label":"melanoma"}

@@ -1,0 +1,9 @@
+## Sources
+
+| Reason | Source | State | Terms | Terms url | Use |
+| --- | --- | --- | --- | --- | --- |
+|  | hgnc | ok | CC0 1.0 | https://www.genenames.org/about/license/ | open |
+|  | mygene | ok | MyGene.info Terms of Use; upstream data terms | https://docs.mygene.info/en/latest/terms.html | restricted |
+| no\_key | oncokb | skipped | OncoKB license | https://faq.oncokb.org/licensing | restricted |
+
+**status:** complete

@@ -1,0 +1,58 @@
+---
+title: PubMed (pubmed)
+description: "How BioMCP 1.0.0 uses PubMed: what it reads, an example, the key,
+  the use group, terms and limits."
+goal: Find what BioMCP reads from PubMed, which commands reach it, its key, its
+  terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: pubmed
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `pubmed`. BioMCP searches PubMed and reads article citations, abstracts and MeSH indexing. It is the default article search source.
+
+| Field | Value |
+| --- | --- |
+| Source name | `pubmed` |
+| Use group | `restricted` |
+| Terms | NCBI policies; publisher rights in abstracts |
+| Terms page | [https://www.ncbi.nlm.nih.gov/home/about/policies/](https://www.ncbi.nlm.nih.gov/home/about/policies/) |
+| Key | Optional; raises the rate limit. Set it with `biomcp key set ncbi` or the environment variable `NCBI_API_KEY`. See [`help key ncbi`](/reference/commands/help-key-ncbi/). |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-pubmed" />
+
+## Commands
+
+Pick this source with `--source pubmed` on these commands:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search article`](/reference/commands/search-article/) | Checked search selectors and pool cursor. |
+
+These commands read PubMed as part of their reply. They do not take `--source pubmed`:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp get article`](/reference/commands/get-article/) | Get one to twenty article inputs in caller order. |
+
+## Limits
+
+A search returns what PubMed returned for those words. An empty search is not proof that no paper exists. Without a key, NCBI's public rate limit applies.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources pubmed`, or add `"pubmed"` to `disable_sources` in `config.json`. The group `restricted` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Search and read biomedical literature](/how-to/find-articles/) shows PubMed in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

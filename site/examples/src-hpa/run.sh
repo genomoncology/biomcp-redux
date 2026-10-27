@@ -1,0 +1,1 @@
+biomcp get gene BRAF expression | jq -c '{status, sources: [.sources[] | {source, state, reason}]}, (.result.items[0].sections.expression | {source, tissue_specificity: .data.rna_tissue_specificity, subcellular: .data.subcellular_main})'

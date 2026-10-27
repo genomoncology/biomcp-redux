@@ -1,0 +1,2 @@
+{"status":"complete","sources":[{"source":"mutalyzer","state":"ok","reason":null}]}
+{"source":"mutalyzer","outcome":"resolved","normalized":"NM_004333.4:c.1799T>A","protein":"NM_004333.4(NP_004324.2):p.(Val600Glu)"}

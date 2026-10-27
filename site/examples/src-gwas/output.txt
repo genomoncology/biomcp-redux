@@ -1,0 +1,3 @@
+{"status":"complete","sources":[{"source":"gwas","state":"ok","reason":null}]}
+{"study":"GCST90492734","traits":["Type 2 diabetes"],"mapped_genes":["TCF7L2"]}
+{"study":"GCST010555","traits":["Type 2 diabetes"],"mapped_genes":["TCF7L2"]}

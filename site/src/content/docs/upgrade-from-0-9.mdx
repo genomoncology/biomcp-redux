@@ -55,7 +55,11 @@ A retired option names its replacement:
 
 <Example id="ts-retired" />
 
-A dropped command, such as `discover`, returns `usage.schema` instead. See [troubleshooting](/troubleshooting/#usageschema-expected-schema-known-artifact-id).
+A dropped command, such as `discover`, returns `usage.schema` instead. A dropped command under a first word that still exists, such as `search all`, returns `usage.arguments`:
+
+<Example id="ts-dropped-search" />
+
+See [troubleshooting](/troubleshooting/#usageschema-expected-schema-known-artifact-id).
 
 ## Steps
 
@@ -76,7 +80,7 @@ A dropped command, such as `discover`, returns `usage.schema` instead. See [trou
 
 ## Known issues
 
-- A dropped command returns the generic `usage.schema` error and does not name its replacement. Use the command map.
+- A dropped command returns the generic `usage.schema` or `usage.arguments` error and does not name its replacement. Use the command map.
 - 1.0 has no CVX vaccine lookup, KEGG, MedlinePlus, DGIdb or PharmacoDB data, and no charts.
 
 ## Next

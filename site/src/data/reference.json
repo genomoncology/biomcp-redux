@@ -1,4 +1,50 @@
 {
+  "envelope": {
+    "status": [
+      {
+        "value": "complete",
+        "meaning": "Every source the command needed answered.",
+        "exit": 0
+      },
+      {
+        "value": "partial",
+        "meaning": "Some sources answered and others failed, or a value a source sent failed its check (`problems`). Read `sources`.",
+        "exit": 0
+      },
+      {
+        "value": "absent",
+        "meaning": "The sources answered and found no record for the input.",
+        "exit": 1
+      },
+      {
+        "value": "failed",
+        "meaning": "No source the command needed answered. Each one failed or was skipped.",
+        "exit": 4
+      }
+    ],
+    "state": [
+      {
+        "value": "ok",
+        "meaning": "The source answered."
+      },
+      {
+        "value": "stale",
+        "meaning": "The source answered from an older local copy."
+      },
+      {
+        "value": "syncing",
+        "meaning": "The source reads a local bundle that is not ready. The reply's `next` list names the `sync` command."
+      },
+      {
+        "value": "failed",
+        "meaning": "BioMCP asked the source and it did not answer. The `reason` says why."
+      },
+      {
+        "value": "skipped",
+        "meaning": "BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why."
+      }
+    ]
+  },
   "commands": 85,
   "entities": 16,
   "entity_names": [

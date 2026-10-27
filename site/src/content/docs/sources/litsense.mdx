@@ -1,0 +1,52 @@
+---
+title: LitSense2 (litsense)
+description: "How BioMCP 1.0.0 uses LitSense2: what it reads, an example, the
+  key, the use group, terms and limits."
+goal: Find what BioMCP reads from LitSense2, which commands reach it, its key,
+  its terms and its limits.
+reader: A BioMCP user checking one data source
+sidebar:
+  label: litsense
+kind: reference
+verified: 2026-10-27
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 names this source `litsense`. BioMCP finds sentences that resemble the query text through LitSense2.
+
+| Field | Value |
+| --- | --- |
+| Source name | `litsense` |
+| Use group | `restricted` |
+| Terms | NCBI policies; publisher rights in input text |
+| Terms page | [https://www.ncbi.nlm.nih.gov/home/about/policies/](https://www.ncbi.nlm.nih.gov/home/about/policies/) |
+| Key | None. |
+
+## Example
+
+The first line of output is the reply's status and source outcomes. The lines after it are a few fields of the result.
+
+<Example id="src-litsense" />
+
+## Commands
+
+Pick this source with `--source litsense` on these commands:
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search article`](/reference/commands/search-article/) | Checked search selectors and pool cursor. |
+
+## Limits
+
+LitSense2 returns sentences that resemble the query. A similar sentence is not a confirmed finding.
+
+## Turn it off
+
+Leave this source out of one command with `--disable-sources litsense`, or add `"litsense"` to `disable_sources` in `config.json`. The group `restricted` switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).
+
+## Next
+
+[Search and read biomedical literature](/how-to/find-articles/) shows LitSense2 in a worked task. [Data sources](/sources/) lists every source.
+
+This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

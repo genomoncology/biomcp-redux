@@ -8,6 +8,7 @@ verified: 2026-10-27
 ---
 import Example from '../../components/Example.astro';
 import Fact from '../../components/Fact.astro';
+import EnvelopeTable from '../../components/EnvelopeTable.astro';
 
 What does a BioMCP <Fact k="version" /> reply tell you, and what does it leave out? Every command returns one JSON object with the same envelope, whatever the entity. Learn the envelope once and you can read every reply.
 
@@ -35,18 +36,17 @@ The [reply envelope reference](/reference/envelope/) lists every value of every 
 
 ## Status
 
-| Status | Meaning | Exit code |
-| --- | --- | --- |
-| `complete` | Every source the command needed answered. | 0 |
-| `partial` | Some sources answered and others failed. Read `sources`. | 0 |
-| `absent` | The sources answered and found no record for the input. | 1 |
-| `failed` | The sources the command needed failed. | 4 |
+<EnvelopeTable field="status" />
 
 Errors before any request use a separate envelope with `status` `usage` (exit code 2), `expired` (exit code 3) or `local` (exit code 5). [Exit codes](/reference/error-codes/) lists them.
 
 ## Source outcomes
 
-A source can answer with state `ok`, answer from an older local copy with `stale`, be `skipped` by your settings, or `failed`. The `reason` says why. In the quickstart, OncoKB was skipped:
+Each entry in `sources` has a `state`:
+
+<EnvelopeTable field="state" />
+
+The `reason` says why a source did not answer. In the quickstart, OncoKB was skipped:
 
 <Example id="qs-get-gene" lines={26} />
 

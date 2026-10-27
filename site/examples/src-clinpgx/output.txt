@@ -1,0 +1,3 @@
+{"status":"complete","sources":[{"source":"clinpgx","state":"ok","reason":null}]}
+{"accessionId":"PA166169507","variant":"rs3918290","level":"4"}
+{"accessionId":"PA166134467","variant":"rs2297595","level":"1A"}
