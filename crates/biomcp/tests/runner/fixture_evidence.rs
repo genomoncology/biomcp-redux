@@ -3,6 +3,10 @@
     clippy::disallowed_methods,
     reason = "The fixture owner selects durable test evidence outside scheduler scratch"
 )]
+#![expect(
+    clippy::disallowed_types,
+    reason = "The local fixture shares I/O diagnostics and owned scratch with its worker thread"
+)]
 use super::launch::Environment;
 use serde::Serialize;
 use std::{
@@ -126,7 +130,10 @@ fn retain(root: &Path, context: &Context, reason: &str) -> io::Result<PathBuf> {
     }
     copy(root, &path.join("scratch"))?;
     let mut manifest = serde_json::to_value(context)?;
-    manifest["reason"] = reason.into();
+    manifest
+        .as_object_mut()
+        .ok_or_else(|| io::Error::other("fixture context is not an object"))?
+        .insert("reason".into(), reason.into());
     fs::write(
         path.join("manifest.json"),
         serde_json::to_vec_pretty(&manifest)?,

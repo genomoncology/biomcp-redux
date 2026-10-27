@@ -89,10 +89,10 @@ fn aborted(finish: bool) -> Result<(), String> {
             &fs::read(retained.join("manifest.json")).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
-        if manifest["phase"] != "CONNECT header"
-            || manifest["peer"] != peer.to_string()
-            || manifest["ordinal"] != 1
-            || manifest["hosts"] != serde_json::json!(["fixture.invalid"])
+        if manifest.get("phase") != Some(&serde_json::json!("CONNECT header"))
+            || manifest.get("peer") != Some(&serde_json::json!(peer.to_string()))
+            || manifest.get("ordinal") != Some(&serde_json::json!(1))
+            || manifest.get("hosts") != Some(&serde_json::json!(["fixture.invalid"]))
         {
             return Err(format!(
                 "failed fixture lost diagnostic context: {manifest}"
