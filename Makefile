@@ -1,8 +1,11 @@
 .DEFAULT_GOAL := landing-gate
 
-.PHONY: landing-gate fmt lint ratchets test audit coverage unreached
+.PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
 
-landing-gate: docs-check fmt lint tensor-proto-check coverage audit
+landing-gate: plain-cli-build docs-check fmt lint tensor-proto-check coverage audit
+
+plain-cli-build:
+	cargo build --locked -p biomcp --bin biomcp
 
 fmt:
 	cargo fmt --all -- --check
