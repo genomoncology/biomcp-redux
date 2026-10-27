@@ -237,3 +237,36 @@ fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>)
         Err(error) => json!({"verdict":"wrong","reason":error}),
     }
 }
+
+// Harness contract: the public mode must reject an actual binary of the wrong release.
+pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
+    vec![libtest_mimic::Trial::test(
+        "parity/reject-wrong-baseline-release",
+        || {
+            let env = Environment::new().map_err(|e| e.to_string())?;
+            let plan = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/parity/sample.json");
+            let args = vec![
+                "--parity".into(),
+                plan.display().to_string(),
+                env!("CARGO_BIN_EXE_biomcp").into(),
+                env.root().join("evidence").display().to_string(),
+            ];
+            #[expect(
+                clippy::disallowed_methods,
+                reason = "The harness launches its own actual public parity entry point"
+            )]
+            let runner = std::env::current_exe().map_err(|e| e.to_string())?;
+            let result = env
+                .command(runner, &args)
+                .output()
+                .map_err(|e| e.to_string())?;
+            if result.status.success()
+                || !String::from_utf8_lossy(&result.stderr)
+                    .contains("baseline must report version 0.9.3")
+            {
+                return Err("wrong baseline release was not refused".into());
+            }
+            Ok(())
+        },
+    )]
+}

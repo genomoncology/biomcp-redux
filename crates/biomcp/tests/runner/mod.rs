@@ -219,6 +219,7 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
         .collect::<Result<Vec<_>, String>>()?;
     if include_proof {
         trials.extend(schema_proof::trials(registry));
+        trials.extend(parity::trials());
     }
     Ok(trials)
 }

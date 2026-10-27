@@ -47,5 +47,9 @@ pub(super) fn assess_exit(output: &mut Value, expected: i32) {
 pub(super) fn fingerprint(binary: &Path) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
     let bytes = fs::read(binary).map_err(|e| e.to_string())?;
-    Ok(json!({"path":binary,"sha256":format!("{:x}",Sha256::digest(&bytes))}))
+    let digest = Sha256::digest(&bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+    Ok(json!({"path":binary,"sha256":digest}))
 }
