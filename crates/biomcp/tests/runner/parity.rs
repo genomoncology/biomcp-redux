@@ -267,23 +267,7 @@ fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Resu
     if step.expect.is_empty() && !setup {
         return Err("selection has no fact assertions".into());
     }
-    for (pointer, baseline_pointer) in &selection.facts {
-        let expected = step
-            .expect
-            .get(pointer)
-            .ok_or("projection names an unknown harvested assertion")?;
-        for pointer in baseline_pointer.pointers() {
-            let mut projected = step.clone();
-            projected.expect = BTreeMap::from([(pointer.to_owned(), expected.clone())]);
-            assertions::prepare(&projected)?;
-        }
-    }
-    for (pointer, reason) in &selection.unprojectable_facts {
-        if !step.expect.contains_key(pointer) || selection.facts.contains_key(pointer) {
-            return Err("unsupported fact is unknown or also projected".into());
-        }
-        reason.validate()?;
-    }
+    validate_fact_plan(selection, step)?;
     if selection.release_source.is_empty()
         || selection
             .release_source
@@ -325,6 +309,26 @@ fn load_selection_mode(selection: &Selection, cases: &Path, setup: bool) -> Resu
     }
     validate_baseline(selection, step)?;
     Ok(case)
+}
+fn validate_fact_plan(selection: &Selection, step: &Step) -> Result<(), String> {
+    for (pointer, baseline_pointer) in &selection.facts {
+        let expected = step
+            .expect
+            .get(pointer)
+            .ok_or("projection names an unknown harvested assertion")?;
+        for pointer in baseline_pointer.pointers() {
+            let mut projected = step.clone();
+            projected.expect = BTreeMap::from([(pointer.to_owned(), expected.clone())]);
+            assertions::prepare(&projected)?;
+        }
+    }
+    for (pointer, reason) in &selection.unprojectable_facts {
+        if !step.expect.contains_key(pointer) || selection.facts.contains_key(pointer) {
+            return Err("unsupported fact is unknown or also projected".into());
+        }
+        reason.validate()?;
+    }
+    Ok(())
 }
 fn validate_baseline(selection: &Selection, step: &Step) -> Result<(), String> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
