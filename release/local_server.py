@@ -11,8 +11,8 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 @contextmanager
-def server(directory):
-    http = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=str(directory)))
+def server(directory, handler=QuietHandler):
+    http = ThreadingHTTPServer(("127.0.0.1", 0), partial(handler, directory=str(directory)))
     thread = Thread(target=http.serve_forever, daemon=True)
     thread.start()
     try:
@@ -25,7 +25,7 @@ def server(directory):
 
 
 @contextmanager
-def https_server(directory, openssl="openssl"):
+def https_server(directory, openssl="openssl", handler=QuietHandler):
     """Serve an owned fixture over TLS with a temporary, fixture-only test CA."""
     import os
     from pathlib import Path
@@ -43,7 +43,7 @@ def https_server(directory, openssl="openssl"):
                         "-config", str(config),
                         "-keyout", str(key), "-out", str(cert)], env=env, check=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        http = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=str(directory)))
+        http = ThreadingHTTPServer(("127.0.0.1", 0), partial(handler, directory=str(directory)))
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         context.load_cert_chain(cert, key)
         http.socket = context.wrap_socket(http.socket, server_side=True)

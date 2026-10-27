@@ -1,6 +1,6 @@
 """Feature install-script: exercise the actual installer with isolated downloads."""
 from release.artifacts import binary_archive
-from release.local_server import https_server
+from release.local_server import QuietHandler, https_server, server
 import hashlib
 import io
 import os
@@ -185,6 +185,52 @@ class Installer(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0, suffix)
             self.assertIn("symbolic-link install directory", result.stderr)
             self.assertFalse(target.exists())
+
+    def test_downloaders_follow_https_redirects_and_never_contact_http_targets(self):
+        class Counter(QuietHandler):
+            requests = 0
+            def do_GET(self):
+                Counter.requests += 1
+                super().do_GET()
+        class Redirect(QuietHandler):
+            destination = ""
+            def do_GET(self):
+                if self.path.startswith("/safe/"):
+                    self.path = self.path.removeprefix("/safe")
+                    return super().do_GET()
+                self.send_response(302)
+                self.send_header("Location", Redirect.destination + self.path)
+                self.end_headers()
+        self.platform()
+        release = self.root / "download/v1.0.0"
+        release.mkdir(parents=True)
+        candidate(release, "biomcp-linux-x86_64.tar.gz")
+        for tool in ["curl", "wget"]:
+            executable = shutil.which(tool)
+            if not executable:
+                continue
+            with self.subTest(downloader=tool), server(self.root, handler=Counter) as insecure, https_server(self.root, handler=Redirect) as (base, ca):
+                for name in ["curl", "wget"]:
+                    (self.bin / name).unlink(missing_ok=True)
+                (self.bin / tool).symlink_to(executable)
+                for name in ["mktemp", "rm", "tr", "tar", "cp", "chmod", "mv", "shasum", "sha256sum", "openssl"]:
+                    source = shutil.which(name, path=os.defpath)
+                    if source and not (self.bin / name).exists():
+                        (self.bin / name).symlink_to(source)
+                self.environment.update(PATH=str(self.bin), BIOMCP_RELEASE_BASE_URL=base,
+                                        BIOMCP_VERSION="1.0.0", CURL_CA_BUNDLE=str(ca))
+                config = self.root / "wgetrc"
+                config.write_text("ca_certificate=" + str(ca) + "\n")
+                self.environment["WGETRC"] = str(config)
+                Redirect.destination = base + "/safe"
+                result = self.install()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.destination.joinpath("biomcp").unlink()
+                Redirect.destination = insecure
+                result = self.install()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(Counter.requests, 0)
+                self.assertFalse(self.destination.joinpath("biomcp").exists())
 
     def test_plain_http_base_is_refused_before_download(self):
         self.platform()

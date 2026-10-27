@@ -14,7 +14,25 @@ download() {
   if command -v curl >/dev/null 2>&1; then
     curl --proto '=https' --proto-redir '=https' -fsSL --connect-timeout 10 --max-time 120 "$1" -o "$2"
   elif command -v wget >/dev/null 2>&1; then
-    wget --https-only --timeout=30 --tries=1 -qO "$2" "$1"
+    # GNU wget's --https-only governs recursive links. Check each redirect
+    # ourselves because its ordinary downloader may otherwise follow HTTP.
+    local url=$1 header next attempt
+    for attempt in {1..10}; do
+      [[ "$url" = https://* ]] || fail 'Download redirect must use HTTPS'
+      if wget --https-only --max-redirect=0 --server-response --timeout=30 --tries=1 -qO "$2" "$url" 2> "$scratch/headers"; then
+        return 0
+      fi
+      next=''
+      while IFS= read -r header; do
+        header=${header%$'\r'}
+        if [[ "$header" =~ ^[[:space:]]*[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:[[:space:]]*(.*)$ ]]; then
+          next=${BASH_REMATCH[1]}
+        fi
+      done < "$scratch/headers"
+      [ -n "$next" ] || return 1
+      url=$next
+    done
+    fail 'Too many download redirects'
   else
     fail 'curl or wget is required to download biomcp'
   fi
