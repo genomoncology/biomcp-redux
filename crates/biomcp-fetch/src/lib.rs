@@ -35,8 +35,9 @@ pub mod xml;
 
 pub use batch::MAX_BATCH_WORKERS;
 pub use bundle::{
-    Bundle, BundleInfo, BundlePart, BundleSet, DocumentMedia, Find, KeyKind, Keys, MAX_BUNDLE_BYTES, Row,
-    RowFormat, SetRow, bundle_sha256, decode_bundle_document, encode_bundle_row,
+    Bundle, BundleInfo, BundlePart, BundleSet, DocumentMedia, Find, KeyKind, Keys,
+    MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
+    encode_bundle_row,
 };
 pub use cache::{CACHE_NAMESPACE_VERSION, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};

@@ -93,8 +93,12 @@ pub enum DocumentMedia {
 impl RowFormat {
     pub(crate) fn media(self) -> &'static str {
         match self {
-            Self::Document { media: DocumentMedia::Html } => "text/html",
-            Self::Document { media: DocumentMedia::Json } => "application/json",
+            Self::Document {
+                media: DocumentMedia::Html,
+            } => "text/html",
+            Self::Document {
+                media: DocumentMedia::Json,
+            } => "application/json",
             Self::Json { .. } => "application/json",
             Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",

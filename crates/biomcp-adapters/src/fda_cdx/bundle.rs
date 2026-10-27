@@ -9,7 +9,9 @@ const SET: BundleSet<Native> = BundleSet {
     name: "fda-cdx",
     fresh: Freshness::Days(7),
     row: PhantomData,
-    format: RowFormat::Document { media: biomcp_fetch::DocumentMedia::Html },
+    format: RowFormat::Document {
+        media: biomcp_fetch::DocumentMedia::Html,
+    },
     parts: &[BundlePart {
         name: "companion",
         path: "/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools",

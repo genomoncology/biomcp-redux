@@ -36,14 +36,14 @@ pub(super) fn trials() -> Vec<Trial> {
     cases.extend(study_failures::trials());
     cases
 }
-#[path = "study_media.rs"]
-mod study_media;
 #[path = "study_failures.rs"]
 mod study_failures;
 #[path = "study_files.rs"]
 mod study_files;
 #[path = "study_get.rs"]
 mod study_get;
+#[path = "study_media.rs"]
+mod study_media;
 #[path = "study_retirements.rs"]
 mod study_retirements;
 pub(super) fn rows() -> Value {
