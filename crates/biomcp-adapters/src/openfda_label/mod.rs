@@ -1,4 +1,4 @@
-//! Exact openFDA brand candidates and SPL revisions without clinical text selection.
+//! Identity-checked openFDA brand discovery without clinical text selection.
 use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -36,7 +36,9 @@ const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 pub struct Page {
     /// Source revision records, never merged by ingredient or brand.
     pub records: Vec<Record>,
-    /// Native count for this exact selector.
+    /// Number of native rows consumed before any brand identity filtering.
+    pub scanned: u32,
+    /// Native count for this selector, before any brand identity filtering.
     pub total: u64,
     /// This reply's actual original retrieval metadata.
     pub metadata: ReplyMetadata,
@@ -44,18 +46,45 @@ pub struct Page {
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
-/// Brand-name-only discovery; no generic-name selector or altered-query retry.
+/// Exact brand discovery, with one tokenized fallback after an empty exact page.
 pub fn search(leg: &Leg<'_>, brand: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
     if !(1..=50).contains(&limit) {
         return Err(bad());
     }
-    page(
+    let exact = page(
         leg,
         &format!("openfda.brand_name.exact:{}", literal(brand.as_str())),
         limit,
         offset,
         None,
-    )
+    )?;
+    if !exact.records.is_empty() {
+        return Ok(exact);
+    }
+    let mut fallback = page(
+        leg,
+        &format!("openfda.brand_name:{}", literal(brand.as_str())),
+        limit,
+        offset,
+        None,
+    )?;
+    let normalized = normalize_brand(brand.as_str());
+    fallback.records.retain(|record| {
+        record
+            .openfda
+            .brand_name
+            .iter()
+            .flatten()
+            .any(|name| normalize_brand(name.as_str()) == normalized)
+    });
+    Ok(fallback)
+}
+fn normalize_brand(value: &str) -> String {
+    value
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .flat_map(char::to_lowercase)
+        .collect()
 }
 /// Read only the explicitly selected SPL set, refusing a mismatched returned set before caching.
 pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
@@ -101,6 +130,7 @@ fn page(
         raw::Response::Absent { .. } => (Vec::new(), 0),
     };
     Ok(Page {
+        scanned: records.len() as u32,
         records,
         total,
         metadata,

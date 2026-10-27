@@ -1,6 +1,7 @@
 # 0311 — Find drug labels whatever the case of the brand name
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9965fb8929847961623edec28bd0c42ca8e35849
 
 Milestone: 5
 
