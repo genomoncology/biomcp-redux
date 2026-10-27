@@ -13,4 +13,5 @@ When a trial search for a condition such as "Snyder-Robinson syndrome" returns t
 - Rules: BioMCP never drops or reranks returned trials, and decides by exact word containment against each trial's own condition list, not by guessing meaning. At most three bounded live requests.
 - Proof: a replay case for Snyder-Robinson syndrome shows the expansion notice and the exact-phrase next step; the exact-phrase step's replay returns no radiosurgery trials; a condition whose results all contain the words shows no notice.
 - Changes: trial search notices, next steps and cases.
+- Evidence: experiment 499 kept only BioMCP output: 1.0 at ff2e9b64 `search trial --condition "Snyder-Robinson syndrome" --limit 25` returned NCT01345539, NCT01345552, NCT03285932, NCT03297788, NCT03303365 and NCT07668869, including FET-PET-guided stereotactic radiosurgery for recurrent glioblastoma (NCT07668869). The raw ClinicalTrials.gov reply was not kept.
 - Defers: nothing.
