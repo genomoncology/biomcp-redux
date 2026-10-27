@@ -11,17 +11,8 @@ pub(super) fn trial() -> Trial {
 }
 fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let fixtures = env.root().join("fixtures");
+    let fixtures = setup(&env)?;
     let cases = fixtures.join("cases");
-    fs::create_dir_all(&cases).map_err(|e| e.to_string())?;
-    fs::create_dir(fixtures.join("parity")).map_err(|e| e.to_string())?;
-    for name in ["released-sources.json", "released-endpoints.json"] {
-        fs::copy(
-            super::launch::fixtures().join("parity").join(name),
-            fixtures.join("parity").join(name),
-        )
-        .map_err(|e| e.to_string())?;
-    }
     let selection = json!({"case":"shape.yaml","step":0,
         "baseline_command":["get","gene","{symbol}"],
         "spelling_table":"sdlc/planning/slices/gene.md",
@@ -90,4 +81,19 @@ fn check() -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn setup(env: &Environment) -> Result<std::path::PathBuf, String> {
+    let fixtures = env.root().join("fixtures");
+    let cases = fixtures.join("cases");
+    fs::create_dir_all(&cases).map_err(|e| e.to_string())?;
+    fs::create_dir(fixtures.join("parity")).map_err(|e| e.to_string())?;
+    for name in ["released-sources.json", "released-endpoints.json"] {
+        fs::copy(
+            super::launch::fixtures().join("parity").join(name),
+            fixtures.join("parity").join(name),
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(fixtures)
 }
