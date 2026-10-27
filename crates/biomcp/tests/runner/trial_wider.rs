@@ -176,7 +176,7 @@ fn policy() -> Check {
             }
         },
         json!([{"run":args, "mcp":args,"expect":{
-            "/status":"complete", "/result/items":{"count":0}, "/next":[{
+            "/status":"complete",  "/next":[{
                 "kind":"disambiguate", "args":["--disable-sources","pubmed","search","trial","--condition","melanoma","--criteria","BRAF","--fresh"]
             }]
         }}]),

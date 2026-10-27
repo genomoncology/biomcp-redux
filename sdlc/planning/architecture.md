@@ -501,6 +501,12 @@ The CLI path maps to the tag mechanically: `search gene` is `search_gene` and `t
 
 Every command returns one envelope. Its body type changes by command, and each body names its own query type, so `query` echoes only the command that ran.
 
+The envelope omits empty collections, including source identity lists and empty search pages. The case runner checks product envelopes from recorded CLI and MCP calls. Raw provider recordings retain their native arrays. Query echoes omit inactive false flags and retain values that shape the request, including limits, filters, source selections and continuations. Trial search results omit the raw provider parameter lists.
+
+Variant identity lists serialize through one namespace owner. Their entries use `rs:`, `clingen:`, `clinvar:`, `cosmic:` or the source's `ga4gh:` prefix. Published identifiers and the accepted command input grammar stay unchanged. A ClinVar accession retains its `VCV` spelling after the namespace prefix, and ClinGen identifiers retain `CA` or `PA`.
+
+Trial `source_updated` contains the native `value` and a typed `timezone` marker. The recorded ClinicalTrials.gov version replies provide timestamps without timezone text, so these replies say `source_gave_none`. A native timestamp with `Z` or an offset retains that text and says `in_value`. BioMCP infers no timezone. Date-only source update fields retain their `PartialDate` type. The reviewed source evidence is the version response in `tests/replies/trial/condition/ctgov/`; the publisher documents the version endpoint in [its API reference](https://clinicaltrials.gov/data-api/api).
+
 ```rust
 /// Every response body names its schema and the query that produced it.
 pub trait ResponseBody: Serialize {

@@ -20,7 +20,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     build: Option<Build>,
     /// Read source ancestry groups, preserving overlapping groups individually.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     detail: bool,
     /// Maximum rows per page.
     #[serde(default = "limit")]

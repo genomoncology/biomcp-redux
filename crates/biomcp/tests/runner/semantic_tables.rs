@@ -26,7 +26,7 @@ fn fields() -> Check {
         (
             Some(json!([])),
             Some(false),
-            json!({"/result/items/0/contexts/total":0,"/result/items/0/contexts/items":[],"/result/items/0/influential":false}),
+            json!({"/result/items/0/contexts/total":0,"/result/items/0/influential":false}),
         ),
         (
             Some(json!([
@@ -104,7 +104,7 @@ fn failures() -> Check {
                 reply(record, json!({"data":[]}));
             }
         },
-        json!({"/status":"complete","/page/total":0,"/page/truncated":false,"/result/items":[]}),
+        json!({"/status":"complete","/page/total":0,"/page/truncated":false,}),
         0,
     )
 }

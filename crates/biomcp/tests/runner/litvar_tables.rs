@@ -77,11 +77,7 @@ fn boundaries() -> Check {
         0,
     )?;
     for (kind, expected, exit) in [
-        (
-            "empty",
-            json!({"/status":"absent","/result/items":{"count":0}}),
-            1,
-        ),
+        ("empty", json!({"/status":"absent",}), 1),
         (
             "multiple",
             json!({"/status":"absent","/result/candidates":{"count":3}}),
@@ -260,7 +256,7 @@ fn empty_recovery() -> Check {
             |source, record| boundary_edit(source, record, "empty"),
             json!([{
                 "run": args, "mcp": args, "exit": 1,
-                "expect": {"/status":"absent", "/result/items":{"count":0}}
+                "expect": {"/status":"absent", }
             }]),
         )?;
         let steps = output["next"].as_array().ok_or("missing recovery steps")?;

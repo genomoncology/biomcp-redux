@@ -42,7 +42,7 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
     /// Request a new source observation.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     fresh: bool,
 }
 impl TryFrom<GetFields> for PathwayGet {
