@@ -11,7 +11,8 @@
     "batches/author-orcid.json",
     "batches/protein.json",
     "batches/residual.json",
-    "batches/sequence-shapes.json"
+    "batches/sequence-shapes.json",
+    "batches/zero-families.json"
   ],
   "inventory": {
     "pending": []
