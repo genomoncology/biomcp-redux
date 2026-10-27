@@ -80,7 +80,7 @@ pub fn search_ids(
         &SEARCH
     };
     let raw = leg.json::<raw::Search>(endpoint, &params)?.esearchresult;
-    let notices = raw
+    let mut notices: Vec<_> = raw
         .errorlist
         .and_then(|e| e.phrasesnotfound)
         .map(|words| SourceNotice::NotFoundWords {
@@ -91,6 +91,15 @@ pub fn search_ids(
         })
         .into_iter()
         .collect();
+    notices.extend(
+        raw.warninglist
+            .into_iter()
+            .flatten()
+            .map(|(name, phrases)| SourceNotice::PubmedWarning {
+                name,
+                phrases: phrases.into(),
+            }),
+    );
     Ok(SearchIds {
         ids: raw.idlist,
         count: raw.count,

@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic mixed-source dropped-word response",
   "feature": "article-search",
-  "story": "A PubMed quoted recovery command excludes LitVar and executes the literal supplied words.",
+  "story": "A PubMed strict PubMed title/abstract recovery command excludes LitVar and executes the literal supplied words.",
   "replay": "article/search/synthetic-mixed-dropped-words",
   "steps": [
     {
@@ -23,8 +23,9 @@
         "/next/0/args": [
           "search",
           "article",
-          "--variant",
-          "\"rs121434592\""
+          "rs121434592[Title/Abstract]",
+          "--source",
+          "pubmed"
         ]
       }
     },
@@ -32,15 +33,16 @@
       "run": [
         "search",
         "article",
-        "--variant",
-        "\"rs121434592\""
+        "rs121434592[Title/Abstract]",
+        "--source",
+        "pubmed"
       ],
       "exit": 0,
       "expect": {
         "/sources/*/source": [
           "pubmed"
         ],
-        "/sources/0/term": "\"rs121434592\"",
+        "/sources/0/term": "rs121434592[Title/Abstract]",
         "/status": "complete"
       }
     }

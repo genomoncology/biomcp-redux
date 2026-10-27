@@ -110,6 +110,15 @@ pub(crate) fn execute(
     allow_save: bool,
 ) -> io::Result<Outcome> {
     match action {
+        Action::PubmedSearch(q) => execute(
+            fetch,
+            Action::Run {
+                request: Request::SearchArticle(q),
+                fresh: false,
+            },
+            globals,
+            allow_save,
+        ),
         Action::AuthorPapers(q) => execute(
             fetch,
             Action::Run {
