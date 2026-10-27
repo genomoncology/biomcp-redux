@@ -60,6 +60,7 @@ fn check() -> Check {
             }
         }
     }
+    check_defaults(commands)?;
     let scoped: Value = serde_json::from_slice(&run(&env, &["help", "get", "phenotype"])?)?;
     let phenotype = &scoped["result"]["commands"][0];
     if !phenotype["arguments"]
@@ -140,4 +141,58 @@ fn run(env: &Environment, args: &[&str]) -> Result<Vec<u8>, Box<dyn std::error::
         return Err(format!("help failed for {args:?}: {output:?}").into());
     }
     Ok(output.stdout)
+}
+
+// Reply query contracts expose the same declared defaults to outside callers.
+fn check_defaults(commands: &[Value]) -> Check {
+    for command in commands {
+        for identity in command["reply_schemas"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+        {
+            let Some((_, text)) = super::schema::ARTIFACTS
+                .iter()
+                .find(|(id, _)| *id == identity)
+            else {
+                continue;
+            };
+            let schema: Value = serde_json::from_str(text)?;
+            let Some(mut query) = schema.pointer("/properties/query") else {
+                continue;
+            };
+            if let Some(reference) = query["$ref"].as_str() {
+                query = schema
+                    .pointer(reference.trim_start_matches('#'))
+                    .ok_or("query reference")?;
+            }
+            for (name, property) in query["properties"].as_object().into_iter().flatten() {
+                let Some(default) = property.get("default") else {
+                    continue;
+                };
+                let name = if property.get("x-positional").is_some() {
+                    name.clone()
+                } else {
+                    format!("--{}", name.replace('_', "-"))
+                };
+                let Some(argument) = command["arguments"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .find(|a| a["name"] == name)
+                else {
+                    continue;
+                };
+                let expected = default
+                    .as_str()
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| default.to_string());
+                if argument["default"].as_str() != Some(&expected) {
+                    return Err(format!("help default differs from {identity} query {name}").into());
+                }
+            }
+        }
+    }
+    Ok(())
 }
