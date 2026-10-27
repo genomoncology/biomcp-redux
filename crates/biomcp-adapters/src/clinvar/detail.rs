@@ -48,7 +48,9 @@ pub(super) fn submission(
         for citation in set.children("Citation")? {
             for id in citation.children("ID")? {
                 if id.attr("Source")?.as_deref() == Some("PubMed") {
-                    citations.extend(problems.optional("citations", Some(id.text()?.parse())));
+                    citations.extend(
+                        problems.optional("citations", Some(id.text()?.parse::<biodata::Pmid>())),
+                    );
                 }
             }
         }

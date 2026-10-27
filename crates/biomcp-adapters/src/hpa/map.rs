@@ -19,8 +19,13 @@ pub(super) fn expression(raw: raw::Gene, id: &EnsemblGeneId) -> Mapped<GeneExpre
             "rna_tissue_specificity",
             raw.tissue_specificity,
         ),
-        rna_tissue_distribution: map
-            .optional_text(raw.tissue_distribution, "rna_tissue_distribution"),
+        rna_tissue_distribution: crate::mapped::field_text(
+            &mut map.problems,
+            Source::Hpa,
+            record_text(id.base()),
+            "rna_tissue_distribution",
+            raw.tissue_distribution,
+        ),
         rna_tissue_ntpm: map
             .numbers(raw.ntpm, "rna_tissue_ntpm")
             .into_iter()
