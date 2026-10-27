@@ -403,7 +403,7 @@ impl ArticleSearch {
         if let Some(gene) = self.gene() {
             words = format!("{gene} {words}");
         }
-        if words.contains("[Title/Abstract]") {
+        if words.contains('[') || words.contains(']') {
             return None;
         }
         let terms: Vec<_> = words
