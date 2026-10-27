@@ -9,10 +9,18 @@ pub(crate) struct Contract {
 }
 
 macro_rules! contracts {
-        ($($ty:ty => ($name:literal, $id:literal)),+ $(,)?) => {
-            vec![$(Contract { name: $name, id: $id, generate: |generator, root| if root { generator.root_schema_for::<$ty>() } else { generator.subschema_for::<$ty>() } }),+]
-        };
-    }
+    ($($ty:ty => ($name:literal, $id:literal)),+ $(,)?) => {
+        vec![$(Contract {
+            name: $name,
+            id: $id,
+            generate: |generator, root| if root {
+                generator.root_schema_for::<$ty>()
+            } else {
+                generator.subschema_for::<$ty>()
+            },
+        }),+]
+    };
+}
 
 #[path = "disease.rs"]
 mod disease;
