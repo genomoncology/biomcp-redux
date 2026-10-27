@@ -101,8 +101,7 @@ fn value_argument(argument: Arg, property: &Value) -> Arg {
             move |value: String| {
                 if integer
                     && !value.parse::<u64>().is_ok_and(|n| {
-                        minimum.is_none_or(|min| n >= min)
-                            && maximum.is_none_or(|max| n <= max)
+                        minimum.is_none_or(|min| n >= min) && maximum.is_none_or(|max| n <= max)
                     })
                 {
                     Err("expected an integer within the supported range")
