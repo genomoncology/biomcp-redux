@@ -13,7 +13,7 @@
         "--gene",
         "HSD17B4",
         "--protein",
-        "His540Arg"
+        "H540R"
       ],
       "mcp": [
         "search",
@@ -21,7 +21,7 @@
         "--gene",
         "HSD17B4",
         "--protein",
-        "His540Arg"
+        "H540R"
       ],
       "expect": {
         "/status": "partial",
