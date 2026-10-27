@@ -33,5 +33,8 @@ fn identifier_lists_qualify_each_namespace_and_roundtrip() -> Result<(), Box<dyn
             variant
         );
     }
+    for invalid in ["clingen:rs123", "cosmic:CA123643", "rs:CA123643"] {
+        assert!(serde_json::from_value::<Variant>(json!({"ids":[invalid]})).is_err());
+    }
     Ok(())
 }

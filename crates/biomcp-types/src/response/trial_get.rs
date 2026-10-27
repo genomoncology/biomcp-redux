@@ -98,7 +98,7 @@ pub struct TrialEligibilityPage {
 }
 /// Whole-record page retaining collection order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialRecords<T> {
     /// Checked request for the next intact records, absent when complete.

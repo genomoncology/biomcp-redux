@@ -173,7 +173,7 @@ impl ResponseBody for AdverseEventMaudeCard {
 }
 /// One complete-row page tied to the retained report snapshot.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventRecords<T> {
     /// Source ordered whole rows.
