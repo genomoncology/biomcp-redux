@@ -313,7 +313,7 @@
         "/error/option": "--section-limit"
       },
       "max_bytes": 171,
-      "max_tokens": 42
+      "max_tokens": 43
     },
     {
       "run": [
@@ -342,7 +342,7 @@
         "/error/option": "--section-limit"
       },
       "max_bytes": 171,
-      "max_tokens": 42
+      "max_tokens": 43
     },
     {
       "run": [
@@ -371,7 +371,7 @@
         "/error/option": "--section-limit"
       },
       "max_bytes": 171,
-      "max_tokens": 42
+      "max_tokens": 43
     },
     {
       "run": [
@@ -400,7 +400,7 @@
         "/error/option": "--section-offset"
       },
       "max_bytes": 172,
-      "max_tokens": 42
+      "max_tokens": 43
     },
     {
       "run": [
