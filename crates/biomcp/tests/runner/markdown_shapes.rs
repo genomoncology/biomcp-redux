@@ -160,7 +160,11 @@ const SHAPES: &[Shape] = &[
         replies: "article/supplements/live",
         required: &[
             "Rows",
-            "| Sheet | Row | Header | Cells |",
+            "| Sheet | Row | Cells | Cells | Row |",
+            concat!(
+                "| ST2 | 87 | \\[\\] | \\[\\] | 1 | 1 | true | 0 | ",
+                "Supplemental Table 2: Individual Tier 2 Variants. |"
+            ),
             "AXIN2",
             "p.Pro245Ser",
             "biomcp article supplement 28944238 MGG3-5-553-s002.xlsx",

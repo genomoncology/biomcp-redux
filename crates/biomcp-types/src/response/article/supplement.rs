@@ -49,7 +49,7 @@ pub struct Supplements {
     /// Exact JATS/record intersection.
     pub files: Box<[SupplementFile]>,
 }
-/// One original sparse row, with its first source row as header.
+/// One original sparse row with its numbered first source row.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -58,21 +58,31 @@ pub struct SheetRow {
     pub sheet: Text,
     /// Original one-based row number.
     pub row: u32,
-    /// First original row, including empty cells.
-    pub header: Box<[String]>,
+    /// First original row, including empty cells; never inferred column headings.
+    pub first_row: FirstSheetRow,
     /// This row's cells, including empty cells before populated columns.
     pub cells: Box<[String]>,
     /// Sparse source cell fragment when the complete row exceeds the output bound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fragment: Option<CellFragment>,
 }
-/// A bounded portion of one original header or data cell.
+/// The first original row without interpreting its cells as column headings.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct FirstSheetRow {
+    /// Original one-based row number.
+    pub row: u32,
+    /// Original cells, empty when represented by cell fragments.
+    pub cells: Box<[String]>,
+}
+/// A bounded portion of one original first-row or selected-row cell.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellFragment {
     /// Whether the cell belongs to the first source row.
-    pub header: bool,
+    pub first_row: bool,
     /// Original one-based column.
     pub column: u32,
     /// Unicode character offset within this cell.
@@ -134,6 +144,6 @@ pub struct ArticleSupplementResult {
     pub content: Section<SupplementContent>,
 }
 impl super::super::ResponseBody for ArticleSupplementResult {
-    const SCHEMA: &'static str = "biomcp.article_supplement/2";
+    const SCHEMA: &'static str = "biomcp.article_supplement/3";
     type Query = crate::ArticleSupplement;
 }
