@@ -22,7 +22,7 @@ fn transcripts() -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
         .map_err(|e| e.to_string())?;
-    for (protein, matched) in [("His540Arg", 1), ("His515Arg", 0)] {
+    for (protein, matched) in [("His540Arg", 0), ("His515Arg", 1)] {
         let args = [
             "search",
             "variant",
@@ -35,13 +35,13 @@ fn transcripts() -> Result<(), String> {
         let rows = value
             .pointer("/result/items/0/transcripts")
             .ok_or("transcripts missing")?;
-        if rows.as_array().map(Vec::len) != Some(2)
-            || rows[0]["transcript"] != "NM_000414.3"
-            || rows[0]["hgvs_c"] != "c.1544A>G"
-            || rows[0]["hgvs_p"] != "p.His515Arg"
-            || rows[1]["transcript"] != "NM_001199291.2"
-            || rows[1]["hgvs_c"] != "c.1619A>G"
-            || rows[1]["hgvs_p"] != "p.His540Arg"
+        if rows.as_array().map(Vec::len) != Some(5)
+            || rows[1]["transcript"] != "NM_000414.3"
+            || rows[1]["hgvs_c"] != "c.1544A>G"
+            || rows[1]["hgvs_p"] != "p.His515Arg"
+            || rows[0]["transcript"] != "NM_001199291.2"
+            || rows[0]["hgvs_c"] != "c.1619A>G"
+            || rows[0]["hgvs_p"] != "p.His540Arg"
             || rows[matched]["matched"] != true
             || rows[1 - matched]["matched"] != false
             || rows[0].get("mane_select").is_some()
@@ -55,7 +55,7 @@ fn transcripts() -> Result<(), String> {
         &env,
         &["get", "variant", "chr5:g.118860951A>G", "--build", "GRCh37"],
     )?;
-    if card.pointer("/result/candidates/0/transcripts/1/hgvs_p") != Some(&json!("p.His540Arg")) {
+    if card.pointer("/result/candidates/0/transcripts/0/hgvs_p") != Some(&json!("p.His540Arg")) {
         return Err(format!("card lost transcript annotations: {card}"));
     }
     let args = [
@@ -115,7 +115,7 @@ fn coding() -> Result<(), String> {
         ("NM_001199291.3:c.1619A>G", false),
     ] {
         let value = run(&env, &["get", "variant", notation])?;
-        if value.pointer("/result/candidates/0/transcripts/1/matched") != Some(&json!(expected)) {
+        if value.pointer("/result/candidates/0/transcripts/0/matched") != Some(&json!(expected)) {
             return Err(format!(
                 "coding source match ignored transcript version: {value}"
             ));
@@ -147,13 +147,11 @@ fn reply(request: &str) -> Result<String, String> {
                 "hgvs":["NC_000005.9:g.118860951A>G"],
                 "coordinates":[{"start":118860950,"end":118860951,"referenceAllele":"A","allele":"G"}]}]}).to_string());
     }
-    // Source-paired values retained by the public 0.9.3 HSD17B4 witness.
-    let hit = json!({"_id":"chr5:g.118860951A>G","chrom":"5",
-    "hg19":{"start":118860951,"end":118860951},
-    "snpeff":{"ann":[
-        {"feature_id":"NM_000414.3","feature_type":"transcript","genename":"HSD17B4","hgvs_c":"c.1544A>G","hgvs_p":"p.His515Arg"},
-        {"feature_id":"NM_001199291.2","feature_type":"transcript","genename":"HSD17B4","hgvs_c":"c.1619A>G","hgvs_p":"p.His540Arg"}
-    ]}});
+    let fixture = fs::read(
+        super::launch::fixtures().join("fixtures/variant/transcripts/myvariant-hsd17b4.json"),
+    )
+    .map_err(|e| e.to_string())?;
+    let hit: Value = serde_json::from_slice(&fixture).map_err(|e| e.to_string())?;
     Ok(if request.starts_with("GET /v1/query?") {
         json!({"total":1,"hits":[hit]})
     } else {
