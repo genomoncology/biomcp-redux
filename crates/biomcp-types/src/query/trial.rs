@@ -1,4 +1,3 @@
-use super::gene::QueryInvalid;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 use serde::{Deserialize, Serialize};
 biodata::wire_enum! {
