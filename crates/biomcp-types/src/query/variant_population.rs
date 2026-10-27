@@ -60,6 +60,7 @@ impl VariantPopulationQuery {
         let mut query = self.clone();
         query.0.input = input;
         query.0.build = build;
+        query.0.resolver = VariantResolver::Car;
         query.0.offset = 0;
         Self::try_from(query.0)
     }

@@ -126,7 +126,7 @@ fn single() -> Result<(), String> {
     Ok(())
 }
 fn source_ca(request: &str) -> Result<String, String> {
-    if request.starts_with("GET /query?") {
+    if request.starts_with("GET /v1/query?") {
         let hit: Value = serde_json::from_str(include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/../../tests/replies/variant-population/source-ca-identity.json"
