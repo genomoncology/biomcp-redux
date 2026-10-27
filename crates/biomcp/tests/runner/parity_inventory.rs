@@ -63,8 +63,8 @@ fn run(plan_path: &Path, root: &Path, output: &Path) -> Result<Value, String> {
     let cases = cases(root)?;
     validate_references(&plan, &cases)?;
     let mut rows = Vec::new();
-    for (name, (case, yaml)) in &cases {
-        rows.push(classify(name, case, *yaml, &plan, root, &cases)?);
+    for (name, case) in &cases {
+        rows.push(classify(name, case, &plan, root, &cases)?);
     }
     let gaps = rows
         .iter()
@@ -102,7 +102,7 @@ fn run(plan_path: &Path, root: &Path, output: &Path) -> Result<Value, String> {
         "assessment_gaps":gaps,"unsafe_plans":unsafe_plans}),
     )
 }
-fn cases(root: &Path) -> Result<BTreeMap<String, (Case, bool)>, String> {
+fn cases(root: &Path) -> Result<BTreeMap<String, Case>, String> {
     let mut paths = Vec::new();
     super::super::collect(root, &mut paths).map_err(|e| e.to_string())?;
     if paths.is_empty() {
@@ -112,7 +112,6 @@ fn cases(root: &Path) -> Result<BTreeMap<String, (Case, bool)>, String> {
         .into_iter()
         .map(|path| {
             let text = fs::read_to_string(&path).map_err(|e| e.to_string())?;
-            let yaml = serde_json::from_str::<Value>(&text).is_err();
             let mut case: Case = serde_saphyr::from_str(&text).map_err(|e| e.to_string())?;
             super::super::load_floors(&mut case, &path)?;
             for step in &case.steps {
@@ -124,11 +123,11 @@ fn cases(root: &Path) -> Result<BTreeMap<String, (Case, bool)>, String> {
                 .to_str()
                 .ok_or("case filename must be UTF-8")?
                 .replace('\\', "/");
-            Ok((name, (case, yaml)))
+            Ok((name, case))
         })
         .collect()
 }
-fn validate_references(plan: &Plan, cases: &BTreeMap<String, (Case, bool)>) -> Result<(), String> {
+fn validate_references(plan: &Plan, cases: &BTreeMap<String, Case>) -> Result<(), String> {
     let mut selected = BTreeSet::new();
     for selection in &plan.cases {
         if !cases.contains_key(&selection.case)
@@ -157,10 +156,9 @@ fn validate_references(plan: &Plan, cases: &BTreeMap<String, (Case, bool)>) -> R
 fn classify(
     name: &str,
     case: &Case,
-    yaml: bool,
     plan: &Plan,
     root: &Path,
-    cases: &BTreeMap<String, (Case, bool)>,
+    cases: &BTreeMap<String, Case>,
 ) -> Result<Value, String> {
     let surfaces = json!({"cli":case.steps.iter().filter(|s| s.run.is_some()).count(),
         "mcp":case.steps.iter().filter(|s| s.mcp.is_some()).count(),
@@ -182,14 +180,14 @@ fn classify(
         return Ok(json!({"case":name,"class":"covered","by_case":link.by_case,
             "facts":link.facts,"surfaces":surfaces,"gaps":0}));
     }
-    if let Some(reason) = sequence_reason(case, yaml) {
+    if let Some(reason) = sequence_reason(case) {
         return Ok(json!({"case":name,"class":"sequence","reason":reason,
             "surfaces":surfaces,"gaps":0}));
     }
     let selection = plan.cases.iter().find(|s| s.case == name && s.step == 0);
     direct(name, case, selection, root, surfaces)
 }
-fn sequence_reason(case: &Case, _yaml: bool) -> Option<&'static str> {
+fn sequence_reason(case: &Case) -> Option<&'static str> {
     if case.steps.len() != 1 {
         return Some("ordered case steps require shared case state");
     }
@@ -247,9 +245,9 @@ fn covered(
     link: &Covered,
     case: &Case,
     plan: &Plan,
-    cases: &BTreeMap<String, (Case, bool)>,
+    cases: &BTreeMap<String, Case>,
 ) -> Result<(), String> {
-    let (target, _) = cases
+    let target = cases
         .get(&link.by_case)
         .ok_or("covered case target missing")?;
     if link.case == link.by_case
@@ -263,7 +261,7 @@ fn covered(
         return Err("coverage link needs a distinct direct planned case".into());
     }
     let own = case.steps.first().ok_or("covered step missing")?;
-    if sequence_reason(target, false).is_some() || case.config != target.config {
+    if sequence_reason(target).is_some() || case.config != target.config {
         return Err("coverage target must be a direct case with the same configuration".into());
     }
     let target = target.steps.first().ok_or("target step missing")?;

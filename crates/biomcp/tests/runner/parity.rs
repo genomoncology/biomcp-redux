@@ -6,7 +6,11 @@ use std::{collections::BTreeMap, fs, path::Path, process::ExitCode};
 #[path = "parity_execution.rs"]
 mod execution;
 #[path = "parity_inventory.rs"]
-pub(super) mod inventory;
+mod inventory;
+
+pub(crate) fn inventory_main(args: Vec<String>) -> ExitCode {
+    inventory::main(args)
+}
 #[path = "parity_recording.rs"]
 mod recording;
 #[path = "parity_registry.rs"]
