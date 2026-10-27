@@ -58,6 +58,11 @@ fn transcripts() -> Result<(), String> {
     if card.pointer("/result/candidates/0/transcripts/0/hgvs_p") != Some(&json!("p.His540Arg")) {
         return Err(format!("card lost transcript annotations: {card}"));
     }
+    presentation_and_policy(&env)?;
+    stub.finish()?;
+    Ok(())
+}
+fn presentation_and_policy(env: &Environment) -> Result<(), String> {
     let args = [
         "--format",
         "md",
@@ -79,7 +84,7 @@ fn transcripts() -> Result<(), String> {
         return Err(format!("readable card lost transcript rows: {markdown}"));
     }
     let excluded = run(
-        &env,
+        env,
         &[
             "--disable-sources",
             "restricted",
@@ -94,7 +99,6 @@ fn transcripts() -> Result<(), String> {
     if excluded.pointer("/result/items/0/transcripts").is_some() {
         return Err(format!("excluded annotation leaked: {excluded}"));
     }
-    stub.finish()?;
     Ok(())
 }
 // Feature: variant-identity. A coding request matches only the identical source transcript version.
