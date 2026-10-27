@@ -87,6 +87,7 @@ mod oncokb;
 mod oncokb_context;
 mod openfda_key;
 mod openfda_website;
+mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
 mod pathway_failures;
@@ -299,6 +300,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
+    trials.extend(output_stream::trials());
     trials.extend(housekeeping::trials());
     trials.extend(skill::trials());
     trials.extend(research::trials());
