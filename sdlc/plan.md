@@ -36,4 +36,4 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Rehearse the final candidate on every platform (0293).
 - Ian approves the release, and the release operators publish.
-- Replace the public repository's history (0294), after Ian's explicit approval of that step.
+- Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294), after Ian's explicit approval of that step.
