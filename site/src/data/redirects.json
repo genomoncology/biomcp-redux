@@ -92,6 +92,7 @@
   "/reference/configuration/": "/getting-started/api-keys/",
   "/reference/dependencies/": "/reference/",
   "/reference/drug-approvals-and-ae-summary/": "/drugs-and-safety/",
+  "/reference/exit-codes/": "/reference/error-codes/",
   "/reference/faq/": "/answers/",
   "/reference/quick-architecture/": "/concepts/progressive-disclosure/",
   "/reference/quick-reference/": "/reference/",
