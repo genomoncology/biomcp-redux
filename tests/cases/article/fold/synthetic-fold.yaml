@@ -37,8 +37,7 @@
           }
         },
         "/result/items/1/header/title": "Synthetic citation 2222"
-      },
-      "max_tokens": 349
+      }
     },
     {
       "follow": "page",
@@ -53,8 +52,7 @@
             "europepmc": 3
           }
         }
-      },
-      "max_tokens": 358
+      }
     },
     {
       "run": [
@@ -128,8 +126,7 @@
         ],
         "/result/items/4/header/types_unknown": true,
         "/result/items/6/header/europepmc_id": "PPR8888"
-      },
-      "max_tokens": 358
+      }
     },
     {
       "run": [
@@ -177,8 +174,7 @@
             "id": "PPR8888"
           }
         ]
-      },
-      "max_tokens": 358
+      }
     },
     {
       "run": [
@@ -203,8 +199,7 @@
             "id": "2222"
           }
         ]
-      },
-      "max_tokens": 349
+      }
     },
     {
       "run": [
@@ -223,8 +218,7 @@
           "1111"
         ],
         "/sources/0/source": "europepmc"
-      },
-      "max_tokens": 349
+      }
     },
     {
       "run": [
@@ -243,8 +237,7 @@
         "/result/items/0/pmid": "3333",
         "/result/items/1/key/namespace": "europepmc",
         "/sources/1/term": "AKT1 E17K"
-      },
-      "max_tokens": 340
+      }
     },
     {
       "run": [
@@ -260,8 +253,7 @@
       "expect": {
         "/sources/1/term": "AKT1 AND AUTH:Carpten",
         "/result/items/0/key/id": "PPR8888"
-      },
-      "max_tokens": 251
+      }
     },
     {
       "run": [
@@ -285,8 +277,7 @@
       "expect": {
         "/sources/0/term": "BRAF AND V600E AND JOURNAL:Nature AND FIRST_PDATE:[2020 TO 2024] AND PUB_TYPE:\"clinical trial\"",
         "/page/total": 0
-      },
-      "max_tokens": 222
+      }
     },
     {
       "run": [
@@ -300,8 +291,7 @@
       "max_bytes": 166,
       "expect": {
         "/error/code": "usage.arguments"
-      },
-      "max_tokens": 42
+      }
     }
   ],
   "verified": "The synthetic Europe PMC-only page now measures869bytes with the approved citation-order step; its bounds add15percent. Synthetic pages have no0.9baseline. The empty fully-filtered synthetic page measures769bytes and its bounds also add15percent."

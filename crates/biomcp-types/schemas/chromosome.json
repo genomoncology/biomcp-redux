@@ -1,6 +1,7 @@
 {
   "$id": "biodata.chromosome/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A primary chromosome in the caller's reference build.",
   "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y|MT)$",
   "title": "Chromosome",
   "type": "string"

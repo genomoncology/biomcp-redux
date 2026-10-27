@@ -1,6 +1,7 @@
 {
   "$id": "biodata.gene-input/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "An input classified before source resolution; aliases remain free text.",
   "pattern": "\\S",
   "title": "GeneInput",
   "type": "string"

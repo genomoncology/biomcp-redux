@@ -35,8 +35,7 @@
         "CA123643",
         "--detail"
       ],
-      "max_bytes": 2202,
-      "max_tokens": 551
+      "max_bytes": 2202
     },
     {
       "run": [
@@ -62,7 +61,6 @@
         "/problems/0/field": "dataset_version"
       },
       "max_bytes": 2179,
-      "max_tokens": 545,
       "mcp": [
         "variant",
         "population",

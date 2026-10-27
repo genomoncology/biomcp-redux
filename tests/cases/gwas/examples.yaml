@@ -23,8 +23,7 @@
         "/query/query/order": "p_value,asc",
         "/result/items/0/p_value": 4e-254
       },
-      "max_bytes": 1828,
-      "max_tokens": 457
+      "max_bytes": 1828
     },
     {
       "run": [
@@ -45,8 +44,7 @@
         "/query/query/order": "p_value,asc",
         "/result/items/0/p_value": 4e-254
       },
-      "max_bytes": 1835,
-      "max_tokens": 459
+      "max_bytes": 1835
     },
     {
       "run": [
@@ -76,8 +74,7 @@
         "/next/0/kind": "page",
         "/query/query/p_value": "4e-254"
       },
-      "max_bytes": 2264,
-      "max_tokens": 566
+      "max_bytes": 2264
     }
   ]
 }

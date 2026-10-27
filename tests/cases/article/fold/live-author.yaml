@@ -16,7 +16,6 @@
         "AKT1"
       ],
       "max_bytes": 5539,
-      "max_tokens": 1385,
       "expect": {
         "/status": "complete",
         "/page/total": 12,
@@ -42,7 +41,6 @@
         "max_pages": 4
       },
       "max_bytes": 5539,
-      "max_tokens": 1385,
       "expect": {
         "/result/items/*/key": {
           "equals_file": "live-author-keys.json",

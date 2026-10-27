@@ -1,6 +1,7 @@
 # 0384 — Restore the plain binary build and check it in the landing gate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c12a68e0e737e69e7400ec46a426808e6e4390a8
 
 Milestone: 5
 

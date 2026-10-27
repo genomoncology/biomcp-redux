@@ -1,6 +1,7 @@
 {
   "$id": "biodata.doi/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "DOI preserving source spelling with ASCII-insensitive equality.",
   "pattern": "^10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+$",
   "title": "Doi",
   "type": "string"
