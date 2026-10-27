@@ -1,0 +1,2 @@
+biomcp search trial --condition "non-small cell lung cancer" --variant "KRAS G12C" --status RECRUITING --count-only | jq -c '{query: "variant KRAS G12C", count: ([.sources[] | select(.source == "ctgov") | .count][0])}'
+biomcp search trial --condition "non-small cell lung cancer" --gene KRAS --status RECRUITING --count-only | jq -c '{query: "gene KRAS", count: ([.sources[] | select(.source == "ctgov") | .count][0])}'

@@ -26,6 +26,9 @@ export default {
     { label: 'Set up and run', items: ['sources', 'keys-and-configuration', 'local-data', 'run-as-a-server', 'troubleshooting', 'upgrade-from-0-9'] },
     { label: 'Entities', collapsed: true, items: [{ autogenerate: { directory: 'entities' } }] },
     { label: 'Reference', collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },
+    { label: 'Guides', collapsed: true, items: [{ autogenerate: { directory: 'guides' } }] },
     { label: 'Answers', link: '/answers/' },
+    { label: 'Blog', collapsed: true, items: [{ autogenerate: { directory: 'blog' } }] },
+    { label: 'Articles', collapsed: true, items: [{ autogenerate: { directory: 'articles' } }] },
   ],
 };

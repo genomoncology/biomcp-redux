@@ -1,0 +1,45 @@
+---
+title: Healthcare agents need skills, not only models
+description: SkillsBench measured the largest gain from curated skills in healthcare. BioMCP 1.0 embeds one skill and 17 worked examples; this post shows what they hold and how to install them.
+goal: Explain why BioMCP ships a skill, with the SkillsBench evidence, and show how to install the 1.0 skill.
+reader: An agent builder or researcher deciding how to give an agent biomedical tools
+kind: blog
+verified: 2026-10-27
+date: 2026-10-21
+author: Ian Maurer
+---
+import Example from '../../../components/Example.astro';
+
+Agents reason well and handle biomedical data badly. Ask one to look up BRAF V600E across ClinVar, ClinicalTrials.gov and PubMed and it starts writing API clients: three identifier systems, three rate limits, three output formats. The context window fills with HTTP plumbing and the agent still misses sources it has never heard of.
+
+That is a knowledge problem, not a model problem. [SkillsBench](https://arxiv.org/abs/2602.12670) (Li et al., 2026) put numbers on it. Across 84 tasks in 11 domains, healthcare gained the most from curated skills: from a 34.2% pass rate to 86.1%. Software engineering, where models already know the territory, gained 4.5 points.
+
+## What the paper found
+
+Three findings shaped the BioMCP skill:
+
+- **Curated beats self-generated.** Agents asked to write their own procedures first did worse, by 1.3 points. The domain knowledge has to come from someone who has it.
+- **Focused beats comprehensive.** Detailed and compact skills helped most. Comprehensive ones hurt, by 2.9 points.
+- **A small model with a skill beat a large model without one.** Claude Haiku 4.5 with skills scored 27.7%; Claude Opus 4.5 without them scored 22.0%.
+
+All numbers are from the paper's tables. They are a rough signal about one benchmark, not a promise about your tasks.
+
+## What BioMCP's skill holds
+
+BioMCP 1.0 embeds the skill in the executable. It teaches one grammar, `search`, `get`, sections and relation commands, and it teaches the agent to read source outcomes before it trusts a result. It ships 17 worked examples, each a command that ran against a recorded reply:
+
+<Example id="skill-list" />
+
+The examples are short on purpose. Each one shows a command and says where its answer stops: a trial listing is not an enrollment recommendation, an empty search is not absence. That second half is the part an agent will not invent on its own.
+
+## Install it
+
+An agent that runs shell commands reads the skill from a folder. `biomcp skill install DIR` writes it under `DIR/skills/biomcp`:
+
+<Example id="skill-install" />
+
+Point `DIR` at your agent's folder, such as `~/.claude`. `biomcp skill status DIR` tells you later whether the copy matches your installed version. For desktop clients, the MCP server carries the same grammar in its tool description; [connect an agent](/connect-an-agent/) covers both.
+
+## Credit
+
+The evidence here is Li and colleagues' work. The skill pattern comes from Anthropic's [Agent Skills](https://claude.com/blog/equipping-agents-for-the-real-world-with-agent-skills) guidance. What we added is the biomedical procedure, and the discipline of saying what a result does not show.
