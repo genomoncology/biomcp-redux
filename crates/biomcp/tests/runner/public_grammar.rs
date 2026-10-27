@@ -116,6 +116,19 @@ fn help() -> Result<(), String> {
             return Err(format!("missing arguments {path:?}"));
         }
     }
+    for command in commands {
+        for argument in command["arguments"]
+            .as_array()
+            .ok_or("missing public arguments")?
+        {
+            if argument["description"]
+                .as_str()
+                .is_none_or(|s| s.trim().is_empty())
+            {
+                return Err(format!("public argument lacks description: {argument}"));
+            }
+        }
+    }
     for flag in ["--replay", "--record", "--case-cache", "--observe"] {
         if commands.iter().any(|c| {
             c["arguments"]
