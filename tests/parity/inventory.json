@@ -3,7 +3,8 @@
   "cases": [],
   "batches": [
     "batches/trial.json",
-    "batches/pathway.json"
+    "batches/pathway.json",
+    "batches/residual.json"
   ],
   "inventory": {
     "pending": [
@@ -943,31 +944,6 @@
         "reason": "variant direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
       },
       {
-        "case": "adverse-event/search-policy.yaml",
-        "ticket": "0305",
-        "reason": "adverse-event direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "cell-line/aliases.yaml",
-        "ticket": "0305",
-        "reason": "cell-line direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "drug/disabled.yaml",
-        "ticket": "0305",
-        "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "drug/ema-missing.yaml",
-        "ticket": "0305",
-        "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "drug/who-missing.yaml",
-        "ticket": "0305",
-        "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
         "case": "protein/absent.yaml",
         "ticket": "0304",
         "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
@@ -1001,11 +977,6 @@
         "case": "protein/timeout.yaml",
         "ticket": "0304",
         "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "schema/errors.yaml",
-        "ticket": "0305",
-        "reason": "schema direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
       }
     ]
   }
