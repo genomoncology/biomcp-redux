@@ -17,6 +17,7 @@ pub(super) fn trials() -> Vec<Trial> {
         ("legacy-hgnc-index-upgrades", legacy_index),
         ("obsolete-published-bundle-survives-cleanup", obsolete),
         ("current-published-bundle-wins", current),
+        ("recorded-stored-read-transfers-without-provider", recorded),
         ("interrupted-transfer-retains-both-files", interrupted),
         ("owner-refusal-preserves-both-files", ownership),
         ("health-and-disabled-read-never-transfer", admission),
@@ -272,6 +273,37 @@ fn obsolete() -> Check {
     )?;
     if !obsolete.exists() || fs::read(&obsolete)? != before {
         return Err("cleanup removed an unsupported file's only published bundle".into());
+    }
+    Ok(())
+}
+
+fn recorded() -> Check {
+    let env = Environment::new()?;
+    let (old, current) = files(&env)?;
+    seed(&old, "a", 123)?;
+    let before = fs::read(&old)?;
+    let stub = super::network_stub::Stub::new()?;
+    let ca = env.root().join("ca.pem");
+    fs::write(&ca, &stub.certificate)?;
+    env.config(&json!({"ca_bundle":ca,"proxy":format!("http://{}",stub.address)}))?;
+    let records = env.root().join("records");
+    let value = invoke(
+        &env,
+        vec![
+            "get".into(),
+            "diagnostic".into(),
+            ID.into(),
+            "--source".into(),
+            "who-ivd".into(),
+            "--record".into(),
+            records.to_string_lossy().into(),
+        ],
+        0,
+    )?;
+    assert_label(&value, "a")?;
+    imported(&old, &current)?;
+    if fs::read(&old)? != before || !stub.finish()?.is_empty() {
+        return Err("recorded stored read changed its source or contacted a provider".into());
     }
     Ok(())
 }
