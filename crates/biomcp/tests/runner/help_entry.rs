@@ -22,11 +22,25 @@ fn check() -> Check {
                 return Err(format!("help alias changed {format} output: {args:?}").into());
             }
         }
-        if run(&env, &["--format", format, "get", "gene", "--help"])?
-            != run(&env, &["--format", format, "help", "get", "gene"])?
-        {
-            return Err("scoped help alias changed its content".into());
+        for path in [vec!["get", "gene"], vec!["version"], vec!["skill", "install"]] {
+            let mut alias = vec!["--format", format];
+            alias.extend(path.iter().copied());
+            alias.push("--help");
+            let mut scoped = vec!["--format", format, "help"];
+            scoped.extend(path);
+            if run(&env, &alias)? != run(&env, &scoped)? {
+                return Err("scoped help alias changed its content".into());
+            }
         }
+    }
+    let plain = run(&env, &["help"])?;
+    let value: Value = serde_json::from_slice(&plain)?;
+    if value.pointer("/result/commands").and_then(Value::as_array)
+        .ok_or("missing help commands")?.iter().any(|command| {
+            command.pointer("/command/0").and_then(Value::as_str) == Some("list")
+        })
+    {
+        return Err("retired list remains in public help".into());
     }
     for args in [
         vec!["discover", "SENSITIVE-input-never-echo"],

@@ -5,7 +5,10 @@ pub(crate) fn command(
     outcome: &crate::command::Outcome,
     args: &[std::ffi::OsString],
 ) -> io::Result<()> {
-    if crate::grammar::is_housekeeping(args) {
+    let parsed = crate::grammar::parse(args).ok();
+    if crate::grammar::is_housekeeping(args)
+        && parsed.as_ref().is_none_or(|parsed| parsed.help.is_none())
+    {
         return bytes(&outcome.cli_bytes);
     }
     let mut words = args.iter().take_while(|arg| *arg != "--");
@@ -26,12 +29,7 @@ pub(crate) fn command(
             }
         })
         .or_else(|| {
-            crate::config::format(
-                crate::grammar::parse(args)
-                    .ok()
-                    .and_then(|p| p.globals.config)
-                    .as_ref(),
-            )
+            crate::config::format(parsed.and_then(|parsed| parsed.globals.config).as_ref())
         });
     let bytes = match format {
         Some(crate::grammar::Format::Md) if outcome.value.get("schema").is_some() => {
