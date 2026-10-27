@@ -12,10 +12,18 @@ pub(super) struct Shape {
     command: Vec<String>,
     config: Option<Value>,
     exit: i32,
-    declaration: Selection,
+    declaration: Option<Selection>,
+    held_declaration: Option<Reference>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Reference {
+    case: String,
+    step: usize,
 }
 pub(super) fn resolve(
     shapes: &[Shape],
+    declarations: &[Selection],
     name: &str,
     index: usize,
     step: &Step,
@@ -35,9 +43,13 @@ pub(super) fn resolve(
         let Some(bindings) = bind(&shape.command, command)? else {
             continue;
         };
+        let declaration = match (&shape.declaration, &shape.held_declaration) {
+            (Some(declaration), None) => declaration,
+            (None, Some(reference)) => return held(reference, declarations, &shape.name),
+            _ => return Err("shape needs one inline or held declaration".into()),
+        };
         if !step.expect.keys().all(|p| {
-            shape.declaration.facts.contains_key(p)
-                || shape.declaration.unprojectable_facts.contains_key(p)
+            declaration.facts.contains_key(p) || declaration.unprojectable_facts.contains_key(p)
         }) {
             incomplete = Some(format!(
                 "{}: harvested assertions need reviewed projections",
@@ -45,7 +57,7 @@ pub(super) fn resolve(
             ));
             continue;
         }
-        let mut selected = shape.declaration.clone();
+        let mut selected = declaration.clone();
         if !selected.pages.is_empty()
             || selected.candidate_command.is_some()
             || selected.baseline_gap.is_some()
@@ -246,4 +258,29 @@ fn native_command(
         *argument = expand(argument, bindings)?;
     }
     Ok(())
+}
+
+fn held(
+    reference: &Reference,
+    declarations: &[Selection],
+    name: &str,
+) -> Result<Option<Selection>, String> {
+    let declaration = declarations
+        .iter()
+        .find(|selection| selection.case == reference.case && selection.step == reference.step)
+        .ok_or("held shape declaration reference missing")?;
+    let reasons = declaration
+        .recordings
+        .iter()
+        .filter_map(|route| route.recording_gap.as_deref())
+        .collect::<Vec<_>>();
+    if reasons.is_empty() {
+        return Err("held shape reference needs an existing native recording gap".into());
+    }
+    Err(format!(
+        "{name}: held native input declared by {} step {}: {}",
+        reference.case,
+        reference.step,
+        reasons.join("; ")
+    ))
 }

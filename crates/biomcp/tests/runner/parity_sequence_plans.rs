@@ -103,7 +103,7 @@ fn declaration(
         })
         .min_by_key(|selection| (selection.case != name, selection.step != index));
     let Some(template) = template else {
-        return super::shape::resolve(&plan.shapes, name, index, step, case, root);
+        return super::shape::resolve(&plan.shapes, &plan.cases, name, index, step, case, root);
     };
     let mut selected = template.clone();
     selected.case = name.into();
