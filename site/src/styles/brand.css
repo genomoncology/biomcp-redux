@@ -1,0 +1,48 @@
+/* BioMCP lab brand, from the marketing repo's brand/biomcp/tokens.css, mapped onto Starlight.
+   Dark lab purple by default. The light theme uses the same hues at the same contrast. */
+@font-face { font-family: 'BMCP Outfit'; src: url('/fonts/Outfit-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'BMCP Outfit'; src: url('/fonts/Outfit-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'BMCP Noto'; src: url('/fonts/NotoSans-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'BMCP Noto'; src: url('/fonts/NotoSans-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'BMCP Mono'; src: url('/fonts/IoskeleyMono-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'BMCP Mono'; src: url('/fonts/IoskeleyMono-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'BMCP Fraunces'; src: url('/fonts/Fraunces-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+:root {
+  --sl-font: 'BMCP Noto', ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: 'BMCP Mono', ui-monospace, monospace;
+  --bm-head: 'BMCP Outfit', var(--sl-font);
+  --bm-logo: 'BMCP Fraunces', Georgia, serif;
+
+  /* Dark lab. Contrast of text on the darkest surface: ink 13.6:1, body 9.2:1, captions 5.8:1, lens 8.3:1. */
+  --sl-color-accent-low: #3A006A;
+  --sl-color-accent: #CDB4FF;
+  --sl-color-accent-high: #EADFFF;
+  --sl-color-white: #F5F1FA;
+  --sl-color-gray-1: #E4DDEE;
+  --sl-color-gray-2: #CFC6DD;
+  --sl-color-gray-3: #A89BBE;
+  --sl-color-gray-4: #6E6188;
+  --sl-color-gray-5: #3B2D57;
+  --sl-color-gray-6: #1B1230;
+  --sl-color-black: #110A1D;
+}
+
+:root[data-theme='light'] {
+  /* Light lab: the same purples on a pale lavender ground. */
+  --sl-color-accent-low: #EADFFF;
+  --sl-color-accent: #5B21B6;
+  --sl-color-accent-high: #2A0050;
+  --sl-color-white: #110A1D;
+  --sl-color-gray-1: #1B1230;
+  --sl-color-gray-2: #3B2D57;
+  --sl-color-gray-3: #5A4A75;
+  --sl-color-gray-4: #8E80A6;
+  --sl-color-gray-5: #DDD3EC;
+  --sl-color-gray-6: #F1ECF8;
+  --sl-color-gray-7: #F8F5FC;
+  --sl-color-black: #FCFAFF;
+}
+
+h1, h2, h3, h4, .hero h1 { font-family: var(--bm-head); }
+.site-title { font-family: var(--bm-logo); font-weight: 700; }

@@ -1,0 +1,11 @@
+{
+  "product": "BioMCP",
+  "version": "1.0.0",
+  "verified": "2026-10-27",
+  "platforms": "Linux, macOS, Windows",
+  "repo": "https://github.com/genomoncology/biomcp",
+  "install": {
+    "script": "curl -fsSL https://biomcp.org/install.sh | bash",
+    "uv": "uv tool install biomcp-cli"
+  }
+}

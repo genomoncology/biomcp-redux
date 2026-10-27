@@ -1,0 +1,57 @@
+---
+// Adds structured data for search engines to Starlight's own head.
+import Default from '@astrojs/starlight/components/Head.astro';
+import site from '../data/site.json';
+const { entry } = Astro.locals.starlightRoute;
+const d = entry.data;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+let ld;
+if (!d.kind) {
+  ld = undefined;
+} else if (d.kind === 'answer') {
+  ld = {
+    '@context': 'https://schema.org',
+    '@type': 'QAPage',
+    mainEntity: {
+      '@type': 'Question',
+      name: d.title,
+      answerCount: 1,
+      acceptedAnswer: { '@type': 'Answer', text: d.description, url },
+    },
+  };
+} else if (d.kind === 'blog' || d.kind === 'article') {
+  ld = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: d.title,
+    description: d.description,
+    url,
+    datePublished: d.date?.toISOString().slice(0, 10),
+    author: d.author ? { '@type': 'Person', name: d.author } : undefined,
+  };
+} else if (entry.id === '' || entry.id === 'index') {
+  ld = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: site.product,
+    softwareVersion: site.version,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: site.platforms,
+    url,
+    description: d.description,
+  };
+} else {
+  ld = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: d.title,
+    description: d.description,
+    url,
+    dateModified: d.verified.toISOString().slice(0, 10),
+    proficiencyLevel: d.kind === 'tutorial' ? 'Beginner' : 'Expert',
+    about: { '@type': 'SoftwareApplication', name: site.product, softwareVersion: site.version },
+  };
+}
+---
+<Default />
+{ld && <script type="application/ld+json" set:html={JSON.stringify(ld)} />}

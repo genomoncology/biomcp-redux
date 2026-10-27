@@ -1,0 +1,14 @@
+{
+  "banned": [
+    { "word": "simply", "use": "Delete it." },
+    { "word": "just", "use": "Delete it or say the condition." },
+    { "word": "coming soon", "use": "Describe only what ships." },
+    { "word": "planned", "use": "Describe only what ships." },
+    { "word": "preview", "use": "Describe only what ships." },
+    { "word": "beta", "use": "Describe only what ships." },
+    { "word": "alpha", "use": "Describe only what ships." },
+    { "word": "delve", "use": "Say what the reader does." },
+    { "word": "seamless(ly)?", "use": "Say what happens." },
+    { "word": "leverage", "use": "Write \"use\"." }
+  ]
+}
