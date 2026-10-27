@@ -188,20 +188,24 @@ fn clingen() -> Check {
         "duplicate",
         "missing classification",
         "failed dosage",
+        "failed validity",
+        "both failed",
         "validity only",
         "dosage only",
     ] {
         let expect = match mode {
             "failed dosage" => {
-                json!({"/result/items/0/sections/clingen/state":"unavailable", "/sources/2/reason":"unavailable"})
+                json!({"/result/items/0/sections/clingen/state":"data", "/result/items/0/sections/clingen/data/validity_status/state":"ok", "/result/items/0/sections/clingen/data/dosage_status/state":"failed", "/result/items/0/sections/clingen/data/validity": {"count": 1}, "/sources/2/reason":"unavailable"})
             }
+            "failed validity" => json!({"/result/items/0/sections/clingen/data/validity_status/state":"failed", "/result/items/0/sections/clingen/data/dosage_status/state":"ok", "/result/items/0/sections/clingen/data/validity":[], "/result/items/0/sections/clingen/data/haploinsufficiency":"Sufficient Evidence for Haploinsufficiency"}),
+            "both failed" => json!({"/result/items/0/sections/clingen/data/validity_status/state":"failed", "/result/items/0/sections/clingen/data/dosage_status/state":"failed", "/result/items/0/sections/clingen/data/validity":[]}),
             "validity only" => {
                 json!({"/result/items/0/sections/clingen/data/validity": {"count": 1}})
             }
             "dosage only" => json!({"/result/items/0/sections/clingen/data/validity": [],
                 "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency"}),
             _ => {
-                json!({"/result/items/0/sections/clingen/state": "unavailable", "/sources/2/reason": "bad_reply"})
+                json!({"/result/items/0/sections/clingen/state": "data", "/sources/2/reason": "bad_reply"})
             }
         };
         let answer = checked_case(
@@ -229,7 +233,7 @@ fn clingen() -> Check {
                     _ => (),
                 }
                 record["exchanges"][0]["body"]["value"] = format!("{}\n", lines.join("\n")).into();
-                if mode == "failed dosage" && dosage {
+                if mode == "both failed" || (mode == "failed dosage" && dosage) || (mode == "failed validity" && !dosage) {
                     record["exchanges"][0]["status"] = 500.into();
                 }
             },
