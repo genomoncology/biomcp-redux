@@ -1456,7 +1456,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.variant_population/4",
+  "$id": "biomcp.variant-population/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -1513,7 +1513,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.variant_population/4",
+      "const": "biomcp.variant-population/4",
       "type": "string"
     },
     "sources": {

@@ -2370,7 +2370,7 @@
       ]
     }
   },
-  "$id": "biomcp.drug_civic/4",
+  "$id": "biomcp.drug-civic/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -2427,7 +2427,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug_civic/4",
+      "const": "biomcp.drug-civic/4",
       "type": "string"
     },
     "sources": {

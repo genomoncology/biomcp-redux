@@ -119,3 +119,10 @@ pub fn in_band(leg: &Leg<'_>, prefix: &str) -> Result<Mapped<Vec<GeneHeader>>, R
         problems: rows.problems,
     })
 }
+
+/// Both source-owned identity files are required for complete local readiness.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    Ok(leg
+        .stored_bundle_state(&COMPLETE)?
+        .with(leg.stored_bundle_state(&WITHDRAWN)?))
+}

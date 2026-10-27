@@ -34,6 +34,14 @@ fn main() -> ExitCode {
             if let Some((address, hosts)) = parsed.http {
                 return match mcp::http::serve(&address, hosts, globals) {
                     Ok(()) => ExitCode::SUCCESS,
+                    Err(mcp::http::StartError::Configuration(error)) => {
+                        match command::local::startup(error) {
+                            Ok(outcome) => {
+                                exit::finish(output::command(&outcome, &args), outcome.status)
+                            }
+                            Err(error) => exit::finish(Err(error), exit::Status::Local),
+                        }
+                    }
                     Err(mcp::http::StartError::Usage) => ExitCode::from(2),
                     Err(mcp::http::StartError::Local) => ExitCode::from(5),
                 };

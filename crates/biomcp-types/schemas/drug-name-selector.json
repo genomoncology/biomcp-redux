@@ -1,5 +1,5 @@
 {
-  "$id": "biomcp.drug_name_selector/1",
+  "$id": "biomcp.drug-name-selector/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
   "enum": [

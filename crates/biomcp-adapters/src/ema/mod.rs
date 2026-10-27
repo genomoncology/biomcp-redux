@@ -71,3 +71,8 @@ pub fn regulatory(leg: &Leg<'_>, id: &DrugId) -> Result<Option<DrugRegulatory>, 
         },
     }))
 }
+
+/// Inspect this source's validated local catalog without reading rows or synchronizing.
+pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    leg.stored_bundle_state(&MEDICINES)
+}

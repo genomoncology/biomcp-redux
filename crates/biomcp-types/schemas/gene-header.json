@@ -91,7 +91,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gene_header/2",
+  "$id": "biomcp.gene-header/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Enough gene identity to choose a search result.",

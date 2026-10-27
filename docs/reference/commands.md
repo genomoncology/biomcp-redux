@@ -7784,9 +7784,9 @@ Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host H
 Synchronize a local source bundle.
 
 
-## biomcp schema <artifact id>
+## biomcp schema [artifact id]
 
-Print a checked-in schema artifact.
+List every schema identity and description, or print one schema artifact.
 
 
 ## biomcp help [COMMAND...]

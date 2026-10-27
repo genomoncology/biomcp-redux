@@ -15,6 +15,7 @@ const ACCEPT_POLL: std::time::Duration = std::time::Duration::from_millis(20);
 const MAX_CONNECTIONS: usize = 8;
 const HEALTH_BUDGET: std::time::Duration = std::time::Duration::from_secs(2);
 pub(crate) enum StartError {
+    Configuration(crate::config::StartupError),
     Usage,
     Local,
 }
@@ -30,12 +31,25 @@ pub(crate) fn serve(
     globals: crate::grammar::Globals,
 ) -> Result<(), StartError> {
     let address: SocketAddr = address.parse().map_err(|_| StartError::Usage)?;
-    let mut names = crate::config::http_hosts(&globals).map_err(|_| StartError::Local)?;
-    names.extend(hosts);
-    let hosts = names
+    let names = crate::config::http_hosts(&globals)
+        .map_err(|error| StartError::Configuration(error.into()))?;
+    let mut allowed = names
         .iter()
-        .map(|host| Authority::parse(host).ok_or(StartError::Usage))
+        .map(|host| {
+            Authority::parse(host).ok_or_else(|| {
+                StartError::Configuration(
+                    crate::config::ConfigError::field("http.allowed_hosts").into(),
+                )
+            })
+        })
         .collect::<Result<Vec<_>, _>>()?;
+    allowed.extend(
+        hosts
+            .iter()
+            .map(|host| Authority::parse(host).ok_or(StartError::Usage))
+            .collect::<Result<Vec<_>, _>>()?,
+    );
+    let hosts = allowed;
     if !address.ip().is_loopback() && hosts.is_empty() {
         return Err(StartError::Usage);
     }

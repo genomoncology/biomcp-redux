@@ -147,7 +147,7 @@ pub enum DiagnosticCard {
     Clearance(DiagnosticClearance),
 }
 impl ResponseBody for DiagnosticCard {
-    const SCHEMA: &'static str = "biomcp.diagnostic_card/1";
+    const SCHEMA: &'static str = "biomcp.diagnostic-card/1";
     type Query = DiagnosticGet;
 }
 /// One bounded regulatory fragment from the exact selected native submission.
@@ -213,49 +213,49 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic_page/2",
+    "biomcp.diagnostic-page/2",
     "Source-ordered GTR test candidates or WHO product headers."
 );
 page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_genes/2",
+    "biomcp.diagnostic-genes/2",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic_conditions/2",
+    "biomcp.diagnostic-conditions/2",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
-    "biomcp.diagnostic_methods/2",
+    "biomcp.diagnostic-methods/2",
     "Independent native method entries without positional pairing."
 );
 page!(
     DiagnosticRegulatory,
     DiagnosticRegulatoryFragment,
     DiagnosticGet,
-    "biomcp.diagnostic_regulatory/1",
+    "biomcp.diagnostic-regulatory/1",
     "Exact selected submission regulatory text fragments."
 );
 page!(
     DiagnosticSupplements,
     DiagnosticPmaHeader,
     DiagnosticGet,
-    "biomcp.diagnostic_supplements/1",
+    "biomcp.diagnostic-supplements/1",
     "Native supplement records retaining exact identity and independent dated decisions."
 );
 page!(
     DiagnosticCompanion,
     CompanionDiagnosticRelation,
     DiagnosticSearch,
-    "biomcp.diagnostic_companion/1",
+    "biomcp.diagnostic-companion/1",
     "Whole distinct physical companion-table rows with cell-owned identifiers."
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.

@@ -25,7 +25,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_page/2",
+        "/schema": "biomcp.pgx-page/2",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -61,7 +61,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_card/1",
+        "/schema": "biomcp.pgx-card/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -99,7 +99,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_recommendations/1",
+        "/schema": "biomcp.pgx-recommendations/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -137,7 +137,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_guidelines/1",
+        "/schema": "biomcp.pgx-guidelines/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",
@@ -179,7 +179,7 @@
         "cpic"
       ],
       "expect": {
-        "/schema": "biomcp.pgx_diplotype/1",
+        "/schema": "biomcp.pgx-diplotype/1",
         "/status": "failed",
         "/query/source": "cpic",
         "/sources/0/state": "skipped",

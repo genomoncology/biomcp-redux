@@ -90,7 +90,7 @@
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
-        "expected schema <known artifact id>",
+        "use biomcp schema to list known artifact IDs",
         "expected a supported command with checked arguments",
         "local configuration, cache or recording failed",
         "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and --offset is a nonnegative integer; source p-value order is fixed with no --sort or local prefix intersection",

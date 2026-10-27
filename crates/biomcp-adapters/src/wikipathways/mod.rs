@@ -23,3 +23,5 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::WIKIPATHWAYS,
     deadline: Duration::from_secs(120),
 };
+
+pub(crate) use catalog::bundle_state;

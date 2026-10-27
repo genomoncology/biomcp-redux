@@ -10,7 +10,7 @@ pub(super) fn fetch(
         Some(Ok(fetch)) => {
             let secrets = match crate::config::secrets(globals) {
                 Ok(secrets) => secrets,
-                Err(()) => return Ok(Err(().into())),
+                Err(error) => return Ok(Err(error.into())),
             };
             let fetch = if globals.offline {
                 fetch.offline()
@@ -19,7 +19,7 @@ pub(super) fn fetch(
             };
             crate::config::restrict(fetch.with_secrets(secrets), globals).map(Ok)
         }
-        Some(Err(error)) if !globals.offline => Ok(Err(*error)),
+        Some(Err(error)) if !globals.offline => Ok(Err(error.clone())),
         _ => Ok(crate::config::fetch(globals)),
     }
 }
