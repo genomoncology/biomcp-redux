@@ -74,8 +74,10 @@ fn outbound_registry_lists_only_request_hosts_and_explicit_publisher_policy() ->
             .iter()
             .any(|row| row.ends_with(" raw.githubusercontent.com"))
     );
+    use std::io::Write;
+    let mut output = std::io::stdout().lock();
     for row in rows {
-        println!("{row}");
+        writeln!(output, "{row}")?;
     }
     Ok(())
 }
