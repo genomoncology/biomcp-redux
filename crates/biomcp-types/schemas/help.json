@@ -145,6 +145,20 @@
       ],
       "type": "object"
     },
+    "HelpQuery": {
+      "additionalProperties": false,
+      "description": "Requested help path, with the root represented by an empty object.",
+      "properties": {
+        "command": {
+          "description": "Command words whose help was requested.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
     "HelpWord": {
       "additionalProperties": false,
       "description": "A documented closed vocabulary word.",
@@ -752,7 +766,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.help/2",
+  "$id": "biomcp.help/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One versioned command response; schema identity comes only from its body type.",
@@ -794,11 +808,8 @@
       "type": "array"
     },
     "query": {
-      "description": "Parsed query.",
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
+      "$ref": "#/$defs/HelpQuery",
+      "description": "Parsed query."
     },
     "result": {
       "anyOf": [
@@ -812,7 +823,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.help/2",
+      "const": "biomcp.help/3",
       "type": "string"
     },
     "sources": {

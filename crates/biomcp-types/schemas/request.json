@@ -3694,7 +3694,6 @@
           "type": "integer"
         },
         "negative": {
-          "default": [],
           "description": "Up to ten negative paper identities.",
           "items": {
             "$ref": "#/$defs/ArticleInput"

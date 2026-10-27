@@ -280,7 +280,7 @@
               "type": "string"
             },
             "publication_references": {
-              "description": "Source publication references, preserving an empty list.",
+              "description": "Source publication references, omitted when empty.",
               "items": {
                 "$ref": "#/$defs/Curie"
               },
