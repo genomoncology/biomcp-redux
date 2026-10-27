@@ -160,3 +160,22 @@ fn failed_sidecar_publication_keeps_the_old_manifest_and_allows_a_later_capture(
     }
     fixture.finish()
 }
+#[test]
+fn live_wire_limit_rejects_the_stream_before_spool_admission() -> Check {
+    let fixture = Fixture::with_messages(Hold::None, 0, false, false, messages())?;
+    let source = fixture.source(false, KeyUse::None);
+    // The two valid protobufs consume 25 framed wire bytes. The worker must
+    // reject the second DATA frame rather than delivering it to the spool.
+    let live = Fetch::open(FetchConfig {
+        max_body: 24,
+        network: fixture.network(None, "")?,
+        ..Default::default()
+    })?;
+    let error = get(&live, source, METHOD, SCHEMA, Freshness::Never).unwrap_err();
+    assert!(
+        matches!(error, RequestError::Source(e) if e.reason == biomcp_types::Reason::BadReply),
+        "expected worker wire rejection, got {error:?}"
+    );
+    assert_eq!(fixture.count.load(std::sync::atomic::Ordering::SeqCst), 1);
+    fixture.finish()
+}
