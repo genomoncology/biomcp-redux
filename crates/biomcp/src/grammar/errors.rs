@@ -39,9 +39,6 @@ fn identity(command: &Command, spellings: &[&str]) -> Option<String> {
 
 /// Report the checked assembly vocabulary without retaining a rejected value.
 pub(crate) fn normalization_build(args: &[OsString]) -> Option<biomcp_types::ErrorEnvelope> {
-    if args.first()?.to_str()? != "variant" || args.get(1)?.to_str()? != "normalize" {
-        return None;
-    }
     let matches = super::root()
         .ok()?
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
