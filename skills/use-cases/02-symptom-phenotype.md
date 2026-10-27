@@ -2,7 +2,7 @@
 
 ## Question
 
-How do I inspect a source phenotype identifier and its definition?
+How do I inspect an ontology root identifier without treating it as a symptom?
 
 ## 1. Retrieve and inspect
 
@@ -10,7 +10,7 @@ How do I inspect a source phenotype identifier and its definition?
 biomcp get phenotype HP:0000001
 ```
 
-Read the term identifier, label, definition and source. This executable fixture uses an authored synthetic definition; its text is a command demonstration.
+HP:0000001 is the HPO root ‘All’, not a symptom. Read the term identifier, label, definition and source. This executable fixture uses an authored synthetic definition; its text is a command demonstration. These root-only reads do not demonstrate symptom search or patient phenotype selection.
 
 ## 2. Retrieve and inspect
 
