@@ -14,6 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 // Ceilings are ceil(measured comparable Markdown bytes * 1.15), from j11380.
+// Card and ClinVar ceilings use j16521; other shapes retain j11380.
 // The existing checker subtracts only the validated new source terms columns.
 const SHAPES: &[(&str, Shape)] = &[
     (
@@ -40,7 +41,7 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "variant", "rs113488022"],
             replies: "variant/synthetic-components",
             required: &["## Result", "rs113488022", "chr7:g.140453136A&gt;G", "BRAF"],
-            max_bytes: 2560,
+            max_bytes: 2608,
         },
     ),
     (
@@ -102,7 +103,7 @@ const SHAPES: &[(&str, Shape)] = &[
                 "**state:** data",
                 "VCV000013961",
             ],
-            max_bytes: 1717,
+            max_bytes: 1691,
         },
     ),
     (

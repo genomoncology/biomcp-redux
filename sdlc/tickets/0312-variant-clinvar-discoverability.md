@@ -1,6 +1,7 @@
 # 0312 — Point the variant card to ClinVar and show more ClinVar rows by default
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1ac315dc9119fcda7ac92a57146c69cd78fe32b4
 
 Milestone: 5
 

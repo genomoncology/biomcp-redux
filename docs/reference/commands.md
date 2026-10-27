@@ -2593,7 +2593,7 @@ Read an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome
 - `--offset`: Candidate rows to skip in source order.
 - `--resolver`: Resolver for reference-qualified notation; never repairs the input locally.
 - `section`: Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
-- `--section-limit`: Rows per named source section page.
+- `--section-limit`: Rows per named source section page; omitted uses the native source default.
 - `--section-offset`: Source rows to skip independently of identity candidate paging.
 - `--tumor-type`: Explicit tumor context for keyed OncoKB annotation.
 
@@ -3923,7 +3923,7 @@ Page assertions from one explicitly selected evidence source.
 
 - `--assertion`: Native assertion accession or document ID.
 - `input`: Checked Variation ID for ClinVar, or CAid for ERepo.
-- `--limit`: Assertions per page.
+- `--limit`: Assertions per page; omitted uses the native source default.
 - `--offset`: Assertions to skip in source order.
 - `--source`: One native source; no fallback or text search.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
