@@ -53,6 +53,7 @@ mod faers_search;
 mod gene_tables;
 mod health_bundles;
 mod held_proxy;
+mod help_entry;
 mod help_examples;
 mod housekeeping;
 mod hpo_registry;
@@ -302,6 +303,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(output_stream::trials());
     trials.extend(housekeeping::trials());
+    trials.extend(help_entry::trials());
     trials.extend(skill::trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {

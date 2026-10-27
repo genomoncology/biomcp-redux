@@ -1,5 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod entity;
+mod entry;
+pub(crate) use entry::entry_aliases;
 pub(crate) mod gwas;
 mod local;
 mod queries;
@@ -61,6 +63,13 @@ pub(crate) fn global_arguments() -> Command {
         .disable_help_flag(true)
         .disable_help_subcommand(true)
         .disable_version_flag(true)
+        .after_help(
+            entry_aliases()
+                .iter()
+                .map(|alias| format!("{}: {}", alias.flags().join(", "), alias.description()))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
         .arg_required_else_help(true)
         .subcommand_required(true);
     root = root.arg(
@@ -172,24 +181,23 @@ fn root() -> Result<Command, ()> {
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health"));
     root = root.subcommand(
-        Command::new("list")
-            .subcommand_required(true)
-            .subcommand(Command::new("author")),
-    );
-    root = root.subcommand(
         Command::new("store")
             .subcommand_required(true)
             .subcommand(Command::new("clean")),
     );
     root = root.subcommand(crate::keys::grammar());
-    root = root.subcommand(local::help_command());
-    Ok(root.subcommand(local::serve_command()))
+    root = root.subcommand(local::serve_command());
+    let help = local::help_command(&root);
+    root = root.subcommand(help);
+    Ok(root)
 }
 
 pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
-    let root = root()?;
+    let mut root = root()?;
+    root.build();
+    let args = entry::arguments(args, &root);
     let matches = root
-        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
         .map_err(|_| ())?;
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or(())?;
@@ -216,12 +224,12 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
             http: None,
         });
     }
-    let help = help_path(verb, matches)?;
+    let help = entry::help_path(verb, matches)?;
     let action = if verb == "store" {
         Action::StoreClean
     } else if verb == "health" {
         Action::Health
-    } else if verb == "help" || verb == "list" {
+    } else if verb == "help" {
         Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
         Action::Sync {
@@ -255,31 +263,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
         help,
     })
 }
-fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String>>, ()> {
-    Ok(if verb == "list" {
-        Some(vec!["author".into()])
-    } else if verb == "help" {
-        match matches.subcommand() {
-            Some(("key", _)) => None,
-            Some((name @ ("version" | "mcp-config" | "skill" | "sources" | "config"), _)) => {
-                Some(vec![name.into()])
-            }
-            Some(("author", matches)) if matches.subcommand().is_none() => {
-                Some(vec!["author".into()])
-            }
-            Some(("network", matches)) => Some(vec![
-                "network".into(),
-                matches.get_one::<String>("setting").ok_or(())?.clone(),
-            ]),
-            Some((verb, matches)) => {
-                Some(vec![verb.into(), matches.subcommand().ok_or(())?.0.into()])
-            }
-            None => Some(Vec::new()),
-        }
-    } else {
-        None
-    })
-}
+
 fn globals(matches: &clap::ArgMatches) -> Result<Globals, ()> {
     let globals = Globals {
         config: matches.get_one::<PathBuf>("config").cloned(),
@@ -597,4 +581,8 @@ fn property_type(property: &Value) -> Option<&str> {
         .iter()
         .all(|s| s.as_str().is_some_and(|s| s == kind || s == "null"))
         .then_some(kind)
+}
+
+pub(crate) fn unknown_command(args: &[OsString]) -> Option<Vec<String>> {
+    entry::unknown_command(args, &root().ok()?)
 }

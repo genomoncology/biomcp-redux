@@ -24,11 +24,10 @@ Commands:
   version     Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
   mcp-config  Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
   health      
-  list        
   store       
   key         
-  help        
   serve       
+  help        
 
 Options:
       --format <format>
@@ -56,6 +55,10 @@ Options:
           
 
       --fresh
+          
+
+-h, --help: Print scoped command help without source requests.
+--version: Print the installed version without source requests.
 
 ```
 
@@ -4500,77 +4503,6 @@ Options:
 Report publisher terms and bounded source reachability; at most one page for each implemented source.
 
 
-## biomcp list
-
-```text
-Usage: biomcp list [OPTIONS] <COMMAND>
-
-Commands:
-  author  
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp list author
-
-```text
-Usage: biomcp list author [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
 ## biomcp store
 
 ```text
@@ -4800,628 +4732,75 @@ Options:
 
 ```
 
+## biomcp serve
+
+```text
+Usage: biomcp serve [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --http [<http>]
+          
+
+      --allow-host <allow-host>
+          
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.
+
+
 ## biomcp help
 
 ```text
 Usage: biomcp help [OPTIONS] [COMMAND]
 
 Commands:
+  author      
+  search      
+  get         
+  cell-line   
+  protein     
+  pathway     
+  article     
+  trial       
+  variant     
+  sync        
   skill       
   version     
   mcp-config  
+  health      
+  store       
+  key         
+  serve       
+  network     
   sources     
   config      
-  network     
-  key         
-  store       
-  article     
-  author      
-  cell-line   
-  get         
-  pathway     
-  protein     
-  search      
-  sync        
-  trial       
-  variant     
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help skill
-
-```text
-Usage: biomcp help skill [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help version
-
-```text
-Usage: biomcp help version [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help mcp-config
-
-```text
-Usage: biomcp help mcp-config [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help sources
-
-```text
-Usage: biomcp help sources [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help config
-
-```text
-Usage: biomcp help config [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help network
-
-```text
-Usage: biomcp help network [OPTIONS] <setting>
-
-Arguments:
-  <setting>
-          [possible values: ca_bundle, proxy]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help key
-
-```text
-Usage: biomcp help key [OPTIONS] <source>
-
-Arguments:
-  <source>
-          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help store
-
-```text
-Usage: biomcp help store [OPTIONS] <COMMAND>
-
-Commands:
-  clean  
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help store clean
-
-```text
-Usage: biomcp help store clean [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article
-
-```text
-Usage: biomcp help article [OPTIONS] <COMMAND>
-
-Commands:
-  supplement         
-  pdf                
-  text               
-  citations          
-  references         
-  citation-evidence  
-  recommendations    
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article supplement
-
-```text
-Usage: biomcp help article supplement [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article pdf
-
-```text
-Usage: biomcp help article pdf [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article text
-
-```text
-Usage: biomcp help article text [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article citations
-
-```text
-Usage: biomcp help article citations [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article references
-
-```text
-Usage: biomcp help article references [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article citation-evidence
-
-```text
-Usage: biomcp help article citation-evidence [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help article recommendations
-
-```text
-Usage: biomcp help article recommendations [OPTIONS]
 
 Options:
       --format <format>
@@ -5523,1064 +4902,10 @@ Options:
 
 ```
 
-## biomcp help cell-line
-
-```text
-Usage: biomcp help cell-line [OPTIONS] <COMMAND>
-
-Commands:
-  assay-count  
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help cell-line assay-count
-
-```text
-Usage: biomcp help cell-line assay-count [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get
-
-```text
-Usage: biomcp help get [OPTIONS] <COMMAND>
-
-Commands:
-  author         
-  cell-line      
-  gwas           
-  protein        
-  phenotype      
-  pathway        
-  study          
-  pgx            
-  diagnostic     
-  adverse-event  
-  disease        
-  drug           
-  gene           
-  article        
-  trial          
-  variant        
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get author
-
-```text
-Usage: biomcp help get author [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get cell-line
-
-```text
-Usage: biomcp help get cell-line [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get gwas
-
-```text
-Usage: biomcp help get gwas [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get protein
-
-```text
-Usage: biomcp help get protein [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get phenotype
-
-```text
-Usage: biomcp help get phenotype [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get pathway
-
-```text
-Usage: biomcp help get pathway [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get study
-
-```text
-Usage: biomcp help get study [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get pgx
-
-```text
-Usage: biomcp help get pgx [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get diagnostic
-
-```text
-Usage: biomcp help get diagnostic [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get adverse-event
-
-```text
-Usage: biomcp help get adverse-event [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get disease
-
-```text
-Usage: biomcp help get disease [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get drug
-
-```text
-Usage: biomcp help get drug [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get gene
-
-```text
-Usage: biomcp help get gene [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get article
-
-```text
-Usage: biomcp help get article [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get trial
-
-```text
-Usage: biomcp help get trial [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help get variant
-
-```text
-Usage: biomcp help get variant [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help pathway
-
-```text
-Usage: biomcp help pathway [OPTIONS] <COMMAND>
-
-Commands:
-  genes   
-  events  
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help pathway genes
-
-```text
-Usage: biomcp help pathway genes [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help pathway events
-
-```text
-Usage: biomcp help pathway events [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein
-
-```text
-Usage: biomcp help protein [OPTIONS] <COMMAND>
-
-Commands:
-  features         
-  isoforms         
-  domains          
-  complexes        
-  complex-members  
-  structures       
-  sequence         
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein features
-
-```text
-Usage: biomcp help protein features [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein isoforms
-
-```text
-Usage: biomcp help protein isoforms [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein domains
-
-```text
-Usage: biomcp help protein domains [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein complexes
-
-```text
-Usage: biomcp help protein complexes [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein complex-members
-
-```text
-Usage: biomcp help protein complex-members [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein structures
-
-```text
-Usage: biomcp help protein structures [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
-## biomcp help protein sequence
-
-```text
-Usage: biomcp help protein sequence [OPTIONS]
-
-Options:
-      --format <format>
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          
-
-      --config <config>
-          
-
-      --replay <replay>
-          
-
-      --record <record>
-          
-
-      --case-cache <case-cache>
-          
-
-      --observe <observe>
-          
-
-      --offline
-          
-
-      --fresh
-
-```
-
 ## biomcp help search
 
 ```text
-Usage: biomcp help search [OPTIONS] <COMMAND>
+Usage: biomcp help search [OPTIONS] [COMMAND]
 
 Commands:
   author         
@@ -7173,10 +5498,1592 @@ Options:
 
 ```
 
+## biomcp help get
+
+```text
+Usage: biomcp help get [OPTIONS] [COMMAND]
+
+Commands:
+  author         
+  cell-line      
+  gwas           
+  protein        
+  phenotype      
+  pathway        
+  study          
+  pgx            
+  diagnostic     
+  adverse-event  
+  disease        
+  drug           
+  gene           
+  article        
+  trial          
+  variant        
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get author
+
+```text
+Usage: biomcp help get author [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get cell-line
+
+```text
+Usage: biomcp help get cell-line [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get gwas
+
+```text
+Usage: biomcp help get gwas [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get protein
+
+```text
+Usage: biomcp help get protein [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get phenotype
+
+```text
+Usage: biomcp help get phenotype [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get pathway
+
+```text
+Usage: biomcp help get pathway [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get study
+
+```text
+Usage: biomcp help get study [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get pgx
+
+```text
+Usage: biomcp help get pgx [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get diagnostic
+
+```text
+Usage: biomcp help get diagnostic [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get adverse-event
+
+```text
+Usage: biomcp help get adverse-event [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get disease
+
+```text
+Usage: biomcp help get disease [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get drug
+
+```text
+Usage: biomcp help get drug [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get gene
+
+```text
+Usage: biomcp help get gene [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get article
+
+```text
+Usage: biomcp help get article [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get trial
+
+```text
+Usage: biomcp help get trial [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help get variant
+
+```text
+Usage: biomcp help get variant [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help cell-line
+
+```text
+Usage: biomcp help cell-line [OPTIONS] [COMMAND]
+
+Commands:
+  assay-count  
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help cell-line assay-count
+
+```text
+Usage: biomcp help cell-line assay-count [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein
+
+```text
+Usage: biomcp help protein [OPTIONS] [COMMAND]
+
+Commands:
+  features         
+  isoforms         
+  domains          
+  complexes        
+  complex-members  
+  structures       
+  sequence         
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein features
+
+```text
+Usage: biomcp help protein features [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein isoforms
+
+```text
+Usage: biomcp help protein isoforms [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein domains
+
+```text
+Usage: biomcp help protein domains [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein complexes
+
+```text
+Usage: biomcp help protein complexes [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein complex-members
+
+```text
+Usage: biomcp help protein complex-members [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein structures
+
+```text
+Usage: biomcp help protein structures [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help protein sequence
+
+```text
+Usage: biomcp help protein sequence [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help pathway
+
+```text
+Usage: biomcp help pathway [OPTIONS] [COMMAND]
+
+Commands:
+  genes   
+  events  
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help pathway genes
+
+```text
+Usage: biomcp help pathway genes [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help pathway events
+
+```text
+Usage: biomcp help pathway events [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article
+
+```text
+Usage: biomcp help article [OPTIONS] [COMMAND]
+
+Commands:
+  supplement         
+  pdf                
+  text               
+  citations          
+  references         
+  citation-evidence  
+  recommendations    
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article supplement
+
+```text
+Usage: biomcp help article supplement [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article pdf
+
+```text
+Usage: biomcp help article pdf [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article text
+
+```text
+Usage: biomcp help article text [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article citations
+
+```text
+Usage: biomcp help article citations [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article references
+
+```text
+Usage: biomcp help article references [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article citation-evidence
+
+```text
+Usage: biomcp help article citation-evidence [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help article recommendations
+
+```text
+Usage: biomcp help article recommendations [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help trial
+
+```text
+Usage: biomcp help trial [OPTIONS] [COMMAND]
+
+Commands:
+  document  
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help trial document
+
+```text
+Usage: biomcp help trial document [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help variant
+
+```text
+Usage: biomcp help variant [OPTIONS] [COMMAND]
+
+Commands:
+  assertions  
+  population  
+  recurrence  
+  normalize   
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help variant assertions
+
+```text
+Usage: biomcp help variant assertions [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help variant population
+
+```text
+Usage: biomcp help variant population [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help variant recurrence
+
+```text
+Usage: biomcp help variant recurrence [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help variant normalize
+
+```text
+Usage: biomcp help variant normalize [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
 ## biomcp help sync
 
 ```text
-Usage: biomcp help sync [OPTIONS] <COMMAND>
+Usage: biomcp help sync [OPTIONS] [COMMAND]
 
 Commands:
   wikipathways        
@@ -7489,13 +7396,16 @@ Options:
 
 ```
 
-## biomcp help trial
+## biomcp help skill
 
 ```text
-Usage: biomcp help trial [OPTIONS] <COMMAND>
+Usage: biomcp help skill [OPTIONS] [COMMAND]
 
 Commands:
-  document  
+  list     
+  render   
+  status   
+  install  
 
 Options:
       --format <format>
@@ -7526,10 +7436,10 @@ Options:
 
 ```
 
-## biomcp help trial document
+## biomcp help skill list
 
 ```text
-Usage: biomcp help trial document [OPTIONS]
+Usage: biomcp help skill list [OPTIONS]
 
 Options:
       --format <format>
@@ -7560,16 +7470,217 @@ Options:
 
 ```
 
-## biomcp help variant
+## biomcp help skill render
 
 ```text
-Usage: biomcp help variant [OPTIONS] <COMMAND>
+Usage: biomcp help skill render [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help skill status
+
+```text
+Usage: biomcp help skill status [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help skill install
+
+```text
+Usage: biomcp help skill install [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help version
+
+```text
+Usage: biomcp help version [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help mcp-config
+
+```text
+Usage: biomcp help mcp-config [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help health
+
+```text
+Usage: biomcp help health [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help store
+
+```text
+Usage: biomcp help store [OPTIONS] [COMMAND]
 
 Commands:
-  assertions  
-  population  
-  recurrence  
-  normalize   
+  clean  
 
 Options:
       --format <format>
@@ -7600,10 +7711,10 @@ Options:
 
 ```
 
-## biomcp help variant assertions
+## biomcp help store clean
 
 ```text
-Usage: biomcp help variant assertions [OPTIONS]
+Usage: biomcp help store clean [OPTIONS]
 
 Options:
       --format <format>
@@ -7634,10 +7745,19 @@ Options:
 
 ```
 
-## biomcp help variant population
+## biomcp help key
 
 ```text
-Usage: biomcp help variant population [OPTIONS]
+Usage: biomcp help key [OPTIONS] [source] [COMMAND]
+
+Commands:
+  list    
+  set     
+  remove  
+
+Arguments:
+  [source]
+          [possible values: ncbi, semantic-scholar, orcid, oncokb, alphagenome, nci, openfda]
 
 Options:
       --format <format>
@@ -7668,10 +7788,10 @@ Options:
 
 ```
 
-## biomcp help variant recurrence
+## biomcp help key list
 
 ```text
-Usage: biomcp help variant recurrence [OPTIONS]
+Usage: biomcp help key list [OPTIONS]
 
 Options:
       --format <format>
@@ -7702,10 +7822,10 @@ Options:
 
 ```
 
-## biomcp help variant normalize
+## biomcp help key set
 
 ```text
-Usage: biomcp help variant normalize [OPTIONS]
+Usage: biomcp help key set [OPTIONS]
 
 Options:
       --format <format>
@@ -7736,20 +7856,14 @@ Options:
 
 ```
 
-## biomcp serve
+## biomcp help key remove
 
 ```text
-Usage: biomcp serve [OPTIONS]
+Usage: biomcp help key remove [OPTIONS]
 
 Options:
       --format <format>
           [possible values: json, md]
-
-      --http [<http>]
-          
-
-      --allow-host <allow-host>
-          
 
       --disable-sources <disable-sources>
           
@@ -7776,8 +7890,145 @@ Options:
 
 ```
 
-Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace.
+## biomcp help serve
 
+```text
+Usage: biomcp help serve [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help network
+
+```text
+Usage: biomcp help network [OPTIONS] [setting]
+
+Arguments:
+  [setting]
+          [possible values: ca_bundle, proxy]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help sources
+
+```text
+Usage: biomcp help sources [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
+
+## biomcp help config
+
+```text
+Usage: biomcp help config [OPTIONS]
+
+Options:
+      --format <format>
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          
+
+      --config <config>
+          
+
+      --replay <replay>
+          
+
+      --record <record>
+          
+
+      --case-cache <case-cache>
+          
+
+      --observe <observe>
+          
+
+      --offline
+          
+
+      --fresh
+
+```
 
 ## biomcp sync [hgnc|clingen]
 

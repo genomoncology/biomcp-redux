@@ -93,7 +93,7 @@ fn validation_frames() -> Result<Vec<Value>, String> {
         json!({"jsonrpc":"2.0","method":"unknown"}),
         json!({"jsonrpc":"2.0","id":9,"method":"ping"}),
         request(json!(10), "ping", json!({})),
-        json!({"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":[]}}}),
+        json!({"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"biomcp","arguments":{"args":["schema"]}}}),
         json!({"jsonrpc":"2.0","id":null,"method":"ping"}),
         json!({"jsonrpc":"2.0","id":1.5,"method":"ping"}),
         json!([]),

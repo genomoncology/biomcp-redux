@@ -12,6 +12,11 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     {
         return Ok(source_settings::help(topic));
     }
+    if path == ["network"] {
+        let mut help = network("ca_bundle");
+        help.commands.extend(network("proxy").commands);
+        return Ok(help);
+    }
     if let [category, setting] = path
         && category == "network"
     {
@@ -21,7 +26,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
         .into_iter()
         .filter(|c| {
             path.is_empty()
-                || c.command == path
+                || c.command.starts_with(path)
                 || (path.len() == 1
                     && path.first().is_some_and(|word| word == "skill")
                     && c.command.first() == path.first())
