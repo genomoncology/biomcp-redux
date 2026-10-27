@@ -72,7 +72,7 @@ fn http() -> Check {
             reply
                 .pointer("/result/structuredContent")
                 .ok_or("missing tool result")?,
-            if args[0] == "get" {
+            if args.first().is_some_and(|arg| *arg == "get") {
                 "usage.arguments"
             } else {
                 "usage.mcp_unavailable"
