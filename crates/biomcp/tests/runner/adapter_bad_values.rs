@@ -100,10 +100,10 @@ fn ema() -> Result<(), Box<dyn std::error::Error>> {
                 };
                 if let Some(rows) = rows.get_mut("data").and_then(Value::as_array_mut) {
                     for row in rows {
-                        if row.get("ema_product_number") == Some(&json!("EMEA/H/C/004124")) {
-                            if let Some(fields) = row.as_object_mut() {
-                                fields.insert(field.into(), json!(invalid));
-                            }
+                        if row.get("ema_product_number") == Some(&json!("EMEA/H/C/004124"))
+                            && let Some(fields) = row.as_object_mut()
+                        {
+                            fields.insert(field.into(), json!(invalid));
                         }
                     }
                 }
