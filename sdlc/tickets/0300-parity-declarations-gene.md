@@ -1,6 +1,7 @@
 # 0300 — Declare Gene parity plans for 0.9.3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f9df916d23af05429e6a58a481104fab26fbc824
 
 Milestone: 5
 
