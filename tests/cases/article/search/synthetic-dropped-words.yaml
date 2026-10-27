@@ -10,8 +10,8 @@
         "article",
         "AKT1 E17K"
       ],
-      "max_bytes": 4000,
-      "max_tokens": 1000,
+      "max_bytes": 1257,
+      "max_tokens": 314,
       "expect": {
         "/sources/0/notices/0/kind": "not_found_words",
         "/next/0/args": [

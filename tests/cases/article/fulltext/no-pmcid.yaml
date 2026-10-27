@@ -35,7 +35,8 @@
           "21217686"
         ]
       },
-      "max_bytes": 550
+      "max_bytes": 306,
+      "max_tokens": 78
     }
   ]
 }
