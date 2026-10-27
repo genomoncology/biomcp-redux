@@ -215,10 +215,10 @@ fn bind_routes(
         {
             return Err("shape path value needs a reviewed native encoding".into());
         }
-        route.request_prefix = expand(&route.request_prefix, &bindings)?;
-        route.request_contains = expand(&route.request_contains, &bindings)?;
+        route.request_prefix = expand(&route.request_prefix, bindings)?;
+        route.request_contains = expand(&route.request_contains, bindings)?;
         for value in route.request_query.values_mut() {
-            *value = expand(value, &bindings)?;
+            *value = expand(value, bindings)?;
         }
         let replay = case
             .replay

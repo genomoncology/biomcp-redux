@@ -10,6 +10,7 @@ import sys
 
 from source_capture import outside_git, write_json
 from test_parity_runner import ROOT, run
+from test_parity_batches import inventory
 
 
 def main():
@@ -55,6 +56,7 @@ def main():
             assert fact['baseline']['verdict'] == ('right' if label == 'native' else 'wrong'), fact
             assert row['baseline']['recorded_requests'] >= 1
             assert row['baseline']['command'][-1] == row['candidate']['command'][2]
+    inventory(out)
     print(json.dumps({'native_cases': names, 'proof': 'current-case native positive and wrong projection',
                       'evidence': str(out)}))
 
