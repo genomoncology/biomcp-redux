@@ -57,10 +57,67 @@
       ],
       "type": "object"
     },
+    "DisableGroup": {
+      "additionalProperties": false,
+      "description": "The consequences of one source-disable selector, regardless of current configuration.",
+      "properties": {
+        "components": {
+          "description": "Carried fields stopped while their aggregators remain available.",
+          "items": {
+            "$ref": "#/$defs/DisabledComponent"
+          },
+          "type": "array"
+        },
+        "group": {
+          "$ref": "#/$defs/Use",
+          "description": "Terms category accepted by disable_sources."
+        },
+        "sources": {
+          "description": "Whole sources stopped by this group.",
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "group",
+        "sources",
+        "components"
+      ],
+      "type": "object"
+    },
+    "DisabledComponent": {
+      "additionalProperties": false,
+      "description": "One independently labeled carried field excluded by a terms group.",
+      "properties": {
+        "name": {
+          "description": "Registry-owned component name.",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "description": "Aggregator carrying the field."
+        }
+      },
+      "required": [
+        "source",
+        "name"
+      ],
+      "type": "object"
+    },
     "Health": {
       "additionalProperties": false,
       "description": "Source reachability and publisher terms, independent of local HTTP service health.",
       "properties": {
+        "disable_groups": {
+          "default": [],
+          "description": "Sources and carried components excluded by each supported terms group.",
+          "items": {
+            "$ref": "#/$defs/DisableGroup"
+          },
+          "type": "array"
+        },
         "sources": {
           "description": "Every implemented adapter, in declaration order.",
           "items": {

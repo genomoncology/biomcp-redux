@@ -88,7 +88,7 @@ fn article_registry() -> Vec<Contract> {
         ArticlePdf => ("article-pdf", "biodata.article-pdf/1"),
         Envelope<ArticlePdfResult> => ("article-pdf-result", "biomcp.article_pdf/2"),
         ArticleSupplement => ("article-supplement", "biodata.article-supplement/1"),
-        Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article_supplement/2"),
+        Envelope<ArticleSupplementResult> => ("article-supplement-result", "biomcp.article_supplement/3"),
         ArticleText => ("article-text", "biodata.article-text/2"),
         Envelope<ArticleTextResult> => ("article-text-result", "biomcp.article_text/3"),
         ArticleEdges => ("article-edges", "biodata.article-edges/2"),

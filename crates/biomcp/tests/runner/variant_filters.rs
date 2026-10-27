@@ -56,7 +56,7 @@ fn restricted_page() -> Result<(), String> {
         .map(|value| value.split(',').collect::<Vec<_>>())
         .unwrap_or_default();
     if !disabled.contains(&"restricted")
-        || !disabled.contains(&"noncommercial")
+        || disabled.contains(&"noncommercial")
         || !disabled.contains(&"clinvar")
         || page.pointer("/page/offset") != Some(&json!(1))
         || page.pointer("/result/items/0/identity/ids").is_some()

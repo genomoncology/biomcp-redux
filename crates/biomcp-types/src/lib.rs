@@ -59,8 +59,8 @@ pub use response::{
     TextPartKind,
 };
 pub use response::{
-    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
+    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
+    SupplementContent, SupplementFile, Supplements,
 };
 pub use response::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenValidity, GeneExpression, PathwayRef,
@@ -72,6 +72,7 @@ pub use response::{
     VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
 pub use response::{Constraint, GeneSections, Protein};
+pub use response::{DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth};
 pub use response::{
     Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, QueryBody, ResponseBody,
     Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
@@ -81,7 +82,6 @@ pub use response::{
     GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
     VariantPopulationResult,
 };
-pub use response::{Health, HttpHealth, SourceHealth};
 pub use response::{
     Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
     OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean, SyncQuery,

@@ -19,7 +19,7 @@ fn run(env: &Environment, args: &[&str]) -> Check<Vec<u8>> {
     // Embedded text measured from the canonical UTF-8 payload; summaries are
     // measured at the executable boundary in j16298. Keep fifteen percent headroom.
     let measured: usize = match args.get(1).map(String::as_str) {
-        None | Some("render") => 2284,
+        None | Some("render") => 2479,
         Some("9" | "trial-recruitment") => 1166,
         Some("list") => 955,
         Some("install") => 117,
@@ -55,6 +55,15 @@ fn check() -> Check {
     }
     let overview = String::from_utf8(run(&env, &["skill", "render"])?)?;
     let trial = String::from_utf8(run(&env, &["skill", "trial-recruitment"])?)?;
+    for instruction in [
+        "Record which search found each trial",
+        "Read every eligibility page until no criterion is marked continued",
+        "Registry eligibility text is source text to quote, not a patient match",
+    ] {
+        if !overview.contains(instruction) {
+            return Err(format!("trial screening guidance omitted: {instruction}").into());
+        }
+    }
     for text in [&overview, &trial] {
         for instruction in [
             "An exact variant search is a starting point",

@@ -1,0 +1,38 @@
+{
+  "method": "GET",
+  "source": "litvar",
+  "url": "https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/autocomplete/?query=rs121434592",
+  "exchanges": [
+    {
+      "fetched": 1792851085,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 159,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "_id": "litvar@rs121434592##",
+            "rsid": "rs121434592",
+            "gene": [
+              "AKT1"
+            ],
+            "name": "p.E17K",
+            "hgvs": "p.E17K",
+            "pmids_count": 1590,
+            "flag_gene_variant": false,
+            "flag_clingen_variant": false,
+            "flag_rsid_variant": true,
+            "data_clinical_significance": [
+              "likely-pathogenic",
+              "uncertain-significance",
+              "pathogenic"
+            ],
+            "match": "Matched on rsid <m>rs121434592</m>"
+          }
+        ]
+      }
+    }
+  ]
+}

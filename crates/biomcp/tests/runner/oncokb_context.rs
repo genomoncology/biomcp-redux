@@ -51,14 +51,7 @@ fn run() -> Result<(), String> {
             .is_some_and(|steps| {
                 steps.iter().any(|s| {
                     s.get("kind") == Some(&json!("configure"))
-                        && s.get("args")
-                            == Some(&json!([
-                                "--disable-sources",
-                                disabled.join(","),
-                                "help",
-                                "get",
-                                "variant"
-                            ]))
+                        && s.get("args") == Some(&json!(["help", "get", "variant"]))
                 })
             })
     {

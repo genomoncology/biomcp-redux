@@ -14,6 +14,25 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
         .unwrap_or(Value::Null);
     let hint = hints::find(identity);
     let mut out = String::new();
+    for source in value
+        .get("sources")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        for notice in source
+            .get("notices")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
+            if notice.get("kind").and_then(Value::as_str) == Some("not_found_words") {
+                out.push_str("**PubMed dropped supplied words:** ");
+                out.push_str(&scalar(&notice["words"]));
+                out.push_str("\n\n");
+            }
+        }
+    }
     if value.get("error").is_some() {
         out.push_str("# Error\n\n");
     }

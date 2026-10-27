@@ -21,7 +21,8 @@ BIOMCP_CASE_RUNNER="$scratch/native-check/case-runner" \
 for arch in amd64 arm64; do
   case "$arch" in amd64) wheel_arch=x86_64; archive_arch=x86_64;; arm64) wheel_arch=aarch64; archive_arch=arm64;; esac
   image="quay.io/pypa/manylinux_2_28_$wheel_arch"
-  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 "$@" \
+  docker run --rm --memory 6g --cpus 2 "$@" \
+    --user "$(id -u):$(id -g)" -e HOME=/tmp \
     --platform "linux/$arch" -v "$scratch/source:/source:ro" -v "$scratch:/output" \
     -e "BIOMCP_BUILD_REVISION=$revision" -e "BIOMCP_BUILD_ARCH=$arch" \
     "$image" /bin/bash -c '
@@ -39,7 +40,8 @@ for arch in amd64 arm64; do
     '
   # The installation container has only artifacts, a runner and public fixtures.
   # It has no checkout, build tree, host configuration or credential mount.
-  docker run --rm --user "$(id -u):$(id -g)" --memory 6g --cpus 2 "$@" \
+  docker run --rm --memory 6g --cpus 2 "$@" \
+    --user "$(id -u):$(id -g)" -e HOME=/tmp \
     --platform "linux/$arch" -v "$scratch/linux-$arch:/artifacts:ro" \
     -v "$scratch/proof-$arch:/proof:ro" "$image" /bin/bash -c '
       set -euo pipefail

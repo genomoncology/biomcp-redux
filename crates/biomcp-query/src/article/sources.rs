@@ -283,15 +283,20 @@ fn prepare_litvar<'a>(
             out.sources
                 .push(status::source(Source::LitVar, leg.finish(), None));
             for candidate in &candidates {
-                out.next.push((
-                    biomcp_types::StepKind::Disambiguate,
-                    crate::Action::Run {
-                        request: biomcp_types::Request::SearchArticle(
-                            query.with_variant(candidate.rsid.clone()),
-                        ),
-                        fresh: cx.fresh,
-                    },
-                ));
+                for variant in [&candidate.rsid, &candidate.name] {
+                    if query.variant() == Some(variant) {
+                        continue;
+                    }
+                    out.next.push((
+                        biomcp_types::StepKind::Disambiguate,
+                        crate::Action::Run {
+                            request: biomcp_types::Request::SearchArticle(
+                                query.with_variant(variant.clone()),
+                            ),
+                            fresh: cx.fresh,
+                        },
+                    ));
+                }
             }
             out.body = biomcp_types::QueryBody::ArticlePage(biomcp_types::ArticlePage {
                 items: Box::default(),

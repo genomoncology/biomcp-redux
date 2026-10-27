@@ -1,6 +1,6 @@
 {
   "feature": "article-supplements",
-  "story": "A literal match in a wide row precedes header and unrelated cell fragments; original coordinates and continuation preserve all context. A different spelling stays absent.",
+  "story": "A literal match in a wide row precedes first-row and unrelated cell fragments; original coordinates and continuation preserve all context. A different spelling stays absent.",
   "replay": "article/supplements/synthetic-match-first",
   "steps": [
     {
@@ -24,7 +24,7 @@
         "/result/content/data/rows/0/row": 2,
         "/result/content/data/rows/0/fragment": {
           "equals": {
-            "header": false,
+            "first_row": false,
             "column": 40,
             "offset": 0,
             "text": "F1761I"
@@ -37,7 +37,7 @@
         "/result/content/data/rows/2/row": 4,
         "/result/content/data/rows/2/fragment": {
           "equals": {
-            "header": false,
+            "first_row": false,
             "column": 40,
             "offset": 998,
             "text": "F1761I"

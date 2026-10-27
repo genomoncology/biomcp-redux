@@ -16,8 +16,8 @@
         "--source",
         "litvar"
       ],
-      "max_bytes": 733,
-      "max_tokens": 184,
+      "max_bytes": 984,
+      "max_tokens": 247,
       "expect": {
         "/status": "absent",
         "/result/items": {
@@ -33,7 +33,49 @@
         ],
         "/next/*/kind": [
           "disambiguate",
+          "disambiguate",
+          "disambiguate",
           "disambiguate"
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "litvar",
+          "--variant",
+          "rs121913529"
+        ],
+        "/next/1/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "litvar",
+          "--variant",
+          "p.G12D"
+        ],
+        "/next/2/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "litvar",
+          "--variant",
+          "rs121913530"
+        ],
+        "/next/3/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "litvar",
+          "--variant",
+          "p.G12C"
         ]
       },
       "exit": 1,
@@ -59,8 +101,8 @@
         "--source",
         "pubmed,litvar"
       ],
-      "max_bytes": 733,
-      "max_tokens": 184,
+      "max_bytes": 1026,
+      "max_tokens": 257,
       "expect": {
         "/status": "absent",
         "/result/items": {
@@ -76,11 +118,53 @@
         ],
         "/next/*/kind": [
           "disambiguate",
+          "disambiguate",
+          "disambiguate",
           "disambiguate"
         ],
         "/sources/*/source": [
           "hgnc",
           "litvar"
+        ],
+        "/next/0/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "pubmed,litvar",
+          "--variant",
+          "rs121913529"
+        ],
+        "/next/1/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "pubmed,litvar",
+          "--variant",
+          "p.G12D"
+        ],
+        "/next/2/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "pubmed,litvar",
+          "--variant",
+          "rs121913530"
+        ],
+        "/next/3/args": [
+          "search",
+          "article",
+          "--gene",
+          "KRAS",
+          "--source",
+          "pubmed,litvar",
+          "--variant",
+          "p.G12C"
         ]
       },
       "exit": 1,

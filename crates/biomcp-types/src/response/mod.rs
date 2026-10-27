@@ -1,8 +1,8 @@
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{
-    ArticleSupplementResult, CellFragment, FileKind, SheetInfo, SheetRow, SupplementContent,
-    SupplementFile, Supplements,
+    ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
+    SupplementContent, SupplementFile, Supplements,
 };
 mod article_cards;
 pub use article::{
@@ -59,7 +59,9 @@ pub use article_sections::{
 };
 
 mod health;
-pub use health::{ComponentHealth, Health, HttpHealth, SourceHealth};
+pub use health::{
+    ComponentHealth, DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth,
+};
 
 pub use article::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,

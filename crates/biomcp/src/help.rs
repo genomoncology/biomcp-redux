@@ -1,10 +1,17 @@
 //! Schema-fed command help shared with MCP discovery.
 
+mod source_settings;
+
 use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
 use std::{collections::BTreeMap, io};
 
 pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
+    if let [topic] = path
+        && matches!(topic.as_str(), "sources" | "config")
+    {
+        return Ok(source_settings::help(topic));
+    }
     if let [category, setting] = path
         && category == "network"
     {
