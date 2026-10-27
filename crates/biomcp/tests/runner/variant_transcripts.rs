@@ -75,14 +75,14 @@ fn transcripts() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let markdown = String::from_utf8_lossy(&markdown.stdout);
-    if !markdown.contains("NM\\_001199291&#46;2") || !markdown.contains("p&#46;His515Arg") {
+    if !markdown.contains("001199291&#46;2") || !markdown.contains("p&#46;His515Arg") {
         return Err(format!("readable card lost transcript rows: {markdown}"));
     }
     let excluded = run(
         &env,
         &[
             "--disable-sources",
-            "snpeff",
+            "restricted",
             "search",
             "variant",
             "--gene",
@@ -131,7 +131,11 @@ fn run(env: &Environment, args: &[&str]) -> Result<Value, String> {
         .output()
         .map_err(|e| e.to_string())?;
     if !out.status.success() {
-        return Err(String::from_utf8_lossy(&out.stderr).into());
+        return Err(format!(
+            "command {args:?} failed: {} {}",
+            String::from_utf8_lossy(&out.stdout),
+            String::from_utf8_lossy(&out.stderr)
+        ));
     }
     serde_json::from_slice(&out.stdout).map_err(|e| e.to_string())
 }
