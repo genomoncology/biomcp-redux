@@ -27,6 +27,7 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar
 	cargo test --locked -p biomcp --test cases article-help/executable-examples
 	python3 release/tools.py
 	python3 -m unittest release.test_tools
@@ -37,6 +38,7 @@ docs-check:
 	python3 scripts/test_coverage.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks
+	python3 -m unittest release.test_workflow
 .PHONY: release-artifacts
 release-artifacts:
 	sh release/matrix.sh $(CONTAINER_ARGS)
@@ -49,6 +51,9 @@ nightly-live-check:
 source-capture:
 	python3 scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"
 
+.PHONY: docs-generate
+docs-generate:
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference -- --ignored
 .PHONY: schema-release-check
 schema-release-check:
 	python3 scripts/schema_release.py

@@ -4,6 +4,10 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
+        "crates/biomcp/src/grammar/reference.rs",
+        "Generate and compare documentation at the private parser boundary without adding a public command.",
+    ),
+    (
         "crates/biomcp/src/mcp/worker_tests.rs",
         "Inject a panic at the private worker completion boundary because public requests cannot intentionally panic.",
     ),
