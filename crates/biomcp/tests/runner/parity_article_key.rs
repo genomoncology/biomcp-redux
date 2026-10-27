@@ -30,7 +30,18 @@ impl ArticleKey {
                 if !id.is_empty() {
                     return Ok(match self.field {
                         Field::Namespace => json!(namespace),
-                        Field::Item => json!({"key":{"namespace":namespace,"id":id}}),
+                        Field::Item => {
+                            if row.get("title").and_then(Value::as_str) != Some("")
+                                || row.get("date").is_some()
+                                || row.get("journal").is_some()
+                            {
+                                return Err(
+                                    "released article retains header fields for a key-only item"
+                                        .into(),
+                                );
+                            }
+                            json!({"key":{"namespace":namespace,"id":id}})
+                        }
                     });
                 }
             }
