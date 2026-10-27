@@ -32,7 +32,7 @@ fn names() -> Check {
         let args = ["search", "drug", "Synthetic", "--source", "drugsfda", "--limit", "1"];
         let mut record = vec!["--record".into(), recording.to_string_lossy().into_owned()];
         record.extend(args.map(str::to_owned));
-        invoke(&env, &record, 0)?;
+        invoke(&env, record, 0)?;
         if stub.finish()?.len() != 1 {
             return Err("synthetic recording did not make exactly one local request".into());
         }
