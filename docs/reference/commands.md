@@ -2173,6 +2173,7 @@ Trailing section words select sections. Use --section WORD to keep inputs that e
 - `protein`: Reviewed human proteins.
 - `civic`: CIViC gene curation.
 - `clingen`: ClinGen validity and dosage.
+- `gencc`: GenCC submitter assessments.
 - `constraint`: Population constraint metrics.
 - `expression`: Human Protein Atlas expression.
 - `pathways`: Human Reactome pathways.
@@ -3732,7 +3733,7 @@ Arguments:
   [bundle]
           Local source bundle to synchronize; default hgnc.
           
-          [possible values: wikipathways, cbioportal-studies, hgnc, clingen, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
+          [possible values: wikipathways, cbioportal-studies, hgnc, clingen, gencc, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
 
 Options:
       --format <format>
