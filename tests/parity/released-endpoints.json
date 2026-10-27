@@ -73,7 +73,7 @@
       "variables": [
         "BIOMCP_CLINGEN_EREPO_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "clingen_ldh": {
       "recording_source": "clingen_ldh",
@@ -208,7 +208,7 @@
       "variables": [
         "BIOMCP_GWAS_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "hpo-jax-api": {
       "recording_source": "hpo",
@@ -271,7 +271,7 @@
       "variables": [
         "BIOMCP_MUTALYZER_BASE_URL"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "mychem-info": {
       "recording_source": "mychem",
@@ -299,7 +299,7 @@
       "variables": [
         "BIOMCP_MYVARIANT_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "ncbi-e-utilities": {
       "recording_source": "pubmed",
@@ -469,7 +469,7 @@
       "variables": [
         "BIOMCP_VARIANTVALIDATOR_BASE_URL"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "who-ivd": {
       "recording_source": "who-ivd",
