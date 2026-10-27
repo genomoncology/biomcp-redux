@@ -31,7 +31,8 @@
             "q": "symbol:\"FAM46C\"",
             "species": "human"
           },
-          "recording_gap": "Released lookup first queries symbol:\"FAM46C\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+          "recording_gap": "Released lookup first queries symbol:\"FAM46C\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -114,7 +115,8 @@
             "q": "symbol:\"HER2\"",
             "species": "human"
           },
-          "recording_gap": "Released lookup first queries symbol:\"HER2\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+          "recording_gap": "Released lookup first queries symbol:\"HER2\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -197,7 +199,8 @@
             "q": "symbol:\"KRAS\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -298,7 +301,8 @@
             "q": "symbol:\"MLL\"",
             "species": "human"
           },
-          "recording_gap": "Released lookup first queries symbol:\"MLL\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+          "recording_gap": "Released lookup first queries symbol:\"MLL\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -384,7 +388,8 @@
             "q": "symbol:\"MLL2\"",
             "species": "human"
           },
-          "recording_gap": "The harvested HGNC ambiguity recording has no initial released MyGene symbol, alias-search or discover fallback source replies. Missing source replies remain assessment gaps."
+          "recording_gap": "The harvested HGNC ambiguity recording has no initial released MyGene symbol, alias-search or discover fallback source replies. Missing source replies remain assessment gaps.",
+          "capture": ""
         },
         {
           "source": "ols4",
@@ -395,7 +400,8 @@
           "request_query": {
             "q": "MLL2"
           },
-          "recording_gap": "The released discover alias fallback needs OLS ontology search replies for this same input. The harvested HGNC resolution recording contains none; no concept candidate labels or IDs can be inferred from the expected assertions."
+          "recording_gap": "The released discover alias fallback needs OLS ontology search replies for this same input. The harvested HGNC resolution recording contains none; no concept candidate labels or IDs can be inferred from the expected assertions.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -455,7 +461,8 @@
             "q": "symbol:\"p16\"",
             "species": "human"
           },
-          "recording_gap": "The harvested HGNC ambiguity recording has no initial released MyGene symbol, alias-search or discover fallback source replies. Missing source replies remain assessment gaps."
+          "recording_gap": "The harvested HGNC ambiguity recording has no initial released MyGene symbol, alias-search or discover fallback source replies. Missing source replies remain assessment gaps.",
+          "capture": ""
         },
         {
           "source": "ols4",
@@ -466,7 +473,8 @@
           "request_query": {
             "q": "p16"
           },
-          "recording_gap": "The released discover alias fallback needs OLS ontology search replies for this same input. The harvested HGNC resolution recording contains none; no concept candidate labels or IDs can be inferred from the expected assertions."
+          "recording_gap": "The released discover alias fallback needs OLS ontology search replies for this same input. The harvested HGNC resolution recording contains none; no concept candidate labels or IDs can be inferred from the expected assertions.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -521,7 +529,8 @@
             "q": "symbol:\"ERBB2\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -578,7 +587,8 @@
             "q": "symbol:\"VISTA\"",
             "species": "human"
           },
-          "recording_gap": "Released lookup first queries symbol:\"VISTA\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution."
+          "recording_gap": "Released lookup first queries symbol:\"VISTA\" and may then query aliases and the canonical symbol. The capture only retains the current Entrez batch annotation; the missing initial and alias replies cannot be inferred from HGNC resolution.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -639,7 +649,8 @@
             "q": "symbol:\"AKAP2\"",
             "species": "human"
           },
-          "recording_gap": "The harvested gene/civic/synthetic-no-join recording has no retained MyGene symbol query response for AKAP2; the released getter and any alias fallback need their original source values. No baseline-only response is substituted."
+          "recording_gap": "The harvested gene/civic/synthetic-no-join recording has no retained MyGene symbol query response for AKAP2; the released getter and any alias fallback need their original source values. No baseline-only response is substituted.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -702,7 +713,8 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "gnomad",
@@ -710,7 +722,8 @@
           "host": "gnomad.broadinstitute.org",
           "request_prefix": "POST /api",
           "request_contains": "",
-          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data."
+          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data.",
+          "capture": ""
         },
         {
           "source": "clingen",
@@ -782,7 +795,8 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "gnomad",
@@ -790,7 +804,8 @@
           "host": "gnomad.broadinstitute.org",
           "request_prefix": "POST /api",
           "request_contains": "",
-          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data."
+          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -843,7 +858,8 @@
             "q": "symbol:\"CLDN18\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "human-protein-atlas",
@@ -851,7 +867,8 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
-          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -914,7 +931,8 @@
             "q": "symbol:\"CLDN18\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "human-protein-atlas",
@@ -922,7 +940,8 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
-          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1001,15 +1020,17 @@
             "q": "symbol:\"MIR21\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "human-protein-atlas",
           "endpoint_env": "BIOMCP_HPA_BASE",
           "host": "www.proteinatlas.org",
-          "request_prefix": "GET /ENSG00000066405.xml",
+          "request_prefix": "GET /ENSG00000284190.xml",
           "request_contains": "",
-          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1058,7 +1079,8 @@
             "q": "symbol:\"CLDN18\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "human-protein-atlas",
@@ -1066,7 +1088,8 @@
           "host": "www.proteinatlas.org",
           "request_prefix": "GET /ENSG00000066405.xml",
           "request_contains": "",
-          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture."
+          "recording_gap": "The retained HPA request returns ENSG.json; released hpa requires ENSG.xml and decodes XML tissue levels and subcellular locations. No XML reply is retained, and JSON cannot be rewritten into a baseline-only XML fixture.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1131,7 +1154,8 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "gnomad",
@@ -1139,7 +1163,8 @@
           "host": "gnomad.broadinstitute.org",
           "request_prefix": "POST /api",
           "request_contains": "",
-          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data."
+          "recording_gap": "The retained response uses data.g0 and a lowercase pli field for an Ensembl batch query. Released GeneConstraint requires data.gene from a gene_symbol query and pLI. Wrapping the whole body cannot supply the missing released decoder fields without changing source data.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1193,7 +1218,8 @@
             "q": "symbol:\"BRAF\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted."
+          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted.",
+          "capture": ""
         },
         {
           "source": "reactome",
@@ -1204,7 +1230,8 @@
           "request_query": {
             "query": "BRAF"
           },
-          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap."
+          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1256,7 +1283,8 @@
             "q": "symbol:\"TP53\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted."
+          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted.",
+          "capture": ""
         },
         {
           "source": "reactome",
@@ -1267,7 +1295,8 @@
           "request_query": {
             "query": "TP53"
           },
-          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap."
+          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1320,7 +1349,8 @@
             "q": "symbol:\"BRAF\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted."
+          "recording_gap": "The retained Entrez annotation omits symbol and name needed by released Reactome symbol search. A native symbol-query recording is missing; no baseline-only annotation is substituted.",
+          "capture": ""
         },
         {
           "source": "reactome",
@@ -1331,7 +1361,8 @@
           "request_query": {
             "query": "BRAF"
           },
-          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap."
+          "recording_gap": "The harvested Reactome accession mapping captures do not contain the released symbol text-search reply. Its ordered IDs and bounded row count remain declared, with a recording assessment gap.",
+          "capture": ""
         }
       ],
       "facts": {
@@ -1393,7 +1424,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1404,7 +1436,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1454,7 +1487,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1465,7 +1499,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1514,7 +1549,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1525,7 +1561,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1577,7 +1614,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1588,7 +1626,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1637,7 +1676,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1648,7 +1688,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1697,7 +1738,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1708,7 +1750,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1761,7 +1804,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1772,7 +1816,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
@@ -1821,7 +1866,8 @@
             "q": "symbol:\"CDKN2A\"",
             "species": "human"
           },
-          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture."
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
         },
         {
           "source": "uniprot",
@@ -1832,7 +1878,8 @@
           "recording_gap": "The released getter needs a MyGene Swiss-Prot accession, falling back to a symbol search, then a single uniprotkb/ACCESSION.json record. Current captures contain an accessions batch results envelope and MyGene annotations omit Swiss-Prot; the original symbol-search and single-record replies are missing.",
           "request_query": {
             "query": "CDKN2A"
-          }
+          },
+          "capture": ""
         }
       ],
       "facts": {
