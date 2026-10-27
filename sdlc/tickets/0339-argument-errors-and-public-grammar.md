@@ -13,4 +13,4 @@ Milestone: 5
 - Rules: name the argument, never echo its value, as 0013 and 0025 say. Harness flags keep working for tests.
 - Proof: CLI cases for each behavior above; a check over `biomcp help` fails if a global option, top-level command or argument lacks a description, or if a harness flag appears; the negative longitude case runs against a recording.
 - Changes: the CLI grammar, help text, error mapping, CLI cases and the docs generator input.
-- Defers: defaults, value types, examples and aliases in help, which go to a 1.0 update.
+- Defers: defaults, value types, examples and aliases in help, which go to a 1.0 update. Argument names for semantic validation after parsing go to 0345 (PM ruling 2026-10-27, m10137); 0339 keeps the fixed guidance for those.
