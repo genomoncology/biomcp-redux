@@ -5,8 +5,6 @@
 )]
 use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
-#[path = "build/output_schemas.rs"]
-mod output_schemas;
 #[path = "build/schema_metadata.rs"]
 mod schema_metadata;
 
@@ -33,7 +31,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     schema_metadata::write(&schemas, &PathBuf::from(env::var("OUT_DIR")?))?;
-    output_schemas::write(&schemas, &PathBuf::from(env::var("OUT_DIR")?))?;
     let entries = schemas
         .iter()
         .map(|(id, text)| format!("({id:?}, {text:?}),\n"))

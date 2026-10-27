@@ -162,17 +162,12 @@ fn static_quota_references_are_not_quota_declarations() -> Check {
 }
 
 #[test]
-fn generation_tools_stay_outside_runtime_dependencies() -> Check {
-    for (package, version) in [("serde-saphyr", "2"), ("schemars", "1")] {
-        rejects(
-            "crates/biomcp/Cargo.toml",
-            &format!(
-                "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\n{package}='{version}'\n"
-            ),
-            "forbidden dependencies dependency",
-        )?;
-    }
-    Ok(())
+fn case_parser_stays_outside_runtime_dependencies() -> Check {
+    rejects(
+        "crates/biomcp/Cargo.toml",
+        "[package]\nname='biomcp'\n[lints]\nworkspace=true\n[dependencies]\nserde-saphyr='2'\n",
+        "forbidden dependencies dependency",
+    )
 }
 
 #[test]

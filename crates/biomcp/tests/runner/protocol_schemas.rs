@@ -16,6 +16,8 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         for invalid in [
             json!({"unrelated":true}),
             json!({"$id":"biomcp.health/2", "$schema":"unsupported"}),
+            json!({"schema":"unknown/1", "status":"complete", "result":{}}),
+            json!({"schema":"biomcp.health/2", "status":"complete", "result":[]}),
         ] {
             if validator.is_valid(&invalid) {
                 return Err(
@@ -26,10 +28,8 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         }
     }
     for args in [
-        json!(["health"]),
         json!(["help"]),
         json!(["schema"]),
-        json!(["schema", "biomcp.health/2"]),
         json!(["invalid-command"]),
     ] {
         super::super::research::call(
@@ -39,6 +39,19 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
             &[],
         )?;
     }
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let health = super::super::research::call(&env, "biomcp", json!({"args":["health"]}), &[])?;
+    let complete = super::super::research::call(
+        &env,
+        "biomcp",
+        json!({"args":["schema", "biomcp.health/2"]}),
+        &[],
+    )?;
+    local_references(&complete, &complete)?;
+    jsonschema::validator_for(&complete)
+        .map_err(|e| e.to_string())?
+        .validate(&health)
+        .map_err(|e| e.to_string())?;
     writeln!(
         std::io::stdout(),
         "MCP_TOOLS_BYTES={}",

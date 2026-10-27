@@ -2,7 +2,7 @@ use super::Check;
 use std::{fs, path::Path};
 use toml::Value;
 
-// Runtime dependencies. The binary also parses examples and composes schemas at build time.
+// Runtime dependencies. The binary alone also parses case examples at build time.
 // Test tooling has no product dependency edge.
 const LAYERS: &[(&str, &[&str])] = &[
     ("biodata", &["serde", "winnow", "schemars"]),
@@ -107,7 +107,7 @@ pub(super) fn check(root: &Path) -> Check {
             return Err(format!("{}: workspace lint inheritance required", path.display()).into());
         }
         let build_only: &[&str] = if *name == "biomcp" {
-            &["serde-saphyr", "schemars"]
+            &["serde-saphyr"]
         } else {
             &[]
         };

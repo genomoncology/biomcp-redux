@@ -1,4 +1,4 @@
-use super::Contract;
+use super::{Contract, generate};
 use biomcp_types::*;
 pub(super) fn registry() -> Vec<Contract> {
     contracts! {
