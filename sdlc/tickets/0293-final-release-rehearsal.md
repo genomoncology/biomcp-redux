@@ -1,7 +1,6 @@
 # 0293 — Rehearse the final release candidate on every platform
 
-Status: COMPLETE.
-Landed: 7eb644cdee6e795f5981130cb6d7fac7dbc7aa5a
+Status: OPEN.
 
 Milestone: 5
 
