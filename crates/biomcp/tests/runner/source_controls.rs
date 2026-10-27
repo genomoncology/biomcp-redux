@@ -10,6 +10,13 @@ use std::{fs, path::PathBuf};
 type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        Trial::test("sources/article-resolver-retries-respect-disabled", || {
+            article_resolver_retries().map_err(Into::into)
+        }),
+        Trial::test(
+            "sources/next-preserves-selected-config-and-cli-policy",
+            || next_config().map_err(Into::into),
+        ),
         Trial::test("sources/keyed-health-uses-declared-api-route", || {
             keyed_health().map_err(Into::into)
         }),
@@ -33,6 +40,31 @@ pub(super) fn trials() -> Vec<Trial> {
             no_request().map_err(Into::into)
         }),
     ]
+}
+
+fn article_resolver_retries() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    for command in [
+        vec!["article", "text", "33123537", "--part", "1"],
+        vec!["article", "supplement", "33123537", "file.csv"],
+    ] {
+        let mut args: Vec<String> = command.into_iter().map(str::to_owned).collect();
+        args.extend([
+            "--offline".into(),
+            "--disable-sources".into(),
+            "pubmed".into(),
+        ]);
+        let result = invoke(&env, args.clone(), 4)?;
+        if result.get("next").is_some()
+            || result.pointer("/sources/0/reason") != Some(&json!("disabled"))
+        {
+            return Err(format!("disabled PubMed resolver offers a retry: {result}"));
+        }
+        if mcp::call_with_globals(&env, &args, true, &[])? != result {
+            return Err("disabled article resolver differs over MCP".into());
+        }
+    }
+    Ok(())
 }
 
 fn disabled() -> Check {
@@ -327,12 +359,8 @@ fn enabled_fold() -> Check {
         {
             return Err(format!("disabled leg hid enabled source rows: {result}"));
         }
-        let next = result
-            .pointer("/next/0/args")
-            .and_then(Value::as_array)
-            .ok_or("missing continuation")?;
-        if !next.iter().any(|a| a == "--disable-sources") {
-            return Err("continuation lost source policy".into());
+        if result.get("next").is_some() {
+            return Err("mixed-source continuation still calls disabled PubMed".into());
         }
     }
     Ok(())
@@ -369,6 +397,74 @@ fn keyed_health() -> Check {
         .ok_or("missing keyed source")?;
     if oncokb.get("state") != Some(&json!("ok")) || oncokb.get("latency_ms").is_none() {
         return Err("keyed probe did not use the declared API endpoint".into());
+    }
+    Ok(())
+}
+
+fn next_config() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let config = env.root().join("selected config.json");
+    fs::write(&config, r#"{"disable_sources":["semantic-scholar"]}"#).map_err(|e| e.to_string())?;
+    let mut globals = env.globals(
+        Some(&super::launch::fixtures().join("replies/article/get/synthetic-derived")),
+        false,
+    );
+    globals.extend([
+        "--config".into(),
+        config.to_string_lossy().into(),
+        "--disable-sources".into(),
+        "litsense".into(),
+    ]);
+    let mut args = globals.clone();
+    args.extend(["get".into(), "article".into(), "33123537".into()]);
+    let result = invoke(&env, args, 0)?;
+    if result.pointer("/next/0/args")
+        != Some(&json!([
+            "--config",
+            config,
+            "--disable-sources",
+            "litsense",
+            "article",
+            "citations",
+            "33123537"
+        ]))
+    {
+        return Err(format!(
+            "follow-up lost config selection or repeated config exclusions: {result}"
+        ));
+    }
+    if mcp::call_with_globals(
+        &env,
+        &["get".into(), "article".into(), "33123537".into()],
+        false,
+        &globals,
+    )? != result
+    {
+        return Err("selected config follow-up differs over MCP".into());
+    }
+    fs::write(
+        config,
+        r#"{"disable_sources":["semantic-scholar","icite"]}"#,
+    )
+    .map_err(|e| e.to_string())?;
+    let mut next = env.globals(
+        Some(&super::launch::fixtures().join("replies/article/get/synthetic-derived")),
+        false,
+    );
+    next.extend(
+        result
+            .pointer("/next/0/args")
+            .and_then(Value::as_array)
+            .ok_or("missing follow-up")?
+            .iter()
+            .filter_map(Value::as_str)
+            .map(str::to_owned),
+    );
+    let skipped = invoke(&env, next, 4)?;
+    if skipped.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+        return Err(format!(
+            "follow-up did not reuse selected configuration: {skipped}"
+        ));
     }
     Ok(())
 }
