@@ -375,7 +375,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
     trials.extend(markdown::trials());
-    trials.extend(source_text::trials());
     trials.extend(markdown_shapes::trials());
     trials.extend(markdown_variant_trial::trials());
     trials.extend(markdown_sources::trials());
