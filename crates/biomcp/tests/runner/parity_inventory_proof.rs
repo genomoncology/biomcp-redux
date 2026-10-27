@@ -57,11 +57,7 @@ fn check() -> Result<(), String> {
     Ok(())
 }
 fn invoke(env: &Environment, plan: &Path, complete: bool) -> Result<(), String> {
-    let report = env.root().join(if complete {
-        "complete-report.json"
-    } else {
-        "missing-report.json"
-    });
+    let report = plan.with_extension("report.json");
     let args = vec![
         "--parity-inventory".into(),
         plan.display().to_string(),
