@@ -21,7 +21,7 @@
         "/status": "complete",
         "/result/items/0/id": 6110,
         "/query/query/order": "p_value,asc",
-        "/result/items/0/p_value": "4e-254"
+        "/result/items/0/p_value": 4e-254
       },
       "max_bytes": 1828
     },
@@ -42,7 +42,7 @@
         "/status": "complete",
         "/result/items/0/id": 6110,
         "/query/query/order": "p_value,asc",
-        "/result/items/0/p_value": "4e-254"
+        "/result/items/0/p_value": 4e-254
       },
       "max_bytes": 1835
     },
