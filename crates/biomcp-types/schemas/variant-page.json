@@ -6290,7 +6290,7 @@
               "type": "null"
             }
           ],
-          "description": "Source coding notation, never computed from another transcript."
+          "description": "Source transcript notation from the coding field, including native n. or r. forms."
         },
         "hgvs_p": {
           "anyOf": [
