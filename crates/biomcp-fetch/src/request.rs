@@ -483,6 +483,7 @@ impl Leg<'_> {
         started: Instant,
     ) -> Result<(), crate::RecordError> {
         let exchange = Exchange {
+            rpc: None,
             fetched: wire.fetched,
             status: wire.status,
             content_type: wire.content_type.clone(),

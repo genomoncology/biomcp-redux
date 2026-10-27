@@ -325,6 +325,7 @@ impl Leg<'_> {
         provenance(&mut meta, &body);
         if matches!(self.fetch.mode, Mode::Record { .. }) {
             let exchange = Exchange {
+                rpc: None,
                 fetched: crate::cache::now(),
                 status: 200,
                 content_type: b.format.media().into(),

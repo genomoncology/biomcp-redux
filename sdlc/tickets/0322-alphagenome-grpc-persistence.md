@@ -1,6 +1,7 @@
 # 0322 — Cache, record and replay AlphaGenome streams
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b821b2cf0522263a633ba67c5b61537b6ddde7ef
 
 Milestone: 5
 

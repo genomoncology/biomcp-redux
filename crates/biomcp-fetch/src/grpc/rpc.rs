@@ -2,17 +2,40 @@
 use super::{rpc_call::Event, worker::Command};
 use crate::{BadReply, InputError, KeyPlace, KeyUse, Leg, Mode, RequestError, Secret, SourceSpec};
 use biomcp_types::Reason;
+use std::time::{Duration, Instant};
+
+#[derive(Default)]
+pub(super) struct NetworkEnd {
+    pub(super) terminal: Option<u8>,
+    pub(super) delay: Duration,
+}
 
 /// A declared streaming method belonging to exactly one source.
 #[derive(Clone, Copy, Debug)]
 pub struct GrpcEndpoint {
-    spec: &'static SourceSpec,
-    path: &'static str,
+    pub(super) spec: &'static SourceSpec,
+    pub(super) path: &'static str,
+    pub(super) schema: &'static str,
+    pub(super) fresh: crate::Freshness,
 }
 impl SourceSpec {
     /// Declare one read-only streaming method. Every invocation makes one application attempt.
     pub const fn grpc(&'static self, path: &'static str) -> GrpcEndpoint {
-        GrpcEndpoint { spec: self, path }
+        GrpcEndpoint {
+            spec: self,
+            path,
+            schema: "",
+            fresh: crate::Freshness::Never,
+        }
+    }
+}
+impl GrpcEndpoint {
+    /// Pin the response schema and opt into checked caching for reproducible requests only.
+    /// Provider-default model requests must retain Freshness::Never.
+    pub const fn checked(mut self, schema: &'static str, fresh: crate::Freshness) -> Self {
+        self.schema = schema;
+        self.fresh = fresh;
+        self
     }
 }
 impl crate::Fetch {
@@ -31,19 +54,29 @@ impl Leg<'_> {
         body: &[u8],
         mut message: impl FnMut(&[u8]) -> Result<(), BadReply>,
     ) -> Result<(), RequestError> {
+        self.rpc_network(
+            endpoint,
+            body,
+            |bytes, _| message(bytes),
+            false,
+            self.fetch.config.grpc_limits,
+            &mut NetworkEnd::default(),
+        )
+    }
+    pub(super) fn rpc_network(
+        &self,
+        endpoint: &GrpcEndpoint,
+        body: &[u8],
+        mut message: impl FnMut(&[u8], Duration) -> Result<(), BadReply>,
+        capture: bool,
+        limits: super::Limits,
+        end: &mut NetworkEnd,
+    ) -> Result<(), RequestError> {
         self.check_source()?;
         if !std::ptr::eq(self.spec, endpoint.spec) || self.budget().virtual_time() {
             return Err(self.failure(Reason::Rejected, None).into());
         }
-        if !matches!(self.fetch.mode, Mode::Live { .. }) {
-            let reason = if self.fetch.mode == Mode::Offline {
-                Reason::Offline
-            } else {
-                Reason::Rejected
-            };
-            return Err(self.failure(reason, None).into());
-        }
-        let limits = self.fetch.config.grpc_limits;
+        self.rpc_mode(capture)?;
         limits
             .check_request(body)
             .map_err(|_| InputError::BodyLimit)?;
@@ -60,6 +93,7 @@ impl Leg<'_> {
             .limiters
             .acquire(self.spec.quota, self.keyed(), self.budget())
             .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
+        let mut mark = Instant::now();
         let deadline = self.budget().local();
         let (events, _guard) = self
             .fetch
@@ -78,34 +112,56 @@ impl Leg<'_> {
                 state,
             })
             .map_err(|reason| self.failure(reason, None))?;
-        loop {
-            if self.budget().expired() {
-                return Err(self.failure(Reason::DeadlineExceeded, None).into());
-            }
-            let event = events.recv_timeout(self.budget().wait_slice(self.budget().remaining()));
-            if self.budget().expired() {
-                return Err(self.failure(Reason::DeadlineExceeded, None).into());
-            }
-            match event {
-                Ok(Event::Message(bytes)) => {
-                    message(&bytes).map_err(|_| self.failure(Reason::BadReply, None))?;
-                    if self.budget().expired() {
-                        return Err(self.failure(Reason::DeadlineExceeded, None).into());
+        let result = (|| {
+            loop {
+                if self.budget().expired() {
+                    return Err(self.failure(Reason::DeadlineExceeded, None).into());
+                }
+                let event =
+                    events.recv_timeout(self.budget().wait_slice(self.budget().remaining()));
+                if self.budget().expired() {
+                    return Err(self.failure(Reason::DeadlineExceeded, None).into());
+                }
+                match event {
+                    Ok(Event::Message(bytes)) => {
+                        let delay = mark.elapsed();
+                        mark = Instant::now();
+                        message(&bytes, delay).map_err(|_| self.failure(Reason::BadReply, None))?;
+                        if self.budget().expired() {
+                            return Err(self.failure(Reason::DeadlineExceeded, None).into());
+                        }
+                    }
+                    Ok(Event::End(result)) => {
+                        return result.map_err(|reason| self.failure(reason, None).into());
+                    }
+                    Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
+                    Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
+                        return _guard
+                            .state
+                            .outcome()
+                            .unwrap_or(Err(Reason::Unavailable))
+                            .map_err(|reason| self.failure(reason, None).into());
                     }
                 }
-                Ok(Event::End(result)) => {
-                    return result.map_err(|reason| self.failure(reason, None).into());
-                }
-                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
-                Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
-                    return _guard
-                        .state
-                        .outcome()
-                        .unwrap_or(Err(Reason::Unavailable))
-                        .map_err(|reason| self.failure(reason, None).into());
-                }
             }
+        })();
+        end.terminal = _guard.state.terminal();
+        drop(_guard);
+        end.delay = mark.elapsed();
+        result
+    }
+    fn rpc_mode(&self, capture: bool) -> Result<(), RequestError> {
+        if !(matches!(self.fetch.mode, Mode::Live { .. })
+            || capture && matches!(self.fetch.mode, Mode::Record { .. }))
+        {
+            let reason = if self.fetch.mode == Mode::Offline {
+                Reason::Offline
+            } else {
+                Reason::Rejected
+            };
+            return Err(self.failure(reason, None).into());
         }
+        Ok(())
     }
     fn rpc_key(&self) -> Result<Option<(&'static str, &str)>, RequestError> {
         let credential = match self.spec.key {
@@ -127,7 +183,7 @@ impl Leg<'_> {
         Ok(Some((name, value)))
     }
 }
-fn checked(
+pub(super) fn checked(
     base: &str,
     path: &str,
     limit: usize,
