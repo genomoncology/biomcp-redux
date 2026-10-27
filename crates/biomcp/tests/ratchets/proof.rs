@@ -266,7 +266,7 @@ fn source_registry_accepts_directory_and_file_modules_and_names_missing_entry() 
         tree.path(),
         auxiliary,
         &format!(
-            "pub static EXTRA: SourceSpec = {declaration}; fn hidden() {{ let other = {declaration}; }}"
+            "pub static EXTRA: SourceSpec = {declaration};\nfn hidden() {{\n    let other = {declaration};\n}}\n"
         ),
     )?;
     let failure = check(tree.path())
