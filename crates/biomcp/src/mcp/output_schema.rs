@@ -17,14 +17,14 @@ pub(super) fn for_tool(name: &str) -> io::Result<Value> {
         ids.extend(crate::schema::local_replies(&["help".into()]));
     }
     let health = canonical("biomcp.health/2")?;
-    let status = health
-        .pointer("/properties/status")
-        .and_then(|node| resolve(node, &health))
-        .ok_or_else(|| io::Error::other("missing status schema"))?;
-    let envelope = json!({"properties":{
-        "schema":{"type":"string","enum":ids},
-        "status":status,
-        "result":{"type":"object"}},"required":["schema","status"]});
+    let mut envelope = shape(&health)?;
+    let properties = envelope
+        .get_mut("properties")
+        .and_then(Value::as_object_mut)
+        .ok_or_else(|| io::Error::other("missing envelope properties"))?;
+    properties.insert("schema".into(), json!({"type":"string","enum":ids}));
+    properties.insert("query".into(), json!({"type":["object","array","null"]}));
+    properties.insert("result".into(), json!({"type":"object"}));
     let mut branches = vec![envelope, shape(&canonical("biomcp.error/1")?)?];
     if name == "biomcp" {
         branches.push(json!({"properties":{
@@ -61,7 +61,9 @@ fn shape(root: &Value) -> io::Result<Value> {
         .map(|(key, node)| {
             let node =
                 resolve(node, root).ok_or_else(|| io::Error::other("unresolved reply property"))?;
-            let value = if let Some(kind) = node.get("type") {
+            let value = if matches!(key.as_str(), "schema" | "status") {
+                node.clone()
+            } else if let Some(kind) = node.get("type") {
                 json!({"type":kind})
             } else if let Some(choices) = node.get("anyOf").and_then(Value::as_array) {
                 let kinds = choices

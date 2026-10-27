@@ -14,6 +14,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials
 }
 // Ceilings are ceil(measured comparable Markdown bytes * 1.15), from j11380.
+// Conservation uses literal-text comparable bytes from j17892 plus 15%.
 // Card and ClinVar ceilings use j16521; other shapes retain j11380.
 // The existing checker subtracts only the validated new source terms columns.
 const SHAPES: &[(&str, Shape)] = &[
@@ -31,7 +32,12 @@ const SHAPES: &[(&str, Shape)] = &[
                 "GRCh37",
             ],
             replies: "variant/search/L858R",
-            required: &["## Result", "EGFR", "L858R", "chr7:g.55259515T&gt;G"],
+            required: &[
+                "## Result",
+                "EGFR",
+                "L858R",
+                "chr7&#58;g&#46;55259515T&gt;G",
+            ],
             max_bytes: 1306,
         },
     ),
@@ -40,7 +46,12 @@ const SHAPES: &[(&str, Shape)] = &[
         Shape {
             args: &["get", "variant", "rs113488022"],
             replies: "variant/synthetic-components",
-            required: &["## Result", "rs113488022", "chr7:g.140453136A&gt;G", "BRAF"],
+            required: &[
+                "## Result",
+                "rs113488022",
+                "chr7&#58;g&#46;140453136A&gt;G",
+                "BRAF",
+            ],
             max_bytes: 2608,
         },
     ),
@@ -50,8 +61,8 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "variant", "rs113488022", "predict"],
             replies: "variant/synthetic-components",
             required: &[
-                "cadd.phred",
-                "0.25",
+                "cadd&#46;phred",
+                "0&#46;25",
                 "## Result",
                 " Predict\n\n",
                 "**state:** data",
@@ -66,14 +77,14 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "variant", "rs113488022", "conservation"],
             replies: "variant/synthetic-components",
             required: &[
-                "dbnsfp.gerp++.nr",
-                "1.5",
+                "dbnsfp&#46;gerp++&#46;nr",
+                "1&#46;5",
                 "## Result",
                 " Conservation\n\n",
                 "**state:** data",
                 "data",
             ],
-            max_bytes: 11070,
+            max_bytes: 12852,
         },
     ),
     (
@@ -216,7 +227,7 @@ const SHAPES: &[(&str, Shape)] = &[
                 "NM_004333.4:c.1799T>A",
             ],
             replies: "variant/normalization/mutalyzer",
-            required: &["## Result", "mutalyzer", "NM\\_004333.4"],
+            required: &["## Result", "mutalyzer", "NM\\_004333&#46;4"],
             max_bytes: 845,
         },
     ),
@@ -319,7 +330,7 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "trial", "NCT04303780", "eligibility"],
             replies: "trial/get/NCT04303780",
             required: &[
-                "Inclusion Criteria:",
+                "Inclusion Criteria&#58;",
                 "ECOG ≤ 1",
                 "## Result",
                 " Eligibility\n\n",
@@ -366,7 +377,7 @@ const SHAPES: &[(&str, Shape)] = &[
             args: &["get", "trial", "NCT04303780", "documents"],
             replies: "trial/get/NCT04303780",
             required: &[
-                "SAP\\_001.pdf",
+                "SAP\\_001&#46;pdf",
                 "557905",
                 "## Result",
                 " Documents\n\n",
@@ -407,7 +418,7 @@ const SHAPES: &[(&str, Shape)] = &[
             replies: "trial/documents/synthetic",
             required: &[
                 "## Result",
-                "SAP\\_001.pdf",
+                "SAP\\_001&#46;pdf",
                 "**bytes:** 67",
                 "**state:** data",
             ],

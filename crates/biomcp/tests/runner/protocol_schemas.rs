@@ -17,6 +17,7 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
             json!({"unrelated":true}),
             json!({"$id":"biomcp.health/2", "$schema":"unsupported"}),
             json!({"schema":"unknown/1", "status":"complete", "result":{}}),
+            json!({"schema":"unknown/1", "status":"usage", "error":{}}),
             json!({"schema":"biomcp.health/2", "status":"complete", "result":[]}),
         ] {
             if validator.is_valid(&invalid) {

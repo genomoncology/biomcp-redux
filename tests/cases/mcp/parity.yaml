@@ -10,10 +10,10 @@ steps:
       /$id: biodata.source/1
   - run: []
     mcp: []
-    exit: 2
-    is_error: true
+    is_error: false
     expect:
-      /status: usage
+      /schema: biomcp.help/2
+      /status: complete
   - mcp: [serve]
     is_error: true
     expect:
