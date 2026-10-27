@@ -175,7 +175,17 @@ fn reactome() -> Result<(), String> {
 fn clinvar_rcv() -> Result<(), String> {
     let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
         super::variant_assertion_wire::clinvar_body(request).map(|xml| {
-            xml.replace("<ClinicalAssertionList>", "<RCVList><RCVAccession Accession=\"RCV000123456\" Version=\"1\"><ClassifiedConditionList><ClassifiedCondition DB=\"MedGen\" ID=\"C123\"></ClassifiedCondition></ClassifiedConditionList><RCVClassifications><GermlineClassification><Description>Pathogenic</Description></GermlineClassification></RCVClassifications></RCVAccession></RCVList><ClinicalAssertionList>")
+            xml.replace(
+                "<ClinicalAssertionList>",
+                concat!(
+                    "<RCVList><RCVAccession Accession=\"RCV000123456\" Version=\"1\">",
+                    "<ClassifiedConditionList><ClassifiedCondition DB=\"MedGen\" ID=\"C123\">",
+                    "</ClassifiedCondition></ClassifiedConditionList><RCVClassifications>",
+                    "<GermlineClassification><Description>Pathogenic</Description>",
+                    "</GermlineClassification></RCVClassifications></RCVAccession>",
+                    "</RCVList><ClinicalAssertionList>",
+                ),
+            )
         })
     })?;
     let env = super::variant::source_environment(&stub)?;
