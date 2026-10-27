@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from source_capture import outside_git, write_json
+from source_capture import outside_git
 from test_parity_runner import ROOT
 
 
