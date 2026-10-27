@@ -268,7 +268,7 @@ impl Limiter {
             // Condvar releases the mutex while this caller waits for its rate slot or predecessor.
             state = self
                 .wake
-                .wait_timeout(state, wait)
+                .wait_timeout(state, deadline.wait_slice(wait))
                 .unwrap_or_else(|e| e.into_inner())
                 .0;
         }

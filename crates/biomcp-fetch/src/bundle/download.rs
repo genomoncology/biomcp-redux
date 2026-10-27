@@ -28,14 +28,14 @@ impl Leg<'_> {
         auto: bool,
     ) -> Result<BundleInfo, RequestError> {
         self.bundle_source(b)?;
-        if matches!(self.fetch.config.mode, Mode::Offline) {
+        if matches!(self.fetch.mode, Mode::Offline) {
             return Err(self.failure(Reason::Offline, None).into());
         }
         let cache = self.bundle_cache()?;
-        if matches!(self.fetch.config.mode, Mode::Replay { .. }) {
+        if matches!(self.fetch.mode, Mode::Replay { .. }) {
             return self.replay_bundle(b);
         }
-        let old = if matches!(self.fetch.config.mode, Mode::Record { .. }) {
+        let old = if matches!(self.fetch.mode, Mode::Record { .. }) {
             None
         } else {
             cache.bundle_info(b.name, self.budget())?
@@ -72,7 +72,7 @@ impl Leg<'_> {
             etag: None,
             total: None,
         };
-        let record = matches!(self.fetch.config.mode, Mode::Record { .. });
+        let record = matches!(self.fetch.mode, Mode::Record { .. });
         resume(
             prior,
             &mut part,
@@ -323,7 +323,7 @@ impl Leg<'_> {
             header(response, "last-modified"),
         );
         provenance(&mut meta, &body);
-        if matches!(self.fetch.config.mode, Mode::Record { .. }) {
+        if matches!(self.fetch.mode, Mode::Record { .. }) {
             let exchange = Exchange {
                 fetched: crate::cache::now(),
                 status: 200,

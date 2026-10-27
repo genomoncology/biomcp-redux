@@ -422,7 +422,7 @@ impl Leg<'_> {
             .and_then(|v| v.to_str().ok())
             .and_then(|v| crate::retry::retry_after(v, std::time::SystemTime::now()));
         let fetched = crate::cache::now();
-        let recording = matches!(self.fetch.config.mode, crate::Mode::Record { .. });
+        let recording = matches!(self.fetch.mode, crate::Mode::Record { .. });
         let body = self.read_body(
             &mut response,
             status,

@@ -231,7 +231,7 @@ impl Server {
 }
 fn lifecycle() -> Check {
     let server = Server::start()?;
-    let (status, health) = server.request("GET", "/health", "")?;
+    let (status, health) = super::http_limits::read_only_health(&server)?;
     if status != 200 || health.get("version") != Some(&json!(env!("CARGO_PKG_VERSION"))) {
         return Err(format!("local health: {status} {health}"));
     }

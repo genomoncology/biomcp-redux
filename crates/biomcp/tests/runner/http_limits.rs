@@ -183,12 +183,65 @@ fn overload() -> Check {
     excess
         .set_read_timeout(Some(Duration::from_millis(800)))
         .map_err(|e| e.to_string())?;
-    let mut byte = [0];
-    match excess.read(&mut byte) {
-        Ok(0) => (),
-        Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => (),
-        result => return Err(format!("excess connection queued or admitted: {result:?}")),
+    excess
+        .write_all(format!("GET /health HTTP/1.1\r\nHost: {}\r\n\r\n", server.address).as_bytes())
+        .map_err(|e| e.to_string())?;
+    let mut response = String::new();
+    excess
+        .read_to_string(&mut response)
+        .map_err(|e| e.to_string())?;
+    if !response.starts_with("HTTP/1.1 503 ") {
+        return Err(format!(
+            "excess connection did not receive 503: {response:?}"
+        ));
     }
     drop(held);
     Ok(())
+}
+
+pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Value), String> {
+    let cache = server.environment().root().join("case-cache");
+    let database = std::fs::read_dir(&cache)
+        .map_err(|e| e.to_string())?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .find(|path| {
+            path.extension()
+                .is_some_and(|extension| extension == "sqlite")
+        })
+        .ok_or("missing cache database")?;
+    let connection = rusqlite::Connection::open(&database).map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("BEGIN IMMEDIATE")
+        .map_err(|e| e.to_string())?;
+    #[cfg(unix)]
+    let permissions = std::fs::metadata(&cache)
+        .map_err(|e| e.to_string())?
+        .permissions();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&cache, std::fs::Permissions::from_mode(0o555))
+            .map_err(|e| e.to_string())?;
+    }
+    let response = server.request("GET", "/health", "");
+    #[cfg(unix)]
+    std::fs::set_permissions(&cache, permissions).map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("ROLLBACK; INSERT INTO meta(owner,version) VALUES ('biomcp-query',4)")
+        .map_err(|e| e.to_string())?;
+    let (status, old) = server.request("GET", "/health", "")?;
+    let version: u32 = connection
+        .query_row(
+            "SELECT version FROM meta WHERE owner='biomcp-query'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    if status != 503 || old.get("store") != Some(&serde_json::json!(false)) || version != 4 {
+        return Err(format!(
+            "health admitted or migrated an old query schema: {status} {old} version={version}"
+        ));
+    }
+    response
 }

@@ -89,7 +89,7 @@ impl Leg<'_> {
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
-        if self.fetch.config.mode == Mode::Offline {
+        if self.fetch.mode == Mode::Offline {
             return self.offline(endpoint, prepared, codec);
         }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
@@ -103,7 +103,7 @@ impl Leg<'_> {
             });
         };
         let mut stale = None;
-        if matches!(self.fetch.config.mode, Mode::Live { .. }) && !self.fresh {
+        if matches!(self.fetch.mode, Mode::Live { .. }) && !self.fresh {
             match self.checked_cached(cache, prepared, codec)? {
                 Some(Checked::Positive(reply, true, fetched, range, pagination)) => {
                     return Ok((reply, fetched, range, pagination));
@@ -250,7 +250,7 @@ impl Leg<'_> {
             key,
             codec.limit.unwrap_or(self.fetch.config.max_body),
             self.budget(),
-            self.fetch.config.mode != Mode::Offline,
+            self.fetch.mode != Mode::Offline,
         ) {
             Ok(entry) => entry,
             Err(crate::CacheError::Busy) => {
@@ -298,9 +298,7 @@ impl Leg<'_> {
                 .failure(Reason::DeadlineExceeded, Some(entry.status))
                 .into());
         }
-        if self.fetch.config.observations.is_some()
-            && (fresh || self.fetch.config.mode == Mode::Offline)
-        {
+        if self.fetch.config.observations.is_some() && (fresh || self.fetch.mode == Mode::Offline) {
             self.observed(
                 key,
                 Some(entry.status),
