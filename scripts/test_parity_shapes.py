@@ -21,7 +21,7 @@ def main():
     (fixtures / 'replies').symlink_to(ROOT / 'tests/replies', target_is_directory=True)
     (fixtures / 'parity').symlink_to(ROOT / 'tests/parity', target_is_directory=True)
     plan = json.loads((ROOT / 'tests/parity/batches/pathway.json').read_bytes())
-    names = ['pathway/card-R-HSA-157118.yaml', 'pathway/card-R-HSA-5673001.yaml']
+    names = ['pathway/card-R-HSA-157118.yaml', 'pathway/card-R-HSA-1640170.yaml']
     names = [name for name in names if any(row['case'] == name for row in plan['cases'])]
     assert names
     sequences = []

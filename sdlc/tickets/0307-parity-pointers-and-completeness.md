@@ -1,6 +1,7 @@
 # 0307 — Fill five parity projection pointers and fix six assertion completeness errors
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d93929c5fcc56c13e89bd028728f301243a1c8ca
 
 Milestone: 5
 
