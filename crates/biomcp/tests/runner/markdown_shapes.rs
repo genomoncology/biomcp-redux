@@ -179,10 +179,15 @@ const SHAPES: &[Shape] = &[
     },
 ];
 fn shapes() -> Result<(), String> {
-    for shape in SHAPES {
-        check(shape)?;
+    let failures: Vec<_> = SHAPES
+        .iter()
+        .filter_map(|shape| check(shape).err())
+        .collect();
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
     }
-    Ok(())
 }
 pub(super) fn check(shape: &Shape) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
