@@ -204,9 +204,7 @@
       ],
       "facts": {
         "/result/items": "/providers/0/results",
-        "/result/matching_records": {
-          "array_length": "/providers/0/results"
-        }
+        "/result/matching_records": "/providers/0/pagination/total"
       },
       "unprojectable_facts": {
         "/status": {
