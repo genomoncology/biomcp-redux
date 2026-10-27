@@ -19,6 +19,8 @@ mod recording;
 mod registry;
 #[path = "parity_request.rs"]
 mod request;
+#[path = "parity_shared_proof.rs"]
+mod shared_proof;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -40,7 +42,7 @@ struct Selection {
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
     #[serde(default)]
-    command_selectors: BTreeMap<String, String>,
+    command_selectors: BTreeMap<String, request::CommandSelector>,
     recordings: Vec<recording::Route>,
     #[serde(default)]
     source_free: bool,
@@ -389,7 +391,8 @@ fn verdict(output: &Value, pointer: &str, assertion: &assertions::Assertion<'_>)
 
 // Harness contract: the public mode must reject an actual binary of the wrong release.
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
-    vec![libtest_mimic::Trial::test(
+    let mut trials = shared_proof::trials();
+    trials.push(libtest_mimic::Trial::test(
         "parity/reject-wrong-baseline-release",
         || {
             let env = Environment::new().map_err(|e| e.to_string())?;
@@ -417,5 +420,6 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
             }
             Ok(())
         },
-    )]
+    ));
+    trials
 }

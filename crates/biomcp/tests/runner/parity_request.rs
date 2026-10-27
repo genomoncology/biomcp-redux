@@ -1,6 +1,18 @@
 //! Match reviewed source selectors without depending on query order or encoding.
 use std::collections::BTreeMap;
 
+#[derive(serde::Deserialize)]
+#[serde(untagged)]
+pub(super) enum CommandSelector {
+    Argument(String),
+    EffectiveLimit(EffectiveLimit),
+}
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct EffectiveLimit {
+    effective_adverse_event_limit: bool,
+}
+
 pub(super) fn matches(
     prefix: &str,
     contains: &str,
@@ -38,19 +50,53 @@ pub(super) fn validate_command(
 ) -> Result<(), String> {
     let current = step.run.as_ref().ok_or("direct command missing")?;
     for (released, candidate) in &selection.command_selectors {
-        let expected = argument(current, candidate)?;
-        if expected.is_none() || argument(&selection.baseline_command, released)? != expected {
+        let expected = match candidate {
+            CommandSelector::Argument(flag) => argument(current, flag)?.map(str::to_owned),
+            CommandSelector::EffectiveLimit(binding) => {
+                if released != "--limit" || !binding.effective_adverse_event_limit {
+                    return Err(
+                        "effective adverse event limit requires the released --limit selector"
+                            .into(),
+                    );
+                }
+                Some(effective_limit(current)?)
+            }
+        };
+        if expected.is_none()
+            || argument(&selection.baseline_command, released)? != expected.as_deref()
+        {
             return Err(format!(
-                "released command selector {released} must preserve harvested {candidate}"
+                "released command selector {released} must preserve harvested {released}"
             ));
         }
     }
     if current.iter().any(|arg| arg == "--age")
-        && selection.command_selectors.get("--age").map(String::as_str) != Some("--age")
+        && !matches!(selection.command_selectors.get("--age"),
+            Some(CommandSelector::Argument(flag)) if flag == "--age")
     {
         return Err("released client-side age filter requires an explicit command selector".into());
     }
     Ok(())
+}
+fn effective_limit(args: &[String]) -> Result<String, String> {
+    let [verb, entity, text, ..] = args else {
+        return Err("effective limit requires search adverse-event text".into());
+    };
+    if verb != "search" || entity != "adverse-event" || text.starts_with('-') {
+        return Err("effective limit requires search adverse-event text".into());
+    }
+    let mut fields = serde_json::json!({"text": text});
+    if let Some(limit) = argument(args, "--limit")? {
+        let limit = limit.parse::<u32>().map_err(|e| e.to_string())?;
+        fields
+            .as_object_mut()
+            .ok_or("query fields must be an object")?
+            .insert("limit".into(), serde_json::json!(limit));
+    }
+    // ConfigFile has no query defaults; the grammar deserializes these fields through this type.
+    let query: biomcp_types::AdverseEventSearch =
+        serde_json::from_value(fields).map_err(|e| e.to_string())?;
+    Ok(query.limit().to_string())
 }
 fn argument<'a>(args: &'a [String], flag: &str) -> Result<Option<&'a str>, String> {
     if !flag.starts_with("--") || flag.contains('=') {

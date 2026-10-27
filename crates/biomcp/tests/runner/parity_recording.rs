@@ -126,6 +126,13 @@ fn peers(
             },
         )?;
         command.env(&endpoint.variable, endpoint.local_url(peer.address));
+        if endpoint.variable == "BIOMCP_S2_BASE" {
+            // Released semantic_scholar_api accepts HTTP only for this exact fixture origin.
+            command.env(
+                "BIOMCP_TEST_UNPACED_ORIGIN",
+                format!("http://{}", peer.address),
+            );
+        }
         peers.push(peer);
     }
     Ok(peers)

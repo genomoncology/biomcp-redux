@@ -101,13 +101,18 @@ def inventory(out):
     report = json.loads(destination.read_text())
     classes = report['classes']
     assert report['unsafe_plans'] == classes.get('unclassified', 0) == 0, classes
-    assert classes['pending_family'] == report['assessment_gaps'] > 0
-    assert result.returncode != 0, 'pending declarations must hold the whole inventory gate'
+    pending = classes.get('pending_family', 0)
+    assert pending == report['assessment_gaps']
+    assert (result.returncode != 0) == (pending > 0)
     owners = {}
     for row in report['cases']:
         if row['class'] == 'pending_family':
             owners[row['ticket']] = owners.get(row['ticket'], 0) + 1
-    assert set(owners) == {'0300', '0301', '0302', '0303', '0304', '0305'}, owners
+    declared = json.loads((ROOT / 'tests/parity/inventory.json').read_text())
+    expected = {}
+    for row in declared['inventory'].get('pending', []):
+        expected[row['ticket']] = expected.get(row['ticket'], 0) + 1
+    assert owners == expected, (owners, expected)
     sys.stdout.write(json.dumps({'dry_classes': classes, 'pending_owners': owners}) + '\n')
 
 

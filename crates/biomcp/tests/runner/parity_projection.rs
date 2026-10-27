@@ -10,6 +10,7 @@ pub(super) enum Projection {
     Object(Object),
     Length(Length),
     ReleasedSource(ReleasedSource),
+    AuthorIds(AuthorIds),
 }
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -26,6 +27,7 @@ pub(super) struct Length {
 enum Member {
     Pointer(Pointer),
     PathwaySource(PathwaySource),
+    ReleasedSource(ReleasedSource),
 }
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -42,11 +44,17 @@ struct PathwaySource {
 pub(super) struct ReleasedSource {
     released_source: String,
 }
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct AuthorIds {
+    author_ids: String,
+}
 impl Member {
     fn pointer(&self) -> &str {
         match self {
             Self::Pointer(member) => &member.pointer,
             Self::PathwaySource(member) => &member.pathway_source,
+            Self::ReleasedSource(member) => &member.released_source,
         }
     }
 }
@@ -56,6 +64,7 @@ impl Projection {
             Self::Pointer(pointer) => vec![pointer],
             Self::Length(length) => vec![&length.array_length],
             Self::ReleasedSource(source) => vec![&source.released_source],
+            Self::AuthorIds(ids) => vec![&ids.author_ids],
             Self::Object(object) => object.object.values().map(Member::pointer).collect(),
         }
     }
@@ -74,12 +83,17 @@ impl Projection {
             Self::Object(object) => project_object(object, value),
             Self::ReleasedSource(source) => {
                 let raw = super::super::assertions::select(value, &source.released_source)?;
-                match raw.as_str() {
-                    Some("Reactome") => Ok(json!("reactome")),
-                    Some("Semantic Scholar") => Ok(json!("semantic-scholar")),
-                    Some("UniProt") => Ok(json!("uniprot")),
-                    Some("ORCID") => Ok(json!("orcid")),
-                    _ => Err("unknown released provider spelling".into()),
+                released_source(&raw)
+            }
+            Self::AuthorIds(ids) => {
+                let raw = super::super::assertions::select(value, &ids.author_ids)?;
+                match raw {
+                    Value::Array(values) => values
+                        .iter()
+                        .map(author_id)
+                        .collect::<Result<Vec<_>, _>>()
+                        .map(Value::Array),
+                    raw => author_id(&raw),
                 }
             }
         }
@@ -97,6 +111,7 @@ fn project_object(object: &Object, value: &Value) -> Result<Value, String> {
                 raw.as_str()
                     .ok_or("identifier object member requires a string")?
             ),
+            Member::ReleasedSource(_) => released_source(&raw)?,
             Member::PathwaySource(_) => {
                 if name != "source" {
                     return Err("pathway source enum belongs to the source member".into());
@@ -113,4 +128,24 @@ fn project_object(object: &Object, value: &Value) -> Result<Value, String> {
         result.insert(name.clone(), projected);
     }
     Ok(Value::Object(result))
+}
+
+fn released_source(raw: &Value) -> Result<Value, String> {
+    match raw.as_str().ok_or("released provider requires a string")? {
+        "Reactome" => Ok(json!("reactome")),
+        "Semantic Scholar" => Ok(json!("semantic-scholar")),
+        "UniProt" => Ok(json!("uniprot")),
+        "ORCID" => Ok(json!("orcid")),
+        "ClinGen" => Ok(json!("clingen")),
+        "clingen_erepo" => Ok(json!("erepo")),
+        _ => Err("unknown released provider spelling".into()),
+    }
+}
+fn author_id(raw: &Value) -> Result<Value, String> {
+    let suffix = raw
+        .as_str()
+        .and_then(|id| id.strip_prefix("semanticscholar:"))
+        .filter(|suffix| !suffix.is_empty() && suffix.bytes().all(|b| b.is_ascii_digit()))
+        .ok_or("released author ID requires exact semanticscholar: numeric namespace")?;
+    Ok(json!(format!("semantic-scholar:{suffix}")))
 }
