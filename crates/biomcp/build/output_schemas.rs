@@ -37,8 +37,18 @@ pub(super) fn write(
         }
     }
     let mut raw = Value::from(SchemaDocument::json_schema(&mut generator));
-    raw["properties"]["$schema"] = json!({"const":"https://json-schema.org/draft/2020-12/schema"});
-    raw["properties"]["$id"] = json!({"enum":schemas.keys().collect::<Vec<_>>()});
+    let properties = raw
+        .get_mut("properties")
+        .and_then(Value::as_object_mut)
+        .ok_or("schema document has no properties")?;
+    properties.insert(
+        "$schema".into(),
+        json!({"const":"https://json-schema.org/draft/2020-12/schema"}),
+    );
+    properties.insert(
+        "$id".into(),
+        json!({"enum":schemas.keys().collect::<Vec<_>>()}),
+    );
     roots.insert("schema-document".into(), raw);
     fs::write(
         output.join("mcp-schemas.json"),
