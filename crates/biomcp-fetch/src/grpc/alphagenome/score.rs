@@ -65,6 +65,16 @@ impl ScoreRequest {
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
     }
+    /// Exact request interval provenance; the native score reply has no interval field.
+    pub fn requested_interval(&self) -> Result<biomcp_types::AlphaGenomeInterval, BadReply> {
+        let interval = self.request.interval.as_ref().ok_or(BadReply)?;
+        Ok(biomcp_types::AlphaGenomeInterval {
+            chromosome: interval.chromosome.parse().map_err(|_| BadReply)?,
+            start: interval.start,
+            end: interval.end,
+            strand: biomcp_types::AlphaGenomeStrand::Unstranded,
+        })
+    }
     /// Start independent bounded admission for exactly the requested scorer groups.
     pub fn decoder(&self, limits: Limits) -> Result<ScoreEnvelope, BadReply> {
         ScoreEnvelope::new(

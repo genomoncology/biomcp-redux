@@ -30,6 +30,19 @@ impl ScoreEnvelope {
         expected: usize,
         limits: Limits,
     ) -> Result<Self, BadReply> {
+        // Complete public ScoreVariant capture: six messages, 130883 encoded bytes,
+        // largest message 74988 bytes, 70620 expanded bytes, one chunk per group.
+        // Bound each measured allocation dimension at its observed maximum plus 15%.
+        let limits = Limits {
+            message_bytes: limits.message_bytes.min(headroom(74_988)),
+            wire_bytes: limits.wire_bytes.min(headroom(130_883)),
+            expanded_bytes: limits.expanded_bytes.min(headroom(70_620)),
+            messages: limits.messages.min(headroom(6)),
+            dimension: limits.dimension.min(headroom(667)),
+            chunks: limits.chunks.min(headroom(1)),
+            rank: limits.rank.min(3),
+            ..limits
+        };
         Ok(Self {
             variant: variant.clone(),
             limits,
@@ -108,7 +121,7 @@ impl ScoreEnvelope {
                 }
                 3 => {
                     genes = genes.checked_add(1).ok_or(BadReply)?;
-                    if genes > self.limits.dimension {
+                    if genes > self.limits.dimension.min(headroom(13)) {
                         return Err(BadReply);
                     }
                     metadata.genes.push(score_metadata::gene(
@@ -124,6 +137,9 @@ impl ScoreEnvelope {
         }
         Ok(metadata)
     }
+}
+const fn headroom(measured: usize) -> usize {
+    (measured * 115).div_ceil(100)
 }
 impl StreamDecoder for ScoreEnvelope {
     type Reply = ScoreReply;

@@ -1,4 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
+mod alphagenome;
+mod alphagenome_page;
 pub(crate) mod assertions;
 mod civic;
 mod components;
@@ -78,6 +80,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     local = local.or(section_error);
     let mut next = next(query, resolution, &candidates, page.as_ref());
     next.extend(oncokb::next(query, &sources));
+    next.extend(alphagenome::next(&sources));
     let out = Outcome {
         status: overall(resolution, &problems, &sources),
         body: QueryBody::VariantCard(VariantCard {

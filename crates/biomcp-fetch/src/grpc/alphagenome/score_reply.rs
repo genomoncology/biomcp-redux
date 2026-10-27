@@ -17,6 +17,9 @@ impl ScoreGroup {
         let shape = tensor.shape();
         if tensor.data_type().number() != proto::DataType::Float32 as i32
             || shape.len() != 3
+            || shape.first().is_none_or(|value| *value < 1 || *value > 3)
+            || shape.get(1).is_none_or(|value| *value < 1 || *value > 15)
+            || shape.get(2).is_none_or(|value| *value < 1)
             || shape.last().copied().and_then(|v| usize::try_from(v).ok())
                 != Some(metadata.tracks.len())
             || (!metadata.genes.is_empty()

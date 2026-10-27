@@ -191,3 +191,5 @@ alphagenome-protocol: Encode the reviewed human DNASE request and admit only com
 alphagenome-registration: Discover the restricted AlphaGenome service and require its own user key before source admission. Contracts: `biomcp-adapters/alphagenome_registration`.
 
 alphagenome-score-protocol: Encode the ruled human scoring request and admit exactly the requested complete scorer groups by request position. Contracts: `biomcp-fetch/score_variant`.
+
+variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key. Contracts: `biomcp/variant/alphagenome-keyless-zero-network`.
