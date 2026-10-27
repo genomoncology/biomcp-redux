@@ -368,7 +368,9 @@ fn aggregator_presence() -> Result<(), String> {
         Some(json!([])),
         Some(json!(["infores:monarchinitiative"])),
     ] {
-        let expected = value.clone();
+        let expected = value
+            .clone()
+            .filter(|value| !value.as_array().is_some_and(Vec::is_empty));
         let stub = Stub::for_source_status(
             "api-v3.monarchinitiative.org",
             "application/json",

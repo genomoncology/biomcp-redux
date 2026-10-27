@@ -1,4 +1,13 @@
 use serde::Serialize;
+/// Requested help path, with the root represented by an empty object.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct HelpQuery {
+    /// Command words whose help was requested.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub command: Vec<String>,
+}
 /// Generated command reference from the shipped query schemas and cases.
 #[derive(Clone, Debug, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -9,8 +18,8 @@ pub struct Help {
     pub commands: Vec<HelpCommand>,
 }
 impl super::ResponseBody for Help {
-    const SCHEMA: &'static str = "biomcp.help/2";
-    type Query = Vec<String>;
+    const SCHEMA: &'static str = "biomcp.help/3";
+    type Query = HelpQuery;
 }
 /// One command and its generated arguments.
 #[derive(Clone, Debug, Serialize)]

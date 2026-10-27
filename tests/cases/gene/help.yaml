@@ -9,7 +9,7 @@
         "help"
       ],
       "expect": {
-        "/schema": "biomcp.help/2",
+        "/schema": "biomcp.help/3",
         "/result/commands/*/command": {
           "includes_all_of": [
             [

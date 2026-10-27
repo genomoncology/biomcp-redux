@@ -80,8 +80,8 @@ pub enum PhenotypeCard {
         /// Complete native comment.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         comment: Option<Box<str>>,
-        /// Source publication references, preserving an empty list.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        /// Source publication references, omitted when empty.
+        #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
         publication_references: Option<Box<[Curie]>>,
         /// HPO native descendant count.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -107,7 +107,7 @@ pub enum PhenotypeCard {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         monarch_descendant_count: Option<u64>,
         /// Native association counts with their original scopes.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
         association_counts: Option<Box<[PhenotypeAssociationCount]>>,
         /// Publisher provenance.
         attribution: Attribution,

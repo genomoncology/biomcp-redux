@@ -197,7 +197,8 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
     let rows = v
         .pointer("/result/items")
         .and_then(Value::as_array)
-        .ok_or("items")?;
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     let expected = native
         .get("data")
         .and_then(Value::as_array)
@@ -214,7 +215,11 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
             .collect::<Vec<_>>()
     );
     super::assertions::omit_empty_lists(&mut expected_rows);
-    if Some(rows) != expected_rows.as_array()
+    if rows
+        != expected_rows
+            .as_array()
+            .map(Vec::as_slice)
+            .unwrap_or_default()
         || v.pointer("/result/page/total") != Some(&json!(expected.len()))
         || v.pointer("/result/page/total_kind") != Some(&json!("observed"))
     {

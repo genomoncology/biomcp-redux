@@ -159,6 +159,7 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
     let mut wildcard = false;
     for token in pointer.split('/').skip(1) {
         let mut next = Vec::new();
+        let mut missing = false;
         for node in nodes {
             if token == "*" {
                 wildcard = true;
@@ -170,7 +171,12 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
                 next.push(child);
             } else if !wildcard {
                 return Err("<missing>".into());
+            } else {
+                missing = true;
             }
+        }
+        if missing && next.iter().any(|value| !value.is_array()) {
+            return Err("<missing>".into());
         }
         if next.is_empty() {
             return Err("<empty wildcard selection>".into());

@@ -58,27 +58,28 @@ pub struct FaersReporter {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+// Preserve Some([]) in retained native snapshots; consumer pages disclose counts and rows.
 pub struct FaersIdentifiers {
     /// Ordered native unii strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unii: Option<Box<[Box<str>]>>,
     /// Ordered native rxcui strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rxcui: Option<Box<[Box<str>]>>,
     /// Ordered native product_ndc strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub product_ndc: Option<Box<[Box<str>]>>,
     /// Ordered native package_ndc strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub package_ndc: Option<Box<[Box<str>]>>,
     /// Ordered native spl_id strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub spl_id: Option<Box<[Box<str>]>>,
     /// Ordered native spl_set_id strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub spl_set_id: Option<Box<[Box<str>]>>,
     /// Ordered native application_number strings; missing differs from empty.
-    #[serde(default, skip_serializing_if = "crate::absent_or_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub application_number: Option<Box<[Box<str>]>>,
 }
 /// One independent native drug row; no join to a reaction row.

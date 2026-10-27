@@ -90,7 +90,7 @@ pub use response::{
     VariantPopulationResult,
 };
 pub use response::{
-    Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
+    Help, HelpArgument, HelpCommand, HelpQuery, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
     OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean, SyncQuery,
     SyncResult,
 };

@@ -88,7 +88,9 @@ fn dispatch_using(
         return encode(
             Envelope::new(
                 Status::Complete,
-                path.clone(),
+                biomcp_types::HelpQuery {
+                    command: path.clone(),
+                },
                 Some(crate::help::dispatch(&path)?),
             ),
             crate::exit::Status::Success,
@@ -141,7 +143,9 @@ pub(crate) fn execute(
             encode(
                 Envelope::new(
                     Status::Complete,
-                    path.clone(),
+                    biomcp_types::HelpQuery {
+                        command: path.clone(),
+                    },
                     Some(crate::help::dispatch(&path)?),
                 ),
                 crate::exit::Status::Success,

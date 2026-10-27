@@ -294,6 +294,12 @@ fn check_tool(
                 .ok_or("CLI save receipt field")?
                 .clone();
         }
+        if let Some(replace) = value.pointer("/query/replace") {
+            tool.get_mut("query")
+                .and_then(Value::as_object_mut)
+                .ok_or("stdio save query")?
+                .insert("replace".into(), replace.clone());
+        }
     }
     if &tool != value {
         return Err("MCP changed JSON under Markdown configuration".into());

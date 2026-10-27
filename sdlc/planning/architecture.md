@@ -501,7 +501,7 @@ The CLI path maps to the tag mechanically: `search gene` is `search_gene` and `t
 
 Every command returns one envelope. Its body type changes by command, and each body names its own query type, so `query` echoes only the command that ran.
 
-The envelope omits empty collections, including source identity lists and empty search pages. The case runner checks product envelopes from recorded CLI and MCP calls. Raw provider recordings retain their native arrays. Query echoes omit inactive false flags and retain values that shape the request, including limits, filters, source selections and continuations. Trial search results omit the raw provider parameter lists.
+The envelope omits empty collections, including source identity lists and empty search pages. The case runner checks product envelopes from recorded CLI and MCP calls. Raw provider recordings retain their native arrays. Query echoes omit inactive false flags and retain values that shape the request, including limits, filters, source selections and continuations. Trial search results omit the raw provider parameter lists. Help echoes its path as a `command` list inside the query object; root help echoes an empty query object.
 
 Variant identity lists serialize through one namespace owner. Their entries use `rs:`, `clingen:`, `clinvar:`, `cosmic:` or the source's `ga4gh:` prefix. Published identifiers and the accepted command input grammar stay unchanged. A ClinVar accession retains its `VCV` spelling after the namespace prefix, and ClinGen identifiers retain `CA` or `PA`.
 

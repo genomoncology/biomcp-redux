@@ -119,7 +119,7 @@ fn registry() -> Vec<Contract> {
         Envelope<Health> => ("health", "biomcp.health/2"),
         Markdown => ("markdown", "biodata.markdown/1"),
         Envelope<SchemaCatalog> => ("schema-catalog", "biomcp.schema-catalog/1"),
-        Envelope<Help> => ("help", "biomcp.help/2"),
+        Envelope<Help> => ("help", "biomcp.help/3"),
         Envelope<KeyHelp> => ("key", "biomcp.key/2"),
         Envelope<RegisteredKeys> => ("registered-keys", "biomcp.registered-keys/2"),
         ErrorEnvelope => ("error", "biomcp.error/1"),
