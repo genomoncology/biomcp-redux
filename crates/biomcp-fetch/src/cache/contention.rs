@@ -1,10 +1,6 @@
 //! Real SQLite locking cannot be driven by the provider's virtual clock.
 //! This inner concurrency contract checks bounded refusal and retained data;
 //! outside-in concurrent replacement exercises the complete publication path.
-#![expect(
-    clippy::unwrap_used,
-    reason = "A failed SQLite contract must fail the test"
-)]
 use super::{Cache, CacheError, Connection, Duration};
 use crate::{Deadline, deadline::VirtualClock};
 
@@ -31,6 +27,10 @@ fn replay_admission_preserves_rows_under_an_external_writer() {
         cache.sql(deadline, replace),
         Err(CacheError::Busy)
     ));
+    #[expect(
+        clippy::print_stderr,
+        reason = "Report measured SQLite admission without asserting machine speed"
+    )]
     eprintln!(
         "SQLite held-writer admission: budget={:?}, elapsed={:?}; replay time unchanged",
         deadline.remaining(),
