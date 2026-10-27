@@ -1,6 +1,7 @@
 # 0072 — Capture the requested LitSense gene search
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 651c215f376a504b0cc1c5127d0fd4cb2129e2a6
 
 Milestone: 5
 
