@@ -4,7 +4,7 @@ type Result<T> = std::result::Result<T, CodecError>;
 fn bad() -> CodecError {
     CodecError::BadReply
 }
-fn varint(bytes: &mut &[u8]) -> Result<u64> {
+pub(super) fn varint(bytes: &mut &[u8]) -> Result<u64> {
     let mut value = 0u64;
     for shift in (0..70).step_by(7) {
         let (byte, rest) = bytes.split_first().ok_or_else(bad)?;
@@ -19,7 +19,7 @@ fn varint(bytes: &mut &[u8]) -> Result<u64> {
     }
     Err(bad())
 }
-fn length<'a>(bytes: &mut &'a [u8]) -> Result<&'a [u8]> {
+pub(super) fn length<'a>(bytes: &mut &'a [u8]) -> Result<&'a [u8]> {
     let len = usize::try_from(varint(bytes)?).map_err(|_| bad())?;
     let (head, tail) = bytes.split_at_checked(len).ok_or_else(bad)?;
     *bytes = tail;

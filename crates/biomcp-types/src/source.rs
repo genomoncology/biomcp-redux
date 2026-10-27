@@ -55,6 +55,8 @@ canonical_enum! {
         Civic => "civic",
         /// Cancer Hotspots residue recurrence.
         CancerHotspots => "hotspots",
+        /// AlphaGenome.
+        AlphaGenome => "alphagenome",
         /// OncoKB.
         Oncokb => "oncokb",
         /// MyVariant.info aggregation.

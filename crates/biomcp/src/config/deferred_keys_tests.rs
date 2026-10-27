@@ -144,7 +144,12 @@ fn called_sources_read_only_their_own_environment_key_once() {
             .iter()
             .map(|(name, _)| *name)
             .collect::<std::collections::BTreeSet<_>>(),
-        SecretName::ALL.iter().copied().collect()
+        SecretName::ALL
+            .iter()
+            .copied()
+            // AlphaGenome has source admission but no product section until capture.
+            .filter(|name| *name != SecretName::AlphaGenomeApiKey)
+            .collect()
     );
     for (name, command) in cases {
         assert_eq!(execute(&command, Some(name)), 1, "{name:?}");
@@ -291,4 +296,44 @@ fn disabled_openfda_sources_never_read_credentials() {
         );
     }
     assert_eq!(execute(&["sync", "fda-cdx"], None), 0);
+}
+
+#[test]
+fn alphagenome_resolves_only_its_own_key_at_source_admission() {
+    let (sent, received) = mpsc::channel();
+    let secrets = secrets_using(None, move |name| {
+        assert_eq!(name, "ALPHAGENOME_API_KEY");
+        sent.send(()).unwrap();
+        Some(PathBuf::from("synthetic-alphagenome-key"))
+    });
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Offline,
+        secrets,
+        ..Default::default()
+    })
+    .unwrap();
+    assert_eq!(received.try_iter().count(), 0);
+    let source = &biomcp_adapters::alphagenome::SPEC;
+    let leg = fetch.leg(source, fetch.deadline(std::time::Duration::from_secs(1)));
+    let request = biomcp_fetch::grpc::alphagenome::DnaseRequest::human_all_folds(
+        "chr7",
+        140745143..140761527,
+        140753336,
+        "A",
+        "T",
+        2048,
+    )
+    .unwrap();
+    for _ in 0..2 {
+        let result = leg.grpc_checked(
+            &biomcp_adapters::alphagenome::PREDICT_VARIANT,
+            request.bytes(),
+            |limits| request.decoder(limits),
+        );
+        assert!(
+            matches!(result, Err(biomcp_fetch::RequestError::Source(error))
+            if error.reason == biomcp_types::Reason::Offline)
+        );
+    }
+    assert_eq!(received.try_iter().count(), 1);
 }
