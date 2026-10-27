@@ -255,12 +255,13 @@ fn empty_recovery() -> Check {
         if disabled {
             args.extend(["--disable-sources", "europepmc"]);
         }
-        let output = checked_case(
+        let output = checked_steps(
             "article/litvar/kras-g12c",
-            &args,
             |source, record| boundary_edit(source, record, "empty"),
-            json!({"/status":"absent", "/result/items":{"count":0}}),
-            1,
+            json!([{
+                "run": args, "mcp": args, "exit": 1,
+                "expect": {"/status":"absent", "/result/items":{"count":0}}
+            }]),
         )?;
         let steps = output["next"].as_array().ok_or("missing recovery steps")?;
         let expected = if disabled {
