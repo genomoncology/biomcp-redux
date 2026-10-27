@@ -17,7 +17,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 ### 2. Prove parity
 
-- Run the harvested cases against 0.9.3 and 1.0 with a runner (0291) declared endpoints, a whole-case inventory and trial and pathway plans (0298), gene, article, variant and author plans in parallel (0300 to 0303), multi-step and stateful execution (0299), then a whole run from main that fills the deferred size and timing comparison (0297). Each fact 1.0 loses becomes a bug ticket.
+- Run the harvested cases against 0.9.3 and 1.0 with a runner (0291) declared endpoints, a whole-case inventory and trial and pathway plans (0298), gene, article, variant, author and protein plans in parallel (0300 to 0304), multi-step and stateful execution (0299), then a whole run from main that fills the deferred size and timing comparison (0297). Each fact 1.0 loses becomes a bug ticket.
 - Run the outside judged agent comparison against the latest released 0.9 (0098), PM-owned.
 - Capture the LitSense gene search when the source allows it (0072).
 
