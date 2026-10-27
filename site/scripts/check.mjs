@@ -51,6 +51,8 @@ const generated = (p) => generatedRe.test(path.relative(path.resolve('src/conten
 for (const p of all) {
   const text = prose(`${p.data.title}\n${p.data.description}\n${p.body}`);
   for (const w of words.banned) {
+    // A word marked generated may appear in generated pages, which quote the program's own help and schemas.
+    if (w.generated && generated(p)) continue;
     const re = new RegExp(`\\b${w.word}\\b`, 'i');
     if (re.test(text)) errors.push(`${p.file}: "${w.word}" is not used on this site. ${w.use}`);
   }

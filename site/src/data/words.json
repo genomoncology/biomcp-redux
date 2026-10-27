@@ -95,6 +95,11 @@
     {
       "word": "subcommand",
       "use": "Write \"command\", as the help does."
+    },
+    {
+      "word": "providers?",
+      "use": "Write \"source\", the word the help text uses.",
+      "generated": true
     }
   ]
 }

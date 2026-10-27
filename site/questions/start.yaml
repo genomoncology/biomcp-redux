@@ -44,7 +44,6 @@
     `biomcp serve` speaks MCP over stdio. The `biomcp` tool takes an `args` array, the same words as the command line, and returns the same JSON reply. PubMed is the default `--source` for `search article`, so no source flag is needed. The same tool also reaches Europe PMC, PMC full text, iCite citations and Semantic Scholar.
   limits: |
     BioMCP sends your words to PubMed as written and returns PubMed's order. It does not summarize papers. Without an NCBI key PubMed applies its public rate limit; `biomcp key set ncbi` raises it.
-  verified: 2026-10-27
   page_title: Connect an agent
   reference_title: MCP tools
 - id: chatgpt-search-fetch
@@ -127,7 +126,7 @@
 - id: local-failure
   question: What does "local.failure local configuration, cache or recording failed" mean?
   source: product
-  frequency: listed from error codes; seen on this build machine
+  frequency: listed from error codes; seen in local.failure replies on cloud machines
   rank: 34
   page: /troubleshooting/
   reference: /reference/error-codes/

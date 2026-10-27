@@ -1,14 +1,14 @@
 - id: trials-for-variant
   question: How do I find recruiting clinical trials for a variant?
   source: cases
-  frequency: "use case 09; the 0.9 find-trials how-to; the brief's example task"
+  frequency: "use case 09; the 0.9 find-trials how-to; a common agent task"
   rank: 6
   page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
 - id: kras-g12c-lung-trials
   question: How do I find recruiting trials for KRAS G12C non-small cell lung cancer?
   source: product
-  frequency: the brief's first example agent task
+  frequency: a common first agent task for trial search
   rank: 7
   page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
@@ -20,7 +20,6 @@
     `--condition` searches the registry's condition field, `--variant` searches its text for the words you give, and `--status RECRUITING` keeps trials whose overall status is recruiting. The registry ranks the results. Each NCT identifier goes to `biomcp get trial NCT eligibility` for the eligibility text.
   limits: |
     Registry text decides the match, so trials that write "G12C" without "KRAS", or name only the drug, can be missed. Run the broader searches too: `--gene KRAS` without the variant, and `--intervention` with a drug name. BioMCP makes no eligibility judgment, and a listing is not an enrollment recommendation.
-  verified: 2026-10-27
   page_title: Find clinical trials by condition, gene or variant
   reference_title: search trial
 - id: trials-near-location
@@ -38,7 +37,6 @@
     ClinicalTrials.gov filters by the distance from the point to each trial site. `--distance` needs explicit units, `mi` or `km`. The search returns whole trials; `biomcp get trial NCT locations` lists each site with its own status.
   limits: |
     A trial matches when any of its sites is in range; that site may not be recruiting. `--facility` cannot combine with a radius. Distances are the registry's calculation from site coordinates.
-  verified: 2026-10-27
   page_title: Find clinical trials by condition, gene or variant
   reference_title: search trial
   lines: 5
@@ -57,7 +55,6 @@
     `--intervention` sends literal text to the registry's intervention search. BioMCP adds no aliases, so search the brand name and code names too, such as an AMG number, when you need them.
   limits: |
     The registry decides what matches. A trial can mention the drug in another role, such as a diagnostic study about the same mutation. Read each record before reporting it.
-  verified: 2026-10-27
   page_title: Find clinical trials by condition, gene or variant
   reference_title: search trial
 - id: trial-eligibility
@@ -82,7 +79,6 @@
     `--has-results` keeps trials with results posted to the registry. `--count-only` asks the registry for its total and returns it as the source's `count`.
   limits: |
     Posted results are those on ClinicalTrials.gov. Results published only in journals are not counted. The total changes as the registry updates.
-  verified: 2026-10-27
   page_title: Find clinical trials by condition, gene or variant
   reference_title: search trial
 - id: nci-trials

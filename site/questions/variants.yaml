@@ -34,7 +34,6 @@
     dbSNP rsIDs name a position and can cover more than one change. BioMCP keeps every source candidate and does not pick one. The candidate whose ClinVar ID is `clinvar:13961` is the A>T change that encodes BRAF V600E; its `next` command reads it with `--build GRCh37`.
   limits: |
     The HGVS here is on the build MyVariant.info used, GRCh37. `biomcp variant normalize` converts it. An rsID absent from MyVariant.info returns no candidates, which is not proof it does not exist.
-  verified: 2026-10-27
   page_title: Look up a variant
   reference_title: get variant
 - id: civic-evidence

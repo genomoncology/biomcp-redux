@@ -27,7 +27,6 @@
     BioMCP resolves the symbol against HGNC, then reads UniProt's reviewed human entries for that gene. The accession goes straight to `biomcp get protein P15056` for features, domains and sequence.
   limits: |
     Only reviewed (Swiss-Prot) human entries are returned. A gene with several reviewed products returns each one; BioMCP does not choose.
-  verified: 2026-10-27
   page_title: Look up genes, proteins and pathways
   reference_title: get gene
 - id: gene-disease-validity
