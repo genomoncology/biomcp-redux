@@ -990,11 +990,6 @@
         "release_source": "src/entities/article/mod.rs"
       },
       {
-        "case": "article/indexing/own-record.yaml",
-        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
-        "release_source": "src/entities/article/mod.rs"
-      },
-      {
         "case": "article/litvar/braf-cap.yaml",
         "reason": "Released ArticleSearchArgs has no --variant flag or LitVar source; preserving this variant-filtered question is unsupported.",
         "release_source": "src/cli/article/mod.rs::ArticleSearchArgs"
@@ -1086,8 +1081,8 @@
       },
       {
         "case": "article/sections/key-domains.yaml",
-        "reason": "All asserted questions concern current lifecycle, source notices, pooled annotation state or resolution metadata absent from released Article serialization. No asserted released content field remains to compare.",
-        "release_source": "src/entities/article/mod.rs"
+        "reason": "This exact replay supplies four annotations with infons.name and no annotation.text. Released extract_annotations_with_official_symbols skips each textless annotation before reading its identity, so it cannot answer these infons-name-only name/count questions. The released schema does support text/count rows in separate genes and diseases arrays for text-bearing annotations; adapting those pooled arrays would require an additional closed projection, not invented text fields. Its JSON also lacks the current lifecycle and pooled total.",
+        "release_source": "src/transform/article/annotations.rs::extract_annotations_with_official_symbols (445-448); src/entities/article/mod.rs::ArticleAnnotations"
       },
       {
         "case": "article/sections/missing.yaml",
