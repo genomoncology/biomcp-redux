@@ -162,12 +162,12 @@ fn failure() -> Check {
         vec![
             "health".into(),
             "--disable-sources".into(),
-            disabled(&["fda-pma"]),
+            disabled(&["gtr"]),
         ],
         0,
     )?;
-    let r = row(&v, "fda-pma")?;
-    if r["state"] != "failed" || r["reason"] != "unavailable" {
+    let r = row(&v, "gtr")?;
+    if r["state"] != "failed" || r["reason"] != "unavailable" || r["bundle"] != "missing" {
         return Err(format!("publisher failure disappeared {r}"));
     }
     if stub.finish()?.len() != 1 {
