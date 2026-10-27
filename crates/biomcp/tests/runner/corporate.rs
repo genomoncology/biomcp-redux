@@ -233,6 +233,7 @@ fn configuration() -> Result<(), String> {
             ));
         }
     }
+    named_server_and_key_causes()?;
     skipped_bypass()?;
     for limit in [1, 1_000_000] {
         let env = Environment::new().map_err(|e| e.to_string())?;
@@ -316,6 +317,32 @@ fn skipped_bypass() -> Result<(), String> {
         || String::from_utf8_lossy(&output.stdout).contains("configuration")
     {
         return Err("ordinary command exposed configuration notices".into());
+    }
+    Ok(())
+}
+
+fn named_server_and_key_causes() -> Result<(), String> {
+    for (config, args, field) in [
+        (
+            json!({"formatt":"synthetic-private"}),
+            vec!["key", "list"],
+            "formatt",
+        ),
+        (
+            json!({"http":{"allowed_hosts":["synthetic-private/path"]}}),
+            vec!["serve", "--http", "127.0.0.1:0"],
+            "http.allowed_hosts",
+        ),
+    ] {
+        let env = Environment::new().map_err(|e| e.to_string())?;
+        env.config(&config).map_err(|e| e.to_string())?;
+        let args = args.into_iter().map(str::to_owned).collect();
+        let value = super::configuration::invoke(&env, args, 5)?;
+        if value.pointer("/error/option") != Some(&json!(field))
+            || value.to_string().contains("synthetic-private")
+        {
+            return Err("server or key command discarded its configuration cause".into());
+        }
     }
     Ok(())
 }

@@ -31,13 +31,26 @@ pub(crate) fn serve(
     globals: crate::grammar::Globals,
 ) -> Result<(), StartError> {
     let address: SocketAddr = address.parse().map_err(|_| StartError::Usage)?;
-    let mut names = crate::config::http_hosts(&globals)
+    let names = crate::config::http_hosts(&globals)
         .map_err(|error| StartError::Configuration(error.into()))?;
-    names.extend(hosts);
-    let hosts = names
+    let mut allowed = names
         .iter()
-        .map(|host| Authority::parse(host).ok_or(StartError::Usage))
+        .map(|host| {
+            Authority::parse(host).ok_or_else(|| {
+                StartError::Configuration(crate::config::StartupError(
+                    None,
+                    Some("http.allowed_hosts".into()),
+                ))
+            })
+        })
         .collect::<Result<Vec<_>, _>>()?;
+    allowed.extend(
+        hosts
+            .iter()
+            .map(|host| Authority::parse(host).ok_or(StartError::Usage))
+            .collect::<Result<Vec<_>, _>>()?,
+    );
+    let hosts = allowed;
     if !address.ip().is_loopback() && hosts.is_empty() {
         return Err(StartError::Usage);
     }
