@@ -12,7 +12,7 @@ pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &[VariantHeader],
-    deadline: Deadline<'_>,
+    mut deadline: Deadline<'_>,
 ) -> super::sections::Result<VariantAlphaGenome> {
     if !cx.fetch.has_key(SecretName::AlphaGenomeApiKey) {
         return refused(Reason::NoKey, SourceState::Skipped);
@@ -20,8 +20,29 @@ pub(super) fn section(
     if query.build().is_some_and(|build| build != Build::GRCh38) {
         return refused(Reason::Unsupported, SourceState::Failed);
     }
-    let Some(request) = candidates.first().and_then(request) else {
+    let Some(candidate) = candidates.first() else {
         return refused(Reason::NoJoinId, SourceState::Failed);
+    };
+    let joined = super::alphagenome_join::resolve(cx, candidate, &mut deadline);
+    let Some(request) = joined.request else {
+        let reason = if candidate
+            .identity
+            .representations
+            .iter()
+            .any(|r| r.build.is_some())
+            && !candidate
+                .identity
+                .representations
+                .iter()
+                .any(|r| r.build == Some(Build::GRCh38))
+        {
+            Reason::Unsupported
+        } else {
+            Reason::NoJoinId
+        };
+        let (section, mut sources, _, _) = refused(reason, SourceState::Failed);
+        sources.extend(joined.sources);
+        return (section, sources, joined.problems, joined.local);
     };
     let leg = cx.fetch.leg(&alphagenome::SPEC, deadline).fresh(cx.fresh);
     let reply = leg
@@ -43,13 +64,13 @@ pub(super) fn section(
     };
     (
         section,
-        vec![source],
-        Vec::new(),
-        error.and_then(status::local),
+        joined.sources.into_iter().chain([source]).collect(),
+        joined.problems,
+        joined.local.or(error.and_then(status::local)),
     )
 }
 
-fn request(row: &VariantHeader) -> Option<ScoreRequest> {
+pub(super) fn request(row: &VariantHeader) -> Option<ScoreRequest> {
     let mut requests = row
         .identity
         .representations

@@ -1,5 +1,6 @@
 //! Published-identifier resolution with source-owned allele identity checks.
 mod alphagenome;
+mod alphagenome_join;
 mod alphagenome_page;
 pub(crate) mod assertions;
 mod civic;
@@ -121,8 +122,17 @@ pub(crate) fn resolve(
             } else {
                 input.to_owned()
             };
-            let found =
-                myvariant::lookup(leg, &term, query.build().unwrap_or(biodata::Build::GRCh37))?;
+            let build = query.build().unwrap_or_else(|| {
+                if query
+                    .sections()
+                    .contains(&biomcp_types::VariantSection::AlphaGenome)
+                {
+                    biodata::Build::GRCh38
+                } else {
+                    biodata::Build::GRCh37
+                }
+            });
+            let found = myvariant::lookup(leg, &term, build)?;
             problems.extend(found.problems);
             Ok((found.value, None))
         }
