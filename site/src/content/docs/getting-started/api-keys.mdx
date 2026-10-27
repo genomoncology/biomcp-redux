@@ -30,7 +30,7 @@ BioMCP <Fact k="version" /> reads one JSON configuration file and the environmen
 
 <Example id="key-set-demo" />
 
-The state is `stored` for a key in the file, `environment` for a key in its environment variable, and `none` otherwise. `biomcp key remove SOURCE` deletes a stored key. Setting a key that is already stored needs `--replace`.
+The stored key is plain text in `config.json`. BioMCP writes the file readable by your user only (`-rw-------`); protect it like any other secret. The state is `stored` for a key in the file, `environment` for a key in its environment variable, and `none` otherwise. `biomcp key remove SOURCE` deletes a stored key. Setting a key that is already stored needs `--replace`.
 
 `biomcp help key SOURCE` names the configuration field and the environment variable:
 

@@ -1,4 +1,6 @@
 {"source":"ncbi","config":"keys.ncbi_api_key","environment":"NCBI_API_KEY","state":"stored"}
+{"keys":{"ncbi_api_key":"example-not-a-key"}}
+-rw-------
 ncbi	NCBI_API_KEY	stored
 semantic-scholar	S2_API_KEY	none
 orcid	ORCID_ACCESS_TOKEN	none
