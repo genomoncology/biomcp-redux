@@ -162,11 +162,23 @@ fn search(n: usize) -> Check {
     Ok(())
 }
 fn absent() -> Check {
-    let (env, stub) = setup(
-        json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}),
-        "openfda.brand_name.exact%3A%22Tagrisso%22".into(),
-        404,
+    let stub = Stub::for_source_status(
+        "api.fda.gov",
+        "application/json",
+        |request| {
+            let selector = request.lines().next().ok_or("request")?;
+            if !["openfda.brand_name.exact", "openfda.brand_name"].iter().any(|field| {
+                selector == format!(
+                    "GET /drug/label.json?search={field}%3A%22Tagrisso%22&limit=1&sort=effective_time%3Adesc HTTP/1.1"
+                )
+            }) {
+                return Err(format!("unexpected absence request: {request}"));
+            }
+            Ok(json!({"error":{"code":"NOT_FOUND","message":"No matches found!"}}).to_string())
+        },
+        |_| 404,
     )?;
+    let (env, stub) = environment(stub)?;
     let args = vec![
         "search",
         "drug",
@@ -187,8 +199,8 @@ fn absent() -> Check {
     {
         return Err("native NOT_FOUND became a failed source or a clinical answer".into());
     }
-    if stub.finish()?.len() != 2 {
-        return Err("native absence retry count changed".into());
+    if stub.finish()?.len() != 4 {
+        return Err("native absence fallback count changed".into());
     }
     Ok(())
 }

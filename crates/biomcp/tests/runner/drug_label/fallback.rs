@@ -72,7 +72,8 @@ fn fallback(typed: &str, returned: &str, found: bool) -> Check {
             return Err("fallback lost complete brand identity".into());
         }
     } else if field(&value, "status") != "absent"
-        || value.pointer("/result/items") != Some(&json!([]))
+        || value.pointer("/result/items").is_some()
+        || value.pointer("/result/total") != Some(&json!(0))
     {
         return Err("fallback accepted a different brand".into());
     }
