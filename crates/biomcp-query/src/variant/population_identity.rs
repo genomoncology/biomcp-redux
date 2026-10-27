@@ -1,10 +1,10 @@
 //! Resolve the source's own candidate-to-CA cross-reference before the checked GRCh38 join.
 //! No expression edit, assembly conversion, padding or candidate selection occurs here.
 use crate::{Ctx, status};
+use biodata::VariantId;
 use biomcp_adapters::allele_registry;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader};
-use biodata::VariantId;
 
 #[derive(Default)]
 pub(super) struct Identity {

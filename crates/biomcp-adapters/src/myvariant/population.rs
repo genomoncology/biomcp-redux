@@ -3,9 +3,9 @@
 //! CA identifier contract: https://reg.genome.network/doc/alleleTerminology.html
 use super::raw::Hit;
 use crate::{Mapped, raw::Field};
+use biodata::VariantId;
 use biomcp_fetch::Leg;
 use biomcp_types::{Problem, ProblemCode, Source, VariantHeader};
-use biodata::VariantId;
 
 pub(super) fn fields(leg: &Leg<'_>) -> String {
     let mut fields = super::fields(leg);

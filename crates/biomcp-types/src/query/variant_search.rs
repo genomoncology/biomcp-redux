@@ -209,10 +209,17 @@ impl VariantSearch {
     /// https://docs.myvariant.info/en/latest/doc/variant_query_service.html#fielded-queries
     pub fn source_record(id: &crate::VariantInput) -> Result<Self, QueryInvalid> {
         Self::try_from(Fields {
-            gene: None, protein: None, region: None, build: None,
+            gene: None,
+            protein: None,
+            region: None,
+            build: None,
             query: Some(format!("_id:\"{}\"", literal(id.as_str())).parse()?),
-            source: Some(VariantSearchSource::Myvariant), review_status: None,
-            condition: None, has: None, limit: default_limit(), offset: 0,
+            source: Some(VariantSearchSource::Myvariant),
+            review_status: None,
+            condition: None,
+            has: None,
+            limit: default_limit(),
+            offset: 0,
         })
     }
     /// Maximum native result window this command retrieves; larger totals are disclosed.

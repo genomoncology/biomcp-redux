@@ -135,15 +135,24 @@ fn choices(
             let build = row.identity.representations.iter().find_map(|r| r.build);
             let mut input = row.record.id.as_str().parse().ok()?;
             if build.is_none() {
-                let ids: Vec<_> = row.identity.ids.iter()
-                    .filter(|id| matches!(id, biodata::VariantId::Ca(_))).collect();
+                let ids: Vec<_> = row
+                    .identity
+                    .ids
+                    .iter()
+                    .filter(|id| matches!(id, biodata::VariantId::Ca(_)))
+                    .collect();
                 if let [id] = ids.as_slice() {
                     input = id.to_string().parse().ok()?;
                 } else {
-                    return Some((StepKind::Disambiguate, Action::Run {
-                        request: Request::SearchVariant(biomcp_types::VariantSearch::source_record(&input).ok()?),
-                        fresh: false,
-                    }));
+                    return Some((
+                        StepKind::Disambiguate,
+                        Action::Run {
+                            request: Request::SearchVariant(
+                                biomcp_types::VariantSearch::source_record(&input).ok()?,
+                            ),
+                            fresh: false,
+                        },
+                    ));
                 }
             }
             let selected = query.with_identity(input, build).ok()?;
