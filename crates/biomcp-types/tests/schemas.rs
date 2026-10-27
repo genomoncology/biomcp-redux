@@ -4,6 +4,8 @@
 mod compatibility;
 #[path = "schemas/compatibility_cases.rs"]
 mod compatibility_cases;
+#[path = "schemas/release.rs"]
+mod release;
 #[path = "schemas/values.rs"]
 mod values;
 
@@ -466,3 +468,8 @@ fn protein_contracts() -> Vec<Contract> {
 
 #[path = "schemas/author.rs"]
 mod author;
+
+#[test]
+fn generated_schemas_preserve_release_contracts() -> Result<(), Box<dyn std::error::Error>> {
+    release::generated_schemas_preserve_release_contracts()
+}

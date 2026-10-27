@@ -13,12 +13,7 @@ pub(super) fn run_step(
         .run
         .as_ref()
         .map(|args| {
-            let mut command_args = args.clone();
-            let position = command_args
-                .iter()
-                .position(|arg| arg == "--")
-                .unwrap_or(command_args.len());
-            command_args.splice(position..position, globals.iter().cloned());
+            let command_args = launch::arguments(args, &globals);
             let output = environment
                 .command(env!("CARGO_BIN_EXE_biomcp"), &command_args)
                 .output()

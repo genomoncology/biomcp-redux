@@ -1,6 +1,7 @@
 # 0187 — Ship the agent skill guide for the 1.0 command tree
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c396fe547b4ab74cf3531c01c5875df37b2c0005
 
 Milestone: 5
 

@@ -161,6 +161,44 @@ impl Stub {
             worker: Some(worker),
         })
     }
+    // Released clients can ignore system proxies. An explicit endpoint override
+    // reaches this peer directly and gives its logical source sole ownership.
+    pub(super) fn loopback(
+        host: String,
+        mut reply: impl FnMut(&str, &str) -> Result<String, String> + Send + 'static,
+    ) -> Result<Self, String> {
+        let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+        let address = listener.local_addr().map_err(|e| e.to_string())?;
+        let (stop, stopping) = mpsc::channel();
+        let worker = thread::spawn(move || {
+            let mut requests = Vec::new();
+            for stream in listener.incoming() {
+                if stopping.try_recv().is_ok() {
+                    break;
+                }
+                let mut socket = stream.map_err(|e| e.to_string())?;
+                socket
+                    .set_read_timeout(Some(Duration::from_secs(10)))
+                    .map_err(|e| e.to_string())?;
+                socket
+                    .set_write_timeout(Some(Duration::from_secs(10)))
+                    .map_err(|e| e.to_string())?;
+                let request = source_request(&mut socket)?;
+                let body = reply(&host, &request)?;
+                write!(socket, "HTTP/1.1 200 Recorded\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len())
+                    .map_err(|e| e.to_string())?;
+                socket.flush().map_err(|e| e.to_string())?;
+                requests.push((host.clone(), request));
+            }
+            Ok(requests)
+        });
+        Ok(Self {
+            address,
+            certificate: String::new(),
+            stop,
+            worker: Some(worker),
+        })
+    }
     pub(super) fn finish(mut self) -> Result<Vec<(String, String)>, String> {
         let _ = self.stop.send(());
         let _ = TcpStream::connect(self.address);
