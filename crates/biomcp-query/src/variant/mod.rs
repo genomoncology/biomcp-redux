@@ -109,13 +109,24 @@ fn match_transcripts(query: &VariantGet, candidates: &mut [VariantHeader]) {
                     .as_str()
                     .split_once(':')
                     .is_some_and(|(id, notation)| {
-                        transcript.transcript.as_str() == id.split('(').next().unwrap_or(id)
+                        transcript.transcript.as_str() == transcript_reference(id)
                             && transcript
                                 .hgvs_c
                                 .as_ref()
                                 .is_some_and(|c| c.as_str() == notation)
                     });
         }
+    }
+}
+fn transcript_reference(reference: &str) -> &str {
+    let Some((outer, inner)) = reference.split_once('(') else {
+        return reference;
+    };
+    let inner = inner.strip_suffix(')').unwrap_or(inner);
+    if inner.parse::<biodata::Accession>().is_ok() {
+        inner
+    } else {
+        outer
     }
 }
 fn classify(len: usize) -> VariantResolution {
