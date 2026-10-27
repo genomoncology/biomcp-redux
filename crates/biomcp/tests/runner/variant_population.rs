@@ -3,8 +3,10 @@ use super::{launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::fs;
+#[path = "variant_population_ids.rs"]
+mod ids;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         Trial::test("variant/population-source-given-grch38-snv", || {
             population().map_err(Into::into)
         }),
@@ -30,7 +32,9 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("variant/gwas-v2-valid-zero", || {
             gwas_zero().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(ids::trials());
+    trials
 }
 fn gwas_zero() -> Result<(), String> {
     let stub = Stub::for_source("www.ebi.ac.uk", "application/json", empty_gwas)?;
