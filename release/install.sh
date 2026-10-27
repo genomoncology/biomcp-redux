@@ -16,7 +16,7 @@ download() {
   elif command -v wget >/dev/null 2>&1; then
     # GNU wget's --https-only governs recursive links. Check each redirect
     # ourselves because its ordinary downloader may otherwise follow HTTP.
-    local url=$1 header next attempt
+    local url=$1 header next attempt origin
     for attempt in {1..10}; do
       [[ "$url" = https://* ]] || fail 'Download redirect must use HTTPS'
       if wget --https-only --max-redirect=0 --server-response --timeout=30 --tries=1 -qO "$2" "$url" 2> "$scratch/headers"; then
@@ -30,7 +30,15 @@ download() {
         fi
       done < "$scratch/headers"
       [ -n "$next" ] || return 1
-      url=$next
+      # Resolve ordinary relative Location values while keeping the original
+      # HTTPS authority. Never hand wget a URL with a downgraded protocol.
+      case "$next" in
+        https://*) url=$next ;;
+        //*) url="https:$next" ;;
+        /*) origin=${url#https://}; origin=${origin%%/*}; url="https://$origin$next" ;;
+        *:*) fail 'Download redirect must use HTTPS' ;;
+        *) url=${url%%\?*}; url=${url%%\#*}; url="${url%/*}/$next" ;;
+      esac
     done
     fail 'Too many download redirects'
   else

@@ -224,10 +224,11 @@ class Installer(unittest.TestCase):
                 config = self.root / "wgetrc"
                 config.write_text("ca_certificate=" + str(ca) + "\n")
                 self.environment["WGETRC"] = str(config)
-                Redirect.destination = base + "/safe"
-                result = self.install()
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.destination.joinpath("biomcp").unlink()
+                for destination in [base + "/safe", "/safe", "//" + base.removeprefix("https://") + "/safe", "../../../safe"]:
+                    Redirect.destination = destination
+                    result = self.install()
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.destination.joinpath("biomcp").unlink()
                 Redirect.destination = insecure
                 result = self.install()
                 self.assertNotEqual(result.returncode, 0)
