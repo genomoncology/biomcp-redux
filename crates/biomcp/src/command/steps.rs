@@ -1,8 +1,8 @@
 //! Carry active request restrictions through every generated command.
 use std::io;
 pub(super) fn next(
-    fetch: &biomcp_fetch::Fetch,
     result: &biomcp_query::Outcome,
+    globals: &crate::grammar::Globals,
 ) -> io::Result<Vec<biomcp_types::Step>> {
     let mut steps = result
         .next
@@ -27,7 +27,7 @@ pub(super) fn next(
             Some(has_more || u64::from(page.offset) + u64::from(page.returned) < page.total),
         ),
     }
-    Ok(source_steps(fetch, steps))
+    Ok(source_steps(&globals.disable_sources, steps))
 }
 
 #[derive(Debug)]
@@ -90,21 +90,10 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
 }
 
 fn source_steps(
-    fetch: &biomcp_fetch::Fetch,
+    exclusions: &[String],
     steps: Vec<biomcp_types::Step>,
 ) -> Vec<biomcp_types::Step> {
-    let registered = biomcp_adapters::registry::SOURCES;
-    let sources = registered.iter().map(|spec| spec.source).chain(
-        fetch
-            .disabled_sources()
-            .filter(|source| !registered.iter().any(|spec| spec.source == *source)),
-    );
-    let disabled = sources
-        .filter(|source| fetch.disabled(*source))
-        .map(|source| source.to_string())
-        .chain(fetch.disabled_uses().map(|usage| usage.as_str().to_owned()))
-        .collect::<Vec<_>>()
-        .join(",");
+    let disabled = exclusions.join(",");
     if disabled.is_empty() {
         return steps;
     }

@@ -3,10 +3,10 @@ use biomcp_types::{Envelope, QueryBody, Request, Section, StepKind};
 use std::io;
 const LABEL_BYTES: usize = 8192;
 pub(super) fn bound(
-    fetch: &biomcp_fetch::Fetch,
     request: &Request,
     out: &mut biomcp_query::Outcome,
     fresh: bool,
+    globals: &crate::grammar::Globals,
 ) -> io::Result<()> {
     let Request::GetDrug(query) = request else {
         return Ok(());
@@ -25,7 +25,7 @@ pub(super) fn bound(
             .cloned()
             .map(biomcp_adapters::registry::restore_outcome)
             .collect();
-        envelope.next = super::steps::next(fetch, out)?;
+        envelope.next = super::steps::next( out, globals)?;
         envelope.problems = out.problems.clone();
         envelope.page = out.page.clone();
         if serde_json::to_vec(&envelope)?.len() < LABEL_BYTES {

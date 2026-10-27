@@ -14,6 +14,7 @@ mod pgx;
 mod phenotype;
 mod protein;
 mod steps;
+mod step_sources;
 mod sync;
 mod transport;
 mod unsupported;
@@ -135,7 +136,7 @@ pub(crate) fn execute(
         Action::Sync { bundle } => sync::run(fetch, bundle),
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, globals, allow_save)?;
-            response(fetch, request, result, fresh)
+            response(fetch, request, result, fresh, globals)
         }
     }
 }
@@ -172,9 +173,11 @@ fn response(
     request: Request,
     mut result: biomcp_query::Outcome,
     fresh: bool,
+    globals: &crate::grammar::Globals,
 ) -> io::Result<Outcome> {
-    drug_label::bound(fetch, &request, &mut result, fresh)?;
-    let steps = steps::next(fetch, &result)?;
+    drug_label::bound( &request, &mut result, fresh, globals)?;
+    step_sources::filter(fetch, &mut result);
+    let steps = steps::next( &result, globals)?;
     let meta = ResponseMeta {
         exit: response_status(&result),
         local_error: local::kind(result.local),
