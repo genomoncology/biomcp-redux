@@ -8,7 +8,8 @@
     "batches/article.json",
     "batches/article-more.json",
     "batches/variant.json",
-    "batches/author-orcid.json"
+    "batches/author-orcid.json",
+    "batches/protein.json"
   ],
   "inventory": {
     "pending": [
@@ -36,41 +37,6 @@
         "case": "drug/who-missing.yaml",
         "ticket": "0305",
         "reason": "drug direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/absent.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/broken-body.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/disabled.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/rate-limit.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/sections/displayed-features.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/server-error.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
-      },
-      {
-        "case": "protein/timeout.yaml",
-        "ticket": "0304",
-        "reason": "protein direct command and per-fact released projections await the assigned family declaration batch; no baseline verdict is claimed."
       },
       {
         "case": "schema/errors.yaml",

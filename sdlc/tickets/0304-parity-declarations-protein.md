@@ -1,6 +1,7 @@
 # 0304 — Declare Protein parity plans for 0.9.3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 662d5ec69b32b5e786041f2356223fb05e53d56c
 
 Milestone: 5
 
