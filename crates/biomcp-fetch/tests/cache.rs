@@ -220,3 +220,25 @@ fn ownership_retains_caller_transaction_on_success_and_failure() {
         assert_eq!(count, 0);
     }
 }
+
+#[test]
+fn ownership_version_query_reports_a_locked_table_as_busy() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("locked.sqlite");
+    let flags = rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE
+        | rusqlite::OpenFlags::SQLITE_OPEN_CREATE
+        | rusqlite::OpenFlags::SQLITE_OPEN_SHARED_CACHE;
+    let mut writer = Connection::open_with_flags(&path, flags).unwrap();
+    writer.execute_batch(
+        "CREATE TABLE meta(owner TEXT PRIMARY KEY,version INTEGER); INSERT INTO meta VALUES('checked-owner',1);",
+    ).unwrap();
+    let reader = Connection::open_with_flags(&path, flags).unwrap();
+    let transaction = writer.transaction().unwrap();
+    transaction
+        .execute("UPDATE meta SET version=1", [])
+        .unwrap();
+    let result = biomcp_fetch::check_owners(&reader, &[CHECKED_OWNER]);
+    assert!(matches!(result, Err(CacheError::Busy)), "{result:?}");
+    assert!(reader.is_autocommit());
+    transaction.rollback().unwrap();
+}
