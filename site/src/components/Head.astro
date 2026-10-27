@@ -2,12 +2,14 @@
 // Adds the social card and structured data for search engines to Starlight's own head.
 import Default from '@astrojs/starlight/components/Head.astro';
 import site from '../data/site.json';
+import product from '../../product.config.mjs';
 const { entry } = Astro.locals.starlightRoute;
 const d = entry.data;
 const url = new URL(Astro.url.pathname, Astro.site).href;
 // public/social-card.png, made by scripts/social-card.mjs from the brand marks.
 const card = new URL('/social-card.png', Astro.site).href;
-const cardAlt = `${site.product}: ${d.title}`;
+// The card shows the mark and the tagline, the same on every page.
+const cardAlt = `${product.name}: ${product.socialCard.tagline}`;
 let ld;
 if (!d.kind) {
   ld = undefined;
