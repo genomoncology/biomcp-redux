@@ -26,8 +26,14 @@ pub(super) enum Hold {
     NoAlpn,
 }
 #[derive(Debug)]
+#[allow(
+    dead_code,
+    reason = "Consumers read different events from this shared transport and CLI fixture"
+)]
 pub(super) enum Seen {
     Tcp,
+    Http(String),
+    Path(String),
     Connect(String),
     Request(http::HeaderMap, Vec<u8>),
     Message,
@@ -40,6 +46,16 @@ pub(super) struct Fixture {
     pub(super) count: Arc<AtomicUsize>,
     stop: Option<tokio::sync::oneshot::Sender<()>>,
     thread: Option<thread::JoinHandle<Check>>,
+}
+struct Replies {
+    messages: Vec<Vec<u8>>,
+    http: Option<Vec<(String, Vec<u8>)>>,
+    status: u16,
+}
+#[derive(Debug)]
+pub(super) struct HttpReply {
+    pub(super) hosts: Vec<String>,
+    pub(super) replies: Vec<(String, Vec<u8>)>,
 }
 trait Io: AsyncRead + AsyncWrite + Send + Unpin {}
 impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
@@ -55,12 +71,31 @@ impl Fixture {
         proxy_tls: bool,
         messages: Vec<Vec<u8>>,
     ) -> Check<Self> {
-        let messages = Arc::new(messages);
-        let pair = rcgen::generate_simple_self_signed(vec![
+        Self::with_http(hold, status, proxy, proxy_tls, messages, None, 200)
+    }
+    pub(super) fn with_http(
+        hold: Hold,
+        status: u8,
+        proxy: bool,
+        proxy_tls: bool,
+        messages: Vec<Vec<u8>>,
+        http: Option<HttpReply>,
+        response_status: u16,
+    ) -> Check<Self> {
+        let mut hosts = vec![
             "localhost".into(),
             "synthetic.test".into(),
             "127.0.0.1".into(),
-        ])?;
+        ];
+        if let Some(http) = &http {
+            hosts.extend(http.hosts.iter().cloned());
+        }
+        let messages = Arc::new(Replies {
+            messages,
+            http: http.map(|http| http.replies),
+            status: response_status,
+        });
+        let pair = rcgen::generate_simple_self_signed(hosts)?;
         let certificate = pair.cert.pem();
         let key = rustls::pki_types::PrivatePkcs8KeyDer::from(pair.key_pair.serialize_der());
         let mut tls = rustls::ServerConfig::builder_with_provider(Arc::new(
@@ -71,6 +106,9 @@ impl Fixture {
         .with_single_cert(vec![pair.cert.der().clone()], key.into())?;
         if hold != Hold::NoAlpn {
             tls.alpn_protocols = vec![b"h2".to_vec()];
+        }
+        if messages.http.is_some() {
+            tls.alpn_protocols.push(b"http/1.1".to_vec());
         }
         let tls = Arc::new(tls);
         let listener = TcpListener::bind("127.0.0.1:0")?;
@@ -200,7 +238,7 @@ async fn serve(
     status: u8,
     proxy: (bool, bool),
     events: mpsc::Sender<Seen>,
-    messages: Arc<Vec<Vec<u8>>>,
+    messages: Arc<Replies>,
 ) -> Check {
     if proxy.0 {
         if proxy.1 {
@@ -230,7 +268,35 @@ async fn serve(
     if hold == Hold::Tls {
         std::future::pending::<()>().await;
     }
-    let socket = tokio_rustls::TlsAcceptor::from(tls).accept(socket).await?;
+    let mut socket = tokio_rustls::TlsAcceptor::from(tls).accept(socket).await?;
+    if socket.get_ref().1.alpn_protocol() != Some(b"h2") {
+        let replies = messages.http.as_ref().ok_or("unexpected HTTP/1 request")?;
+        let mut request = Vec::new();
+        while !request.ends_with(b"\r\n\r\n") {
+            if request.len() > 8192 {
+                return Err("HTTP request exceeded bound".into());
+            }
+            request.push(socket.read_u8().await?);
+        }
+        let request = String::from_utf8(request)?;
+        let reply = &replies
+            .iter()
+            .find(|(prefix, _)| request.starts_with(prefix))
+            .ok_or("unexpected HTTP source request")?
+            .1;
+        events.send(Seen::Http(request))?;
+        let header = format!(
+            concat!(
+                "HTTP/1.1 200 Synthetic\r\nContent-Type: application/json\r\n",
+                "Content-Length: {}\r\nConnection: close\r\n\r\n"
+            ),
+            reply.len()
+        );
+        socket.write_all(header.as_bytes()).await?;
+        socket.write_all(reply).await?;
+        socket.shutdown().await?;
+        return Ok(());
+    }
     let mut connection = h2::server::handshake(socket).await?;
     let mut replies = tokio::task::JoinSet::new();
     while let Some(request) = connection.accept().await {
@@ -255,7 +321,7 @@ async fn reply(
     hold: Hold,
     status: u8,
     events: mpsc::Sender<Seen>,
-    messages: Arc<Vec<Vec<u8>>>,
+    messages: Arc<Replies>,
 ) -> Check {
     let (head, mut body) = request.into_parts();
     if hold == Hold::Upload {
@@ -272,19 +338,20 @@ async fn reply(
         request.extend_from_slice(&data);
         body.flow_control().release_capacity(data.len())?;
     }
+    events.send(Seen::Path(head.uri.path().to_owned()))?;
     events.send(Seen::Request(head.headers, request))?;
     if hold == Hold::Headers {
         std::future::pending::<()>().await;
     }
     let headers = http::Response::builder()
-        .status(200)
+        .status(messages.status)
         .header("content-type", "application/grpc")
         .body(())?;
     let mut stream = response.send_response(headers, false)?;
     if hold == Hold::Message {
         std::future::pending::<()>().await;
     }
-    for message in messages.iter() {
+    for message in &messages.messages {
         let mut frame = vec![0];
         frame.extend_from_slice(&(message.len() as u32).to_be_bytes());
         frame.extend_from_slice(message);

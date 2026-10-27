@@ -9,5 +9,5 @@ pub(super) fn initialize(params: &Value) -> Option<Value> {
     info.get("name")?.as_str()?;
     info.get("version")?.as_str()?;
     Some(json!({"protocolVersion":protocol::REVISIONS.last()?,
-        "capabilities":{"tools":{}}, "serverInfo":protocol::info()}))
+        "capabilities":{"tools":{}}, "serverInfo":protocol::info(), "instructions":protocol::INSTRUCTIONS}))
 }

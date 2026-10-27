@@ -10,7 +10,7 @@ The causes of these live failures are found and fixed or recorded with the sourc
 
 - Why: the docs lead's product findings report (2026-10-27), item E5, and the PM's live health run on the release candidate. Ian's ruling that 1.0 ships every known fix (2026-10-27).
 - Starts from: the GWAS, VAERS and InterPro adapters, their deadlines and the health probe budget.
-- Rules: at most three bounded live requests per case per attempt, no keys. A longer deadline needs a measured reason.
+- Rules: PM ruling 2026-10-27 (m10791): CDC WONDER replies with complete XML labelled `text/html; charset=ISO-8859-1` are admitted and decoded as XML for that source only, with the fix proved by replay; other sources stay strict. One separate COVID19 retry runs after CDC's required spacing, within the remaining budget. At most three bounded live requests per case per attempt, no keys. A longer deadline needs a measured reason.
 - Proof: each fixed cause has a replay or fixture case that failed before the fix; any source limit is stated in the reply or help.
 - Changes: depends on the causes.
 - Defers: nothing.

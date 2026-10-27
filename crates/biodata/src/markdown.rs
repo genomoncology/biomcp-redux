@@ -1,6 +1,6 @@
 use crate::{Error, Text};
 use serde::{Deserialize, Serialize};
-/// Nonempty source text whose Markdown structure is preserved by text views.
+/// Nonempty source Markdown retained as record data.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String")]
 pub struct Markdown(Box<str>);
