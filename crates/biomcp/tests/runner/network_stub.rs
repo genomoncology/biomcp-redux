@@ -131,12 +131,11 @@ impl Stub {
                 }
                 let mut socket = observed.accept(stream)?;
                 let connect = observed.check("CONNECT header", header(&mut socket))?;
-                if !hosts
+                let host = hosts
                     .iter()
-                    .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
-                {
-                    return Err("wrong CONNECT destination".into());
-                }
+                    .find(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
+                    .ok_or("wrong CONNECT destination")?;
+                observed.destination(host);
                 observed.check(
                     "CONNECT reply",
                     socket.write_all(b"HTTP/1.1 200 Connection established\r\n\r\n"),
@@ -188,6 +187,7 @@ impl Stub {
                     break;
                 }
                 let mut socket = observed.accept(stream)?;
+                observed.destination(&host);
                 let request = observed.check("HTTP request", source_request(&mut socket))?;
                 let recorded = reply(&host, &request)?;
                 if !(100..=599).contains(&recorded.status)

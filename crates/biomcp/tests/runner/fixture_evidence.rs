@@ -21,6 +21,7 @@ struct Context {
     local: SocketAddr,
     peer: Option<SocketAddr>,
     hosts: Vec<String>,
+    host: Option<String>,
     ordinal: usize,
     phase: &'static str,
     io_error: Option<String>,
@@ -36,6 +37,7 @@ impl Evidence {
                 local,
                 peer: None,
                 hosts: hosts.iter().map(|s| (*s).into()).collect(),
+                host: None,
                 ordinal: 0,
                 phase: "accept",
                 io_error: None,
@@ -62,6 +64,7 @@ impl Evidence {
                 .unwrap_or_else(std::sync::PoisonError::into_inner);
             context.ordinal += 1;
             context.peer = socket.peer_addr().ok();
+            context.host = None;
         }
         self.check(
             "read timeout setup",
@@ -72,6 +75,12 @@ impl Evidence {
             socket.set_write_timeout(Some(std::time::Duration::from_secs(10))),
         )?;
         Ok(socket)
+    }
+    pub(super) fn destination(&self, host: &str) {
+        self.context
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .host = Some(host.into());
     }
     pub(super) fn check<T, E: std::fmt::Display>(
         &self,
@@ -86,8 +95,8 @@ impl Evidence {
         context.io_error = result.as_ref().err().map(ToString::to_string);
         result.map_err(|error| {
             format!(
-                "source stub {phase}: {error}; local={} peer={:?} hosts={:?} ordinal={}",
-                context.local, context.peer, context.hosts, context.ordinal
+                "source stub {phase}: {error}; local={} peer={:?} hosts={:?} host={:?} ordinal={}",
+                context.local, context.peer, context.hosts, context.host, context.ordinal
             )
         })
     }
@@ -108,8 +117,14 @@ impl Evidence {
             }
         }
         let line = format!(
-            "fixture {reason}: phase={} local={} peer={:?} hosts={:?} ordinal={}; evidence={locations:?}",
-            context.phase, context.local, context.peer, context.hosts, context.ordinal
+            "fixture {reason}: phase={} local={} peer={:?} hosts={:?} host={:?} ordinal={} io_error={:?}; evidence={locations:?}",
+            context.phase,
+            context.local,
+            context.peer,
+            context.hosts,
+            context.host,
+            context.ordinal,
+            context.io_error
         );
         use std::io::Write;
         let _ = writeln!(io::stderr(), "{line}");
