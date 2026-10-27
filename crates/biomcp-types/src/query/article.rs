@@ -397,6 +397,27 @@ impl ArticleSearch {
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }
+    /// Quote each supplied word group for PubMed while retaining its filters.
+    pub fn quoted(&self) -> Option<Self> {
+        let mut value = self.page(0, None);
+        value.0.source = Box::new([ArticleSource::Pubmed]);
+        let mut changed = false;
+        for term in [
+            &mut value.0.text,
+            &mut value.0.variant,
+            &mut value.0.drug,
+            &mut value.0.disease,
+        ]
+        .into_iter()
+        .flatten()
+        {
+            if !term.as_str().contains('"') {
+                *term = Text::new(&format!("\"{term}\"")).ok()?;
+                changed = true;
+            }
+        }
+        changed.then_some(value)
+    }
     /// Restart with an exact candidate rsID, retaining source and order choices.
     pub fn with_variant(&self, variant: Text) -> Self {
         let mut value = self.page(0, None);

@@ -46,7 +46,12 @@
         "/status": "failed",
         "/result/content/state": "unavailable",
         "/result/content/reason": "unavailable",
-        "/next/0/kind": "fresh"
+        "/next/0/kind": "fresh",
+        "/next/1/args": [
+          "get",
+          "article",
+          "PMC5606870"
+        ]
       }
     }
   ]
