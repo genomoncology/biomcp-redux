@@ -18,6 +18,7 @@ struct Shape {
     maximum: Option<Bound>,
     closed: bool,
     markdown: bool,
+    string_format: Option<String>,
     impossible: bool,
     map_values: bool,
     map_keys: bool,
@@ -44,6 +45,10 @@ pub(super) fn check(old: &Value, new: &Value) -> Check<()> {
             || new.map_values && !old.map_values
             || new.map_keys && !old.map_keys
             || old.markdown && !new.markdown
+            || old
+                .string_format
+                .as_ref()
+                .is_some_and(|format| new.string_format.as_ref() != Some(format))
             || old.pattern != new.pattern
             || new
                 .minimum
@@ -234,8 +239,20 @@ fn collect(node: &Value, path: &str, shapes: &mut BTreeMap<String, Shape>) -> Ch
             && format != "int64"
             && format != "double"
             && format != "markdown"
+            && format != "date"
+            && format != "date-time"
+            && format != "uri"
+            && format != "uri-reference"
     }) {
         return Err("unsupported format".into());
+    }
+    if let Some(format) = node.get("format").and_then(Value::as_str)
+        && ["date", "date-time", "uri", "uri-reference"].contains(&format)
+    {
+        if !shape.types.contains("string") {
+            return Err("string format requires a string schema".into());
+        }
+        shape.string_format = Some(format.into());
     }
     shape.markdown |= node.get("format").is_some_and(|v| v == "markdown");
     if let Some(values) = node.get("enum") {

@@ -134,6 +134,7 @@ pub struct ComponentTerms {
     /// Publisher terms name.
     pub name: Text,
     /// Publisher terms page.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
 

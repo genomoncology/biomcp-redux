@@ -34,6 +34,7 @@ impl ResponseBody for StudyPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyCard {
     /// Exact publisher study page for this checked source identity.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub source_url: Text,
     /// Native card metadata, preserving all source count distinctions.
     pub study: Study,

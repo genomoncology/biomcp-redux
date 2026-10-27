@@ -34,7 +34,12 @@ impl fmt::Display for Pmid {
         self.get().fmt(f)
     }
 }
-text_value!(Pmid, "Pmid", r"^[1-9][0-9]*$");
+text_value!(
+    Pmid,
+    "Pmid",
+    r"^[1-9][0-9]*$",
+    "Positive PubMed identifier."
+);
 /// Canonical PMC identifier, with an explicit namespace.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Pmcid(Pmid);
@@ -52,7 +57,12 @@ impl fmt::Display for Pmcid {
         write!(f, "PMC{}", self.0)
     }
 }
-text_value!(Pmcid, "Pmcid", r"^PMC[1-9][0-9]*$");
+text_value!(
+    Pmcid,
+    "Pmcid",
+    r"^PMC[1-9][0-9]*$",
+    "Canonical PMC identifier, with an explicit namespace."
+);
 /// DOI preserving source spelling with ASCII-insensitive equality.
 #[derive(Clone, Debug)]
 pub struct Doi(Box<str>);
@@ -90,7 +100,12 @@ impl fmt::Display for Doi {
         f.write_str(&self.0)
     }
 }
-text_value!(Doi, "Doi", r"^10\.[0-9]+/[^\s\x00-\x1f\x7f]+$");
+text_value!(
+    Doi,
+    "Doi",
+    r"^10\.[0-9]+/[^\s\x00-\x1f\x7f]+$",
+    "DOI preserving source spelling with ASCII-insensitive equality."
+);
 
 /// Europe PMC source prefix followed by its positive numeric local identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -117,7 +132,12 @@ impl fmt::Display for EuropePmcId {
         f.write_str(&self.0)
     }
 }
-text_value!(EuropePmcId, "EuropePmcId", r"^[A-Z]{1,8}[0-9]*[1-9][0-9]*$");
+text_value!(
+    EuropePmcId,
+    "EuropePmcId",
+    r"^[A-Z]{1,8}[0-9]*[1-9][0-9]*$",
+    "Europe PMC source prefix followed by its positive numeric local identifier."
+);
 
 /// Semantic Scholar's stable 40-character hexadecimal paper identifier.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -136,4 +156,9 @@ impl fmt::Display for SemanticScholarId {
         f.write_str(&self.0)
     }
 }
-text_value!(SemanticScholarId, "SemanticScholarId", r"^[a-f0-9]{40}$");
+text_value!(
+    SemanticScholarId,
+    "SemanticScholarId",
+    r"^[a-f0-9]{40}$",
+    "Semantic Scholar's stable 40-character hexadecimal paper identifier."
+);

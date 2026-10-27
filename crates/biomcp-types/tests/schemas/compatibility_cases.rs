@@ -309,3 +309,32 @@ fn compatibility_checks_native_gene_maps_signed_positions_and_impossible_element
         assert!(super::compatibility::check(&loose, &changed).is_err());
     }
 }
+
+#[test]
+fn compatibility_preserves_standard_string_format_annotations_and_assertions() {
+    let plain = json!({"$id":"biodata.example/1", "type":"string", "pattern":"^x"});
+    for format in ["date", "date-time", "uri", "uri-reference"] {
+        let mut annotated = plain.clone();
+        annotated["format"] = json!(format);
+        // Draft 2020-12 uses the format annotation vocabulary by default.
+        assert!(check(&plain, &annotated).is_ok());
+        assert!(check(&annotated, &annotated).is_ok());
+        assert!(check(&annotated, &plain).is_err());
+        let mut narrowed = annotated.clone();
+        narrowed["minLength"] = json!(2);
+        assert!(check(&plain, &narrowed).is_err());
+        narrowed = annotated.clone();
+        narrowed["pattern"] = json!("^xx");
+        assert!(check(&plain, &narrowed).is_err());
+        narrowed = annotated.clone();
+        narrowed["type"] = json!("integer");
+        assert!(check(&narrowed, &narrowed).is_err());
+        narrowed = annotated.clone();
+        narrowed["format"] = json!(if format == "uri" {
+            "uri-reference"
+        } else {
+            "uri"
+        });
+        assert!(check(&annotated, &narrowed).is_err());
+    }
+}
