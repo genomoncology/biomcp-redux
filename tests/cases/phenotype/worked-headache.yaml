@@ -38,7 +38,9 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/term/id": "HP:0002315",
+        "/result/term/requested_id": "HP:0002315",
+        "/result/term/returned_id": "HP:0002315",
+        "/result/term/source": "hpo",
         "/result/term/label": "Headache",
         "/result/term/definition": "Cephalgia, or pain sensed in various parts of the head, not confined to the area of distribution of any nerve."
       }
