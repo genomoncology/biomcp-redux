@@ -265,7 +265,7 @@ fn markdown(
     if let Some(warning) = result
         .pointer("/warnings/items/0/text")
         .and_then(Value::as_str)
-        && !unescaped.contains(warning)
+        && !text.contains(&super::source_terms::text::escape(warning))
     {
         return Err("Markdown shortened qualified warning".into());
     }
