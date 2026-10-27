@@ -18,17 +18,21 @@ fn names() -> Check {
         vec![],
     ] {
         let mut app = application();
-        let product = app["products"][0].clone();
-        app["products"] = brands
+        let product = app
+            .pointer("/products/0")
+            .ok_or("synthetic product")?
+            .clone();
+        *app.get_mut("products").ok_or("synthetic products")? = brands
             .iter()
             .enumerate()
             .map(|(n, brand)| {
                 let mut product = product.clone();
-                product["product_number"] = json!(format!("{n:03}"));
-                product["brand_name"] = json!(brand);
-                product
+                *product.get_mut("product_number").ok_or("product number")? =
+                    json!(format!("{n:03}"));
+                *product.get_mut("brand_name").ok_or("brand name")? = json!(brand);
+                Ok(product)
             })
-            .collect();
+            .collect::<Result<serde_json::Value, String>>()?;
         let (env, stub) = setup(
             json!({"meta":{"results":{"skip":0,"limit":1,"total":1}},"results":[app.clone()]}),
             "products.active_ingredients.name%3A%22Synthetic%22",
