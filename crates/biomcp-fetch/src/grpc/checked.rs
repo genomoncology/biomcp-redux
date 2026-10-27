@@ -32,7 +32,7 @@ impl Leg<'_> {
         if !std::ptr::eq(self.spec, endpoint.spec) || endpoint.schema.is_empty() {
             return Err(self.failure(Reason::Rejected, None).into());
         }
-        let mut limits = self.fetch.config.grpc_limits;
+        let mut limits = endpoint.limits(self.fetch.config.grpc_limits);
         limits.wire_bytes = limits
             .wire_bytes
             .min(usize::try_from(self.fetch.config.max_body).unwrap_or(usize::MAX));

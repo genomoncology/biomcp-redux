@@ -160,7 +160,7 @@ fn refusals() -> Result<(), String> {
     ] {
         let allele = json!({"@id":"http://reg.genome.network/allele/CA123643", "genomicAlleles":[{
             "referenceGenome":build, "hgvs":[if build == "GRCh37" {"NC_000007.13:g.140453136A>T"} else {"NC_000007.14:g.140753336A>T"}],
-            "coordinates":if coordinates {json!([{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}])} else {json!([])}
+            "coordinates":if coordinates {json!([{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}])} else {json!([{"start":140753335,"end":140753336,"referenceAllele":"AA","allele":"T"}])}
         }]});
         let fixture = source_fixture(messages(), 200, allele)?;
         let env = environment(&fixture)?;

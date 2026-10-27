@@ -44,6 +44,11 @@ pub(super) fn section(
         sources.extend(joined.sources);
         return (section, sources, joined.problems, joined.local);
     };
+    if request.bytes().len() > biomcp_fetch::grpc::alphagenome::SCORE_LIMITS.request_bytes {
+        let (section, mut sources, _, _) = refused(Reason::TooLarge, SourceState::Failed);
+        sources.extend(joined.sources);
+        return (section, sources, joined.problems, joined.local);
+    }
     let leg = cx.fetch.leg(&alphagenome::SPEC, deadline).fresh(cx.fresh);
     let reply = leg
         .grpc_checked(&alphagenome::SCORE_VARIANT, request.bytes(), |limits| {

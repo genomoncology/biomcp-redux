@@ -13,7 +13,7 @@ use crate::{BadReply, InputError};
 pub use envelope::Envelope;
 use prost::Message;
 pub use score::{SCORE_SCHEMA, SCORE_VARIANT, ScoreRequest};
-pub use score_envelope::ScoreEnvelope;
+pub use score_envelope::{SCORE_LIMITS, ScoreEnvelope};
 
 /// Pinned publisher RPC path; the API version is not a model release.
 pub const PREDICT_VARIANT: &str =

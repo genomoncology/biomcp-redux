@@ -9,6 +9,21 @@ use super::{
 use crate::BadReply;
 use prost::Message;
 pub(super) const OBSERVED_GENE_ROWS: usize = 13;
+/// Measured scoring ceilings; the same limits bind transport and complete decoder admission.
+/// Request and response byte/count ceilings retain at most fifteen percent headroom.
+pub const SCORE_LIMITS: Limits = Limits {
+    request_bytes: headroom(65),
+    message_bytes: headroom(74_988),
+    wire_bytes: headroom(130_883),
+    expanded_bytes: headroom(70_620),
+    messages: headroom(6),
+    dimension: headroom(667),
+    chunks: headroom(1),
+    rank: 3,
+    // The measured ZSTD frame window uses the codec's next whole log2 ceiling.
+    zstd_window_log: headroom(69_368).next_power_of_two().ilog2(),
+    ..Limits::DEFAULT
+};
 
 /// Bounded admission for the ruled ScoreVariant response.
 /// The protocol does not label scorer groups: valid complete group swaps cannot be detected.
@@ -31,23 +46,7 @@ impl ScoreEnvelope {
         expected: usize,
         limits: Limits,
     ) -> Result<Self, BadReply> {
-        // Complete public ScoreVariant capture: six messages, 130883 encoded bytes,
-        // largest message 74988 bytes, 70620 expanded bytes, one chunk per group.
-        // Bound each measured allocation dimension at its observed maximum plus 15%.
-        let limits = Limits {
-            message_bytes: limits.message_bytes.min(headroom(74_988)),
-            wire_bytes: limits.wire_bytes.min(headroom(130_883)),
-            expanded_bytes: limits.expanded_bytes.min(headroom(70_620)),
-            messages: limits.messages.min(headroom(6)),
-            dimension: limits.dimension.min(headroom(667)),
-            chunks: limits.chunks.min(headroom(1)),
-            rank: limits.rank.min(3),
-            // The measured frame window is 69368 bytes; the codec accepts whole log2 ceilings.
-            zstd_window_log: limits
-                .zstd_window_log
-                .min(headroom(69_368).next_power_of_two().ilog2()),
-            ..limits
-        };
+        let limits = limits.minimum(SCORE_LIMITS);
         Ok(Self {
             variant: variant.clone(),
             limits,
