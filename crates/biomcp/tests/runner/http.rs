@@ -319,7 +319,7 @@ fn legacy_versions(server: &Server) -> Check {
                 (init, "/result/protocolVersion", json!(revision)),
                 (call, "/result/isError", json!(false)),
             ] {
-                let fallback = version_header.is_empty() && request["method"] != "initialize";
+                let fallback = version_header.is_empty() && pointer == "/result/isError";
                 let transport_revision = if fallback { "2025-03-26" } else { revision };
                 let body = request.to_string();
                 let (status, reply, response) =
