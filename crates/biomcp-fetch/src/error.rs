@@ -30,6 +30,8 @@ impl std::error::Error for SourceError {}
 #[derive(Clone, Copy, Debug)]
 #[non_exhaustive]
 pub enum FetchError {
+    /// Streaming allocation limits must describe finite supported resources.
+    StreamingLimits,
     /// The configured proxy could not be parsed.
     Proxy,
     /// The configured additive certificates could not be checked.
@@ -45,6 +47,7 @@ pub enum FetchError {
 impl fmt::Display for FetchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::StreamingLimits => "fetch.streaming_limits",
             Self::Proxy => "fetch.proxy",
             Self::Certificates => "fetch.certificates",
             Self::BodyLimit => "fetch.body_limit",

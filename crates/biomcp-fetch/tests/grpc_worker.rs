@@ -11,7 +11,7 @@ static QUOTA: Quota = Quota::new(
 );
 static SOURCE: SourceSpec = SourceSpec {
     user_agent: None,
-    source: Source::Mygene,
+    source: Source::MyGene,
     terms: Terms {
         name: "Synthetic fixture",
         url: "https://example.test/terms",

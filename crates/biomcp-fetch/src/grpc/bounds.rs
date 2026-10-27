@@ -20,6 +20,16 @@ pub struct Limits {
     pub chunks: usize,
     /// Maximum cumulative expanded tensor bytes across a stream.
     pub expanded_bytes: usize,
+    /// Maximum combined name/value bytes of response headers or trailers.
+    pub metadata_bytes: usize,
+    /// Maximum number of metadata fields in either response phase.
+    pub metadata_fields: usize,
+    /// Maximum calls waiting for the single in-flight stream.
+    pub queued_calls: usize,
+    /// Maximum live streams owned by the runtime.
+    pub in_flight_streams: usize,
+    /// Maximum HTTP/2 connection and stream receive window.
+    pub h2_window: u32,
     /// Maximum ZSTD window as a base-two logarithm.
     pub zstd_window_log: u32,
 }
@@ -35,6 +45,11 @@ impl Default for Limits {
             chunks: 64,
             expanded_bytes: 8 * 1024 * 1024,
             zstd_window_log: 23,
+            metadata_bytes: 8192,
+            metadata_fields: 64,
+            queued_calls: 4,
+            in_flight_streams: 2,
+            h2_window: 65_535,
         }
     }
 }
@@ -49,8 +64,15 @@ impl Limits {
             self.dimension,
             self.chunks,
             self.expanded_bytes,
+            self.metadata_bytes,
+            self.metadata_fields,
+            self.queued_calls,
+            self.in_flight_streams,
         ];
         if values.iter().any(|v| *v == 0 || *v > isize::MAX as usize)
+            || self.h2_window == 0
+            || self.h2_window > 16 * 1024 * 1024
+            || self.metadata_bytes > u32::MAX as usize
             || self.dimension > i32::MAX as usize
             || !(10..=30).contains(&self.zstd_window_log)
         {

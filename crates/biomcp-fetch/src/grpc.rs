@@ -1,5 +1,15 @@
 //! Decode provider tensor payloads under explicit allocation limits without network access.
 mod bounds;
+mod connect;
+mod control;
+mod dns;
+mod h2_service;
+mod raw_codec;
+mod rpc;
+mod rpc_call;
+mod worker;
+pub use rpc::GrpcEndpoint;
+pub(crate) use worker::Worker;
 mod preflight;
 mod tensor;
 
