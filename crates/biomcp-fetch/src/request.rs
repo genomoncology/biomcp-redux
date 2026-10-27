@@ -526,8 +526,12 @@ impl Leg<'_> {
         codec
             .validate(&response.body)
             .map_err(|reason| self.failure(reason, Some(status)))?;
+        let body = codec.normalized_body(&response.content_type, &response.body);
+        if body.len() as u64 > codec.limit.unwrap_or(self.fetch.config.max_body) {
+            return Err(bad());
+        }
         let reply = codec
-            .decode_response(&response.body, response.content_range.as_deref(), status)
+            .decode_response(&body, response.content_range.as_deref(), status)
             .ok_or_else(bad)?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, Some(status)));
@@ -535,7 +539,7 @@ impl Leg<'_> {
         Ok((
             reply,
             status,
-            response.body,
+            body.into_owned(),
             response.fetched,
             response.content_range,
             response.pagination,

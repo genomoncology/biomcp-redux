@@ -1,6 +1,7 @@
 //! Bounded UTF-8 XML replies and ordered inline text.
 use crate::Reply;
 use quick_xml::{Reader, events::Event};
+use std::borrow::Cow;
 
 // One bound protects ignored XML subtrees as well as serde's recursive visitors.
 const NESTING: usize = 64;
@@ -46,9 +47,23 @@ impl Codec {
     }
 }
 
+/// Strict XML media and UTF-8 charset admission for source policies.
+pub fn accepts_media(media: &str) -> bool {
+    Codec::Xml.accepts(media)
+}
+
 /// An XML reply selects its raw decoding at the document boundary.
 /// Ordinary fields use serde by default. Mixed elements use `MixedText::from_xml`.
 pub trait XmlReply: Reply {
+    /// Admit source media while ordinary XML keeps strict UTF-8 admission.
+    fn accepts_media(media: &str) -> bool {
+        accepts_media(media)
+    }
+    /// Convert source encoding before shared XML validation and cache admission.
+    fn normalize_body<'a>(_media: &str, body: &'a [u8]) -> Cow<'a, [u8]> {
+        Cow::Borrowed(body)
+    }
+
     /// Decode raw XML without exposing parser messages to the caller.
     fn decode_xml(xml: &str) -> Result<Self, crate::BadReply> {
         let mut de = quick_xml::de::Deserializer::from_str(xml);
@@ -61,11 +76,14 @@ type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason> + 'a;
 type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
 type RangeCheck<'a, T> =
     dyn Fn(&T, Option<crate::ContentRange>, u16) -> Result<(), crate::BadReply> + 'a;
+type BodyNormalizer = for<'a> fn(&str, &'a [u8]) -> Cow<'a, [u8]>;
 pub(crate) struct Decoder<'a, T> {
     validate: Option<&'a BodyCheck<'a>>,
     check: Option<&'a ReplyCheck<'a, T>>,
     cache_if: Option<&'a dyn Fn(&T) -> bool>,
     codec: Codec,
+    xml_media: Option<fn(&str) -> bool>,
+    normalize_body: Option<BodyNormalizer>,
     pub(crate) limit: Option<u64>,
     pub(crate) json_rejections: bool,
     pub(crate) json_absence: bool,
@@ -110,6 +128,8 @@ impl<'a, T: Reply> Decoder<'a, T> {
     pub(crate) fn json() -> Self {
         Self {
             codec: Codec::Json,
+            xml_media: None,
+            normalize_body: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -135,6 +155,8 @@ impl<'a, T: Reply> Decoder<'a, T> {
     {
         Self {
             codec: Codec::Xml,
+            xml_media: Some(T::accepts_media),
+            normalize_body: Some(T::normalize_body),
             validate: None,
             check: None,
             cache_if: None,
@@ -172,13 +194,18 @@ impl<'a, T: Reply> Decoder<'a, T> {
         self.codec.name()
     }
     pub(crate) fn accepts(&self, media: &str) -> bool {
-        self.codec.accepts(media)
+        self.xml_media
+            .map_or_else(|| self.codec.accepts(media), |accepts| accepts(media))
             || self.octet_stream.is_some_and(|accepted| {
                 media
                     .split(';')
                     .next()
                     .is_some_and(|value| value.trim().eq_ignore_ascii_case(accepted))
             })
+    }
+    pub(crate) fn normalized_body<'b>(&self, media: &str, body: &'b [u8]) -> Cow<'b, [u8]> {
+        self.normalize_body
+            .map_or(Cow::Borrowed(body), |normalize| normalize(media, body))
     }
     pub(crate) fn decode(&self, body: &[u8]) -> Option<T> {
         let reply = (self.parse)(body)?;
@@ -341,6 +368,8 @@ impl Decoder<'_, Probe> {
     pub(crate) fn probe() -> Self {
         Self {
             codec: Codec::Probe,
+            xml_media: None,
+            normalize_body: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -380,6 +409,8 @@ impl<'a> Decoder<'a, Bytes> {
     pub(crate) fn bytes(limit: u64) -> Self {
         Self {
             codec: Codec::Bytes,
+            xml_media: None,
+            normalize_body: None,
             validate: None,
             check: None,
             cache_if: None,
