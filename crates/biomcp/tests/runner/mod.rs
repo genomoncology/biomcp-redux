@@ -131,7 +131,6 @@ mod source_terms;
 mod source_text;
 mod store_clean;
 mod store_coexistence;
-mod store_sizes;
 mod study_catalog;
 mod supplement_tables;
 mod trial_condition;
@@ -359,7 +358,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
     trials.extend(health_bundles::trials());
-    trials.extend(store_sizes::trials());
     trials.extend(source_groups::trials());
     trials.extend(trial_groups::drug_trials());
     trials.extend(disease_trials());

@@ -3,6 +3,8 @@ use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use biomcp_adapters::registry;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+#[path = "store_sizes.rs"]
+mod store_sizes;
 type Check = Result<(), String>;
 const SOURCES: &[&str] = &[
     "cpic",
@@ -45,6 +47,9 @@ pub(super) fn trials() -> Vec<Trial> {
             failure().map_err(Into::into)
         }),
     ]
+    .into_iter()
+    .chain(store_sizes::trials())
+    .collect()
 }
 fn disabled(enabled: &[&str]) -> String {
     registry::SOURCES
