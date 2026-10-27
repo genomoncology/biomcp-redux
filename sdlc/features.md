@@ -184,3 +184,4 @@ agent-skill: Agents read case-backed guidance and install managed guidance only 
 stream-tensors: Decode serialized provider tensor payloads within explicit wire and expansion bounds. Contracts: `biomcp-fetch/tensors`.
 
 stream-worker: Blocking source legs make one bounded streaming RPC over their checked TLS and proxy route within the shared quota and absolute deadline. Contracts: `biomcp-fetch/grpc_worker`.
+stream-persistence: Complete checked RPC streams enter the ordinary cache and replay from bounded recordings without connections. Contracts: `biomcp-fetch/grpc_persistence`.

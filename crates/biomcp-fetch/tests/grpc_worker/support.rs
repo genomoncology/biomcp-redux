@@ -46,6 +46,16 @@ impl<T: AsyncRead + AsyncWrite + Send + Unpin> Io for T {}
 type Socket = Box<dyn Io>;
 impl Fixture {
     pub(super) fn new(hold: Hold, status: u8, proxy: bool, proxy_tls: bool) -> Check<Self> {
+        Self::with_messages(hold, status, proxy, proxy_tls, vec![vec![8, 42]])
+    }
+    pub(super) fn with_messages(
+        hold: Hold,
+        status: u8,
+        proxy: bool,
+        proxy_tls: bool,
+        messages: Vec<Vec<u8>>,
+    ) -> Check<Self> {
+        let messages = Arc::new(messages);
         let pair = rcgen::generate_simple_self_signed(vec![
             "localhost".into(),
             "synthetic.test".into(),
@@ -84,8 +94,8 @@ impl Fixture {
                             let (stream, _) = stream?;
                             accepted.fetch_add(1, Ordering::SeqCst);
                             sent.send(Seen::Tcp)?;
-                            let (sent, tls) = (sent.clone(), tls.clone());
-                            connections.spawn(async move { serve(Box::new(stream), tls, hold, status, proxy, proxy_tls, sent).await });
+                            let (sent, tls, messages) = (sent.clone(), tls.clone(), messages.clone());
+                            connections.spawn(async move { serve(Box::new(stream), tls, hold, status, proxy, proxy_tls, sent, messages).await });
                         }
                     }
                 }
@@ -191,6 +201,7 @@ async fn serve(
     proxy: bool,
     proxy_tls: bool,
     events: mpsc::Sender<Seen>,
+    messages: Arc<Vec<Vec<u8>>>,
 ) -> Check {
     if proxy {
         if proxy_tls {
@@ -225,7 +236,14 @@ async fn serve(
     let mut replies = tokio::task::JoinSet::new();
     while let Some(request) = connection.accept().await {
         let (request, response) = request?;
-        replies.spawn(reply(request, response, hold, status, events.clone()));
+        replies.spawn(reply(
+            request,
+            response,
+            hold,
+            status,
+            events.clone(),
+            messages.clone(),
+        ));
     }
     while let Some(reply) = replies.join_next().await {
         reply??;
@@ -238,6 +256,7 @@ async fn reply(
     hold: Hold,
     status: u8,
     events: mpsc::Sender<Seen>,
+    messages: Arc<Vec<Vec<u8>>>,
 ) -> Check {
     let (head, mut body) = request.into_parts();
     if hold == Hold::Upload {
@@ -266,12 +285,13 @@ async fn reply(
     if hold == Hold::Message {
         std::future::pending::<()>().await;
     }
-    // One gRPC frame containing a synthetic two-byte protobuf, field 1 = 42.
-    stream.send_data(
-        prost::bytes::Bytes::from_static(&[0, 0, 0, 0, 2, 8, 42]),
-        false,
-    )?;
-    events.send(Seen::Message)?;
+    for message in messages.iter() {
+        let mut frame = vec![0];
+        frame.extend_from_slice(&(message.len() as u32).to_be_bytes());
+        frame.extend_from_slice(message);
+        stream.send_data(prost::bytes::Bytes::from(frame), false)?;
+        events.send(Seen::Message)?;
+    }
     if hold == Hold::Trailers {
         std::future::pending::<()>().await;
     }

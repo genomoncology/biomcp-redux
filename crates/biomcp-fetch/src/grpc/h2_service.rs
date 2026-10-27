@@ -14,6 +14,7 @@ use tonic::codegen::{
 pub(super) struct Single {
     pub(super) sender: h2::client::SendRequest<Bytes>,
     pub(super) limits: Limits,
+    pub(super) state: std::sync::Arc<super::control::CallState>,
 }
 impl Service<Request<tonic::body::Body>> for Single {
     type Response = Response<Receive>;
@@ -25,6 +26,7 @@ impl Service<Request<tonic::body::Body>> for Single {
     fn call(&mut self, request: Request<tonic::body::Body>) -> Self::Future {
         let sender = self.sender.clone();
         let self_limits = self.limits;
+        let state = self.state.clone();
         let limit = self_limits.wire_bytes;
         Box::pin(async move {
             let mut sender = sender.ready().await.map_err(|_| unavailable())?;
@@ -56,12 +58,14 @@ impl Service<Request<tonic::body::Body>> for Single {
                 .map_err(|_| unavailable())?;
             let mut response = response.await.map_err(|_| unavailable())?;
             safe_headers(response.headers_mut(), self_limits)?;
+            terminal(response.headers(), &state);
             Ok(response.map(|stream| Receive {
                 stream,
                 limit,
                 bytes: 0,
                 phase: Phase::Data,
                 limits: self_limits,
+                state,
             }))
         })
     }
@@ -72,6 +76,7 @@ pub(super) struct Receive {
     bytes: usize,
     phase: Phase,
     limits: Limits,
+    state: std::sync::Arc<super::control::CallState>,
 }
 enum Phase {
     Data,
@@ -120,6 +125,9 @@ impl Body for Receive {
             Poll::Pending => Poll::Pending,
             Poll::Ready(Ok(Some(mut headers))) => {
                 let checked = safe_headers(&mut headers, self.limits);
+                if checked.is_ok() {
+                    terminal(&headers, &self.state);
+                }
                 Poll::Ready(Some(
                     checked.map(|()| hyper::body::Frame::trailers(headers)),
                 ))
@@ -133,6 +141,7 @@ impl Body for Receive {
 pub(super) async fn establish(
     socket: super::connect::Socket,
     limits: Limits,
+    state: std::sync::Arc<super::control::CallState>,
 ) -> Result<
     (
         Single,
@@ -149,7 +158,14 @@ pub(super) async fn establish(
         .max_send_buffer_size(limits.request_bytes.saturating_add(super::FRAME_BYTES))
         .handshake::<_, Bytes>(socket)
         .await?;
-    Ok((Single { sender, limits }, connection))
+    Ok((
+        Single {
+            sender,
+            limits,
+            state,
+        },
+        connection,
+    ))
 }
 
 fn unavailable() -> tonic::Status {
@@ -199,4 +215,14 @@ fn safe_headers(headers: &mut http::HeaderMap, limits: Limits) -> Result<(), ton
     }
     *headers = safe;
     Ok(())
+}
+
+fn terminal(headers: &http::HeaderMap, state: &super::control::CallState) {
+    if let Some(code) = headers
+        .get("grpc-status")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.parse().ok())
+    {
+        state.set_terminal(code);
+    }
 }
