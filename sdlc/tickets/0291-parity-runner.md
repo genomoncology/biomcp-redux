@@ -1,6 +1,7 @@
 # 0291 — Build a parity runner that compares asserted facts on 0.9.3 and 1.0
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 45d6815fd838cf389505ec78a17b620981fc10bb
 
 Milestone: 5
 

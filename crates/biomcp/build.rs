@@ -33,6 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<String>();
     let output = PathBuf::from(env::var("OUT_DIR")?).join("schemas.rs");
     fs::write(output, format!("&[\n{entries}]\n"))?;
+    embed_skills()?;
     embed_examples()
 }
 
@@ -165,31 +166,37 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("variant/help-recurrence.yaml", 0),
 ];
 
+const GUIDE_CASES: &[(&str, usize)] = &[("trial/wider-zero.yaml", 0), ("trial/wider-zero.yaml", 1)];
+
 fn embed_examples() -> Result<(), Box<dyn Error>> {
     let cases = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../tests/cases");
     let mut examples = BTreeMap::<String, Vec<Vec<String>>>::new();
     let mut witnesses = Vec::new();
-    for &(file, index) in EXAMPLE_CASES {
-        let path = cases.join(file);
-        println!("cargo:rerun-if-changed={}", path.display());
-        let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
-        let steps = case
-            .get("steps")
-            .and_then(serde_json::Value::as_array)
-            .ok_or("case steps required")?;
-        let run: Vec<String> = serde_json::from_value(
-            steps
-                .get(index)
-                .and_then(|step| step.get("run"))
-                .ok_or("missing example step")?
-                .clone(),
-        )?;
-        let command = run
-            .get(..2)
-            .ok_or("example needs a verb and entity")?
-            .join(" ");
-        examples.entry(command).or_default().push(run);
-        witnesses.push((file, index));
+    for (entries, help) in [(EXAMPLE_CASES, true), (GUIDE_CASES, false)] {
+        for &(file, index) in entries {
+            let path = cases.join(file);
+            println!("cargo:rerun-if-changed={}", path.display());
+            let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
+            let steps = case
+                .get("steps")
+                .and_then(serde_json::Value::as_array)
+                .ok_or("case steps required")?;
+            let run: Vec<String> = serde_json::from_value(
+                steps
+                    .get(index)
+                    .and_then(|step| step.get("run"))
+                    .ok_or("missing example step")?
+                    .clone(),
+            )?;
+            let command = run
+                .get(..2)
+                .ok_or("example needs a verb and entity")?
+                .join(" ");
+            if help {
+                examples.entry(command).or_default().push(run);
+            }
+            witnesses.push((file, index));
+        }
     }
     fs::write(
         PathBuf::from(env::var("OUT_DIR")?).join("examples.json"),
@@ -238,4 +245,45 @@ fn git_revision() -> Result<String, Box<dyn Error>> {
         );
     }
     Ok(String::from_utf8(commit.stdout)?.trim().to_owned())
+}
+
+fn embed_skills() -> Result<(), Box<dyn Error>> {
+    let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../skills");
+    println!("cargo:rerun-if-changed={}", directory.display());
+    let mut assets = BTreeMap::new();
+    skill_files(&directory, &directory, &mut assets)?;
+    let entries = assets
+        .iter()
+        .map(|(name, text)| format!("({name:?}, {text:?}),\n"))
+        .collect::<String>();
+    fs::write(
+        PathBuf::from(env::var("OUT_DIR")?).join("skills.rs"),
+        format!("&[\n{entries}]\n"),
+    )?;
+    Ok(())
+}
+fn skill_files(
+    directory: &std::path::Path,
+    root: &std::path::Path,
+    assets: &mut BTreeMap<String, String>,
+) -> Result<(), Box<dyn Error>> {
+    for entry in fs::read_dir(directory)? {
+        let entry = entry?;
+        let path = entry.path();
+        if entry.file_type()?.is_symlink() {
+            return Err("skill source must not contain symbolic links".into());
+        }
+        if path.is_dir() {
+            skill_files(&path, root, assets)?;
+        } else {
+            assets.insert(
+                path.strip_prefix(root)?
+                    .to_str()
+                    .ok_or("non-Unicode skill path")?
+                    .replace('\\', "/"),
+                fs::read_to_string(&path)?,
+            );
+        }
+    }
+    Ok(())
 }

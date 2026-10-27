@@ -6,6 +6,9 @@ mod assertions;
 mod author;
 mod execution;
 mod orcid;
+pub(super) mod parity;
+mod parity_inventory_proof;
+mod parity_shape_proof;
 use execution::run_step;
 mod cache_contention;
 pub(super) mod cell_line;
@@ -114,6 +117,7 @@ mod schema;
 mod schema_proof;
 mod scholar;
 mod semantic_tables;
+mod skill;
 mod source_controls;
 mod source_terms;
 mod store_clean;
@@ -122,6 +126,7 @@ mod study_catalog;
 mod supplement_tables;
 mod trial_condition;
 mod trial_documents;
+mod trial_eligibility;
 mod trial_get;
 mod trial_group;
 mod trial_groups;
@@ -137,6 +142,9 @@ mod variant_population;
 mod variant_population_release;
 mod variant_search;
 mod wikipathways;
+
+// Approved complete CLI help ceiling; entity and MCP budgets remain separate.
+pub(super) const CLI_HELP_BYTES: usize = 106000;
 
 use libtest_mimic::Trial;
 use serde::Deserialize;
@@ -218,6 +226,9 @@ pub(super) fn discover(root: &Path, include_proof: bool) -> Result<Vec<Trial>, S
         .collect::<Result<Vec<_>, String>>()?;
     if include_proof {
         trials.extend(schema_proof::trials(registry));
+        trials.extend(parity::trials());
+        trials.push(parity_shape_proof::trial());
+        trials.push(parity_inventory_proof::trial());
     }
     Ok(trials)
 }
@@ -286,6 +297,7 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(housekeeping::trials());
+    trials.extend(skill::trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
@@ -338,6 +350,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant::trials());
     trials.extend(variant_assertion_wire::trials());
     trials.extend(variant_assertions::trials());
+    trials.extend(variant_discovery::trials());
     trials.extend(variant_condition_relationship::trials());
     trials.extend(variant_population::trials());
     trials.extend(variant_population_release::trials());
@@ -415,6 +428,17 @@ fn run_sequence(
     replay: Option<&Path>,
     previous: Option<&Value>,
 ) -> Result<Value, String> {
+    run_sequence_with(step, expectations, previous, |current, expectations| {
+        run_step(current, environment, expectations, registry, replay)
+    })
+}
+
+fn run_sequence_with(
+    step: &Step,
+    expectations: &assertions::Expectations<'_>,
+    previous: Option<&Value>,
+    mut execute: impl FnMut(&Step, &assertions::Expectations<'_>) -> Result<Value, String>,
+) -> Result<Value, String> {
     let mut current = step.clone();
     if let Some(kind) = &step.follow {
         current.run = Some(action(
@@ -424,7 +448,7 @@ fn run_sequence(
         current.mcp = None;
     }
     let Some(walk) = &step.walk else {
-        return run_step(&current, environment, expectations, registry, replay);
+        return execute(&current, expectations);
     };
     if walk.max_pages == 0 || walk.max_pages > 1000 {
         return Err("walk requires a bounded page count".into());
@@ -437,7 +461,7 @@ fn run_sequence(
         if !actions.insert(current.run.clone().ok_or("walk requires run")?) {
             return Err("walk repeated action".into());
         }
-        let value = run_step(&current, environment, &Vec::new(), registry, replay)?;
+        let value = execute(&current, &Vec::new())?;
         let offset = value
             .pointer("/page/offset")
             .and_then(Value::as_u64)
@@ -499,6 +523,7 @@ pub(super) fn installed_http_trials() -> Vec<Trial> {
 mod variant_assertion_wire;
 mod variant_assertions;
 mod variant_condition_relationship;
+mod variant_discovery;
 
 pub(super) fn disease_native(path: &Path) -> Result<(), String> {
     disease_ols::native(path)

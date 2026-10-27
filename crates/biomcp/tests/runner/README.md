@@ -90,3 +90,11 @@ exact totals. Drift is diagnostic and does not fail the landing gate.
 The release artifact gate sets `BIOMCP_TEST_EXECUTABLE` to an absolute installed binary. The shared launcher uses it for CLI, MCP and process proofs, including nested runner checks, and never falls back after a failed installed launch. `BIOMCP_TEST_FIXTURES` selects copied public fixtures outside the checkout. `--installed-process-proof` runs the existing ordinary-cache publication proof without discovering cases from the source checkout.
 
 Nightly scheduling classifies the retained diagnostic report without changing replay assertions. Explicit checked discovery identifiers and dependent identifier inputs use the same namespace. Received body digests remain diagnostic and cannot establish causation. Missing provenance and witness cuts remain uncertain. Request completion order does not change a request set. The original drift and error counts remain in the report beside classification counts.
+
+`make nightly-live-check` reads optional local settings from `$XDG_CONFIG_HOME/biomcp/nightly.json` or `~/.config/biomcp/nightly.json`. Keep this file outside the checkout. For example:
+
+```json
+{"host":"evidence.example.org","evidence_dir":"/srv/evidence/nightly","scratch_dir":"/tmp/nightly-scratch"}
+```
+
+`BIOMCP_EVIDENCE_HOST`, `BIOMCP_EVIDENCE_DIR` and `BIOMCP_SCRATCH_DIR` override the corresponding file settings. The script's `--host`, `--evidence-dir` and `--scratch-dir` arguments override both. Missing settings fail before the check starts. To verify local settings and precedence without calling providers, run `python3 scripts/test_nightly_live_check.py`; its isolated fixture runs the Make target with fake Cargo and SSH commands.

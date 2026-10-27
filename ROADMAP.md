@@ -25,9 +25,9 @@ Each key is read from the config file's `keys` or its environment variable, sent
 | Measure | Count |
 | --- | --- |
 | 0.9 commands and options | 110 commands, 377 options |
-| Ported or renamed | 63 commands, 164 options |
+| Ported or renamed | 67 commands, 165 options |
 | Dropped by ruling | 38 commands, 185 options |
-| Deferred by ruling | 9 commands, 28 options |
+| Deferred by ruling | 5 commands, 27 options |
 | Not yet decided | 0 commands, 0 options |
 <!-- /parity-ledger -->
 
@@ -54,7 +54,7 @@ The ledger uses released 0.9.3 as its fixed historical baseline. The agent compa
 - [x] `biomcp key set`: register API keys once in the config folder, out of environment variables and shell history
 - [x] Corporate networks: added certificate authorities and standard proxy settings
 - [x] Source terms of use, on by default, with sources switched off by name or by group and component fields switched off by group for commercial use
-- [ ] Scheduled live replay that reports source drift; scheduling is configured separately
+- [x] Scheduled live replay that reports source drift; [live replay](sdlc/tickets/0068-first-public-live-check.md) and [churn and throttling classification](sdlc/tickets/0252-nightly-drift-churn-criterion.md) provide the diagnostic, durable evidence delivery and failure classification; scheduling is configured separately
 - [ ] Install test of every release artifact on each platform; the [final-candidate rehearsal ruling](sdlc/tickets/0066-installed-platform-rehearsal.md) requires a repeat before publication
 - [ ] One variant and annotation model shared with another biodata consumer, with common public test variants; the [shared-model settlement](sdlc/planning/biodata-variants-and-annotations.md#5-merge-and-wire-style) defers the merge until both consumers finish and the shared model receives approval
 

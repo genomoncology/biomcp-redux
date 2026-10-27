@@ -359,7 +359,7 @@ fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let root = words.next();
     let mut error = if matches!(
         root,
-        Some("sync" | "key" | "store" | "version" | "mcp-config")
+        Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")
     ) || root.is_some_and(|root| {
         crate::grammar::QUERIES
             .iter()

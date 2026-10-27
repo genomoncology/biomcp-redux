@@ -3,6 +3,8 @@ mod entity;
 pub(crate) mod gwas;
 mod local;
 mod queries;
+#[cfg(test)]
+mod reference;
 pub(crate) use local::housekeeping_commands;
 pub(crate) use queries::QUERIES;
 pub(crate) use queries::query_schema;
@@ -259,7 +261,7 @@ fn help_path(verb: &str, matches: &clap::ArgMatches) -> Result<Option<Vec<String
     } else if verb == "help" {
         match matches.subcommand() {
             Some(("key", _)) => None,
-            Some((name @ ("version" | "mcp-config"), _)) => Some(vec![name.into()]),
+            Some((name @ ("version" | "mcp-config" | "skill"), _)) => Some(vec![name.into()]),
             Some(("author", matches)) if matches.subcommand().is_none() => {
                 Some(vec!["author".into()])
             }

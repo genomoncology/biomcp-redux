@@ -182,7 +182,6 @@
   "mod/failures/record1@kind=4 [cli]": 408,
   "mod/failures/record1@kind=5 [cli]": 516,
   "mod/failures/record1@kind=6 [cli]": 516,
-  "mod/help/invoke1 [cli]": 80734,
   "mod/help/invoke2@verb=get [cli]": 1917,
   "mod/help/invoke2@verb=search [cli]": 985,
   "mod/help/markdown@verb=get [markdown]": 1691,

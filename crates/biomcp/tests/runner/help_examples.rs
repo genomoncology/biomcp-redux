@@ -1,4 +1,6 @@
 //! Verify installed help examples against their owning replay case steps.
+mod documents;
+
 use super::{Case, assertions, launch, run_sequence, schema};
 use serde_json::Value;
 use std::{collections::BTreeSet, fs};
@@ -19,6 +21,10 @@ pub(super) fn check() -> Result<(), String> {
         .ok_or("help commands missing")?;
     source_description(commands)?;
     let mut printed = collected_examples(commands)?;
+    let guide = guide_examples(&environment)?;
+    printed.extend(guide);
+    documents::check(&printed)?;
+    documents::rejects_invalid()?;
     let witnesses: Vec<(String, usize)> = serde_json::from_str(include_str!(concat!(
         env!("OUT_DIR"),
         "/example-cases.json"
@@ -167,4 +173,42 @@ fn example_steps(original: &super::Step) -> Result<Vec<super::Step>, String> {
     cli.mcp = None;
     step.run = None;
     Ok(vec![cli, step])
+}
+
+// Guidance shares the help witness registry and the same executable case runs.
+fn guide_examples(environment: &launch::Environment) -> Result<BTreeSet<Vec<String>>, String> {
+    let mut commands = BTreeSet::new();
+    let assets: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/skills.rs"));
+    for (path, text) in assets.iter().filter(|(path, _)| path.ends_with(".md")) {
+        for line in text.lines() {
+            if let Some(command) = line.strip_prefix("biomcp ") {
+                let args = shlex::split(command)
+                    .ok_or_else(|| format!("invalid guide command in {path}"))?;
+                commands.insert(args);
+            }
+        }
+    }
+    let output = environment
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &["skill".into(), "render".into()],
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
+    let source = assets
+        .iter()
+        .find(|(path, _)| *path == "SKILL.md")
+        .ok_or("guide missing")?
+        .1;
+    let body = source
+        .strip_prefix("---\n")
+        .and_then(|text| {
+            text.split_once("\n---\n")
+                .map(|(_, body)| body.trim_start())
+        })
+        .unwrap_or(source);
+    if !output.status.success() || output.stdout != body.as_bytes() {
+        return Err("installed skill render differs from the canonical guide".into());
+    }
+    Ok(commands)
 }

@@ -74,7 +74,10 @@ pub(super) fn section(
         .parse()
         .ok()
         .and_then(|input| VariantAssertionsGet::new(input, source).ok())
-        .and_then(|q| q.page(query.section_limit(), query.section_offset()).ok())
+        .and_then(|q| {
+            q.page(query.assertion_limit(source), query.section_offset())
+                .ok()
+        })
     else {
         return (
             Section::unavailable(source.source(), Reason::NoJoinId),

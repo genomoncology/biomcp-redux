@@ -17,7 +17,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 ### 2. Prove parity
 
-- Run the harvested cases against 0.9.3 and 1.0 with a runner (0291), then a whole run from main that fills the deferred size and timing comparison (0297). Each fact 1.0 loses becomes a bug ticket.
+- Run the harvested cases against 0.9.3 and 1.0 with a runner (0291) declared endpoints, a whole-case inventory and trial and pathway plans (0298), gene, article, variant, author and protein plans and the residual cases in parallel (0300 to 0305) on shared projection extensions (0306), multi-step and stateful execution (0299), then a partial recorded comparison, projection and completeness fixes (0307) and common sequence step shapes (0308) and a few comparable facts for each zero-coverage family (0309), then a whole run from main that fills the deferred size and timing comparison (0297). Each fact 1.0 loses becomes a bug ticket.
 - Run the outside judged agent comparison against the latest released 0.9 (0098), PM-owned.
 - Capture the LitSense gene search when the source allows it (0072).
 
@@ -30,7 +30,7 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 - Carry the 0.9 release pipeline over, with publication gated on Ian's approval (0289).
 - Compare schemas with the last released copy (0290).
-- AlphaGenome transport design goes to Ian with options (0271); the AlphaGenome section follows only if he approves a transport (0198).
+- AlphaGenome: Ian approved the streaming gRPC transport. Build it in the shared fetch layer with zero provider calls: codec (0320), worker (0321), persistence (0322), then cost and target proof (0323); then the variant section with one clinically chosen capture (0198). It joins 1.0 if ready with the rest, otherwise a 1.0 update.
 
 ### 5. Rehearse and release
 

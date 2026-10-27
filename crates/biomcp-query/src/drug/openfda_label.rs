@@ -23,13 +23,14 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                     .map(|r| r.header())
                     .collect::<Result<Vec<_>, _>>()?,
                 page.total,
+                page.scanned,
             ))
         });
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
-    if let Ok((items, total)) = result {
+    if let Ok((items, total, scanned)) = result {
         let returned = items.len() as u32;
         out.status = if returned == 0 {
             Status::Absent
@@ -54,8 +55,8 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         if let Some(offset) = query
             .offset()
-            .checked_add(returned)
-            .filter(|n| returned > 0 && u64::from(*n) < total)
+            .checked_add(scanned)
+            .filter(|n| scanned > 0 && u64::from(*n) < total)
         {
             out.next.push((
                 StepKind::Page,

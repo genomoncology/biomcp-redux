@@ -1,0 +1,158 @@
+name: Release
+
+# Dispatch always rehearses the checked-out workflow revision without publication.
+# A tag qualifies the same artifacts and then waits for the release operator.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_BUILD_JOBS: '2'
+
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      version: ${{ steps.identity.outputs.version }}
+      matrix: ${{ steps.identity.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
+        with:
+          toolchain: '1.95.0'
+      - name: Bind the candidate version, source and native platform matrix
+        id: identity
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 release/workflow.py identity --event "$GITHUB_EVENT_NAME" \
+            --revision "$GITHUB_SHA" --tag "$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+      - name: Require protected operator approval for a production release
+        if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/genomoncology/biomcp/environments/release-publication > "$RUNNER_TEMP/protection.json"
+          python3 release/workflow.py protection "$RUNNER_TEMP/protection.json"
+
+  qualify:
+    needs: candidate
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.candidate.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        if: runner.os != 'Linux'
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
+        if: runner.os != 'Linux' || matrix.platform == 'manylinux_2_28_x86_64'
+        with:
+          toolchain: '1.95.0'
+      - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+            ~/.cargo/git
+            .release-cache
+          key: release-${{ matrix.platform }}-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
+      - name: Build and install native artifacts
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          python release/artifacts.py build --output dist
+          python release/gate.py --artifacts dist --scratch "$RUNNER_TEMP/install" --python python
+          cp "$RUNNER_TEMP/install/report.json" dist/install-report.json
+          if [ "$RUNNER_OS" = macOS ]; then
+            python -c 'import json; assert any(r["artifact"] == "homebrew-formula" and r["result"] == "pass" for r in json.load(open("dist/install-report.json")))'
+          fi
+      - name: Build and install Linux artifacts at the manylinux floor
+        if: runner.os == 'Linux'
+        env:
+          BUILD_IMAGE: ${{ matrix.image }}
+        run: make release-linux
+      - name: Compare the candidate schemas with the released baseline
+        if: matrix.platform == 'manylinux_2_28_x86_64'
+        run: make schema-release-check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-${{ matrix.platform }}
+          path: dist
+          if-no-files-found: error
+
+  stage:
+    needs: [candidate, qualify]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: native-*
+          path: artifacts
+      - name: Prepare every channel's publication payload without uploading it
+        env:
+          VERSION: ${{ needs.candidate.outputs.version }}
+        run: |
+          python3 release/workflow.py stage --artifacts artifacts --plugin . \
+            --version "$VERSION" --revision "$GITHUB_SHA" --output staged
+          ruby -c staged/biomcp.rb
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-candidate
+          path: staged
+          if-no-files-found: error
+      - name: State the rehearsal boundary
+        run: |
+          echo 'All five native install gates, both Linux container gates and publication payload checks passed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No channel was published. Authentication, uploads, directory acceptance, site delivery and latest pointer movement remain unexercised.' >> "$GITHUB_STEP_SUMMARY"
+
+  release-operator:
+    needs: [candidate, stage]
+    if: github.event_name == 'push' && github.repository == 'genomoncology/biomcp'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    # Configure required reviewers, prevent self-review and disable admin bypass.
+    # The release operator approves this environment only after Ian approves.
+    environment:
+      name: release-publication
+    steps:
+      - name: Hand the approved candidate to the release operators
+        env:
+          VERSION: ${{ needs.candidate.outputs.version }}
+        run: |
+          {
+            echo "Ian approved BioMCP $VERSION; the release operator approved this environment."
+            echo "Candidate source: $GITHUB_SHA. Download release-candidate from this run."
+            echo 'Operators publish archives to genomoncology/biomcp before the biomcp.org installer, genomoncology/homebrew-biomcp formula and biomcp marketplace update.'
+            echo 'Operators publish biomcp-cli wheels to PyPI before io.github.genomoncology/biomcp server.json.'
+            echo 'Operators publish both checked image architectures to ghcr.io/genomoncology/biomcp before moving latest, and supply the macOS and Windows biomcp desktop bundles through the existing directory or manual channel.'
+            echo 'This workflow grants no service credentials and performs no publication.'
+          } >> "$GITHUB_STEP_SUMMARY"

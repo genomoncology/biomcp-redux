@@ -56,11 +56,7 @@ impl Environment {
         reason = "The launcher alone selects an explicitly installed artifact"
     )]
     pub(super) fn command(&self, program: impl AsRef<Path>, args: &[String]) -> Command {
-        let installed = std::env::var_os("BIOMCP_TEST_EXECUTABLE");
-        let selected = (program.as_ref() == Path::new(env!("CARGO_BIN_EXE_biomcp")))
-            .then_some(installed.as_deref())
-            .flatten();
-        let mut command = Command::new(selected.unwrap_or(program.as_ref().as_os_str()));
+        let mut command = Command::new(executable(program.as_ref()));
         command
             .args(args)
             .env_clear()
@@ -100,4 +96,28 @@ pub(super) fn fixtures() -> std::path::PathBuf {
         || Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests"),
         std::path::PathBuf::from,
     )
+}
+
+// Provenance and execution use the same installed-artifact selection.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "The launcher alone selects an explicitly installed artifact"
+)]
+pub(super) fn executable(program: &Path) -> std::path::PathBuf {
+    if program == Path::new(env!("CARGO_BIN_EXE_biomcp"))
+        && let Some(installed) = std::env::var_os("BIOMCP_TEST_EXECUTABLE")
+    {
+        return installed.into();
+    }
+    program.to_owned()
+}
+
+pub(super) fn arguments(args: &[String], globals: &[String]) -> Vec<String> {
+    let mut result = args.to_vec();
+    let position = result
+        .iter()
+        .position(|arg| arg == "--")
+        .unwrap_or(result.len());
+    result.splice(position..position, globals.iter().cloned());
+    result
 }

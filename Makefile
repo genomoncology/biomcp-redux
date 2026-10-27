@@ -27,8 +27,10 @@ unreached:
 
 .PHONY: docs-check
 docs-check:
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar
+	cargo test --locked -p biomcp --test cases article-help/executable-examples
 	python3 release/tools.py
-	python3 -m unittest release.test_tools
+	python3 -m unittest release.test_tools release.test_linux
 	python3 scripts/check_docs.py
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
@@ -36,6 +38,11 @@ docs-check:
 	python3 scripts/test_coverage.py
 	python3 scripts/test_nightly_live_check.py
 	python3 -m unittest release.test_installer release.test_checks
+	python3 -m unittest release.test_workflow
+.PHONY: release-linux
+release-linux:
+	sh release/linux.sh $(CONTAINER_ARGS)
+
 .PHONY: release-artifacts
 release-artifacts:
 	sh release/matrix.sh $(CONTAINER_ARGS)
@@ -47,3 +54,18 @@ nightly-live-check:
 .PHONY: source-capture
 source-capture:
 	python3 scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"
+
+.PHONY: docs-generate
+docs-generate:
+	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference -- --ignored
+.PHONY: schema-release-check
+schema-release-check:
+	python3 scripts/schema_release.py
+
+.PHONY: parity-run
+parity-run:
+	sh scripts/parity_runner.sh "$(abspath $(PLAN))" "$(BASELINE)" "$(abspath $(OUT))"
+
+.PHONY: parity-inventory
+parity-inventory:
+	cargo test --locked -p biomcp --test cases -- --parity-inventory "$(abspath $(PLAN))" "$(CURDIR)/tests/cases" "$(abspath $(OUT))"
