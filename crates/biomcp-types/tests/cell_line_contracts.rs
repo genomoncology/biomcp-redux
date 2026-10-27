@@ -112,7 +112,7 @@ fn xref(database: &str, accession: &str) -> Value {
 fn whole_variations_keep_fusion_members_and_non_pubmed_provenance() {
     let fusion = json!({"variation_type":"Gene fusion","description":"source fusion spelling",
         "genes":[{"reference":xref("HGNC","HGNC:7132"),"hgnc":"HGNC:7132"},{"reference":xref("HGNC","HGNC:7136"),"hgnc":"HGNC:7136"}],
-        "references":[],"provenance":[{"reference":{"resource_internal_ref":"PubMed=9305600"}},{"institution":"Example institution","value":"Native value"}]});
+        "provenance":[{"reference":{"resource_internal_ref":"PubMed=9305600"}},{"institution":"Example institution","value":"Native value"}]});
     assert_eq!(
         roundtrip::<CellLineVariation>(fusion.clone()).unwrap(),
         fusion

@@ -48,6 +48,7 @@ macro_rules! papers {
             /// Requested provider record.
             pub author: AuthorId,
             /// Original source order; no native corpus total is claimed.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
         }
     };

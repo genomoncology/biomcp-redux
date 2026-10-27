@@ -103,6 +103,7 @@ macro_rules! relation_page {
             /// Exact source pathway owning this relation.
             pub header: PathwayHeader,
             /// Whole native references; unresolved identities remain visible.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Relation-specific count provenance and continuation.
             pub page: PathwayPageInfo,

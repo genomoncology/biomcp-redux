@@ -94,8 +94,10 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native source rows; totals in the envelope count rows, not distinct entities.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Applicable component use terms, independent of row provenance.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub components: Box<[ComponentLabel]>,
             $($extra)*
         }

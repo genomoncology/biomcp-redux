@@ -73,11 +73,13 @@ pub enum SourceNotice {
         /// Original provider warning name, including names added by PubMed later.
         name: String,
         /// Original provider phrases, preserving whitespace and quotes.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         phrases: Box<[String]>,
     },
     /// PubMed did not index these words.
     NotFoundWords {
         /// Whole source words.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         words: Box<[crate::Text]>,
     },
 }

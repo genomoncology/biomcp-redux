@@ -147,8 +147,10 @@ pub enum CompanionDiagnosticRelation {
         /// Whole cells keyed by this table’s exact headers.
         cells: CompanionIndividualCells,
         /// Device facts from this row’s own dedicated device cell only.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         device_ids: Box<[DiagnosticDeviceId]>,
         /// Unambiguous typed applications owned by this row’s drug cell.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         drug_applications: Box<[DiagnosticDrugApplication]>,
     },
     /// One complete native group table row.
@@ -160,8 +162,10 @@ pub enum CompanionDiagnosticRelation {
         /// Whole cells keyed by this table’s exact headers.
         cells: CompanionGroupCells,
         /// Device facts from this row’s own dedicated device cell only.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         device_ids: Box<[DiagnosticDeviceId]>,
         /// Unambiguous typed applications owned by this row’s drug cell.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         drug_applications: Box<[DiagnosticDrugApplication]>,
     },
 }

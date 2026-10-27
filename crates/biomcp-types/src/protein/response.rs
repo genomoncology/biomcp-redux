@@ -16,6 +16,7 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Whole native rows in source order; totals apply only to this collection.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
         }
         impl ResponseBody for $name {

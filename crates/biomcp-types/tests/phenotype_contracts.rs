@@ -157,7 +157,7 @@ fn associations_reuse_native_endpoints_and_never_deserialize_as_statements() {
     let row = json!(
         {"requested_id":"HP:0001250","subject":{"id":"HGNC:29529","label":"synthetic gene"},"subject_taxon":"NCBITaxon:9606",
         "object":{"id":"HP:0001250","label":"synthetic term"},"predicate":"biolink:has_phenotype","attribution":{"source":"synthetic"},
-        "evidence":[],"qualifiers":[],"subject_closure":[],"object_closure":[]}
+        }
     );
     let association: DiseaseAssociation = serde_json::from_value(row.clone()).unwrap();
     assert_eq!(serde_json::to_value(association).unwrap(), row);

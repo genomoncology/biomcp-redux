@@ -36,6 +36,7 @@ macro_rules! collection {
             /// Source and selected gene.
             pub header: PgxHeader,
             /// Complete native rows without duplicate summaries.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Meaning and bounds of this collection.
             pub page: PgxPageInfo,
@@ -63,6 +64,7 @@ pub enum PgxRecommendations {
         /// Selected gene and source.
         header: PgxHeader,
         /// Complete view rows in source order.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxRecommendation]>,
         /// Native source collection scope.
         page: PgxPageInfo,
@@ -72,6 +74,7 @@ pub enum PgxRecommendations {
         /// Selected gene and source.
         header: PgxHeader,
         /// Complete table rows without view-name enrichment.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxDrugRecommendation]>,
         /// Native source collection scope.
         page: PgxPageInfo,
@@ -120,6 +123,7 @@ pub enum PgxAnnotations {
         /// Declared gene and source.
         header: PgxHeader,
         /// Complete clinical min records.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxAnnotationHeader]>,
         /// Observed bounded collection scope.
         page: PgxPageInfo,
@@ -129,6 +133,7 @@ pub enum PgxAnnotations {
         /// Declared gene and source.
         header: PgxHeader,
         /// Complete guideline min references.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxAnnotationReference]>,
         /// Observed bounded collection scope.
         page: PgxPageInfo,
@@ -138,6 +143,7 @@ pub enum PgxAnnotations {
         /// Declared gene and source.
         header: PgxHeader,
         /// Complete label min references.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxAnnotationReference]>,
         /// Observed bounded collection scope.
         page: PgxPageInfo,

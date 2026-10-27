@@ -198,6 +198,7 @@ macro_rules! section {
             /// One page of complete native rows.
             pub $field: AdverseEventRecords<$row>,
             /// Applicable component terms.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub components: Box<[ComponentLabel]>,
         }
         impl ResponseBody for $name {
@@ -263,6 +264,7 @@ macro_rules! identifiers {
                     /// One complete-row page, owned by one native drug row.
                     $field: AdverseEventIdentifierRecords,
                     /// Applicable component terms.
+                    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
                     components: Box<[ComponentLabel]>,
                 },
             )+

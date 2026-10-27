@@ -31,7 +31,7 @@ pub struct DiseaseAssociation {
     #[serde(
         default,
         deserialize_with = "aggregators",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "omit_aggregators"
     )]
     pub aggregator_knowledge_source: Option<Option<Box<[Curie]>>>,
     /// Native providing collection.
@@ -191,6 +191,13 @@ pub struct DiseaseEndpoint {
 }
 
 type Aggregators = Option<Option<Box<[Curie]>>>;
+fn omit_aggregators(value: &Aggregators) -> bool {
+    value.is_none()
+        || value
+            .as_ref()
+            .and_then(Option::as_ref)
+            .is_some_and(|items| items.is_empty())
+}
 fn aggregators<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Aggregators, D::Error> {
     Option::<Box<[Curie]>>::deserialize(d).map(Some)
 }

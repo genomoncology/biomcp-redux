@@ -277,10 +277,7 @@ fn search_schema_and_serde_require_a_present_nonnull_selector() {
 
 #[test]
 fn article_accepts_each_identity_and_rejects_an_unidentified_record() {
-    let base = json!({
-        "title": "A checked article", "types": [], "corrections": [],
-        "authors": [], "abstract_parts": []
-    });
+    let base = json!({"title": "A checked article", "authors": []});
     let schema = validator::<Article>();
     for (field, id) in [
         ("pmid", "33123537"),

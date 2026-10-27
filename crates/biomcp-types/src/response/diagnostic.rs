@@ -196,6 +196,7 @@ macro_rules! page {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Complete source-owned rows in native order; envelope totals count native rows.
+            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
             /// Exact meaning of the envelope total; supplied by the owning source command.
             #[serde(default, skip_serializing_if = "Option::is_none")]
