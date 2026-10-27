@@ -14,7 +14,11 @@
       "config": null,
       "held_declaration": {
         "case": "gene/sections/constraint.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/cli/gene/dispatch.rs::handle_command"
+        }
       }
     },
     {
@@ -29,7 +33,11 @@
       "config": null,
       "held_declaration": {
         "case": "article/tldr/empty.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/entities/article/mod.rs"
+        }
       }
     },
     {
@@ -45,7 +53,11 @@
       "config": null,
       "held_declaration": {
         "case": "article/edges/pmc.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/entities/article/mod.rs"
+        }
       }
     },
     {
@@ -59,7 +71,11 @@
       "config": null,
       "held_declaration": {
         "case": "gene/fam46c.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/cli/gene/dispatch.rs::handle_command"
+        }
       }
     },
     {
@@ -73,7 +89,11 @@
       "config": null,
       "held_declaration": {
         "case": "article/search/window.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/entities/article/mod.rs"
+        }
       }
     },
     {
@@ -88,7 +108,11 @@
       "config": null,
       "held_declaration": {
         "case": "article/sections/annotations.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "Released ArticleAnnotations serializes separate genes, diseases and chemicals arrays. A flat current annotation item index cannot select one fixed index in an old kind array for every article. Generic annotation ordering and projections remain unreviewed.",
+          "release_source": "src/entities/article/mod.rs:700-707"
+        }
       }
     },
     {
@@ -102,7 +126,11 @@
       "config": null,
       "held_declaration": {
         "case": "article/get/phase-two.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/entities/article/mod.rs"
+        }
       }
     },
     {
@@ -117,7 +145,11 @@
       "config": null,
       "held_declaration": {
         "case": "gene/sections/protein-data.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/cli/gene/dispatch.rs::handle_command"
+        }
       }
     },
     {
@@ -132,7 +164,11 @@
       "config": null,
       "held_declaration": {
         "case": "gene/sections/expression-cldn18.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The direct HPA XML route names one fixed Ensembl gene ID. It does not bind an arbitrary gene symbol to that ID, and no generic symbol-to-Ensembl mapping is declared. Generic HPA request and projection bindings remain unreviewed.",
+          "release_source": "src/entities/gene.rs::add_hpa_section"
+        }
       }
     },
     {
@@ -147,7 +183,11 @@
       "config": null,
       "held_declaration": {
         "case": "gene/sections/civic-data.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/cli/gene/dispatch.rs::handle_command"
+        }
       }
     },
     {
@@ -162,7 +202,11 @@
       "config": null,
       "held_declaration": {
         "case": "gene/sections/pathways-tp53.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/cli/gene/dispatch.rs::handle_get"
+        }
       }
     },
     {
@@ -177,7 +221,11 @@
       "config": null,
       "held_declaration": {
         "case": "variant/assertions-erepo-current.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/cli/variant/erepo.rs"
+        }
       }
     },
     {
@@ -192,7 +240,11 @@
       "config": null,
       "held_declaration": {
         "case": "variant/population/catalog-data.yaml",
-        "step": 0
+        "step": 0,
+        "hold": {
+          "reason": "The referenced declaration reviews only its own direct question. Generic native request bindings and projections remain unreviewed; this shape stays held even if the direct case gains recordings.",
+          "release_source": "src/entities/variant/get.rs::get"
+        }
       }
     }
   ]

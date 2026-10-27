@@ -20,6 +20,7 @@ pub(super) struct Shape {
 struct Reference {
     case: String,
     step: usize,
+    hold: super::UnsupportedFact,
 }
 pub(super) fn resolve(
     shapes: &[Shape],
@@ -265,22 +266,20 @@ fn held(
     declarations: &[Selection],
     name: &str,
 ) -> Result<Option<Selection>, String> {
+    reference.hold.validate()?;
     let declaration = declarations
         .iter()
         .find(|selection| selection.case == reference.case && selection.step == reference.step)
         .ok_or("held shape declaration reference missing")?;
-    let reasons = declaration
+    let native_gaps = declaration
         .recordings
         .iter()
         .filter_map(|route| route.recording_gap.as_deref())
         .collect::<Vec<_>>();
-    if reasons.is_empty() {
-        return Err("held shape reference needs an existing native recording gap".into());
-    }
     Err(format!(
-        "{name}: held native input declared by {} step {}: {}",
-        reference.case,
-        reference.step,
-        reasons.join("; ")
+        "{name}: held shape mapping: {} ({}); direct-case native gaps: {}",
+        reference.hold.reason,
+        reference.hold.release_source,
+        native_gaps.join("; ")
     ))
 }

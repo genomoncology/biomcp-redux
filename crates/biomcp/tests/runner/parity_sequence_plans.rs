@@ -36,8 +36,16 @@ pub(super) fn inventory(
     for (index, step) in case.steps.iter().enumerate() {
         match declaration(name, index, step, case, plan, cases, root) {
             Ok(Some(selection)) => steps.push(selection),
-            other => gaps.push(json!({"step":index,"command":step.run.as_ref().or(step.mcp.as_ref()),
-                "follow":step.follow,"reason":other.err().unwrap_or_else(|| "no reviewed direct declaration preserves this question and configuration".into())})),
+            other => {
+                let reason = other.err().unwrap_or_else(|| {
+                    "no reviewed direct declaration preserves this question and configuration"
+                        .into()
+                });
+                gaps.push(
+                    json!({"step":index,"command":step.run.as_ref().or(step.mcp.as_ref()),
+                    "follow":step.follow,"reason":reason}),
+                );
+            }
         }
     }
     if gaps.is_empty() {
