@@ -198,10 +198,22 @@ fn refusals() -> Result<(), String> {
         ("GRCh38", false, false, "no_join_id"),
         ("GRCh38", true, true, "unsupported"),
     ] {
-        let allele = json!({"@id":"http://reg.genome.network/allele/CA123643", "genomicAlleles":[{
-            "referenceGenome":build, "hgvs":[if mitochondrial {"NC_012920.1:m.100A>T"} else if build == "GRCh37" {"NC_000007.13:g.140453136A>T"} else {"NC_000007.14:g.140753336A>T"}],
-            "coordinates":if mitochondrial {json!([{"start":99,"end":100,"referenceAllele":"A","allele":"T"}])} else if coordinates {json!([{"start":140453135,"end":140453136,"referenceAllele":"A","allele":"T"}])} else {json!([{"start":140753335,"end":140753336,"referenceAllele":"AA","allele":"T"}])}
-        }]});
+        let expression = if mitochondrial {
+            "NC_012920.1:m.100A>T"
+        } else if build == "GRCh37" {
+            "NC_000007.13:g.140453136A>T"
+        } else {
+            "NC_000007.14:g.140753336A>T"
+        };
+        let position = if mitochondrial { 99 } else if coordinates { 140453135 } else { 140753335 };
+        let reference = if coordinates { "A" } else { "AA" };
+        let allele = json!({
+            "@id":"http://reg.genome.network/allele/CA123643",
+            "genomicAlleles":[{
+                "referenceGenome":build, "hgvs":[expression],
+                "coordinates":[{"start":position,"end":position + 1,"referenceAllele":reference,"allele":"T"}]
+            }]
+        });
         let fixture = source_fixture(messages(), 200, allele)?;
         let env = environment(&fixture)?;
         let reply = invoke(
