@@ -1,0 +1,64 @@
+---
+title: Get gnomAD allele counts for a variant
+description: Read gnomAD allele counts and allele numbers for one variant with BioMCP 1.0, from an rsID to the exact GRCh38 allele, then by ancestry group.
+goal: The reader turns an rsID into one exact GRCh38 allele, reads gnomAD's allele count and allele number for it, and pages the ancestry groups.
+reader: A researcher or agent builder who needs how often a variant occurs in gnomAD
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> reads gnomAD counts for one exact GRCh38 allele with `biomcp variant population`. Use this page when you have an rsID or an HGVS description and need gnomAD's allele count (`ac`) and allele number (`an`), overall or by ancestry group. The example is rs7903146 in TCF7L2.
+
+## Requirements
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches MyVariant.info, the ClinGen Allele Registry and gnomAD. No key is needed.
+
+## 1. Find the exact allele
+
+`variant population` needs one allele, so start by listing the alleles behind the rsID, then resolve the one you want with the ClinGen Allele Registry:
+
+<Example id="task-gnomad-allele" />
+
+rs7903146 names two changes, `C>T` and `C>G`. The registry resolves the `C>T` description on GRCh37 (`NC_000010.10`) to allele `CA118786` and gives its GRCh38 position. A ClinGen allele ID, or a GRCh38 HGVS description such as `NC_000010.11:g.112998590C>T`, is the input `variant population` takes.
+
+## 2. Read the counts
+
+<Example id="task-gnomad-counts" />
+
+`ac` is the number of times gnomAD observed the allele, and `an` is the number of alleles it examined, both for release 4.1.0. Exome and genome counts stay separate; here only genomes hold the allele, so `exome` is null. BioMCP does not compute a frequency. Divide `ac` by `an` yourself: 41622 / 151914 is about 0.27.
+
+The status is `partial` because the allele registry sent fields BioMCP could not check; the reply's `problems` list names them. The counts come from gnomAD unchanged.
+
+## 3. Read the ancestry groups
+
+`--detail` adds gnomAD's group rows, paged. This filter keeps the genome rows for the main ancestry groups:
+
+<Example id="task-gnomad-groups" />
+
+gnomAD reports 276 rows for this allele: ancestry groups, each split by sex, and subsets such as the HGDP samples. The group codes, such as `afr`, `eas` and `nfe`, are gnomAD's. `--offset 50` reads the next page.
+
+## Verify
+
+Step 2 shows `variant` `10-112998590-C-T` and a genome `an` above 100,000.
+
+## If it fails
+
+- `variant population rs7903146` fails: an rsID can name several alleles, so the command needs one allele ID. Use step 1.
+- The status is `failed` and every count is null: BioMCP could not resolve the input to one GRCh38 allele, or gnomAD has no record for it. `sources` shows which source answered. A missing record is not a zero count.
+- `variant normalize` returns `usage.arguments` for a `chr10:` description. Write the RefSeq form the registry takes, such as `NC_000010.10:g.114758349C>T` for GRCh37.
+
+## Limits
+
+gnomAD counts describe the people gnomAD sequenced, in the release named. They are not the frequency in any other population. BioMCP passes the counts through unchanged.
+
+## Related
+
+- [Variants](/how-to/annotate-variants/) covers normalization, ClinVar and CIViC for one variant.
+- Reference: [variant population](/reference/commands/variant-population/), [variant normalize](/reference/commands/variant-normalize/), [gnomAD source](/sources/gnomad/).
+
+## Next
+
+Read what ClinVar says about a variant in [get the ClinVar classification of a variant](/how-to/clinvar-classification/).

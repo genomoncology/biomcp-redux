@@ -1,0 +1,4 @@
+26761933	1	20260515
+26756327	1	20260514
+26657206	1	20260423
+{"status":"complete","header":{"id":"26907716","source":"faers","version":"1","serious":"1","first_received":"20260622"},"next":["get adverse-event 26907716 drugs --snapshot 04a589ed93a30065c4532d2eb2fa5f8083ca9716d4185b8d2e91711430d7ab78","get adverse-event 26907716 reactions --snapshot 04a589ed93a30065c4532d2eb2fa5f8083ca9716d4185b8d2e91711430d7ab78"]}

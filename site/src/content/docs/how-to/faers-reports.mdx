@@ -1,0 +1,66 @@
+---
+title: Find FDA adverse event reports for a drug
+description: Count and list FAERS adverse event reports for a drug with BioMCP 1.0, filter them by seriousness, reaction and receipt date, and open one report by its ID.
+goal: The reader counts a drug's FAERS reports with and without filters, lists report IDs, and opens one report's sections, knowing what a report count can and cannot show.
+reader: A researcher, pharmacovigilance analyst or agent builder who needs FDA adverse event report data for a drug
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> searches the FDA Adverse Event Reporting System (FAERS) through openFDA with `biomcp search adverse-event`. Use this page to count a drug's reports, narrow them by seriousness, reaction or date, and open one report. The example drug is vemurafenib.
+
+FAERS holds spontaneous reports. A report says that someone reported an event while a drug was in use. It does not show that the drug caused the event, and report counts cannot measure risk or compare drugs.
+
+## Requirements
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches openFDA. An openFDA key is optional and raises the rate limit; see [keys](/getting-started/api-keys/#set-a-key).
+
+## 1. Count the reports
+
+Each search returns a page of report headers and the total in `page.total`. `--limit 1` keeps the page small when you only need the count:
+
+<Example id="task-faers-counts" />
+
+The first row counts every report that names vemurafenib. Each filter narrows that set:
+
+| Filter | What it matches |
+| --- | --- |
+| `--serious death` or `--serious hospitalization` | The report's own seriousness flag, not the outcome of one reaction |
+| `--reaction TERM` | A MedDRA reaction term, matched as a phrase |
+| `--received-from DATE --received-to DATE` | The date the FDA first received the report, inclusive, `YYYY-MM-DD` |
+
+The search text is matched as written, against the drug names in each report. A brand name, such as `Zelboraf`, can return a different count; search each name you need.
+
+## 2. List report IDs
+
+The page lists one header per report: its ID, the `serious` flag (`1` for serious) and the first receipt date as FAERS writes it:
+
+<Example id="task-faers-report" />
+
+`get adverse-event ID` returns the report's header, and its `next` list holds the commands for its sections: `drugs`, `reactions` and identifier sections such as `rxcui`. This site shows reports by ID and flags only. Run the `next` commands yourself to read the rows.
+
+## Verify
+
+The first count is in the thousands, and each filtered count is smaller than it.
+
+## If it fails
+
+- The status is `absent` and the total is 0: FAERS has no report under that spelling. Try the brand name or the active ingredient. Zero reports under one name is not a safety finding.
+- A source shows `rate_limited`: openFDA limits keyless requests. Wait, or set an openFDA key.
+- Medical device reports are in MAUDE, not FAERS: add `--source maude`. [Drugs and safety](/drugs-and-safety/#6-search-adverse-event-reports) covers MAUDE and VAERS.
+
+## Limits
+
+FAERS reports are voluntary and unverified, and one event can be reported more than once. Counts are reports, not people. BioMCP returns the reports and totals as openFDA serves them and computes no rate.
+
+## Related
+
+- [Drugs and safety](/drugs-and-safety/) covers labels, approvals and interactions.
+- Reference: [search adverse-event](/reference/commands/search-adverse-event/), [get adverse-event](/reference/commands/get-adverse-event/), [FAERS source](/sources/faers/).
+
+## Next
+
+Read the drug's label text in [drugs and safety](/drugs-and-safety/#4-read-one-label-heading).

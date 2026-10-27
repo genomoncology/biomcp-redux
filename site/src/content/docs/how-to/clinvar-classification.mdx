@@ -1,0 +1,72 @@
+---
+title: Get the ClinVar classification of a variant
+description: Read ClinVar's germline, somatic and oncogenicity classifications for a variant with BioMCP 1.0, starting from an rsID, then page the submitted records behind them.
+goal: The reader picks the exact allele behind an rsID, reads ClinVar's variation-level classification in each domain with its review status and date, and pages the submitted records behind it.
+reader: A researcher, curator or agent builder who needs ClinVar's statement about one variant
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> reads ClinVar's classification of a variant in three steps: choose the allele, read the variation-level rows, then page the submitted records. Use this page when you have an rsID, an HGVS description or a ClinVar Variation ID and need what ClinVar says, with its review status and date. The example is BRAF V600E.
+
+## Requirements
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches MyVariant.info and ClinVar. No key is needed.
+
+## 1. Choose the allele
+
+An rsID can name several alleles at one position. `get variant` lists each candidate with the identifiers it carries:
+
+<Example id="task-clinvar-alleles" />
+
+rs113488022 names three changes at the same base. Only `A>T` is V600E, and it carries ClinVar Variation ID `clinvar:13961`. Use that ID from here on, so every later command reads one allele. An HGVS description with a transcript, such as `NM_004333.4:c.1799T>A`, also names one allele; [variants](/how-to/annotate-variants/#2-normalize-hgvs) shows how to resolve it.
+
+## 2. Read the classification in each domain
+
+The `clinvar` section returns ClinVar's records for the allele. The variation-level rows, kind `vcv`, hold ClinVar's aggregate classification:
+
+<Example id="task-clinvar-vcv" />
+
+ClinVar classifies in separate domains, and BioMCP keeps them apart:
+
+| Domain | What ClinVar classifies |
+| --- | --- |
+| `germline` | Pathogenicity for inherited disease |
+| `somatic_clinical_impact` | Clinical impact in tumors, in tiers |
+| `oncogenicity` | Whether the change drives cancer |
+
+The third column is ClinVar's review status, and the fourth is the date ClinVar evaluated the row. For V600E the germline row reads "Conflicting classifications of pathogenicity", because submitters disagree for inherited disease, while the somatic rows are Tier I and Oncogenic. Quote a row with its domain, review status and date.
+
+## 3. Page the submitted records
+
+`variant assertions` pages every record ClinVar holds for the allele: variation (`vcv`), condition (`rcv`) and submitted (`scv`) records:
+
+<Example id="task-clinvar-records" />
+
+Each `scv` row is one submitter's classification, with its own date and condition. The reply's `next` list holds the command for the next page. `--assertion SCV000061601` reads one record.
+
+## Verify
+
+The `clinvar:13961` candidate shows `chr7:g.140453136A>T`, and the `vcv` rows show three domains with record `VCV000013961`.
+
+## If it fails
+
+- The section is empty: you read a candidate without a ClinVar ID, such as the `A>G` row. Pick the candidate whose identifiers include `clinvar:`.
+- `usage.arguments` from `variant assertions`: it takes a ClinVar Variation ID (`clinvar:13961`), not an rsID.
+- A source shows `rate_limited`: wait and run the command again; see [troubleshooting](/troubleshooting/#a-source-shows-failed-with-reason-deadline_exceeded-or-rate_limited).
+
+## Limits
+
+A classification belongs to ClinVar and its submitters, on the date evaluated, for the condition named. BioMCP returns conflicting classifications as ClinVar states them and never resolves them. A variant missing from ClinVar has no ClinVar record; that says nothing about its effect.
+
+## Related
+
+- [Variants](/how-to/annotate-variants/) covers population counts, CIViC and the other variant sections.
+- Reference: [get variant](/reference/commands/get-variant/), [variant assertions](/reference/commands/variant-assertions/), [ClinVar source](/sources/clinvar/).
+
+## Next
+
+Read how often the allele occurs in [gnomAD frequencies for a variant](/how-to/gnomad-frequency/).
