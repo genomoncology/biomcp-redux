@@ -44,7 +44,7 @@ struct PathwaySource {
 pub(super) struct ReleasedSource {
     released_source: String,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct AuthorIds {
     author_ids: String,

@@ -1,13 +1,13 @@
 //! Match reviewed source selectors without depending on query order or encoding.
 use std::collections::BTreeMap;
 
-#[derive(serde::Deserialize)]
+#[derive(Clone, serde::Deserialize)]
 #[serde(untagged)]
 pub(super) enum CommandSelector {
     Argument(String),
     EffectiveLimit(EffectiveLimit),
 }
-#[derive(serde::Deserialize)]
+#[derive(Clone, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct EffectiveLimit {
     effective_adverse_event_limit: bool,
