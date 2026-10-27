@@ -187,7 +187,18 @@ fn attributes(path: &str, tokens: &[String]) -> Check {
             let only_dead_code = matches!(
                 attribute.as_slice(),
                 ["[", "allow", "(", "dead_code", ",", "reason", "=", _, ")"]
-                    | ["[", "allow", "(", "dead_code", ",", "reason", "=", _, ",", ")"]
+                    | [
+                        "[",
+                        "allow",
+                        "(",
+                        "dead_code",
+                        ",",
+                        "reason",
+                        "=",
+                        _,
+                        ",",
+                        ")"
+                    ]
             );
             if !only_dead_code
                 || i != 0
