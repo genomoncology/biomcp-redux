@@ -10,6 +10,16 @@ import zipfile
 
 
 class Staging(unittest.TestCase):
+    def test_environment_requires_an_independent_operator(self):
+        for rules, accepted in [([], False), ([{"type": "required_reviewers", "reviewers": []}], False),
+                                ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": False}], False),
+                                ([{"type": "required_reviewers", "reviewers": [{"type": "Team"}], "prevent_self_review": True}], True)]:
+            with self.subTest(rules=rules), tempfile.TemporaryDirectory() as directory:
+                settings = Path(directory) / "environment.json"
+                settings.write_text(json.dumps({"protection_rules": rules}))
+                result = subprocess.run([sys.executable, "release/workflow.py", "protection", str(settings)], capture_output=True, text=True)
+                self.assertEqual(result.returncode == 0, accepted, result.stderr)
+
     def prepare(self, root):
         artifacts = root / "artifacts"
         platforms = ["manylinux_2_28_x86_64", "manylinux_2_28_aarch64",

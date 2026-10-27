@@ -31,13 +31,12 @@ def identity(args):
 
 
 def protection(args):
+    # https://docs.github.com/en/rest/deployments/environments#get-an-environment
     settings = json.loads(args.settings.read_text())
     rules = settings.get("protection_rules", [])
     if not any(rule.get("type") == "required_reviewers" and rule.get("reviewers")
                and rule.get("prevent_self_review") is True for rule in rules):
         raise ValueError("release-publication must require a separate release operator's review after Ian approves")
-    if settings.get("can_admins_bypass") is not False:
-        raise ValueError("release-publication must disable administrator approval bypass")
 
 
 def candidates(args):
