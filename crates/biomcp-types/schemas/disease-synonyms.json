@@ -354,10 +354,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items",
-        "components"
-      ],
       "type": "object"
     },
     "PageInfo": {
@@ -770,8 +766,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -792,8 +787,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }

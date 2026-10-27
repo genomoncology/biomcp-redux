@@ -1313,8 +1313,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -1335,8 +1334,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
@@ -1786,7 +1784,6 @@
         "nct_id",
         "title",
         "status",
-        "phases",
         "study_type",
         "updated",
         "url"

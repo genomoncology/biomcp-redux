@@ -2037,7 +2037,6 @@
               "type": "array"
             },
             "approved_indications": {
-              "default": [],
               "description": "Native approved indication labels.",
               "items": {
                 "$ref": "#/$defs/Text"
@@ -2045,7 +2044,6 @@
               "type": "array"
             },
             "citations": {
-              "default": [],
               "description": "Source PMID citations.",
               "items": {
                 "$ref": "#/$defs/Pmid"
@@ -2067,7 +2065,6 @@
               "type": "array"
             },
             "excluded_tumor_types": {
-              "default": [],
               "description": "Native excluded contexts, never filled from the caller context.",
               "items": {
                 "$ref": "#/$defs/Concept"
@@ -3965,8 +3962,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -3987,8 +3983,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }

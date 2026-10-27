@@ -70,9 +70,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "DiagnosticCountUnit": {
@@ -638,8 +635,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -660,8 +656,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }

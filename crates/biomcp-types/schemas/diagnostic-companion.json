@@ -53,9 +53,7 @@
             "kind",
             "snapshot",
             "index",
-            "cells",
-            "device_ids",
-            "drug_applications"
+            "cells"
           ],
           "type": "object"
         },
@@ -100,9 +98,7 @@
             "kind",
             "snapshot",
             "index",
-            "cells",
-            "device_ids",
-            "drug_applications"
+            "cells"
           ],
           "type": "object"
         }
@@ -250,9 +246,6 @@
           "type": "array"
         }
       },
-      "required": [
-        "items"
-      ],
       "type": "object"
     },
     "DiagnosticCountUnit": {
@@ -863,8 +856,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -885,8 +877,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }

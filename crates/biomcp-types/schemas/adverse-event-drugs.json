@@ -216,8 +216,7 @@
       "required": [
         "header",
         "snapshot",
-        "drugs",
-        "components"
+        "drugs"
       ],
       "type": "object"
     },
@@ -945,8 +944,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -967,8 +965,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }

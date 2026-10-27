@@ -66,12 +66,12 @@ fn headers_and_cards_refuse_flattened_lists_titles_and_count_buckets() {
     );
     let faers = json!(
         {"header":header,"snapshot":"synthetic-snapshot","drug_count":19,"reaction_count":22,"source_url":"https://example.invalid/source",
-        "report_url":"https://example.invalid/exact-report","available_sections":["drugs","reactions"],"components":[]}
+        "report_url":"https://example.invalid/exact-report","available_sections":["drugs","reactions"]}
     );
     let maude = json!(
         {"header":{"id":"50952244","source":"maude","event_type":"Death"},"snapshot":"synthetic-snapshot","device_count":1,
         "narrative_count":0,"source_url":"https://example.invalid/source","report_url":"https://example.invalid/exact-report",
-        "available_sections":["devices","narrative"],"components":[]}
+        "available_sections":["devices","narrative"]}
     );
     roundtrip::<AdverseEventFaersCard>(faers.clone()).unwrap();
     roundtrip::<AdverseEventMaudeCard>(maude.clone()).unwrap();
@@ -197,10 +197,10 @@ fn eight_consumer_envelopes_validate_and_identifier_pages_keep_closed_native_sco
     use biomcp_types::*;
     let query = json!({"id":"26940567"});
     let header = json!({"id":"26940567","source":"faers","version":"1"});
-    let mut base = json!({"header":header,"snapshot":"synthetic-snapshot","components":[]});
+    let mut base = json!({"header":header,"snapshot":"synthetic-snapshot"});
     envelope::<AdverseEventPage>(
         json!({"text":"synthetic"}),
-        json!({"source_query":"synthetic","items":[header],"unit":"reports","components":[]}),
+        json!({"source_query":"synthetic","items":[header],"unit":"reports"}),
     )
     .unwrap();
     let mut faers = base.clone();

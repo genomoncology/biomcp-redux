@@ -180,8 +180,7 @@
       "required": [
         "header",
         "snapshot",
-        "reactions",
-        "components"
+        "reactions"
       ],
       "type": "object"
     },
@@ -750,8 +749,7 @@
           },
           "required": [
             "kind",
-            "name",
-            "phrases"
+            "name"
           ],
           "type": "object"
         },
@@ -772,8 +770,7 @@
             }
           },
           "required": [
-            "kind",
-            "words"
+            "kind"
           ],
           "type": "object"
         }
