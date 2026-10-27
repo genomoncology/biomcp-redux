@@ -5,10 +5,6 @@ use super::{Cache, CacheError, Connection, Duration};
 use crate::{Deadline, deadline::VirtualClock};
 
 #[test]
-#[expect(
-    clippy::print_stderr,
-    reason = "Report measured SQLite admission without asserting machine speed"
-)]
 fn replay_admission_preserves_rows_under_an_external_writer() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("cache.sqlite");
@@ -26,16 +22,10 @@ fn replay_admission_preserves_rows_under_an_external_writer() {
     };
     // The external transaction remains held until the attempt returns. There
     // is no timer that releases it and no assertion about machine speed.
-    let admitted = std::time::Instant::now();
     assert!(matches!(
         cache.sql(deadline, replace),
         Err(CacheError::Busy)
     ));
-    eprintln!(
-        "SQLite held-writer admission: budget={:?}, elapsed={:?}; replay time unchanged",
-        deadline.remaining(),
-        admitted.elapsed()
-    );
     assert!(
         !deadline.expired(),
         "disk admission must not advance replay time"

@@ -298,11 +298,12 @@ pub(crate) fn sql_deadline(
     if deadline.expired() {
         return Err(CacheError::Busy);
     }
-    // SQLite admission is real local work even when provider replies use replay
-    // time. A zero wait turns another process's ordinary short transaction into
-    // an immediate failure. Opportunistic reply caching retains its zero wait.
     connection
-        .busy_timeout(deadline.remaining())
+        .busy_timeout(if deadline.virtual_time() {
+            Duration::ZERO
+        } else {
+            deadline.remaining()
+        })
         .map_err(db_error)
 }
 
