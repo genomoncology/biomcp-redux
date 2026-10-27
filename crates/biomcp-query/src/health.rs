@@ -30,29 +30,10 @@ pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
                     };
                     let (state, reason, latency_ms) = if let Some(reason) = skip {
                         (SourceState::Skipped, Some(reason), None)
+                    } else if fetch.is_offline() && bundle.is_some() {
+                        (SourceState::Skipped, Some(Reason::Offline), None)
                     } else {
-                        let start = leg.remaining();
-                        let result = registry::probe(spec, &leg);
-                        let elapsed = start.saturating_sub(leg.remaining()).as_millis() as u64;
-                        if let Err(error) = result
-                            && crate::status::local(error).is_some()
-                        {
-                            return Err(error);
-                        }
-                        let reason = result.err().map(|e| {
-                            crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable)
-                        });
-                        (
-                            if reason == Some(Reason::Disabled) {
-                                SourceState::Skipped
-                            } else if reason.is_some() {
-                                SourceState::Failed
-                            } else {
-                                SourceState::Ok
-                            },
-                            reason,
-                            Some(elapsed),
-                        )
+                        source_probe(spec, &leg)?
                     };
                     let (state, reason, latency_ms) =
                         local_offline((state, reason, latency_ms), bundle);
@@ -109,5 +90,32 @@ fn local_offline(
             (SourceState::Skipped, Some(Reason::Offline), None)
         }
         _ => probe,
+    }
+}
+
+fn source_probe(
+    spec: &'static biomcp_fetch::SourceSpec,
+    leg: &biomcp_fetch::Leg<'_>,
+) -> Result<(SourceState, Option<Reason>, Option<u64>), RequestError> {
+    let start = leg.remaining();
+    let result = registry::probe(spec, leg);
+    let elapsed = start.saturating_sub(leg.remaining()).as_millis() as u64;
+    match result {
+        Ok(registry::ProbeOutcome::Unavailable) => {
+            Ok((SourceState::Skipped, Some(Reason::Unavailable), None))
+        }
+        Ok(registry::ProbeOutcome::Reachable) => Ok((SourceState::Ok, None, Some(elapsed))),
+        Err(error) => {
+            if crate::status::local(error).is_some() {
+                return Err(error);
+            }
+            let reason = crate::status::reason(error).unwrap_or(Reason::Unavailable);
+            let state = if reason == Reason::Disabled {
+                SourceState::Skipped
+            } else {
+                SourceState::Failed
+            };
+            Ok((state, Some(reason), Some(elapsed)))
+        }
     }
 }

@@ -5,10 +5,27 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
 const SOURCES: &[&str] = &[
-    "cpic", "clinpgx", "gtr", "who-ivd", "who-pq", "fda-cdx", "fda-pma", "fda-510k", "vaers",
+    "cpic",
+    "clinpgx",
+    "gtr",
+    "who-ivd",
+    "who-pq",
+    "fda-cdx",
+    "fda-pma",
+    "fda-510k",
+    "vaers",
     "clingen",
+    "ema",
+    "ddinter",
+    "cbioportal",
+    "wikipathways",
+    "hgnc",
 ];
 const BUNDLES: &[(&str, &[&str])] = &[
+    ("ema", &["ema"]),
+    ("ddinter", &["ddinter"]),
+    ("cbioportal", &["cbioportal-studies"]),
+    ("wikipathways", &["wikipathways"]),
     ("gtr", &["gtr"]),
     ("who-ivd", &["who-ivd"]),
     ("who-pq", &["who-pq"]),
@@ -61,6 +78,10 @@ fn reachable() -> Check {
             "api.fda.gov",
             "wonder.cdc.gov",
             "search.clinicalgenome.org",
+            "www.ema.europa.eu",
+            "ddinter.scbdd.com",
+            "www.cbioportal.org",
+            "www.wikipathways.org",
         ],
         |_| "text/plain",
         |request| {
@@ -76,6 +97,10 @@ fn reachable() -> Check {
                 "/device/510k.json?limit=1",
                 "/datause.html",
                 "/kb",
+                "/en/about-us/about-website/legal-notice",
+                "/terms/",
+                "/api/studies?pageSize=1",
+                "/help.html",
             ]
             .contains(&path)
             {
@@ -102,6 +127,18 @@ fn reachable() -> Check {
         )?;
         for source in SOURCES {
             let r = row(&v, source)?;
+            if *source == "hgnc" {
+                if r["state"] != "skipped"
+                    || r["reason"] != "unavailable"
+                    || r["bundle"] != "missing"
+                    || r.get("latency_ms").is_some()
+                {
+                    return Err(format!(
+                        "HGNC invented publisher reachability or downloaded a bundle: {r}"
+                    ));
+                }
+                continue;
+            }
             if r["state"] != "ok"
                 || r.get("reason").is_some()
                 || BUNDLES.iter().any(|(name, _)| name == source) && r["bundle"] != "missing"
@@ -110,7 +147,7 @@ fn reachable() -> Check {
             }
         }
     }
-    if stub.finish()?.len() != SOURCES.len() {
+    if stub.finish()?.len() != SOURCES.len() - 1 {
         return Err("probe retried or replay reached publisher".into());
     }
     Ok(())
