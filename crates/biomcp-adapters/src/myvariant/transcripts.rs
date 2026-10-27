@@ -50,12 +50,14 @@ pub(super) fn map(
         if a.feature_type.as_str() != "transcript" {
             continue;
         }
-        if a.hgvs_c
+        if a.hgvs_c.as_ref().is_some_and(|v| {
+            !["c.", "n.", "r."]
+                .iter()
+                .any(|prefix| v.as_str().starts_with(prefix))
+        }) || a
+            .hgvs_p
             .as_ref()
-            .is_some_and(|v| !v.as_str().starts_with("c."))
-            || a.hgvs_p
-                .as_ref()
-                .is_some_and(|v| !v.as_str().starts_with("p."))
+            .is_some_and(|v| !v.as_str().starts_with("p."))
         {
             problems.push(problem());
             continue;

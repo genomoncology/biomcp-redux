@@ -145,7 +145,7 @@ pub struct VariantTranscript {
     /// Source-stated gene symbol.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gene: Option<Text>,
-    /// Source coding notation, never computed from another transcript.
+    /// Source transcript notation from the coding field, including native n. or r. forms.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hgvs_c: Option<Text>,
     /// Source protein notation, never translated from coding notation.
