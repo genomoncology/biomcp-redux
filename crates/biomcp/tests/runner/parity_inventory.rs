@@ -262,9 +262,20 @@ fn sequence_row(
     } else {
         reuse.get("gaps") == Some(&json!(0))
     };
+    let recording_gaps = selection
+        .into_iter()
+        .flat_map(|sequence| &sequence.steps)
+        .filter_map(|step| {
+            step.baseline_gap.as_ref().map(|reason| {
+                json!({
+            "step":step.step,"command":step.baseline_command,"reason":reason})
+            })
+        })
+        .collect::<Vec<_>>();
+    let gaps = usize::from(!complete) + recording_gaps.len();
     Ok(
-        json!({"case":name,"class":if complete {"sequence"} else {"sequence_gap"},
-        "reason":reason,"surfaces":surfaces,"gaps":usize::from(!complete),
+        json!({"case":name,"class":if gaps == 0 {"sequence"} else {"sequence_gap"},
+        "reason":reason,"surfaces":surfaces,"gaps":gaps,"recording_gaps":recording_gaps,
         "unsafe_reason":unsafe_reason,"declaration_reuse":reuse}),
     )
 }
