@@ -76,3 +76,21 @@ impl Drop for CallGuard {
         }
     }
 }
+
+pub(super) async fn bounded(
+    deadline: &LocalDeadline,
+    call: &Stop,
+    worker: &Stop,
+    operation: impl std::future::Future<Output = Result<(), biomcp_types::Reason>>,
+) -> Result<(), biomcp_types::Reason> {
+    tokio::select! {
+        biased;
+        _ = call.wait() => Err(biomcp_types::Reason::DeadlineExceeded),
+        _ = worker.wait() => Err(biomcp_types::Reason::Unavailable),
+        _ = self::deadline(deadline) => Err(biomcp_types::Reason::DeadlineExceeded),
+        result = operation => result,
+    }
+}
+#[cfg(test)]
+#[path = "dns_tests.rs"]
+mod tests;

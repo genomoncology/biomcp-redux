@@ -209,23 +209,47 @@ fn stream_worker_maps_status_without_retrying_or_reflecting_provider_text() -> C
 
 #[test]
 fn stream_worker_uses_one_absolute_deadline_in_each_response_phase() -> Check {
-    for hold in [Hold::Tls, Hold::Headers, Hold::Message, Hold::Trailers] {
-        let fixture = Fixture::new(hold, 0, false, false)?;
-        let source = fixture.source(false, KeyUse::None);
+    for hold in [
+        Hold::Tls,
+        Hold::Connect,
+        Hold::Upload,
+        Hold::Headers,
+        Hold::Message,
+        Hold::Trailers,
+    ] {
+        let fixture = Fixture::new(hold, 0, hold == Hold::Connect, false)?;
+        let source = fixture.source(hold == Hold::Connect, KeyUse::None);
         let fetch = Fetch::open(FetchConfig {
-            network: fixture.network(None, "")?,
+            network: fixture.network(
+                (hold == Hold::Connect)
+                    .then(|| biomcp_fetch::Secret::new(format!("http://{}", fixture.address))),
+                "",
+            )?,
+            grpc_limits: biomcp_fetch::grpc::Limits {
+                request_bytes: 256 * 1024,
+                ..Default::default()
+            },
             ..FetchConfig::default()
         })?;
         let leg = fetch.leg(source, fetch.deadline(Duration::from_secs(1)));
+        let body = if hold == Hold::Upload {
+            vec![0; 128 * 1024]
+        } else {
+            Vec::new()
+        };
         let error = leg
-            .grpc(&source.grpc("/synthetic.Tensor/Exchange"), &[], |_| Ok(()))
+            .grpc(
+                &source.grpc("/synthetic.Tensor/Exchange"),
+                &body,
+                |_| Ok(()),
+            )
             .unwrap_err();
         assert!(
             matches!(error, biomcp_fetch::RequestError::Source(error) if error.reason == Reason::DeadlineExceeded)
         );
         let seen = fixture.events.try_iter().collect::<Vec<_>>();
         assert!(seen.iter().any(|event| matches!(event, Seen::Tcp)));
-        if hold != Hold::Tls {
+        if !matches!(hold, Hold::Tls | Hold::Connect) {
             assert!(
                 seen.iter()
                     .any(|event| matches!(event, Seen::Request(_, _)))

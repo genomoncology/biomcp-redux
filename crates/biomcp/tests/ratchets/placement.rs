@@ -136,6 +136,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Cover public DNS address and redirect rejection tables without contacting private destinations.",
     ),
     (
+        "crates/biomcp-fetch/src/grpc/dns_tests.rs",
+        "Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration.",
+    ),
+    (
         "crates/biomcp-fetch/src/retry_tests.rs",
         "Cover Retry-After forms and backoff boundaries without one recording per table row.",
     ),

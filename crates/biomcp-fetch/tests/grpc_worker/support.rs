@@ -17,6 +17,8 @@ pub(super) type Check<T = ()> = Result<T, Box<dyn std::error::Error + Send + Syn
 pub(super) enum Hold {
     None,
     Tls,
+    Connect,
+    Upload,
     Headers,
     Message,
     Trailers,
@@ -181,6 +183,9 @@ async fn serve(
             header.push(socket.read_u8().await?);
         }
         events.send(Seen::Connect(String::from_utf8(header)?))?;
+        if hold == Hold::Connect {
+            std::future::pending::<()>().await;
+        }
         socket
             .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n")
             .await?;
@@ -208,6 +213,11 @@ async fn reply(
     events: mpsc::Sender<Seen>,
 ) -> Check {
     let (head, mut body) = request.into_parts();
+    if hold == Hold::Upload {
+        events.send(Seen::Request(head.headers, Vec::new()))?;
+        std::future::pending::<()>().await;
+        return Ok(());
+    }
     let mut request = Vec::new();
     while let Some(data) = body.data().await {
         let data = data?;

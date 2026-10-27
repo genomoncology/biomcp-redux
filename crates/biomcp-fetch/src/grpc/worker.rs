@@ -184,13 +184,13 @@ async fn run_call(command: Command, stop: Arc<Stop>, tls: Arc<rustls::ClientConf
     if !command.state.begin() {
         return;
     }
-    let result = tokio::select! {
-        biased;
-        _ = command.stop.wait() => Err(Reason::DeadlineExceeded),
-        _ = stop.wait() => Err(Reason::Unavailable),
-        _ = super::control::deadline(&command.deadline) => Err(Reason::DeadlineExceeded),
-        result = rpc_call::execute(&command, tls) => result,
-    };
+    let result = super::control::bounded(
+        &command.deadline,
+        &command.stop,
+        &stop,
+        rpc_call::execute(&command, tls),
+    )
+    .await;
     tokio::select! {
         _ = command.stop.wait() => {},
         _ = stop.wait() => {},

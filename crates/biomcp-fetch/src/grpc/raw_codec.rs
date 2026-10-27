@@ -33,7 +33,7 @@ impl Encoder for RawCodec {
         Ok(())
     }
     fn buffer_settings(&self) -> BufferSettings {
-        BufferSettings::new(self.limit.min(1024).max(1), 1024)
+        BufferSettings::new(self.limit.clamp(1, 1024), 1024)
     }
 }
 impl Decoder for RawCodec {
@@ -46,6 +46,6 @@ impl Decoder for RawCodec {
         Ok(Some(src.copy_to_bytes(src.remaining()).to_vec()))
     }
     fn buffer_settings(&self) -> BufferSettings {
-        BufferSettings::new(self.limit.min(1024).max(1), 1024)
+        BufferSettings::new(self.limit.clamp(1, 1024), 1024)
     }
 }

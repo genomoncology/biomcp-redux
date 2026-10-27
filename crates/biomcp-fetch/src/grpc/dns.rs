@@ -26,7 +26,7 @@ pub(super) async fn address(host: &str, port: u16) -> Result<SocketAddr, Reason>
     })
     .await
 }
-async fn resolve(
+pub(super) async fn resolve(
     lookup: impl FnOnce() -> io::Result<SocketAddr> + Send + 'static,
 ) -> Result<SocketAddr, Reason> {
     let mut task = Resolve(tokio::task::spawn_blocking(lookup));
