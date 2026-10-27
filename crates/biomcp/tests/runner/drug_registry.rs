@@ -63,7 +63,7 @@ fn declarations() -> Check {
             .iter()
             .find(|r| r["source"] == name)
             .ok_or_else(|| format!("missing {name}"))?;
-        if row["usage"] != usage || row["terms_url"] != url || row["disabled"] != false {
+        if row["use"] != usage || row["terms_url"] != url || row["disabled"] != false {
             return Err(format!("wrong declaration: {row}"));
         }
         if row["terms"].as_str().is_none_or(|s| s.is_empty()) {

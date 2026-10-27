@@ -44,10 +44,18 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
 }
 
 fn plain(text: &str) -> String {
-    text.replace("native", "source")
-        .replace("Native", "Source")
-        .replace("provider", "source")
-        .replace("Provider", "Source")
-        .replace("literal", "exact")
-        .replace("source source", "source")
+    let mut out = String::new();
+    for token in text.split_inclusive(|c: char| !c.is_alphanumeric() && c != '_') {
+        let word = token.trim_end_matches(|c: char| !c.is_alphanumeric() && c != '_');
+        out.push_str(match word {
+            "native" | "provider" => "source",
+            "Native" | "Provider" => "Source",
+            "literal" => "exact",
+            "Literal" => "Exact",
+            _ => word,
+        });
+        out.push_str(&token[word.len()..]);
+    }
+    out.replace("source source", "source")
+        .replace("source-source", "source")
 }

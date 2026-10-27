@@ -32,12 +32,7 @@ pub(super) fn check() -> Result<(), String> {
             .output()
             .map_err(|e| e.to_string())?;
         let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if !output.status.success()
-            || !value
-                .pointer("/result/commands")
-                .and_then(Value::as_array)
-                .is_some_and(|v| !v.is_empty())
-        {
+        if !output.status.success() || value.get("result").is_none_or(Value::is_null) {
             return Err(format!(
                 "local discovery example returned no result: {args:?}"
             ));

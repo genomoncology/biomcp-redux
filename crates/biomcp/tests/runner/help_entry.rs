@@ -60,10 +60,8 @@ fn check() -> Check {
             }
         }
     }
-    let phenotype = commands
-        .iter()
-        .find(|c| c["command"] == serde_json::json!(["get", "phenotype"]))
-        .ok_or("phenotype")?;
+    let scoped: Value = serde_json::from_slice(&run(&env, &["help", "get", "phenotype"])?)?;
+    let phenotype = &scoped["result"]["commands"][0];
     if !phenotype["arguments"]
         .as_array()
         .ok_or("arguments")?

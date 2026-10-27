@@ -24,7 +24,7 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
     {
         return Ok(network(setting));
     }
-    let commands = commands()?
+    let mut commands: Vec<_> = commands()?
         .into_iter()
         .filter(|c| {
             path.is_empty()
@@ -38,6 +38,9 @@ pub(crate) fn dispatch(path: &[String]) -> io::Result<Help> {
                     && c.command.first() == path.first())
         })
         .collect();
+    if !path.is_empty() {
+        public_grammar::scoped_globals(&mut commands);
+    }
     Ok(Help { commands })
 }
 fn commands() -> io::Result<Vec<HelpCommand>> {

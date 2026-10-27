@@ -64,7 +64,7 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
         if let Some(parser) = parser {
             for arg in parser
                 .get_arguments()
-                .filter(|a| !a.is_hide_set() && (!a.is_global_set() || a.get_id() == "fresh"))
+                .filter(|a| !a.is_hide_set() && !a.is_global_set())
             {
                 let value = metadata(arg);
                 if let Some(existing) = entry.arguments.iter_mut().find(|a| a.name == value.name) {
@@ -175,5 +175,18 @@ fn metadata(arg: &Arg) -> HelpArgument {
             .flatten()
             .map(|v| v.get_name().to_owned())
             .collect(),
+    }
+}
+
+pub(super) fn scoped_globals(commands: &mut [HelpCommand]) {
+    let mut parser = crate::grammar::global_arguments();
+    parser.build();
+    for command in commands {
+        for argument in parser.get_arguments().filter(|arg| !arg.is_hide_set()) {
+            let value = metadata(argument);
+            if !command.arguments.iter().any(|arg| arg.name == value.name) {
+                command.arguments.push(value);
+            }
+        }
     }
 }

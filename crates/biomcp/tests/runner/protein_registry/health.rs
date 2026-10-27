@@ -56,7 +56,7 @@ pub(super) fn run() -> Check {
                 .iter()
                 .find(|r| r["source"] == source)
                 .ok_or("missing health")?;
-            if row["state"] != "ok" || row["usage"] != "open" || row["terms"] != "CC0" {
+            if row["state"] != "ok" || row["use"] != "open" || row["terms"] != "CC0" {
                 return Err(format!("wrong health: {row}"));
             }
         }

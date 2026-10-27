@@ -55,7 +55,7 @@ pub(super) fn run() -> Check {
             .and_then(|rows| rows.iter().find(|r| r["source"] == "hpo"))
             .ok_or("missing HPO")?;
         if row["state"] != "ok"
-            || row["usage"] != "attribution"
+            || row["use"] != "attribution"
             || row["disabled"] != false
             || row["terms_url"] != "https://human-phenotype-ontology.github.io/license.html"
         {

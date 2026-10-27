@@ -31,7 +31,7 @@ fn declaration() -> Check {
         .and_then(Value::as_array)
         .and_then(|rows| rows.iter().find(|r| r["source"] == "hpo"))
         .ok_or("missing direct HPO")?;
-    if row["usage"] != "attribution"
+    if row["use"] != "attribution"
         || row["disabled"] != false
         || row["reason"] != "offline"
         || row["terms"] != "HPO project custom license: attribution, version and integrity"

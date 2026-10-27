@@ -145,7 +145,7 @@ fn health() -> Check {
         .find(|row| row["source"] == "litvar")
         .ok_or("LitVar missing from source health")?;
     assert_eq!(row["state"], "ok");
-    assert_eq!(row["usage"], "open");
+    assert_eq!(row["use"], "open");
     assert_eq!(row["terms_url"], biomcp_adapters::litvar::SPEC.terms.url);
     Ok(())
 }
