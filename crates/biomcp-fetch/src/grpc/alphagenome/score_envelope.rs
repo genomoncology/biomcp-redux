@@ -8,6 +8,7 @@ use super::{
 };
 use crate::BadReply;
 use prost::Message;
+pub(super) const OBSERVED_GENE_ROWS: usize = 13;
 
 /// Bounded admission for the ruled ScoreVariant response.
 /// The protocol does not label scorer groups: valid complete group swaps cannot be detected.
@@ -41,6 +42,10 @@ impl ScoreEnvelope {
             dimension: limits.dimension.min(headroom(667)),
             chunks: limits.chunks.min(headroom(1)),
             rank: limits.rank.min(3),
+            // The measured frame window is 69368 bytes; the codec accepts whole log2 ceilings.
+            zstd_window_log: limits
+                .zstd_window_log
+                .min(headroom(69_368).next_power_of_two().ilog2()),
             ..limits
         };
         Ok(Self {
@@ -121,7 +126,7 @@ impl ScoreEnvelope {
                 }
                 3 => {
                     genes = genes.checked_add(1).ok_or(BadReply)?;
-                    if genes > self.limits.dimension.min(headroom(13)) {
+                    if genes > self.limits.dimension.min(headroom(OBSERVED_GENE_ROWS)) {
                         return Err(BadReply);
                     }
                     metadata.genes.push(score_metadata::gene(
@@ -138,7 +143,7 @@ impl ScoreEnvelope {
         Ok(metadata)
     }
 }
-const fn headroom(measured: usize) -> usize {
+pub(super) const fn headroom(measured: usize) -> usize {
     (measured * 115).div_ceil(100)
 }
 impl StreamDecoder for ScoreEnvelope {

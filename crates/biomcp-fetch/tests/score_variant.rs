@@ -46,17 +46,49 @@ fn interval(start: u64, end: u64) -> Vec<u8> {
     .concat()
 }
 fn descriptor(position: u64) -> Vec<u8> {
-    let tensor = [field(1, &[1, 1, 1]), number(2, 2), number(4, 1)].concat();
-    let metadata = [
-        field(1, &variant(position)),
-        field(2, &field(1, b"synthetic track")),
-        field(3, &field(1, b"ENSG00000157764")),
-    ]
-    .concat();
+    dimensions(position, &[1, 1, 1], 1, 1)
+}
+fn dimensions(position: u64, shape: &[u8], tracks: usize, genes: usize) -> Vec<u8> {
+    let tensor = [field(1, shape), number(2, 2), number(4, 1)].concat();
+    let mut metadata = field(1, &variant(position));
+    for _ in 0..tracks {
+        metadata.extend(field(2, &field(1, b"synthetic track")));
+    }
+    for _ in 0..genes {
+        metadata.extend(field(3, &field(1, b"ENSG00000157764")));
+    }
     field(
         1,
         &field(1, &[field(1, &tensor), field(2, &metadata)].concat()),
     )
+}
+#[test]
+fn native_tensor_axes_require_complete_track_and_gene_metadata_with_measured_caps() -> Check {
+    let req = request(140753336)?;
+    for (shape, tracks, genes) in [
+        ([1, 1, 2], 1, 1),
+        ([1, 2, 1], 1, 1),
+        ([1, 2, 1], 1, 0),
+        ([4, 1, 1], 1, 1),
+    ] {
+        let mut decoder = req.decoder(Limits::default()).map_err(|_| "decoder")?;
+        decoder
+            .message(&dimensions(140753336, &shape, tracks, genes))
+            .map_err(|_| "descriptor")?;
+        let bytes = (0..shape.iter().copied().map(usize::from).product::<usize>())
+            .flat_map(|_| 42f32.to_le_bytes())
+            .collect::<Vec<_>>();
+        assert!(decoder.message(&field(2, &field(1, &bytes))).is_err());
+    }
+    for (tracks, genes) in [(769, 1), (1, 16)] {
+        let mut decoder = req.decoder(Limits::default()).map_err(|_| "decoder")?;
+        assert!(
+            decoder
+                .message(&dimensions(140753336, &[1, 1, 1], tracks, genes))
+                .is_err()
+        );
+    }
+    Ok(())
 }
 fn chunk() -> Vec<u8> {
     field(2, &field(1, &42f32.to_le_bytes()))
