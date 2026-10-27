@@ -10,6 +10,9 @@ CARGO = r'''#!/usr/bin/env python3
 import json, os, sys
 print(json.dumps({"args": sys.argv[1:], "jobs": os.environ.get("CARGO_BUILD_JOBS"),
                   "threads": os.environ.get("RUST_TEST_THREADS")}))
+# Stop docs-check after recording its two Cargo commands.
+if os.environ.get("RECORD_DOCS") and "cases" in sys.argv:
+    sys.exit(3)
 '''
 
 
@@ -33,15 +36,36 @@ def main():
             ({"PM_JOB_CORES": "2", "RUST_TEST_THREADS": "5"}, "2", "5"),
             ({"CARGO_BUILD_JOBS": "3", "RUST_TEST_THREADS": "4"}, "3", "4"),
         ]
+        targets = {
+            "test": [["test", "--workspace", "--locked"]],
+            "ratchets": [["test", "--locked", "-p", "biomcp", "--test", "ratchets"]],
+            "docs-check": [
+                ["test", "--locked", "-p", "biomcp", "--bin", "biomcp",
+                 "grammar::reference::reference_matches_grammar"],
+                ["test", "--locked", "-p", "biomcp", "--test", "cases",
+                 "article-help/executable-examples"],
+            ],
+            "docs-generate": [["test", "--locked", "-p", "biomcp", "--bin", "biomcp",
+                               "grammar::reference::write_reference"]],
+        }
         for settings, jobs, threads in cases:
-            result = subprocess.run(["make", "--no-print-directory", "-s", "test"],
-                                    cwd=ROOT, env=dict(base, **settings), check=True,
-                                    capture_output=True, text=True)
-            actual = json.loads(result.stdout)
-            expected = ["test", "--workspace", "--locked"]
-            if threads:
-                expected += ["--", "--test-threads", threads]
-            assert actual == {"args": expected, "jobs": jobs, "threads": threads}, (settings, actual)
+            for overrides, expected_jobs, expected_threads in (
+                ([], jobs, threads),
+                (["CARGO_BUILD_JOBS=6", "RUST_TEST_THREADS=7"], "6", "7"),
+            ):
+                for target, commands in targets.items():
+                    result = subprocess.run(["make", "--no-print-directory", "-s", target, *overrides],
+                                            cwd=ROOT, env=dict(base, RECORD_DOCS="1", **settings),
+                                            capture_output=True, text=True)
+                    assert result.returncode == (2 if target == "docs-check" else 0), result.stderr
+                    actual = [json.loads(line) for line in result.stdout.splitlines()]
+                    expected = []
+                    for command in commands:
+                        arguments = command + (["--", "--test-threads", expected_threads] if expected_threads else [])
+                        if target == "docs-generate":
+                            arguments += ["--ignored"] if expected_threads else ["--", "--ignored"]
+                        expected.append({"args": arguments, "jobs": expected_jobs, "threads": expected_threads})
+                    assert actual == expected, (settings, overrides, target, actual)
     print("Make honors core bookings and caller compiler/test worker overrides")
 
 
