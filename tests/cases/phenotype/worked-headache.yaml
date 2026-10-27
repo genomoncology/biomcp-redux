@@ -1,0 +1,47 @@
+{
+  "feature": "phenotype-identity",
+  "story": "A worked terminology lookup searches a stated symptom name and reads its exact HPO identifier; API replies are synthetic with reviewed primary-source terminology.",
+  "live_check": "authored synthetic replies; HPO terminology release2026-09-01, not an API capture",
+  "replay": "phenotype/headache-synthetic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "headache",
+        "--source",
+        "monarch"
+      ],
+      "mcp": [
+        "search",
+        "phenotype",
+        "headache",
+        "--source",
+        "monarch"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "HP:0002315",
+        "/result/items/0/name": "Headache"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0002315"
+      ],
+      "mcp": [
+        "get",
+        "phenotype",
+        "HP:0002315"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/term/id": "HP:0002315",
+        "/result/term/name": "Headache",
+        "/result/term/definition": "Cephalgia, or pain sensed in various parts of the head, not confined to the area of distribution of any nerve."
+      }
+    }
+  ]
+}
