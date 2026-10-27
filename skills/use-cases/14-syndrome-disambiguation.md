@@ -15,10 +15,10 @@ Read the ambiguous resolution and all candidate HGNC identifiers. Preserve the s
 ## 2. Retrieve and inspect
 
 ```sh
-biomcp get gene CDKN2A
+biomcp search gene p16 --band 9p21.3
 ```
 
-This example explicitly selects one candidate. Check its resolved symbol and identifier before reading disease-related source sections.
+This example adds an explicitly stated cytoband to the alias search. Inspect the echoed selector, candidate identifiers and match kinds. Use the band only when it is part of the question; a narrower result does not supply missing clinical context.
 
 ## Next
 

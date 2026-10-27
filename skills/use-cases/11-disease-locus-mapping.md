@@ -20,14 +20,6 @@ biomcp search gene --band 9p21.3 --limit 50
 
 Read the wider page and inspect the listed symbols and HGNC identifiers. Keep all candidates; page order is not a disease ranking.
 
-## 3. Retrieve and inspect
-
-```sh
-biomcp get gene CDKN2A
-```
-
-Inspect this explicitly selected candidate’s resolved identity and cytoband. Keep the source identifier with the record.
-
 ## Next
 
 Follow all remaining page commands before claiming a complete listing. This maps a cytoband to source gene records; it does not establish a causal gene, a disease association or a base-pair interval.

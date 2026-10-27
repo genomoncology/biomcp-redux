@@ -15,10 +15,10 @@ Read the echoed query, publication dates, titles and source outcomes. The date s
 ## 2. Retrieve and inspect
 
 ```sh
-biomcp search article 'AKT1 E17K'
+biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5 --offset 5
 ```
 
-This separate example shows a broader variant literature query. Keep its results separate from the KRAS question. Open returned article identifiers and inspect the study before drawing a conclusion.
+Read the next page of the same dated query. Keep the original filters, inspect the returned publication identifiers and continue through returned page commands. Open a relevant returned article before drawing a conclusion.
 
 ## Next
 
