@@ -51,7 +51,7 @@ def installed(args):
     root.mkdir(parents=True, exist_ok=True)
     fixtures = root / "fixtures"
     source = Path(__file__).resolve().parent.parent
-    executable = root / "case-runner"
+    executable = root / ("case-runner.exe" if os.name == "nt" else "case-runner")
     if not args.prepared:
         (fixtures / "cases").mkdir(parents=True, exist_ok=True)
         shutil.copy(source / "tests/cases/gene/kras.yaml", fixtures / "cases/kras.yaml")

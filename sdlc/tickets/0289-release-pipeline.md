@@ -1,6 +1,7 @@
 # 0289 — Carry the 0.9 release pipeline over to 1.0
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 37e79ee6e734acda7ce4ad25dcb92a7140cd9bc8
 
 Milestone: 5
 
