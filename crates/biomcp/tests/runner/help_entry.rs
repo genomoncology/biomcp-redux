@@ -89,7 +89,26 @@ fn check() -> Check {
     {
         return Err("help omits default or alias".into());
     }
-    run(&env, &["help", "exit"])?;
+    let exit = run(&env, &["help", "exit"])?;
+    let exit: Value = serde_json::from_slice(&exit)?;
+    let description = exit
+        .pointer("/result/commands/0/description")
+        .and_then(Value::as_str)
+        .ok_or("exit description")?;
+    for code in 0..=5 {
+        if !description.contains(&format!("{code}:")) {
+            return Err("exit topic omits a process code".into());
+        }
+    }
+    let markdown = String::from_utf8(run(&env, &["--format", "md", "help", "search", "author"])?)?;
+    if !markdown.contains("# biomcp search author")
+        || !markdown.contains("| Name | Description |")
+        || !markdown.contains("```sh\nbiomcp search author")
+    {
+        return Err(
+            "Markdown help lost its command heading, ordered columns or shell examples".into(),
+        );
+    }
     for args in [
         vec!["discover", "SENSITIVE-input-never-echo"],
         vec!["help", "frobnicate"],

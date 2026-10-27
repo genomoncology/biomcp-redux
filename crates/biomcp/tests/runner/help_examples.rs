@@ -74,7 +74,7 @@ pub(super) fn check() -> Result<(), String> {
             .map(|name| launch::fixtures().join("replies").join(name));
         prepare_bundles(&case, index, &environment, &registry, replay.as_deref())?;
         for step in example_steps(step)? {
-            run_sequence(
+            let reply = run_sequence(
                 &step,
                 &environment,
                 &assertions::prepare(&step)?,
@@ -82,6 +82,29 @@ pub(super) fn check() -> Result<(), String> {
                 replay.as_deref(),
                 None,
             )?;
+            if reply
+                .pointer("/result/content/data/markdown")
+                .and_then(Value::as_str)
+                .is_some_and(str::is_empty)
+            {
+                return Err(format!("help example returned empty text: {args:?}"));
+            }
+            for path in [
+                "/result/rows",
+                "/result/items",
+                "/result/content/data/hits",
+                "/result/content/data/matches",
+            ] {
+                if reply
+                    .pointer(path)
+                    .and_then(Value::as_array)
+                    .is_some_and(Vec::is_empty)
+                {
+                    return Err(format!(
+                        "help example returned an empty result at {path}: {args:?}"
+                    ));
+                }
+            }
         }
     }
     if !printed.is_empty() {
@@ -92,6 +115,13 @@ pub(super) fn check() -> Result<(), String> {
 
 fn collected_examples(commands: &[Value]) -> Result<BTreeSet<Vec<String>>, String> {
     let mut printed = BTreeSet::new();
+    if commands.iter().any(|command| {
+        !command["examples"]
+            .as_array()
+            .is_some_and(|v| !v.is_empty())
+    }) {
+        return Err("command help has no example".into());
+    }
     for examples in commands
         .iter()
         .filter_map(|command| command.get("examples").and_then(Value::as_array))

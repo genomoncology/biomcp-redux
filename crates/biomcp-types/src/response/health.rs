@@ -15,7 +15,7 @@ pub struct Health {
     pub sources: Box<[SourceHealth]>,
 }
 impl super::ResponseBody for Health {
-    const SCHEMA: &'static str = "biomcp.health/2";
+    const SCHEMA: &'static str = "biomcp.health/3";
     type Query = ();
 }
 /// One bounded source probe, without credentials or provider error text.

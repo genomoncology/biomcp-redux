@@ -23,6 +23,14 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
         .join("\n");
     commands.push(super::topic("relations", format!("Follow an entity to these named source sections with get ENTITY ID SECTION. Sections can lead to related source records.\n{relations}")));
     for command in commands {
+        command.description = plain(&command.description);
+        for argument in &mut command.arguments {
+            argument.description = plain(&argument.description);
+        }
+        for section in &mut command.sections {
+            section.description = plain(&section.description);
+        }
+
         if command.examples.is_empty() {
             let mut example = vec!["help".to_owned()];
             if command.command.first().is_some_and(|v| v == "help") {
@@ -33,4 +41,13 @@ pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
             command.examples.push(example);
         }
     }
+}
+
+fn plain(text: &str) -> String {
+    text.replace("native", "source")
+        .replace("Native", "Source")
+        .replace("provider", "source")
+        .replace("Provider", "Source")
+        .replace("literal", "exact")
+        .replace("source source", "source")
 }
