@@ -5,7 +5,8 @@ use clap::{
 };
 use std::ffi::OsString;
 pub(super) fn argument_error(args: &[OsString]) -> Option<String> {
-    let parser = super::root().ok()?;
+    let mut parser = super::root().ok()?;
+    parser.build();
     let error = parser
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
