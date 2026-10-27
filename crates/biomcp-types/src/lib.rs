@@ -81,7 +81,7 @@ pub use response::{
     GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
     VariantPopulationResult,
 };
-pub use response::{Health, HttpHealth, SourceHealth};
+pub use response::{DisableGroup, DisabledComponent, Health, HttpHealth, SourceHealth};
 pub use response::{
     Help, HelpArgument, HelpCommand, HelpWord, KeyHelp, KeyState, Oncokb, OncokbCard,
     OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean, SyncQuery,
