@@ -114,6 +114,9 @@ fn canonical_request_preserves_legacy_interval_scorers_and_provider_default_chec
         "/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/ScoreVariant"
     );
     assert!(request(0).is_err());
+    assert!(
+        ScoreRequest::human_legacy(biodata::Build::GRCh38, "MT".parse()?, 100, "A", "T").is_err()
+    );
     assert!(request(i64::MAX).is_err());
     assert!(
         ScoreRequest::human_legacy(biodata::Build::GRCh37, "7".parse()?, 140753336, "A", "T")

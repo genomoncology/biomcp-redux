@@ -11,6 +11,7 @@ pub(super) struct Joined {
     pub(super) sources: Vec<SourceOutcome>,
     pub(super) problems: Vec<Problem>,
     pub(super) local: Option<RequestError>,
+    pub(super) unsupported: bool,
 }
 pub(super) fn resolve(cx: &Ctx<'_>, row: &VariantHeader, deadline: &mut Deadline<'_>) -> Joined {
     let mut joined = Joined {
@@ -18,8 +19,9 @@ pub(super) fn resolve(cx: &Ctx<'_>, row: &VariantHeader, deadline: &mut Deadline
         sources: Vec::new(),
         problems: Vec::new(),
         local: None,
+        unsupported: mitochondrial(row),
     };
-    if joined.request.is_some() {
+    if joined.request.is_some() || joined.unsupported {
         return joined;
     }
     let Some(notation) = notation(row) else {
@@ -38,10 +40,21 @@ pub(super) fn resolve(cx: &Ctx<'_>, row: &VariantHeader, deadline: &mut Deadline
         .push(status::source(Source::AlleleRegistry, leg.finish(), error));
     joined.local = error.and_then(status::local);
     if let Ok(allele_registry::Resolution::Found(row)) = reply {
+        joined.unsupported = mitochondrial(&row.value);
         joined.request = super::alphagenome::request(&row.value);
         joined.problems = row.problems;
     }
     joined
+}
+fn mitochondrial(row: &VariantHeader) -> bool {
+    row.identity
+        .representations
+        .iter()
+        .filter_map(|representation| representation.allele.as_ref())
+        .any(|allele| {
+            Chromosome::from_accession(allele.location().sequence, Build::GRCh38)
+                .is_ok_and(|chromosome| chromosome.number() == 25)
+        })
 }
 fn notation(row: &VariantHeader) -> Option<String> {
     if row.source != Source::MyVariant {

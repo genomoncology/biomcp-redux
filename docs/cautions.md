@@ -27,7 +27,7 @@ Every component is on by default. Commercial users should set `"disable_sources"
 
 ## AlphaGenome scores
 
-The section requires the user's `ALPHAGENOME_API_KEY` and a source-resolved GRCh38 allele. Each scorer retains native numeric values, tensor coordinates and track and gene metadata. Finite values remain JSON numbers. Native nonfinite values carry `kind` as `nan`, `positive_infinity` or `negative_infinity`; Markdown shows `NaN`, `+Inf` or `-Inf`. These categories do not assert missingness. Section paging applies independently to every scorer. Scorer names, the interval and checkpoint selection describe the request. The source does not supply score units or a returned model version. Scores do not classify a variant. The publisher's [terms](https://alphagenome.google/terms) govern use; the service is labeled restricted.
+The section requires the user's `ALPHAGENOME_API_KEY` and a source-resolved GRCh38 allele. Mitochondrial alleles return `unsupported` because this integration has not verified chromosome mapping and interval handling for them. Each scorer retains native numeric values, tensor coordinates and track and gene metadata. Finite values remain JSON numbers. Native nonfinite values carry `kind` as `nan`, `positive_infinity` or `negative_infinity`; Markdown shows `NaN`, `+Inf` or `-Inf`. These categories do not assert missingness. Section paging applies independently to every scorer. Scorer names, the interval and checkpoint selection describe the request. The source does not supply score units or a returned model version. Scores do not classify a variant. The publisher's [terms](https://alphagenome.google/terms) govern use; the service is labeled restricted.
 
 ## Population counts
 

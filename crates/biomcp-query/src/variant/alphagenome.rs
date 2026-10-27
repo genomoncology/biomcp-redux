@@ -25,16 +25,17 @@ pub(super) fn section(
     };
     let joined = super::alphagenome_join::resolve(cx, candidate, &mut deadline);
     let Some(request) = joined.request else {
-        let reason = if candidate
-            .identity
-            .representations
-            .iter()
-            .any(|r| r.build.is_some())
-            && !candidate
+        let reason = if joined.unsupported
+            || (candidate
                 .identity
                 .representations
                 .iter()
-                .any(|r| r.build == Some(Build::GRCh38))
+                .any(|r| r.build.is_some())
+                && !candidate
+                    .identity
+                    .representations
+                    .iter()
+                    .any(|r| r.build == Some(Build::GRCh38)))
         {
             Reason::Unsupported
         } else {

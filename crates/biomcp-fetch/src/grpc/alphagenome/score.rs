@@ -28,6 +28,11 @@ impl ScoreRequest {
         reference: &str,
         alternate: &str,
     ) -> Result<Self, InputError> {
+        // This integration has no verified mitochondrial chromosome/interval contract.
+        // Do not invent chrMT/chrM normalization or make a publisher support claim.
+        if chromosome.number() == 25 {
+            return Err(InputError::Path);
+        }
         let chromosome = format!("chr{}", chromosome.name());
         let variant = request_variant::checked(build, &chromosome, position, reference, alternate)?;
         let center = position.checked_sub(1).ok_or(InputError::Path)?;
