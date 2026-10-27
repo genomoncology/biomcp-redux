@@ -73,5 +73,5 @@ pub use pathway::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
 };
 
-mod validation;
+pub(crate) mod validation;
 pub use validation::CheckedQuery;
