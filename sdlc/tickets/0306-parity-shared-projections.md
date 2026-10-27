@@ -1,6 +1,7 @@
 # 0306 — Extend shared parity projections and selectors for the family batches
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 613b3f58c8ef906238909f4d26a005c51a364956
 
 Milestone: 5
 
