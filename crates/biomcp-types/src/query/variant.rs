@@ -26,7 +26,7 @@ struct Fields {
         deserialize_with = "super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
     section_limit: Option<u32>,
     /// Source rows to skip independently of identity candidate paging.
     #[serde(default)]
