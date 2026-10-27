@@ -1,5 +1,6 @@
 //! The complete public CDC reply retains its original recorded bytes and media.
-use super::{Check, both, words};
+use super::{Check, words};
+use crate::runner::configuration::invoke;
 use crate::runner::launch::Environment;
 use serde_json::{Value, json};
 
@@ -57,7 +58,14 @@ pub(super) fn run() -> Check {
         let mut args = env.globals(Some(&env.root().join("replay")), false);
         args.extend(words("MMR"));
         let valid = matches!(fault, "none" | "latin1");
-        let value = both(&env, args, if valid { 0 } else { 4 })?;
+        let value = invoke(&env, args.clone(), if valid { 0 } else { 4 })?;
+        crate::runner::schema::Registry::embedded()?.validate(&value, &args, true)?;
+        let command = args.iter().position(|v| v == "search").ok_or("command")?;
+        if crate::runner::mcp::call_with_globals(&env, &args[command..], !valid, &args[..command])?
+            != value
+        {
+            return Err(format!("CDC {fault} reply differs through MCP"));
+        }
         if valid {
             if value.pointer("/result/vaccine/code") != Some(&json!("MMR")) {
                 return Err(format!("complete CDC XML lost vaccine identity: {value}"));
