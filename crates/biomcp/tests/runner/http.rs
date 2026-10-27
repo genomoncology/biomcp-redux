@@ -231,7 +231,7 @@ impl Server {
     }
 }
 pub(super) fn lifecycle() -> Check {
-    let server = Server::start()?;
+    let mut server = Server::start()?;
     let (status, health) = super::http_limits::read_only_health(&server)?;
     if status != 200 || health.get("version") != Some(&json!(env!("CARGO_PKG_VERSION"))) {
         return Err(format!("local health: {status} {health}"));
@@ -255,7 +255,7 @@ pub(super) fn lifecycle() -> Check {
     {
         return Err(format!("HTTP discover: {status} {reply}"));
     }
-    Ok(())
+    server.stop()
 }
 
 fn legacy(id: u32, method: &str, params: Value) -> Value {

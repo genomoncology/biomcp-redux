@@ -18,7 +18,7 @@ Cohort recurrence counts distinct matched samples on the selected native mutatio
 
 ## Trials and articles
 
-ClinicalTrials.gov and NCI retain their own statuses and counts. A source reference or trial listing does not establish eligibility. Trial document manifests retain metadata and source links. Document downloads preserve bounded PDF bytes and do not read their text.
+ClinicalTrials.gov and NCI retain their own statuses and counts. Trial document manifests retain metadata and source links. Document downloads preserve bounded PDF bytes and do not read their text.
 
 Article full text comes from supported JATS sources. PDF links and downloads do not provide PDF text extraction. Explicit saves return destination, byte count, SHA-256, license and source URL. Existing CLI files require explicit replacement. Stdio permits new-file saves; HTTP refuses saves. Publisher access and a download grant no additional reuse rights.
 
