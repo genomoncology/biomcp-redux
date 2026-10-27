@@ -1,7 +1,9 @@
 //! Copy missing published bundles without modifying their predecessor file.
 use crate::{
     CacheError, Deadline, SchemaOwner,
-    cache::{Cache, check_current_owners, check_predecessor, db_error, sql_deadline, write_transaction},
+    cache::{
+        Cache, check_current_owners, check_predecessor, db_error, sql_deadline, write_transaction,
+    },
 };
 use rusqlite::Connection;
 use std::path::Path;

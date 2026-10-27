@@ -284,8 +284,10 @@ impl Cache {
 }
 
 // Required writers reserve admission before reading a snapshot they will mutate.
-pub(crate) fn write_transaction(connection: &Connection) -> Result<rusqlite::Transaction<'_>, CacheError> {
-    rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Deferred)
+pub(crate) fn write_transaction(
+    connection: &Connection,
+) -> Result<rusqlite::Transaction<'_>, CacheError> {
+    rusqlite::Transaction::new_unchecked(connection, rusqlite::TransactionBehavior::Immediate)
         .map_err(db_error)
 }
 
