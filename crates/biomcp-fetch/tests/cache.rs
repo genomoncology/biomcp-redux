@@ -82,3 +82,141 @@ mod credentials;
 mod freshness;
 #[path = "cache/storage.rs"]
 mod storage;
+
+const CHECKED_OWNER: biomcp_fetch::SchemaOwner = biomcp_fetch::SchemaOwner {
+    name: "checked-owner",
+    version: 1,
+    migratable_versions: &[],
+    tables: &["checked_data"],
+};
+
+struct Initialization {
+    writer: Connection,
+    result: Option<rusqlite::Result<()>>,
+}
+
+thread_local! {
+    static INITIALIZATION: std::cell::RefCell<Option<Initialization>> = const {
+        std::cell::RefCell::new(None)
+    };
+}
+
+fn initialize_between_owner_reads(event: rusqlite::trace::TraceEvent<'_>) {
+    let rusqlite::trace::TraceEvent::Stmt(_, sql) = event else {
+        return;
+    };
+    if !sql.contains("sqlite_master WHERE name=?1") {
+        return;
+    }
+    INITIALIZATION.with(|state| {
+        if let Some(state) = state.borrow_mut().as_mut()
+            && state.result.is_none()
+        {
+            state.result = Some(state.writer.execute_batch(
+                "BEGIN IMMEDIATE;
+                 CREATE TABLE meta(owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
+                 INSERT INTO meta VALUES('checked-owner',1);
+                 CREATE TABLE checked_data(value TEXT);
+                 COMMIT;",
+            ));
+        }
+    });
+}
+
+#[test]
+fn ownership_accepts_initialization_committed_between_metadata_and_table_reads() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("shared.sqlite");
+    let writer = Connection::open(&path).unwrap();
+    writer.pragma_update(None, "journal_mode", "WAL").unwrap();
+    let reader = Connection::open(&path).unwrap();
+    INITIALIZATION.with(|state| {
+        *state.borrow_mut() = Some(Initialization {
+            writer,
+            result: None,
+        });
+    });
+    reader.trace_v2(
+        rusqlite::trace::TraceEventCodes::SQLITE_TRACE_STMT,
+        Some(initialize_between_owner_reads),
+    );
+    let result = biomcp_fetch::check_owners(&reader, &[CHECKED_OWNER]);
+    reader.trace_v2(rusqlite::trace::TraceEventCodes::empty(), None);
+    INITIALIZATION.with(|state| {
+        let initialization = state.borrow_mut().take().unwrap();
+        initialization.result.unwrap().unwrap();
+    });
+    assert!(
+        result.is_ok(),
+        "valid concurrently initialized store: {result:?}"
+    );
+    assert!(reader.is_autocommit());
+    assert!(biomcp_fetch::check_owners(&reader, &[CHECKED_OWNER]).is_ok());
+}
+
+#[test]
+fn ownership_preserves_version_and_sql_error_contracts() {
+    for (sql, expected) in [
+        ("CREATE TABLE checked_data(value TEXT)", CacheError::Version),
+        (
+            "CREATE TABLE meta(owner TEXT,version); INSERT INTO meta VALUES('checked-owner',2)",
+            CacheError::Version,
+        ),
+        (
+            "CREATE TABLE meta(owner TEXT,version); INSERT INTO meta VALUES('checked-owner','bad')",
+            CacheError::Version,
+        ),
+        (
+            "CREATE TABLE meta(owner TEXT,version); INSERT INTO meta VALUES('checked-owner',-1)",
+            CacheError::Version,
+        ),
+        (
+            "CREATE TABLE meta(owner TEXT,version); INSERT INTO meta VALUES('checked-owner',NULL)",
+            CacheError::Version,
+        ),
+        ("CREATE TABLE meta(owner TEXT)", CacheError::Database),
+        ("CREATE TABLE meta(version INTEGER)", CacheError::Database),
+    ] {
+        let connection = Connection::open_in_memory().unwrap();
+        connection.execute_batch(sql).unwrap();
+        let result = biomcp_fetch::check_owners(&connection, &[CHECKED_OWNER]);
+        assert!(
+            matches!(result, Err(ref error) if std::mem::discriminant(error) == std::mem::discriminant(&expected)),
+            "{sql}: {result:?}"
+        );
+        assert!(connection.is_autocommit());
+    }
+}
+
+#[test]
+fn ownership_retains_caller_transaction_on_success_and_failure() {
+    for (version, accepted) in [(1, true), (2, false)] {
+        let mut connection = Connection::open_in_memory().unwrap();
+        let transaction = connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .unwrap();
+        transaction.execute_batch(
+            "CREATE TABLE meta(owner TEXT,version INTEGER); CREATE TABLE checked_data(value TEXT);",
+        ).unwrap();
+        transaction
+            .execute("INSERT INTO meta VALUES('checked-owner',?1)", [version])
+            .unwrap();
+        assert_eq!(
+            biomcp_fetch::check_owners(&transaction, &[CHECKED_OWNER]).is_ok(),
+            accepted
+        );
+        assert!(!transaction.is_autocommit());
+        transaction
+            .execute("INSERT INTO checked_data VALUES('caller')", [])
+            .unwrap();
+        transaction.rollback().unwrap();
+        let count: u32 = connection
+            .query_row(
+                "SELECT count(*) FROM sqlite_master WHERE name IN ('meta','checked_data')",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 0);
+    }
+}
