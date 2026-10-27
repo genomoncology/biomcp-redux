@@ -69,7 +69,7 @@
         "/status": "complete"
       },
       "max_bytes": 2680,
-      "max_tokens": 404,
+      "max_tokens": 671,
       "mcp": [
         "help",
         "get",
