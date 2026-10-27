@@ -256,8 +256,8 @@ fn markdown_subtraction() -> Result<(), String> {
     );
     let text = format!(
         "## Sources\n\n| Source | State | Terms | Terms url | Use |\n| --- | --- | --- | --- | --- |\n| hgnc | ok | {} | {} | open |\n\n",
-        text::escape(outcome.terms.as_str()),
-        text::source_link(outcome.terms_url.as_str())
+        text::escape(&outcome.terms),
+        text::source_link(&outcome.terms_url)
     );
     let value = json!({"sources":[outcome]});
     let expected = "## Sources\n\n| Source | State |\n| --- | --- |\n| hgnc | ok |\n\n";
