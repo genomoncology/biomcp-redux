@@ -30,13 +30,9 @@ fn stub() -> Result<Stub, String> {
         |_| Ok("{}".into()),
     )
 }
-fn refusal(value: &Value) -> Check {
+fn refusal(value: &Value, code: &str) -> Check {
     assert_eq!(value.get("status"), Some(&json!("usage")), "{value}");
-    assert_eq!(
-        value.pointer("/error/code"),
-        Some(&json!("usage.arguments")),
-        "{value}"
-    );
+    assert_eq!(value.pointer("/error/code"), Some(&json!(code)), "{value}");
     Ok(())
 }
 fn http() -> Check {
@@ -76,6 +72,11 @@ fn http() -> Check {
             reply
                 .pointer("/result/structuredContent")
                 .ok_or("missing tool result")?,
+            if args[0] == "get" {
+                "usage.arguments"
+            } else {
+                "usage.mcp_unavailable"
+            },
         )?;
         assert_eq!(fs::read(&old)?, before);
         assert_eq!(fs::read_dir(&directory)?.count(), entries);
@@ -107,7 +108,7 @@ fn stdio() -> Check {
             "--replace".into(),
         ]);
         let value = super::mcp::call_with_globals(&env, &args, true, &[])?;
-        refusal(&value)?;
+        refusal(&value, "usage.arguments")?;
         assert_eq!(fs::read(&path)?, b"caller content");
     }
     assert!(
@@ -126,6 +127,9 @@ fn command_reasons(http: bool) -> Check {
         (vec!["key", "list"], "key"),
         (vec!["key", "set", "oncokb", "--replace"], "key"),
     ] {
+        if !http && command != "key" {
+            continue;
+        }
         let args: Vec<String> = words
             .into_iter()
             .chain(["--offline"])
