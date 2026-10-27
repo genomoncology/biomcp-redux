@@ -81,7 +81,7 @@ pub fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
                     .as_str()
                     .split_once(':')
                     .is_some_and(|(id, notation)| {
-                        transcript.transcript.as_str() == id
+                        transcript.transcript.as_str() == id.split('(').next().unwrap_or(id)
                             && transcript
                                 .hgvs_c
                                 .as_ref()

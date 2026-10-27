@@ -111,6 +111,7 @@ fn coding() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     for (notation, expected) in [
         ("NM_001199291.2:c.1619A>G", true),
+        ("NM_001199291.2(HSD17B4):c.1619A>G", true),
         ("NM_001199291.3:c.1619A>G", false),
     ] {
         let value = run(&env, &["get", "variant", notation])?;
