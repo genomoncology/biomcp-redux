@@ -253,8 +253,9 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
         }
     }
     if replies
-        .windows(2)
-        .any(|pair| pair[0].as_str() >= pair[1].as_str())
+        .iter()
+        .zip(replies.iter().skip(1))
+        .any(|(left, right)| left.as_str() >= right.as_str())
     {
         return Err("parent reply schemas are not sorted and unique".into());
     }
