@@ -1,6 +1,7 @@
 {
   "$id": "biodata.sequence/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A literal IUPAC DNA sequence; empty sequences express insertions or deletions.",
   "pattern": "^[ACGTNRYSWKMBDHV]*$",
   "title": "Sequence",
   "type": "string"

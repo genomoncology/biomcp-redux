@@ -57,6 +57,7 @@
       ]
     },
     "ArticleInput": {
+      "description": "A validated canonical ArticleInput string.",
       "pattern": "^(?:[1-9][0-9]*|PMC[1-9][0-9]*|PPR[0-9]*[1-9][0-9]*|(?:https?://doi\\.org/)?10\\.[0-9]+/[^\\s\\x00-\\x1f\\x7f]+)$",
       "type": "string"
     },
@@ -127,6 +128,7 @@
       "type": "string"
     },
     "AuthorId": {
+      "description": "One provider record; this enum establishes no relationship between its variants.",
       "pattern": "^((semantic-scholar|semanticscholar):[1-9][0-9]*|orcid:[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X])$",
       "type": "string"
     },
@@ -161,6 +163,7 @@
       ]
     },
     "CbioportalCancerTypeId": {
+      "description": "Native cBioPortal cancer-type code, with no OncoTree equivalence.",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },
@@ -190,6 +193,7 @@
       ]
     },
     "ChemblCellId": {
+      "description": "A ChEMBL source-local cell ID, never a compound or target identity.",
       "pattern": "^CHEMBL[0-9]+$",
       "type": "string"
     },
@@ -202,18 +206,22 @@
       "type": "string"
     },
     "ClinPgxAccession": {
+      "description": "A ClinPGx object accession, distinct from the protein allele namespace PaId.",
       "pattern": "^PA[1-9][0-9]*$",
       "type": "string"
     },
     "ComplexPortalId": {
+      "description": "An exact Complex Portal accession.",
       "pattern": "^CPX-[1-9][0-9]*$",
       "type": "string"
     },
     "Curie": {
+      "description": "Checked prefix:local ontology identifier.",
       "pattern": "^[A-Za-z0-9_.-]+:[^\\s\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
     "Cytoband": {
+      "description": " A single nuclear cytogenetic band, without a range or location descriptor.",
       "pattern": "^([1-9]|1[0-9]|2[0-2]|X|Y)[pq][1-9][0-9](\\.[0-9]+)?$",
       "type": "string"
     },
@@ -225,6 +233,7 @@
       "type": "string"
     },
     "DiagnosticDeviceId": {
+      "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
     },
@@ -307,6 +316,7 @@
       "type": "string"
     },
     "DrugId": {
+      "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "type": "string"
     },
@@ -347,6 +357,7 @@
       ]
     },
     "DrugSource": {
+      "description": "A supported drug data source.",
       "enum": [
         "who-pq",
         "mychem",
@@ -369,10 +380,12 @@
       "type": "string"
     },
     "FdaDrugApplication": {
+      "description": "Cell-owned drug application preserving native NDA/BLA prefix and leading zeros.",
       "pattern": "^(NDA|BLA)[0-9]{6}$",
       "type": "string"
     },
     "GeneInput": {
+      "description": "An input classified before source resolution; aliases remain free text.",
       "pattern": "\\S",
       "type": "string"
     },
@@ -401,6 +414,7 @@
       ]
     },
     "GeneSymbol": {
+      "description": "Source spelling of a gene symbol, with ASCII case-insensitive identity.",
       "pattern": "^[A-Za-z][A-Za-z0-9._/@-]{0,254}$",
       "type": "string"
     },
@@ -414,6 +428,7 @@
       "type": "string"
     },
     "GwasAssociationId": {
+      "description": "A positive Catalog association ID qualified by resource kind.",
       "pattern": "^association:[1-9][0-9]*$",
       "type": "string"
     },
@@ -438,6 +453,7 @@
       ]
     },
     "GwasStudyId": {
+      "description": "Exact Catalog study accession; case and leading zeros survive.",
       "pattern": "^GCST[0-9]{6,}$",
       "type": "string"
     },
@@ -454,10 +470,12 @@
       ]
     },
     "GwasTraitId": {
+      "description": "Native ontology identifier; namespaces are preserved without an EFO restriction.",
       "pattern": "^[A-Za-z0-9]+[_:][A-Za-z0-9_-]+$",
       "type": "string"
     },
     "HpId": {
+      "description": "Exact Human Phenotype Ontology identifier with seven decimal digits.",
       "pattern": "^HP:[0-9]{7}$",
       "type": "string"
     },
@@ -480,14 +498,17 @@
       ]
     },
     "MyVariantQuery": {
+      "description": "A validated canonical MyVariantQuery string.",
       "pattern": "\\S",
       "type": "string"
     },
     "NcbiGeneId": {
+      "description": "A positive NCBI Gene identifier in canonical decimal text.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
     "NctId": {
+      "description": "Canonical ClinicalTrials.gov identifier.",
       "pattern": "^NCT(?!00000000)[0-9]{8}$",
       "type": "string"
     },
@@ -502,6 +523,7 @@
       "type": "string"
     },
     "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision.",
       "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
       "type": "string"
     },
@@ -544,6 +566,7 @@
       ]
     },
     "PgxDiplotypeExpression": {
+      "description": "Unchanged declared source diplotype expression; no allele sorting, phase or score calculation.",
       "pattern": "\\S",
       "type": "string"
     },
@@ -620,10 +643,12 @@
       ]
     },
     "PmaSupplement": {
+      "description": "Explicit native PMA supplement selector; no invented base alias.",
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
       "type": "string"
     },
     "Pmid": {
+      "description": "Positive PubMed identifier.",
       "pattern": "^[1-9][0-9]*$",
       "type": "string"
     },
@@ -633,6 +658,7 @@
       "type": "string"
     },
     "ProteinQuery": {
+      "description": "A validated canonical ProteinQuery string.",
       "pattern": "^(p\\.)?(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)[1-9][0-9]*(A|Ala|R|Arg|N|Asn|D|Asp|C|Cys|E|Glu|Q|Gln|G|Gly|H|His|I|Ile|L|Leu|K|Lys|M|Met|F|Phe|P|Pro|S|Ser|T|Thr|W|Trp|Y|Tyr|V|Val|U|Sec|O|Pyl|\\*|Ter)$",
       "type": "string"
     },
@@ -668,6 +694,7 @@
       "type": "string"
     },
     "ReportId": {
+      "description": "Opaque published digits with source carried separately, never a prefixed wrapper.",
       "pattern": "^[0-9]+$",
       "type": "string"
     },
@@ -680,10 +707,12 @@
       "type": "string"
     },
     "RsId": {
+      "description": " A dbSNP site identifier, never an allele join key.",
       "pattern": "^rs[1-9][0-9]*$",
       "type": "string"
     },
     "SheetRows": {
+      "description": "A validated canonical SheetRows string.",
       "pattern": "^[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },
@@ -698,6 +727,7 @@
       "type": "string"
     },
     "StudyId": {
+      "description": "Opaque case-sensitive cBioPortal study identity, without repair.",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
       "type": "string"
     },
@@ -796,6 +826,7 @@
       "type": "string"
     },
     "UniProtIsoform": {
+      "description": "A stated UniProt accession with an optional positive isoform number; never imputes -1.",
       "pattern": "^([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})(-[1-9][0-9]*)?$",
       "type": "string"
     },
@@ -814,10 +845,12 @@
       ]
     },
     "VariantInput": {
+      "description": "A validated canonical VariantInput string.",
       "pattern": "(^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$|^((N[CGMPRTW]|X[MPR])_([0-9]{6}|[0-9]{9})\\.[0-9]+|ENS[GTP][0-9]{11}\\.[0-9]+|LRG_[0-9]+([tp][0-9]+)?)(\\(([A-Za-z][A-Za-z0-9._/@-]*|[A-Za-z0-9_.]+)\\))?:[gcnrpmo]\\.[\\x20-\\x7e]+$|^[1-9][0-9]*$|^chr([1-9][0-9]*|X|Y|M|MT):g\\.[\\x21-\\x7e]+$)",
       "type": "string"
     },
     "VariantRegion": {
+      "description": "A validated canonical VariantRegion string.",
       "pattern": "^chr([1-9]|1[0-9]|2[0-2]|X|Y|MT):[1-9][0-9]*-[1-9][0-9]*$",
       "type": "string"
     },
@@ -2468,7 +2501,8 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive first FDA receipt lower bound, YYYY-MM-DD."
+          "description": "Inclusive first FDA receipt lower bound, YYYY-MM-DD.",
+          "format": "date"
         },
         "received_to": {
           "anyOf": [
@@ -2479,7 +2513,8 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD."
+          "description": "Inclusive first FDA receipt upper bound, YYYY-MM-DD.",
+          "format": "date"
         },
         "section": {
           "anyOf": [

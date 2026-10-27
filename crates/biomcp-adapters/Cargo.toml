@@ -6,9 +6,9 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-biomcp-types = { path = "../biomcp-types" }
-biodata = { path = "../biodata" }
-biomcp-fetch = { path = "../biomcp-fetch" }
+biomcp-types = { workspace = true }
+biodata = { workspace = true }
+biomcp-fetch = { workspace = true }
 serde.workspace = true
 quick-xml.workspace = true
 calamine.workspace = true

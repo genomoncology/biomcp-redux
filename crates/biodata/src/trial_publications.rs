@@ -21,6 +21,7 @@ pub struct TrialDocument {
     /// Exact advertised portable source filename.
     pub filename: Text,
     /// Fixed registry CDN URL for this manifest entry.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
     /// Native document type abbreviation.
     pub kind: Box<str>,

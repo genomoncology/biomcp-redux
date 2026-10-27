@@ -1,8 +1,8 @@
 use crate::{Error, text_value};
 use std::{fmt, num::NonZeroU64, str::FromStr};
 macro_rules! numeric_id {
-    ($(#[$doc:meta])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
-        $(#[$doc])*
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal, $pattern:literal, $padding:literal) => {
+        $(#[doc = $doc])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
         pub struct $name(NonZeroU64);
         impl $name {
@@ -27,7 +27,7 @@ macro_rules! numeric_id {
                 write!(f, "{}{:0width$}", $prefix, self.get(), width = $padding)
             }
         }
-        text_value!($name, stringify!($name), $pattern);
+        text_value!($name, stringify!($name), $pattern, concat!($($doc),*));
     };
 }
 // Each level has its own checked value, even where the grammar is the same.
@@ -44,8 +44,8 @@ numeric_id!(/// A ClinVar variation record, which may represent a compound.
 numeric_id!(/// An allele identifier inside a ClinVar record, not a variant identifier.
     ClinVarAlleleId, ClinVarAlleleIdInvalid, "", "^[1-9][0-9]*$", 0);
 macro_rules! accession_id {
-    ($(#[$doc:meta])* $name:ident, $error:ident, $prefix:literal) => {
-        $(#[$doc])*
+    ($(#[doc = $doc:literal])* $name:ident, $error:ident, $prefix:literal) => {
+        $(#[doc = $doc])*
         #[derive(Clone, Debug, PartialEq, Eq, Hash)]
         pub struct $name(Box<str>);
         impl FromStr for $name {
@@ -62,7 +62,7 @@ macro_rules! accession_id {
         impl fmt::Display for $name {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str(&self.0) }
         }
-        text_value!($name, stringify!($name), concat!("^", $prefix, "[0-9]{9}(\\.[1-9][0-9]*)?$"));
+        text_value!($name, stringify!($name), concat!("^", $prefix, "[0-9]{9}(\\.[1-9][0-9]*)?$"), concat!($($doc),*));
     };
 }
 accession_id!(/// A ClinVar variation accession, possibly a haplotype or compound.
@@ -94,7 +94,12 @@ impl fmt::Display for CosmicId {
         f.write_str(&self.0)
     }
 }
-text_value!(CosmicId, "CosmicId", "^COS[VMN][1-9][0-9]*$");
+text_value!(
+    CosmicId,
+    "CosmicId",
+    "^COS[VMN][1-9][0-9]*$",
+    "A COSMIC genomic, legacy transcript or noncoding variant identifier; its kind is retained."
+);
 /// A source-supplied VRS allele identifier; construction never computes a digest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct VrsId(Box<str>);
@@ -116,7 +121,12 @@ impl fmt::Display for VrsId {
         f.write_str(&self.0)
     }
 }
-text_value!(VrsId, "VrsId", r"^ga4gh:VA\.[A-Za-z0-9_-]{32}$");
+text_value!(
+    VrsId,
+    "VrsId",
+    r"^ga4gh:VA\.[A-Za-z0-9_-]{32}$",
+    "A source-supplied VRS allele identifier; construction never computes a digest."
+);
 /// Published variant-level identifiers, with each identifier's level retained.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -182,4 +192,9 @@ impl VariantId {
     pub const PATTERN: &'static str = "^(rs[1-9][0-9]*|CA[0-9]{6,}|PA[1-9][0-9]*|VCV[0-9]{9}(\\.[1-9][0-9]*)?|\
         clinvar:[1-9][0-9]*|COS[VMN][1-9][0-9]*|ga4gh:VA\\.[A-Za-z0-9_-]{32})$";
 }
-text_value!(VariantId, "VariantId", Self::PATTERN);
+text_value!(
+    VariantId,
+    "VariantId",
+    Self::PATTERN,
+    "Published variant-level identifiers, with each identifier's level retained."
+);

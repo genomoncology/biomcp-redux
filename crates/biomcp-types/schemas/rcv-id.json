@@ -1,6 +1,7 @@
 {
   "$id": "biodata.rcv-id/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": " A ClinVar variant-and-condition aggregate accession.",
   "pattern": "^RCV[0-9]{9}(\\.[1-9][0-9]*)?$",
   "title": "RcvId",
   "type": "string"
