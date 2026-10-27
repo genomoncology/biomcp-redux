@@ -39,8 +39,8 @@ impl Leg<'_> {
         limits
             .check_request(request)
             .map_err(|_| crate::InputError::BodyLimit)?;
-        let identity = Identity::new(endpoint, request, limits)?;
         self.rpc_contain(request)?;
+        let identity = Identity::new(endpoint, request, limits)?;
         if self.budget().expired() {
             return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
@@ -75,6 +75,9 @@ impl Leg<'_> {
                 ),
                 self.budget(),
             ));
+        }
+        if self.budget().expired() {
+            return Err(self.failure(Reason::DeadlineExceeded, None).into());
         }
         Ok(reply)
     }

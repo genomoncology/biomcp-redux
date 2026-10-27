@@ -2,7 +2,6 @@
 #![expect(
     clippy::unwrap_used,
     clippy::disallowed_methods,
-    clippy::disallowed_types,
     reason = "Fixture failures fail the contract"
 )]
 #[path = "support/environment.rs"]

@@ -5,7 +5,6 @@ mod child_environment;
 #[test]
 #[expect(
     clippy::disallowed_methods,
-    clippy::disallowed_types,
     reason = "Launch an isolated copy of this test executable to prove process sharing"
 )]
 fn another_process_reads_checked_cache_without_connecting() -> Check {
