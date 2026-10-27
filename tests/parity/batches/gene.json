@@ -773,6 +773,89 @@
       }
     },
     {
+      "case": "gene/sections/clingen-empty.yaml",
+      "step": 0,
+      "baseline_command": [
+        "get",
+        "gene",
+        "MIR21",
+        "clingen"
+      ],
+      "spelling_table": "sdlc/planning/slices/gene.md",
+      "release_source": [
+        "src/cli/gene/dispatch.rs::handle_get",
+        "src/entities/gene/clingen.rs::fetch_section",
+        "src/entities/gene/clingen.rs::section_outcome",
+        "src/sources/clingen.rs::ClinGenClient::gene_lookup_plan",
+        "src/entities/section_outcome.rs::SectionOutcome"
+      ],
+      "baseline_globals": [
+        "--json"
+      ],
+      "recordings": [
+        {
+          "source": "mygene-info",
+          "endpoint_env": "BIOMCP_MYGENE_BASE",
+          "host": "mygene.info",
+          "request_prefix": "GET /v3/query?",
+          "request_contains": "",
+          "request_query": {
+            "q": "symbol:\"MIR21\"",
+            "species": "human"
+          },
+          "recording_gap": "The retained Entrez annotation omits symbol and name requested by the released MyGene symbol getter. Reusing it would make the released defaults empty and could misstate a source recording omission as a fact difference. The full native symbol reply is missing; the independent Entrez-only sample retains the unchanged original capture.",
+          "capture": ""
+        },
+        {
+          "source": "clingen",
+          "endpoint_env": "BIOMCP_CLINGEN_BASE",
+          "host": "search.clinicalgenome.org",
+          "request_prefix": "GET /kb/gene-validity/download",
+          "request_contains": "",
+          "capture": "clingen/28dc43879841858d45a9b24bc647b549f240403b88ad3ecb0057bb667a5cf96d.json"
+        },
+        {
+          "source": "clingen",
+          "endpoint_env": "BIOMCP_CLINGEN_BASE",
+          "host": "search.clinicalgenome.org",
+          "request_prefix": "GET /kb/gene-dosage/download",
+          "request_contains": "",
+          "capture": "clingen/e2e3c16667068aeb83740719435456a4e43ed312c5236b47bf9489fcbf96d2e4.json"
+        },
+        {
+          "source": "clingen",
+          "endpoint_env": "BIOMCP_CLINGEN_BASE",
+          "host": "search.clinicalgenome.org",
+          "request_prefix": "GET /api/genes/look/MIR21",
+          "request_contains": "",
+          "capture": "",
+          "recording_gap": "The complete retained ClinGen validity and dosage CSV files contain no MIR21 row. Released ClinGen then requires its gene-lookup confirmation to distinguish a confirmed empty family from an unavailable lookup. No /api/genes/look/MIR21 response is retained. The empty state and ClinGen provider normalization remain declared; this missing confirmation remains an execution assessment gap."
+        }
+      ],
+      "facts": {
+        "/result/items/0/sections/clingen": {
+          "object": {
+            "state": {
+              "pointer": "/section_outcomes/clingen/outcome"
+            },
+            "source": {
+              "released_source": "/section_outcomes/clingen/sources/0"
+            }
+          }
+        }
+      },
+      "unprojectable_facts": {
+        "/status": {
+          "reason": "Released gene cards serialize section outcomes without the current aggregate lifecycle status.",
+          "release_source": "src/entities/gene.rs::Gene;src/cli/gene/dispatch.rs::render_gene_card_outcome"
+        },
+        "/sources/*/source": {
+          "reason": "Released section outcomes list providers for that section, without the current global source lifecycle list or its exclusions.",
+          "release_source": "src/entities/section_outcome.rs::SectionOutcome;src/entities/gene.rs::Gene"
+        }
+      }
+    },
+    {
       "case": "gene/sections/constraint.yaml",
       "step": 0,
       "baseline_command": [
@@ -2022,11 +2105,6 @@
         "case": "gene/sections/civic-shared-id.yaml",
         "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released CIViC context contains evidence_items, assertions and their counts, not CIViC gene feature identity, description, variant_count or gene-feature availability. Evidence absence cannot establish absence of the feature.",
         "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/sources/civic.rs::CivicContext;src/entities/gene.rs::fetch_civic_section"
-      },
-      {
-        "case": "gene/sections/clingen-empty.yaml",
-        "reason": "Released gene cards have no aggregate or per-item lifecycle status; batch status ok only denotes a successful getter, not section completeness. Released ClinGen outcomes retain empty/data and a ClinGen provider name. The current section object requires an explicit provider and outcome spelling projection. Released gene cards do not serialize the current global source lifecycle, typed next actions or field-level join and decoder problem records. Section outcomes cannot establish those global assertions.",
-        "release_source": "src/cli/system/batch.rs::settle_batch;src/cli/gene/dispatch.rs::render_gene_card_outcome;src/entities/gene/clingen.rs::section_outcome;src/entities/section_outcome.rs::SectionOutcome;src/entities/gene.rs::Gene"
       },
       {
         "case": "gene/sections/expression-not-applicable.yaml",
