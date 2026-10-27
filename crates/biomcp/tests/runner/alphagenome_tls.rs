@@ -50,11 +50,16 @@ fn run() -> Result<(), String> {
         let reply = invoke(&env, &args, 0)?;
         if status == 200 {
             groups(&reply)?;
-            let args = args
-                .into_iter()
-                .chain(["--section-offset".into(), "3".into()])
-                .collect::<Vec<_>>();
+            let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
+            if mcp.get("result") != reply.get("result") || mcp.get("next") != reply.get("next") {
+                return Err("native CLI and MCP groups or continuations differ".into());
+            }
+            let args = page_args(&reply)?;
             let later = invoke(&env, &args, 0)?;
+            let later_mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
+            if later.get("result") != later_mcp.get("result") {
+                return Err("native continuation differs through MCP".into());
+            }
             if later.pointer(&format!("{SECTION}/data/scorers/0/rows/0/value"))
                 != Some(&json!({"kind":"negative_infinity"}))
             {
@@ -84,6 +89,9 @@ fn run() -> Result<(), String> {
             {
                 return Err("Markdown lost native nonfinite scalar labels".into());
             }
+            if !markdown.contains("--section-offset") {
+                return Err("Markdown omitted executable scorer paging".into());
+            }
             if later.pointer(&format!("{SECTION}/data/scorers/0/rows/0/tensor_index"))
                 != Some(&json!([0, 1, 1]))
                 || later.pointer(&format!("{SECTION}/data/scorers/1/page/returned"))
@@ -107,10 +115,29 @@ fn run() -> Result<(), String> {
                 ));
             }
         }
-        routed(&fixture, if status == 200 { 3 } else { 1 })?;
+        routed(&fixture, if status == 200 { 5 } else { 1 })?;
         fixture.finish().map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+fn page_args(reply: &Value) -> Result<Vec<String>, String> {
+    reply
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .find(|step| step.get("kind") == Some(&json!("page")))
+        .and_then(|step| step.get("args"))
+        .and_then(Value::as_array)
+        .ok_or("missing executable scorer continuation")?
+        .iter()
+        .map(|value| {
+            value
+                .as_str()
+                .map(str::to_owned)
+                .ok_or_else(|| "invalid continuation argument".into())
+        })
+        .collect()
 }
 fn routed(fixture: &support::Fixture, expected: usize) -> Result<(), String> {
     let mut resolved = false;
