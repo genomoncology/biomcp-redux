@@ -66,16 +66,6 @@ fn isolated_trees_reject_structural_violations() -> Check {
             "lint exception",
         ),
         (
-            "crates/biomcp-adapters/src/example/map.rs",
-            "fn problem() {}",
-            "mapping helpers belong in mapped.rs",
-        ),
-        (
-            "crates/biomcp-adapters/src/example/map.rs",
-            "fn text() {}",
-            "mapping helpers belong in mapped.rs",
-        ),
-        (
             "crates/biomcp-adapters/src/example/raw.rs",
             "#[serde(default)]\nstruct Raw;",
             "raw serde default",
@@ -337,5 +327,17 @@ include!("generated/mod.rs");
         wrapper,
         "suppressions forbidden",
     )?;
+    Ok(())
+}
+
+#[test]
+fn adapter_mapping_helpers_require_one_owner() -> Check {
+    for declaration in ["fn problem() {}", "fn text() {}"] {
+        rejects(
+            "crates/biomcp-adapters/src/example/map.rs",
+            declaration,
+            "mapping helpers belong in mapped.rs",
+        )?;
+    }
     Ok(())
 }
