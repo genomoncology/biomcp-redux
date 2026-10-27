@@ -169,10 +169,7 @@ fn metadata(arg: &Arg) -> HelpArgument {
             .map(|c| format!("-{c}"))
             .into_iter()
             .collect(),
-        default: arg
-            .get_default_values()
-            .first()
-            .map(|v| v.to_string_lossy().into_owned()),
+        default: default(arg),
         required: arg.is_required_set(),
         position: arg.get_index().map(|i| (i - 1) as u64),
         minimum: None,
@@ -198,4 +195,27 @@ pub(super) fn scoped_globals(commands: &mut [HelpCommand]) {
             }
         }
     }
+}
+
+fn default(arg: &Arg) -> Option<String> {
+    if let Some(value) = arg.get_default_values().first() {
+        return Some(value.to_string_lossy().into_owned());
+    }
+    // Ask the parser for an optional flag's omitted value instead of copying it.
+    if arg.get_action().takes_values()
+        && arg
+            .get_num_args()
+            .is_some_and(|range| range.min_values() == 0)
+        && let Some(name) = arg.get_long()
+        && let Ok(matches) = Command::new("help")
+            .arg(arg.clone())
+            .try_get_matches_from(["help".to_owned(), format!("--{name}")])
+    {
+        return matches
+            .try_get_one::<String>(arg.get_id().as_str())
+            .ok()
+            .flatten()
+            .cloned();
+    }
+    None
 }

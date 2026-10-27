@@ -82,7 +82,8 @@ pub(crate) fn global_arguments() -> Command {
     root = root.arg(
         Arg::new("format")
             .long("format")
-            .help("Choose JSON or Markdown output.")
+            .help("Choose JSON or Markdown output; configuration can change the default.")
+            .default_value("json")
             .global(true)
             .value_parser(["json", "md"]),
     );
@@ -185,7 +186,8 @@ pub(crate) fn root() -> Result<Command, ()> {
     root = root.subcommand(
         Command::new("sync").arg(
             Arg::new("bundle")
-                .help("Local source bundle to synchronize; default hgnc.")
+                .help("Local source bundle to synchronize.")
+                .default_value("hgnc")
                 .value_parser(BUNDLE_HELP),
         ),
     );
