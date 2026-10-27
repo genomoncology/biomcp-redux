@@ -223,6 +223,49 @@ class NightlyCommand(unittest.TestCase):
         self.copied()
         self.assertEqual(list(scratch.iterdir()), [])
 
+    def test_malformed_local_settings_fail_before_starting(self):
+        self.local_settings(Path(self.env['XDG_CONFIG_HOME']))
+        settings = Path(self.env['XDG_CONFIG_HOME']) / 'biomcp/nightly.json'
+        for body in ('{', '[]', '{"host": null}', '{"scratch_dir": 3}'):
+            with self.subTest(body=body):
+                settings.write_text(body)
+                result = self.run_command()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('invalid nightly settings at ' + str(settings), result.stderr)
+                self.assertNotIn('Owned scratch:', result.stdout)
+                self.assertFalse(self.scratch_root.exists())
+                self.assertFalse(self.store.exists())
+
+    def test_empty_settings_fail_before_starting_from_each_origin(self):
+        environment = dict(self.env)
+        self.local_settings(Path(self.env['XDG_CONFIG_HOME']))
+        settings = Path(self.env['XDG_CONFIG_HOME']) / 'biomcp/nightly.json'
+        valid = json.loads(settings.read_text())
+        for origin in ('file', 'environment', 'argument'):
+            for key, variable, option in (
+                    ('host', 'BIOMCP_EVIDENCE_HOST', '--host'),
+                    ('evidence_dir', 'BIOMCP_EVIDENCE_DIR', '--evidence-dir'),
+                    ('scratch_dir', 'BIOMCP_SCRATCH_DIR', '--scratch-dir')):
+                with self.subTest(origin=origin, key=key):
+                    self.env = dict(environment)
+                    settings.write_text(json.dumps(valid))
+                    args = ()
+                    if origin == 'file':
+                        for name in ('BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR',
+                                     'BIOMCP_SCRATCH_DIR'):
+                            self.env.pop(name)
+                        settings.write_text(json.dumps(dict(valid, **{key: ''})))
+                    elif origin == 'environment':
+                        self.env[variable] = ''
+                    else:
+                        args = (option, '')
+                    result = self.run_command(args=args)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn('supply --host', result.stderr)
+                    self.assertNotIn('Owned scratch:', result.stdout)
+                    self.assertFalse(self.scratch_root.exists())
+                    self.assertFalse(self.store.exists())
+
     def test_clean_copies_and_cleans_only_owned_scratch(self):
         unowned = self.scratch_root / 'another-run'
         unowned.mkdir(parents=True)
