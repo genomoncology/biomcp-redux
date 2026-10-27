@@ -20,5 +20,5 @@ pub static SPEC: SourceSpec = SourceSpec {
 mod read;
 pub use read::{annotation, clinical, references};
 
-/// Small read-only publisher probe; never an export or synchronization.
-pub(crate) const HEALTH_PATH: &str = "/data/clinicalAnnotation";
+/// Native clinical annotation collection shared by reads and the bounded health probe.
+pub(crate) const CLINICAL_PATH: &str = "/data/clinicalAnnotation";

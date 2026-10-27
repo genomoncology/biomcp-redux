@@ -401,9 +401,9 @@ pub fn bundle_state(
 fn pgx_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
     use biomcp_fetch::Arg;
     Some(match source {
-        Source::Cpic => (crate::cpic::HEALTH_PATH, vec![("limit", Arg::Num(1))]),
+        Source::Cpic => (crate::cpic::GENE_PATH, vec![("limit", Arg::Num(1))]),
         Source::ClinPgx => (
-            crate::clinpgx::HEALTH_PATH,
+            crate::clinpgx::CLINICAL_PATH,
             vec![
                 ("location.genes.symbol", Arg::Text("DPYD")),
                 ("view", Arg::Text("min")),
