@@ -89,7 +89,10 @@ fn candidate_navigation(candidates: bool) -> Navigation<'static> {
     }
 }
 
-fn source_steps(exclusions: &[String], steps: Vec<biomcp_types::Step>) -> Vec<biomcp_types::Step> {
+fn source_steps(
+    globals: &crate::grammar::Globals,
+    steps: Vec<biomcp_types::Step>,
+) -> Vec<biomcp_types::Step> {
     let mut prefix: Vec<Box<str>> = Vec::new();
     if let Some(path) = &globals.config {
         prefix.extend([
@@ -110,13 +113,7 @@ fn source_steps(exclusions: &[String], steps: Vec<biomcp_types::Step>) -> Vec<bi
         .into_iter()
         .map(|mut step| {
             let mut args = step.args.into_vec();
-            args.splice(
-                0..0,
-                [
-                    "--disable-sources".into(),
-                    disabled.clone().into_boxed_str(),
-                ],
-            );
+            args.splice(0..0, prefix.iter().cloned());
             step.args = args.into();
             step
         })
