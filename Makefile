@@ -2,7 +2,7 @@
 
 .PHONY: landing-gate fmt lint ratchets test audit coverage unreached
 
-landing-gate: docs-check fmt lint tensor-proto-check coverage audit
+landing-gate: fmt lint docs-check tensor-proto-check coverage audit
 
 fmt:
 	cargo fmt --all -- --check
