@@ -154,10 +154,8 @@ fn stage_table(
     deadline: Deadline<'_>,
 ) -> Result<(), CacheError> {
     let present = source_table(connection, table.name)?;
-    if !present {
-        if table.name != "bundle_content" || version >= crate::VERSION {
-            return Err(CacheError::Version);
-        }
+    if !present && (table.name != "bundle_content" || version >= crate::VERSION) {
+        return Err(CacheError::Version);
     }
     let source = if present { "predecessor" } else { "main" };
     connection

@@ -252,6 +252,17 @@ fn obsolete() -> Check {
         mode: biomcp_fetch::Mode::Offline,
         ..Default::default()
     })?);
+    let empty = fs::read(&obsolete)?;
+    invoke(
+        &env,
+        vec!["store".into(), "clean".into(), "--offline".into()],
+        0,
+    )?;
+    if !obsolete.exists() || fs::read(&obsolete)? != empty {
+        return Err(
+            "cleanup removed an empty bundle table that can still receive publication".into(),
+        );
+    }
     seed(&obsolete, "a", 123)?;
     let before = fs::read(&obsolete)?;
     invoke(
