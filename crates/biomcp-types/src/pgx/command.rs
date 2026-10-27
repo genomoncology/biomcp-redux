@@ -21,7 +21,8 @@ impl schemars::JsonSchema for PgxGetCommand {
         }
         schema.insert(
             "x-reply-query-titles".into(),
-            vec![<super::PgxAnnotationGet as schemars::JsonSchema>::schema_name().into_owned()].into(),
+            vec![<super::PgxAnnotationGet as schemars::JsonSchema>::schema_name().into_owned()]
+                .into(),
         );
         schema
     }

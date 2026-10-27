@@ -168,7 +168,9 @@ fn discovery() -> Result<(), String> {
         .iter()
         .map(|row| {
             let id = row["id"].as_str().ok_or("missing schema ID")?;
-            if id.starts_with("biomcp.") && id.contains('_') || row["description"].as_str().is_none_or(str::is_empty) {
+            if id.starts_with("biomcp.") && id.contains('_')
+                || row["description"].as_str().is_none_or(str::is_empty)
+            {
                 return Err("schema ID or description is invalid");
             }
             Ok(id)
@@ -184,10 +186,11 @@ fn discovery() -> Result<(), String> {
         .ok_or("missing commands")?;
     let mut replies = std::collections::BTreeSet::new();
     for command in commands {
-        for id in command["reply_schemas"]
-            .as_array()
-            .ok_or("missing reply schemas")?
-        {
+        let schemas = command["reply_schemas"].as_array().ok_or("missing reply schemas")?;
+        if matches!(command["command"][0].as_str(), Some("get" | "search" | "article" | "trial" | "variant" | "protein" | "pathway" | "author" | "cell-line")) && schemas.is_empty() {
+            return Err(format!("missing reply schemas for {}", command["command"]));
+        }
+        for id in schemas {
             let id = id.as_str().ok_or("invalid reply ID")?;
             if !ids.contains(id) {
                 return Err(format!("unresolvable help reply {id}"));

@@ -10,6 +10,7 @@ pub use research::{
 mod predictor;
 mod query;
 mod response;
+pub use response::{SchemaCatalog, SchemaEntry};
 mod source;
 
 pub use predictor::{
