@@ -9,6 +9,9 @@ pub(super) fn trials() -> Vec<Trial> {
             "pathway-reactome/invalid-optional-fields-keep-records",
             || reactome().map_err(Into::into),
         ),
+        Trial::test("variant/invalid-rcv-condition-names-own-record", || {
+            clinvar_rcv().map_err(Into::into)
+        }),
         Trial::test("variant/empty-clinvar-text-keeps-assertion", || {
             clinvar().map_err(Into::into)
         }),
@@ -163,5 +166,24 @@ fn reactome() -> Result<(), String> {
         check(&value, field, absent)?;
         stub.finish()?;
     }
+    Ok(())
+}
+
+fn clinvar_rcv() -> Result<(), String> {
+    let stub = Stub::for_source("eutils.ncbi.nlm.nih.gov", "application/xml", |request| {
+        super::variant_assertion_wire::clinvar_body(request).map(|xml| {
+            xml.replace("<ClinicalAssertionList>", "<RCVList><RCVAccession Accession=\"RCV000123456\" Version=\"1\"><ClassifiedConditionList><ClassifiedCondition DB=\"MedGen\" ID=\"C123\"></ClassifiedCondition></ClassifiedConditionList><RCVClassifications><GermlineClassification><Description>Pathogenic</Description></GermlineClassification></RCVClassifications></RCVAccession></RCVList><ClinicalAssertionList>")
+        })
+    })?;
+    let env = super::variant::source_environment(&stub)?;
+    let args = ["variant", "assertions", "clinvar:128042", "--source", "clinvar", "--assertion", "RCV000123456", "--version", "1"];
+    let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
+    check(&value, "conditions.label", "/result/assertions/0/detail/conditions/0/label")?;
+    if value.pointer("/problems/0/record") != Some(&json!("RCV000123456"))
+        || value.pointer("/result/assertions/0/statement/attribution/record") != Some(&json!("RCV000123456"))
+    {
+        return Err(format!("RCV field problem lost its record: {value}"));
+    }
+    stub.finish()?;
     Ok(())
 }
