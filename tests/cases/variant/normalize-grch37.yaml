@@ -66,6 +66,7 @@
     },
     {
       "run": [
+        "--offline",
         "variant",
         "normalize",
         "--source",
@@ -75,6 +76,7 @@
         "--build=GRCh36"
       ],
       "mcp": [
+        "--offline",
         "variant",
         "normalize",
         "--source",
