@@ -81,8 +81,19 @@ fn add(commands: &mut Vec<HelpCommand>, parser: &Command, path: Vec<String>, roo
     if let Some(entry) = commands.iter_mut().find(|entry| entry.command == path) {
         entry.arguments = arguments;
     } else {
+        let mut reply_schemas = crate::schema::local_replies(&path);
+        if !path.is_empty() {
+            reply_schemas.extend(
+                commands
+                    .iter()
+                    .filter(|entry| entry.command.starts_with(&path))
+                    .flat_map(|entry| entry.reply_schemas.iter().cloned()),
+            );
+        }
+        reply_schemas.sort();
+        reply_schemas.dedup();
         commands.push(HelpCommand {
-            reply_schemas: crate::schema::local_replies(&path),
+            reply_schemas,
             command: path,
             description: parser
                 .get_about()
