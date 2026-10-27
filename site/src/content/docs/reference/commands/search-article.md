@@ -46,7 +46,7 @@ biomcp search article [OPTIONS] [text]
 
 ## Sources
 
-`--source` accepts these sources: [pubmed](/reference/sources/pubmed/), [europepmc](/reference/sources/europepmc/), [litvar](/reference/sources/litvar/), [semantic-scholar](/reference/sources/semantic-scholar/), [litsense](/reference/sources/litsense/), [pubtator](/reference/sources/pubtator/).
+`--source` accepts these sources: [pubmed](/sources/pubmed/), [europepmc](/sources/europepmc/), [litvar](/sources/litvar/), [semantic-scholar](/sources/semantic-scholar/), [litsense](/sources/litsense/), [pubtator](/sources/pubtator/).
 
 ## Examples
 
@@ -57,6 +57,6 @@ biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

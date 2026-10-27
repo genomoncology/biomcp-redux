@@ -45,7 +45,7 @@ Absent means the source identity card.
 
 ## Sources
 
-`--source` accepts these sources: [hpo](/reference/sources/hpo/), [monarch](/reference/sources/monarch/).
+`--source` accepts these sources: [hpo](/sources/hpo/), [monarch](/sources/monarch-initiative/).
 
 ## Examples
 
@@ -56,6 +56,6 @@ biomcp get phenotype HP:0000001 --source monarch
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

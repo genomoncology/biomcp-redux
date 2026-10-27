@@ -1,0 +1,37 @@
+---
+title: "Pharmacogenomics entity"
+description: "The pgx entity in BioMCP 1.0: its commands, sections, sources and one example with DPYD."
+goal: The reader finds the commands, sections and sources for the pgx entity and runs one example.
+reader: A BioMCP user or agent working with pgx records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: pgx
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `pgx`. CPIC gene cards, recommendations, guidelines and diplotype lookups, and ClinPGx annotations, for a gene. BioMCP calculates no phenotype, activity score or dose.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search pgx`](/reference/commands/search-pgx/) | Checked gene-keyed CPIC pair search. |
+| [`biomcp get pgx`](/reference/commands/get-pgx/) | PGx card or section. |
+
+## Sections of get pgx
+
+`recommendations`, `guidelines`, `diplotype`, `annotations`. The [get pgx reference](/reference/commands/get-pgx/) describes each one.
+
+## Sources
+
+[cpic](/sources/cpic/), [clinpgx](/sources/pharmgkb/).
+
+## Example
+
+<Example id="pgx-get" />
+
+## Guide
+
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

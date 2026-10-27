@@ -47,7 +47,7 @@ Independent VAERS table; omitted means reported symptoms.
 
 ## Sources
 
-`--source` accepts these sources: [faers](/reference/sources/faers/), [maude](/reference/sources/maude/), [vaers](/reference/sources/vaers/).
+`--source` accepts these sources: [faers](/sources/faers/), [maude](/sources/maude/), [vaers](/sources/vaers/).
 
 ## Examples
 
@@ -58,6 +58,6 @@ biomcp search adverse-event pembrolizumab --received-from 2024-01-01 --received-
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

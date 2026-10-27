@@ -1,0 +1,91 @@
+---
+title: Look up a variant
+description: Use BioMCP 1.0 to find a variant from a gene and protein change, normalize HGVS, read ClinVar and CIViC records, and read gnomAD population counts.
+goal: The reader turns BRAF V600E into exact identifiers, normalizes its HGVS, and reads source assertions and population counts with their sources.
+reader: A researcher, variant curator or agent builder who starts from a gene and protein change or an HGVS string
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> reads variants from MyVariant.info, the ClinGen Allele Registry, ClinVar, the ClinGen Evidence Repository, CIViC, gnomAD, Cancer Hotspots and the GWAS Catalog. This page starts from BRAF V600E and ends with source assertions and population counts. Each source keeps its own record; BioMCP does not merge them into one call.
+
+## Requirements
+
+- BioMCP installed. No key is needed for these steps. OncoKB annotations need your OncoKB key.
+
+## 1. Find the variant from a gene and protein change
+
+<Example id="variant-search" />
+
+The search returns identifiers that sources share: the dbSNP rsID, the ClinVar Variation ID and the genomic HGVS on the build the source used. Its `next` command reads the record with that build:
+
+```sh
+biomcp get variant 'chr7:g.140453136A>T' --build GRCh37
+```
+
+`get variant` takes an rsID, a ClinGen allele ID (CAid), a ClinVar Variation ID or reference-qualified HGVS. Chromosome notation needs `--build`.
+
+## 2. Normalize HGVS
+
+`biomcp variant normalize` sends your HGVS unchanged to the service you name. The ClinGen Allele Registry returns the allele ID and its genomic forms on both builds:
+
+<Example id="variant-normalize" />
+
+`CA123643` is the ClinGen allele ID for this change. `--source mutalyzer` checks the description and returns the protein change. `--source variantvalidator` and `--source all` need `--build GRCh37` or `--build GRCh38`. `all` keeps each service's answer separate and never chooses one.
+
+## 3. Read population counts
+
+`biomcp variant population` reads gnomAD counts for one GRCh38 allele:
+
+<Example id="variant-population" />
+
+`ac` is the allele count and `an` the allele number, as gnomAD reports them for the named release. BioMCP does not compute a frequency, and exome and genome counts stay separate. This reply is `partial` because the allele registry sent fields BioMCP could not check; `problems` lists them. `--detail` adds the ancestry rows.
+
+## 4. Read ClinVar assertions
+
+The `clinvar` section returns ClinVar's records for the allele. Here `jq` keeps the variation-level rows:
+
+<Example id="variant-clinvar" />
+
+Each row keeps ClinVar's own domain, classification and record. The full reply adds the review status, the date evaluated and the condition for each submission. `biomcp variant assertions clinvar:13961 --source clinvar` pages every assertion.
+
+## 5. Read CIViC molecular profiles
+
+<Example id="variant-civic" />
+
+`membership` says whether the profile matches the variant exactly or contains it as one member of a compound profile.
+
+## Other sections
+
+| Section | Source | What it returns |
+| --- | --- | --- |
+| `erepo` | ClinGen Evidence Repository | Expert panel assertions |
+| `population` | gnomAD | Population observations |
+| `gwas` | GWAS Catalog | Associations for an rsID |
+| `hotspots` | Cancer Hotspots | Residue counts at the position |
+| `predict` | MyVariant.info | Predictor scores |
+| `conservation` | MyVariant.info | Conservation scores |
+| `cosmic` | MyVariant.info | Historical COSMIC fragments |
+| `oncokb` | OncoKB | Annotation for a tumor type and build, with your key |
+
+`variant recurrence ID --source cbioportal --gene GENE --study ID --profile ID --sample-set ID` counts samples with the variant in one cBioPortal study.
+
+## Verify
+
+The search returns `rs113488022` and `clinvar:13961`, and the normalize call returns outcome `resolved` with `CA123643`.
+
+## Limits
+
+A classification belongs to the source that made it, on the date it was evaluated, for the condition it names. BioMCP reports conflicting classifications as the source states them and never resolves them. A variant missing from one source is not absent from the genome, and a missing population record is not a zero count.
+
+## Related
+
+- [Variant entity](/user-guide/variant/)
+- Reference: [search variant](/reference/commands/search-variant/), [get variant](/reference/commands/get-variant/), [variant normalize](/reference/commands/variant-normalize/), [variant population](/reference/commands/variant-population/), [variant assertions](/reference/commands/variant-assertions/)
+- Sources: [ClinVar](/sources/clinvar/), [gnomAD](/sources/gnomad/), [ClinGen Allele Registry](/sources/clingen-allele-registry/), [CIViC](/sources/civic/)
+
+## Next
+
+Read the gene and its protein in [genes and proteins](/genes-and-proteins/).

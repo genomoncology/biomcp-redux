@@ -39,6 +39,6 @@ biomcp pathway genes R-HSA-5673001 details
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

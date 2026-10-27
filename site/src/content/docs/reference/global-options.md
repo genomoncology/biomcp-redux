@@ -14,7 +14,7 @@ Every BioMCP 1.0.0 command accepts these options. They come from the command gra
 | --- | --- | --- | --- |
 | `--format` | `format` | `json`, `md` | [Results](/results/) |
 | `--disable-sources` | `disable-sources` |  | [Data sources](/sources/) |
-| `--config` | `config` |  | [Keys and configuration](/keys-and-configuration/) |
+| `--config` | `config` |  | [Keys and configuration](/getting-started/api-keys/) |
 | `--offline` | none |  | [Local data](/local-data/) |
 | `--fresh` | none |  | [Local data](/local-data/) |
 

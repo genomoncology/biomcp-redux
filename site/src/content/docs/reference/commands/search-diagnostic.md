@@ -40,7 +40,7 @@ biomcp search diagnostic [OPTIONS]
 
 ## Sources
 
-`--source` accepts these sources: [gtr](/reference/sources/gtr/), [fda-cdx](/reference/sources/fda-cdx/), [who-ivd](/reference/sources/who-ivd/).
+`--source` accepts these sources: [gtr](/sources/gtr/), [fda-cdx](/sources/fda-cdx/), [who-ivd](/sources/who-ivd/).
 
 ## Examples
 
@@ -51,6 +51,6 @@ biomcp search diagnostic --source gtr --condition-id MedGen:C2676676
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

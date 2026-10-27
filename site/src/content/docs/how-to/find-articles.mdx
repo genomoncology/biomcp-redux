@@ -1,0 +1,105 @@
+---
+title: Search and read biomedical literature
+description: Use BioMCP 1.0 to search PubMed, Europe PMC and other sources for articles, read full text from PMC, find text in an article or supplement, and follow citations.
+goal: The reader finds articles for a gene and variant, reads one article's card and full text, searches inside its text and supplements, and lists its citing papers.
+reader: A researcher or agent builder who needs papers about a gene, variant, drug or disease
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> searches articles in PubMed, Europe PMC, LitVar2, Semantic Scholar, LitSense2 and PubTator3, and reads open-access full text and supplements from PMC. This page finds papers about BRAF V600E, then reads one open-access review end to end.
+
+## Requirements
+
+- BioMCP installed. No key is needed. An NCBI key raises PubMed's rate limit and a Semantic Scholar key raises that source's limit; see [keys and configuration](/getting-started/api-keys/).
+
+## 1. Search by gene and variant
+
+`--gene`, `--variant`, `--drug` and `--disease` send words to the source's matching fields. PubMed is the default source.
+
+<Example id="lit-search" />
+
+Add `--since 2024`, `--type review` or `--open-access` to narrow the search. `--sort date` and `--sort citations` change the order; citation order adds iCite calls. Plain words without a flag search the source's default fields: `biomcp search article "BRAF V600E"`.
+
+## 2. Choose another source
+
+`--source` takes one or more sources in order, separated by commas. Each keeps its own ranking; BioMCP removes duplicates and shows every source's rank.
+
+| Source | Use it for |
+| --- | --- |
+| `pubmed` | Keyword search with MeSH mapping. The default. |
+| `europepmc` | Words in open full text and preprints. |
+| `litvar` | Publications for an exact variant. Needs `--variant`, and a protein change needs `--gene`. |
+| `semantic-scholar` | Broad discovery. A shared keyless pool can return `rate_limited`. |
+| `litsense` | Sentences that resemble your text. Resemblance is not a match. |
+| `pubtator` | Entity search, including full text. |
+
+The [search article reference](/reference/commands/search-article/) lists every filter.
+
+## 3. Read one article
+
+`biomcp get article` takes a PMID, a PMCID or a DOI. This review of AKT1 E17K is open access in PMC:
+
+<Example id="lit-get" />
+
+The card holds the title, authors, journal, dates, abstract and publication types. Sections add more: `fulltext`, `supplements`, `annotations` (PubTator3 entities), `citations` (iCite counts), `tldr` (a Semantic Scholar summary), `indexing` (MeSH terms) and `pdf` (the publisher PDF link).
+
+## 4. Read the full text
+
+The `fulltext` section returns the outline of a licensed PMC article. It reports the license and one row per part:
+
+<Example id="lit-fulltext" />
+
+`biomcp article text PMC7573235 --part 3` reads part 3 as Markdown. Full text comes only from PMC. An article without a PMCID returns its card with the fulltext section in state `not_applicable`, as `biomcp get article 12068308 fulltext` shows.
+
+## 5. Find words in the text
+
+`--find` returns the passages that contain your words, with the part each sits in:
+
+<Example id="lit-text-find" />
+
+The reply pages 12 hits at a time; its `next` command reads the rest.
+
+## 6. Search a supplement
+
+`supplements` lists an article's supplementary files from PMC metadata:
+
+<Example id="lit-supplements" />
+
+`biomcp article supplement` reads one file and finds rows in spreadsheets:
+
+<Example id="lit-supplement-find" />
+
+The columns are the sheet, the row number and the first cells of the row as the authors wrote them.
+
+## 7. Follow citations
+
+`biomcp article citations` lists papers that cite an article. NIH iCite is the default; `--source semantic-scholar` uses Semantic Scholar's graph.
+
+<Example id="lit-citations" />
+
+`article references` lists the papers an article cites, `article citation-evidence` shows the sentences where one paper cites another, and `article recommendations` asks Semantic Scholar for similar papers.
+
+## Save text, a supplement or a PDF
+
+Add `--save PATH` to `article text`, `article supplement` or `article pdf` to write the file. An existing file needs `--replace`. Saves work from the command line and over stdio MCP. The HTTP server refuses them.
+
+## Verify
+
+You succeeded when the search returns PMIDs, `get article` returns a card with `"status": "complete"`, and the fulltext section reports `source: pmc-oa` with a license.
+
+## Limits
+
+A search returns what the source returned for those words. An empty search is not proof that no paper exists; see [results](/results/#empty-is-not-absence). BioMCP does not summarize papers or judge evidence quality. Each article keeps its own license, and BioMCP grants no reuse rights.
+
+## Related
+
+- [Article entity](/user-guide/article/) and [author entity](/user-guide/author/)
+- Reference: [search article](/reference/commands/search-article/), [get article](/reference/commands/get-article/), [article text](/reference/commands/article-text/), [article supplement](/reference/commands/article-supplement/)
+- Sources: [PubMed](/sources/pubmed/), [Europe PMC](/sources/europepmc/), [PMC Open Access](/sources/pmc-oa/), [iCite](/sources/icite/)
+
+## Next
+
+Find trials for the same variant in [clinical trials](/how-to/find-trials/).

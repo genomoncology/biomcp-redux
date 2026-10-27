@@ -11,13 +11,13 @@ hero:
   tagline: Search and fetch biomedical records from public sources, in the shell or through your agent.
   actions:
     - text: Quickstart
-      link: /quickstart/
+      link: /getting-started/first-query/
       icon: right-arrow
     - text: Install
-      link: /install/
+      link: /getting-started/installation/
       variant: secondary
     - text: Connect an agent
-      link: /connect-an-agent/
+      link: /getting-started/mcp-clients/
       variant: minimal
 ---
 import TerminalHero from '../../components/TerminalHero.astro';
@@ -34,9 +34,9 @@ Each row is one capability guide. The entities are the nouns of the command line
 
 | Capability | Entities | First command |
 | --- | --- | --- |
-| [Literature](/literature/) | article, author | `biomcp search article --gene BRAF --variant V600E` |
-| [Clinical trials](/clinical-trials/) | trial | `biomcp search trial --condition melanoma` |
-| [Variants](/variants/) | variant | `biomcp search variant --gene BRAF --protein V600E` |
+| [Literature](/how-to/find-articles/) | article, author | `biomcp search article --gene BRAF --variant V600E` |
+| [Clinical trials](/how-to/find-trials/) | trial | `biomcp search trial --condition melanoma` |
+| [Variants](/how-to/annotate-variants/) | variant | `biomcp search variant --gene BRAF --protein V600E` |
 | [Genes and proteins](/genes-and-proteins/) | gene, protein, pathway | `biomcp get gene BRAF` |
 | [Drugs and safety](/drugs-and-safety/) | drug, adverse-event, pgx, diagnostic | `biomcp search drug vemurafenib` |
 | [Diseases and phenotypes](/diseases-and-phenotypes/) | disease, phenotype, gwas | `biomcp search disease melanoma` |
@@ -48,8 +48,8 @@ Every reply names its sources, their terms and whether each one answered. BioMCP
 
 <InstallLine />
 
-Other channels, including PyPI, Homebrew, a container and a desktop extension, are on the [install page](/install/).
+Other channels, including PyPI, Homebrew, a container and a desktop extension, are on the [install page](/getting-started/installation/).
 
 ## Read next
 
-Start with the [quickstart](/quickstart/). It takes a few minutes and ends with a search, a record and one section. Agents and their builders can go to [connect an agent](/connect-an-agent/). Short answers to single questions are in [answers](/answers/), worked examples are in [use cases](/guides/use-cases/), and the generated [reference](/reference/) lists every command. Ian Maurer writes the [blog](/blog/) and longer [articles](/articles/); [changes](/guides/changes/) has the release notes.
+Start with the [quickstart](/getting-started/first-query/). It takes a few minutes and ends with a search, a record and one section. Agents and their builders can go to [connect an agent](/getting-started/mcp-clients/). Short answers to single questions are in [answers](/answers/), worked examples are in [use cases](/how-to/guide-workflows/), and the generated [reference](/reference/) lists every command. Ian Maurer writes the [blog](/blog/) and longer [articles](/articles/); [changes](/changes/) has the release notes.

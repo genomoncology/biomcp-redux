@@ -1,0 +1,89 @@
+---
+title: Find clinical trials by condition, gene or variant
+description: Use BioMCP 1.0 to search ClinicalTrials.gov by condition, gene, variant, status and phase, count matches, read one trial and its eligibility text and locations.
+goal: The reader finds recruiting trials that mention a variant in a condition, reads one trial's record, eligibility text and sites, and knows what the search does not decide.
+reader: A researcher, trial coordinator or agent builder looking up registered trials
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> searches ClinicalTrials.gov by default and the NCI Clinical Trials Search API with your NCI key. This page finds recruiting trials that mention BRAF V600E in melanoma, then reads one of them. BioMCP searches registry text. It does not decide whether anyone is eligible for a trial.
+
+## Requirements
+
+- BioMCP installed. ClinicalTrials.gov needs no key. NCI needs your own key; see [keys and configuration](/getting-started/api-keys/).
+
+## 1. Search by condition, variant and status
+
+<Example id="trial-search" />
+
+The columns are the NCT identifier, the overall status, the phases and the date of the last registry update. `--variant` and `--gene` search the registry's text fields for those words. They do not match a molecular profile.
+
+Useful filters: `--condition`, `--gene`, `--variant`, `--intervention`, `--status`, `--phase`, `--study-type`, `--sponsor`, `--age`, `--sex`, `--criteria` (words in the eligibility text), `--updated-since`, and `--lat`, `--lon` and `--distance` for sites near a point. Write a negative coordinate with an equals sign, as in `--lon=-74.0060`; see [trials near a location](/answers/trials-near-location/). The [search trial reference](/reference/commands/search-trial/) lists every filter and value.
+
+## 2. Count before you page
+
+`--count-only` returns the registry's total without rows:
+
+<Example id="trial-count" />
+
+`count` is ClinicalTrials.gov's own total for those filters. Pages hold up to 100 rows with `--limit 100`; the reply's `next` command carries the registry's page token.
+
+## 3. Read one trial
+
+<Example id="trial-get" />
+
+## 4. Read the eligibility text
+
+The `eligibility` section returns the registry's criteria text and its structured age, sex and healthy-volunteer fields:
+
+<Example id="trial-eligibility" />
+
+Long criteria come in pages of characters. `total_characters` gives the full length, and the reply's `next` command reads the rest. Read the whole text before you report what a trial requires.
+
+## 5. List sites
+
+The `locations` section lists each site with its own recruitment status:
+
+<Example id="trial-locations" />
+
+Other sections: `outcomes`, `arms`, `contacts`, `references`, `documents` and `all`. `biomcp trial document NCT ID FILE --save PATH` downloads a posted protocol or analysis plan PDF that `documents` lists.
+
+## Search NCI instead
+
+`--source nci` sends the search to NCI. Without a key, BioMCP skips it, sends nothing, and names the help command for the key:
+
+<Example id="trial-nci-nokey" />
+
+With a key, NCI disease filters take NCIt codes such as `C3224`, and `--keyword` takes free text. BioMCP never falls back from one registry to the other.
+
+## Make a screen complete
+
+An exact variant search is a starting point. Before you call a list of trials complete:
+
+1. Run the broader searches: the gene without the variant, and the condition alone.
+2. Follow every `page` command until the source has no more.
+3. Search eligibility text with `--criteria` for spellings the registry may use, such as `V600`.
+4. Record each query you ran and any source that failed.
+
+A status of `complete` describes one reply. It does not mean the screen is complete.
+
+## Verify
+
+The search returns NCT identifiers with state `ok` for `ctgov`. `get trial` with one of them returns its title and status.
+
+## Limits
+
+Registry text is written by sponsors and can be out of date. A listing is not an enrollment recommendation, and BioMCP makes no eligibility judgment. An empty search shows that the registry returned nothing for those filters, not that no trial exists.
+
+## Related
+
+- [Trial entity](/user-guide/trial/)
+- Reference: [search trial](/reference/commands/search-trial/), [get trial](/reference/commands/get-trial/), [trial document](/reference/commands/trial-document/)
+- Sources: [ClinicalTrials.gov](/sources/clinicaltrials-gov/), [NCI](/sources/nci/)
+
+## Next
+
+Look up the variant itself in [variants](/how-to/annotate-variants/).

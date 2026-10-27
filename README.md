@@ -43,7 +43,7 @@ Or install the PyPI package `biomcp-cli`, which provides the `biomcp` command:
 uv tool install biomcp-cli
 ```
 
-Homebrew, the container image `ghcr.io/genomoncology/biomcp`, the `.mcpb` desktop extension and the Claude Code plugin are on the [install page](https://biomcp.org/install/). Check the install:
+Homebrew, the container image `ghcr.io/genomoncology/biomcp`, the `.mcpb` desktop extension and the Claude Code plugin are on the [install page](https://biomcp.org/getting-started/installation/). Check the install:
 
 ```sh
 biomcp version
@@ -73,9 +73,9 @@ biomcp mcp-config
 
 ## Documentation and next steps
 
-- [Quickstart](https://biomcp.org/quickstart/): a search, a record and a section in five minutes.
-- [Connect an agent](https://biomcp.org/connect-an-agent/): MCP clients, the skill and the plugin.
-- [How BioMCP works](https://biomcp.org/how-biomcp-works/): the command grammar.
+- [Quickstart](https://biomcp.org/getting-started/first-query/): a search, a record and a section in five minutes.
+- [Connect an agent](https://biomcp.org/getting-started/mcp-clients/): MCP clients, the skill and the plugin.
+- [How BioMCP works](https://biomcp.org/concepts/progressive-disclosure/): the command grammar.
 - [Reference](https://biomcp.org/reference/): every command, entity, source and exit code, generated from the build.
 - [Upgrading from 0.9](https://biomcp.org/upgrade-from-0-9/).
 
@@ -95,4 +95,4 @@ biomcp mcp-config
 
 ## License
 
-MIT. Each data source keeps its own terms; the [sources reference](https://biomcp.org/reference/sources/) links each one.
+MIT. Each data source keeps its own terms; the [sources reference](https://biomcp.org/reference/data-sources/) links each one.

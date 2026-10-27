@@ -6,21 +6,21 @@
   source: product
   frequency: every new user; install page is the second spine page
   rank: 1
-  page: /install/
+  page: /getting-started/installation/
   reference: /reference/commands/version/
 - id: first-query
   question: How do I run my first BioMCP query?
   source: product
   frequency: every new user
   rank: 2
-  page: /quickstart/
+  page: /getting-started/first-query/
   reference: /reference/commands/get-gene/
 - id: add-to-claude
   question: How do I add BioMCP to Claude Desktop, Claude Code, Cursor or Codex?
   source: public
   frequency: "issues #239, #293 and the 0.9 mcp-clients page"
   rank: 3
-  page: /connect-an-agent/
+  page: /getting-started/mcp-clients/
   reference: /reference/commands/mcp-config/
 - id: what-is-biomcp
   question: What is BioMCP and what data can it reach?
@@ -34,8 +34,8 @@
   source: public
   frequency: common agent search phrase; BioMCP's PubMed source
   rank: 9
-  page: /connect-an-agent/
-  reference: /reference/mcp-tools/
+  page: /getting-started/mcp-clients/
+  reference: /reference/mcp-server/
   answers_page: true
   example: a-pubmed-mcp
   answer: |
@@ -52,21 +52,21 @@
   source: product
   frequency: listed MCP tools search and fetch
   rank: 19
-  page: /connect-an-agent/
-  reference: /reference/mcp-tools/
+  page: /getting-started/mcp-clients/
+  reference: /reference/mcp-server/
 - id: skill-install
   question: How do I give a coding agent the BioMCP skill?
   source: public
   frequency: "issue #239 'turn this into a skill' (6 comments)"
   rank: 17
-  page: /connect-an-agent/
+  page: /getting-started/mcp-clients/
   reference: /reference/commands/skill-install/
 - id: set-api-key
   question: How do I set an API key for OncoKB, NCBI or Semantic Scholar in BioMCP?
   source: public
   frequency: "issue #225 (Semantic Scholar without key); key commands in help"
   rank: 13
-  page: /keys-and-configuration/
+  page: /getting-started/api-keys/
   reference: /reference/commands/key-set/
 - id: disable-licensed-sources
   question: How do I turn off sources that need a commercial license?
@@ -74,27 +74,27 @@
   frequency: "issue #290 (3 comments)"
   rank: 15
   page: /sources/
-  reference: /reference/sources/
+  reference: /reference/data-sources/
 - id: corporate-proxy-ca
   question: How do I use BioMCP behind a corporate proxy or with a custom CA certificate?
   source: public
   frequency: "issue #250"
   rank: 20
-  page: /keys-and-configuration/
+  page: /getting-started/api-keys/
   reference: /reference/global-options/
 - id: serve-http-remote
   question: How do I run BioMCP as a remote HTTP MCP server?
   source: public
   frequency: "issue #240 (4 comments)"
   rank: 18
-  page: /run-as-a-server/
+  page: /getting-started/remote-http/
   reference: /reference/commands/serve/
 - id: docker
   question: How do I run BioMCP in Docker?
   source: public
   frequency: "issues #241, #281"
   rank: 25
-  page: /install/
+  page: /getting-started/installation/
   reference: /reference/commands/serve/
 - id: exit-codes
   question: What do BioMCP's exit codes mean?
@@ -102,7 +102,7 @@
   frequency: listed from exit codes
   rank: 31
   page: /results/
-  reference: /reference/exit-codes/
+  reference: /reference/error-codes/
 - id: empty-result
   question: Does an empty BioMCP result mean the record does not exist?
   source: product
@@ -130,4 +130,4 @@
   frequency: listed from error codes; seen on this build machine
   rank: 34
   page: /troubleshooting/
-  reference: /reference/exit-codes/
+  reference: /reference/error-codes/

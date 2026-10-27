@@ -1,0 +1,44 @@
+---
+title: "Article entity"
+description: "The article entity in BioMCP 1.0: its commands, sections, sources and one example with PMID 33123537."
+goal: The reader finds the commands, sections and sources for the article entity and runs one example.
+reader: A BioMCP user or agent working with article records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: article
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `article`. A published paper, read by PMID, PMCID or DOI. Sections add full text, supplements, annotations, citation counts, a summary, indexing and the PDF link.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search article`](/reference/commands/search-article/) | Checked search selectors and pool cursor. |
+| [`biomcp get article`](/reference/commands/get-article/) | Get one to twenty article inputs in caller order. |
+| [`biomcp article supplement`](/reference/commands/article-supplement/) | Read a checked supplement file or page its original rows. |
+| [`biomcp article pdf`](/reference/commands/article-pdf/) | Download one publisher PDF to an explicit file or existing folder. |
+| [`biomcp article text`](/reference/commands/article-text/) | Read one bounded body part, find matching rows, or save the complete Markdown document. |
+| [`biomcp article citations`](/reference/commands/article-citations/) | Page the citing or referenced PubMed papers of one checked PMID. |
+| [`biomcp article references`](/reference/commands/article-references/) | Page the citing or referenced PubMed papers of one checked PMID. |
+| [`biomcp article citation-evidence`](/reference/commands/article-citation-evidence/) | Read every source context and optional explicit full-text citation paragraph. |
+| [`biomcp article recommendations`](/reference/commands/article-recommendations/) | Recommendations in the provider's recent-paper pool order. |
+
+## Sections of get article
+
+`annotations`, `fulltext`, `supplements`, `tldr`, `citations`, `indexing`, `pdf`, `all`. The [get article reference](/reference/commands/get-article/) describes each one.
+
+## Sources
+
+[pubmed](/sources/pubmed/), [europepmc](/sources/europepmc/), [litvar](/sources/litvar/), [litsense](/sources/litsense/), [pubtator](/sources/pubtator/), [pmc-oa](/sources/pmc-oa/), [icite](/sources/icite/), [semantic-scholar](/sources/semantic-scholar/).
+
+## Example
+
+<Example id="lit-get" />
+
+## Guide
+
+[Literature](/how-to/find-articles/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

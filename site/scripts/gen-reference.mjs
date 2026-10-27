@@ -21,6 +21,11 @@ const OUT = path.resolve('src/content/docs/reference');
 const bin = path.join(path.resolve(product.binDir), product.binary);
 const HARNESS = ['--replay', '--record', '--case-cache', '--observe'];
 const files = new Map();
+// Source pages live at /sources/SLUG/, the addresses the 0.9 site used where a 0.9 page existed.
+const SOURCES_OUT = path.resolve('src/content/docs/sources');
+const SLUG_09 = { ctgov: 'clinicaltrials-gov', car: 'clingen-allele-registry', erepo: 'clingen-erepo', hpa: 'human-protein-atlas', monarch: 'monarch-initiative', 'openfda-label': 'openfda', clinpgx: 'pharmgkb', 'who-pq': 'who-prequalification' };
+const srcSlug = (s) => SLUG_09[s] ?? s;
+const srcRoute = (s) => `/sources/${srcSlug(s)}/`;
 
 function run(args, input) {
   const r = spawnSync(bin, args, { input, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' }, timeout: 60000 });
@@ -114,13 +119,13 @@ for (const c of help) {
   }
   const src = sourcesFor(c).filter((s) => canonical.has(s));
   if (src.length) {
-    lines.push('## Sources', '', `${code('--source')} accepts these sources: ${src.map((s) => `[${s}](/reference/sources/${s}/)`).join(', ')}.`, '');
+    lines.push('## Sources', '', `${code('--source')} accepts these sources: ${src.map((s) => `[${s}](${srcRoute(s)})`).join(', ')}.`, '');
   }
   lines.push('## Examples', '');
   if (c.examples?.length) {
     lines.push('```sh', ...c.examples.map((e) => ['biomcp', ...e.map(quote)].join(' ')), '```', '');
   } else lines.push('The help lists no examples for this command.', '');
-  lines.push('## Exit codes', '', `See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).`, '', genFooter);
+  lines.push('## Exit codes', '', `See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).`, '', genFooter);
   write(`commands/${slug(c)}.md`, lines.join('\n'));
 }
 
@@ -193,22 +198,22 @@ for (const r of registry) {
     for (const c of cs) lines.push(`| [${code('biomcp ' + name(c))}](${route(c)}) | ${cell(firstSentence(c.description))} |`);
     if (commandsFor(r.source).length) lines.push('', `Select this source with ${code('--source ' + r.source)} on the commands that list it.`);
   } else lines.push('No command takes this source as a choice of `--source`. Sections of other entities read it, as the notes above say.');
-  lines.push('', '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. The group ${code(r.usage)} switches off every source in that use group. See [keys and configuration](/keys-and-configuration/).`, '');
+  lines.push('', '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. The group ${code(r.usage)} switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).`, '');
   if (n.example && fs.existsSync(path.resolve('examples', n.example, 'run.sh'))) {
     lines.push('## Example', '', `See the worked example on [${esc(n.example_page_title ?? 'the guide page')}](${n.example_page}).`, '');
   }
   lines.push(genFooter);
-  write(`sources/${r.source}.md`, lines.join('\n'));
+  files.set(path.join(SOURCES_OUT, `${srcSlug(r.source)}.md`), lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
 }
 {
   const groups = ['open', 'attribution', 'noncommercial', 'restricted'];
   const lines = [
-    fm({ title: 'Sources', description: `Every data source in ${site.product} ${site.version}, with its use group, publisher terms and key.`, goal: 'Find a BioMCP source, its terms, its key and the commands that read it.', reader: 'A BioMCP user choosing or checking sources' }),
-    `${site.product} ${site.version} registers ${registry.length} sources. This table comes from ${code('biomcp --offline health')}, which reports the registry without sending requests. The [data sources guide](/sources/) explains use groups and how to turn sources off.`,
+    fm({ title: 'Data sources', description: `Every data source in ${site.product} ${site.version}, with its use group, publisher terms and key.`, goal: 'Find a BioMCP source, its terms, its key and the commands that read it.', reader: 'A BioMCP user choosing or checking sources' }),
+    `${site.product} ${site.version} registers ${registry.length} sources. This table comes from ${code('biomcp --offline health')}, which reports the registry without sending requests. The [data sources guide](/sources/) explains use groups and how to turn sources off. Each source has its own page under [/sources/](/sources/).`,
     '',
     '| Source | Use group | Key | Terms |',
     '| --- | --- | --- | --- |',
-    ...registry.map((r) => `| [${r.source}](/reference/sources/${r.source}/) | ${r.usage} | ${keyOf(r.source) ? code(keyOf(r.source).environment) : ''} | [${cell(r.terms)}](${r.terms_url}) |`),
+    ...registry.map((r) => `| [${r.source}](${srcRoute(r.source)}) | ${r.usage} | ${keyOf(r.source) ? code(keyOf(r.source).environment) : ''} | [${cell(r.terms)}](${r.terms_url}) |`),
     '',
     '## Counts by use group',
     '',
@@ -218,7 +223,7 @@ for (const r of registry) {
     '',
     genFooter,
   ];
-  write('sources/index.md', lines.join('\n'));
+  write('data-sources.md', lines.join('\n'));
 }
 
 // ---------- global options ----------
@@ -228,7 +233,7 @@ write('global-options.md', [
   '',
   '| Option | Value | Choices | Guide |',
   '| --- | --- | --- | --- |',
-  ...globalOptions.map((o) => `| ${code(o.name)} | ${o.value ? code(o.value) : 'none'} | ${o.choices ? o.choices.split(', ').map(code).join(', ') : ''} | ${{ '--format': '[Results](/results/)', '--disable-sources': '[Data sources](/sources/)', '--config': '[Keys and configuration](/keys-and-configuration/)', '--offline': '[Local data](/local-data/)', '--fresh': '[Local data](/local-data/)' }[o.name] ?? ''} |`),
+  ...globalOptions.map((o) => `| ${code(o.name)} | ${o.value ? code(o.value) : 'none'} | ${o.choices ? o.choices.split(', ').map(code).join(', ') : ''} | ${{ '--format': '[Results](/results/)', '--disable-sources': '[Data sources](/sources/)', '--config': '[Keys and configuration](/getting-started/api-keys/)', '--offline': '[Local data](/local-data/)', '--fresh': '[Local data](/local-data/)' }[o.name] ?? ''} |`),
   '',
   genFooter,
 ].join('\n'));
@@ -242,8 +247,8 @@ const MEANING = {
   Failed: 'Every source the command needed failed. Status `failed`. Each source outcome names its reason, such as `deadline_exceeded` or `rejected`.',
   Local: 'A local step failed: the configuration file, the cache, a saved file or writing the output. The error code is `local.failure`.',
 };
-write('exit-codes.md', [
-  fm({ title: 'Exit codes', description: `What each ${site.product} ${site.version} process exit code means, from 0 for a result to 5 for a local failure.`, goal: 'Find what a BioMCP exit code means and what to do next.', reader: 'A developer or agent scripting BioMCP' }),
+write('error-codes.md', [
+  fm({ title: 'Error and exit codes', description: `What each ${site.product} ${site.version} process exit code means, from 0 for a result to 5 for a local failure.`, goal: 'Find what a BioMCP exit code means and what to do next.', reader: 'A developer or agent scripting BioMCP' }),
   `${site.product} ${site.version} sets the process exit code from the reply's status. Scripts can branch on it without reading the output.`,
   '',
   '| Exit code | Status | Meaning |',
@@ -258,8 +263,8 @@ write('exit-codes.md', [
 // ---------- MCP tools ----------
 {
   const lines = [
-    fm({ title: 'MCP tools', description: `The three MCP tools that ${site.product} ${site.version} serves: biomcp, search and fetch, with their input schemas.`, goal: 'Look up the MCP tools, their arguments and descriptions.', reader: 'A developer connecting an MCP client to BioMCP' }),
-    `${code('biomcp serve')} in ${site.product} ${site.version} answers ${code('tools/list')} with ${tools.length} tools. This page is generated from that reply. [Connect an agent](/connect-an-agent/) shows how to add the server to a client.`,
+    fm({ title: 'MCP server tools', description: `The three MCP tools that ${site.product} ${site.version} serves: biomcp, search and fetch, with their input schemas.`, goal: 'Look up the MCP tools, their arguments and descriptions.', reader: 'A developer connecting an MCP client to BioMCP' }),
+    `${code('biomcp serve')} in ${site.product} ${site.version} answers ${code('tools/list')} with ${tools.length} tools. This page is generated from that reply. [Connect an agent](/getting-started/mcp-clients/) shows how to add the server to a client.`,
     '',
   ];
   for (const t of tools) {
@@ -270,7 +275,7 @@ write('exit-codes.md', [
     lines.push('Description sent to the client:', '', '```text', t.description, '```', '');
   }
   lines.push(genFooter);
-  write('mcp-tools.md', lines.join('\n'));
+  write('mcp-server.md', lines.join('\n'));
 }
 
 // ---------- reply envelope: the enums every reply uses, from the JSON schemas ----------
@@ -314,7 +319,7 @@ write('exit-codes.md', [
     '',
     '## error.code',
     '',
-    `${esc(defs.ErrorCode.description)} Values: ${list(defs.ErrorCode)}. [Exit codes](/reference/exit-codes/) maps each status to a process exit code.`,
+    `${esc(defs.ErrorCode.description)} Values: ${list(defs.ErrorCode)}. [Exit codes](/reference/error-codes/) maps each status to a process exit code.`,
     '',
     genFooter,
   ].join('\n'));
@@ -346,12 +351,12 @@ write('index.md', [
   '',
   `- [Commands](/reference/commands/): all ${help.length} commands, one page each.`,
   `- [Entities and sections](/reference/entities/): the ${entities.length} entities and their section words.`,
-  `- [Sources](/reference/sources/): the ${registry.length} sources, their terms and keys.`,
+  `- [Sources](/reference/data-sources/): the ${registry.length} sources, their terms and keys.`,
   '- [Global options](/reference/global-options/): options every command accepts.',
   '- [Reply envelope](/reference/envelope/): statuses, source states, reasons, use groups and error codes.',
-  '- [Exit codes](/reference/exit-codes/): what each exit code means.',
+  '- [Exit codes](/reference/error-codes/): what each exit code means.',
   '- [Command map from 0.9](/reference/upgrade-map/): what happened to each 0.9 command.',
-  `- [MCP tools](/reference/mcp-tools/): the ${tools.length} tools the server offers.`,
+  `- [MCP tools](/reference/mcp-server/): the ${tools.length} tools the server offers.`,
   '',
   `Run ${code('biomcp help')} for the same command data as JSON, or ${code('biomcp help get gene')} for one command. ${code('biomcp schema ID')} prints a reply's JSON schema, such as ${code('biomcp schema biomcp.gene_cards/4')}.`,
   '',
@@ -372,7 +377,7 @@ const existing = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { recursive:
 if (check) {
   const diffs = [];
   for (const [f, text] of files) if (!fs.existsSync(f) || fs.readFileSync(f, 'utf8') !== text) diffs.push(path.relative('.', f));
-  for (const f of existing(OUT)) if (!files.has(f)) diffs.push(`${path.relative('.', f)} (stale)`);
+  for (const f of [...existing(OUT), ...existing(SOURCES_OUT).filter((f) => !f.endsWith('index.mdx'))]) if (!files.has(f)) diffs.push(`${path.relative('.', f)} (stale)`);
   if (diffs.length) {
     console.error(`reference: ${diffs.length} page(s) differ from the build; run npm run reference\n` + diffs.slice(0, 20).join('\n'));
     process.exit(1);
@@ -380,6 +385,7 @@ if (check) {
   console.log(`reference: ${files.size} files match the build`);
 } else {
   fs.rmSync(OUT, { recursive: true, force: true });
+  for (const f of existing(SOURCES_OUT)) if (!f.endsWith('index.mdx')) fs.rmSync(f);
   for (const [f, text] of files) {
     fs.mkdirSync(path.dirname(f), { recursive: true });
     fs.writeFileSync(f, text);

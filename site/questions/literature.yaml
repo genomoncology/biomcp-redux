@@ -3,35 +3,35 @@
   source: cases
   frequency: "use case 17; 0.9 how-to find-articles"
   rank: 5
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/search-article/
 - id: full-text-pmc
   question: How do I get the full text of a PMC article from the command line?
   source: product
   frequency: listed from article text and the fulltext section
   rank: 10
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/article-text/
 - id: supplementary-files
   question: How do I search an article's supplementary tables?
   source: product
   frequency: 0.9 supplementary-materials page, one of its strongest
   rank: 23
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/article-supplement/
 - id: citing-papers
   question: How do I list the papers that cite an article?
   source: product
   frequency: listed from article citations
   rank: 29
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/article-citations/
 - id: abstract-of-pmid
   question: How do I get the abstract of a PubMed article by PMID?
   source: cases
   frequency: "use case 04 reads an article card"
   rank: 21
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/get-article/
   answers_page: true
   example: a-abstract
@@ -49,7 +49,7 @@
   source: product
   frequency: listed from get article inputs (PMID, PMCID, DOI)
   rank: 26
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/get-article/
   answers_page: true
   example: a-pmid-convert
@@ -67,7 +67,7 @@
   source: product
   frequency: listed from the indexing section
   rank: 46
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/get-article/
   answers_page: true
   example: a-keywords
@@ -85,7 +85,7 @@
   source: product
   frequency: help example for search article with --since and --sort date
   rank: 28
-  page: /literature/
+  page: /how-to/find-articles/
   reference: /reference/commands/search-article/
   answers_page: true
   example: a-recent-articles
@@ -103,5 +103,5 @@
   source: public
   frequency: "issue #225"
   rank: 39
-  page: /keys-and-configuration/
-  reference: /reference/sources/semantic-scholar/
+  page: /getting-started/api-keys/
+  reference: /sources/semantic-scholar/

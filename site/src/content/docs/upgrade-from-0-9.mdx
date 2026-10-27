@@ -45,7 +45,7 @@ This page moves a BioMCP 0.9 setup to BioMCP <Fact k="version" />. The package n
 | `biomcp serve-http` | `biomcp serve --http ADDR` |
 | `biomcp cache clean` | `biomcp store clean` |
 | `biomcp list` | `biomcp help` |
-| `biomcp mcp tools` | your client's tool list, or the [MCP tools reference](/reference/mcp-tools/) |
+| `biomcp mcp tools` | your client's tool list, or the [MCP tools reference](/reference/mcp-server/) |
 
 The [command map](/reference/upgrade-map/) lists every 0.9 command with its outcome and the options 1.0 drops. Dropped commands include `discover`, `search all`, every `chart` command, study analytics, `update`, `uninstall` and `cvx sync`.
 
@@ -59,11 +59,11 @@ A dropped command, such as `discover`, returns `usage.schema` instead. See [trou
 
 ## Steps
 
-1. Upgrade with the channel that installed 0.9: `uv tool upgrade biomcp-cli`, `brew upgrade biomcp`, a new container tag, or the installer script. See [install](/install/).
+1. Upgrade with the channel that installed 0.9: `uv tool upgrade biomcp-cli`, `brew upgrade biomcp`, a new container tag, or the installer script. See [install](/getting-started/installation/).
 2. Run `biomcp version` and check it prints <Fact k="version" />.
-3. Replace MCP client configuration with the output of `biomcp mcp-config`. Remove bindings to the old per-entity tools. See [connect an agent](/connect-an-agent/).
+3. Replace MCP client configuration with the output of `biomcp mcp-config`. Remove bindings to the old per-entity tools. See [connect an agent](/getting-started/mcp-clients/).
 4. Store keys with `biomcp key set SOURCE`. The environment variable names are unchanged: `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY` and `ORCID_ACCESS_TOKEN`.
-5. Write a new `config.json` from the [settings table](/keys-and-configuration/#settings-in-configjson). 1.0 rejects unknown settings, so do not copy a 0.9 file whole.
+5. Write a new `config.json` from the [settings table](/getting-started/api-keys/#settings-in-configjson). 1.0 rejects unknown settings, so do not copy a 0.9 file whole.
 6. Update scripts to the new commands and to JSON output, or add `--format md`.
 7. Run `biomcp sync` for each bundle you use; see [local data](/local-data/).
 8. Reinstall the agent skill with `biomcp skill install DIR --force`.

@@ -1,0 +1,37 @@
+---
+title: "Study entity"
+description: "The study entity in BioMCP 1.0: its commands, sections, sources and one example with melanoma."
+goal: The reader finds the commands, sections and sources for the study entity and runs one example.
+reader: A BioMCP user or agent working with study records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: study
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `study`. A cBioPortal cancer study's metadata, read from a local bundle. Run `biomcp sync cbioportal-studies` first. BioMCP returns metadata and file references and computes no statistics.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp search study`](/reference/commands/search-study/) | Literal stored metadata search; text is never parsed as a query language. |
+| [`biomcp get study`](/reference/commands/get-study/) | Exact case-sensitive study card or bounded metadata section. |
+
+## Sections of get study
+
+`profiles`, `sample-lists`, `files`, `all`. The [get study reference](/reference/commands/get-study/) describes each one.
+
+## Sources
+
+[cbioportal](/sources/cbioportal/).
+
+## Example
+
+<Example id="study-search" />
+
+## Guide
+
+[Studies and cell lines](/studies-and-cell-lines/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

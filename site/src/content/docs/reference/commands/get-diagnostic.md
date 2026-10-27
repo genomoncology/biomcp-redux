@@ -46,7 +46,7 @@ gtr: genes, conditions, methods. fda-pma: regulatory, supplements. WHO and 510(k
 
 ## Sources
 
-`--source` accepts these sources: [gtr](/reference/sources/gtr/), [who-ivd](/reference/sources/who-ivd/), [fda-pma](/reference/sources/fda-pma/), [fda-510k](/reference/sources/fda-510k/).
+`--source` accepts these sources: [gtr](/sources/gtr/), [who-ivd](/sources/who-ivd/), [fda-pma](/sources/fda-pma/), [fda-510k](/sources/fda-510k/).
 
 ## Examples
 
@@ -57,6 +57,6 @@ biomcp get diagnostic GTR000006692.3 --source gtr
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

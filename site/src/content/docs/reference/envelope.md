@@ -56,6 +56,6 @@ Purpose of an available next command. Values: `restart`, `section`, `sort`, `pag
 
 ## error.code
 
-The stable error code for an invalid schema request. Values: `usage.schema`, `usage.arguments`, `usage.retired`, `local.failure`, `pool.expired`, `usage.pool_mismatch`, `usage.too_many_pmids`, `usage.unsupported_filter`. [Exit codes](/reference/exit-codes/) maps each status to a process exit code.
+The stable error code for an invalid schema request. Values: `usage.schema`, `usage.arguments`, `usage.retired`, `local.failure`, `pool.expired`, `usage.pool_mismatch`, `usage.too_many_pmids`, `usage.unsupported_filter`. [Exit codes](/reference/error-codes/) maps each status to a process exit code.
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

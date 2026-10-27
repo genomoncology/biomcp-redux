@@ -10,7 +10,7 @@
   source: product
   frequency: listed from the constraint section
   rank: 38
-  page: /quickstart/
+  page: /getting-started/first-query/
   reference: /reference/commands/get-gene/
 - id: gene-to-uniprot
   question: How do I find the UniProt accession for a gene?

@@ -47,7 +47,7 @@ One named section; omitted means the CPIC gene card.
 
 ## Sources
 
-`--source` accepts these sources: [cpic](/reference/sources/cpic/), [clinpgx](/reference/sources/clinpgx/).
+`--source` accepts these sources: [cpic](/sources/cpic/), [clinpgx](/sources/pharmgkb/).
 
 ## Examples
 
@@ -58,6 +58,6 @@ biomcp get pgx --gene DPYD --source cpic diplotype --diplotype '*1/*2A'
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

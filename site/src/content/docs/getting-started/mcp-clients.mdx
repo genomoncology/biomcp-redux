@@ -1,0 +1,91 @@
+---
+title: Connect an agent
+description: Add BioMCP 1.0 to Claude, Codex, Cursor, VS Code or ChatGPT as an MCP server, or install the BioMCP skill, and check that the agent can call it.
+goal: The reader adds BioMCP to one MCP client or agent and confirms a tool call works.
+reader: A developer or researcher who uses an AI agent or desktop assistant and has BioMCP installed
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import InstallLine from '../../../components/InstallLine.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`. It offers <Fact k="counts.mcp_tools" /> tools: `biomcp`, which runs any read-only BioMCP command, and `search` and `fetch`, which follow the shape ChatGPT research clients expect. This page adds the server to a client, or gives a shell agent the BioMCP skill instead.
+
+## Requirements
+
+- BioMCP installed. See [install](/getting-started/installation/).
+- An MCP client: Claude Desktop, Claude Code, Codex, Cursor, Cline, VS Code or another client that starts stdio servers.
+
+## Print the client configuration
+
+`biomcp mcp-config` prints configuration with the absolute path of the installed executable. Paste it into your client's MCP settings.
+
+<Example id="mcp-config" />
+
+The build replaced its own path with `/home/you/.local/bin/biomcp`. Your output names your path.
+
+Choose another shape with `--client`:
+
+| Client | Option | Shape |
+| --- | --- | --- |
+| Claude Desktop, Claude Code, Cursor, Cline and generic JSON | `--client mcp-servers` (default; aliases `claude-desktop`, `claude-code`, `cursor`, `cline`, `json`) | `mcpServers` object |
+| VS Code | `--client vscode` (alias `servers`) | `servers` object |
+| Codex | `--client codex` | a shell command |
+
+Codex registers the server with one command:
+
+<Example id="mcp-config-codex" />
+
+## Check the server answers
+
+Restart the client and ask it to run a BioMCP command, such as "use biomcp to get gene BRAF". The client sends the command's words as the `args` array of the `biomcp` tool. This exchange, run in the build, starts the server over stdio and calls the tool the way a client does:
+
+<Example id="mcp-call" />
+
+The tool returns the same JSON envelope as the command line. MCP replies are always JSON; `--format md` has no effect there.
+
+## Use search and fetch from ChatGPT-style clients
+
+Research clients that expect `search` and `fetch` tools can use those two. `search` takes an entity and its arguments, such as `gene BRAF --limit 2`, or plain article text. Each result has an `id` that `fetch` accepts.
+
+<Example id="mcp-search-tool" />
+
+Rows without an exact record to fetch stay available through the `biomcp` tool.
+
+## Install the desktop extension
+
+The `.mcpb` desktop extension bundles the executable for macOS or Windows and starts it with `serve`. Open the downloaded `.mcpb` file with Claude Desktop to install it. The extension declares the same three tools.
+
+## Install the Claude Code plugin
+
+The plugin starts your installed `biomcp serve` and adds the BioMCP skill. Install BioMCP first, then in Claude Code run:
+
+<InstallLine k="install.plugin" />
+<InstallLine k="install.plugin_install" />
+
+## Give a shell agent the skill
+
+An agent that runs shell commands can use the `biomcp` command directly. The skill teaches it the grammar and <Fact k="counts.use_cases" /> worked examples. `biomcp skill install DIR` writes the skill under `DIR/skills/biomcp`:
+
+<Example id="skill-install" />
+
+Point the directory at your agent's skills folder, such as `~/.claude`. Existing files stay unchanged unless you add `--force`. `biomcp skill status DIR` reports whether the installed copy matches this executable. `biomcp skill render` prints the guide, and `biomcp skill list` lists the worked examples:
+
+<Example id="skill-list" />
+
+## Run the server over HTTP
+
+Clients that connect over HTTP use `biomcp serve --http`. HTTP refuses file saves and source synchronization. [Run as a server](/getting-started/remote-http/) covers addresses, allowed hosts and the health check.
+
+## If the client shows no tools
+
+- Run the `command` path from the configuration in a shell. It should print the version with `version` appended.
+- Restart the client after changing its configuration.
+- When the client starts with a different environment, a proxy or certificate set in your shell may be missing. Put `proxy` and `ca_bundle` in `config.json`; see [keys and configuration](/getting-started/api-keys/).
+
+More failures are on [troubleshooting](/troubleshooting/). The tool schemas are in the [MCP tools reference](/reference/mcp-server/).
+
+## Next
+
+Learn the command grammar the `biomcp` tool takes in [how BioMCP works](/concepts/progressive-disclosure/).

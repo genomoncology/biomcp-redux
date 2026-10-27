@@ -1,0 +1,55 @@
+---
+title: The 2025 KIDS BioHackathon talk
+description: A project using BioMCP won St. Jude's 2025 KIDS BioHackathon, and the talk that followed is on YouTube. One prediction in it describes BioMCP 1.0.
+goal: Point readers to the St. Jude talk, its chapters, and what in it still holds for BioMCP 1.0.
+reader: A researcher curious about biomedical agents and where BioMCP came from
+kind: blog
+verified: 2026-10-27
+date: 2026-10-21
+author: Ian Maurer
+---
+
+A project that used BioMCP won St. Jude Children's Research Hospital's KIDS BioHackathon in autumn 2025. Their data science office then invited me to speak to their community of practice, on October 24, 2025. The talk is an introduction to biomedical agents for researchers who had watched a colleague use one to win something. It assumes no background in agents.
+
+[Watch the talk on YouTube](https://www.youtube.com/watch?v=lXoe-4TENDE). A transcript with chapter links is on [my site](https://www.imaurer.com/talks/biomcp-st-jude/).
+
+## What it covers
+
+The first half is orientation: pre-training, prompting, retrieval, post-training and the reasoning models of that year. The argument underneath is simple. A model answering from memory guesses. A model that can retrieve evidence and call tools does better work, and in biomedicine that difference decides whether an answer is usable.
+
+The second half runs BioMCP against real sources: trial search on ClinicalTrials.gov, literature through PubTator, and variant lookups across genomic databases.
+
+Two ideas have held up.
+
+**Curated knowledge and language models fix each other's weaknesses.** A knowledge graph gives provenance, structure and an explanation you can trace. A language model gives flexible language and synthesis. Neither is enough alone.
+
+**Tool output is part of the security boundary.** An untrusted server, or untrusted content returned through a trusted one, can steer a model. Turning on a tool is a decision about what counts as evidence.
+
+## The prediction
+
+At [54:46](https://www.youtube.com/watch?v=lXoe-4TENDE&t=3286s) I said:
+
+> That CLI might actually be the new MCP.
+
+I had built the command line mostly to test the server without driving MCP tools, then noticed agents used it more comfortably than the protocol. BioMCP 1.0 is built on that idea. The MCP server offers one `biomcp` tool that takes the same words as the command line, so an agent learns one grammar. [How BioMCP works](/concepts/progressive-disclosure/) explains it.
+
+## What is dated
+
+The model names, prices and benchmark charts in the talk are a time capsule. The talk describes a Python library with many tools; BioMCP 1.0 is one executable with one grammar. Skills had shipped eight days before the talk, and BioMCP now embeds one. The parts about interfaces, evidence boundaries and validation still hold.
+
+## Chapters
+
+| Time | Section |
+| --- | --- |
+| [00:00](https://www.youtube.com/watch?v=lXoe-4TENDE&t=0s) | Introduction: GenomOncology and precision oncology |
+| [02:48](https://www.youtube.com/watch?v=lXoe-4TENDE&t=168s) | The pre-training era |
+| [07:45](https://www.youtube.com/watch?v=lXoe-4TENDE&t=465s) | Prompting techniques and RAG |
+| [13:00](https://www.youtube.com/watch?v=lXoe-4TENDE&t=780s) | Post-training and reasoning models |
+| [19:46](https://www.youtube.com/watch?v=lXoe-4TENDE&t=1186s) | Knowledge graphs meet language models |
+| [26:20](https://www.youtube.com/watch?v=lXoe-4TENDE&t=1580s) | Model Context Protocol |
+| [31:41](https://www.youtube.com/watch?v=lXoe-4TENDE&t=1901s) | What BioMCP is |
+| [35:46](https://www.youtube.com/watch?v=lXoe-4TENDE&t=2146s) | Demos: trials, literature, variants |
+| [48:27](https://www.youtube.com/watch?v=lXoe-4TENDE&t=2907s) | The biomedical research assistant |
+| [53:07](https://www.youtube.com/watch?v=lXoe-4TENDE&t=3187s) | Coding agents and what comes next |
+
+To try BioMCP, start with the [quickstart](/getting-started/first-query/).

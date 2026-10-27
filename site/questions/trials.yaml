@@ -3,14 +3,14 @@
   source: cases
   frequency: "use case 09; the 0.9 find-trials how-to; the brief's example task"
   rank: 6
-  page: /clinical-trials/
+  page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
 - id: kras-g12c-lung-trials
   question: How do I find recruiting trials for KRAS G12C non-small cell lung cancer?
   source: product
   frequency: the brief's first example agent task
   rank: 7
-  page: /clinical-trials/
+  page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
   answers_page: true
   example: a-kras-g12c-trials
@@ -28,7 +28,7 @@
   source: product
   frequency: listed from --lat, --lon and --distance
   rank: 22
-  page: /clinical-trials/
+  page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
   answers_page: true
   example: a-trials-near
@@ -47,7 +47,7 @@
   source: product
   frequency: listed from --intervention; 0.9 drug trials helper
   rank: 24
-  page: /clinical-trials/
+  page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
   answers_page: true
   example: a-trials-intervention
@@ -65,14 +65,14 @@
   source: product
   frequency: listed from the eligibility section
   rank: 12
-  page: /clinical-trials/
+  page: /how-to/find-trials/
   reference: /reference/commands/get-trial/
 - id: trials-with-results
   question: How do I count trials that have posted results?
   source: product
   frequency: listed from --has-results and --count-only
   rank: 41
-  page: /clinical-trials/
+  page: /how-to/find-trials/
   reference: /reference/commands/search-trial/
   answers_page: true
   example: a-trials-results
@@ -90,5 +90,5 @@
   source: public
   frequency: "issue #234"
   rank: 37
-  page: /clinical-trials/
-  reference: /reference/sources/nci/
+  page: /how-to/find-trials/
+  reference: /sources/nci/

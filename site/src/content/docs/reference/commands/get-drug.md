@@ -52,7 +52,7 @@ Explicit named disclosures; empty means identity only.
 
 ## Sources
 
-`--source` accepts these sources: [who-pq](/reference/sources/who-pq/), [mychem](/reference/sources/mychem/), [chembl](/reference/sources/chembl/), [opentargets](/reference/sources/opentargets/), [civic](/reference/sources/civic/), [openfda-label](/reference/sources/openfda-label/), [drugsfda](/reference/sources/drugsfda/), [ema](/reference/sources/ema/), [ddinter](/reference/sources/ddinter/).
+`--source` accepts these sources: [who-pq](/sources/who-prequalification/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
 
 ## Examples
 
@@ -63,6 +63,6 @@ biomcp get drug EMEA/H/C/000406 regulatory --source ema
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -32,7 +32,7 @@ biomcp article citations [OPTIONS] <pmid>
 
 ## Sources
 
-`--source` accepts these sources: [icite](/reference/sources/icite/), [semantic-scholar](/reference/sources/semantic-scholar/).
+`--source` accepts these sources: [icite](/sources/icite/), [semantic-scholar](/sources/semantic-scholar/).
 
 ## Examples
 
@@ -43,6 +43,6 @@ biomcp article citations 23000897 --source semantic-scholar
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

@@ -32,7 +32,7 @@ biomcp variant normalize [OPTIONS]
 
 ## Sources
 
-`--source` accepts these sources: [car](/reference/sources/car/), [mutalyzer](/reference/sources/mutalyzer/), [variantvalidator](/reference/sources/variantvalidator/).
+`--source` accepts these sources: [car](/sources/clingen-allele-registry/), [mutalyzer](/sources/mutalyzer/), [variantvalidator](/sources/variantvalidator/).
 
 ## Examples
 
@@ -43,6 +43,6 @@ biomcp variant normalize --source variantvalidator --hgvs 'NM_004333.4:c.1799T>A
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

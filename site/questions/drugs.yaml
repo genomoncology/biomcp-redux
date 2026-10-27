@@ -36,7 +36,7 @@
   frequency: "issue #226 (EMA documents, 6 comments)"
   rank: 48
   page: /drugs-and-safety/
-  reference: /reference/sources/ema/
+  reference: /sources/ema/
   answers_page: true
   example: a-ema-status
   answer: |
@@ -54,7 +54,7 @@
   frequency: "issue #220 (drug interaction data unavailable)"
   rank: 49
   page: /drugs-and-safety/
-  reference: /reference/sources/ddinter/
+  reference: /sources/ddinter/
 - id: pgx-guidelines
   question: How do I find CPIC pharmacogenomic guidelines for a gene?
   source: cases

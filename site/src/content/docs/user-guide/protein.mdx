@@ -1,0 +1,48 @@
+---
+title: "Protein entity"
+description: "The protein entity in BioMCP 1.0: its commands, sections, sources and one example with P15056 (BRAF)."
+goal: The reader finds the commands, sections and sources for the protein entity and runs one example.
+reader: A BioMCP user or agent working with protein records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: protein
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> entity `protein`. A reviewed human protein from UniProt, with InterPro domains and Complex Portal complexes. Each section also has a relation command, such as `biomcp protein domains P15056`, for paging.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| [`biomcp protein features`](/reference/commands/protein-features/) | Page five native UniProt features by exact type and displayed residue. |
+| [`biomcp protein isoforms`](/reference/commands/protein-isoforms/) | Page five source isoforms, exact-participant complexes or PDB links. |
+| [`biomcp protein domains`](/reference/commands/protein-domains/) | Page five native InterPro matches with original types and fragments. |
+| [`biomcp protein complexes`](/reference/commands/protein-complexes/) | Page five source isoforms, exact-participant complexes or PDB links. |
+| [`biomcp protein complex-members`](/reference/commands/protein-complex-members/) | Page five native participants of an exact Complex Portal complex containing the anchor. |
+| [`biomcp protein structures`](/reference/commands/protein-structures/) | Page five source isoforms, exact-participant complexes or PDB links. |
+| [`biomcp protein sequence`](/reference/commands/protein-sequence/) | Read one complete native sequence for an exact source accession.
+No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs. |
+| [`biomcp search protein`](/reference/commands/search-protein/) | Search five reviewed human UniProt headers by literal text or exact gene.
+No variant effect, structure, interaction or clinical meaning is inferred. |
+| [`biomcp get protein`](/reference/commands/get-protein/) | Read source protein cards; a symbol returns candidates without choosing a protein.
+Sections disclose native facts with independent row bounds; function keeps all paragraphs.
+No variant effect, structure, interaction or clinical meaning is inferred. |
+
+## Sections of get protein
+
+`features`, `domains`, `isoforms`, `complexes`, `structures`, `function`, `sequence`, `all`. The [get protein reference](/reference/commands/get-protein/) describes each one.
+
+## Sources
+
+[uniprot](/sources/uniprot/), [interpro](/sources/interpro/), [complex-portal](/sources/complex-portal/).
+
+## Example
+
+<Example id="protein-get" />
+
+## Guide
+
+[Genes and proteins](/genes-and-proteins/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).

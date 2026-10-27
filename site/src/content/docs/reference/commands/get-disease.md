@@ -53,7 +53,7 @@ One named section; absent means identity card only.
 
 ## Sources
 
-`--source` accepts these sources: [ols](/reference/sources/ols/), [mydisease](/reference/sources/mydisease/), [monarch](/reference/sources/monarch/), [seer](/reference/sources/seer/).
+`--source` accepts these sources: [ols](/sources/ols/), [mydisease](/sources/mydisease/), [monarch](/sources/monarch-initiative/), [seer](/sources/seer/).
 
 ## Examples
 
@@ -64,6 +64,6 @@ biomcp get disease 55 survival --source seer --sex 3 --race 1 --age-range 1 --da
 
 ## Exit codes
 
-See [exit codes](/reference/exit-codes/). Options that apply to every command are in [global options](/reference/global-options/).
+See [exit codes](/reference/error-codes/). Options that apply to every command are in [global options](/reference/global-options/).
 
 This page is generated from the help of BioMCP 1.0.0. Fix a wrong sentence in the help text, then regenerate.

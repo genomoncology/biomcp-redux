@@ -17,7 +17,7 @@ BioMCP <Fact k="version" /> resolves genes against HGNC and reads gene sections 
 
 ## 1. Read the gene card
 
-The [quickstart](/quickstart/#3-get-one-record) reads the BRAF card. `get gene` takes a symbol, an alias, a previous symbol, an HGNC, NCBI Gene or Ensembl identifier, or a cytogenetic band, and up to 20 inputs at once. `biomcp search gene` searches names and filters by `--locus-group` or `--band`.
+The [quickstart](/getting-started/first-query/#3-get-one-record) reads the BRAF card. `get gene` takes a symbol, an alias, a previous symbol, an HGNC, NCBI Gene or Ensembl identifier, or a cytogenetic band, and up to 20 inputs at once. `biomcp search gene` searches names and filters by `--locus-group` or `--band`.
 
 ## 2. Add sections
 
@@ -50,7 +50,7 @@ Human Protein Atlas expression:
 
 <Example id="protein-get" />
 
-Protein sections are `features`, `domains`, `isoforms`, `complexes`, `structures`, `function`, `sequence` and `all`. Each also has a relation command for paging, such as `biomcp protein domains P15056`. [How BioMCP works](/how-biomcp-works/#relation-commands-read-collections) shows its output.
+Protein sections are `features`, `domains`, `isoforms`, `complexes`, `structures`, `function`, `sequence` and `all`. Each also has a relation command for paging, such as `biomcp protein domains P15056`. [How BioMCP works](/concepts/progressive-disclosure/#relation-commands-read-collections) shows its output.
 
 ## 4. Find a pathway and its members
 
@@ -72,9 +72,9 @@ Sections report each source's curation as published. A ClinGen classification na
 
 ## Related
 
-- Entities: [gene](/entities/gene/), [protein](/entities/protein/), [pathway](/entities/pathway/)
+- Entities: [gene](/user-guide/gene/), [protein](/user-guide/protein/), [pathway](/user-guide/pathway/)
 - Reference: [get gene](/reference/commands/get-gene/), [get protein](/reference/commands/get-protein/), [search pathway](/reference/commands/search-pathway/), [pathway genes](/reference/commands/pathway-genes/)
-- Sources: [HGNC](/reference/sources/hgnc/), [UniProt](/reference/sources/uniprot/), [ClinGen](/reference/sources/clingen/), [Reactome](/reference/sources/reactome/)
+- Sources: [HGNC](/sources/hgnc/), [UniProt](/sources/uniprot/), [ClinGen](/sources/clingen/), [Reactome](/sources/reactome/)
 
 ## Next
 
