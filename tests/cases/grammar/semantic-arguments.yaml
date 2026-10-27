@@ -1,5 +1,5 @@
 {
-  "feature": "article-commands",
+  "feature": "query-validation",
   "live_check": "synthetic",
   "story": "Semantic argument errors name checked identities without rejected values",
   "steps": [
