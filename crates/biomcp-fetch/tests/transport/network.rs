@@ -105,7 +105,7 @@ fn ipv6_and_cidr_bypass_rules_route_matching_addresses_directly() {
         let port = stub.base.rsplit_once(':').unwrap().1;
         let rule = rule.replace("port", port);
         let network = biomcp_fetch::Network::new(
-            Some(Secret::new("http://127.0.0.1:1".into())),
+            Some(Secret::new("http://127.0.0.1:1")),
             None,
             &rule,
             Default::default(),
