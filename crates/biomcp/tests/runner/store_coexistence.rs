@@ -15,6 +15,7 @@ pub(super) fn trials() -> Vec<Trial> {
     [
         ("imports-after-safe-cleanup", imports as fn() -> Check),
         ("legacy-hgnc-index-upgrades", legacy_index),
+        ("obsolete-published-bundle-survives-cleanup", obsolete),
         ("current-published-bundle-wins", current),
         ("interrupted-transfer-retains-both-files", interrupted),
         ("owner-refusal-preserves-both-files", ownership),
@@ -238,6 +239,28 @@ fn legacy_index() -> Check {
     }
     if fs::read(&old)? != before {
         return Err("legacy index upgrade rewrote its source".into());
+    }
+    Ok(())
+}
+
+fn obsolete() -> Check {
+    let env = Environment::new()?;
+    let (_, current) = files(&env)?;
+    let obsolete = current.with_file_name("cache-1-3.sqlite");
+    drop(biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+        cache: Some(obsolete.clone()),
+        mode: biomcp_fetch::Mode::Offline,
+        ..Default::default()
+    })?);
+    seed(&obsolete, "a", 123)?;
+    let before = fs::read(&obsolete)?;
+    invoke(
+        &env,
+        vec!["store".into(), "clean".into(), "--offline".into()],
+        0,
+    )?;
+    if !obsolete.exists() || fs::read(&obsolete)? != before {
+        return Err("cleanup removed an unsupported file's only published bundle".into());
     }
     Ok(())
 }
