@@ -361,7 +361,7 @@
           "request_contains": "",
           "request_query": {
             "db": "pubmed",
-            "id": "17611497,18053070,22505016"
+            "id": "22505016,17611497,18053070"
           },
           "capture": "pubmed/822eb63c90a3d5be2e3f610ad5b808818ff65383e65a26981bc188657905e4ea.json"
         }
@@ -424,9 +424,10 @@
           "request_contains": "",
           "request_query": {
             "db": "pubmed",
-            "id": ""
+            "id": "39506119,17611497"
           },
-          "capture": "pubmed/ec6b569d8710cfeb29f8e71775b2fe26052ee5bcb29a350211319ef5599a6374.json"
+          "capture": "",
+          "recording_gap": "Released ESummary requests every ID from its selected ESearch page. The retained current summary contains a different PMID subset; it cannot substitute for that released source request (src/entities/article/backends.rs::search_pubmed_page_with_context; src/sources/pubmed.rs::esummary_plan)."
         }
       ],
       "facts": {
@@ -477,7 +478,7 @@
           "request_contains": "",
           "request_query": {
             "db": "pubmed",
-            "id": "17611497,17692802,17921701,18256540,18392055,18410456,18504432,18611285,18665177,18728674,18754328,18783292,18813315,18954143,19158829,19307184,19353338,19389506,19418217,19420344,19461960,19491896,19736514,19744127,19802009,19853286,19898424,20022634,20068047,20101210,20407443,20440266,20489726,20493625,20980808,21479466"
+            "id": "18504432,20440266,20980808,19853286,18665177,20407443,19802009,20101210,18392055,18611285,18754328,19744127,18256540,18728674,21479466,18783292,18813315,19353338,19420344,17921701,19898424,19418217,20022634,17692802,18410456,17611497,19491896,19461960,20068047,19307184,18954143,19736514,20493625,20489726,19158829,19389506"
           },
           "capture": "pubmed/6c8d07d0f6da2f24f41c184433776036eb48f78d8e255286c7048399f35c4a99.json"
         },
@@ -491,9 +492,10 @@
             "db": "pubmed",
             "term": "AKT1 E17K",
             "datetype": "pdat",
-            "maxdate": "2010"
+            "maxdate": "2010/01/01"
           },
-          "capture": "pubmed/c6af82c6bd0443c96c13b78ef4d0c0b486d1620c665493824f64df7747a9d494.json"
+          "capture": "",
+          "recording_gap": "Released --until 2010 normalizes to maxdate=2010/01/01. This capture answers the current whole-year 1800:2010[dp] term. It cannot supply the narrower released date question (src/utils/date.rs::normalize_since; src/entities/article/query.rs::normalized_date_bounds)."
         }
       ],
       "facts": {
