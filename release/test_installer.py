@@ -1,6 +1,6 @@
 """Feature install-script: exercise the actual installer with isolated downloads."""
 from release.artifacts import binary_archive
-from release.local_server import server
+from release.local_server import https_server
 import hashlib
 import io
 import os
@@ -91,7 +91,8 @@ class Installer(unittest.TestCase):
                     tag = "manylinux_2_28_" + ("aarch64" if platform.endswith("arm64") else "x86_64")
                 archive = binary_archive(release, payload, tag)
                 self.assertEqual(archive.name, "biomcp-" + platform + suffix)
-                with server(self.root) as base:
+                with https_server(self.root) as (base, ca):
+                    self.environment["CURL_CA_BUNDLE"] = str(ca)
                     self.environment["BIOMCP_RELEASE_BASE_URL"] = base + "/releases"
                     result = self.install("--version", "1.0.0")
                 self.assertEqual(result.returncode, 0, result.stderr)
@@ -105,7 +106,8 @@ class Installer(unittest.TestCase):
         release = self.root / "releases/latest/download"
         release.mkdir(parents=True)
         archive, checksum = candidate(release, "biomcp-linux-x86_64.tar.gz")
-        with server(self.root) as base:
+        with https_server(self.root) as (base, ca):
+            self.environment["CURL_CA_BUNDLE"] = str(ca)
             self.environment["BIOMCP_RELEASE_BASE_URL"] = base + "/releases"
             self.assertEqual(self.install().returncode, 0)
         self.assertEqual(self.install(str(archive), checksum, str(self.root / "offline")).returncode, 0)
@@ -123,7 +125,8 @@ class Installer(unittest.TestCase):
         release = self.root / "releases/download/v1.0.0"
         release.mkdir(parents=True)
         archive, checksum = candidate(release, "biomcp-linux-x86_64.tar.gz")
-        with server(self.root) as base:
+        with https_server(self.root) as (base, ca):
+            self.environment["CURL_CA_BUNDLE"] = str(ca)
             self.environment.update(BIOMCP_RELEASE_BASE_URL=base + "/releases", BIOMCP_VERSION="v1.0.0")
             for bad in ["0" * 64, checksum + "  other.tar.gz", checksum + "\n" + checksum]:
                 archive.with_name(archive.name + ".sha256").write_text(bad + "\n")
@@ -146,7 +149,8 @@ class Installer(unittest.TestCase):
         self.destination.mkdir()
         installed = self.destination / "biomcp.exe"
         installed.write_bytes(b"previous executable")
-        with server(self.root) as base:
+        with https_server(self.root) as (base, ca):
+            self.environment["CURL_CA_BUNDLE"] = str(ca)
             self.environment.update(BIOMCP_RELEASE_BASE_URL=base + "/releases", BIOMCP_VERSION="v1.0.0")
             archive, _ = candidate(release, "biomcp-windows-x86_64.zip", member="../escape.exe")
             result = self.install()

@@ -12,9 +12,9 @@ fail() { echo "$*" >&2; exit 1; }
 
 download() {
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL --connect-timeout 10 --max-time 120 "$1" -o "$2"
+    curl --proto '=https' --proto-redir '=https' -fsSL --connect-timeout 10 --max-time 120 "$1" -o "$2"
   elif command -v wget >/dev/null 2>&1; then
-    wget --timeout=30 --tries=1 -qO "$2" "$1"
+    wget --https-only --timeout=30 --tries=1 -qO "$2" "$1"
   else
     fail 'curl or wget is required to download biomcp'
   fi
@@ -95,6 +95,7 @@ else
   fi
   asset="biomcp-$os-$arch.$suffix"
   base=${BIOMCP_RELEASE_BASE_URL:-https://github.com/${BIOMCP_GITHUB_REPO:-genomoncology/biomcp}/releases}
+  [[ "$base" = https://* ]] || fail 'Release base URL must use HTTPS'
   if [ "$version" = latest ]; then
     url="$base/latest/download/$asset"
   else
