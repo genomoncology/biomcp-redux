@@ -1,5 +1,5 @@
 {
-  "live_check": "fixture",
+  "live_check": "Stored GenCC fixture with an authored 429 response",
   "feature": "gene-sections",
   "story": "GenCC keeps each ODC1 submitter assessment and reports a gene without rows",
   "replay": "gene/gencc",
@@ -12,7 +12,7 @@
       "expect": {
         "/status": "complete",
         "/query/source": "gencc",
-        "/result/rows": 2
+        "/result/rows": 3
       }
     },
     {
@@ -34,17 +34,25 @@
         "/status": "complete",
         "/result/items/0/sections/gencc/state": "data",
         "/result/items/0/sections/gencc/data/submissions/*/submitter": [
-          "Fixture submitter A",
-          "Fixture submitter B"
+          "Labcorp Genetics (formerly Invitae)",
+          "PanelApp Australia",
+          "G2P"
         ],
         "/result/items/0/sections/gencc/data/submissions/*/classification": [
           "Strong",
-          "Limited"
+          "Strong",
+          "Strong"
         ],
         "/result/items/1/sections/gencc/state": "empty",
         "/result/items/0/sections/gencc/data/submissions/*/evaluated_date": [
-          "2026-01-02 00:00:00",
-          "2026-01-02 00:00:00"
+          "2021-08-04 12:08:26",
+          "2025-01-17T00:00:00.000000Z",
+          "2025-03-14T00:00:00.000000Z"
+        ],
+        "/result/items/0/sections/gencc/data/submissions/*/disease_id": [
+          "MONDO:0033642",
+          "MONDO:0033642",
+          "MONDO:0033642"
         ]
       },
       "max_bytes": 12000
@@ -61,17 +69,25 @@
         "/status": "complete",
         "/result/items/0/sections/gencc/state": "data",
         "/result/items/0/sections/gencc/data/submissions/*/submitter": [
-          "Fixture submitter A",
-          "Fixture submitter B"
+          "Labcorp Genetics (formerly Invitae)",
+          "PanelApp Australia",
+          "G2P"
         ],
         "/result/items/0/sections/gencc/data/submissions/*/classification": [
           "Strong",
-          "Limited"
+          "Strong",
+          "Strong"
         ],
         "/result/items/1/sections/gencc/state": "empty",
         "/result/items/0/sections/gencc/data/submissions/*/evaluated_date": [
-          "2026-01-02 00:00:00",
-          "2026-01-02 00:00:00"
+          "2021-08-04 12:08:26",
+          "2025-01-17T00:00:00.000000Z",
+          "2025-03-14T00:00:00.000000Z"
+        ],
+        "/result/items/0/sections/gencc/data/submissions/*/disease_id": [
+          "MONDO:0033642",
+          "MONDO:0033642",
+          "MONDO:0033642"
         ]
       },
       "max_bytes": 12000,

@@ -27,7 +27,9 @@ const SUBMISSIONS: Bundle<Submission> = Bundle {
     spec: &SPEC,
     name: "gencc-submissions",
     path: "/download/action/submissions-export-csv?format=new",
-    format: RowFormat::Csv { banner_lines: 0 },
+    format: RowFormat::NativeCsv {
+        max_bytes: biomcp_fetch::MAX_BUNDLE_BYTES,
+    },
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
@@ -61,8 +63,46 @@ pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleSta
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct Submission {
     gene_curie: HgncId,
+    #[serde(rename = "gene_symbol")]
+    _gene_symbol: String,
+    #[serde(rename = "disease_original_curie")]
+    _disease_original_curie: String,
+    #[serde(rename = "disease_original_title")]
+    _disease_original_title: String,
+    #[serde(rename = "submitted_as_hgnc_id")]
+    _submitted_as_hgnc_id: String,
+    #[serde(rename = "submitted_as_hgnc_symbol")]
+    _submitted_as_hgnc_symbol: String,
+    #[serde(rename = "submitted_as_disease_id")]
+    _submitted_as_disease_id: String,
+    #[serde(rename = "submitted_as_disease_name")]
+    _submitted_as_disease_name: String,
+    #[serde(rename = "submitted_as_moi_id")]
+    _submitted_as_moi_id: String,
+    #[serde(rename = "submitted_as_moi_name")]
+    _submitted_as_moi_name: String,
+    #[serde(rename = "submitted_as_submitter_id")]
+    _submitted_as_submitter_id: String,
+    #[serde(rename = "submitted_as_submitter_name")]
+    _submitted_as_submitter_name: String,
+    #[serde(rename = "submitted_as_classification_id")]
+    _submitted_as_classification_id: String,
+    #[serde(rename = "submitted_as_classification_name")]
+    _submitted_as_classification_name: String,
+    #[serde(rename = "submitted_as_public_report_url")]
+    _submitted_as_public_report_url: String,
+    #[serde(rename = "submitted_as_notes")]
+    _submitted_as_notes: String,
+    #[serde(rename = "submitted_as_pmids")]
+    _submitted_as_pmids: String,
+    #[serde(rename = "submitted_as_assertion_criteria_url")]
+    _submitted_as_assertion_criteria_url: String,
+    #[serde(rename = "submitted_as_submission_id")]
+    _submitted_as_submission_id: String,
+
     sgc_id: Text,
     version_number: Text,
     disease_curie: Text,
@@ -73,7 +113,9 @@ struct Submission {
     moi_title: Text,
     submitter_curie: Text,
     submitter_title: Text,
+    #[serde(deserialize_with = "optional_text")]
     submitted_as_date: Option<Text>,
+    #[serde(deserialize_with = "optional_text")]
     submitted_run_date: Option<Text>,
 }
 impl Row for Submission {
@@ -100,5 +142,14 @@ impl Submission {
             evaluated_date: self.submitted_as_date,
             submitted_date: self.submitted_run_date,
         }
+    }
+}
+
+fn optional_text<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
+    let value = String::deserialize(d)?;
+    if value.is_empty() {
+        Ok(None)
+    } else {
+        Text::new(&value).map(Some).map_err(serde::de::Error::custom)
     }
 }
