@@ -1,3 +1,13 @@
+mod alphagenome;
+mod alphagenome_enums;
+pub use alphagenome::{
+    AlphaGenomeBiosample, AlphaGenomeDataType, AlphaGenomeGene, AlphaGenomeInterval,
+    AlphaGenomeOntology, AlphaGenomeScorer, AlphaGenomeScorerPage, AlphaGenomeTrack,
+    AlphaGenomeValue, AlphaGenomeVariant, VariantAlphaGenome,
+};
+pub use alphagenome_enums::{
+    AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
+};
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{

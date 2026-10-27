@@ -89,6 +89,9 @@ pub struct VariantSections {
     /// Explicit GWAS Catalog source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gwas: Option<crate::Section<crate::VariantGwas>>,
+    /// Explicit keyed AlphaGenome numeric scorer result.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alphagenome: Option<crate::Section<crate::VariantAlphaGenome>>,
     /// Explicit keyed OncoKB source result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub oncokb: Option<crate::Section<crate::VariantOncokb>>,

@@ -204,3 +204,12 @@ pub use cell_line::*;
 
 mod author;
 pub use author::*;
+
+pub use response::{
+    AlphaGenomeBiosample, AlphaGenomeDataType, AlphaGenomeGene, AlphaGenomeInterval,
+    AlphaGenomeOntology, AlphaGenomeScorer, AlphaGenomeScorerPage, AlphaGenomeTrack,
+    AlphaGenomeValue, AlphaGenomeVariant, VariantAlphaGenome,
+};
+pub use response::{
+    AlphaGenomeBiosampleType, AlphaGenomeEndedness, AlphaGenomeOntologyType, AlphaGenomeStrand,
+};

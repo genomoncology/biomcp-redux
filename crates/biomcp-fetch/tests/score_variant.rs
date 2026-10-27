@@ -46,7 +46,7 @@ fn interval(start: u64, end: u64) -> Vec<u8> {
     .concat()
 }
 fn descriptor(position: u64) -> Vec<u8> {
-    let tensor = [field(1, &[1, 1, 1]), number(2, 7), number(4, 1)].concat();
+    let tensor = [field(1, &[1, 1, 1]), number(2, 2), number(4, 1)].concat();
     let metadata = [
         field(1, &variant(position)),
         field(2, &field(1, b"synthetic track")),
@@ -59,7 +59,7 @@ fn descriptor(position: u64) -> Vec<u8> {
     )
 }
 fn chunk() -> Vec<u8> {
-    field(2, &field(1, &[42]))
+    field(2, &field(1, &42f32.to_le_bytes()))
 }
 #[test]
 fn canonical_request_preserves_legacy_interval_scorers_and_provider_default_checkpoint() -> Check {

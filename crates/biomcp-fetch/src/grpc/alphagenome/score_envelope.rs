@@ -1,6 +1,11 @@
 //! Admit complete scorer groups by request ordinal without inventing native scorer labels.
 use super::super::{Limits, StreamDecoder, TensorStream, proto};
-use super::{envelope_budget::EnvelopeBudget, wire};
+use super::{
+    envelope_budget::EnvelopeBudget,
+    score_metadata,
+    score_reply::{Metadata, ScoreGroup, ScoreReply},
+    wire,
+};
 use crate::BadReply;
 use prost::Message;
 
@@ -15,7 +20,8 @@ pub struct ScoreEnvelope {
     tensors: TensorStream,
     expected: usize,
     complete: usize,
-    active: bool,
+    active: Option<Metadata>,
+    groups: Vec<ScoreGroup>,
     failed: bool,
 }
 impl ScoreEnvelope {
@@ -31,7 +37,8 @@ impl ScoreEnvelope {
             tensors: TensorStream::new(limits).map_err(|_| BadReply)?,
             expected,
             complete: 0,
-            active: false,
+            active: None,
+            groups: Vec::new(),
             failed: false,
         })
     }
@@ -42,47 +49,45 @@ impl ScoreEnvelope {
         self.budget.message(bytes)?;
         let (tag, payload) = wire::single(bytes)?;
         let tensor = match tag {
-            1 if !self.active && self.complete < self.expected => {
+            1 if self.active.is_none() && self.complete < self.expected => {
                 let (tag, data) = wire::single(payload)?;
                 if tag != 1 {
                     return Err(BadReply);
                 }
-                let tensor = self.data(data)?;
-                self.active = true;
+                let (tensor, metadata) = self.data(data)?;
+                self.active = Some(metadata);
                 self.tensors.descriptor(tensor).map_err(|_| BadReply)?
             }
-            2 if self.active => self.tensors.chunk(payload).map_err(|_| BadReply)?,
+            2 if self.active.is_some() => self.tensors.chunk(payload).map_err(|_| BadReply)?,
             _ => return Err(BadReply),
         };
-        if tensor.is_some() {
-            self.active = false;
+        if let Some(tensor) = tensor {
+            self.groups.push(ScoreGroup::checked(
+                tensor,
+                self.active.take().ok_or(BadReply)?,
+            )?);
             self.complete += 1;
         }
         Ok(())
     }
-    fn data<'a>(&self, bytes: &'a [u8]) -> Result<&'a [u8], BadReply> {
+    fn data<'a>(&self, bytes: &'a [u8]) -> Result<(&'a [u8], Metadata), BadReply> {
         let mut tensor = None;
-        let mut metadata = false;
+        let mut metadata = None;
         wire::fields(bytes, |tag, value| {
             match tag {
                 1 if tensor.is_none() => tensor = Some(value.bytes()?),
-                2 if !metadata => {
-                    self.metadata(value.bytes()?)?;
-                    metadata = true;
-                }
+                2 if metadata.is_none() => metadata = Some(self.metadata(value.bytes()?)?),
                 _ => return Err(BadReply),
             }
             Ok(())
         })?;
-        if !metadata {
-            return Err(BadReply);
-        }
-        tensor.ok_or(BadReply)
+        Ok((tensor.ok_or(BadReply)?, metadata.ok_or(BadReply)?))
     }
-    fn metadata(&self, bytes: &[u8]) -> Result<(), BadReply> {
+    fn metadata(&self, bytes: &[u8]) -> Result<Metadata, BadReply> {
         let mut variant = false;
         let mut tracks = 0usize;
         let mut genes = 0usize;
+        let mut metadata = Metadata::default();
         wire::fields(bytes, |tag, value| {
             let value = value.bytes()?;
             match tag {
@@ -97,14 +102,18 @@ impl ScoreEnvelope {
                     if tracks > self.limits.dimension {
                         return Err(BadReply);
                     }
-                    proto::TrackMetadata::decode(value).map_err(|_| BadReply)?;
+                    metadata.tracks.push(score_metadata::track(
+                        proto::TrackMetadata::decode(value).map_err(|_| BadReply)?,
+                    )?);
                 }
                 3 => {
                     genes = genes.checked_add(1).ok_or(BadReply)?;
                     if genes > self.limits.dimension {
                         return Err(BadReply);
                     }
-                    proto::GeneScorerMetadata::decode(value).map_err(|_| BadReply)?;
+                    metadata.genes.push(score_metadata::gene(
+                        proto::GeneScorerMetadata::decode(value).map_err(|_| BadReply)?,
+                    )?);
                 }
                 _ => return Err(BadReply),
             }
@@ -113,11 +122,11 @@ impl ScoreEnvelope {
         if !variant {
             return Err(BadReply);
         }
-        Ok(())
+        Ok(metadata)
     }
 }
 impl StreamDecoder for ScoreEnvelope {
-    type Reply = ();
+    type Reply = ScoreReply;
     fn message(&mut self, bytes: &[u8]) -> Result<(), BadReply> {
         let result = self.read(bytes);
         if result.is_err() {
@@ -125,10 +134,14 @@ impl StreamDecoder for ScoreEnvelope {
         }
         result
     }
-    fn finish(self) -> Result<(), BadReply> {
-        if self.failed || self.active || self.complete != self.expected {
+    fn finish(self) -> Result<ScoreReply, BadReply> {
+        if self.failed || self.active.is_some() || self.complete != self.expected {
             return Err(BadReply);
         }
-        self.tensors.finish().map_err(|_| BadReply)
+        self.tensors.finish().map_err(|_| BadReply)?;
+        Ok(ScoreReply {
+            variant: score_metadata::variant(&self.variant)?,
+            groups: self.groups,
+        })
     }
 }
