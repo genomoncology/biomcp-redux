@@ -32,16 +32,16 @@ pub(super) fn valid_params(method: &str, params: &Value) -> bool {
         && (method != "tools/list" || params.get("cursor").is_none_or(Value::is_string))
 }
 
-pub(super) fn tool() -> Value {
-    json!({"name":"biomcp", "description":crate::help::tree(),
+pub(super) fn tool() -> std::io::Result<Value> {
+    Ok(json!({"name":"biomcp", "description":crate::help::tree(),
         "inputSchema":{"type":"object","properties":{"args":{"type":"array","items":{"type":"string"}}},
-            "required":["args"],"additionalProperties":false},"outputSchema":{"type":"object"}})
+            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool("biomcp")?}))
 }
 
-pub(super) fn tools() -> Vec<Value> {
-    let mut tools = vec![tool()];
-    tools.extend(super::research::tools());
-    tools
+pub(super) fn tools() -> std::io::Result<Vec<Value>> {
+    let mut tools = vec![tool()?];
+    tools.extend(super::research::tools()?);
+    Ok(tools)
 }
 
 pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {

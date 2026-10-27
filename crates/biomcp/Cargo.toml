@@ -23,6 +23,9 @@ serde_json.workspace = true
 biodata = { path = "../biodata", features = ["schema"] }
 
 [build-dependencies]
+schemars.workspace = true
+biodata = { path = "../biodata", features = ["schema"] }
+biomcp-types = { path = "../biomcp-types", features = ["schema"] }
 serde-saphyr.workspace = true
 serde_json.workspace = true
 

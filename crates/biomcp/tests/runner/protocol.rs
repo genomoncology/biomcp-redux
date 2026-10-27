@@ -351,18 +351,42 @@ fn discovery() -> Check {
         return Err("tool contract differs".into());
     }
     for advertised in tools {
-        let schema = advertised.get("outputSchema").ok_or("output schema missing")?;
+        let schema = advertised
+            .get("outputSchema")
+            .ok_or("output schema missing")?;
         if schema == &json!({"type":"object"}) {
             return Err("tool advertises a bare object output schema".into());
         }
-        jsonschema::validator_for(schema).map_err(|error| error.to_string())?;
+        let validator = jsonschema::validator_for(schema).map_err(|error| error.to_string())?;
+        for invalid in [
+            json!({"unrelated":true}),
+            json!({"$id":"biomcp.health/2", "$schema":"unsupported"}),
+        ] {
+            if validator.is_valid(&invalid) {
+                return Err(
+                    "output schema accepts an unrelated object or unsupported schema dialect"
+                        .into(),
+                );
+            }
+        }
     }
-    super::research::call(
-        &environment()?,
-        "biomcp",
-        json!({"args":["health"]}),
-        &[],
-    )?;
+    for args in [
+        json!(["health"]),
+        json!(["help"]),
+        json!(["schema"]),
+        json!(["schema", "biomcp.health/2"]),
+        json!(["invalid-command"]),
+    ] {
+        super::research::call(&environment()?, "biomcp", json!({"args":args}), &[])?;
+    }
+    writeln!(
+        std::io::stdout(),
+        "MCP_TOOLS_BYTES={}",
+        serde_json::to_vec(reply(&replies, &json!(1))?)
+            .map_err(|e| e.to_string())?
+            .len()
+    )
+    .map_err(|e| e.to_string())?;
     let text = tool
         .get("description")
         .and_then(Value::as_str)
@@ -379,8 +403,6 @@ fn discovery() -> Check {
             .ok_or("wrapper description missing")?
             .len();
         if wrapper.pointer("/inputSchema/required") != Some(&json!([key]))
-            || wrapper.pointer("/outputSchema/$id")
-                != Some(&json!(format!("biomcp.research-{name}/1")))
             || wrapper.pointer("/annotations/readOnlyHint") != Some(&json!(true))
         {
             return Err("research tool contract differs".into());

@@ -60,7 +60,7 @@ pub(super) fn call(
     if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *value {
         return Err("research text differs from structured content".into());
     }
-    if result.get("isError") == Some(&json!(false)) {
+    {
         let tool = replies
             .iter()
             .find(|v| v.get("id") == Some(&json!(0)))

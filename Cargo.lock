@@ -182,6 +182,7 @@ dependencies = [
  "nix",
  "rcgen",
  "rpassword",
+ "schemars",
  "rusqlite",
  "rustls",
  "serde",
