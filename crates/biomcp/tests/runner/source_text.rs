@@ -91,6 +91,10 @@ fn check() -> Check {
         text.contains("```sh\nbiomcp "),
         "product navigation stays formatted: {text}"
     );
+    instructions(&env)
+}
+
+fn instructions(env: &Environment) -> Check {
     let frames = [
         super::mcp::request(json!(1), "server/discover", json!({})),
         json!({
@@ -101,7 +105,7 @@ fn check() -> Check {
             }
         }),
     ];
-    for reply in super::mcp::exchange(&env, &frames)? {
+    for reply in super::mcp::exchange(env, &frames)? {
         let statement = reply
             .pointer("/result/instructions")
             .and_then(Value::as_str)
