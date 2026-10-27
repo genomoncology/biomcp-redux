@@ -30,6 +30,7 @@ pub(crate) fn trials() -> Vec<Trial> {
         Trial::test("runner/isolates-child-environments", || {
             isolation().map_err(Into::into)
         }),
+        #[cfg(unix)]
         Trial::test("schema/output-failure", || {
             output_failure().map_err(Into::into)
         }),
@@ -311,12 +312,12 @@ fn isolation() -> Check {
     Ok(())
 }
 
+#[cfg(unix)]
 fn output_failure() -> Check {
-    // A read-only file rejects writes independently of pipe closure.
-    let env = Environment::new().map_err(|error| error.to_string())?;
-    let path = env.root().join("read-only-output");
-    fs::write(&path, b"unchanged").map_err(|error| error.to_string())?;
-    let writer = fs::File::open(path).map_err(|error| error.to_string())?;
+    // An unconnected datagram rejects writes with a non-BrokenPipe error.
+    // Unlike a read-only file, Rust stdout does not silently treat it as closed.
+    let socket = std::os::unix::net::UnixDatagram::unbound().map_err(|e| e.to_string())?;
+    let writer: std::os::fd::OwnedFd = socket.into();
     let output = Environment::new()
         .map_err(|error| error.to_string())?
         .command(
