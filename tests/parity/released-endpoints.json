@@ -420,7 +420,7 @@
       "variables": [
         "BIOMCP_REACTOME_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "seer-explorer": {
       "recording_source": "seer",
@@ -1470,7 +1470,7 @@
     "BIOMCP_TEST_UNPACED_ORIGIN": {
       "source": "pmc-oa",
       "source_path": "src/sources/pmc_article.rs",
-      "guard": "validate_article_destination accepts an exact loopback test origin; this does not replace arbitrary publisher assets"
+      "guard": "validate_selected_linked_origin accepts an exact loopback test origin; this does not replace arbitrary publisher assets"
     }
   }
 }

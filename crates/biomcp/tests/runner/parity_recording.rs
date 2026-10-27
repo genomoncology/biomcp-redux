@@ -82,13 +82,8 @@ fn peers(
             ));
     }
     let mut peers = Vec::new();
-    for (variable, routes) in grouped {
-        let route = selection
-            .recordings
-            .iter()
-            .find(|route| route.endpoint_env == variable)
-            .ok_or("unreviewed endpoint")?;
-        let endpoint = registry.endpoint(route)?;
+    for endpoint in registry.active_endpoints(&selection.recordings)? {
+        let routes = grouped.remove(&endpoint.variable).unwrap_or_default();
         let expected_host = endpoint.host.clone();
         let peer = super::super::network_stub::Stub::loopback(
             expected_host.clone(),

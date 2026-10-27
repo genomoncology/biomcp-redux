@@ -167,19 +167,6 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
                 route.source
             ));
         }
-        // Every override for an enabled source must terminate locally. Missing
-        // delivery support is an assessment gap, never a live fallback.
-        if source.variables.iter().any(|variable| {
-            !selection
-                .recordings
-                .iter()
-                .any(|r| r.source == route.source && &r.endpoint_env == variable)
-        }) {
-            return Err(format!(
-                "assessment gap: not every released endpoint of {} is routed",
-                route.source
-            ));
-        }
     }
     Ok(())
 }
@@ -212,6 +199,21 @@ impl Registry {
                 )
             })?;
         Ok(endpoint)
+    }
+    pub(super) fn active_endpoints(&self, routes: &[Route]) -> Result<Vec<&Endpoint>, String> {
+        let mut variables = BTreeSet::new();
+        for route in routes {
+            variables.extend(self.source(route)?.variables.iter());
+        }
+        variables
+            .into_iter()
+            .map(|variable| {
+                self.declarations
+                    .endpoints
+                    .get(variable)
+                    .ok_or("enabled source endpoint missing".into())
+            })
+            .collect()
     }
     pub(super) fn disabled(&self, routes: &[Route]) -> Result<String, String> {
         let active = routes

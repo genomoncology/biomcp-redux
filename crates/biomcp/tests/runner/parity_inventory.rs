@@ -230,7 +230,7 @@ fn direct(
         })
         .collect::<Vec<_>>();
     let unsafe_reason = selection.and_then(|s| load_selection_from(s, root).err());
-    let gaps = if selection.is_none() {
+    let gaps = if selection.is_none_or(|s| s.facts.is_empty()) {
         missing.len().max(1)
     } else {
         missing.len()

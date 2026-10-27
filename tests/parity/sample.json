@@ -30,6 +30,11 @@
           "source": "mygene-info",
           "endpoint_env": "BIOMCP_MYGENE_BASE"
         }
+      ],
+      "release_source": [
+        "src/entities/gene.rs::Gene",
+        "src/transform/gene.rs::from_mygene_get",
+        "src/cli/gene/dispatch.rs::handle_command"
       ]
     }
   ]
