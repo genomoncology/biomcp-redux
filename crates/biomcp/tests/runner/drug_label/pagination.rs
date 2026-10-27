@@ -84,47 +84,58 @@ fn walk() -> Check {
         .map(str::to_owned)
         .collect();
         let value = both(&env, args, if returned == 0 { 1 } else { 0 })?;
-        if value.pointer("/result/total") != Some(&json!(5))
-            || value.pointer("/page/offset") != Some(&json!(offset))
-            || value.pointer("/page/returned") != Some(&json!(returned))
-        {
-            return Err(format!(
-                "fallback invented a filtered total or lost page position: {value}"
-            ));
-        }
-        if let Some(id) = expected_id {
-            if value.pointer("/result/items/0/id") != Some(id) {
-                return Err("fallback repeated or skipped an accepted native row".into());
-            }
-        } else if field(&value, "status") != "absent" {
-            return Err("rejected page returned a label".into());
-        }
-        let continuation = value
-            .get("next")
-            .and_then(Value::as_array)
-            .and_then(|steps| steps.iter().find(|step| field(step, "kind") == "page"));
-        match (next, continuation) {
-            (Some(offset), Some(step)) => {
-                let args = field(step, "args").as_array().ok_or("next args")?;
-                let index = args
-                    .iter()
-                    .position(|arg| arg == "--offset")
-                    .ok_or("next offset")?;
-                if args.get(index + 1) != Some(&json!(offset.to_string())) {
-                    return Err(
-                        "fallback continuation counted accepted rows instead of native rows".into(),
-                    );
-                }
-            }
-            (None, None) => {}
-            _ => return Err("fallback lost or invented a continuation".into()),
-        }
+        check_page(&value, offset, returned, expected_id, next)?;
     }
     if stub.finish()?.len() != 12 {
         return Err("fallback page made extra requests or failed warm reuse".into());
     }
     Ok(())
 }
+fn check_page(
+    value: &Value,
+    offset: u32,
+    returned: u32,
+    expected_id: Option<&Value>,
+    next: Option<u32>,
+) -> Check {
+    if value.pointer("/result/total") != Some(&json!(5))
+        || value.pointer("/page/offset") != Some(&json!(offset))
+        || value.pointer("/page/returned") != Some(&json!(returned))
+    {
+        return Err(format!(
+            "fallback invented a filtered total or lost page position: {value}"
+        ));
+    }
+    if let Some(id) = expected_id {
+        if value.pointer("/result/items/0/id") != Some(id) {
+            return Err("fallback repeated or skipped an accepted native row".into());
+        }
+    } else if field(&value, "status") != "absent" {
+        return Err("rejected page returned a label".into());
+    }
+    let continuation = value
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|steps| steps.iter().find(|step| field(step, "kind") == "page"));
+    match (next, continuation) {
+        (Some(offset), Some(step)) => {
+            let args = field(step, "args").as_array().ok_or("next args")?;
+            let index = args
+                .iter()
+                .position(|arg| arg == "--offset")
+                .ok_or("next offset")?;
+            if args.get(index + 1) != Some(&json!(offset.to_string())) {
+                return Err(
+                    "fallback continuation counted accepted rows instead of native rows".into(),
+                );
+            }
+        }
+        (None, None) => {}
+        _ => return Err("fallback lost or invented a continuation".into()),
+    }
+    Ok(())
+}
+
 fn target(offset: usize) -> String {
     let skip = if offset == 0 {
         String::new()
