@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic dropped-word response",
   "feature": "article-search",
-  "story": "PubMed dropped words retain their notice and offer an explicit quoted query.",
+  "story": "PubMed dropped words retain their notice and offer an explicit strict PubMed title/abstract query.",
   "replay": "article/search/synthetic-dropped-words",
   "steps": [
     {
@@ -17,7 +17,9 @@
         "/next/0/args": [
           "search",
           "article",
-          "\"AKT1 E17K\""
+          "AKT1[Title/Abstract] AND E17K[Title/Abstract]",
+          "--source",
+          "pubmed"
         ]
       }
     }
