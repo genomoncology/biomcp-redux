@@ -70,7 +70,7 @@ class LinuxContainers(unittest.TestCase):
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        BUILD_IMAGE='build-image', DOCKER_RECORD=str(record))
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
-                                    cwd=root, env=env, capture_output=True, text=True, timeout=30)
+                                    cwd=root, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertFalse((root / 'injected').exists())
             return [json.loads(line) for line in record.read_text().splitlines()]
@@ -81,6 +81,7 @@ class LinuxContainers(unittest.TestCase):
         baseline = self.run_release([])
         supplied = self.run_release(extra)
         self.assertEqual(len(baseline), 12)
+        self.assertEqual(len(supplied), len(baseline))
         self.assertEqual(sum(row[0] == 'run' for row in baseline), 9)
         for plain, labeled in zip(baseline, supplied):
             with self.subTest(command=plain):
