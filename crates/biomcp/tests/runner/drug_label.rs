@@ -6,6 +6,7 @@ use serde_json::{Value, json};
 type Check = Result<(), String>;
 mod capture;
 mod errors;
+mod fallback;
 mod walk;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
@@ -25,6 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(Trial::test("drug-label/five-native-headings", || {
         headings().map_err(Into::into)
     }));
+    trials.extend(fallback::trials());
     trials.extend(walk::trials());
     trials.extend(errors::trials());
     trials.extend(capture::trials());
@@ -64,6 +66,9 @@ fn setup_raw(body: String, selector: String, status: u16) -> Result<(Environment
         },
         move |_| status,
     )?;
+    environment(stub)
+}
+fn environment(stub: Stub) -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cert = env.root().join("ca.pem");
     std::fs::write(&cert, &stub.certificate).map_err(|e| e.to_string())?;
