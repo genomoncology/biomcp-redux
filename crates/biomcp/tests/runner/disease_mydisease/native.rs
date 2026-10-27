@@ -184,7 +184,10 @@ fn sections(
     fs::create_dir(&retained).map_err(|e| e.to_string())?;
     fs::write(retained.join("cli.stdout"), &output.stdout).map_err(|e| e.to_string())?;
     fs::write(retained.join("cli.stderr"), &output.stderr).map_err(|e| e.to_string())?;
-    if !output.status.success() || !String::from_utf8_lossy(&output.stdout).contains(id) {
+    if !output.status.success()
+        || !String::from_utf8_lossy(&output.stdout)
+            .contains(&super::super::source_terms::text::escape(id))
+    {
         return Err("Markdown lost exact requested identity".into());
     }
     Ok(())
