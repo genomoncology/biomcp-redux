@@ -17,7 +17,7 @@ biodata::wire_enum! {
     }
 }
 /// Explicit resource sum; impossible section and identity pairings fail during decoding.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum GwasGet {
@@ -221,4 +221,4 @@ impl From<GwasGet> for crate::Request {
     }
 }
 
-crate::query::validation::checked_query!(GwasGet);
+mod checked;

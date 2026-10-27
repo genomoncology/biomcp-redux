@@ -1,0 +1,100 @@
+use super::{Fields, TrialSearch, TrialSource};
+use crate::{NctId, QueryInvalid};
+
+impl TryFrom<Fields> for TrialSearch {
+    type Error = QueryInvalid;
+    fn try_from(mut f: Fields) -> Result<Self, Self::Error> {
+        if let Some(id) = f
+            .query
+            .as_ref()
+            .and_then(|q| q.as_str().parse::<NctId>().ok())
+        {
+            if f.id.is_some_and(|explicit| explicit != id) {
+                return Err(QueryInvalid::new(&["query", "id"]));
+            }
+            f.id = Some(id);
+            f.query = None;
+        }
+        if f.condition_id.as_ref().is_some_and(|id| {
+            f.condition.is_some() || f.keyword.is_some() || !valid_condition_id(id, f.source)
+        }) {
+            return Err(QueryInvalid::new(&[
+                "condition_id",
+                "condition",
+                "keyword",
+                "source",
+            ]));
+        }
+        if !(1..=100).contains(&f.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if f.age.is_some_and(|v| v > 150) {
+            return Err(QueryInvalid::new(&["age"]));
+        }
+        if f.updated_since
+            .zip(f.updated_until)
+            .is_some_and(|(a, b)| a.to_string() > b.to_string())
+        {
+            return Err(QueryInvalid::new(&["updated_since", "updated_until"]));
+        }
+        if (f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some())) {
+            return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"]));
+        }
+        if [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]
+            .iter()
+            .filter(|v| **v)
+            .count()
+            % 3
+            != 0
+        {
+            return Err(QueryInvalid::new(&["lat", "lon", "distance"]));
+        }
+        if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
+            let lat = lat
+                .as_str()
+                .parse::<f64>()
+                .map_err(|_| QueryInvalid::new(&["lat"]))?;
+            let lon = lon
+                .as_str()
+                .parse::<f64>()
+                .map_err(|_| QueryInvalid::new(&["lon"]))?;
+            let distance = distance
+                .as_str()
+                .strip_suffix("mi")
+                .or_else(|| distance.as_str().strip_suffix("km"))
+                .ok_or_else(|| QueryInvalid::new(&["distance"]))?
+                .parse::<f64>()
+                .map_err(|_| QueryInvalid::new(&["distance"]))?;
+            if !(-90.0..=90.0).contains(&lat) {
+                return Err(QueryInvalid::new(&["lat"]));
+            }
+            if !(-180.0..=180.0).contains(&lon) {
+                return Err(QueryInvalid::new(&["lon"]));
+            }
+            if !distance.is_finite() {
+                return Err(QueryInvalid::new(&["distance"]));
+            }
+            if distance <= 0.0 {
+                return Err(QueryInvalid::new(&["distance"]));
+            }
+        }
+        Ok(Self(Box::new(f)))
+    }
+}
+
+fn valid_condition_id(id: &biodata::Curie, source: TrialSource) -> bool {
+    let value = id.to_string();
+    let Some((namespace, local)) = value.split_once(':') else {
+        return false;
+    };
+    match namespace {
+        "MONDO" | "DOID" => !local.is_empty() && local.bytes().all(|v| v.is_ascii_digit()),
+        "NCIT" => {
+            source == TrialSource::Nci
+                && local
+                    .strip_prefix('C')
+                    .is_some_and(|v| !v.is_empty() && v.bytes().all(|v| v.is_ascii_digit()))
+        }
+        _ => false,
+    }
+}

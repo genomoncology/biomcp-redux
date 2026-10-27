@@ -50,23 +50,21 @@
     {
       "run": [
         "search",
-        "gene",
-        "KRAS",
-        "--limit",
-        "51"
+        "trial",
+        "--age",
+        "151"
       ],
       "mcp": [
         "search",
-        "gene",
-        "KRAS",
-        "--limit",
-        "51"
+        "trial",
+        "--age",
+        "151"
       ],
       "exit": 2,
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/option": "--limit"
+        "/error/option": "--age"
       }
     }
   ]
