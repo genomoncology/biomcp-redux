@@ -1,6 +1,7 @@
 # 0343 — Treat a closed output pipe as success and drop empty Markdown query lines
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a0c2e1f20a8fd957063b9965f632eddf74010e0c
 
 Milestone: 5
 
