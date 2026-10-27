@@ -17,12 +17,31 @@ pub(super) struct Exceptions {
     unprojectable: Vec<Unsupported>,
     #[serde(default)]
     covered: Vec<Covered>,
+    #[serde(default)]
+    pending: Vec<Pending>,
+    #[serde(default)]
+    sequences: Vec<Stateful>,
 }
 impl Exceptions {
     pub(super) fn extend(&mut self, other: Self) {
         self.unprojectable.extend(other.unprojectable);
         self.covered.extend(other.covered);
+        self.pending.extend(other.pending);
+        self.sequences.extend(other.sequences);
     }
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Pending {
+    case: String,
+    ticket: String,
+    reason: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Stateful {
+    case: String,
+    reason: String,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -148,6 +167,8 @@ fn validate_references(plan: &Plan, cases: &BTreeMap<String, Case>) -> Result<()
         .iter()
         .map(|e| &e.case)
         .chain(plan.inventory.covered.iter().map(|e| &e.case))
+        .chain(plan.inventory.pending.iter().map(|e| &e.case))
+        .chain(plan.inventory.sequences.iter().map(|e| &e.case))
     {
         if !cases.contains_key(case) || !exceptions.insert(case) {
             return Err("unknown or duplicate inventory exception".into());
@@ -188,6 +209,24 @@ fn classify(
     if let Some(reason) = sequence_reason(case) {
         return Ok(json!({"case":name,"class":"sequence","reason":reason,
             "surfaces":surfaces,"gaps":0}));
+    }
+    if let Some(entry) = plan.inventory.sequences.iter().find(|e| e.case == name) {
+        if entry.reason.trim().is_empty() {
+            return Err("explicit stateful case requires its scenario reason".into());
+        }
+        return Ok(json!({"case":name,"class":"sequence","reason":entry.reason,
+            "surfaces":surfaces,"gaps":0}));
+    }
+    if let Some(entry) = plan.inventory.pending.iter().find(|e| e.case == name) {
+        if !["0300", "0301", "0302", "0303", "0304", "0305"].contains(&entry.ticket.as_str())
+            || entry.reason.trim().is_empty()
+        {
+            return Err("pending family requires its declared owner and concrete gap".into());
+        }
+        return Ok(
+            json!({"case":name,"class":"pending_family","ticket":entry.ticket,
+            "reason":entry.reason,"surfaces":surfaces,"gaps":1}),
+        );
     }
     let selection = plan.cases.iter().find(|s| s.case == name && s.step == 0);
     direct(name, case, selection, root, surfaces)

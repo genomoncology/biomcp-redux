@@ -9,6 +9,7 @@ pub(super) enum Projection {
     Pointer(String),
     Object(Object),
     Length(Length),
+    ReleasedSource(ReleasedSource),
 }
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -36,6 +37,11 @@ struct Pointer {
 struct PathwaySource {
     pathway_source: String,
 }
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct ReleasedSource {
+    released_source: String,
+}
 impl Member {
     fn pointer(&self) -> &str {
         match self {
@@ -49,6 +55,7 @@ impl Projection {
         match self {
             Self::Pointer(pointer) => vec![pointer],
             Self::Length(length) => vec![&length.array_length],
+            Self::ReleasedSource(source) => vec![&source.released_source],
             Self::Object(object) => object.object.values().map(Member::pointer).collect(),
         }
     }
@@ -65,6 +72,16 @@ impl Projection {
                 ))
             }
             Self::Object(object) => project_object(object, value),
+            Self::ReleasedSource(source) => {
+                let raw = super::super::assertions::select(value, &source.released_source)?;
+                match raw.as_str() {
+                    Some("Reactome") => Ok(json!("reactome")),
+                    Some("Semantic Scholar") => Ok(json!("semantic-scholar")),
+                    Some("UniProt") => Ok(json!("uniprot")),
+                    Some("ORCID") => Ok(json!("orcid")),
+                    _ => Err("unknown released provider spelling".into()),
+                }
+            }
         }
     }
 }
@@ -76,7 +93,10 @@ fn project_object(object: &Object, value: &Value) -> Result<Value, String> {
     for (name, member) in &object.object {
         let raw = super::super::assertions::select(value, member.pointer())?;
         let projected = match member {
-            Member::Pointer(_) => raw,
+            Member::Pointer(_) => json!(
+                raw.as_str()
+                    .ok_or("identifier object member requires a string")?
+            ),
             Member::PathwaySource(_) => {
                 if name != "source" {
                     return Err("pathway source enum belongs to the source member".into());

@@ -139,6 +139,9 @@ fn audit(registry: &Registry) -> Result<(), String> {
 }
 pub(super) fn validate(selection: &Selection) -> Result<(), String> {
     let registry = load()?;
+    if !(0..=255).contains(&selection.baseline_exit) {
+        return Err("released exit must be one explicit process exit code".into());
+    }
     if selection
         .baseline_globals
         .iter()
@@ -155,6 +158,17 @@ pub(super) fn validate(selection: &Selection) -> Result<(), String> {
     }
     for route in &selection.recordings {
         registry.endpoint(route)?;
+        if [
+            "GET /api/v2/studies",
+            "GET /ContentService/search/query",
+            "GET /v3/query?",
+        ]
+        .contains(&route.request_prefix.as_str())
+            && route.request_contains.is_empty()
+            && route.request_query.is_empty()
+        {
+            return Err("source search route requires reviewed question selectors".into());
+        }
         if route
             .recording_gap
             .as_ref()

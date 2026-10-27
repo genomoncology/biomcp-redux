@@ -16,7 +16,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -28,7 +31,10 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/f031ecb8c05f2433bb586410f18695a0856d9b781ec2b4a69256e00d33e83770.json"
+          "capture": "ctgov/f031ecb8c05f2433bb586410f18695a0856d9b781ec2b4a69256e00d33e83770.json",
+          "request_query": {
+            "query.cond": "melanoma"
+          }
         }
       ],
       "facts": {
@@ -44,6 +50,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--age": "--age"
       }
     },
     {
@@ -61,7 +71,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -73,7 +86,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/e0bebd0cf9a179b55914d73b4c3c07d4b9f1ec091565720819cd998bf7b048af.json"
+          "capture": "ctgov/e0bebd0cf9a179b55914d73b4c3c07d4b9f1ec091565720819cd998bf7b048af.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "(AREA[EligibilityCriteria](BRAF V600E) OR AREA[BriefTitle](BRAF V600E) OR AREA[OfficialTitle](BRAF V600E) OR AREA[BriefSummary](BRAF V600E) OR AREA[Keyword](BRAF V600E))"
+          }
         }
       ],
       "facts": {
@@ -89,6 +106,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--mutation": "--variant"
       }
     },
     {
@@ -106,7 +127,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -118,7 +142,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/ca5016db2fb3aea33876c4906a501947ef786e7b6ee2c15348f821d45766eca1.json"
+          "capture": "ctgov/ca5016db2fb3aea33876c4906a501947ef786e7b6ee2c15348f821d45766eca1.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "(AREA[Phase]PHASE1 AND AREA[Phase]PHASE2)"
+          }
         }
       ],
       "facts": {
@@ -134,6 +162,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--phase": "--phase"
       }
     },
     {
@@ -150,7 +182,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -162,7 +197,10 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/10f119d385af8cf2107fbed0c8256e97ac55ea7c918312c48c07c0e7f5fd7844.json"
+          "capture": "ctgov/10f119d385af8cf2107fbed0c8256e97ac55ea7c918312c48c07c0e7f5fd7844.json",
+          "request_query": {
+            "query.cond": "melanoma"
+          }
         }
       ],
       "facts": {
@@ -177,6 +215,9 @@
           "reason": "Released count-only JSON contains total/approximate/partial metadata, with no result-row collection.",
           "release_source": "src/cli/trial/dispatch.rs::TrialCountOnlyJson"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition"
       }
     },
     {
@@ -197,7 +238,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -209,7 +253,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/ec99555e5a462958e70572a7f0f3434626b713d4ed7d2c615ddae35d8f512d1a.json"
+          "capture": "ctgov/ec99555e5a462958e70572a7f0f3434626b713d4ed7d2c615ddae35d8f512d1a.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "filter.geo": "distance(42.3601,-71.0589,50mi)"
+          }
         }
       ],
       "facts": {
@@ -225,6 +273,11 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--lat": "--lat",
+        "--lon": "--lon"
       }
     },
     {
@@ -296,7 +349,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -308,7 +364,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/dedb75a5e02d12ac7ee383b68b22fd51a0805e31f690d754d65d9b8e6c2a3d27.json"
+          "capture": "ctgov/dedb75a5e02d12ac7ee383b68b22fd51a0805e31f690d754d65d9b8e6c2a3d27.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[EligibilityCriteria](BRAF V600E)"
+          }
         }
       ],
       "facts": {
@@ -324,47 +384,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
-      }
-    },
-    {
-      "case": "trial/exact-conjunction.yaml",
-      "step": 0,
-      "baseline_command": [
-        "search",
-        "trial",
-        "--mutation",
-        "AREA[NCTId]NCT02563002",
-        "--phase",
-        "1"
-      ],
-      "spelling_table": "sdlc/planning/slices/trial.md",
-      "release_source": [
-        "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
-        "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
-      ],
-      "baseline_globals": [
-        "--json"
-      ],
-      "recordings": [
-        {
-          "source": "clinicaltrials-gov",
-          "endpoint_env": "BIOMCP_CTGOV_BASE",
-          "host": "clinicaltrials.gov",
-          "request_prefix": "GET /api/v2/studies",
-          "request_contains": "",
-          "capture": "ctgov/cc2177a0b7ff22e12fdd83a896c93938d04ccd8ea54285c6bf25a625f8843f43.json"
-        }
-      ],
-      "facts": {
-        "/page/total": "/pagination/total",
-        "/result/items": "/results"
       },
-      "unprojectable_facts": {
-        "/status": {
-          "reason": "Released trial search and document/reference responses do not serialize the current top-level lifecycle status enum.",
-          "release_source": "src/cli/trial/dispatch.rs"
-        }
+      "command_selectors": {
+        "--condition": "--condition",
+        "--criteria": "--criteria"
       }
     },
     {
@@ -382,7 +405,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -394,7 +420,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/12da423385c4ce910b424df1fde3d9c6526cad6d88883825fc4a2ab78933f2e0.json"
+          "capture": "ctgov/12da423385c4ce910b424df1fde3d9c6526cad6d88883825fc4a2ab78933f2e0.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.locn": "Dana-Farber Cancer Institute"
+          }
         }
       ],
       "facts": {
@@ -410,6 +440,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--facility": "--facility"
       }
     },
     {
@@ -427,7 +461,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -439,7 +476,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/378aa7fd99d20f93c02c17c0e81992a68fd2bddef64c8431d6d80b71388af502.json"
+          "capture": "ctgov/378aa7fd99d20f93c02c17c0e81992a68fd2bddef64c8431d6d80b71388af502.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "aggFilters": "funderType:nih"
+          }
         }
       ],
       "facts": {
@@ -455,6 +496,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--sponsor-type": "--sponsor-type"
       }
     },
     {
@@ -473,7 +518,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -485,7 +533,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/b037722fe9d7a0e0b474cc3ccdc467091db578ff5fde15b12db8b280ed0e7f73.json"
+          "capture": "ctgov/b037722fe9d7a0e0b474cc3ccdc467091db578ff5fde15b12db8b280ed0e7f73.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.intr": "\"pembrolizumab\""
+          }
         }
       ],
       "facts": {
@@ -501,6 +553,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--intervention": "--intervention"
       }
     },
     {
@@ -518,7 +574,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -530,7 +589,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/7f6d6360326af2bd8019abd3c45236861957cb511d602c784f2c07926a196efc.json"
+          "capture": "ctgov/7f6d6360326af2bd8019abd3c45236861957cb511d602c784f2c07926a196efc.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[Phase]PHASE3"
+          }
         }
       ],
       "facts": {
@@ -546,6 +609,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--phase": "--phase"
       }
     },
     {
@@ -606,7 +673,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -618,7 +688,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/df7ef8173fa96d4b6750b6b32c9f254bfd22a5d82c89b50521ef7af09304e056.json"
+          "capture": "ctgov/df7ef8173fa96d4b6750b6b32c9f254bfd22a5d82c89b50521ef7af09304e056.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[ResultsFirstPostDate]RANGE[MIN,MAX]"
+          }
         }
       ],
       "facts": {
@@ -634,6 +708,9 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition"
       }
     },
     {
@@ -651,7 +728,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -663,7 +743,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/8c22c724feb46e37206b20b290cb42c0749cbeb9c33c7483a84ab697d38f25f9.json"
+          "capture": "ctgov/8c22c724feb46e37206b20b290cb42c0749cbeb9c33c7483a84ab697d38f25f9.json",
+          "request_query": {
+            "query.cond": "breast cancer",
+            "aggFilters": "sex:f"
+          }
         }
       ],
       "facts": {
@@ -679,6 +763,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--sex": "--sex"
       }
     },
     {
@@ -696,7 +784,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -708,7 +799,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/73509767b383d8a659cf3e51d16c798a39e5a662e8c8a1c6afd521f38aa3643b.json"
+          "capture": "ctgov/73509767b383d8a659cf3e51d16c798a39e5a662e8c8a1c6afd521f38aa3643b.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[LeadSponsorName]\"National Cancer Institute\""
+          }
         }
       ],
       "facts": {
@@ -724,6 +819,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--sponsor": "--sponsor"
       }
     },
     {
@@ -741,7 +840,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -753,7 +855,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/7d5750234766e70e4b6d4f0cadd4220b23daca2ee8eb27963f2f3ca1c4b9dd80.json"
+          "capture": "ctgov/7d5750234766e70e4b6d4f0cadd4220b23daca2ee8eb27963f2f3ca1c4b9dd80.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "filter.overallStatus": "RECRUITING"
+          }
         }
       ],
       "facts": {
@@ -769,6 +875,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--status": "--status"
       }
     },
     {
@@ -786,7 +896,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -798,7 +911,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/e1f5ae5016cce6fb81a07cfb82f2b6f3c91fa06920dc8a317cfc3b889e2645a0.json"
+          "capture": "ctgov/e1f5ae5016cce6fb81a07cfb82f2b6f3c91fa06920dc8a317cfc3b889e2645a0.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[StudyType]\"INTERVENTIONAL\""
+          }
         }
       ],
       "facts": {
@@ -814,6 +931,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--study-type": "--study-type"
       }
     },
     {
@@ -831,7 +952,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -843,7 +967,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/c393c2348e79601f35dcf87db6f19729c7a14b5fa76a563f0f76a0794fb0ad0d.json"
+          "capture": "ctgov/c393c2348e79601f35dcf87db6f19729c7a14b5fa76a563f0f76a0794fb0ad0d.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[LastUpdatePostDate]RANGE[MIN,2025-12-31]"
+          }
         }
       ],
       "facts": {
@@ -859,6 +987,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--date-to": "--updated-until"
       }
     },
     {
@@ -876,7 +1008,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -888,7 +1023,11 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/c860b6692d6f6069791bfc1e630e1d84694219b84807722624726e481a2fb8a2.json"
+          "capture": "ctgov/c860b6692d6f6069791bfc1e630e1d84694219b84807722624726e481a2fb8a2.json",
+          "request_query": {
+            "query.cond": "melanoma",
+            "query.term": "AREA[LastUpdatePostDate]RANGE[2025-01-01,MAX]"
+          }
         }
       ],
       "facts": {
@@ -904,6 +1043,10 @@
           "reason": "Released trial search does not fetch or serialize the ClinicalTrials.gov /version data timestamp; its search JSON leaves data_as_of absent.",
           "release_source": "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--date-from": "--updated-since"
       }
     },
     {
@@ -921,7 +1064,10 @@
       "release_source": [
         "src/cli/trial/dispatch.rs::search_json_with_meta_and_upstream_total",
         "src/cli/trial/mod.rs::TrialSearchArgs",
-        "src/entities/trial/mod.rs::Trial"
+        "src/entities/trial/mod.rs::Trial",
+        "src/sources/clinicaltrials.rs::search_plan",
+        "src/entities/trial/search/ctgov.rs::ctgov_query_term",
+        "src/entities/trial/search/ctgov.rs::apply_ctgov_post_filters"
       ],
       "baseline_globals": [
         "--json"
@@ -933,7 +1079,10 @@
           "host": "clinicaltrials.gov",
           "request_prefix": "GET /api/v2/studies",
           "request_contains": "",
-          "capture": "ctgov/10f119d385af8cf2107fbed0c8256e97ac55ea7c918312c48c07c0e7f5fd7844.json"
+          "capture": "ctgov/10f119d385af8cf2107fbed0c8256e97ac55ea7c918312c48c07c0e7f5fd7844.json",
+          "request_query": {
+            "query.cond": "melanoma"
+          }
         }
       ],
       "facts": {
@@ -949,10 +1098,20 @@
           "reason": "Released pagination exposes shell command strings in _meta.next_commands, not the current typed next-action arguments.",
           "release_source": "src/cli/shared/search_payloads.rs::SearchJsonMeta"
         }
+      },
+      "command_selectors": {
+        "--condition": "--condition",
+        "--limit": "--limit"
       }
     }
   ],
   "inventory": {
-    "unprojectable": []
+    "unprojectable": [
+      {
+        "case": "trial/exact-conjunction.yaml",
+        "reason": "This question combines an exact NCT identifier with a phase filter. Released search trial treats its positional value as a condition query. It has no NCT selector or raw advanced-query option; its mutation/criteria/biomarker builders escape or wrap their input in other fields. None constructs the required exact AREA[NCTId] conjunction. Sending the identifier through mutation or query.cond would change the declared question.",
+        "release_source": "src/cli/trial/mod.rs::TrialSearchArgs;src/entities/trial/search/ctgov.rs::ctgov_query_term;src/entities/trial/search/ctgov.rs::raw_condition_query"
+      }
+    ]
   }
 }

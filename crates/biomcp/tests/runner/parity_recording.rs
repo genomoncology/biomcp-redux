@@ -1,4 +1,5 @@
 //! Recorded source payloads reach released clients through explicit local endpoints.
+use super::super::network_stub::RecordedReply;
 use super::{Environment, Selection, execution, registry};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -10,8 +11,12 @@ pub(super) struct Route {
     pub(super) source: String,
     pub(super) endpoint_env: String,
     pub(super) host: String,
-    request_prefix: String,
-    request_contains: String,
+    pub(super) request_prefix: String,
+    pub(super) request_contains: String,
+    #[serde(default)]
+    pub(super) request_query: BTreeMap<String, String>,
+    #[serde(default)]
+    exchange: Option<usize>,
     pub(super) capture: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) recording_gap: Option<String>,
@@ -43,6 +48,11 @@ pub(super) fn baseline(
     let peers = peers(&registry, selection, bodies, &mut command)?;
     let mut result =
         execution::invoke_command(command, &args, &out.join(format!("{index}-baseline")))?;
+    execution::select_stream(
+        &mut result,
+        &selection.baseline_stream,
+        &out.join(format!("{index}-baseline")),
+    )?;
     let mut requests = Vec::new();
     for peer in peers {
         match peer.finish() {
@@ -73,7 +83,7 @@ pub(super) fn baseline(
 fn peers(
     registry: &registry::Registry,
     selection: &Selection,
-    bodies: Vec<String>,
+    bodies: Vec<RecordedReply>,
     command: &mut std::process::Command,
 ) -> Result<Vec<super::super::network_stub::Stub>, String> {
     let mut grouped = BTreeMap::new();
@@ -84,6 +94,7 @@ fn peers(
             .push((
                 route.request_prefix.clone(),
                 route.request_contains.clone(),
+                route.request_query.clone(),
                 body,
             ));
     }
@@ -97,16 +108,18 @@ fn peers(
                 if host != expected_host {
                     return Err("source peer ownership changed".into());
                 }
-                let matches = routes
-                    .iter()
-                    .filter(|(prefix, contains, _)| {
-                        request.starts_with(prefix) && request.contains(contains)
-                    })
-                    .collect::<Vec<_>>();
-                let [(_, _, body)] = matches.as_slice() else {
-                    return Err("unmapped or ambiguous baseline source request".into());
-                };
-                Ok(body.clone())
+                let mut matched = None;
+                for (prefix, contains, query, body) in &routes {
+                    if super::request::matches(prefix, contains, query, request)? {
+                        if matched.is_some() {
+                            return Err("ambiguous baseline source request".into());
+                        }
+                        matched = Some(body);
+                    }
+                }
+                matched
+                    .cloned()
+                    .ok_or("unmapped baseline source request".into())
             },
         )?;
         command.env(&endpoint.variable, endpoint.local_url(peer.address));
@@ -119,7 +132,7 @@ fn bodies(
     replay: &Path,
     out: &Path,
     index: usize,
-) -> Result<Vec<String>, String> {
+) -> Result<Vec<RecordedReply>, String> {
     if routes.is_empty() {
         return Err("assessment gap: baseline source request recordings missing".into());
     }
@@ -147,17 +160,65 @@ fn bodies(
                 .get("exchanges")
                 .and_then(Value::as_array)
                 .ok_or("missing exchanges")?;
-            let [exchange] = exchanges.as_slice() else {
-                return Err("assessment gap: source route needs one recorded exchange".into());
-            };
-            if exchange.get("status") != Some(&json!(200)) {
+            if exchanges.len() != 1 && route.exchange.is_none() {
                 return Err(
-                    "assessment gap: source route needs one successful recorded exchange".into(),
+                    "assessment gap: source route needs an explicit recorded exchange".into(),
                 );
             }
-            let body = exchange
-                .pointer("/body/value")
-                .ok_or("missing JSON source body")?;
+            let ordinal_exchange = route.exchange.unwrap_or(0);
+            let exchange = exchanges
+                .get(ordinal_exchange)
+                .ok_or("selected exchange missing")?;
+            let delay_ms = exchange
+                .get("delay_ms")
+                .and_then(Value::as_u64)
+                .ok_or("recorded delay missing")?;
+            if delay_ms >= 10000 {
+                return Err("assessment gap: recorded delay exceeds the direct peer bounds".into());
+            }
+            let (adapted, body) = adapted_body(route, exchange)?;
+            let status = exchange
+                .get("status")
+                .and_then(Value::as_u64)
+                .and_then(|status| u16::try_from(status).ok())
+                .ok_or("recorded HTTP status missing")?;
+            let content_type = exchange
+                .get("content_type")
+                .and_then(Value::as_str)
+                .ok_or("recorded content type missing")?
+                .to_owned();
+            fs::write(
+                out.join(format!("{index}-source-{ordinal}.json")),
+                serde_json::to_vec_pretty(&json!({
+                    "capture":capture,"adapted_body":adapted,"host":route.host,
+                    "request_prefix":route.request_prefix,"request_contains":route.request_contains,
+                    "request_query":route.request_query,"exchange":ordinal_exchange,
+                    "status":status,"content_type":content_type,
+                    "delay_ms":delay_ms,
+                }))
+                .map_err(|e| e.to_string())?,
+            )
+            .map_err(|e| e.to_string())?;
+            Ok(RecordedReply {
+                status,
+                content_type,
+                body,
+                delay_ms,
+            })
+        })
+        .collect()
+}
+
+fn adapted_body(route: &Route, exchange: &Value) -> Result<(Value, Vec<u8>), String> {
+    let body = exchange
+        .pointer("/body/value")
+        .ok_or("recorded source body missing")?;
+    match exchange.pointer("/body/kind").and_then(Value::as_str) {
+        Some("text") if route.envelope.is_none() && route.count_field.is_none() => {
+            let text = body.as_str().ok_or("recorded text body must be a string")?;
+            Ok((body.clone(), text.as_bytes().to_vec()))
+        }
+        Some("json") => {
             let mut adapted = if let Some(envelope) = &route.envelope {
                 json!({envelope:body})
             } else {
@@ -177,16 +238,9 @@ fn bodies(
                     ),
                 )?;
             }
-            fs::write(
-                out.join(format!("{index}-source-{ordinal}.json")),
-                serde_json::to_vec_pretty(&json!({
-                    "capture":capture,"adapted_body":adapted,"host":route.host,
-                    "request_prefix":route.request_prefix,"request_contains":route.request_contains,
-                }))
-                .map_err(|e| e.to_string())?,
-            )
-            .map_err(|e| e.to_string())?;
-            serde_json::to_string(&adapted).map_err(|e| e.to_string())
-        })
-        .collect()
+            let bytes = serde_json::to_vec(&adapted).map_err(|e| e.to_string())?;
+            Ok((adapted, bytes))
+        }
+        _ => Err("assessment gap: unsupported recorded body or adaptation".into()),
+    }
 }

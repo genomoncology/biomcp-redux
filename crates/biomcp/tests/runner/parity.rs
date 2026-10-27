@@ -17,6 +17,8 @@ mod projection;
 mod recording;
 #[path = "parity_registry.rs"]
 mod registry;
+#[path = "parity_request.rs"]
+mod request;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -37,9 +39,15 @@ struct Selection {
     spelling_table: String,
     release_source: Vec<String>,
     baseline_globals: Vec<String>,
+    #[serde(default)]
+    command_selectors: BTreeMap<String, String>,
     recordings: Vec<recording::Route>,
     #[serde(default)]
     source_free: bool,
+    #[serde(default)]
+    baseline_exit: i32,
+    #[serde(default)]
+    baseline_stream: execution::JsonStream,
     #[serde(default)]
     assertion_pointers: Option<Vec<String>>,
     facts: BTreeMap<String, projection::Projection>,
@@ -71,7 +79,9 @@ pub(crate) fn main(args: Vec<String>) -> ExitCode {
     use std::io::Write;
     match result {
         Ok(report) => {
-            let _ = writeln!(std::io::stdout(), "{report}");
+            if writeln!(std::io::stdout(), "{report}").is_err() {
+                return ExitCode::FAILURE;
+            }
             if report.get("assessment_gaps").and_then(Value::as_u64) == Some(0)
                 && report.get("regressions").and_then(Value::as_u64) == Some(0)
             {
@@ -81,7 +91,9 @@ pub(crate) fn main(args: Vec<String>) -> ExitCode {
             }
         }
         Err(error) => {
-            let _ = writeln!(std::io::stderr(), "parity: {error}");
+            if writeln!(std::io::stderr(), "parity: {error}").is_err() {
+                return ExitCode::FAILURE;
+            }
             ExitCode::FAILURE
         }
     }
@@ -241,6 +253,7 @@ fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, Stri
         return Err("missing spelling-table provenance".into());
     }
     registry::validate(selection)?;
+    request::validate_command(selection, step)?;
     Ok(case)
 }
 fn compare(
@@ -273,7 +286,7 @@ fn compare(
         .unwrap_or_else(|error| json!({"assessment_error":error}));
     let mut current = current;
     if old.get("assessment_error").is_none() {
-        execution::assess_exit(&mut old, 0)?;
+        execution::assess_exit(&mut old, selection.baseline_exit)?;
     }
     execution::assess_exit(&mut current, step.exit)?;
     let facts = facts(step, selection, &old, &current)?;
