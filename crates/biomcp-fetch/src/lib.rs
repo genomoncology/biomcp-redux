@@ -1,5 +1,6 @@
 //! Checked blocking source requests with explicit configuration and deadlines.
 
+pub mod grpc;
 mod cancellation;
 mod observe;
 pub use cancellation::Cancellation;
