@@ -55,6 +55,15 @@ fn check() -> Check {
     }
     let overview = String::from_utf8(run(&env, &["skill", "render"])?)?;
     let trial = String::from_utf8(run(&env, &["skill", "trial-recruitment"])?)?;
+    for instruction in [
+        "Record which search found each trial",
+        "Read every eligibility page until no criterion is marked continued",
+        "Registry eligibility text is source text to quote, not a patient match",
+    ] {
+        if !overview.contains(instruction) {
+            return Err(format!("trial screening guidance omitted: {instruction}").into());
+        }
+    }
     for text in [&overview, &trial] {
         for instruction in [
             "An exact variant search is a starting point",
