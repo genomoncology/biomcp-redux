@@ -7,6 +7,8 @@ use std::{collections::BTreeMap, fs, path::Path, process::ExitCode};
 mod execution;
 #[path = "parity_recording.rs"]
 mod recording;
+#[path = "parity_registry.rs"]
+mod registry;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -166,6 +168,7 @@ fn load_selection(selection: &Selection) -> Result<Case, String> {
     if !table.contains("0.9") || !table.contains(&leaf) {
         return Err("missing spelling-table provenance".into());
     }
+    registry::validate(selection)?;
     Ok(case)
 }
 fn compare(
@@ -214,21 +217,17 @@ fn facts(
         {
             continue;
         }
-        let Some(old_pointer) = selection.facts.get(pointer) else {
-            result.push(json!({"pointer":pointer,"expected":expected,
-                "baseline":{"verdict":"assessment_gap","reason":format!("missing baseline projection for {pointer}")},
-                "candidate":{"verdict":"assessment_gap","reason":"paired assessment needs a baseline projection"}}));
-            continue;
-        };
-        let expected = step
-            .expect
-            .get(pointer)
-            .ok_or("selected assertion missing from harvested case")?;
         let mut fact = step.clone();
         fact.expect = BTreeMap::from([(pointer.clone(), expected.clone())]);
         let prepared = assertions::prepare(&fact)?;
         for (_, _, assertions) in prepared {
             for assertion in assertions {
+                let Some(old_pointer) = selection.facts.get(pointer) else {
+                    result.push(json!({"pointer":pointer,"expected":expected,"assertion":format!("{assertion:?}"),
+                        "baseline":{"verdict":"assessment_gap","reason":format!("missing baseline projection for {pointer}")},
+                        "candidate":{"verdict":"assessment_gap","reason":"paired assessment needs a baseline projection"}}));
+                    continue;
+                };
                 let left = verdict(old, old_pointer, &assertion);
                 let right = verdict(current, pointer, &assertion);
                 result.push(json!({"pointer":pointer,"baseline_pointer":old_pointer,

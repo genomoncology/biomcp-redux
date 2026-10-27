@@ -55,7 +55,10 @@ def main():
     assert source['adapted_body']['hits'] == source['capture']['exchanges'][0]['body']['value']
     requests = json.loads((out / 'sample/0-baseline-requests.json').read_text())
     assert len(requests) == row['baseline']['recorded_requests'] == 1
-    assert requests[0][0].startswith('CONNECT mygene.info:443 ')
+    assert requests[0][0] == 'mygene.info'
+    assert source['adapted_body']['total'] == len(source['adapted_body']['hits'])
+    assert 'mygene-info' not in row['baseline']['disabled_sources'].split(',')
+    assert 'opentargets' in row['baseline']['disabled_sources'].split(',')
     plan = json.loads(sample.read_text())
     plan['cases'][0]['facts'] = {}
     missing = out / 'missing-projection.json'
@@ -65,6 +68,12 @@ def main():
     fact, = gap['cases'][0]['facts']
     assert fact['baseline']['verdict'] == fact['candidate']['verdict'] == 'assessment_gap'
     assert 'missing baseline projection' in fact['baseline']['reason']
+    multi = copy.deepcopy(plan)
+    multi['cases'][0]['assertion_pointers'] = ['/sources/*/source']
+    write_json(out / 'multi.json', multi)
+    expanded = run(out / 'multi.json', baseline, out / 'multi', False)
+    assert expanded['assessment_gaps'] == 2
+    assert len(expanded['cases'][0]['facts']) == 2
     separator = copy.deepcopy(plan)
     grammar = json.loads((ROOT / 'tests/cases/gene/sections/grammar.yaml').read_text())
     ordinal, step = next((i, step) for i, step in enumerate(grammar['steps']) if '--' in step.get('run', []))
@@ -77,13 +86,12 @@ def main():
     assert command['parsed']['query']['input'] == step['expect']['/query/input']
     assert command['command'].index('--replay') < command['command'].index('--')
     assert command['provider_connections'] == 0
-    overlap = json.loads(sample.read_text())
-    other = copy.deepcopy(overlap['cases'][0]['recordings'][0])
-    other['host'] = 'unrelated.invalid'
-    overlap['cases'][0]['recordings'].insert(0, other)
-    write_json(out / 'hosts.json', overlap)
-    hosted = run(out / 'hosts.json', baseline, out / 'hosts', True)
-    assert hosted['cases'][0]['facts'][0]['baseline']['verdict'] == 'wrong'
+    wrong_host = json.loads(sample.read_text())
+    wrong_host['cases'][0]['recordings'][0]['host'] = 'unrelated.invalid'
+    reject(wrong_host, baseline, out, 'host', 'does not belong to source')
+    wrong_endpoint = json.loads(sample.read_text())
+    wrong_endpoint['cases'][0]['recordings'][0]['endpoint_env'] = 'BIOMCP_OPENTARGETS_BASE'
+    reject(wrong_endpoint, baseline, out, 'endpoint', 'does not belong to source')
     installed = out / 'installed-biomcp'
     shutil.copy2(Path(report['candidate_binary']['path']), installed)
     environment = dict(os.environ, BIOMCP_TEST_EXECUTABLE=str(installed))

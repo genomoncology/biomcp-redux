@@ -101,36 +101,6 @@ impl Stub {
         content_type: impl Fn(&str) -> &'static str + Send + 'static,
         mut reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
         length: fn(&str, usize) -> usize,
-        status: impl FnMut(&str) -> u16 + Send + 'static,
-        range: impl FnMut(&str) -> String + Send + 'static,
-    ) -> Result<Self, String> {
-        Self::with_host_headers(
-            hosts,
-            content_type,
-            move |_, request| reply(request),
-            length,
-            status,
-            range,
-        )
-    }
-    pub(super) fn for_sources_with_host(
-        hosts: &[&str],
-        reply: impl FnMut(&str, &str) -> Result<String, String> + Send + 'static,
-    ) -> Result<Self, String> {
-        Self::with_host_headers(
-            hosts,
-            |_| "application/json",
-            reply,
-            |_, bytes| bytes,
-            |_| 200,
-            |_| String::new(),
-        )
-    }
-    fn with_host_headers(
-        hosts: &[&str],
-        content_type: impl Fn(&str) -> &'static str + Send + 'static,
-        mut reply: impl FnMut(&str, &str) -> Result<String, String> + Send + 'static,
-        length: fn(&str, usize) -> usize,
         mut status: impl FnMut(&str) -> u16 + Send + 'static,
         mut range: impl FnMut(&str) -> String + Send + 'static,
     ) -> Result<Self, String> {
@@ -153,10 +123,12 @@ impl Stub {
                     .set_write_timeout(Some(Duration::from_secs(10)))
                     .map_err(|e| e.to_string())?;
                 let connect = header(&mut socket)?;
-                let host = hosts
+                if !hosts
                     .iter()
-                    .find(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
-                    .ok_or("wrong CONNECT destination")?;
+                    .any(|host| connect.starts_with(&format!("CONNECT {host}:443 ")))
+                {
+                    return Err("wrong CONNECT destination".into());
+                }
                 socket
                     .write_all(b"HTTP/1.1 200 Connection established\r\n\r\n")
                     .map_err(|e| e.to_string())?;
@@ -165,7 +137,7 @@ impl Stub {
                 let mut tls = StreamOwned::new(connection, socket);
                 // An untrusted client closes its handshake before sending HTTP.
                 if let Ok(request) = source_request(&mut tls) {
-                    let body = reply(host, &request)?;
+                    let body = reply(&request)?;
                     let content_type = content_type(&request);
                     let status = status(&request);
                     write!(
@@ -185,6 +157,44 @@ impl Stub {
         Ok(Self {
             address,
             certificate,
+            stop,
+            worker: Some(worker),
+        })
+    }
+    // Released clients can ignore system proxies. An explicit endpoint override
+    // reaches this peer directly and gives its logical source sole ownership.
+    pub(super) fn loopback(
+        host: String,
+        mut reply: impl FnMut(&str, &str) -> Result<String, String> + Send + 'static,
+    ) -> Result<Self, String> {
+        let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
+        let address = listener.local_addr().map_err(|e| e.to_string())?;
+        let (stop, stopping) = mpsc::channel();
+        let worker = thread::spawn(move || {
+            let mut requests = Vec::new();
+            for stream in listener.incoming() {
+                if stopping.try_recv().is_ok() {
+                    break;
+                }
+                let mut socket = stream.map_err(|e| e.to_string())?;
+                socket
+                    .set_read_timeout(Some(Duration::from_secs(10)))
+                    .map_err(|e| e.to_string())?;
+                socket
+                    .set_write_timeout(Some(Duration::from_secs(10)))
+                    .map_err(|e| e.to_string())?;
+                let request = source_request(&mut socket)?;
+                let body = reply(&host, &request)?;
+                write!(socket, "HTTP/1.1 200 Recorded\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len())
+                    .map_err(|e| e.to_string())?;
+                socket.flush().map_err(|e| e.to_string())?;
+                requests.push((host.clone(), request));
+            }
+            Ok(requests)
+        });
+        Ok(Self {
+            address,
+            certificate: String::new(),
             stop,
             worker: Some(worker),
         })

@@ -1,13 +1,15 @@
-//! Reviewed request routes adapt only envelopes around unchanged source values.
-use super::{Environment, Selection, execution};
+//! Recorded source payloads reach released clients through explicit local endpoints.
+use super::{Environment, Selection, execution, registry};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::{fs, path::Path};
+use std::{collections::BTreeMap, fs, path::Path};
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct Route {
-    host: String,
+    pub(super) source: String,
+    pub(super) endpoint_env: String,
+    pub(super) host: String,
     request_prefix: String,
     request_contains: String,
     capture: String,
@@ -15,7 +17,6 @@ pub(super) struct Route {
     #[serde(default)]
     count_field: Option<String>,
 }
-
 pub(super) fn baseline(
     selection: &Selection,
     binary: &Path,
@@ -23,63 +24,26 @@ pub(super) fn baseline(
     out: &Path,
     index: usize,
 ) -> Result<Value, String> {
+    let registry = registry::load()?;
     let bodies = bodies(&selection.recordings, replay, out, index)?;
-    let hosts = selection
-        .recordings
-        .iter()
-        .map(|r| r.host.as_str())
-        .collect::<Vec<_>>();
-    let routes = selection
-        .recordings
-        .iter()
-        .map(|r| {
-            (
-                r.host.clone(),
-                r.request_prefix.clone(),
-                r.request_contains.clone(),
-            )
-        })
-        .collect::<Vec<_>>();
-    // This peer never opens a provider connection. Unknown hosts or targets fail closed.
-    let server =
-        super::super::network_stub::Stub::for_sources_with_host(&hosts, move |host, request| {
-            let matching = routes
-                .iter()
-                .enumerate()
-                .filter(|(_, (source_host, prefix, contains))| {
-                    host == source_host && request.starts_with(prefix) && request.contains(contains)
-                })
-                .map(|(i, _)| i)
-                .collect::<Vec<_>>();
-            let [index] = matching.as_slice() else {
-                return Err("unmapped baseline request".into());
-            };
-            bodies
-                .get(*index)
-                .cloned()
-                .ok_or("missing recorded body".into())
-        })?;
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let certificate = env.root().join("source.pem");
-    fs::write(&certificate, &server.certificate).map_err(|e| e.to_string())?;
     let mut args = selection.baseline_globals.clone();
+    args.extend([
+        "--disable-sources".into(),
+        registry.disabled(&selection.recordings)?,
+    ]);
     args.extend(selection.baseline_command.clone());
     let mut command = env.command(binary, &args);
-    let proxy = format!("http://{}", server.address);
-    command
-        .env("HTTPS_PROXY", &proxy)
-        .env("HTTP_PROXY", &proxy)
-        .env("ALL_PROXY", &proxy)
-        .env("BIOMCP_CA_BUNDLE", &certificate);
+    let peers = peers(&registry, selection, bodies, &mut command)?;
     let mut result =
         execution::invoke_command(command, &args, &out.join(format!("{index}-baseline")))?;
-    let requests = match server.finish() {
-        Ok(requests) => requests,
-        Err(error) => {
-            execution::field(&mut result, "assessment_error", json!(error))?;
-            return Ok(result);
+    let mut requests = Vec::new();
+    for peer in peers {
+        match peer.finish() {
+            Ok(received) => requests.extend(received),
+            Err(error) => execution::field(&mut result, "assessment_error", json!(error))?,
         }
-    };
+    }
     fs::write(
         out.join(format!("{index}-baseline-requests.json")),
         serde_json::to_vec_pretty(&requests).map_err(|e| e.to_string())?,
@@ -93,7 +57,62 @@ pub(super) fn baseline(
         )?;
     }
     execution::field(&mut result, "recorded_requests", json!(requests.len()))?;
+    execution::field(
+        &mut result,
+        "disabled_sources",
+        json!(registry.disabled(&selection.recordings)?),
+    )?;
     Ok(result)
+}
+fn peers(
+    registry: &registry::Registry,
+    selection: &Selection,
+    bodies: Vec<String>,
+    command: &mut std::process::Command,
+) -> Result<Vec<super::super::network_stub::Stub>, String> {
+    let mut grouped = BTreeMap::new();
+    for (route, body) in selection.recordings.iter().zip(bodies) {
+        grouped
+            .entry(route.source.clone())
+            .or_insert_with(Vec::new)
+            .push((
+                route.request_prefix.clone(),
+                route.request_contains.clone(),
+                body,
+            ));
+    }
+    let mut peers = Vec::new();
+    for (source, routes) in grouped {
+        let endpoint = registry
+            .endpoints
+            .get(&source)
+            .ok_or("unreviewed endpoint")?;
+        let expected_host = endpoint.host.clone();
+        let peer = super::super::network_stub::Stub::loopback(
+            expected_host.clone(),
+            move |host, request| {
+                if host != expected_host {
+                    return Err("source peer ownership changed".into());
+                }
+                let matches = routes
+                    .iter()
+                    .filter(|(prefix, contains, _)| {
+                        request.starts_with(prefix) && request.contains(contains)
+                    })
+                    .collect::<Vec<_>>();
+                let [(_, _, body)] = matches.as_slice() else {
+                    return Err("unmapped or ambiguous baseline source request".into());
+                };
+                Ok(body.clone())
+            },
+        )?;
+        command.env(
+            &endpoint.variable,
+            format!("http://{}{}", peer.address, endpoint.base_path),
+        );
+        peers.push(peer);
+    }
+    Ok(peers)
 }
 fn bodies(
     routes: &[Route],
@@ -112,6 +131,14 @@ fn bodies(
                 &fs::read(replay.join(&route.capture)).map_err(|e| e.to_string())?,
             )
             .map_err(|e| e.to_string())?;
+            let registry = registry::load()?;
+            let endpoint = registry
+                .endpoints
+                .get(&route.source)
+                .ok_or("unreviewed source")?;
+            if capture.get("source").and_then(Value::as_str) != Some(&endpoint.recording_source) {
+                return Err("capture does not belong to routed source".into());
+            }
             let exchanges = capture
                 .get("exchanges")
                 .and_then(Value::as_array)
