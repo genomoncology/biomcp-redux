@@ -19,8 +19,29 @@ pub(super) fn render(value: &Value, out: &mut String) {
         out.push_str(&format!(
             "# biomcp {}\n\n{}\n\n",
             escape(&path),
-            escape(command["description"].as_str().unwrap_or_default())
+            command["description"]
+                .as_str()
+                .unwrap_or_default()
+                .lines()
+                .map(escape)
+                .collect::<Vec<_>>()
+                .join("\n\n")
         ));
+        if let Some(schemas) = command["reply_schemas"]
+            .as_array()
+            .filter(|v| !v.is_empty())
+        {
+            out.push_str("## Reply schemas\n\n");
+            out.push_str(
+                &schemas
+                    .iter()
+                    .filter_map(Value::as_str)
+                    .map(escape)
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            );
+            out.push_str("\n\n");
+        }
         if let Some(arguments) = command["arguments"].as_array().filter(|a| !a.is_empty()) {
             out.push_str("## Arguments\n\n");
             table(arguments, &["name", "description"], false, out);

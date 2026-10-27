@@ -75,6 +75,17 @@ pub(super) fn check() -> Result<(), String> {
                 replay.as_deref(),
                 None,
             )?;
+            if args.starts_with(&["article".into(), "text".into()])
+                && args.iter().any(|v| v == "--part")
+                && reply
+                    .pointer("/result/content/data/markdown")
+                    .and_then(Value::as_str)
+                    .is_none_or(str::is_empty)
+            {
+                return Err(format!(
+                    "help part example returned no article text: {args:?}"
+                ));
+            }
             if reply
                 .pointer("/result/content/data/markdown")
                 .and_then(Value::as_str)
