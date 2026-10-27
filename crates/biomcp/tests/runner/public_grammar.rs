@@ -59,6 +59,53 @@ fn help() -> Result<(), String> {
         .pointer("/result/commands")
         .and_then(Value::as_array)
         .ok_or("missing help commands")?;
+    command_metadata(commands)?;
+    for command in commands {
+        for argument in command["arguments"]
+            .as_array()
+            .ok_or("missing public arguments")?
+        {
+            if argument["description"]
+                .as_str()
+                .is_none_or(|s| s.trim().is_empty())
+            {
+                return Err(format!("public argument lacks description: {argument}"));
+            }
+        }
+    }
+    for flag in ["--replay", "--record", "--case-cache", "--observe"] {
+        if commands.iter().any(|c| {
+            c["arguments"]
+                .as_array()
+                .is_some_and(|args| args.iter().any(|a| a["name"] == flag))
+        }) {
+            return Err(format!("public harness flag {flag}"));
+        }
+    }
+    let references = commands
+        .iter()
+        .find(|c| c["command"] == json!(["article", "references"]))
+        .ok_or("missing article references")?;
+    if references["description"]
+        .as_str()
+        .is_none_or(|s| !s.contains("referenced") || s.contains("citing or"))
+    {
+        return Err("article references has no command-specific description".into());
+    }
+    let author = commands
+        .iter()
+        .find(|c| c["command"] == json!(["search", "author"]))
+        .ok_or("missing search author")?;
+    if author["description"]
+        .as_str()
+        .is_none_or(|s| s.contains("papers supports"))
+    {
+        return Err("search author describes papers options".into());
+    }
+    Ok(())
+}
+
+fn command_metadata(commands: &[Value]) -> Result<(), String> {
     for path in [
         vec![],
         vec!["search"],
@@ -115,48 +162,6 @@ fn help() -> Result<(), String> {
         if command["arguments"].as_array().is_none_or(Vec::is_empty) {
             return Err(format!("missing arguments {path:?}"));
         }
-    }
-    for command in commands {
-        for argument in command["arguments"]
-            .as_array()
-            .ok_or("missing public arguments")?
-        {
-            if argument["description"]
-                .as_str()
-                .is_none_or(|s| s.trim().is_empty())
-            {
-                return Err(format!("public argument lacks description: {argument}"));
-            }
-        }
-    }
-    for flag in ["--replay", "--record", "--case-cache", "--observe"] {
-        if commands.iter().any(|c| {
-            c["arguments"]
-                .as_array()
-                .is_some_and(|args| args.iter().any(|a| a["name"] == flag))
-        }) {
-            return Err(format!("public harness flag {flag}"));
-        }
-    }
-    let references = commands
-        .iter()
-        .find(|c| c["command"] == json!(["article", "references"]))
-        .ok_or("missing article references")?;
-    if references["description"]
-        .as_str()
-        .is_none_or(|s| !s.contains("referenced") || s.contains("citing or"))
-    {
-        return Err("article references has no command-specific description".into());
-    }
-    let author = commands
-        .iter()
-        .find(|c| c["command"] == json!(["search", "author"]))
-        .ok_or("missing search author")?;
-    if author["description"]
-        .as_str()
-        .is_none_or(|s| s.contains("papers supports"))
-    {
-        return Err("search author describes papers options".into());
     }
     Ok(())
 }
