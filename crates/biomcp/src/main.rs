@@ -34,6 +34,11 @@ fn main() -> ExitCode {
             if let Some((address, hosts)) = parsed.http {
                 return match mcp::http::serve(&address, hosts, globals) {
                     Ok(()) => ExitCode::SUCCESS,
+                    Err(mcp::http::StartError::AllowHost) => exit::finish(
+                        command::encode(biomcp_types::ErrorEnvelope::argument("--allow-host".into()), exit::Status::Usage)
+                            .and_then(|outcome| output::bytes(&outcome.cli_bytes)),
+                        exit::Status::Usage,
+                    ),
                     Err(mcp::http::StartError::Usage) => ExitCode::from(2),
                     Err(mcp::http::StartError::Local) => ExitCode::from(5),
                 };

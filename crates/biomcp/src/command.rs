@@ -360,6 +360,9 @@ fn tool_using(
 fn usage(args: &[OsString]) -> io::Result<Outcome> {
     let mut words = crate::grammar::command_words(args);
     let root = words.next();
+    if let Some(option) = crate::grammar::argument_error(args) {
+        return encode(ErrorEnvelope::argument(option.into()), crate::exit::Status::Usage);
+    }
     let mut error = if matches!(
         root,
         Some("sync" | "key" | "store" | "version" | "mcp-config" | "skill")

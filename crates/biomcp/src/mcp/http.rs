@@ -16,6 +16,7 @@ const MAX_CONNECTIONS: usize = 8;
 const HEALTH_BUDGET: std::time::Duration = std::time::Duration::from_secs(2);
 pub(crate) enum StartError {
     Usage,
+    AllowHost,
     Local,
 }
 struct Service {
@@ -37,7 +38,7 @@ pub(crate) fn serve(
         .map(|host| Authority::parse(host).ok_or(StartError::Usage))
         .collect::<Result<Vec<_>, _>>()?;
     if !address.ip().is_loopback() && hosts.is_empty() {
-        return Err(StartError::Usage);
+        return Err(StartError::AllowHost);
     }
     let listener = TcpListener::bind(address).map_err(|_| StartError::Local)?;
     let address = listener.local_addr().map_err(|_| StartError::Local)?;

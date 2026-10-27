@@ -1,6 +1,7 @@
 //! Schema-fed command help shared with MCP discovery.
 
 mod source_settings;
+mod public_grammar;
 
 use biomcp_types::{Help, HelpArgument, HelpCommand, HelpWord};
 use serde_json::Value;
@@ -68,6 +69,7 @@ fn commands() -> io::Result<Vec<HelpCommand>> {
     }
     commands.extend(crate::housekeeping::help());
     extra_commands(&mut commands, &examples);
+    public_grammar::augment(&mut commands)?;
     Ok(commands)
 }
 const AUTHOR_BOUNDARY: &str = " Author IDs identify provider records, not resolved people. Counts cover that provider record. \
@@ -83,7 +85,11 @@ const CELL_LINE_BOUNDARY: &str = "An assay count is not an activity or sensitivi
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     let mut description = text(schema, "description");
     if entity == "author" || verb == "author" {
-        description.push_str(AUTHOR_BOUNDARY);
+        let boundary = if verb == "search" { AUTHOR_BOUNDARY.split("; papers supports").next().unwrap_or(AUTHOR_BOUNDARY) } else { AUTHOR_BOUNDARY };
+        description.push_str(boundary);
+    }
+    if verb == "article" && entity == "references" {
+        description = "Page the PubMed papers referenced by one checked article identifier.".into();
     }
     if entity == "cell-line" || verb == "cell-line" {
         description.push(' ');
