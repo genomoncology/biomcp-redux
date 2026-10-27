@@ -257,7 +257,7 @@ fn survival() -> Result<(), String> {
         &env,
         &words,
         &directory,
-        &["Observed", "Modeled", "2018", "90.5"],
+        &["Observed", "Modeled", "2018", "90&#46;5"],
     )?;
     let requests = stub.finish()?;
     if requests.len() != 1

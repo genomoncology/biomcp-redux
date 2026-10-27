@@ -28,6 +28,11 @@ impl ScoreRequest {
         reference: &str,
         alternate: &str,
     ) -> Result<Self, InputError> {
+        // This integration has no verified mitochondrial chromosome/interval contract.
+        // Do not invent chrMT/chrM normalization or make a publisher support claim.
+        if chromosome.number() == 25 {
+            return Err(InputError::Path);
+        }
         let chromosome = format!("chr{}", chromosome.name());
         let variant = request_variant::checked(build, &chromosome, position, reference, alternate)?;
         let center = position.checked_sub(1).ok_or(InputError::Path)?;
@@ -64,6 +69,16 @@ impl ScoreRequest {
     /// Stable credential-free request bytes, including ordered scorers.
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
+    }
+    /// Exact request interval provenance; the native score reply has no interval field.
+    pub fn requested_interval(&self) -> Result<biomcp_types::AlphaGenomeInterval, BadReply> {
+        let interval = self.request.interval.as_ref().ok_or(BadReply)?;
+        Ok(biomcp_types::AlphaGenomeInterval {
+            chromosome: interval.chromosome.parse().map_err(|_| BadReply)?,
+            start: interval.start,
+            end: interval.end,
+            strand: biomcp_types::AlphaGenomeStrand::Unstranded,
+        })
     }
     /// Start independent bounded admission for exactly the requested scorer groups.
     pub fn decoder(&self, limits: Limits) -> Result<ScoreEnvelope, BadReply> {

@@ -173,7 +173,8 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--limit"
       },
       "max_bytes": 166,
       "max_tokens": 42
@@ -199,7 +200,8 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--limit"
       },
       "max_bytes": 166,
       "max_tokens": 42
@@ -225,7 +227,8 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--limit"
       },
       "max_bytes": 166,
       "max_tokens": 42
@@ -251,7 +254,8 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--offset"
       },
       "max_bytes": 166,
       "max_tokens": 42
@@ -305,10 +309,11 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--section-limit"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 171,
+      "max_tokens": 43
     },
     {
       "run": [
@@ -333,10 +338,11 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--section-limit"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 171,
+      "max_tokens": 43
     },
     {
       "run": [
@@ -361,10 +367,11 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--section-limit"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 171,
+      "max_tokens": 43
     },
     {
       "run": [
@@ -389,10 +396,11 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "expected a supported command with checked arguments"
+        "/error/message": "expected a supported command with checked arguments",
+        "/error/option": "--section-offset"
       },
-      "max_bytes": 166,
-      "max_tokens": 42
+      "max_bytes": 172,
+      "max_tokens": 43
     },
     {
       "run": [

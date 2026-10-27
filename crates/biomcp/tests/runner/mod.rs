@@ -11,6 +11,8 @@ pub(super) mod parity;
 mod parity_inventory_proof;
 mod parity_shape_proof;
 use execution::run_step;
+mod alphagenome;
+mod alphagenome_tls;
 mod cache_contention;
 pub(super) mod cell_line;
 mod clinpgx;
@@ -53,6 +55,7 @@ mod faers_search;
 mod gene_tables;
 mod health_bundles;
 mod held_proxy;
+mod help_entry;
 mod help_examples;
 mod housekeeping;
 mod hpo_registry;
@@ -109,6 +112,7 @@ mod protein_domains;
 mod protein_registry;
 mod protein_sections;
 mod protocol;
+mod public_grammar;
 mod publication;
 mod recurrence;
 mod recurrence_errors;
@@ -124,6 +128,7 @@ mod skill;
 mod source_controls;
 mod source_groups;
 mod source_terms;
+mod source_text;
 mod store_clean;
 mod store_coexistence;
 mod study_catalog;
@@ -298,11 +303,18 @@ fn run_case(path: &Path, registry: &schema::Registry) -> Result<Value, String> {
     previous.ok_or_else(|| "case requires at least one step".into())
 }
 
+fn discovery_trials() -> Vec<Trial> {
+    let mut trials = housekeeping::trials();
+    trials.extend(help_entry::trials());
+    trials.extend(skill::trials());
+    trials.extend(public_grammar::trials());
+    trials
+}
+
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = protocol::trials();
     trials.extend(output_stream::trials());
-    trials.extend(housekeeping::trials());
-    trials.extend(skill::trials());
+    trials.extend(discovery_trials());
     trials.extend(research::trials());
     trials.push(Trial::test("article-help/executable-examples", || {
         help_examples::check().map_err(Into::into)
@@ -355,7 +367,19 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(mcp_boundaries::trials());
     trials.extend(corporate::trials());
-    trials.extend(variant::trials());
+    trials.extend(variant_trials());
+    trials.extend(markdown::trials());
+    trials.extend(markdown_shapes::trials());
+    trials.extend(markdown_variant_trial::trials());
+    trials.extend(markdown_sources::trials());
+    trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
+        held_proxy::check().map_err(Into::into)
+    }));
+    trials
+}
+
+fn variant_trials() -> Vec<Trial> {
+    let mut trials = variant::trials();
     trials.extend(variant_assertion_wire::trials());
     trials.extend(variant_assertions::trials());
     trials.extend(variant_discovery::trials());
@@ -364,6 +388,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_population_release::trials());
     trials.extend(oncokb::trials());
     trials.extend(oncokb_context::trials());
+    trials.extend(alphagenome::trials());
+    trials.extend(alphagenome_tls::trials());
     trials.extend(variant_civic::trials());
     trials.extend(variant_hotspots::trials());
     trials.extend(recurrence::trials());
@@ -373,13 +399,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(variant_search::trials());
     trials.extend(next_navigation::trials());
     trials.extend(variant_filters::trials());
-    trials.extend(markdown::trials());
-    trials.extend(markdown_shapes::trials());
-    trials.extend(markdown_variant_trial::trials());
-    trials.extend(markdown_sources::trials());
-    trials.push(Trial::test("mcp/ping-passes-held-provider-call", || {
-        held_proxy::check().map_err(Into::into)
-    }));
     trials
 }
 

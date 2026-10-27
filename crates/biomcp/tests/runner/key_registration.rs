@@ -110,12 +110,15 @@ fn registration() -> Check {
             return Err("config permissions are not owner-only".into());
         }
     }
-    invoke(
+    let existing = invoke(
         &env,
         &["key", "set", "semantic-scholar"],
         &format!("{SECOND}\n"),
         2,
     )?;
+    if existing.pointer("/error/option") != Some(&json!("--replace")) {
+        return Err("existing key omitted --replace guidance".into());
+    }
     invoke(
         &env,
         &["key", "set", "semantic-scholar", "--replace"],

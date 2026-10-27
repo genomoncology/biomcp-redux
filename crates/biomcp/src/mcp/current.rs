@@ -38,5 +38,5 @@ pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
 }
 
 pub(super) fn discover() -> Value {
-    json!({"supportedVersions":REVISIONS,"capabilities":{"tools":{}}})
+    json!({"supportedVersions":REVISIONS,"instructions":protocol::INSTRUCTIONS,"capabilities":{"tools":{}}})
 }

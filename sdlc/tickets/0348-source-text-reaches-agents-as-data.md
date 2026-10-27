@@ -1,6 +1,7 @@
 # 0348 — Prove that fetched source text reaches agents as inert data
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ef00dcdfab3a6191a969cd371896dd7471e63d36
 
 Milestone: 5
 

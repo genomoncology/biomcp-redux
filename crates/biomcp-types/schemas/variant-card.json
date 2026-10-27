@@ -36,6 +36,466 @@
       ],
       "type": "object"
     },
+    "AlphaGenomeBiosample": {
+      "additionalProperties": false,
+      "description": "Native biosample metadata.",
+      "properties": {
+        "name": {
+          "description": "Publisher sample name.",
+          "type": "string"
+        },
+        "stage": {
+          "description": "Publisher stage text, when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/AlphaGenomeBiosampleType",
+          "description": "Publisher sample category."
+        }
+      },
+      "required": [
+        "type",
+        "name"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeBiosampleType": {
+      "description": "Publisher BiosampleType vocabulary.",
+      "enum": [
+        "BIOSAMPLE_TYPE_UNSPECIFIED",
+        "BIOSAMPLE_TYPE_PRIMARY_CELL",
+        "BIOSAMPLE_TYPE_IN_VITRO_DIFFERENTIATED_CELLS",
+        "BIOSAMPLE_TYPE_CELL_LINE",
+        "BIOSAMPLE_TYPE_TISSUE",
+        "BIOSAMPLE_TYPE_TECHNICAL_SAMPLE",
+        "BIOSAMPLE_TYPE_ORGANOID"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeDataType": {
+      "description": "Original tensor scalar representation.",
+      "enum": [
+        "DATA_TYPE_FLOAT32"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeEndedness": {
+      "description": "Publisher Endedness vocabulary.",
+      "enum": [
+        "ENDEDNESS_UNSPECIFIED",
+        "ENDEDNESS_SINGLE",
+        "ENDEDNESS_PAIRED"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeGene": {
+      "additionalProperties": false,
+      "description": "Native gene metadata for a tensor row.",
+      "properties": {
+        "gene_id": {
+          "$ref": "#/$defs/Text",
+          "description": "Publisher gene identifier."
+        },
+        "junction_end": {
+          "description": "Publisher junction end, when supplied.",
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "junction_start": {
+          "description": "Publisher junction start, when supplied.",
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Publisher gene name.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "strand": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeStrand"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher gene strand."
+        },
+        "type": {
+          "description": "Publisher gene type.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "gene_id"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeInterval": {
+      "additionalProperties": false,
+      "description": "A requested interval; the scoring response does not echo an interval field.",
+      "properties": {
+        "chromosome": {
+          "$ref": "#/$defs/Contig",
+          "description": "Exact chromosome sent."
+        },
+        "end": {
+          "description": "Zero-based exclusive end.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "start": {
+          "description": "Zero-based inclusive start.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "strand": {
+          "$ref": "#/$defs/AlphaGenomeStrand",
+          "description": "Requested strand."
+        }
+      },
+      "required": [
+        "chromosome",
+        "start",
+        "end",
+        "strand"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeNonfiniteKind": {
+      "description": "Native nonfinite scalar category, without assigning a missing-value meaning.",
+      "enum": [
+        "nan",
+        "positive_infinity",
+        "negative_infinity"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeOntology": {
+      "additionalProperties": false,
+      "description": "Native ontology identity.",
+      "properties": {
+        "id": {
+          "description": "Publisher numeric identifier.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "ontology_type": {
+          "$ref": "#/$defs/AlphaGenomeOntologyType",
+          "description": "Publisher ontology vocabulary."
+        }
+      },
+      "required": [
+        "ontology_type",
+        "id"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeOntologyType": {
+      "description": "Publisher OntologyType vocabulary.",
+      "enum": [
+        "ONTOLOGY_TYPE_UNSPECIFIED",
+        "ONTOLOGY_TYPE_CLO",
+        "ONTOLOGY_TYPE_UBERON",
+        "ONTOLOGY_TYPE_CL",
+        "ONTOLOGY_TYPE_EFO",
+        "ONTOLOGY_TYPE_NTR"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeScalar": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FiniteNumber",
+          "description": "A finite JSON number."
+        },
+        {
+          "additionalProperties": false,
+          "description": "A native nonfinite value without invented units, payload meaning or missingness.",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/AlphaGenomeNonfiniteKind",
+              "description": "Exact scalar category."
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "One native scalar; finite values remain JSON numbers and nonfinite values stay explicit."
+    },
+    "AlphaGenomeScorer": {
+      "description": "The scorer explicitly requested at this ordinal; not a native response label.",
+      "enum": [
+        "gene_mask_lfc_rna_seq",
+        "gene_mask_splicing_splice_sites",
+        "center_mask_diff_mean_dnase_501"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeScorerPage": {
+      "additionalProperties": false,
+      "description": "Independent page of one requested scorer's native values.",
+      "properties": {
+        "data_type": {
+          "$ref": "#/$defs/AlphaGenomeDataType",
+          "description": "Original scalar representation."
+        },
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VariantGet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Next explicit section request, when more native values remain."
+        },
+        "page": {
+          "$ref": "#/$defs/PageInfo",
+          "description": "Value paging within this scorer only."
+        },
+        "request_ordinal": {
+          "description": "Request position used to associate this unlabelled response group.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "requested_scorer": {
+          "$ref": "#/$defs/AlphaGenomeScorer",
+          "description": "Requested scorer identity, distinct from native metadata."
+        },
+        "rows": {
+          "description": "Paged values in native row-major order.",
+          "items": {
+            "$ref": "#/$defs/AlphaGenomeValue"
+          },
+          "type": "array"
+        },
+        "shape": {
+          "description": "Complete native tensor dimensions, including every plane.",
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        }
+      },
+      "required": [
+        "request_ordinal",
+        "requested_scorer",
+        "data_type",
+        "shape",
+        "rows",
+        "page"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeStrand": {
+      "description": "Publisher Strand vocabulary.",
+      "enum": [
+        "STRAND_UNSPECIFIED",
+        "STRAND_POSITIVE",
+        "STRAND_NEGATIVE",
+        "STRAND_UNSTRANDED"
+      ],
+      "type": "string"
+    },
+    "AlphaGenomeTrack": {
+      "additionalProperties": false,
+      "description": "Native metadata for one tensor track.",
+      "properties": {
+        "assay": {
+          "description": "Publisher assay text.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "biosample": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeBiosample"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native biosample, when supplied."
+        },
+        "data_source": {
+          "description": "Publisher data source.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "endedness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeEndedness"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher sequence endedness."
+        },
+        "genetically_modified": {
+          "description": "Publisher modification flag.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "gtex_tissue": {
+          "description": "Publisher GTEx tissue.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "histone_mark_code": {
+          "description": "Publisher histone mark.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Publisher track name.",
+          "type": "string"
+        },
+        "nonzero_mean": {
+          "description": "Publisher nonzero mean, without assigning score units.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ontology_term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeOntology"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native ontology identity, when supplied."
+        },
+        "strand": {
+          "$ref": "#/$defs/AlphaGenomeStrand",
+          "description": "Publisher strand value."
+        },
+        "transcription_factor_code": {
+          "description": "Publisher transcription factor code.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "strand"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeValue": {
+      "additionalProperties": false,
+      "description": "One native tensor value with its unchanged coordinate and metadata.",
+      "properties": {
+        "gene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AlphaGenomeGene"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native gene metadata, omitted for a nongene aggregate row."
+        },
+        "tensor_index": {
+          "description": "Native row-major tensor coordinate; plane, row and track indices.",
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "track": {
+          "$ref": "#/$defs/AlphaGenomeTrack",
+          "description": "Native metadata for the corresponding track."
+        },
+        "value": {
+          "$ref": "#/$defs/AlphaGenomeScalar",
+          "description": "Exact numeric value represented by the source scalar."
+        }
+      },
+      "required": [
+        "tensor_index",
+        "value",
+        "track"
+      ],
+      "type": "object"
+    },
+    "AlphaGenomeVariant": {
+      "additionalProperties": false,
+      "description": "Exact genomic coordinates supplied in the request and echoed by the source.",
+      "properties": {
+        "alternate_bases": {
+          "$ref": "#/$defs/Sequence",
+          "description": "Exact alternate sequence sent."
+        },
+        "chromosome": {
+          "$ref": "#/$defs/Contig",
+          "description": "Exact chromosome sent."
+        },
+        "position": {
+          "description": "One-based source position.",
+          "format": "int64",
+          "type": "integer"
+        },
+        "reference_bases": {
+          "$ref": "#/$defs/Sequence",
+          "description": "Exact reference sequence sent."
+        }
+      },
+      "required": [
+        "chromosome",
+        "position",
+        "reference_bases",
+        "alternate_bases"
+      ],
+      "type": "object"
+    },
     "AmpAscoCap2017LevelCode": {
       "description": "Checked AmpAscoCap2017Level codes.",
       "enum": [
@@ -1131,6 +1591,10 @@
         "label"
       ],
       "type": "object"
+    },
+    "Contig": {
+      "pattern": "^[\\x21-\\x7e]{1,255}$",
+      "type": "string"
     },
     "CosmicCoordinates": {
       "additionalProperties": false,
@@ -2742,6 +3206,127 @@
         }
       ]
     },
+    "Section10": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/VariantHotspots",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not_applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Section2": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
@@ -3355,7 +3940,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantOncokb",
+              "$ref": "#/$defs/VariantAlphaGenome",
               "description": "Whole section data."
             },
             "source": {
@@ -3476,7 +4061,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantCivic",
+              "$ref": "#/$defs/VariantOncokb",
               "description": "Whole section data."
             },
             "source": {
@@ -3597,7 +4182,7 @@
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/VariantHotspots",
+              "$ref": "#/$defs/VariantCivic",
               "description": "Whole section data."
             },
             "source": {
@@ -4406,6 +4991,43 @@
           "type": "array"
         }
       },
+      "type": "object"
+    },
+    "VariantAlphaGenome": {
+      "additionalProperties": false,
+      "description": "Paged native scorer results with explicit request provenance.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Build",
+          "description": "Source-resolved assembly used for the request."
+        },
+        "requested_interval": {
+          "$ref": "#/$defs/AlphaGenomeInterval",
+          "description": "Exact requested interval, never claimed as a returned interval."
+        },
+        "requested_model_version": {
+          "description": "Checkpoint field sent; empty means the publisher default was requested.",
+          "type": "string"
+        },
+        "scorers": {
+          "description": "Native scorer groups associated only by requested position.",
+          "items": {
+            "$ref": "#/$defs/AlphaGenomeScorerPage"
+          },
+          "type": "array"
+        },
+        "variant": {
+          "$ref": "#/$defs/AlphaGenomeVariant",
+          "description": "Exact request identity, checked against native metadata."
+        }
+      },
+      "required": [
+        "build",
+        "variant",
+        "requested_interval",
+        "requested_model_version",
+        "scorers"
+      ],
       "type": "object"
     },
     "VariantAssertion": {
@@ -5371,6 +5993,7 @@
         "population",
         "gwas",
         "civic",
+        "alphagenome",
         "oncokb",
         "hotspots",
         "predict",
@@ -5385,6 +6008,7 @@
         " gnomAD population observations.",
         " GWAS Catalog associations.",
         " CIViC molecular-profile evidence.",
+        " Keyed AlphaGenome native numeric scorer values.",
         " Keyed OncoKB annotation with explicit tumor context and build.",
         " Cancer Hotspots candidate residue counts; no established exact allele join or clinical actionability.",
         " MyVariant source predictor scores.",
@@ -5397,10 +6021,21 @@
       "additionalProperties": false,
       "description": "Source-specific sections, absent unless explicitly selected.",
       "properties": {
+        "alphagenome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Section7"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explicit keyed AlphaGenome numeric scorer result."
+        },
         "civic": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section8"
+              "$ref": "#/$defs/Section9"
             },
             {
               "type": "null"
@@ -5466,7 +6101,7 @@
         "hotspots": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section9"
+              "$ref": "#/$defs/Section10"
             },
             {
               "type": "null"
@@ -5477,7 +6112,7 @@
         "oncokb": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Section7"
+              "$ref": "#/$defs/Section8"
             },
             {
               "type": "null"

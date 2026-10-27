@@ -14,4 +14,4 @@ Every `biomcp.*` schema ID uses hyphens between words, such as `biomcp.adverse-e
 - Rules: PM ruling 2026-10-27: hyphens. IDs keep their current major numbers, because no release has published them. The baseline is regenerated from the new product source.
 - Proof: a check fails if any schema ID contains an underscore; `biomcp schema` lists every ID in the baseline; each help command's schema ID resolves with `biomcp schema <id>`.
 - Changes: schema ID constants, the schema command, help, fixtures that name IDs and the schema baseline.
-- Defers: MCP `outputSchema` carrying real reply schemas, which goes to a 1.0 update.
+- Defers: MCP `outputSchema` carrying real reply schemas, which goes to 0358.

@@ -17,6 +17,7 @@ pub struct GrpcEndpoint {
     pub(super) path: &'static str,
     pub(super) schema: &'static str,
     pub(super) fresh: crate::Freshness,
+    limits: Option<super::Limits>,
 }
 impl SourceSpec {
     /// Declare one read-only streaming method. Every invocation makes one application attempt.
@@ -25,11 +26,21 @@ impl SourceSpec {
             spec: self,
             path,
             schema: "",
+            limits: None,
             fresh: crate::Freshness::Never,
         }
     }
 }
 impl GrpcEndpoint {
+    /// Declare source ceilings; every field can only tighten the caller's global bound.
+    pub const fn bounded(mut self, limits: super::Limits) -> Self {
+        self.limits = Some(limits);
+        self
+    }
+    pub(super) fn limits(self, global: super::Limits) -> super::Limits {
+        self.limits.map_or(global, |source| global.minimum(source))
+    }
+
     /// Pin the response schema and opt into checked caching for reproducible requests only.
     /// Provider-default model requests must retain Freshness::Never.
     pub const fn checked(mut self, schema: &'static str, fresh: crate::Freshness) -> Self {
@@ -59,7 +70,7 @@ impl Leg<'_> {
             body,
             |bytes, _| message(bytes),
             false,
-            self.fetch.config.grpc_limits,
+            endpoint.limits(self.fetch.config.grpc_limits),
             &mut NetworkEnd::default(),
         )
     }
