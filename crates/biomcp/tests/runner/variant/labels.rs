@@ -32,7 +32,8 @@ fn check_case(reply: fn(&str) -> Result<String, String>, count: usize) -> Result
     let scores = data
         .get("scores")
         .and_then(Value::as_array)
-        .ok_or("scores missing")?;
+        .map(Vec::as_slice)
+        .unwrap_or_default();
     if scores.len() != count || scores.iter().any(|score| score.get("label").is_some()) {
         return Err(format!(
             "labels were assigned to unproven numeric positions: {data}"

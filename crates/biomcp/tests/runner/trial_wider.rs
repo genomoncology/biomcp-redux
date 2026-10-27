@@ -73,7 +73,7 @@ fn short_pages() -> Check {
                         }
                     }
                 },
-                json!([{"run": args, "mcp": args, "expect": {"/status":"complete", "/result/items":{"count": count}}}]),
+                json!([{"run": args, "mcp": args, "expect": {"/status":"complete", "/page/returned": count}}]),
             )?;
             let expected = if count < 10 {
                 json!([{"kind":"disambiguate", "args":wider}])

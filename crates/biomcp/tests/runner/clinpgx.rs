@@ -187,7 +187,9 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
         return Err("clinical default exceeds its reviewed output ceiling".into());
     }
     if name == "annotation" {
-        if v.pointer("/result/annotation") != native.get("data") {
+        let mut expected = native.get("data").cloned().ok_or("native data")?;
+        super::assertions::omit_empty_lists(&mut expected);
+        if v.pointer("/result/annotation") != Some(&expected) {
             return Err("base fields changed".into());
         }
         return Ok(());
@@ -200,8 +202,8 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
         .get("data")
         .and_then(Value::as_array)
         .ok_or("native array")?;
-    if rows
-        != &expected
+    let mut expected_rows = json!(
+        expected
             .iter()
             .take(match name {
                 "wide" => 5,
@@ -210,6 +212,9 @@ fn verify(name: &str, v: &Value, native: &Value) -> Check {
             })
             .cloned()
             .collect::<Vec<_>>()
+    );
+    super::assertions::omit_empty_lists(&mut expected_rows);
+    if Some(rows) != expected_rows.as_array()
         || v.pointer("/result/page/total") != Some(&json!(expected.len()))
         || v.pointer("/result/page/total_kind") != Some(&json!("observed"))
     {

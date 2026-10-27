@@ -110,10 +110,16 @@ fn walk(env: &Environment, raw: &Value, section: &str, globals: &[String]) -> Ch
         if Some(text.as_str()) != raw["brief_summary"].as_str() {
             return Err("NCI summary lost original whitespace or characters".into());
         }
-    } else if rows != expected(raw, section)? {
-        return Err(format!(
-            "NCI {section} changed original records or relationships"
-        ));
+    } else {
+        let mut expected = expected(raw, section)?;
+        for row in &mut expected {
+            super::assertions::omit_empty_lists(row);
+        }
+        if rows != expected {
+            return Err(format!(
+                "NCI {section} changed original records or relationships"
+            ));
+        }
     }
     if section == "diseases" {
         snapshot_policy(env, &args)?;

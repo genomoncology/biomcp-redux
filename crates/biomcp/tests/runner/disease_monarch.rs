@@ -124,7 +124,6 @@ fn exact() -> Result<(), String> {
             "aggregator_knowledge_source",
             json!(["infores:monarchinitiative", "infores:hpo-annotations"]),
         ),
-        ("qualifiers", json!([])),
     ] {
         if row.get(key) != Some(&expected) {
             return Err(format!("lost {key}: {row}"));

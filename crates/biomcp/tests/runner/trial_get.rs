@@ -183,6 +183,9 @@ fn expected_records(raw: &Value, section: &str) -> Vec<Value> {
             ));
         }
     }
+    for row in &mut rows {
+        super::assertions::omit_empty_lists(row);
+    }
     rows
 }
 fn failures() -> Check {

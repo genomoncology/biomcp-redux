@@ -13,7 +13,7 @@ pub struct TrialCard {
     /// Source overall status.
     pub status: TrialStatus,
     /// Source phases without inferred defaults.
-    #[serde(skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,
     /// Native study type.
     pub study_type: StudyType,

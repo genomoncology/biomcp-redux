@@ -162,7 +162,7 @@ const SHAPES: &[Shape] = &[
             "Rows",
             "| Sheet | Row | Cells | Cells | Row |",
             concat!(
-                "| ST2 | 87 | \\[\\] | \\[\\] | 1 | 1 | true | 0 | ",
+                "| ST2 | 87 |  |  | 1 | 1 | true | 0 | ",
                 "Supplemental Table 2: Individual Tier 2 Variants. |"
             ),
             "AXIN2",
@@ -280,13 +280,13 @@ fn check_tool(
             .canonicalize()
             .map_err(|e| e.to_string())?;
         if tool.pointer("/query/save") != Some(&json!(path))
-            || tool.pointer("/query/replace") != Some(&json!(false))
+            || tool.pointer("/query/replace").is_some()
             || tool.pointer("/result/file/data/path") != Some(&json!(absolute.to_string_lossy()))
         {
             return Err("stdio save changed its explicit new destination".into());
         }
         // Preserve receipt parity after checking the deliberate destination difference.
-        for pointer in ["/query/save", "/query/replace", "/result/file/data/path"] {
+        for pointer in ["/query/save", "/result/file/data/path"] {
             *tool
                 .pointer_mut(pointer)
                 .ok_or("stdio save receipt field")? = value

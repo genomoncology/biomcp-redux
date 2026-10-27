@@ -166,8 +166,10 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
                     node.as_array()
                         .ok_or_else(|| format!("{node}; wildcard requires an array"))?,
                 );
-            } else {
-                next.push(node.pointer(&format!("/{token}")).ok_or("<missing>")?);
+            } else if let Some(child) = node.pointer(&format!("/{token}")) {
+                next.push(child);
+            } else if !wildcard {
+                return Err("<missing>".into());
             }
         }
         if next.is_empty() {
@@ -182,6 +184,24 @@ pub(super) fn select(value: &Value, pointer: &str) -> Result<Value, String> {
             .first()
             .map(|node| (*node).clone())
             .ok_or_else(|| "<missing>".into())
+    }
+}
+
+/// Project source snapshots into the product's empty-collection wire convention.
+pub(super) fn omit_empty_lists(value: &mut Value) {
+    match value {
+        Value::Object(fields) => {
+            for child in fields.values_mut() {
+                omit_empty_lists(child);
+            }
+            fields.retain(|_, child| !child.as_array().is_some_and(Vec::is_empty));
+        }
+        Value::Array(items) => {
+            for item in items {
+                omit_empty_lists(item);
+            }
+        }
+        _ => {}
     }
 }
 

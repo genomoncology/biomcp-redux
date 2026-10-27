@@ -203,7 +203,11 @@ fn recorded_stub() -> Result<Stub, String> {
         },
     )
 }
-fn path(value: &Value, path: &str, expected: Value) -> Result<(), String> {
+fn path(value: &Value, path: &str, mut expected: Value) -> Result<(), String> {
+    if expected == serde_json::json!([]) && value.pointer(path).is_none() {
+        return Ok(());
+    }
+    super::assertions::omit_empty_lists(&mut expected);
     if value.pointer(path) != Some(&expected) {
         return Err(format!(
             "{path}: expected {expected}, got {:?}",
