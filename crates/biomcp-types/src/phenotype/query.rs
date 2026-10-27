@@ -129,15 +129,15 @@ impl TryFrom<GetFields> for PhenotypeGet {
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
         let (source, _) = defaults(v.section);
         if source == PhenotypeSource::Monarch && v.source == Some(PhenotypeSource::Hpo) {
-            return Err(QueryInvalid::new(&["source"]));
+            return Err(QueryInvalid::new(&["source", "section"]));
         }
         if v.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
-        if (matches!(
+        if matches!(
             v.section,
             Some(PhenotypeSection::Diseases | PhenotypeSection::Genes)
-        ) && v.snapshot.is_some())
+        ) && v.snapshot.is_some()
         {
             return Err(QueryInvalid::new(&["section", "snapshot"]));
         }

@@ -71,7 +71,7 @@ impl TryFrom<SearchFields> for DiseaseSearch {
         if !matches!(v.source, DiseaseSource::Ols | DiseaseSource::Seer) {
             return Err(QueryInvalid::new(&["source"]));
         }
-        if (v.source == DiseaseSource::Ols && v.text.as_ref().is_none_or(|t| t.trim().is_empty())) {
+        if v.source == DiseaseSource::Ols && v.text.as_ref().is_none_or(|t| t.trim().is_empty()) {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
         if v.source == DiseaseSource::Seer && (v.text.is_some() || v.ontology.is_some()) {
@@ -154,17 +154,17 @@ impl TryFrom<GetFields> for DiseaseGet {
         {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
-        if (v.source == DiseaseSource::Seer
-            && (!statistic || !v.id.as_str().bytes().all(|b| b.is_ascii_digit())))
+        if v.source == DiseaseSource::Seer
+            && (!statistic || !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
         {
             return Err(QueryInvalid::new(&["source", "id", "section"]));
         }
-        if (v.source != DiseaseSource::Seer
-            && (statistic || v.id.as_str().parse::<biodata::Curie>().is_err()))
+        if v.source != DiseaseSource::Seer
+            && (statistic || v.id.as_str().parse::<biodata::Curie>().is_err())
         {
             return Err(QueryInvalid::new(&["source", "id", "section"]));
         }
-        if (v.source != DiseaseSource::Seer
+        if v.source != DiseaseSource::Seer
             && [
                 &v.sex,
                 &v.race,
@@ -174,7 +174,7 @@ impl TryFrom<GetFields> for DiseaseGet {
                 &v.interval,
             ]
             .iter()
-            .any(|v| v.is_some()))
+            .any(|v| v.is_some())
         {
             return Err(QueryInvalid::new(&[
                 "source",

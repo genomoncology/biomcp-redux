@@ -212,7 +212,12 @@ impl TryFrom<Fields> for VariantSearch {
             return Err(QueryInvalid::new(&["offset"]));
         }
         if raw && f.filtered() {
-            return Err(QueryInvalid::new(&["query"]));
+            return Err(QueryInvalid::new(&[
+                "query",
+                "review_status",
+                "condition",
+                "has",
+            ]));
         }
         if [&f.review_status, &f.condition]
             .into_iter()

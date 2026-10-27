@@ -273,7 +273,7 @@ impl TryFrom<Fields> for ArticleSearch {
         {
             return Err(QueryInvalid::new(&[
                 "text", "variant", "disease", "drug", "author", "journal", "gene", "since",
-                "until", "kind",
+                "until", "type",
             ]));
         }
         if v.since.zip(v.until).is_some_and(|(since, until)| {

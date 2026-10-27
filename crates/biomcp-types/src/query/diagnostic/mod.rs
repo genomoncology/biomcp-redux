@@ -108,13 +108,37 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             return Err(QueryInvalid::new(&["gene", "gene_id", "condition_id"]));
         }
         if v.source == DiagnosticSearchSource::Gtr && (cdx || who) {
-            return Err(QueryInvalid::new(&["source"]));
+            return Err(QueryInvalid::new(&[
+                "source",
+                "device_id",
+                "drug_application",
+                "biomarker",
+                "marker",
+                "manufacturer",
+            ]));
         }
         if v.source == DiagnosticSearchSource::FdaCdx && (gtr || who) {
-            return Err(QueryInvalid::new(&["source"]));
+            return Err(QueryInvalid::new(&[
+                "source",
+                "gene_id",
+                "gene",
+                "condition_id",
+                "type",
+                "marker",
+                "manufacturer",
+            ]));
         }
         if v.source == DiagnosticSearchSource::WhoIvd && (gtr || cdx) {
-            return Err(QueryInvalid::new(&["source"]));
+            return Err(QueryInvalid::new(&[
+                "source",
+                "gene_id",
+                "gene",
+                "condition_id",
+                "type",
+                "device_id",
+                "drug_application",
+                "biomarker",
+            ]));
         }
         if [v.marker.as_ref(), v.manufacturer.as_ref()]
             .into_iter()

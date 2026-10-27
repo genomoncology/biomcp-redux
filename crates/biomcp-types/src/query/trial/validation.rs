@@ -15,15 +15,16 @@ impl TryFrom<Fields> for TrialSearch {
             f.id = Some(id);
             f.query = None;
         }
-        if f.condition_id.as_ref().is_some_and(|id| {
-            f.condition.is_some() || f.keyword.is_some() || !valid_condition_id(id, f.source)
-        }) {
-            return Err(QueryInvalid::new(&[
-                "condition_id",
-                "condition",
-                "keyword",
-                "source",
-            ]));
+        if let Some(id) = &f.condition_id {
+            if f.condition.is_some() {
+                return Err(QueryInvalid::new(&["condition_id", "condition"]));
+            }
+            if f.keyword.is_some() {
+                return Err(QueryInvalid::new(&["condition_id", "keyword"]));
+            }
+            if !valid_condition_id(id, f.source) {
+                return Err(QueryInvalid::new(&["condition_id", "source"]));
+            }
         }
         if !(1..=100).contains(&f.limit) {
             return Err(QueryInvalid::new(&["limit"]));
@@ -37,7 +38,7 @@ impl TryFrom<Fields> for TrialSearch {
         {
             return Err(QueryInvalid::new(&["updated_since", "updated_until"]));
         }
-        if (f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some())) {
+        if f.facility.is_some() && (f.lat.is_some() || f.lon.is_some() || f.distance.is_some()) {
             return Err(QueryInvalid::new(&["facility", "lat", "lon", "distance"]));
         }
         if [f.lat.is_some(), f.lon.is_some(), f.distance.is_some()]

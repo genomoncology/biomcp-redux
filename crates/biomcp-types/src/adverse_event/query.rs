@@ -78,20 +78,19 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         {
             return Err(QueryInvalid::new(&["received_from", "received_to"]));
         }
-        if (v.source != AdverseEventSource::Vaers && (v.section.is_some() || v.snapshot.is_some()))
-        {
+        if v.source != AdverseEventSource::Vaers && (v.section.is_some() || v.snapshot.is_some()) {
             return Err(QueryInvalid::new(&["source", "section", "snapshot"]));
         }
-        if (v.source == AdverseEventSource::Vaers
-            && super::vaers::vaers_vaccine_code(v.text.as_str()).is_none())
+        if v.source == AdverseEventSource::Vaers
+            && super::vaers::vaers_vaccine_code(v.text.as_str()).is_none()
         {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
-        if (v.source != AdverseEventSource::Faers
+        if v.source != AdverseEventSource::Faers
             && (v.reaction.is_some()
                 || v.serious.is_some()
                 || v.received_from.is_some()
-                || v.received_to.is_some()))
+                || v.received_to.is_some())
         {
             return Err(QueryInvalid::new(&[
                 "source",
@@ -219,8 +218,8 @@ impl TryFrom<GetFields> for AdverseEventGet {
         if v.source == AdverseEventSource::Vaers {
             return Err(QueryInvalid::new(&["source"]));
         }
-        if (v.source == AdverseEventSource::Maude
-            && !v.id.as_str().bytes().all(|b| b.is_ascii_digit()))
+        if v.source == AdverseEventSource::Maude
+            && !v.id.as_str().bytes().all(|b| b.is_ascii_digit())
         {
             return Err(QueryInvalid::new(&["source", "id"]));
         }

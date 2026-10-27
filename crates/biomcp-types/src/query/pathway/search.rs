@@ -78,7 +78,7 @@ impl TryFrom<SearchFields> for PathwaySearch {
         {
             return Err(QueryInvalid::new(&["source"]));
         }
-        if (v.source.contains(&PathwaySource::Wikipathways) && (v.gene.is_some() || v.top_level)) {
+        if v.source.contains(&PathwaySource::Wikipathways) && (v.gene.is_some() || v.top_level) {
             return Err(QueryInvalid::new(&["source", "gene", "top_level"]));
         }
         Ok(Self(v))
