@@ -73,6 +73,15 @@ pub(super) fn call(
             .map_err(|e| e.to_string())?
             .validate(value)
             .map_err(|e| e.to_string())?;
+        if let Some(id) = value
+            .get("schema")
+            .or_else(|| value.pointer("/metadata/envelope/schema"))
+            .or_else(|| value.pointer("/metadata/schema"))
+            .and_then(Value::as_str)
+            && !super::schema_proof::reply_ids(schema).contains(id)
+        {
+            return Err(format!("tool returned an unadvertised schema ID: {id}"));
+        }
     }
     use std::io::Write;
     writeln!(

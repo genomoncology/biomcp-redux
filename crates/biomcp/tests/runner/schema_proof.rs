@@ -230,6 +230,20 @@ fn discovery() -> Result<(), String> {
             replies.insert(id);
         }
     }
+    let advertised = super::mcp::exchange(
+        &environment,
+        &[super::mcp::request(json!(1), "tools/list", json!({}))],
+    )?;
+    for tool in advertised
+        .first()
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .ok_or("missing tool list")?
+    {
+        replies.extend(reply_ids(
+            tool.get("outputSchema").ok_or("missing output schema")?,
+        ));
+    }
     for id in replies {
         let artifact = invoke(&["schema".into(), id.into()])?;
         if artifact.get("$id").and_then(Value::as_str) != Some(id) {
@@ -260,4 +274,28 @@ fn parent_replies(commands: &[Value]) -> Result<(), String> {
         return Err("parent reply schemas are not sorted and unique".into());
     }
     Ok(())
+}
+
+pub(super) fn reply_ids(schema: &Value) -> std::collections::BTreeSet<&str> {
+    let mut ids = std::collections::BTreeSet::new();
+    if let Some(property) = schema.pointer("/properties/schema") {
+        ids.extend(property.get("const").and_then(Value::as_str));
+        ids.extend(
+            property
+                .get("enum")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str),
+        );
+    }
+    for branch in schema
+        .get("anyOf")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        ids.extend(reply_ids(branch));
+    }
+    ids
 }
