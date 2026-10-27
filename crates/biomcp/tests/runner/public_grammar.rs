@@ -121,6 +121,16 @@ fn help() -> Result<(), String> {
             return Err(format!("public harness flag {flag}"));
         }
     }
+    let references = commands
+        .iter()
+        .find(|c| c["command"] == json!(["article", "references"]))
+        .ok_or("missing article references")?;
+    if references["description"]
+        .as_str()
+        .is_none_or(|s| !s.contains("referenced") || s.contains("citing or"))
+    {
+        return Err("article references has no command-specific description".into());
+    }
     let author = commands
         .iter()
         .find(|c| c["command"] == json!(["search", "author"]))

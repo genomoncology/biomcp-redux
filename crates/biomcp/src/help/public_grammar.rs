@@ -42,11 +42,14 @@ pub(super) fn augment(commands: &mut Vec<HelpCommand>) -> io::Result<()> {
         (
             "schema",
             Arg::new("artifact-id")
+                .index(1)
                 .help("Artifact ID to print; omit it to list available schemas."),
         ),
         (
             "help",
-            Arg::new("command").help("Command path or discovery topic to describe."),
+            Arg::new("command")
+                .index(1)
+                .help("Command path or discovery topic to describe."),
         ),
     ] {
         if let Some(entry) = commands.iter_mut().find(|entry| entry.command == [name]) {
