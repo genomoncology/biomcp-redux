@@ -1,6 +1,7 @@
 # 0305 — Declare the residual direct parity plans for 0.9.3
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0ced4e1c006c8913ad8b4be3a996a06414d3dcdf
 
 Milestone: 5
 

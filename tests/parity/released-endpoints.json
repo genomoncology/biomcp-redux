@@ -38,7 +38,7 @@
       "variables": [
         "BIOMCP_CELLOSAURUS_BASE"
       ],
-      "delivery": "declaration_only"
+      "delivery": "reviewed_json"
     },
     "chembl": {
       "recording_source": "chembl",
