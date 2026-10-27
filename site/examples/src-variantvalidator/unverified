@@ -1,1 +1,1 @@
-VariantValidator returned rate_limited on one of two runs from the machine that builds this site, so the build does not run this example. It returned complete when run by hand.
+VariantValidator limits request rates and can return rate_limited. Wait a minute and run the command again.

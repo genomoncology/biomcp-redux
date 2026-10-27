@@ -1,1 +1,1 @@
-Keyless Semantic Scholar calls share a public rate limit and returned rate_limited on some runs, so the build does not run this example. It returned complete when run by hand.
+Semantic Scholar shares one public rate limit among callers without a key, so this call can return rate_limited. A Semantic Scholar key raises the limit: biomcp key set semantic-scholar.

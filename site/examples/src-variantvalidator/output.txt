@@ -1,0 +1,2 @@
+{"status":"complete","sources":[{"source":"variantvalidator","state":"ok","reason":null}]}
+{"source":"variantvalidator","outcome":"resolved"}

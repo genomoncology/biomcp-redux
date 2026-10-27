@@ -25,7 +25,14 @@ export function readExample(id) {
     exit: Number((read('exit') ?? '0').trim()),
     unverified: read('unverified') !== null,
     unverifiedReason: (read('unverified') ?? '').trim(),
+    ran: (read('ran') ?? '').trim(),
   };
+}
+
+// The label of an example the build does not rerun: the saved run's day when it has one, then the reason.
+export function unverifiedLabel(ex) {
+  const head = ex.output && ex.ran ? `Output saved from a run on ${ex.ran}; the build does not rerun this example.` : 'The build does not run this example, and no output is shown.';
+  return `${head} ${ex.unverifiedReason}`;
 }
 
 // Trim long output to the first `lines` lines, marking the cut.
@@ -45,7 +52,7 @@ export function fenced(text, lang = '') {
 
 export function exampleMarkdown(id, lines) {
   const ex = readExample(id);
-  if (ex.unverified) return `${fenced(ex.show, ex.lang)}\n\nNot run in the build: ${ex.unverifiedReason}\n`;
+  if (ex.unverified) return `${fenced(ex.show, ex.lang)}\n\n${unverifiedLabel(ex)}\n${ex.output ? `\n${fenced(trimOutput(ex.output, lines), 'text')}\n` : ''}`;
   const exit = ex.exit === 0 ? '' : `\nExit code ${ex.exit}.\n`;
   return `${fenced(ex.show, ex.lang)}\n\nOutput:\n\n${fenced(trimOutput(ex.output, lines), 'text')}\n${exit}`;
 }

@@ -1,1 +1,1 @@
-From the machine that builds this site, CDC WONDER returned bad_reply for MMR and deadline_exceeded for COVID19, so this example has not run.
+This example needs CDC WONDER to send a reply BioMCP can read. CDC WONDER has returned bad_reply for MMR and deadline_exceeded for COVID19, so no reply is shown.

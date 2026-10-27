@@ -1,1 +1,1 @@
-LitSense often answers after BioMCP's request deadline during a build, so the build does not run this example.
+LitSense can answer after BioMCP's request deadline; the source outcome then reports deadline_exceeded. Run the command again later.

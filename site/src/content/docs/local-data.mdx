@@ -40,7 +40,7 @@ When a bundle is older than its source, reads still answer from it. The source's
 
 <Example id="offline" />
 
-The first command answered from the HGNC bundle and a cached MyGene.info reply. The trial search had no cached reply. Offline mode never synchronizes a bundle.
+The first command answered from the HGNC bundle and a cached MyGene.info reply. The trial search had no cached reply, so its only source failed, its status is `failed`, and BioMCP exits with code 4. Offline mode never synchronizes a bundle.
 
 ## 3. Force a fresh request
 

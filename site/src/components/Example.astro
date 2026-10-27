@@ -1,7 +1,7 @@
 ---
 // Shows an example's code and the output saved from its last run in the build.
 import { Code } from '@astrojs/starlight/components';
-import { readExample, trimOutput } from '../lib/examples.mjs';
+import { readExample, trimOutput, unverifiedLabel } from '../lib/examples.mjs';
 interface Props { id: string; title?: string; lines?: number }
 const { id, title, lines } = Astro.props;
 const ex = readExample(id);
@@ -9,7 +9,10 @@ const ex = readExample(id);
 <div class="example" data-example={id}>
   <Code code={ex.show} lang={ex.lang} title={title} frame={ex.lang === 'sh' ? 'terminal' : 'code'} />
   {ex.unverified ? (
-    <p class="example-label">Not run in the build: {ex.unverifiedReason}</p>
+    <>
+      <p class="example-label">{unverifiedLabel(ex)}</p>
+      {ex.output && <Code code={trimOutput(ex.output, lines)} lang="text" frame="none" />}
+    </>
   ) : (
     <>
       <p class="example-label">Output{ex.exit !== 0 && <> (exit code {ex.exit})</>}</p>

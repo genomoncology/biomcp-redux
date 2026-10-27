@@ -10,15 +10,13 @@ sidebar:
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
 
 BioMCP <Fact k="version" /> entity `study`. A cBioPortal cancer study's metadata, read from a local bundle. Run `biomcp sync cbioportal-studies` first. BioMCP returns metadata and file references and computes no statistics.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| [`biomcp search study`](/reference/commands/search-study/) | Literal stored metadata search; text is never parsed as a query language. |
-| [`biomcp get study`](/reference/commands/get-study/) | Exact case-sensitive study card or bounded metadata section. |
+<CommandTable entity="study" />
 
 ## Sections of get study
 
@@ -32,6 +30,8 @@ BioMCP <Fact k="version" /> entity `study`. A cBioPortal cancer study's metadata
 
 <Example id="study-search" />
 
-## Guide
+This search ran before the cBioPortal study bundle existed. The reply's status is `failed`, so BioMCP exits with code 4, and `next` names the sync command. The search reads the stored catalog after `biomcp sync cbioportal-studies` succeeds.
+
+## Next
 
 [Studies and cell lines](/studies-and-cell-lines/) walks through these commands with more examples. All 16 entities are listed in the [entities reference](/reference/entities/).
