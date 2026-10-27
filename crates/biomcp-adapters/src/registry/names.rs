@@ -18,6 +18,7 @@ pub fn display_name(source: Source) -> &'static str {
         Source::Erepo => "ClinGen Evidence Repository",
         Source::Gwas => "GWAS Catalog",
         Source::ClinGen => "ClinGen",
+        Source::Gencc => "GenCC",
         Source::PubMed => "PubMed",
         Source::EuropePmc => "Europe PMC",
         Source::LitVar => "LitVar",

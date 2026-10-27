@@ -65,6 +65,16 @@ pub(crate) fn get(
         ));
     }
     if sources.iter().any(|source| {
+        source.source == biomcp_types::Source::Gencc && source.state != SourceState::Ok
+    }) {
+        steps.push((
+            StepKind::Sync,
+            Action::Sync {
+                bundle: Bundle::Gencc,
+            },
+        ));
+    }
+    if sources.iter().any(|source| {
         source.source == biomcp_types::Source::Oncokb
             && source.state == SourceState::Skipped
             && source.reason == Some(biomcp_types::Reason::NoKey)

@@ -189,6 +189,7 @@ pub(crate) fn root() -> Result<Command, ()> {
                     "cbioportal-studies",
                     "hgnc",
                     "clingen",
+                    "gencc",
                     "ema",
                     "ddinter",
                     "who-pq",
@@ -263,6 +264,7 @@ pub(crate) fn parse(args: &[OsString]) -> Result<Parsed, ()> {
                 Some("who-pq") => Bundle::WhoPq,
                 Some("ddinter") => Bundle::Ddinter,
                 Some("clingen") => Bundle::ClinGen,
+                Some("gencc") => Bundle::Gencc,
                 _ => Bundle::Hgnc,
             },
         }

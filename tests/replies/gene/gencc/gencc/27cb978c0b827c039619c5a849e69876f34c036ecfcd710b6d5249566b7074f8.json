@@ -1,0 +1,27 @@
+{
+  "method": "GET",
+  "source": "gencc",
+  "url": "https://thegencc.org/download/action/submissions-export-csv?format=new",
+  "exchanges": [
+    {
+      "status": 429,
+      "content_type": "text/plain",
+      "delay_ms": 0,
+      "retry_after_ms": 1,
+      "body": {
+        "kind": "text",
+        "value": "fixture rate limit"
+      }
+    },
+    {
+      "status": 200,
+      "content_type": "text/csv",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "sgc_id,version_number,gene_curie,gene_symbol,disease_curie,disease_title,disease_original_curie,disease_original_title,classification_curie,classification_title,moi_curie,moi_title,submitter_curie,submitter_title,submitted_as_hgnc_id,submitted_as_hgnc_symbol,submitted_as_disease_id,submitted_as_disease_name,submitted_as_moi_id,submitted_as_moi_name,submitted_as_submitter_id,submitted_as_submitter_name,submitted_as_classification_id,submitted_as_classification_name,submitted_as_date,submitted_as_public_report_url,submitted_as_notes,submitted_as_pmids,submitted_as_assertion_criteria_url,submitted_as_submission_id,submitted_run_date\nSGC-1,1,HGNC:8109,ODC1,MONDO:0033642,Fixture disease,,,GENCC:100002,Strong,HP:0000006,Autosomal dominant,GENCC:999001,Fixture submitter A,,,,,,,,,,,2026-01-02 00:00:00,,,,,,2026-01-03\nSGC-2,1,HGNC:8109,ODC1,MONDO:0033642,Fixture disease,,,GENCC:100003,Limited,HP:0000006,Autosomal dominant,GENCC:999002,Fixture submitter B,,,,,,,,,,,2026-01-02 00:00:00,,,,,,2026-01-03\n"
+      }
+    }
+  ]
+}

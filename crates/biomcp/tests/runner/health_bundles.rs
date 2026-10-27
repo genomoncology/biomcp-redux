@@ -15,6 +15,7 @@ const SOURCES: &[&str] = &[
     "fda-510k",
     "vaers",
     "clingen",
+    "gencc",
     "ema",
     "ddinter",
     "cbioportal",
@@ -32,6 +33,7 @@ const BUNDLES: &[(&str, &[&str])] = &[
     ("fda-cdx", &["fda-cdx"]),
     ("hgnc", &["hgnc", "hgnc-withdrawn"]),
     ("clingen", &["clingen-validity", "clingen-dosage"]),
+    ("gencc", &["gencc-submissions"]),
 ];
 pub(super) fn trials() -> Vec<Trial> {
     vec![

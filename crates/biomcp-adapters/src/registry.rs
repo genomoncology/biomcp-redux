@@ -44,6 +44,7 @@ pub const SOURCES: &[&SourceSpec] = &[
     &crate::clinvar::SPEC,
     &crate::erepo::SPEC,
     &crate::clingen::SPEC,
+    &crate::gencc::SPEC,
     &crate::hpa::SPEC,
     &crate::pubmed::SPEC,
     &crate::europepmc::SPEC,
@@ -247,6 +248,7 @@ fn get_probe(source: Source) -> Option<(&'static str, ProbeParams)> {
         Source::WikiPathways => ("/help.html", vec![]),
         Source::Hpa => ("/ENSG00000157764.json", vec![]),
         Source::ClinGen => (crate::clingen::HEALTH_PATH, vec![]),
+        Source::Gencc => (crate::gencc::HEALTH_PATH, vec![]),
         _ => return disease_probe(source),
     })
 }
@@ -377,6 +379,7 @@ pub fn bundle_state(
         Source::WikiPathways => crate::wikipathways::bundle_state(leg)?,
         Source::Hgnc => crate::hgnc::bundle_state(leg)?,
         Source::ClinGen => crate::clingen::bundle_state(leg)?,
+        Source::Gencc => crate::gencc::bundle_state(leg)?,
         Source::Gtr => crate::gtr::bundle_state(leg)?,
         Source::WhoIvd => crate::who_ivd::bundle_state(leg)?,
         Source::WhoPq => crate::who_pq::bundle_state(leg)?,

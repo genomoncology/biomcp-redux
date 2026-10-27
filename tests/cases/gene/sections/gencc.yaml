@@ -41,8 +41,46 @@
           "Strong",
           "Limited"
         ],
-        "/result/items/1/sections/gencc/state": "empty"
-      }
+        "/result/items/1/sections/gencc/state": "empty",
+        "/result/items/0/sections/gencc/data/submissions/*/evaluated_date": [
+          "2026-01-02 00:00:00",
+          "2026-01-02 00:00:00"
+        ]
+      },
+      "max_bytes": 12000
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "ODC1",
+        "MIR21",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/gencc/state": "data",
+        "/result/items/0/sections/gencc/data/submissions/*/submitter": [
+          "Fixture submitter A",
+          "Fixture submitter B"
+        ],
+        "/result/items/0/sections/gencc/data/submissions/*/classification": [
+          "Strong",
+          "Limited"
+        ],
+        "/result/items/1/sections/gencc/state": "empty",
+        "/result/items/0/sections/gencc/data/submissions/*/evaluated_date": [
+          "2026-01-02 00:00:00",
+          "2026-01-02 00:00:00"
+        ]
+      },
+      "max_bytes": 12000,
+      "offline": true
     }
-  ]
+  ],
+  "config": {
+    "disable_sources": [
+      "oncokb"
+    ]
+  }
 }
