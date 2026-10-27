@@ -11,6 +11,7 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         if schema == &json!({"type":"object"}) {
             return Err("tool advertises a bare object output schema".into());
         }
+        local_references(schema, schema)?;
         let validator = jsonschema::validator_for(schema).map_err(|error| error.to_string())?;
         for invalid in [
             json!({"unrelated":true}),
@@ -44,5 +45,32 @@ pub(super) fn check(tools: &[Value], reply: &Value) -> Result<(), String> {
         serde_json::to_vec(reply).map_err(|e| e.to_string())?.len()
     )
     .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+fn local_references(root: &Value, node: &Value) -> Result<(), String> {
+    match node {
+        Value::Object(fields) => {
+            if let Some(reference) = fields.get("$ref").and_then(Value::as_str)
+                && reference
+                    .strip_prefix('#')
+                    .and_then(|pointer| root.pointer(pointer))
+                    .is_none()
+            {
+                return Err(format!(
+                    "output schema reference is not locally resolvable: {reference}"
+                ));
+            }
+            for value in fields.values() {
+                local_references(root, value)?;
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                local_references(root, value)?;
+            }
+        }
+        _ => {}
+    }
     Ok(())
 }
