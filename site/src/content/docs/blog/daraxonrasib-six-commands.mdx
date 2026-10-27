@@ -1,0 +1,100 @@
+---
+title: "Follow a new drug across sources: daraxonrasib"
+description: A dated tutorial that follows daraxonrasib through BioMCP 1.0 sources, from its identity to its FDA application, label, papers, trials, eligibility text and adverse event reports.
+goal: The reader follows one newly approved drug through BioMCP's drug, article, trial and adverse event sources, and knows which source answered each step and where each answer stops.
+reader: A researcher or agent builder who wants the public records for a new drug in one session
+kind: tutorial
+verified: 2026-10-27
+date: 2026-10-27
+author: Ian Maurer
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+Daraxonrasib is a RAS(ON) inhibitor from Revolution Medicines, and it reached the FDA this year. This tutorial follows it through BioMCP <Fact k="version" /> in seven steps. At the end you hold its identifiers, its FDA application and label, its trial reports, its registered trials, the eligibility text of one trial, and the adverse event count. Each step names the source that answered.
+
+This page collects records. It does not say who should take the drug, and it reads no one's case.
+
+## Before you start
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches MyChem.info, openFDA, PubMed and ClinicalTrials.gov. No key is needed.
+- `jq`, to trim each reply to the fields shown.
+
+## 1. Find the drug's identity
+
+The default drug source is MyChem.info, which merges several databases:
+
+<Example id="blog-dara-identity" />
+
+The `sources` list names every database that contributed. The `id` is MyChem.info's key, an InChIKey. It is not an FDA identifier, so the next step asks the FDA source directly.
+
+## 2. Read the FDA application
+
+`--source drugsfda` searches Drugs@FDA. The application number leads to its approval history:
+
+<Example id="blog-dara-fda" />
+
+Drugs@FDA lists application NDA220910 for RASONQUE tablets, with an original approval (`AP`, `ORIG`) dated 2026-08-26 under priority review. The submission class and the orphan code are Drugs@FDA's own fields. The [FDA approval date answer](/answers/fda-approval-date/) shows the same steps for vemurafenib.
+
+**Checkpoint.** The approvals row has status `AP`. A different row means the source changed since this page was built.
+
+## 3. Read the label
+
+The openFDA label source knows the drug by its brand name:
+
+<Example id="blog-dara-label" />
+
+The search for `daraxonrasib` is `absent`, and the search for `RASONQUE` finds the label. Each source matches names its own way, so an empty reply describes one source and one spelling. The last line is the label's own first sentence under its indications heading, as openFDA serves it. BioMCP returns label text unchanged and does not summarize it.
+
+## 4. Find the papers
+
+`--drug` searches PubMed by drug name. `--type randomized` keeps randomized trial reports:
+
+<Example id="blog-dara-articles" />
+
+The first search mixes the discovery paper, reviews and news. The filtered search finds the randomized trial report in the New England Journal of Medicine, and `get article` returns its DOI and publication date. [Literature](/how-to/find-articles/) shows how to read full text when an article is open access.
+
+## 5. List the registered trials
+
+`--intervention` searches ClinicalTrials.gov interventions:
+
+<Example id="blog-dara-trials" />
+
+ClinicalTrials.gov returns 15 studies that list daraxonrasib, from first-in-human combinations to phase 3 trials and an expanded access program. The status column is the registry's. A combination study run by another sponsor appears here because it lists daraxonrasib as an intervention; read each record before you count it.
+
+## 6. Read one trial's eligibility text
+
+NCT06625320 is the phase 3 study in previously treated pancreatic cancer, and its status is `ACTIVE_NOT_RECRUITING`. The `eligibility` section returns the registry's criteria unchanged. This filter keeps the lines that mention RAS:
+
+<Example id="blog-dara-eligibility" />
+
+The criteria define RAS mutations by codon: G12, G13 or Q61 in KRAS, NRAS or HRAS. That definition is the trial's, written for its own enrollment. BioMCP does not match a person to a trial; the whole record governs enrollment, and [trials](/how-to/find-trials/#make-a-screen-complete) lists what a complete screen needs.
+
+## 7. Count adverse event reports
+
+FAERS holds spontaneous reports to the FDA. Search it under both names:
+
+<Example id="blog-dara-faers" />
+
+Both searches are `absent`, so the script exits with code 1. FAERS answered (`state` `ok`) and returned no report under either name. A new drug can have reports that FAERS has not yet published, so zero here is not a safety finding. [Drugs and safety](/drugs-and-safety/) explains what report counts can and cannot show.
+
+## What you have
+
+Seven commands gave you, each from its source:
+
+| Step | Source | Record |
+| --- | --- | --- |
+| Identity | MyChem.info | InChIKey and contributing databases |
+| Application | Drugs@FDA | NDA220910, original approval 2026-08-26 |
+| Label | openFDA | set ID and the indications heading |
+| Papers | PubMed | the randomized trial report, PMID 42223072 |
+| Trials | ClinicalTrials.gov | 15 registered studies |
+| Eligibility | ClinicalTrials.gov | the RAS definition of NCT06625320 |
+| Reports | FAERS | no reports under either name |
+
+## Try one change
+
+Run step 5 with `--status RECRUITING` to keep the studies that enroll now, then compare the count with the 15 above.
+
+Next, follow a variant instead of a drug in [KRAS G12C source records in six BioMCP commands](/blog/kras-g12c-treatment-landscape/).

@@ -1,0 +1,8 @@
+{
+  "minimum_age": "18 Years",
+  "sex": "ALL",
+  "ras_lines": [
+    "* Documented RAS mutation status, either mutant or wild-type. RAS mutations defined as nonsynonymous mutations in KRAS, NRAS, or HRAS at codons 12, 13, or 61 (G12, G13, or Q61).",
+    "* Prior therapy with direct RAS-targeted therapy (eg. degraders and/or inhibitors)."
+  ]
+}

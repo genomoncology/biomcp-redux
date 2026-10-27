@@ -1,0 +1,71 @@
+---
+title: "Trace a landmark paper through PubMed, iCite and PMC"
+description: A dated tutorial that starts from the 2002 BRAF paper in Nature and follows its references, its citing papers and one citing trial's open full text with BioMCP 1.0.
+goal: The reader reads one article's card, pages its references and citing papers through iCite, and searches the full text of a citing paper in PMC, knowing which source answered each step.
+reader: A researcher or agent builder who wants to follow a paper's citation trail from the command line
+kind: tutorial
+verified: 2026-10-27
+date: 2026-10-27
+author: Ian Maurer
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+In 2002, Davies and colleagues reported BRAF mutations in human cancer in Nature. This tutorial follows that paper with BioMCP <Fact k="version" />: back to the papers it cites, forward to the papers that cite it, and into the open full text of one citing trial report. Four steps, three sources: PubMed for the cards, iCite for the citation links and PMC for the full text.
+
+## Before you start
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches PubMed, iCite and PMC. No key is needed.
+- `jq`, to trim each reply to the fields shown.
+
+## 1. Read the paper's card
+
+`get article` takes a PMID, a PMCID or a DOI:
+
+<Example id="blog-paper-card" />
+
+PubMed gives the title, journal, date and DOI. `pmcid` is null: the paper has no PMC copy, so its full text is not in PMC's open access set.
+
+## 2. Walk back through its references
+
+`article references` lists the PubMed papers the article cites:
+
+<Example id="blog-paper-references" />
+
+iCite links the 24 references, and PubMed supplies each card. The first page holds a 1985 paper on RAS and the 2001 report of a BCR-ABL inhibitor. `--offset 5` returns the next page.
+
+## 3. Walk forward through its citing papers
+
+`article citations` lists the PubMed papers that cite it:
+
+<Example id="blog-paper-citations" />
+
+iCite counts more than 8,000 citing papers. The fourth row is the 2011 phase 3 report of vemurafenib in melanoma with BRAF V600E. The count is iCite's; Semantic Scholar counts differently and is available with `--source semantic-scholar`.
+
+**Checkpoint.** The first line shows a count in the thousands, and every row has a PMID.
+
+## 4. Search a citing paper's full text
+
+The vemurafenib report has a PMCID, so PMC holds its open full text. `article text --find` returns the parts of the text that hold a word:
+
+<Example id="blog-paper-follow" />
+
+PMC's open access copy has eight passages that mention V600E. Each hit names the headings above it; a hit with no heading sits before the first section heading. Add `--save FILE` to keep the text, as [literature](/how-to/find-articles/#4-read-the-full-text) shows.
+
+## What you have
+
+| Step | Source | Record |
+| --- | --- | --- |
+| Card | PubMed | PMID 12068308, DOI and journal |
+| References | iCite and PubMed | 24 cited papers |
+| Citing papers | iCite and PubMed | the citing count and the first page |
+| Full text | PMC | eight V600E passages in PMC3549296 |
+
+A citation count measures attention, not correctness. BioMCP returns the links as iCite records them and does not rank papers by quality.
+
+## Try one change
+
+Run step 3 with `--offset 100` and compare the publication years with the first page.
+
+Next, the [daraxonrasib tutorial](/blog/daraxonrasib-six-commands/) follows a drug instead of a paper.

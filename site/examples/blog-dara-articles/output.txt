@@ -1,0 +1,6 @@
+42090791	Daraxonrasib in Previously Treated Advanced RAS-Mutated Pancreatic Cancer.
+40056080	Discovery of Daraxonrasib (RMC-6236), a Potent and Orally Bioavailable RAS(ON) Multi-selective, Noncovalent Tri-complex Inhibitor for the Treatment of Patients with Multiple RAS-Addicted Cancers.
+42694779	Daraxonrasib: A Breakthrough in Pancreatic Ductal Adenocarcinoma.
+--type randomized:
+42223072	Daraxonrasib or Chemotherapy in Previously Treated Metastatic Pancreatic Cancer.	The New England journal of medicine
+{"pmid":"42223072","doi":"10.1056/NEJMoa2605555","journal":"The New England journal of medicine","published":"2026-07-23"}

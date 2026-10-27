@@ -1,0 +1,4 @@
+{"status":"absent","rows":0}
+13a65923-d072-4dac-8620-8eabbf8c3641	RASONQUE
+revised: 2026-08-27
+1 INDICATIONS AND USAGE RASONQUE is indicated for the treatment of adult patients with metastatic pancreatic adenocarcinoma who have received at least one prior systemic therapy or who are not candidates for multiagent systemic therapy.

@@ -1,0 +1,2 @@
+{"pmid":"21639808","pmcid":"PMC3549296","journal":"The New England journal of medicine","date":"2011-06-30"}
+{"source":"pmc-oa","hits":8,"first":["","","Methods > Patients","Methods > Study Design and Treatment"]}

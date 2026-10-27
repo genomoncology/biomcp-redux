@@ -1,0 +1,16 @@
+total: 15
+NCT07895498	RECRUITING	PHASE2	A Study of Standard of Care Drugs With or Without Ivermectin
+NCT07252232	RECRUITING	PHASE3	Study of Daraxonrasib (RMC-6236) in Patients With Resected P
+NCT06128551	RECRUITING	PHASE1,PHASE2	Study of Elironrasib and Daraxonrasib as Monotherapies and C
+NCT07805954	RECRUITING	PHASE3	Study of Zoldonrasib (RMC-9805) Plus Daraxonrasib (RMC-6236)
+NCT06625320	ACTIVE_NOT_RECRUITING	PHASE3	Phase 3 Study of Daraxonrasib (RMC-6236) in Patients With Pr
+NCT07491445	RECRUITING	PHASE3	Study of Daraxonrasib and Daraxonrasib + GnP as First-line T
+NCT07756281	RECRUITING	PHASE1	First in Human Study of SNV1521 With a RAS Inhibitor for Peo
+NCT07573215	APPROVED_FOR_MARKETING		Expanded Access Program for Daraxonrasib (RMC-6236) in Previ
+NCT06881784	RECRUITING	PHASE3	Study of Daraxonrasib (RMC-6236) in Patients With RAS Mutate
+NCT07349537	RECRUITING	PHASE1	Study of RMC-5127 in Patients With Advanced KRAS G12V-Mutant
+NCT07898813	NOT_YET_RECRUITING	PHASE1	Daraxonrasib in Resectable PDAC
+NCT07492680	RECRUITING	PHASE2	A Study of BMS-986504 Monotherapy and in Combination With Ot
+NCT07793253	NOT_YET_RECRUITING	PHASE2	Phase 2 Study of Daraxonrasib in Recurrent KRAS-Mutant Bilia
+NCT07819838	NOT_YET_RECRUITING	PHASE1,PHASE2	Testing the Addition of an Anti-Cancer Drug, Daraxonrasib, f
+NCT07397338	RECRUITING	PHASE1,PHASE2	Study of RAS(ON) Inhibitors in Combination With Ivonescimab
