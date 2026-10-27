@@ -79,14 +79,17 @@ impl Envelope {
                 }
                 3 if !resolution => {
                     resolution = true;
-                    if value.number()? == 0 {
+                    if !(1..=i64::MAX as u64).contains(&value.number()?) {
                         return Err(BadReply);
                     }
                 }
                 4 if !interval => {
                     interval = true;
                     let supplied = proto::Interval::decode(value.bytes()?).map_err(|_| BadReply)?;
-                    if supplied != self.interval {
+                    if supplied.chromosome != self.interval.chromosome
+                        || supplied.start != self.interval.start
+                        || supplied.end != self.interval.end
+                    {
                         return Err(BadReply);
                     }
                 }

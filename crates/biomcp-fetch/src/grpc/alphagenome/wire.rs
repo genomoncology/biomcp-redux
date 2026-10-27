@@ -20,9 +20,9 @@ impl<'a> Value<'a> {
         }
     }
 }
-pub(super) fn fields(
-    mut bytes: &[u8],
-    mut visit: impl FnMut(u64, Value<'_>) -> Result<(), BadReply>,
+pub(super) fn fields<'a>(
+    mut bytes: &'a [u8],
+    mut visit: impl FnMut(u64, Value<'a>) -> Result<(), BadReply>,
 ) -> Result<(), BadReply> {
     while !bytes.is_empty() {
         let key = preflight::varint(&mut bytes).map_err(|_| BadReply)?;
