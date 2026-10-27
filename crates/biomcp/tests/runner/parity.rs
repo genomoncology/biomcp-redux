@@ -5,6 +5,8 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, fs, path::Path, process::ExitCode};
 #[path = "parity_execution.rs"]
 mod execution;
+#[path = "parity_inventory.rs"]
+pub(super) mod inventory;
 #[path = "parity_recording.rs"]
 mod recording;
 #[path = "parity_registry.rs"]
@@ -15,6 +17,8 @@ mod registry;
 struct Plan {
     baseline_release: String,
     cases: Vec<Selection>,
+    #[serde(default)]
+    inventory: inventory::Exceptions,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -120,9 +124,10 @@ fn run(plan: &Path, baseline: &Path, out: &Path) -> Result<Value, String> {
     )
 }
 fn load_selection(selection: &Selection) -> Result<Case, String> {
-    let path = super::launch::fixtures()
-        .join("cases")
-        .join(&selection.case);
+    load_selection_from(selection, &super::launch::fixtures().join("cases"))
+}
+fn load_selection_from(selection: &Selection, cases: &Path) -> Result<Case, String> {
+    let path = cases.join(&selection.case);
     let mut case: Case =
         serde_saphyr::from_str(&fs::read_to_string(&path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;

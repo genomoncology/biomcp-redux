@@ -108,10 +108,7 @@ fn peers(
                 Ok(body.clone())
             },
         )?;
-        command.env(
-            &endpoint.variable,
-            format!("http://{}{}", peer.address, endpoint.base_path),
-        );
+        command.env(&endpoint.variable, endpoint.local_url(peer.address));
         peers.push(peer);
     }
     Ok(peers)

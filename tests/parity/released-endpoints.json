@@ -1330,7 +1330,9 @@
     },
     "gencc": {
       "source_path": "src/sources/gencc.rs",
-      "urls": [],
+      "urls": [
+        "https://thegencc.org/download/action/submissions-export-csv?format=new"
+      ],
       "reason": "Released client has no reviewed general endpoint override; source must remain disabled until denied-network delivery is proved."
     },
     "clingen_cspec": {

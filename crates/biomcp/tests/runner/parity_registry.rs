@@ -24,6 +24,7 @@ struct Declarations {
     source_revision: String,
     sources: BTreeMap<String, Source>,
     endpoints: BTreeMap<String, Endpoint>,
+    fixed_endpoints: BTreeMap<String, FixedEndpoint>,
 }
 #[derive(Deserialize)]
 struct Source {
@@ -31,10 +32,23 @@ struct Source {
     variables: Vec<String>,
 }
 #[derive(Deserialize)]
+struct Proof {
+    source_path: String,
+    declaration: String,
+}
+#[derive(Deserialize)]
+struct FixedEndpoint {
+    source_path: String,
+    urls: Vec<String>,
+    reason: String,
+}
+#[derive(Deserialize)]
 pub(super) struct Endpoint {
     pub(super) variable: String,
     pub(super) host: String,
     pub(super) base_path: String,
+    default_url: String,
+    provenance: Vec<Proof>,
 }
 pub(super) fn load() -> Result<Registry, String> {
     let root = super::super::launch::fixtures().join("parity");
@@ -53,7 +67,68 @@ pub(super) fn load() -> Result<Registry, String> {
     {
         return Err("expected pinned released source registry".into());
     }
+    audit(&registry)?;
     Ok(registry)
+}
+fn audit(registry: &Registry) -> Result<(), String> {
+    let declarations = &registry.declarations;
+    let direct = registry
+        .catalog
+        .iter()
+        .filter(|row| row.get("integration_mode").and_then(Value::as_str) == Some("direct_api"))
+        .map(|row| {
+            row.get("id")
+                .and_then(Value::as_str)
+                .ok_or("source ID missing")
+        })
+        .collect::<Result<BTreeSet<_>, _>>()?;
+    let declared = declarations
+        .sources
+        .keys()
+        .chain(declarations.fixed_endpoints.keys())
+        .map(String::as_str)
+        .collect::<BTreeSet<_>>();
+    if direct != declared {
+        return Err("released direct source endpoint coverage differs from registry".into());
+    }
+    for source in declarations.sources.values() {
+        if source.variables.is_empty()
+            || source.recording_source.is_empty()
+            || source.variables.iter().collect::<BTreeSet<_>>().len() != source.variables.len()
+            || source
+                .variables
+                .iter()
+                .any(|v| !declarations.endpoints.contains_key(v))
+        {
+            return Err("source has missing or duplicate endpoint ownership".into());
+        }
+    }
+    for (variable, endpoint) in &declarations.endpoints {
+        if variable != &endpoint.variable
+            || endpoint.host.is_empty()
+            || endpoint.provenance.is_empty()
+            || !endpoint
+                .default_url
+                .starts_with(&format!("https://{}", endpoint.host))
+            || endpoint.provenance.iter().any(|proof| {
+                !proof.source_path.starts_with("src/sources/")
+                    || !proof.declaration.contains(variable)
+                    || !proof.declaration.contains(&endpoint.default_url)
+            })
+        {
+            return Err("endpoint lacks released source declaration".into());
+        }
+    }
+    for endpoint in declarations.fixed_endpoints.values() {
+        if endpoint.urls.is_empty()
+            || endpoint.reason.trim().is_empty()
+            || !endpoint.source_path.starts_with("src/sources/")
+            || endpoint.urls.iter().any(|url| !url.starts_with("https://"))
+        {
+            return Err("fixed endpoint lacks released source URL or isolation reason".into());
+        }
+    }
+    Ok(())
 }
 pub(super) fn validate(selection: &Selection) -> Result<(), String> {
     let registry = load()?;
@@ -144,5 +219,16 @@ impl Registry {
                     .collect::<Vec<_>>()
                     .join(",")
             })
+    }
+}
+
+impl Endpoint {
+    pub(super) fn local_url(&self, address: std::net::SocketAddr) -> String {
+        let query = self
+            .default_url
+            .split_once('?')
+            .map_or("", |(_, query)| query);
+        let separator = if query.is_empty() { "" } else { "?" };
+        format!("http://{address}{}{separator}{query}", self.base_path)
     }
 }
