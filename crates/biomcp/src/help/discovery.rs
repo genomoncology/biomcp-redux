@@ -2,30 +2,54 @@
 use biomcp_types::HelpCommand;
 
 pub(super) fn complete(commands: &mut Vec<HelpCommand>) {
-    let relations = commands
+    let entities: std::collections::BTreeSet<_> = commands
         .iter()
-        .filter(|command| {
-            command.command.first().is_some_and(|v| v == "get") && !command.sections.is_empty()
-        })
-        .map(|command| {
-            format!(
-                "{} -> {}",
-                command.command[1],
-                command
-                    .sections
+        .filter(|c| c.command.first().is_some_and(|v| v == "get"))
+        .filter_map(|c| c.command.get(1))
+        .cloned()
+        .collect();
+    let mut links = std::collections::BTreeMap::<String, Vec<String>>::new();
+    for command in commands.iter() {
+        if command.command.first().is_some_and(|v| v == "get") {
+            for section in &command.sections {
+                if let Some(entity) = entities
                     .iter()
-                    .map(|s| s.word.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
+                    .find(|entity| section.word == **entity || section.word == format!("{entity}s"))
+                {
+                    links
+                        .entry(command.command[1].clone())
+                        .or_default()
+                        .push(format!("{entity} (get section {})", section.word));
+                }
+            }
+        }
+        if command.command.first().is_some_and(|v| v == "search") {
+            for entity in &entities {
+                for argument in command.arguments.iter().filter(|a| {
+                    a.name == format!("--{entity}") || a.name == format!("--{entity}-id")
+                }) {
+                    links
+                        .entry(entity.clone())
+                        .or_default()
+                        .push(format!("{} (search {})", command.command[1], argument.name));
+                }
+            }
+        }
+    }
+    let relations = links
+        .into_iter()
+        .map(|(entity, mut targets)| {
+            targets.sort();
+            targets.dedup();
+            format!("{entity} -> {}", targets.join(", "))
         })
         .collect::<Vec<_>>()
         .join("\n");
     commands.push(super::topic(
         "relations",
         format!(
-            "Follow an entity to these named source sections with get ENTITY ID SECTION. \
-        Sections can lead to related source records.\n{relations}"
+            "Follow source relationships through a named get section or a search filter. \
+        These links retrieve source records without deciding their clinical meaning.\n{relations}"
         ),
     ));
     let examples: Vec<_> = commands
