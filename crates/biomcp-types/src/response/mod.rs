@@ -1,3 +1,5 @@
+// Pair each new public response export here with a crate-root re-export in `lib.rs`.
+// `unreachable_pub` reports a missing crate-root re-export.
 mod article;
 pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use article::{
