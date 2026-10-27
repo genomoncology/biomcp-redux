@@ -1,12 +1,14 @@
-//! The text view must print source Markdown once; JSON remains the MCP contract.
+//! The text view must print source Markdown as literal data once; JSON remains the MCP contract.
 use super::launch::Environment;
 use libtest_mimic::Trial;
 use serde_json::Value;
 pub(super) fn trials() -> Vec<Trial> {
-    vec![Trial::test(
-        "article/markdown-view-preserves-source-structure",
+    let mut trials = vec![Trial::test(
+        "article/markdown-view-preserves-source-text",
         || check().map_err(Into::into),
-    )]
+    )];
+    trials.extend(super::source_text::trials());
+    trials
 }
 fn check() -> Result<(), String> {
     let environment = Environment::new().map_err(|e| e.to_string())?;
@@ -44,10 +46,12 @@ fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let text = String::from_utf8(result.stdout).map_err(|e| e.to_string())?;
     if !result.status.success()
-        || text.matches(markdown).count() != 1
-        || text.contains("\\*choice\\*")
+        || text
+            .matches(&super::source_terms::text::escape(markdown))
+            .count()
+            != 1
     {
-        return Err("Markdown view escaped or duplicated source structure".into());
+        return Err("Markdown view changed or duplicated source text".into());
     }
     Ok(())
 }

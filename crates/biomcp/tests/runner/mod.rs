@@ -126,6 +126,7 @@ mod skill;
 mod source_controls;
 mod source_groups;
 mod source_terms;
+mod source_text;
 mod store_clean;
 mod store_coexistence;
 mod study_catalog;

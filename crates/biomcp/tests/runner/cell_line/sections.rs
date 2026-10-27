@@ -199,19 +199,13 @@ pub(super) fn markdown(
     if !measure && text.len() > ceiling(phase, "markdown")? {
         return Err(format!("{phase}: Markdown exceeds measured budget"));
     }
-    let unescaped = text
-        .replace("\\_", "_")
-        .replace("\\*", "*")
-        .replace("\\|", "|")
-        .replace("\\`", "`")
-        .replace("&amp;", "&")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">");
-    strings(value.get("result").ok_or("result")?, &unescaped)
+    strings(value.get("result").ok_or("result")?, &text)
 }
 fn strings(value: &Value, text: &str) -> Result<(), String> {
     match value {
-        Value::String(value) if !text.contains(value) => {
+        Value::String(value)
+            if !text.contains(&super::super::source_terms::text::escape(value)) =>
+        {
             return Err(format!("Markdown lost complete native value: {value}"));
         }
         Value::Array(values) => {
