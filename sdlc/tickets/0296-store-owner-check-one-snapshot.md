@@ -1,6 +1,7 @@
 # 0296 — Check store ownership within one read snapshot
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 180d7beb6927c4c54c29c015e28a12695e2a9f92
 
 Milestone: 5
 
