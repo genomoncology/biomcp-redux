@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     CacheError, Deadline,
-    cache::{Cache, db_error, sql_deadline},
+    cache::{Cache, db_error, sql_deadline, write_transaction},
 };
 use rusqlite::{Connection, params};
 
@@ -25,7 +25,7 @@ impl Cache {
         rows: Option<&[Parsed]>,
         deadline: Deadline<'_>,
     ) -> Result<bool, CacheError> {
-        let mut connection = self.owned_connection()?;
+        let connection = self.owned_connection()?;
         connection.execute_batch(STAGING).map_err(db_error)?;
         if let Some(rows) = rows {
             for (batch, chunk) in rows.chunks(BATCH_ROWS).enumerate() {
@@ -39,9 +39,7 @@ impl Cache {
         // cannot upgrade after a concurrent query owner commits a new WAL frame.
         self.publish_sql(deadline, || {
             sql_deadline(&connection, deadline)?;
-            let tx = connection
-                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
-                .map_err(db_error)?;
+            let tx = write_transaction(&connection)?;
             if let Some(holder) = holder {
                 let owned: bool = tx
                     .query_row(
