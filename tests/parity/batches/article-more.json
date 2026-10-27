@@ -2371,10 +2371,10 @@
           "request_prefix": "GET /entrez/eutils/esummary.fcgi",
           "request_contains": "",
           "request_query": {
-            "db": "pubmed",
-            "id": ""
+            "db": "pubmed"
           },
-          "capture": "pubmed/c036811e062c5f42dc7add8216c3509f9f953e712e49156c9843ac6e46410ba3.json"
+          "capture": "",
+          "recording_gap": "The retained ESummary capture is a rate-limit body and contains no requested PMID list. Its POST request records only a body hash, so the released GET id selector cannot be reviewed from this capture (src/sources/pubmed.rs::esummary_plan)."
         }
       ],
       "facts": {
