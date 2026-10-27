@@ -120,6 +120,7 @@ mod scholar;
 mod semantic_tables;
 mod skill;
 mod source_controls;
+mod health_bundles;
 mod source_groups;
 mod source_terms;
 mod store_clean;
@@ -342,6 +343,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(evidence::trials());
     trials.extend(pdf::trials());
     trials.extend(source_controls::trials());
+    trials.extend(health_bundles::trials());
     trials.extend(source_groups::trials());
     trials.extend(trial_groups::drug_trials());
     trials.extend(disease_trials());
