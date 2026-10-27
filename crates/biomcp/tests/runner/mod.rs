@@ -116,6 +116,7 @@ mod semantic_tables;
 mod source_controls;
 mod source_terms;
 mod store_clean;
+mod store_coexistence;
 mod study_catalog;
 mod supplement_tables;
 mod trial_condition;

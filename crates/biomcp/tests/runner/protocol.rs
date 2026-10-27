@@ -41,6 +41,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(super::store_clean::trials());
+    trials.extend(super::store_coexistence::trials());
     trials
 }
 
