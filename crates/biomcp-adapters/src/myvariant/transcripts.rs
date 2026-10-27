@@ -4,6 +4,8 @@ use biodata::Text;
 use biomcp_types::{Problem, ProblemCode, Source, VariantTranscript};
 use serde::Deserialize;
 
+pub(super) const FIELD: &str = "snpeff.ann";
+
 #[derive(Deserialize)]
 pub(super) struct Snpeff {
     ann: Option<Field<OneOrMany<Field<Annotation>>>>,
@@ -24,7 +26,7 @@ pub(super) fn map(
     let problem = || Problem {
         source: Source::MyVariant,
         record: Some(record.clone()),
-        field: "snpeff.ann".into(),
+        field: FIELD.into(),
         code: ProblemCode::ValueUnknown,
     };
     let Some(raw) = raw else {
@@ -64,7 +66,7 @@ pub(super) fn map(
         }
         rows.push(VariantTranscript {
             source: Source::MyVariant,
-            component: Text::new("snpeff.ann").expect("static component"),
+            component: Text::new(FIELD).expect("static component"),
             transcript: a.feature_id,
             gene: a.genename,
             hgvs_c: a.hgvs_c,

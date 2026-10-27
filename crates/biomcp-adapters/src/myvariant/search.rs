@@ -6,8 +6,7 @@ use biodata::Build;
 use biomcp_fetch::{Arg, BadReply, Leg, Reply, RequestError};
 use biomcp_types::{VariantHeader, VariantSearch};
 use serde::Deserialize;
-const FIELDS: &str =
-    "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38,snpeff.ann";
+const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,chrom,hg19,hg38";
 /// Native MyVariant page; no local sort or deduplication changes candidate identity.
 #[derive(Debug)]
 pub struct SearchPage {
@@ -39,7 +38,7 @@ impl Reply for Page {
 /// Send one declared native query window and validate it before cache admission.
 pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, RequestError> {
     let term = query.source_query();
-    let fields = super::allowed_fields(leg, FIELDS);
+    let fields = super::annotation_fields(leg, FIELDS);
     let mut args = vec![
         ("q", Arg::Text(&term)),
         ("size", Arg::Num(u64::from(query.limit()))),

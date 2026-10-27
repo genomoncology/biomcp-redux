@@ -33,7 +33,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const QUERY: Endpoint = SPEC.get("/query").fresh(Freshness::Days(1));
 const VARIANT: Endpoint = SPEC.get("/variant").fresh(Freshness::Days(1));
-const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id,snpeff.ann";
+const FIELDS: &str = "_id,dbsnp.rsid,dbsnp.gene.symbol,clinvar.variant_id";
 /// Resolve the exact published rsID or ClinVar ID, keeping every native candidate.
 /// Pages are bounded by the provider cap and source totals, never by taking its first hit.
 pub fn lookup(
@@ -144,7 +144,11 @@ fn annotation(
 
 /// Filter independently disabled carried components before creating a request identity.
 pub(super) fn fields(leg: &Leg<'_>) -> String {
-    allowed_fields(leg, FIELDS)
+    annotation_fields(leg, FIELDS)
+}
+/// Include the shared source-paired transcript projection in identity reads.
+pub(super) fn annotation_fields(leg: &Leg<'_>, fields: &str) -> String {
+    allowed_fields(leg, &format!("{fields},{}", transcripts::FIELD))
 }
 /// Apply the same component policy to each declared source projection.
 pub(super) fn allowed_fields(leg: &Leg<'_>, fields: &str) -> String {
