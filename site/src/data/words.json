@@ -102,5 +102,84 @@
       "use": "Write \"source\", the word the help text uses.",
       "generated": true
     }
-  ]
+  ],
+  "landing": {
+    "about": "Read by scripts/check-landing.mjs, not by the build. maintainerPhrases (rule L4) are phrases about how the site is made that must not reach reader-visible text; caveatStarts (rule L3) are openings that put a caveat before the answer in a page's first paragraph.",
+    "maintainerPhrases": [
+      {
+        "phrase": "Generated from",
+        "use": "Remove it. Generator metadata goes in an HTML comment or the front matter."
+      },
+      {
+        "phrase": "the build",
+        "use": "Say what the reader does or sees, not what the site's build did."
+      },
+      {
+        "phrase": "build machine",
+        "use": "Remove it; the reader never sees the machine that made the site."
+      },
+      {
+        "phrase": "this site's examples",
+        "use": "Say what the reader sees when they run the command."
+      },
+      {
+        "phrase": "the site's examples",
+        "use": "Say what the reader sees when they run the command."
+      },
+      {
+        "phrase": "Messages seen in the site",
+        "use": "List what the reader sees, not what the site's runs printed."
+      },
+      {
+        "phrase": "No example on this site",
+        "use": "Say what the reader would do or see, not what the site lacks."
+      },
+      {
+        "phrase": "saved output",
+        "use": "Show the output as the reader's output, with no note on how it was kept."
+      },
+      {
+        "phrase": "site build",
+        "use": "Remove it; say what the reader does."
+      },
+      {
+        "phrase": "not run in the site",
+        "use": "Say what the reader needs to run it (a key, a file), not what the build skipped."
+      },
+      {
+        "phrase": "the docs build",
+        "use": "Remove it; limits are about the product, not the docs."
+      },
+      {
+        "phrase": "saved from a run",
+        "use": "Show the output as what the reader sees; say what they need to run it, not when the site ran it."
+      },
+      {
+        "phrase": "does not run this example",
+        "use": "Say what the reader needs to run it (a key, a bundle), not what the site skipped."
+      },
+      {
+        "phrase": "does not rerun this example",
+        "use": "Say what the reader needs to run it (a key, a bundle), not what the site skipped."
+      }
+    ],
+    "caveatStarts": [
+      "Write each",
+      "Note",
+      "Note:",
+      "Warning",
+      "Caution",
+      "Important",
+      "Unlike",
+      "However",
+      "Although",
+      "Beware",
+      "Except",
+      "Do not",
+      "Don't",
+      "Never",
+      "Before you",
+      "Use an equals sign"
+    ]
+  }
 }

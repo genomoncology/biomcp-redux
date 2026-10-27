@@ -1,0 +1,17 @@
+{
+  "about": "Justified exceptions to the landing checks (scripts/check-landing.mjs). Each entry: rule, route (a route or a glob with *), optional match (a substring of the violation's text) and reason.",
+  "allow": [
+    {
+      "rule": "L4",
+      "route": "/how-to/annotate-variants/",
+      "match": "the build the source used",
+      "reason": "\"the build\" here is the genome build (GRCh37 or GRCh38) a source reports, not the site build."
+    },
+    {
+      "rule": "L4",
+      "route": "/answers/*",
+      "match": "the build MyVariant.info used",
+      "reason": "\"the build\" here is the genome build (GRCh37) MyVariant.info reports, not the site build."
+    }
+  ]
+}

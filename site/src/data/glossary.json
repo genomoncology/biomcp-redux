@@ -1,0 +1,44 @@
+{
+  "about": "Read by scripts/check-landing.mjs (rule L8). Each term's first use on a page must link to its page or be defined there. pattern is a case-insensitive regular expression for the term's forms; it defaults to the term with an optional s.",
+  "terms": {
+    "envelope": {
+      "page": [
+        "/results/",
+        "/reference/envelope/"
+      ]
+    },
+    "section": {
+      "page": "/concepts/progressive-disclosure/"
+    },
+    "source": {
+      "page": [
+        "/sources/",
+        "/reference/data-sources/"
+      ]
+    },
+    "bundle": {
+      "page": "/local-data/"
+    },
+    "entity": {
+      "page": [
+        "/concepts/progressive-disclosure/",
+        "/reference/entities/"
+      ],
+      "pattern": "\\bentit(y|ies)\\b"
+    },
+    "relation": {
+      "page": "/concepts/progressive-disclosure/"
+    },
+    "next": {
+      "page": "/concepts/progressive-disclosure/",
+      "pattern": "\\bnext (commands?|list|steps|suggestions?)\\b"
+    },
+    "status": {
+      "page": [
+        "/results/",
+        "/reference/envelope/"
+      ],
+      "pattern": "\\bstatus(es)?\\b"
+    }
+  }
+}

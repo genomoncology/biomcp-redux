@@ -68,6 +68,32 @@ Examples that run `biomcp sync`, and every example another one `needs`, run one 
 - an old address in `src/data/old-addresses.txt`, or the `.md` twin of an old page address, no longer resolves, or a redirect in `src/data/redirects.json` lands on anything but a built page;
 - `robots.txt`, `sitemap.xml`, `version.json`, the social card, or a page's `og:image` is missing.
 
+## Landing checks
+
+`npm run landing` checks each built page as a reader who lands on it from search or an agent link and has read nothing else. Run it after `npm run build`. It loads every page of `dist/` in Chromium at 1280 and 390 px wide, reads the Markdown twins and the page sources, and needs Playwright with Chromium (`npm root -g` is searched when the site's packages lack it).
+
+It writes `landing-report.json` and `landing-shots/`, both ignored by git, and prints a summary. The report lists each page's route, source file, kind, family, and whether a generator writes it and which one. Each violation names its rule, the offending text, a suggested fix and its cause: the page, an example, a generator, a shared template in `src/components/` or `src/lib/`, or data a generator reads. A violation caused by a generator, template or example is fixed there once, never on one page. `landing-shots/` holds one page per family at 1280 and 390 px, light and dark, for a reviewer.
+
+| Rule | Flags |
+|---|---|
+| L1 code-line-length | a line of a rendered code or output block longer than 80 characters |
+| L2 one-line-json | an output line that is a JSON object or array longer than 80 characters |
+| L3 first-paragraph-context | a first paragraph that does not name the product, or opens with a caveat from `words.json` `landing.caveatStarts` |
+| L4 maintainer-text | a phrase from `words.json` `landing.maintainerPhrases` in the title, description, body or Markdown twin, outside code |
+| L5 page-length | over 1,500 words outside code, or over 4,000 px tall at 1280 px |
+| L6 near-duplicate | over 60% of a page's word 5-shingles also on one other page; pairs are grouped into families |
+| L7 title-is-id | a title that is a bare identifier, such as `local.cancelled error` |
+| L8 undefined-jargon | the first use of a term in `src/data/glossary.json` neither linked to its page nor defined |
+| L9 overflow-390 | a page that scrolls sideways at 390 px, or a code block that scrolls inside its box |
+
+The header of `scripts/check-landing.mjs` gives each rule's exact test. `product.config.mjs` `landing.generators` names the generator of each generated page, and `landing.limits` may change a limit. `src/data/landing-allow.json` lists justified exceptions, each with a rule, a route or glob, an optional `match` substring and a reason.
+
+- `npm run landing -- --strict` exits 1 on any violation the allowlist does not cover.
+- `npm run landing -- --worklist FILE` writes the violations grouped by the file where each fix goes.
+- `npm run landing -- --pages REGEX` checks only the matching routes, with no duplicate check and no screenshots.
+
+The build does not run the landing checks yet. Once `npm run landing -- --strict` passes, `npm run build` runs it as its last step, and a new violation fails the build.
+
 ## Publishing
 
 Publish only after the release that `site.json` names has its artifacts, since every install line installs that release.

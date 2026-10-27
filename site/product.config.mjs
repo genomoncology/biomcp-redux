@@ -49,6 +49,17 @@ export default {
     command: 'biomcp get gene BRAF',
   },
   social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/genomoncology/biomcp' }],
+  // The landing checks (scripts/check-landing.mjs, npm run landing): which generator writes which pages.
+  // pattern matches the path under src/content/docs.
+  landing: {
+    generators: [
+      { pattern: '^answers/', generator: 'scripts/gen-answers.mjs', template: 'answers page', source: 'the question list entry in questions/' },
+      { pattern: '^reference/schemas/', generator: 'scripts/gen-reference.mjs', template: 'schema page', source: "the program's JSON schemas, written by the generator" },
+      { pattern: '^reference/commands/', generator: 'scripts/gen-reference.mjs', template: 'command page', source: "the program's help text, written by the generator" },
+      { pattern: '^reference/', generator: 'scripts/gen-reference.mjs', template: 'reference page', source: "the program's help text or registry, written by the generator" },
+      { pattern: '^sources/(?!index\\.)', generator: 'scripts/gen-reference.mjs', template: 'source page', source: "the program's source registry and src/data/sources.yaml, written by the generator" },
+    ],
+  },
   // The spine in reading order, for llms.txt. Slugs.
   spine: [
     '', 'getting-started/installation', 'getting-started/first-query', 'getting-started/mcp-clients', 'concepts/progressive-disclosure', 'results',
