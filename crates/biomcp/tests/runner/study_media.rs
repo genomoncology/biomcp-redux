@@ -12,7 +12,7 @@ pub(super) fn trials() -> Vec<Trial> {
         Trial::test("study-catalog/sync-negotiates-json", || {
             sync().map_err(Into::into)
         }),
-        Trial::test("pathway-failures/sync-negotiates-json", || {
+        Trial::test("pathway-wikipathways/sync-negotiates-json", || {
             document(
                 "wikipathways",
                 "www.wikipathways.org",
@@ -22,7 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
             )
             .map_err(Into::into)
         }),
-        Trial::test("diagnostic-retirements/sync-negotiates-html", || {
+        Trial::test("diagnostic-cdx/sync-negotiates-html", || {
             document(
                 "fda-cdx",
                 "www.fda.gov",
