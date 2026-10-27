@@ -301,12 +301,7 @@
         "/error/message": "expected a supported command with checked arguments",
         "/error/option": "--section-limit"
       },
-<<<<<<< HEAD
-      "max_bytes": 171,
-      "max_tokens": 43
-=======
-      "max_bytes": 166
->>>>>>> ef4547881a4aca2c811a84f207f6820a215176fa
+      "max_bytes": 171
     },
     {
       "run": [
@@ -334,12 +329,7 @@
         "/error/message": "expected a supported command with checked arguments",
         "/error/option": "--section-limit"
       },
-<<<<<<< HEAD
-      "max_bytes": 171,
-      "max_tokens": 43
-=======
-      "max_bytes": 166
->>>>>>> ef4547881a4aca2c811a84f207f6820a215176fa
+      "max_bytes": 171
     },
     {
       "run": [
@@ -367,12 +357,7 @@
         "/error/message": "expected a supported command with checked arguments",
         "/error/option": "--section-limit"
       },
-<<<<<<< HEAD
-      "max_bytes": 171,
-      "max_tokens": 43
-=======
-      "max_bytes": 166
->>>>>>> ef4547881a4aca2c811a84f207f6820a215176fa
+      "max_bytes": 171
     },
     {
       "run": [
@@ -400,12 +385,7 @@
         "/error/message": "expected a supported command with checked arguments",
         "/error/option": "--section-offset"
       },
-<<<<<<< HEAD
-      "max_bytes": 172,
-      "max_tokens": 43
-=======
-      "max_bytes": 166
->>>>>>> ef4547881a4aca2c811a84f207f6820a215176fa
+      "max_bytes": 172
     },
     {
       "run": [
