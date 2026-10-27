@@ -11,18 +11,7 @@ fn json_file(dir: &Path) -> std::path::PathBuf {
         .find(|v| v.extension().is_some_and(|v| v == "json"))
         .unwrap()
 }
-pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
-    let dir = tempfile::tempdir().unwrap();
-    let server = Server::new();
-    let spec = spec(&server);
-    let capture = Fetch::open(FetchConfig {
-        mode: Mode::Record {
-            dir: dir.path().to_owned(),
-        },
-        max_body: 2,
-        ..FetchConfig::default()
-    })
-    .unwrap();
+fn record_binary_replies(capture: &Fetch, server: &Server, spec: &'static SourceSpec) {
     thread::scope(|scope| {
         let worker = scope.spawn(|| [bytes(&capture, spec), bytes(&capture, spec)]);
         for payload in [b"first\x00\xff".as_slice(), b"second\x00\xfe"] {
@@ -40,6 +29,20 @@ pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
             [b"first\x00\xff".to_vec(), b"second\x00\xfe".to_vec()]
         );
     });
+}
+pub(super) fn ordered_binary_sidecars_round_trip_and_refuse_hostile_paths() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    let capture = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: dir.path().to_owned(),
+        },
+        max_body: 2,
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    record_binary_replies(&capture, &server, spec);
     drop(capture);
     let replay = fetch(Mode::Replay {
         dir: dir.path().to_owned(),
