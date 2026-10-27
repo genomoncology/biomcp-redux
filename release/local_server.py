@@ -34,12 +34,13 @@ def https_server(directory, openssl="openssl"):
     import tempfile
     with tempfile.TemporaryDirectory(prefix="installer-tls-") as temporary:
         root = Path(temporary).resolve()
-        cert, key = root / "ca.pem", root / "key.pem"
+        cert, key, config = root / "ca.pem", root / "key.pem", root / "openssl.cnf"
+        config.write_text("[req]\ndistinguished_name=dn\nx509_extensions=ext\nprompt=no\n[dn]\nCN=localhost\n[ext]\nsubjectAltName=IP:127.0.0.1\nbasicConstraints=critical,CA:TRUE\n")
         env = {"PATH": os.defpath, "HOME": str(root), "OPENSSL_CONF": os.devnull}
         if "SystemRoot" in os.environ:
             env["SystemRoot"] = os.environ["SystemRoot"]
         subprocess.run([openssl, "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
-                        "-subj", "/CN=localhost", "-addext", "subjectAltName=IP:127.0.0.1",
+                        "-config", str(config),
                         "-keyout", str(key), "-out", str(cert)], env=env, check=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         http = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=str(directory)))
