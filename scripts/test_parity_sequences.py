@@ -1,11 +1,12 @@
 """Run bounded sequence witnesses against both executables and retain raw replies."""
 import copy
+import hashlib
 import json
 from pathlib import Path
 import subprocess
 import sys
 
-from source_capture import outside_git
+from source_capture import outside_git, write_json
 from test_parity_runner import ROOT
 
 
@@ -77,10 +78,33 @@ def check_sequence(row):
             assert fact['baseline']['actual'] == select(old['parsed'], fact['baseline_projection'])
 
 
+def ddinter_inputs(out):
+    destination = out / 'ddinter-inputs'
+    destination.mkdir()
+    expected = set(json.loads((ROOT / 'tests/parity/released-endpoints.json').read_bytes())['fixed_endpoints']['ddinter']['urls'])
+    rows = []
+    for path in sorted((ROOT / 'tests/replies/drug/ddinter-synthetic/ddinter').glob('*.json')):
+        original = path.read_bytes()
+        capture = json.loads(original)
+        assert capture['source'] == 'ddinter' and capture['url'] in expected
+        exchange, = capture['exchanges']
+        assert exchange['status'] == 200 and exchange['body']['kind'] == 'text'
+        body = exchange['body']['value'].encode()
+        filename = capture['url'].rsplit('/', 1)[-1]
+        (destination / filename).write_bytes(body)
+        (destination / (filename + '.capture.json')).write_bytes(original)
+        rows.append({'url': capture['url'], 'filename': filename, 'bytes': len(body),
+                     'capture_sha256': hashlib.sha256(original).hexdigest(),
+                     'body_sha256': hashlib.sha256(body).hexdigest()})
+    assert len(rows) == 8 and {row['url'] for row in rows} == expected
+    write_json(out / 'ddinter-inputs.json', {'purpose': 'Retained candidate replay inputs; no released sync receipt', 'files': rows})
+
+
 def main():
     baseline, out = map(Path, sys.argv[1:])
     outside_git(out)
     out.mkdir()
+    ddinter_inputs(out)
     report = execute(ROOT / 'tests/parity/sequences.json', baseline, out / 'sequences')
     for row in report['cases']:
         check_sequence(row)
