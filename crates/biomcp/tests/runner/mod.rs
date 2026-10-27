@@ -152,8 +152,7 @@ mod variant_population_release;
 mod variant_search;
 mod wikipathways;
 
-// Complete help measured 114273 bytes in j18463 after defaults, aliases, topics and examples.
-// The reviewed ceiling adds fifteen percent; entity and MCP budgets remain separate.
+// Complete help: j18463 measured 114273 bytes; reviewed ceiling adds fifteen percent.
 pub(super) const CLI_HELP_BYTES: usize = 131414;
 
 use libtest_mimic::Trial;
